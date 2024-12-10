@@ -7,7 +7,7 @@
 * `cmake@22^`
 * `vcpkg@latest`
 * `AndroidSDK@33^`
-* `AndroidNDK@27.1.12297006`
+* `AndroidNDK@27.2.12479018`
 * `gradle@8.10`
 * `jdk@17`
 
