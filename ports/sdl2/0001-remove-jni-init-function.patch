@@ -1,0 +1,45 @@
+diff --git a/src/core/android/SDL_android.c b/src/core/android/SDL_android.c
+index 13216a8..d3ee4e0 100644
+--- a/src/core/android/SDL_android.c
++++ b/src/core/android/SDL_android.c
+@@ -503,23 +503,23 @@ register_methods(JNIEnv *env, const char *classname, JNINativeMethod *methods, i
+ }
+ 
+ /* Library init */
+-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
+-{
+-    mJavaVM = vm;
+-    JNIEnv *env = NULL;
+-
+-    if ((*mJavaVM)->GetEnv(mJavaVM, (void **)&env, JNI_VERSION_1_4) != JNI_OK) {
+-        __android_log_print(ANDROID_LOG_ERROR, "SDL", "Failed to get JNI Env");
+-        return JNI_VERSION_1_4;
+-    }
+-
+-    register_methods(env, "org/libsdl/app/SDLActivity", SDLActivity_tab, SDL_arraysize(SDLActivity_tab));
+-    register_methods(env, "org/libsdl/app/SDLInputConnection", SDLInputConnection_tab, SDL_arraysize(SDLInputConnection_tab));
+-    register_methods(env, "org/libsdl/app/SDLAudioManager", SDLAudioManager_tab, SDL_arraysize(SDLAudioManager_tab));
+-    register_methods(env, "org/libsdl/app/SDLControllerManager", SDLControllerManager_tab, SDL_arraysize(SDLControllerManager_tab));
+-
+-    return JNI_VERSION_1_4;
+-}
++// JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
++// {
++//     mJavaVM = vm;
++//     JNIEnv *env = NULL;
++
++//     if ((*mJavaVM)->GetEnv(mJavaVM, (void **)&env, JNI_VERSION_1_4) != JNI_OK) {
++//         __android_log_print(ANDROID_LOG_ERROR, "SDL", "Failed to get JNI Env");
++//         return JNI_VERSION_1_4;
++//     }
++
++//     register_methods(env, "org/libsdl/app/SDLActivity", SDLActivity_tab, SDL_arraysize(SDLActivity_tab));
++//     register_methods(env, "org/libsdl/app/SDLInputConnection", SDLInputConnection_tab, SDL_arraysize(SDLInputConnection_tab));
++//     register_methods(env, "org/libsdl/app/SDLAudioManager", SDLAudioManager_tab, SDL_arraysize(SDLAudioManager_tab));
++//     register_methods(env, "org/libsdl/app/SDLControllerManager", SDLControllerManager_tab, SDL_arraysize(SDLControllerManager_tab));
++
++//     return JNI_VERSION_1_4;
++// }
+ 
+ void checkJNIReady(void)
+ {

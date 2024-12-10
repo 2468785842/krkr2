@@ -1,0 +1,13 @@
+diff --git a/libavdevice/v4l2.c b/libavdevice/v4l2.c
+index 15629755a1..29c0a65171 100644
+--- a/libavdevice/v4l2.c
++++ b/libavdevice/v4l2.c
+@@ -95,7 +95,7 @@ struct video_data {
+     int (*open_f)(const char *file, int oflag, ...);
+     int (*close_f)(int fd);
+     int (*dup_f)(int fd);
+-    int (*ioctl_f)(int fd, unsigned long int request, ...);
++    int (*ioctl_f)(int fd, unsigned int request, ...);
+     ssize_t (*read_f)(int fd, void *buffer, size_t n);
+     void *(*mmap_f)(void *start, size_t length, int prot, int flags, int fd, int64_t offset);
+     int (*munmap_f)(void *_start, size_t length);

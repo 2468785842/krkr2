@@ -1,0 +1,4 @@
+libbpg is compatible with the CMake Find Module:
+
+  find_package(libbpg CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE libbpg::libbpg)

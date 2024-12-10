@@ -1,0 +1,14 @@
+cocos/
+
+# build target
+cmake-build-android/
+cmake-build-android-release/
+cmake-build-android-debug/
+build/
+
+.idea/
+.vscode/
+.vs/
+.gradle/
+
+compile_commands.json

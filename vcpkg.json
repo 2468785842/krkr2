@@ -1,0 +1,37 @@
+{
+  "name": "krkr2",
+  "version-string": "1.0.0",
+  "dependencies": [
+    {
+      "name": "opencv4",
+      "default-features": false
+    },
+    "openal-soft",
+    "libarchive",
+    "cocos2dx",
+    "sdl2",
+    "ffmpeg",
+    "libjpeg-turbo",
+    {
+      "name": "breakpad",
+      "default-features": false
+    },
+    "lz4",
+    "jxrlib",
+    {
+      "name": "opusfile",
+      "default-features": false
+    },
+    "oboe",
+    "libogg",
+    "libvorbis",
+    "opus",
+    "libbpg",
+    "oniguruma",
+    "p7zip",
+    "unrar"
+  ],
+  "overrides": [
+    { "name": "opencv4", "version": "4.7.0#6"}
+  ]
+}
