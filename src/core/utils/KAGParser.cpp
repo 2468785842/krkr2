@@ -1167,9 +1167,8 @@ void tTJSNI_KAGParser::PopMacroArgs() {
 
 //---------------------------------------------------------------------------
 void tTJSNI_KAGParser::ClearMacroArgs() {
-    for (std::vector<iTJSDispatch2 *>::iterator i = MacroArgs.begin();
-         i != MacroArgs.end(); i++) {
-        (*i)->Release();
+    for (auto & MacroArg : MacroArgs) {
+        MacroArg->Release();
     }
     MacroArgs.clear();
     MacroArgStackDepth = 0;
