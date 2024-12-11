@@ -42,7 +42,7 @@ tTJSNativeInstance * tTJSNC_Plugins::CreateNativeInstance()
 {
 	// this class cannot create an instance
 	TVPThrowExceptionMessage(TVPCannotCreateInstance);
-	return NULL;
+	return nullptr;
 }
 //---------------------------------------------------------------------------
 

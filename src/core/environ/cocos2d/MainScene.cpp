@@ -1470,7 +1470,7 @@ public:
 		_right = reinterpret_cast<ui::Button*>(allNodes.findController("right"));
 		_ok = reinterpret_cast<ui::Button*>(allNodes.findController("ok"));
 
-		auto funcUpdate = std::bind(&TVPWindowManagerOverlay::updateButtons, this);
+		auto funcUpdate = [this] { updateButtons(); };
 
 		_left->addClickEventListener([=](Ref*){
 			if (!_currentWindowLayer || !_currentWindowLayer->_prevWindow) return;
@@ -1739,7 +1739,7 @@ bool TVPMainScene::startupFrom(const std::string &path) {
 // 		GameNode->setRotation(90);
 // 	}
 
-	scheduleOnce(std::bind(&TVPMainScene::doStartup, this, std::placeholders::_1, path), 0, "startup");
+	scheduleOnce([this, path](auto && PH1) { doStartup(std::forward<decltype(PH1)>(PH1), path); }, 0, "startup");
 
 	return true;
 }
@@ -1752,7 +1752,7 @@ void TVPMainScene::doStartup(float dt, std::string path) {
 	auto glview = cocos2d::Director::getInstance()->getOpenGLView();
 	Size screenSize = glview->getFrameSize();
 	float scale = screenSize.height / getContentSize().height;
-	_consoleWin->setScale(1 / scale);
+	_consoleWin->setScale(1/ scale);
 	_consoleWin->setContentSize(getContentSize() * scale);
 	_consoleWin->setFontSize(16);
 	GameNode->addChild(_consoleWin, GAME_CONSOLE_ORDER);
@@ -1806,7 +1806,7 @@ void TVPMainScene::update(float delta) {
 		TVPGetRenderManager()->GetRenderStat(drawCount, vmemsize);
 		static timeval _lastUpdate;
 		//static int _lastUpdateReq = gettimeofday(&_lastUpdate, nullptr);
-		struct timeval now;
+		timeval now{};
 		gettimeofday(&now, nullptr);
 		float _deltaTime = (now.tv_sec - _lastUpdate.tv_sec) + (now.tv_usec - _lastUpdate.tv_usec) / 1000000.0f;
 		_lastUpdate = now;
@@ -1857,13 +1857,13 @@ void TVPMainScene::rotateUI() {
 	float rot = UINode->getRotation();
 	if (rot < 1) {
 		UINode->setRotation(90);
-		UINode->setContentSize(Size(UISize.height, UISize.width));
+		UINode->setContentSize(Size(UISize.width, UISize.height));
 	} else {
 		UINode->setRotation(0);
 		UINode->setContentSize(UISize);
 	}
 	for (Node* ui : UINode->getChildren()) {
-		static_cast<iTVPBaseForm*>(ui)->rearrangeLayout();
+		dynamic_cast<iTVPBaseForm*>(ui)->rearrangeLayout();
 	}
 }
 
@@ -1879,18 +1879,7 @@ static float _getUIScale() {
 	Size designSize = glview->getDesignResolutionSize();
 	designSize.width = designSize.height * screenSize.width / screenSize.height;
 	screenSize.width = factor * designSize.width;
-#ifdef _WIN32
-	//if (screenSize.width > 3.5433) return 0.35f; // 7 inch @ 16:9 device
-	return 0.35f;
-#endif
-// 	char tmp[128];
-// 	sprintf(tmp, "screenSize.width = %f", (float)screenSize.width);
-// 	TVPPrintLog(tmp);
-// #if CC_PLATFORM_IOS == CC_TARGET_PLATFORM
-// 	return /*sqrtf*/(0.0005f / factor) * screenSize.width;
-// #else
 	return /*sqrtf*/(0.0005f / factor) * screenSize.width;
-//#endif
 }
 
 float TVPMainScene::getUIScale() {
@@ -1951,9 +1940,6 @@ void TVPMainScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event) {
 }
 
 void TVPMainScene::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event) {
-#ifdef _DEBUG
-	if (keyCode == EventKeyboard::KeyCode::KEY_PAUSE) return;
-#endif
 	if (keyCode == EventKeyboard::KeyCode::KEY_MENU) return;
 	if (keyCode == EventKeyboard::KeyCode::KEY_BACK) keyCode = EventKeyboard::KeyCode::KEY_ESCAPE;
 	if (keyCode == EventKeyboard::KeyCode::KEY_PLAY) { // auto play
@@ -2241,8 +2227,8 @@ void TVPMainScene::onCharInput(int keyCode) {
 void TVPMainScene::onTextInput(const std::string &text) {
 	std::u16string buf;
 	if (StringUtils::UTF8ToUTF16(text, buf)) {
-		for (int i = 0; i < buf.size(); ++i) {
-			_currentWindowLayer->OnKeyPress(buf[i], 0, false, false);
+		for (char16_t i : buf) {
+			_currentWindowLayer->OnKeyPress(i, 0, false, false);
 		}
 	}
 }
@@ -2324,7 +2310,7 @@ iWindowLayer *TVPCreateAndAddWindow(tTJSNI_Window *w) {
 }
 
 void TVPRemoveWindowLayer(iWindowLayer *lay) {
-	static_cast<TVPWindowLayer*>(lay)->removeFromParent();
+	dynamic_cast<TVPWindowLayer*>(lay)->removeFromParent();
 }
 
 void TVPConsoleLog(const ttstr &l, bool important) {

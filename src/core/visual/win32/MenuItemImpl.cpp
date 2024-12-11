@@ -371,11 +371,9 @@ static bool SetShortCutKeyCode(ttstr text, int key, bool force) {
     text.ToLowerCase();
     if (TJS_FAILED(textToKeycodeMap->PropSet(TJS_MEMBERENSURE, text.c_str(), nullptr, &vkey, textToKeycodeMap)))
         return false;
-    if (force == false) {
-        tTJSVariant var;
-        keycodeToTextList->PropGetByNum(0, key, &var, keycodeToTextList);
-        if (var.Type() == tvtString) return true;
-    }
+    tTJSVariant var;
+    keycodeToTextList->PropGetByNum(0, key, &var, keycodeToTextList);
+    if (var.Type() == tvtString) return true;
     return TJS_SUCCEEDED(keycodeToTextList->PropSetByNum(TJS_MEMBERENSURE, key, &vtext, keycodeToTextList));
 }
 
@@ -480,9 +478,9 @@ tTJSNativeClass * TVPCreateNativeClass_MenuItem()
             val = tTJSVariant(gWindowMenuProperty);
             gWindowMenuProperty->Release();
             tTJSVariant win;
-            if (TJS_SUCCEEDED(global->PropGet(0, TJS_W("Window"), NULL, &win, global))) {
+            if (TJS_SUCCEEDED(global->PropGet(0, TJS_W("Window"), nullptr, &win, global))) {
                 iTJSDispatch2* obj = win.AsObjectNoAddRef();
-                obj->PropSet(TJS_MEMBERENSURE, TJS_W("menu"), NULL, &val, obj);
+                obj->PropSet(TJS_MEMBERENSURE, TJS_W("menu"), nullptr, &val, obj);
                 win.Clear();
             }
             val.Clear();
@@ -491,12 +489,13 @@ tTJSNativeClass * TVPCreateNativeClass_MenuItem()
             iTJSDispatch2 * tjsclass = TVPCreateNativeClass_MenuItem();
             val = tTJSVariant(tjsclass);
             tjsclass->Release();
-            global->PropSet(TJS_MEMBERENSURE, TJS_W("MenuItem"), NULL, &val, global);
+            global->PropSet(TJS_MEMBERENSURE, TJS_W("MenuItem"), nullptr, &val, global);
             //-----------------------------------------------------------------------
 
         }
 
         global->Release();
+        val.Clear();
     }
 
     return cls;

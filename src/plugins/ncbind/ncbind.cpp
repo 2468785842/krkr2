@@ -19,10 +19,9 @@ bool ncbAutoRegister::LoadModule(const ttstr &_name)
 		return false;
 	auto it = _internal_plugins.find(name);
 	if (it != _internal_plugins.end()) {
-		for (int line = 0; line < ncbAutoRegister::LINE_COUNT; ++line) {
-			const std::list<ncbAutoRegister const*> &plugin_list = it->second.lists[line];
-			for (auto i = plugin_list.begin(); i != plugin_list.end(); ++i) {
-				(*i)->Regist();
+		for (const auto & plugin_list : it->second.lists) {
+				for (auto i : plugin_list) {
+				i->Regist();
 			}
 		}
 		TVPRegisteredPlugins.insert(name);

@@ -397,7 +397,7 @@ void TVPAddLog(const ttstr &line, bool appendtoimportant)
 		prevtimebuf = timebuf;
 	}
 
-	TVPLogDeque->push_back(tTVPLogItem(line, prevtimebuf));
+	TVPLogDeque->emplace_back(line, prevtimebuf);
 
 	if(appendtoimportant)
 	{

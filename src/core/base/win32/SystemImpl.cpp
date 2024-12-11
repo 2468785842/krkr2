@@ -790,7 +790,7 @@ extern void TVPDoSaveSystemVariables()
 			iTJSDispatch2* kag = var.AsObjectNoAddRef();
 			if (kag->PropGet(0, TJS_W("saveSystemVariables"), nullptr, &var, kag) == TJS_S_OK) {
 				iTJSDispatch2* fn = var.AsObjectNoAddRef();
-				if (fn->IsInstanceOf(0, 0, 0, TJS_W("Function"), fn)) {
+				if (fn->IsInstanceOf(0, nullptr, nullptr, TJS_W("Function"), fn)) {
 					tTJSVariant *args = nullptr;
 					fn->FuncCall(0, nullptr, nullptr, nullptr, 0, &args, kag);
 				}
@@ -800,7 +800,7 @@ extern void TVPDoSaveSystemVariables()
 				&& var.Type() == tvtObject)
 			{
 				iTJSDispatch2* fn = var.AsObjectNoAddRef();
-				if (fn->IsInstanceOf(0, 0, 0, TJS_W("Function"), fn)) {
+				if (fn->IsInstanceOf(0, nullptr, nullptr, TJS_W("Function"), fn)) {
 					tTJSVariant num((tjs_int32)0);
 					tTJSVariant *args = &num;
 					fn->FuncCall(0, nullptr, nullptr, nullptr, 1, &args, kag);

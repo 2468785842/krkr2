@@ -633,8 +633,7 @@ void tTJSNI_KAGParser::StoreIntStackToDic(iTJSDispatch2 *dic, std::vector<tjs_in
     ttstr stack_str;
     const static tjs_char hex[] = TJS_W("0123456789abcdef");
     tjs_char *p = stack_str.AllocBuffer(stack.size() * 8);
-    for (std::vector<tjs_int>::iterator it = stack.begin(); it != stack.end(); ++it) {
-        tjs_int v = *it;
+    for (int v : stack) {
         p[0] = hex[(v >> 28) & 0x000f];
         p[1] = hex[(v >> 24) & 0x000f];
         p[2] = hex[(v >> 20) & 0x000f];

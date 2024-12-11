@@ -31,26 +31,16 @@
 #include "ConfigManager/LocaleConfigManager.h"
 #include "StorageIntf.h"
 extern "C" {
-#include <libavutil/avstring.h>
+    #include <libavutil/avstring.h>
 }
 #include "TVPColor.h"
 #include "FontImpl.h"
-
-//#include "resource.h"
-
-//#pragma comment(lib,"dbghelp.lib")
-/*
-kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;dsound.lib;version.lib;mpr.lib;shlwapi.lib;vfw32.lib;imm32.lib;zlib_d.lib;jpeg-6bx_d.lib;libpng_d.lib;onig_s_d.lib;freetype250MT_D.lib;tvpgl_ia32.lib;tvpsnd_ia32.lib;%(AdditionalDependencies)
-kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;dsound.lib;version.lib;mpr.lib;shlwapi.lib;vfw32.lib;imm32.lib;zlib.lib;jpeg-6bx.lib;libpng.lib;onig_s.lib;freetype250MT.lib;tvpgl_ia32.lib;tvpsnd_ia32.lib;%(AdditionalDependencies)
-*/
 
 tTVPApplication* Application = new tTVPApplication;
 std::thread::id TVPMainThreadID;
 static tTJSCriticalSection _NoMemCallBackCS;
 static void *_reservedMem = malloc(1024 * 1024 * 4); // 4M reserved mem
 static bool _project_startup = false;
-tTJS *TVPAppScriptEngine;
-#define HOOK_MALLOC
 
 static void _do_compact() {
 	TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_MAX);
@@ -96,30 +86,6 @@ ttstr TVPGetErrorDialogTitle() {
 		return ttstr(TVPGetPackageVersionString()) + " " + title;
 	}
 }
-
-#if 0
-#ifdef TJS_64BIT_OS
-extern void TVPHandleSEHException( int ErrorCode, EXCEPTION_RECORD *P, unsigned long long osEsp, PCONTEXT ctx);
-#else
-extern void TVPHandleSEHException( int ErrorCode, EXCEPTION_RECORD *P, unsigned long osEsp, PCONTEXT ctx);
-#endif
-
-// アプリケーションの開始時に呼ぶ
-inline void CheckMemoryLeaksStart()
-{
-#ifdef  _DEBUG
-   _CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);
-#endif  // _DEBUG
-}
-
-inline void DumpMemoryLeaks()
-{
-#ifdef  _DEBUG
-	int is_leak = _CrtDumpMemoryLeaks();
-	assert( !is_leak );
-#endif  // _DEBUG
-}
-#endif
 
 ttstr ExePath() {
 	return TVPNativeProjectDir;
@@ -310,7 +276,7 @@ int APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 }
 #endif
 tTVPApplication::tTVPApplication() : is_attach_console_(false), tarminate_(false), application_activating_(true)
-	 , image_load_thread_(NULL), has_map_report_process_(false)
+	 , image_load_thread_(nullptr), has_map_report_process_(false)
 {
 }
 tTVPApplication::~tTVPApplication() {
@@ -322,98 +288,13 @@ tTVPApplication::~tTVPApplication() {
 // 	windows_list_.clear();
 	delete image_load_thread_;
 }
-#if 0
-struct SEHException {
-	unsigned int Code;
-	_EXCEPTION_POINTERS* ExceptionPointers;
-	SEHException( unsigned int code, _EXCEPTION_POINTERS* ep )
-		: Code(code), ExceptionPointers(ep)
-	{}
-};
 
-int TVPWriteHWEDumpFile( EXCEPTION_POINTERS* pExceptionPointers ) {
-	BOOL bMiniDumpSuccessful;
-	WCHAR szPath[MAX_PATH]; 
-	WCHAR szFileName[MAX_PATH]; 
-	const wchar_t* szAppName = TVPKirikiri;
-	const wchar_t* szVersion = TVPGetVersionString().c_str();
-
-	TVPEnsureDataPathDirectory();
-	TJS_strcpy(szPath, TVPNativeDataPath.c_str());
-
-	SYSTEMTIME stLocalTime;
-	::GetLocalTime( &stLocalTime );
-	StringCchPrintf( szFileName, MAX_PATH, L"%s%s%s-%04d%02d%02d-%02d%02d%02d-%ld-%ld.dmp",
-				szPath, szAppName, szVersion,
-				stLocalTime.wYear, stLocalTime.wMonth, stLocalTime.wDay,
-				stLocalTime.wHour, stLocalTime.wMinute, stLocalTime.wSecond,
-				GetCurrentProcessId(), GetCurrentThreadId());
-	HANDLE hDumpFile = ::CreateFile(szFileName, GENERIC_READ|GENERIC_WRITE,
-				FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
-
-	MINIDUMP_EXCEPTION_INFORMATION ExpParam;
-	ExpParam.ThreadId = ::GetCurrentThreadId();
-	ExpParam.ExceptionPointers = pExceptionPointers;
-	ExpParam.ClientPointers = TRUE;
-	bMiniDumpSuccessful = MiniDumpWriteDump( ::GetCurrentProcess(), ::GetCurrentProcessId(), hDumpFile, MiniDumpWithDataSegs, &ExpParam, NULL, NULL);
-	return EXCEPTION_EXECUTE_HANDLER;
-}
-static bool TVPIsHandledHWException = false;
-void se_translator_function(unsigned int code, struct _EXCEPTION_POINTERS* ep) {
-	if( !TVPIsHandledHWException ) {
-		//ShowStackTrace( ep->ContextRecord );
-		TVPWriteHWEDumpFile( ep );
-#ifdef TJS_64BIT_OS
-		TVPHandleSEHException( code, ep->ExceptionRecord, ep->ContextRecord->Rsp, ep->ContextRecord );
-#else
-		TVPHandleSEHException( code, ep->ExceptionRecord, ep->ContextRecord->Esp, ep->ContextRecord );
-#endif
-		TVPIsHandledHWException = true;
-	}
-	throw SEHException(code,ep);
-}
-const wchar_t* SECodeToMessage( unsigned int code ) {
-	switch(code){
-	case EXCEPTION_ACCESS_VIOLATION: return TVPExceptionAccessViolation;
-	case EXCEPTION_BREAKPOINT: return TVPExceptionBreakpoint;
-	case EXCEPTION_DATATYPE_MISALIGNMENT: return TVPExceptionDatatypeMisalignment;
-	case EXCEPTION_SINGLE_STEP: return TVPExceptionSingleStep;
-	case EXCEPTION_ARRAY_BOUNDS_EXCEEDED: return TVPExceptionArrayBoundsExceeded;
-	case EXCEPTION_FLT_DENORMAL_OPERAND: return TVPExceptionFltDenormalOperand;
-	case EXCEPTION_FLT_DIVIDE_BY_ZERO: return TVPExceptionFltDivideByZero;
-	case EXCEPTION_FLT_INEXACT_RESULT: return TVPExceptionFltInexactResult;
-	case EXCEPTION_FLT_INVALID_OPERATION: return TVPExceptionFltInvalidOperation;
-	case EXCEPTION_FLT_OVERFLOW: return TVPExceptionFltOverflow;
-	case EXCEPTION_FLT_STACK_CHECK: return TVPExceptionFltStackCheck;
-	case EXCEPTION_FLT_UNDERFLOW: return TVPExceptionFltUnderflow;
-	case EXCEPTION_INT_DIVIDE_BY_ZERO: return TVPExceptionIntDivideByZero;
-	case EXCEPTION_INT_OVERFLOW: return TVPExceptionIntOverflow;
-	case EXCEPTION_PRIV_INSTRUCTION: return TVPExceptionPrivInstruction;
-	case EXCEPTION_NONCONTINUABLE_EXCEPTION: return TVPExceptionNoncontinuableException;
-	case EXCEPTION_GUARD_PAGE: return TVPExceptionGuardPage;
-	case EXCEPTION_ILLEGAL_INSTRUCTION: return TVPExceptionIllegalInstruction;
-	case EXCEPTION_IN_PAGE_ERROR: return TVPExceptionInPageError;
-	case EXCEPTION_INVALID_DISPOSITION: return TVPExceptionInvalidDisposition;
-	case EXCEPTION_INVALID_HANDLE: return TVPExceptionInvalidHandle;
-	case EXCEPTION_STACK_OVERFLOW: return TVPExceptionStackOverflow;
-	case STATUS_UNWIND_CONSOLIDATE: return TVPExceptionUnwindCconsolidate;
-	}
-	return L"Unknown";
-}
-#endif
-extern void TVPLoadPluigins(void);
+extern void tvpLoadPlugins();
 bool tTVPApplication::StartApplication(ttstr path) {
 //	_set_se_translator(se_translator_function);
 
 	ArgC = 0;
 	ArgV = nullptr;
-#if 0
-	for( int i = 0; i < argc; i++ ) {
-		if(!strcmp(argv[i], "-@processohmlog")) {
-			has_map_report_process_ = true;
-		}
-	}
-#endif
 	TVPTerminateCode = 0;
 	LocaleConfigManager *mgr = LocaleConfigManager::GetInstance();
 	_retry = mgr->GetText("retry");
@@ -446,7 +327,7 @@ bool tTVPApplication::StartApplication(ttstr path) {
 		
 		image_load_thread_ = new tTVPAsyncImageLoader();
 
-		TVPLoadPluigins(); // load plugin module *.tpm
+        tvpLoadPlugins(); // load plugin module *.tpm
 		TVPSystemInit();
 
 		if(TVPCheckAbout()) return true; // version information dialog box;
@@ -459,26 +340,10 @@ bool tTVPApplication::StartApplication(ttstr path) {
 		// start image load thread
 		image_load_thread_->Resume();
 
-		/*if(TVPProjectDirSelected)*/ TVPInitializeStartupScript();
+		TVPInitializeStartupScript();
 		_project_startup = true;
-//		Run();
-#if 0
-		try {
-			// image_load_thread_->ExitRequest();
-			delete image_load_thread_;
-			image_load_thread_ = NULL;
-		} catch(...) {
-			// ignore errors
-		}
-		try {
-			TVPSystemUninit();
-		} catch(...) {
-			// ignore errors
-		}
-#endif
 	} catch( const EAbort & ) {
 		// nothing to do
-#if !(defined(_MSC_VER) && defined(_DEBUG))
 	} catch (const Exception &exception) {
 		TVPOnError();
 		if(!TVPSystemUninitCalled)
@@ -514,19 +379,8 @@ bool tTVPApplication::StartApplication(ttstr path) {
 		ShowException( e );
 	} catch( const tjs_char* e ) {
 		ShowException( e );
-#if 0
-	} catch( const SEHException& e ) {
-		PEXCEPTION_RECORD rec = e.ExceptionPointers->ExceptionRecord;
-		std::wstring text(SECodeToMessage(e.Code));
-		ttstr result = TJSGetStackTraceString( 10 );
-		PrintConsole( result.c_str(), result.length(), true );
-
-		TVPDumpHWException();
-		ShowException( text.c_str() );
-#endif
 	} catch(...) {
 		ShowException( (const tjs_char*)TVPUnknownError );
-#endif
 	}
 
 	return false;
@@ -1018,7 +872,6 @@ unsigned long ColorToRGB(unsigned int col)
 	case clWindowFrame:
 		return 0x646464;
 	case clMenuText:
-		return 0;
 	case clWindowText:
 		return 0;
 	case clCaptionText:

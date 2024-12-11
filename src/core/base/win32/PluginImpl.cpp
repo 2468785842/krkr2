@@ -28,6 +28,7 @@
 #include "DebugIntf.h"
 #include "FuncStubs.h"
 #include "tjs.h"
+#include "tjsConfig.h"
 
 #ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
 	#include "oldwaveunpacker.h"
@@ -445,42 +446,18 @@ tTVPAtExit TVPDestroyPluginVectorAtExit
 //---------------------------------------------------------------------------
 bool TVPLoadInternalPlugin(const ttstr &_name);
 extern std::set<ttstr> TVPRegisteredPlugins;
-static bool TVPPluginLoading = false;
+
 void TVPLoadPlugin(const ttstr & name)
 {
 	bool success = TVPLoadInternalPlugin(name);
-    return; // seal all plugins
-#if 0
-	// load plugin
-	if(TVPPluginLoading)
-		TVPThrowExceptionMessage(TVPCannnotLinkPluginWhilePluginLinking);
-			// linking plugin while other plugin is linking, is prohibited
-			// by data security reason.
-
-	// check whether the same plugin was already loaded
-	tTVPPluginVectorType::iterator i;
-	for(i = TVPPluginVector.Vector.begin();
-		i != TVPPluginVector.Vector.end(); i++)
-	{
-		if((*i)->Name == name) return;
-	}
-
-	tTVPPlugin * p;
-
-	try
-	{
-		TVPPluginLoading = true;
-		p = new tTVPPlugin(name, &TVPPluginVector.StorageProvider);
-		TVPPluginLoading = false;
-	}
-	catch(...)
-	{
-		TVPPluginLoading = false;
-		throw;
-	}
-
-	TVPPluginVector.Vector.push_back(p);
-#endif
+    std::string msg = "Loading Plugin: " + name.AsStdString();
+    if(success) {
+        msg.append(" Success");
+    }else {
+        msg.append(" Failed");
+    }
+    const tjs_char* out = TJS::tTJSString(msg).c_str();
+    TJS::TVPConsoleLog(out);
 }
 //---------------------------------------------------------------------------
 bool TVPUnloadPlugin(const ttstr & name)
@@ -555,7 +532,7 @@ static void TVPSearchPluginsAt(std::vector<tTVPFoundPlugin> &list, std::string f
 }
 
 void TVPLoadInternalPlugins();
-void TVPLoadPluigins(void)
+void tvpLoadPlugins()
 {
 	TVPLoadInternalPlugins();
 	// This function searches plugins which have an extension of ".tpm"
@@ -579,12 +556,10 @@ void TVPLoadPluigins(void)
 
 	// load each plugin
 	TVPAutoLoadPluginCount = (tjs_int)list.size();
-	for(std::vector<tTVPFoundPlugin>::iterator i = list.begin();
-		i != list.end();
-		i++)
+	for(auto & i : list)
 	{
-		TVPAddImportantLog(ttstr(TJS_W("(info) Loading ")) + ttstr(i->Name.c_str()));
-		TVPLoadPlugin((i->Path + "/" + i->Name).c_str());
+		TVPAddImportantLog(ttstr(TJS_W("(info) Loading ")) + ttstr(i.Name.c_str()));
+		TVPLoadPlugin((i.Path + "/" + i.Name).c_str());
 	}
 }
 //---------------------------------------------------------------------------
@@ -982,6 +957,7 @@ tTJSNativeClass * TVPCreateNativeClass_Plugins()
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/link)
 {
+
 	if(numparams < 1) return TJS_E_BADPARAMCOUNT;
 
 	ttstr name = *param[0];

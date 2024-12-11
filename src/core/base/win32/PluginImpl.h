@@ -156,7 +156,7 @@ TJS_EXP_FUNC_DEF(void, TVPDoTryBlock, (tTVPTryBlockFunction tryblock, tTVPCatchB
 
 //---------------------------------------------------------------------------
 extern bool TVPPluginUnloadedAtSystemExit;
-extern void TVPLoadPluigins(void);
+extern void tvpLoadPlugins(void);
 //---------------------------------------------------------------------------
 
 

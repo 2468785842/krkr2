@@ -50,20 +50,20 @@ void TVPFireOnApplicationActivateEvent(bool activate_or_deactivate)
 	try
 	{
 		tjs_error er;
-		er = global->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("System"), NULL, &val, global);
+		er = global->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("System"), nullptr, &val, global);
 		if(TJS_FAILED(er)) return;
 
 		if(val.Type() != tvtObject) return;
 
 		clo = val.AsObjectClosureNoAddRef();
 
-		if(clo.Object == NULL) return;
+		if(clo.Object == nullptr) return;
 
 		clo.PropGet(TJS_MEMBERMUSTEXIST,
 				activate_or_deactivate?
 					TJS_W("onActivate"):
 					TJS_W("onDeactivate"),
-			NULL, &val2, NULL);
+			nullptr, &val2, nullptr);
 
 		if(val2.Type() != tvtObject) return;
 
@@ -76,7 +76,7 @@ void TVPFireOnApplicationActivateEvent(bool activate_or_deactivate)
 		return;
 	}
 
-	if(func.Object != NULL) func.FuncCall(0, NULL, NULL, NULL, 0, NULL, NULL);
+	if(func.Object != nullptr) func.FuncCall(0, nullptr, nullptr, nullptr, 0, nullptr, nullptr);
 }
 //---------------------------------------------------------------------------
 
@@ -232,7 +232,7 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/touchImages)
 		if(TJS_FAILED(array.Object->PropGetByNum(0, count, &val, array.ObjThis)))
 			break;
 		if(val.Type() == tvtVoid) break;
-		storages.push_back(ttstr(val));
+		storages.emplace_back(val);
 		count++;
 	}
 
@@ -497,12 +497,12 @@ TJS_END_NATIVE_STATIC_PROP_DECL(exitOnNoWindowStartup)
 
 
 	// register default "exceptionHandler" member
-	tTJSVariant val((iTJSDispatch2*)NULL, (iTJSDispatch2*)NULL);
-	PropSet(TJS_MEMBERENSURE, TJS_W("exceptionHandler"), NULL, &val, this);
+	tTJSVariant val((iTJSDispatch2*)nullptr, (iTJSDispatch2*)nullptr);
+	PropSet(TJS_MEMBERENSURE, TJS_W("exceptionHandler"), nullptr, &val, this);
 
 	// and onActivate, onDeactivate
-	PropSet(TJS_MEMBERENSURE, TJS_W("onActivate"), NULL, &val, this);
-	PropSet(TJS_MEMBERENSURE, TJS_W("onDeactivate"), NULL, &val, this);
+	PropSet(TJS_MEMBERENSURE, TJS_W("onActivate"), nullptr, &val, this);
+	PropSet(TJS_MEMBERENSURE, TJS_W("onDeactivate"), nullptr, &val, this);
 }
 //---------------------------------------------------------------------------
 tTJSNativeInstance * tTJSNC_System::CreateNativeInstance()
@@ -510,7 +510,7 @@ tTJSNativeInstance * tTJSNC_System::CreateNativeInstance()
 	// this class cannot create an instance
 	TVPThrowExceptionMessage(TVPCannotCreateInstance);
 
-	return NULL;
+	return nullptr;
 }
 //---------------------------------------------------------------------------
 

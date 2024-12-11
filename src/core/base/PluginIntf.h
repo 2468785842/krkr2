@@ -12,20 +12,6 @@
 #define PluginIntfH
 
 #include "tjsNative.h"
-#if 0
-#ifndef __stdcall
-#define __stdcall
-#endif
-#ifndef __cdecl
-#define __cdecl
-#endif
-#ifndef _stdcall
-#define _stdcall
-#endif
-#ifndef _cdecl
-#define _cdecl
-#endif
-#endif
 
 //---------------------------------------------------------------------------
 // tTJSNC_Plugins : TJS Plugins class

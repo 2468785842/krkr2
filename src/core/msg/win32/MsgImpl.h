@@ -74,7 +74,7 @@ TVP_MSG_DEFINE(TVPInfoSpecifiedOptionEarlierItemHasMorePriority, "(info) Specifi
 TVP_MSG_DEFINE(TVPNone, " (none)")
 TVP_MSG_DEFINE(TVPInfoCpuClockRoughly, "(info) CPU clock (roughly) : %dMHz")
 TVP_MSG_DEFINE(TVPProgramStartedOn, "Program started on %1 (%2)")
-TVP_MSG_DEFINE(TVPKirikiri, "Kirikiri")
+TVP_MSG_DEFINE(TVPKirikiri, "kirikiriz")
 TVP_MSG_DEFINE(TVPUnknownError, "Unknown error!")
 TVP_MSG_DEFINE(TVPExitCode, "Exit code: %d\n")
 TVP_MSG_DEFINE(TVPFatalError, "Fatal Error")

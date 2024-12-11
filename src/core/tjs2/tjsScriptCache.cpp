@@ -106,7 +106,7 @@ void tTJSScriptCache::EvalExpression(const tjs_char *expression,
 	tScriptCacheData data;
 	data.Script = expression;
 	data.ExpressionMode = true;
-	data.MustReturnResult = result != NULL;
+	data.MustReturnResult = result != nullptr;
 
 	tjs_uint32 hash = tScriptCacheHashFunc::Make(data);
 
@@ -143,7 +143,6 @@ void tTJSScriptCache::EvalExpression(const tjs_char *expression,
 	}
 
 	blk->Release();
-	return;
 }
 //---------------------------------------------------------------------------
 void tTJSScriptCache::EvalExpression(const ttstr &expression, tTJSVariant *result,

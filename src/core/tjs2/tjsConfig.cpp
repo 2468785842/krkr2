@@ -290,7 +290,6 @@ tjs_int TJS_sprintf(tjs_char *s, const tjs_char *format, ...)
 }
 //---------------------------------------------------------------------------
 
-void TVPConsoleLog(const tjs_char *l);
 void TJS_debug_out(const tjs_char *format, ...)
 {
 	tjs_int r;

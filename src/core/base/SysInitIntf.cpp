@@ -33,7 +33,7 @@ extern void TVPGL_C_Init();
 //---------------------------------------------------------------------------
 // TVPSystemInit : Entire System Initialization
 //---------------------------------------------------------------------------
-void TVPSystemInit(void)
+void TVPSystemInit()
 {
 #if CC_TARGET_PLATFORM != CC_PLATFORM_WIN32
 #ifndef CC_TARGET_OS_IPHONE
@@ -122,7 +122,7 @@ void TVPAddAtExitHandler(tjs_int pri, void (*handler)())
 	if(TVPAtExitShutdown) return;
 
 	if(!TVPAtExitInfos) TVPAtExitInfos = new std::vector<tTVPAtExitInfo>();
-	TVPAtExitInfos->push_back(tTVPAtExitInfo(pri, handler));
+	TVPAtExitInfos->emplace_back(pri, handler);
 }
 //---------------------------------------------------------------------------
 static void TVPCauseAtExit()
