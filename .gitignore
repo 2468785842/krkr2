@@ -1,5 +1,3 @@
-cocos/
-
 # build target
 cmake-build-android/
 cmake-build-android-release/

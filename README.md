@@ -2,6 +2,7 @@
 * 支持 Windows & Linux 交叉编译: android arm64 kirikiroid2
 
 ## 依赖工具
+* `python2`
 * `tar@latest`
 * `ninja@latest`
 * `cmake@22^`
@@ -17,7 +18,6 @@
 * "VCPKG_ROOT": "/path/to/vcpkg"
 * "ANDROID_SDK": "/path/to/androidsdk"
 * "ANDROID_NDK": "/path/to/androidndk"
-* "ANDROID_NDK_HOME": "/path/to/androidndk"
 
 #### Windows 环境变量注意!!! 必须使用`/`或`\\`分割路径, 例如:
 * `D:\vcpkg`: 错误! cmake不转义`\`, 会导致找不到路径

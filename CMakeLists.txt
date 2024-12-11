@@ -6,6 +6,12 @@ set(VCPKG_CMAKE_SYSTEM_NAME "Android")
 
 set(VCPKG_TARGET_ANDROID ON)
 
+if(DEFINED $ENV{ANDROID_NDK})
+    set(ANDROID_NDK "$ENV{ANDROID_NDK}")
+endif()
+
+set(ENV{ANDROID_NDK_HOME} "${ANDROID_NDK}")
+
 include(cmake/vcpkg_android.cmake)
 project(krkr2)
 
@@ -54,11 +60,7 @@ find_package(FFMPEG COMPONENTS
     swresample REQUIRED
 )
 
-file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/cocos/platform/android")
-file(COPY "${COCOS2DX_SOURCE_DIR}/cocos/platform/android/" DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/cocos/platform/android")
-
 include(cmake/AndroidNdkModules.cmake)
-include(cmake/Utils.cmake)
 
 # build library
 add_subdirectory(${KRKR2CORE_PATH})
@@ -85,3 +87,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 #if (build_type STREQUAL debug)
 #    target_compile_definitions(krkr2core PUBLIC -DTJS_DEBUG_TRACE= -DENABLE_DEBUGGER=)
 #endif()
+
+# file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/cocos/platform/android")
+# file(COPY "${COCOS1DX_SOURCE_DIR}/cocos/platform/android/" DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/cocos/platform/android")
