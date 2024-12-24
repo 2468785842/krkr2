@@ -24,16 +24,16 @@
 * `D:/vcpkg`: 正确!
 
 #### 编译apk
-* Release: `gradle -p android assembleRelease`
-* Debug: `gradle -p android assembleDebug`
+* Release: `gradle assembleRelease`
+* Debug: `gradle assembleDebug`
 
 #### 单独编译so动态库
 * Release: 
-  * `cmake -GNinja -B cmake-build-android-release -DCMAKE_BUILD_TYPE=Release -DANDROID_ABI="arm64-v8a" -DANDROID_PLATFORM=29`
-  * `cmake --build cmake-build-android-release`
+  * `cmake -GNinja -B out/cmake-build-android-release -DCMAKE_BUILD_TYPE=Release -DANDROID_ABI="arm64-v8a" -DANDROID_PLATFORM=29`
+  * `cmake --build out/cmake-build-android-release`
 * Debug: 
-  * `cmake -GNinja -B cmake-build-android-debug -DCMAKE_BUILD_TYPE=Debug -DANDROID_ABI="arm64-v8a" -DANDROID_PLATFORM=29`
-  * `cmake --build cmake-build-android-debug`
+  * `cmake -GNinja -B out/cmake-build-android-debug -DCMAKE_BUILD_TYPE=Debug -DANDROID_ABI="arm64-v8a" -DANDROID_PLATFORM=29`
+  * `cmake --build out/cmake-build-android-debug`
 
 ### 插件
 * `https://github.com/orgs/wamsoft/repositories?type=all`

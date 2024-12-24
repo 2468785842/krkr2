@@ -1,37 +1,41 @@
 {
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "krkr2",
   "version-string": "1.0.0",
   "dependencies": [
     {
-      "name": "opencv4",
-      "default-features": false
-    },
-    "openal-soft",
-    "libarchive",
-    "cocos2dx",
-    "sdl2",
-    "ffmpeg",
-    "libjpeg-turbo",
-    {
       "name": "breakpad",
       "default-features": false
     },
-    "lz4",
+    "cocos2dx",
+    "ffmpeg",
     "jxrlib",
+    "libarchive",
+    "libbpg",
+    "libjpeg-turbo",
+    "libogg",
+    "libvorbis",
+    "lz4",
+    "oboe",
+    "oniguruma",
+    "openal-soft",
+    {
+      "name": "opencv4",
+      "default-features": false
+    },
+    "opus",
     {
       "name": "opusfile",
       "default-features": false
     },
-    "oboe",
-    "libogg",
-    "libvorbis",
-    "opus",
-    "libbpg",
-    "oniguruma",
     "p7zip",
+    "sdl2",
     "unrar"
   ],
   "overrides": [
-    { "name": "opencv4", "version": "4.7.0#6"}
+    {
+      "name": "opencv4",
+      "version": "4.7.0#6"
+    }
   ]
 }

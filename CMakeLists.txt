@@ -1,16 +1,10 @@
 cmake_minimum_required(VERSION 3.19)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 set(VCPKG_CMAKE_SYSTEM_NAME "Android")
 
 set(VCPKG_TARGET_ANDROID ON)
 
-if(DEFINED $ENV{ANDROID_NDK})
-    set(ANDROID_NDK "$ENV{ANDROID_NDK}")
-endif()
-
-set(ENV{ANDROID_NDK_HOME} "${ANDROID_NDK}")
+set(ENV{ANDROID_NDK_HOME} "$ENV{ANDROID_NDK}")
 
 include(cmake/vcpkg_android.cmake)
 project(krkr2)
@@ -20,10 +14,10 @@ set(ANDROID_ARM_NEON ON)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(KRKR2CORE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/core)
-set(KRKR2PLUGIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins)
+set(KRKR2CORE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/core)
+set(KRKR2PLUGIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/plugins)
 
-add_library(${PROJECT_NAME} SHARED android/app/cpp/krkr2_android.cpp)
+add_library(${PROJECT_NAME} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/cpp/krkr2_android.cpp)
 
 find_package(unofficial-breakpad CONFIG REQUIRED)
 
@@ -82,11 +76,3 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     cpp_android_spec krkr2plugin krkr2core
     -Wl,--no-whole-archive
 )
-
-#string(TOLOWER ${CMAKE_BUILD_TYPE} build_type)
-#if (build_type STREQUAL debug)
-#    target_compile_definitions(krkr2core PUBLIC -DTJS_DEBUG_TRACE= -DENABLE_DEBUGGER=)
-#endif()
-
-# file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/cocos/platform/android")
-# file(COPY "${COCOS1DX_SOURCE_DIR}/cocos/platform/android/" DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/cocos/platform/android")
