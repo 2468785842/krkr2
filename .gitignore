@@ -10,4 +10,4 @@ out/
 .vs/
 .gradle/
 
-compile_commands.json
+local.properties
