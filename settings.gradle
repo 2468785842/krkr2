@@ -1,0 +1,21 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'krkr2'
+include ':cocos2dx'
+project(':cocos2dx').projectDir = file('android/libcocos2dx-3.6')
+include ':app'
+project(':app').projectDir = file('android/app')

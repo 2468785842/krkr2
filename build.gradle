@@ -1,0 +1,12 @@
+plugins {
+    id 'com.android.application' version '7.4.2' apply false
+    id 'com.android.library' version '7.4.2' apply false
+}
+
+subprojects {
+    layout.buildDirectory.set(file("${rootDir}/out/${project.name}"))
+}
+
+tasks.register('clean', Delete) {
+    delete layout.buildDirectory
+}
