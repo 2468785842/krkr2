@@ -19,7 +19,7 @@ android {
         ndk {
             jobs Runtime.runtime.availableProcessors()
             //noinspection ChromeOsAbiSupport
-            abiFilters 'arm64-v8a'
+            abiFilters 'arm64-v8a', 'armeabi-v7a'
         }
 
 //        externalNativeBuild {
@@ -87,7 +87,17 @@ android {
 //        }
 //    }
 
-    android.applicationVariants.configureEach { variant ->
+    splits {
+        abi {
+            enable = true           // 启用 ABI 分包
+            reset()               // 清除默认支持的 ABI
+            //noinspection ChromeOsAbiSupport
+            include 'armeabi-v7a', 'arm64-v8a' //, 'x86', 'x86_64' // 指定支持的 ABI
+            universalApk = true
+        }
+    }
+
+    applicationVariants.configureEach { variant ->
         variant.outputs.configureEach {
             def ver = defaultConfig.versionName
             def abi = filters.find { it.filterType == "ABI" }?.identifier ?: "all"
