@@ -1,39 +1,120 @@
-## KiriKiroid2 Android10^ 交叉编译
-* 支持 Windows & Linux 交叉编译: android arm64 kirikiroid2
+# KiriKiroid2 Android10+ 交叉编译指南
+
+本指南支持在 **Windows** 和 **Linux** 环境中交叉编译 KiriKiroid2 的 Android 版本，支持以下架构：
+
+- `arm64-v8a`
+- `armeabi-v7a`
+
+---
 
 ## 依赖工具
-* `python2`
-* `tar@latest`
-* `ninja@latest`
-* `cmake@22^`
-* `vcpkg@latest`
-* `AndroidSDK@33^`
-* `AndroidNDK@27.2.12479018`
-* `gradle@8.10`
-* `jdk@17`
 
-## aarch64-android编译
+请确保以下工具已正确安装：
+
+- `python2`
+- `tar@latest`
+- `ninja@latest`
+- `cmake@22+`
+- `vcpkg@latest`
+- `AndroidSDK@33+`
+- `AndroidNDK@27.2.12479018`
+- `gradle@8.10`
+- `jdk@17`
+
+---
+
+## 编译环境配置
 
 ### 环境变量
-* "VCPKG_ROOT": "/path/to/vcpkg"
-* "ANDROID_SDK": "/path/to/androidsdk"
-* "ANDROID_NDK": "/path/to/androidndk"
 
-#### Windows 环境变量注意!!! 必须使用`/`或`\\`分割路径, 例如:
-* `D:\vcpkg`: 错误! cmake不转义`\`, 会导致找不到路径
-* `D:/vcpkg`: 正确!
+配置以下环境变量：
 
-#### 编译apk
-* Release: `gradle assembleRelease`
-* Debug: `gradle assembleDebug`
+- `VCPKG_ROOT`: `/path/to/vcpkg`
+- `ANDROID_SDK`: `/path/to/androidsdk`
+- `ANDROID_NDK`: `/path/to/androidndk`
 
-#### 单独编译so动态库
-* Release: 
-  * `cmake -GNinja -B out/cmake-build-android-release -DCMAKE_BUILD_TYPE=Release -DANDROID_ABI="arm64-v8a" -DANDROID_PLATFORM=29`
-  * `cmake --build out/cmake-build-android-release`
-* Debug: 
-  * `cmake -GNinja -B out/cmake-build-android-debug -DCMAKE_BUILD_TYPE=Debug -DANDROID_ABI="arm64-v8a" -DANDROID_PLATFORM=29`
-  * `cmake --build out/cmake-build-android-debug`
+> ⚠️ **注意**  
+> 在 Windows 上，环境变量路径必须使用 `/` 或 `\\`，避免使用单一的 `\`。  
+> 
+> - **错误示例**: `D:\vcpkg` (cmake 不转义 `\`，导致路径错误)  
+> - **正确示例**: `D:/vcpkg`
 
-### 插件
-* `https://github.com/orgs/wamsoft/repositories?type=all`
+---
+
+### 编译步骤
+
+#### 配置签名证书
+
+在 `android/app` 目录下，准备以下文件：
+
+1. **`sign.keystore`**: 签名证书文件  
+2. **`sign.properties`**: 签名信息文件，格式如下：
+   ```properties
+   SIGN_KEY_ALIAS = sign        # 别名
+   SIGN_KEY_PASS = 123456       # 密码
+   SIGN_STORE_PASS = 123456     # 存储密码
+   ```
+
+#### APK 编译
+
+执行以下命令生成 APK 文件：
+
+- **Release 版本**:  
+  ```bash
+  gradle assembleRelease
+  ```
+- **Debug 版本**:  
+  ```bash
+  gradle assembleDebug
+  ```
+- **全部版本**:  
+  ```bash
+  gradle assemble
+  ```
+
+> **生成的二进制文件位置**:  
+> - Debug: `out/app/outputs/apk/debug`  
+> - Release: `out/app/outputs/apk/release`  
+
+#### SO 动态库编译
+
+为支持多架构，使用以下模板命令生成动态库：
+
+1. 设置架构变量：  
+   - **`arm64-v8a`**: `ANDROID_ABI="arm64-v8a"`  
+   - **`armeabi-v7a`**: `ANDROID_ABI="armeabi-v7a"`
+
+2. 执行命令：  
+
+   - **Release 版本**:  
+     ```bash
+     cmake -GNinja -B out/cmake-build-android-${ANDROID_ABI}-release \
+           -DCMAKE_BUILD_TYPE=Release \
+           -DANDROID_ABI="${ANDROID_ABI}" \
+           -DANDROID_PLATFORM=29
+     cmake --build out/cmake-build-android-${ANDROID_ABI}-release
+     ```
+   - **Debug 版本**:  
+     ```bash
+     cmake -GNinja -B out/cmake-build-android-${ANDROID_ABI}-debug \
+           -DCMAKE_BUILD_TYPE=Debug \
+           -DANDROID_ABI="${ANDROID_ABI}" \
+           -DANDROID_PLATFORM=29
+     cmake --build out/cmake-build-android-${ANDROID_ABI}-debug
+     ```
+
+**示例**：  
+对于 `arm64-v8a` Release 构建：  
+```bash
+cmake -GNinja -B out/cmake-build-android-arm64-v8a-release \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DANDROID_ABI="arm64-v8a" \
+      -DANDROID_PLATFORM=29
+cmake --build out/cmake-build-android-arm64-v8a-release
+```
+
+---
+
+### 插件资源
+
+查看相关插件和工具库：[wamsoft GitHub 仓库](https://github.com/orgs/wamsoft/repositories?type=all)
