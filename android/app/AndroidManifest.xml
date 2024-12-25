@@ -4,7 +4,6 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.github.krkr2"
     android:versionCode="64"
     android:versionName="1.4.0">
 

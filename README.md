@@ -11,14 +11,12 @@
 
 请确保以下工具已正确安装：
 
-- `python2`
-- `tar@latest`
+- `python2`: 如果你是Windows不需要自己安装，vcpkg会自动处理
 - `ninja@latest`
 - `cmake@22+`
 - `vcpkg@latest`
 - `AndroidSDK@33+`
 - `AndroidNDK@27.2.12479018`
-- `gradle@8.10`
 - `jdk@17`
 
 ---
@@ -59,18 +57,15 @@
 
 执行以下命令生成 APK 文件：
 
-- **Release 版本**:  
-  ```bash
-  gradle assembleRelease
-  ```
-- **Debug 版本**:  
-  ```bash
-  gradle assembleDebug
-  ```
 - **全部版本**:  
-  ```bash
-  gradle assemble
-  ```
+  - Windows
+    ```bash
+    ./gradlew.bat assemble
+    ```
+  - Linux
+    ```bash
+    ./gradlew assemble
+    ```
 
 > **生成的二进制文件位置**:  
 > - Debug: `out/app/outputs/apk/debug`  

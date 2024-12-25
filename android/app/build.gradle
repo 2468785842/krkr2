@@ -5,11 +5,7 @@ plugins {
 android {
     ndkVersion '27.2.12479018'
     compileSdk PROP_COMPILE_SDK_VERSION.toInteger()
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
-    }
+    namespace 'org.github.krkr2'
 
     defaultConfig {
         applicationId 'org.github.krkr2'
@@ -40,17 +36,11 @@ android {
         release {
             storeFile file('sign.keystore')
             def signPropsFile = file('sign.properties')
-            if (signPropsFile.exists()) {
-                Properties signProps = new Properties()
-                signProps.load(new FileInputStream(signPropsFile))
-                keyAlias signProps['SIGN_KEY_ALIAS']
-                keyPassword signProps['SIGN_KEY_PASS']
-                storePassword signProps['SIGN_STORE_PASS']
-            } else {
-                keyAlias System.getenv('SIGN_KEY_ALIAS')
-                keyPassword System.getenv('SIGN_KEY_PASS')
-                storePassword System.getenv('SIGN_STORE_PASS')
-            }
+            Properties signProps = new Properties()
+            signProps.load(new FileInputStream(signPropsFile))
+            keyAlias signProps['SIGN_KEY_ALIAS']
+            keyPassword signProps['SIGN_KEY_PASS']
+            storePassword signProps['SIGN_STORE_PASS']
         }
     }
 
@@ -75,9 +65,14 @@ android {
             java.srcDirs = ['java']
             res.srcDirs = ['res']
             jniLibs.srcDirs = ['jniLibs']
-            assets.srcDirs = ['../assets']
+            assets.srcDirs = ['../../ui/cocos-studio']
         }
 
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
 //    externalNativeBuild {
@@ -109,14 +104,15 @@ android {
 dependencies {
     //implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':cocos2dx')
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+
+    //note: sdk 33 latest support version
+    //noinspection GradleDependency
+    implementation 'androidx.activity:activity:1.6.1'
     //noinspection GradleDependency
     implementation 'androidx.appcompat:appcompat:1.6.1'
     //noinspection GradleDependency
-    implementation 'androidx.documentfile:documentfile:1.0.1'
-    //noinspection GradleDependency
-    implementation 'androidx.activity:activity:1.2.3'
-    //noinspection GradleDependency
-    implementation 'androidx.fragment:fragment:1.3.4'
+    implementation 'androidx.fragment:fragment:1.6.2'
 
     configurations.configureEach {
         resolutionStrategy {
