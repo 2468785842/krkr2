@@ -18,16 +18,16 @@ android {
             abiFilters 'arm64-v8a', 'armeabi-v7a'
         }
 
-//        externalNativeBuild {
-//            cmake {
-//                def buildTypeName = {
-//                    return project.gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') } ? "Release" : "Debug"
-//                }
-//                targets 'krkr2'
-//                arguments "-DCMAKE_BUILD_TYPE=${buildTypeName()}"
-//                cppFlags '-fsigned-char'
-//            }
-//        }
+        externalNativeBuild {
+            cmake {
+                def buildTypeName = {
+                    return project.gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') } ? "Release" : "Debug"
+                }
+                targets 'krkr2'
+                arguments "-DCMAKE_BUILD_TYPE=${buildTypeName()}"
+                cppFlags '-fsigned-char'
+            }
+        }
         versionCode Integer.parseInt(new Date().format('yyyyMMddHH'))
         versionName '1.4.0'
     }
@@ -64,7 +64,7 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['java']
             res.srcDirs = ['res']
-            jniLibs.srcDirs = ['jniLibs']
+//            jniLibs.srcDirs = ['jniLibs']
             assets.srcDirs = ['../../ui/cocos-studio']
         }
 
@@ -75,12 +75,12 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-//    externalNativeBuild {
-//        cmake {
-//            buildStagingDirectory '../../out/cmake-build-android'
-//            path '../../CMakeLists.txt'
-//        }
-//    }
+    externalNativeBuild {
+        cmake {
+            buildStagingDirectory '../../out/cmake-build-android'
+            path '../../CMakeLists.txt'
+        }
+    }
 
     splits {
         abi {
