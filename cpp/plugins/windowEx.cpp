@@ -1,6 +1,6 @@
 //
 // Created by Li_Dong on 2024/12/9.
-// source url: https://github.com/wamsoft/windowEx/blob
+// source code url: https://github.com/wamsoft/windowEx/blob
 //
 #include "ncbind/ncbind.hpp"
 #include "DetectCPU.h"
@@ -46,6 +46,9 @@ typedef void *PVOID;
 typedef PVOID HANDLE;
 typedef HANDLE HMENU;
 typedef HANDLE HWND;
+typedef HANDLE HICON;
+typedef HANDLE HDC;
+typedef HANDLE HBITMAP;
 typedef unsigned long DWORD;
 
 typedef unsigned short WORD;
@@ -126,13 +129,13 @@ struct WindowEx {
     static tjs_error TJS_INTF_METHOD
     resetWindowIcon(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx::GetHWND(obj);
-        return true;
+        return TJS_S_OK;
     }
 
     // setWindowIcon
     static tjs_error TJS_INTF_METHOD
     setWindowIcon(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
-        return true;
+        return TJS_S_OK;
     }
 
     // getWindowRect
@@ -158,7 +161,6 @@ struct WindowEx {
         ncbDictAcc.SetValue(TJS_W("w"),w);
         auto h = rect.bottom - rect.top;
         ncbDictAcc.SetValue(TJS_W("h"),h);
-
         auto* dis = ncbDictAcc.GetDispatch();
         r->SetObject(dis, dis);
 
@@ -244,7 +246,7 @@ struct WindowEx {
     static tjs_error TJS_INTF_METHOD
     setDisableResize(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (self == NULL) return TJS_E_ACCESSDENYED;
+        if (self == nullptr) return TJS_E_ACCESSDENYED;
         self->disableResize = !!p[0]->AsInteger();
         return TJS_S_OK;
     }
@@ -253,14 +255,14 @@ struct WindowEx {
     static tjs_error TJS_INTF_METHOD
     getDisableMove(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (r) *r = (self != NULL && self->disableMove);
+        if (r) *r = (self != nullptr && self->disableMove);
         return TJS_S_OK;
     }
 
     static tjs_error TJS_INTF_METHOD
     setDisableMove(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (self == NULL) return TJS_E_ACCESSDENYED;
+        if (self == nullptr) return TJS_E_ACCESSDENYED;
         self->disableMove = !!p[0]->AsInteger();
         //_resetExSystemMenu(self);
         return TJS_S_OK;
@@ -270,22 +272,22 @@ struct WindowEx {
     static tjs_error TJS_INTF_METHOD
     setOverlayBitmap(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        return (self != NULL) ? self->_setOverlayBitmap(n, p) : TJS_E_ACCESSDENYED;
+        return (self != nullptr) ? self->_setOverlayBitmap(n, p) : TJS_E_ACCESSDENYED;
     }
 
     // property exSystemMenu
     static tjs_error TJS_INTF_METHOD
     getExSystemMenu(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (r && self != NULL) *r = tTJSVariant(self->sysMenuModified, self->sysMenuModified);
+        if (r && self != nullptr) *r = tTJSVariant(self->sysMenuModified, self->sysMenuModified);
         return TJS_S_OK;
     }
 
     static tjs_error TJS_INTF_METHOD
     setExSystemMenu(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (self == NULL) return TJS_E_ACCESSDENYED;
-        if (self->sysMenuModified != NULL) {
+        if (self == nullptr) return TJS_E_ACCESSDENYED;
+        if (self->sysMenuModified != nullptr) {
             self->resetSystemMenu();
             self->sysMenuModified->Release();
         }
@@ -304,14 +306,14 @@ struct WindowEx {
     static tjs_error TJS_INTF_METHOD
     getEnNCMEvent(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (r) *r = (self != NULL && self->enableNCMEvent);
+        if (r) *r = (self != nullptr && self->enableNCMEvent);
         return TJS_S_OK;
     }
 
     static tjs_error TJS_INTF_METHOD
     setEnNCMEvent(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (self == NULL) return TJS_E_ACCESSDENYED;
+        if (self == nullptr) return TJS_E_ACCESSDENYED;
         self->enableNCMEvent = !!p[0]->AsInteger();
         return TJS_S_OK;
     }
@@ -319,6 +321,9 @@ struct WindowEx {
     // ncHitTest
     static tjs_error TJS_INTF_METHOD
     nonClientHitTest(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
+        if (n < 2) return TJS_E_BADPARAMCOUNT;
+        tjs_int x = (p[0]->AsInteger()) & 0xFFFF;
+        tjs_int y = (p[1]->AsInteger()) & 0xFFFF;
         return TJS_S_OK;
     }
 
@@ -349,12 +354,30 @@ struct WindowEx {
     // bringTo
     static tjs_error TJS_INTF_METHOD
     bringTo(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
-
+        HWND hwnd = GetHWND(obj);
+        if (hwnd != nullptr) {
+            if (n >= 1) {
+                switch (p[0]->Type()) {
+                    case tvtString: {
+                        ttstr str(*p[0]);
+                        str.ToLowerCase();
+                    }
+                        break;
+                    case tvtObject:
+                    {
+                        iTJSDispatch2 *win = p[0]->AsObjectNoAddRef();
+                        if (win && win->IsInstanceOf(0, 0, 0, TJS_W("Window"), win))
+                            GetHWND(win);
+                    }
+                        break;
+                }
+            }        }
         return TJS_S_OK;
     }
 
     static tjs_error TJS_INTF_METHOD
     sendToBack(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
+        WindowEx::GetHWND(obj);
         return TJS_S_OK;
     }
 
@@ -437,9 +460,15 @@ struct WindowEx {
     }
 
     void checkExEvents() {
+        hasResizing = hasMember(EXEV_RESIZING);
+        hasMoving   = hasMember(EXEV_MOVING);
+        hasMove     = hasMember(EXEV_MOVE);
+        hasNcMsMove = hasMember(EXEV_NCMSMOVE);
     }
 
     void deleteOverlayBitmap() {
+        if (ovbmp) delete ovbmp;
+        ovbmp = nullptr;
     }
 
     void resetSystemMenu();
@@ -454,7 +483,7 @@ struct WindowEx {
         return (enableWinMsgHook = on);
     }
 
-    static tjs_int getWindowNotificationNum(const ttstr& key) {
+    static tjs_int getWindowNotificationNum(ttstr key) {
         tTJSVariant tmp;
         if (!_getNotificationVariant(tmp))
             TVPThrowExceptionMessage(TJS_W("cache setup failed."));
@@ -472,6 +501,16 @@ struct WindowEx {
 
 protected:
     tjs_error _setOverlayBitmap(tjs_int n, tTJSVariant **p) {
+        if (n > 0 && p[0]->Type() == tvtObject) {
+            if (!ovbmp) {
+                ovbmp = new OverlayBitmap();
+                if (!ovbmp) return TJS_E_FAIL;
+            }
+            if (!ovbmp->setBitmap(self, p[0]->AsObjectNoAddRef())) {
+                deleteOverlayBitmap();
+                return TJS_E_FAIL;
+            }
+        }
         return TJS_S_OK;
     }
 
@@ -482,12 +521,33 @@ protected:
 private:
     iTJSDispatch2 *self, *menuex;
     iTJSDispatch2 *sysMenuModified, *sysMenuModMap; //< システムメニュー改変用
+    HWND cachedHWND;
+    HMENU sysMenu;
+    HICON externalIcon;
+    bool hasResizing, hasMoving, hasMove, hasNcMsMove; //< メソッドが存在するかフラグ
     bool disableResize; //< サイズ変更禁止
     bool disableMove; //< ウィンドウ移動禁止
     bool enableNCMEvent; //< WM_SETCURSORコールバック
     bool enableWinMsgHook; //< メッセージフック有効
-    HWND cachedHWND;
-    HMENU sysMenu;
+    DWORD bitHooks[0x0400/32];
+public:
+    //----------------------------------------------------------
+    // オーバーレイビットマップ用サブクラス
+    //----------------------------------------------------------
+    struct OverlayBitmap {
+        OverlayBitmap() : overlay(0), bitmap(0), bmpdc(0) {}
+      bool setBitmap(iTJSDispatch2 *win, iTJSDispatch2 *lay) {
+            if (!lay || !lay->IsInstanceOf(0, 0, 0, TJS_W("Layer"), lay)) return false;
+            WindowEx::GetHWND(win);
+            return true;
+        }
+    private:
+        HWND overlay;
+        HBITMAP bitmap;
+        HDC bmpdc;
+        tjs_int bmpx, bmpy, bmpw, bmph;
+//        static ATOM WindowClass;
+    } *ovbmp;
 };
 
 
@@ -548,7 +608,7 @@ RawCallback(TJS_W("disableResize"), &Class::getDisableResize, &Class::setDisable
 //RawCallback(TJS_W("disableMove"), &Class::getDisableMove, &Class::setDisableMove, 0);
 RawCallback(TJS_W("setOverlayBitmap"), &Class::setOverlayBitmap, 0);
 RawCallback(TJS_W("exSystemMenu"), &Class::getExSystemMenu, &Class::setExSystemMenu, 0);
-RawCallback(TJS_W("resetExSystemMenu"), &Class::resetExSystemMenu, 0);
+//RawCallback(TJS_W("resetExSystemMenu"), &Class::resetExSystemMenu, 0);
 RawCallback(TJS_W("enableNCMouseEvent"), &Class::getEnNCMEvent, &Class::setEnNCMEvent, 0);
 RawCallback(TJS_W("ncHitTest"), &Class::nonClientHitTest, 0);
 RawCallback(TJS_W("focusMenuByKey"), &Class::focusMenuByKey, 0);
@@ -572,7 +632,7 @@ struct MenuItemEx {
 
     // メニューを取得
     static HMENU GetHMENU(iTJSDispatch2 *obj) {
-        if (!obj) return NULL;
+        if (!obj) return nullptr;
         tTJSVariant val;
         iTJSDispatch2 *global = TVPGetScriptDispatch(), *mi;
         if (global) {
@@ -630,11 +690,11 @@ struct MenuItemEx {
 
     // ウィンドウを取得
     static iTJSDispatch2 *GetWindow(iTJSDispatch2 *obj) {
-        if (!obj) return NULL;
+        if (!obj) return nullptr;
         tTJSVariant val;
         obj->PropGet(0, TJS_W("root"), 0, &val, obj);
         obj = val.AsObjectNoAddRef();
-        if (!obj) return NULL;
+        if (!obj) return nullptr;
         val.Clear();
         obj->PropGet(0, TJS_W("window"), 0, &val, obj);
         return val.AsObjectNoAddRef();
@@ -688,7 +748,7 @@ struct MenuItemEx {
     void updateMenuItemInfo() {
         iTJSDispatch2 *parent = GetParentMenu(obj);
         HMENU hmenu = GetHMENU(parent);
-        if (hmenu == NULL) TVPThrowExceptionMessage(TJS_W("Cannot get parent menu."));
+        if (hmenu == nullptr) TVPThrowExceptionMessage(TJS_W("Cannot get parent menu."));
 
         if (!id || !setMenuItemInfo(hmenu, id, false)) {
             if (setMenuItemInfo(hmenu, GetIndex(obj, parent), true))
@@ -806,7 +866,7 @@ void WindowEx::checkUpdateMenuItem(HMENU menu, int pos, UINT id) {
     if (TJS_SUCCEEDED(chk) && var.Type() == tvtObject) {
         iTJSDispatch2 *obj = var.AsObjectNoAddRef();
         MenuItemEx * ex = ncbInstanceAdaptor<MenuItemEx>::GetNativeInstance(obj);
-        if (ex != NULL) ex->setMenuItemInfo(menu, pos, true);
+        if (ex != nullptr) ex->setMenuItemInfo(menu, pos, true);
     }
 }
 
@@ -821,12 +881,18 @@ void WindowEx::setMenuItemID(iTJSDispatch2 *obj, UINT id, bool set) {
 }
 
 void WindowEx::resetSystemMenu() {
-    if (sysMenuModMap != NULL) sysMenuModMap->Release();
-    sysMenuModMap = NULL;
+    if (sysMenuModMap != nullptr) sysMenuModMap->Release();
+    sysMenuModMap = nullptr;
 }
 
 void WindowEx::modifySystemMenu() {
-
+    resetSystemMenu();
+    if (sysMenuModified == nullptr || cachedHWND == nullptr) return;
+    sysMenuModMap = TJSCreateDictionaryObject();
+    WORD id = 0xF000-1;
+    sysMenu = nullptr;
+    sysMenuModMap->Release();
+    sysMenuModMap = nullptr;
 }
 
 
@@ -902,7 +968,7 @@ struct PadEx {
         obj->PropGet(0, TJS_W("title"), 0, &val, obj);
         obj->PropSet(0, TJS_W("title"), 0, &_uuid, obj);
 
-        SearchWork wk = {TJS_W("TTVPPadForm"), _uuid, NULL};
+        SearchWork wk = {TJS_W("TTVPPadForm"), _uuid, nullptr};
         obj->PropSet(0, TJS_W("title"), 0, &val, obj);
         return wk.result;
     }
@@ -1088,7 +1154,7 @@ struct Scripts {
     // Scripts.eval オーバーライド
     static tjs_error TJS_INTF_METHOD
     eval(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *objthis) {
-        if (outputErrorLogOnEval) return evalOrig->FuncCall(0, NULL, NULL, r, n, p, objthis);
+        if (outputErrorLogOnEval) return evalOrig->FuncCall(0, nullptr, nullptr, r, n, p, objthis);
 
         if (n < 1) return TJS_E_BADPARAMCOUNT;
         ttstr content = *p[0], name;
@@ -1109,13 +1175,13 @@ struct Scripts {
 
     static void UnRegist() {
         if (evalOrig) evalOrig->Release();
-        evalOrig = NULL;
+        evalOrig = nullptr;
     }
 
     static iTJSDispatch2 *evalOrig;
 };
 
-iTJSDispatch2 *Scripts::evalOrig = NULL;  // Scripts.evalの元のオブジェクト
+iTJSDispatch2 *Scripts::evalOrig = nullptr;  // Scripts.evalの元のオブジェクト
 bool            Scripts::outputErrorLogOnEval = true; // 切り替えフラグ
 
 // Scriptsに関数を追加

@@ -11,10 +11,17 @@ android {
         versionName "1.0"
     }
 
+    buildFeatures.aidl = true
+
     sourceSets.main {
         aidl.srcDir "./java/src"
         java.srcDir "./java/src"
         manifest.srcFile "AndroidManifest.xml"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     buildTypes {
