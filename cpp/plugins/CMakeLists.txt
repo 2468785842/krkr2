@@ -16,7 +16,7 @@ add_library(${PROJECT_NAME} STATIC
     getabout.cpp
     addFont.cpp
     wutcwf.cpp
-#    windowEx.cpp
+    windowEx.cpp
     getSample.cpp
     layerExPerspective.cpp
     fftgraph.cpp

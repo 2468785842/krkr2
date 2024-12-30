@@ -412,8 +412,8 @@ tTJSCustomObject::tTJSCustomObject(tjs_int hashbits)
 	}
 	finalize_name = FinalizeName;
 	missing_name = MissingName;
-	for(tjs_int i=0; i<TJS_MAX_NATIVE_CLASS; i++)
-		ClassIDs[i] = (tjs_int32)-1;
+	for(int & ClassID : ClassIDs)
+		ClassID = (tjs_int32)-1;
 }
 //---------------------------------------------------------------------------
 tTJSCustomObject::~tTJSCustomObject()

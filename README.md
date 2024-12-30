@@ -57,15 +57,14 @@
 
 执行以下命令生成 APK 文件：
 
-- **全部版本**:  
-  - Windows
-    ```bash
-    ./gradlew.bat assemble
-    ```
-  - Linux
-    ```bash
-    ./gradlew assemble
-    ```
+- Windows
+```bash
+./gradlew.bat assemble
+```
+- Linux
+```bash
+./gradlew assemble
+```
 
 > **生成的二进制文件位置**:  
 > - Debug: `out/app/outputs/apk/debug`  
