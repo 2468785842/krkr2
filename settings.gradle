@@ -16,6 +16,6 @@ dependencyResolutionManagement {
 
 rootProject.name = 'krkr2'
 include ':cocos2dx'
-project(':cocos2dx').projectDir = file('android/libcocos2dx-3.6')
+project(':cocos2dx').projectDir = file('android/libcocos2dx')
 include ':app'
 project(':app').projectDir = file('android/app')
