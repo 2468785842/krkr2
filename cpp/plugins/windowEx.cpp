@@ -152,12 +152,16 @@ struct WindowEx {
 
         ncbDictionaryAccessor ncbDictAcc;
 
-        ncbDictAcc.SetValue(TJS_W("x"),rect.left,0x200,0);
-        ncbDictAcc.SetValue(TJS_W("y"),rect.top,0x200,0);
+        ncbDictAcc.SetValue(TJS_W("x"),rect.left);
+        ncbDictAcc.SetValue(TJS_W("y"),rect.top);
         auto w = rect.right - rect.left;
-        ncbDictAcc.SetValue(TJS_W("w"),w,0x200,0);
+        ncbDictAcc.SetValue(TJS_W("w"),w);
         auto h = rect.bottom - rect.top;
-        ncbDictAcc.SetValue(TJS_W("h"),h,0x200,0);
+        ncbDictAcc.SetValue(TJS_W("h"),h);
+
+        auto* dis = ncbDictAcc.GetDispatch();
+        r->SetObject(dis, dis);
+
         return TJS_S_OK;
     }
 
