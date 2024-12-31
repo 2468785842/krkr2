@@ -1,6 +1,5 @@
 package org.github.krkr2;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -25,24 +24,19 @@ public class MainActivity extends KR2Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 如果是 Android 13 或更高版本，检查 MANAGE_EXTERNAL_STORAGE 权限
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (!isStoragePermissionGranted()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (isStoragePermissionMissing()) {
                 requestStoragePermission();
-            } else {
-                // 已经拥有权限，可以执行相关操作
-                Toast.makeText(this, "Storage Permission Granted!", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     // 检查 MANAGE_EXTERNAL_STORAGE 权限
-    private boolean isStoragePermissionGranted() {
+    private boolean isStoragePermissionMissing() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return Environment.isExternalStorageManager();
-        } else {
-            return ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+            return !Environment.isExternalStorageManager();
         }
+        return ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
     }
 
     // 请求用户授予 MANAGE_EXTERNAL_STORAGE 权限
@@ -66,17 +60,9 @@ public class MainActivity extends KR2Activity {
 
         // 用户是否授予了权限
         if (requestCode == REQUEST_MANAGE_STORAGE_PERMISSION) {
-            if (isStoragePermissionGranted()) {
-                Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show();
-                // 继续执行需要权限的操作
-            } else {
+            if (isStoragePermissionMissing()) {
                 Toast.makeText(this, "Permission Denied. Please grant permission to proceed.", Toast.LENGTH_LONG).show();
             }
         }
-    }
-
-    @Override
-    public int get_res_sd_operate_step() {
-        return R.drawable.sd_operate_step;
     }
 }

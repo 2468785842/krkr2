@@ -103,15 +103,10 @@ android {
 dependencies {
     //implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':cocos2dx')
-    implementation 'androidx.documentfile:documentfile:1.0.1'
 
-    //note: sdk 33 latest support version
-    //noinspection GradleDependency
-    implementation 'androidx.activity:activity:1.6.1'
-    //noinspection GradleDependency
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    //noinspection GradleDependency
-    implementation 'androidx.fragment:fragment:1.6.2'
+    implementation 'androidx.activity:activity:1.9.3'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.fragment:fragment:1.8.5'
 
     configurations.configureEach {
         resolutionStrategy {

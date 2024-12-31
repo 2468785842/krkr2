@@ -56,3 +56,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH} ${KRKR2PLU
 target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${COCOS2DX_EXTERNAL_HEADER_DIRS})
+
+add_subdirectory(psdfile)
+target_link_libraries(${PROJECT_NAME} PUBLIC psdfile)

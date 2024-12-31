@@ -44,8 +44,8 @@ void TVPPrintLog(const char *str) {
 }
 
 static tjs_uint32 _lastMemoryInfoQuery = 0;
-static tjs_int _availMemory, _usedMemory;
-static void _updateMemoryInfo() {
+static tjs_int _availMemory, usedMemory;
+static void updateMemoryInfo() {
 	if (TVPGetRoughTickCount32() - _lastMemoryInfoQuery > 3000) { // freq in 3s
 
 		JniMethodInfo methodInfo;
@@ -64,7 +64,7 @@ static void _updateMemoryInfo() {
 		if (JniHelper::getStaticMethodInfo(methodInfo, KR2ActJavaPath, "getUsedMemory", "()J"))
 		{
 			// in kB
-			_usedMemory = methodInfo.env->CallStaticLongMethod(methodInfo.classID, methodInfo.methodID) / 1024;
+			usedMemory = methodInfo.env->CallStaticLongMethod(methodInfo.classID, methodInfo.methodID) / 1024;
 			methodInfo.env->DeleteLocalRef(methodInfo.classID);
 		}
 
@@ -74,14 +74,14 @@ static void _updateMemoryInfo() {
 
 tjs_int TVPGetSystemFreeMemory()
 {
-	_updateMemoryInfo();
+	updateMemoryInfo();
 	return _availMemory;
 }
 
 tjs_int TVPGetSelfUsedMemory()
 {
-	_updateMemoryInfo();
-	return _usedMemory;
+	updateMemoryInfo();
+	return usedMemory;
 }
 
 void TVPForceSwapBuffer() {
@@ -140,7 +140,7 @@ std::string TVPGetDeviceID()
 		JniMethodInfo methodInfo;
 		if (JniHelper::getStaticMethodInfo(methodInfo, KR2ActJavaPath, "getDeviceId", "()Ljava/lang/String;"))
 		{
-			jstring result = (jstring)methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID);
+			auto result = (jstring)methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID);
 			ret = JniHelper::jstring2string(result);
 			methodInfo.env->DeleteLocalRef(result);
 			methodInfo.env->DeleteLocalRef(methodInfo.classID);
@@ -199,19 +199,19 @@ extern zlib_filefunc64_def TVPZlibFileFunc;
 class ZipFile
 {
 	unzFile uf;
-	bool utf8;
+	bool utf8{};
 
 public:
-	ZipFile() : uf(0) {
+	ZipFile() : uf(nullptr) {
 	}
 	~ZipFile() {
 		if (uf) {
 			unzClose(uf);
-			uf = NULL;
+			uf = nullptr;
 		}
 	}
     bool Open(const char *filename) {
-        if ((uf = unzOpen(filename)) == NULL) {
+        if ((uf = unzOpen(filename)) == nullptr) {
             ttstr msg = filename;
             msg += TJS_W(" can't open.");
             TVPThrowExceptionMessage(msg.c_str());
@@ -220,7 +220,7 @@ public:
         // UTF8¤Ê¥Õ¥¡¥¤¥ëÃû¤«¤É¤¦¤«¤ÎÅÐ¶¨¡£×î³õ¤Î¥Õ¥¡¥¤¥ë¤Ç›Q¤á¤ë
         unzGoToFirstFile(uf);
         unz_file_info file_info;
-        if (unzGetCurrentFileInfo(uf, &file_info, NULL, 0, NULL, 0, NULL, 0) == UNZ_OK) {
+        if (unzGetCurrentFileInfo(uf, &file_info, nullptr, 0, nullptr, 0, nullptr, 0) == UNZ_OK) {
             utf8 = (file_info.flag & FLAG_UTF8) != 0;
             return true;
         }
@@ -232,7 +232,7 @@ public:
 			int result = unzOpenCurrentFile(uf);
 			if (result == UNZ_OK) {
 				unz_file_info info;
-				unzGetCurrentFileInfo(uf, &info, NULL, 0, NULL, 0, NULL, 0);
+				unzGetCurrentFileInfo(uf, &info, nullptr, 0, nullptr, 0, nullptr, 0);
 				buff.resize(info.uncompressed_size);
 				unsigned int size = unzReadCurrentFile(uf, &buff[0], info.uncompressed_size);
 				if (size == info.uncompressed_size) ret = true;
@@ -250,12 +250,12 @@ public:
         union {
             tjs_int64 _s64[2];
             tjs_uint8 _u8[16];
-        } digest;
+        } digest{};
         md5_finish(&state, digest._u8);
         return digest._s64[0] ^ digest._s64[1];
     }
 private:
-	unzFile zipFile;
+	unzFile zipFile{};
 };
 
 std::string TVPGetDeviceLanguage() {
@@ -632,8 +632,8 @@ static bool IsOreo() {
 
 bool TVPCheckStartupPath(const std::string &path) {
 	// check writing permission first
-	int pos = path.find_last_of('/');
-	if (pos == path.npos) return false;
+	size_t pos = path.find_last_of('/');
+	if (pos == std::string::npos) return false;
 	std::string parent = path.substr(0, pos);
 	JniMethodInfo methodInfo;
 	bool success = false;
@@ -657,9 +657,9 @@ bool TVPCheckStartupPath(const std::string &path) {
 		paths.emplace_back(GetInternalStoragePath());
 		GetExternalStoragePath(paths);
 		std::string msg = LocaleConfigManager::GetInstance()->GetText("use_internal_path");
-		if (paths.size() > 0) {
-			size_t pos = msg.find("%1");
-			if (pos != msg.npos) {
+		if (!paths.empty()) {
+			pos = msg.find("%1");
+			if (pos != std::string::npos) {
 				msg = msg.replace(msg.begin() + pos, msg.begin() + pos + 2, paths.back());
 			}
 		}

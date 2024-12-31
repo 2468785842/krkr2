@@ -17,7 +17,7 @@
 - `vcpkg@latest`
 - `AndroidSDK@33+`
 - `AndroidNDK@27.2.12479018`
-- `jdk@21`
+- `jdk@17`
 
 ---
 

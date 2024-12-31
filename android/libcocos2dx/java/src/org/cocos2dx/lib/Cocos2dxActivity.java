@@ -253,7 +253,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     }
 
 
-    protected ResizeLayout mFrameLayout = null;
+    public ResizeLayout mFrameLayout = null;
     // ===========================================================
     // Methods
     // ===========================================================
