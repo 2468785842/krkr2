@@ -2,9 +2,12 @@
 #define __PSDCLASS_H__
 
 //#define LOAD_MEMORY
-
+#include "typedefine.h"
 #include "tp_stub.h"
 #include "psdparse/psdfile.h"
+#include "ncbind.hpp"
+
+#define NCB_MODULE_NAME TJS_W("psd.dll")
 
 class PSDStorage;
 class PSDIterator;
@@ -45,7 +48,7 @@ public:
 	 * @param filename ファイル名
 	 * @return ロードに成功したら true
 	 */
-	bool load(ttstr filename);
+	bool load(const tjs_char* filename);
 
 	static void clearStorageCache();
 	
@@ -156,7 +159,7 @@ protected:
 
 	//< PSDファイル読み込みキャッシュ用バッファ
 	tTVInteger mBufferPos;
-	ULONG mBufferSize;
+    ULONG mBufferSize;
 	unsigned char mBuffer[4*1024];
 #endif
 	

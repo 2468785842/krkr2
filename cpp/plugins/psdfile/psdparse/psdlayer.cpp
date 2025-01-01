@@ -75,7 +75,7 @@ namespace psd {
             Descriptor *comp = settings->item(i);
             DescriptorList *compList = comp->item("compList");
             if (compList) {
-              LayerCompInfo ci;
+              LayerCompInfo ci{};
               memset(&ci, 0, sizeof(ci));
 
               int compId = ((DescriptorInteger*)compList->items[0])->val;

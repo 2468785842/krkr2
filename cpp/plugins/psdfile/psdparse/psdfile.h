@@ -32,7 +32,6 @@ namespace psd {
                        int bufPitchByte, ImageMode mode);
     bool getLayerImageById(int layerId, void *buf, const ColorFormat &format,
                            int bufPitchByte, ImageMode mode);
-
   private:
 		// loadFileで使用するメモリマップドファイル
     // (画像の遅延読み込みの関係上 Data 生存期間中は開きっぱなし)

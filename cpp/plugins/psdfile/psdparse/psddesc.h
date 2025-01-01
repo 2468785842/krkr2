@@ -90,7 +90,7 @@ namespace psd {
       case TYPE_ALIAS:         s = "Alias";       break;
       case TYPE_RAW_DATA:      s = "RawData";     break;
       default:                 s= "Unknown";      break;
-      };
+      }
       return s;
     }
 
@@ -231,11 +231,11 @@ namespace psd {
     }
 
     // 戻り値オーバーロード用のクラス
-    struct _getter {
+    [[nodiscard]] struct _getter {
       _getter(const std::vector<DescriptorItem*>& items, int id)
       : items(items), id(id) { }
       DescriptorItem *get() const {
-        return (id >= 0 && id <= (int)items.size()) ? items[id] : 0;
+        return (id >= 0 && id <= (int)items.size()) ? items[id] : nullptr;
       }
 #define GETTER(type) operator type*() const { return (type*)get(); }
       GETTER(Descriptor);
@@ -254,7 +254,9 @@ namespace psd {
     private:
       const std::vector<DescriptorItem*>& items;
       int id;
-    } item(int id) const {
+    };
+
+    _getter item(int id) const {
       return _getter(items, id);
     }
 
@@ -275,7 +277,7 @@ namespace psd {
     DescriptorUnitFloat() : DescriptorItem(TYPE_UNIT_FLOAT) {}
     virtual bool load(IteratorBase *data);
     virtual void dump(int indent) {
-      const char *unitStr = 0;
+      const char *unitStr = nullptr;
       switch (unit) {
       case UNIT_POINTS:      unitStr = "Points";                  break;
       case UNIT_MILLIMETERS: unitStr = "MilliMeters";             break;

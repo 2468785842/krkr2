@@ -1,12 +1,13 @@
 #include <ncbind.hpp>
-
+#include "combase.h"
+#include "EventIntf.h"
+#include "ScriptMgnIntf.h"
 #include "psdclass.h"
 
 // -----------------------------------------------------------------------------
 // ストレージ機能
 // -----------------------------------------------------------------------------
-#define NCB_MODULE_NAME TJS_W("psdfile.dll")
-#define BASENAME L"psd"
+#define BASENAME TJS_W("psd")
 
 /**
  * PSDストレージ
@@ -108,14 +109,15 @@ public:
 	// open a storage and return a iTJSBinaryStream instance.
 	// name does not contain in-archive storage name but
 	// is normalized.
-	virtual iTJSBinaryStream * TJS_INTF_METHOD Open(const ttstr & name, tjs_uint32 flags) {
+	virtual tTJSBinaryStream * TJS_INTF_METHOD Open(const ttstr & name, tjs_uint32 flags) {
 		if (flags == TJS_BS_READ) { // 読み込みのみ
 			ttstr fname;
 			PSD *psd = getPSD(name, fname);
 			if (psd) {
 				IStream *stream = psd->openLayerImage(fname);
 				if (stream) {
-					iTJSBinaryStream *ret = TVPCreateBinaryStreamAdapter(stream);
+
+                    tTJSBinaryStream *ret = TVPCreateBinaryStreamAdapter(stream);
 					stream->Release();
 					return ret;
 				}
@@ -163,10 +165,10 @@ protected:
 		// 小文字で正規化
 		name.ToLowerCase();
 		// ドメイン名とそれ以降を分離
-		ttstr dname;
+		tTJSString dname;
 		const tjs_char *p = name.c_str();
 		const tjs_char *q;
-		if ((q = wcschr(p, '/'))) {
+		if ((q = TJS_strchr(p, '/'))) {
 			dname = ttstr(p, q-p);
 			fname = ttstr(q+1);
 		} else {
@@ -191,10 +193,10 @@ protected:
 		}
 
 		// 自分でopenしてそのままキャッシュとして持つ
-		TVPExecuteExpression(L"new PSD()", &cache);
+		TVPExecuteExpression(TJS_W("new PSD()"), &cache);
 		psd = ncbInstanceAdaptor<PSD>::GetNativeInstance(cache.AsObjectNoAddRef());
 		if (psd) {
-			if (psd->load(dname)) {
+			if (psd->load(dname.c_str())) {
 				return psd;
 			} else {
 				clearCache();
@@ -224,14 +226,14 @@ PSD::addToStorage(const ttstr &filename)
 	// 登録用ベース名を生成
 	const tjs_char *p = filename.c_str();
 	const tjs_char *q;
-	if ((q = wcsrchr(p, '/'))) {
+	if ((q = TJS_strchr(p, '/'))) {
 		dname = ttstr(q+1);
 	} else {
 		dname = filename;
 	}
 	// 小文字で正規化
 	dname.ToLowerCase();
-	if (psdStorage != NULL) {
+	if (psdStorage != nullptr) {
 		psdStorage->add(dname, this);
 	}
 }
@@ -240,7 +242,7 @@ PSD::addToStorage(const ttstr &filename)
 void
 PSD::removeFromStorage()
 {
-	if (psdStorage != NULL) {
+	if (psdStorage != nullptr) {
 		psdStorage->remove(this);
 	}
 }
@@ -248,7 +250,7 @@ PSD::removeFromStorage()
 void
 PSD::clearStorageCache()
 {
-	if (psdStorage != NULL) {
+	if (psdStorage != nullptr) {
 		psdStorage->clearCache();
 	}
 }
@@ -258,7 +260,7 @@ PSD::clearStorageCache()
 
 void initStorage()
 {
-	if (psdStorage== NULL) {
+	if (psdStorage== nullptr) {
 		psdStorage = new PSDStorage();
 		TVPRegisterStorageMedia(psdStorage);
 		TVPAddCompactEventHook((tTVPCompactEventCallbackIntf*)psdStorage);
@@ -267,11 +269,11 @@ void initStorage()
 
 void doneStorage()
 {
-	if (psdStorage != NULL) {
+	if (psdStorage != nullptr) {
 		TVPRemoveCompactEventHook((tTVPCompactEventCallbackIntf*)psdStorage);
 		TVPUnregisterStorageMedia(psdStorage);
 		psdStorage->Release();
-		psdStorage = NULL;
+		psdStorage = nullptr;
 	}
 }
 

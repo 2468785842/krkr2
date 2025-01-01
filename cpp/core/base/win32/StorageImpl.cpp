@@ -1212,8 +1212,6 @@ IStream * TVPCreateIStream(const ttstr &name, tjs_uint32 flags)
 
 
 
-
-#if 0
 //---------------------------------------------------------------------------
 // tTVPBinaryStreamAdapter
 //---------------------------------------------------------------------------
@@ -1325,8 +1323,6 @@ tTJSBinaryStream * TVPCreateBinaryStreamAdapter(IStream *refstream)
 	return new  tTVPBinaryStreamAdapter(refstream);
 }
 //---------------------------------------------------------------------------
-#endif
-
 
 
 

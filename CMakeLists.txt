@@ -9,9 +9,7 @@ set(ENV{ANDROID_NDK_HOME} "$ENV{ANDROID_NDK}")
 include(cmake/vcpkg_android.cmake)
 project(krkr2)
 
-set(ANDROID_ARM_NEON ON)
-
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(KRKR2CORE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/core)

@@ -42,7 +42,7 @@ public class MainActivity extends KR2Activity {
     // 请求用户授予 MANAGE_EXTERNAL_STORAGE 权限
     @RequiresApi(api = Build.VERSION_CODES.R)
     private void requestStoragePermission() {
-        Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+        Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
         Uri uri = Uri.fromParts("package", getPackageName(), null);
         intent.setData(uri);
         try {

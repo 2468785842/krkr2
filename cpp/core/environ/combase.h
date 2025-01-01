@@ -42,9 +42,9 @@ public:
         /* [in] */ REFIID riid,
         /* [iid_is][out] */ void **ppvObject) = 0;
 
-    virtual ULONG STDMETHODCALLTYPE AddRef( void) = 0;
+    virtual ULONG STDMETHODCALLTYPE AddRef() = 0;
 
-    virtual ULONG STDMETHODCALLTYPE Release( void) = 0;
+    virtual ULONG STDMETHODCALLTYPE Release() = 0;
 
 };
 
@@ -148,7 +148,7 @@ public:
     virtual HRESULT STDMETHODCALLTYPE Commit( 
         /* [in] */ DWORD grfCommitFlags) = 0;
 
-    virtual HRESULT STDMETHODCALLTYPE Revert( void) = 0;
+    virtual HRESULT STDMETHODCALLTYPE Revert() = 0;
 
     virtual HRESULT STDMETHODCALLTYPE LockRegion( 
         /* [in] */ ULARGE_INTEGER libOffset,

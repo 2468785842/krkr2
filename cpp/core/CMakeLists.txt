@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 project(krkr2core)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 file(GLOB KRKR2CORE_SOURCES

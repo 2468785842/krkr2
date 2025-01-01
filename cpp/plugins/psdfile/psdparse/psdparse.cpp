@@ -11,9 +11,7 @@ Data::processParsed()
   bool success = true;
 
   // イメージリソースを展開
-  for (uint32_t i = 0; i < imageResourceList.size(); i++) {
-    ImageResourceInfo &res = imageResourceList[i];
-
+  for (auto & res : imageResourceList) {
     switch (res.id) {
     case 1032:  // 0x0408 -- (Photoshop 4.0) Grid and guides information. See See Grid and guides resource format.
       success = loadResourceGridAndGuide(*this, res);
@@ -127,7 +125,7 @@ Data::processParsed()
       colorModeIterator &&
       colorModeSize == 768) {
     for (int i = 0; i < 256; i++) {
-      colorTable.colors.push_back(ColorRgba());
+      colorTable.colors.emplace_back();
       colorTable.colors[i].r = colorModeIterator->getCh();
       colorTable.colors[i].a = 0xff;
     }
@@ -144,8 +142,8 @@ Data::processParsed()
   
   // レイヤを展開
   int offset = 0;
-  for (uint32_t i = 0; i < layerList.size(); i++) {
-    LayerInfo &layer = layerList[i];
+  for (auto & i : layerList) {
+    LayerInfo &layer = i;
 
     // 基本情報のセットアップ
     layer.owner = this;
@@ -155,16 +153,14 @@ Data::processParsed()
     layer.fill_opacity = 255;
     
     // チャネルイメージイテレータをチャネル毎に頭出しコピー
-    for (uint32_t ch = 0; ch < layer.channels.size(); ch++) {
-      ChannelInfo &channel = layer.channels[ch];
+    for (auto & channel : layer.channels) {
       channel.imageData = channelImageData->cloneOffset(offset);
       offset += channel.length;
     }
 
     // 追加レイヤ情報を展開
-    LayerExtraData &extra = layerList[i].extraData;
-    for (uint32_t j = 0; j < extra.additionalLayers.size(); j++) {
-      AdditionalLayerInfo &additional = extra.additionalLayers[j];
+    LayerExtraData &extra = i.extraData;
+    for (auto & additional : extra.additionalLayers) {
       if (additional.sigType != 0) { // !8BIM
         std::cerr << "not support: additional layer sig type = '8B64'\n";
         continue;
@@ -203,8 +199,8 @@ Data::processParsed()
 
       // --- 基本的なレイヤ情報 ---
       case 'lsct': // Section divider setting (Photoshop 6.0)
-        success = loadLayerSectionDivider(layer, additional);
-        break;
+//        success = loadLayerSectionDivider(layer, additional);
+//        break;
       case 'lsdk': // *UNDOCUMENTED* key (may be incorrect..)
         success = loadLayerSectionDivider(layer, additional);
         break;
@@ -273,7 +269,7 @@ Data::processParsed()
 
   // グループ情報をリンク
   std::stack<LayerInfo*> parent;
-  parent.push(0);
+  parent.push(nullptr);
   for (int i = (int)layerList.size() - 1; i >= 0; i--) {
     LayerInfo *layer = &layerList[i];
     layer->parent = parent.top();
@@ -296,12 +292,12 @@ Data::processParsed()
 LayerInfo *
 Data::getLayerById(int layerId)
 {
-  for (uint32_t i = 0; i < layerList.size(); i++) {
-    if (layerList[i].layerId == layerId) {
-      return &layerList[i];
+  for (auto & i : layerList) {
+    if (i.layerId == layerId) {
+      return &i;
     }
   }
-  return 0;
+  return nullptr;
 }
 
 } // namespace psd

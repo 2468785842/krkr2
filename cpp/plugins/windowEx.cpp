@@ -398,22 +398,22 @@ struct WindowEx {
             r->Clear();
         }
 
-        ncbPropAccessor ncbPropAcc { obj };
+        ncbPropAccessor ncbPropAcc{obj};
         tjs_int left = ncbPropAcc.getIntValue(TJS_W("left"));
         tjs_int top = ncbPropAcc.getIntValue(TJS_W("top"));
         tjs_int width = ncbPropAcc.getIntValue(TJS_W("width"));
         tjs_int height = ncbPropAcc.getIntValue(TJS_W("height"));
-        tTVPRect rect { left, top, width + left, height + top };
+        tTVPRect rect{left, top, width + left, height + top};
 
         ncbDictionaryAccessor ncbDictAcc;
 
-        ncbDictAcc.SetValue(TJS_W("x"),rect.left);
-        ncbDictAcc.SetValue(TJS_W("y"),rect.top);
+        ncbDictAcc.SetValue(TJS_W("x"), rect.left);
+        ncbDictAcc.SetValue(TJS_W("y"), rect.top);
         auto w = rect.right - rect.left;
-        ncbDictAcc.SetValue(TJS_W("w"),w);
+        ncbDictAcc.SetValue(TJS_W("w"), w);
         auto h = rect.bottom - rect.top;
-        ncbDictAcc.SetValue(TJS_W("h"),h);
-        auto* dis = ncbDictAcc.GetDispatch();
+        ncbDictAcc.SetValue(TJS_W("h"), h);
+        auto *dis = ncbDictAcc.GetDispatch();
         r->SetObject(dis, dis);
 
         return TJS_S_OK;
@@ -615,15 +615,15 @@ struct WindowEx {
                         str.ToLowerCase();
                     }
                         break;
-                    case tvtObject:
-                    {
+                    case tvtObject: {
                         iTJSDispatch2 *win = p[0]->AsObjectNoAddRef();
                         if (win && win->IsInstanceOf(0, 0, 0, TJS_W("Window"), win))
                             GetHWND(win);
                     }
                         break;
                 }
-            }        }
+            }
+        }
         return TJS_S_OK;
     }
 
@@ -713,8 +713,8 @@ struct WindowEx {
 
     void checkExEvents() {
         hasResizing = hasMember(EXEV_RESIZING);
-        hasMoving   = hasMember(EXEV_MOVING);
-        hasMove     = hasMember(EXEV_MOVE);
+        hasMoving = hasMember(EXEV_MOVING);
+        hasMove = hasMember(EXEV_MOVE);
         hasNcMsMove = hasMember(EXEV_NCMSMOVE);
     }
 
@@ -767,9 +767,10 @@ protected:
     }
 
     static bool _getNotificationVariant(tTJSVariant &tmp) {
-        iTJSDispatch2 *obj =  TVPGetScriptDispatch();
+        iTJSDispatch2 *obj = TVPGetScriptDispatch();
         tmp.Clear();
-        bool hasval = TJS_SUCCEEDED(obj->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("Window"), 0, &tmp, obj));
+        bool hasval = TJS_SUCCEEDED(
+                obj->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("Window"), 0, &tmp, obj));
         obj->Release();
         if (!hasval) return false;
 
@@ -781,64 +782,65 @@ protected:
 #define WM_CTLCOLOR 0x0019
 #endif
 #define WM(key) dict.SetValue(TJS_W(# key), WM_ ## key), dict.SetValue(WM_ ## key, ttstr(TJS_W(# key)))
-            WM(NULL),						WM(CREATE),						WM(DESTROY),					WM(MOVE),
-            WM(SIZE),						WM(ACTIVATE),					WM(SETFOCUS),					WM(KILLFOCUS),
-            WM(ENABLE),						WM(SETREDRAW),					WM(SETTEXT),					WM(GETTEXT),
-            WM(GETTEXTLENGTH),				WM(PAINT),						WM(CLOSE),						WM(QUERYENDSESSION),
-            WM(QUERYOPEN),					WM(ENDSESSION),					WM(QUIT),						WM(ERASEBKGND),
-            WM(SYSCOLORCHANGE),				WM(SHOWWINDOW),					WM(CTLCOLOR),					WM(WININICHANGE),
-            WM(SETTINGCHANGE),				WM(DEVMODECHANGE),				WM(ACTIVATEAPP),				WM(FONTCHANGE),
-            WM(TIMECHANGE),					WM(CANCELMODE),					WM(SETCURSOR),					WM(MOUSEACTIVATE),
-            WM(CHILDACTIVATE),				WM(QUEUESYNC),					WM(GETMINMAXINFO),				WM(PAINTICON),
-            WM(ICONERASEBKGND),				WM(NEXTDLGCTL),					WM(SPOOLERSTATUS),				WM(DRAWITEM),
-            WM(MEASUREITEM),				WM(DELETEITEM),					WM(VKEYTOITEM),					WM(CHARTOITEM),
-            WM(SETFONT),					WM(GETFONT),					WM(SETHOTKEY),					WM(GETHOTKEY),
-            WM(QUERYDRAGICON),				WM(COMPAREITEM),				WM(GETOBJECT),					WM(COMPACTING),
-            WM(COMMNOTIFY),					WM(WINDOWPOSCHANGING),			WM(WINDOWPOSCHANGED),			WM(POWER),
-            WM(COPYDATA),					WM(CANCELJOURNAL),				WM(NOTIFY),						WM(INPUTLANGCHANGEREQUEST),
-            WM(INPUTLANGCHANGE),			WM(TCARD),						WM(HELP),						WM(USERCHANGED),
-            WM(NOTIFYFORMAT),				WM(CONTEXTMENU),				WM(STYLECHANGING),				WM(STYLECHANGED),
-            WM(DISPLAYCHANGE),				WM(GETICON),					WM(SETICON),					WM(NCCREATE),
-            WM(NCDESTROY),					WM(NCCALCSIZE),					WM(NCHITTEST),					WM(NCPAINT),
-            WM(NCACTIVATE),					WM(GETDLGCODE),					WM(SYNCPAINT),					WM(NCMOUSEMOVE),
-            WM(NCLBUTTONDOWN),				WM(NCLBUTTONUP),				WM(NCLBUTTONDBLCLK),			WM(NCRBUTTONDOWN),
-            WM(NCRBUTTONUP),				WM(NCRBUTTONDBLCLK),			WM(NCMBUTTONDOWN),				WM(NCMBUTTONUP),
-            WM(NCMBUTTONDBLCLK),			WM(NCXBUTTONDOWN),				WM(NCXBUTTONUP),				WM(NCXBUTTONDBLCLK),
-            WM(INPUT_DEVICE_CHANGE),		WM(INPUT),						WM(KEYFIRST),					WM(KEYDOWN),
-            WM(KEYUP),						WM(CHAR),						WM(DEADCHAR),					WM(SYSKEYDOWN),
-            WM(SYSKEYUP),					WM(SYSCHAR),					WM(SYSDEADCHAR),				WM(UNICHAR),
-            WM(KEYLAST),					WM(KEYLAST),					WM(IME_STARTCOMPOSITION),		WM(IME_ENDCOMPOSITION),
-            WM(IME_COMPOSITION),			WM(IME_KEYLAST),				WM(INITDIALOG),					WM(COMMAND),
-            WM(SYSCOMMAND),					WM(TIMER),						WM(HSCROLL),					WM(VSCROLL),
-            WM(INITMENU),					WM(INITMENUPOPUP),				WM(MENUSELECT),					WM(MENUCHAR),
-            WM(ENTERIDLE),					WM(MENURBUTTONUP),				WM(MENUDRAG),					WM(MENUGETOBJECT),
-            WM(UNINITMENUPOPUP),			WM(MENUCOMMAND),				WM(CHANGEUISTATE),				WM(UPDATEUISTATE),
-            WM(QUERYUISTATE),				WM(CTLCOLORMSGBOX),				WM(CTLCOLOREDIT),				WM(CTLCOLORLISTBOX),
-            WM(CTLCOLORBTN),				WM(CTLCOLORDLG),				WM(CTLCOLORSCROLLBAR),			WM(CTLCOLORSTATIC),
-            WM(MOUSEFIRST),					WM(MOUSEMOVE),					WM(LBUTTONDOWN),				WM(LBUTTONUP),
-            WM(LBUTTONDBLCLK),				WM(RBUTTONDOWN),				WM(RBUTTONUP),					WM(RBUTTONDBLCLK),
-            WM(MBUTTONDOWN),				WM(MBUTTONUP),					WM(MBUTTONDBLCLK),				WM(MOUSEWHEEL),
-            WM(XBUTTONDOWN),				WM(XBUTTONUP),					WM(XBUTTONDBLCLK),				WM(MOUSEHWHEEL),
-            WM(MOUSELAST),					WM(MOUSELAST),					WM(MOUSELAST),					WM(MOUSELAST),
-            WM(PARENTNOTIFY),				WM(ENTERMENULOOP),				WM(EXITMENULOOP),				WM(NEXTMENU),
-            WM(SIZING),						WM(CAPTURECHANGED),				WM(MOVING),						WM(POWERBROADCAST),
-            WM(DEVICECHANGE),				WM(MDICREATE),					WM(MDIDESTROY),					WM(MDIACTIVATE),
-            WM(MDIRESTORE),					WM(MDINEXT),					WM(MDIMAXIMIZE),				WM(MDITILE),
-            WM(MDICASCADE),					WM(MDIICONARRANGE),				WM(MDIGETACTIVE),				WM(MDISETMENU),
-            WM(ENTERSIZEMOVE),				WM(EXITSIZEMOVE),				WM(DROPFILES),					WM(MDIREFRESHMENU),
-            WM(IME_SETCONTEXT),				WM(IME_NOTIFY),					WM(IME_CONTROL),				WM(IME_COMPOSITIONFULL),
-            WM(IME_SELECT),					WM(IME_CHAR),					WM(IME_REQUEST),				WM(IME_KEYDOWN),
-            WM(IME_KEYUP),					WM(MOUSEHOVER),					WM(MOUSELEAVE),					WM(NCMOUSEHOVER),
-            WM(NCMOUSELEAVE),				WM(WTSSESSION_CHANGE),			WM(TABLET_FIRST),				WM(TABLET_LAST),
-            WM(CUT),						WM(COPY),						WM(PASTE),						WM(CLEAR),
-            WM(UNDO),						WM(RENDERFORMAT),				WM(RENDERALLFORMATS),			WM(DESTROYCLIPBOARD),
-            WM(DRAWCLIPBOARD),				WM(PAINTCLIPBOARD),				WM(VSCROLLCLIPBOARD),			WM(SIZECLIPBOARD),
-            WM(ASKCBFORMATNAME),			WM(CHANGECBCHAIN),				WM(HSCROLLCLIPBOARD),			WM(QUERYNEWPALETTE),
-            WM(PALETTEISCHANGING),			WM(PALETTECHANGED),				WM(HOTKEY),						WM(PRINT),
-            WM(PRINTCLIENT),				WM(APPCOMMAND),					WM(THEMECHANGED),				WM(CLIPBOARDUPDATE),
-            WM(DWMCOMPOSITIONCHANGED),		WM(DWMNCRENDERINGCHANGED),		WM(DWMCOLORIZATIONCOLORCHANGED),WM(DWMWINDOWMAXIMIZEDCHANGE),
-            WM(GETTITLEBARINFOEX),			WM(HANDHELDFIRST),				WM(HANDHELDLAST),				WM(AFXFIRST),
-            WM(AFXLAST),					WM(PENWINFIRST),				WM(PENWINLAST),
+            WM(NULL), WM(CREATE), WM(DESTROY), WM(MOVE),
+            WM(SIZE), WM(ACTIVATE), WM(SETFOCUS), WM(KILLFOCUS),
+            WM(ENABLE), WM(SETREDRAW), WM(SETTEXT), WM(GETTEXT),
+            WM(GETTEXTLENGTH), WM(PAINT), WM(CLOSE), WM(QUERYENDSESSION),
+            WM(QUERYOPEN), WM(ENDSESSION), WM(QUIT), WM(ERASEBKGND),
+            WM(SYSCOLORCHANGE), WM(SHOWWINDOW), WM(CTLCOLOR), WM(WININICHANGE),
+            WM(SETTINGCHANGE), WM(DEVMODECHANGE), WM(ACTIVATEAPP), WM(FONTCHANGE),
+            WM(TIMECHANGE), WM(CANCELMODE), WM(SETCURSOR), WM(MOUSEACTIVATE),
+            WM(CHILDACTIVATE), WM(QUEUESYNC), WM(GETMINMAXINFO), WM(PAINTICON),
+            WM(ICONERASEBKGND), WM(NEXTDLGCTL), WM(SPOOLERSTATUS), WM(DRAWITEM),
+            WM(MEASUREITEM), WM(DELETEITEM), WM(VKEYTOITEM), WM(CHARTOITEM),
+            WM(SETFONT), WM(GETFONT), WM(SETHOTKEY), WM(GETHOTKEY),
+            WM(QUERYDRAGICON), WM(COMPAREITEM), WM(GETOBJECT), WM(COMPACTING),
+            WM(COMMNOTIFY), WM(WINDOWPOSCHANGING), WM(WINDOWPOSCHANGED), WM(POWER),
+            WM(COPYDATA), WM(CANCELJOURNAL), WM(NOTIFY), WM(INPUTLANGCHANGEREQUEST),
+            WM(INPUTLANGCHANGE), WM(TCARD), WM(HELP), WM(USERCHANGED),
+            WM(NOTIFYFORMAT), WM(CONTEXTMENU), WM(STYLECHANGING), WM(STYLECHANGED),
+            WM(DISPLAYCHANGE), WM(GETICON), WM(SETICON), WM(NCCREATE),
+            WM(NCDESTROY), WM(NCCALCSIZE), WM(NCHITTEST), WM(NCPAINT),
+            WM(NCACTIVATE), WM(GETDLGCODE), WM(SYNCPAINT), WM(NCMOUSEMOVE),
+            WM(NCLBUTTONDOWN), WM(NCLBUTTONUP), WM(NCLBUTTONDBLCLK), WM(NCRBUTTONDOWN),
+            WM(NCRBUTTONUP), WM(NCRBUTTONDBLCLK), WM(NCMBUTTONDOWN), WM(NCMBUTTONUP),
+            WM(NCMBUTTONDBLCLK), WM(NCXBUTTONDOWN), WM(NCXBUTTONUP), WM(NCXBUTTONDBLCLK),
+            WM(INPUT_DEVICE_CHANGE), WM(INPUT), WM(KEYFIRST), WM(KEYDOWN),
+            WM(KEYUP), WM(CHAR), WM(DEADCHAR), WM(SYSKEYDOWN),
+            WM(SYSKEYUP), WM(SYSCHAR), WM(SYSDEADCHAR), WM(UNICHAR),
+            WM(KEYLAST), WM(KEYLAST), WM(IME_STARTCOMPOSITION), WM(IME_ENDCOMPOSITION),
+            WM(IME_COMPOSITION), WM(IME_KEYLAST), WM(INITDIALOG), WM(COMMAND),
+            WM(SYSCOMMAND), WM(TIMER), WM(HSCROLL), WM(VSCROLL),
+            WM(INITMENU), WM(INITMENUPOPUP), WM(MENUSELECT), WM(MENUCHAR),
+            WM(ENTERIDLE), WM(MENURBUTTONUP), WM(MENUDRAG), WM(MENUGETOBJECT),
+            WM(UNINITMENUPOPUP), WM(MENUCOMMAND), WM(CHANGEUISTATE), WM(UPDATEUISTATE),
+            WM(QUERYUISTATE), WM(CTLCOLORMSGBOX), WM(CTLCOLOREDIT), WM(CTLCOLORLISTBOX),
+            WM(CTLCOLORBTN), WM(CTLCOLORDLG), WM(CTLCOLORSCROLLBAR), WM(CTLCOLORSTATIC),
+            WM(MOUSEFIRST), WM(MOUSEMOVE), WM(LBUTTONDOWN), WM(LBUTTONUP),
+            WM(LBUTTONDBLCLK), WM(RBUTTONDOWN), WM(RBUTTONUP), WM(RBUTTONDBLCLK),
+            WM(MBUTTONDOWN), WM(MBUTTONUP), WM(MBUTTONDBLCLK), WM(MOUSEWHEEL),
+            WM(XBUTTONDOWN), WM(XBUTTONUP), WM(XBUTTONDBLCLK), WM(MOUSEHWHEEL),
+            WM(MOUSELAST), WM(MOUSELAST), WM(MOUSELAST), WM(MOUSELAST),
+            WM(PARENTNOTIFY), WM(ENTERMENULOOP), WM(EXITMENULOOP), WM(NEXTMENU),
+            WM(SIZING), WM(CAPTURECHANGED), WM(MOVING), WM(POWERBROADCAST),
+            WM(DEVICECHANGE), WM(MDICREATE), WM(MDIDESTROY), WM(MDIACTIVATE),
+            WM(MDIRESTORE), WM(MDINEXT), WM(MDIMAXIMIZE), WM(MDITILE),
+            WM(MDICASCADE), WM(MDIICONARRANGE), WM(MDIGETACTIVE), WM(MDISETMENU),
+            WM(ENTERSIZEMOVE), WM(EXITSIZEMOVE), WM(DROPFILES), WM(MDIREFRESHMENU),
+            WM(IME_SETCONTEXT), WM(IME_NOTIFY), WM(IME_CONTROL), WM(IME_COMPOSITIONFULL),
+            WM(IME_SELECT), WM(IME_CHAR), WM(IME_REQUEST), WM(IME_KEYDOWN),
+            WM(IME_KEYUP), WM(MOUSEHOVER), WM(MOUSELEAVE), WM(NCMOUSEHOVER),
+            WM(NCMOUSELEAVE), WM(WTSSESSION_CHANGE), WM(TABLET_FIRST), WM(TABLET_LAST),
+            WM(CUT), WM(COPY), WM(PASTE), WM(CLEAR),
+            WM(UNDO), WM(RENDERFORMAT), WM(RENDERALLFORMATS), WM(DESTROYCLIPBOARD),
+            WM(DRAWCLIPBOARD), WM(PAINTCLIPBOARD), WM(VSCROLLCLIPBOARD), WM(SIZECLIPBOARD),
+            WM(ASKCBFORMATNAME), WM(CHANGECBCHAIN), WM(HSCROLLCLIPBOARD), WM(QUERYNEWPALETTE),
+            WM(PALETTEISCHANGING), WM(PALETTECHANGED), WM(HOTKEY), WM(PRINT),
+            WM(PRINTCLIENT), WM(APPCOMMAND), WM(THEMECHANGED), WM(CLIPBOARDUPDATE),
+            WM(DWMCOMPOSITIONCHANGED), WM(DWMNCRENDERINGCHANGED), WM(
+                    DWMCOLORIZATIONCOLORCHANGED), WM(DWMWINDOWMAXIMIZEDCHANGE),
+            WM(GETTITLEBARINFOEX), WM(HANDHELDFIRST), WM(HANDHELDLAST), WM(AFXFIRST),
+            WM(AFXLAST), WM(PENWINFIRST), WM(PENWINLAST),
 #undef WM
                             tmp = dict;
             if (TJS_FAILED(obj->PropSet(TJS_MEMBERENSURE, TJS_W("_Notifications"), 0, &tmp, obj)))
@@ -858,18 +860,20 @@ private:
     bool disableMove; //< ウィンドウ移動禁止
     bool enableNCMEvent; //< WM_SETCURSORコールバック
     bool enableWinMsgHook; //< メッセージフック有効
-    DWORD bitHooks[0x0400/32];
+    DWORD bitHooks[0x0400 / 32];
 public:
     //----------------------------------------------------------
     // オーバーレイビットマップ用サブクラス
     //----------------------------------------------------------
     struct OverlayBitmap {
         OverlayBitmap() : overlay(0), bitmap(0), bmpdc(0) {}
-      bool setBitmap(iTJSDispatch2 *win, iTJSDispatch2 *lay) {
+
+        bool setBitmap(iTJSDispatch2 *win, iTJSDispatch2 *lay) {
             if (!lay || !lay->IsInstanceOf(0, 0, 0, TJS_W("Layer"), lay)) return false;
             WindowEx::GetHWND(win);
             return true;
         }
+
     private:
         HWND overlay;
         HBITMAP bitmap;
@@ -882,72 +886,72 @@ public:
 
 // 拡張イベント用ネイティブインスタンスゲッタ
 NCB_GET_INSTANCE_HOOK(WindowEx)
-        {
-                /**/  NCB_GET_INSTANCE_HOOK_CLASS() {}
+{
+    /**/  NCB_GET_INSTANCE_HOOK_CLASS() {}
 
-        /**/ ~NCB_GET_INSTANCE_HOOK_CLASS() {}
+    /**/ ~NCB_GET_INSTANCE_HOOK_CLASS() {}
 
-        NCB_INSTANCE_GETTER(objthis) {
-            ClassT *obj = GetNativeInstance(objthis);
-            if (!obj) SetNativeInstance(objthis, (obj = new ClassT(objthis)));
-            return obj;
-        }
-        };
+    NCB_INSTANCE_GETTER(objthis) {
+        ClassT *obj = GetNativeInstance(objthis);
+        if (!obj) SetNativeInstance(objthis, (obj = new ClassT(objthis)));
+        return obj;
+    }
+};
 // メソッド追加
 NCB_ATTACH_CLASS_WITH_HOOK(WindowEx, Window
 ) {
-Variant(TJS_W("nchtError"), (tjs_int) (HTERROR & 0xFFFF));
-Variant(TJS_W("nchtTransparent"), (tjs_int) (HTTRANSPARENT & 0xFFFF));
-Variant(TJS_W("nchtNoWhere"), (tjs_int) HTNOWHERE);
-Variant(TJS_W("nchtClient"), (tjs_int) HTCLIENT);
-Variant(TJS_W("nchtCaption"), (tjs_int) HTCAPTION);
-Variant(TJS_W("nchtSysMenu"), (tjs_int) HTSYSMENU);
-Variant(TJS_W("nchtSize"), (tjs_int) HTSIZE);
-Variant(TJS_W("nchtGrowBox"), (tjs_int) HTGROWBOX);
-Variant(TJS_W("nchtMenu"), (tjs_int) HTMENU);
-Variant(TJS_W("nchtHScroll"), (tjs_int) HTHSCROLL);
-Variant(TJS_W("nchtVScroll"), (tjs_int) HTVSCROLL);
-Variant(TJS_W("nchtMinButton"), (tjs_int) HTMINBUTTON);
-Variant(TJS_W("nchtReduce"), (tjs_int) HTREDUCE);
-Variant(TJS_W("nchtMaxButton"), (tjs_int) HTMAXBUTTON);
-Variant(TJS_W("nchtZoom"), (tjs_int) HTZOOM);
-Variant(TJS_W("nchtLeft"), (tjs_int) HTLEFT);
-Variant(TJS_W("nchtRight"), (tjs_int) HTRIGHT);
-Variant(TJS_W("nchtTop"), (tjs_int) HTTOP);
-Variant(TJS_W("nchtTopLeft"), (tjs_int) HTTOPLEFT);
-Variant(TJS_W("nchtTopRight"), (tjs_int) HTTOPRIGHT);
-Variant(TJS_W("nchtBottom"), (tjs_int) HTBOTTOM);
-Variant(TJS_W("nchtBottomLeft"), (tjs_int) HTBOTTOMLEFT);
-Variant(TJS_W("nchtBottomRight"), (tjs_int) HTBOTTOMRIGHT);
-Variant(TJS_W("nchtBorder"), (tjs_int) HTBORDER);
+    Variant(TJS_W("nchtError"), (tjs_int) (HTERROR & 0xFFFF));
+    Variant(TJS_W("nchtTransparent"), (tjs_int) (HTTRANSPARENT & 0xFFFF));
+    Variant(TJS_W("nchtNoWhere"), (tjs_int) HTNOWHERE);
+    Variant(TJS_W("nchtClient"), (tjs_int) HTCLIENT);
+    Variant(TJS_W("nchtCaption"), (tjs_int) HTCAPTION);
+    Variant(TJS_W("nchtSysMenu"), (tjs_int) HTSYSMENU);
+    Variant(TJS_W("nchtSize"), (tjs_int) HTSIZE);
+    Variant(TJS_W("nchtGrowBox"), (tjs_int) HTGROWBOX);
+    Variant(TJS_W("nchtMenu"), (tjs_int) HTMENU);
+    Variant(TJS_W("nchtHScroll"), (tjs_int) HTHSCROLL);
+    Variant(TJS_W("nchtVScroll"), (tjs_int) HTVSCROLL);
+    Variant(TJS_W("nchtMinButton"), (tjs_int) HTMINBUTTON);
+    Variant(TJS_W("nchtReduce"), (tjs_int) HTREDUCE);
+    Variant(TJS_W("nchtMaxButton"), (tjs_int) HTMAXBUTTON);
+    Variant(TJS_W("nchtZoom"), (tjs_int) HTZOOM);
+    Variant(TJS_W("nchtLeft"), (tjs_int) HTLEFT);
+    Variant(TJS_W("nchtRight"), (tjs_int) HTRIGHT);
+    Variant(TJS_W("nchtTop"), (tjs_int) HTTOP);
+    Variant(TJS_W("nchtTopLeft"), (tjs_int) HTTOPLEFT);
+    Variant(TJS_W("nchtTopRight"), (tjs_int) HTTOPRIGHT);
+    Variant(TJS_W("nchtBottom"), (tjs_int) HTBOTTOM);
+    Variant(TJS_W("nchtBottomLeft"), (tjs_int) HTBOTTOMLEFT);
+    Variant(TJS_W("nchtBottomRight"), (tjs_int) HTBOTTOMRIGHT);
+    Variant(TJS_W("nchtBorder"), (tjs_int) HTBORDER);
 
-RawCallback(TJS_W("minimize"), &Class::minimize, 0);
-RawCallback(TJS_W("maximize"), &Class::maximize, 0);
+    RawCallback(TJS_W("minimize"), &Class::minimize, 0);
+    RawCallback(TJS_W("maximize"), &Class::maximize, 0);
 //RawCallback(TJS_W("maximizeBox"),         &Class::getMaximizeBox,      &Class::setMaximizeBox, 0);
 //RawCallback(TJS_W("minimizeBox"),         &Class::getMinimizeBox,      &Class::setMinimizeBox, 0);
 //RawCallback(TJS_W("maximized"),           &Class::getMaximized,      &Class::setMaximized, 0);
 //RawCallback(TJS_W("minimized"),           &Class::getMinimized,      &Class::setMinimized, 0);
-RawCallback(TJS_W("showRestore"), &Class::showRestore, 0);
-RawCallback(TJS_W("resetWindowIcon"), &Class::resetWindowIcon, 0);
-RawCallback(TJS_W("setWindowIcon"), &Class::setWindowIcon, 0);
-RawCallback(TJS_W("getWindowRect"), &Class::getWindowRect, 0);
-RawCallback(TJS_W("getClientRect"), &Class::getClientRect, 0);
-RawCallback(TJS_W("getNormalRect"), &Class::getNormalRect, 0);
-RawCallback(TJS_W("disableResize"), &Class::getDisableResize, &Class::setDisableResize, 0);
+    RawCallback(TJS_W("showRestore"), &Class::showRestore, 0);
+    RawCallback(TJS_W("resetWindowIcon"), &Class::resetWindowIcon, 0);
+    RawCallback(TJS_W("setWindowIcon"), &Class::setWindowIcon, 0);
+    RawCallback(TJS_W("getWindowRect"), &Class::getWindowRect, 0);
+    RawCallback(TJS_W("getClientRect"), &Class::getClientRect, 0);
+    RawCallback(TJS_W("getNormalRect"), &Class::getNormalRect, 0);
+    RawCallback(TJS_W("disableResize"), &Class::getDisableResize, &Class::setDisableResize, 0);
 //RawCallback(TJS_W("disableMove"), &Class::getDisableMove, &Class::setDisableMove, 0);
-RawCallback(TJS_W("setOverlayBitmap"), &Class::setOverlayBitmap, 0);
-RawCallback(TJS_W("exSystemMenu"), &Class::getExSystemMenu, &Class::setExSystemMenu, 0);
+    RawCallback(TJS_W("setOverlayBitmap"), &Class::setOverlayBitmap, 0);
+    RawCallback(TJS_W("exSystemMenu"), &Class::getExSystemMenu, &Class::setExSystemMenu, 0);
 //RawCallback(TJS_W("resetExSystemMenu"), &Class::resetExSystemMenu, 0);
-RawCallback(TJS_W("enableNCMouseEvent"), &Class::getEnNCMEvent, &Class::setEnNCMEvent, 0);
-RawCallback(TJS_W("ncHitTest"), &Class::nonClientHitTest, 0);
-RawCallback(TJS_W("focusMenuByKey"), &Class::focusMenuByKey, 0);
-RawCallback(TJS_W("setMessageHook"), &Class::setMessageHook, 0);
-RawCallback(TJS_W("bringTo"), &Class::bringTo, 0);
-RawCallback(TJS_W("sendToBack"), &Class::sendToBack, 0);
+    RawCallback(TJS_W("enableNCMouseEvent"), &Class::getEnNCMEvent, &Class::setEnNCMEvent, 0);
+    RawCallback(TJS_W("ncHitTest"), &Class::nonClientHitTest, 0);
+    RawCallback(TJS_W("focusMenuByKey"), &Class::focusMenuByKey, 0);
+    RawCallback(TJS_W("setMessageHook"), &Class::setMessageHook, 0);
+    RawCallback(TJS_W("bringTo"), &Class::bringTo, 0);
+    RawCallback(TJS_W("sendToBack"), &Class::sendToBack, 0);
 
-Method(TJS_W("registerExEvent"), &Class::checkExEvents);
-Method(TJS_W("getNotificationNum"), &Class::getWindowNotificationNum);
-Method(TJS_W("getNotificationName"), &Class::getWindowNotificationName);
+    Method(TJS_W("registerExEvent"), &Class::checkExEvents);
+    Method(TJS_W("getNotificationNum"), &Class::getWindowNotificationNum);
+    Method(TJS_W("getNotificationName"), &Class::getWindowNotificationName);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1072,7 +1076,7 @@ struct MenuItemEx {
             case tvtInteger:
             case tvtString:
                 bmptype[sel] = BMT_SYS;
-                bitmap[sel] = (HBITMAP)v.AsInteger();
+                bitmap[sel] = (HBITMAP) v.AsInteger();
                 break;
             case tvtObject:
                 bmptype[sel] = BMT_BMP;
@@ -1082,7 +1086,7 @@ struct MenuItemEx {
 
     void removeBitmap(int sel) {
         bmptype[sel] = BMT_NONE;
-        bitmap[ sel] = nullptr;
+        bitmap[sel] = nullptr;
     }
 
     void updateMenuItemInfo() {
@@ -1105,7 +1109,7 @@ struct MenuItemEx {
     void setMenuItemID(bool isset) {
         iTJSDispatch2 *win = GetWindow(obj);
         if (win) {
-            WindowEx * wex = WindowEx::GetInstance(win);
+            WindowEx *wex = WindowEx::GetInstance(win);
             if (wex) wex->setMenuItemID(obj, id, isset);
         }
     }
@@ -1121,8 +1125,8 @@ struct MenuItemEx {
 private:
     iTJSDispatch2 *obj;
     UINT id;
-    tjs_int  rj;
-    int    bmptype[BMP_MAX];
+    tjs_int rj;
+    int bmptype[BMP_MAX];
     HBITMAP bitmap[BMP_MAX];
 
 public:
@@ -1146,17 +1150,17 @@ public:
 };
 
 NCB_GET_INSTANCE_HOOK(MenuItemEx)
-        {
-                /**/  NCB_GET_INSTANCE_HOOK_CLASS() {}
+{
+    /**/  NCB_GET_INSTANCE_HOOK_CLASS() {}
 
-        /**/ ~NCB_GET_INSTANCE_HOOK_CLASS() {}
+    /**/ ~NCB_GET_INSTANCE_HOOK_CLASS() {}
 
-        NCB_INSTANCE_GETTER(objthis) {
-            ClassT *obj = GetNativeInstance(objthis);
-            if (!obj) SetNativeInstance(objthis, (obj = new ClassT(objthis)));
-            return obj;
-        }
-        };
+    NCB_INSTANCE_GETTER(objthis) {
+        ClassT *obj = GetNativeInstance(objthis);
+        if (!obj) SetNativeInstance(objthis, (obj = new ClassT(objthis)));
+        return obj;
+    }
+};
 // Note: MIIM_TYPE is replaced by MIIM_BITMAP, MIIM_FTYPE, and MIIM_STRING.
 #define HBMMENU_CALLBACK        -1
 #define HBMMENU_SYSTEM          1
@@ -1172,21 +1176,21 @@ NCB_GET_INSTANCE_HOOK(MenuItemEx)
 
 NCB_ATTACH_CLASS_WITH_HOOK(MenuItemEx, MenuItem
 ) {
-Variant(TJS_W("biSystem"), (tjs_int64) HBMMENU_SYSTEM);
-Variant(TJS_W("biRestore"), (tjs_int64) HBMMENU_MBAR_RESTORE);
-Variant(TJS_W("biMinimize"), (tjs_int64) HBMMENU_MBAR_MINIMIZE);
-Variant(TJS_W("biClose"), (tjs_int64) HBMMENU_MBAR_CLOSE);
-Variant(TJS_W("biCloseDisabled"), (tjs_int64) HBMMENU_MBAR_CLOSE_D);
-Variant(TJS_W("biMinimizeDisabled"), (tjs_int64) HBMMENU_MBAR_MINIMIZE_D);
-Variant(TJS_W("biPopupClose"), (tjs_int64) HBMMENU_POPUP_CLOSE);
-Variant(TJS_W("biPopupRestore"), (tjs_int64) HBMMENU_POPUP_RESTORE);
-Variant(TJS_W("biPopupMaximize"), (tjs_int64) HBMMENU_POPUP_MAXIMIZE);
-Variant(TJS_W("biPopupMinimize"), (tjs_int64) HBMMENU_POPUP_MINIMIZE);
+    Variant(TJS_W("biSystem"), (tjs_int64) HBMMENU_SYSTEM);
+    Variant(TJS_W("biRestore"), (tjs_int64) HBMMENU_MBAR_RESTORE);
+    Variant(TJS_W("biMinimize"), (tjs_int64) HBMMENU_MBAR_MINIMIZE);
+    Variant(TJS_W("biClose"), (tjs_int64) HBMMENU_MBAR_CLOSE);
+    Variant(TJS_W("biCloseDisabled"), (tjs_int64) HBMMENU_MBAR_CLOSE_D);
+    Variant(TJS_W("biMinimizeDisabled"), (tjs_int64) HBMMENU_MBAR_MINIMIZE_D);
+    Variant(TJS_W("biPopupClose"), (tjs_int64) HBMMENU_POPUP_CLOSE);
+    Variant(TJS_W("biPopupRestore"), (tjs_int64) HBMMENU_POPUP_RESTORE);
+    Variant(TJS_W("biPopupMaximize"), (tjs_int64) HBMMENU_POPUP_MAXIMIZE);
+    Variant(TJS_W("biPopupMinimize"), (tjs_int64) HBMMENU_POPUP_MINIMIZE);
 
-Property(TJS_W("rightJustify"), &Class::getRightJustify, &Class::setRightJustify);
-Property(TJS_W("bmpItem"), &Class::getBmpItem, &Class::setBmpItem);
-Property(TJS_W("bmpChecked"), &Class::getBmpChecked, &Class::setBmpChecked);
-Property(TJS_W("bmpUnchecked"), &Class::getBmpUnchecked, &Class::setBmpUnchecked);
+    Property(TJS_W("rightJustify"), &Class::getRightJustify, &Class::setRightJustify);
+    Property(TJS_W("bmpItem"), &Class::getBmpItem, &Class::setBmpItem);
+    Property(TJS_W("bmpChecked"), &Class::getBmpChecked, &Class::setBmpChecked);
+    Property(TJS_W("bmpUnchecked"), &Class::getBmpUnchecked, &Class::setBmpUnchecked);
 }
 
 NCB_ATTACH_FUNCTION(popupEx, MenuItem, MenuItemEx::popupEx);
@@ -1202,7 +1206,7 @@ void WindowEx::checkUpdateMenuItem(HMENU menu, int pos, UINT id) {
                                     menuex);
     if (TJS_SUCCEEDED(chk) && var.Type() == tvtObject) {
         iTJSDispatch2 *obj = var.AsObjectNoAddRef();
-        MenuItemEx * ex = ncbInstanceAdaptor<MenuItemEx>::GetNativeInstance(obj);
+        MenuItemEx *ex = ncbInstanceAdaptor<MenuItemEx>::GetNativeInstance(obj);
 //        if (ex != nullptr) ex->setMenuItemInfo(menu, pos, true);
     }
 }
@@ -1226,7 +1230,7 @@ void WindowEx::modifySystemMenu() {
     resetSystemMenu();
     if (sysMenuModified == nullptr || cachedHWND == nullptr) return;
     sysMenuModMap = TJSCreateDictionaryObject();
-    WORD id = 0xF000-1;
+    WORD id = 0xF000 - 1;
     sysMenu = nullptr;
     sysMenuModMap->Release();
     sysMenuModMap = nullptr;
@@ -1276,20 +1280,20 @@ struct ConsoleEx {
 };
 
 NCB_ATTACH_FUNCTION_WITHTAG(restoreMaximize, Debug_console, Debug
-.console,
-ConsoleEx::restoreMaximize);
+        .console,
+                            ConsoleEx::restoreMaximize);
 NCB_ATTACH_FUNCTION_WITHTAG(maximize, Debug_console, Debug
-.console, ConsoleEx::maximize);
+        .console, ConsoleEx::maximize);
 NCB_ATTACH_FUNCTION_WITHTAG(getRect, Debug_console, Debug
-.console, ConsoleEx::getRect);
+        .console, ConsoleEx::getRect);
 NCB_ATTACH_FUNCTION_WITHTAG(setPos, Debug_console, Debug
-.console, ConsoleEx::setPos);
+        .console, ConsoleEx::setPos);
 NCB_ATTACH_FUNCTION_WITHTAG(getPlacement, Debug_console, Debug
-.console, ConsoleEx::getPlacement);
+        .console, ConsoleEx::getPlacement);
 NCB_ATTACH_FUNCTION_WITHTAG(setPlacement, Debug_console, Debug
-.console, ConsoleEx::setPlacement);
+        .console, ConsoleEx::setPlacement);
 NCB_ATTACH_FUNCTION_WITHTAG(bringAfter, Debug_console, Debug
-.console, ConsoleEx::bringAfter);
+        .console, ConsoleEx::bringAfter);
 
 
 ////////////////////////////////////////////////////////////////
@@ -1347,21 +1351,21 @@ private:
 };
 
 NCB_GET_INSTANCE_HOOK(PadEx)
-        {
-                /**/  NCB_GET_INSTANCE_HOOK_CLASS() {}
+{
+    /**/  NCB_GET_INSTANCE_HOOK_CLASS() {}
 
-        /**/ ~NCB_GET_INSTANCE_HOOK_CLASS() {}
+    /**/ ~NCB_GET_INSTANCE_HOOK_CLASS() {}
 
-        NCB_INSTANCE_GETTER(objthis) {
-            ClassT *obj = GetNativeInstance(objthis);
-            if (!obj) SetNativeInstance(objthis, (obj = new ClassT(objthis)));
-            return obj;
-        }
-        };
+    NCB_INSTANCE_GETTER(objthis) {
+        ClassT *obj = GetNativeInstance(objthis);
+        if (!obj) SetNativeInstance(objthis, (obj = new ClassT(objthis)));
+        return obj;
+    }
+};
 
 NCB_ATTACH_CLASS_WITH_HOOK(PadEx, Pad
 ) {
-Method(TJS_W("registerExEvent"), &Class::registerExEvents);
+    Method(TJS_W("registerExEvent"), &Class::registerExEvents);
 }
 ////////////////////////////////////////////////////////////////
 

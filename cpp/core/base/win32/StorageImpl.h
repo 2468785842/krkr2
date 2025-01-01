@@ -130,8 +130,6 @@ struct IStream;
 TJS_EXP_FUNC_DEF(IStream *, TVPCreateIStream, (const ttstr &name, tjs_uint32 flags));
 TJS_EXP_FUNC_DEF(IStream *, TVPCreateIStream, (tTJSBinaryStream *));
 //---------------------------------------------------------------------------
-#if 0
-
 
 
 
@@ -167,13 +165,11 @@ public:
 
 
 
-
 //---------------------------------------------------------------------------
 // tTVPBinaryStreamAdapter creator
 //---------------------------------------------------------------------------
 TJS_EXP_FUNC_DEF(tTJSBinaryStream *, TVPCreateBinaryStreamAdapter, (IStream *refstream));
 //---------------------------------------------------------------------------
-#endif
 
 
 //---------------------------------------------------------------------------

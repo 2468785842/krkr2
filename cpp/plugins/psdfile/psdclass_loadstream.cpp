@@ -1,5 +1,5 @@
 #include "psdclass.h"
-
+#include "combase.h"
 #ifndef LOAD_MEMORY
 
 #include "psdparse/psdparse.h"

@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.19)
 project(krkr2plugin LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_library(${PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME} STATIC)
+
+target_sources(${PROJECT_NAME} PRIVATE
     scriptsEx.cpp
     InternalPlugins.cpp
     win32dialog.cpp

@@ -3,6 +3,8 @@ project(psdparse LANGUAGES CXX)
 
 project(${PROJECT_NAME})
 
+find_package(Boost COMPONENTS phoenix spirit iostreams REQUIRED)
+
 add_library(${PROJECT_NAME} STATIC
 	bmp.cpp
 	psddesc.cpp
@@ -13,4 +15,8 @@ add_library(${PROJECT_NAME} STATIC
 	psdresource.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE krkr2plugin)
+target_include_directories(${PROJECT_NAME} PRIVATE
+	${Boost_INCLUDE_DIRS}
+)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC krkr2plugin ${Boost_LIBRARIES})

@@ -1,3 +1,5 @@
+#include <iostream>
+#include <fstream>
 #include "psdbase.h"
 
 namespace psd {

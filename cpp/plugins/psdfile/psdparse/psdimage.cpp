@@ -194,7 +194,7 @@ namespace psd {
     a.i = byteSwap32(_a);
 #else
     c.i = _c;
-    m.i = _m
+    m.i = _m;
     y.i = _y;
     k.i = _k;
     a.i = _a;

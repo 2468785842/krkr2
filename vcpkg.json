@@ -3,6 +3,9 @@
   "name": "krkr2",
   "version-string": "1.0.0",
   "dependencies": [
+    "boost-iostreams",
+    "boost-spirit",
+    "boost-phoenix",
     {
       "name": "breakpad",
       "default-features": false

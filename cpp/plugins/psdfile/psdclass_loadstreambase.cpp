@@ -1,5 +1,6 @@
 #ifndef LOAD_MEMORY
 
+#include "combase.h"
 #include "psdclass.h"
 
 void
