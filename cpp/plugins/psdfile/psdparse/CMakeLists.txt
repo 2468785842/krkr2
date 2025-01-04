@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-project(psdparse LANGUAGES CXX)
+project(psdparse)
 
 project(${PROJECT_NAME})
 

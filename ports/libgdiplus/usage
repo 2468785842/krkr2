@@ -1,0 +1,5 @@
+To use libgdiplus add the following to your CMake project:
+
+    find_package(libgdiplus REQUIRED)
+    target_include_directories(main PRIVATE ${libgdiplus_INCLUDE_DIRS})
+    target_link_directories(main PRIVATE ${libgdiplus_LIBRARIES})

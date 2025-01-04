@@ -65,13 +65,13 @@ add_library(${PROJECT_NAME} STATIC ${KRKR2CORE_SOURCES})
 android_ndk_import_module_cpufeatures()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
-        -Wl,-Bdynamic
-        log
-        android
-        EGL
-        GLESv2
-        GLESv1_CM
-        OpenSLES
+    -Wl,-Bdynamic
+    log
+    android
+    EGL
+    GLESv2
+    GLESv1_CM
+    OpenSLES
 )
 
 # Common include directories
@@ -164,13 +164,13 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     ${FFMPEG_LIBRARIES}
 
     # archive
-    p7zip::p7zip 
+    p7zip::p7zip
     unrar::unrar
     lz4::lz4
     LibArchive::LibArchive
     libbpg::libbpg
     ${JXR_LIBRARIES}
-    
+
     # others
     oniguruma::onig
     unofficial::breakpad::libbreakpad_client

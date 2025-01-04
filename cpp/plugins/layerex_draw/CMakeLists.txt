@@ -1,0 +1,19 @@
+cmake_minimum_required(VERSION 3.19)
+project(layerExDraw)
+
+add_library(${PROJECT_NAME} STATIC
+	LayerExDraw.cpp
+	Path.cpp
+	main.cpp
+)
+
+find_package(Libgdiplus REQUIRED)
+target_include_directories(${PROJECT_NAME} PRIVATE ${Libgdiplus_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE krkr2plugin ${Libgdiplus_LIBRARIES})
+
+set(VCPKG_INSTALL_DIR ${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET})
+
+# glibconfig
+# https://invent.kde.org/frameworks/extra-cmake-modules/-/blob/master/find-modules/FindGLIB2.cmake
+target_include_directories(${PROJECT_NAME} PRIVATE "${VCPKG_INSTALL_DIR}/lib/glib-2.0/include")
+target_include_directories(${PROJECT_NAME} PRIVATE "${VCPKG_INSTALL_DIR}/include/glib-2.0")

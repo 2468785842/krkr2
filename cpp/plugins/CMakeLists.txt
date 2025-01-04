@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-project(krkr2plugin LANGUAGES CXX)
+project(krkr2plugin)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -50,8 +50,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 add_definitions(-D__STDC_CONSTANT_MACROS -DTJS_TEXT_OUT_CRLF)
 
-target_compile_options(${PROJECT_NAME} PRIVATE -fexceptions)
-
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH} ${KRKR2PLUGIN_PATH}/ncbind)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
@@ -59,4 +57,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${COCOS2DX_EXTERNAL_HEADER_DIRS})
 
 add_subdirectory(psdfile)
-target_link_libraries(${PROJECT_NAME} PUBLIC psdfile)
+add_subdirectory(layerex_draw)
+target_link_libraries(${PROJECT_NAME} PRIVATE psdfile layerExDraw)

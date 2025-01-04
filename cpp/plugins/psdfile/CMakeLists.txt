@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-project(psdfile LANGUAGES CXX)
+project(psdfile)
 
 add_subdirectory(psdparse)
 
@@ -11,4 +11,4 @@ add_library(${PROJECT_NAME} STATIC
 	psdclass_loadstreambase.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC psdparse)
+target_link_libraries(${PROJECT_NAME} PRIVATE krkr2plugin psdparse)

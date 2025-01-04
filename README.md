@@ -10,8 +10,9 @@
 ## 依赖工具
 
 请确保以下工具已正确安装：
-
-- `python2`: 如果你是Windows不需要自己安装，vcpkg会自动处理
+- `bison`
+- `python3`
+- `python2`
 - `ninja@latest`
 - `cmake@22+`
 - `vcpkg@latest`

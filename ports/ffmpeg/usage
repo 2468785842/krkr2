@@ -2,9 +2,4 @@ To use ffmpeg add the following to your CMake project:
 
     find_package(FFMPEG REQUIRED)
     target_include_directories(main PRIVATE ${FFMPEG_INCLUDE_DIRS})
-    target_link_directories(main PRIVATE FFmpeg::avutil
-                                         FFmpeg::avfilter
-                                         FFmpeg::avformat
-                                         FFmpeg::avcodec
-                                         FFmpeg::swscale
-                                         FFmpeg::swresample)
+    target_link_directories(main PRIVATE ${FFMPEG_LIBRARIES})

@@ -1,0 +1,26 @@
+{
+  "name": "libgdiplus",
+  "version-string": "5.6.1",
+  "port-version": 0,
+  "description": "Libgdiplus is the Mono library that provides a GDI+-compatible API on non-Windows operating systems. Our implementation uses Cairo to do most of the heavy lifting.",
+  "homepage": "https://www.mono-project.com/docs/gui/libgdiplus/",
+  "license": null,
+  "supports": "android",
+  "dependencies": [
+    "zlib",
+    "liblzma",
+    "libjpeg-turbo",
+    "libpng",
+    "glib",
+    "tiff",
+    "libexif",
+    {
+      "name": "cairo",
+      "features": [
+        "gobject"
+      ]
+    },
+    "fontconfig",
+    "freetype"
+  ]
+}
