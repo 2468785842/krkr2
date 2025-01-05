@@ -1,39 +1,13 @@
 #include "ncbind.hpp"
-#include "layerExDraw.hpp"
-
-/**
- * ログ出力用
- */
-void
-message_log(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-    char msg[1024];
-    _vsnprintf_s(msg, 1024, _TRUNCATE, format, args);
-    TVPAddLog(ttstr(msg));
-    va_end(args);
-}
-
-/**
- * エラーログ出力用
- */
-void
-error_log(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-    char msg[1024];
-    _vsnprintf_s(msg, 1024, _TRUNCATE, format, args);
-    TVPAddImportantLog(ttstr(msg));
-    va_end(args);
-}
+#include "LayerExDraw.hpp"
 
 extern void initGdiPlus();
 
 extern void deInitGdiPlus();
 
-extern Image *loadImage(const tjs_char *name);
+extern GpImage *loadImage(const tjs_char *name);
 
-extern RectF *getBounds(Image *image);
+extern RectF *getBounds(GpImage *image);
 
 // ----------------------------------------------------------------
 // 実体型の登録
@@ -63,7 +37,7 @@ NCB_TYPECONV_DSTMAP_SET(type, convertor<type>, true)
 bool IsArray(const tTJSVariant &var) {
     if (var.Type() == tvtObject) {
         iTJSDispatch2 *obj = var.AsObjectNoAddRef();
-        return obj->IsInstanceOf(0, NULL, NULL, L"Array", obj) == TJS_S_TRUE;
+        return obj->IsInstanceOf(0, nullptr, nullptr, TJS_W("Array"), obj) == TJS_S_TRUE;
     }
     return false;
 }
@@ -85,7 +59,7 @@ bool IsArray(const tTJSVariant &var) {
 // 型コンバータ登録
 // ------------------------------------------------------
 
-NCB_TYPECONV_CAST_INTEGER(Status);
+NCB_TYPECONV_CAST_INTEGER(GpStatus);
 NCB_TYPECONV_CAST_INTEGER(MatrixOrder);
 NCB_TYPECONV_CAST_INTEGER(ImageType);
 NCB_TYPECONV_CAST_INTEGER(RotateFlipType);
@@ -106,11 +80,11 @@ struct PointFConvertor {
             } else {
                 ncbPropAccessor info(src);
                 if (IsArray(src)) {
-                    dst = PointF((REAL) info.getRealValue(0),
-                                 (REAL) info.getRealValue(1));
+                    dst = PointF{(REAL) info.getRealValue(0),
+                                 (REAL) info.getRealValue(1)};
                 } else {
-                    dst = PointF((REAL) info.getRealValue(L"x"),
-                                 (REAL) info.getRealValue(L"y"));
+                    dst = PointF{(REAL) info.getRealValue(TJS_W("x")),
+                                 (REAL) info.getRealValue(TJS_W("y"))};
                 }
             }
         } else {
@@ -123,16 +97,16 @@ private:
     T dst;
 };
 
-NCB_SET_CONVERTOR_DST(PointF, PointFConvertor);
-NCB_REGISTER_SUBCLASS_DELAY(PointF) {
+NCB_SET_CONVERTOR_DST(PointFClass, PointFConvertor);
+NCB_REGISTER_SUBCLASS_DELAY(PointFClass) {
     NCB_CONSTRUCTOR((REAL, REAL));
     NCB_MEMBER_PROPERTY(x, REAL, X);
     NCB_MEMBER_PROPERTY(y, REAL, Y);
     NCB_METHOD(Equals);
-};
+}
 
 PointF getPoint(const tTJSVariant &var) {
-    PointFConvertor<PointF> conv;
+    PointFConvertor<PointF> conv{};
     PointF ret;
     conv(ret, var);
     return ret;
@@ -152,15 +126,19 @@ struct RectFConvertor {
             } else {
                 ncbPropAccessor info(src);
                 if (IsArray(src)) {
-                    dst = RectF((REAL) info.getRealValue(0),
-                                (REAL) info.getRealValue(1),
-                                (REAL) info.getRealValue(2),
-                                (REAL) info.getRealValue(3));
+                    dst = RectF{
+                            (REAL) info.getRealValue(0),
+                            (REAL) info.getRealValue(1),
+                            (REAL) info.getRealValue(2),
+                            (REAL) info.getRealValue(3)
+                    };
                 } else {
-                    dst = RectF((REAL) info.getRealValue(L"x"),
-                                (REAL) info.getRealValue(L"y"),
-                                (REAL) info.getRealValue(L"width"),
-                                (REAL) info.getRealValue(L"height"));
+                    dst = RectF{
+                            (REAL) info.getRealValue(TJS_W("x")),
+                            (REAL) info.getRealValue(TJS_W("y")),
+                            (REAL) info.getRealValue(TJS_W("width")),
+                            (REAL) info.getRealValue(TJS_W("height"))
+                    };
                 }
             }
         } else {
@@ -173,8 +151,8 @@ private:
     T dst;
 };
 
-NCB_SET_CONVERTOR_DST(RectF, RectFConvertor);
-NCB_REGISTER_SUBCLASS_DELAY(RectF) {
+NCB_SET_CONVERTOR_DST(RectFClass, RectFConvertor);
+NCB_REGISTER_SUBCLASS_DELAY(RectFClass) {
     NCB_CONSTRUCTOR((REAL, REAL, REAL, REAL));
     NCB_MEMBER_PROPERTY(x, REAL, X);
     NCB_MEMBER_PROPERTY(y, REAL, Y);
@@ -184,22 +162,22 @@ NCB_REGISTER_SUBCLASS_DELAY(RectF) {
     NCB_PROPERTY_RO(top, GetTop);
     NCB_PROPERTY_RO(right, GetRight);
     NCB_PROPERTY_RO(bottom, GetBottom);
-    NCB_ARG_PROPERTY_RO(location, PointF, GetLocation);
-    NCB_ARG_PROPERTY_RO(bounds, RectF, GetBounds);
+    NCB_ARG_PROPERTY_RO(location, PointFClass, GetLocation);
+    NCB_ARG_PROPERTY_RO(bounds, RectFClass, GetBounds);
     NCB_METHOD(Clone);
 // XXX	NCB_METHOD_DETAIL(Contains, Class, BOOL, Class::Contains, (REAL,REAL));
 //	NCB_METHOD_DETAIL(ContainsPoint, Class, BOOL, Class::Contains, (const PointF&) const);
 //	NCB_METHOD_DETAIL(ContainsRect, Class, BOOL, Class::Contains, (const RectF&));
     NCB_METHOD(Equals);
     NCB_METHOD_DETAIL(Inflate, Class, void, Class::Inflate, (REAL, REAL));
-    NCB_METHOD_DETAIL(InflatePoint, Class, void, Class::Inflate, (const PointF&));
+    NCB_METHOD_DETAIL(InflatePoint, Class, void, Class::Inflate, (const PointFClass&));
 //XXX	NCB_METHOD_DETAIL(Intersect, Class, BOOL, Class::Intersect, (const Rect&));
     NCB_METHOD(IntersectsWith);
     NCB_METHOD(IsEmptyArea);
     NCB_METHOD_DETAIL(Offset, Class, void, Class::Offset, (REAL, REAL));
 //XXX	NCB_METHOD_DETAIL(OffsetPoint, Class, void, Class::Offset, (const Point&));
     NCB_METHOD(Union);
-};
+}
 
 RectF getRect(const tTJSVariant &var) {
     RectFConvertor<RectF> conv;
@@ -223,7 +201,7 @@ protected:
     GdipClassT *obj;
 public:
     // デフォルトコンストラクタ
-    GdipWrapper() : obj(NULL) {
+    GdipWrapper() : obj(nullptr) {
     }
 
     // 関数の帰り値としてのオブジェクト生成時用。
@@ -233,7 +211,7 @@ public:
 
     // コピーコンストラクタ
     // 内蔵オブジェクトは Cloneする
-    GdipWrapper(const GdipWrapper &orig) : obj(NULL) {
+    GdipWrapper(const GdipWrapper &orig) : obj(nullptr) {
         if (orig.obj) {
             obj = orig.obj->Clone();
         }
@@ -282,22 +260,22 @@ struct GdipTypeConvertor {
 protected:
     GdipClassT *result; // 結果の一時保持用
 public:
-    GdipTypeConvertor() : result(NULL) {}
+    GdipTypeConvertor() : result(nullptr) {}
 
     ~GdipTypeConvertor() { delete result; }
 
-    void operator()(GdipClassP &dst, const tTJSVariant &src) {
+    virtual void operator()(GdipClassP &dst, const tTJSVariant &src) {
         WrapperT *obj;
         if (src.Type() == tvtObject &&
             (obj = AdaptorT::GetNativeInstance(src.AsObjectNoAddRef()))) {
             dst = obj->getGdipObject();
         } else {
-            dst = NULL;
+            dst = nullptr;
         }
     }
 
     void operator()(tTJSVariant &dst, const GdipClassP &src) {
-        if (src != NULL) {
+        if (src != nullptr) {
             iTJSDispatch2 *adpobj = AdaptorT::CreateAdaptor(new WrapperT(src));
             if (adpobj) {
                 dst = tTJSVariant(adpobj, adpobj);
@@ -338,10 +316,10 @@ NCB_SET_CONVERTOR(const type*, convertor<const type>)
 
 
 // ------------------------------------------------------- Matrix
+template<typename>
+struct MatrixConvertor : public GdipTypeConvertor<MatrixClass> {
 
-template<class T>
-struct MatrixConvertor : public GdipTypeConvertor<T> {
-    void operator()(GdipClassP &dst, const tTJSVariant &src) {
+    void operator()(GdipClassP &dst, const tTJSVariant &src) override {
         WrapperT *obj;
         if (src.Type() == tvtObject) {
             if ((obj = AdaptorT::GetNativeInstance(src.AsObjectNoAddRef()))) {
@@ -349,36 +327,40 @@ struct MatrixConvertor : public GdipTypeConvertor<T> {
             } else {
                 ncbPropAccessor info(src);
                 if (IsArray(src)) {
-                    result = new Matrix((REAL) info.getRealValue(0),
-                                        (REAL) info.getRealValue(1),
-                                        (REAL) info.getRealValue(2),
-                                        (REAL) info.getRealValue(3),
-                                        (REAL) info.getRealValue(4),
-                                        (REAL) info.getRealValue(5));
+                    result = new MatrixClass{
+                            (REAL) info.getRealValue(0),
+                            (REAL) info.getRealValue(1),
+                            (REAL) info.getRealValue(2),
+                            (REAL) info.getRealValue(3),
+                            (REAL) info.getRealValue(4),
+                            (REAL) info.getRealValue(5)
+                    };
                 } else {
-                    result = new Matrix((REAL) info.getRealValue(L"m11"),
-                                        (REAL) info.getRealValue(L"m12"),
-                                        (REAL) info.getRealValue(L"m21"),
-                                        (REAL) info.getRealValue(L"m22"),
-                                        (REAL) info.getRealValue(L"dx"),
-                                        (REAL) info.getRealValue(L"dy"));
+                    result = new MatrixClass{
+                            (REAL) info.getRealValue(TJS_W("m11")),
+                            (REAL) info.getRealValue(TJS_W("m12")),
+                            (REAL) info.getRealValue(TJS_W("m21")),
+                            (REAL) info.getRealValue(TJS_W("m22")),
+                            (REAL) info.getRealValue(TJS_W("dx")),
+                            (REAL) info.getRealValue(TJS_W("dy"))
+                    };
                 }
                 dst = result;
             }
         } else {
-            dst = NULL;
+            dst = nullptr;
         }
     }
 };
 
 static tjs_error
-MatrixFactory(GdipWrapper<Matrix> **result, tjs_int numparams, tTJSVariant **params,
+MatrixFactory(GdipWrapper<MatrixClass> **result, tjs_int numparams, tTJSVariant **params,
               iTJSDispatch2 *objthis) {
-    Matrix *matrix = NULL;
-    RectF *rect = NULL;
-    PointF *point = NULL;
+    MatrixClass *matrix = nullptr;
+    RectF *rect = nullptr;
+    PointF *point = nullptr;
     if (numparams == 0) {
-        matrix = new Matrix();
+        matrix = new MatrixClass();
     } else if (numparams == 2 &&
                (params[0]->Type() == tvtObject &&
                 (rect = ncbInstanceAdaptor<RectF>::GetNativeInstance(
@@ -386,22 +368,22 @@ MatrixFactory(GdipWrapper<Matrix> **result, tjs_int numparams, tTJSVariant **par
                (params[1]->Type() == tvtObject &&
                 (point = ncbInstanceAdaptor<PointF>::GetNativeInstance(
                         params[0]->AsObjectNoAddRef())))) {
-        matrix = new Matrix(*rect, point);
+        matrix = new MatrixClass(*rect, *point);
     } else if (numparams == 6) {
-        matrix = new Matrix((REAL) params[0]->AsReal(),
-                            (REAL) params[1]->AsReal(),
-                            (REAL) params[2]->AsReal(),
-                            (REAL) params[3]->AsReal(),
-                            (REAL) params[4]->AsReal(),
-                            (REAL) params[5]->AsReal());
+        matrix = new MatrixClass((REAL) params[0]->AsReal(),
+                                 (REAL) params[1]->AsReal(),
+                                 (REAL) params[2]->AsReal(),
+                                 (REAL) params[3]->AsReal(),
+                                 (REAL) params[4]->AsReal(),
+                                 (REAL) params[5]->AsReal());
     } else {
         return TJS_E_INVALIDPARAM;
     }
-    *result = new GdipWrapper<Matrix>(matrix);
+    *result = new GdipWrapper<MatrixClass>(matrix);
     return TJS_S_OK;
 }
 
-NCB_REGISTER_GDIP_SUBCLASS2(Matrix, MatrixConvertor)
+NCB_REGISTER_GDIP_SUBCLASS2(MatrixClass, MatrixConvertor)
     Factory(MatrixFactory);
     NCB_GDIP_METHOD(OffsetX);
     NCB_GDIP_METHOD(OffsetY);
@@ -421,16 +403,16 @@ NCB_REGISTER_GDIP_SUBCLASS2(Matrix, MatrixConvertor)
 //	NCB_GDIP_METHOD_DETAIL(TransformPoints, Class, Status, TransformPoints, (PointF*, INT)); XXX 引数が配列
 //	NCB_GDIP_METHOD_DETAIL(TransformVectors, Class, Status, TransformVectors, (PointF*, INT)); XXX 引数が配列
     NCB_GDIP_METHOD(Translate);
-};
+}
 
-// ------------------------------------------------------- Image
+// ------------------------------------------------------- GpImage
 
 /**
  * イメージ用コンバータ
  * 文字列からも変更可能
  */
-template<class T>
-struct ImageConvertor : public GdipTypeConvertor<T> {
+template<typename>
+struct ImageConvertor : public GdipTypeConvertor<ImageClass> {
     void operator()(GdipClassP &dst, const tTJSVariant &src) {
         if (src.Type() == tvtObject) {
             WrapperT *obj;
@@ -442,28 +424,28 @@ struct ImageConvertor : public GdipTypeConvertor<T> {
                 if (layer) {
                     dst = *layer;
                 } else {
-                    dst = NULL;
+                    dst = nullptr;
                 }
             }
         } else if (src.Type() == tvtString) { // 文字列から生成
             dst = result = loadImage(src.GetString());
         } else {
-            dst = NULL;
+            dst = nullptr;
         }
     }
 };
 
 
 static tjs_error
-ImageFactory(GdipWrapper<Image> **result, tjs_int numparams, tTJSVariant **params,
+ImageFactory(GdipWrapper<ImageClass> **result, tjs_int numparams, tTJSVariant **params,
              iTJSDispatch2 *objthis) {
     if (numparams == 0) {
-        *result = new GdipWrapper<Image>();
+        *result = new GdipWrapper<ImageClass>();
         return TJS_S_OK;
     } else if (numparams > 0 && params[0]->Type() == tvtString) {
-        Image *image = loadImage(params[0]->GetString());
+        GpImage *image = loadImage(params[0]->GetString());
         if (image) {
-            *result = new GdipWrapper<Image>(image);
+            *result = new GdipWrapper<ImageClass>(image);
             return TJS_S_OK;
         } else {
             TVPThrowExceptionMessage(TJS_W("cannot open:%1"), *params[0]);
@@ -472,8 +454,8 @@ ImageFactory(GdipWrapper<Image> **result, tjs_int numparams, tTJSVariant **param
     return TJS_E_INVALIDPARAM;
 }
 
-static void ImageLoad(GdipWrapper<Image> *obj, const tjs_char *filename) {
-    Image *image = loadImage(filename);
+static void ImageLoad(GdipWrapper<ImageClass> *obj, const tjs_char *filename) {
+    ImageClass *image = loadImage(filename);
     if (image) {
         obj->setGdipObject(image);
     } else {
@@ -481,13 +463,13 @@ static void ImageLoad(GdipWrapper<Image> *obj, const tjs_char *filename) {
     }
 }
 
-static tTJSVariant ImageClone(GdipWrapper<Image> *obj) {
-    typedef GdipWrapper<Image> WrapperT;
-    typedef ncbInstanceAdaptor<WrapperT> AdaptorT;
+static tTJSVariant ImageClone(GdipWrapper<ImageClass> *obj) {
+    typedef GdipWrapper<ImageClass> WrapperT;
+    typedef ncbInstanceAdaptor<ImageClass> AdaptorT;
     tTJSVariant ret;
-    Image *src = obj->getGdipObject();
+    ImageClass *src = obj->getGdipObject();
     if (src) {
-        Image *newimage = src->Clone();
+        ImageClass *newimage = src->Clone();
         iTJSDispatch2 *adpobj = AdaptorT::CreateAdaptor(new WrapperT(newimage));
         if (adpobj) {
             ret = tTJSVariant(adpobj, adpobj);
@@ -499,10 +481,10 @@ static tTJSVariant ImageClone(GdipWrapper<Image> *obj) {
     return ret;
 }
 
-static tTJSVariant ImageBounds(GdipWrapper<Image> *obj) {
+static tTJSVariant ImageBounds(GdipWrapper<ImageClass> *obj) {
     typedef ncbInstanceAdaptor<RectF> AdaptorT;
     tTJSVariant ret;
-    Image *src = obj->getGdipObject();
+    ImageClass *src = obj->getGdipObject();
     if (src) {
         RectF *bounds = getBounds(src);
         iTJSDispatch2 *adpobj = AdaptorT::CreateAdaptor(bounds);
@@ -516,7 +498,7 @@ static tTJSVariant ImageBounds(GdipWrapper<Image> *obj) {
     return ret;
 }
 
-NCB_REGISTER_GDIP_SUBCLASS2(Image, ImageConvertor)
+NCB_REGISTER_GDIP_SUBCLASS2(ImageClass, ImageConvertor)
     Factory(ImageFactory);
     NCB_METHOD_PROXY(load, ImageLoad);
     NCB_METHOD_PROXY(Clone, ImageClone);
@@ -576,7 +558,7 @@ NCB_REGISTER_SUBCLASS(Appearance) {
     NCB_METHOD(addPen);
 };
 
-NCB_REGISTER_SUBCLASS(Path) {
+NCB_REGISTER_SUBCLASS(DrawPath) {
     NCB_CONSTRUCTOR(());
     NCB_METHOD(startFigure);
     NCB_METHOD(closeFigure);
@@ -781,15 +763,15 @@ NCB_REGISTER_CLASS(GdiPlus) {
     NCB_METHOD(getFontList);
 
 // classes
-    NCB_SUBCLASS_NAME(PointF);
-    NCB_SUBCLASS_NAME(RectF);
+    NCB_SUBCLASS(PointF, PointFClass);
+    NCB_SUBCLASS(RectF, RectFClass);
 
-    NCB_GDIP_SUBCLASS(Image);
-    NCB_GDIP_SUBCLASS(Matrix);
+    NCB_SUBCLASS(Image, ImageClass);
+    NCB_SUBCLASS(Matrix, MatrixClass);
 
     NCB_SUBCLASS(Font, FontInfo);
     NCB_SUBCLASS(Appearance, Appearance);
-    NCB_SUBCLASS(Path, Path);
+    NCB_SUBCLASS(Path, DrawPath);
 }
 
 #if 0
@@ -802,7 +784,7 @@ struct LayerExConvertor {
             if (layer) {
                 *dst = (ClassP)layer;
             } else {
-                *dst = NULL;
+                *dst = nullptr;
             }
         }
     }
@@ -835,7 +817,7 @@ NCB_GET_INSTANCE_HOOK(LayerExDraw)
 #define LAYEREX_METHOD(type, name)  Method(TJS_W(# name), &Type::name, Bridge<LayerExDraw::BridgeFunctor<type>>())
 
 /**
- * Image はラッピングする必要があるので rawcallback で対応
+ * GpImage はラッピングする必要があるので rawcallback で対応
  */
 static tjs_error TJS_INTF_METHOD
 GetRecordImage(tTJSVariant *result, tjs_int numparams,
@@ -843,9 +825,9 @@ GetRecordImage(tTJSVariant *result, tjs_int numparams,
     LayerExDraw *obj = ncbInstanceAdaptor<LayerExDraw>::GetNativeInstance(objthis, true);
     if (result) result->Clear();
     if (obj) {
-        Image *image = obj->getRecordImage();
+        GpImage *image = obj->getRecordImage();
         if (image) {
-            typedef GdipWrapper<Image> WrapperT;
+            typedef GdipWrapper<GpImage> WrapperT;
             WrapperT *wrap = new WrapperT(image);
             iTJSDispatch2 *adpobj = ncbInstanceAdaptor<WrapperT>::CreateAdaptor(wrap);
             if (adpobj) {

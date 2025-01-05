@@ -2,6 +2,7 @@
 // Created by Li_Dong on 2024/12/9.
 // source code url: https://github.com/wamsoft/windowEx/blob
 //
+#include "win32_dt.h"
 #include "ncbind/ncbind.hpp"
 #include "DetectCPU.h"
 #include "GraphicsLoaderIntf.h"
@@ -293,19 +294,6 @@
 #define HTZOOM 9 // [最大化] 按鈕中。
 #define HTCAPTION 2 // In a title bar.
 #define HTCLIENT 1 // In a client area.
-
-typedef void *PVOID;
-typedef PVOID HANDLE;
-typedef HANDLE HMENU;
-typedef HANDLE HWND;
-typedef HANDLE HICON;
-typedef HANDLE HDC;
-typedef HANDLE HBITMAP;
-typedef unsigned long DWORD;
-
-typedef unsigned short WORD;
-typedef uint UINT;
-typedef uintptr_t ULONG_PTR;
 
 // イベント名一覧
 #define EXEV_MINIMIZE  TJS_W("onMinimize")

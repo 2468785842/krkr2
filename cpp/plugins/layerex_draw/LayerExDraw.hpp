@@ -1,12 +1,9 @@
 #ifndef _layerExText_hpp_
 #define _layerExText_hpp_
 
-#include <gdiplus-private.h>
-#include <brush-private.h>
-#include <image-private.h>
-#include <pen-private.h>
-#include <matrix-private.h>
+#define NCB_MODULE_NAME TJS_W("layerExDraw.dll")
 
+#include "gdip_cxx.h"
 #include <vector>
 
 using namespace std;
@@ -36,7 +33,7 @@ struct GdiPlus {
 class FontInfo {
     friend class LayerExDraw;
 
-    friend class Path;
+    friend class DrawPath;
 
 protected:
     GpFontFamily *fontFamily; //< フォントファミリー
@@ -45,19 +42,19 @@ protected:
     INT style; //< フォントスタイル
     bool gdiPlusUnsupportedFont; //< GDI+未サポートフォント
     bool forceSelfPathDraw; // 自前パス描画強制
-    mutable bool propertyModified;
-    mutable REAL ascent;
-    mutable REAL descent;
-    mutable REAL lineSpacing;
-    mutable REAL ascentLeading;
-    mutable REAL descentLeading;
+    bool propertyModified;
+    REAL ascent;
+    REAL descent;
+    REAL lineSpacing;
+    REAL ascentLeading;
+    REAL descentLeading;
 
     /**
      * フォント情報のクリア
      */
     void clear();
 
-    OUTLINETEXTMETRIC *createFontMetric(void) const;
+    OUTLINETEXTMETRIC *createFontMetric() const;
 
 
 public:
@@ -99,11 +96,11 @@ public:
 
     void setForceSelfPathDraw(bool state);
 
-    bool getForceSelfPathDraw(void) const;
+    bool getForceSelfPathDraw() const;
 
-    bool getSelfPathDraw(void) const;
+    bool getSelfPathDraw() const;
 
-    void updateSizeParams(void) const;
+    void updateSizeParams() const;
 
     REAL getAscent() const;
 
@@ -142,14 +139,16 @@ public:
             if (orig.info) {
                 switch (type) {
                     case 0:
-                        info = (void *) ((GpPen *) orig.info)->Clone();
+//                        info = (void *) ((GpPen *) orig.info)->Clone();
+                        GdipClonePen((GpPen *) orig.info, (GpPen * *) & info);
                         break;
                     case 1:
-                        info = (void *) ((Brush *) orig.info)->Clone();
+//                        info = (void *) ((Brush *) orig.info)->Clone();
+                        GdipCloneBrush((Brush *) orig.info, (Brush * *) & info);
                         break;
                 }
             } else {
-                info = NULL;
+                info = nullptr;
             }
         }
 
@@ -200,7 +199,7 @@ protected:
     /**
      * LineCapの取得
      */
-    bool getLineCap(tTJSVariant &in, LineCap &cap, CustomLineCap *&custom, REAL pw);
+    bool getLineCap(tTJSVariant &in, GpLineCap &cap, CustomLineCap *&custom, REAL pw);
 
     vector<CustomLineCap *> customLineCaps;
 };
@@ -209,13 +208,13 @@ protected:
 /**
  * 描画外観情報
  */
-class Path {
+class DrawPath {
     friend class LayerExDraw;
 
 public:
-    Path();
+    DrawPath();
 
-    virtual ~Path();
+    virtual ~DrawPath();
 
     void startFigure();
 
@@ -252,7 +251,7 @@ public:
     void drawRectangles(tTJSVariant rects);
 
 protected:
-    GraphicsPath path;
+    GpPath path;
 };
 
 /*
@@ -267,7 +266,7 @@ protected:
     GeometryT clipLeft, clipTop, clipWidth, clipHeight;
 
     /// レイヤを参照するビットマップ
-    Bitmap *bitmap;
+    GpBitmap *bitmap;
     /// レイヤに対して描画するコンテキスト
     GpGraphics *graphics;
 
@@ -304,7 +303,7 @@ protected:
     HDC metaHDC;
     HGLOBAL metaBuffer;
     IStream *metaStream;
-    Metafile *metafile;
+    GpMetafile *metafile;
     GpGraphics *metaGraphics;
 
     bool updateWhenDraw;
@@ -320,13 +319,13 @@ public:
 
     inline operator GpImage *() const { return (GpImage *) bitmap; }
 
-    inline operator Bitmap *() const { return bitmap; }
+    inline operator GpBitmap *() const { return bitmap; }
 
     inline operator GpGraphics *() const { return graphics; }
 
     inline operator const GpImage *() const { return (const GpImage *) bitmap; }
 
-    inline operator const Bitmap *() const { return bitmap; }
+    inline operator const GpBitmap *() const { return bitmap; }
 
     inline operator const GpGraphics *() const { return graphics; }
 
@@ -393,7 +392,7 @@ protected:
      * @param path 描画するパス
      * @return 更新領域情報
      */
-    RectF getPathExtents(const Appearance *app, const GraphicsPath *path);
+    RectF getPathExtents(const Appearance *app, const GpPath *path);
 
     /**
      * パスの描画用下請け処理
@@ -402,7 +401,7 @@ protected:
      * @param matrix 描画位置調整用matrix
      * @param path 描画内容
      */
-    void draw(GpGraphics *graphics, const GpPen *pen, const GpMatrix *matrix, const GraphicsPath *path);
+    void draw(GpGraphics *graphics, const GpPen *pen, const GpMatrix *matrix, const GpPath *path);
 
     /**
      * 塗りの描画用下請け処理
@@ -412,7 +411,7 @@ protected:
      * @param path 描画内容
      */
     void
-    fill(GpGraphics *graphics, const Brush *brush, const GpMatrix *matrix, const GraphicsPath *path);
+    fill(GpGraphics *graphics, const Brush *brush, const GpMatrix *matrix, const GpPath *path);
 
     /**
      * パスの描画
@@ -420,7 +419,7 @@ protected:
      * @param path 描画するパス
      * @return 更新領域情報
      */
-    RectF _drawPath(const Appearance *app, const GraphicsPath *path);
+    RectF _drawPath(const Appearance *app, const GpPath *path);
 
     /**
      * グリフアウトラインの取得
@@ -429,7 +428,7 @@ protected:
      * @param path グリフを書き出すパス
      * @param glyph 描画するグリフ
      */
-    void getGlyphOutline(const FontInfo *font, PointF &offset, GraphicsPath *path, UINT glyph);
+    void getGlyphOutline(const FontInfo *font, PointF &offset, GpPath *path, UINT glyph);
 
     /*
      * テキストアウトラインの取得
@@ -438,7 +437,7 @@ protected:
      * @param path グリフを書き出すパス
      * @param text 描画するテキスト
      */
-    void getTextOutline(const FontInfo *font, PointF &offset, GraphicsPath *path, ttstr text);
+    void getTextOutline(const FontInfo *font, PointF &offset, GpPath *path, ttstr text);
 
 public:
     /**
@@ -452,7 +451,7 @@ public:
      * @param app アピアランス
      * @param path パス
      */
-    RectF drawPath(const Appearance *app, const Path *path);
+    RectF drawPath(const Appearance *app, const GpPath *path);
 
     /**
      * 円弧の描画
@@ -718,8 +717,9 @@ public:
      * @param sheight  元矩形の縦幅
      * @return 更新領域情報
      */
-    RectF drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, GpImage *src, REAL sleft,
-                           REAL stop, REAL swidth, REAL sheight);
+    RectF
+    drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, GpImage *src, REAL sleft,
+                     REAL stop, REAL swidth, REAL sheight);
 
     /**
      * 画像のアフィン変換コピー
@@ -731,8 +731,9 @@ public:
      * @param affine アフィンパラメータの種類(true:変換行列, false:座標指定),
      * @return 更新領域情報
      */
-    RectF drawImageAffine(GpImage *src, REAL sleft, REAL stop, REAL swidth, REAL sheight, bool affine,
-                          REAL A, REAL B, REAL C, REAL D, REAL E, REAL F);
+    RectF
+    drawImageAffine(GpImage *src, REAL sleft, REAL stop, REAL swidth, REAL sheight, bool affine,
+                    REAL A, REAL B, REAL C, REAL D, REAL E, REAL F);
 
     // ------------------------------------------------
     // メタファイル操作

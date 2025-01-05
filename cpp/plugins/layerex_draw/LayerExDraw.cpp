@@ -1,14 +1,14 @@
 #include "ncbind.hpp"
 #include "LayerExDraw.hpp"
 #include <vector>
-#include <stdio.h>
+#include <cstdio>
 
 // GDI+ 基本情報
 static GdiplusStartupInput gdiplusStartupInput;
 static ULONG_PTR gdiplusToken;
 
 /// プライベートフォント情報
-static PrivateFontCollection *privateFontCollection = NULL;
+static PrivateFontCollection *privateFontCollection = nullptr;
 static vector<void *> fontDatas;
 
 inline static float ToFloat(FIXED &pfx) {
@@ -24,14 +24,14 @@ inline static PointF ToPointF(POINTFX *p) {
 // GDI+ 初期化
 void initGdiPlus() {
     // Initialize GDI+.
-    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
 }
 
 // GDI+ 終了
 void deInitGdiPlus() {
     // フォントデータの解放
     delete privateFontCollection;
-    vector<void *>::const_iterator i = fontDatas.begin();
+    auto i = fontDatas.begin();
     while (i != fontDatas.end()) {
         delete[] *i;
         i++;
@@ -45,15 +45,15 @@ void deInitGdiPlus() {
  * @param name ファイル名
  * @return 画像情報
  */
-Image *loadImage(const tjs_char *name) {
-    Image *image = NULL;
+ImageClass *loadImage(const tjs_char *name) {
+    ImageClass *image = nullptr;
     ttstr filename = TVPGetPlacedPath(name);
     if (filename.length()) {
         /* ファイルを握ったままになるので廃止
         ttstr localname(TVPGetLocallyAccessibleName(filename));
         if (localname.length()) {
             // 実ファイルが存在
-            image = Image::FromFile(localname.c_str(),false);
+            image = GpImage::FromFile(localname.c_str(),false);
         }
         else
          */
@@ -73,7 +73,7 @@ Image *loadImage(const tjs_char *name) {
                         if (in->Read(pBuffer, size, &size) == S_OK) {
                             IStream *pStream = NULL;
                             if (::CreateStreamOnHGlobal(hBuffer, FALSE, &pStream) == S_OK) {
-                                image = Image::FromStream(pStream, false);
+                                image = GpImage::FromStream(pStream, false);
                                 pStream->Release();
                             }
                         }
@@ -92,7 +92,7 @@ Image *loadImage(const tjs_char *name) {
     return image;
 }
 
-RectF *getBounds(Image *image) {
+RectF *getBounds(ImageClass *image) {
     RectF srcRect;
     Unit srcUnit;
     image->GetBounds(&srcRect, &srcUnit);
@@ -318,17 +318,17 @@ FontInfo::setForceSelfPathDraw(bool state) {
 }
 
 bool
-FontInfo::getForceSelfPathDraw(void) const {
+FontInfo::getForceSelfPathDraw() const {
     return forceSelfPathDraw;
 }
 
 bool
-FontInfo::getSelfPathDraw(void) const {
+FontInfo::getSelfPathDraw() const {
     return forceSelfPathDraw || gdiPlusUnsupportedFont;
 }
 
 OUTLINETEXTMETRIC *
-FontInfo::createFontMetric(void) const {
+FontInfo::createFontMetric() const {
     HDC dc = ::CreateCompatibleDC(NULL);
     if (dc == NULL)
         return NULL;
@@ -367,8 +367,7 @@ FontInfo::createFontMetric(void) const {
     return NULL;
 }
 
-void
-FontInfo::updateSizeParams(void) const {
+void FontInfo::updateSizeParams() const {
     if (!propertyModified)
         return;
 
@@ -656,7 +655,7 @@ Brush *createBrush(const tTJSVariant colorOrBrush) {
                 break;
             case BrushTypeTextureFill: {
                 ttstr imgname = info.GetValue(L"image", ncbTypedefs::Tag<ttstr>());
-                Image *image = loadImage(imgname.c_str());
+                GpImage *image = loadImage(imgname.c_str());
                 if (image) {
                     WrapMode wrapMode = (WrapMode) info.getIntValue(L"wrapMode", WrapModeTile);
                     tTJSVariant dstRect;
@@ -1626,7 +1625,7 @@ LayerExDraw::measureStringInternal(const FontInfo *font, const tjs_char *text) {
  * @return 更新領域情報
  */
 RectF
-LayerExDraw::drawImage(REAL x, REAL y, Image *src) {
+LayerExDraw::drawImage(REAL x, REAL y, GpImage *src) {
     RectF rect;
     if (src) {
         RectF *bounds = getBounds(src);
@@ -1650,7 +1649,7 @@ LayerExDraw::drawImage(REAL x, REAL y, Image *src) {
  * @return 更新領域情報
  */
 RectF
-LayerExDraw::drawImageRect(REAL dleft, REAL dtop, Image *src, REAL sleft, REAL stop, REAL swidth,
+LayerExDraw::drawImageRect(REAL dleft, REAL dtop, GpImage *src, REAL sleft, REAL stop, REAL swidth,
                            REAL sheight) {
     return drawImageAffine(src, sleft, stop, swidth, sheight, true, 1, 0, 0, 1, dleft, dtop);
 }
@@ -1669,7 +1668,7 @@ LayerExDraw::drawImageRect(REAL dleft, REAL dtop, Image *src, REAL sleft, REAL s
  * @return 更新領域情報
  */
 RectF
-LayerExDraw::drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, Image *src,
+LayerExDraw::drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, GpImage *src,
                               REAL sleft, REAL stop, REAL swidth, REAL sheight) {
     return drawImageAffine(src, sleft, stop, swidth, sheight, true, dwidth / swidth, 0, 0,
                            dheight / sheight, dleft, dtop);
@@ -1685,7 +1684,7 @@ LayerExDraw::drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, 
  * @return 更新領域情報
  */
 RectF
-LayerExDraw::drawImageAffine(Image *src, REAL sleft, REAL stop, REAL swidth, REAL sheight,
+LayerExDraw::drawImageAffine(GpImage *src, REAL sleft, REAL stop, REAL swidth, REAL sheight,
                              bool affine, REAL A, REAL B, REAL C, REAL D, REAL E, REAL F) {
     RectF rect;
     if (src) {
@@ -1794,7 +1793,7 @@ LayerExDraw::setRecord(bool record) {
 }
 
 bool
-LayerExDraw::redraw(Image *image) {
+LayerExDraw::redraw(GpImage *image) {
     if (image) {
         RectF *bounds = getBounds(image);
         if (metaGraphics) {
@@ -1815,12 +1814,12 @@ LayerExDraw::redraw(Image *image) {
 }
 
 /**
- * 記録内容を Image として取得
+ * 記録内容を GpImage として取得
  * @return 成功したら true
  */
-Image *
+GpImage *
 LayerExDraw::getRecordImage() {
-    Image *image = NULL;
+    GpImage *image = NULL;
     if (metafile) {
         // メタ情報を取得するには一度閉じる必要がある
         if (metaGraphics) {
@@ -1837,7 +1836,7 @@ LayerExDraw::getRecordImage() {
         if (oldBuffer) {
             IStream *pStream = NULL;
             if (::CreateStreamOnHGlobal(oldBuffer, FALSE, &pStream) == S_OK) {
-                image = Image::FromStream(pStream, false);
+                image = GpImage::FromStream(pStream, false);
                 if (image) {
                     redraw(image);
                 }
@@ -1855,7 +1854,7 @@ LayerExDraw::getRecordImage() {
 bool
 LayerExDraw::redrawRecord() {
     // 再描画処理
-    Image *image = getRecordImage();
+    GpImage *image = getRecordImage();
     if (image) {
         delete image;
         return true;
@@ -1889,7 +1888,7 @@ LayerExDraw::saveRecord(const tjs_char *filename) {
             }
         }
         // 再描画処理
-        Image *image = getRecordImage();
+        GpImage *image = getRecordImage();
         if (image) {
             delete image;
         }
@@ -1906,7 +1905,7 @@ LayerExDraw::saveRecord(const tjs_char *filename) {
 bool
 LayerExDraw::loadRecord(const tjs_char *filename) {
     bool ret = false;
-    Image *image;
+    GpImage *image;
     if (filename && (image = loadImage(filename))) {
         createRecord();
         ret = redraw(image);
@@ -2021,9 +2020,9 @@ LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointF &offset, GraphicsP
  * @param text 描画するテキスト
  */
 void
-LayerExDraw::getTextOutline(const FontInfo *fontInfo, PointF &offset, GraphicsPath *path,
+LayerExDraw::getTextOutline(const FontInfo *fontInfo, PointF &offset, GpPath *path,
                             ttstr text) {
-    if (metaHDC == NULL)
+    if (metaHDC == nullptr)
         return;
 
     if (text.IsEmpty())
@@ -2172,12 +2171,12 @@ public:
 
     void checkResult() {
         int n = 0;
-        for (int i = 0; i < 7; i++) {
-            if (infos[i].value >= 0) {
-                params->Parameter[n].Guid = infos[i].guid;
+        for (auto & info : infos) {
+            if (info.value >= 0) {
+                params->Parameter[n].Guid = info.guid;
                 params->Parameter[n].Type = EncoderParameterValueTypeLong;
                 params->Parameter[n].NumberOfValues = 1;
-                params->Parameter[n].Value = &infos[i].value;
+                params->Parameter[n].Value = &info.value;
                 n++;
             }
         }
@@ -2197,9 +2196,9 @@ public:
             tTVInteger flag = param[1]->AsInteger();
             if (!(flag & TJS_HIDDENMEMBER)) {
                 ttstr name = *param[0];
-                for (int i = 0; i < 7; i++) {
-                    if (name == infos[i].name) {
-                        infos[i].value = (tjs_int) *param[1];
+                for (auto & info : infos) {
+                    if (name == info.name) {
+                        info.value = (tjs_int) *param[1];
                         break;
                     }
                 }
