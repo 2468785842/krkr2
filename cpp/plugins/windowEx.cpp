@@ -2,6 +2,11 @@
 // Created by Li_Dong on 2024/12/9.
 // source code url: https://github.com/wamsoft/windowEx/blob
 //
+#include <cstdint>
+
+typedef unsigned long DWORD;
+typedef uintptr_t ULONG_PTR;
+
 #include "win32_dt.h"
 #include "ncbind/ncbind.hpp"
 #include "DetectCPU.h"

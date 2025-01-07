@@ -5,9 +5,9 @@ extern void initGdiPlus();
 
 extern void deInitGdiPlus();
 
-extern GpImage *loadImage(const tjs_char *name);
+extern ImageClass *loadImage(const tjs_char *name);
 
-extern RectF *getBounds(GpImage *image);
+extern RectFClass *getBounds(ImageClass *image);
 
 // ----------------------------------------------------------------
 // 実体型の登録
@@ -443,7 +443,7 @@ ImageFactory(GdipWrapper<ImageClass> **result, tjs_int numparams, tTJSVariant **
         *result = new GdipWrapper<ImageClass>();
         return TJS_S_OK;
     } else if (numparams > 0 && params[0]->Type() == tvtString) {
-        GpImage *image = loadImage(params[0]->GetString());
+        ImageClass *image = loadImage(params[0]->GetString());
         if (image) {
             *result = new GdipWrapper<ImageClass>(image);
             return TJS_S_OK;
@@ -470,7 +470,7 @@ static tTJSVariant ImageClone(GdipWrapper<ImageClass> *obj) {
     ImageClass *src = obj->getGdipObject();
     if (src) {
         ImageClass *newimage = src->Clone();
-        iTJSDispatch2 *adpobj = AdaptorT::CreateAdaptor(new WrapperT(newimage));
+        iTJSDispatch2 *adpobj = AdaptorT::CreateAdaptor((ImageClass*) new WrapperT(newimage));
         if (adpobj) {
             ret = tTJSVariant(adpobj, adpobj);
             adpobj->Release();
@@ -486,7 +486,7 @@ static tTJSVariant ImageBounds(GdipWrapper<ImageClass> *obj) {
     tTJSVariant ret;
     ImageClass *src = obj->getGdipObject();
     if (src) {
-        RectF *bounds = getBounds(src);
+        RectFClass *bounds = getBounds(src);
         iTJSDispatch2 *adpobj = AdaptorT::CreateAdaptor(bounds);
         if (adpobj) {
             ret = tTJSVariant(adpobj, adpobj);
@@ -532,7 +532,7 @@ NCB_REGISTER_GDIP_SUBCLASS2(ImageClass, ImageConvertor)
 //RemovePropertyItem
     NCB_GDIP_METHOD(RotateFlip);
 //SelectActiveFrame
-};
+}
 
 // ------------------------------------------------------
 // 自前記述クラス登録
@@ -549,14 +549,14 @@ NCB_REGISTER_SUBCLASS(FontInfo) {
     NCB_PROPERTY_RO(ascentLeading, getAscentLeading);
     NCB_PROPERTY_RO(descentLeading, getDescentLeading);
     NCB_PROPERTY_RO(lineSpacing, getLineSpacing);
-};
+}
 
 NCB_REGISTER_SUBCLASS(Appearance) {
     NCB_CONSTRUCTOR(());
     NCB_METHOD(clear);
     NCB_METHOD(addBrush);
     NCB_METHOD(addPen);
-};
+}
 
 NCB_REGISTER_SUBCLASS(DrawPath) {
     NCB_CONSTRUCTOR(());
@@ -577,7 +577,7 @@ NCB_REGISTER_SUBCLASS(DrawPath) {
     NCB_METHOD(drawPolygon);
     NCB_METHOD(drawRectangle);
     NCB_METHOD(drawRectangles);
-};
+}
 
 #define ENUM(n) Variant(#n, (int)n)
 #define NCB_SUBCLASS_NAME(name) NCB_SUBCLASS(name, name)
@@ -613,7 +613,8 @@ NCB_REGISTER_CLASS(GdiPlus) {
     ENUM(FontStyleRegular);
     ENUM(FontStyleBold);
     ENUM(FontStyleItalic);
-    ENUM(FontStyleBoldItalic);
+    // ENUM(FontStyleBoldItalic);
+    Variant("FontStyleBoldItalic", 3);
     ENUM(FontStyleUnderline);
     ENUM(FontStyleStrikeout);
 
@@ -686,7 +687,8 @@ NCB_REGISTER_CLASS(GdiPlus) {
     ENUM(HatchStyleLargeCheckerBoard);
     ENUM(HatchStyleOutlinedDiamond);
     ENUM(HatchStyleSolidDiamond);
-    ENUM(HatchStyleTotal);
+    // ENUM(HatchStyleTotal);
+    Variant("HatchStyleTotal", 0x35);
     ENUM(HatchStyleLargeGrid);
     ENUM(HatchStyleMin);
     ENUM(HatchStyleMax);

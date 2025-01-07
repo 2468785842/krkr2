@@ -3,12 +3,17 @@
 
 #define NCB_MODULE_NAME TJS_W("layerExDraw.dll")
 
-#include "gdip_cxx.h"
 #include <vector>
 
-using namespace std;
+#include "gdip_cxx.h"
+#include "gdip_cxx_brush.h"
+#include "gdip_cxx_pen.h"
 
+#include "PluginStub.h"
 #include "layerExBase.hpp"
+
+#include <GdiPlusFlat.h>
+using namespace std;
 
 /**
  * GDIPlus 固有処理用
@@ -36,26 +41,24 @@ class FontInfo {
     friend class DrawPath;
 
 protected:
+    // unknown ptr ?
     GpFontFamily *fontFamily; //< フォントファミリー
     ttstr familyName;
     REAL emSize; //< フォントサイズ
     INT style; //< フォントスタイル
     bool gdiPlusUnsupportedFont; //< GDI+未サポートフォント
     bool forceSelfPathDraw; // 自前パス描画強制
-    bool propertyModified;
-    REAL ascent;
-    REAL descent;
-    REAL lineSpacing;
-    REAL ascentLeading;
-    REAL descentLeading;
+    mutable bool propertyModified;
+    mutable REAL ascent{};
+    mutable REAL descent{};
+    mutable REAL lineSpacing{};
+    mutable REAL ascentLeading{};
+    mutable REAL descentLeading{};
 
     /**
      * フォント情報のクリア
      */
     void clear();
-
-    OUTLINETEXTMETRIC *createFontMetric() const;
-
 
 public:
 
@@ -126,11 +129,11 @@ public:
         void *info; // 情報オブジェクト
         REAL ox; //< 表示オフセット
         REAL oy; //< 表示オフセット
-        DrawInfo() : ox(0), oy(0), type(0), info(NULL) {}
+        DrawInfo() : ox(0), oy(0), type(0), info(nullptr) {}
 
-        DrawInfo(REAL ox, REAL oy, GpPen *pen) : ox(ox), oy(oy), type(0), info(pen) {}
+        DrawInfo(REAL ox, REAL oy, Pen *pen) : ox(ox), oy(oy), type(0), info(pen) {}
 
-        DrawInfo(REAL ox, REAL oy, Brush *brush) : ox(ox), oy(oy), type(1), info(brush) {}
+        DrawInfo(REAL ox, REAL oy, BrushBase *brush) : ox(ox), oy(oy), type(1), info(brush) {}
 
         DrawInfo(const DrawInfo &orig) {
             ox = orig.ox;
@@ -139,12 +142,10 @@ public:
             if (orig.info) {
                 switch (type) {
                     case 0:
-//                        info = (void *) ((GpPen *) orig.info)->Clone();
-                        GdipClonePen((GpPen *) orig.info, (GpPen * *) & info);
+                        info = (void *) ((Pen *) orig.info)->Clone();
                         break;
                     case 1:
-//                        info = (void *) ((Brush *) orig.info)->Clone();
-                        GdipCloneBrush((Brush *) orig.info, (Brush * *) & info);
+                        info = (void *) ((BrushBase *) orig.info)->Clone();
                         break;
                 }
             } else {
@@ -156,10 +157,10 @@ public:
             if (info) {
                 switch (type) {
                     case 0:
-                        delete (GpPen *) info;
+                        delete (Pen *) info;
                         break;
                     case 1:
-                        delete (Brush *) info;
+                        delete (BrushBase *) info;
                         break;
                 }
             }
@@ -184,7 +185,7 @@ public:
      * @param ox 表示オフセットX
      * @param oy 表示オフセットY
      */
-    void addBrush(tTJSVariant colorOrBrush, REAL ox = 0, REAL oy = 0);
+    void addBrush(const tTJSVariant &colorOrBrush, REAL ox = 0, REAL oy = 0);
 
     /**
      * ペンの追加
@@ -261,7 +262,7 @@ class LayerExDraw : public layerExBase {
 protected:
     // 情報保持用
     GeometryT width, height;
-    BufferT buffer;
+//    BufferT buffer; // never use!! we must read from original file
     PitchT pitch;
     GeometryT clipLeft, clipTop, clipWidth, clipHeight;
 
@@ -271,9 +272,9 @@ protected:
     GpGraphics *graphics;
 
     // Transform 指定
-    GpMatrix transform;
-    GpMatrix viewTransform;
-    GpMatrix calcTransform;
+    MatrixClass transform;
+    MatrixClass viewTransform;
+    MatrixClass calcTransform;
 
 protected:
     // 描画スムージング指定
@@ -300,7 +301,6 @@ public:
 
 protected:
     /// 描画内容記録用メタファイル
-    HDC metaHDC;
     HGLOBAL metaBuffer;
     IStream *metaStream;
     GpMetafile *metafile;
@@ -317,17 +317,17 @@ public:
 
     int getUpdateWhenDraw() { return updateWhenDraw ? 1 : 0; }
 
-    inline operator GpImage *() const { return (GpImage *) bitmap; }
+    operator ImageClass *() { return new ImageClass{bitmap}; }
 
-    inline operator GpBitmap *() const { return bitmap; }
+    operator const ImageClass *() const { return new ImageClass{bitmap}; }
 
-    inline operator GpGraphics *() const { return graphics; }
+    operator GpBitmap *() { return bitmap; }
 
-    inline operator const GpImage *() const { return (const GpImage *) bitmap; }
+    operator const GpBitmap *() const { return bitmap; }
 
-    inline operator const GpBitmap *() const { return bitmap; }
+    operator GpGraphics *() { return graphics; }
 
-    inline operator const GpGraphics *() const { return graphics; }
+    operator const GpGraphics *() const { return graphics; }
 
     template<class T>
     struct BridgeFunctor {
@@ -356,7 +356,7 @@ public:
     /**
      * 表示トランスフォームの指定
      */
-    void setViewTransform(const GpMatrix *transform);
+    void setViewTransform(/* const */ MatrixClass *transform);
 
     void resetViewTransform();
 
@@ -370,7 +370,7 @@ public:
      * トランスフォームの指定
      * @param matrix トランスフォームマトリックス
      */
-    void setTransform(const GpMatrix *transform);
+    void setTransform(/* const */ MatrixClass *transform);
 
     void resetTransform();
 
@@ -401,7 +401,8 @@ protected:
      * @param matrix 描画位置調整用matrix
      * @param path 描画内容
      */
-    void draw(GpGraphics *graphics, const GpPen *pen, const GpMatrix *matrix, const GpPath *path);
+    void
+    draw(GpGraphics *graphics, const GpPen *pen, const MatrixClass *matrix, const GpPath *path);
 
     /**
      * 塗りの描画用下請け処理
@@ -411,7 +412,7 @@ protected:
      * @param path 描画内容
      */
     void
-    fill(GpGraphics *graphics, const Brush *brush, const GpMatrix *matrix, const GpPath *path);
+    fill(GpGraphics *graphics, const Brush *brush, const MatrixClass *matrix, const GpPath *path);
 
     /**
      * パスの描画
@@ -688,7 +689,7 @@ public:
      * @param image コピー元画像
      * @return 更新領域情報
      */
-    RectF drawImage(REAL x, REAL y, GpImage *src);
+    RectF drawImage(REAL x, REAL y, ImageClass *src);
 
     /**
      * 画像の矩形コピー
@@ -701,7 +702,7 @@ public:
      * @param sheight  元矩形の縦幅
      * @return 更新領域情報
      */
-    RectF drawImageRect(REAL dleft, REAL dtop, GpImage *src, REAL sleft, REAL stop, REAL swidth,
+    RectF drawImageRect(REAL dleft, REAL dtop, ImageClass *src, REAL sleft, REAL stop, REAL swidth,
                         REAL sheight);
 
     /**
@@ -718,7 +719,7 @@ public:
      * @return 更新領域情報
      */
     RectF
-    drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, GpImage *src, REAL sleft,
+    drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, ImageClass *src, REAL sleft,
                      REAL stop, REAL swidth, REAL sheight);
 
     /**
@@ -732,7 +733,7 @@ public:
      * @return 更新領域情報
      */
     RectF
-    drawImageAffine(GpImage *src, REAL sleft, REAL stop, REAL swidth, REAL sheight, bool affine,
+    drawImageAffine(ImageClass *src, REAL sleft, REAL stop, REAL swidth, REAL sheight, bool affine,
                     REAL A, REAL B, REAL C, REAL D, REAL E, REAL F);
 
     // ------------------------------------------------
@@ -759,7 +760,7 @@ protected:
     /**
      * 再描画用
      */
-    bool redraw(GpImage *image);
+    bool redraw(ImageClass *image);
 
 public:
     /**
@@ -775,10 +776,10 @@ public:
     }
 
     /**
-     * 記録内容を GpImage として取得
+     * 記録内容を ImageClass として取得
      * @return 成功したら true
      */
-    GpImage *getRecordImage();
+    ImageClass *getRecordImage();
 
     /**
      * 記録内容の再描画

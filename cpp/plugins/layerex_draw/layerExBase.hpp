@@ -70,7 +70,7 @@ struct layerExBase {
     typedef iTJSDispatch2 *DispatchT;
     typedef ObjectCache ObjectT;
     typedef unsigned char *BufferT;
-    typedef unsigned char *BufferRT;
+//    typedef unsigned char *BufferRT;
     typedef tjs_int PitchT;
     typedef tjs_int GeometryT;
     DispatchT _obj;
@@ -89,7 +89,7 @@ struct layerExBase {
               _pClipTop(obj, TJS_W("clipTop")),
               _pClipWidth(obj, TJS_W("clipWidth")),
               _pClipHeight(obj, TJS_W("clipHeight")),
-              _width(0), _height(0), /*_pitch(0),*/ /*_buffer(0),*/ _clipLeft(0), _clipTop(0),
+              _width(0), _height(0), _pitch(0), _buffer(0), _clipLeft(0), _clipTop(0),
               _clipWidth(0), _clipHeight(0) {
     }
 
@@ -125,8 +125,8 @@ protected:
     ObjectT _pWidth, _pHeight/*, _pBuffer, _pPitch*/, _pUpdate;
 
     GeometryT _width, _height;
-    //BufferT   _buffer;
-    //PitchT    _pitch;
+    BufferT _buffer;
+    PitchT _pitch;
 
     // クリップ情報
     ObjectT _pClipLeft, _pClipTop, _pClipWidth, _pClipHeight;

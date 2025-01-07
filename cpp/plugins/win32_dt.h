@@ -16,10 +16,10 @@ typedef HANDLE HDC;
 typedef HANDLE HBITMAP;
 typedef HANDLE HGLOBAL;
 
-typedef unsigned long DWORD;
+// typedef unsigned long DWORD;
 
 typedef unsigned short WORD;
 typedef unsigned int UINT;
-typedef uintptr_t ULONG_PTR;
+// typedef uintptr_t ULONG_PTR;
 
 #endif //KRKR2_WIN32_DT_H

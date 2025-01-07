@@ -2,6 +2,7 @@
 #include "LayerExDraw.hpp"
 #include <vector>
 #include <cstdio>
+#include <cairo/cairo.h>
 
 // GDI+ 基本情報
 static GdiplusStartupInput gdiplusStartupInput;
@@ -11,14 +12,14 @@ static ULONG_PTR gdiplusToken;
 static PrivateFontCollection *privateFontCollection = nullptr;
 static vector<void *> fontDatas;
 
-inline static float ToFloat(FIXED &pfx) {
+static float ToFloat(FIXED &pfx) {
     LONG l = *(LONG *) &pfx;
 
     return l / 65536.0f;
 }
 
-inline static PointF ToPointF(POINTFX *p) {
-    return PointF(ToFloat(p->x), -ToFloat(p->y));
+static PointFClass ToPointF(POINTFX *p) {
+    return PointFClass{ToFloat(p->x), -ToFloat(p->y)};
 }
 
 // GDI+ 初期化
@@ -49,51 +50,23 @@ ImageClass *loadImage(const tjs_char *name) {
     ImageClass *image = nullptr;
     ttstr filename = TVPGetPlacedPath(name);
     if (filename.length()) {
-        /* ファイルを握ったままになるので廃止
         ttstr localname(TVPGetLocallyAccessibleName(filename));
         if (localname.length()) {
             // 実ファイルが存在
-            image = GpImage::FromFile(localname.c_str(),false);
-        }
-        else
-         */
-        {
-            // 直接吉里吉里からもらったストリームを使うとなぜかwmf/emfでOutOfMemory
-            // なる場合があるようなのでいったんメモリにメモリに展開してから使う
-            IStream *in = TVPCreateIStream(filename, TJS_BS_READ);
-            if (in) {
-                STATSTG stat;
-                in->Stat(&stat, STATFLAG_NONAME);
-                // サイズあふれ無視注意
-                ULONG size = (ULONG) stat.cbSize.QuadPart;
-                HGLOBAL hBuffer = ::GlobalAlloc(GMEM_MOVEABLE, size);
-                if (hBuffer) {
-                    void *pBuffer = ::GlobalLock(hBuffer);
-                    if (pBuffer) {
-                        if (in->Read(pBuffer, size, &size) == S_OK) {
-                            IStream *pStream = NULL;
-                            if (::CreateStreamOnHGlobal(hBuffer, FALSE, &pStream) == S_OK) {
-                                image = GpImage::FromStream(pStream, false);
-                                pStream->Release();
-                            }
-                        }
-                        ::GlobalUnlock(hBuffer);
-                    }
-                    ::GlobalFree(hBuffer);
-                }
-                in->Release();
-            }
+            static_assert(sizeof(tjs_char) == sizeof(WCHAR), "loadImage Sizes differ!");
+            const auto *n = reinterpret_cast<const WCHAR *>(localname.c_str());
+            image = ImageClass::FromFile(n, false);
         }
     }
     if (image && image->GetLastStatus() != Ok) {
         delete image;
-        image = NULL;
+        image = nullptr;
     }
     return image;
 }
 
-RectF *getBounds(ImageClass *image) {
-    RectF srcRect;
+RectFClass *getBounds(ImageClass *image) {
+    RectFClass srcRect;
     Unit srcUnit;
     image->GetBounds(&srcRect, &srcUnit);
     REAL dpix = image->GetHorizontalResolution();
@@ -133,7 +106,7 @@ RectF *getBounds(ImageClass *image) {
             height = srcRect.Height;
             break;
     }
-    return new RectF(x, y, width, height);
+    return new RectFClass{x, y, width, height};
 }
 
 // --------------------------------------------------------
@@ -144,8 +117,7 @@ RectF *getBounds(ImageClass *image) {
  * プライベートフォントの追加
  * @param fontFileName フォントファイル名
  */
-void
-GdiPlus::addPrivateFont(const tjs_char *fontFileName) {
+void GdiPlus::addPrivateFont(const tjs_char *fontFileName) {
     if (!privateFontCollection) {
         privateFontCollection = new PrivateFontCollection();
     }
@@ -154,7 +126,9 @@ GdiPlus::addPrivateFont(const tjs_char *fontFileName) {
         ttstr localname(TVPGetLocallyAccessibleName(filename));
         if (localname.length()) {
             // 実ファイルが存在
-            privateFontCollection->AddFontFile(localname.c_str());
+            static_assert(sizeof(tjs_char) == sizeof(WCHAR), "addPrivateFont Sizes differ!");
+            const auto *n = reinterpret_cast<const WCHAR *>(localname.c_str());
+            privateFontCollection->AddFontFile(n);
             return;
         } else {
             // メモリにロードして展開
@@ -165,7 +139,7 @@ GdiPlus::addPrivateFont(const tjs_char *fontFileName) {
                 // サイズあふれ無視注意
                 ULONG size = (ULONG) stat.cbSize.QuadPart;
                 char *data = new char[size];
-                if (in->Read(data, size, &size) == S_OK) {
+                if (in->Read(data, size, &size) == TJS_S_OK) {
                     privateFontCollection->AddMemoryFont(data, size);
                     fontDatas.push_back(data);
                 } else {
@@ -176,7 +150,7 @@ GdiPlus::addPrivateFont(const tjs_char *fontFileName) {
             }
         }
     }
-    TVPThrowExceptionMessage(L"cannot open:%1", fontFileName);
+    TVPThrowExceptionMessage(TJS_W("cannot open:%1"), fontFileName);
 }
 
 /**
@@ -184,34 +158,35 @@ GdiPlus::addPrivateFont(const tjs_char *fontFileName) {
  * @param array 格納先配列
  * @param fontCollection フォント名を取得する元の FontCollection
  */
-static void addFontFamilyName(iTJSDispatch2 *array, FontCollection *fontCollection) {
-    int count = fontCollection->GetFamilyCount();
-    FontFamily *families = new FontFamily[count];
-    if (families) {
-        fontCollection->GetFamilies(count, families, &count);
-        for (int i = 0; i < count; i++) {
-            WCHAR familyName[LF_FACESIZE];
-            if (families[i].GetFamilyName(familyName) == Ok) {
-                tTJSVariant name(familyName), *param = &name;
-                array->FuncCall(0, TJS_W("add"), NULL, 0, 1, &param, array);
-            }
+static void addFontFamilyName(iTJSDispatch2 *array, GpFontCollection *fontCollection) {
+    int count;
+    GdipGetFontCollectionFamilyCount(fontCollection, &count);
+    auto *families = new GpFontFamily[count];
+    GdipGetFontCollectionFamilyList(fontCollection, count, &families, &count);
+    for (int i = 0; i < count; i++) {
+        WCHAR familyName[LF_FACESIZE];
+        GpFontFamily family = families[i];
+        auto status = GdipGetFamilyName(&family, familyName, 0);
+        if (status == Ok) {
+            static_assert(sizeof(tjs_char) == sizeof(WCHAR), "addFontFamilyName Sizes differ!");
+            tTJSVariant name(reinterpret_cast<tjs_char *>(familyName)), *param = &name;
+            array->FuncCall(0, TJS_W("add"), nullptr, 0, 1, &param, array);
         }
-        delete families;
     }
+    delete[]families;
 }
 
 /**
  * フォント一覧の取得
  * @param privateOnly true ならプライベートフォントのみ取得
  */
-tTJSVariant
-GdiPlus::getFontList(bool privateOnly) {
+tTJSVariant GdiPlus::getFontList(bool privateOnly) {
     iTJSDispatch2 *array = TJSCreateArrayObject();
     if (privateFontCollection) {
-        addFontFamilyName(array, privateFontCollection);
+        addFontFamilyName(array, privateFontCollection->getFontCollection());
     }
     if (!privateOnly) {
-        InstalledFontCollection installedFontCollection;
+        GpFontCollection installedFontCollection;
         addFontFamilyName(array, &installedFontCollection);
     }
     tTJSVariant ret(array, array);
@@ -226,8 +201,11 @@ GdiPlus::getFontList(bool privateOnly) {
 /**
  * コンストラクタ
  */
-FontInfo::FontInfo() : fontFamily(NULL), emSize(12), style(0), gdiPlusUnsupportedFont(false),
-                       forceSelfPathDraw(false), propertyModified(true) {}
+FontInfo::FontInfo() : fontFamily(nullptr),
+                       emSize(12), style(0),
+                       gdiPlusUnsupportedFont(false),
+                       forceSelfPathDraw(false),
+                       propertyModified(true) {}
 
 /**
  * コンストラクタ
@@ -235,11 +213,11 @@ FontInfo::FontInfo() : fontFamily(NULL), emSize(12), style(0), gdiPlusUnsupporte
  * @param emSize フォントのサイズ
  * @param style フォントスタイル
  */
-FontInfo::FontInfo(const tjs_char *familyName, REAL emSize, INT style) : fontFamily(NULL),
-                                                                         gdiPlusUnsupportedFont(
-                                                                                 false),
-                                                                         forceSelfPathDraw(false),
-                                                                         propertyModified(true) {
+FontInfo::FontInfo(
+        const tjs_char *familyName,
+        REAL emSize, INT style
+) : fontFamily(nullptr), gdiPlusUnsupportedFont(false),
+    forceSelfPathDraw(false), propertyModified(true) {
     setFamilyName(familyName);
     setEmSize(emSize);
     setStyle(style);
@@ -249,7 +227,10 @@ FontInfo::FontInfo(const tjs_char *familyName, REAL emSize, INT style) : fontFam
  * コピーコンストラクタ
  */
 FontInfo::FontInfo(const FontInfo &orig) {
-    fontFamily = orig.fontFamily ? orig.fontFamily->Clone() : NULL;
+    fontFamily = nullptr;
+    if (orig.fontFamily) {
+        GdipCloneFontFamily(orig.fontFamily, &fontFamily);
+    }
     emSize = orig.emSize;
     style = orig.style;
 }
@@ -264,10 +245,9 @@ FontInfo::~FontInfo() {
 /**
  * フォント情報のクリア
  */
-void
-FontInfo::clear() {
-    delete fontFamily;
-    fontFamily = NULL;
+void FontInfo::clear() {
+    GdipDeleteFontFamily(fontFamily);
+    fontFamily = nullptr;
     familyName = "";
     gdiPlusUnsupportedFont = false;
     propertyModified = true;
@@ -278,6 +258,8 @@ FontInfo::clear() {
  */
 void
 FontInfo::setFamilyName(const tjs_char *familyName) {
+    static_assert(sizeof(tjs_char) == sizeof(WCHAR), "setFamilyName Sizes differ!");
+
     propertyModified = true;
 
     if (forceSelfPathDraw) {
@@ -290,16 +272,26 @@ FontInfo::setFamilyName(const tjs_char *familyName) {
     if (familyName) {
         clear();
         if (privateFontCollection) {
-            fontFamily = new FontFamily(familyName, privateFontCollection);
-            if (fontFamily->IsAvailable()) {
+            auto status = GdipCreateFontFamilyFromName(
+                    reinterpret_cast<const WCHAR *>(familyName),
+                    privateFontCollection->getFontCollection(),
+                    &this->fontFamily
+            );
+
+            if (status == Ok) {
                 this->familyName = familyName;
                 return;
             } else {
                 clear();
             }
         }
-        fontFamily = new FontFamily(familyName);
-        if (fontFamily->IsAvailable()) {
+        auto status = GdipCreateFontFamilyFromName(
+                reinterpret_cast<const WCHAR *>(familyName),
+                nullptr,
+                &this->fontFamily
+        );
+
+        if (status == Ok) {
             this->familyName = familyName;
             return;
         } else {
@@ -310,61 +302,18 @@ FontInfo::setFamilyName(const tjs_char *familyName) {
     }
 }
 
-void
-FontInfo::setForceSelfPathDraw(bool state) {
+void FontInfo::setForceSelfPathDraw(bool state) {
     forceSelfPathDraw = state;
     ttstr _name = familyName;
     this->setFamilyName(_name.c_str());
 }
 
-bool
-FontInfo::getForceSelfPathDraw() const {
+bool FontInfo::getForceSelfPathDraw() const {
     return forceSelfPathDraw;
 }
 
-bool
-FontInfo::getSelfPathDraw() const {
+bool FontInfo::getSelfPathDraw() const {
     return forceSelfPathDraw || gdiPlusUnsupportedFont;
-}
-
-OUTLINETEXTMETRIC *
-FontInfo::createFontMetric() const {
-    HDC dc = ::CreateCompatibleDC(NULL);
-    if (dc == NULL)
-        return NULL;
-    LOGFONT font;
-    memset(&font, 0, sizeof(font));
-    font.lfHeight = LONG(-emSize);
-    font.lfWeight = (style & 1) ? FW_BOLD : FW_REGULAR;
-    font.lfItalic = style & 2;
-    font.lfUnderline = style & 4;
-    font.lfStrikeOut = style & 8;
-    font.lfCharSet = DEFAULT_CHARSET;
-    wcscpy_s(font.lfFaceName, familyName.c_str());
-    HFONT hFont = CreateFontIndirect(&font);
-    if (hFont == NULL) {
-        DeleteObject(dc);
-        return NULL;
-    }
-    HGDIOBJ hOldFont = SelectObject(dc, hFont);
-
-    int size = ::GetOutlineTextMetrics(dc, 0, NULL);
-    if (size > 0) {
-        char *buf = new char[size];
-        if (::GetOutlineTextMetrics(dc, size, reinterpret_cast<OUTLINETEXTMETRIC *>(buf))) {
-            SelectObject(dc, hOldFont);
-            DeleteObject(hFont);
-            DeleteObject(dc);
-
-            return reinterpret_cast<OUTLINETEXTMETRIC *>(buf);
-        }
-        delete[] buf;
-    }
-
-    SelectObject(dc, hOldFont);
-    DeleteObject(hFont);
-    DeleteObject(dc);
-    return NULL;
 }
 
 void FontInfo::updateSizeParams() const {
@@ -372,51 +321,57 @@ void FontInfo::updateSizeParams() const {
         return;
 
     propertyModified = false;
-    ascent = 0;
-    descent = 0;
-    ascentLeading = 0;
-    descentLeading = 0;
-    lineSpacing = 0;
 
-    OUTLINETEXTMETRIC *otm = createFontMetric();
-    if (otm) {
-        ascent = REAL(otm->otmTextMetrics.tmAscent);
-        descent = REAL(otm->otmTextMetrics.tmDescent);
-        ascentLeading = ascent - REAL(otm->otmAscent);
-        descentLeading = descent - REAL(-otm->otmDescent);
-        lineSpacing = REAL(otm->otmTextMetrics.tmHeight);
-        delete otm;
-    }
+    // 创建 Cairo 上下文
+    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1, 1);
+    cairo_t *cr = cairo_create(surface);
+
+    // 获取字体度量
+    cairo_select_font_face(cr, familyName.AsStdString().c_str(),
+                           (style & 2) ? CAIRO_FONT_SLANT_ITALIC : CAIRO_FONT_SLANT_NORMAL,
+                           (style & 1) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
+
+    cairo_set_font_size(cr, emSize);
+
+    // 获取字体度量
+    cairo_font_extents_t font_extents;
+    cairo_font_extents(cr, &font_extents);
+    this->ascent = REAL(this->fontFamily->cellascent);
+    this->descent = REAL(this->fontFamily->celldescent);
+
+    this->ascentLeading = REAL((this->fontFamily->height - ascent - descent) / 2);
+    this->descentLeading = REAL(-this->descent);
+//    ascentLeading = ascent - REAL(otm->otmAscent);
+//    descentLeading = descent - REAL(- otm->otmDescent);
+
+    this->lineSpacing = REAL(this->fontFamily->linespacing);
+
+    cairo_destroy(cr);
+    cairo_surface_destroy(surface);
 }
 
-REAL
-FontInfo::getAscent() const {
+REAL FontInfo::getAscent() const {
     this->updateSizeParams();
     return ascent;
 }
 
 
-REAL
-FontInfo::getDescent() const {
+REAL FontInfo::getDescent() const {
     this->updateSizeParams();
     return descent;
 }
 
-REAL
-FontInfo::getAscentLeading() const {
+REAL FontInfo::getAscentLeading() const {
     this->updateSizeParams();
     return ascentLeading;
 }
 
-
-REAL
-FontInfo::getDescentLeading() const {
+REAL FontInfo::getDescentLeading() const {
     this->updateSizeParams();
     return descentLeading;
 }
 
-REAL
-FontInfo::getLineSpacing() const {
+REAL FontInfo::getLineSpacing() const {
     this->updateSizeParams();
     return lineSpacing;
 }
@@ -425,7 +380,7 @@ FontInfo::getLineSpacing() const {
 // アピアランス情報
 // --------------------------------------------------------
 
-Appearance::Appearance() {}
+Appearance::Appearance() = default;
 
 Appearance::~Appearance() {
     clear();
@@ -439,7 +394,7 @@ Appearance::clear() {
     drawInfos.clear();
 
     // customLineCapsも削除
-    vector<CustomLineCap *>::const_iterator i = customLineCaps.begin();
+    auto i = customLineCaps.begin();
     while (i != customLineCaps.end()) {
         delete *i;
         i++;
@@ -543,7 +498,7 @@ static void getColors(const tTJSVariant &var, vector<Color> &colors) {
     ncbPropAccessor info(var);
     int c = info.GetArrayCount();
     for (int i = 0; i < c; i++) {
-        colors.push_back(Color((ARGB) info.getIntValue(i)));
+        colors.push_back(Color{(ARGB) info.getIntValue(i)});
     }
 }
 
@@ -561,11 +516,11 @@ static void getColors(ncbPropAccessor &info, const tjs_char *n, vector<Color> &c
     }
 }
 
-template<class T>
+template<typename T>
 void commonBrushParameter(ncbPropAccessor &info, T *brush) {
     tTJSVariant var;
     // SetBlend
-    if (info.checkVariant(L"blend", var)) {
+    if (info.checkVariant(TJS_W("blend"), var)) {
         vector<REAL> factors;
         vector<REAL> positions;
         ncbPropAccessor binfo(var);
@@ -573,8 +528,8 @@ void commonBrushParameter(ncbPropAccessor &info, T *brush) {
             getReals(binfo, 0, factors);
             getReals(binfo, 1, positions);
         } else {
-            getReals(binfo, L"blendFactors", factors);
-            getReals(binfo, L"blendPositions", positions);
+            getReals(binfo, TJS_W("blendFactors"), factors);
+            getReals(binfo, TJS_W("blendPositions"), positions);
         }
         int count = (int) factors.size();
         if ((int) positions.size() > count) {
@@ -585,33 +540,33 @@ void commonBrushParameter(ncbPropAccessor &info, T *brush) {
         }
     }
     // SetBlendBellShape
-    if (info.checkVariant(L"blendBellShape", var)) {
+    if (info.checkVariant(TJS_W("blendBellShape"), var)) {
         ncbPropAccessor sinfo(var);
         if (IsArray(var)) {
             brush->SetBlendBellShape((REAL) sinfo.getRealValue(0),
                                      (REAL) sinfo.getRealValue(1));
         } else {
-            brush->SetBlendBellShape((REAL) info.getRealValue(L"focus"),
-                                     (REAL) info.getRealValue(L"scale"));
+            brush->SetBlendBellShape((REAL) info.getRealValue(TJS_W("focus")),
+                                     (REAL) info.getRealValue(TJS_W("scale")));
         }
     }
     // SetBlendTriangularShape
-    if (info.checkVariant(L"blendTriangularShape", var)) {
+    if (info.checkVariant(TJS_W("blendTriangularShape"), var)) {
         ncbPropAccessor sinfo(var);
         if (IsArray(var)) {
             brush->SetBlendTriangularShape((REAL) sinfo.getRealValue(0),
                                            (REAL) sinfo.getRealValue(1));
         } else {
-            brush->SetBlendTriangularShape((REAL) info.getRealValue(L"focus"),
-                                           (REAL) info.getRealValue(L"scale"));
+            brush->SetBlendTriangularShape((REAL) info.getRealValue(TJS_W("focus")),
+                                           (REAL) info.getRealValue(TJS_W("scale")));
         }
     }
     // SetGammaCorrection
-    if (info.checkVariant(L"useGammaCorrection", var)) {
+    if (info.checkVariant(TJS_W("useGammaCorrection"), var)) {
         brush->SetGammaCorrection((BOOL) var);
     }
     // SetInterpolationColors
-    if (info.checkVariant(L"interpolationColors", var)) {
+    if (info.checkVariant(TJS_W("interpolationColors"), var)) {
         vector<Color> colors;
         vector<REAL> positions;
         ncbPropAccessor binfo(var);
@@ -619,8 +574,8 @@ void commonBrushParameter(ncbPropAccessor &info, T *brush) {
             getColors(binfo, 0, colors);
             getReals(binfo, 1, positions);
         } else {
-            getColors(binfo, L"presetColors", colors);
-            getReals(binfo, L"blendPositions", positions);
+            getColors(binfo, TJS_W("presetColors"), colors);
+            getReals(binfo, TJS_W("blendPositions"), positions);
         }
         int count = (int) colors.size();
         if ((int) positions.size() > count) {
@@ -635,34 +590,36 @@ void commonBrushParameter(ncbPropAccessor &info, T *brush) {
 /**
  * ブラシの生成
  */
-Brush *createBrush(const tTJSVariant colorOrBrush) {
-    Brush *brush;
+BrushBase *createBrush(const tTJSVariant &colorOrBrush) {
+    BrushBase *brush;
     if (colorOrBrush.Type() != tvtObject) {
-        brush = new SolidBrush(Color((tjs_int) colorOrBrush));
+        brush = new SolidBrush{Color{(ARGB) (tjs_int) colorOrBrush}};
     } else {
         // 種別ごとに作り分ける
         ncbPropAccessor info(colorOrBrush);
-        BrushType type = (BrushType) info.getIntValue(L"type", BrushTypeSolidColor);
+        auto type = (BrushType) info.getIntValue(TJS_W("type"), BrushTypeSolidColor);
         switch (type) {
             case BrushTypeSolidColor:
-                brush = new SolidBrush(Color((ARGB) info.getIntValue(L"color", 0xffffffff)));
+                brush = new SolidBrush{Color{
+                        (ARGB) (tjs_int) info.getIntValue(TJS_W("color"), 0xffffffff)}};
                 break;
             case BrushTypeHatchFill:
                 brush = new HatchBrush(
-                        (HatchStyle) info.getIntValue(L"hatchStyle", HatchStyleHorizontal),
-                        Color((ARGB) info.getIntValue(L"foreColor", 0xffffffff)),
-                        Color((ARGB) info.getIntValue(L"backColor", 0xff000000)));
+                        (HatchStyle) info.getIntValue(TJS_W("hatchStyle"), HatchStyleHorizontal),
+                        Color{(ARGB) (tjs_int) info.getIntValue(TJS_W("foreColor"), 0xffffffff)},
+                        Color{(ARGB) (tjs_int) info.getIntValue(TJS_W("backColor"), 0xff000000)});
                 break;
             case BrushTypeTextureFill: {
-                ttstr imgname = info.GetValue(L"image", ncbTypedefs::Tag<ttstr>());
-                GpImage *image = loadImage(imgname.c_str());
+                ttstr imgname = info.GetValue(TJS_W("image"), ncbTypedefs::Tag<ttstr>());
+                auto *image = loadImage(imgname.c_str());
                 if (image) {
-                    WrapMode wrapMode = (WrapMode) info.getIntValue(L"wrapMode", WrapModeTile);
+                    auto wrapMode = (WrapMode) info.getIntValue(TJS_W("wrapMode"),
+                                                                WrapModeTile);
                     tTJSVariant dstRect;
-                    if (info.checkVariant(L"dstRect", dstRect)) {
-                        brush = new TextureBrush(image, wrapMode, getRect(dstRect));
+                    if (info.checkVariant(TJS_W("dstRect"), dstRect)) {
+                        brush = new TextureBrush{image, wrapMode, getRect(dstRect)};
                     } else {
-                        brush = new TextureBrush(image, wrapMode);
+                        brush = new TextureBrush{image, wrapMode};
                     }
                     delete image;
                 }
@@ -671,36 +628,36 @@ Brush *createBrush(const tTJSVariant colorOrBrush) {
             case BrushTypePathGradient: {
                 PathGradientBrush *pbrush;
                 vector<PointF> points;
-                getPoints(info, L"points", points);
-                if ((int) points.size() == 0) TVPThrowExceptionMessage(L"must set poins");
-                WrapMode wrapMode = (WrapMode) info.getIntValue(L"wrapMode", WrapModeTile);
-                pbrush = new PathGradientBrush(&points[0], (int) points.size(), wrapMode);
+                getPoints(info, TJS_W("points"), points);
+                if ((int) points.size() == 0) TVPThrowExceptionMessage(TJS_W("must set poins"));
+                WrapMode wrapMode = (WrapMode) info.getIntValue(TJS_W("wrapMode"), WrapModeTile);
+                pbrush = new PathGradientBrush{&points[0], (int) points.size(), wrapMode};
 
                 // 共通パラメータ
                 commonBrushParameter(info, pbrush);
 
                 tTJSVariant var;
                 //SetCenterColor
-                if (info.checkVariant(L"centerColor", var)) {
-                    pbrush->SetCenterColor(Color((ARGB) (tjs_int) var));
+                if (info.checkVariant(TJS_W("centerColor"), var)) {
+                    pbrush->SetCenterColor(Color{(ARGB) (tjs_int) var});
                 }
                 //SetCenterPoint
-                if (info.checkVariant(L"centerPoint", var)) {
+                if (info.checkVariant(TJS_W("centerPoint"), var)) {
                     pbrush->SetCenterPoint(getPoint(var));
                 }
                 //SetFocusScales
-                if (info.checkVariant(L"focusScales", var)) {
+                if (info.checkVariant(TJS_W("focusScales"), var)) {
                     ncbPropAccessor sinfo(var);
                     if (IsArray(var)) {
                         pbrush->SetFocusScales((REAL) sinfo.getRealValue(0),
                                                (REAL) sinfo.getRealValue(1));
                     } else {
-                        pbrush->SetFocusScales((REAL) info.getRealValue(L"xScale"),
-                                               (REAL) info.getRealValue(L"yScale"));
+                        pbrush->SetFocusScales((REAL) info.getRealValue(TJS_W("xScale")),
+                                               (REAL) info.getRealValue(TJS_W("yScale")));
                     }
                 }
                 //SetSurroundColors
-                if (info.checkVariant(L"surroundColors", var)) {
+                if (info.checkVariant(TJS_W("surroundColors"), var)) {
                     vector<Color> colors;
                     getColors(var, colors);
                     int size = (int) colors.size();
@@ -711,47 +668,50 @@ Brush *createBrush(const tTJSVariant colorOrBrush) {
                 break;
             case BrushTypeLinearGradient: {
                 LinearGradientBrush *lbrush;
-                Color color1((ARGB) info.getIntValue(L"color1", 0));
-                Color color2((ARGB) info.getIntValue(L"color2", 0));
+                Color color1{(ARGB) (tjs_int) info.getIntValue(TJS_W("color1"), 0)};
+                Color color2{(ARGB) (tjs_int) info.getIntValue(TJS_W("color2"), 0)};
 
                 tTJSVariant var;
-                if (info.checkVariant(L"point1", var)) {
+                if (info.checkVariant(TJS_W("point1"), var)) {
                     PointF point1 = getPoint(var);
-                    info.checkVariant(L"point2", var);
+                    info.checkVariant(TJS_W("point2"), var);
                     PointF point2 = getPoint(var);
-                    lbrush = new LinearGradientBrush(point1, point2, color1, color2);
-                } else if (info.checkVariant(L"rect", var)) {
+                    lbrush = new LinearGradientBrush{point1, point2, color1, color2};
+                } else if (info.checkVariant(TJS_W("rect"), var)) {
                     RectF rect = getRect(var);
-                    if (info.HasValue(L"angle")) {
+                    if (info.HasValue(TJS_W("angle"))) {
                         // アングル指定がある場合
-                        lbrush = new LinearGradientBrush(rect, color1, color2,
-                                                         (REAL) info.getRealValue(L"angle", 0),
-                                                         (BOOL) info.getIntValue(L"isAngleScalable",
-                                                                                 0));
+                        lbrush = new LinearGradientBrush{
+                                rect, color1, color2,
+                                (REAL) info.getRealValue(TJS_W("angle"),
+                                                         0),
+                                static_cast<bool>(info.getIntValue(
+                                        TJS_W("isAngleScalable"),
+                                        0))};
                     } else {
                         // 無い場合はモードを参照
-                        lbrush = new LinearGradientBrush(rect, color1, color2,
-                                                         (LinearGradientMode) info.getIntValue(
-                                                                 L"mode",
-                                                                 LinearGradientModeHorizontal));
+                        lbrush = new LinearGradientBrush{
+                                rect, color1, color2,
+                                (LinearGradientMode) info.getIntValue(
+                                        TJS_W("mode"),
+                                        LinearGradientModeHorizontal)};
                     }
                 } else {
-                    TVPThrowExceptionMessage(L"must set point1,2 or rect");
+                    TVPThrowExceptionMessage(TJS_W("must set point1,2 or rect"));
                 }
 
                 // 共通パラメータ
                 commonBrushParameter(info, lbrush);
 
                 // SetWrapMode
-                if (info.checkVariant(L"wrapMode", var)) {
-                    lbrush->SetWrapMode((WrapMode)(tjs_int)
-                    var);
+                if (info.checkVariant(TJS_W("wrapMode"), var)) {
+                    lbrush->SetWrapMode((WrapMode) (tjs_int) var);
                 }
                 brush = lbrush;
             }
                 break;
             default:
-                TVPThrowExceptionMessage(L"invalid brush type");
+                TVPThrowExceptionMessage(TJS_W("invalid brush type"));
                 break;
         }
     }
@@ -765,8 +725,8 @@ Brush *createBrush(const tTJSVariant colorOrBrush) {
  * @param oy 表示オフセットY
  */
 void
-Appearance::addBrush(tTJSVariant colorOrBrush, REAL ox, REAL oy) {
-    drawInfos.push_back(DrawInfo(ox, oy, createBrush(colorOrBrush)));
+Appearance::addBrush(const tTJSVariant &colorOrBrush, REAL ox, REAL oy) {
+    drawInfos.emplace_back(ox, oy, createBrush(colorOrBrush));
 }
 
 /**
@@ -776,16 +736,18 @@ Appearance::addBrush(tTJSVariant colorOrBrush, REAL ox, REAL oy) {
  * @param ox 表示オフセットX
  * @param oy 表示オフセットY
  */
-void
-Appearance::addPen(tTJSVariant colorOrBrush, tTJSVariant widthOrOption, REAL ox, REAL oy) {
+void Appearance::addPen(
+        tTJSVariant colorOrBrush, tTJSVariant widthOrOption,
+        REAL ox, REAL oy
+) {
     Pen *pen;
     REAL width = 1.0;
     if (colorOrBrush.Type() == tvtObject) {
-        Brush *brush = createBrush(colorOrBrush);
-        pen = new Pen(brush, width);
+        BrushBase *brush = createBrush(colorOrBrush);
+        pen = new Pen{brush, width};
         delete brush;
     } else {
-        pen = new Pen(Color((ARGB) (tjs_int) colorOrBrush), width);
+        pen = new Pen(Color{(ARGB) (tjs_int) colorOrBrush}, width);
     }
     if (widthOrOption.Type() != tvtObject) {
         pen->SetWidth((REAL) (tjs_real) widthOrOption);
@@ -795,102 +757,99 @@ Appearance::addPen(tTJSVariant colorOrBrush, tTJSVariant widthOrOption, REAL ox,
         tTJSVariant var;
 
         // SetWidth
-        if (info.checkVariant(L"width", var)) {
+        if (info.checkVariant(TJS_W("width"), var)) {
             penWidth = (REAL) (tjs_real) var;
         }
         pen->SetWidth(penWidth);
 
         // SetAlignment
-        if (info.checkVariant(L"alignment", var)) {
-            pen->SetAlignment((PenAlignment)(tjs_int)
-            var);
+        if (info.checkVariant(TJS_W("alignment"), var)) {
+            pen->SetAlignment((PenAlignment) (tjs_int)
+                    var);
         }
         // SetCompoundArray
-        if (info.checkVariant(L"compoundArray", var)) {
+        if (info.checkVariant(TJS_W("compoundArray"), var)) {
             vector<REAL> reals;
             getReals(var, reals);
             pen->SetCompoundArray(&reals[0], (int) reals.size());
         }
 
         // SetDashCap
-        if (info.checkVariant(L"dashCap", var)) {
-            pen->SetDashCap((DashCap)(tjs_int)
-            var);
+        if (info.checkVariant(TJS_W("dashCap"), var)) {
+            pen->SetDashCap((GpDashCap) (tjs_int) var);
         }
         // SetDashOffset
-        if (info.checkVariant(L"dashOffset", var)) {
+        if (info.checkVariant(TJS_W("dashOffset"), var)) {
             pen->SetDashOffset((REAL) (tjs_real) var);
         }
 
         // SetDashStyle
         // SetDashPattern
-        if (info.checkVariant(L"dashStyle", var)) {
+        if (info.checkVariant(TJS_W("dashStyle"), var)) {
             if (IsArray(var)) {
                 vector<REAL> reals;
                 getReals(var, reals);
                 pen->SetDashStyle(DashStyleCustom);
                 pen->SetDashPattern(&reals[0], (int) reals.size());
             } else {
-                pen->SetDashStyle((DashStyle)(tjs_int)
-                var);
+                pen->SetDashStyle((GpDashStyle) (tjs_int) var);
             }
         }
 
         // SetStartCap
         // SetCustomStartCap
-        if (info.checkVariant(L"startCap", var)) {
-            LineCap cap = LineCapFlat;
-            CustomLineCap *custom = NULL;
+        if (info.checkVariant(TJS_W("startCap"), var)) {
+            GpLineCap cap = LineCapFlat;
+            CustomLineCap *custom = nullptr;
             if (getLineCap(var, cap, custom, penWidth)) {
-                if (custom != NULL) pen->SetCustomStartCap(custom);
+                if (custom != nullptr) pen->SetCustomStartCap(custom);
                 else pen->SetStartCap(cap);
             }
         }
 
         // SetEndCap
         // SetCustomEndCap
-        if (info.checkVariant(L"endCap", var)) {
-            LineCap cap = LineCapFlat;
-            CustomLineCap *custom = NULL;
+        if (info.checkVariant(TJS_W("endCap"), var)) {
+            GpLineCap cap = LineCapFlat;
+            CustomLineCap *custom = nullptr;
             if (getLineCap(var, cap, custom, penWidth)) {
-                if (custom != NULL) pen->SetCustomEndCap(custom);
+                if (custom != nullptr) pen->SetCustomEndCap(custom);
                 else pen->SetEndCap(cap);
             }
         }
 
         // SetLineJoin
-        if (info.checkVariant(L"lineJoin", var)) {
-            pen->SetLineJoin((LineJoin)(tjs_int)
-            var);
+        if (info.checkVariant(TJS_W("lineJoin"), var)) {
+            pen->SetLineJoin((GpLineJoin) (tjs_int)
+                    var);
         }
 
         // SetMiterLimit
-        if (info.checkVariant(L"miterLimit", var)) {
+        if (info.checkVariant(TJS_W("miterLimit"), var)) {
             pen->SetMiterLimit((REAL) (tjs_real) var);
         }
     }
-    drawInfos.push_back(DrawInfo(ox, oy, pen));
+    drawInfos.push_back(DrawInfo{ox, oy, pen});
 }
 
-bool
-Appearance::getLineCap(tTJSVariant &in, LineCap &cap, CustomLineCap *&custom, REAL pw) {
+bool Appearance::getLineCap(tTJSVariant &in, GpLineCap &cap, CustomLineCap *&custom, REAL pw) {
     switch (in.Type()) {
         case tvtVoid:
         case tvtInteger:
-            cap = (LineCap)(tjs_int)
-            in;
+            cap = (GpLineCap) (tjs_int) in;
             break;
         case tvtObject: {
             ncbPropAccessor info(in);
             REAL width = pw, height = pw;
             tTJSVariant var;
-            if (info.checkVariant(L"width", var)) width = (REAL) (tjs_real) var;
-            if (info.checkVariant(L"height", var)) height = (REAL) (tjs_real) var;
-            BOOL filled = (BOOL) info.getIntValue(L"filled", 1);
-            AdjustableArrowCap *arrow = new AdjustableArrowCap(height, width, filled);
-            if (info.checkVariant(L"middleInset", var))
-                arrow->SetMiddleInset((REAL) (tjs_real) var);
-            customLineCaps.push_back((custom = static_cast<CustomLineCap *>(arrow)));
+            if (info.checkVariant(TJS_W("width"), var)) width = (REAL) (tjs_real) var;
+            if (info.checkVariant(TJS_W("height"), var)) height = (REAL) (tjs_real) var;
+            BOOL filled = (BOOL) info.getIntValue(TJS_W("filled"), 1);
+            GpAdjustableArrowCap *arrow{nullptr};
+            GdipCreateAdjustableArrowCap(height, width, filled, &arrow);
+            if (info.checkVariant(TJS_W("middleInset"), var))
+                GdipSetAdjustableArrowCapMiddleInset(arrow, (REAL) (tjs_real) var);
+            customLineCaps.push_back((custom = reinterpret_cast<CustomLineCap *>(arrow)));
         }
             break;
         default:
@@ -918,13 +877,13 @@ LayerExDraw::updateRect(RectF &rect) {
  * コンストラクタ
  */
 LayerExDraw::LayerExDraw(DispatchT obj)
-        : layerExBase(obj), width(-1), height(-1), pitch(0), buffer(NULL), bitmap(NULL),
-          graphics(NULL),
+        : layerExBase(obj), width(-1), height(-1), pitch(0), bitmap(nullptr),
+          graphics(nullptr),
           clipLeft(-1), clipTop(-1), clipWidth(-1), clipHeight(-1),
           smoothingMode(SmoothingModeAntiAlias), textRenderingHint(TextRenderingHintAntiAlias),
-          metaHDC(NULL), metaBuffer(NULL), metaStream(NULL), metafile(NULL), metaGraphics(NULL),
+          metaBuffer(nullptr), metaStream(nullptr), metafile(nullptr),
+          metaGraphics(nullptr),
           updateWhenDraw(true) {
-    metaHDC = ::CreateCompatibleDC(NULL);
 }
 
 /**
@@ -932,33 +891,30 @@ LayerExDraw::LayerExDraw(DispatchT obj)
  */
 LayerExDraw::~LayerExDraw() {
     destroyRecord();
-    delete graphics;
-    delete bitmap;
-    if (metaHDC) {
-        DeleteObject(metaHDC);
-        metaHDC = NULL;
-    }
+    GdipDeleteGraphics(this->graphics);
+    GdipDisposeImage(this->bitmap);
 }
 
-void
-LayerExDraw::reset() {
+void LayerExDraw::reset() {
     layerExBase::reset();
     // 変更されている場合はつくりなおし
-    if (!(graphics &&
-          width == _width &&
-          height == _height &&
-          pitch == _pitch &&
-          buffer == _buffer)) {
-        delete graphics;
-        delete bitmap;
+    if (!(graphics && width == _width
+          && height == _height && pitch == _pitch
+    )) {
+        GdipDeleteGraphics(this->graphics);
+        GdipDisposeImage(this->bitmap);
+        this->graphics = nullptr;
+        this->bitmap = nullptr;
         width = _width;
         height = _height;
         pitch = _pitch;
-        buffer = _buffer;
-        bitmap = new Bitmap(width, height, pitch, PixelFormat32bppARGB, (unsigned char *) buffer);
-        graphics = new Graphics(bitmap);
-        graphics->SetCompositingMode(CompositingModeSourceOver);
-        graphics->SetTransform(&calcTransform);
+        // TODO Init bimap from file
+//        buffer = _buffer;
+//        bitmap = new Bitmap(width, height, pitch, PixelFormat32bppARGB, (unsigned char *) buffer);
+//        GdipCreateBitmapFrom
+        GdipGetImageGraphicsContext(this->bitmap, &this->graphics);
+        GdipSetCompositingMode(this->graphics, CompositingModeSourceOver);
+        GdipSetWorldTransform(this->graphics, (GpMatrix *) calcTransform);
         clipWidth = clipHeight = -1;
     }
     // クリッピング領域変更の場合は設定しなおし
@@ -970,8 +926,12 @@ LayerExDraw::reset() {
         clipTop = _clipTop;
         clipWidth = _clipWidth;
         clipHeight = _clipHeight;
-        Region clip(Rect(clipLeft, clipTop, clipWidth, clipHeight));
-        graphics->SetClip(&clip);
+        GpRegion *clip{nullptr};
+        Rect r{clipLeft, clipTop, clipWidth, clipHeight};
+        GdipCreateRegionRectI(&r, &clip);
+//        graphics->SetClip(&clip);
+        GdipSetClipRegion(this->graphics, clip, CombineModeReplace);
+        GdipDeleteRegion(clip);
     }
 }
 
@@ -980,7 +940,7 @@ LayerExDraw::updateViewTransform() {
     calcTransform.Reset();
     calcTransform.Multiply(&transform, MatrixOrderAppend);
     calcTransform.Multiply(&viewTransform, MatrixOrderAppend);
-    graphics->SetTransform(&calcTransform);
+    GdipSetWorldTransform(this->graphics, (GpMatrix *) calcTransform);
     redrawRecord();
 }
 
@@ -988,8 +948,7 @@ LayerExDraw::updateViewTransform() {
  * 表示トランスフォームの指定
  * @param matrix トランスフォームマトリックス
  */
-void
-LayerExDraw::setViewTransform(const Matrix *trans) {
+void LayerExDraw::setViewTransform(/* const */ MatrixClass *trans) {
     if (!viewTransform.Equals(trans)) {
         viewTransform.Reset();
         viewTransform.Multiply(trans);
@@ -1026,9 +985,9 @@ LayerExDraw::updateTransform() {
     calcTransform.Reset();
     calcTransform.Multiply(&transform, MatrixOrderAppend);
     calcTransform.Multiply(&viewTransform, MatrixOrderAppend);
-    graphics->SetTransform(&calcTransform);
+    GdipSetWorldTransform(this->graphics, (GpMatrix *) calcTransform);
     if (metaGraphics) {
-        metaGraphics->SetTransform(&transform);
+        GdipSetWorldTransform(this->metaGraphics, (GpMatrix *) transform);
     }
 }
 
@@ -1037,7 +996,7 @@ LayerExDraw::updateTransform() {
  * @param matrix トランスフォームマトリックス
  */
 void
-LayerExDraw::setTransform(const Matrix *trans) {
+LayerExDraw::setTransform(/* const */ MatrixClass *trans) {
     if (!transform.Equals(trans)) {
         transform.Reset();
         transform.Multiply(trans);
@@ -1075,12 +1034,14 @@ LayerExDraw::translateTransform(REAL dx, REAL dy) {
  */
 void
 LayerExDraw::clear(ARGB argb) {
-    graphics->Clear(Color(argb));
+//    graphics->Clear(Color { argb });
+    GdipGraphicsClear(this->graphics, argb);
     if (metaGraphics) {
         createRecord();
-        metaGraphics->Clear(Color(argb));
+//        metaGraphics->Clear(Color{argb});
+        GdipGraphicsClear(this->metaGraphics, argb);
     }
-    _pUpdate(0, NULL);
+    _pUpdate(0, nullptr);
 }
 
 /**
@@ -1089,16 +1050,16 @@ LayerExDraw::clear(ARGB argb) {
  * @param path 描画するパス
  */
 RectF
-LayerExDraw::getPathExtents(const Appearance *app, const GraphicsPath *path) {
+LayerExDraw::getPathExtents(const Appearance *app, const Path *path) {
     // 領域記録用
     RectF rect;
 
     // 描画情報を使って次々描画
     bool first = true;
-    vector<Appearance::DrawInfo>::const_iterator i = app->drawInfos.begin();
+    auto i = app->drawInfos.begin();
     while (i != app->drawInfos.end()) {
         if (i->info) {
-            Matrix matrix(1, 0, 0, 1, i->ox, i->oy);
+            MatrixClass matrix{1, 0, 0, 1, i->ox, i->oy};
             matrix.Multiply(&calcTransform, MatrixOrderAppend);
             switch (i->type) {
                 case 0: {
@@ -1115,11 +1076,11 @@ LayerExDraw::getPathExtents(const Appearance *app, const GraphicsPath *path) {
                     break;
                 case 1:
                     if (first) {
-                        path->GetBounds(&rect, &matrix, NULL);
+                        path->GetBounds(&rect, &matrix, nullptr);
                         first = false;
                     } else {
                         RectF r;
-                        path->GetBounds(&r, &matrix, NULL);
+                        path->GetBounds(&r, &matrix, nullptr);
                         rect.Union(rect, rect, r);
                     }
                     break;
@@ -1132,7 +1093,7 @@ LayerExDraw::getPathExtents(const Appearance *app, const GraphicsPath *path) {
 
 void
 LayerExDraw::draw(Graphics *graphics, const Pen *pen, const Matrix *matrix,
-                  const GraphicsPath *path) {
+                  const Path *path) {
     GraphicsContainer container = graphics->BeginContainer();
     graphics->MultiplyTransform(matrix);
     graphics->SetSmoothingMode(smoothingMode);
@@ -1142,7 +1103,7 @@ LayerExDraw::draw(Graphics *graphics, const Pen *pen, const Matrix *matrix,
 
 void
 LayerExDraw::fill(Graphics *graphics, const Brush *brush, const Matrix *matrix,
-                  const GraphicsPath *path) {
+                  const Path *path) {
     GraphicsContainer container = graphics->BeginContainer();
     graphics->MultiplyTransform(matrix);
     graphics->SetSmoothingMode(smoothingMode);
@@ -1156,20 +1117,19 @@ LayerExDraw::fill(Graphics *graphics, const Brush *brush, const Matrix *matrix,
  * @param path 描画するパス
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::_drawPath(const Appearance *app, const GraphicsPath *path) {
+RectF LayerExDraw::_drawPath(const Appearance *app, const Path *path) {
     // 領域記録用
     RectF rect;
 
     // 描画情報を使って次々描画
     bool first = true;
-    vector<Appearance::DrawInfo>::const_iterator i = app->drawInfos.begin();
+    auto i = app->drawInfos.begin();
     while (i != app->drawInfos.end()) {
         if (i->info) {
-            Matrix matrix(1, 0, 0, 1, i->ox, i->oy);
+            MatrixClass matrix{1, 0, 0, 1, i->ox, i->oy};
             switch (i->type) {
                 case 0: {
-                    Pen *pen = (Pen *) i->info;
+                    auto *pen = (GpPen *) (Pen *) i->info;
                     draw(graphics, pen, &matrix, path);
                     if (metaGraphics) {
                         draw(metaGraphics, pen, &matrix, path);
@@ -1192,11 +1152,11 @@ LayerExDraw::_drawPath(const Appearance *app, const GraphicsPath *path) {
                     }
                     matrix.Multiply(&calcTransform, MatrixOrderAppend);
                     if (first) {
-                        path->GetBounds(&rect, &matrix, NULL);
+                        path->GetBounds(&rect, &matrix, nullptr);
                         first = false;
                     } else {
                         RectF r;
-                        path->GetBounds(&r, &matrix, NULL);
+                        path->GetBounds(&r, &matrix, nullptr);
                         rect.Union(rect, rect, r);
                     }
                     break;
@@ -1215,7 +1175,7 @@ LayerExDraw::_drawPath(const Appearance *app, const GraphicsPath *path) {
  */
 RectF
 LayerExDraw::drawPath(const Appearance *app, const Path *path) {
-    return _drawPath(app, &path->path);
+    return _drawPath(app, path);
 }
 
 /**
@@ -1231,7 +1191,7 @@ LayerExDraw::drawPath(const Appearance *app, const Path *path) {
 RectF
 LayerExDraw::drawArc(const Appearance *app, REAL x, REAL y, REAL width, REAL height,
                      REAL startAngle, REAL sweepAngle) {
-    GraphicsPath path;
+    Path path;
     path.AddArc(x, y, width, height, startAngle, sweepAngle);
     return _drawPath(app, &path);
 }
@@ -1252,7 +1212,7 @@ LayerExDraw::drawArc(const Appearance *app, REAL x, REAL y, REAL width, REAL hei
 RectF
 LayerExDraw::drawBezier(const Appearance *app, REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3,
                         REAL x4, REAL y4) {
-    GraphicsPath path;
+    Path path;
     path.AddBezier(x1, y1, x2, y2, x3, y3, x4, y4);
     return _drawPath(app, &path);
 }
@@ -1267,7 +1227,7 @@ RectF
 LayerExDraw::drawBeziers(const Appearance *app, tTJSVariant points) {
     vector<PointF> ps;
     getPoints(points, ps);
-    GraphicsPath path;
+    Path path;
     path.AddBeziers(&ps[0], (int) ps.size());
     return _drawPath(app, &path);
 }
@@ -1282,7 +1242,7 @@ RectF
 LayerExDraw::drawClosedCurve(const Appearance *app, tTJSVariant points) {
     vector<PointF> ps;
     getPoints(points, ps);
-    GraphicsPath path;
+    Path path;
     path.AddClosedCurve(&ps[0], (int) ps.size());
     return _drawPath(app, &path);
 }
@@ -1298,7 +1258,7 @@ RectF
 LayerExDraw::drawClosedCurve2(const Appearance *app, tTJSVariant points, REAL tension) {
     vector<PointF> ps;
     getPoints(points, ps);
-    GraphicsPath path;
+    Path path;
     path.AddClosedCurve(&ps[0], (int) ps.size(), tension);
     return _drawPath(app, &path);
 }
@@ -1313,7 +1273,7 @@ RectF
 LayerExDraw::drawCurve(const Appearance *app, tTJSVariant points) {
     vector<PointF> ps;
     getPoints(points, ps);
-    GraphicsPath path;
+    Path path;
     path.AddCurve(&ps[0], (int) ps.size());
     return _drawPath(app, &path);
 }
@@ -1329,7 +1289,7 @@ RectF
 LayerExDraw::drawCurve2(const Appearance *app, tTJSVariant points, REAL tension) {
     vector<PointF> ps;
     getPoints(points, ps);
-    GraphicsPath path;
+    Path path;
     path.AddCurve(&ps[0], (int) ps.size(), tension);
     return _drawPath(app, &path);
 }
@@ -1348,7 +1308,7 @@ LayerExDraw::drawCurve3(const Appearance *app, tTJSVariant points, int offset, i
                         REAL tension) {
     vector<PointF> ps;
     getPoints(points, ps);
-    GraphicsPath path;
+    Path path;
     path.AddCurve(&ps[0], (int) ps.size(), offset, numberOfSegments, tension);
     return _drawPath(app, &path);
 }
@@ -1366,7 +1326,7 @@ LayerExDraw::drawCurve3(const Appearance *app, tTJSVariant points, int offset, i
 RectF
 LayerExDraw::drawPie(const Appearance *app, REAL x, REAL y, REAL width, REAL height,
                      REAL startAngle, REAL sweepAngle) {
-    GraphicsPath path;
+    Path path;
     path.AddPie(x, y, width, height, startAngle, sweepAngle);
     return _drawPath(app, &path);
 }
@@ -1382,7 +1342,7 @@ LayerExDraw::drawPie(const Appearance *app, REAL x, REAL y, REAL width, REAL hei
  */
 RectF
 LayerExDraw::drawEllipse(const Appearance *app, REAL x, REAL y, REAL width, REAL height) {
-    GraphicsPath path;
+    Path path;
     path.AddEllipse(x, y, width, height);
     return _drawPath(app, &path);
 }
@@ -1396,11 +1356,15 @@ LayerExDraw::drawEllipse(const Appearance *app, REAL x, REAL y, REAL width, REAL
  * @param y2 終点Y座標
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawLine(const Appearance *app, REAL x1, REAL y1, REAL x2, REAL y2) {
-    GraphicsPath path;
-    path.AddLine(x1, y1, x2, y2);
-    return _drawPath(app, &path);
+RectF LayerExDraw::drawLine(
+        const Appearance *app, REAL x1, REAL y1, REAL x2, REAL y2
+) {
+    Path *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathLine(path, x1, y1, x2, y2);
+    RectF r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1413,7 +1377,7 @@ RectF
 LayerExDraw::drawLines(const Appearance *app, tTJSVariant points) {
     vector<PointF> ps;
     getPoints(points, ps);
-    GraphicsPath path;
+    Path path;
     path.AddLines(&ps[0], (int) ps.size());
     return _drawPath(app, &path);
 }
@@ -1428,7 +1392,7 @@ RectF
 LayerExDraw::drawPolygon(const Appearance *app, tTJSVariant points) {
     vector<PointF> ps;
     getPoints(points, ps);
-    GraphicsPath path;
+    Path path;
     path.AddPolygon(&ps[0], (int) ps.size());
     return _drawPath(app, &path);
 }
@@ -1445,7 +1409,7 @@ LayerExDraw::drawPolygon(const Appearance *app, tTJSVariant points) {
  */
 RectF
 LayerExDraw::drawRectangle(const Appearance *app, REAL x, REAL y, REAL width, REAL height) {
-    GraphicsPath path;
+    Path path;
     RectF rect(x, y, width, height);
     path.AddRectangle(rect);
     return _drawPath(app, &path);
@@ -1461,7 +1425,7 @@ RectF
 LayerExDraw::drawRectangles(const Appearance *app, tTJSVariant rects) {
     vector<RectF> rs;
     getRects(rects, rs);
-    GraphicsPath path;
+    Path path;
     path.AddRectangles(&rs[0], (int) rs.size());
     return _drawPath(app, &path);
 }
@@ -1482,7 +1446,7 @@ LayerExDraw::drawPathString(const FontInfo *font, const Appearance *app, REAL x,
         return drawPathString2(font, app, x, y, text);
 
     // 文字列のパスを準備
-    GraphicsPath path;
+    Path path;
     path.AddString(text, -1, font->fontFamily, font->style, font->emSize, PointF(x, y),
                    StringFormat::GenericDefault());
     return _drawPath(app, &path);
@@ -1625,7 +1589,7 @@ LayerExDraw::measureStringInternal(const FontInfo *font, const tjs_char *text) {
  * @return 更新領域情報
  */
 RectF
-LayerExDraw::drawImage(REAL x, REAL y, GpImage *src) {
+LayerExDraw::drawImage(REAL x, REAL y, ImageClass *src) {
     RectF rect;
     if (src) {
         RectF *bounds = getBounds(src);
@@ -1648,9 +1612,10 @@ LayerExDraw::drawImage(REAL x, REAL y, GpImage *src) {
  * @param sheight  元矩形の縦幅
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawImageRect(REAL dleft, REAL dtop, GpImage *src, REAL sleft, REAL stop, REAL swidth,
-                           REAL sheight) {
+RectF LayerExDraw::drawImageRect(
+        REAL dleft, REAL dtop, ImageClass *src,
+        REAL sleft, REAL stop, REAL swidth, REAL sheight
+) {
     return drawImageAffine(src, sleft, stop, swidth, sheight, true, 1, 0, 0, 1, dleft, dtop);
 }
 
@@ -1668,7 +1633,7 @@ LayerExDraw::drawImageRect(REAL dleft, REAL dtop, GpImage *src, REAL sleft, REAL
  * @return 更新領域情報
  */
 RectF
-LayerExDraw::drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, GpImage *src,
+LayerExDraw::drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, ImageClass *src,
                               REAL sleft, REAL stop, REAL swidth, REAL sheight) {
     return drawImageAffine(src, sleft, stop, swidth, sheight, true, dwidth / swidth, 0, 0,
                            dheight / sheight, dleft, dtop);
@@ -1684,7 +1649,7 @@ LayerExDraw::drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, 
  * @return 更新領域情報
  */
 RectF
-LayerExDraw::drawImageAffine(GpImage *src, REAL sleft, REAL stop, REAL swidth, REAL sheight,
+LayerExDraw::drawImageAffine(ImageClass *src, REAL sleft, REAL stop, REAL swidth, REAL sheight,
                              bool affine, REAL A, REAL B, REAL C, REAL D, REAL E, REAL F) {
     RectF rect;
     if (src) {
@@ -1710,11 +1675,13 @@ LayerExDraw::drawImageAffine(GpImage *src, REAL sleft, REAL stop, REAL swidth, R
             points[3].X = C - A + E;
             points[3].Y = D - B + F;
         }
-        graphics->DrawImage(src, points, 3, sleft, stop, swidth, sheight, UnitPixel, NULL, NULL,
-                            NULL);
+        graphics->DrawImage(src, points, 3, sleft, stop, swidth, sheight, UnitPixel, nullptr,
+                            nullptr,
+                            nullptr);
         if (metaGraphics) {
-            metaGraphics->DrawImage(src, points, 3, sleft, stop, swidth, sheight, UnitPixel, NULL,
-                                    NULL, NULL);
+            metaGraphics->DrawImage(src, points, 3, sleft, stop, swidth, sheight, UnitPixel,
+                                    nullptr,
+                                    nullptr, nullptr);
         }
 
         // 描画領域を取得
@@ -1739,8 +1706,7 @@ LayerExDraw::drawImageAffine(GpImage *src, REAL sleft, REAL stop, REAL swidth, R
     return rect;
 }
 
-void
-LayerExDraw::createRecord() {
+void LayerExDraw::createRecord() {
     destroyRecord();
     if ((metaBuffer = ::GlobalAlloc(GMEM_MOVEABLE, 0))) {
         if (::CreateStreamOnHGlobal(metaBuffer, FALSE, &metaStream) == S_OK) {
@@ -1757,21 +1723,17 @@ LayerExDraw::createRecord() {
  */
 void
 LayerExDraw::destroyRecord() {
-    if (metaGraphics) {
-        delete metaGraphics;
-        metaGraphics = NULL;
-    }
-    if (metafile) {
-        delete metafile;
-        metafile = NULL;
-    }
+    delete metaGraphics;
+    metaGraphics = nullptr;
+    delete metafile;
+    metafile = nullptr;
     if (metaStream) {
         metaStream->Release();
-        metaStream = NULL;
+        metaStream = nullptr;
     }
     if (metaBuffer) {
         ::GlobalFree(metaBuffer);
-        metaBuffer = NULL;
+        metaBuffer = nullptr;
     }
 }
 
@@ -1792,51 +1754,56 @@ LayerExDraw::setRecord(bool record) {
     }
 }
 
-bool
-LayerExDraw::redraw(GpImage *image) {
+bool LayerExDraw::redraw(ImageClass *image) {
     if (image) {
         RectF *bounds = getBounds(image);
         if (metaGraphics) {
-            metaGraphics->Clear(Color(0));
-            metaGraphics->ResetTransform();
-            metaGraphics->DrawImage(image, bounds->X, bounds->Y, bounds->Width, bounds->Height);
-            metaGraphics->SetTransform(&transform);
+            GdipGraphicsClear(this->metaGraphics, 0);
+            GdipResetWorldTransform(this->metaGraphics);
+            GdipDrawImageRect(
+                    this->metaGraphics, (ImageClass *) image,
+                    bounds->X, bounds->Y, bounds->Width, bounds->Height
+            );
+            GpMatrix *tmp{nullptr};
+            GdipSetWorldTransform(this->metaGraphics, tmp);
+            transform = MatrixClass{tmp};
         }
-        graphics->Clear(Color(0));
-        graphics->SetTransform(&viewTransform);
+        GdipGraphicsClear(this->metaGraphics, 0);
+        GdipSetWorldTransform(this->metaGraphics, (GpMatrix *) viewTransform);
+
         graphics->DrawImage(image, bounds->X, bounds->Y, bounds->Width, bounds->Height);
         graphics->SetTransform(&calcTransform);
         delete bounds;
-        _pUpdate(0, NULL);
+        _pUpdate(0, nullptr);
         return true;
     }
+
     return false;
 }
 
 /**
- * 記録内容を GpImage として取得
+ * 記録内容を ImageClass として取得
  * @return 成功したら true
  */
-GpImage *
-LayerExDraw::getRecordImage() {
-    GpImage *image = NULL;
+ImageClass *LayerExDraw::getRecordImage() {
+    ImageClass *image = nullptr;
     if (metafile) {
         // メタ情報を取得するには一度閉じる必要がある
         if (metaGraphics) {
             delete metaGraphics;
-            metaGraphics = NULL;
+            metaGraphics = nullptr;
         }
 
         //閉じたあと継続するための再描画先を別途構築
         HGLOBAL oldBuffer = metaBuffer;
-        metaBuffer = NULL;
+        metaBuffer = nullptr;
         createRecord();
 
         // 再描画
         if (oldBuffer) {
-            IStream *pStream = NULL;
+            IStream *pStream = nullptr;
             if (::CreateStreamOnHGlobal(oldBuffer, FALSE, &pStream) == S_OK) {
-                image = GpImage::FromStream(pStream, false);
+                image = ImageClass::FromStream(pStream, false);
                 if (image) {
                     redraw(image);
                 }
@@ -1851,10 +1818,9 @@ LayerExDraw::getRecordImage() {
 /**
  * 記録内容の現在の解像度での再描画
  */
-bool
-LayerExDraw::redrawRecord() {
+bool LayerExDraw::redrawRecord() {
     // 再描画処理
-    GpImage *image = getRecordImage();
+    ImageClass *image = getRecordImage();
     if (image) {
         delete image;
         return true;
@@ -1873,7 +1839,7 @@ LayerExDraw::saveRecord(const tjs_char *filename) {
     if (metafile) {
         // メタ情報を取得するには一度閉じる必要がある
         delete metaGraphics;
-        metaGraphics = NULL;
+        metaGraphics = nullptr;
         ULONG size;
         // ファイルに書き出す
         if (metaBuffer && (size = (ULONG) ::GlobalSize(metaBuffer)) > 0) {
@@ -1888,7 +1854,7 @@ LayerExDraw::saveRecord(const tjs_char *filename) {
             }
         }
         // 再描画処理
-        GpImage *image = getRecordImage();
+        ImageClass *image = getRecordImage();
         if (image) {
             delete image;
         }
@@ -1904,11 +1870,10 @@ LayerExDraw::saveRecord(const tjs_char *filename) {
  */
 bool
 LayerExDraw::loadRecord(const tjs_char *filename) {
-    bool ret = false;
-    GpImage *image;
+    ImageClass *image;
     if (filename && (image = loadImage(filename))) {
         createRecord();
-        ret = redraw(image);
+        redraw(image);
         delete image;
     }
     return false;
@@ -1922,7 +1887,7 @@ LayerExDraw::loadRecord(const tjs_char *filename) {
  * @param glyph 描画するグリフ
  */
 void
-LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointF &offset, GraphicsPath *path,
+LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointF &offset, Path *path,
                              UINT glyph) {
     static const MAT2 mat = {{0, 1},
                              {0, 0},
@@ -1941,10 +1906,10 @@ LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointF &offset, GraphicsP
                                 flags, //  | GGO_GLYPH_INDEX,
                                 &gm,
                                 0,
-                                NULL,
+                                nullptr,
                                 &mat
     );
-    char *buffer = NULL;
+    char *buffer = nullptr;
     if (size > 0) {
         buffer = new char[size];
         int result = GetGlyphOutlineW(metaHDC,
@@ -1965,7 +1930,7 @@ LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointF &offset, GraphicsP
                          GGO_METRICS,
                          &gm,
                          0,
-                         NULL,
+                         nullptr,
                          &mat
         );
     }
@@ -1982,7 +1947,7 @@ LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointF &offset, GraphicsP
         while (index < endCurve) {
             TTPOLYCURVE *hcurve = (TTPOLYCURVE * )(buffer + index);
             index += 2 * sizeof(WORD);
-            POINTFX *points = (POINTFX * )(buffer + index);
+            POINTFX *points = (POINTFX *) (buffer + index);
             index += hcurve->cpfx * sizeof(POINTFX);
             std::vector<PointF> pts(1 + hcurve->cpfx);
             pts[0] = p0;
@@ -1995,7 +1960,7 @@ LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointF &offset, GraphicsP
                     break;
 
                 case TT_PRIM_QSPLINE:
-                    TVPAddLog(ttstr(L"qspline"));
+                    TVPAddLog(ttstr(TJS_W("qspline")));
                     break;
 
                 case TT_PRIM_CSPLINE:
@@ -2058,11 +2023,11 @@ LayerExDraw::getTextOutline(const FontInfo *fontInfo, PointF &offset, GpPath *pa
 RectF
 LayerExDraw::measureString2(const FontInfo *font, const tjs_char *text) {
     // 文字列のパスを準備
-    GraphicsPath path;
+    Path path;
     PointF offset(0, 0);
     this->getTextOutline(font, offset, &path, text);
     RectF result;
-    path.GetBounds(&result, NULL, NULL);
+    path.GetBounds(&result, nullptr, nullptr);
     result.X = 0;
     result.Y = 0;
     result.Width += REAL(0.167 * font->emSize * 2);
@@ -2079,11 +2044,11 @@ LayerExDraw::measureString2(const FontInfo *font, const tjs_char *text) {
 RectF
 LayerExDraw::measureStringInternal2(const FontInfo *font, const tjs_char *text) {
     // 文字列のパスを準備
-    GraphicsPath path;
+    Path path;
     PointF offset(0, 0);
     this->getTextOutline(font, offset, &path, text);
     RectF result;
-    path.GetBounds(&result, NULL, NULL);
+    path.GetBounds(&result, nullptr, nullptr);
     result.X = REAL(LONG(0.167 * font->emSize));
     result.Y = 0;
     result.Height = font->getLineSpacing();
@@ -2103,7 +2068,7 @@ RectF
 LayerExDraw::drawPathString2(const FontInfo *font, const Appearance *app, REAL x, REAL y,
                              const tjs_char *text) {
     // 文字列のパスを準備
-    GraphicsPath path;
+    Path path;
     PointF offset(x + LONG(0.167 * font->emSize) - 0.5f, y - 0.5f);
     this->getTextOutline(font, offset, &path, text);
     RectF result = _drawPath(app, &path);
@@ -2141,37 +2106,39 @@ class EncoderParameterGetter : public tTJSDispatch /** EnumMembers 用 */
 {
 public:
     struct EncoderInfo {
-        const char *name;
-        GUID guid;
-        long value;
+        const char *name{};
+        GUID guid{};
+        long value{};
 
-        EncoderInfo(const char *name, GUID guid, long value) : name(name), guid(guid),
-                                                               value(value) {};
+        EncoderInfo(
+                const char *name, GUID guid, long value
+        ) : name(name), guid(guid),
+            value(value) {};
 
-        EncoderInfo() {};
+        EncoderInfo() = default;
     } infos[7];
 
     EncoderParameters *params;
 
     EncoderParameterGetter() {
-        infos[0] = EncoderInfo("compression", EncoderCompression, -1);
-        infos[1] = EncoderInfo("scanmethod", EncoderScanMethod, -1);
-        infos[2] = EncoderInfo("version", EncoderVersion, -1);
-        infos[3] = EncoderInfo("render", EncoderRenderMethod, -1);
-        infos[4] = EncoderInfo("tansform", EncoderTransformation, -1);
-        infos[5] = EncoderInfo("quality", EncoderQuality, -1);
-        infos[6] = EncoderInfo("depth", EncoderColorDepth, 24);
+        infos[0] = EncoderInfo("compression", GdipEncoderCompression, -1);
+        infos[1] = EncoderInfo("scanmethod", GdipEncoderScanMethod, -1);
+        infos[2] = EncoderInfo("version", GdipEncoderVersion, -1);
+        infos[3] = EncoderInfo("render", GdipEncoderRenderMethod, -1);
+        infos[4] = EncoderInfo("tansform", GdipEncoderTransformation, -1);
+        infos[5] = EncoderInfo("quality", GdipEncoderQuality, -1);
+        infos[6] = EncoderInfo("depth", GdipEncoderColorDepth, 24);
         params = (EncoderParameters *) malloc(
                 sizeof(EncoderParameters) + 6 * sizeof(EncoderParameter));
     };
 
-    ~EncoderParameterGetter() {
+    ~EncoderParameterGetter() override {
         delete params;
     }
 
     void checkResult() {
         int n = 0;
-        for (auto & info : infos) {
+        for (auto &info: infos) {
             if (info.value >= 0) {
                 params->Parameter[n].Guid = info.guid;
                 params->Parameter[n].Type = EncoderParameterValueTypeLong;
@@ -2185,7 +2152,7 @@ public:
 
     virtual tjs_error TJS_INTF_METHOD FuncCall( // function invocation
             tjs_uint32 flag,            // calling flag
-            const tjs_char *membername,// member name ( NULL for a default member )
+            const tjs_char *membername,// member name ( nullptr for a default member )
             tjs_uint32 *hint,            // hint for the member name (in/out)
             tTJSVariant *result,        // result
             tjs_int numparams,            // number of parameters
@@ -2196,7 +2163,7 @@ public:
             tTVInteger flag = param[1]->AsInteger();
             if (!(flag & TJS_HIDDENMEMBER)) {
                 ttstr name = *param[0];
-                for (auto & info : infos) {
+                for (auto &info: infos) {
                     if (name == info.name) {
                         info.value = (tjs_int) *param[1];
                         break;
@@ -2214,9 +2181,10 @@ public:
 /**
  * 画像の保存
  */
-tjs_error
-LayerExDraw::saveImage(tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
-                       iTJSDispatch2 *objthis) {
+tjs_error LayerExDraw::saveImage(
+        tTJSVariant *result, tjs_int numparams,
+        tTJSVariant **param, iTJSDispatch2 *objthis
+) {
     // rawcallback だと hook がきいてない模様
     LayerExDraw *self = ncbInstanceAdaptor<LayerExDraw>::GetNativeInstance(objthis);
     if (!self) {
@@ -2232,21 +2200,23 @@ LayerExDraw::saveImage(tTJSVariant *result, tjs_int numparams, tTJSVariant **par
     if (numparams > 1) {
         type = *param[1];
     } else {
-        type = L"image/bmp";
+        type = TJS_W("image/bmp");
     }
     CLSID clsid;
     if (!getEncoder(type.c_str(), &clsid)) {
-        TVPThrowExceptionMessage(L"unknown format:%1", type);
+        TVPThrowExceptionMessage(TJS_W("unknown format:%1"), type);
     }
 
-    EncoderParameterGetter *caller = new EncoderParameterGetter();
+    auto *caller = new EncoderParameterGetter();
     // パラメータ辞書がある
     if (numparams > 2 && param[2]->Type() == tvtObject) {
         tTJSVariantClosure closure(caller);
-        param[2]->AsObjectClosureNoAddRef().EnumMembers(TJS_IGNOREPROP, &closure, NULL);
+        param[2]->AsObjectClosureNoAddRef().EnumMembers(TJS_IGNOREPROP, &closure, nullptr);
     }
     caller->checkResult();
-    Status ret = self->bitmap->Save(filename.c_str(), &clsid, caller->params);
+    static_assert(sizeof(tjs_char) == sizeof(WCHAR), "saveImage Sizes differ!");
+    const auto *n = reinterpret_cast<const WCHAR *>(filename.c_str());
+    GpStatus ret = GdipSaveImageToFile(self->bitmap, n, &clsid, caller->params);
     caller->Release();
 
     if (result) {
@@ -2255,36 +2225,40 @@ LayerExDraw::saveImage(tTJSVariant *result, tjs_int numparams, tTJSVariant **par
     return TJS_S_OK;
 }
 
-static ARGB getColor(Bitmap *bitmap, int x, int y) {
-    Color c;
-    bitmap->GetPixel(x, y, &c);
-    return c.GetValue();
+static ARGB getColor(GpBitmap *bitmap, int x, int y) {
+    ARGB c;
+    GdipBitmapGetPixel(bitmap, x, y, &c);
+    return c;
 }
 
 tTJSVariant
 LayerExDraw::getColorRegionRects(ARGB color) {
     iTJSDispatch2 *array = TJSCreateArrayObject();
     if (bitmap) {
-        int width = bitmap->GetWidth();
-        int height = bitmap->GetHeight();
-
-        Region region(Rect(0, 0, 0, 0));
+        uint width{};
+        uint height{};
+        GdipGetImageWidth(this->bitmap, &width);
+        GdipGetImageHeight(this->bitmap, &height);
+        GpRegion *region{nullptr};
+        GdipCreateRegion(&region);
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
                 if (getColor(bitmap, i, j) == color) {
                     int x0 = i++;
                     while (i < width && getColor(bitmap, i, j) == color) i++;
-                    region.Union(Rect(x0, j, i - x0, 1));
+                    Rect r{x0, j, i - x0, 1};
+                    GdipCombineRegionRectI(region, &r, CombineModeReplace);
                 }
             }
         }
 
         // 矩形一覧取得
-        Matrix matrix;
-        int count = region.GetRegionScansCount(&matrix);
+        GpMatrix matrix;
+        int count{};
+        GdipGetRegionScansCount(region, &count, &matrix);
         if (count > 0) {
-            RectF *rects = (RectF *) malloc(count * sizeof(RectF));
-            region.GetRegionScans(&matrix, rects, &count);
+            auto *rects = new RectF[count];
+            GdipGetRegionScans(region, rects, &count, &matrix);
             for (int i = 0; i < count; i++) {
                 RectF *rect = &rects[i];
                 tTJSVariant x(rect->X);
@@ -2301,6 +2275,7 @@ LayerExDraw::getColorRegionRects(ARGB color) {
             }
             delete[] rects;
         }
+        GdipDeleteRegion(region);
     }
     tTJSVariant ret(array, array);
     array->Release();
