@@ -2,37 +2,62 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO libsdl-org/SDL
     REF "release-${VERSION}"
-    SHA512 0efb7ac826adaf124dcc2e03a56cd5471ce1c15f1fd30a53bafd9574c0b88e653e54a7aeb7943f452067662ba2330a6c44a70517605a9b7cd0cdf3fafc9bea6a
+    SHA512 91fd9fddf8b15d82de1674c734698b20ad2c08cebb3d4d18062dcc1c250864ae8bfa03fb570ca31742d5f0ada49d5fccc9019640bcec5fa99492bed8dcb151a6
     HEAD_REF main
-    PATCHES 
-        0001-fix-SensorUpdate.patch
-        0001-remove-jni-init-function.patch
+    PATCHES
+        remove-jni-init-function.patch
+        deps.patch
+        alsa-dep-fix.patch
+        cxx-linkage-pkgconfig.diff
 )
 
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "static" SDL_STATIC)
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "dynamic" SDL_SHARED)
+string(COMPARE EQUAL "${VCPKG_CRT_LINKAGE}" "static" FORCE_STATIC_VCRT)
+
+vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
+    FEATURES
+        alsa     SDL_ALSA
+        dbus     SDL_DBUS
+        ibus     SDL_IBUS
+        samplerate SDL_LIBSAMPLERATE
+        vulkan   SDL_VULKAN
+        wayland  SDL_WAYLAND
+        x11      SDL_X11
+)
+
+if ("x11" IN_LIST FEATURES)
+    message(WARNING "You will need to install Xorg dependencies to use feature x11:\nsudo apt install libx11-dev libxft-dev libxext-dev\n")
+endif()
+if ("wayland" IN_LIST FEATURES)
+    message(WARNING "You will need to install Wayland dependencies to use feature wayland:\nsudo apt install libwayland-dev libxkbcommon-dev libegl1-mesa-dev\n")
+endif()
+if ("ibus" IN_LIST FEATURES)
+    message(WARNING "You will need to install ibus dependencies to use feature ibus:\nsudo apt install libibus-1.0-dev\n")
+endif()
+
+if(VCPKG_TARGET_IS_UWP)
+    set(configure_opts WINDOWS_USE_MSBUILD)
+endif()
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
-    OPTIONS
+    ${configure_opts}
+    OPTIONS ${FEATURE_OPTIONS}
         -DSDL_STATIC=${SDL_STATIC}
         -DSDL_SHARED=${SDL_SHARED}
-        -DANDROID=ON
+        -DSDL_FORCE_STATIC_VCRT=${FORCE_STATIC_VCRT}
+        -DSDL_LIBC=ON
         -DSDL_TEST=OFF
-        -DCMAKE_SYSTEM_NAME=Linux
-        -DHIDAPI=OFF
-        -DHAVE_GCC_WDECLARATION_AFTER_STATEMENT=OFF
+        -DSDL_INSTALL_CMAKEDIR=cmake
+        -DCMAKE_DISABLE_FIND_PACKAGE_Git=ON
+        -DSDL_LIBSAMPLERATE_SHARED=OFF
+    MAYBE_UNUSED_VARIABLES
+        SDL_FORCE_STATIC_VCRT
 )
 
 vcpkg_cmake_install()
-
-if(EXISTS "${CURRENT_PACKAGES_DIR}/cmake")
-    vcpkg_cmake_config_fixup(CONFIG_PATH cmake)
-elseif(EXISTS "${CURRENT_PACKAGES_DIR}/lib/cmake/SDL2")
-    vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/SDL2)
-elseif(EXISTS "${CURRENT_PACKAGES_DIR}/SDL2.framework/Resources")
-    vcpkg_cmake_config_fixup(CONFIG_PATH SDL2.framework/Resources)
-endif()
+vcpkg_cmake_config_fixup(CONFIG_PATH cmake)
 
 file(REMOVE_RECURSE
     "${CURRENT_PACKAGES_DIR}/debug/include"
@@ -53,6 +78,22 @@ if(NOT BINS)
     )
 endif()
 
+if(VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_IS_UWP AND NOT VCPKG_TARGET_IS_MINGW)
+    if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
+        file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/lib/manual-link")
+        file(RENAME "${CURRENT_PACKAGES_DIR}/lib/SDL2main.lib" "${CURRENT_PACKAGES_DIR}/lib/manual-link/SDL2main.lib")
+    endif()
+    if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
+        file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/debug/lib/manual-link")
+        file(RENAME "${CURRENT_PACKAGES_DIR}/debug/lib/SDL2maind.lib" "${CURRENT_PACKAGES_DIR}/debug/lib/manual-link/SDL2maind.lib")
+    endif()
+
+    file(GLOB SHARE_FILES "${CURRENT_PACKAGES_DIR}/share/sdl2/*.cmake")
+    foreach(SHARE_FILE ${SHARE_FILES})
+        vcpkg_replace_string("${SHARE_FILE}" "lib/SDL2main" "lib/manual-link/SDL2main" IGNORE_UNCHANGED)
+    endforeach()
+endif()
+
 vcpkg_copy_pdbs()
 
 set(DYLIB_COMPATIBILITY_VERSION_REGEX "set\\(DYLIB_COMPATIBILITY_VERSION (.+)\\)")
@@ -62,7 +103,33 @@ file(STRINGS "${SOURCE_PATH}/CMakeLists.txt" DYLIB_CURRENT_VERSION REGEX ${DYLIB
 string(REGEX REPLACE ${DYLIB_COMPATIBILITY_VERSION_REGEX} "\\1" DYLIB_COMPATIBILITY_VERSION "${DYLIB_COMPATIBILITY_VERSION}")
 string(REGEX REPLACE ${DYLIB_CURRENT_VERSION_REGEX} "\\1" DYLIB_CURRENT_VERSION "${DYLIB_CURRENT_VERSION}")
 
+if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug" AND NOT VCPKG_TARGET_IS_ANDROID)
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/sdl2.pc" "-lSDL2main" "-lSDL2maind" IGNORE_UNCHANGED)
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/sdl2.pc" "-lSDL2 " "-lSDL2d " IGNORE_UNCHANGED)
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/sdl2.pc" "-lSDL2-static " "-lSDL2-staticd " IGNORE_UNCHANGED)
+endif()
+
+if(VCPKG_LIBRARY_LINKAGE STREQUAL "dynamic" AND VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_IS_MINGW)
+    if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
+        vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/lib/pkgconfig/sdl2.pc" "-lSDL2-static " " ")
+    endif()
+    if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
+        vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/sdl2.pc" "-lSDL2-staticd " " ")
+    endif()
+endif()
+
+if(VCPKG_TARGET_IS_UWP)
+    if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
+        vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/lib/pkgconfig/sdl2.pc" "$<$<CONFIG:Debug>:d>.lib" "")
+        vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/lib/pkgconfig/sdl2.pc" "-l-nodefaultlib:" "-nodefaultlib:")
+    endif()
+    if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
+        vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/sdl2.pc" "$<$<CONFIG:Debug>:d>.lib" "d")
+        vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/sdl2.pc" "-l-nodefaultlib:" "-nodefaultlib:")
+    endif()
+endif()
+
 vcpkg_fixup_pkgconfig()
 
 file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/usage" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
-vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/COPYING.txt")
+vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE.txt")

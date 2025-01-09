@@ -57,24 +57,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${COCOS2DX_EXTERNAL_HEADER_DIRS})
 
 add_subdirectory(psdfile)
-
-target_sources(${PROJECT_NAME} PRIVATE
-    layerex_draw/LayerExDraw.cpp
-    layerex_draw/DrawPath.cpp
-    layerex_draw/main.cpp
-)
-
-find_package(Libgdiplus REQUIRED)
-target_include_directories(${PROJECT_NAME} PRIVATE ${Libgdiplus_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${Libgdiplus_LIBRARIES})
-
-set(VCPKG_INSTALL_DIR ${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET})
-
-# glibconfig
-# https://invent.kde.org/frameworks/extra-cmake-modules/-/blob/master/find-modules/FindGLIB2.cmake
-target_include_directories(${PROJECT_NAME} PRIVATE "${VCPKG_INSTALL_DIR}/lib/glib-2.0/include")
-target_include_directories(${PROJECT_NAME} PRIVATE "${VCPKG_INSTALL_DIR}/include/glib-2.0")
-#
-#add_subdirectory(layerex_draw)
-#
-#target_link_libraries(${PROJECT_NAME} PRIVATE psdfile layerExDraw)
+add_subdirectory(layerex_draw)
+target_link_libraries(${PROJECT_NAME} PRIVATE psdfile layerExDraw)

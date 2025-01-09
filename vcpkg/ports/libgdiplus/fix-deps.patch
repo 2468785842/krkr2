@@ -1,0 +1,18 @@
+diff --git a/configure.ac b/configure.ac
+index bfefe67..1902514 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -261,11 +261,11 @@ AC_ARG_WITH([libtiff],
+         AC_MSG_WARN(*** TIFF loader will not be built (TIFF header files not found) ***))],
+       [AC_CHECK_LIB(tiff, TIFFWriteScanline,
+         [AC_CHECK_HEADER(tiffio.h,
+-          TIFF='tiff'; LIBTIFF='-ltiff -ljpeg -lz'; tiff_ok=yes,
++          TIFF='tiff'; LIBTIFF='-ltiff -ljpeg -lz -llzma'; tiff_ok=yes,
+           AC_MSG_WARN(*** TIFF loader will not be built (TIFF header files not found) ***))],
+         [AC_CHECK_LIB(tiff34, TIFFFlushData,
+           [AC_CHECK_HEADER(tiffio.h,
+-            TIFF='tiff'; LIBTIFF='-ltiff34 -ljpeg -lz'; tiff_ok=yes,
++            TIFF='tiff'; LIBTIFF='-ltiff34 -ljpeg -lz -llzma'; tiff_ok=yes,
+             AC_MSG_WARN(*** TIFF loader will not be built (TIFF header files not found) ***))],
+         AC_MSG_WARN(*** TIFF plug-in will not be built (TIFF library not found) ***),  -lz -lm)], -ljpeg -lz -lm)], -lm)
+     CFLAGS=$save_cflags

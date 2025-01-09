@@ -3,10 +3,9 @@
   "name": "krkr2",
   "version-string": "1.4.0",
   "dependencies": [
-    "libgdiplus",
     "boost-iostreams",
-    "boost-spirit",
     "boost-phoenix",
+    "boost-spirit",
     {
       "name": "breakpad",
       "default-features": false
@@ -16,6 +15,7 @@
     "jxrlib",
     "libarchive",
     "libbpg",
+    "libgdiplus",
     "libjpeg-turbo",
     "libogg",
     "libvorbis",
@@ -33,7 +33,10 @@
       "default-features": false
     },
     "p7zip",
-    "sdl2",
+    {
+      "name": "sdl2",
+      "default-features": false
+    },
     "unrar"
   ],
   "overrides": [

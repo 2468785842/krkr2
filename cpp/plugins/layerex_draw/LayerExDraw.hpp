@@ -1,8 +1,6 @@
 #ifndef _layerExText_hpp_
 #define _layerExText_hpp_
 
-#define NCB_MODULE_NAME TJS_W("layerExDraw.dll")
-
 #include <vector>
 
 #include "gdip_cxx.h"

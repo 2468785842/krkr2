@@ -1,6 +1,8 @@
 #include "LayerExDraw.hpp"
 #include "ncbind.hpp"
 
+#define NCB_MODULE_NAME TJS_W("layerExDraw.dll")
+
 extern void initGdiPlus();
 
 extern void deInitGdiPlus();
