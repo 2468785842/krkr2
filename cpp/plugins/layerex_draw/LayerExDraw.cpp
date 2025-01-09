@@ -337,15 +337,17 @@ void FontInfo::updateSizeParams() const {
     // 获取字体度量
     cairo_font_extents_t font_extents;
     cairo_font_extents(cr, &font_extents);
-    this->ascent = REAL(this->fontFamily->cellascent);
-    this->descent = REAL(this->fontFamily->celldescent);
+    this->ascent = REAL(font_extents.ascent);
+    this->descent = REAL(font_extents.descent);
 
-    this->ascentLeading = REAL((this->fontFamily->height - ascent - descent) / 2);
+    this->ascentLeading = REAL((font_extents.height - ascent - descent) / 2);
     this->descentLeading = REAL(-this->descent);
-//    ascentLeading = ascent - REAL(otm->otmAscent);
-//    descentLeading = descent - REAL(- otm->otmDescent);
-
-    this->lineSpacing = REAL(this->fontFamily->linespacing);
+    // TODO: FIXME
+//    this->ascent = REAL(this->fontFamily->cellascent);
+//    this->descent = REAL(this->fontFamily->celldescent);
+//    this->ascentLeading = REAL((this->fontFamily->height - ascent - descent) / 2);
+//    this->descentLeading = REAL(-this->descent);
+//    this->lineSpacing = REAL(this->fontFamily->linespacing);
 
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
@@ -2142,14 +2144,16 @@ RectFClass LayerExDraw::drawPathString2(
         REAL x, REAL y, const tjs_char *text
 ) {
     // 文字列のパスを準備
-    GpPath path;
+    GpPath *path{};
+    GdipCreatePath(FillModeAlternate, &path);
     PointFClass offset{x + LONG(0.167 * font->emSize) - 0.5f, y - 0.5f};
-    this->getTextOutline(font, offset, &path, text);
-    RectFClass result = _drawPath(app, &path);
+    this->getTextOutline(font, offset, path, text);
+    RectFClass result = _drawPath(app, path);
     result.X = x;
     result.Y = y;
     result.Width += REAL(0.167 * font->emSize * 2);
     result.Height = REAL(font->getLineSpacing() * 1.124);
+    GdipDeletePath(path);
     return result;
 }
 

@@ -1,13 +1,14 @@
 #ifndef __PSDCLASS_H__
 #define __PSDCLASS_H__
 
+#define NCB_MODULE_NAME TJS_W("psd.dll")
+
 //#define LOAD_MEMORY
 #include "typedefine.h"
 #include "tp_stub.h"
 #include "psdparse/psdfile.h"
 #include "ncbind.hpp"
 
-#define NCB_MODULE_NAME TJS_W("psd.dll")
 
 class PSDStorage;
 class PSDIterator;

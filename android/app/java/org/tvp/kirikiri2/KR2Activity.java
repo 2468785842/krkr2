@@ -1,12 +1,11 @@
 package org.tvp.kirikiri2;
 
-import static java.nio.file.Files.isWritable;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Environment;
@@ -31,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -51,6 +51,21 @@ public class KR2Activity extends Cocos2dxActivity implements ActivityCompat.OnRe
         }
         mActivityManager.getMemoryInfo(memoryInfo);
         Debug.getMemoryInfo(mDbgMemoryInfo);
+    }
+
+
+    /**
+     * @noinspection unused
+     */
+    static public String GetVersion() {
+        String verstr = null;
+        try {
+            verstr = sInstance.getPackageManager()
+                    .getPackageInfo(sInstance.getPackageName(), 0)
+                    .versionName;
+        } catch (PackageManager.NameNotFoundException ignored) {
+        }
+        return verstr;
     }
 
     /**
@@ -528,7 +543,7 @@ public class KR2Activity extends Cocos2dxActivity implements ActivityCompat.OnRe
         OutputStream outStream = null;
         try {
             // First try the normal way
-            if (isWritable(target.toPath()))
+            if (Files.isWritable(target.toPath()))
                 outStream = new FileOutputStream(target);
         } catch (Exception e) {
             Log.e("FileUtils",

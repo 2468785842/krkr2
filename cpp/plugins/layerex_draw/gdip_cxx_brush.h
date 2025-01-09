@@ -19,24 +19,14 @@ extern "C" {
 class [[nodiscard]] BrushBase {
 public:
 
-    [[nodiscard]] virtual explicit operator Brush *() const = 0;
+    [[nodiscard]] virtual operator GpBrush *() = 0;
+
+    [[nodiscard]] virtual operator GpBrush *() const = 0;
 
     [[nodiscard]] virtual BrushBase *Clone() const = 0;
 
     [[nodiscard]] virtual GpStatus GetLastStatus() const {
         return this->gpStatus;
-    }
-
-    [[nodiscard]] virtual GpBrushType GetType() const {
-        GpBrushType type{};
-        this->gpStatus = GdipGetBrushType(
-                (Brush *) this, &type
-        );
-        return type;
-    }
-
-    virtual ~BrushBase() {
-        GdipDeleteBrush((Brush *) this);
     }
 
 protected:
@@ -45,15 +35,7 @@ protected:
 
 class SolidBrush : public BrushBase {
 public:
-    SolidBrush(Brush *brush) {
-        if (((BrushClass *) brush)->type != BrushTypeSolidColor) {
-            throw std::invalid_argument{
-                    "can't init SolidBrush Object with not BrushTypeSolidColor type brush ptr"
-            };
-        }
-
-        this->_gpSolidFill = reinterpret_cast<SolidFill *>(brush);
-    }
+    SolidBrush(SolidFill *brush) : _gpSolidFill(brush) {}
 
     SolidBrush(const Color &color) {
         GdipCreateSolidFill(*(ARGB *) &color, &this->_gpSolidFill);
@@ -61,14 +43,16 @@ public:
 
     SolidBrush(const SolidBrush &brush) = delete;
 
-    explicit operator Brush *() const override {
-        return (Brush *) this->_gpSolidFill;
+    [[nodiscard]] operator GpBrush *() override {
+        return (GpBrush *) this->_gpSolidFill;
+    }
+
+    [[nodiscard]] operator GpBrush *() const override {
+        return (GpBrush *) this->_gpSolidFill;
     }
 
     [[nodiscard]] BrushBase *Clone() const override {
-        Brush *tmp{nullptr};
-        GdipCloneBrush((Brush *) this, &tmp);
-        return new SolidBrush{tmp};
+        return new SolidBrush{new SolidFill{*this->_gpSolidFill}};
     }
 
     GpStatus GetColor(Color *color) const {
@@ -85,21 +69,17 @@ public:
         return this->gpStatus;
     }
 
+    ~SolidBrush() {
+        GdipDeleteBrush((GpBrush *) this->_gpSolidFill);
+    }
+
 private:
     GpSolidFill *_gpSolidFill{nullptr};
 };
 
 class HatchBrush : public BrushBase {
 public:
-    HatchBrush(Brush *brush) {
-        if (((BrushClass *) brush)->type != BrushTypeHatchFill) {
-            throw std::invalid_argument{
-                    "can't init HatchBrush Object with not BrushTypeHatchFill type brush ptr"
-            };
-        }
-
-        this->_gpHatch = reinterpret_cast<GpHatch *>(brush);
-    }
+    HatchBrush(GpHatch *brush) : _gpHatch(brush) {}
 
     HatchBrush(HatchStyle hatchStyle,
                const Color &foreColor,
@@ -113,14 +93,16 @@ public:
 
     HatchBrush(const HatchBrush &) = delete;
 
-    explicit operator Brush *() const override {
-        return (Brush *) this->_gpHatch;
+    [[nodiscard]] operator GpBrush *() override {
+        return (GpBrush *) this->_gpHatch;
+    }
+
+    [[nodiscard]] operator GpBrush *() const override {
+        return (GpBrush *) this->_gpHatch;
     }
 
     [[nodiscard]] BrushBase *Clone() const override {
-        Brush *tmp{nullptr};
-        GdipCloneBrush((Brush *) this, &tmp);
-        return new HatchBrush{tmp};
+        return new HatchBrush{new GpHatch{*this->_gpHatch}};
     }
 
     HatchStyle GetHatchStyle() const {
@@ -143,21 +125,17 @@ public:
         return this->gpStatus;
     }
 
+    ~HatchBrush() {
+        GdipDeleteBrush((GpBrush *) this->_gpHatch);
+    }
+
 private:
     GpHatch *_gpHatch{nullptr};
 };
 
 class TextureBrush : public BrushBase {
 public:
-    TextureBrush(Brush *brush) {
-        if (((BrushClass *) brush)->type != BrushTypeTextureFill) {
-            throw std::invalid_argument{
-                    "can't init TextureBrush Object with not BrushTypeTextureFill type brush ptr"
-            };
-        }
-
-        this->_gpTexture = reinterpret_cast<GpTexture *>(brush);
-    }
+    TextureBrush(GpTexture *brush) : _gpTexture(brush) {}
 
     TextureBrush(ImageClass *image, WrapMode mode) {
         GdipCreateTexture((GpImage *) image, mode, &this->_gpTexture);
@@ -173,14 +151,20 @@ public:
 
     TextureBrush(const TextureBrush &) = delete;
 
-    explicit operator Brush *() const override {
-        return (Brush *) this->_gpTexture;
+    [[nodiscard]] operator GpBrush *() override {
+        return (GpBrush *) this->_gpTexture;
+    }
+
+    [[nodiscard]] operator GpBrush *() const override {
+        return (GpBrush *) this->_gpTexture;
     }
 
     [[nodiscard]] BrushBase *Clone() const override {
-        Brush *tmp{nullptr};
-        GdipCloneBrush((Brush *) this, &tmp);
-        return new TextureBrush{tmp};
+        return new TextureBrush{new GpTexture{*this->_gpTexture}};
+    }
+
+    ~TextureBrush() {
+        GdipDeleteBrush((GpBrush *) this->_gpTexture);
     }
 
 private:
@@ -189,15 +173,7 @@ private:
 
 class PathGradientBrush : public BrushBase {
 public:
-    PathGradientBrush(Brush *brush) {
-        if (((BrushClass *) brush)->type != BrushTypePathGradient) {
-            throw std::invalid_argument{
-                    "can't init PathGradientBrush Object with not BrushTypePathGradient type brush ptr"
-            };
-        }
-
-        this->_gpPathG = reinterpret_cast<GpPathGradient *>(brush);
-    }
+    PathGradientBrush(GpPathGradient *brush) : _gpPathG(brush) {}
 
     PathGradientBrush(const PointF *points, int count, WrapMode wrapMode) {
         GdipCreatePathGradient(points, count, wrapMode, &this->_gpPathG);
@@ -205,14 +181,16 @@ public:
 
     PathGradientBrush(const PathGradientBrush &) = delete;
 
-    explicit operator Brush *() const override {
-        return (Brush *) this->_gpPathG;
+    [[nodiscard]] operator GpBrush *() override {
+        return (GpBrush *) this->_gpPathG;
+    }
+
+    [[nodiscard]] operator GpBrush *() const override {
+        return (GpBrush *) this->_gpPathG;
     }
 
     [[nodiscard]] BrushBase *Clone() const override {
-        Brush *tmp{nullptr};
-        GdipCloneBrush((Brush *) this, &tmp);
-        return new PathGradientBrush{tmp};
+        return new PathGradientBrush{new GpPathGradient{*this->_gpPathG}};
     }
 
     GpStatus SetCenterColor(const Color &color) {
@@ -291,6 +269,10 @@ public:
         return this->gpStatus;
     }
 
+    ~PathGradientBrush() {
+        GdipDeleteBrush((GpBrush *) this->_gpPathG);
+    }
+
 private:
     GpPathGradient *_gpPathG{nullptr};
 };
@@ -298,15 +280,7 @@ private:
 class LinearGradientBrush : public BrushBase {
 public:
 
-    LinearGradientBrush(Brush *brush) {
-        if (((BrushClass *) brush)->type != BrushTypeLinearGradient) {
-            throw std::invalid_argument{
-                    "can't init LinearGradientBrush Object with not BrushTypeLinearGradient type brush ptr"
-            };
-        }
-
-        this->_gpLG = reinterpret_cast<GpLineGradient *>(brush);
-    }
+    LinearGradientBrush(GpLineGradient *brush) : _gpLG(brush) {}
 
     LinearGradientBrush(
             const PointF &point1, const PointF &point2,
@@ -347,14 +321,16 @@ public:
 
     LinearGradientBrush(const LinearGradientBrush &) = delete;
 
-    explicit operator Brush *() const override {
-        return (Brush *) this->_gpLG;
+    [[nodiscard]] operator GpBrush *() override {
+        return (GpBrush *) this->_gpLG;
+    }
+
+    [[nodiscard]] operator GpBrush *() const override {
+        return (GpBrush *) this->_gpLG;
     }
 
     [[nodiscard]] BrushBase *Clone() const override {
-        Brush *tmp{nullptr};
-        GdipCloneBrush((Brush *) this, &tmp);
-        return new LinearGradientBrush{tmp};
+        return new LinearGradientBrush{new GpLineGradient{*this->_gpLG}};
     }
 
     GpStatus SetWrapMode(WrapMode wrapMode) {
@@ -399,6 +375,10 @@ public:
                 blendPositions, count
         );
         return this->gpStatus;
+    }
+
+    ~LinearGradientBrush() {
+        GdipDeleteBrush((GpBrush *) this->_gpLG);
     }
 
 private:
