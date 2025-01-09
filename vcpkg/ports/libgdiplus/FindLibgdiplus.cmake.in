@@ -28,7 +28,7 @@ function(append_dependencies out)
     endif()
     set(pass_through
         ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES}
-        z jpeg libpng cairo glib tiff libexif
+        user32 -pthread -pthreads pthread atomic m
     )
     cmake_policy(SET CMP0057 NEW)
     foreach(lib_name IN LISTS arg_NAMES)
@@ -66,7 +66,7 @@ if (Libgdiplus_LIBRARY AND Libgdiplus_INCLUDE_DIRS)
     list(APPEND Libgdiplus_LIBRARIES ${Libgdiplus_LIBRARY})
 endif()
 
-if (libavutil_FOUND)
+if (Libgdiplus_FOUND)
   list(REMOVE_DUPLICATES Libgdiplus_INCLUDE_DIRS)
   set(Libgdiplus_VERSION "@VERSION@" CACHE STRING "")
 

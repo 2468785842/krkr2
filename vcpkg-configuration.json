@@ -5,6 +5,9 @@
     "baseline": "834977918592e4f5d5ec5fe48ba338c608faf9f9"
   },
   "overlay-ports": [
-    "./ports"
+    "./vcpkg/ports"
+  ],
+  "overlay-triplets": [
+    "./vcpkg/triplets"
   ]
 }

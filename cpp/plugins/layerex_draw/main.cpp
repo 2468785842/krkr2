@@ -1,5 +1,5 @@
-#include "ncbind.hpp"
 #include "LayerExDraw.hpp"
+#include "ncbind.hpp"
 
 extern void initGdiPlus();
 
@@ -105,7 +105,7 @@ NCB_REGISTER_SUBCLASS_DELAY(PointFClass) {
     NCB_METHOD(Equals);
 }
 
-PointF getPoint(const tTJSVariant &var) {
+PointFClass getPoint(const tTJSVariant &var) {
     PointFConvertor<PointF> conv{};
     PointF ret;
     conv(ret, var);
@@ -179,7 +179,7 @@ NCB_REGISTER_SUBCLASS_DELAY(RectFClass) {
     NCB_METHOD(Union);
 }
 
-RectF getRect(const tTJSVariant &var) {
+RectFClass getRect(const tTJSVariant &var) {
     RectFConvertor<RectF> conv;
     RectF ret;
     conv(ret, var);
@@ -353,9 +353,10 @@ struct MatrixConvertor : public GdipTypeConvertor<MatrixClass> {
     }
 };
 
-static tjs_error
-MatrixFactory(GdipWrapper<MatrixClass> **result, tjs_int numparams, tTJSVariant **params,
-              iTJSDispatch2 *objthis) {
+static tjs_error MatrixFactory(
+        GdipWrapper<MatrixClass> **result, tjs_int numparams,
+        tTJSVariant **params, iTJSDispatch2 *objthis
+) {
     MatrixClass *matrix = nullptr;
     RectF *rect = nullptr;
     PointF *point = nullptr;
@@ -436,9 +437,10 @@ struct ImageConvertor : public GdipTypeConvertor<ImageClass> {
 };
 
 
-static tjs_error
-ImageFactory(GdipWrapper<ImageClass> **result, tjs_int numparams, tTJSVariant **params,
-             iTJSDispatch2 *objthis) {
+static tjs_error ImageFactory(
+        GdipWrapper<ImageClass> **result, tjs_int numparams,
+        tTJSVariant **params, iTJSDispatch2 *objthis
+) {
     if (numparams == 0) {
         *result = new GdipWrapper<ImageClass>();
         return TJS_S_OK;
@@ -470,7 +472,7 @@ static tTJSVariant ImageClone(GdipWrapper<ImageClass> *obj) {
     ImageClass *src = obj->getGdipObject();
     if (src) {
         ImageClass *newimage = src->Clone();
-        iTJSDispatch2 *adpobj = AdaptorT::CreateAdaptor((ImageClass*) new WrapperT(newimage));
+        iTJSDispatch2 *adpobj = AdaptorT::CreateAdaptor((ImageClass *) new WrapperT(newimage));
         if (adpobj) {
             ret = tTJSVariant(adpobj, adpobj);
             adpobj->Release();
@@ -580,8 +582,6 @@ NCB_REGISTER_SUBCLASS(DrawPath) {
 }
 
 #define ENUM(n) Variant(#n, (int)n)
-#define NCB_SUBCLASS_NAME(name) NCB_SUBCLASS(name, name)
-#define NCB_GDIP_SUBCLASS(Class) NCB_SUBCLASS(Class, GdipWrapper<Class>)
 
 NCB_REGISTER_CLASS(GdiPlus) {
     // enums
@@ -767,36 +767,13 @@ NCB_REGISTER_CLASS(GdiPlus) {
 // classes
     NCB_SUBCLASS(PointF, PointFClass);
     NCB_SUBCLASS(RectF, RectFClass);
-
-    NCB_SUBCLASS(Image, ImageClass);
-    NCB_SUBCLASS(Matrix, MatrixClass);
+    NCB_SUBCLASS(Image, GdipWrapper<ImageClass>);
+    NCB_SUBCLASS(Matrix, GdipWrapper<MatrixClass>);
 
     NCB_SUBCLASS(Font, FontInfo);
     NCB_SUBCLASS(Appearance, Appearance);
     NCB_SUBCLASS(Path, DrawPath);
 }
-
-#if 0
-template <class T>
-struct LayerExConvertor {
-    typedef T *ClassP;
-    void operator ()(ClassP &dst, const tTJSVariant &src) {
-        if (src.Type() == tvtObject) {
-            LayerExDraw *layer = ncbInstanceAdaptor<LayerExDraw>::GetNativeInstance(src.AsObjectNoAddRef());
-            if (layer) {
-                *dst = (ClassP)layer;
-            } else {
-                *dst = nullptr;
-            }
-        }
-    }
-};
-#define LAYEREXCONV(type) \
-NCB_SET_CONVERTOR(type*, LayerExConvertor<type>) \
-NCB_SET_CONVERTOR(const type*, LayerExConvertor<const type>) \
-LAYEREXCONV(Bitmap);
-LAYEREXCONV(Graphics);
-#endif
 
 NCB_GET_INSTANCE_HOOK(LayerExDraw)
 {
@@ -821,15 +798,16 @@ NCB_GET_INSTANCE_HOOK(LayerExDraw)
 /**
  * GpImage はラッピングする必要があるので rawcallback で対応
  */
-static tjs_error TJS_INTF_METHOD
-GetRecordImage(tTJSVariant *result, tjs_int numparams,
-               tTJSVariant **param, iTJSDispatch2 *objthis) {
+static tjs_error TJS_INTF_METHOD GetRecordImage(
+        tTJSVariant *result, tjs_int numparams,
+        tTJSVariant **param, iTJSDispatch2 *objthis
+) {
     LayerExDraw *obj = ncbInstanceAdaptor<LayerExDraw>::GetNativeInstance(objthis, true);
     if (result) result->Clear();
     if (obj) {
-        GpImage *image = obj->getRecordImage();
+        auto *image = obj->getRecordImage();
         if (image) {
-            typedef GdipWrapper<GpImage> WrapperT;
+            typedef GdipWrapper<ImageClass> WrapperT;
             WrapperT *wrap = new WrapperT(image);
             iTJSDispatch2 *adpobj = ncbInstanceAdaptor<WrapperT>::CreateAdaptor(wrap);
             if (adpobj) {

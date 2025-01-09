@@ -4,7 +4,7 @@
 
 #ifndef KRKR2_GDIP_CXX_BRUSH_H
 #define KRKR2_GDIP_CXX_BRUSH_H
-
+extern "C" {
 #include <gdiplus-private.h>
 #include <brush-private.h>
 #include <solidbrush-private.h>
@@ -12,6 +12,8 @@
 #include <texturebrush-private.h>
 #include <pathgradientbrush-private.h>
 #include <lineargradientbrush-private.h>
+}
+
 #include <stdexcept>
 
 class [[nodiscard]] BrushBase {

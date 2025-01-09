@@ -5,7 +5,6 @@
 
 #ifndef KRKR2_WIN32_DT_H
 #define KRKR2_WIN32_DT_H
-#include <cstdint>
 
 typedef void *PVOID;
 typedef PVOID HANDLE;

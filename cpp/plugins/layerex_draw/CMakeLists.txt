@@ -3,7 +3,7 @@ project(layerExDraw)
 
 add_library(${PROJECT_NAME} STATIC
 	LayerExDraw.cpp
-	Path.cpp
+    DrawPath.cpp
 	main.cpp
 )
 

@@ -56,7 +56,7 @@
 #define MWT_LEFTMULTIPLY	2
 #define MWT_RIGHTMULTIPLY	3
 
-typedef int LANGID;
+typedef unsigned short LANGID;
 typedef int INT;
 typedef uint32_t UINT;
 typedef uint32_t ARGB;
@@ -98,7 +98,7 @@ typedef int16_t SHORT;
 typedef int32_t LONG;
 typedef uint32_t ULONG;
 typedef int32_t *PLONG;
-typedef int64_t LONGLONG;
+typedef unsigned long LONGLONG;
 //typedef tjs_char TCHAR;
 typedef size_t SIZE_T;
 
@@ -152,19 +152,19 @@ typedef struct _FILETIME
 } 	FILETIME;
 typedef void *HWND;
 #define TYPE_RECT_DEFINED
-typedef struct {
-	int	left;
-	int	top;
-	int	right;
-	int	bottom;
-} RECT, RECTL;
+//typedef struct {
+//	int	left;
+//	int	top;
+//	int	right;
+//	int	bottom;
+//} RECT, RECTL;
 typedef intptr_t			LONG_PTR;
 typedef LONG HRESULT;
 #define TYPE_GUID_DEFINED
-typedef struct {
-	DWORD Data1;
-	WORD  Data2;
-	WORD  Data3;
-	BYTE  Data4[8];
-} GUID, Guid, CLSID;
+//typedef struct {
+//	DWORD Data1;
+//	WORD  Data2;
+//	WORD  Data3;
+//	BYTE  Data4[8];
+//} GUID, Guid, CLSID;
 #endif

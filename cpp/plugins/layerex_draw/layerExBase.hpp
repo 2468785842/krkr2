@@ -89,14 +89,14 @@ struct layerExBase {
               _pClipTop(obj, TJS_W("clipTop")),
               _pClipWidth(obj, TJS_W("clipWidth")),
               _pClipHeight(obj, TJS_W("clipHeight")),
-              _width(0), _height(0), _pitch(0), _buffer(0), _clipLeft(0), _clipTop(0),
+              _width(0), _height(0), _pitch(0), _buffer(nullptr), _clipLeft(0), _clipTop(0),
               _clipWidth(0), _clipHeight(0) {
     }
 
     /**
      * デストラクタ
      */
-    virtual ~layerExBase() {}
+    virtual ~layerExBase() = default;
 
     /**
      * 再描画指定
@@ -138,7 +138,7 @@ struct layerExBase_GL {
     typedef tjs_int GeometryT;
     typedef tjs_int PitchT;
     typedef unsigned char *BufferT;
-    typedef unsigned char *BufferRT;
+//    typedef unsigned char *BufferRT;
 
     tTJSNI_Layer *_this;
 
@@ -153,8 +153,10 @@ struct layerExBase_GL {
     layerExBase_GL(DispatchT obj)
             : _obj(obj) {
         tjs_error hr;
-        hr = obj->NativeInstanceSupport(TJS_NIS_GETINSTANCE,
-                                        tTJSNC_Layer::ClassID, (iTJSNativeInstance **) &_this);
+        hr = obj->NativeInstanceSupport(
+                TJS_NIS_GETINSTANCE, tTJSNC_Layer::ClassID,
+                (iTJSNativeInstance **) &_this
+        );
         if (TJS_FAILED(hr)) TVPThrowExceptionMessage(TJS_W("Not Layer"));
         _buffer = nullptr;
         _pitch = 0;

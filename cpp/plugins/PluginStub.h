@@ -11,4 +11,3 @@
 #include "MsgIntf.h"
 //#include "PluginImpl.h"
 #include "CharacterSet.h"
-#include "combase.h"

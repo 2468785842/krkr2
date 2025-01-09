@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
 
-set(VCPKG_CMAKE_SYSTEM_NAME "Android")
-
 set(VCPKG_TARGET_ANDROID ON)
 
 set(ENV{ANDROID_NDK_HOME} "$ENV{ANDROID_NDK}")
@@ -24,7 +22,7 @@ find_package(COCOS2DX REQUIRED)
 
 set(COCOS2DX_PATH "${COCOS2DX_SOURCE_DIR}")
 
-include_directories( 
+include_directories(
     ${COCOS2DX_PATH}
     ${COCOS2DX_PATH}/cocos
     ${COCOS2DX_PATH}/cocos/scripting
@@ -45,7 +43,7 @@ set(COCOS2DX_EXTERNAL_HEADER_DIRS
     ${COCOS2DX_PATH}/external/bullet/prebuilt/android/${ANDROID_ABI}
 )
 
-find_package(FFMPEG COMPONENTS 
+find_package(FFMPEG COMPONENTS
     avutil
     avfilter
     avcodec
@@ -67,7 +65,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${COCOS2DX_PATH}/cocos/audio/include
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::breakpad::libbreakpad_client)
+target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::breakpad::libbreakpad_client cpufeatures)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     -Wl,-Bstatic

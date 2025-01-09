@@ -9,10 +9,15 @@
 #include "gdip_cxx_brush.h"
 #include "gdip_cxx_pen.h"
 
+extern "C" {
+#include <text.h>
+#include <adjustablearrowcap.h>
+}
+
 #include "PluginStub.h"
+#include "combase.h"
 #include "layerExBase.hpp"
 
-#include <GdiPlusFlat.h>
 using namespace std;
 
 /**
@@ -185,7 +190,7 @@ public:
      * @param ox 表示オフセットX
      * @param oy 表示オフセットY
      */
-    void addBrush(const tTJSVariant &colorOrBrush, REAL ox = 0, REAL oy = 0);
+    void addBrush(tTJSVariant colorOrBrush, REAL ox = 0, REAL oy = 0);
 
     /**
      * ペンの追加
@@ -213,9 +218,13 @@ class DrawPath {
     friend class LayerExDraw;
 
 public:
-    DrawPath();
+    DrawPath() {
+        GdipCreatePath(FillModeAlternate, &this->path);
+    };
 
-    virtual ~DrawPath();
+    ~DrawPath() {
+        GdipDeletePath(this->path);
+    }
 
     void startFigure();
 
@@ -252,7 +261,7 @@ public:
     void drawRectangles(tTJSVariant rects);
 
 protected:
-    GpPath path;
+    GpPath *path;
 };
 
 /*
@@ -301,14 +310,13 @@ public:
 
 protected:
     /// 描画内容記録用メタファイル
-    HGLOBAL metaBuffer;
-    IStream *metaStream;
+    LOGFONTW font;
     GpMetafile *metafile;
     GpGraphics *metaGraphics;
 
     bool updateWhenDraw;
 
-    void updateRect(RectF &rect);
+    void updateRect(RectFClass &rect);
 
 public:
     void setUpdateWhenDraw(int updateWhenDraw) {
@@ -392,7 +400,7 @@ protected:
      * @param path 描画するパス
      * @return 更新領域情報
      */
-    RectF getPathExtents(const Appearance *app, const GpPath *path);
+    RectFClass getPathExtents(const Appearance *app, /* const */ GpPath *path);
 
     /**
      * パスの描画用下請け処理
@@ -401,8 +409,10 @@ protected:
      * @param matrix 描画位置調整用matrix
      * @param path 描画内容
      */
-    void
-    draw(GpGraphics *graphics, const GpPen *pen, const MatrixClass *matrix, const GpPath *path);
+    void draw(
+            GpGraphics *graphics, const Pen *pen,
+            const MatrixClass *matrix, const GpPath *path
+    );
 
     /**
      * 塗りの描画用下請け処理
@@ -411,8 +421,10 @@ protected:
      * @param matrix 描画位置調整用matrix
      * @param path 描画内容
      */
-    void
-    fill(GpGraphics *graphics, const Brush *brush, const MatrixClass *matrix, const GpPath *path);
+    void fill(
+            GpGraphics *graphics, const BrushBase *brush,
+            const MatrixClass *matrix, const GpPath *path
+    );
 
     /**
      * パスの描画
@@ -420,7 +432,7 @@ protected:
      * @param path 描画するパス
      * @return 更新領域情報
      */
-    RectF _drawPath(const Appearance *app, const GpPath *path);
+    RectFClass _drawPath(const Appearance *app, GpPath *path);
 
     /**
      * グリフアウトラインの取得
@@ -429,7 +441,7 @@ protected:
      * @param path グリフを書き出すパス
      * @param glyph 描画するグリフ
      */
-    void getGlyphOutline(const FontInfo *font, PointF &offset, GpPath *path, UINT glyph);
+//    void getGlyphOutline(const FontInfo *font, PointF &offset, GpPath *path, UINT glyph);
 
     /*
      * テキストアウトラインの取得
@@ -438,7 +450,7 @@ protected:
      * @param path グリフを書き出すパス
      * @param text 描画するテキスト
      */
-    void getTextOutline(const FontInfo *font, PointF &offset, GpPath *path, ttstr text);
+    void getTextOutline(const FontInfo *font, PointFClass &offset, GpPath *path, const ttstr &text);
 
 public:
     /**
@@ -452,7 +464,7 @@ public:
      * @param app アピアランス
      * @param path パス
      */
-    RectF drawPath(const Appearance *app, const GpPath *path);
+    RectFClass drawPath(const Appearance *app, const DrawPath *path);
 
     /**
      * 円弧の描画
@@ -465,8 +477,11 @@ public:
      * @param sweepAngle 描画角度
      * @return 更新領域情報
      */
-    RectF drawArc(const Appearance *app, REAL x, REAL y, REAL width, REAL height, REAL startAngle,
-                  REAL sweepAngle);
+    RectFClass drawArc(
+            const Appearance *app,
+            REAL x, REAL y, REAL width, REAL height, REAL startAngle,
+            REAL sweepAngle
+    );
 
     /**
      * 円錐の描画
@@ -479,8 +494,11 @@ public:
      * @param sweepAngle 描画角度
      * @return 更新領域情報
      */
-    RectF drawPie(const Appearance *app, REAL x, REAL y, REAL width, REAL height, REAL startAngle,
-                  REAL sweepAngle);
+    RectFClass drawPie(
+            const Appearance *app,
+            REAL x, REAL y, REAL width, REAL height, REAL startAngle,
+            REAL sweepAngle
+    );
 
     /**
      * ベジェ曲線の描画
@@ -495,9 +513,11 @@ public:
      * @param y4
      * @return 更新領域情報
      */
-    RectF
-    drawBezier(const Appearance *app, REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3, REAL x4,
-               REAL y4);
+    RectFClass drawBezier(
+            const Appearance *app,
+            REAL x1, REAL y1, REAL x2, REAL y2,
+            REAL x3, REAL y3, REAL x4, REAL y4
+    );
 
     /**
      * 連続ベジェ曲線の描画
@@ -505,7 +525,7 @@ public:
      * @param points 点の配列
      * @return 更新領域情報
      */
-    RectF drawBeziers(const Appearance *app, tTJSVariant points);
+    RectFClass drawBeziers(const Appearance *app, tTJSVariant points);
 
     /**
      * Closed cardinal spline の描画
@@ -513,7 +533,7 @@ public:
      * @param points 点の配列
      * @return 更新領域情報
      */
-    RectF drawClosedCurve(const Appearance *app, tTJSVariant points);
+    RectFClass drawClosedCurve(const Appearance *app, tTJSVariant points);
 
     /**
      * Closed cardinal spline の描画
@@ -522,7 +542,7 @@ public:
      * @pram tension tension
      * @return 更新領域情報
      */
-    RectF drawClosedCurve2(const Appearance *app, tTJSVariant points, REAL tension);
+    RectFClass drawClosedCurve2(const Appearance *app, tTJSVariant points, REAL tension);
 
     /**
      * cardinal spline の描画
@@ -530,7 +550,7 @@ public:
      * @param points 点の配列
      * @return 更新領域情報
      */
-    RectF drawCurve(const Appearance *app, tTJSVariant points);
+    RectFClass drawCurve(const Appearance *app, tTJSVariant points);
 
     /**
      * cardinal spline の描画
@@ -539,7 +559,7 @@ public:
      * @parma tension tension
      * @return 更新領域情報
      */
-    RectF drawCurve2(const Appearance *app, tTJSVariant points, REAL tension);
+    RectFClass drawCurve2(const Appearance *app, tTJSVariant points, REAL tension);
 
     /**
      * cardinal spline の描画
@@ -550,8 +570,9 @@ public:
      * @param tension tension
      * @return 更新領域情報
      */
-    RectF drawCurve3(const Appearance *app, tTJSVariant points, int offset, int numberOfSegments,
-                     REAL tension);
+    RectFClass
+    drawCurve3(const Appearance *app, tTJSVariant points, int offset, int numberOfSegments,
+               REAL tension);
 
     /**
      * 楕円の描画
@@ -562,7 +583,7 @@ public:
      * @param height
      * @return 更新領域情報
      */
-    RectF drawEllipse(const Appearance *app, REAL x, REAL y, REAL width, REAL height);
+    RectFClass drawEllipse(const Appearance *app, REAL x, REAL y, REAL width, REAL height);
 
     /**
      * 線分の描画
@@ -573,7 +594,7 @@ public:
      * @param y2 終点Y座標
      * @return 更新領域情報
      */
-    RectF drawLine(const Appearance *app, REAL x1, REAL y1, REAL x2, REAL y2);
+    RectFClass drawLine(const Appearance *app, REAL x1, REAL y1, REAL x2, REAL y2);
 
     /**
      * 連続線分の描画
@@ -581,7 +602,7 @@ public:
      * @param points 点の配列
      * @return 更新領域情報
      */
-    RectF drawLines(const Appearance *app, tTJSVariant points);
+    RectFClass drawLines(const Appearance *app, tTJSVariant points);
 
     /**
      * 多角形の描画
@@ -589,7 +610,7 @@ public:
      * @param points 点の配列
      * @return 更新領域情報
      */
-    RectF drawPolygon(const Appearance *app, tTJSVariant points);
+    RectFClass drawPolygon(const Appearance *app, tTJSVariant points);
 
     /**
      * 矩形の描画
@@ -600,7 +621,7 @@ public:
      * @param height
      * @return 更新領域情報
      */
-    RectF drawRectangle(const Appearance *app, REAL x, REAL y, REAL width, REAL height);
+    RectFClass drawRectangle(const Appearance *app, REAL x, REAL y, REAL width, REAL height);
 
     /**
      * 複数矩形の描画
@@ -608,7 +629,7 @@ public:
      * @param rects 矩形情報の配列
      * @return 更新領域情報
      */
-    RectF drawRectangles(const Appearance *app, tTJSVariant rects);
+    RectFClass drawRectangles(const Appearance *app, tTJSVariant rects);
 
     /**
      * 文字列の描画
@@ -619,8 +640,8 @@ public:
      * @param text 描画テキスト
      * @return 更新領域情報
      */
-    RectF drawPathString(const FontInfo *font, const Appearance *app, REAL x, REAL y,
-                         const tjs_char *text);
+    RectFClass drawPathString(const FontInfo *font, const Appearance *app, REAL x, REAL y,
+                              const tjs_char *text);
 
     /**
      * 文字列の描画(OpenTypeのPostScriptフォント対応)
@@ -631,8 +652,8 @@ public:
      * @param text 描画テキスト
      * @return 更新領域情報
      */
-    RectF drawPathString2(const FontInfo *font, const Appearance *app, REAL x, REAL y,
-                          const tjs_char *text);
+    RectFClass drawPathString2(const FontInfo *font, const Appearance *app, REAL x, REAL y,
+                               const tjs_char *text);
 
     // -------------------------------------------------------------------------------
 
@@ -645,7 +666,7 @@ public:
      * @param text 描画テキスト
      * @return 更新領域情報
      */
-    RectF
+    RectFClass
     drawString(const FontInfo *font, const Appearance *app, REAL x, REAL y, const tjs_char *text);
 
     /**
@@ -654,7 +675,7 @@ public:
      * @param text 描画テキスト
      * @return 更新領域情報の辞書 left, top, width, height
      */
-    RectF measureString(const FontInfo *font, const tjs_char *text);
+    RectFClass measureString(const FontInfo *font, const tjs_char *text);
 
     /**
      * 文字列にぴったりと接っする矩形の取得
@@ -662,7 +683,7 @@ public:
      * @param text 描画テキスト
      * @return 領域情報の辞書 left, top, width, height
      */
-    RectF measureStringInternal(const FontInfo *font, const tjs_char *text);
+    RectFClass measureStringInternal(const FontInfo *font, const tjs_char *text);
 
     /**
      * 文字列の描画更新領域情報の取得(OpenTypeのPostScriptフォント対応)
@@ -670,7 +691,7 @@ public:
      * @param text 描画テキスト
      * @return 更新領域情報の辞書 left, top, width, height
      */
-    RectF measureString2(const FontInfo *font, const tjs_char *text);
+    RectFClass measureString2(const FontInfo *font, const tjs_char *text);
 
     /**
      * 文字列にぴったりと接っする矩形の取得(OpenTypeのPostScriptフォント対応)
@@ -678,7 +699,7 @@ public:
      * @param text 描画テキスト
      * @return 領域情報の辞書 left, top, width, height
      */
-    RectF measureStringInternal2(const FontInfo *font, const tjs_char *text);
+    RectFClass measureStringInternal2(const FontInfo *font, const tjs_char *text);
 
     // -----------------------------------------------------------------------------
 
@@ -689,7 +710,7 @@ public:
      * @param image コピー元画像
      * @return 更新領域情報
      */
-    RectF drawImage(REAL x, REAL y, ImageClass *src);
+    RectFClass drawImage(REAL x, REAL y, ImageClass *src);
 
     /**
      * 画像の矩形コピー
@@ -702,8 +723,9 @@ public:
      * @param sheight  元矩形の縦幅
      * @return 更新領域情報
      */
-    RectF drawImageRect(REAL dleft, REAL dtop, ImageClass *src, REAL sleft, REAL stop, REAL swidth,
-                        REAL sheight);
+    RectFClass
+    drawImageRect(REAL dleft, REAL dtop, ImageClass *src, REAL sleft, REAL stop, REAL swidth,
+                  REAL sheight);
 
     /**
      * 画像の拡大縮小コピー
@@ -718,7 +740,7 @@ public:
      * @param sheight  元矩形の縦幅
      * @return 更新領域情報
      */
-    RectF
+    RectFClass
     drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, ImageClass *src, REAL sleft,
                      REAL stop, REAL swidth, REAL sheight);
 
@@ -732,7 +754,7 @@ public:
      * @param affine アフィンパラメータの種類(true:変換行列, false:座標指定),
      * @return 更新領域情報
      */
-    RectF
+    RectFClass
     drawImageAffine(ImageClass *src, REAL sleft, REAL stop, REAL swidth, REAL sheight, bool affine,
                     REAL A, REAL B, REAL C, REAL D, REAL E, REAL F);
 

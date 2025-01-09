@@ -4,7 +4,6 @@
   "version-string": "1.4.0",
   "dependencies": [
     "libgdiplus",
-    "glib",
     "boost-iostreams",
     "boost-spirit",
     "boost-phoenix",

@@ -8,7 +8,5 @@ subprojects {
 }
 
 tasks.register('clean', Delete) {
-    allprojects {
-        delete layout.buildDirectory
-    }
+    delete "${rootDir}/out"
 }

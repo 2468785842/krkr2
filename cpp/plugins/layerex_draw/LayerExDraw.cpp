@@ -10,7 +10,7 @@ static ULONG_PTR gdiplusToken;
 
 /// プライベートフォント情報
 static PrivateFontCollection *privateFontCollection = nullptr;
-static vector<void *> fontDatas;
+static std::vector<char *> fontDatas;
 
 static float ToFloat(FIXED &pfx) {
     LONG l = *(LONG *) &pfx;
@@ -53,7 +53,7 @@ ImageClass *loadImage(const tjs_char *name) {
         ttstr localname(TVPGetLocallyAccessibleName(filename));
         if (localname.length()) {
             // 実ファイルが存在
-            static_assert(sizeof(tjs_char) == sizeof(WCHAR), "loadImage Sizes differ!");
+            static_assert(sizeof(tjs_char) == sizeof(WCHAR), "loadImage Method Sizes differ!");
             const auto *n = reinterpret_cast<const WCHAR *>(localname.c_str());
             image = ImageClass::FromFile(n, false);
         }
@@ -126,7 +126,7 @@ void GdiPlus::addPrivateFont(const tjs_char *fontFileName) {
         ttstr localname(TVPGetLocallyAccessibleName(filename));
         if (localname.length()) {
             // 実ファイルが存在
-            static_assert(sizeof(tjs_char) == sizeof(WCHAR), "addPrivateFont Sizes differ!");
+            static_assert(sizeof(tjs_char) == sizeof(WCHAR), "addPrivateFont Method Sizes differ!");
             const auto *n = reinterpret_cast<const WCHAR *>(localname.c_str());
             privateFontCollection->AddFontFile(n);
             return;
@@ -137,7 +137,7 @@ void GdiPlus::addPrivateFont(const tjs_char *fontFileName) {
                 STATSTG stat;
                 in->Stat(&stat, STATFLAG_NONAME);
                 // サイズあふれ無視注意
-                ULONG size = (ULONG) stat.cbSize.QuadPart;
+                auto size = (ULONG) stat.cbSize.QuadPart;
                 char *data = new char[size];
                 if (in->Read(data, size, &size) == TJS_S_OK) {
                     privateFontCollection->AddMemoryFont(data, size);
@@ -168,12 +168,13 @@ static void addFontFamilyName(iTJSDispatch2 *array, GpFontCollection *fontCollec
         GpFontFamily family = families[i];
         auto status = GdipGetFamilyName(&family, familyName, 0);
         if (status == Ok) {
-            static_assert(sizeof(tjs_char) == sizeof(WCHAR), "addFontFamilyName Sizes differ!");
+            static_assert(sizeof(tjs_char) == sizeof(WCHAR),
+                          "addFontFamilyName Method Sizes differ!");
             tTJSVariant name(reinterpret_cast<tjs_char *>(familyName)), *param = &name;
             array->FuncCall(0, TJS_W("add"), nullptr, 0, 1, &param, array);
         }
     }
-    delete[]families;
+    delete[] families;
 }
 
 /**
@@ -258,7 +259,7 @@ void FontInfo::clear() {
  */
 void
 FontInfo::setFamilyName(const tjs_char *familyName) {
-    static_assert(sizeof(tjs_char) == sizeof(WCHAR), "setFamilyName Sizes differ!");
+    static_assert(sizeof(tjs_char) == sizeof(WCHAR), "setFamilyName Method Sizes differ!");
 
     propertyModified = true;
 
@@ -389,8 +390,7 @@ Appearance::~Appearance() {
 /**
  * 情報のクリア
  */
-void
-Appearance::clear() {
+void Appearance::clear() {
     drawInfos.clear();
 
     // customLineCapsも削除
@@ -411,12 +411,12 @@ extern bool IsArray(const tTJSVariant &var);
 /**
  * 座標情報の生成
  */
-extern PointF getPoint(const tTJSVariant &var);
+extern PointFClass getPoint(const tTJSVariant &var);
 
 /**
  * 点の配列を取得
  */
-void getPoints(const tTJSVariant &var, vector<PointF> &points) {
+void getPoints(const tTJSVariant &var, std::vector<PointFClass> &points) {
     ncbPropAccessor info(var);
     int c = info.GetArrayCount();
     for (int i = 0; i < c; i++) {
@@ -427,14 +427,14 @@ void getPoints(const tTJSVariant &var, vector<PointF> &points) {
     }
 }
 
-static void getPoints(ncbPropAccessor &info, int n, vector<PointF> &points) {
+static void getPoints(ncbPropAccessor &info, int n, std::vector<PointFClass> &points) {
     tTJSVariant var;
     if (info.checkVariant(n, var)) {
         getPoints(var, points);
     }
 }
 
-static void getPoints(ncbPropAccessor &info, const tjs_char *n, vector<PointF> &points) {
+static void getPoints(ncbPropAccessor &info, const tjs_char *n, std::vector<PointFClass> &points) {
     tTJSVariant var;
     if (info.checkVariant(n, var)) {
         getPoints(var, points);
@@ -446,12 +446,12 @@ static void getPoints(ncbPropAccessor &info, const tjs_char *n, vector<PointF> &
 /**
  * 矩形情報の生成
  */
-extern RectF getRect(const tTJSVariant &var);
+extern RectFClass getRect(const tTJSVariant &var);
 
 /**
  * 矩形の配列を取得
  */
-void getRects(const tTJSVariant &var, vector<RectF> &rects) {
+void getRects(const tTJSVariant &var, std::vector<RectFClass> &rects) {
     ncbPropAccessor info(var);
     int c = info.GetArrayCount();
     for (int i = 0; i < c; i++) {
@@ -467,7 +467,7 @@ void getRects(const tTJSVariant &var, vector<RectF> &rects) {
 /**
  * 実数の配列を取得
  */
-static void getReals(const tTJSVariant &var, vector<REAL> &points) {
+static void getReals(tTJSVariant var, std::vector<REAL> &points) {
     ncbPropAccessor info(var);
     int c = info.GetArrayCount();
     for (int i = 0; i < c; i++) {
@@ -475,14 +475,14 @@ static void getReals(const tTJSVariant &var, vector<REAL> &points) {
     }
 }
 
-static void getReals(ncbPropAccessor &info, int n, vector<REAL> &points) {
+static void getReals(ncbPropAccessor &info, int n, std::vector<REAL> &points) {
     tTJSVariant var;
     if (info.checkVariant(n, var)) {
         getReals(var, points);
     }
 }
 
-static void getReals(ncbPropAccessor &info, const tjs_char *n, vector<REAL> &points) {
+static void getReals(ncbPropAccessor &info, const tjs_char *n, std::vector<REAL> &points) {
     tTJSVariant var;
     if (info.checkVariant(n, var)) {
         getReals(var, points);
@@ -494,7 +494,7 @@ static void getReals(ncbPropAccessor &info, const tjs_char *n, vector<REAL> &poi
 /**
  * 色の配列を取得
  */
-static void getColors(const tTJSVariant &var, vector<Color> &colors) {
+static void getColors(tTJSVariant var, std::vector<Color> &colors) {
     ncbPropAccessor info(var);
     int c = info.GetArrayCount();
     for (int i = 0; i < c; i++) {
@@ -502,14 +502,14 @@ static void getColors(const tTJSVariant &var, vector<Color> &colors) {
     }
 }
 
-static void getColors(ncbPropAccessor &info, int n, vector<Color> &colors) {
+static void getColors(ncbPropAccessor &info, int n, std::vector<Color> &colors) {
     tTJSVariant var;
     if (info.checkVariant(n, var)) {
         getColors(var, colors);
     }
 }
 
-static void getColors(ncbPropAccessor &info, const tjs_char *n, vector<Color> &colors) {
+static void getColors(ncbPropAccessor &info, const tjs_char *n, std::vector<Color> &colors) {
     tTJSVariant var;
     if (info.checkVariant(n, var)) {
         getColors(var, colors);
@@ -590,7 +590,7 @@ void commonBrushParameter(ncbPropAccessor &info, T *brush) {
 /**
  * ブラシの生成
  */
-BrushBase *createBrush(const tTJSVariant &colorOrBrush) {
+BrushBase *createBrush(tTJSVariant colorOrBrush) {
     BrushBase *brush;
     if (colorOrBrush.Type() != tvtObject) {
         brush = new SolidBrush{Color{(ARGB) (tjs_int) colorOrBrush}};
@@ -627,7 +627,7 @@ BrushBase *createBrush(const tTJSVariant &colorOrBrush) {
             }
             case BrushTypePathGradient: {
                 PathGradientBrush *pbrush;
-                vector<PointF> points;
+                vector<PointFClass> points;
                 getPoints(info, TJS_W("points"), points);
                 if ((int) points.size() == 0) TVPThrowExceptionMessage(TJS_W("must set poins"));
                 WrapMode wrapMode = (WrapMode) info.getIntValue(TJS_W("wrapMode"), WrapModeTile);
@@ -673,12 +673,12 @@ BrushBase *createBrush(const tTJSVariant &colorOrBrush) {
 
                 tTJSVariant var;
                 if (info.checkVariant(TJS_W("point1"), var)) {
-                    PointF point1 = getPoint(var);
+                    PointFClass point1 = getPoint(var);
                     info.checkVariant(TJS_W("point2"), var);
-                    PointF point2 = getPoint(var);
+                    PointFClass point2 = getPoint(var);
                     lbrush = new LinearGradientBrush{point1, point2, color1, color2};
                 } else if (info.checkVariant(TJS_W("rect"), var)) {
-                    RectF rect = getRect(var);
+                    RectFClass rect = getRect(var);
                     if (info.HasValue(TJS_W("angle"))) {
                         // アングル指定がある場合
                         lbrush = new LinearGradientBrush{
@@ -724,8 +724,7 @@ BrushBase *createBrush(const tTJSVariant &colorOrBrush) {
  * @param ox 表示オフセットX
  * @param oy 表示オフセットY
  */
-void
-Appearance::addBrush(const tTJSVariant &colorOrBrush, REAL ox, REAL oy) {
+void Appearance::addBrush(tTJSVariant colorOrBrush, REAL ox, REAL oy) {
     drawInfos.emplace_back(ox, oy, createBrush(colorOrBrush));
 }
 
@@ -829,7 +828,7 @@ void Appearance::addPen(
             pen->SetMiterLimit((REAL) (tjs_real) var);
         }
     }
-    drawInfos.push_back(DrawInfo{ox, oy, pen});
+    drawInfos.emplace_back(ox, oy, pen);
 }
 
 bool Appearance::getLineCap(tTJSVariant &in, GpLineCap &cap, CustomLineCap *&custom, REAL pw) {
@@ -863,8 +862,7 @@ bool Appearance::getLineCap(tTJSVariant &in, GpLineCap &cap, CustomLineCap *&cus
 // フォント描画系
 // --------------------------------------------------------
 
-void
-LayerExDraw::updateRect(RectF &rect) {
+void LayerExDraw::updateRect(RectFClass &rect) {
     if (updateWhenDraw) {
         // 更新処理
         tTJSVariant vars[4] = {rect.X, rect.Y, rect.Width, rect.Height};
@@ -880,11 +878,10 @@ LayerExDraw::LayerExDraw(DispatchT obj)
         : layerExBase(obj), width(-1), height(-1), pitch(0), bitmap(nullptr),
           graphics(nullptr),
           clipLeft(-1), clipTop(-1), clipWidth(-1), clipHeight(-1),
-          smoothingMode(SmoothingModeAntiAlias), textRenderingHint(TextRenderingHintAntiAlias),
-          metaBuffer(nullptr), metaStream(nullptr), metafile(nullptr),
-          metaGraphics(nullptr),
-          updateWhenDraw(true) {
-}
+          smoothingMode(SmoothingModeAntiAlias),
+          textRenderingHint(TextRenderingHintAntiAlias),
+          metafile(nullptr), metaGraphics(nullptr),
+          updateWhenDraw(true) {}
 
 /**
  * デストラクタ
@@ -898,25 +895,6 @@ LayerExDraw::~LayerExDraw() {
 void LayerExDraw::reset() {
     layerExBase::reset();
     // 変更されている場合はつくりなおし
-    if (!(graphics && width == _width
-          && height == _height && pitch == _pitch
-    )) {
-        GdipDeleteGraphics(this->graphics);
-        GdipDisposeImage(this->bitmap);
-        this->graphics = nullptr;
-        this->bitmap = nullptr;
-        width = _width;
-        height = _height;
-        pitch = _pitch;
-        // TODO Init bimap from file
-//        buffer = _buffer;
-//        bitmap = new Bitmap(width, height, pitch, PixelFormat32bppARGB, (unsigned char *) buffer);
-//        GdipCreateBitmapFrom
-        GdipGetImageGraphicsContext(this->bitmap, &this->graphics);
-        GdipSetCompositingMode(this->graphics, CompositingModeSourceOver);
-        GdipSetWorldTransform(this->graphics, (GpMatrix *) calcTransform);
-        clipWidth = clipHeight = -1;
-    }
     // クリッピング領域変更の場合は設定しなおし
     if (_clipLeft != clipLeft ||
         _clipTop != clipTop ||
@@ -1049,10 +1027,9 @@ LayerExDraw::clear(ARGB argb) {
  * @param app 表示表現
  * @param path 描画するパス
  */
-RectF
-LayerExDraw::getPathExtents(const Appearance *app, const Path *path) {
+RectFClass LayerExDraw::getPathExtents(const Appearance *app, /* const */ GpPath *path) {
     // 領域記録用
-    RectF rect;
+    RectFClass rect{};
 
     // 描画情報を使って次々描画
     bool first = true;
@@ -1065,23 +1042,23 @@ LayerExDraw::getPathExtents(const Appearance *app, const Path *path) {
                 case 0: {
                     Pen *pen = (Pen *) i->info;
                     if (first) {
-                        path->GetBounds(&rect, &matrix, pen);
+                        GdipGetPathWorldBounds(path, &rect, (GpMatrix *) &matrix, (GpPen *) pen);
                         first = false;
                     } else {
-                        RectF r;
-                        path->GetBounds(&r, &matrix, pen);
-                        rect.Union(rect, rect, r);
+                        RectFClass r{};
+                        GdipGetPathWorldBounds(path, &r, (GpMatrix *) &matrix, (GpPen *) pen);
+                        RectFClass::Union(rect, rect, r);
                     }
                 }
                     break;
                 case 1:
                     if (first) {
-                        path->GetBounds(&rect, &matrix, nullptr);
+                        GdipGetPathWorldBounds(path, &rect, (GpMatrix *) &matrix, nullptr);
                         first = false;
                     } else {
-                        RectF r;
-                        path->GetBounds(&r, &matrix, nullptr);
-                        rect.Union(rect, rect, r);
+                        RectFClass r;
+                        GdipGetPathWorldBounds(path, &r, (GpMatrix *) &matrix, nullptr);
+                        RectFClass::Union(rect, rect, r);
                     }
                     break;
             }
@@ -1091,24 +1068,28 @@ LayerExDraw::getPathExtents(const Appearance *app, const Path *path) {
     return rect;
 }
 
-void
-LayerExDraw::draw(Graphics *graphics, const Pen *pen, const Matrix *matrix,
-                  const Path *path) {
-    GraphicsContainer container = graphics->BeginContainer();
-    graphics->MultiplyTransform(matrix);
-    graphics->SetSmoothingMode(smoothingMode);
-    graphics->DrawPath(pen, path);
-    graphics->EndContainer(container);
+void LayerExDraw::draw(
+        GpGraphics *graphics, const Pen *pen,
+        const MatrixClass *matrix, const GpPath *path
+) {
+    GraphicsContainer container{};
+    GdipBeginContainer2(graphics, &container);
+    GdipMultiplyWorldTransform(graphics, (GpMatrix *) matrix, MatrixOrderPrepend);
+    GdipSetSmoothingMode(graphics, smoothingMode);
+    GdipDrawPath(graphics, (GpPen *) pen, const_cast<GpPath *>(path));
+    GdipEndContainer(graphics, container);
 }
 
-void
-LayerExDraw::fill(Graphics *graphics, const Brush *brush, const Matrix *matrix,
-                  const Path *path) {
-    GraphicsContainer container = graphics->BeginContainer();
-    graphics->MultiplyTransform(matrix);
-    graphics->SetSmoothingMode(smoothingMode);
-    graphics->FillPath(brush, path);
-    graphics->EndContainer(container);
+void LayerExDraw::fill(
+        GpGraphics *graphics, const BrushBase *brush,
+        const MatrixClass *matrix, const GpPath *path
+) {
+    GraphicsContainer container{};
+    GdipBeginContainer2(graphics, &container);
+    GdipMultiplyWorldTransform(graphics, (GpMatrix *) matrix, MatrixOrderPrepend);
+    GdipSetSmoothingMode(graphics, smoothingMode);
+    GdipFillPath(graphics, (GpBrush *) brush, const_cast<GpPath *>(path));
+    GdipEndContainer(graphics, container);
 }
 
 /**
@@ -1117,9 +1098,9 @@ LayerExDraw::fill(Graphics *graphics, const Brush *brush, const Matrix *matrix,
  * @param path 描画するパス
  * @return 更新領域情報
  */
-RectF LayerExDraw::_drawPath(const Appearance *app, const Path *path) {
+RectFClass LayerExDraw::_drawPath(const Appearance *app, GpPath *path) {
     // 領域記録用
-    RectF rect;
+    RectFClass rect;
 
     // 描画情報を使って次々描画
     bool first = true;
@@ -1129,35 +1110,35 @@ RectF LayerExDraw::_drawPath(const Appearance *app, const Path *path) {
             MatrixClass matrix{1, 0, 0, 1, i->ox, i->oy};
             switch (i->type) {
                 case 0: {
-                    auto *pen = (GpPen *) (Pen *) i->info;
+                    auto *pen = (Pen *) i->info;
                     draw(graphics, pen, &matrix, path);
                     if (metaGraphics) {
                         draw(metaGraphics, pen, &matrix, path);
                     }
                     matrix.Multiply(&calcTransform, MatrixOrderAppend);
                     if (first) {
-                        path->GetBounds(&rect, &matrix, pen);
+                        GdipGetPathWorldBounds(path, &rect, (GpMatrix *) &matrix, (GpPen *) pen);
                         first = false;
                     } else {
-                        RectF r;
-                        path->GetBounds(&r, &matrix, pen);
-                        rect.Union(rect, rect, r);
+                        RectFClass r{};
+                        GdipGetPathWorldBounds(path, &r, (GpMatrix *) &matrix, (GpPen *) pen);
+                        RectFClass::Union(rect, rect, r);
                     }
                 }
                     break;
                 case 1:
-                    fill(graphics, (Brush *) i->info, &matrix, path);
+                    fill(graphics, (BrushBase *) i->info, &matrix, path);
                     if (metaGraphics) {
-                        fill(metaGraphics, (Brush *) i->info, &matrix, path);
+                        fill(metaGraphics, (BrushBase *) i->info, &matrix, path);
                     }
                     matrix.Multiply(&calcTransform, MatrixOrderAppend);
                     if (first) {
-                        path->GetBounds(&rect, &matrix, nullptr);
+                        GdipGetPathWorldBounds(path, &rect, (GpMatrix *) &matrix, nullptr);
                         first = false;
                     } else {
-                        RectF r;
-                        path->GetBounds(&r, &matrix, nullptr);
-                        rect.Union(rect, rect, r);
+                        RectFClass r;
+                        GdipGetPathWorldBounds(path, &r, (GpMatrix *) &matrix, nullptr);
+                        RectFClass::Union(rect, rect, r);
                     }
                     break;
             }
@@ -1173,9 +1154,8 @@ RectF LayerExDraw::_drawPath(const Appearance *app, const Path *path) {
  * @param app アピアランス
  * @param path パス
  */
-RectF
-LayerExDraw::drawPath(const Appearance *app, const Path *path) {
-    return _drawPath(app, path);
+RectFClass LayerExDraw::drawPath(const Appearance *app, const DrawPath *path) {
+    return _drawPath(app, path->path);
 }
 
 /**
@@ -1188,12 +1168,16 @@ LayerExDraw::drawPath(const Appearance *app, const Path *path) {
  * @param sweepAngle 描画角度
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawArc(const Appearance *app, REAL x, REAL y, REAL width, REAL height,
-                     REAL startAngle, REAL sweepAngle) {
-    Path path;
-    path.AddArc(x, y, width, height, startAngle, sweepAngle);
-    return _drawPath(app, &path);
+RectFClass LayerExDraw::drawArc(
+        const Appearance *app, REAL x, REAL y, REAL width, REAL height,
+        REAL startAngle, REAL sweepAngle
+) {
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathArc(path, x, y, width, height, startAngle, sweepAngle);
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1209,12 +1193,16 @@ LayerExDraw::drawArc(const Appearance *app, REAL x, REAL y, REAL width, REAL hei
  * @param y4
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawBezier(const Appearance *app, REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3,
-                        REAL x4, REAL y4) {
-    Path path;
-    path.AddBezier(x1, y1, x2, y2, x3, y3, x4, y4);
-    return _drawPath(app, &path);
+RectFClass LayerExDraw::drawBezier(
+        const Appearance *app, REAL x1, REAL y1, REAL x2,
+        REAL y2, REAL x3, REAL y3, REAL x4, REAL y4
+) {
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathBezier(path, x1, y1, x2, y2, x3, y3, x4, y4);
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1223,13 +1211,15 @@ LayerExDraw::drawBezier(const Appearance *app, REAL x1, REAL y1, REAL x2, REAL y
  * @param points 点の配列
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawBeziers(const Appearance *app, tTJSVariant points) {
-    vector<PointF> ps;
+RectFClass LayerExDraw::drawBeziers(const Appearance *app, tTJSVariant points) {
+    std::vector<PointFClass> ps;
     getPoints(points, ps);
-    Path path;
-    path.AddBeziers(&ps[0], (int) ps.size());
-    return _drawPath(app, &path);
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathBeziers(path, &ps[0], (int) ps.size());
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1238,13 +1228,15 @@ LayerExDraw::drawBeziers(const Appearance *app, tTJSVariant points) {
  * @param points 点の配列
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawClosedCurve(const Appearance *app, tTJSVariant points) {
-    vector<PointF> ps;
+RectFClass LayerExDraw::drawClosedCurve(const Appearance *app, tTJSVariant points) {
+    std::vector<PointFClass> ps;
     getPoints(points, ps);
-    Path path;
-    path.AddClosedCurve(&ps[0], (int) ps.size());
-    return _drawPath(app, &path);
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathClosedCurve(path, &ps[0], (int) ps.size());
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1254,13 +1246,17 @@ LayerExDraw::drawClosedCurve(const Appearance *app, tTJSVariant points) {
  * @pram tension tension
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawClosedCurve2(const Appearance *app, tTJSVariant points, REAL tension) {
-    vector<PointF> ps;
+RectFClass LayerExDraw::drawClosedCurve2(
+        const Appearance *app, tTJSVariant points, REAL tension
+) {
+    std::vector<PointFClass> ps;
     getPoints(points, ps);
-    Path path;
-    path.AddClosedCurve(&ps[0], (int) ps.size(), tension);
-    return _drawPath(app, &path);
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathClosedCurve2(path, &ps[0], (int) ps.size(), tension);
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1269,13 +1265,15 @@ LayerExDraw::drawClosedCurve2(const Appearance *app, tTJSVariant points, REAL te
  * @param points 点の配列
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawCurve(const Appearance *app, tTJSVariant points) {
-    vector<PointF> ps;
+RectFClass LayerExDraw::drawCurve(const Appearance *app, tTJSVariant points) {
+    std::vector<PointFClass> ps;
     getPoints(points, ps);
-    Path path;
-    path.AddCurve(&ps[0], (int) ps.size());
-    return _drawPath(app, &path);
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathCurve(path, &ps[0], (int) ps.size());
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1285,13 +1283,17 @@ LayerExDraw::drawCurve(const Appearance *app, tTJSVariant points) {
  * @parma tension tension
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawCurve2(const Appearance *app, tTJSVariant points, REAL tension) {
-    vector<PointF> ps;
+RectFClass LayerExDraw::drawCurve2(
+        const Appearance *app, tTJSVariant points, REAL tension
+) {
+    std::vector<PointFClass> ps;
     getPoints(points, ps);
-    Path path;
-    path.AddCurve(&ps[0], (int) ps.size(), tension);
-    return _drawPath(app, &path);
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathCurve2(path, &ps[0], (int) ps.size(), tension);
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1303,14 +1305,21 @@ LayerExDraw::drawCurve2(const Appearance *app, tTJSVariant points, REAL tension)
  * @param tension tension
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawCurve3(const Appearance *app, tTJSVariant points, int offset, int numberOfSegments,
-                        REAL tension) {
-    vector<PointF> ps;
+RectFClass LayerExDraw::drawCurve3(
+        const Appearance *app, tTJSVariant points,
+        int offset, int numberOfSegments, REAL tension
+) {
+    std::vector<PointFClass> ps;
     getPoints(points, ps);
-    Path path;
-    path.AddCurve(&ps[0], (int) ps.size(), offset, numberOfSegments, tension);
-    return _drawPath(app, &path);
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathCurve3(
+            path, &ps[0], (int) ps.size(),
+            offset, numberOfSegments, tension
+    );
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1323,12 +1332,19 @@ LayerExDraw::drawCurve3(const Appearance *app, tTJSVariant points, int offset, i
  * @param sweepAngle 描画角度
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawPie(const Appearance *app, REAL x, REAL y, REAL width, REAL height,
-                     REAL startAngle, REAL sweepAngle) {
-    Path path;
-    path.AddPie(x, y, width, height, startAngle, sweepAngle);
-    return _drawPath(app, &path);
+RectFClass LayerExDraw::drawPie(
+        const Appearance *app,
+        REAL x, REAL y, REAL width, REAL height,
+        REAL startAngle, REAL sweepAngle
+) {
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathPie(
+            path, x, y, width, height, startAngle, sweepAngle
+    );
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1340,11 +1356,16 @@ LayerExDraw::drawPie(const Appearance *app, REAL x, REAL y, REAL width, REAL hei
  * @param height
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawEllipse(const Appearance *app, REAL x, REAL y, REAL width, REAL height) {
-    Path path;
-    path.AddEllipse(x, y, width, height);
-    return _drawPath(app, &path);
+RectFClass LayerExDraw::drawEllipse(
+        const Appearance *app,
+        REAL x, REAL y, REAL width, REAL height
+) {
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathEllipse(path, x, y, width, height);
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1356,13 +1377,13 @@ LayerExDraw::drawEllipse(const Appearance *app, REAL x, REAL y, REAL width, REAL
  * @param y2 終点Y座標
  * @return 更新領域情報
  */
-RectF LayerExDraw::drawLine(
+RectFClass LayerExDraw::drawLine(
         const Appearance *app, REAL x1, REAL y1, REAL x2, REAL y2
 ) {
-    Path *path{nullptr};
+    GpPath *path{nullptr};
     GdipCreatePath(FillModeAlternate, &path);
     GdipAddPathLine(path, x1, y1, x2, y2);
-    RectF r = _drawPath(app, path);
+    RectFClass r = _drawPath(app, path);
     GdipDeletePath(path);
     return r;
 }
@@ -1373,13 +1394,15 @@ RectF LayerExDraw::drawLine(
  * @param points 点の配列
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawLines(const Appearance *app, tTJSVariant points) {
-    vector<PointF> ps;
+RectFClass LayerExDraw::drawLines(const Appearance *app, tTJSVariant points) {
+    std::vector<PointFClass> ps;
     getPoints(points, ps);
-    Path path;
-    path.AddLines(&ps[0], (int) ps.size());
-    return _drawPath(app, &path);
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathLine2(path, &ps[0], (int) ps.size());
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1388,13 +1411,15 @@ LayerExDraw::drawLines(const Appearance *app, tTJSVariant points) {
  * @param points 点の配列
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawPolygon(const Appearance *app, tTJSVariant points) {
-    vector<PointF> ps;
+RectFClass LayerExDraw::drawPolygon(const Appearance *app, tTJSVariant points) {
+    std::vector<PointFClass> ps;
     getPoints(points, ps);
-    Path path;
-    path.AddPolygon(&ps[0], (int) ps.size());
-    return _drawPath(app, &path);
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathPolygon(path, &ps[0], (int) ps.size());
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 
@@ -1407,12 +1432,15 @@ LayerExDraw::drawPolygon(const Appearance *app, tTJSVariant points) {
  * @param height
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawRectangle(const Appearance *app, REAL x, REAL y, REAL width, REAL height) {
-    Path path;
-    RectF rect(x, y, width, height);
-    path.AddRectangle(rect);
-    return _drawPath(app, &path);
+RectFClass LayerExDraw::drawRectangle(
+        const Appearance *app, REAL x, REAL y, REAL width, REAL height
+) {
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathRectangle(path, x, y, width, height);
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1421,13 +1449,15 @@ LayerExDraw::drawRectangle(const Appearance *app, REAL x, REAL y, REAL width, RE
  * @param rects 矩形情報の配列
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawRectangles(const Appearance *app, tTJSVariant rects) {
-    vector<RectF> rs;
+RectFClass LayerExDraw::drawRectangles(const Appearance *app, tTJSVariant rects) {
+    std::vector<RectFClass> rs{};
     getRects(rects, rs);
-    Path path;
-    path.AddRectangles(&rs[0], (int) rs.size());
-    return _drawPath(app, &path);
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GdipAddPathRectangles(path, &rs[0], (int) rs.size());
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    return r;
 }
 
 /**
@@ -1439,21 +1469,34 @@ LayerExDraw::drawRectangles(const Appearance *app, tTJSVariant rects) {
  * @param text 描画テキスト
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawPathString(const FontInfo *font, const Appearance *app, REAL x, REAL y,
-                            const tjs_char *text) {
+RectFClass LayerExDraw::drawPathString(
+        const FontInfo *font, const Appearance *app,
+        REAL x, REAL y, const tjs_char *text
+) {
     if (font->getSelfPathDraw())
         return drawPathString2(font, app, x, y, text);
 
     // 文字列のパスを準備
-    Path path;
-    path.AddString(text, -1, font->fontFamily, font->style, font->emSize, PointF(x, y),
-                   StringFormat::GenericDefault());
-    return _drawPath(app, &path);
+    GpPath *path{nullptr};
+    GdipCreatePath(FillModeAlternate, &path);
+    GpStringFormat *sf{nullptr};
+    GdipStringFormatGetGenericDefault(&sf);
+    static_assert(sizeof(tjs_char) == sizeof(WCHAR), "drawPathString Method Sizes differ!");
+    const auto *n = reinterpret_cast<const WCHAR *>(text);
+    RectF rect{x, y};
+    GdipAddPathString(
+            path, n, -1,
+            font->fontFamily, font->style, font->emSize,
+            &rect, sf
+    );
+    auto r = _drawPath(app, path);
+    GdipDeletePath(path);
+    GdipDeleteStringFormat(sf);
+    return r;
 }
 
-static void transformRect(Matrix &calcTransform, RectF &rect) {
-    PointF points[4]; // 元座標値
+static void transformRect(MatrixClass &calcTransform, RectFClass &rect) {
+    PointFClass points[4]; // 元座標値
     points[0].X = rect.X;
     points[0].Y = rect.Y;
     points[1].X = rect.X + rect.Width;
@@ -1489,52 +1532,70 @@ static void transformRect(Matrix &calcTransform, RectF &rect) {
  * @param text 描画テキスト
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawString(const FontInfo *font, const Appearance *app, REAL x, REAL y,
-                        const tjs_char *text) {
+RectFClass LayerExDraw::drawString(
+        const FontInfo *font, const Appearance *app,
+        REAL x, REAL y, const tjs_char *text
+) {
     if (font->getSelfPathDraw())
         return drawPathString2(font, app, x, y, text);
 
-    graphics->SetTextRenderingHint(textRenderingHint);
+    GdipSetTextRenderingHint(this->graphics, textRenderingHint);
     if (metaGraphics) {
-        metaGraphics->SetTextRenderingHint(textRenderingHint);
+        GdipSetTextRenderingHint(this->metaGraphics, textRenderingHint);
     }
 
     // 領域記録用
-    RectF rect;
+    RectFClass rect{};
     // 描画フォント
-    Font f(font->fontFamily, font->emSize, font->style, UnitPixel);
-
+    GpFont *f{nullptr};
+    GdipCreateFont(font->fontFamily, font->emSize, font->style, UnitPixel, &f);
+    GpStringFormat *sf{nullptr};
+    GdipStringFormatGetGenericDefault(&sf);
     // 描画情報を使って次々描画
-    bool first = true;
-    vector<Appearance::DrawInfo>::const_iterator i = app->drawInfos.begin();
+//    bool first = true;
+    auto i = app->drawInfos.begin();
     while (i != app->drawInfos.end()) {
         if (i->info) {
             if (i->type == 1) { // ブラシのみ
-                Brush *brush = (Brush *) i->info;
-                PointF p(x + i->ox, y + i->oy);
-                graphics->DrawString(text, -1, &f, p, StringFormat::GenericDefault(), brush);
+
+                static_assert(sizeof(tjs_char) == sizeof(WCHAR), "drawString Method Sizes differ!");
+                const auto *n = reinterpret_cast<const WCHAR *>(text);
+
+                auto *brush = (BrushBase *) i->info;
+                RectFClass rectF{x + i->ox, y + i->oy, 0, 0};
+                GdipDrawString(this->graphics, n, -1, f, &rectF, sf, (GpBrush *) brush);
                 if (metaGraphics) {
-                    metaGraphics->DrawString(text, -1, &f, p, StringFormat::GenericDefault(),
-                                             brush);
+                    GdipDrawString(this->metaGraphics, n, -1, f, &rectF, sf, (GpBrush *) brush);
                 }
                 // 更新領域計算
-                if (first) {
-                    graphics->MeasureString(text, -1, &f, p, StringFormat::GenericDefault(), &rect);
-                    transformRect(calcTransform, rect);
-                    first = false;
-                } else {
-                    RectF r;
-                    graphics->MeasureString(text, -1, &f, p, StringFormat::GenericDefault(), &r);
-                    transformRect(calcTransform, r);
-                    rect.Union(rect, rect, r);
-                }
+//                if (first) {
+                int codepointsFitted{};
+                int linesFilled{};
+                GdipMeasureString(
+                        this->graphics, n, -1, f, &rectF, sf, &rect,
+                        &codepointsFitted, &linesFilled
+                );
+                transformRect(calcTransform, rect);
+//                    first = false;
+//                } else {
+//                    RectFClass r;
+//                    int codepointsFitted{};
+//                    int linesFilled{};
+//                    GdipMeasureString(
+//                            this->graphics, n, -1, f, &rectF, sf, &r,
+//                            &codepointsFitted, &linesFilled
+//                    );
+//                    transformRect(calcTransform, r);
+//                    RectFClass::Union(rect, rect, r);
+//                }
                 break;
             }
         }
         i++;
     }
     updateRect(rect);
+    GdipDeleteFont(f);
+    GdipDeleteStringFormat(sf);
     return rect;
 }
 
@@ -1544,16 +1605,36 @@ LayerExDraw::drawString(const FontInfo *font, const Appearance *app, REAL x, REA
  * @param text 描画テキスト
  * @return 描画領域情報
  */
-RectF
-LayerExDraw::measureString(const FontInfo *font, const tjs_char *text) {
+RectFClass LayerExDraw::measureString(const FontInfo *font, const tjs_char *text) {
     if (font->getSelfPathDraw())
         return measureString2(font, text);
 
-    RectF rect;
-    graphics->SetTextRenderingHint(textRenderingHint);
-    Font f(font->fontFamily, font->emSize, font->style, UnitPixel);
-    graphics->MeasureString(text, -1, &f, PointF(0, 0), StringFormat::GenericDefault(), &rect);
-    return rect;
+    static_assert(sizeof(tjs_char) == sizeof(WCHAR), "measureString Method Sizes differ!");
+    const auto *n = reinterpret_cast<const WCHAR *>(text);
+
+    GdipSetTextRenderingHint(this->graphics, textRenderingHint);
+
+    GpFont *f{nullptr};
+    GdipCreateFont(
+            font->fontFamily, font->emSize, font->style,
+            UnitPixel, &f
+    );
+
+    GpStringFormat *sf{nullptr};
+    GdipStringFormatGetGenericDefault(&sf);
+
+    RectFClass r{};
+    int codepointsFitted{};
+    int linesFilled{};
+    GpRectF layout{};
+    GdipMeasureString(
+            this->graphics, n, -1, f,
+            &layout, sf, &r,
+            &codepointsFitted, &linesFilled
+    );
+    GdipDeleteFont(f);
+    GdipDeleteStringFormat(sf);
+    return r;
 }
 
 /**
@@ -1562,22 +1643,42 @@ LayerExDraw::measureString(const FontInfo *font, const tjs_char *text) {
  * @param text 描画テキスト
  * @return 領域情報の辞書 left, top, width, height
  */
-RectF
-LayerExDraw::measureStringInternal(const FontInfo *font, const tjs_char *text) {
+RectFClass LayerExDraw::measureStringInternal(const FontInfo *font, const tjs_char *text) {
     if (font->getSelfPathDraw())
         return measureStringInternal2(font, text);
 
-    RectF rect;
-    graphics->SetTextRenderingHint(textRenderingHint);
-    Font f(font->fontFamily, font->emSize, font->style, UnitPixel);
-    graphics->MeasureString(text, -1, &f, PointF(0, 0), StringFormat::GenericDefault(), &rect);
-    CharacterRange charRange(0, INT(wcslen(text)));
-    StringFormat stringFormat = StringFormat::GenericDefault();
-    stringFormat.SetMeasurableCharacterRanges(1, &charRange);
-    Region region;
-    graphics->MeasureCharacterRanges(text, -1, &f, rect, &stringFormat, 1, &region);
-    RectF regionBounds;
-    region.GetBounds(&regionBounds, graphics);
+    static_assert(sizeof(tjs_char) == sizeof(WCHAR), "measureStringInternal Method Sizes differ!");
+    const auto *n = reinterpret_cast<const WCHAR *>(text);
+
+    GdipSetTextRenderingHint(this->graphics, textRenderingHint);
+
+    GpFont *f{nullptr};
+    GdipCreateFont(
+            font->fontFamily, font->emSize, font->style,
+            UnitPixel, &f
+    );
+
+    GpStringFormat *sf{nullptr};
+    GdipStringFormatGetGenericDefault(&sf);
+
+    RectFClass r{};
+    int codepointsFitted{};
+    int linesFilled{};
+    GpRectF layout{};
+    GdipMeasureString(
+            this->graphics, n, -1, f,
+            &layout, sf, &r,
+            &codepointsFitted, &linesFilled
+    );
+    CharacterRange charRange{0, tTJSString{text}.length()};
+    GdipSetStringFormatMeasurableCharacterRanges(sf, 1, &charRange);
+    GpRegion *region{};
+    GdipMeasureCharacterRanges(this->graphics, n, -1, f, &r, sf, 1, &region);
+    RectFClass regionBounds{};
+    GdipGetRegionBounds(region, this->graphics, &regionBounds);
+
+    GdipDeleteFont(f);
+    GdipDeleteStringFormat(sf);
     return regionBounds;
 }
 
@@ -1588,11 +1689,10 @@ LayerExDraw::measureStringInternal(const FontInfo *font, const tjs_char *text) {
  * @param src コピー元画像
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawImage(REAL x, REAL y, ImageClass *src) {
-    RectF rect;
+RectFClass LayerExDraw::drawImage(REAL x, REAL y, ImageClass *src) {
+    RectFClass rect;
     if (src) {
-        RectF *bounds = getBounds(src);
+        RectFClass *bounds = getBounds(src);
         rect = drawImageRect(x + bounds->X, y + bounds->Y, src, 0, 0, bounds->Width,
                              bounds->Height);
         delete bounds;
@@ -1612,7 +1712,7 @@ LayerExDraw::drawImage(REAL x, REAL y, ImageClass *src) {
  * @param sheight  元矩形の縦幅
  * @return 更新領域情報
  */
-RectF LayerExDraw::drawImageRect(
+RectFClass LayerExDraw::drawImageRect(
         REAL dleft, REAL dtop, ImageClass *src,
         REAL sleft, REAL stop, REAL swidth, REAL sheight
 ) {
@@ -1632,7 +1732,7 @@ RectF LayerExDraw::drawImageRect(
  * @param sheight  元矩形の縦幅
  * @return 更新領域情報
  */
-RectF
+RectFClass
 LayerExDraw::drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, ImageClass *src,
                               REAL sleft, REAL stop, REAL swidth, REAL sheight) {
     return drawImageAffine(src, sleft, stop, swidth, sheight, true, dwidth / swidth, 0, 0,
@@ -1645,15 +1745,15 @@ LayerExDraw::drawImageStretch(REAL dleft, REAL dtop, REAL dwidth, REAL dheight, 
  * @param stop  元矩形の上端
  * @param swidth 元矩形の横幅
  * @param sheight  元矩形の縦幅
- * @param affine アフィンパラメータの種類(true:変換行列, false:座標指定), 
+ * @param affine アフィンパラメータの種類(true:変換行列, false:座標指定),
  * @return 更新領域情報
  */
-RectF
+RectFClass
 LayerExDraw::drawImageAffine(ImageClass *src, REAL sleft, REAL stop, REAL swidth, REAL sheight,
                              bool affine, REAL A, REAL B, REAL C, REAL D, REAL E, REAL F) {
-    RectF rect;
+    RectFClass rect;
     if (src) {
-        PointF points[4]; // 元座標値
+        PointFClass points[4]; // 元座標値
         if (affine) {
 #define AFFINEX(x, y) A*x+C*y+E
 #define AFFINEY(x, y) B*x+D*y+F
@@ -1675,13 +1775,18 @@ LayerExDraw::drawImageAffine(ImageClass *src, REAL sleft, REAL stop, REAL swidth
             points[3].X = C - A + E;
             points[3].Y = D - B + F;
         }
-        graphics->DrawImage(src, points, 3, sleft, stop, swidth, sheight, UnitPixel, nullptr,
-                            nullptr,
-                            nullptr);
+        GdipDrawImagePointsRect(
+                this->graphics, (GpImage *) src, points, 3,
+                sleft, stop, swidth, sheight, UnitPixel,
+                nullptr, nullptr, nullptr
+        );
         if (metaGraphics) {
-            metaGraphics->DrawImage(src, points, 3, sleft, stop, swidth, sheight, UnitPixel,
-                                    nullptr,
-                                    nullptr, nullptr);
+
+            GdipDrawImagePointsRect(
+                    this->metaGraphics, (GpImage *) src, points, 3,
+                    sleft, stop, swidth, sheight, UnitPixel,
+                    nullptr, nullptr, nullptr
+            );
         }
 
         // 描画領域を取得
@@ -1708,14 +1813,12 @@ LayerExDraw::drawImageAffine(ImageClass *src, REAL sleft, REAL stop, REAL swidth
 
 void LayerExDraw::createRecord() {
     destroyRecord();
-    if ((metaBuffer = ::GlobalAlloc(GMEM_MOVEABLE, 0))) {
-        if (::CreateStreamOnHGlobal(metaBuffer, FALSE, &metaStream) == S_OK) {
-            metafile = new Metafile(metaStream, metaHDC, EmfTypeEmfPlusOnly);
-            metaGraphics = new Graphics(metafile);
-            metaGraphics->SetCompositingMode(CompositingModeSourceOver);
-            metaGraphics->SetTransform(&transform);
-        }
-    }
+    GpMetafile *emfMetafile{};
+    GdipCreateMetafileFromFile((WCHAR *) TJS_W("krkr2_layerexdraw_emf.metafile"), &emfMetafile);
+    GdipCreateMetafileFromEmf(emfMetafile, false, &metafile);
+    GdipGetImageGraphicsContext((GpImage *) &metafile, &metaGraphics);
+    GdipSetCompositingMode(metaGraphics, CompositingModeSourceOver);
+    GdipSetWorldTransform(metaGraphics, (GpMatrix *) &transform);
 }
 
 /**
@@ -1723,26 +1826,17 @@ void LayerExDraw::createRecord() {
  */
 void
 LayerExDraw::destroyRecord() {
-    delete metaGraphics;
+    GdipDeleteGraphics(this->metaGraphics);
     metaGraphics = nullptr;
-    delete metafile;
+    GdipDisposeImage((GpImage *) &metafile);
     metafile = nullptr;
-    if (metaStream) {
-        metaStream->Release();
-        metaStream = nullptr;
-    }
-    if (metaBuffer) {
-        ::GlobalFree(metaBuffer);
-        metaBuffer = nullptr;
-    }
 }
 
 
 /**
  * @param record 描画内容を記録するかどうか
  */
-void
-LayerExDraw::setRecord(bool record) {
+void LayerExDraw::setRecord(bool record) {
     if (record) {
         if (!metafile) {
             createRecord();
@@ -1756,12 +1850,12 @@ LayerExDraw::setRecord(bool record) {
 
 bool LayerExDraw::redraw(ImageClass *image) {
     if (image) {
-        RectF *bounds = getBounds(image);
+        RectFClass *bounds = getBounds(image);
         if (metaGraphics) {
             GdipGraphicsClear(this->metaGraphics, 0);
             GdipResetWorldTransform(this->metaGraphics);
             GdipDrawImageRect(
-                    this->metaGraphics, (ImageClass *) image,
+                    this->metaGraphics, (GpImage *) image,
                     bounds->X, bounds->Y, bounds->Width, bounds->Height
             );
             GpMatrix *tmp{nullptr};
@@ -1771,8 +1865,11 @@ bool LayerExDraw::redraw(ImageClass *image) {
         GdipGraphicsClear(this->metaGraphics, 0);
         GdipSetWorldTransform(this->metaGraphics, (GpMatrix *) viewTransform);
 
-        graphics->DrawImage(image, bounds->X, bounds->Y, bounds->Width, bounds->Height);
-        graphics->SetTransform(&calcTransform);
+        GdipDrawImageRect(
+                this->graphics, (GpImage *) image,
+                bounds->X, bounds->Y, bounds->Width, bounds->Height
+        );
+        GdipSetWorldTransform(this->graphics, (GpMatrix *) &calcTransform);
         delete bounds;
         _pUpdate(0, nullptr);
         return true;
@@ -1790,27 +1887,12 @@ ImageClass *LayerExDraw::getRecordImage() {
     if (metafile) {
         // メタ情報を取得するには一度閉じる必要がある
         if (metaGraphics) {
-            delete metaGraphics;
+            GdipDisposeImage((GpImage *) this->metaGraphics);
             metaGraphics = nullptr;
         }
 
         //閉じたあと継続するための再描画先を別途構築
-        HGLOBAL oldBuffer = metaBuffer;
-        metaBuffer = nullptr;
         createRecord();
-
-        // 再描画
-        if (oldBuffer) {
-            IStream *pStream = nullptr;
-            if (::CreateStreamOnHGlobal(oldBuffer, FALSE, &pStream) == S_OK) {
-                image = ImageClass::FromStream(pStream, false);
-                if (image) {
-                    redraw(image);
-                }
-                pStream->Release();
-            }
-            ::GlobalFree(oldBuffer);
-        }
     }
     return image;
 }
@@ -1821,11 +1903,8 @@ ImageClass *LayerExDraw::getRecordImage() {
 bool LayerExDraw::redrawRecord() {
     // 再描画処理
     ImageClass *image = getRecordImage();
-    if (image) {
-        delete image;
-        return true;
-    }
-    return false;
+    delete image;
+    return image;
 }
 
 /**
@@ -1838,26 +1917,20 @@ LayerExDraw::saveRecord(const tjs_char *filename) {
     bool ret = false;
     if (metafile) {
         // メタ情報を取得するには一度閉じる必要がある
-        delete metaGraphics;
-        metaGraphics = nullptr;
+        GdipDisposeImage((GpImage *) this->metaGraphics);
+        this->metaGraphics = nullptr;
         ULONG size;
         // ファイルに書き出す
-        if (metaBuffer && (size = (ULONG) ::GlobalSize(metaBuffer)) > 0) {
-            IStream *out = TVPCreateIStream(filename, TJS_BS_WRITE);
-            if (out) {
-                void *pBuffer = ::GlobalLock(metaBuffer);
-                if (pBuffer) {
-                    ret = (out->Write(pBuffer, size, &size) == S_OK);
-                    ::GlobalUnlock(metaBuffer);
-                }
-                out->Release();
-            }
+        if (metafile) {
+            GdipSaveImageToFile(
+                    (GpImage *) &metafile, (const WCHAR *) filename,
+                    &emfEncoderClsid, nullptr
+            );
         }
+
         // 再描画処理
         ImageClass *image = getRecordImage();
-        if (image) {
-            delete image;
-        }
+        delete image;
     }
     return ret;
 }
@@ -1886,96 +1959,97 @@ LayerExDraw::loadRecord(const tjs_char *filename) {
  * @param path グリフを書き出すパス
  * @param glyph 描画するグリフ
  */
-void
-LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointF &offset, Path *path,
-                             UINT glyph) {
-    static const MAT2 mat = {{0, 1},
-                             {0, 0},
-                             {0, 0},
-                             {0, 1}};
-
-    GLYPHMETRICS gm;
-
-    DWORD flags = GGO_BEZIER;
-    // フィッティング指定が無ければ UNHINTEDにする。xs
-    if (!(textRenderingHint & 1))
-        flags |= GGO_UNHINTED;
-
-    int size = GetGlyphOutlineW(metaHDC,
-                                glyph,
-                                flags, //  | GGO_GLYPH_INDEX,
-                                &gm,
-                                0,
-                                nullptr,
-                                &mat
-    );
-    char *buffer = nullptr;
-    if (size > 0) {
-        buffer = new char[size];
-        int result = GetGlyphOutlineW(metaHDC,
-                                      glyph,
-                                      flags, //  | GGO_GLYPH_INDEX,
-                                      &gm,
-                                      size,
-                                      buffer,
-                                      &mat
-        );
-        if (result <= 0) {
-            delete[] buffer;
-            return;
-        }
-    } else {
-        GetGlyphOutlineW(metaHDC,
-                         glyph,
-                         GGO_METRICS,
-                         &gm,
-                         0,
-                         nullptr,
-                         &mat
-        );
-    }
-
-    int index = 0;
-    PointF aOffset = offset;
-    aOffset.Y += fontInfo->getAscent();
-
-    while (index < size) {
-        TTPOLYGONHEADER *header = (TTPOLYGONHEADER * )(buffer + index);
-        int endCurve = index + header->cb;
-        index += sizeof(TTPOLYGONHEADER);
-        PointF p0 = ToPointF(&header->pfxStart) + aOffset;
-        while (index < endCurve) {
-            TTPOLYCURVE *hcurve = (TTPOLYCURVE * )(buffer + index);
-            index += 2 * sizeof(WORD);
-            POINTFX *points = (POINTFX *) (buffer + index);
-            index += hcurve->cpfx * sizeof(POINTFX);
-            std::vector<PointF> pts(1 + hcurve->cpfx);
-            pts[0] = p0;
-            for (int i = 0; i < hcurve->cpfx; i++)
-                pts[i + 1] = ToPointF(points + i) + aOffset;
-            p0 = pts[pts.size() - 1];
-            switch (hcurve->wType) {
-                case TT_PRIM_LINE:
-                    path->AddLines(&pts[0], int(pts.size()));
-                    break;
-
-                case TT_PRIM_QSPLINE:
-                    TVPAddLog(ttstr(TJS_W("qspline")));
-                    break;
-
-                case TT_PRIM_CSPLINE:
-                    path->AddBeziers(&pts[0], int(pts.size()));
-                    break;
-            }
-        }
-
-        path->CloseFigure();
-    }
-
-    offset.X += gm.gmCellIncX;
-
-    delete[] buffer;
-}
+//void LayerExDraw::getGlyphOutline(
+//        const FontInfo *fontInfo, PointFClass &offset, GpPath *path, UINT glyph
+//) {
+//    static const MAT2 mat = {{0, 1},
+//                             {0, 0},
+//                             {0, 0},
+//                             {0, 1}};
+//
+//    GLYPHMETRICS gm;
+//
+//    DWORD flags = GGO_BEZIER;
+//    // フィッティング指定が無ければ UNHINTEDにする。xs
+//    if (!(textRenderingHint & 1))
+//        flags |= GGO_UNHINTED;
+//
+//    int size = GetGlyphOutlineW(
+//            metaHDC,
+//            glyph,
+//            flags, //  | GGO_GLYPH_INDEX,
+//            &gm,
+//            0,
+//            nullptr,
+//            &mat
+//    );
+//    char *buffer = nullptr;
+//    if (size > 0) {
+//        buffer = new char[size];
+//        int result = GetGlyphOutlineW(metaHDC,
+//                                      glyph,
+//                                      flags, //  | GGO_GLYPH_INDEX,
+//                                      &gm,
+//                                      size,
+//                                      buffer,
+//                                      &mat
+//        );
+//        if (result <= 0) {
+//            delete[] buffer;
+//            return;
+//        }
+//    } else {
+//        GetGlyphOutlineW(metaHDC,
+//                         glyph,
+//                         GGO_METRICS,
+//                         &gm,
+//                         0,
+//                         nullptr,
+//                         &mat
+//        );
+//    }
+//
+//    int index = 0;
+//    PointFClass aOffset = offset;
+//    aOffset.Y += fontInfo->getAscent();
+//
+//    while (index < size) {
+//        TTPOLYGONHEADER *header = (TTPOLYGONHEADER * )(buffer + index);
+//        int endCurve = index + header->cb;
+//        index += sizeof(TTPOLYGONHEADER);
+//        PointFClass p0 = ToPointF(&header->pfxStart) + aOffset;
+//        while (index < endCurve) {
+//            TTPOLYCURVE *hcurve = (TTPOLYCURVE * )(buffer + index);
+//            index += 2 * sizeof(WORD);
+//            POINTFX *points = (POINTFX *) (buffer + index);
+//            index += hcurve->cpfx * sizeof(POINTFX);
+//            std::vector<PointFClass> pts(1 + hcurve->cpfx);
+//            pts[0] = p0;
+//            for (int i = 0; i < hcurve->cpfx; i++)
+//                pts[i + 1] = ToPointF(points + i) + aOffset;
+//            p0 = pts[pts.size() - 1];
+//            switch (hcurve->wType) {
+//                case TT_PRIM_LINE:
+//                    path->AddLines(&pts[0], int(pts.size()));
+//                    break;
+//
+//                case TT_PRIM_QSPLINE:
+//                    TVPAddLog(ttstr(TJS_W("qspline")));
+//                    break;
+//
+//                case TT_PRIM_CSPLINE:
+//                    path->AddBeziers(&pts[0], int(pts.size()));
+//                    break;
+//            }
+//        }
+//
+//        path->CloseFigure();
+//    }
+//
+//    offset.X += gm.gmCellIncX;
+//
+//    delete[] buffer;
+//}
 
 /*
  * テキストアウトラインの取得
@@ -1984,34 +2058,31 @@ LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointF &offset, Path *pat
  * @param path グリフを書き出すパス
  * @param text 描画するテキスト
  */
-void
-LayerExDraw::getTextOutline(const FontInfo *fontInfo, PointF &offset, GpPath *path,
-                            ttstr text) {
-    if (metaHDC == nullptr)
-        return;
-
+void LayerExDraw::getTextOutline(
+        const FontInfo *fontInfo,
+        PointFClass &offset, GpPath *path, const ttstr &text
+) {
     if (text.IsEmpty())
         return;
 
-    LOGFONT font;
-    memset(&font, 0, sizeof(font));
-    font.lfHeight = -(LONG(fontInfo->emSize));
-    font.lfWeight = (fontInfo->style & 1) ? FW_BOLD : FW_REGULAR;
-    font.lfItalic = fontInfo->style & 2;
-    font.lfUnderline = fontInfo->style & 4;
-    font.lfStrikeOut = fontInfo->style & 8;
-    font.lfCharSet = DEFAULT_CHARSET;
-    wcscpy_s(font.lfFaceName, fontInfo->familyName.c_str());
-
-    HFONT hFont = CreateFontIndirect(&font);
-    HGDIOBJ hOldFont = SelectObject(metaHDC, hFont);
-
-    for (tjs_int i = 0; i < text.GetLen(); i++) {
-        this->getGlyphOutline(fontInfo, offset, path, text[i]);
+    this->font = LOGFONTW{
+            .lfHeight = -(LONG(fontInfo->emSize)),
+            .lfWeight = (fontInfo->style & 1) ? FW_BOLD : FW_REGULAR,
+            .lfItalic = static_cast<BYTE>(fontInfo->style & 2),
+            .lfUnderline = static_cast<BYTE>(fontInfo->style & 4),
+            .lfStrikeOut = static_cast<BYTE>(fontInfo->style & 8),
+            .lfCharSet = DEFAULT_CHARSET,
+    };
+    if (fontInfo->familyName.length() > LF_FACESIZE) {
+        throw std::logic_error{"familyName.length() > LF_FACESIZE buffer overflow!!"};
     }
 
-    SelectObject(metaHDC, hOldFont);
-    DeleteObject(hFont);
+    std::memcpy(font.lfFaceName, fontInfo->familyName.c_str(), fontInfo->familyName.length());
+//    TODO:
+//    for (tjs_int i = 0; i < text.GetLen(); i++) {
+//        this->getGlyphOutline(fontInfo, offset, path, text[i]);
+//    }
+
 }
 
 /**
@@ -2020,18 +2091,19 @@ LayerExDraw::getTextOutline(const FontInfo *fontInfo, PointF &offset, GpPath *pa
  * @param text 描画テキスト
  * @return 更新領域情報の辞書 left, top, width, height
  */
-RectF
-LayerExDraw::measureString2(const FontInfo *font, const tjs_char *text) {
+RectFClass LayerExDraw::measureString2(const FontInfo *font, const tjs_char *text) {
     // 文字列のパスを準備
-    Path path;
-    PointF offset(0, 0);
-    this->getTextOutline(font, offset, &path, text);
-    RectF result;
-    path.GetBounds(&result, nullptr, nullptr);
+    GpPath *path{};
+    GdipCreatePath(FillModeAlternate, &path);
+    PointFClass offset{};
+    this->getTextOutline(font, offset, path, text);
+    RectFClass result;
+    GdipGetPathWorldBounds(path, &result, nullptr, nullptr);
     result.X = 0;
     result.Y = 0;
     result.Width += REAL(0.167 * font->emSize * 2);
     result.Height = REAL(font->getLineSpacing() * 1.124);
+    GdipDeletePath(path);
     return result;
 }
 
@@ -2041,17 +2113,18 @@ LayerExDraw::measureString2(const FontInfo *font, const tjs_char *text) {
  * @param text 描画テキスト
  * @return 更新領域情報の辞書 left, top, width, height
  */
-RectF
-LayerExDraw::measureStringInternal2(const FontInfo *font, const tjs_char *text) {
+RectFClass LayerExDraw::measureStringInternal2(const FontInfo *font, const tjs_char *text) {
     // 文字列のパスを準備
-    Path path;
-    PointF offset(0, 0);
-    this->getTextOutline(font, offset, &path, text);
-    RectF result;
-    path.GetBounds(&result, nullptr, nullptr);
+    GpPath *path{};
+    GdipCreatePath(FillModeAlternate, &path);
+    PointFClass offset{};
+    this->getTextOutline(font, offset, path, text);
+    RectFClass result;
+    GdipGetPathWorldBounds(path, &result, nullptr, nullptr);
     result.X = REAL(LONG(0.167 * font->emSize));
     result.Y = 0;
     result.Height = font->getLineSpacing();
+    GdipDeletePath(path);
     return result;
 }
 
@@ -2064,14 +2137,15 @@ LayerExDraw::measureStringInternal2(const FontInfo *font, const tjs_char *text) 
  * @param text 描画テキスト
  * @return 更新領域情報
  */
-RectF
-LayerExDraw::drawPathString2(const FontInfo *font, const Appearance *app, REAL x, REAL y,
-                             const tjs_char *text) {
+RectFClass LayerExDraw::drawPathString2(
+        const FontInfo *font, const Appearance *app,
+        REAL x, REAL y, const tjs_char *text
+) {
     // 文字列のパスを準備
-    Path path;
-    PointF offset(x + LONG(0.167 * font->emSize) - 0.5f, y - 0.5f);
+    GpPath path;
+    PointFClass offset{x + LONG(0.167 * font->emSize) - 0.5f, y - 0.5f};
     this->getTextOutline(font, offset, &path, text);
-    RectF result = _drawPath(app, &path);
+    RectFClass result = _drawPath(app, &path);
     result.X = x;
     result.Y = y;
     result.Width += REAL(0.167 * font->emSize * 2);
@@ -2081,13 +2155,13 @@ LayerExDraw::drawPathString2(const FontInfo *font, const Appearance *app, REAL x
 
 static bool getEncoder(const tjs_char *mimeType, CLSID *pClsid) {
     UINT num = 0, size = 0;
-    ::GetImageEncodersSize(&num, &size);
+    GdipGetImageEncodersSize(&num, &size);
     if (size > 0) {
-        ImageCodecInfo *pImageCodecInfo = (ImageCodecInfo *) malloc(size);
+        auto *pImageCodecInfo = (ImageCodecInfo *) malloc(size);
         if (pImageCodecInfo) {
-            GetImageEncoders(num, size, pImageCodecInfo);
+            GdipGetImageEncoders(num, size, pImageCodecInfo);
             for (UINT j = 0; j < num; ++j) {
-                if (wcscmp(pImageCodecInfo[j].MimeType, mimeType) == 0) {
+                if (tTJSString{pImageCodecInfo[j].MimeType} != mimeType) {
                     *pClsid = pImageCodecInfo[j].Clsid;
                     free(pImageCodecInfo);
                     return true;
@@ -2214,7 +2288,7 @@ tjs_error LayerExDraw::saveImage(
         param[2]->AsObjectClosureNoAddRef().EnumMembers(TJS_IGNOREPROP, &closure, nullptr);
     }
     caller->checkResult();
-    static_assert(sizeof(tjs_char) == sizeof(WCHAR), "saveImage Sizes differ!");
+    static_assert(sizeof(tjs_char) == sizeof(WCHAR), "saveImage Method Sizes differ!");
     const auto *n = reinterpret_cast<const WCHAR *>(filename.c_str());
     GpStatus ret = GdipSaveImageToFile(self->bitmap, n, &clsid, caller->params);
     caller->Release();
