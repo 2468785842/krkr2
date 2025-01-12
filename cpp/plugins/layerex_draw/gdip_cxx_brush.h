@@ -19,15 +19,15 @@ extern "C" {
 class [[nodiscard]] BrushBase {
 public:
 
-    [[nodiscard]] virtual operator GpBrush *() = 0;
-
-    [[nodiscard]] virtual operator GpBrush *() const = 0;
+    [[nodiscard]] explicit virtual operator GpBrush *() const = 0;
 
     [[nodiscard]] virtual BrushBase *Clone() const = 0;
 
     [[nodiscard]] virtual GpStatus GetLastStatus() const {
         return this->gpStatus;
     }
+
+    virtual ~BrushBase() = default;
 
 protected:
     mutable GpStatus gpStatus{};
@@ -43,16 +43,14 @@ public:
 
     SolidBrush(const SolidBrush &brush) = delete;
 
-    [[nodiscard]] operator GpBrush *() override {
-        return (GpBrush *) this->_gpSolidFill;
-    }
-
-    [[nodiscard]] operator GpBrush *() const override {
+    [[nodiscard]] explicit operator GpBrush *() const override {
         return (GpBrush *) this->_gpSolidFill;
     }
 
     [[nodiscard]] BrushBase *Clone() const override {
-        return new SolidBrush{new SolidFill{*this->_gpSolidFill}};
+        SolidFill *tmp{};
+        GdipCloneBrush((GpBrush *) this->_gpSolidFill, (GpBrush **) &tmp);
+        return new SolidBrush{tmp};
     }
 
     GpStatus GetColor(Color *color) const {
@@ -69,7 +67,7 @@ public:
         return this->gpStatus;
     }
 
-    ~SolidBrush() {
+    ~SolidBrush() override {
         GdipDeleteBrush((GpBrush *) this->_gpSolidFill);
     }
 
@@ -93,16 +91,14 @@ public:
 
     HatchBrush(const HatchBrush &) = delete;
 
-    [[nodiscard]] operator GpBrush *() override {
-        return (GpBrush *) this->_gpHatch;
-    }
-
-    [[nodiscard]] operator GpBrush *() const override {
+    [[nodiscard]] explicit operator GpBrush *() const override {
         return (GpBrush *) this->_gpHatch;
     }
 
     [[nodiscard]] BrushBase *Clone() const override {
-        return new HatchBrush{new GpHatch{*this->_gpHatch}};
+        GpHatch *tmp{};
+        GdipCloneBrush((GpBrush *) this->_gpHatch, (GpBrush **) &tmp);
+        return new HatchBrush{tmp};
     }
 
     HatchStyle GetHatchStyle() const {
@@ -125,7 +121,7 @@ public:
         return this->gpStatus;
     }
 
-    ~HatchBrush() {
+    ~HatchBrush() override {
         GdipDeleteBrush((GpBrush *) this->_gpHatch);
     }
 
@@ -151,19 +147,17 @@ public:
 
     TextureBrush(const TextureBrush &) = delete;
 
-    [[nodiscard]] operator GpBrush *() override {
-        return (GpBrush *) this->_gpTexture;
-    }
-
-    [[nodiscard]] operator GpBrush *() const override {
+    [[nodiscard]] explicit operator GpBrush *() const override {
         return (GpBrush *) this->_gpTexture;
     }
 
     [[nodiscard]] BrushBase *Clone() const override {
-        return new TextureBrush{new GpTexture{*this->_gpTexture}};
+        GpTexture *tmp{};
+        GdipCloneBrush((GpBrush *) this->_gpTexture, (GpBrush **) &tmp);
+        return new TextureBrush{tmp};
     }
 
-    ~TextureBrush() {
+    ~TextureBrush() override {
         GdipDeleteBrush((GpBrush *) this->_gpTexture);
     }
 
@@ -181,16 +175,14 @@ public:
 
     PathGradientBrush(const PathGradientBrush &) = delete;
 
-    [[nodiscard]] operator GpBrush *() override {
-        return (GpBrush *) this->_gpPathG;
-    }
-
-    [[nodiscard]] operator GpBrush *() const override {
+    [[nodiscard]] explicit operator GpBrush *() const override {
         return (GpBrush *) this->_gpPathG;
     }
 
     [[nodiscard]] BrushBase *Clone() const override {
-        return new PathGradientBrush{new GpPathGradient{*this->_gpPathG}};
+        GpPathGradient *tmp{};
+        GdipCloneBrush((GpBrush *) this->_gpPathG, (GpBrush **) &tmp);
+        return new PathGradientBrush{tmp};
     }
 
     GpStatus SetCenterColor(const Color &color) {
@@ -269,7 +261,7 @@ public:
         return this->gpStatus;
     }
 
-    ~PathGradientBrush() {
+    ~PathGradientBrush() override {
         GdipDeleteBrush((GpBrush *) this->_gpPathG);
     }
 
@@ -321,16 +313,14 @@ public:
 
     LinearGradientBrush(const LinearGradientBrush &) = delete;
 
-    [[nodiscard]] operator GpBrush *() override {
-        return (GpBrush *) this->_gpLG;
-    }
-
-    [[nodiscard]] operator GpBrush *() const override {
+    [[nodiscard]] explicit operator GpBrush *() const override {
         return (GpBrush *) this->_gpLG;
     }
 
     [[nodiscard]] BrushBase *Clone() const override {
-        return new LinearGradientBrush{new GpLineGradient{*this->_gpLG}};
+        GpLineGradient *tmp{};
+        GdipCloneBrush((GpBrush *) this->_gpLG, (GpBrush **) &tmp);
+        return new LinearGradientBrush{tmp};
     }
 
     GpStatus SetWrapMode(WrapMode wrapMode) {
@@ -377,7 +367,7 @@ public:
         return this->gpStatus;
     }
 
-    ~LinearGradientBrush() {
+    ~LinearGradientBrush() override {
         GdipDeleteBrush((GpBrush *) this->_gpLG);
     }
 

@@ -35,6 +35,32 @@ public:
         return p.X == this->X && p.Y == this->Y;
     }
 
+    PointFClass operator-(const PointF &point) {
+        return PointFClass{this->X - point.X, this->Y - point.Y};
+    }
+
+    PointFClass operator+(const PointF &point) {
+        return PointFClass{this->X + point.X, this->Y + point.Y};
+    }
+
+    PointFClass *operator+=(const PointF &point) {
+        this->X = this->X + point.X;
+        this->Y = this->Y + point.Y;
+        return this;
+    }
+
+    template<typename T>
+    PointFClass operator*(T number) {
+        return PointFClass{this->X * number, this->Y * number};
+    }
+
+    template<typename T>
+    PointFClass *operator*=(T number) {
+        this->X = this->X * number;
+        this->Y = this->Y * number;
+        return this;
+    }
+
 };
 
 class RectFClass : public RectF {
@@ -259,11 +285,7 @@ public:
         return this->_gpStatus;
     }
 
-    [[nodiscard]] operator GpMatrix *() {
-        return this->_gpMatrix;
-    }
-
-    [[nodiscard]] operator GpMatrix *() const {
+    [[nodiscard]] explicit operator GpMatrix *() const {
         return this->_gpMatrix;
     }
 
@@ -363,11 +385,7 @@ public:
         return new ImageClass{image};
     }
 
-    [[nodiscard]] operator GpImage *() {
-        return this->_gpImage;
-    }
-
-    [[nodiscard]] operator GpImage *() const {
+    [[nodiscard]] explicit operator GpImage *() const {
         return this->_gpImage;
     }
 
@@ -409,18 +427,6 @@ public:
 
 private:
     GpFontCollection *_gpFC{nullptr};
-};
-
-// https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-fixed
-struct FIXED {
-    short value;
-    WORD fract;
-};
-
-// https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-pointfx
-struct POINTFX {
-    FIXED x;
-    FIXED y;
 };
 
 typedef enum {

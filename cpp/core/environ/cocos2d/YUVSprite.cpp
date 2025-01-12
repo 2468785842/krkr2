@@ -126,7 +126,7 @@ bool TVPYUVSprite::init()
 {
 	initWithTexture(new cocos2d::Texture2D);
 	setupVBOAndVAO();
-	_drawCommand.func = std::bind(&TVPYUVSprite::onDraw, this);
+	_drawCommand.func = [this] { onDraw(); };
 	_textureU = new cocos2d::Texture2D; _textureU->retain();
 	_textureV = new cocos2d::Texture2D; _textureV->retain();
 	setGLProgram(_getYUVRenderProgram());

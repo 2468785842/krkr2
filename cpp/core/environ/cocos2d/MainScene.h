@@ -14,7 +14,7 @@ class TVPMainScene : public cocos2d::Scene, public cocos2d::IMEDelegate
 {
 	TVPMainScene();
 	static TVPMainScene *create();
-	virtual void update(float delta) override;
+	void update(float delta) override;
 	void initialize();
 	friend class TVPAppDelegate;
 public:
@@ -54,8 +54,8 @@ public:
 	void showVirtualMouseCursor(bool bVisible);
 	bool isVirtualMouseMode() const;
 
-	virtual bool attachWithIME() override;
-	virtual bool detachWithIME() override;
+	bool attachWithIME() override;
+	bool detachWithIME() override;
 
 	static void onCharInput(int keyCode);
 	static void onTextInput(const std::string &text);
@@ -76,10 +76,10 @@ private:
 	void onPadKeyUp(cocos2d::Controller* ctrl, int code, cocos2d::Event *e);
 	void onPadKeyRepeat(cocos2d::Controller* ctrl, int code, cocos2d::Event *e);
 
-	virtual bool canAttachWithIME() override;
-	virtual bool canDetachWithIME() override;
-	virtual void deleteBackward();
-	virtual void insertText(const char * text, size_t len);
+	bool canAttachWithIME() override;
+	bool canDetachWithIME() override;
+	void deleteBackward() override;
+	void insertText(const char * text, size_t len) override;
 
 	void doStartup(float dt, std::string path);
 

@@ -145,12 +145,7 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
        }
 
        public static void queueAccelerometer(final float x, final float y, final float z, final long timestamp) {   
-       mCocos2dxGLSurfaceView.queueEvent(new Runnable() {
-        @Override
-            public void run() {
-                Cocos2dxAccelerometer.onSensorChanged(x, y, z, timestamp);
-        }
-        });
+       mCocos2dxGLSurfaceView.queueEvent(() -> Cocos2dxAccelerometer.onSensorChanged(x, y, z, timestamp));
     }
 
     public void setCocos2dxRenderer(final Cocos2dxRenderer renderer) {
@@ -182,12 +177,7 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
     public void onResume() {
         super.onResume();
         this.setRenderMode(RENDERMODE_CONTINUOUSLY);
-        this.queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                Cocos2dxGLSurfaceView.this.mCocos2dxRenderer.handleOnResume();
-            }
-        });
+        this.queueEvent(() -> Cocos2dxGLSurfaceView.this.mCocos2dxRenderer.handleOnResume());
     }
 
     @Override
@@ -398,12 +388,7 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
             case KeyEvent.KEYCODE_ENTER:
             case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
             case KeyEvent.KEYCODE_DPAD_CENTER:
-                this.queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        Cocos2dxGLSurfaceView.this.mCocos2dxRenderer.handleKeyUp(keyCode);
-                    }
-                });
+                this.queueEvent(() -> Cocos2dxGLSurfaceView.this.mCocos2dxRenderer.handleKeyUp(keyCode));
                 return true;
             default:
                 return super.onKeyUp(keyCode, event);
@@ -450,7 +435,7 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
     }
 
     private static void dumpMotionEvent(final MotionEvent event) {
-        final String names[] = { "DOWN", "UP", "MOVE", "CANCEL", "OUTSIDE", "POINTER_DOWN", "POINTER_UP", "7?", "8?", "9?" };
+        final String[] names = { "DOWN", "UP", "MOVE", "CANCEL", "OUTSIDE", "POINTER_DOWN", "POINTER_UP", "7?", "8?", "9?" };
         final StringBuilder sb = new StringBuilder();
         final int action = event.getAction();
         final int actionCode = action & MotionEvent.ACTION_MASK;

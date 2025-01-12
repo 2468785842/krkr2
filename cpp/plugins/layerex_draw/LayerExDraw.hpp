@@ -44,14 +44,14 @@ class FontInfo {
     friend class DrawPath;
 
 protected:
-    // unknown ptr ?
     GpFontFamily *fontFamily; //< フォントファミリー
-    ttstr familyName;
-    REAL emSize; //< フォントサイズ
-    INT style; //< フォントスタイル
-    bool gdiPlusUnsupportedFont; //< GDI+未サポートフォント
-    bool forceSelfPathDraw; // 自前パス描画強制
-    mutable bool propertyModified;
+    FT_Face ftFace{};
+    ttstr familyName{};
+    UINT emSize{12}; //< フォントサイズ
+    INT style{}; //< フォントスタイル
+    bool gdiPlusUnsupportedFont{}; //< GDI+未サポートフォント
+    bool forceSelfPathDraw{}; // 自前パス描画強制
+    mutable bool propertyModified{true};
     mutable REAL ascent{};
     mutable REAL descent{};
     mutable REAL lineSpacing{};
@@ -65,7 +65,7 @@ protected:
 
 public:
 
-    FontInfo();
+    FontInfo() = default;
 
     /**
      * コンストラクタ
@@ -269,7 +269,7 @@ class LayerExDraw : public layerExBase {
 protected:
     // 情報保持用
     GeometryT width, height;
-//    BufferT buffer; // never use!! we must read from original file
+    BufferT buffer;
     PitchT pitch;
     GeometryT clipLeft, clipTop, clipWidth, clipHeight;
 
@@ -439,7 +439,7 @@ protected:
      * @param path グリフを書き出すパス
      * @param glyph 描画するグリフ
      */
-//    void getGlyphOutline(const FontInfo *font, PointF &offset, GpPath *path, UINT glyph);
+    void getGlyphOutline(const FontInfo *font, PointFClass &offset, GpPath *path, UINT charcode);
 
     /*
      * テキストアウトラインの取得

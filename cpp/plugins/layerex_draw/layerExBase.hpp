@@ -70,7 +70,7 @@ struct layerExBase {
     typedef iTJSDispatch2 *DispatchT;
     typedef ObjectCache ObjectT;
     typedef unsigned char *BufferT;
-//    typedef unsigned char *BufferRT;
+    typedef unsigned char *BufferRT;
     typedef tjs_int PitchT;
     typedef tjs_int GeometryT;
     DispatchT _obj;
@@ -82,8 +82,8 @@ struct layerExBase {
             : _obj(obj),
               _pWidth(obj, TJS_W("imageWidth")),
               _pHeight(obj, TJS_W("imageHeight")),
-            //_pBuffer(obj, TJS_W("mainImageBufferForWrite")),
-            //_pPitch( obj, TJS_W("mainImageBufferPitch")),
+              _pBuffer(obj, TJS_W("mainImageBufferForWrite")),
+              _pPitch(obj, TJS_W("mainImageBufferPitch")),
               _pUpdate(obj, TJS_W("update")),
               _pClipLeft(obj, TJS_W("clipLeft")),
               _pClipTop(obj, TJS_W("clipTop")),
@@ -113,8 +113,8 @@ struct layerExBase {
     virtual void reset() {
         _width = (GeometryT) _pWidth;
         _height = (GeometryT) _pHeight;
-        //_buffer = (BufferT)(ObjectCache::IntegerT)_pBuffer;
-        //_pitch  = (PitchT)_pPitch;
+        _buffer = (BufferT) (ObjectCache::IntegerT) _pBuffer;
+        _pitch = (PitchT) _pPitch;
         _clipLeft = (GeometryT) _pClipLeft;
         _clipTop = (GeometryT) _pClipTop;
         _clipWidth = (GeometryT) _pClipWidth;
@@ -122,7 +122,7 @@ struct layerExBase {
     }
 
 protected:
-    ObjectT _pWidth, _pHeight/*, _pBuffer, _pPitch*/, _pUpdate;
+    ObjectT _pWidth, _pHeight, _pBuffer, _pPitch, _pUpdate;
 
     GeometryT _width, _height;
     BufferT _buffer;

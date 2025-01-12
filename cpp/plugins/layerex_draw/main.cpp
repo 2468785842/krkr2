@@ -16,16 +16,6 @@ extern RectFClass *getBounds(ImageClass *image);
 // 数値パラメータ系は配列か辞書を使えるような特殊コンバータを構築
 // ----------------------------------------------------------------
 
-// 両方自前コンバータ
-#define NCB_SET_CONVERTOR_BOTH(type, convertor)\
-NCB_TYPECONV_SRCMAP_SET(type, convertor<type>, true);\
-NCB_TYPECONV_DSTMAP_SET(type, convertor<type>, true)
-
-// SRCだけ自前コンバータ
-#define NCB_SET_CONVERTOR_SRC(type, convertor)\
-NCB_TYPECONV_SRCMAP_SET(type, convertor<type>, true);\
-NCB_TYPECONV_DSTMAP_SET(type, ncbNativeObjectBoxing::Unboxing, true)
-
 // DSTだけ自前コンバータ
 #define NCB_SET_CONVERTOR_DST(type, convertor)\
 NCB_TYPECONV_SRCMAP_SET(type, ncbNativeObjectBoxing::Boxing,   true); \
@@ -794,8 +784,6 @@ NCB_GET_INSTANCE_HOOK(LayerExDraw)
     ~NCB_GET_INSTANCE_HOOK_CLASS() {
     }
 };
-
-#define LAYEREX_METHOD(type, name)  Method(TJS_W(# name), &Type::name, Bridge<LayerExDraw::BridgeFunctor<type>>())
 
 /**
  * GpImage はラッピングする必要があるので rawcallback で対応
