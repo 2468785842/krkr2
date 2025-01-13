@@ -50,6 +50,11 @@ public:
     }
 
     template<typename T>
+    PointFClass operator/(T number) {
+        return PointFClass{this->X / number, this->Y / number};
+    }
+
+    template<typename T>
     PointFClass operator*(T number) {
         return PointFClass{this->X * number, this->Y * number};
     }

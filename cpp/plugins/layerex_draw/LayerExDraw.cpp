@@ -4,6 +4,7 @@
 #include <cassert>
 #include <iostream>
 #include <sstream>
+#include <stack>
 
 #include "ncbind.hpp"
 #include "LayerExDraw.hpp"
@@ -1210,8 +1211,9 @@ RectFClass LayerExDraw::_drawPath(const Appearance *app, GpPath *path) {
                     }
                     matrix.Multiply(&calcTransform, MatrixOrderAppend);
                     if (first) {
-                        GdipGetPathWorldBounds(path, &rect, static_cast<GpMatrix *>(matrix),
-                                               nullptr);
+                        GdipGetPathWorldBounds(
+                                path, &rect,
+                                static_cast<GpMatrix *>(matrix), nullptr);
                         first = false;
                     } else {
                         RectFClass r;
@@ -2051,7 +2053,6 @@ bool LayerExDraw::loadRecord(const tjs_char *filename) {
 void LayerExDraw::getGlyphOutline(
         const FontInfo *fontInfo, PointFClass &offset, GpPath *path, UINT charcode
 ) {
-    // FIXME
     // 加载字形
     FT_UInt glyphIndex = FT_Get_Char_Index(fontInfo->ftFace, charcode);
     if (glyphIndex == 0) {
@@ -2066,7 +2067,7 @@ void LayerExDraw::getGlyphOutline(
         TVPConsoleLog(ttstr{ss.str()}.c_str());
     }
 
-    FT_Int32 flags = FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP;
+    FT_Int32 flags = FT_LOAD_DEFAULT | FT_LOAD_NO_BITMAP;
     if (FT_Load_Glyph(fontInfo->ftFace, glyphIndex, flags) != 0) {
         // 字形加载失败
         TVPConsoleLog(TJS_W("FT Load Glyph Failed!"));
@@ -2094,29 +2095,72 @@ void LayerExDraw::getGlyphOutline(
 
     FT_Outline outline = glyph->outline;
 
+    const auto getPoint = [&](int index) -> PointFClass {
+        return {
+                static_cast<float>(outline.points[index].x) * scaleFactor + glyphOffset.X,
+                static_cast<float>(-outline.points[index].y) * scaleFactor + glyphOffset.Y
+        };
+    };
+
+    std::function<PointFClass(int, int, int)> getConicEndPoint = [&](
+            int contourStart, int index, int contourEnd
+    ) -> PointFClass {
+
+        if (FT_CURVE_TAG(outline.tags[index]) != FT_CURVE_TAG_CONIC) {
+            throw std::logic_error{"must FT_CURVE_TAG_CONIC"};
+        }
+
+        int nextIndex = index == contourEnd ? contourStart : index + 1;
+        FT_Byte nextTag = FT_CURVE_TAG(outline.tags[nextIndex]);
+
+        if (nextTag == FT_CURVE_TAG_ON) {
+            return getPoint(nextIndex);
+        }
+
+        return (getPoint(index) + getPoint(nextIndex)) / 2.0f;
+    };
+
+    const auto addPathConicBezier = [&path](
+            PointFClass startP, PointFClass controlP, PointFClass endP
+    ) {
+
+        float t = 2.0f / 3.0f;
+        PointFClass cubicP1 = startP + (controlP - startP) * t;
+        PointFClass cubicP2 = endP + (controlP - endP) * t;
+
+        GdipAddPathBezier(
+                path,
+                startP.X, startP.Y,
+                cubicP1.X, cubicP1.Y,
+                cubicP2.X, cubicP2.Y,
+                endP.X, endP.Y
+        );
+
+    };
+
+    // Full Definition: http://freetype.org/freetype2/docs/glyphs/glyphs-6.html
     for (int i = 0; i < outline.n_contours; ++i) {
         int contourStart = (i == 0) ? 0 : outline.contours[i - 1] + 1;
         int contourEnd = outline.contours[i];
 
-        std::vector<PointFClass> ctlPoints{};
+        if (contourStart == contourEnd) continue;
+
+        FT_Byte contourStartTag = FT_CURVE_TAG(outline.tags[contourStart]);
+        PointFClass contourStartP = getPoint(contourStart);
+
+        FT_Byte prevTag{}, currentTag{};
+        PointFClass prevP{}, currentP{};
 
         for (int j = contourStart + 1; j <= contourEnd; ++j) {
-            FT_Byte prevTag = FT_CURVE_TAG(outline.tags[j - 1]);
-            FT_Byte currentTag = FT_CURVE_TAG(outline.tags[j]);
+            prevTag = FT_CURVE_TAG(outline.tags[j - 1]);
+            currentTag = FT_CURVE_TAG(outline.tags[j]);
 
-            PointFClass prevP{
-                    static_cast<float>(outline.points[j - 1].x) * scaleFactor,
-                    static_cast<float>(-outline.points[j - 1].y) * scaleFactor
-            };
+            if (currentTag == FT_CURVE_TAG_CUBIC) {
+                throw std::logic_error{"not support FT_CURVE_TAG_CUBIC"};
+            }
 
-            prevP += glyphOffset;
-
-            PointFClass currentP{
-                    static_cast<float>(outline.points[j].x) * scaleFactor,
-                    static_cast<float>(-outline.points[j].y) * scaleFactor
-            };
-
-            currentP += glyphOffset;
+            prevP = getPoint(j - 1);
+            currentP = getPoint(j);
 
             if (prevTag == FT_CURVE_TAG_ON && currentTag == FT_CURVE_TAG_ON) {
                 GdipAddPathLine(
@@ -2127,33 +2171,55 @@ void LayerExDraw::getGlyphOutline(
                 continue;
             }
 
-            ctlPoints.push_back(prevP);
-
-            if (prevTag == FT_CURVE_TAG_CONIC && currentTag == FT_CURVE_TAG_ON) {
-
-                PointFClass startP = ctlPoints[0];
-
-                PointFClass cubicP1 = startP + (prevP - startP) * (2.0f / 3.0f);
-                PointFClass cubicP2 = currentP + (prevP - currentP) * (2.0f / 3.0f);
-
-                GdipAddPathBezier(
-                        path,
-                        startP.X, startP.Y,
-                        cubicP1.X, cubicP1.Y,
-                        cubicP2.X, cubicP2.Y,
-                        currentP.X, currentP.Y
+            if (prevTag == FT_CURVE_TAG_ON && currentTag == FT_CURVE_TAG_CONIC) {
+                addPathConicBezier(
+                        prevP, currentP,
+                        getConicEndPoint(contourStart, j, contourEnd)
                 );
-
-                ctlPoints.clear();
                 continue;
             }
 
-            if (prevTag == FT_CURVE_TAG_CUBIC && currentTag == FT_CURVE_TAG_ON) {
-                ctlPoints.push_back(currentP);
-                GdipAddPathBeziers(path, &ctlPoints[0], static_cast<int>(ctlPoints.size()));
-                ctlPoints.clear();
+            if (prevTag == FT_CURVE_TAG_CONIC && currentTag == FT_CURVE_TAG_CONIC) {
+                addPathConicBezier(
+                        (prevP + currentP) / 2.0f, currentP,
+                        getConicEndPoint(contourStart, j, contourEnd)
+                );
+                continue;
             }
 
+        }
+
+        // outline close
+        if (currentTag == FT_CURVE_TAG_ON && contourStartTag == FT_CURVE_TAG_ON) {
+            GdipAddPathLine(
+                    path,
+                    currentP.X, currentP.Y,
+                    contourStartP.X, contourStartP.Y
+            );
+        }
+
+        if (currentTag == FT_CURVE_TAG_ON && contourStartTag == FT_CURVE_TAG_CONIC) {
+            addPathConicBezier(
+                    currentP, contourStartP,
+                    getConicEndPoint(contourStart, contourStart, contourEnd)
+            );
+        }
+
+        if (currentTag == FT_CURVE_TAG_CONIC && contourStartTag == FT_CURVE_TAG_ON) {
+            addPathConicBezier(
+                    prevTag == FT_CURVE_TAG_ON ? prevP : (prevP + currentP) / 2.0f,
+                    currentP, contourStartP
+            );
+        }
+
+        if (currentTag == FT_CURVE_TAG_CONIC && contourStartTag == FT_CURVE_TAG_CONIC) {
+
+//            addPathConicBezier(
+//                    prevTag == FT_CURVE_TAG_ON ? prevP : (prevP + currentP) / 2.0f,
+//                    contourStartP,
+//                    getConicEndPoint(contourStart, contourStart, contourEnd)
+//            );
+            throw std::logic_error{"end tag is CONIC not support!!"};
         }
 
         GdipClosePathFigure(path);
@@ -2174,21 +2240,6 @@ void LayerExDraw::getTextOutline(
         PointFClass &offset, GpPath *path, const ttstr &text
 ) {
     if (text.IsEmpty()) return;
-
-    this->font = LOGFONTW{
-            .lfHeight = -(LONG(fontInfo->emSize)),
-            .lfWeight = (fontInfo->style & 1) ? FW_BOLD : FW_REGULAR,
-            .lfItalic = static_cast<BYTE>(fontInfo->style & 2),
-            .lfUnderline = static_cast<BYTE>(fontInfo->style & 4),
-            .lfStrikeOut = static_cast<BYTE>(fontInfo->style & 8),
-            .lfCharSet = DEFAULT_CHARSET,
-    };
-
-    if (fontInfo->familyName.length() > LF_FACESIZE) {
-        throw std::logic_error{"familyName.length() > LF_FACESIZE buffer overflow!!"};
-    }
-
-    std::memcpy(font.lfFaceName, fontInfo->familyName.c_str(), fontInfo->familyName.length());
 
     for (tjs_int i = 0; i < text.GetLen(); i++) {
         this->getGlyphOutline(fontInfo, offset, path, text[i]);
