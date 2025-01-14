@@ -53,7 +53,7 @@ void TVPTipsHelpForm::rearrangeLayout() {
 }
 
 void TVPTipsHelpForm::bindBodyController(const NodeMap &allNodes) {
-	_tipslist = dynamic_cast<ListView*>(allNodes.findController("tipslist"));
+	_tipslist = static_cast<ListView*>(allNodes.findController("tipslist"));
 	Widget *btn_close = allNodes.findWidget("btn_close");
 	btn_close->addClickEventListener([this](Ref* p){
 		static_cast<Widget*>(p)->setEnabled(false);

@@ -104,11 +104,11 @@ void TVPMessageBoxForm::init(const std::string &caption, const std::string &text
 
 void TVPMessageBoxForm::bindBodyController(const NodeMap &allNodes)
 {
-	_title = dynamic_cast<Text*>(allNodes.findController("title"));
-	_textContent = dynamic_cast<Text*>(allNodes.findController("content"));
-	_textContainer = dynamic_cast<ScrollView*>(allNodes.findController("text"));
+	_title = static_cast<Text*>(allNodes.findController("title"));
+	_textContent = static_cast<Text*>(allNodes.findController("content"));
+	_textContainer = static_cast<ScrollView*>(allNodes.findController("text"));
 
-	_btnBody = dynamic_cast<Button*>(allNodes.findController("btnBody"));
+	_btnBody = static_cast<Button*>(allNodes.findController("btnBody"));
 	_btnModel = allNodes.findWidget("btn");
 	_btnList = _btnModel->getParent();
 }

@@ -147,7 +147,7 @@ void TVPMainFileSelectorForm::bindBodyController(const NodeMap &allNodes) {
 	TVPBaseFileSelectorForm::bindBodyController(allNodes);
 
 	if (NaviBar.Right) {
-		NaviBar.Right->addClickEventListener(std::bind(&TVPMainFileSelectorForm::showMenu, this, std::placeholders::_1));
+		NaviBar.Right->addClickEventListener([this](auto && PH1) { showMenu(std::forward<decltype(PH1)>(PH1)); });
 	}
 }
 
@@ -232,7 +232,7 @@ void TVPMainFileSelectorForm::getShortCutDirList(std::vector<std::string> &pathl
 }
 
 TVPMainFileSelectorForm * TVPMainFileSelectorForm::create() {
-	TVPMainFileSelectorForm *ret = new  TVPMainFileSelectorForm();
+	auto *ret = new  TVPMainFileSelectorForm();
 	ret->autorelease();
 	ret->initFromFile();
 	ret->show();
@@ -321,7 +321,7 @@ void TVPMainFileSelectorForm::showMenu(Ref*) {
 		sizeNewLocalPref = newLocalPref->getContentSize();
 		sizeLocalPref = localPref->getContentSize();
 
-		_menuList = dynamic_cast<ui::ListView*>(reader.findController("menulist"));
+		_menuList = static_cast<ui::ListView*>(reader.findController("menulist"));
 
 		// captions
 		LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();
@@ -503,7 +503,7 @@ void TVPMainFileSelectorForm::ListHistory()
 {
 	if (!_historyList) return;
 	_historyList->removeAllChildren();
-	HistoryCell *nullcell = new HistoryCell();
+	auto *nullcell = new HistoryCell();
 	nullcell->init();
 	Size cellsize = _historyList->getContentSize();
 	cellsize.height = 100;
@@ -521,7 +521,7 @@ void TVPMainFileSelectorForm::ListHistory()
 			Widget::ccWidgetClickCallback funcConf;
 			if (TVPCheckExistentLocalFile(path + "/Kirikiroid2Preference.xml"))
 				funcConf = [this, path](Ref*){ onShowPreferenceConfigAt(path); };
-			cell->initFunction(std::bind(&TVPMainFileSelectorForm::RemoveHistoryCell, this, std::placeholders::_1, cell),
+			cell->initFunction([this, cell](auto && PH1) { RemoveHistoryCell(std::forward<decltype(PH1)>(PH1), cell); },
 				[this, path](Ref*){ ListDir(path); }, funcConf, [this, fullpath](Ref*) { startup(fullpath); });
 			Size cellsize = cell->getContentSize();
 			cellsize.width = _historyList->getContentSize().width;
@@ -545,7 +545,7 @@ void TVPMainFileSelectorForm::RemoveHistoryCell(cocos2d::Ref* btn, HistoryCell* 
 	cell->runAction(Sequence::createWithTwoActions(
 		EaseQuadraticActionOut::create(MoveBy::create(0.25, Vec2(-cell->getContentSize().width, 0))),
 		CallFuncN::create([this](Node* p){
-		HistoryCell* cell = static_cast<HistoryCell*>(p);
+		auto* cell = static_cast<HistoryCell*>(p);
 		ssize_t idx = _historyList->getIndex(cell);
 		if (idx < 0) return;
 		_historyList->removeItem(idx);

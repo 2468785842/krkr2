@@ -24,6 +24,7 @@ import androidx.core.app.ActivityCompat;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 import org.cocos2dx.lib.Cocos2dxGLSurfaceView;
+import org.github.krkr2.KR2Application;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -8,7 +8,7 @@ TVPConsoleWindow::TVPConsoleWindow() {
 }
 
 TVPConsoleWindow* TVPConsoleWindow::create(int fontSize, cocos2d::Node *parent) {
-	TVPConsoleWindow *ret = new TVPConsoleWindow;
+	auto *ret = new TVPConsoleWindow;
 	ret->init();
 	ret->setAnchorPoint(Vec2::ZERO);
 	ret->setFontSize(fontSize);

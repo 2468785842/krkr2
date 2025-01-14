@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -69,6 +70,14 @@ android {
 
     }
 
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.8"
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
@@ -104,9 +113,14 @@ dependencies {
     //implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':cocos2dx')
 
-    implementation 'androidx.activity:activity:1.9.3'
+    implementation 'com.google.android.material:material:1.12.0'
+
+    implementation 'androidx.activity:activity-ktx:1.9.3'
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.fragment:fragment:1.8.5'
+    implementation 'androidx.fragment:fragment-ktx:1.8.5'
+
+    //noinspection GradleDependency
+    implementation 'androidx.core:core-ktx:1.13.1'
 
     configurations.configureEach {
         resolutionStrategy {

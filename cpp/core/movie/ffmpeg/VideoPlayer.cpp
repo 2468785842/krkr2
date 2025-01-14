@@ -772,7 +772,7 @@ void BasePlayer::Process()
 
 		if (IsInMenuInternal())
 		{
-			if (CDVDInputStream::IMenus* menu = dynamic_cast<CDVDInputStream::IMenus*>(m_pInputStream))
+			if (CDVDInputStream::IMenus* menu = static_cast<CDVDInputStream::IMenus*>(m_pInputStream))
 			{
 				double correction = menu->GetTimeStampCorrection();
 				if (pPacket->dts > correction)
@@ -1472,7 +1472,7 @@ void BasePlayer::HandleMessages()
 
 			CDVDMsgPlayerSetState* pMsgPlayerSetState = (CDVDMsgPlayerSetState*)pMsg;
 
-			if (CDVDInputStream::IMenus* ptr = dynamic_cast<CDVDInputStream::IMenus*>(m_pInputStream))
+			if (CDVDInputStream::IMenus* ptr = static_cast<CDVDInputStream::IMenus*>(m_pInputStream))
 			{
 				if (ptr->SetState(pMsgPlayerSetState->GetState()))
 				{
@@ -1485,7 +1485,7 @@ void BasePlayer::HandleMessages()
 			g_infoManager.SetDisplayAfterSeek();
 		} else if (pMsg->IsType(CDVDMsg::PLAYER_SET_RECORD))
 		{
-			CDVDInputStreamPVRManager* input = dynamic_cast<CDVDInputStreamPVRManager*>(m_pInputStream);
+			CDVDInputStreamPVRManager* input = static_cast<CDVDInputStreamPVRManager*>(m_pInputStream);
 			if (input)
 				input->Record(*(CDVDMsgBool*)pMsg);
 #endif
@@ -1576,7 +1576,7 @@ void BasePlayer::HandleMessages()
 			m_messenger.GetPacketCount(CDVDMsg::PLAYER_CHANNEL_SELECT_NUMBER) == 0)
 		{
 			FlushBuffers(false);
-			CDVDInputStreamPVRManager* input = dynamic_cast<CDVDInputStreamPVRManager*>(m_pInputStream);
+			CDVDInputStreamPVRManager* input = static_cast<CDVDInputStreamPVRManager*>(m_pInputStream);
 			//! @todo find a better solution for the "otherStreaHack"
 			//! a stream is not sopposed to be terminated before demuxer
 			if (input && input->IsOtherStreamHack())
@@ -1601,7 +1601,7 @@ void BasePlayer::HandleMessages()
 			m_messenger.GetPacketCount(CDVDMsg::PLAYER_CHANNEL_SELECT) == 0)
 		{
 			FlushBuffers(false);
-			CDVDInputStreamPVRManager* input = dynamic_cast<CDVDInputStreamPVRManager*>(m_pInputStream);
+			CDVDInputStreamPVRManager* input = static_cast<CDVDInputStreamPVRManager*>(m_pInputStream);
 			if (input && input->IsOtherStreamHack())
 			{
 				CloseDemuxer();
@@ -1620,7 +1620,7 @@ void BasePlayer::HandleMessages()
 		} else if (pMsg->IsType(CDVDMsg::PLAYER_CHANNEL_NEXT) || pMsg->IsType(CDVDMsg::PLAYER_CHANNEL_PREV) ||
 			pMsg->IsType(CDVDMsg::PLAYER_CHANNEL_PREVIEW_NEXT) || pMsg->IsType(CDVDMsg::PLAYER_CHANNEL_PREVIEW_PREV))
 		{
-			CDVDInputStreamPVRManager* input = dynamic_cast<CDVDInputStreamPVRManager*>(m_pInputStream);
+			CDVDInputStreamPVRManager* input = static_cast<CDVDInputStreamPVRManager*>(m_pInputStream);
 			if (input)
 			{
 				bool bSwitchSuccessful(false);
@@ -2700,7 +2700,7 @@ void BasePlayer::OpenDefaultStreams(bool reset)
 	if (!valid)
 		CloseStream(m_CurrentSubtitle, false);
 
-	if (!dynamic_cast<CDVDInputStreamNavigator*>(m_pInputStream) || m_PlayerOptions.state.empty())
+	if (!static_cast<CDVDInputStreamNavigator*>(m_pInputStream) || m_PlayerOptions.state.empty())
 		SetSubtitleVisibleInternal(visible); // only set subtitle visibility if state not stored by dvd navigator, because navigator will restore it (if visible)
 
 	// open teletext stream

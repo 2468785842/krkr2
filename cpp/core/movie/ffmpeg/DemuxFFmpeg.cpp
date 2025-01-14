@@ -110,7 +110,7 @@ bool CDVDDemuxFFmpeg::Aborted()
 	if (m_timeout.IsTimePast())
 		return true;
 
-// 	CDVDInputStreamFFmpeg * input = dynamic_cast<CDVDInputStreamFFmpeg*>(m_pInput);
+// 	CDVDInputStreamFFmpeg * input = static_cast<CDVDInputStreamFFmpeg*>(m_pInput);
 // 	if (input && input->Aborted())
 // 		return true;
 
@@ -529,7 +529,7 @@ AVDictionary *CDVDDemuxFFmpeg::GetFFMpegOptionsFromInput()
 	AVDictionary *options = nullptr;
 #if 0
 	const CDVDInputStreamFFmpeg *const input =
-		dynamic_cast<CDVDInputStreamFFmpeg*>(m_pInput);
+		static_cast<CDVDInputStreamFFmpeg*>(m_pInput);
 
 	CURL url = m_pInput->GetURL();
 
@@ -696,7 +696,7 @@ double CDVDDemuxFFmpeg::ConvertTimestamp(int64_t pts, int den, int num)
 	double timestamp = (double)pts * num / den;
 	double starttime = 0.0f;
 
-//	CDVDInputStream::IMenus* menu = dynamic_cast<CDVDInputStream::IMenus*>(m_pInput);
+//	CDVDInputStream::IMenus* menu = static_cast<CDVDInputStream::IMenus*>(m_pInput);
 // 	if (/*!menu &&*/ m_pFormatContext->start_time != (int64_t)AV_NOPTS_VALUE)
 // 		starttime = (double)m_pFormatContext->start_time / AV_TIME_BASE;
 

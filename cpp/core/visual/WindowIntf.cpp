@@ -191,7 +191,7 @@ void TJS_INTF_METHOD
 tTJSNI_BaseWindow::Invalidate()
 {
 	// remove from list
-	TVPUnregisterWindowToList(dynamic_cast<tTJSNI_Window*>(this));
+	TVPUnregisterWindowToList(static_cast<tTJSNI_Window*>(this));
 
 	// remove all events
 	TVPCancelSourceEvents(Owner);

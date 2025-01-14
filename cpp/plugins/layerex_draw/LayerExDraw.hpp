@@ -16,8 +16,6 @@ extern "C" {
 #include "combase.h"
 #include "layerExBase.hpp"
 
-using namespace std;
-
 /**
  * GDIPlus 固有処理用
  */
@@ -170,7 +168,7 @@ public:
         }
     };
 
-    vector<DrawInfo> drawInfos;
+    std::vector<DrawInfo> drawInfos;
 
 public:
     Appearance();
@@ -205,7 +203,7 @@ protected:
      */
     bool getLineCap(tTJSVariant &in, GpLineCap &cap, CustomLineCap *&custom, REAL pw);
 
-    vector<CustomLineCap *> customLineCaps;
+    std::vector<CustomLineCap *> customLineCaps;
 };
 
 
@@ -308,7 +306,6 @@ public:
 
 protected:
     /// 描画内容記録用メタファイル
-    LOGFONTW font;
     GpMetafile *metafile;
     GpGraphics *metaGraphics;
 

@@ -312,8 +312,8 @@ void TVPCustomPreferenceForm::initFromInfo(const std::string &tid_title, int cou
 }
 
 void iPreferenceItemSlider::initController(const NodeMap &allNodes) {
-	_slider = dynamic_cast<Slider*>(allNodes.findController("slider"));
-	_reset = dynamic_cast<Button*>(allNodes.findController("reset"));
+	_slider = static_cast<Slider*>(allNodes.findController("slider"));
+	_reset = static_cast<Button*>(allNodes.findController("reset"));
 	if (_reset) {
 		LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
 		_reset->setTitleText(locmgr->GetText(_reset->getTitleText()));
@@ -375,7 +375,7 @@ const char* tPreferenceItemTextSlider::getUIFileName() const  {
 
 void tPreferenceItemTextSlider::initController(const NodeMap &allNodes) {
 	inherit::initController(allNodes);
-	_text = dynamic_cast<Text*>(allNodes.findController("text"));
+	_text = static_cast<Text*>(allNodes.findController("text"));
 	if (_reset) {
 		_reset->addClickEventListener([this](Ref*){
 			_slider->setPercent(_resetValue * 100.f);
@@ -529,7 +529,7 @@ void tPreferenceItemDeletable::walkTouchEvent(Widget* node)
 		this, std::placeholders::_1, std::placeholders::_2));
 	auto &vecChildren = node->getChildren();
 	for (Node *child : vecChildren) {
-		Widget *widget = dynamic_cast<Widget*>(child);
+		Widget *widget = static_cast<Widget*>(child);
 		if (widget) {
 			walkTouchEvent(widget);
 		}

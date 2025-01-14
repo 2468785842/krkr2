@@ -42,7 +42,7 @@ public:
 	T *findController(const std::string &name, bool notice = true) const {
 		cocos2d::Node *node = findController<cocos2d::Node>(name, notice);
 		if (node) {
-			T *ret = dynamic_cast<T*>(node);
+			T *ret = static_cast<T*>(node);
 			if (!ret) {
 				onLoadError(name);
 			}

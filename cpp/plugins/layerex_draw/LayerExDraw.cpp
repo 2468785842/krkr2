@@ -1,11 +1,4 @@
-#include <vector>
-#include <cstdio>
-#include <cairo/cairo.h>
-#include <cassert>
-#include <iostream>
 #include <sstream>
-#include <stack>
-
 #include "ncbind.hpp"
 #include "LayerExDraw.hpp"
 
@@ -582,8 +575,8 @@ void commonBrushParameter(ncbPropAccessor &info, T *brush) {
     tTJSVariant var;
     // SetBlend
     if (info.checkVariant(TJS_W("blend"), var)) {
-        vector<REAL> factors;
-        vector<REAL> positions;
+        std::vector<REAL> factors;
+        std::vector<REAL> positions;
         ncbPropAccessor binfo(var);
         if (IsArray(var)) {
             getReals(binfo, 0, factors);
@@ -628,8 +621,8 @@ void commonBrushParameter(ncbPropAccessor &info, T *brush) {
     }
     // SetInterpolationColors
     if (info.checkVariant(TJS_W("interpolationColors"), var)) {
-        vector<Color> colors;
-        vector<REAL> positions;
+        std::vector<Color> colors;
+        std::vector<REAL> positions;
         ncbPropAccessor binfo(var);
         if (IsArray(var)) {
             getColors(binfo, 0, colors);
@@ -688,7 +681,7 @@ BrushBase *createBrush(tTJSVariant colorOrBrush) {
             }
             case BrushTypePathGradient: {
                 PathGradientBrush *pbrush;
-                vector<PointFClass> points;
+                std::vector<PointFClass> points;
                 getPoints(info, TJS_W("points"), points);
                 if ((int) points.size() == 0) TVPThrowExceptionMessage(TJS_W("must set poins"));
                 auto wrapMode = (WrapMode) info.getIntValue(TJS_W("wrapMode"), WrapModeTile);
@@ -719,7 +712,7 @@ BrushBase *createBrush(tTJSVariant colorOrBrush) {
                 }
                 //SetSurroundColors
                 if (info.checkVariant(TJS_W("surroundColors"), var)) {
-                    vector<Color> colors;
+                    std::vector<Color> colors;
                     getColors(var, colors);
                     int size = (int) colors.size();
                     pbrush->SetSurroundColors(&colors[0], &size);
@@ -829,7 +822,7 @@ void Appearance::addPen(
         }
         // SetCompoundArray
         if (info.checkVariant(TJS_W("compoundArray"), var)) {
-            vector<REAL> reals;
+            std::vector<REAL> reals;
             getReals(var, reals);
             pen->SetCompoundArray(&reals[0], (int) reals.size());
         }
@@ -847,7 +840,7 @@ void Appearance::addPen(
         // SetDashPattern
         if (info.checkVariant(TJS_W("dashStyle"), var)) {
             if (IsArray(var)) {
-                vector<REAL> reals;
+                std::vector<REAL> reals;
                 getReals(var, reals);
                 pen->SetDashStyle(DashStyleCustom);
                 pen->SetDashPattern(&reals[0], (int) reals.size());
@@ -1053,8 +1046,7 @@ void LayerExDraw::setTransform(/* const */ MatrixClass *trans) {
     }
 }
 
-void
-LayerExDraw::resetTransform() {
+void LayerExDraw::resetTransform() {
     transform.Reset();
     updateTransform();
 }
@@ -1917,8 +1909,7 @@ void LayerExDraw::createRecord() {
 /**
  * 記録情報の破棄
  */
-void
-LayerExDraw::destroyRecord() {
+void LayerExDraw::destroyRecord() {
     GdipDeleteGraphics(this->metaGraphics);
     metaGraphics = nullptr;
     GdipDisposeImage((GpImage *) &metafile);
@@ -1985,7 +1976,22 @@ ImageClass *LayerExDraw::getRecordImage() {
         }
 
         //閉じたあと継続するための再描画先を別途構築
-        createRecord();
+//        HGLOBAL oldBuffer = metaBuffer;
+//        metaBuffer = NULL;
+//        createRecord();
+//
+//        // 再描画
+//        if (oldBuffer) {
+//            IStream* pStream = NULL;
+//            if(::CreateStreamOnHGlobal(oldBuffer, FALSE, &pStream) == S_OK) 	{
+//                image = Image::FromStream(pStream,false);
+//                if (image) {
+//                    redraw(image);
+//                }
+//                pStream->Release();
+//            }
+//            ::GlobalFree(oldBuffer);
+//        }
     }
     return image;
 }
@@ -2305,8 +2311,8 @@ RectFClass LayerExDraw::drawPathString2(
 ) {
     // 文字列のパスを準備
     GpPath *path{};
-    GdipCreatePath(FillModeAlternate, &path);
-    PointFClass offset{x + LONG(0.167 * font->emSize) - 0.5f, y - 0.5f};
+    GdipCreatePath(FillModeWinding, &path);
+    PointFClass offset{x + REAL(0.167 * font->emSize) - 0.5f, y - 0.5f};
     this->getTextOutline(font, offset, path, text);
     RectFClass result = _drawPath(app, path);
     result.X = x;
@@ -2468,8 +2474,7 @@ static ARGB getColor(GpBitmap *bitmap, int x, int y) {
     return c;
 }
 
-tTJSVariant
-LayerExDraw::getColorRegionRects(ARGB color) {
+tTJSVariant LayerExDraw::getColorRegionRects(ARGB color) {
     iTJSDispatch2 *array = TJSCreateArrayObject();
     if (bitmap) {
         uint width{};

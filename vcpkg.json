@@ -25,7 +25,12 @@
     "openal-soft",
     {
       "name": "opencv4",
-      "default-features": false
+      "default-features": false,
+      "features": [
+        "openmp",
+        "freetype",
+        "jpeg"
+      ]
     },
     "opus",
     {

@@ -15,14 +15,14 @@ struct tTVPAtClassInstallInfo {
 			while( *cur ) {
 				if( (*cur) == TJS_W(',') ) {
 					if( start != cur ) {
-						Dependences.push_back( ttstr(start, cur - start) );
+						Dependences.emplace_back(start, cur - start );
 					}
 					start = cur+1;
 				}
 				cur++;
 			}
 			if( start != cur ) {
-				Dependences.push_back(ttstr(start, cur - start));
+				Dependences.emplace_back(start, cur - start);
 			}
 		}
 	}
@@ -30,14 +30,14 @@ struct tTVPAtClassInstallInfo {
 	iTJSDispatch2* (*Handler)(iTJSDispatch2*);
 	std::vector<ttstr> Dependences;	// 依存クラスリスト
 };
-static std::vector<tTVPAtClassInstallInfo> *TVPAtClassInstallInfos = NULL;
+static std::vector<tTVPAtClassInstallInfo> *TVPAtClassInstallInfos = nullptr;
 static bool TVPAtInstallClass = false;
 //---------------------------------------------------------------------------
 void TVPAddClassHandler( const tjs_char* name, iTJSDispatch2* (*handler)(iTJSDispatch2*), const tjs_char* dependences ) {
 	if(TVPAtInstallClass) return;
 
 	if(!TVPAtClassInstallInfos) TVPAtClassInstallInfos = new std::vector<tTVPAtClassInstallInfo>();
-	TVPAtClassInstallInfos->push_back(tTVPAtClassInstallInfo(name, handler, dependences));
+	TVPAtClassInstallInfos->emplace_back(name, handler, dependences);
 }
 //---------------------------------------------------------------------------
 void TVPCauseAtInstallExtensionClass( iTJSDispatch2 *global )
@@ -53,10 +53,10 @@ void TVPCauseAtInstallExtensionClass( iTJSDispatch2 *global )
 			dsp = i->Handler(global);
 			val = tTJSVariant( dsp/*, dsp*/);
 			dsp->Release();
-			global->PropSet(TJS_MEMBERENSURE|TJS_IGNOREPROP, i->Name, NULL, &val, global);
+			global->PropSet(TJS_MEMBERENSURE|TJS_IGNOREPROP, i->Name, nullptr, &val, global);
 		}
 		delete TVPAtClassInstallInfos;
-		TVPAtClassInstallInfos = NULL;
+		TVPAtClassInstallInfos = nullptr;
 	}
 }
 //---------------------------------------------------------------------------

@@ -34,7 +34,7 @@ file(COPY "${SOURCE_PATH}/src/" DESTINATION "${CURRENT_PACKAGES_DIR}/include" FI
 file(COPY "${SOURCE_PATH}/src/" DESTINATION "${CURRENT_PACKAGES_DIR}/include" FILES_MATCHING PATTERN "*.inc")
 
 # Handle dependencies
-set(Libgdiplus_PKGCONFIG_MODULES "zlib libjpeg libpng cairo cairo-gobject cairo-script-interpreter glib-2.0 libtiff-4 libexif")
+set(Libgdiplus_PKGCONFIG_MODULES "zlib libjpeg libpng cairo cairo-script-interpreter glib-2.0 libtiff-4 libexif")
 x_vcpkg_pkgconfig_get_modules(PREFIX Libgdiplus_PKGCONFIG MODULES ${Libgdiplus_PKGCONFIG_MODULES} LIBS)
 
 function(append_dependencies_from_libs out)

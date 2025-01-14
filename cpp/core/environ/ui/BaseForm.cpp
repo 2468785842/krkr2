@@ -63,7 +63,7 @@ Node* CSBReader::Load(const char *filename) {
 		int nAction = node->getNumberOfRunningActions();
 		if (nAction == 1) {
 			cocostudio::timeline::ActionTimeline* action =
-				dynamic_cast<cocostudio::timeline::ActionTimeline*>(node->getActionByTag(node->getTag()));
+				static_cast<cocostudio::timeline::ActionTimeline*>(node->getActionByTag(node->getTag()));
 			if (action && action->IsAnimationInfoExists("autoplay")) {
 				action->play("autoplay", true);
 			}

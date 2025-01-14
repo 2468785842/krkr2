@@ -32,7 +32,7 @@ void iTVPHalfScreenForm::rearrangeLayout() {
 TVPSelectListForm * TVPSelectListForm::create(const std::vector<std::string> &info,
 	const std::string &highlight_tid, const std::function<void(int)> &funcok)
 {
-	TVPSelectListForm *ret = new TVPSelectListForm();
+	auto *ret = new TVPSelectListForm();
 	ret->autorelease();
 	ret->FuncOK = funcok;
 	ret->initFromFile(nullptr, FileName_Body, nullptr);
@@ -95,7 +95,7 @@ void TVPSelectListForm::initWithInfo(const std::vector<std::string> &info, const
 
 TVPTextPairInputForm * TVPTextPairInputForm::create(const std::string &text1, const std::string &text2,
 	const std::function<void(const std::string &, const std::string &)> &funcok) {
-	TVPTextPairInputForm *ret = new TVPTextPairInputForm();
+	auto *ret = new TVPTextPairInputForm();
 	ret->autorelease();
 	ret->FuncOK = funcok;
 	ret->initFromFile(nullptr, "ui/TextPairInput.csb", nullptr);
@@ -125,7 +125,7 @@ void TVPTextPairInputForm::initWithInfo(const std::string &text1, const std::str
 
 TVPKeyPairSelectForm * TVPKeyPairSelectForm::create(const std::function<void(int)> &funcok)
 {
-	TVPKeyPairSelectForm *ret = new TVPKeyPairSelectForm;
+	auto *ret = new TVPKeyPairSelectForm;
 	ret->autorelease();
 	ret->_funcok = funcok;
 	ret->initFromFile(FileName_Body);

@@ -333,8 +333,8 @@ void TVPBaseFileSelectorForm::onTitleClicked(cocos2d::Ref *owner) {
 	};
 	for (const std::string &path : paths) {
 		CSBReader reader;
-		Widget *cell = dynamic_cast<Widget*>(reader.Load("ui/ListItem.csb"));
-		Button *item = dynamic_cast<Button*>(reader.findController("item"));
+		Widget *cell = static_cast<Widget*>(reader.Load("ui/ListItem.csb"));
+		Button *item = static_cast<Button*>(reader.findController("item"));
 		item->setCallbackName(path);
 		item->setTitleText(path);
 		item->addClickEventListener(func);
