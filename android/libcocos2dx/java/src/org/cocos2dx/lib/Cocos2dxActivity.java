@@ -63,7 +63,7 @@ public abstract class Cocos2dxActivity extends AppCompatActivity implements Coco
     // ===========================================================
     
     private Cocos2dxGLSurfaceView mGLSurfaceView = null;
-    private int[] mGLContextAttrs = null;
+    public int[] mGLContextAttrs = null;
     private Cocos2dxHandler mHandler = null;   
     private static Cocos2dxActivity sContext = null;
     private Cocos2dxVideoHelper mVideoHelper = null;
@@ -84,12 +84,7 @@ public abstract class Cocos2dxActivity extends AppCompatActivity implements Coco
     
     public void setKeepScreenOn(boolean value) {
         final boolean newValue = value;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mGLSurfaceView.setKeepScreenOn(newValue);
-            }
-        });
+        runOnUiThread(() -> mGLSurfaceView.setKeepScreenOn(newValue));
     }
 
     public void setEnableVirtualButton(boolean value) {
@@ -380,7 +375,7 @@ public abstract class Cocos2dxActivity extends AppCompatActivity implements Coco
     // Inner and Anonymous Classes
     // ===========================================================
 
-    private class Cocos2dxEGLConfigChooser implements GLSurfaceView.EGLConfigChooser
+    public class Cocos2dxEGLConfigChooser implements GLSurfaceView.EGLConfigChooser
     {
         private int[] mConfigAttributes;
         private  final int EGL_OPENGL_ES2_BIT = 0x04;

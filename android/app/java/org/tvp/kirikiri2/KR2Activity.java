@@ -6,6 +6,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Environment;
@@ -24,7 +25,6 @@ import androidx.core.app.ActivityCompat;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 import org.cocos2dx.lib.Cocos2dxGLSurfaceView;
-import org.github.krkr2.KR2Application;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -102,6 +102,17 @@ public class KR2Activity extends Cocos2dxActivity implements ActivityCompat.OnRe
         super.onCreate(savedInstanceState);
         sInstance = this;
         initDump(this.getFilesDir().getAbsolutePath() + "/dump");
+    }
+
+    @Override
+    public Cocos2dxGLSurfaceView onCreateView() {
+        Cocos2dxGLSurfaceView glSurfaceView = new KR2GLSurfaceView(this);
+        hideSystemUI();
+
+        Cocos2dxEGLConfigChooser chooser = new Cocos2dxEGLConfigChooser(this.mGLContextAttrs);
+        glSurfaceView.setEGLConfigChooser(chooser);
+
+        return glSurfaceView;
     }
 
     @Override

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Locale lang="en_us">
+<Locale lang="zh_cn">
     <Item id="preference_title" text="全局设置"/>
     <Item id="preference_title_individual" text="独立设置"/>
     <Item id="preference_output_log" text="打印日志"/>
@@ -75,7 +75,7 @@
     <Item id="menu_exit" text="退出"/>
     <Item id="menu_help" text="查看帮助"/>
     <Item id="menu_archive_repack" text="转换/解密XP3封包"/>
-    <Item id="about_content" text="可以在github补丁页面寻找补丁：&#10;https://zeas2.github.io/Kirikiroid2_patch/patch&#10;如遇到问题，请反馈到到项目页面：&#10;https://github.com/zeas2/Kirikiroid2/issues&#10;或者到百度贴吧寻找解决方案：&#10;百度Kirikiroid2吧。由YuriSizuku修复外置sd卡问题，非中文语言闪退问题"/>
+    <Item id="about_content" text="可以在github补丁页面寻找补丁：&#10;https://zeas2.github.io/Kirikiroid2_patch/patch&#10;如遇到问题，请反馈到到项目页面：&#10;https://github.com/zeas2/Kirikiroid2/issues&#10;或者到百度贴吧寻找解决方案：&#10;百度Kirikiroid2吧。"/>
     <Item id="about_content_i" text=""/>
     <Item id="sure_to_exit" text="确定退出吗？"/>
     <Item id="msgbox_yes" text="是"/>
@@ -83,43 +83,42 @@
     <Item id="msgbox_ok" text="确定"/>
     <Item id="msgbox_nerver_notice" text="不再提示"/>
     <Item id="use_last_path" text="使用最近启动的路径："/>
-	
+
     <Item id="notice" text="提示"/>
     <Item id="err_narrow_to_wide" text="无法转换字节字符为宽字符，可能数据被加密或损坏，也可能是使用了错误的文本编码。&#10;如果数据被加密，您可能需要xp3filter.tjs&#10;如果文本不是以SHIFT_JIS编码，需要用patch.tjs指定正确的编码格式。"/>
-	<Item id="err_no_memory" text="内存不足（若经常出现此问题，可以试着在选项里限制内存用量）"/>
-	<Item id="err_occured" text="发生错误"/>
-	<Item id="err_read_error" text="读取错误，数据或已损坏"/>
-	<Item id="err_not_xp3_archive" text="%1 不是有效的XP3包。数据或已损坏。"/>
-	<Item id="err_cannot_suggest_graph_ext" text="%1 无法加载此图片，可能是数据不完整或脚本错误"/>
-	<Item id="delete" text="删除"/>
-	<Item id="file_operate_menu_title" text="文件管理"/>
-	<Item id="file_operate_menu_text" text="请选择操作"/>
-	<Item id="ensure_to_delete_file" text="确定要删除吗："/>
-	<Item id="ensure_item_count" text="%d 个项目"/>
-	<Item id="device_info" text="设备信息"/>
-	<Item id="supported_opengl_extension" text="OpenGL扩展特性（仅列出当前可用的扩展）："/>
-	<Item id="preference_opengl_extension_opt" text="OpenGL扩展"/>
-	<Item id="startup_patch_fail" text="补丁失败，请更新patch.tjs"/>
-	<Item id="browse_patch_lib" text="浏览补丁库"/>
-	<Item id="preference_opengl_extension_desc" text="这里是可能利用的OpenGL扩展列表，用于提高渲染的效率。&#10;视设备的不同，部分特性开启后可能会出现渲染错误。"/>
-	<Item id="preference_android_fetch_sdcard_permission" text="获取外部存储卡写入权限"/>
-	
-	<Item id="filemgr_unselect" text="取消"/>
-	<Item id="filemgr_browse" text="浏览"/>
-	<Item id="filemgr_delete" text="删除"/>
-	<Item id="filemgr_copy" text="复制"/>
-	<Item id="filemgr_cut" text="剪切"/>
-	<Item id="filemgr_paste" text="粘贴到这里"/>
-	<Item id="filemgr_sendto" text="发送到"/>
-	<Item id="filemgr_unpack" text="解压缩"/>
-	<Item id="filemgr_rename" text="重命名"/>
-	<Item id="file_operate_failed" text="文件操作失败："/>
-	<Item id="fail_to_open_archive" text="无法作为压缩包打开："/>
-	
-	<Item id="archive_repack_desc" text="解密并转换封包可以加快运行的速度并减少发热量。请保证剩余的空间大于最大的封包文件大小，否则转换操作可能会失败。"/>
-	<Item id="archive_repack_merge_img" text="合并遮罩图片"/>
-	<Item id="archive_repack_conv_etc2" text="转换图片格式为ETC2"/>
-	<Item id="archive_repack_proc_title" text="转换进行中..."/>
-	<Item id="archive_repack_no_xp3filter" text="当前目录未发现xp3filter，可能不需要进行转换。仍然继续？"/>
-	<Item id="archive_repack_no_xp3" text="当前目录未发现xp3封包，操作中止。"/>
+    <Item id="err_no_memory" text="内存不足（若经常出现此问题，可以试着在选项里限制内存用量）"/>
+    <Item id="err_occured" text="发生错误"/>
+    <Item id="err_read_error" text="读取错误，数据或已损坏"/>
+    <Item id="err_not_xp3_archive" text="%1 不是有效的XP3包。数据或已损坏。"/>
+    <Item id="err_cannot_suggest_graph_ext" text="%1 无法加载此图片，可能是数据不完整或脚本错误"/>
+    <Item id="delete" text="删除"/>
+    <Item id="file_operate_menu_title" text="文件管理"/>
+    <Item id="file_operate_menu_text" text="请选择操作"/>
+    <Item id="ensure_to_delete_file" text="确定要删除吗："/>
+    <Item id="ensure_item_count" text="%d 个项目"/>
+    <Item id="device_info" text="设备信息"/>
+    <Item id="supported_opengl_extension" text="OpenGL扩展特性（仅列出当前可用的扩展）："/>
+    <Item id="preference_opengl_extension_opt" text="OpenGL扩展"/>
+    <Item id="startup_patch_fail" text="补丁失败，请更新patch.tjs"/>
+    <Item id="browse_patch_lib" text="浏览补丁库"/>
+    <Item id="preference_opengl_extension_desc" text="这里是可能利用的OpenGL扩展列表，用于提高渲染的效率。&#10;视设备的不同，部分特性开启后可能会出现渲染错误。"/>
+
+    <Item id="filemgr_unselect" text="取消"/>
+    <Item id="filemgr_browse" text="浏览"/>
+    <Item id="filemgr_delete" text="删除"/>
+    <Item id="filemgr_copy" text="复制"/>
+    <Item id="filemgr_cut" text="剪切"/>
+    <Item id="filemgr_paste" text="粘贴到这里"/>
+    <Item id="filemgr_sendto" text="发送到"/>
+    <Item id="filemgr_unpack" text="解压缩"/>
+    <Item id="filemgr_rename" text="重命名"/>
+    <Item id="file_operate_failed" text="文件操作失败："/>
+    <Item id="fail_to_open_archive" text="无法作为压缩包打开："/>
+
+    <Item id="archive_repack_desc" text="解密并转换封包可以加快运行的速度并减少发热量。请保证剩余的空间大于最大的封包文件大小，否则转换操作可能会失败。"/>
+    <Item id="archive_repack_merge_img" text="合并遮罩图片"/>
+    <Item id="archive_repack_conv_etc2" text="转换图片格式为ETC2"/>
+    <Item id="archive_repack_proc_title" text="转换进行中..."/>
+    <Item id="archive_repack_no_xp3filter" text="当前目录未发现xp3filter，可能不需要进行转换。仍然继续？"/>
+    <Item id="archive_repack_no_xp3" text="当前目录未发现xp3封包，操作中止。"/>
 </Locale>
