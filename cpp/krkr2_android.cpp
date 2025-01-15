@@ -41,11 +41,6 @@ void cocos_android_app_init(JNIEnv *env) { // for cocos3.10+
     static auto *pAppDelegate = new TVPAppDelegate();
 }
 
-void cocos_android_app_init(JNIEnv *env, jobject thiz) {
-//	__InitAndroidDump();
-    static auto *pAppDelegate = new TVPAppDelegate();
-}
-
 namespace kr2android {
     extern std::condition_variable MessageBoxCond;
     extern std::mutex MessageBoxLock;

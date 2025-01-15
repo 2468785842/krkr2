@@ -20,18 +20,17 @@ private:
 	cocos2d::Node *_root;
 };
 
-class TVPFileOperateMenu;
 class TVPBaseFileSelectorForm : public iTVPBaseForm, public cocos2d::extension::TableViewDataSource {
 public:
 	TVPBaseFileSelectorForm();
 	virtual ~TVPBaseFileSelectorForm();
 
-	virtual cocos2d::Size tableCellSizeForIndex(cocos2d::extension::TableView *table, ssize_t idx) override;
-	virtual cocos2d::extension::TableViewCell* tableCellAtIndex(cocos2d::extension::TableView *table, ssize_t idx) override;
-	virtual ssize_t numberOfCellsInTableView(cocos2d::extension::TableView *table) override;
+	cocos2d::Size tableCellSizeForIndex(cocos2d::extension::TableView *table, ssize_t idx) override;
+	cocos2d::extension::TableViewCell* tableCellAtIndex(cocos2d::extension::TableView *table, ssize_t idx) override;
+	ssize_t numberOfCellsInTableView(cocos2d::extension::TableView *table) override;
 	virtual void onCellClicked(int idx);
 	virtual void onCellLongPress(int idx);
-	virtual void rearrangeLayout() override;
+	void rearrangeLayout() override;
 	static std::pair<std::string, std::string> PathSplit(const std::string &path);
 
 protected:

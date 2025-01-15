@@ -183,8 +183,7 @@ Sprite *TVPLoadCursorCUR(tTJSBinaryStream *pStream) {
     cur_dir.resize(header.idCount);
     pStream->ReadBuffer(&cur_dir[0], sizeof(ICODIREntry) * header.idCount);
     ICODIREntry bestentry = {0};
-    for (int i = 0; i < cur_dir.size(); ++i) {
-        const ICODIREntry &entry = cur_dir[i];
+    for (auto entry : cur_dir) {
         if (entry.bHeight > bestentry.bHeight) bestentry = entry;
     }
     cur_dir.clear();
@@ -233,7 +232,7 @@ Sprite *TVPLoadCursorCUR(tTJSBinaryStream *pStream) {
                 union {
                     tjs_uint32 u32;
                     tjs_uint8 u8[4];
-                } clr, rclr;
+                } clr{}, rclr{};
                 pStream->ReadBuffer(&clr.u32, 4);
                 rclr.u8[0] = clr.u8[2];
                 rclr.u8[1] = clr.u8[1];
@@ -431,7 +430,7 @@ public:
                                          std::placeholders::_1);
         _eventDispatcher->addEventListenerWithSceneGraphPriority(evmouse, this);
         setTouchEnabled(false);
-        //_touchListener->setSwallowTouches(true);
+        _touchListener->setSwallowTouches(false);
         setVisible(false);
         return ret;
     }
@@ -466,7 +465,7 @@ public:
         return ret;
     }
 
-    Vec2 maxContainerOffset() override {
+    Vec2 maxContainerOffset() {
         // bottom-left
         const Size &size = getContentSize();
         float scale = _container->getScale();
@@ -1642,7 +1641,7 @@ public:
     static LayerColor *create(const Color4B &color, GLfloat width, GLfloat height) {
         LayerColor *layer = LayerColor::create(color, width, height);
         auto listener = EventListenerTouchOneByOne::create();
-        listener->setSwallowTouches(true);
+        listener->setSwallowTouches(false);
         if (_func_mask_layer_touchbegan) {
             listener->onTouchBegan = _func_mask_layer_touchbegan;
             _func_mask_layer_touchbegan = nullptr;

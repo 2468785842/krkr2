@@ -63,7 +63,7 @@ public abstract class Cocos2dxActivity extends AppCompatActivity implements Coco
     // ===========================================================
     
     private Cocos2dxGLSurfaceView mGLSurfaceView = null;
-    public int[] mGLContextAttrs = null;
+    protected int[] mGLContextAttrs = null;
     private Cocos2dxHandler mHandler = null;   
     private static Cocos2dxActivity sContext = null;
     private Cocos2dxVideoHelper mVideoHelper = null;

@@ -21,16 +21,19 @@ android {
 
         externalNativeBuild {
             cmake {
-                def buildTypeName = {
-                    return project.gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') } ? "Release" : "Debug"
-                }
                 targets 'krkr2'
-                arguments "-DCMAKE_BUILD_TYPE=${buildTypeName()}"
                 cppFlags '-fsigned-char'
             }
         }
         versionCode Integer.parseInt(new Date().format('yyyyMMddHH'))
         versionName '1.4.0'
+    }
+
+    externalNativeBuild {
+        cmake {
+            buildStagingDirectory '../../out/cmake-build-android'
+            path '../../CMakeLists.txt'
+        }
     }
 
     signingConfigs {
@@ -47,6 +50,19 @@ android {
 
     buildTypes {
         release {
+            externalNativeBuild {
+                cmake {
+                    arguments "-DCMAKE_BUILD_TYPE=Release"
+                }
+            }
+
+            // OpenCV 并行加速需要openML, 这里解压so文件不然找不到
+            packagingOptions {
+                jniLibs {
+                    useLegacyPackaging = true
+                }
+            }
+
             debuggable false
             minifyEnabled true
             shrinkResources true
@@ -55,6 +71,11 @@ android {
         }
 
         debug {
+            externalNativeBuild {
+                cmake {
+                    arguments "-DCMAKE_BUILD_TYPE=Debug"
+                }
+            }
             debuggable true
         }
     }
@@ -81,13 +102,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
-    }
-
-    externalNativeBuild {
-        cmake {
-            buildStagingDirectory '../../out/cmake-build-android'
-            path '../../CMakeLists.txt'
-        }
     }
 
     splits {

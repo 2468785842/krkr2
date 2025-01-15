@@ -13,7 +13,7 @@ class SimpleMediaFilePlayer : public iTVPBaseForm {
 	typedef cocos2d::Node inherit;
 
 public:
-	virtual ~SimpleMediaFilePlayer();
+	~SimpleMediaFilePlayer() override;
 	static SimpleMediaFilePlayer *create();
 
 	void PlayFile(ttstr uri);
@@ -26,12 +26,12 @@ private:
 	SimpleMediaFilePlayer();
 	void onPlayerEvent(KRMovieEvent Msg, void* p);
 	void onSliderChanged();
-	virtual void rearrangeLayout() override;
-	virtual void bindBodyController(const NodeMap &allNodes);
-	virtual void bindFooterController(const NodeMap &allNodes);
-	virtual void bindHeaderController(const NodeMap &allNodes);
+	void rearrangeLayout() override;
+	void bindBodyController(const NodeMap &allNodes) override;
+	void bindFooterController(const NodeMap &allNodes) override;
+	void bindHeaderController(const NodeMap &allNodes) override;
 
-	virtual void update(float dt) override;
+	void update(float dt) override;
 
 	SimplePlayerOverlay *_player;
 	int _totalTime; // in sec

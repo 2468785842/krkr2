@@ -37,8 +37,8 @@ cocos2d::Node * NodeMap::findController<cocos2d::Node>(const std::string &name, 
 
 void NodeMap::initFromNode(cocos2d::Node* node) {
 	const Vector<Node*>& childlist = node->getChildren();
-	for (auto it = childlist.begin(); it != childlist.end(); ++it) {
-		Node *child = *it; std::string name = child->getName();
+	for (auto child : childlist) {
+		std::string name = child->getName();
 		if (!name.empty()) (*this)[name] = child;
 		initFromNode(child);
 	}
@@ -57,13 +57,13 @@ Node* CSBReader::Load(const char *filename) {
 	clear();
 	FileName = filename;
 	Node* ret = CSLoader::createNode(filename, [this](Ref* p){
-		Node* node = static_cast<Node*>(p);
+		Node* node = dynamic_cast<Node*>(p);
 		std::string name = node->getName();
 		if (!name.empty()) operator[](name) = node;
 		int nAction = node->getNumberOfRunningActions();
 		if (nAction == 1) {
-			cocostudio::timeline::ActionTimeline* action =
-				static_cast<cocostudio::timeline::ActionTimeline*>(node->getActionByTag(node->getTag()));
+			auto* action =
+				dynamic_cast<cocostudio::timeline::ActionTimeline*>(node->getActionByTag(node->getTag()));
 			if (action && action->IsAnimationInfoExists("autoplay")) {
 				action->play("autoplay", true);
 			}
@@ -99,8 +99,8 @@ bool iTVPBaseForm::initFromFile(const char *navibar, const char *body, const cha
 // 		if (NaviBar.Title) {
 // 			NaviBar.Title->setEnabled(false); // normally
 // 		}
-		NaviBar.Left = static_cast<Button*>(reader.findController("left", false));
-		NaviBar.Right = static_cast<Widget*>(reader.findController("right", false));
+		NaviBar.Left = dynamic_cast<Button*>(reader.findController("left", false));
+		NaviBar.Right = dynamic_cast<Widget*>(reader.findController("right", false));
 		bindHeaderController(reader);
 	}
 
@@ -114,7 +114,8 @@ bool iTVPBaseForm::initFromFile(const char *navibar, const char *body, const cha
 		//BottomBar.Panel = static_cast<ListView*>(reader.findController("panel"));
 		bindFooterController(reader);
 	}
-	RootNode = static_cast<Widget*>(reader.Load(body));
+    // FIXME: 依靠bug运行， 此处应为非法转换, 危险操作！！
+	RootNode = reinterpret_cast<Widget*>(reader.Load(body));
 	if (!RootNode) {
 		return false;
 	}
