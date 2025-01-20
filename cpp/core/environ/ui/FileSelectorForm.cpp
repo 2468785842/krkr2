@@ -80,11 +80,20 @@ void TVPBaseFileSelectorForm::bindHeaderController(const NodeMap &allNodes) {
 
 void TVPBaseFileSelectorForm::bindBodyController(const NodeMap &allNodes) {
     Node *TableNode = allNodes.findController("table");
+    auto size = TableNode->getContentSize();
+    CCASSERT(size.width > 0 && size.height > 0, "TableNode content size is invalid");
     FileList = TableView::create(this, TableNode->getContentSize());
     FileList->setVerticalFillOrder(TableView::VerticalFillOrder::TOP_DOWN);
     FileList->setAnchorPoint(Vec2::ZERO);
     FileList->setClippingToBounds(false);
-    FileList->setSwallowTouches(false);
+    FileList->setTouchEnabled(true);
+    FileList->setAnchorPoint(Vec2(0.5, 0.5));
+    FileList->setPosition(Vec2::ZERO);
+    FileList->setDirection(cocos2d::extension::ScrollView::Direction::VERTICAL);
+    FileList->setClippingToBounds(true); // 限制内容绘制区域
+    FileList->setBounceable(true); // 允许滚动时有弹性
+    FileList->setSwallowTouches(false); // 允许事件传递
+
     TableNode->addChild(FileList);
 // 	ListView::ccListViewCallback func = [this](Ref* cell, ListView::EventType e){
 // 		if (e == ListView::EventType::ON_SELECTED_ITEM_END) {

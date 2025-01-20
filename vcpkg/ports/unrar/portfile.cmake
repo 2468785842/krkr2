@@ -1,14 +1,14 @@
 vcpkg_download_distfile(
     archive
-    URLS https://www.rarlab.com/rar/unrarsrc-6.0.7.tar.gz
-    FILENAME unrarsrc-6.0.7.tar.gz
+    URLS https://www.rarlab.com/rar/unrarsrc-${VERSION}.tar.gz
+    FILENAME unrarsrc-${VERSION}.tar.gz
     SHA512 2c50d1f58f5189e59dad36eb25aa50a34572f583242e624846c9791c5609e83d4ee76314d785771fe514ec3378749dcb86e4c97a8d2a3ab7b469df49a5c5f412
 )
 
 vcpkg_extract_source_archive(
     SOURCE_PATH
     ARCHIVE "${archive}"
-    SOURCE_BASE unrarsrc-6.0.7
+    SOURCE_BASE unrarsrc-${VERSION}
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt" DESTINATION "${SOURCE_PATH}")

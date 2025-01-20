@@ -265,8 +265,8 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 
 target_include_directories(p7zip
     INTERFACE
-        $<INSTALL_INTERFACE:include>/p7zip/CPP
-        $<INSTALL_INTERFACE:include>/p7zip/C
+        $<INSTALL_INTERFACE:include/p7zip/CPP>
+        $<INSTALL_INTERFACE:include/p7zip/C>
 )
 
 install(

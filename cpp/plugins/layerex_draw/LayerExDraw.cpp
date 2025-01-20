@@ -1,4 +1,5 @@
-#include <sstream>
+#include <spdlog/spdlog.h>
+
 #include "ncbind.hpp"
 #include "LayerExDraw.hpp"
 
@@ -200,15 +201,13 @@ tTJSVariant GdiPlus::getFontList(bool privateOnly) {
 int LoadFontByName(FT_Library library, const std::string &fontName, FT_Face *face) {
     // 初始化 Fontconfig
     if (!FcInit()) {
-        TVPConsoleLog(TJS_W("Failed to initialize Fontconfig."));
+        spdlog::get("plugin")->error("Failed to initialize Fontconfig.");
     }
 
     // 创建 Fontconfig 模式对象
     FcPattern *pattern = FcNameParse(reinterpret_cast<const FcChar8 *>(fontName.c_str()));
     if (!pattern) {
-        std::stringstream ss{};
-        ss << "Failed to parse font name: " << fontName;
-        TVPConsoleLog(tTJSString{ss.str()}.c_str());
+        spdlog::get("plugin")->error("Failed to parse font name: {}", fontName);
     }
 
     // 完成模式对象
@@ -219,15 +218,13 @@ int LoadFontByName(FT_Library library, const std::string &fontName, FT_Face *fac
     FcResult result;
     FcPattern *font = FcFontMatch(nullptr, pattern, &result);
     if (!font) {
-        std::stringstream ss{};
-        ss << "Font not found: " << fontName << ", fallback to default font.";
-        TVPConsoleLog(tTJSString{ss.str()}.c_str());
+        spdlog::get("plugin")->error("Font not found: {} fallback to default font.", fontName);
 
         // 尝试使用系统默认字体
         FcPatternDestroy(pattern);
         FcPattern *defaultPattern = FcPatternCreate();
         if (!defaultPattern) {
-            TVPConsoleLog(TJS_W("Failed to create default font pattern."));
+            spdlog::get("plugin")->error("Failed to create default font pattern.");
             return -1;
         }
 
@@ -235,7 +232,7 @@ int LoadFontByName(FT_Library library, const std::string &fontName, FT_Face *fac
         FcPatternDestroy(defaultPattern);
 
         if (!font) {
-            TVPConsoleLog(TJS_W("Failed to find system default font."));
+            spdlog::get("plugin")->error("Failed to find system default font.");
             return -1;
         }
     }
@@ -243,7 +240,7 @@ int LoadFontByName(FT_Library library, const std::string &fontName, FT_Face *fac
     // 获取字体文件路径
     FcChar8 *filePath = nullptr;
     if (FcPatternGetString(font, FC_FILE, 0, &filePath) != FcResultMatch) {
-        TVPConsoleLog(TJS_W("Failed to get font file path."));
+        spdlog::get("plugin")->error("Failed to get font file path.");
 
         FcPatternDestroy(font);
         FcPatternDestroy(pattern);
@@ -2063,20 +2060,17 @@ void LayerExDraw::getGlyphOutline(
     FT_UInt glyphIndex = FT_Get_Char_Index(fontInfo->ftFace, charcode);
     if (glyphIndex == 0) {
         // 不支持此字符
-        std::stringstream ss{};
-
-        ss << "Wrong doesn't find Unicode >> "
-           << ttstr{(tjs_char) charcode}.AsNarrowStdString()
-           << " << from FontFamilyName:  "
-           << fontInfo->familyName.AsNarrowStdString();
-
-        TVPConsoleLog(ttstr{ss.str()}.c_str());
+        spdlog::get("plugin")->error(
+                "Wrong doesn't find Unicode >> {} << from FontFamilyName: {}",
+                ttstr{(tjs_char) charcode}.AsNarrowStdString(),
+                fontInfo->familyName.AsNarrowStdString()
+        );
     }
 
     FT_Int32 flags = FT_LOAD_DEFAULT | FT_LOAD_NO_BITMAP;
     if (FT_Load_Glyph(fontInfo->ftFace, glyphIndex, flags) != 0) {
         // 字形加载失败
-        TVPConsoleLog(TJS_W("FT Load Glyph Failed!"));
+        spdlog::get("plugin")->error("FT Load Glyph Failed!");
         return;
     }
 
@@ -2086,7 +2080,7 @@ void LayerExDraw::getGlyphOutline(
     // 字形格式检查
     if (glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
         // 非矢量字形，无法处理
-        TVPConsoleLog(TJS_W("Not Vector Fonts Can't resolve!"));
+        spdlog::get("plugin")->error("Not Vector Fonts Can't resolve!");
         return;
     }
 
@@ -2225,7 +2219,7 @@ void LayerExDraw::getGlyphOutline(
 //                    contourStartP,
 //                    getConicEndPoint(contourStart, contourStart, contourEnd)
 //            );
-            throw std::logic_error{"end tag is CONIC not support!!"};
+            spdlog::get("plugin")->critical("end tag is CONIC not support!!");
         }
 
         GdipClosePathFigure(path);

@@ -43,78 +43,128 @@ include(CocosBuildSet)
 # build options
 option(BUILD_TESTS "Build tests" ON)
 
+option(BUILD_EXT_BOX2D "Build with internal Box2D support" ON)
+option(BUILD_EXT_CHIPMUNK "Build with internal chipmunk support" ON)
+option(BUILD_EXT_FREETYPE2 "Build with internal freetype2 support" ON)
+option(BUILD_EXT_RECAST "Build with internal recast support" ON)
+option(BUILD_EXT_BULLET "Build with internal bullet support" ON)
+option(BUILD_EXT_JPEG "Build with internal jpeg support" ON)
+option(BUILD_EXT_OPENSSL "Build with internal openssl support" ON)
+option(BUILD_EXT_TIFF "Build with internal tiff support" ON)
+option(BUILD_EXT_UV "Build with internal uv support" ON)
+option(BUILD_EXT_WEBP "Build with internal webp support" ON)
+option(BUILD_EXT_WEBSOCKETS "Build with internal websockets support" ON)
+option(BUILD_EXT_TINYXML2 "Build with internal tinyxml2 support" ON)
+option(BUILD_EXT_XXHASH "Build with internal xxhash support" ON)
+option(BUILD_EXT_XXTEA "Build with internal xxtea support" ON)
+option(BUILD_EXT_CLIPPER "Build with internal clipper support" ON)
+option(BUILD_EXT_EDTAA3FUNC "Build with internal edtaa3func support" ON)
+option(BUILD_EXT_CONVERTUTF "Build with internal ConvertUTF support" ON)
+option(BUILD_EXT_POLY2TRI "Build with internal poly2tri support" ON)
+option(BUILD_EXT_MD5 "Build with internal md5 support" ON)
+option(BUILD_EXT_SQLITE "Build with internal SQLite support" ON)
+option(BUILD_EXT_ZLIB "Build with internal zlib support" ON)
+option(BUILD_EXT_CURL "Build with internal curl support" ON)
+option(BUILD_EXT_UNZIP "Build with internal unzip support" ON)
+
 # default tests include lua, js test project, so we set those option on to build libs
 option(BUILD_LUA_LIBS ON)
 option(BUILD_JS_LIBS ON)
 
 add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos ${ENGINE_BINARY_PATH}/cocos/core)
-add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos/platform/android ${ENGINE_BINARY_PATH}/cocos/android)
+
+if (ANDROID)
+    add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos/platform/android ${ENGINE_BINARY_PATH}/cocos/android)
+endif ()
 
 # prevent tests project to build "cocos2dx-x/cocos" again
 set(BUILD_ENGINE_DONE ON)
 # add engine all tests project
 if (BUILD_TESTS)
-  add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/cpp-empty-test ${ENGINE_BINARY_PATH}/tests/cpp-empty-test)
-  add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/cpp-tests ${ENGINE_BINARY_PATH}/tests/cpp-tests)
-  add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/js-tests/project ${ENGINE_BINARY_PATH}/tests/js-tests)
-  add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/lua-empty-test/project ${ENGINE_BINARY_PATH}/tests/lua-empty-test)
-  add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/lua-tests/project ${ENGINE_BINARY_PATH}/tests/lua-test)
-endif()
+    add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/cpp-empty-test ${ENGINE_BINARY_PATH}/tests/cpp-empty-test)
+    add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/cpp-tests ${ENGINE_BINARY_PATH}/tests/cpp-tests)
+    add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/js-tests/project ${ENGINE_BINARY_PATH}/tests/js-tests)
+    add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/lua-empty-test/project ${ENGINE_BINARY_PATH}/tests/lua-empty-test)
+    add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/lua-tests/project ${ENGINE_BINARY_PATH}/tests/lua-test)
+endif ()
 
-install(TARGETS
+target_include_directories(
     cocos2d
-    external
-    ext_unzip
-    ext_tinyxml2
-    ext_xxhash
-    ext_edtaa3func
-    ext_poly2tri
-    ext_recast
-    ext_clipper
-    ext_convertUTF
-    ext_pvmp3dec
-    ext_md5
-
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
+    INTERFACE
+    $<INSTALL_INTERFACE:include/cocos>
+    $<INSTALL_INTERFACE:include/cocos/audio>
 )
 
-install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/cocos/" 
+set(INSTALL_TARGETS cocos2d external)
+if (BUILD_EXT_UNZIP)
+    list(APPEND INSTALL_TARGETS ext_unzip)
+endif ()
+if (BUILD_EXT_TINYXML2)
+    list(APPEND INSTALL_TARGETS ext_tinyxml2)
+endif ()
+if (BUILD_EXT_XXHASH)
+    list(APPEND INSTALL_TARGETS ext_xxhash)
+endif ()
+if(BUILD_EXT_XXTEA)
+    list(APPEND INSTALL_TARGETS ext_xxtea)
+endif()
+if (BUILD_EXT_EDTAA3FUNC)
+    list(APPEND INSTALL_TARGETS ext_edtaa3func)
+endif ()
+if (BUILD_EXT_POLY2TRI)
+    list(APPEND INSTALL_TARGETS ext_poly2tri)
+endif ()
+if (BUILD_EXT_RECAST)
+    list(APPEND INSTALL_TARGETS ext_recast)
+endif ()
+if (BUILD_EXT_CLIPPER)
+    list(APPEND INSTALL_TARGETS ext_clipper)
+endif ()
+if (BUILD_EXT_CONVERTUTF)
+    list(APPEND INSTALL_TARGETS ext_convertUTF)
+endif ()
+if (ANDROID)
+    list(APPEND INSTALL_TARGETS ext_cpufeatures ext_pvmp3dec ext_tremolo cpp_android_spec)
+endif ()
+if (BUILD_EXT_MD5)
+    list(APPEND INSTALL_TARGETS ext_md5)
+endif ()
+if(BUILD_EXT_CHIPMUNK)
+    install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/chipmunk/" DESTINATION "share/cocos2dx/chipmunk")
+endif ()
+if(BUILD_EXT_BULLET)
+    install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/bullet/" DESTINATION "share/cocos2dx/bullet")
+endif ()
+install(
+    TARGETS ${INSTALL_TARGETS}
+    EXPORT cocos2dx-targets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cocos2dx-config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cocos2dx-config.cmake"
+    INSTALL_DESTINATION "share/cocos2dx"
+)
+
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/cocos2dx-config.cmake"
+    DESTINATION "share/cocos2dx"
+)
+
+install(
+    EXPORT cocos2dx-targets
+    DESTINATION share/cocos2dx
+    NAMESPACE cocos2dx::
+)
+
+install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/cocos/"
     DESTINATION "include/cocos"
     FILES_MATCHING PATTERN "*.h")
 
-install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/unzip" 
-    DESTINATION "include/external/unzip"
-    FILES_MATCHING PATTERN "*.h")
-
-install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/tinyxml2" 
-    DESTINATION "include/external/tinyxml2"
-    FILES_MATCHING PATTERN "*.h")
-    
-install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/xxhash" 
-    DESTINATION "include/external/xxhash"
-    FILES_MATCHING PATTERN "*.h")
-
-install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/edtaa3func" 
-    DESTINATION "include/external/edtaa3func"
-    FILES_MATCHING PATTERN "*.h")
-
-install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/poly2tri" 
-    DESTINATION "include/external/poly2tri"
-    FILES_MATCHING PATTERN "*.h")
-
-install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/clipper" 
-    DESTINATION "include/external/clipper"
-    FILES_MATCHING PATTERN "*.hpp")
-    
-install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/ConvertUTF" 
-    DESTINATION "include/external/ConvertUTF"
-    FILES_MATCHING PATTERN "*.h")
-
-install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/android-specific/pvmp3dec" 
-    DESTINATION "include/external/android-specific/pvmp3dec"
-    FILES_MATCHING PATTERN "*.h")
-
-install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/md5" 
-    DESTINATION "include/external/md5"
+install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/cocos/audio/include/"
+    DESTINATION "include/cocos/audio"
     FILES_MATCHING PATTERN "*.h")

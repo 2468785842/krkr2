@@ -1,14 +1,14 @@
 vcpkg_download_distfile(
     archive
-    URLS https://sourceforge.net/projects/p7zip/files/p7zip/16.02/p7zip_16.02_src_all.tar.bz2
-    FILENAME "p7zip_16.02_src_all.tar.bz2"
+    URLS https://sourceforge.net/projects/p7zip/files/p7zip/${VERSION}/p7zip_${VERSION}_src_all.tar.bz2
+    FILENAME "p7zip_${VERSION}_src_all.tar.bz2"
     SHA512 d2c4d53817f96bb4c7683f42045198d4cd509cfc9c3e2cb85c8d9dc4ab6dfa7496449edeac4e300ecf986a9cbbc90bd8f8feef8156895d94617c04e507add55f
 )
 
 vcpkg_extract_source_archive(
     SOURCE_PATH
     ARCHIVE "${archive}"
-    SOURCE_BASE "p7zip-16.02"
+    SOURCE_BASE "p7zip-${VERSION}"
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt" DESTINATION "${SOURCE_PATH}")

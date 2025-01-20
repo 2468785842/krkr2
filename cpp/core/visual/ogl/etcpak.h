@@ -1,7 +1,6 @@
 #pragma once
 #include <functional>
-
-// from https://bitbucket.org/wolfpld/etcpak.git
+// from https://github.com/wolfpld/etcpak
 
 namespace ETCPacker {
 	void* convert(const void *pixel, int w, int h, int pitch, bool etc2, size_t &datalen);

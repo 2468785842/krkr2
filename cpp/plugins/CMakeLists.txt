@@ -52,10 +52,6 @@ add_definitions(-D__STDC_CONSTANT_MACROS -DTJS_TEXT_OUT_CRLF)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH} ${KRKR2PLUGIN_PATH}/ncbind)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
-
-target_include_directories(${PROJECT_NAME} PUBLIC ${COCOS2DX_EXTERNAL_HEADER_DIRS})
-
 add_subdirectory(psdfile)
 add_subdirectory(layerex_draw)
 target_link_libraries(${PROJECT_NAME} PRIVATE psdfile layerExDraw)

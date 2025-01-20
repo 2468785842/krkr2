@@ -571,7 +571,7 @@ public:
         return true;
     }
 
-    virtual void onTouchMoved(Touch *touch, Event *unused_event) override {
+    void onTouchMoved(Touch *touch, Event *unused_event) override {
         if (_windowMgrOverlay) return inherit::onTouchMoved(touch, unused_event);
         if (TJSNativeInstance) {
             if (_touches.size() == 1) {

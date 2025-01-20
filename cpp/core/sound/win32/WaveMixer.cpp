@@ -229,7 +229,6 @@ public:
 
   FAudioMix *DoMixAudio;
   void SetupMixer() {
-    TVPWaveMixer_ASM_Init(_AudioMixS16, _AudioMixF32);
     if (_spec.format == AUDIO_S16LSB) {
       DoMixAudio = _AudioMixS16[_spec.channels - 1];
     } else if (_spec.format == AUDIO_F32LSB) {

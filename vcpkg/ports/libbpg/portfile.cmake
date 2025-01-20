@@ -1,14 +1,14 @@
 vcpkg_download_distfile(
     archive
-    URLS https://bellard.org/bpg/libbpg-0.9.8.tar.gz
-    FILENAME libbpg-0.9.8.tar.gz
+    URLS https://bellard.org/bpg/libbpg-${VERSION}.tar.gz
+    FILENAME libbpg-${VERSION}.tar.gz
     SHA512 2d5f7a035033d8b969c2765a4f1368e1a2c8c5ace12aec5d449ca5cc4ef5eb89431a75f2d6d03fd7117b548801b5554503411f499f497da69ff33ca6e714553d
 )
 
 vcpkg_extract_source_archive(
     SOURCE_PATH
     ARCHIVE "${archive}"
-    SOURCE_BASE libbpg-0.9.8
+    SOURCE_BASE libbpg-${VERSION}
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt" DESTINATION "${SOURCE_PATH}")

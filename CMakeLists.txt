@@ -16,31 +16,36 @@ set(KRKR2PLUGIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/plugins)
 
 add_library(${PROJECT_NAME} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/cpp/krkr2_android.cpp)
 
-find_package(unofficial-breakpad CONFIG REQUIRED)
+include(cmake/AndroidNdkModules.cmake)
 
-find_package(COCOS2DX REQUIRED)
+# build library
+add_subdirectory(${KRKR2CORE_PATH})
+add_subdirectory(${KRKR2PLUGIN_PATH})
 
-set(COCOS2DX_PATH "${COCOS2DX_SOURCE_DIR}")
+target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
 
-include_directories(
-    ${COCOS2DX_PATH}
-    ${COCOS2DX_PATH}/cocos
-    ${COCOS2DX_PATH}/cocos/scripting
-    ${COCOS2DX_PATH}/cocos/editor-support
-    ${COCOS2DX_PATH}/extensions
+target_link_libraries(${PROJECT_NAME} PUBLIC
+    -Wl,-Bstatic
+    -Wl,--whole-archive
+    krkr2plugin krkr2core
+    -Wl,--no-whole-archive
 )
 
-set(COCOS2DX_EXTERNAL_HEADER_DIRS
-    ${COCOS2DX_PATH}/external
-    ${COCOS2DX_PATH}/external/png/include/android
-    ${COCOS2DX_PATH}/external/webp/include/android
-    ${COCOS2DX_PATH}/external/freetype2/include/android
-    ${COCOS2DX_PATH}/external/freetype2/include/android/freetype2
+# cocos2dx
+find_package(OpenSSL REQUIRED)
+find_package(Freetype REQUIRED)
+find_package(WebP CONFIG REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(TIFF REQUIRED)
 
-    ${COCOS2DX_PATH}/external/zlib/prebuilt/android/${ANDROID_ABI}
-    ${COCOS2DX_PATH}/external/tiff/prebuilt/android/${ANDROID_ABI}
-    ${COCOS2DX_PATH}/external/chipmunk/prebuilt/android/${ANDROID_ABI}
-    ${COCOS2DX_PATH}/external/bullet/prebuilt/android/${ANDROID_ABI}
+find_package(cocos2dx CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+    cocos2dx::cocos2d cocos2dx::cpp_android_spec
+    OpenSSL::SSL OpenSSL::Crypto
+    Freetype::Freetype
+    WebP::webp WebP::webpdecoder WebP::webpdemux
+    ZLIB::ZLIB
+    TIFF::TIFF
 )
 
 find_package(FFMPEG COMPONENTS
@@ -50,26 +55,15 @@ find_package(FFMPEG COMPONENTS
     swscale
     swresample REQUIRED
 )
+target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${FFMPEG_LIBRARIES})
 
-include(cmake/AndroidNdkModules.cmake)
+find_package(Boost COMPONENTS locale REQUIRED)
+target_include_directories(${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${Boost_LIBRARIES})
 
-# build library
-add_subdirectory(${KRKR2CORE_PATH})
-add_subdirectory(${KRKR2PLUGIN_PATH})
+find_package(fmt CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt-header-only)
 
-add_subdirectory("${COCOS2DX_SOURCE_DIR}/cocos/platform/android" "${CMAKE_BINARY_DIR}/cocos2dx/android")
-
-target_include_directories(${PROJECT_NAME} PUBLIC
-    ${KRKR2CORE_PATH}/environ/cocos2d
-    ${COCOS2DX_PATH}/cocos
-    ${COCOS2DX_PATH}/cocos/audio/include
-)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::breakpad::libbreakpad_client cpufeatures)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    -Wl,-Bstatic
-    -Wl,--whole-archive # cpp_android_spec for jni function, this is important to add whole libraries !
-    cpp_android_spec krkr2plugin krkr2core
-    -Wl,--no-whole-archive
-)
+find_package(spdlog CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog_header_only)

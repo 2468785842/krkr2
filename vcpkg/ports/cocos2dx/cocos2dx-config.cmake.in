@@ -1,0 +1,107 @@
+@PACKAGE_INIT@
+
+if(@IOS@)
+    set(platform_spec_path ios)
+elseif(@ANDROID@)
+    set(platform_spec_path android/${ANDROID_ABI})
+elseif(@WINDOWS@)
+    set(platform_spec_path win32)
+elseif(@MACOSX@)
+    set(platform_spec_path mac)
+elseif(@LINUX@)
+    set(platform_spec_path linux/64-bit)
+endif()
+
+if(@BUILD_EXT_CHIPMUNK@)
+    add_library(ext_chipmunk STATIC IMPORTED)
+
+    set_target_properties(ext_chipmunk PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/chipmunk/include"
+    )
+    if(WINDOWS)
+      set_target_properties(ext_chipmunk PROPERTIES
+        IMPORTED_LOCATION_DEBUG "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/debug-lib/libchipmunk.lib"
+        IMPORTED_LOCATION_RELEASE "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/release-lib/libchipmunk.lib"
+      )
+      set_target_properties(ext_chipmunk PROPERTIES
+        MAP_IMPORTED_CONFIG_MINSIZEREL Release
+        MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+      )
+    else()
+      set_target_properties(ext_chipmunk PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/libchipmunk.a"
+      )
+    endif()
+endif()
+
+if(@BUILD_EXT_BULLET@)
+
+    add_library(ext_bullet STATIC IMPORTED)
+
+    set_property(TARGET ext_bullet APPEND PROPERTY
+      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/bullet/include"
+    )
+    set_property(TARGET ext_bullet APPEND PROPERTY
+      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/bullet/include/bullet"
+    )
+
+    if(WINDOWS)
+      set_target_properties(ext_bullet PROPERTIES
+        IMPORTED_LOCATION_DEBUG "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/debug/libbullet.lib"
+        IMPORTED_LOCATION_RELEASE "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/release/libbullet.lib"
+      )
+      set_target_properties(ext_bullet PROPERTIES
+        MAP_IMPORTED_CONFIG_MINSIZEREL Release
+        MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+      )
+    else()
+      set_target_properties(ext_bullet PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/libLinearMath.a"
+      )
+
+      # multi libs
+      add_library(bulletcollision STATIC IMPORTED)
+      set_target_properties(bulletcollision PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/libBulletCollision.a"
+      )
+      add_library(bulletdynamics STATIC IMPORTED)
+      set_target_properties(bulletdynamics PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/libBulletDynamics.a"
+      )
+      add_library(bulletmultithreaded STATIC IMPORTED)
+      set_target_properties(bulletmultithreaded PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/libBulletMultiThreaded.a"
+      )
+      add_library(minicl STATIC IMPORTED)
+      set_target_properties(minicl PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/libMiniCL.a"
+      )
+      add_library(linearmath STATIC IMPORTED)
+      set_target_properties(linearmath PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/libLinearMath.a"
+      )
+
+      # internal link depend
+      set_property(TARGET bulletcollision APPEND PROPERTY INTERFACE_LINK_LIBRARIES "linearmath")
+      set_property(TARGET bulletdynamics APPEND PROPERTY INTERFACE_LINK_LIBRARIES "bulletcollision")
+
+      # mark multi libs link into single one: "ext_bullet"
+      set_property(TARGET ext_bullet APPEND PROPERTY
+        INTERFACE_LINK_LIBRARIES "bulletcollision"
+      )
+      set_property(TARGET ext_bullet APPEND PROPERTY
+        INTERFACE_LINK_LIBRARIES "bulletdynamics"
+      )
+      set_property(TARGET ext_bullet APPEND PROPERTY
+        INTERFACE_LINK_LIBRARIES "bulletmultithreaded"
+      )
+      set_property(TARGET ext_bullet APPEND PROPERTY
+        INTERFACE_LINK_LIBRARIES "minicl"
+      )
+    endif()
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/cocos2dx-targets.cmake")
+
+check_required_components(cocos2d)
+check_required_components(external)

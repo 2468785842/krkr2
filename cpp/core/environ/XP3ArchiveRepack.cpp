@@ -215,7 +215,7 @@ XP3ArchiveRepackAsync::XP3ArchiveRepackAsync()
 	: _impl(new XP3ArchiveRepackAsyncImpl())
 {
 	TVPDetectCPU();
-	TVPGL_ASM_Init();
+//	TVPGL_ASM_Init();
 }
 
 XP3ArchiveRepackAsync::~XP3ArchiveRepackAsync() {

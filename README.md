@@ -3,7 +3,7 @@
 本指南支持在 **Windows** 和 **Linux** 环境中交叉编译 KiriKiroid2 的 Android 版本，支持以下架构：
 
 - `arm64-v8a`
-- `armeabi-v7a`
+- `x86_64`
 
 ---
 
@@ -12,13 +12,13 @@
 请确保以下工具已正确安装：
 - `bison`
 - `python3`
-- `python2`
 - `ninja@latest`
 - `cmake@22+`
 - `vcpkg@latest`
 - `AndroidSDK@33+`
 - `AndroidNDK@27.2.12479018`
 - `jdk@17`
+- `NASM(FFmpeg需要)`: 仅 x86_64 架构
 
 ---
 
@@ -77,7 +77,7 @@
 
 1. 设置架构变量：  
    - **`arm64-v8a`**: `ANDROID_ABI="arm64-v8a"`  
-   - **`armeabi-v7a`**: `ANDROID_ABI="armeabi-v7a"`
+   - **`x86_64`**: `ANDROID_ABI="x86_64"`
 
 2. 执行命令：  
 

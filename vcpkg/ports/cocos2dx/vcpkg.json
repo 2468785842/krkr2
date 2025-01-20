@@ -1,12 +1,23 @@
 {
   "name": "cocos2dx",
   "version-string": "3.17.2",
-  "port-version": 1,
+  "port-version": 2,
   "description": "Cocos2d-x is a suite of open-source, cross-platform, game-development tools utilized by millions of developers across the globe.",
   "homepage": "http://www.cocos2d-x.org/",
   "license": null,
   "supports": "!uwp & !xbox",
   "dependencies": [
+    "freetype",
+    {
+      "name": "libpng",
+      "platform": "!linux"
+    },
+    "libwebp",
+    {
+      "name": "openssl",
+      "default-features": false
+    },
+    "tiff",
     {
       "name": "vcpkg-cmake",
       "host": true
@@ -16,8 +27,8 @@
       "host": true
     },
     {
-      "name": "vcpkg-tool-python2",
-      "host": true
+      "name": "zlib",
+      "platform": "osx | android | windows"
     }
   ]
 }

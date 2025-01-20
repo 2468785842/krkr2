@@ -26,7 +26,7 @@ target_sources(${PROJECT_NAME} PRIVATE ${OBJECTS} ${LIB_OBJ})
 
 target_include_directories(${PROJECT_NAME}
     INTERFACE
-        $<INSTALL_INTERFACE:include>/${PROJECT_NAME}
+        $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
 
 install(

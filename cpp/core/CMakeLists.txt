@@ -38,10 +38,7 @@ file(GLOB KRKR2CORE_SOURCES
 
 file(GLOB KRKR2CORE_ANDROID_SOURCES
     ${KRKR2CORE_PATH}/environ/android/*.cpp
-    ${KRKR2CORE_PATH}/sound/ARM/*.c
-    ${KRKR2CORE_PATH}/sound/ARM/*.cpp
-    ${KRKR2CORE_PATH}/visual/ARM/*.cpp
-    ${KRKR2CORE_PATH}/visual/ARM/*.c
+#    ${KRKR2CORE_PATH}/visual/ARM/*.cpp
 )
 list(REMOVE_ITEM KRKR2CORE_SOURCES
     ${KRKR2CORE_PATH}/visual/Resampler.cpp
@@ -116,6 +113,8 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     -DWINAPI=
 )
 
+find_package(unofficial-breakpad CONFIG REQUIRED)
+
 # oboe
 find_library(oboe_LIBPATH oboe REQUIRED)
 add_library(oboe::oboe STATIC IMPORTED)
@@ -170,9 +169,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     opencv_core
     # tegra_hal
 
-    # video
-    ${FFMPEG_LIBRARIES}
-
     # archive
     p7zip::p7zip
     unrar::unrar
@@ -188,29 +184,4 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     # framework
     $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
-)
-
-#----------------------------------------------------------#
-#----------------------- cocos2dx-x -----------------------#
-#----------------------------------------------------------#
-target_include_directories(${PROJECT_NAME} PUBLIC ${COCOS2DX_EXTERNAL_HEADER_DIRS})
-
-#file(GLOB ZLIB_LIBS "${COCOS2DX_PATH}/external/zlib/prebuilt/android/${ANDROID_ABI}/*.a")
-file(GLOB PNG_LIBS "${COCOS2DX_PATH}/external/png/prebuilt/android/${ANDROID_ABI}/*.a")
-file(GLOB TIFF_LIBS "${COCOS2DX_PATH}/external/tiff/prebuilt/android/${ANDROID_ABI}/*.a")
-file(GLOB WEBP_LIBS "${COCOS2DX_PATH}/external/webp/prebuilt/android/${ANDROID_ABI}/*.a")
-file(GLOB FREETYPE2_LIBS "${COCOS2DX_PATH}/external/freetype2/prebuilt/android/${ANDROID_ABI}/*.a")
-file(GLOB CHIPMUNK_LIBS "${COCOS2DX_PATH}/external/chipmunk/prebuilt/android/${ANDROID_ABI}/*.a")
-file(GLOB BULLET_LIBS "${COCOS2DX_PATH}/external/bullet/prebuilt/android/${ANDROID_ABI}/*.a")
-
-target_link_libraries(
-    ${PROJECT_NAME} PUBLIC
-    ${COCOS2DX_LIBRARIES}
-
-    ${PNG_LIBS}
-    ${TIFF_LIBS}
-    ${WEBP_LIBS}
-    ${FREETYPE2_LIBS}
-    ${CHIPMUNK_LIBS}
-    ${BULLET_LIBS}
 )

@@ -15,8 +15,7 @@ android {
 
         ndk {
             jobs Runtime.runtime.availableProcessors()
-            //noinspection ChromeOsAbiSupport
-            abiFilters 'arm64-v8a' //, 'armeabi-v7a'
+            abiFilters 'arm64-v8a', 'x86_64' //, 'armeabi-v7a'
         }
 
         externalNativeBuild {
@@ -48,18 +47,18 @@ android {
         }
     }
 
+    // OpenCV 并行加速需要openML, 这里解压so文件不然找不到
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     buildTypes {
         release {
             externalNativeBuild {
                 cmake {
                     arguments "-DCMAKE_BUILD_TYPE=Release"
-                }
-            }
-
-            // OpenCV 并行加速需要openML, 这里解压so文件不然找不到
-            packagingOptions {
-                jniLibs {
-                    useLegacyPackaging = true
                 }
             }
 
@@ -85,7 +84,6 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['java']
             res.srcDirs = ['res']
-//            jniLibs.srcDirs = ['jniLibs']
             assets.srcDirs = ['../../ui/cocos-studio']
         }
 
@@ -96,7 +94,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
 
     compileOptions {
@@ -108,8 +106,7 @@ android {
         abi {
             enable = true           // 启用 ABI 分包
             reset()               // 清除默认支持的 ABI
-            //noinspection ChromeOsAbiSupport
-            include 'arm64-v8a' // 'armeabi-v7a', 'x86', 'x86_64' // 指定支持的 ABI
+            include 'arm64-v8a', 'x86_64' // 'armeabi-v7a', 'x86' // 指定支持的 ABI
             universalApk = true
         }
     }
@@ -127,19 +124,16 @@ dependencies {
     //implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':cocos2dx')
 
+    //noinspection GradleDependency
     implementation 'com.google.android.material:material:1.12.0'
 
+    //noinspection GradleDependency
     implementation 'androidx.activity:activity-ktx:1.9.3'
+    //noinspection GradleDependency
     implementation 'androidx.appcompat:appcompat:1.7.0'
+    //noinspection GradleDependency
     implementation 'androidx.fragment:fragment-ktx:1.8.5'
 
     //noinspection GradleDependency
     implementation 'androidx.core:core-ktx:1.13.1'
-
-    configurations.configureEach {
-        resolutionStrategy {
-            force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
-            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
-        }
-    }
 }

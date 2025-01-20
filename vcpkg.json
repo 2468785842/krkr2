@@ -4,6 +4,10 @@
   "version-string": "1.4.0",
   "dependencies": [
     "boost-iostreams",
+    {
+      "name": "boost-locale",
+      "default-features": false
+    },
     "boost-phoenix",
     "boost-spirit",
     {
@@ -12,13 +16,20 @@
     },
     "cocos2dx",
     "ffmpeg",
+    "fmt",
+    "freetype",
     "jxrlib",
     "libarchive",
     "libbpg",
     "libgdiplus",
     "libjpeg-turbo",
     "libogg",
+    {
+      "name": "libpng",
+      "platform": "!linux"
+    },
     "libvorbis",
+    "libwebp",
     "lz4",
     "oboe",
     "oniguruma",
@@ -27,10 +38,14 @@
       "name": "opencv4",
       "default-features": false,
       "features": [
-        "openmp",
         "freetype",
-        "jpeg"
+        "jpeg",
+        "openmp"
       ]
+    },
+    {
+      "name": "openssl",
+      "default-features": false
     },
     "opus",
     {
@@ -42,7 +57,14 @@
       "name": "sdl2",
       "default-features": false
     },
-    "unrar"
+    "spdlog",
+    "tiff",
+    "unrar",
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    "zlib"
   ],
   "overrides": [
     {
