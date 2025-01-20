@@ -132,7 +132,7 @@ use_cocos2dx_libs_depend(cocos2d)
 
 install(DIRECTORY "${COCOS2DX_ROOT_PATH}/"
     DESTINATION "include"
-    FILES_MATCHING PATTERN "*.h" PATTERN "*.inl"
+    FILES_MATCHING PATTERN "*.h" PATTERN "*.inl" PATTERN "*.mm"
 )
 
 target_include_directories(cocos2d
