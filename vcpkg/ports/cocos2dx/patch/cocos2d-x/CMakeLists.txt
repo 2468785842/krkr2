@@ -88,13 +88,6 @@ if (BUILD_TESTS)
     add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/lua-tests/project ${ENGINE_BINARY_PATH}/tests/lua-test)
 endif ()
 
-target_include_directories(
-    cocos2d
-    INTERFACE
-    $<INSTALL_INTERFACE:include/cocos>
-    $<INSTALL_INTERFACE:include/cocos/audio>
-)
-
 set(INSTALL_TARGETS cocos2d external)
 if (BUILD_EXT_UNZIP)
     list(APPEND INSTALL_TARGETS ext_unzip)
@@ -130,10 +123,18 @@ if (BUILD_EXT_MD5)
     list(APPEND INSTALL_TARGETS ext_md5)
 endif ()
 if(BUILD_EXT_CHIPMUNK)
-    install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/chipmunk/" DESTINATION "share/cocos2dx/chipmunk")
+    install(
+        DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/chipmunk/"
+        DESTINATION "share/cocos2dx/chipmunk"
+        FILES_MATCHING PATTERN "*.a" PATTERN "*.lib" PATTERN "*.h"
+    )
 endif ()
 if(BUILD_EXT_BULLET)
-    install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/bullet/" DESTINATION "share/cocos2dx/bullet")
+    install(
+        DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/bullet/"
+        DESTINATION "share/cocos2dx/bullet"
+        FILES_MATCHING PATTERN "*.a" PATTERN "*.lib" PATTERN "*.h"
+    )
 endif ()
 install(
     TARGETS ${INSTALL_TARGETS}
@@ -160,11 +161,3 @@ install(
     DESTINATION share/cocos2dx
     NAMESPACE cocos2dx::
 )
-
-install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/cocos/"
-    DESTINATION "include/cocos"
-    FILES_MATCHING PATTERN "*.h")
-
-install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/cocos/audio/include/"
-    DESTINATION "include/cocos/audio"
-    FILES_MATCHING PATTERN "*.h")

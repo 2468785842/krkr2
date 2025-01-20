@@ -18,18 +18,7 @@ add_library(${PROJECT_NAME} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/cpp/krkr2_android
 
 include(cmake/AndroidNdkModules.cmake)
 
-# build library
-add_subdirectory(${KRKR2CORE_PATH})
-add_subdirectory(${KRKR2PLUGIN_PATH})
-
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    -Wl,-Bstatic
-    -Wl,--whole-archive
-    krkr2plugin krkr2core
-    -Wl,--no-whole-archive
-)
 
 # cocos2dx
 find_package(OpenSSL REQUIRED)
@@ -40,7 +29,7 @@ find_package(TIFF REQUIRED)
 
 find_package(cocos2dx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC
-    cocos2dx::cocos2d cocos2dx::cpp_android_spec
+    cocos2dx::cocos2d
     OpenSSL::SSL OpenSSL::Crypto
     Freetype::Freetype
     WebP::webp WebP::webpdecoder WebP::webpdemux
@@ -67,3 +56,14 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt-header-only)
 
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog_header_only)
+
+# build library
+add_subdirectory(${KRKR2CORE_PATH})
+add_subdirectory(${KRKR2PLUGIN_PATH})
+
+target_link_libraries(${PROJECT_NAME} PUBLIC
+    -Wl,-Bstatic
+    -Wl,--whole-archive
+    cocos2dx::cpp_android_spec krkr2plugin krkr2core
+    -Wl,--no-whole-archive
+)

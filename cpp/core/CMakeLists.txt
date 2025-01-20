@@ -184,4 +184,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     # framework
     $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+
+    # cocos2dx
+    cocos2dx::cocos2d
 )

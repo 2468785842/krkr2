@@ -132,7 +132,8 @@ use_cocos2dx_libs_depend(cocos2d)
 
 install(DIRECTORY "${COCOS2DX_ROOT_PATH}/"
     DESTINATION "include"
-    FILES_MATCHING PATTERN "*.h")
+    FILES_MATCHING PATTERN "*.h" PATTERN "*.inl"
+)
 
 target_include_directories(cocos2d
     PUBLIC
@@ -141,6 +142,9 @@ target_include_directories(cocos2d
         $<BUILD_INTERFACE:${COCOS2DX_ROOT_PATH}/extensions>
         $<BUILD_INTERFACE:${COCOS2DX_ROOT_PATH}/cocos/platform>
     INTERFACE
+        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:include/cocos>
+        $<INSTALL_INTERFACE:include/cocos/audio>
         $<INSTALL_INTERFACE:include/cocos/base>
         $<INSTALL_INTERFACE:include/cocos/editor-support>
         $<INSTALL_INTERFACE:include/cocos/audio/include>
