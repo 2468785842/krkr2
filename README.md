@@ -18,8 +18,7 @@
 - `AndroidSDK@33+`
 - `AndroidNDK@27.2.12479018`
 - `jdk@17`
-- `NASM(FFmpeg需要)`: 仅 x86_64 架构
-
+- `NASM(FFmpeg x86_64需要)`: 仅非Windows
 ---
 
 ## 编译环境配置

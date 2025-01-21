@@ -20,46 +20,11 @@ include(cmake/AndroidNdkModules.cmake)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
 
-# cocos2dx
-find_package(OpenSSL REQUIRED)
-find_package(Freetype REQUIRED)
-find_package(WebP CONFIG REQUIRED)
-find_package(ZLIB REQUIRED)
-find_package(TIFF REQUIRED)
-
-find_package(cocos2dx CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    cocos2dx::cocos2d
-    OpenSSL::SSL OpenSSL::Crypto
-    Freetype::Freetype
-    WebP::webp WebP::webpdecoder WebP::webpdemux
-    ZLIB::ZLIB
-    TIFF::TIFF
-)
-
-find_package(FFMPEG COMPONENTS
-    avutil
-    avfilter
-    avcodec
-    swscale
-    swresample REQUIRED
-)
-target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${FFMPEG_LIBRARIES})
-
-find_package(Boost COMPONENTS locale REQUIRED)
-target_include_directories(${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${Boost_LIBRARIES})
-
-find_package(fmt CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt-header-only)
-
-find_package(spdlog CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog_header_only)
-
 # build library
 add_subdirectory(${KRKR2CORE_PATH})
 add_subdirectory(${KRKR2PLUGIN_PATH})
+
+find_package(cocos2dx CONFIG REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     -Wl,-Bstatic

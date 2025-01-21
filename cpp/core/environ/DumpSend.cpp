@@ -7,8 +7,8 @@
 #include "SysInitIntf.h"
 #include "ConfigManager/LocaleConfigManager.h"
 #include "StorageImpl.h"
-#include "minizip/ioapi.h"
-#include "minizip/zip.h"
+#include <ioapi.h>
+#include <minizip/zip.h>
 #include <sstream>
 #include <iomanip>
 #include <condition_variable>
@@ -29,22 +29,22 @@ struct zlib_inmem_func64 : public zlib_filefunc64_def {
 		return str;
 	}
 	
-	static uLong ZCALLBACK fread_file_func(voidpf opaque, voidpf stream, void* buf, uLong size) {
+	static u_int32_t ZCALLBACK fread_file_func(voidpf opaque, voidpf stream, void* buf, u_int32_t size) {
 		tTVPMemoryStream* str = (tTVPMemoryStream*)stream;
 		return str->Read(buf, size);
 	}
 
-	static uLong ZCALLBACK fwrite_file_func(voidpf opaque, voidpf stream, const void* buf, uLong size) {
+	static u_int32_t ZCALLBACK fwrite_file_func(voidpf opaque, voidpf stream, const void* buf, u_int32_t size) {
 		tTVPMemoryStream* str = (tTVPMemoryStream*)stream;
 		return str->Write(buf, size);
 	}
 
-	static ZPOS64_T ZCALLBACK ftell64_file_func(voidpf opaque, voidpf stream) {
+	static uint64_t ZCALLBACK ftell64_file_func(voidpf opaque, voidpf stream) {
 		tTVPMemoryStream* str = (tTVPMemoryStream*)stream;
 		return str->GetPosition();
 	}
 
-	static long ZCALLBACK fseek64_file_func(voidpf  opaque, voidpf stream, ZPOS64_T offset, int origin)
+	static long ZCALLBACK fseek64_file_func(voidpf  opaque, voidpf stream, uint64_t offset, int origin)
 	{
 		int fseek_origin = TJS_BS_SEEK_SET;
 		switch (origin)
@@ -111,6 +111,25 @@ static std::string url_encode(const std::string &value) {
 	return escaped.str();
 }
 
+// 将 struct tm 转换为 MS-DOS 时间格式
+uint32_t convert_to_dos_date(const struct tm *time) {
+    uint16_t dos_date = 0;
+    uint16_t dos_time = 0;
+
+    // 日期部分：年份（从1980年开始）、月份、天数
+    dos_date = ((time->tm_year - 80) << 9) | // 年份偏移，从 1980 年算起
+               ((time->tm_mon + 1) << 5) |  // 月份（1-12）
+               (time->tm_mday);             // 天数（1-31）
+
+    // 时间部分：小时、分钟、秒（以2秒为单位）
+    dos_time = (time->tm_hour << 11) |      // 小时（0-23）
+               (time->tm_min << 5) |       // 分钟（0-59）
+               (time->tm_sec / 2);         // 秒（以2秒为单位）
+
+    // 合并日期和时间为 32 位
+    return ((uint32_t)dos_date << 16) | dos_time;
+}
+
 #define FLAG_UTF8 (1<<11)
 static void SendDumps(std::string dumpdir, std::vector<std::string> allDumps, std::string packageName, std::string versionStr) {
 	std::mutex _mutex;
@@ -138,12 +157,7 @@ static void SendDumps(std::string dumpdir, std::vector<std::string> allDumps, st
 
 			time_t _t = stat_buf.st_mtime;
 			struct tm *time = localtime(&_t);
-			zi.tmz_date.tm_year = time->tm_year;
-			zi.tmz_date.tm_mon = time->tm_mon;
-			zi.tmz_date.tm_mday = time->tm_mday;
-			zi.tmz_date.tm_hour = time->tm_hour;
-			zi.tmz_date.tm_min = time->tm_min;
-			zi.tmz_date.tm_sec = time->tm_sec;
+            zi.dos_date = convert_to_dos_date(time);
 
 			// CRCÓ‹Ëã
 			unsigned long crcFile = 0;

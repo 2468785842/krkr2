@@ -1,15 +1,53 @@
 @PACKAGE_INIT@
 
 if(@IOS@)
+    set(platform_name ios)
     set(platform_spec_path ios)
 elseif(@ANDROID@)
+    set(platform_name android)
     set(platform_spec_path android/${ANDROID_ABI})
 elseif(@WINDOWS@)
+    set(platform_name win32)
     set(platform_spec_path win32)
 elseif(@MACOSX@)
+    set(platform_name mac)
     set(platform_spec_path mac)
 elseif(@LINUX@)
+    set(platform_name linux)
     set(platform_spec_path linux/64-bit)
+endif()
+
+if(@BUILD_EXT_FREETYPE2@)
+    find_package(Freetype REQUIRED)
+endif()
+
+if(@BUILD_EXT_JPEG@)
+    find_package(JPEG REQUIRED)
+endif()
+
+if(@BUILD_EXT_OPENSSL@)
+    find_package(OpenSSL REQUIRED)
+    add_library(ext_ssl ALIAS OpenSSL::SSL)
+    add_library(ext_crypto ALIAS OpenSSL::Crypto)
+endif()
+
+if(@BUILD_EXT_TIFF@)
+    find_package(TIFF REQUIRED)
+endif()
+
+if(@BUILD_EXT_WEBP@)
+    find_package(WebP CONFIG REQUIRED)
+endif()
+
+if(NOT "@LINUX@")
+    find_package(PNG REQUIRED)
+endif()
+
+if("@MACOSX@" OR "@ANDROID@" OR "@WINDOWS@")
+    if(@BUILD_EXT_ZLIB@)
+        find_package(ZLIB REQUIRED)
+        add_library(ext_zlib ALIAS ZLIB::ZLIB)
+    endif()
 endif()
 
 if(@BUILD_EXT_CHIPMUNK@)
@@ -18,7 +56,7 @@ if(@BUILD_EXT_CHIPMUNK@)
     set_target_properties(ext_chipmunk PROPERTIES
       INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/chipmunk/include"
     )
-    if(WINDOWS)
+    if(@WINDOWS@)
       set_target_properties(ext_chipmunk PROPERTIES
         IMPORTED_LOCATION_DEBUG "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/debug-lib/libchipmunk.lib"
         IMPORTED_LOCATION_RELEASE "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/release-lib/libchipmunk.lib"
@@ -45,7 +83,7 @@ if(@BUILD_EXT_BULLET@)
       INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/bullet/include/bullet"
     )
 
-    if(WINDOWS)
+    if(@WINDOWS@)
       set_target_properties(ext_bullet PROPERTIES
         IMPORTED_LOCATION_DEBUG "${CMAKE_CURRENT_LIST_DIR}/bullet/prebuilt/${platform_spec_path}/debug/libbullet.lib"
         IMPORTED_LOCATION_RELEASE "${CMAKE_CURRENT_LIST_DIR}/bullet/prebuilt/${platform_spec_path}/release/libbullet.lib"
@@ -97,6 +135,82 @@ if(@BUILD_EXT_BULLET@)
       )
       set_property(TARGET ext_bullet APPEND PROPERTY
         INTERFACE_LINK_LIBRARIES "minicl"
+      )
+    endif()
+endif()
+
+
+if(@BUILD_EXT_UV@)
+    if(@WINDOWS@)
+      add_library(ext_uv SHARED IMPORTED)
+    else()
+      add_library(ext_uv STATIC IMPORTED)
+    endif()
+
+    set_target_properties(ext_uv PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/uv/include"
+    )
+    if(@WINDOWS@)
+      set_target_properties(ext_uv PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/uv/prebuilt/${platform_spec_path}/uv.dll"
+        IMPORTED_IMPLIB "${CMAKE_CURRENT_LIST_DIR}/uv/prebuilt/${platform_spec_path}/uv_a.lib"
+      )
+    else()
+      set_target_properties(ext_uv PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/uv/prebuilt/${platform_spec_path}/libuv_a.a"
+      )
+    endif()
+endif()
+
+if(@BUILD_EXT_WEBSOCKETS@)
+    if(@WINDOWS@)
+      add_library(ext_websockets SHARED IMPORTED)
+    else()
+      add_library(ext_websockets STATIC IMPORTED)
+    endif()
+
+    set_target_properties(ext_websockets PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/websockets/include/${platform_name}"
+    )
+    set_target_properties(ext_websockets PROPERTIES
+      INTERFACE_COMPILE_DEFINITIONS "LWS_WITH_LIBUV"
+    )
+
+    set_property(TARGET ext_websockets APPEND PROPERTY INTERFACE_LINK_LIBRARIES "ext_ssl")
+    set_property(TARGET ext_websockets APPEND PROPERTY INTERFACE_LINK_LIBRARIES "ext_crypto")
+    set_property(TARGET ext_websockets APPEND PROPERTY INTERFACE_LINK_LIBRARIES "ext_uv")
+
+    if(@WINDOWS@)
+      set_target_properties(ext_websockets PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/websockets/prebuilt/${platform_spec_path}/websockets.dll"
+        IMPORTED_IMPLIB "${CMAKE_CURRENT_LIST_DIR}/websockets/prebuilt/${platform_spec_path}/websockets.lib"
+      )
+    else()
+      set_target_properties(ext_websockets PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/websockets/prebuilt/${platform_spec_path}/libwebsockets.a"
+      )
+    endif()
+endif()
+
+if(@BUILD_EXT_CURL@)
+    if(@WINDOWS@)
+      add_library(ext_curl SHARED IMPORTED)
+    else()
+      add_library(ext_curl STATIC IMPORTED)
+    endif()
+
+    set_target_properties(ext_curl PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/curl/include/${platform_name}"
+    )
+
+    if(@WINDOWS@)
+      set_target_properties(ext_curl PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/curl/prebuilt/${platform_spec_path}/libcurl.dll"
+        IMPORTED_IMPLIB "${CMAKE_CURRENT_LIST_DIR}/curl/prebuilt/${platform_spec_path}/libcurl.lib"
+      )
+    else()
+      set_target_properties(ext_curl PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/curl/prebuilt/${platform_spec_path}/libcurl.a"
       )
     endif()
 endif()

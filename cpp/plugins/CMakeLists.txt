@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.19)
 project(krkr2plugin)
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
 add_library(${PROJECT_NAME} STATIC)
 
 target_sources(${PROJECT_NAME} PRIVATE
@@ -51,7 +49,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 add_definitions(-D__STDC_CONSTANT_MACROS -DTJS_TEXT_OUT_CRLF)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH} ${KRKR2PLUGIN_PATH}/ncbind)
+target_link_libraries(${PROJECT_NAME} PUBLIC krkr2core)
 
 add_subdirectory(psdfile)
 add_subdirectory(layerex_draw)
 target_link_libraries(${PROJECT_NAME} PRIVATE psdfile layerExDraw)
+
+find_package(fmt CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt-header-only)
+
+find_package(spdlog CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog_header_only)

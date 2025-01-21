@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.19)
 project(krkr2core)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
 file(GLOB KRKR2CORE_SOURCES
     ${KRKR2CORE_PATH}/visual/*.cpp
     ${KRKR2CORE_PATH}/base/*.cpp
@@ -28,8 +25,7 @@ file(GLOB KRKR2CORE_SOURCES
     ${KRKR2CORE_PATH}/utils/*.c
     ${KRKR2CORE_PATH}/utils/*.cpp
     ${KRKR2CORE_PATH}/utils/encoding/*.c
-    ${KRKR2CORE_PATH}/utils/minizip/*.c
-    ${KRKR2CORE_PATH}/utils/minizip/*.cpp
+    ${KRKR2CORE_PATH}/utils/minizip/zip.c
     ${KRKR2CORE_PATH}/utils/win32/*.cpp
     ${KRKR2CORE_PATH}/visual/gl/*.cpp
     ${KRKR2CORE_PATH}/visual/ogl/*.cpp
@@ -144,13 +140,32 @@ find_package(LibArchive REQUIRED)
 
 find_package(OpenAL CONFIG REQUIRED)
 
-set(OpenCV_ROOT "${VCPKG_INSTALLED_DIR}/arm64-android/share/opencv4")
+set(OpenCV_ROOT "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/opencv4")
 find_package(OpenCV REQUIRED)
 # target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
+
+find_package(FFMPEG COMPONENTS
+    avutil
+    avfilter
+    avcodec
+    swscale
+    swresample REQUIRED
+)
+target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
+
+# cocos2dx
+find_package(cocos2dx CONFIG REQUIRED)
+
+find_package(Boost COMPONENTS locale REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+find_package(WebP CONFIG REQUIRED)
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC
     -Wl,-Bstatic
+
+    ${FFMPEG_LIBRARIES}
 
     # audio
     Ogg::ogg
@@ -167,7 +182,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     $<IF:$<TARGET_EXISTS:libjpeg-turbo::turbojpeg>,libjpeg-turbo::turbojpeg,libjpeg-turbo::turbojpeg-static>
     opencv_imgproc
     opencv_core
-    # tegra_hal
 
     # archive
     p7zip::p7zip
@@ -185,6 +199,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
 
-    # cocos2dx
+    WebP::webp WebP::webpdecoder WebP::webpdemux
+    
+    # cocos2d
     cocos2dx::cocos2d
+
+    Boost::locale
+    fmt::fmt-header-only
+    spdlog::spdlog_header_only
 )

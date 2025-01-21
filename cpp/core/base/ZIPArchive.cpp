@@ -8,18 +8,29 @@
 #endif
 
 #include <unzip/ioapi_mem.h>
+#include <unzip/ioapi.h>
 #include <unzip/unzip.h>
 #undef ZEXPORT
 #define ZEXPORT
-
+typedef uint64_t ZPOS64_T;
 //using namespace cocos2d;
-typedef cocos2d::ZPOS64_T ZPOS64_T;
-typedef cocos2d::zlib_filefunc64_32_def zlib_filefunc64_32_def;
+//typedef cocos2d::zlib_filefunc64_32_def zlib_filefunc64_32_def;
 typedef cocos2d::unz_global_info64 unz_global_info64;
-typedef cocos2d::zlib_filefunc_def zlib_filefunc_def;
-typedef cocos2d::zlib_filefunc64_def zlib_filefunc64_def;
+//typedef cocos2d::zlib_filefunc_def zlib_filefunc_def;
+//typedef cocos2d::zlib_filefunc64_def zlib_filefunc64_def;
 typedef cocos2d::unz_global_info unz_global_info;
-typedef cocos2d::tm_unz tm_unz;
+//typedef cocos2d::tm_unz tm_unz;
+
+typedef struct tm_unz_s
+{
+    uInt tm_sec;            /* seconds after the minute - [0,59] */
+    uInt tm_min;            /* minutes after the hour - [0,59] */
+    uInt tm_hour;           /* hours since midnight - [0,23] */
+    uInt tm_mday;           /* day of the month - [1,31] */
+    uInt tm_mon;            /* months since January - [0,11] */
+    uInt tm_year;           /* years - [1980..2044] */
+} tm_unz;
+
 typedef struct unz_file_info_s
 {
 	uLong version;              /* version made by                 2 bytes */
@@ -196,8 +207,8 @@ static voidpf zip_open64file(voidpf opaque, const void * filename, int mode) {
 	return nullptr;
 }
 
-static uLong zip_readfile(voidpf, voidpf s, void *buf, uLong size);
-static uLong zip_writefile(voidpf, voidpf s, const void *buf, uLong size);
+static uint32_t zip_readfile(voidpf, voidpf s, void *buf, uint32_t size);
+static uint32_t zip_writefile(voidpf, voidpf s, const void *buf, uint32_t size);
 static ZPOS64_T zip_tell64file(voidpf, voidpf s);
 static long zip_seek64file(voidpf, voidpf s, ZPOS64_T offset, int origin);
 
@@ -209,6 +220,7 @@ static int zip_closefile(voidpf, voidpf s) {
 static zlib_filefunc64_32_def zipfunc = {
 	{
 		zip_open64file,
+        nullptr,
 		zip_readfile,
 		zip_writefile,
 		zip_tell64file,
@@ -758,7 +770,7 @@ local unzFile unzOpenInternal (const void *path,
         us.offset_central_dir = uL;
 
         /* zipfile comment length */
-        if (unz64local_getShort(nullptr, us.filestream,&us.gi.size_comment)!=UNZ_OK)
+        if (unz64local_getShort(nullptr, us.filestream,(uLong *)&us.gi.size_comment) != UNZ_OK)
             err=UNZ_ERRNO;
     }
 
@@ -2058,11 +2070,11 @@ public:
 	tTJSBinaryStream *_st = nullptr;
 };
 
-static uLong zip_readfile(voidpf, voidpf s, void *buf, uLong size) {
+static uint32_t zip_readfile(voidpf, voidpf s, void* buf, uint32_t size) {
 	return ((ZipArchive*)s)->_st->Read(buf, size);
 }
 
-static uLong zip_writefile(voidpf, voidpf s, const void *buf, uLong size) {
+static uint32_t zip_writefile(voidpf, voidpf s, const void *buf, uint32_t size) {
 	return ((ZipArchive*)s)->_st->Write(buf, size);
 }
 

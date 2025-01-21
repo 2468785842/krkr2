@@ -1,5 +1,5 @@
 #include "AndroidUtils.h"
-#include "minizip/unzip.h"
+#include <unzip.h>
 #include "zlib.h"
 #include <map>
 #include <string>
@@ -228,7 +228,7 @@ public:
     }
 	bool GetData(std::vector<unsigned char> &buff, const char *filename) {
 		bool ret = false;
-		if (unzLocateFile(uf, filename, 1) == UNZ_OK) {
+		if (unzLocateFile(uf, filename, nullptr) == UNZ_OK) {
 			int result = unzOpenCurrentFile(uf);
 			if (result == UNZ_OK) {
 				unz_file_info info;

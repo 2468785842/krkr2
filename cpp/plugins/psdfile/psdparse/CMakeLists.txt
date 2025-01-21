@@ -3,8 +3,6 @@ project(psdparse)
 
 project(${PROJECT_NAME})
 
-find_package(Boost COMPONENTS phoenix spirit iostreams REQUIRED)
-
 add_library(${PROJECT_NAME} STATIC
 	bmp.cpp
 	psddesc.cpp
@@ -15,8 +13,8 @@ add_library(${PROJECT_NAME} STATIC
 	psdresource.cpp
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-	${Boost_INCLUDE_DIRS}
-)
+find_package(Boost COMPONENTS phoenix spirit iostreams REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE krkr2plugin ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE
+	krkr2plugin Boost::phoenix Boost::spirit Boost::iostreams
+)

@@ -20,8 +20,8 @@
 #endif
 
 #include "tjsString.h"
-#include <freetype2/ft2build.h>
-#include <freetype2/freetype.h>
+#include <ft2build.h>
+#include <freetype/freetype.h>
 
 #ifdef _MSC_VER
 #pragma warning(pop)

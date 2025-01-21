@@ -12,7 +12,6 @@
 #ifndef tjsStringH
 #define tjsStringH
 
-#include <codecvt>
 #include <locale>
 #include <string>
 #include <boost/locale.hpp>

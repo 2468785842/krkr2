@@ -8,6 +8,7 @@
   "supports": "!uwp & !xbox",
   "dependencies": [
     "freetype",
+    "libjpeg-turbo",
     {
       "name": "libpng",
       "platform": "!linux"

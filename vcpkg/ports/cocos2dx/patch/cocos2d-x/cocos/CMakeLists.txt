@@ -121,7 +121,7 @@ add_library(cocos2d ${COCOS_SRC})
 
 # use external libs
 add_subdirectory(${COCOS2DX_ROOT_PATH}/external ${ENGINE_BINARY_PATH}/external)
-target_link_libraries(cocos2d external)
+target_link_libraries(cocos2d PUBLIC external)
 
 # add base macro define and compile options
 use_cocos2dx_compile_define(cocos2d)
@@ -130,9 +130,14 @@ use_cocos2dx_compile_options(cocos2d)
 # use all platform related system libs
 use_cocos2dx_libs_depend(cocos2d)
 
-install(DIRECTORY "${COCOS2DX_ROOT_PATH}/"
-    DESTINATION "include"
+install(DIRECTORY "${COCOS2DX_ROOT_PATH}/cocos/"
+    DESTINATION "include/cocos"
     FILES_MATCHING PATTERN "*.h" PATTERN "*.inl" PATTERN "*.mm"
+)
+
+install(DIRECTORY "${COCOS2DX_ROOT_PATH}/extensions/"
+    DESTINATION "include/extensions"
+    FILES_MATCHING PATTERN "*.h"
 )
 
 target_include_directories(cocos2d
@@ -143,9 +148,11 @@ target_include_directories(cocos2d
         $<BUILD_INTERFACE:${COCOS2DX_ROOT_PATH}/cocos/platform>
     INTERFACE
         $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:include/extensions>
         $<INSTALL_INTERFACE:include/cocos>
         $<INSTALL_INTERFACE:include/cocos/audio>
         $<INSTALL_INTERFACE:include/cocos/base>
+        $<INSTALL_INTERFACE:include/cocos/platform>
         $<INSTALL_INTERFACE:include/cocos/editor-support>
         $<INSTALL_INTERFACE:include/cocos/audio/include>
         $<INSTALL_INTERFACE:include/cocos/platform/${PLATFORM_FOLDER}>

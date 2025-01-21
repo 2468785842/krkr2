@@ -17,7 +17,6 @@
     "cocos2dx",
     "ffmpeg",
     "fmt",
-    "freetype",
     "jxrlib",
     "libarchive",
     "libbpg",
@@ -43,10 +42,6 @@
         "openmp"
       ]
     },
-    {
-      "name": "openssl",
-      "default-features": false
-    },
     "opus",
     {
       "name": "opusfile",
@@ -58,13 +53,11 @@
       "default-features": false
     },
     "spdlog",
-    "tiff",
     "unrar",
     {
       "name": "vcpkg-cmake",
       "host": true
-    },
-    "zlib"
+    }
   ],
   "overrides": [
     {

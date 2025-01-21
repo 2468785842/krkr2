@@ -89,6 +89,7 @@ if (BUILD_TESTS)
 endif ()
 
 set(INSTALL_TARGETS cocos2d external)
+
 if (BUILD_EXT_UNZIP)
     list(APPEND INSTALL_TARGETS ext_unzip)
 endif ()
@@ -122,20 +123,31 @@ endif ()
 if (BUILD_EXT_MD5)
     list(APPEND INSTALL_TARGETS ext_md5)
 endif ()
+
+macro(install_ext_lib lib_name)
+    install(
+        DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/${lib_name}/"
+        DESTINATION "share/cocos2dx/${lib_name}"
+        FILES_MATCHING PATTERN "*.a" PATTERN "*.lib" PATTERN "*.dll" PATTERN "*.h"
+    )
+endmacro()
+
+if (BUILD_EXT_CURL)
+    install_ext_lib(curl)
+endif()
+if (BUILD_EXT_UV)
+    install_ext_lib(uv)
+endif()
+if(BUILD_EXT_WEBSOCKETS)
+    install_ext_lib(websockets)
+endif()
 if(BUILD_EXT_CHIPMUNK)
-    install(
-        DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/chipmunk/"
-        DESTINATION "share/cocos2dx/chipmunk"
-        FILES_MATCHING PATTERN "*.a" PATTERN "*.lib" PATTERN "*.h"
-    )
-endif ()
+    install_ext_lib(chipmunk)
+endif()
 if(BUILD_EXT_BULLET)
-    install(
-        DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/bullet/"
-        DESTINATION "share/cocos2dx/bullet"
-        FILES_MATCHING PATTERN "*.a" PATTERN "*.lib" PATTERN "*.h"
-    )
-endif ()
+    install_ext_lib(bullet)
+endif()
+
 install(
     TARGETS ${INSTALL_TARGETS}
     EXPORT cocos2dx-targets
