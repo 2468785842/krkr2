@@ -39,7 +39,6 @@ vcpkg_cmake_configure(
         -DBUILD_TESTS=OFF
         -DBUILD_JS_LIBS=OFF
         -DBUILD_LUA_LIBS=OFF
-        -DBUILD_EXT_BOX2D=OFF
 )
 
 vcpkg_cmake_install()

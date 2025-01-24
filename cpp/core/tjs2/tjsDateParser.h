@@ -1,9 +1,9 @@
 //---------------------------------------------------------------------------
 /*
-	TJS2 Script Engine
-	Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
+        TJS2 Script Engine
+        Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
 
-	See details of license at "license.txt"
+        See details of license at "license.txt"
 */
 //---------------------------------------------------------------------------
 // Date/time string parser
@@ -12,76 +12,79 @@
 #define tjsDateParserH
 
 #include "tjsTypes.h"
-#include "tjsdate.tab.hpp"
+#include "tjs2/parser/tjsdate.tab.hpp"
 
-
-namespace TJS
-{
-
+namespace TJS {
 
 //---------------------------------------------------------------------------
 // tTJSDateParser : A date/time parser class
 //---------------------------------------------------------------------------
-class tTJSDateParser
-{
-	bool YearSet;
-	int Year;
+class tTJSDateParser {
+    bool YearSet;
+    int Year;
 
-	bool MonthSet;
-	int Month;
+    bool MonthSet;
+    int Month;
 
-	bool MDaySet;
-	int MDay;
+    bool MDaySet;
+    int MDay;
 
-	bool HourSet;
-	int Hour;
+    bool HourSet;
+    int Hour;
 
-	bool MinSet;
-	int Min;
+    bool MinSet;
+    int Min;
 
-	bool SecSet;
-	int Sec;
+    bool SecSet;
+    int Sec;
 
-	bool AMPMSet;
-	bool AMPM; // pm:true am:false
+    bool AMPMSet;
+    bool AMPM; // pm:true am:false
 
-	bool TimeZoneSet;
-	int TimeZone;
+    bool TimeZoneSet;
+    int TimeZone;
 
-	bool TimeZoneOffsetSet;
-	int TimeZoneOffset;
+    bool TimeZoneOffsetSet;
+    int TimeZoneOffset;
 
-	const tjs_char *Input;
-	const tjs_char *InputPointer;
+    const tjs_char *Input;
+    const tjs_char *InputPointer;
 
-	tjs_int64 Time; // time from 1970-01-01 00:00:00.00 GMT
+    tjs_int64 Time; // time from 1970-01-01 00:00:00.00 GMT
 
+    friend int dplex(YYSTYPE *yylex, void *pm);
 
-	friend int dplex(YYSTYPE *yylex, void *pm);
-	friend int dpparse (void *YYPARSE_PARAM);
+    friend int dpparse(void *YYPARSE_PARAM);
 
 public:
-	tTJSDateParser(const tjs_char *in);
-	~tTJSDateParser();
+    tTJSDateParser(const tjs_char *in);
 
-	tjs_int64 GetTime();
+    ~tTJSDateParser();
+
+    tjs_int64 GetTime();
 
 private:
-	int Lex(YYSTYPE *yylex);
+    int Lex(YYSTYPE *yylex);
 
-	void SkipToRightParenthesis();
+    void SkipToRightParenthesis();
 
-	void SetMDay(int v);
-	void SetMonth(int v);
-	void SetYear(int v);
-	void SetHours(int v);
-	void SetMin(int v);
-	void SetSec(int v);
-	void SetAMPM(bool is_pm);
-	void SetTimeZone(int v);
-	void SetTimeZoneOffset(int v);
+    void SetMDay(int v);
 
+    void SetMonth(int v);
 
+    void SetYear(int v);
+
+    void SetHours(int v);
+
+    void SetMin(int v);
+
+    void SetSec(int v);
+
+    void SetAMPM(bool is_pm);
+
+    void SetTimeZone(int v);
+
+    void SetTimeZoneOffset(int v);
 };
 
 //---------------------------------------------------------------------------

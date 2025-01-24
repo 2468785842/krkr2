@@ -1,17 +1,16 @@
 //---------------------------------------------------------------------------
 /*
-	TJS2 Script Engine
-	Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
+        TJS2 Script Engine
+        Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
 
-	See details of license at "license.txt"
+        See details of license at "license.txt"
 */
 //---------------------------------------------------------------------------
 // tjs common header
 //---------------------------------------------------------------------------
 
-
 /*
-	Add headers that would not be frequently changed.
+        Add headers that would not be frequently changed.
 */
 #ifndef tjsCommHeadH
 #define tjsCommHeadH
@@ -24,12 +23,12 @@
 
 #include <vector>
 
-#ifdef  _DEBUG
+#ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
 #include <cstdlib>
 #include <crtdbg.h>
 #define TJS_CRTDBG_MAP_ALLOC
-#endif  // _DEBUG
+#endif // _DEBUG
 
 /*
 #ifndef DEBUG_NEW
@@ -44,11 +43,12 @@
 
 #endif
 
-
 #include <string.h>
+
 #ifndef __USE_UNIX98
 #define __USE_UNIX98
 #endif
+
 #include <wchar.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -63,5 +63,3 @@
 
 //---------------------------------------------------------------------------
 #endif
-
-

@@ -1,9 +1,9 @@
 //---------------------------------------------------------------------------
 /*
-	TVP2 ( T Visual Presenter 2 )  A script authoring tool
-	Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
+        TVP2 ( T Visual Presenter 2 )  A script authoring tool
+        Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
 
-	See details of license at "license.txt"
+        See details of license at "license.txt"
 */
 //---------------------------------------------------------------------------
 // Graphics Loader ( loads graphic format from storage )
@@ -23,10 +23,14 @@
 #include "LayerBitmapIntf.h"
 #include "MsgIntf.h"
 
-void tTVPGraphicHandlerType::Load( void* formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback, tTVPGraphicScanLineCallback scanlinecallback,
-	tTVPMetaInfoPushCallback metainfopushcallback, tTJSBinaryStream *src, tjs_int32 keyidx, tTVPGraphicLoadMode mode)
-{
-	if( LoadHandler == NULL ) TVPThrowExceptionMessage(TVPUnknownGraphicFormat, TJS_W("unknown"));
+void tTVPGraphicHandlerType::Load(void *formatdata, void *callbackdata,
+                                  tTVPGraphicSizeCallback sizecallback,
+                                  tTVPGraphicScanLineCallback scanlinecallback,
+                                  tTVPMetaInfoPushCallback metainfopushcallback,
+                                  tTJSBinaryStream *src, tjs_int32 keyidx,
+                                  tTVPGraphicLoadMode mode) {
+    if (LoadHandler == nullptr)
+        TVPThrowExceptionMessage(TVPUnknownGraphicFormat, TJS_W("unknown"));
 #if 0
 	if( IsPlugin )
 	{
@@ -44,16 +48,19 @@ void tTVPGraphicHandlerType::Load( void* formatdata, void *callbackdata, tTVPGra
 	}
 	else
 #endif
-	{
-		LoadHandler( formatdata, callbackdata, sizecallback, scanlinecallback, metainfopushcallback,
-			src, keyidx, mode);
-	}
+    {
+        LoadHandler(formatdata, callbackdata, sizecallback, scanlinecallback,
+                    metainfopushcallback, src, keyidx, mode);
+    }
 }
-void tTVPGraphicHandlerType::Save( const ttstr & storagename, const ttstr & mode, const iTVPBaseBitmap* image, iTJSDispatch2* meta )
-{
-	if( SaveHandler == NULL ) TVPThrowExceptionMessage(TVPUnknownGraphicFormat, mode );
+void tTVPGraphicHandlerType::Save(const ttstr &storagename, const ttstr &mode,
+                                  const iTVPBaseBitmap *image,
+                                  iTJSDispatch2 *meta) {
+    if (SaveHandler == nullptr)
+        TVPThrowExceptionMessage(TVPUnknownGraphicFormat, mode);
 
-	tTJSBinaryStream *stream = TVPCreateStream(TVPNormalizeStorageName(storagename), TJS_BS_WRITE);
+    tTJSBinaryStream *stream =
+        TVPCreateStream(TVPNormalizeStorageName(storagename), TJS_BS_WRITE);
 #if 0
 	if (IsPlugin)
 	{
@@ -70,19 +77,20 @@ void tTVPGraphicHandlerType::Save( const ttstr & storagename, const ttstr & mode
 	}
 	else
 #endif
-	{
-		try {
-			SaveHandler( FormatData, stream, image, mode, meta );
-		} catch(...) {
-			delete stream;
-			throw;
-		}
-		delete stream;
-	}
+    {
+        try {
+            SaveHandler(FormatData, stream, image, mode, meta);
+        } catch (...) {
+            delete stream;
+            throw;
+        }
+        delete stream;
+    }
 }
-void tTVPGraphicHandlerType::Header( tTJSBinaryStream *src, iTJSDispatch2** dic )
-{
-	if( HeaderHandler == NULL ) TVPThrowExceptionMessage(TVPUnknownGraphicFormat, TJS_W("unknown") );
+void tTVPGraphicHandlerType::Header(tTJSBinaryStream *src,
+                                    iTJSDispatch2 **dic) {
+    if (HeaderHandler == nullptr)
+        TVPThrowExceptionMessage(TVPUnknownGraphicFormat, TJS_W("unknown"));
 #if 0
 	if( IsPlugin )
 	{
@@ -99,12 +107,10 @@ void tTVPGraphicHandlerType::Header( tTJSBinaryStream *src, iTJSDispatch2** dic 
 	}
 	else
 #endif
-	{
-		HeaderHandler( FormatData, src, dic );
-	}
+    { HeaderHandler(FormatData, src, dic); }
 }
 /*
-	support of SPI for archive files is in StorageImpl.cpp
+        support of SPI for archive files is in StorageImpl.cpp
 */
 #if 0
 //---------------------------------------------------------------------------
@@ -170,7 +176,7 @@ tTVPSusiePlugin::tTVPSusiePlugin(HINSTANCE inst, const char *api)
 
 		// split buffer to each extensions
 		char *p = buffer;
-		while((p = strstr(p, "*.")) != NULL)
+		while((p = strstr(p, "*.")) != nullptr)
 		{
 			p++;
 			char *b2 = buffer2;
@@ -234,9 +240,9 @@ void tTVPSusiePicturePlugin::Load(void *callbackdata,
 		tTVPGraphicLoadMode mode)
 {
 	bool bitmaplocked = false;
-	HLOCAL bitmap = NULL;
+	HLOCAL bitmap = nullptr;
 	bool infolocked = false;
-	HLOCAL info = NULL;
+	HLOCAL info = nullptr;
 
 	// load source to memory
 	tjs_uint64 size = src->GetSize();
@@ -380,7 +386,7 @@ void TVPLoadPictureSPI(HINSTANCE inst, tTVPBMPAlphaType alphatype)
 	std::vector<ttstr>::const_iterator i;
 	for(i = exts.begin(); i != exts.end(); i++)
 	{
-		TVPRegisterGraphicLoadingHandler(*i, TVPLoadViaSusiePlugin, NULL, NULL, NULL, (void*)spi);
+		TVPRegisterGraphicLoadingHandler(*i, TVPLoadViaSusiePlugin, nullptr, nullptr, nullptr, (void*)spi);
 	}
 }
 //---------------------------------------------------------------------------
@@ -396,7 +402,7 @@ void TVPUnloadPictureSPI(HINSTANCE inst)
 	std::vector<ttstr>::const_iterator i;
 	for(i = exts.begin(); i != exts.end(); i++)
 	{
-		TVPUnregisterGraphicLoadingHandler(*i, TVPLoadViaSusiePlugin, NULL, NULL, NULL, (void*)*p);
+		TVPUnregisterGraphicLoadingHandler(*i, TVPLoadViaSusiePlugin, nullptr, nullptr, nullptr, (void*)*p);
 	}
 
 	TVPSusiePluginList.Delete(inst);

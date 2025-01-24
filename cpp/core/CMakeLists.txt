@@ -21,7 +21,6 @@ file(GLOB KRKR2CORE_SOURCES
     ${KRKR2CORE_PATH}/msg/win32/OptionsDesc.cpp
     ${KRKR2CORE_PATH}/sound/*.cpp
     ${KRKR2CORE_PATH}/sound/win32/*.cpp
-    ${KRKR2CORE_PATH}/tjs2/*.cpp
     ${KRKR2CORE_PATH}/utils/*.c
     ${KRKR2CORE_PATH}/utils/*.cpp
     ${KRKR2CORE_PATH}/utils/encoding/*.c
@@ -32,10 +31,6 @@ file(GLOB KRKR2CORE_SOURCES
     ${KRKR2CORE_PATH}/visual/win32/*.cpp
 )
 
-file(GLOB KRKR2CORE_ANDROID_SOURCES
-    ${KRKR2CORE_PATH}/environ/android/*.cpp
-#    ${KRKR2CORE_PATH}/visual/ARM/*.cpp
-)
 list(REMOVE_ITEM KRKR2CORE_SOURCES
     ${KRKR2CORE_PATH}/visual/Resampler.cpp
     ${KRKR2CORE_PATH}/base/win32/FuncStubs.cpp
@@ -49,11 +44,46 @@ list(REMOVE_ITEM KRKR2CORE_SOURCES
     ${KRKR2CORE_PATH}/visual/win32/VSyncTimingThread.cpp
 )
 
-list(APPEND KRKR2CORE_SOURCES ${KRKR2CORE_ANDROID_SOURCES})
-set(PLATFORM android)
-
 # Create the static library
-add_library(${PROJECT_NAME} STATIC ${KRKR2CORE_SOURCES})
+add_library(${PROJECT_NAME} STATIC
+    ${KRKR2CORE_PATH}/environ/android/AndroidUtils.cpp
+    ${KRKR2CORE_SOURCES}
+)
+
+# Common include directories
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${KRKR2CORE_PATH}/
+    ${KRKR2CORE_PATH}/base
+    ${KRKR2CORE_PATH}/base/win32
+    ${KRKR2CORE_PATH}/environ
+    ${KRKR2CORE_PATH}/environ/win32
+    ${KRKR2CORE_PATH}/environ/android
+    ${KRKR2CORE_PATH}/environ/sdl
+    ${KRKR2CORE_PATH}/msg
+    ${KRKR2CORE_PATH}/msg/win32
+    ${KRKR2CORE_PATH}/extension
+    ${KRKR2CORE_PATH}/sound
+    ${KRKR2CORE_PATH}/sound/win32
+    ${KRKR2CORE_PATH}/utils
+    ${KRKR2CORE_PATH}/utils/win32
+    ${KRKR2CORE_PATH}/visual
+    ${KRKR2CORE_PATH}/visual/ARM
+    ${KRKR2CORE_PATH}/visual/win32
+    ${KRKR2CORE_PATH}/visual/RenderScript/rs
+    ${KRKR2CORE_PATH}/../plugins
+)
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+    -DTJS_TEXT_OUT_CRLF
+    -D__STDC_CONSTANT_MACROS
+    -DUSE_UNICODE_FSTRING
+    -D_7ZIP_ST
+    -DWINAPI=
+)
+
+add_subdirectory(tjs2)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC tjs2)
 
 # 启用 OpenMP 支持
 find_package(OpenMP REQUIRED)
@@ -75,38 +105,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     GLESv2
     GLESv1_CM
     OpenSLES
-)
-
-# Common include directories
-target_include_directories(${PROJECT_NAME} PUBLIC
-    ${KRKR2CORE_PATH}/
-    ${KRKR2CORE_PATH}/base
-    ${KRKR2CORE_PATH}/base/win32
-    ${KRKR2CORE_PATH}/environ
-    ${KRKR2CORE_PATH}/environ/win32
-    ${KRKR2CORE_PATH}/environ/android
-    ${KRKR2CORE_PATH}/environ/sdl
-    ${KRKR2CORE_PATH}/msg
-    ${KRKR2CORE_PATH}/msg/win32
-    ${KRKR2CORE_PATH}/extension
-    ${KRKR2CORE_PATH}/sound
-    ${KRKR2CORE_PATH}/sound/win32
-    ${KRKR2CORE_PATH}/tjs2
-    ${KRKR2CORE_PATH}/utils
-    ${KRKR2CORE_PATH}/utils/win32
-    ${KRKR2CORE_PATH}/visual
-    ${KRKR2CORE_PATH}/visual/ARM
-    ${KRKR2CORE_PATH}/visual/win32
-    ${KRKR2CORE_PATH}/visual/RenderScript/rs
-    ${KRKR2CORE_PATH}/../plugins
-)
-
-target_compile_definitions(${PROJECT_NAME} PUBLIC
-    -DTJS_TEXT_OUT_CRLF
-    -D__STDC_CONSTANT_MACROS
-    -DUSE_UNICODE_FSTRING
-    -D_7ZIP_ST
-    -DWINAPI=
 )
 
 find_package(unofficial-breakpad CONFIG REQUIRED)

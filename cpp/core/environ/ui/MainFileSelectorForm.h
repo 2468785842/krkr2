@@ -3,11 +3,12 @@
 #include "FileSelectorForm.h"
 
 namespace cocos2d {
-    class LayerColor;
+class LayerColor;
 }
 
 class TVPMainFileSelectorForm : public TVPBaseFileSelectorForm {
     typedef TVPBaseFileSelectorForm inherit;
+
 public:
     virtual void bindBodyController(const NodeMap &allNodes) override;
 
@@ -17,7 +18,8 @@ public:
 
     void initFromFile();
 
-    void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event) override;
+    void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
+                      cocos2d::Event *event) override;
 
 protected:
     TVPMainFileSelectorForm();
@@ -28,7 +30,8 @@ protected:
 
     virtual void onCellClicked(int idx) override;
 
-    virtual void getShortCutDirList(std::vector<std::string> &pathlist) override;
+    virtual void
+    getShortCutDirList(std::vector<std::string> &pathlist) override;
 
     void startup(const std::string &path);
 
@@ -48,9 +51,10 @@ protected:
 
     class HistoryCell : public cocos2d::ui::Widget {
     public:
-        static HistoryCell *
-        create(const std::string &fullpath, const std::string &prefix, const std::string &pathname,
-               const std::string &filename) {
+        static HistoryCell *create(const std::string &fullpath,
+                                   const std::string &prefix,
+                                   const std::string &pathname,
+                                   const std::string &filename) {
             HistoryCell *ret = new HistoryCell();
             ret->autorelease();
             ret->init();
@@ -61,9 +65,10 @@ protected:
         void initInfo(const std::string &fullpath, const std::string &prefix,
                       const std::string &pathname, const std::string &filename);
 
-        void
-        initFunction(const ccWidgetClickCallback &funcDel, const ccWidgetClickCallback &funcJump,
-                     const ccWidgetClickCallback &funcConf, const ccWidgetClickCallback &funcPlay);
+        void initFunction(const ccWidgetClickCallback &funcDel,
+                          const ccWidgetClickCallback &funcJump,
+                          const ccWidgetClickCallback &funcConf,
+                          const ccWidgetClickCallback &funcPlay);
 
         void rearrangeLayout();
 

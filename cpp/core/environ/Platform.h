@@ -3,8 +3,7 @@
 #include <string>
 #include <vector>
 
-struct TVPMemoryInfo
-{ // all in kB
+struct TVPMemoryInfo { // all in kB
     unsigned long MemTotal;
     unsigned long MemFree;
     unsigned long SwapTotal;
@@ -15,15 +14,20 @@ struct TVPMemoryInfo
 
 void TVPGetMemoryInfo(TVPMemoryInfo &m);
 tjs_int TVPGetSystemFreeMemory(); // in MB
-tjs_int TVPGetSelfUsedMemory(); // in MB
+tjs_int TVPGetSelfUsedMemory();   // in MB
 
-extern "C" int TVPShowSimpleMessageBox(const char * text, const char * caption, unsigned int nButton, const char **btnText); // C-style
+extern "C" int TVPShowSimpleMessageBox(const char *text, const char *caption,
+                                       unsigned int nButton,
+                                       const char **btnText); // C-style
 
-int TVPShowSimpleMessageBox(const ttstr & text, const ttstr & caption, const std::vector<ttstr> &vecButtons);
-int TVPShowSimpleMessageBox(const ttstr & text, const ttstr & caption);
-int TVPShowSimpleMessageBoxYesNo(const ttstr & text, const ttstr & caption);
+int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
+                            const std::vector<ttstr> &vecButtons);
+int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption);
+int TVPShowSimpleMessageBoxYesNo(const ttstr &text, const ttstr &caption);
 
-int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption, const ttstr &prompt, const std::vector<ttstr> &vecButtons);
+int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,
+                          const ttstr &prompt,
+                          const std::vector<ttstr> &vecButtons);
 
 std::vector<std::string> TVPGetDriverPath();
 std::vector<std::string> TVPGetAppStoragePath();
@@ -42,12 +46,17 @@ void TVPHideIME();
 void TVPRelinquishCPU();
 void TVPPrintLog(const char *str);
 
+// FIXME: 宏定义冲突 sys/stat.h
+#undef st_atime
+#undef st_mtime
+#undef st_ctime
+
 struct tTVP_stat {
-	uint16_t st_mode;
-	uint64_t st_size;
-	uint64_t st_atime;
-	uint64_t st_mtime;
-	uint64_t st_ctime;
+    uint16_t st_mode;
+    uint64_t st_size;
+    uint64_t st_atime;
+    uint64_t st_mtime;
+    uint64_t st_ctime;
 };
 
 bool TVP_stat(const tjs_char *name, tTVP_stat &s);

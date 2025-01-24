@@ -7,16 +7,12 @@ extern void getRects(const tTJSVariant &var, std::vector<RectFClass> &rects);
 /**
  * 現在の図形を閉じずに次の図形を開始します
  */
-void DrawPath::startFigure() {
-    GdipStartPathFigure(this->path);
-}
+void DrawPath::startFigure() { GdipStartPathFigure(this->path); }
 
 /**
  * 現在の図形を閉じます
  */
-void DrawPath::closeFigure() {
-    GdipClosePathFigure(this->path);
-}
+void DrawPath::closeFigure() { GdipClosePathFigure(this->path); }
 
 /**
  * 円弧の描画
@@ -27,7 +23,8 @@ void DrawPath::closeFigure() {
  * @param startAngle 時計方向円弧開始位置
  * @param sweepAngle 描画角度
  */
-void DrawPath::drawArc(REAL x, REAL y, REAL width, REAL height, REAL startAngle, REAL sweepAngle) {
+void DrawPath::drawArc(REAL x, REAL y, REAL width, REAL height, REAL startAngle,
+                       REAL sweepAngle) {
     GdipAddPathArc(path, x, y, width, height, startAngle, sweepAngle);
 }
 
@@ -43,7 +40,8 @@ void DrawPath::drawArc(REAL x, REAL y, REAL width, REAL height, REAL startAngle,
  * @param x4
  * @param y4
  */
-void DrawPath::drawBezier(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3, REAL x4, REAL y4) {
+void DrawPath::drawBezier(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3,
+                          REAL x4, REAL y4) {
     GdipAddPathBezier(path, x1, y1, x2, y2, x3, y3, x4, y4);
 }
 
@@ -55,7 +53,7 @@ void DrawPath::drawBezier(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3, 
 void DrawPath::drawBeziers(tTJSVariant points) {
     std::vector<PointFClass> ps;
     getPoints(points, ps);
-    GdipAddPathBeziers(path, &ps[0], (int) ps.size());
+    GdipAddPathBeziers(path, &ps[0], (int)ps.size());
 }
 
 /**
@@ -66,7 +64,7 @@ void DrawPath::drawBeziers(tTJSVariant points) {
 void DrawPath::drawClosedCurve(tTJSVariant points) {
     std::vector<PointFClass> ps;
     getPoints(points, ps);
-    GdipAddPathClosedCurve(path, &ps[0], (int) ps.size());
+    GdipAddPathClosedCurve(path, &ps[0], (int)ps.size());
 }
 
 /**
@@ -78,7 +76,7 @@ void DrawPath::drawClosedCurve(tTJSVariant points) {
 void DrawPath::drawClosedCurve2(tTJSVariant points, REAL tension) {
     std::vector<PointFClass> ps;
     getPoints(points, ps);
-    GdipAddPathClosedCurve2(path, &ps[0], (int) ps.size(), tension);
+    GdipAddPathClosedCurve2(path, &ps[0], (int)ps.size(), tension);
 }
 
 /**
@@ -89,7 +87,7 @@ void DrawPath::drawClosedCurve2(tTJSVariant points, REAL tension) {
 void DrawPath::drawCurve(tTJSVariant points) {
     std::vector<PointFClass> ps;
     getPoints(points, ps);
-    GdipAddPathCurve(path, &ps[0], (int) ps.size());
+    GdipAddPathCurve(path, &ps[0], (int)ps.size());
 }
 
 /**
@@ -101,7 +99,7 @@ void DrawPath::drawCurve(tTJSVariant points) {
 void DrawPath::drawCurve2(tTJSVariant points, REAL tension) {
     std::vector<PointFClass> ps;
     getPoints(points, ps);
-    GdipAddPathCurve2(path, &ps[0], (int) ps.size(), tension);
+    GdipAddPathCurve2(path, &ps[0], (int)ps.size(), tension);
 }
 
 /**
@@ -112,10 +110,12 @@ void DrawPath::drawCurve2(tTJSVariant points, REAL tension) {
  * @param numberOfSegments
  * @param tension tension
  */
-void DrawPath::drawCurve3(tTJSVariant points, int offset, int numberOfSegments, REAL tension) {
+void DrawPath::drawCurve3(tTJSVariant points, int offset, int numberOfSegments,
+                          REAL tension) {
     std::vector<PointFClass> ps;
     getPoints(points, ps);
-    GdipAddPathCurve3(path, &ps[0], (int) ps.size(), offset, numberOfSegments, tension);
+    GdipAddPathCurve3(path, &ps[0], (int)ps.size(), offset, numberOfSegments,
+                      tension);
 }
 
 /**
@@ -127,7 +127,8 @@ void DrawPath::drawCurve3(tTJSVariant points, int offset, int numberOfSegments, 
  * @param startAngle 時計方向円弧開始位置
  * @param sweepAngle 描画角度
  */
-void DrawPath::drawPie(REAL x, REAL y, REAL width, REAL height, REAL startAngle, REAL sweepAngle) {
+void DrawPath::drawPie(REAL x, REAL y, REAL width, REAL height, REAL startAngle,
+                       REAL sweepAngle) {
     GdipAddPathPie(path, x, y, width, height, startAngle, sweepAngle);
 }
 
@@ -163,7 +164,7 @@ void DrawPath::drawLine(REAL x1, REAL y1, REAL x2, REAL y2) {
 void DrawPath::drawLines(tTJSVariant points) {
     std::vector<PointFClass> ps;
     getPoints(points, ps);
-    GdipAddPathLine2(path, &ps[0], (int) ps.size());
+    GdipAddPathLine2(path, &ps[0], (int)ps.size());
 }
 
 /**
@@ -175,9 +176,8 @@ void DrawPath::drawLines(tTJSVariant points) {
 void DrawPath::drawPolygon(tTJSVariant points) {
     std::vector<PointFClass> ps;
     getPoints(points, ps);
-    GdipAddPathPolygon(path, &ps[0], (int) ps.size());
+    GdipAddPathPolygon(path, &ps[0], (int)ps.size());
 }
-
 
 /**
  * 矩形の描画
@@ -199,5 +199,5 @@ void DrawPath::drawRectangle(REAL x, REAL y, REAL width, REAL height) {
 void DrawPath::drawRectangles(tTJSVariant rects) {
     std::vector<RectFClass> rs;
     getRects(rects, rs);
-    GdipAddPathRectangles(path, &rs[0], (int) rs.size());
+    GdipAddPathRectangles(path, &rs[0], (int)rs.size());
 }

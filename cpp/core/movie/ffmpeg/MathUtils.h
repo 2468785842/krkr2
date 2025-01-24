@@ -1,4 +1,5 @@
 #pragma once
+
 #include "KRMovieDef.h"
 #include <stdint.h>
 #include <cassert>
@@ -7,14 +8,11 @@
 
 // use real compiler defines in here as we want to
 // avoid including system.h or other magic includes.
-// use 'gcc -dM -E - < /dev/null' or similar to find them.
+// use 'gcc -dM -E - < /dev/nullptr' or similar to find them.
 
-#if defined(__ppc__) || \
-    defined(__powerpc__) || \
-    defined(__mips__) || \
-    defined(__arm__) || \
-    defined(__aarch64__)
-  #define DISABLE_MATHUTILS_ASM_ROUND_INT
+#if defined(__ppc__) || defined(__powerpc__) || defined(__mips__) ||           \
+    defined(__arm__) || defined(__aarch64__)
+#define DISABLE_MATHUTILS_ASM_ROUND_INT
 #endif
 NS_KRMOVIE_BEGIN
 /*! \brief Math utility class.
@@ -23,25 +21,23 @@ NS_KRMOVIE_BEGIN
  See http://ldesoras.free.fr/doc/articles/rounding_en.pdf for an explanation
  of the technique used on x86.
  */
-namespace MathUtils
-{
-  // GCC does something stupid with optimization on release builds if we try
-  // to assert in these functions
+namespace MathUtils {
+// GCC does something stupid with optimization on release builds if we try
+// to assert in these functions
 
-  /*! \brief Round to nearest integer.
-   This routine does fast rounding to the nearest integer.
-   In the case (k + 0.5 for any integer k) we round up to k+1, and in all other
-   instances we should return the nearest integer.
-   Thus, { -1.5, -0.5, 0.5, 1.5 } is rounded to { -1, 0, 1, 2 }.
-   It preserves the property that round(k) - round(k-1) = 1 for all doubles k.
+/*! \brief Round to nearest integer.
+ This routine does fast rounding to the nearest integer.
+ In the case (k + 0.5 for any integer k) we round up to k+1, and in all other
+ instances we should return the nearest integer.
+ Thus, { -1.5, -0.5, 0.5, 1.5 } is rounded to { -1, 0, 1, 2 }.
+ It preserves the property that round(k) - round(k-1) = 1 for all doubles k.
 
-   Make sure MathUtils::test() returns true for each implementation.
-   \sa truncate_int, test
-  */
-  inline int round_int(double x)
-  {
-    assert(x > static_cast<double>((int) (INT_MIN / 2)) - 1.0);
-    assert(x < static_cast<double>((int) (INT_MAX / 2)) + 1.0);
+ Make sure MathUtils::test() returns true for each implementation.
+ \sa truncate_int, test
+*/
+inline int round_int(double x) {
+    assert(x > static_cast<double>((int)(INT_MIN / 2)) - 1.0);
+    assert(x < static_cast<double>((int)(INT_MAX / 2)) + 1.0);
 
 #if defined(DISABLE_MATHUTILS_ASM_ROUND_INT)
     /* This implementation warrants some further explanation.
@@ -93,91 +89,86 @@ namespace MathUtils
      *    The representation once the offset is applied has equal or greater
      *    precision than the input, so the addition does not cause rounding.
      */
-    return ((unsigned int) (x + 0x80000000.8p0)) - 0x80000000;
+    return ((unsigned int)(x + 0x80000000.8p0)) - 0x80000000;
 
 #else
     const float round_to_nearest = 0.5f;
     int i;
 #if defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
     const float round_dn_to_nearest = 0.4999999f;
-    i = (x > 0) ? _mm_cvttsd_si32(_mm_set_sd(x + round_to_nearest)) : _mm_cvttsd_si32(_mm_set_sd(x - round_dn_to_nearest));
+    i = (x > 0) ? _mm_cvttsd_si32(_mm_set_sd(x + round_to_nearest))
+                : _mm_cvttsd_si32(_mm_set_sd(x - round_dn_to_nearest));
 
-// #elif defined(_MSC_VER)
-//     __asm
-//     {
-//       fld x
-//       fadd st, st (0)
-//       fadd round_to_nearest
-//       fistp i
-//       sar i, 1
-//     }
+    // #elif defined(_MSC_VER)
+    //     __asm
+    //     {
+    //       fld x
+    //       fadd st, st (0)
+    //       fadd round_to_nearest
+    //       fistp i
+    //       sar i, 1
+    //     }
 
 #else
-    __asm__ __volatile__ (
-      "fadd %%st\n\t"
-      "fadd %%st(1)\n\t"
-      "fistpl %0\n\t"
-      "sarl $1, %0\n"
-      : "=m"(i) : "u"(round_to_nearest), "t"(x) : "st"
-    );
+    __asm__ __volatile__("fadd %%st\n\t"
+                         "fadd %%st(1)\n\t"
+                         "fistpl %0\n\t"
+                         "sarl $1, %0\n"
+                         : "=m"(i)
+                         : "u"(round_to_nearest), "t"(x)
+                         : "st");
 
 #endif
     return i;
 #endif
-  }
+}
 
-  /*! \brief Truncate to nearest integer.
-   This routine does fast truncation to an integer.
-   It should simply drop the fractional portion of the floating point number.
+/*! \brief Truncate to nearest integer.
+ This routine does fast truncation to an integer.
+ It should simply drop the fractional portion of the floating point number.
 
-   Make sure MathUtils::test() returns true for each implementation.
-   \sa round_int, test
-  */
-  inline int truncate_int(double x)
-  {
+ Make sure MathUtils::test() returns true for each implementation.
+ \sa round_int, test
+*/
+inline int truncate_int(double x) {
     assert(x > static_cast<double>(INT_MIN / 2) - 1.0);
     assert(x < static_cast<double>(INT_MAX / 2) + 1.0);
     return static_cast<int>(x);
-  }
+}
 
-  inline int64_t abs(int64_t a)
-  {
-    return (a < 0) ? -a : a;
-  }
+inline int64_t abs(int64_t a) { return (a < 0) ? -a : a; }
 
-  inline unsigned bitcount(unsigned v)
-  {
+inline unsigned bitcount(unsigned v) {
     unsigned c = 0;
     for (c = 0; v; c++)
-      v &= v - 1; // clear the least significant bit set
+        v &= v - 1; // clear the least significant bit set
     return c;
-  }
+}
 
-  inline void hack()
-  {
+inline void hack() {
     // stupid hack to keep compiler from dropping these
     // functions as unused
     MathUtils::round_int(0.0);
     MathUtils::truncate_int(0.0);
     MathUtils::abs(0);
-  }
+}
 
 #if 0
-  /*! \brief test routine for round_int and truncate_int
-   Must return true on all platforms.
-   */
-  inline bool test()
-  {
-    for (int i = -8; i < 8; ++i)
-    {
-      double d = 0.25*i;
-      int r = (i < 0) ? (i - 1) / 4 : (i + 2) / 4;
-      int t = i / 4;
-      if (round_int(d) != r || truncate_int(d) != t)
-        return false;
-    }
-    return true;
-  }
+        /*! \brief test routine for round_int and truncate_int
+         Must return true on all platforms.
+         */
+        inline bool test()
+        {
+          for (int i = -8; i < 8; ++i)
+          {
+            double d = 0.25*i;
+            int r = (i < 0) ? (i - 1) / 4 : (i + 2) / 4;
+            int t = i / 4;
+            if (round_int(d) != r || truncate_int(d) != t)
+              return false;
+          }
+          return true;
+        }
 #endif
 } // namespace MathUtils
 

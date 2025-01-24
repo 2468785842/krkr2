@@ -1,9 +1,9 @@
 //---------------------------------------------------------------------------
 /*
-	TJS2 Script Engine
-	Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
+        TJS2 Script Engine
+        Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
 
-	See details of license at "license.txt"
+        See details of license at "license.txt"
 */
 //---------------------------------------------------------------------------
 // iTJSDispatch2 interface definition
@@ -13,12 +13,8 @@
 
 #include "tjsInterface.h"
 
-namespace TJS
-{
+namespace TJS {
 //---------------------------------------------------------------------------
-
 
 //---------------------------------------------------------------------------
 } // namespace TJS
-
-

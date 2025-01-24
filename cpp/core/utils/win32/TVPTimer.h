@@ -4,66 +4,74 @@
 
 class TVPTimerEventIntarface {
 public:
-	virtual ~TVPTimerEventIntarface() {}
-	virtual void Handle() = 0;
+    virtual ~TVPTimerEventIntarface() {}
+
+    virtual void Handle() = 0;
 };
 
-template<typename T>
-class TVPTimerEvent : public TVPTimerEventIntarface {
-	void (T::*handler_)();
-	T* owner_;
+template <typename T> class TVPTimerEvent : public TVPTimerEventIntarface {
+    void (T::*handler_)();
+
+    T *owner_;
 
 public:
-	TVPTimerEvent( T* owner, void (T::*Handler)() ) : owner_(owner), handler_(Handler) {}
-	void Handle() { (owner_->*handler_)(); }
+    TVPTimerEvent(T *owner, void (T::*Handler)())
+        : owner_(owner), handler_(Handler) {}
+
+    void Handle() { (owner_->*handler_)(); }
 };
+
 class tTVPTimerImpl;
+
 class TVPTimer {
-	TVPTimerEventIntarface* event_;
-	int		interval_;
-	bool	enabled_;
+    TVPTimerEventIntarface *event_;
+    int interval_;
+    bool enabled_;
 
-	void UpdateTimer();
+    void UpdateTimer();
 
-	void FireEvent() {
-		if( event_ ) {
-			event_->Handle();
-		}
-	}
+    void FireEvent() {
+        if (event_) {
+            event_->Handle();
+        }
+    }
 
-	friend class tTVPTimerImpl;
-	tTVPTimerImpl *impl_;
+    friend class tTVPTimerImpl;
+
+    tTVPTimerImpl *impl_;
 
 public:
-	TVPTimer();
-	~TVPTimer();
+    TVPTimer();
 
-	template<typename T>
-	void SetOnTimerHandler( T* owner, void (T::*Handler)() ) {
-		if( event_ ) delete event_;
-		event_ = new TVPTimerEvent<T>( owner, Handler );
-		UpdateTimer();
-	}
+    ~TVPTimer();
 
-	void SetInterval( int i ) {
-		if( interval_ != i ) {
-			interval_ = i;
-			UpdateTimer();
-		}
-	}
-	int GetInterval() const {
-		return interval_;
-	}
-	void SetEnabled( bool b ) {
-		if( enabled_ != b ) {
-			enabled_ = b;
-			UpdateTimer();
-		}
-	}
-	bool GetEnable() const { return enabled_; }
+    template <typename T>
+    void SetOnTimerHandler(T *owner, void (T::*Handler)()) {
+        if (event_)
+            delete event_;
+        event_ = new TVPTimerEvent<T>(owner, Handler);
+        UpdateTimer();
+    }
 
-	static void ProgressAllTimer();
+    void SetInterval(int i) {
+        if (interval_ != i) {
+            interval_ = i;
+            UpdateTimer();
+        }
+    }
+
+    int GetInterval() const { return interval_; }
+
+    void SetEnabled(bool b) {
+        if (enabled_ != b) {
+            enabled_ = b;
+            UpdateTimer();
+        }
+    }
+
+    bool GetEnable() const { return enabled_; }
+
+    static void ProgressAllTimer();
 };
-
 
 #endif // __TVP_TIMER_H__

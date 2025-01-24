@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.tvp.kirikiri2.KR2Activity
@@ -18,10 +17,8 @@ class MainActivity : KR2Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!checkStoragePermission()) {
-                requestStoragePermission()
-            }
+        if (!checkStoragePermission()) {
+            requestStoragePermission()
         }
     }
 
@@ -36,14 +33,20 @@ class MainActivity : KR2Activity() {
     }
 
     // 请求用户授予 MANAGE_EXTERNAL_STORAGE 权限
-    @RequiresApi(api = Build.VERSION_CODES.R)
     private fun requestStoragePermission(): Boolean {
         var r = false
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { result -> r = result }
+                .launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            return r
+        }
 
         val startForResult = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            // 用户是否授予了权限
             r = result.resultCode == 1 && checkStoragePermission()
         }
 

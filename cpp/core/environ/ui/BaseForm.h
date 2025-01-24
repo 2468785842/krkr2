@@ -6,40 +6,38 @@
 #include "extensions/GUI/CCScrollView/CCTableViewCell.h"
 
 namespace cocos2d {
-    class Ref;
+class Ref;
 
-    class Node;
-    namespace ui {
-        class Widget;
+class Node;
+namespace ui {
+class Widget;
 
-        class Button;
+class Button;
 
-        class Text;
+class Text;
 
-        class ListView;
+class ListView;
 
-        class CheckBox;
+class CheckBox;
 
-        class PageView;
+class PageView;
 
-        class TextField;
+class TextField;
 
-        class Slider;
+class Slider;
 
-        class ScrollView;
+class ScrollView;
 
-        class LoadingBar;
-    }
-    namespace extension {
-        class TableView;
-    }
+class LoadingBar;
+} // namespace ui
+namespace extension {
+class TableView;
 }
-
+} // namespace cocos2d
 
 namespace cocostudio::timeline {
-    class ActionTimeline;
+class ActionTimeline;
 }
-
 
 class NodeMap : public std::unordered_map<std::string, cocos2d::Node *> {
 protected:
@@ -52,7 +50,7 @@ public:
 
     NodeMap(const char *filename, cocos2d::Node *node);
 
-    template<typename T = cocos2d::Node>
+    template <typename T = cocos2d::Node>
     T *findController(const std::string &name, bool notice = true) const {
         cocos2d::Node *node = findController<cocos2d::Node>(name, notice);
         if (node) {
@@ -61,15 +59,17 @@ public:
         return nullptr;
     }
 
-    cocos2d::ui::Widget *findWidget(const std::string &name, bool notice = true) const {
+    cocos2d::ui::Widget *findWidget(const std::string &name,
+                                    bool notice = true) const {
         return findController<cocos2d::ui::Widget>(name, notice);
     }
 
     void initFromNode(cocos2d::Node *node);
 };
 
-template<>
-cocos2d::Node *NodeMap::findController<cocos2d::Node>(const std::string &name, bool notice) const;
+template <>
+cocos2d::Node *NodeMap::findController<cocos2d::Node>(const std::string &name,
+                                                      bool notice) const;
 
 class CSBReader : public NodeMap {
 public:
@@ -86,11 +86,12 @@ public:
 
     virtual void rearrangeLayout();
 
-    virtual void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event);
+    virtual void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
+                              cocos2d::Event *event);
 
 protected:
-    bool initFromFile(const char *navibar, const char *body, const char *bottombar,
-                      cocos2d::Node *parent = nullptr);
+    bool initFromFile(const char *navibar, const char *body,
+                      const char *bottombar, cocos2d::Node *parent = nullptr);
 
     bool initFromFile(const char *body) {
         return initFromFile(nullptr, body, nullptr);
@@ -105,14 +106,14 @@ protected:
     cocos2d::ui::Widget *RootNode;
 
     struct {
-        //cocos2d::ui::Button *Title;
+        // cocos2d::ui::Button *Title;
         cocos2d::ui::Button *Left;
         cocos2d::ui::Widget *Right;
         cocos2d::Node *Root;
     } NaviBar{};
 
     struct {
-        //cocos2d::ui::ListView *Panel;
+        // cocos2d::ui::ListView *Panel;
         cocos2d::Node *Root;
     } BottomBar{};
 };
@@ -120,7 +121,9 @@ protected:
 class TTouchEventRouter : public cocos2d::ui::Widget {
 public:
     typedef std::function<void(cocos2d::ui::Widget::TouchEventType event,
-                               cocos2d::ui::Widget *sender, cocos2d::Touch *touch)> EventFunc;
+                               cocos2d::ui::Widget *sender,
+                               cocos2d::Touch *touch)>
+        EventFunc;
 
     static TTouchEventRouter *create() {
         TTouchEventRouter *ret = new TTouchEventRouter;
@@ -129,13 +132,13 @@ public:
         return ret;
     }
 
-    void setEventFunc(const EventFunc &func) {
-        _func = func;
-    }
+    void setEventFunc(const EventFunc &func) { _func = func; }
 
     virtual void interceptTouchEvent(cocos2d::ui::Widget::TouchEventType event,
-                                     cocos2d::ui::Widget *sender, cocos2d::Touch *touch) override {
-        if (_func) _func(event, sender, touch);
+                                     cocos2d::ui::Widget *sender,
+                                     cocos2d::Touch *touch) override {
+        if (_func)
+            _func(event, sender, touch);
     }
 
 private:
@@ -150,12 +153,14 @@ protected: // must be inherited
 
 public:
     virtual ~TCommonTableCell() {
-        if (_router) _router->release();
+        if (_router)
+            _router->release();
     }
 
     virtual void setContentSize(const cocos2d::Size &contentSize) {
         inherit::setContentSize(contentSize);
-        if (_router) _router->setContentSize(contentSize);
+        if (_router)
+            _router->setContentSize(contentSize);
     }
 
     virtual bool init() {

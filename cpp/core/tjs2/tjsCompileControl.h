@@ -1,9 +1,9 @@
 //---------------------------------------------------------------------------
 /*
-	TJS2 Script Engine
-	Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
+        TJS2 Script Engine
+        Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
 
-	See details of license at "license.txt"
+        See details of license at "license.txt"
 */
 //---------------------------------------------------------------------------
 // Conditional Compile Control
@@ -14,36 +14,36 @@
 
 #include "tjsString.h"
 
-namespace TJS
-{
+namespace TJS {
 //---------------------------------------------------------------------------
 class tTJS;
-class tTJSPPExprParser
-{
+
+class tTJSPPExprParser {
 public:
-	tTJSPPExprParser(tTJS *tjs, const tjs_char *script);
-	~tTJSPPExprParser();
+    tTJSPPExprParser(tTJS *tjs, const tjs_char *script);
 
-	tjs_int32 Parse();
+    ~tTJSPPExprParser();
 
-	tTJS * TJS;
-	tjs_int GetNext (tjs_int &value);
+    tjs_int32 Parse();
 
-	tTJS * GetTJS() { return TJS; }
+    tTJS *TJS;
 
-	const tjs_char * GetString(tjs_int idx) const ;
+    tjs_int GetNext(tjs_int &value);
 
-	tjs_int32 Result;
+    tTJS *GetTJS() { return TJS; }
+
+    const tjs_char *GetString(tjs_int idx) const;
+
+    tjs_int32 Result;
 
 private:
-	std::vector<ttstr > IDs;
+    std::vector<ttstr> IDs;
 
-	const tjs_char *Script;
-	const tjs_char *Current;
-
+    const tjs_char *Script;
+    const tjs_char *Current;
 };
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
-}
+} // namespace TJS
 
 #endif

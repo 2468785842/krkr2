@@ -1,16 +1,15 @@
 #pragma once
+
 #include "WaveIntf.h"
 
-class VorbisWaveDecoderCreator : public tTVPWaveDecoderCreator
-{
+class VorbisWaveDecoderCreator : public tTVPWaveDecoderCreator {
 public:
-    //VorbisWaveDecoderCreator() { TVPRegisterWaveDecoderCreator(this); }
-    tTVPWaveDecoder * Create(const ttstr & storagename, const ttstr & extension);
+    // VorbisWaveDecoderCreator() { TVPRegisterWaveDecoderCreator(this); }
+    tTVPWaveDecoder *Create(const ttstr &storagename, const ttstr &extension);
 };
 
-class OpusWaveDecoderCreator : public tTVPWaveDecoderCreator
-{
+class OpusWaveDecoderCreator : public tTVPWaveDecoderCreator {
 public:
-    //VorbisWaveDecoderCreator() { TVPRegisterWaveDecoderCreator(this); }
-    tTVPWaveDecoder * Create(const ttstr & storagename, const ttstr & extension);
+    // VorbisWaveDecoderCreator() { TVPRegisterWaveDecoderCreator(this); }
+    tTVPWaveDecoder *Create(const ttstr &storagename, const ttstr &extension);
 };

@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!-- Replace org.libsdl.app with the identifier of your game below, e.g.
-     com.gamemaker.game
--->
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:versionCode="64"
@@ -13,8 +11,17 @@
 
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        android:minSdkVersion="30"
         tools:ignore="ScopedStorage" />
+
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
 
     <application
         android:name=".KR2Application"
@@ -31,7 +38,7 @@
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"
-            android:screenOrientation="landscape"
+            android:screenOrientation="userLandscape"
             android:theme="@style/Theme.KR2"
             android:windowSoftInputMode="adjustPan"
             tools:ignore="DiscouragedApi">

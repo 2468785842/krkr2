@@ -8,29 +8,29 @@
 //---------------------------------------------------------------------------
 // VSync用のタイミングを発生させるためのスレッド
 //---------------------------------------------------------------------------
-class tTVPVSyncTimingThread : public tTVPThread
-{
-	tjs_uint32 SleepTime;
-	tTVPThreadEvent Event;
-	tTJSCriticalSection CS;
-	tjs_uint32 VSyncInterval; //!< VSync の間隔(参考値)
-	tjs_uint32 LastVBlankTick; //!< 最後の vblank の時間
+class tTVPVSyncTimingThread : public tTVPThread {
+    tjs_uint32 SleepTime;
+    tTVPThreadEvent Event;
+    tTJSCriticalSection CS;
+    tjs_uint32 VSyncInterval;  //!< VSync の間隔(参考値)
+    tjs_uint32 LastVBlankTick; //!< 最後の vblank の時間
 
-	bool Enabled;
+    bool Enabled;
 
-	NativeEventQueue<tTVPVSyncTimingThread> EventQueue;
+    NativeEventQueue<tTVPVSyncTimingThread> EventQueue;
 
-	class tTJSNI_Window* OwnerWindow;
+    class tTJSNI_Window *OwnerWindow;
+
 public:
-	tTVPVSyncTimingThread(class tTJSNI_Window* owner);
-	~tTVPVSyncTimingThread();
+    tTVPVSyncTimingThread(class tTJSNI_Window *owner);
+    ~tTVPVSyncTimingThread();
 
 protected:
-	void Execute();
-	void Proc( NativeEvent& ev );
+    void Execute();
+    void Proc(NativeEvent &ev);
 
 public:
-	void MeasureVSyncInterval(); // VSyncInterval を計測する
+    void MeasureVSyncInterval(); // VSyncInterval を計測する
 };
 //---------------------------------------------------------------------------
 

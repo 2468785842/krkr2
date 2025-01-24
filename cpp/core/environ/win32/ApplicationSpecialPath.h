@@ -11,7 +11,7 @@ public:
 #if 0
 	static std::wstring GetSpecialFolderPath(int csidl) {
 		wchar_t path[MAX_PATH+1];
-		if(!SHGetSpecialFolderPath(NULL, path, csidl, false))
+		if(!SHGetSpecialFolderPath(nullptr, path, csidl, false))
 			return std::wstring();
 		return std::wstring(path);
 	}
@@ -33,8 +33,8 @@ public:
 	}
 	static inline std::wstring GetSavedGamesPath() {
 		std::wstring result;
-		PWSTR ppszPath = NULL;
-		HRESULT hr = ::SHGetKnownFolderPath(FOLDERID_SavedGames, 0, NULL, &ppszPath);
+		PWSTR ppszPath = nullptr;
+		HRESULT hr = ::SHGetKnownFolderPath(FOLDERID_SavedGames, 0, nullptr, &ppszPath);
 		if( hr == S_OK ) {
 			result = std::wstring(ppszPath);
 			::CoTaskMemFree( ppszPath );
@@ -42,21 +42,22 @@ public:
 		return result;
 	}
 #endif
-	static inline ttstr ReplaceStringAll(ttstr src, const ttstr& target, const ttstr& dest) {
-		src.Replace(target, dest);
-		return src;
-	}
+    static inline ttstr ReplaceStringAll(ttstr src, const ttstr &target,
+                                         const ttstr &dest) {
+        src.Replace(target, dest);
+        return src;
+    }
 
 #if 0
 	static inline ttstr GetConfigFileName(const ttstr& exename) {
 		return ChangeFileExt(exename.AsStdString(), ".cf");
 	}
 #endif
-	static ttstr GetDataPathDirectory(ttstr datapath, const ttstr& exename) {
-		ttstr nativeDataPath = TVPGetAppPath();
-		TVPGetLocalName(nativeDataPath);
-		nativeDataPath += "/savedata/";
-		return nativeDataPath;
+    static ttstr GetDataPathDirectory(ttstr datapath, const ttstr &exename) {
+        ttstr nativeDataPath = TVPGetAppPath();
+        TVPGetLocalName(nativeDataPath);
+        nativeDataPath += "/savedata/";
+        return nativeDataPath;
 #if 0
 		if(datapath == L"" ) datapath = std::wstring(L"$(exepath)\\savedata");
 
@@ -83,7 +84,7 @@ public:
 		datapath = ReplaceStringAll(datapath, L"$(savedgamespath)", savedgamespath);
 		return IncludeTrailingBackslash(ExpandUNCFileName(datapath));
 #endif
-	}
+    }
 #if 0
 	static ttstr GetUserConfigFileName(const ttstr& datapath, const ttstr& exename) {
 		// exepath, personalpath, appdatapath
@@ -91,6 +92,5 @@ public:
 	}
 #endif
 };
-
 
 #endif // __APPLICATION_SPECIAL_PATH_H__

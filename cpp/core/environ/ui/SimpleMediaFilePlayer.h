@@ -4,46 +4,47 @@
 #include "movie/ffmpeg/VideoPlayer.h"
 
 namespace cocos2d {
-	class Sprite;
+class Sprite;
 }
 
 class SimplePlayerOverlay;
 
 class SimpleMediaFilePlayer : public iTVPBaseForm {
-	typedef cocos2d::Node inherit;
+    typedef cocos2d::Node inherit;
 
 public:
-	~SimpleMediaFilePlayer() override;
-	static SimpleMediaFilePlayer *create();
+    ~SimpleMediaFilePlayer() override;
+    static SimpleMediaFilePlayer *create();
 
-	void PlayFile(ttstr uri);
+    void PlayFile(ttstr uri);
 
-	void Play();
-	void Pause();
-	void TooglePlayOrPause();
+    void Play();
+    void Pause();
+    void TooglePlayOrPause();
 
 private:
-	SimpleMediaFilePlayer();
-	void onPlayerEvent(KRMovieEvent Msg, void* p);
-	void onSliderChanged();
-	void rearrangeLayout() override;
-	void bindBodyController(const NodeMap &allNodes) override;
-	void bindFooterController(const NodeMap &allNodes) override;
-	void bindHeaderController(const NodeMap &allNodes) override;
+    SimpleMediaFilePlayer();
+    void onPlayerEvent(KRMovieEvent Msg, void *p);
+    void onSliderChanged();
+    void rearrangeLayout() override;
+    void bindBodyController(const NodeMap &allNodes) override;
+    void bindFooterController(const NodeMap &allNodes) override;
+    void bindHeaderController(const NodeMap &allNodes) override;
 
-	void update(float dt) override;
+    void update(float dt) override;
 
-	SimplePlayerOverlay *_player;
-	int _totalTime; // in sec
-	float hideRemain = 0;
-	bool _inupdate = false;
+    SimplePlayerOverlay *_player;
+    int _totalTime; // in sec
+    float hideRemain = 0;
+    bool _inupdate = false;
 
-	// ui controllers
-	cocos2d::ui::Text *Title, *PlayTime, *RemainTime, *OSDText;
-	cocos2d::ui::Slider *Timeline;
-	cocos2d::Node *NaviBar, *ControlBar, *OSD, *Overlay;
-	cocos2d::ui::Widget *PlayBtn;
-	cocos2d::Node *PlayBtnNormal, *PlayBtnPress, *PlayIconNormal, *PlayIconPress, *PauseIconNormal, *PauseIconPress;
-	void setPlayButtonHighlight(bool highlight);
-	void refreshPlayButtonStatus();
+    // ui controllers
+    cocos2d::ui::Text *Title, *PlayTime, *RemainTime, *OSDText;
+    cocos2d::ui::Slider *Timeline;
+    cocos2d::Node *NaviBar, *ControlBar, *OSD, *Overlay;
+    cocos2d::ui::Widget *PlayBtn;
+    cocos2d::Node *PlayBtnNormal, *PlayBtnPress, *PlayIconNormal,
+        *PlayIconPress, *PauseIconNormal, *PauseIconPress;
+    void setPlayButtonHighlight(bool highlight);
+    void refreshPlayButtonStatus();
 };

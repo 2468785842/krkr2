@@ -1,0 +1,5 @@
+BasedOnStyle: LLVM
+SortIncludes: Never
+IndentWidth: 4
+TabWidth: 4
+AccessModifierOffset: -4

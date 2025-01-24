@@ -14,15 +14,14 @@ extern "C" {
 
 class Pen {
 public:
-
     Pen(GpPen *gpPen) : _gpPen(gpPen) {}
 
     Pen(const BrushBase *brush, float width) {
-        GdipCreatePen2((Brush *) brush, width, UnitWorld, &this->_gpPen);
+        GdipCreatePen2((Brush *)brush, width, UnitWorld, &this->_gpPen);
     }
 
     Pen(const Color &color, float width) {
-        GdipCreatePen1(*(ARGB *) &color, width, UnitWorld, &this->_gpPen);
+        GdipCreatePen1(*(ARGB *)&color, width, UnitWorld, &this->_gpPen);
     }
 
     [[nodiscard]] Pen *Clone() const {
@@ -41,16 +40,13 @@ public:
         return this->_gpStatus;
     }
 
-    GpStatus SetCompoundArray(const float *compoundArray, int count
-    ) {
-        this->_gpStatus = GdipSetPenCompoundArray(
-                this->_gpPen, compoundArray, count
-        );
+    GpStatus SetCompoundArray(const float *compoundArray, int count) {
+        this->_gpStatus =
+            GdipSetPenCompoundArray(this->_gpPen, compoundArray, count);
         return this->_gpStatus;
     }
 
-    GpStatus SetDashCap(GpDashCap dashCap
-    ) {
+    GpStatus SetDashCap(GpDashCap dashCap) {
         this->_gpStatus = GdipSetPenDashCap197819(this->_gpPen, dashCap);
         return this->_gpStatus;
     }
@@ -100,17 +96,13 @@ public:
         return this->_gpStatus;
     }
 
-    [[nodiscard]] explicit operator GpPen *() const {
-        return this->_gpPen;
-    }
+    [[nodiscard]] explicit operator GpPen *() const { return this->_gpPen; }
 
-    ~Pen() {
-        GdipDeletePen(this->_gpPen);
-    }
+    ~Pen() { GdipDeletePen(this->_gpPen); }
 
 private:
     GpPen *_gpPen{nullptr};
     mutable GpStatus _gpStatus{};
 };
 
-#endif //KRKR2_GDIP_CXX_PEN_H
+#endif // KRKR2_GDIP_CXX_PEN_H

@@ -5,35 +5,34 @@
 #include <vector>
 
 namespace cocos2d {
-	namespace ui {
-		class Text;
-		class Button;
-	}
-}
+namespace ui {
+class Text;
+class Button;
+} // namespace ui
+} // namespace cocos2d
 
 class LocaleConfigManager {
 
-	std::unordered_map<std::string, std::string> AllConfig; // tid->text in utf8
+    std::unordered_map<std::string, std::string> AllConfig; // tid->text in utf8
 
-	bool ConfigUpdated;
+    bool ConfigUpdated;
 
-	LocaleConfigManager();
+    LocaleConfigManager();
 
-	std::string GetFilePath();
+    std::string GetFilePath();
 
 public:
-	static LocaleConfigManager* GetInstance();
+    static LocaleConfigManager *GetInstance();
 
-	void Initialize(const std::string &sysLang);
+    void Initialize(const std::string &sysLang);
 
-	const std::string &GetText(const std::string &tid); // in utf8
+    const std::string &GetText(const std::string &tid); // in utf8
 
-	bool initText(cocos2d::ui::Text *ctrl);
-	bool initText(cocos2d::ui::Button *ctrl);
-	bool initText(cocos2d::ui::Text *ctrl, const std::string &tid);
-	bool initText(cocos2d::ui::Button *ctrl, const std::string &tid);
+    bool initText(cocos2d::ui::Text *ctrl);
+    bool initText(cocos2d::ui::Button *ctrl);
+    bool initText(cocos2d::ui::Text *ctrl, const std::string &tid);
+    bool initText(cocos2d::ui::Button *ctrl, const std::string &tid);
 
 private:
-
-	std::string currentLangCode;
+    std::string currentLangCode;
 };

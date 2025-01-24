@@ -1,9 +1,9 @@
 //---------------------------------------------------------------------------
 /*
-	TVP2 ( T Visual Presenter 2 )  A script authoring tool
-	Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
+        TVP2 ( T Visual Presenter 2 )  A script authoring tool
+        Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
 
-	See details of license at "license.txt"
+        See details of license at "license.txt"
 */
 //---------------------------------------------------------------------------
 // System Main Window (Controller)
@@ -14,45 +14,44 @@
 #include <string>
 #include "TVPTimer.h"
 //---------------------------------------------------------------------------
-class tTVPSystemControl
-{
-private:	// ÉÜÅ[ÉUÅ[êÈåæ
-	bool ContinuousEventCalling;
-	bool AutoShowConsoleOnError;
+class tTVPSystemControl {
+private: // ÉÜÅ[ÉUÅ[êÈåæ
+    bool ContinuousEventCalling;
+    bool AutoShowConsoleOnError;
 
-	bool EventEnable;
+    bool EventEnable;
 
-	uint32_t LastCompactedTick;
-	uint32_t LastCloseClickedTick;
-	uint32_t LastShowModalWindowSentTick;
-	uint32_t LastRehashedTick;
+    uint32_t LastCompactedTick;
+    uint32_t LastCloseClickedTick;
+    uint32_t LastShowModalWindowSentTick;
+    uint32_t LastRehashedTick;
 
-	uint32_t MixedIdleTick;
+    uint32_t MixedIdleTick;
 
-	TVPTimer SystemWatchTimer;
+    TVPTimer SystemWatchTimer;
+
 public:
-	tTVPSystemControl();
+    tTVPSystemControl();
 
-	void InvokeEvents();
-	void CallDeliverAllEventsOnIdle();
+    void InvokeEvents();
+    void CallDeliverAllEventsOnIdle();
 
-	void BeginContinuousEvent();
-	void EndContinuousEvent();
+    void BeginContinuousEvent();
+    void EndContinuousEvent();
 
-	void NotifyCloseClicked();
-	void NotifyEventDelivered();
+    void NotifyCloseClicked();
+    void NotifyEventDelivered();
 
-	void SetEventEnabled( bool b ) {
-		EventEnable = b;
-	}
-	bool GetEventEnabled() const { return EventEnable; }
+    void SetEventEnabled(bool b) { EventEnable = b; }
+    bool GetEventEnabled() const { return EventEnable; }
 
-	bool ApplicationIdle();
+    bool ApplicationIdle();
 
 private:
-	void DeliverEvents();
+    void DeliverEvents();
+
 public:
-	void SystemWatchTimerTimer();
+    void SystemWatchTimerTimer();
 };
 extern tTVPSystemControl *TVPSystemControl;
 extern bool TVPSystemControlAlive;

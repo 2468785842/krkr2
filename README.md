@@ -112,3 +112,7 @@ cmake --build out/cmake-build-android-arm64-v8a-release
 ### 插件资源
 
 查看相关插件和工具库：[wamsoft GitHub 仓库](https://github.com/orgs/wamsoft/repositories?type=all)
+
+### 代码格式化
+
+clang-format: `clang-format -i --verbose $(find ./cpp -regex ".+\.\(cpp\|cc\|h\|hpp\|inc\)")`

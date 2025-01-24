@@ -20,14 +20,16 @@ struct ObjectCache {
         tTJSVariant layer;
         TVPExecuteExpression(TJS_W("Layer"), &layer);
         tTJSVariant var;
-        if (TJS_SUCCEEDED(layer.AsObjectNoAddRef()->PropGet(TJS_IGNOREPROP, name, NULL, &var,
-                                                            layer.AsObjectNoAddRef())))
+        if (TJS_SUCCEEDED(layer.AsObjectNoAddRef()->PropGet(
+                TJS_IGNOREPROP, name, nullptr, &var, layer.AsObjectNoAddRef())))
             _cache = var;
-        else _Exception(TJS_W("FAILED: get property object :"));
+        else
+            _Exception(TJS_W("FAILED: get property object :"));
     }
 
     ~ObjectCache() {
-        if (_cache) _cache->Release();
+        if (_cache)
+            _cache->Release();
     }
 
     inline VariantT GetValue() const {
@@ -39,7 +41,9 @@ struct ObjectCache {
 
     inline operator VariantT() const { return GetValue(); }
 
-    inline operator IntegerT() const { return static_cast<IntegerT>(GetValue()); }
+    inline operator IntegerT() const {
+        return static_cast<IntegerT>(GetValue());
+    }
 
     inline VariantT operator()(int numparams, VariantT **param) {
         VariantT var;
@@ -58,9 +62,7 @@ private:
     DispatchT _obj, _cache;
     NameT _name;
 
-    void _Exception(NameT mes) const {
-        TVPThrowExceptionMessage(mes, _name);
-    }
+    void _Exception(NameT mes) const { TVPThrowExceptionMessage(mes, _name); }
 };
 
 /**
@@ -79,19 +81,16 @@ struct layerExBase {
      * コンストラクタ
      */
     layerExBase(DispatchT obj)
-            : _obj(obj),
-              _pWidth(obj, TJS_W("imageWidth")),
-              _pHeight(obj, TJS_W("imageHeight")),
-              _pBuffer(obj, TJS_W("mainImageBufferForWrite")),
-              _pPitch(obj, TJS_W("mainImageBufferPitch")),
-              _pUpdate(obj, TJS_W("update")),
-              _pClipLeft(obj, TJS_W("clipLeft")),
-              _pClipTop(obj, TJS_W("clipTop")),
-              _pClipWidth(obj, TJS_W("clipWidth")),
-              _pClipHeight(obj, TJS_W("clipHeight")),
-              _width(0), _height(0), _pitch(0), _buffer(nullptr), _clipLeft(0), _clipTop(0),
-              _clipWidth(0), _clipHeight(0) {
-    }
+        : _obj(obj), _pWidth(obj, TJS_W("imageWidth")),
+          _pHeight(obj, TJS_W("imageHeight")),
+          _pBuffer(obj, TJS_W("mainImageBufferForWrite")),
+          _pPitch(obj, TJS_W("mainImageBufferPitch")),
+          _pUpdate(obj, TJS_W("update")), _pClipLeft(obj, TJS_W("clipLeft")),
+          _pClipTop(obj, TJS_W("clipTop")),
+          _pClipWidth(obj, TJS_W("clipWidth")),
+          _pClipHeight(obj, TJS_W("clipHeight")), _width(0), _height(0),
+          _pitch(0), _buffer(nullptr), _clipLeft(0), _clipTop(0), _clipWidth(0),
+          _clipHeight(0) {}
 
     /**
      * デストラクタ
@@ -102,7 +101,8 @@ struct layerExBase {
      * 再描画指定
      */
     virtual void redraw() {
-        tTJSVariant vars[4] = {_pClipLeft, _pClipTop, _pClipWidth, _pClipHeight};
+        tTJSVariant vars[4] = {_pClipLeft, _pClipTop, _pClipWidth,
+                               _pClipHeight};
         tTJSVariant *varsp[4] = {vars, vars + 1, vars + 2, vars + 3};
         _pUpdate(4, varsp);
     }
@@ -111,14 +111,14 @@ struct layerExBase {
      * 情報更新
      */
     virtual void reset() {
-        _width = (GeometryT) _pWidth;
-        _height = (GeometryT) _pHeight;
-        _buffer = (BufferT) (ObjectCache::IntegerT) _pBuffer;
-        _pitch = (PitchT) _pPitch;
-        _clipLeft = (GeometryT) _pClipLeft;
-        _clipTop = (GeometryT) _pClipTop;
-        _clipWidth = (GeometryT) _pClipWidth;
-        _clipHeight = (GeometryT) _pClipHeight;
+        _width = (GeometryT)_pWidth;
+        _height = (GeometryT)_pHeight;
+        _buffer = (BufferT)(ObjectCache::IntegerT)_pBuffer;
+        _pitch = (PitchT)_pPitch;
+        _clipLeft = (GeometryT)_pClipLeft;
+        _clipTop = (GeometryT)_pClipTop;
+        _clipWidth = (GeometryT)_pClipWidth;
+        _clipHeight = (GeometryT)_pClipHeight;
     }
 
 protected:
@@ -138,7 +138,7 @@ struct layerExBase_GL {
     typedef tjs_int GeometryT;
     typedef tjs_int PitchT;
     typedef unsigned char *BufferT;
-//    typedef unsigned char *BufferRT;
+    //    typedef unsigned char *BufferRT;
 
     tTJSNI_Layer *_this;
 
@@ -150,34 +150,34 @@ struct layerExBase_GL {
     GeometryT _clipLeft, _clipTop, _clipWidth, _clipHeight;
     DispatchT _obj;
 
-    layerExBase_GL(DispatchT obj)
-            : _obj(obj) {
+    layerExBase_GL(DispatchT obj) : _obj(obj) {
         tjs_error hr;
-        hr = obj->NativeInstanceSupport(
-                TJS_NIS_GETINSTANCE, tTJSNC_Layer::ClassID,
-                (iTJSNativeInstance **) &_this
-        );
-        if (TJS_FAILED(hr)) TVPThrowExceptionMessage(TJS_W("Not Layer"));
+        hr = obj->NativeInstanceSupport(TJS_NIS_GETINSTANCE,
+                                        tTJSNC_Layer::ClassID,
+                                        (iTJSNativeInstance **)&_this);
+        if (TJS_FAILED(hr))
+            TVPThrowExceptionMessage(TJS_W("Not Layer"));
         _buffer = nullptr;
         _pitch = 0;
         reset();
     }
 
     virtual void reset() {
-        _width = (GeometryT) _this->GetWidth();
-        _height = (GeometryT) _this->GetHeight();
+        _width = (GeometryT)_this->GetWidth();
+        _height = (GeometryT)_this->GetHeight();
         if (TVPIsSoftwareRenderManager()) {
-            _buffer = (BufferT) _this->GetMainImagePixelBufferForWrite();
-            _pitch = (PitchT) _this->GetMainImagePixelBufferPitch();
+            _buffer = (BufferT)_this->GetMainImagePixelBufferForWrite();
+            _pitch = (PitchT)_this->GetMainImagePixelBufferPitch();
         }
-        _clipLeft = (GeometryT) _this->GetClipLeft();
-        _clipTop = (GeometryT) _this->GetClipTop();
-        _clipWidth = (GeometryT) _this->GetClipWidth();
-        _clipHeight = (GeometryT) _this->GetClipHeight();
+        _clipLeft = (GeometryT)_this->GetClipLeft();
+        _clipTop = (GeometryT)_this->GetClipTop();
+        _clipWidth = (GeometryT)_this->GetClipWidth();
+        _clipHeight = (GeometryT)_this->GetClipHeight();
     }
 
     virtual void redraw() {
-        tTVPRect rc(_clipLeft, _clipTop, _clipLeft + _clipWidth, _clipTop + _clipHeight);
+        tTVPRect rc(_clipLeft, _clipTop, _clipLeft + _clipWidth,
+                    _clipTop + _clipHeight);
         _this->Update(rc);
     }
 };

@@ -1,10 +1,10 @@
 //---------------------------------------------------------------------------
 /*
-	Risa [りさ]      alias 吉里吉里3 [kirikiri-3]
-	 stands for "Risa Is a Stagecraft Architecture"
-	Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
+        Risa [りさ]      alias 吉里吉里3 [kirikiri-3]
+         stands for "Risa Is a Stagecraft Architecture"
+        Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
 
-	See details of license at "license.txt"
+        See details of license at "license.txt"
 */
 //---------------------------------------------------------------------------
 //! @file
@@ -36,20 +36,18 @@ using namespace TJS;
 /**
  * FreeType Face の基底クラス
  */
-class tBaseFreeTypeFace
-{
+class tBaseFreeTypeFace {
 public:
-	virtual FT_Face GetFTFace() const = 0; //!< FreeType の Face オブジェクトを返す
-	virtual void GetFaceNameList(std::vector<ttstr> & dest) const = 0; //!< このフォントファイルが持っているフォントを配列として返す
-	virtual ~tBaseFreeTypeFace() {;}
-	virtual tjs_char GetDefaultChar() const = 0; //!< 描画できない時に描画する文字コードを返す
+    virtual FT_Face
+    GetFTFace() const = 0; //!< FreeType の Face オブジェクトを返す
+    virtual void GetFaceNameList(std::vector<ttstr> &dest)
+        const = 0; //!< このフォントファイルが持っているフォントを配列として返す
+    virtual ~tBaseFreeTypeFace() { ; }
+    virtual tjs_char
+    GetDefaultChar() const = 0; //!< 描画できない時に描画する文字コードを返す
 };
 //---------------------------------------------------------------------------
 
-
 //---------------------------------------------------------------------------
 
-
-
 #endif
-

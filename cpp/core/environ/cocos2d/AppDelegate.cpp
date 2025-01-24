@@ -15,7 +15,7 @@ USING_NS_CC;
 
 cocos2d::FileUtils *TVPCreateCustomFileUtils();
 
-extern "C" void SDL_SetMainReady(void);
+extern "C" void SDL_SetMainReady();
 extern std::thread::id TVPMainThreadID;
 static Size designResolutionSize(960, 640);
 
@@ -65,9 +65,10 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     std::vector<std::string> searchPath;
 
     // In this demo, we select resource according to the frame's height.
-    // If the resource size is different from design resolution size, you need to set contentScaleFactor.
-    // We use the ratio of resource's height to the height of design resolution,
-    // this can make sure that the resource's height could fit for the height of design resolution.
+    // If the resource size is different from design resolution size, you need
+    // to set contentScaleFactor. We use the ratio of resource's height to the
+    // height of design resolution, this can make sure that the resource's
+    // height could fit for the height of design resolution.
     searchPath.emplace_back("res");
 
     TVPSkinManager::getInstance()->InitSkin();
@@ -91,29 +92,31 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     // run
     director->runWithScene(scene);
 
-    scene->scheduleOnce([](float dt) {
-        TVPMainScene::GetInstance()->unschedule("launch");
-        TVPGlobalPreferenceForm::Initialize();
-        if (!TVPCheckStartupArg()) {
-            TVPMainScene::GetInstance()->pushUIForm(TVPMainFileSelectorForm::create());
-        }
-    }, 0, "launch");
+    scene->scheduleOnce(
+        [](float dt) {
+            TVPMainScene::GetInstance()->unschedule("launch");
+            TVPGlobalPreferenceForm::Initialize();
+            if (!TVPCheckStartupArg()) {
+                TVPMainScene::GetInstance()->pushUIForm(
+                    TVPMainFileSelectorForm::create());
+            }
+        },
+        0, "launch");
 
     return true;
 }
 
 void TVPAppDelegate::initGLContextAttrs() {
-    GLContextAttrs glContextAttrs = {
-            8, 8, 8, 8, 24, 8
-    };
+    GLContextAttrs glContextAttrs = {8, 8, 8, 8, 24, 8};
     GLView::setGLContextAttrs(glContextAttrs);
 }
 
 void TVPAppDelegate::applicationScreenSizeChanged(int newWidth, int newHeight) {
-// 	auto director = Director::getInstance();
-// 	director->getOpenGLView()->setFrameSize(newWidth, newHeight);
+    // 	auto director = Director::getInstance();
+    // 	director->getOpenGLView()->setFrameSize(newWidth, newHeight);
 }
 
 void TVPOpenPatchLibUrl() {
-    cocos2d::Application::getInstance()->openURL("https://zeas2.github.io/Kirikiroid2_patch/patch");
+    cocos2d::Application::getInstance()->openURL(
+        "https://zeas2.github.io/Kirikiroid2_patch/patch");
 }

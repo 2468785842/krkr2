@@ -1,7 +1,7 @@
 /*
-	this is a part of TVP (KIRIKIRI) software source.
-	see other sources for license.
-	(C)2001-2007 W.Dee <dee@kikyou.info> and contributors
+        this is a part of TVP (KIRIKIRI) software source.
+        see other sources for license.
+        (C)2001-2007 W.Dee <dee@kikyou.info> and contributors
 */
 
 /* C-language interface to tvpgl_ia32.lib */
@@ -12,6 +12,5 @@
 
 #include "tjsTypes.h"
 #include "tvpgl.h"
-
 
 #endif

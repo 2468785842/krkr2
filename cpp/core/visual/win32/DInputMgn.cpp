@@ -1,9 +1,9 @@
 //---------------------------------------------------------------------------
 /*
-	TVP2 ( T Visual Presenter 2 )  A script authoring tool
-	Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
+        TVP2 ( T Visual Presenter 2 )  A script authoring tool
+        Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
 
-	See details of license at "license.txt"
+        See details of license at "license.txt"
 */
 //---------------------------------------------------------------------------
 // DirectInput management
@@ -29,16 +29,18 @@
 // DirectInput management
 //---------------------------------------------------------------------------
 /*
-	tvp32 uses DirectInput to detect wheel rotation. This will avoid
-	DirectX/Windows bug which prevents wheel messages when the window is
-	full-screened.
+        tvp32 uses DirectInput to detect wheel rotation. This will avoid
+        DirectX/Windows bug which prevents wheel messages when the window is
+        full-screened.
 */
-tTVPWheelDetectionType TVPWheelDetectionType = wdtWindowMessage/*wdtDirectInput*/;
-tTVPJoyPadDetectionType TVPJoyPadDetectionType = jdtNone/*jdtDirectInput*/;
+tTVPWheelDetectionType TVPWheelDetectionType =
+    wdtWindowMessage /*wdtDirectInput*/;
+tTVPJoyPadDetectionType TVPJoyPadDetectionType = jdtNone /*jdtDirectInput*/;
 static bool TVPDirectInputInit = false;
 static tjs_int TVPDirectInputLibRefCount = 0;
-//static HMODULE TVPDirectInputLibHandle = NULL; // module handle for dinput.dll
-//static IDirectInput *TVPDirectInput = NULL; // DirectInput object
+// static HMODULE TVPDirectInputLibHandle = nullptr; // module handle for
+// dinput.dll static IDirectInput *TVPDirectInput = nullptr; // DirectInput
+// object
 //---------------------------------------------------------------------------
 #if 0
 struct tTVPDIWheelData { LONG delta; }; // data structure for DirectInput(Mouse)
@@ -113,18 +115,18 @@ static DIDATAFORMAT c_dfPad =
 	_c_rgodf,					//	position 位置
 };
 #endif
-static const tjs_int   PadAxisMax = +32767;
-static const tjs_int   PadAxisMin = -32768;
-static const tjs_int   PadAxisThreshold   = 95; // Assumes 95% value can turn input on. 95%の入力でOK
-static const tjs_int   PadAxisUpperThreshold  = PadAxisMax * PadAxisThreshold / 100;
-static const tjs_int   PadAxisLowerThreshold  = PadAxisMin * PadAxisThreshold / 100;
-//static bool CALLBACK EnumJoySticksCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef);
-static tjs_uint32	PadLastTrigger;
+static const tjs_int PadAxisMax = +32767;
+static const tjs_int PadAxisMin = -32768;
+static const tjs_int PadAxisThreshold =
+    95; // Assumes 95% value can turn input on. 95%の入力でOK
+static const tjs_int PadAxisUpperThreshold =
+    PadAxisMax * PadAxisThreshold / 100;
+static const tjs_int PadAxisLowerThreshold =
+    PadAxisMin * PadAxisThreshold / 100;
+// static bool CALLBACK EnumJoySticksCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID
+// pvRef);
+static tjs_uint32 PadLastTrigger;
 static tjs_uint32 /*__fastcall*/ PadState();
-
-
-
-
 
 #if 0
 //---------------------------------------------------------------------------
@@ -173,79 +175,69 @@ static tTVPPadKeyFlag TVPVirtualKeyToPadCode(WORD vk)
 //---------------------------------------------------------------------------
 #endif
 
-
-
 //---------------------------------------------------------------------------
 // tTVPKeyRepeatEmulator : A class for emulating keyboard key repeats.
 //---------------------------------------------------------------------------
-tjs_int32 tTVPKeyRepeatEmulator::HoldTime = 500; // keyboard key-repeats hold-time
-tjs_int32 tTVPKeyRepeatEmulator::IntervalTime = 30; // keyboard key-repeats interval-time
+tjs_int32 tTVPKeyRepeatEmulator::HoldTime =
+    500; // keyboard key-repeats hold-time
+tjs_int32 tTVPKeyRepeatEmulator::IntervalTime =
+    30; // keyboard key-repeats interval-time
 //---------------------------------------------------------------------------
-void tTVPKeyRepeatEmulator::GetKeyRepeatParam()
-{
-	static tjs_int ArgumentGeneration = 0;
-	if(ArgumentGeneration != TVPGetCommandLineArgumentGeneration())
-	{
-		ArgumentGeneration = TVPGetCommandLineArgumentGeneration();
-		tTJSVariant val;
-		if(TVPGetCommandLine(TJS_W("-paddelay"), &val))
-		{
-			HoldTime = (int)val;
-		}
-		if(TVPGetCommandLine(TJS_W("-padinterval"), &val))
-		{
-			IntervalTime = (int)val;
-		}
-	}
+void tTVPKeyRepeatEmulator::GetKeyRepeatParam() {
+    static tjs_int ArgumentGeneration = 0;
+    if (ArgumentGeneration != TVPGetCommandLineArgumentGeneration()) {
+        ArgumentGeneration = TVPGetCommandLineArgumentGeneration();
+        tTJSVariant val;
+        if (TVPGetCommandLine(TJS_W("-paddelay"), &val)) {
+            HoldTime = (int)val;
+        }
+        if (TVPGetCommandLine(TJS_W("-padinterval"), &val)) {
+            IntervalTime = (int)val;
+        }
+    }
 }
 //---------------------------------------------------------------------------
 #define TVP_REPEAT_LIMIT 10
-tTVPKeyRepeatEmulator::tTVPKeyRepeatEmulator() : Pressed(false)
-{
+tTVPKeyRepeatEmulator::tTVPKeyRepeatEmulator() : Pressed(false) {}
+//---------------------------------------------------------------------------
+tTVPKeyRepeatEmulator::~tTVPKeyRepeatEmulator() {}
+//---------------------------------------------------------------------------
+void tTVPKeyRepeatEmulator::Down() {
+    Pressed = true;
+    PressedTick = TVPGetRoughTickCount32();
+    LastRepeatCount = 0;
 }
 //---------------------------------------------------------------------------
-tTVPKeyRepeatEmulator::~tTVPKeyRepeatEmulator()
-{
+void tTVPKeyRepeatEmulator::Up() { Pressed = false; }
+//---------------------------------------------------------------------------
+tjs_int tTVPKeyRepeatEmulator::GetRepeatCount() {
+    // calculate repeat count, from previous call of "GetRepeatCount" function.
+    GetKeyRepeatParam();
+
+    if (!Pressed)
+        return 0;
+    if (HoldTime < 0)
+        return 0;
+    if (IntervalTime <= 0)
+        return 0;
+
+    tjs_int elapsed = (tjs_int)(TVPGetRoughTickCount32() - PressedTick);
+
+    elapsed -= HoldTime;
+    if (elapsed < 0)
+        return 0; // still in hold time
+
+    elapsed /= IntervalTime;
+
+    tjs_int ret = elapsed - LastRepeatCount;
+    if (ret > TVP_REPEAT_LIMIT)
+        ret = TVP_REPEAT_LIMIT;
+
+    LastRepeatCount = elapsed;
+
+    return ret;
 }
 //---------------------------------------------------------------------------
-void tTVPKeyRepeatEmulator::Down()
-{
-	Pressed = true;
-	PressedTick = TVPGetRoughTickCount32();
-	LastRepeatCount = 0;
-}
-//---------------------------------------------------------------------------
-void tTVPKeyRepeatEmulator::Up()
-{
-	Pressed = false;
-}
-//---------------------------------------------------------------------------
-tjs_int tTVPKeyRepeatEmulator::GetRepeatCount()
-{
-	// calculate repeat count, from previous call of "GetRepeatCount" function.
-	GetKeyRepeatParam();
-
-	if(!Pressed) return 0;
-	if(HoldTime<0) return 0;
-	if(IntervalTime<=0) return 0;
-
-	tjs_int elapsed = (tjs_int)(TVPGetRoughTickCount32() - PressedTick);
-
-	elapsed -= HoldTime;
-	if(elapsed < 0) return 0; // still in hold time
-
-	elapsed /= IntervalTime;
-
-	tjs_int ret = elapsed - LastRepeatCount;
-	if(ret > TVP_REPEAT_LIMIT) ret = TVP_REPEAT_LIMIT;
-
-	LastRepeatCount = elapsed;
-
-	return ret;
-}
-//---------------------------------------------------------------------------
-
-
 
 #if 0
 //---------------------------------------------------------------------------
@@ -265,7 +257,7 @@ IDirectInput * TVPAddRefDirectInput()
 	TVPDirectInputInit = true;
 
 	TVPDirectInputLibHandle = ::LoadLibrary(TJS_W("dinput.dll"));
-	if(!TVPDirectInputLibHandle) return NULL; // load error; is not a fatal error
+	if(!TVPDirectInputLibHandle) return nullptr; // load error; is not a fatal error
 
 	HRESULT (WINAPI *procDirectInputCreateW)
 		(HINSTANCE hinst, DWORD dwVersion,
@@ -278,18 +270,18 @@ IDirectInput * TVPAddRefDirectInput()
 	{
 		// missing DirectInputCreate
 		::FreeLibrary(TVPDirectInputLibHandle);
-		TVPDirectInputLibHandle = NULL;
-		return NULL;
+		TVPDirectInputLibHandle = nullptr;
+		return nullptr;
 	}
 
 	HRESULT hr = procDirectInputCreateW(GetHInstance(), DIRECTINPUT_VERSION,
-		&TVPDirectInput, NULL);
+		&TVPDirectInput, nullptr);
 	if(FAILED(hr))
 	{
 		// DirectInputCreate failed
 		FreeLibrary(TVPDirectInputLibHandle);
-		TVPDirectInputLibHandle = NULL;
-		return NULL;
+		TVPDirectInputLibHandle = nullptr;
+		return nullptr;
 	}
 
 	return TVPDirectInput;
@@ -301,9 +293,9 @@ void TVPReleaseDirectInput()
 	if(TVPDirectInputLibRefCount == 0)
 	{
 		if(TVPDirectInput)
-			TVPDirectInput->Release(), TVPDirectInput = NULL;
+			TVPDirectInput->Release(), TVPDirectInput = nullptr;
 		if(TVPDirectInputLibHandle)
-			FreeLibrary(TVPDirectInputLibHandle), TVPDirectInputLibHandle = NULL;
+			FreeLibrary(TVPDirectInputLibHandle), TVPDirectInputLibHandle = nullptr;
 		TVPDirectInputInit = false;
 	}
 }
@@ -319,7 +311,7 @@ void TVPReleaseDirectInput()
 tTVPDirectInputDevice::tTVPDirectInputDevice()
 {
 	TVPAddRefDirectInput();
-	Device = NULL;
+	Device = nullptr;
 }
 //---------------------------------------------------------------------------
 tTVPDirectInputDevice::~tTVPDirectInputDevice()
@@ -340,7 +332,7 @@ void tTVPDirectInputDevice::SetCooperativeLevel(HWND window)
 			window, DISCL_NONEXCLUSIVE|DISCL_FOREGROUND)))
 		{
 			Device->Release();
-			Device = NULL;
+			Device = nullptr;
 		}
 	}
 }
@@ -361,29 +353,29 @@ tTVPWheelDirectInputDevice::tTVPWheelDirectInputDevice(HWND window) :
 		if(TVPWheelDetectionType == wdtDirectInput)
 		{
 			// initialize mouse wheel
-			IDirectInputDevice *dev = NULL;
+			IDirectInputDevice *dev = nullptr;
 			HRESULT hr = TVPDirectInput->CreateDevice(
-				GUID_SysMouse, &dev, NULL);
+				GUID_SysMouse, &dev, nullptr);
 			if(SUCCEEDED(hr) && dev)
 			{
 				hr	= dev->QueryInterface(
 					IID_IDirectInputDevice2, (LPVOID*)&Device);
 				dev->Release();
-				if(FAILED(hr)) Device = NULL;
+				if(FAILED(hr)) Device = nullptr;
 			}
 			if(SUCCEEDED(hr) && Device)
 			{
 				if(FAILED(Device->SetDataFormat(&TVPWheelDIDF)))
 				{
 					Device->Release();
-					Device = NULL;
+					Device = nullptr;
 				}
 				if(Device) SetCooperativeLevel(window);
 				if(Device) Device->Acquire();
 			}
 			else
 			{
-				Device = NULL;
+				Device = nullptr;
 			}
 		}
 	}
@@ -428,7 +420,7 @@ tjs_int tTVPWheelDirectInputDevice::GetWheelDelta()
 // tTVPPadDirectInputDevice : DirectInput device manager for JoyPad
 //---------------------------------------------------------------------------
 std::vector<tTVPPadDirectInputDevice*>  *
-	tTVPPadDirectInputDevice::PadDevices = NULL;
+	tTVPPadDirectInputDevice::PadDevices = nullptr;
 tjs_uint32 tTVPPadDirectInputDevice::GlobalPadPushedFlag = 0;
 //---------------------------------------------------------------------------
 tTVPPadDirectInputDevice::tTVPPadDirectInputDevice(HWND window) :
@@ -448,9 +440,9 @@ tTVPPadDirectInputDevice::tTVPPadDirectInputDevice(HWND window) :
 			hr = TVPDirectInput->EnumDevices(DIDEVTYPE_JOYSTICK,
 				(LPDIENUMDEVICESCALLBACK)EnumJoySticksCallback,
 				&Device, DIEDFL_ATTACHEDONLY);
-			if(FAILED(hr) || Device==NULL)
+			if(FAILED(hr) || Device==nullptr)
 			{
-				Device	= NULL;
+				Device	= nullptr;
 			}
 
 			//	initialize joy stick device.
@@ -459,7 +451,7 @@ tTVPPadDirectInputDevice::tTVPPadDirectInputDevice(HWND window) :
 				if(FAILED(Device->SetDataFormat(&c_dfPad)))
 				{
 					Device->Release();
-					Device = NULL;
+					Device = nullptr;
 				}
 			}
 			if(Device) SetCooperativeLevel(window);
@@ -485,7 +477,7 @@ tTVPPadDirectInputDevice::tTVPPadDirectInputDevice(HWND window) :
 				if(FAILED(hr))
 				{
 					Device->Release();
-					Device = NULL;
+					Device = nullptr;
 				}
 			}
 			if(Device) Device->Acquire();
@@ -507,7 +499,7 @@ tTVPPadDirectInputDevice::~tTVPPadDirectInputDevice()
 	std::vector<tTVPPadDirectInputDevice*>::iterator i;
 	i = std::find(PadDevices->begin(), PadDevices->end(), this);
 	if(i != PadDevices->end()) PadDevices->erase(i);
-	if(PadDevices->size() == 0) delete PadDevices, PadDevices = NULL;
+	if(PadDevices->size() == 0) delete PadDevices, PadDevices = nullptr;
 }
 //---------------------------------------------------------------------------
 bool CALLBACK tTVPPadDirectInputDevice::EnumJoySticksCallback(
@@ -518,7 +510,7 @@ bool CALLBACK tTVPPadDirectInputDevice::EnumJoySticksCallback(
 
 	//	joy stick detect first is created.
 	hr	= TVPDirectInput->CreateDevice(lpddi->guidInstance,
-		(IDirectInputDevice**)&dev, NULL);
+		(IDirectInputDevice**)&dev, nullptr);
 
 	if(FAILED(hr)) return DIENUM_CONTINUE;
 
@@ -663,9 +655,11 @@ tjs_uint32 tTVPPadDirectInputDevice::GetState()
 
 	//	structure DIJOYSTATE => unsigned integer JoyState
 	tjs_uint32	press	= 0;
-#define JOY_CROSSKEY(value, plus, minus)	((value)>=PadAxisUpperThreshold ? \
-			(plus) : ((value)<=PadAxisLowerThreshold ? (minus) : 0))
-#define	JOY_BUTTON(value, on)				((value&0x80) ? (on) : 0)
+#define JOY_CROSSKEY(value, plus, minus)                                       \
+    ((value) >= PadAxisUpperThreshold                                          \
+         ? (plus)                                                              \
+         : ((value) <= PadAxisLowerThreshold ? (minus) : 0))
+#define JOY_BUTTON(value, on) ((value & 0x80) ? (on) : 0)
 	press	|= JOY_CROSSKEY(js.lX, (1<<pkfRight), (1<<pkfLeft));
 	press	|= JOY_CROSSKEY(js.lY, (1<<pkfDown), (1<<pkfUp));
 /*#ifdef _DEBUG

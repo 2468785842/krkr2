@@ -1,6 +1,7 @@
 //
 // Created by lidong on 2025/1/5.
-// more info: https://learn.microsoft.com/en-us/windows/win32/winprog/windows-data-types
+// more info:
+// https://learn.microsoft.com/en-us/windows/win32/winprog/windows-data-types
 //
 
 #ifndef KRKR2_WIN32_DT_H
@@ -21,4 +22,4 @@ typedef unsigned short WORD;
 typedef unsigned int UINT;
 // typedef uintptr_t ULONG_PTR;
 
-#endif //KRKR2_WIN32_DT_H
+#endif // KRKR2_WIN32_DT_H

@@ -1,5 +1,5 @@
 #pragma once
-#ifdef WIN32 
+#ifdef WIN32
 #if defined(_M_X64)
 #define GLEW_STATIC
 #endif

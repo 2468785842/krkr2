@@ -1,4 +1,5 @@
 #pragma once
+
 #include "AEChannelInfo.h"
 #include "AEStreamInfo.h"
 
@@ -8,67 +9,62 @@ NS_KRMOVIE_BEGIN
 /**
  * The audio format structure that fully defines a stream's audio information
  */
-struct AEAudioFormat
-{
-  /**
-   * The stream's data format (eg, AE_FMT_S16LE)
-   */
-  enum AEDataFormat m_dataFormat;
+struct AEAudioFormat {
+    /**
+     * The stream's data format (eg, AE_FMT_S16LE)
+     */
+    enum AEDataFormat m_dataFormat;
 
-  /**
-   * The stream's sample rate (eg, 48000)
-   */
-  unsigned int m_sampleRate;
+    /**
+     * The stream's sample rate (eg, 48000)
+     */
+    unsigned int m_sampleRate;
 
-  /**
-   * The stream's channel layout
-   */
-  CAEChannelInfo m_channelLayout;
+    /**
+     * The stream's channel layout
+     */
+    CAEChannelInfo m_channelLayout;
 
-  /**
-   * The number of frames per period
-   */
-  unsigned int m_frames;
+    /**
+     * The number of frames per period
+     */
+    unsigned int m_frames;
 
-  /**
-   * The size of one frame in bytes
-   */
-  unsigned int m_frameSize;
+    /**
+     * The size of one frame in bytes
+     */
+    unsigned int m_frameSize;
 
-  /**
-   * Stream info of raw passthrough
-   */
-  CAEStreamInfo m_streamInfo;
+    /**
+     * Stream info of raw passthrough
+     */
+    CAEStreamInfo m_streamInfo;
 
-  AEAudioFormat()
-  {
-    m_dataFormat = AE_FMT_INVALID;
-    m_sampleRate = 0;
-    m_frames = 0;
-    m_frameSize = 0;
-  }
+    AEAudioFormat() {
+        m_dataFormat = AE_FMT_INVALID;
+        m_sampleRate = 0;
+        m_frames = 0;
+        m_frameSize = 0;
+    }
 
-  bool operator==(const AEAudioFormat& fmt) const
-  {
-    return  m_dataFormat    ==  fmt.m_dataFormat    &&
-            m_sampleRate    ==  fmt.m_sampleRate    &&
-            m_channelLayout ==  fmt.m_channelLayout &&
-            m_frames        ==  fmt.m_frames        &&
-            m_frameSize     ==  fmt.m_frameSize     &&
-            m_streamInfo    ==  fmt.m_streamInfo;
-  }
- 
-  AEAudioFormat& operator=(const AEAudioFormat& fmt)
-  {
-    m_dataFormat = fmt.m_dataFormat;
-    m_sampleRate = fmt.m_sampleRate;
-    m_channelLayout = fmt.m_channelLayout;
-    m_frames = fmt.m_frames;
-    m_frameSize = fmt.m_frameSize;
-    m_streamInfo = fmt.m_streamInfo;
+    bool operator==(const AEAudioFormat &fmt) const {
+        return m_dataFormat == fmt.m_dataFormat &&
+               m_sampleRate == fmt.m_sampleRate &&
+               m_channelLayout == fmt.m_channelLayout &&
+               m_frames == fmt.m_frames && m_frameSize == fmt.m_frameSize &&
+               m_streamInfo == fmt.m_streamInfo;
+    }
 
-    return *this;
-  }
+    AEAudioFormat &operator=(const AEAudioFormat &fmt) {
+        m_dataFormat = fmt.m_dataFormat;
+        m_sampleRate = fmt.m_sampleRate;
+        m_channelLayout = fmt.m_channelLayout;
+        m_frames = fmt.m_frames;
+        m_frameSize = fmt.m_frameSize;
+        m_streamInfo = fmt.m_streamInfo;
+
+        return *this;
+    }
 };
 
 NS_KRMOVIE_END
