@@ -25,7 +25,7 @@ public:
 
     static TVPYUVSprite *create();
 
-    bool init();
+    bool init() override;
 
     void updateTextureData(const void *data, int width, int height);
 

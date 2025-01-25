@@ -10,18 +10,27 @@
 //---------------------------------------------------------------------------
 
 #include "tjsCommHead.h"
-
 #include "tjsCompileControl.h"
 #include "tjsLex.h"
 #include "tjsVariant.h"
-#include "tjs2/parser/tjspp.tab.hpp"
 #include "tjsError.h"
 
-namespace TJS {
+namespace TJSPP {
 //---------------------------------------------------------------------------
 
-int ppparse(void *);
+int yylex(parser::value_type *yylex, tTJSPPExprParser *ptr) {
+    tjs_int32 val;
+    const tjs_int n = ptr->GetNext(val);
+    if (n == parser::token_kind_type::PT_NUM)
+        yylex->val = val;
+    if (n == parser::token_kind_type::PT_SYMBOL)
+        yylex->nv = val;
+    return n;
+}
 
+void parser::error(const std::string &msg) {
+    spdlog::get("tjs2")->critical(msg);
+}
 //---------------------------------------------------------------------------
 // TJS_iswspace
 static bool inline TJS_iswspace(tjs_char ch) {
@@ -74,7 +83,8 @@ tTJSPPExprParser::~tTJSPPExprParser() { delete[] Script; }
 tjs_int32 tTJSPPExprParser::Parse() {
     Current = Script;
     Result = 0;
-    if (ppparse(this)) {
+    auto bisonPpParser = parser{this};
+    if (bisonPpParser.parse()) {
         TJS_eTJSError(TJSPPError);
     }
     return Result;
@@ -92,87 +102,87 @@ tjs_int tTJSPPExprParser::GetNext(tjs_int32 &value) {
     switch (*Current) {
     case TJS_W('('):
         Current++;
-        return PT_LPARENTHESIS;
+        return parser::token::PT_LPARENTHESIS;
 
     case TJS_W(')'):
         Current++;
-        return PT_RPARENTHESIS;
+        return parser::token::PT_RPARENTHESIS;
 
     case TJS_W(','):
         Current++;
-        return PT_COMMA;
+        return parser::token::PT_COMMA;
 
     case TJS_W('='):
         if (*(Current + 1) == TJS_W('=')) {
             Current += 2;
-            return PT_EQUALEQUAL;
+            return parser::token::PT_EQUALEQUAL;
         }
         Current++;
-        return PT_EQUAL;
+        return parser::token::PT_EQUAL;
 
     case TJS_W('!'):
         if (*(Current + 1) == TJS_W('=')) {
             Current += 2;
-            return PT_NOTEQUAL;
+            return parser::token::PT_NOTEQUAL;
         }
         Current++;
-        return PT_EXCLAMATION;
+        return parser::token::PT_EXCLAMATION;
 
     case TJS_W('|'):
         if (*(Current + 1) == TJS_W('|')) {
             Current += 2;
-            return PT_LOGICALOR;
+            return parser::token::PT_LOGICALOR;
         }
         Current++;
-        return PT_VERTLINE;
+        return parser::token::PT_VERTLINE;
 
     case TJS_W('&'):
         if (*(Current + 1) == TJS_W('&')) {
             Current += 2;
-            return PT_LOGICALAND;
+            return parser::token::PT_LOGICALAND;
         }
         Current++;
-        return PT_AMPERSAND;
+        return parser::token::PT_AMPERSAND;
 
     case TJS_W('^'):
         Current++;
-        return PT_CHEVRON;
+        return parser::token::PT_CHEVRON;
 
     case TJS_W('+'):
         Current++;
-        return PT_PLUS;
+        return parser::token::PT_PLUS;
 
     case TJS_W('-'):
         Current++;
-        return PT_MINUS;
+        return parser::token::PT_MINUS;
 
     case TJS_W('*'):
         Current++;
-        return PT_ASTERISK;
+        return parser::token::PT_ASTERISK;
 
     case TJS_W('/'):
         Current++;
-        return PT_SLASH;
+        return parser::token::PT_SLASH;
 
     case TJS_W('%'):
         Current++;
-        return PT_PERCENT;
+        return parser::token::PT_PERCENT;
 
     case TJS_W('<'):
         if (*(Current + 1) == TJS_W('=')) {
             Current += 2;
-            return PT_LTOREQUAL;
+            return parser::token::PT_LTOREQUAL;
         }
         Current++;
-        return PT_LT;
+        return parser::token::PT_LT;
 
     case TJS_W('>'):
         if (*(Current + 1) == TJS_W('=')) {
             Current += 2;
-            return PT_GTOREQUAL;
+            return parser::token::PT_GTOREQUAL;
         }
         Current++;
-        return PT_GT;
+        return parser::token::PT_GT;
 
     case TJS_W('0'):
     case TJS_W('1'):
@@ -188,17 +198,17 @@ tjs_int tTJSPPExprParser::GetNext(tjs_int32 &value) {
         tTJSVariant val;
         try {
             if (!TJSParseNumber(val, &Current))
-                return PT_ERROR;
+                return parser::token::PT_ERROR;
         } catch (...) {
-            return PT_ERROR;
+            return parser::token::PT_ERROR;
         }
         value = (tjs_int32)(tTVInteger)val;
-        return PT_NUM;
+        return parser::token::PT_NUM;
     }
     }
 
     if (!TJS_iswalpha(*Current) && *Current != TJS_W('_')) {
-        return PT_ERROR;
+        return parser::token::PT_ERROR;
     }
 
     const tjs_char *st = Current;
@@ -212,25 +222,11 @@ tjs_int tTJSPPExprParser::GetNext(tjs_int32 &value) {
     IDs.push_back(str);
     value = (tjs_int32)(IDs.size() - 1);
 
-    return PT_SYMBOL;
+    return parser::token::PT_SYMBOL;
 }
 
 //---------------------------------------------------------------------------
 const tjs_char *tTJSPPExprParser::GetString(tjs_int idx) const {
     return IDs[idx].c_str();
 }
-
-//---------------------------------------------------------------------------
-int pplex(YYSTYPE *yylex, void *pm) {
-    tjs_int32 val;
-    tjs_int n;
-    n = ((tTJSPPExprParser *)pm)->GetNext(val);
-    if (n == PT_NUM)
-        yylex->val = val;
-    if (n == PT_SYMBOL)
-        yylex->nv = val;
-    return n;
-}
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
-} // namespace TJS
+} // namespace TJSPP

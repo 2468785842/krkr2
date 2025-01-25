@@ -10,15 +10,15 @@
 ## 依赖工具
 
 请确保以下工具已正确安装：
-- `bison`
-- `python3`
-- `ninja@latest`
-- `cmake@22+`
-- `vcpkg@latest`
-- `AndroidSDK@33+`
-- `AndroidNDK@27.2.12479018`
-- `jdk@17`
-- `NASM(FFmpeg x86_64需要)`: 仅非Windows
+- [ninja@latest](https://github.com/ninja-build/ninja/releases)
+- [cmake@22+](https://cmake.org/download/)
+- [vcpkg@latest](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started)
+- [AndroidSDK@33](https://developer.android.com/tools/releases/platform-tools)
+- [AndroidNDK@27.2.12479018](https://developer.android.com/ndk/downloads)
+- [jdk@17](https://jdk.java.net/archive/)
+- `bison@3.8.2+`: 非 Windows 主机平台
+- `python3`: 非 Windows 主机平台
+- `NASM@latest`: 非 Windows 主机平台
 ---
 
 ## 编译环境配置
@@ -57,57 +57,12 @@
 
 执行以下命令生成 APK 文件：
 
-- Windows
-```bash
-./gradlew.bat assemble
-```
-- Linux
-```bash
-./gradlew assemble
-```
+- Windows: `./gradlew.bat assemble`
+- Linux: `./gradlew assemble`
 
 > **生成的二进制文件位置**:  
 > - Debug: `out/app/outputs/apk/debug`  
 > - Release: `out/app/outputs/apk/release`  
-
-#### SO 动态库编译
-
-为支持多架构，使用以下模板命令生成动态库：
-
-1. 设置架构变量：  
-   - **`arm64-v8a`**: `ANDROID_ABI="arm64-v8a"`  
-   - **`x86_64`**: `ANDROID_ABI="x86_64"`
-
-2. 执行命令：  
-
-   - **Release 版本**:  
-     ```bash
-     cmake -GNinja -B out/cmake-build-android-${ANDROID_ABI}-release \
-           -DCMAKE_BUILD_TYPE=Release \
-           -DANDROID_ABI="${ANDROID_ABI}" \
-           -DANDROID_PLATFORM=29
-     cmake --build out/cmake-build-android-${ANDROID_ABI}-release
-     ```
-   - **Debug 版本**:  
-     ```bash
-     cmake -GNinja -B out/cmake-build-android-${ANDROID_ABI}-debug \
-           -DCMAKE_BUILD_TYPE=Debug \
-           -DANDROID_ABI="${ANDROID_ABI}" \
-           -DANDROID_PLATFORM=29
-     cmake --build out/cmake-build-android-${ANDROID_ABI}-debug
-     ```
-
-**示例**：  
-对于 `arm64-v8a` Release 构建：  
-```bash
-cmake -GNinja -B out/cmake-build-android-arm64-v8a-release \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DANDROID_ABI="arm64-v8a" \
-      -DANDROID_PLATFORM=29
-cmake --build out/cmake-build-android-arm64-v8a-release
-```
-
----
 
 ### 插件资源
 

@@ -17,13 +17,13 @@ struct aligned_allocator : public std::allocator<T> {
     template <class U> struct rebind {
         typedef aligned_allocator<U, TAlign> other;
     };
-    aligned_allocator() throw() {}
-    aligned_allocator(const aligned_allocator &) throw() {}
+    aligned_allocator() noexcept {}
+    aligned_allocator(const aligned_allocator &) noexcept {}
     template <class U>
-    aligned_allocator(const aligned_allocator<U, TAlign> &) throw() {}
+    aligned_allocator(const aligned_allocator<U, TAlign> &) noexcept {}
     template <class U>
-    aligned_allocator &operator=(const aligned_allocator<U, TAlign> &) throw() {
-    }
+    aligned_allocator &
+    operator=(const aligned_allocator<U, TAlign> &) noexcept {}
     // allocate
     pointer allocate(size_type c, const void *hint = 0) {
         return static_cast<pointer>(_mm_malloc(sizeof(T) * c, TAlign));
@@ -43,13 +43,13 @@ struct aligned_allocator : public std::allocator<T> {
         typedef aligned_allocator<U, TAlign> other;
     };
 
-    aligned_allocator() throw() {}
-    aligned_allocator(const aligned_allocator &) throw() {}
+    aligned_allocator() noexcept {}
+    aligned_allocator(const aligned_allocator &) noexcept {}
     template <class U>
-    aligned_allocator(const aligned_allocator<U, TAlign> &) throw() {}
+    aligned_allocator(const aligned_allocator<U, TAlign> &) noexcept {}
     template <class U>
-    aligned_allocator &operator=(const aligned_allocator<U, TAlign> &) throw() {
-    }
+    aligned_allocator &
+    operator=(const aligned_allocator<U, TAlign> &) noexcept {}
 
     // allocate
     T *allocate(std::size_t c, const void *hint = 0) {

@@ -17,9 +17,6 @@
 
 namespace TJS {
 //---------------------------------------------------------------------------
-int yyparse(void *);
-
-//---------------------------------------------------------------------------
 // tTJSScriptBlock
 //---------------------------------------------------------------------------
 tTJSScriptBlock::tTJSScriptBlock(tTJS *owner) {
@@ -454,7 +451,7 @@ void tTJSScriptBlock::Parse(const tjs_char *script, bool isexpr,
         new tTJSLexicalAnalyzer(this, script, isexpr, resultneeded);
 
     try {
-        yyparse(this);
+        parser{this}.parse();
     } catch (...) {
         delete LexicalAnalyzer;
         LexicalAnalyzer = nullptr;

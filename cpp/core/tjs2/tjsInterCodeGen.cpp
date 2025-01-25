@@ -11,12 +11,12 @@
 #include "tjsCommHead.h"
 
 #include <algorithm>
-
+#include <spdlog/spdlog.h>
 #include "tjsInterCodeGen.h"
 #include "tjsScriptBlock.h"
 #include "tjsGlobalStringMap.h"
 
-#include "tjs2/parser/tjs.tab.hpp"
+#include "tjs.tab.hpp"
 #include "tjsError.h"
 #include "tjsUtils.h"
 #include "tjsDebug.h"
@@ -36,31 +36,19 @@
 //---------------------------------------------------------------------------
 namespace TJS // following is in the namespace
 {
-//---------------------------------------------------------------------------
-
-int __yyerror(char *, void *);
-
-#ifdef TJS_DEBUG_PROFILE_TIME
-tjs_uint time_yylex = 0;
-#endif
-
-//---------------------------------------------------------------------------
-int yylex(YYSTYPE *yylex, void *pm) {
-    // yylex ( is called from bison parser, returns lexical analyzer's return
-    // value )
-#ifdef TJS_DEBUG_PROFILE_TIME
-    tTJSTimeProfiler prof(time_yylex);
-#endif
-
+int yylex(parser::value_type *yylex, tTJSScriptBlock *ptr) {
     tjs_int n;
-    tjs_int t;
-    t = ((tTJSScriptBlock *)pm)->GetLexicalAnalyzer()->GetNext(n);
+    const tjs_int t = ptr->GetLexicalAnalyzer()->GetNext(n);
     yylex->num = n;
     return t;
 }
 
+void parser::error(const std::string &msg) {
+    spdlog::get("tjs2")->critical(msg);
+}
+
 //---------------------------------------------------------------------------
-int _yyerror(const tjs_char *msg, void *pm, tjs_int pos) {
+int _yyerror(const tjs_char *msg, tTJSScriptBlock *pm, tjs_int pos) {
     // handles errors that happen in the compilation
 
     tTJSScriptBlock *sb = (tTJSScriptBlock *)pm;
@@ -97,14 +85,6 @@ int _yyerror(const tjs_char *msg, void *pm, tjs_int pos) {
 
     return 0;
 }
-
-//---------------------------------------------------------------------------
-int __yyerror(char *msg, void *pm) {
-    // yyerror ( for bison )
-    ttstr str(msg);
-    return _yyerror(str.c_str(), pm);
-}
-//---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 // tTJSExprNode -- expression node
@@ -1037,7 +1017,7 @@ void tTJSInterCodeContext::Commit() {
         // storage even we call 'clear' method...
 #define RE_CREATE(place, type, classname)                                      \
     (&place)->type::~classname();                                              \
-    new (&place) type();
+    new (&place) type()
 
     RE_CREATE(NodeToDeleteVector, std::vector<tTJSExprNode *>, vector);
     RE_CREATE(CurrentNodeVector, std::vector<tTJSExprNode *>, vector);
@@ -1138,7 +1118,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
     tjs_int node_pos = NODE_POS;
 
     switch (node->GetOpecode()) {
-    case T_CONSTVAL: // constant value
+    case parser::token_kind_type::T_CONSTVAL: // constant value
     {
         // a code that refers the constant value
         if (TJSIsModifySubType(param.SubType))
@@ -1152,7 +1132,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return frame++;
     }
 
-    case T_IF: // 'if' operator
+    case parser::token_kind_type::T_IF: // 'if' operator
     {
         // "if" operator
         // evaluate right node. then evaluate left node if the right results
@@ -1180,7 +1160,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return 0;
     }
 
-    case T_INCONTEXTOF: // 'incontextof' operator
+    case parser::token_kind_type::T_INCONTEXTOF: // 'incontextof' operator
     {
         // "incontextof" operator
         // a special operator that changes objeect closure's context
@@ -1204,12 +1184,12 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return resaddr1;
     }
 
-    case T_COMMA: // ',' operator
+    case parser::token_kind_type::T_COMMA: // ',' operator
         // comma operator
         _GenNodeCode(frame, (*node)[0], 0, 0, tSubParam());
         return _GenNodeCode(frame, (*node)[1], restype, reqresaddr, param);
 
-    case T_SWAP: // '<->' operator
+    case parser::token_kind_type::T_SWAP: // '<->' operator
     {
         // swap operator
         if (restype & TJS_RT_NEEDED)
@@ -1244,7 +1224,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return 0;
     }
 
-    case T_EQUAL: // '=' operator
+    case parser::token_kind_type::T_EQUAL: // '=' operator
     {
         // simple substitution
         if (param.SubType)
@@ -1264,20 +1244,20 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return resaddr;
     }
 
-    case T_AMPERSANDEQUAL:   // '&=' operator
-    case T_VERTLINEEQUAL:    // '|=' operator
-    case T_CHEVRONEQUAL:     // '^=' operator
-    case T_MINUSEQUAL:       // ^-=' operator
-    case T_PLUSEQUAL:        // '+=' operator
-    case T_PERCENTEQUAL:     // '%=' operator
-    case T_SLASHEQUAL:       // '/=' operator
-    case T_BACKSLASHEQUAL:   // '\=' operator
-    case T_ASTERISKEQUAL:    // '*=' operator
-    case T_LOGICALOREQUAL:   // '||=' operator
-    case T_LOGICALANDEQUAL:  // '&&=' operator
-    case T_RARITHSHIFTEQUAL: // '>>=' operator
-    case T_LARITHSHIFTEQUAL: // '<<=' operator
-    case T_RBITSHIFTEQUAL:   // '>>>=' operator
+    case parser::token_kind_type::T_AMPERSANDEQUAL:   // '&=' operator
+    case parser::token_kind_type::T_VERTLINEEQUAL:    // '|=' operator
+    case parser::token_kind_type::T_CHEVRONEQUAL:     // '^=' operator
+    case parser::token_kind_type::T_MINUSEQUAL:       // ^-=' operator
+    case parser::token_kind_type::T_PLUSEQUAL:        // '+=' operator
+    case parser::token_kind_type::T_PERCENTEQUAL:     // '%=' operator
+    case parser::token_kind_type::T_SLASHEQUAL:       // '/=' operator
+    case parser::token_kind_type::T_BACKSLASHEQUAL:   // '\=' operator
+    case parser::token_kind_type::T_ASTERISKEQUAL:    // '*=' operator
+    case parser::token_kind_type::T_LOGICALOREQUAL:   // '||=' operator
+    case parser::token_kind_type::T_LOGICALANDEQUAL:  // '&&=' operator
+    case parser::token_kind_type::T_RARITHSHIFTEQUAL: // '>>=' operator
+    case parser::token_kind_type::T_LARITHSHIFTEQUAL: // '<<=' operator
+    case parser::token_kind_type::T_RBITSHIFTEQUAL:   // '>>>=' operator
     {
         // operation and substitution operators like "&="
         if (param.SubType)
@@ -1288,46 +1268,46 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         tSubParam param2;
         switch (node->GetOpecode()) // this may be sucking...
         {
-        case T_AMPERSANDEQUAL:
+        case parser::token_kind_type::T_AMPERSANDEQUAL:
             param2.SubType = stBitAND;
             break;
-        case T_VERTLINEEQUAL:
+        case parser::token_kind_type::T_VERTLINEEQUAL:
             param2.SubType = stBitOR;
             break;
-        case T_CHEVRONEQUAL:
+        case parser::token_kind_type::T_CHEVRONEQUAL:
             param2.SubType = stBitXOR;
             break;
-        case T_MINUSEQUAL:
+        case parser::token_kind_type::T_MINUSEQUAL:
             param2.SubType = stSub;
             break;
-        case T_PLUSEQUAL:
+        case parser::token_kind_type::T_PLUSEQUAL:
             param2.SubType = stAdd;
             break;
-        case T_PERCENTEQUAL:
+        case parser::token_kind_type::T_PERCENTEQUAL:
             param2.SubType = stMod;
             break;
-        case T_SLASHEQUAL:
+        case parser::token_kind_type::T_SLASHEQUAL:
             param2.SubType = stDiv;
             break;
-        case T_BACKSLASHEQUAL:
+        case parser::token_kind_type::T_BACKSLASHEQUAL:
             param2.SubType = stIDiv;
             break;
-        case T_ASTERISKEQUAL:
+        case parser::token_kind_type::T_ASTERISKEQUAL:
             param2.SubType = stMul;
             break;
-        case T_LOGICALOREQUAL:
+        case parser::token_kind_type::T_LOGICALOREQUAL:
             param2.SubType = stLogOR;
             break;
-        case T_LOGICALANDEQUAL:
+        case parser::token_kind_type::T_LOGICALANDEQUAL:
             param2.SubType = stLogAND;
             break;
-        case T_RARITHSHIFTEQUAL:
+        case parser::token_kind_type::T_RARITHSHIFTEQUAL:
             param2.SubType = stSAR;
             break;
-        case T_LARITHSHIFTEQUAL:
+        case parser::token_kind_type::T_LARITHSHIFTEQUAL:
             param2.SubType = stSAL;
             break;
-        case T_RBITSHIFTEQUAL:
+        case parser::token_kind_type::T_RBITSHIFTEQUAL:
             param2.SubType = stSR;
             break;
         }
@@ -1335,7 +1315,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return _GenNodeCode(frame, (*node)[0], restype, reqresaddr, param2);
     }
 
-    case T_QUESTION: // '?' ':' operator
+    case parser::token_kind_type::T_QUESTION: // '?' ':' operator
     {
         // three-term operator ( ?  :  )
         tjs_int resaddr1, resaddr2;
@@ -1413,8 +1393,8 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return (restype & TJS_RT_CFLAG) ? TJS_GNC_CFLAG : resaddr1;
     }
 
-    case T_LOGICALOR:  // '||' operator
-    case T_LOGICALAND: // '&&' operator
+    case parser::token_kind_type::T_LOGICALOR:  // '||' operator
+    case parser::token_kind_type::T_LOGICALAND: // '&&' operator
     {
         // "logical or" and "logical and"
         // these process with the "shortcut" :
@@ -1434,8 +1414,9 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
             inv = true;
         tjs_int addr1 = CodeAreaSize;
         AddJumpList();
-        PutCode(node->GetOpecode() == T_LOGICALOR ? (inv ? VM_JNF : VM_JF)
-                                                  : (inv ? VM_JF : VM_JNF),
+        PutCode(node->GetOpecode() == parser::token_kind_type::T_LOGICALOR
+                    ? (inv ? VM_JNF : VM_JF)
+                    : (inv ? VM_JF : VM_JNF),
                 node_pos);
         PutCode(0, node_pos); // *A
         resaddr2 = _GenNodeCode(frame, (*node)[1], TJS_RT_NEEDED | TJS_RT_CFLAG,
@@ -1465,7 +1446,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
                    : resaddr1;
     }
 
-    case T_INSTANCEOF: // 'instanceof' operator
+    case parser::token_kind_type::T_INSTANCEOF: // 'instanceof' operator
     {
         // instanceof operator
         tjs_int resaddr1, resaddr2;
@@ -1486,18 +1467,18 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return resaddr1;
     }
 
-    case T_VERTLINE:    // '|' operator
-    case T_CHEVRON:     // '^' operator
-    case T_AMPERSAND:   // binary '&' operator
-    case T_RARITHSHIFT: // '>>' operator
-    case T_LARITHSHIFT: // '<<' operator
-    case T_RBITSHIFT:   // '>>>' operator
-    case T_PLUS:        // binary '+' operator
-    case T_MINUS:       // '-' operator
-    case T_PERCENT:     // '%' operator
-    case T_SLASH:       // '/' operator
-    case T_BACKSLASH:   // '\' operator
-    case T_ASTERISK:    // binary '*' operator
+    case parser::token_kind_type::T_VERTLINE:    // '|' operator
+    case parser::token_kind_type::T_CHEVRON:     // '^' operator
+    case parser::token_kind_type::T_AMPERSAND:   // binary '&' operator
+    case parser::token_kind_type::T_RARITHSHIFT: // '>>' operator
+    case parser::token_kind_type::T_LARITHSHIFT: // '<<' operator
+    case parser::token_kind_type::T_RBITSHIFT:   // '>>>' operator
+    case parser::token_kind_type::T_PLUS:        // binary '+' operator
+    case parser::token_kind_type::T_MINUS:       // '-' operator
+    case parser::token_kind_type::T_PERCENT:     // '%' operator
+    case parser::token_kind_type::T_SLASH:       // '/' operator
+    case parser::token_kind_type::T_BACKSLASH:   // '\' operator
+    case parser::token_kind_type::T_ASTERISK:    // binary '*' operator
     {
         // general two-term operators
         tjs_int resaddr1, resaddr2;
@@ -1517,40 +1498,40 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         tjs_int32 code;
         switch (node->GetOpecode()) // sucking....
         {
-        case T_VERTLINE:
+        case parser::token_kind_type::T_VERTLINE:
             code = VM_BOR;
             break;
-        case T_CHEVRON:
+        case parser::token_kind_type::T_CHEVRON:
             code = VM_BXOR;
             break;
-        case T_AMPERSAND:
+        case parser::token_kind_type::T_AMPERSAND:
             code = VM_BAND;
             break;
-        case T_RARITHSHIFT:
+        case parser::token_kind_type::T_RARITHSHIFT:
             code = VM_SAR;
             break;
-        case T_LARITHSHIFT:
+        case parser::token_kind_type::T_LARITHSHIFT:
             code = VM_SAL;
             break;
-        case T_RBITSHIFT:
+        case parser::token_kind_type::T_RBITSHIFT:
             code = VM_SR;
             break;
-        case T_PLUS:
+        case parser::token_kind_type::T_PLUS:
             code = VM_ADD;
             break;
-        case T_MINUS:
+        case parser::token_kind_type::T_MINUS:
             code = VM_SUB;
             break;
-        case T_PERCENT:
+        case parser::token_kind_type::T_PERCENT:
             code = VM_MOD;
             break;
-        case T_SLASH:
+        case parser::token_kind_type::T_SLASH:
             code = VM_DIV;
             break;
-        case T_BACKSLASH:
+        case parser::token_kind_type::T_BACKSLASH:
             code = VM_IDIV;
             break;
-        case T_ASTERISK:
+        case parser::token_kind_type::T_ASTERISK:
             code = VM_MUL;
             break;
         }
@@ -1561,14 +1542,14 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return resaddr1;
     }
 
-    case T_NOTEQUAL:     // '!=' operator
-    case T_EQUALEQUAL:   // '==' operator
-    case T_DISCNOTEQUAL: // '!==' operator
-    case T_DISCEQUAL:    // '===' operator
-    case T_LT:           // '<' operator
-    case T_GT:           // '>' operator
-    case T_LTOREQUAL:    // '<=' operator
-    case T_GTOREQUAL:    // '>=' operator
+    case parser::token_kind_type::T_NOTEQUAL:     // '!=' operator
+    case parser::token_kind_type::T_EQUALEQUAL:   // '==' operator
+    case parser::token_kind_type::T_DISCNOTEQUAL: // '!==' operator
+    case parser::token_kind_type::T_DISCEQUAL:    // '===' operator
+    case parser::token_kind_type::T_LT:           // '<' operator
+    case parser::token_kind_type::T_GT:           // '>' operator
+    case parser::token_kind_type::T_LTOREQUAL:    // '<=' operator
+    case parser::token_kind_type::T_GTOREQUAL:    // '>=' operator
     {
         // comparison operators
         tjs_int resaddr1, resaddr2;
@@ -1590,35 +1571,35 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         tjs_int32 code1, code2;
         switch (node->GetOpecode()) // ...
         {
-        case T_NOTEQUAL:
+        case parser::token_kind_type::T_NOTEQUAL:
             code1 = VM_CEQ;
             code2 = VM_SETNF;
             break;
-        case T_EQUALEQUAL:
+        case parser::token_kind_type::T_EQUALEQUAL:
             code1 = VM_CEQ;
             code2 = VM_SETF;
             break;
-        case T_DISCNOTEQUAL:
+        case parser::token_kind_type::T_DISCNOTEQUAL:
             code1 = VM_CDEQ;
             code2 = VM_SETNF;
             break;
-        case T_DISCEQUAL:
+        case parser::token_kind_type::T_DISCEQUAL:
             code1 = VM_CDEQ;
             code2 = VM_SETF;
             break;
-        case T_LT:
+        case parser::token_kind_type::T_LT:
             code1 = VM_CLT;
             code2 = VM_SETF;
             break;
-        case T_GT:
+        case parser::token_kind_type::T_GT:
             code1 = VM_CGT;
             code2 = VM_SETF;
             break;
-        case T_LTOREQUAL:
+        case parser::token_kind_type::T_LTOREQUAL:
             code1 = VM_CGT;
             code2 = VM_SETNF;
             break;
-        case T_GTOREQUAL:
+        case parser::token_kind_type::T_GTOREQUAL:
             code1 = VM_CLT;
             code2 = VM_SETNF;
             break;
@@ -1638,7 +1619,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
                    : resaddr1;
     }
 
-    case T_EXCRAMATION: // pre-positioned '!' operator
+    case parser::token_kind_type::T_EXCRAMATION: // pre-positioned '!' operator
     {
         // logical not
         if (TJSIsModifySubType(param.SubType))
@@ -1670,18 +1651,18 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         }
     }
 
-    case T_TILDE:      // '~' operator
-    case T_SHARP:      // '#' operator
-    case T_DOLLAR:     // '$' operator
-    case T_UPLUS:      // unary '+' operator
-    case T_UMINUS:     // unary '-' operator
-    case T_INVALIDATE: // 'invalidate' operator
-    case T_ISVALID:    // 'isvalid' operator
-    case T_EVAL:       // post-positioned '!' operator
-    case T_INT:        // 'int' operator
-    case T_REAL:       // 'real' operator
-    case T_STRING:     // 'string' operator
-    case T_OCTET:      // 'octet' operator
+    case parser::token_kind_type::T_TILDE:      // '~' operator
+    case parser::token_kind_type::T_SHARP:      // '#' operator
+    case parser::token_kind_type::T_DOLLAR:     // '$' operator
+    case parser::token_kind_type::T_UPLUS:      // unary '+' operator
+    case parser::token_kind_type::T_UMINUS:     // unary '-' operator
+    case parser::token_kind_type::T_INVALIDATE: // 'invalidate' operator
+    case parser::token_kind_type::T_ISVALID:    // 'isvalid' operator
+    case parser::token_kind_type::T_EVAL:       // post-positioned '!' operator
+    case parser::token_kind_type::T_INT:        // 'int' operator
+    case parser::token_kind_type::T_REAL:       // 'real' operator
+    case parser::token_kind_type::T_STRING:     // 'string' operator
+    case parser::token_kind_type::T_OCTET:      // 'octet' operator
     {
         // general unary operators
         if (TJSIsModifySubType(param.SubType))
@@ -1697,50 +1678,52 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         }
         tjs_int32 code;
         switch (node->GetOpecode()) {
-            //			case T_EXCRAMATION:		code = VM_LNOT;
+            //			case parser::token_kind_type::T_EXCRAMATION:		code =
+            //VM_LNOT;
             // break;
-        case T_TILDE:
+        case parser::token_kind_type::T_TILDE:
             code = VM_BNOT;
             break;
-        case T_SHARP:
+        case parser::token_kind_type::T_SHARP:
             code = VM_ASC;
             break;
-        case T_DOLLAR:
+        case parser::token_kind_type::T_DOLLAR:
             code = VM_CHR;
             break;
-        case T_UPLUS:
+        case parser::token_kind_type::T_UPLUS:
             code = VM_NUM;
             break;
-        case T_UMINUS:
+        case parser::token_kind_type::T_UMINUS:
             code = VM_CHS;
             break;
-        case T_INVALIDATE:
+        case parser::token_kind_type::T_INVALIDATE:
             code = VM_INV;
             break;
-        case T_ISVALID:
+        case parser::token_kind_type::T_ISVALID:
             code = VM_CHKINV;
             break;
-        case T_TYPEOF:
+        case parser::token_kind_type::T_TYPEOF:
             code = VM_TYPEOF;
             break;
-        case T_EVAL:
+        case parser::token_kind_type::T_EVAL:
             code = (restype & TJS_RT_NEEDED) ? VM_EVAL : VM_EEXP;
 
-            // warn if T_EVAL is used in non-global position
+            // warn if parser::token_kind_type::T_EVAL is used in non-global
+            // position
             if (TJSWarnOnNonGlobalEvalOperator && ContextType != ctTopLevel)
                 OutputWarning(TJSWarnEvalOperator);
 
             break;
-        case T_INT:
+        case parser::token_kind_type::T_INT:
             code = VM_INT;
             break;
-        case T_REAL:
+        case parser::token_kind_type::T_REAL:
             code = VM_REAL;
             break;
-        case T_STRING:
+        case parser::token_kind_type::T_STRING:
             code = VM_STR;
             break;
-        case T_OCTET:
+        case parser::token_kind_type::T_OCTET:
             code = VM_OCTET;
             break;
         }
@@ -1750,15 +1733,16 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return resaddr;
     }
 
-    case T_TYPEOF: // 'typeof' operator
+    case parser::token_kind_type::T_TYPEOF: // 'typeof' operator
     {
         // typeof
         if (TJSIsModifySubType(param.SubType))
             _yyerror(TJSCannotModifyLHS, Block);
         bool haspropnode;
         tTJSExprNode *cnode = (*node)[0];
-        if (cnode->GetOpecode() == T_DOT || cnode->GetOpecode() == T_LBRACKET ||
-            cnode->GetOpecode() == T_WITHDOT)
+        if (cnode->GetOpecode() == parser::token_kind_type::T_DOT ||
+            cnode->GetOpecode() == parser::token_kind_type::T_LBRACKET ||
+            cnode->GetOpecode() == parser::token_kind_type::T_WITHDOT)
             haspropnode = true;
         else
             haspropnode = false;
@@ -1785,33 +1769,35 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         }
     }
 
-    case T_DELETE:        // 'delete' operator
-    case T_INCREMENT:     // pre-positioned '++' operator
-    case T_DECREMENT:     // pre-positioned '--' operator
-    case T_POSTINCREMENT: // post-positioned '++' operator
-    case T_POSTDECREMENT: // post-positioned '--' operator
+    case parser::token_kind_type::T_DELETE:    // 'delete' operator
+    case parser::token_kind_type::T_INCREMENT: // pre-positioned '++' operator
+    case parser::token_kind_type::T_DECREMENT: // pre-positioned '--' operator
+    case parser::token_kind_type::T_POSTINCREMENT: // post-positioned '++'
+                                                   // operator
+    case parser::token_kind_type::T_POSTDECREMENT: // post-positioned '--'
+                                                   // operator
     {
         // delete, typeof, increment and decrement
         if (TJSIsModifySubType(param.SubType))
             _yyerror(TJSCannotModifyLHS, Block);
         tSubParam param2;
         switch (node->GetOpecode()) {
-        case T_TYPEOF:
+        case parser::token_kind_type::T_TYPEOF:
             param2.SubType = stTypeOf;
             break;
-        case T_DELETE:
+        case parser::token_kind_type::T_DELETE:
             param2.SubType = stDelete;
             break;
-        case T_INCREMENT:
+        case parser::token_kind_type::T_INCREMENT:
             param2.SubType = stPreInc;
             break;
-        case T_DECREMENT:
+        case parser::token_kind_type::T_DECREMENT:
             param2.SubType = stPreDec;
             break;
-        case T_POSTINCREMENT:
+        case parser::token_kind_type::T_POSTINCREMENT:
             param2.SubType = stPostInc;
             break;
-        case T_POSTDECREMENT:
+        case parser::token_kind_type::T_POSTDECREMENT:
             param2.SubType = stPostDec;
             break;
         }
@@ -1819,23 +1805,24 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return _GenNodeCode(frame, (*node)[0], restype, reqresaddr, param2);
     }
 
-    case T_LPARENTHESIS: // '( )' operator
-    case T_NEW:          // 'new' operator
+    case parser::token_kind_type::T_LPARENTHESIS: // '( )' operator
+    case parser::token_kind_type::T_NEW:          // 'new' operator
     {
         // function call or create-new object
 
         // does (*node)[0] have a node that acceesses any properties ?
         bool haspropnode, hasnonlocalsymbol;
         tTJSExprNode *cnode = (*node)[0];
-        if (node->GetOpecode() == T_LPARENTHESIS &&
-            (cnode->GetOpecode() == T_DOT || cnode->GetOpecode() == T_LBRACKET))
+        if (node->GetOpecode() == parser::token_kind_type::T_LPARENTHESIS &&
+            (cnode->GetOpecode() == parser::token_kind_type::T_DOT ||
+             cnode->GetOpecode() == parser::token_kind_type::T_LBRACKET))
             haspropnode = true;
         else
             haspropnode = false;
 
         // does (*node)[0] have a node that accesses non-local functions ?
-        if (node->GetOpecode() == T_LPARENTHESIS &&
-            cnode->GetOpecode() == T_SYMBOL) {
+        if (node->GetOpecode() == parser::token_kind_type::T_LPARENTHESIS &&
+            cnode->GetOpecode() == parser::token_kind_type::T_SYMBOL) {
             if (AsGlobalContextMode) {
                 hasnonlocalsymbol = true;
             } else {
@@ -1883,7 +1870,9 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
                     _GenNodeCode(frame, (*node)[0], TJS_RT_NEEDED, 0, param2);
 
                 // code generatio of function calling
-                PutCode(node->GetOpecode() == T_NEW ? VM_NEW : VM_CALL,
+                PutCode(node->GetOpecode() == parser::token_kind_type::T_NEW
+                            ? VM_NEW
+                            : VM_CALL,
                         node_pos);
                 PutCode(TJS_TO_VM_REG_ADDR(res = (restype & TJS_RT_NEEDED)
                                                      ? (framestart - 1)
@@ -1908,7 +1897,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return res;
     }
 
-    case T_ARG:
+    case parser::token_kind_type::T_ARG:
         // a function argument
         if (node->GetSize() >= 2) {
             if ((*node)[1])
@@ -1916,7 +1905,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         }
         if ((*node)[0]) {
             tTJSExprNode *n = (*node)[0];
-            if (n->GetOpecode() == T_EXPANDARG) {
+            if (n->GetOpecode() == parser::token_kind_type::T_EXPANDARG) {
                 // expanding argument
                 if ((*n)[0])
                     AddFuncArg(_GenNodeCode(frame, (*n)[0], TJS_RT_NEEDED, 0,
@@ -1934,16 +1923,16 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         }
         return 0;
 
-    case T_OMIT:
+    case parser::token_kind_type::T_OMIT:
         // omitting of the function arguments
         AddOmitArg();
         return 0;
 
-    case T_DOT:      // '.' operator
-    case T_LBRACKET: // '[ ]' operator
+    case parser::token_kind_type::T_DOT:      // '.' operator
+    case parser::token_kind_type::T_LBRACKET: // '[ ]' operator
     {
         // member access ( direct or indirect )
-        bool direct = node->GetOpecode() == T_DOT;
+        bool direct = node->GetOpecode() == parser::token_kind_type::T_DOT;
         tjs_int dp;
 
         tSubParam param2;
@@ -1971,7 +1960,8 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         case stEqual:
         case stIgnorePropSet:
             if (param.SubType == stEqual) {
-                if ((*node)[0]->GetOpecode() == T_THIS_PROXY)
+                if ((*node)[0]->GetOpecode() ==
+                    parser::token_kind_type::T_THIS_PROXY)
                     PutCode(direct ? VM_SPD : VM_SPI, node_pos);
                 else
                     PutCode(direct ? VM_SPDE : VM_SPIE, node_pos);
@@ -2087,7 +2077,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         }
     }
 
-    case T_SYMBOL: // symbol
+    case parser::token_kind_type::T_SYMBOL: // symbol
     {
         // accessing to a variable
         tjs_int n;
@@ -2218,27 +2208,31 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
             tTJSTimeProfiler prof(time_this_proxy);
 #endif
             tTJSExprNode nodep;
-            nodep.SetOpecode(T_DOT);
+            nodep.SetOpecode(parser::token::T_DOT);
             nodep.SetPosition(node_pos);
             tTJSExprNode *node1 = new tTJSExprNode;
             NodeToDeleteVector.push_back(node1);
             nodep.Add(node1);
-            node1->SetOpecode(AsGlobalContextMode ? T_GLOBAL : T_THIS_PROXY);
+            node1->SetOpecode(AsGlobalContextMode
+                                  ? parser::token_kind_type::T_GLOBAL
+                                  : parser::token_kind_type::T_THIS_PROXY);
             node1->SetPosition(node_pos);
             tTJSExprNode *node2 = new tTJSExprNode;
             NodeToDeleteVector.push_back(node2);
             nodep.Add(node2);
-            node2->SetOpecode(T_SYMBOL);
+            node2->SetOpecode(parser::token::T_SYMBOL);
             node2->SetPosition(node_pos);
             node2->SetValue(node->GetValue());
             return _GenNodeCode(frame, &nodep, restype, reqresaddr, param);
         }
     }
 
-    case T_IGNOREPROP: // unary '&' operator
-    case T_PROPACCESS: // unary '*' operator
+    case parser::token_kind_type::T_IGNOREPROP: // unary '&' operator
+    case parser::token_kind_type::T_PROPACCESS: // unary '*' operator
         if (node->GetOpecode() ==
-            (TJSUnaryAsteriskIgnoresPropAccess ? T_PROPACCESS : T_IGNOREPROP)) {
+            (TJSUnaryAsteriskIgnoresPropAccess
+                 ? parser::token_kind_type::T_PROPACCESS
+                 : parser::token_kind_type::T_IGNOREPROP)) {
             // unary '&' operator
             // substance accessing (ignores property operation)
             tSubParam sp = param;
@@ -2330,7 +2324,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
             }
         }
 
-    case T_SUPER: // 'super'
+    case parser::token_kind_type::T_SUPER: // 'super'
     {
         // refer super class
 
@@ -2363,34 +2357,34 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return resaddr;
     }
 
-    case T_THIS:
+    case parser::token_kind_type::T_THIS:
         if (param.SubType)
             _yyerror(TJSCannotModifyLHS, Block);
         return -1;
 
-    case T_THIS_PROXY:
+    case parser::token_kind_type::T_THIS_PROXY:
         // this-proxy is a special register that points
         // both "objthis" and "global"
         // if refering member is not in "objthis", this-proxy
         // refers "global".
         return -VariableReserveCount;
 
-    case T_WITHDOT: // unary '.' operator
+    case parser::token_kind_type::T_WITHDOT: // unary '.' operator
     {
         // dot operator omitting object name
         tTJSExprNode nodep;
-        nodep.SetOpecode(T_DOT);
+        nodep.SetOpecode(parser::token::T_DOT);
         nodep.SetPosition(node_pos);
         tTJSExprNode *node1 = new tTJSExprNode;
         NodeToDeleteVector.push_back(node1);
         nodep.Add(node1);
-        node1->SetOpecode(T_WITHDOT_PROXY);
+        node1->SetOpecode(parser::token::T_WITHDOT_PROXY);
         node1->SetPosition(node_pos);
         nodep.Add((*node)[0]);
         return _GenNodeCode(frame, &nodep, restype, reqresaddr, param);
     }
 
-    case T_WITHDOT_PROXY: {
+    case parser::token_kind_type::T_WITHDOT_PROXY: {
         // virtual left side of "." operator which omits object
 
         // search in NestVector
@@ -2408,7 +2402,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
 
         // NO "break" HERE!!!!!! (pass thru to global)
 
-    case T_GLOBAL: {
+    case parser::token_kind_type::T_GLOBAL: {
         if (param.SubType)
             _yyerror(TJSCannotModifyLHS, Block);
         if (!(restype & TJS_RT_NEEDED))
@@ -2419,7 +2413,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return frame - 1;
     }
 
-    case T_INLINEARRAY: {
+    case parser::token_kind_type::T_INLINEARRAY: {
         // inline array
 
         tjs_int arraydp = PutData(tTJSVariant(TJS_W("Array")));
@@ -2462,7 +2456,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return (restype & TJS_RT_NEEDED) ? (frame0) : 0;
     }
 
-    case T_ARRAYARG: {
+    case parser::token_kind_type::T_ARRAYARG: {
         // an element of inline array
         tjs_int framestart = frame;
 
@@ -2484,7 +2478,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return 0;
     }
 
-    case T_INLINEDIC: {
+    case parser::token_kind_type::T_INLINEDIC: {
         // inline dictionary
         tjs_int dicdp = PutData(tTJSVariant(TJS_W("Dictionary")));
         //	global %frame0
@@ -2517,7 +2511,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return (restype & TJS_RT_NEEDED) ? (frame0) : 0;
     }
 
-    case T_DICELM: {
+    case parser::token_kind_type::T_DICELM: {
         // an element of inline dictionary
         tjs_int framestart = frame;
         tjs_int name;
@@ -2535,7 +2529,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return 0;
     }
 
-    case T_REGEXP: {
+    case parser::token_kind_type::T_REGEXP: {
         // constant regular expression
         if (!(restype & TJS_RT_NEEDED))
             return 0;
@@ -2573,7 +2567,7 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         return frame0;
     }
 
-    case T_VOID:
+    case parser::token_kind_type::T_VOID:
         if (param.SubType)
             _yyerror(TJSCannotModifyLHS, Block);
         if (!(restype & TJS_RT_NEEDED))
@@ -3628,7 +3622,7 @@ void tTJSInterCodeContext::PopCurrentNode() { CurrentNodeVector.pop_back(); }
 tTJSExprNode *tTJSInterCodeContext::MakeConstValNode(const tTJSVariant &val) {
     tTJSExprNode *n = new tTJSExprNode;
     NodeToDeleteVector.push_back(n);
-    n->SetOpecode(T_CONSTVAL);
+    n->SetOpecode(parser::token::T_CONSTVAL);
     n->SetValue(val);
     n->SetPosition(LEX_POS);
     return n;
@@ -3657,53 +3651,53 @@ tTJSExprNode *tTJSInterCodeContext::MakeNP1(tjs_int opecode,
 #endif
 
 #ifndef TJS_NO_CONSTANT_FOLDING
-    if (node1 && node1->GetOpecode() == T_CONSTVAL) {
+    if (node1 && node1->GetOpecode() == parser::token_kind_type::T_CONSTVAL) {
         // constant folding
         tTJSExprNode *ret = nullptr;
 
         switch (opecode) {
-        case T_EXCRAMATION:
+        case parser::token_kind_type::T_EXCRAMATION:
             ret = MakeConstValNode(!node1->GetValue());
             break;
-        case T_TILDE:
+        case parser::token_kind_type::T_TILDE:
             ret = MakeConstValNode(~node1->GetValue());
             break;
-        case T_SHARP: {
+        case parser::token_kind_type::T_SHARP: {
             tTJSVariant val(node1->GetValue());
             CharacterCodeOf(val);
             ret = MakeConstValNode(val);
         } break;
-        case T_DOLLAR: {
+        case parser::token_kind_type::T_DOLLAR: {
             tTJSVariant val(node1->GetValue());
             CharacterCodeFrom(val);
             ret = MakeConstValNode(val);
         } break;
-        case T_UPLUS: {
+        case parser::token_kind_type::T_UPLUS: {
             tTJSVariant val(node1->GetValue());
             val.tonumber();
             ret = MakeConstValNode(val);
         } break;
-        case T_UMINUS: {
+        case parser::token_kind_type::T_UMINUS: {
             tTJSVariant val(node1->GetValue());
             val.changesign();
             ret = MakeConstValNode(val);
         } break;
-        case T_INT: {
+        case parser::token_kind_type::T_INT: {
             tTJSVariant val(node1->GetValue());
             val.ToInteger();
             ret = MakeConstValNode(val);
         } break;
-        case T_REAL: {
+        case parser::token_kind_type::T_REAL: {
             tTJSVariant val(node1->GetValue());
             val.ToReal();
             ret = MakeConstValNode(val);
         } break;
-        case T_STRING: {
+        case parser::token_kind_type::T_STRING: {
             tTJSVariant val(node1->GetValue());
             val.ToString();
             ret = MakeConstValNode(val);
         } break;
-        case T_OCTET: {
+        case parser::token_kind_type::T_OCTET: {
             tTJSVariant val(node1->GetValue());
             val.ToOctet();
             ret = MakeConstValNode(val);
@@ -3734,59 +3728,59 @@ tTJSExprNode *tTJSInterCodeContext::MakeNP2(tjs_int opecode,
 #endif
 
 #ifndef TJS_NO_CONSTANT_FOLDING
-    if (node1 && node1->GetOpecode() == T_CONSTVAL && node2 &&
-        node2->GetOpecode() == T_CONSTVAL) {
+    if (node1 && node1->GetOpecode() == parser::token_kind_type::T_CONSTVAL &&
+        node2 && node2->GetOpecode() == parser::token_kind_type::T_CONSTVAL) {
         // constant folding
         switch (opecode) {
-        case T_COMMA:
+        case parser::token_kind_type::T_COMMA:
             return MakeConstValNode(node2->GetValue());
-        case T_LOGICALOR:
+        case parser::token_kind_type::T_LOGICALOR:
             return MakeConstValNode(node1->GetValue() || node2->GetValue());
-        case T_LOGICALAND:
+        case parser::token_kind_type::T_LOGICALAND:
             return MakeConstValNode(node1->GetValue() && node2->GetValue());
-        case T_VERTLINE:
+        case parser::token_kind_type::T_VERTLINE:
             return MakeConstValNode(node1->GetValue() | node2->GetValue());
-        case T_CHEVRON:
+        case parser::token_kind_type::T_CHEVRON:
             return MakeConstValNode(node1->GetValue() ^ node2->GetValue());
-        case T_AMPERSAND:
+        case parser::token_kind_type::T_AMPERSAND:
             return MakeConstValNode(node1->GetValue() & node2->GetValue());
-        case T_NOTEQUAL:
+        case parser::token_kind_type::T_NOTEQUAL:
             return MakeConstValNode(node1->GetValue() != node2->GetValue());
-        case T_EQUALEQUAL:
+        case parser::token_kind_type::T_EQUALEQUAL:
             return MakeConstValNode(node1->GetValue() == node2->GetValue());
-        case T_DISCNOTEQUAL:
+        case parser::token_kind_type::T_DISCNOTEQUAL:
             return MakeConstValNode(
                 !(node1->GetValue().DiscernCompare(node2->GetValue())));
-        case T_DISCEQUAL:
+        case parser::token_kind_type::T_DISCEQUAL:
             return MakeConstValNode(
                 (node1->GetValue().DiscernCompare(node2->GetValue())));
-        case T_LT:
+        case parser::token_kind_type::T_LT:
             return MakeConstValNode(node1->GetValue() < node2->GetValue());
-        case T_GT:
+        case parser::token_kind_type::T_GT:
             return MakeConstValNode(node1->GetValue() > node2->GetValue());
-        case T_LTOREQUAL:
+        case parser::token_kind_type::T_LTOREQUAL:
             return MakeConstValNode(node1->GetValue() <= node2->GetValue());
-        case T_GTOREQUAL:
+        case parser::token_kind_type::T_GTOREQUAL:
             return MakeConstValNode(node1->GetValue() >= node2->GetValue());
-        case T_RARITHSHIFT:
+        case parser::token_kind_type::T_RARITHSHIFT:
             return MakeConstValNode(node1->GetValue() >> node2->GetValue());
-        case T_LARITHSHIFT:
+        case parser::token_kind_type::T_LARITHSHIFT:
             return MakeConstValNode(node1->GetValue() << node2->GetValue());
-        case T_RBITSHIFT:
+        case parser::token_kind_type::T_RBITSHIFT:
             return MakeConstValNode(
                 (node1->GetValue().rbitshift(node2->GetValue())));
-        case T_PLUS:
+        case parser::token_kind_type::T_PLUS:
             return MakeConstValNode(node1->GetValue() + node2->GetValue());
-        case T_MINUS:
+        case parser::token_kind_type::T_MINUS:
             return MakeConstValNode(node1->GetValue() - node2->GetValue());
-        case T_PERCENT:
+        case parser::token_kind_type::T_PERCENT:
             return MakeConstValNode(node1->GetValue() % node2->GetValue());
-        case T_SLASH:
+        case parser::token_kind_type::T_SLASH:
             return MakeConstValNode(node1->GetValue() / node2->GetValue());
-        case T_BACKSLASH:
+        case parser::token_kind_type::T_BACKSLASH:
             return MakeConstValNode(
                 (node1->GetValue().idiv(node2->GetValue())));
-        case T_ASTERISK:
+        case parser::token_kind_type::T_ASTERISK:
             return MakeConstValNode(node1->GetValue() * node2->GetValue());
         default:;
         }

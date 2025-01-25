@@ -26,7 +26,7 @@ remedies are not given here.
 namespace TJS {
 //---------------------------------------------------------------------------
 static time_t TJSParseDateString(const tjs_char *str) {
-    tTJSDateParser parser(str);
+    TJSDate::tTJSDateParser parser(str);
     return (time_t)(parser.GetTime() / 1000);
 }
 

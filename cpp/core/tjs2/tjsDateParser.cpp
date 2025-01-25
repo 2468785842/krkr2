@@ -10,25 +10,24 @@
 //---------------------------------------------------------------------------
 #include "tjsCommHead.h"
 
-#include <time.h>
-
+#include <ctime>
+#include <spdlog/spdlog.h>
 #include "tjsDateParser.h"
-#include "tjs2/parser/tjsdate.tab.hpp"
 
 #include "tjsError.h"
 
-namespace TJS {
+namespace TJSDate {
 //---------------------------------------------------------------------------
 // interface to bison generated parser
 //---------------------------------------------------------------------------
-int dplex(YYSTYPE *yylex, void *pm) {
-    tTJSDateParser *parser = (tTJSDateParser *)pm;
-    int tok = parser->Lex(yylex);
+int yylex(parser::value_type *yylex, tTJSDateParser *ptr) {
+    int tok = ptr->lex(yylex);
     return tok;
 }
-int dpparse(void *YYPARSE_PARAM);
-//---------------------------------------------------------------------------
 
+void parser::error(const std::string &msg) {
+    spdlog::get("tjs2")->critical(msg);
+}
 //---------------------------------------------------------------------------
 // Character component classifications
 //---------------------------------------------------------------------------
@@ -62,8 +61,8 @@ tTJSDateParser::tTJSDateParser(const tjs_char *in) {
 
     YearSet = MonthSet = MDaySet = HourSet = MinSet = SecSet = TimeZoneSet =
         TimeZoneOffsetSet = AMPMSet = false;
-
-    if (dpparse(this))
+    auto bisonDateParser = parser{this};
+    if (bisonDateParser.parse())
         TJS_eTJSError(TJSCannotParseDate);
 
     // currently no omissions is allowed except for Secs
@@ -75,7 +74,7 @@ tTJSDateParser::tTJSDateParser(const tjs_char *in) {
     // convert Timezone/TimezoneOffset to time_t representation
     if (TimeZoneSet) {
         // input timezone is [+/-]hhmm
-        bool sign = TimeZone < 0 ? true : false;
+        bool sign = TimeZone < 0;
         if (sign)
             TimeZone = -TimeZone;
         TimeZone = (int)(TimeZone / 100) * 60 * 60 + (TimeZone % 100) * 60;
@@ -84,7 +83,7 @@ tTJSDateParser::tTJSDateParser(const tjs_char *in) {
     }
     if (TimeZoneOffsetSet) {
         // input timezone is [+/-]hhmm
-        bool sign = TimeZoneOffset < 0 ? true : false;
+        bool sign = TimeZoneOffset < 0;
         if (sign)
             TimeZoneOffset = -TimeZoneOffset;
         TimeZoneOffset =
@@ -134,7 +133,7 @@ tTJSDateParser::~tTJSDateParser() {}
 //---------------------------------------------------------------------------
 tjs_int64 tTJSDateParser::GetTime() { return Time; }
 //---------------------------------------------------------------------------
-int tTJSDateParser::Lex(YYSTYPE *yylex) {
+int tTJSDateParser::lex(parser::value_type *yylex) {
     if (*InputPointer == 0)
         return -1;
 
@@ -153,10 +152,10 @@ int tTJSDateParser::Lex(YYSTYPE *yylex) {
             InputPointer++;
         }
         yylex->val = val;
-        return DP_NUMBER;
+        return parser::token::token_kind_type::DP_NUMBER;
     }
 
-#include "tjsDateWordMap.cc"
+#include "tjsDateWordMap.inc"
 
     int n = (int)*(InputPointer++);
     if (n >= TJS_W('A') && n <= TJS_W('Z'))
@@ -222,4 +221,4 @@ void tTJSDateParser::SetTimeZoneOffset(int v) {
 }
 //---------------------------------------------------------------------------
 
-} // namespace TJS
+} // namespace TJSDate

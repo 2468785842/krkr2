@@ -111,7 +111,7 @@ public:
     tjs_int GetHeight() const { return Rect.get_height(); }
 
     void SetVisible(bool b);
-    bool GetVisible() const { return Visible; }
+    bool GetVisible() const override { return Visible; }
 
     void SetTimePosition(tjs_uint64 p);
     tjs_uint64 GetTimePosition();

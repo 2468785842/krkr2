@@ -8,15 +8,35 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.view.WindowManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.tvp.kirikiri2.KR2Activity
 
+
 class MainActivity : KR2Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.setEnableVirtualButton(false)
         super.onCreate(savedInstanceState)
+
+        // Workaround in https://stackoverflow.com/questions/16283079/re-launch-of-activity-on-home-button-but-only-the-first-time/16447508
+        if (!isTaskRoot) {
+            // Android launched another instance of the root activity into an existing task
+            //  so just quietly finish and go away, dropping the user back into the activity
+            //  at the top of the stack (ie: the last state of this task)
+            // Don't need to finish it again since it's finished in super.onCreate .
+            return
+        }
+
+        // Make sure we're running on Pie or higher to change cutout mode
+        // Enable rendering into the cutout area
+        val lp = window.attributes
+        lp.layoutInDisplayCutoutMode =
+            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        window.attributes = lp
+
         if (!checkStoragePermission()) {
             requestStoragePermission()
         }

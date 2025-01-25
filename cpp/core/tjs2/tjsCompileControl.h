@@ -13,10 +13,12 @@
 #define tjsCompileControlH
 
 #include "tjsString.h"
+#include "tjspp.tab.hpp"
 
-namespace TJS {
+using namespace TJS;
+
+namespace TJSPP {
 //---------------------------------------------------------------------------
-class tTJS;
 
 class tTJSPPExprParser {
 public:
@@ -42,8 +44,7 @@ private:
     const tjs_char *Script;
     const tjs_char *Current;
 };
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
-} // namespace TJS
+int yylex(parser::value_type *yylex, tTJSPPExprParser *ptr);
+} // namespace TJSPP
 
 #endif

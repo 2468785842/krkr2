@@ -49,10 +49,9 @@
 
 #include "tjsCommHead.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "tjsMT19937ar-cok.h"
-#include "TickCount.h"
 
 namespace TJS {
 
@@ -303,8 +302,14 @@ void tTJSMersenneTwister::SetData(const tTJSMersenneTwisterData &rhs) {
 
 tTJSMersenneTwister &tTJSMersenneTwister::sharedInstance() {
     static tTJSMersenneTwister *instance = nullptr;
+
+    tjs_uint32 uptime = 0;
+    timespec on{};
+    if (clock_gettime(CLOCK_MONOTONIC, &on) == 0)
+        uptime = on.tv_sec * 1000 + on.tv_nsec / 1000000;
+
     if (!instance)
-        instance = new tTJSMersenneTwister(TVPGetRoughTickCount32());
+        instance = new tTJSMersenneTwister(uptime);
     return *instance;
 }
 

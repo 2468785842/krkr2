@@ -154,11 +154,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
 # cocos2dx
 find_package(cocos2dx CONFIG REQUIRED)
 
-find_package(Boost COMPONENTS locale REQUIRED)
-find_package(fmt CONFIG REQUIRED)
-find_package(spdlog CONFIG REQUIRED)
-find_package(WebP CONFIG REQUIRED)
-
 # Link libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC
     -Wl,-Bstatic
@@ -197,12 +192,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
 
-    WebP::webp WebP::webpdecoder WebP::webpdemux
-    
     # cocos2d
     cocos2dx::cocos2d
-
-    Boost::locale
-    fmt::fmt-header-only
-    spdlog::spdlog_header_only
 )

@@ -28,7 +28,6 @@
       "platform": "!linux"
     },
     "libvorbis",
-    "libwebp",
     "lz4",
     "oboe",
     "oniguruma",
@@ -42,7 +41,10 @@
         "openmp"
       ]
     },
-    "opus",
+    {
+      "name":"opus",
+      "platform": "android"
+    },
     {
       "name": "opusfile",
       "default-features": false

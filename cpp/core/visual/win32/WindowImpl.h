@@ -229,9 +229,9 @@ class tTJSNI_Window : public tTJSNI_BaseWindow {
 
 public:
     tTJSNI_Window();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
-    void TJS_INTF_METHOD Invalidate();
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
+    void Invalidate();
     bool CloseFlag;
 
 public:
@@ -254,34 +254,31 @@ private:
 
 public:
     //-- draw device
-    virtual void ResetDrawDevice();
+    void ResetDrawDevice() override;
 
     //-- event control
-    virtual void PostInputEvent(const ttstr &name,
-                                iTJSDispatch2 *params); // override
+    virtual void PostInputEvent(const ttstr &name, iTJSDispatch2 *params);
 
     //-- interface to layer manager
-    void TJS_INTF_METHOD NotifySrcResize(); // is called from primary layer
+    void NotifySrcResize() override; // is called from primary layer
 
-    void TJS_INTF_METHOD
-    SetDefaultMouseCursor(); // set window mouse cursor to default
-    void TJS_INTF_METHOD
-    SetMouseCursor(tjs_int cursor); // set window mouse cursor
-    void TJS_INTF_METHOD GetCursorPos(tjs_int &x, tjs_int &y);
-    void TJS_INTF_METHOD SetCursorPos(tjs_int x, tjs_int y);
-    void TJS_INTF_METHOD WindowReleaseCapture();
-    void TJS_INTF_METHOD SetHintText(iTJSDispatch2 *sender, const ttstr &text);
-    void TJS_INTF_METHOD SetAttentionPoint(tTJSNI_BaseLayer *layer, tjs_int l,
-                                           tjs_int t);
-    void TJS_INTF_METHOD DisableAttentionPoint();
-    void TJS_INTF_METHOD SetImeMode(tTVPImeMode mode);
+    void SetDefaultMouseCursor() override; // set window mouse cursor to default
+    void SetMouseCursor(tjs_int cursor) override; // set window mouse cursor
+    void GetCursorPos(tjs_int &x, tjs_int &y) override;
+    void SetCursorPos(tjs_int x, tjs_int y) override;
+    void WindowReleaseCapture() override;
+    void SetHintText(iTJSDispatch2 *sender, const ttstr &text) override;
+    void SetAttentionPoint(tTJSNI_BaseLayer *layer, tjs_int l,
+                           tjs_int t) override;
+    void DisableAttentionPoint() override;
+    void SetImeMode(tTVPImeMode mode) override;
     void SetDefaultImeMode(tTVPImeMode mode);
-    tTVPImeMode GetDefaultImeMode() const;
-    void TJS_INTF_METHOD ResetImeMode();
+    tTVPImeMode GetDefaultImeMode() const override;
+    void ResetImeMode() override;
 
     //-- update managment
-    void BeginUpdate(const tTVPComplexRect &rects);
-    void EndUpdate();
+    void BeginUpdate(const tTVPComplexRect &rects) override;
+    void EndUpdate() override;
 
     //-- interface to VideoOverlay object
 public:
@@ -430,53 +427,42 @@ public:
     bool WaitForVBlank(tjs_int *in_vblank, tjs_int *delayed);
 
     void OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
-                   tjs_uint32 id);
+                   tjs_uint32 id) override;
 
 public: // for iTVPLayerTreeOwner
-    // LayerManager -> LTO
-    /*
-    implements on tTJSNI_BaseWindow
-    virtual void TJS_INTF_METHOD RegisterLayerManager( class iTVPLayerManager*
-    manager ); virtual void TJS_INTF_METHOD UnregisterLayerManager( class
-    iTVPLayerManager* manager );
-    */
+        // LayerManager -> LTO
+        /*
+        implements on tTJSNI_BaseWindow
+        virtual void RegisterLayerManager( iTVPLayerManager*
+        manager ); virtual void UnregisterLayerManager( class
+        iTVPLayerManager* manager );
+        */
 
-    virtual void TJS_INTF_METHOD
-    StartBitmapCompletion(iTVPLayerManager *manager);
-    virtual void TJS_INTF_METHOD
-    NotifyBitmapCompleted(class iTVPLayerManager *manager, tjs_int x, tjs_int y,
-                          tTVPBaseTexture *bmp, const tTVPRect &cliprect,
-                          tTVPLayerType type, tjs_int opacity);
-    virtual void TJS_INTF_METHOD EndBitmapCompletion(iTVPLayerManager *manager);
+    void StartBitmapCompletion(iTVPLayerManager *manager) override;
+    void NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y,
+                               tTVPBaseTexture *bmp, const tTVPRect &cliprect,
+                               tTVPLayerType type, tjs_int opacity) override;
+    void EndBitmapCompletion(iTVPLayerManager *manager) override;
 
-    virtual void TJS_INTF_METHOD SetMouseCursor(class iTVPLayerManager *manager,
-                                                tjs_int cursor);
-    virtual void TJS_INTF_METHOD GetCursorPos(class iTVPLayerManager *manager,
-                                              tjs_int &x, tjs_int &y);
-    virtual void TJS_INTF_METHOD SetCursorPos(class iTVPLayerManager *manager,
-                                              tjs_int x, tjs_int y);
-    virtual void TJS_INTF_METHOD
-    ReleaseMouseCapture(class iTVPLayerManager *manager);
+    void SetMouseCursor(iTVPLayerManager *manager, tjs_int cursor) override;
+    void GetCursorPos(iTVPLayerManager *manager, tjs_int &x,
+                      tjs_int &y) override;
+    void SetCursorPos(iTVPLayerManager *manager, tjs_int x, tjs_int y) override;
+    void ReleaseMouseCapture(iTVPLayerManager *manager) override;
 
-    virtual void TJS_INTF_METHOD SetHint(class iTVPLayerManager *manager,
-                                         iTJSDispatch2 *sender,
-                                         const ttstr &hint);
+    void SetHint(iTVPLayerManager *manager, iTJSDispatch2 *sender,
+                 const ttstr &hint) override;
 
-    virtual void TJS_INTF_METHOD
-    NotifyLayerResize(class iTVPLayerManager *manager);
-    virtual void TJS_INTF_METHOD
-    NotifyLayerImageChange(class iTVPLayerManager *manager);
+    void NotifyLayerResize(iTVPLayerManager *manager) override;
+    void NotifyLayerImageChange(iTVPLayerManager *manager) override;
 
-    virtual void TJS_INTF_METHOD
-    SetAttentionPoint(class iTVPLayerManager *manager, tTJSNI_BaseLayer *layer,
-                      tjs_int x, tjs_int y);
-    virtual void TJS_INTF_METHOD
-    DisableAttentionPoint(class iTVPLayerManager *manager);
+    void SetAttentionPoint(iTVPLayerManager *manager, tTJSNI_BaseLayer *layer,
+                           tjs_int x, tjs_int y) override;
+    void DisableAttentionPoint(iTVPLayerManager *manager) override;
 
-    virtual void TJS_INTF_METHOD
-    SetImeMode(class iTVPLayerManager *manager,
-               tjs_int mode); // mode == tTVPImeMode
-    virtual void TJS_INTF_METHOD ResetImeMode(class iTVPLayerManager *manager);
+    void SetImeMode(iTVPLayerManager *manager,
+                    tjs_int mode) override; // mode == tTVPImeMode
+    void ResetImeMode(iTVPLayerManager *manager) override;
 
 protected:
 };

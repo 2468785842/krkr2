@@ -19,14 +19,18 @@
 #include "tjsNamespace.h"
 #include "tjsError.h"
 #include "tjsObject.h"
+#include "tjs.tab.hpp"
 
 #ifdef ENABLE_DEBUGGER
 #include "tjsDebug.h"
 #endif // ENABLE_DEBUGGER
 
 namespace TJS {
-//---------------------------------------------------------------------------
-//
+class tTJSScriptBlock;
+
+int yylex(parser::value_type *yylex, tTJSScriptBlock *ptr);
+int _yyerror(const tjs_char *msg, tTJSScriptBlock *pm, tjs_int pos = -1);
+
 #define TJS_TO_VM_CODE_ADDR(x) ((x) * (tjs_int)sizeof(tjs_uint32))
 #define TJS_TO_VM_REG_ADDR(x) ((x) * (tjs_int)sizeof(tTJSVariant))
 #define TJS_FROM_VM_CODE_ADDR(x) ((tjs_int)(x) / (tjs_int)sizeof(tjs_uint32))
@@ -35,10 +39,6 @@ namespace TJS {
 #define TJS_GET_VM_REG_ADDR(base, x)                                           \
     ((tTJSVariant *)((char *)(base) + (tjs_int)(x)))
 #define TJS_GET_VM_REG(base, x) (*(TJS_GET_VM_REG_ADDR(base, x)))
-
-//---------------------------------------------------------------------------
-extern int _yyerror(const tjs_char *msg, void *pm, tjs_int pos = -1);
-//---------------------------------------------------------------------------
 #define TJS_NORMAL_AND_PROPERTY_ACCESSER(x) x, x##PD, x##PI, x##P
 
 enum tTJSVMCodes {

@@ -2042,7 +2042,7 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
     if (glyphIndex == 0) {
         // 不支持此字符
         spdlog::get("plugin")->error(
-            "Wrong doesn't find Unicode >> {} << from FontFamilyName: {}",
+            "not find Unicode >> {} << in FontFamily: {}",
             ttstr{(tjs_char)charcode}.AsNarrowStdString(),
             fontInfo->familyName.AsNarrowStdString());
     }

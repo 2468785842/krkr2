@@ -11,10 +11,9 @@
 #ifndef tjsDateParserH
 #define tjsDateParserH
 
-#include "tjsTypes.h"
-#include "tjs2/parser/tjsdate.tab.hpp"
+#include "tjsdate.tab.hpp"
 
-namespace TJS {
+namespace TJSDate {
 
 //---------------------------------------------------------------------------
 // tTJSDateParser : A date/time parser class
@@ -52,19 +51,12 @@ class tTJSDateParser {
 
     tjs_int64 Time; // time from 1970-01-01 00:00:00.00 GMT
 
-    friend int dplex(YYSTYPE *yylex, void *pm);
-
-    friend int dpparse(void *YYPARSE_PARAM);
-
 public:
     tTJSDateParser(const tjs_char *in);
 
     ~tTJSDateParser();
 
     tjs_int64 GetTime();
-
-private:
-    int Lex(YYSTYPE *yylex);
 
     void SkipToRightParenthesis();
 
@@ -85,8 +77,10 @@ private:
     void SetTimeZone(int v);
 
     void SetTimeZoneOffset(int v);
-};
 
+    int lex(parser::value_type *yylex);
+};
+int yylex(parser::value_type *yylex, tTJSDateParser *ptr);
 //---------------------------------------------------------------------------
-} // namespace TJS
+} // namespace TJSDate
 #endif

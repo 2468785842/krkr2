@@ -28,33 +28,22 @@ __DumpCallback(const google_breakpad::MinidumpDescriptor &descriptor,
 extern bool TVPSystemUninitCalled;
 
 static bool __DumpFilter(void *data) {
-    if (TVPSystemUninitCalled)
-        return false; // if trying exit system, ignore all exception
-    return true;
+    // if trying exit system, ignore all exception
+    return !TVPSystemUninitCalled;
 }
 
-// static void __InitAndroidDump() {
-//     static google_breakpad::MinidumpDescriptor
-//     descriptor(Android_GetDumpStoragePath());
-//	static google_breakpad::ExceptionHandler eh(descriptor, __DumpFilter,
-//__DumpCallback, 		nullptr, true, -1);
-// }
-
 void cocos_android_app_init(JNIEnv *env) { // for cocos3.10+
-                                           //	__InitAndroidDump();
-    // 定义日志输出目标
-    std::vector<spdlog::sink_ptr> sinks;
 
-    sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>("core"));
-    sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>("plugin"));
+    spdlog::set_pattern("%v");
+    spdlog::set_level(spdlog::level::debug);
 
-    // 创建多目标日志器
-    auto logger = std::make_shared<spdlog::logger>("KrKr2Native", sinks.begin(),
-                                                   sinks.end());
-    logger->set_pattern("[%Y-%m-%d %H:%M:%S] [%^%l%$] %v");
-    logger->set_level(spdlog::level::info);
+    static auto core_logger =
+        spdlog::android_logger_mt("core", "KrKr2NativeCore");
+    static auto tjs2_logger =
+        spdlog::android_logger_mt("tjs2", "KrKr2NativeTjs2");
+    static auto plugin_logger =
+        spdlog::android_logger_mt("plugin", "KrKr2NativePlugin");
 
-    spdlog::set_default_logger(logger);
     static auto *pAppDelegate = new TVPAppDelegate();
 }
 

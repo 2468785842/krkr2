@@ -381,11 +381,13 @@ void TVPAddLog(const ttstr &line, bool appendtoimportant) {
         TVPLogDeque->erase(i, i + 100);
     }
 
-    tjs_int timebuflen = (tjs_int)TJS_strlen(timebuf);
-    ttstr buf((tTJSStringBufferLength)(timebuflen + 1 + line.GetLen()));
+    // FIXME: need fix get timebuf
+    // FIXME: remove prefix `2` log message: 2 xxxx
+//    tjs_int timebuflen = (tjs_int)TJS_strlen(timebuf);
+    ttstr buf((tTJSStringBufferLength)(/*timebuflen + 1 +*/ line.GetLen()));
     tjs_char *p = buf.Independ();
-    TJS_strcpy(p, timebuf);
-    p += timebuflen;
+//    TJS_strcpy(p, timebuf);
+//    p += timebuflen;
     *p = TJS_W(' ');
     p++;
     TJS_strcpy(p, line.c_str());

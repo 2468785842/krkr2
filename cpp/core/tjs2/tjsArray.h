@@ -13,6 +13,7 @@
 #define tjsArrayH
 
 #include <deque>
+#include "tjs.h"
 #include "tjsNative.h"
 
 // note: this TJS class cannot be inherited

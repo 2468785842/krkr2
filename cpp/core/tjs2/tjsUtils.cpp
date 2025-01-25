@@ -13,8 +13,6 @@
 #include "tjsUtils.h"
 #include <mutex>
 #include <thread>
-#include "TickCount.h"
-#include "Platform.h"
 
 namespace TJS {
 

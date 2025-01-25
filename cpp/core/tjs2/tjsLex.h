@@ -26,13 +26,13 @@ extern bool tjsEnableDicFuncQuickHack;
 
 namespace TJS {
 //---------------------------------------------------------------------------
-extern tjs_int TJSHexNum(tjs_char ch) throw();
+extern tjs_int TJSHexNum(tjs_char ch) noexcept;
 
-extern tjs_int TJSOctNum(tjs_char ch) throw();
+extern tjs_int TJSOctNum(tjs_char ch) noexcept;
 
-extern tjs_int TJSDecNum(tjs_char ch) throw();
+extern tjs_int TJSDecNum(tjs_char ch) noexcept;
 
-extern tjs_int TJSBinNum(tjs_char ch) throw();
+extern tjs_int TJSBinNum(tjs_char ch) noexcept;
 
 bool TJSParseString(tTJSVariant &val, const tjs_char **ptr);
 
