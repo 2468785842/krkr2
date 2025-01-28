@@ -5,6 +5,8 @@
 
 #ifndef KRKR2_GDIP_CXX_H
 #define KRKR2_GDIP_CXX_H
+#include <cassert>
+
 extern "C" {
 #include <gdiplus-private.h>
 #include <gdipenums.h>
@@ -104,6 +106,25 @@ public:
     }
 
     static bool Union(RectFClass &c, const RectFClass &a, const RectFClass &b) {
+        if (a.IsEmptyArea() && b.IsEmptyArea()) {
+            // 如果两个矩形都为空，结果也为空
+            c = RectFClass{};
+            return false;
+        }
+
+        if (a.IsEmptyArea()) {
+            // 如果 a 为空，结果是 b
+            c = b;
+            return true;
+        }
+
+        if (b.IsEmptyArea()) {
+            // 如果 b 为空，结果是 a
+            c = a;
+            return true;
+        }
+
+        // 正常计算并集
         float minX = min(a.X, b.X);
         float minY = min(a.Y, b.Y);
         float maxX = max(a.GetRight(), b.GetRight());
@@ -113,7 +134,7 @@ public:
         float height = maxY - minY;
 
         c = RectFClass{minX, minY, width, height};
-        return !(a.IsEmptyArea() && b.IsEmptyArea());
+        return true;
     }
 
     void GetLocation(PointF *point) const { *point = PointF{this->X, this->Y}; }
@@ -353,15 +374,19 @@ private:
 
 class PrivateFontCollection {
 public:
-    PrivateFontCollection() = default;
+    PrivateFontCollection() { GdipNewPrivateFontCollection(&_gpFC); };
 
     void AddFontFile(const WCHAR *filename) {
-        GdipPrivateAddFontFile(this->_gpFC, filename);
+        this->status = GdipPrivateAddFontFile(this->_gpFC, filename);
+        assert(this->status == Ok && "add font file failed!");
     }
 
-    void AddMemoryFont(const void *memory, int length) {
-        GdipPrivateAddMemoryFont(this->_gpFC, memory, length);
-    }
+    // android mkstemp无法正常使用
+    //    void AddMemoryFont(const void *memory, size_t length) {
+    //        this->status = GdipPrivateAddMemoryFont(this->_gpFC, memory,
+    //        static_cast<int>(length)); g_assert(status == Ok && "add memory
+    //        font failed");
+    //    }
 
     [[nodiscard]] GpFontCollection *getFontCollection() { return this->_gpFC; }
 
@@ -369,6 +394,7 @@ public:
 
 private:
     GpFontCollection *_gpFC{nullptr};
+    GpStatus status;
 };
 
 typedef enum {

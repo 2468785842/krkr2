@@ -44,6 +44,7 @@ void cocos_android_app_init(JNIEnv *env) { // for cocos3.10+
     static auto plugin_logger =
         spdlog::android_logger_mt("plugin", "KrKr2NativePlugin");
 
+    spdlog::set_default_logger(core_logger);
     static auto *pAppDelegate = new TVPAppDelegate();
 }
 

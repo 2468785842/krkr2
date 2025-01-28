@@ -431,12 +431,12 @@ public:
 
 public: // for iTVPLayerTreeOwner
         // LayerManager -> LTO
-        /*
-        implements on tTJSNI_BaseWindow
-        virtual void RegisterLayerManager( iTVPLayerManager*
-        manager ); virtual void UnregisterLayerManager( class
-        iTVPLayerManager* manager );
-        */
+    /*
+    implements on tTJSNI_BaseWindow
+    virtual void RegisterLayerManager( iTVPLayerManager*
+    manager ); virtual void UnregisterLayerManager( class
+    iTVPLayerManager* manager );
+    */
 
     void StartBitmapCompletion(iTVPLayerManager *manager) override;
     void NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y,

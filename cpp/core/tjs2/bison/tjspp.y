@@ -21,7 +21,6 @@
 }
 
 %code requires {
-#include "tjsTypes.h"
 
 namespace TJSPP {
     class tTJSPPExprParser;

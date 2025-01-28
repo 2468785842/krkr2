@@ -183,7 +183,6 @@ tTJSVariantString *TJSObjectToString(const tTJSVariantClosure &dsp) {
     if (TJSObjectTypeInfoEnabled()) {
         // retrieve object type information from debugging facility
         ttstr ret{fmt::format("(object {}", static_cast<void *>(dsp.Object))};
-        ;
         ttstr type = TJSGetObjectTypeInfo(dsp.Object);
         if (!type.IsEmpty())
             ret += TJS_W("[") + type + TJS_W("]");

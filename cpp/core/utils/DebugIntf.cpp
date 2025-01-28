@@ -12,7 +12,7 @@
 
 #include <deque>
 #include <algorithm>
-#include <time.h>
+#include <ctime>
 #include "DebugIntf.h"
 #include "MsgIntf.h"
 #include "StorageIntf.h"
@@ -128,25 +128,22 @@ static void _TVPDeliverLoggingEvent(const ttstr &line) // internal
                 bool emptyflag = false;
                 tTJSVariant vline(line);
                 tTJSVariant *pvline[] = {&vline};
-                for (tjs_uint i = 0; i < TVPLoggingHandlerVector.size(); i++) {
-                    if (TVPLoggingHandlerVector[i].Object) {
+                for (auto &i : TVPLoggingHandlerVector) {
+                    if (i.Object) {
                         tjs_error er;
                         try {
-                            er = TVPLoggingHandlerVector[i].FuncCall(
-                                0, nullptr, nullptr, nullptr, 1, pvline,
-                                nullptr);
+                            er = i.FuncCall(0, nullptr, nullptr, nullptr, 1,
+                                            pvline, nullptr);
                         } catch (...) {
                             // failed
-                            TVPLoggingHandlerVector[i].Release();
-                            TVPLoggingHandlerVector[i].Object =
-                                TVPLoggingHandlerVector[i].ObjThis = nullptr;
+                            i.Release();
+                            i.Object = i.ObjThis = nullptr;
                             throw;
                         }
                         if (TJS_FAILED(er)) {
                             // failed
-                            TVPLoggingHandlerVector[i].Release();
-                            TVPLoggingHandlerVector[i].Object =
-                                TVPLoggingHandlerVector[i].ObjThis = nullptr;
+                            i.Release();
+                            i.Object = i.ObjThis = nullptr;
                             emptyflag = true;
                         }
                     } else {
@@ -160,7 +157,7 @@ static void _TVPDeliverLoggingEvent(const ttstr &line) // internal
                 }
             }
 
-            if (!TVPLoggingHandlerVector.size()) {
+            if (TVPLoggingHandlerVector.empty()) {
                 TVPSetOnLog(nullptr);
             }
         } catch (...) {
@@ -195,7 +192,7 @@ static void TVPRemoveLoggingHandler(tTJSVariantClosure clo) {
 
     if (!TVPInDeliverLoggingEvent) {
         TVPCleanupLoggingHandlerVector();
-        if (!TVPLoggingHandlerVector.size()) {
+        if (TVPLoggingHandlerVector.empty()) {
             TVPSetOnLog(nullptr);
         }
     }
@@ -383,11 +380,11 @@ void TVPAddLog(const ttstr &line, bool appendtoimportant) {
 
     // FIXME: need fix get timebuf
     // FIXME: remove prefix `2` log message: 2 xxxx
-//    tjs_int timebuflen = (tjs_int)TJS_strlen(timebuf);
+    //    tjs_int timebuflen = (tjs_int)TJS_strlen(timebuf);
     ttstr buf((tTJSStringBufferLength)(/*timebuflen + 1 +*/ line.GetLen()));
     tjs_char *p = buf.Independ();
-//    TJS_strcpy(p, timebuf);
-//    p += timebuflen;
+    //    TJS_strcpy(p, timebuf);
+    //    p += timebuflen;
     *p = TJS_W(' ');
     p++;
     TJS_strcpy(p, line.c_str());
@@ -409,7 +406,7 @@ void TVPAddImportantLog(const ttstr &line) { TVPAddLog(line, true); }
 //---------------------------------------------------------------------------
 ttstr TVPGetImportantLog() {
     if (!TVPImportantLogs)
-        return ttstr();
+        return {};
     return *TVPImportantLogs;
 }
 //---------------------------------------------------------------------------
@@ -428,8 +425,8 @@ ttstr TVPGetLastLog(tjs_uint n) {
     if (n > size)
         n = size;
     if (n == 0)
-        return ttstr();
-    std::deque<tTVPLogItem>::iterator i = TVPLogDeque->end();
+        return {};
+    auto i = TVPLogDeque->end();
     i -= n;
     tjs_uint c;
     for (c = 0; c < n; c++, i++) {
@@ -740,9 +737,9 @@ TJS_END_NATIVE_MEMBERS
 // TJS2 Console Output Gateway
 //---------------------------------------------------------------------------
 class tTVPTJS2ConsoleOutputGateway : public iTJSConsoleOutput {
-    void ExceptionPrint(const tjs_char *msg) { TVPAddLog(msg); }
+    void ExceptionPrint(const tjs_char *msg) override { TVPAddLog(msg); }
 
-    void Print(const tjs_char *msg) { TVPAddLog(msg); }
+    void Print(const tjs_char *msg) override { TVPAddLog(msg); }
 } static TVPTJS2ConsoleOutputGateway;
 //---------------------------------------------------------------------------
 
@@ -753,9 +750,9 @@ static ttstr TVPDumpOutFileName;
 static FILE *TVPDumpOutFile = nullptr; // use traditional output routine
 //---------------------------------------------------------------------------
 class tTVPTJS2DumpOutputGateway : public iTJSConsoleOutput {
-    void ExceptionPrint(const tjs_char *msg) { Print(msg); }
+    void ExceptionPrint(const tjs_char *msg) override { Print(msg); }
 
-    void Print(const tjs_char *msg) {
+    void Print(const tjs_char *msg) override {
         if (TVPDumpOutFile) {
             fwrite(msg, 1, TJS_strlen(msg) * sizeof(tjs_char), TVPDumpOutFile);
 #ifdef TJS_TEXT_OUT_CRLF

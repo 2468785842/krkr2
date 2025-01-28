@@ -42,7 +42,7 @@ class FontInfo {
     friend class DrawPath;
 
 protected:
-    GpFontFamily *fontFamily; //< フォントファミリー
+    //    GpFontFamily *fontFamily{}; //< フォントファミリー
     FT_Face ftFace{};
     ttstr familyName{};
     UINT emSize{12};               //< フォントサイズ
@@ -303,7 +303,7 @@ public:
 protected:
     /// 描画内容記録用メタファイル
     GpMetafile *metafile;
-    GpGraphics *metaGraphics;
+    //    GpGraphics *metaGraphics;
 
     bool updateWhenDraw;
 

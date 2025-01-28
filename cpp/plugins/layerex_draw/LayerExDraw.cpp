@@ -1,9 +1,13 @@
 #include <spdlog/spdlog.h>
+#include <cocos2d.h>
+#include <filesystem>
 
+#include "common/Defer.h"
 #include "ncbind.hpp"
 #include "LayerExDraw.hpp"
 
-static const auto G_FamilyName = TJS_W("DroidSansFallback");
+static u_char *G_FontFamilyData{};
+static ssize_t G_FontFamilyDataSize{};
 
 static FT_Library ftLibrary;
 
@@ -12,28 +16,94 @@ static GdiplusStartupInput gdiplusStartupInput;
 static ULONG_PTR gdiplusToken;
 
 /// プライベートフォント情報
-static PrivateFontCollection *privateFontCollection = nullptr;
-static std::vector<char *> fontDatas;
+// static PrivateFontCollection *privateFontCollection;
 
 // GDI+ 初期化
 void initGdiPlus() {
     // Initialize GDI+.
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
     FT_Init_FreeType(&ftLibrary);
+    // FIXME: 加载系统字体到gdiplus, 目前无法正常绘制字符,
+    // 需要更新libgdiplus到6.x.x!!
+    //    privateFontCollection = new PrivateFontCollection; // 目前无用!
+    //    auto font_collection = privateFontCollection->getFontCollection();
+    //    FcObjectSet *os = FcObjectSetBuild(FC_FAMILY, FC_FOUNDRY, FC_FILE,
+    //    NULL); FcPattern *pat = FcPatternCreate();
+    //
+    //    FcConfigAppFontAddDir(font_collection->config,
+    //                          reinterpret_cast<const FcChar8
+    //                          *>("/system/fonts"));
+    //
+    //    FcFontSet *col = FcFontList(font_collection->config, pat, os);
+    //
+    //    if (font_collection->fontset)
+    //        FcFontSetDestroy(font_collection->fontset);
+    //
+    //    FcPatternDestroy(pat);
+    //    FcObjectSetDestroy(os);
+    //
+    //    font_collection->fontset = col;
 }
 
 // GDI+ 終了
 void deInitGdiPlus() {
-    // フォントデータの解放
-    delete privateFontCollection;
-    auto i = fontDatas.begin();
-    while (i != fontDatas.end()) {
-        delete[] * i;
-        i++;
-    }
-    fontDatas.clear();
+    //    delete privateFontCollection;
+    free(G_FontFamilyData);
     GdiplusShutdown(gdiplusToken);
     FT_Done_FreeType(ftLibrary);
+}
+
+/**
+ * 查找给定的字体， 返回最接近的匹配字体
+ * @param familyName 字体名称
+ * @return 返回<字体文件路径，字体名称>
+ */
+std::pair<std::filesystem::path, std::string>
+findFontPath(const std::string &familyName) {
+
+    FcConfig *fcConfig = FcInitLoadConfig();
+
+    FcPattern *pattern{};
+    FcPattern *font{};
+
+    DEFER {
+        FcConfigDestroy(fcConfig);
+        FcPatternDestroy(font);
+        FcPatternDestroy(pattern);
+    };
+
+    FcConfigAppFontAddDir(fcConfig,
+                          reinterpret_cast<const FcChar8 *>("/system/fonts"));
+
+    pattern = FcPatternCreate();
+
+    FcPatternAddString(pattern, FC_FAMILY,
+                       reinterpret_cast<const u_char *>(familyName.c_str()));
+    FcConfigSubstitute(fcConfig, pattern, FcMatchPattern);
+    FcDefaultSubstitute(pattern);
+
+    FcResult result;
+    font = FcFontMatch(fcConfig, pattern, &result);
+
+    if (!font) {
+        spdlog::get("plugin")->error("family font not found: {} ", familyName);
+        return {};
+    }
+
+    // 获取字体文件路径
+    FcChar8 *filePath = nullptr;
+    if (FcPatternGetString(font, FC_FILE, 0, &filePath) != FcResultMatch) {
+        spdlog::get("plugin")->error("Failed to get font file path.");
+        return {};
+    }
+
+    FcChar8 *fontFamily = nullptr;
+    FcPatternGetString(font, FC_FAMILY, 0, &fontFamily);
+    spdlog::get("plugin")->info("match font family is {}",
+                                reinterpret_cast<char *>(fontFamily));
+
+    return {reinterpret_cast<char *>(filePath),
+            reinterpret_cast<char *>(fontFamily)};
 }
 
 /**
@@ -112,38 +182,12 @@ RectFClass *getBounds(ImageClass *image) {
  * @param fontFileName フォントファイル名
  */
 void GdiPlus::addPrivateFont(const tjs_char *fontFileName) {
-    if (!privateFontCollection) {
-        privateFontCollection = new PrivateFontCollection();
-    }
-    ttstr filename = TVPGetPlacedPath(fontFileName);
-    if (filename.length()) {
-        ttstr localname(TVPGetLocallyAccessibleName(filename));
-        if (localname.length()) {
-            // 実ファイルが存在
-            const auto *n = reinterpret_cast<const WCHAR *>(localname.c_str());
-            privateFontCollection->AddFontFile(n);
-            return;
-        } else {
-            // メモリにロードして展開
-            IStream *in = TVPCreateIStream(filename, TJS_BS_READ);
-            if (in) {
-                STATSTG stat;
-                in->Stat(&stat, STATFLAG_NONAME);
-                // サイズあふれ無視注意
-                auto size = (ULONG)stat.cbSize.QuadPart;
-                char *data = new char[size];
-                if (in->Read(data, size, &size) == TJS_S_OK) {
-                    privateFontCollection->AddMemoryFont(data, size);
-                    fontDatas.push_back(data);
-                } else {
-                    delete[] data;
-                }
-                in->Release();
-                return;
-            }
-        }
-    }
-    TVPThrowExceptionMessage(TJS_W("cannot open:%1"), fontFileName);
+    spdlog::get("plugin")->info("tjs2 script want load: {}",
+                                ttstr{fontFileName}.AsNarrowStdString());
+    // HOOK Font File
+
+    //    addFontFile("NotoSansCJK"); // 中日韩字体
+    //    addFontFile("Roboto"); // 英文字体
 }
 
 /**
@@ -164,7 +208,8 @@ static void addFontFamilyName(iTJSDispatch2 *array,
         if (status == Ok) {
             tTJSVariant name(reinterpret_cast<tjs_char *>(familyName)),
                 *param = &name;
-            array->FuncCall(0, TJS_W("add"), nullptr, 0, 1, &param, array);
+            array->FuncCall(0, TJS_W("add"), nullptr, nullptr, 1, &param,
+                            array);
         }
     }
     delete[] families;
@@ -176,9 +221,7 @@ static void addFontFamilyName(iTJSDispatch2 *array,
  */
 tTJSVariant GdiPlus::getFontList(bool privateOnly) {
     iTJSDispatch2 *array = TJSCreateArrayObject();
-    if (privateFontCollection) {
-        addFontFamilyName(array, privateFontCollection->getFontCollection());
-    }
+    //    addFontFamilyName(array, privateFontCollection->getFontCollection());
     if (!privateOnly) {
         GpFontCollection installedFontCollection;
         addFontFamilyName(array, &installedFontCollection);
@@ -188,82 +231,27 @@ tTJSVariant GdiPlus::getFontList(bool privateOnly) {
     return ret;
 }
 
-// --------------------------------------------------------
-// フォント情報
-// --------------------------------------------------------
+bool loadFontFromAssets(FT_Library library, FT_Face *face) {
 
-/**
- * 使用 Fontconfig 查找字体并加载到 FreeType
- *
- * @param library  已初始化的 FreeType 库上下文
- * @param fontName 要查找的字体名称（如 "Arial"）
- * @param face     返回加载的字体对象
- * @return 是否成功，0 表示成功，非 0 表示失败
- */
-int LoadFontByName(FT_Library library, const std::string &fontName,
-                   FT_Face *face) {
-    // 初始化 Fontconfig
-    if (!FcInit()) {
-        spdlog::get("plugin")->error("Failed to initialize Fontconfig.");
-    }
+    if (!G_FontFamilyData) {
+        const auto fileUtilsInst = cocos2d::FileUtils::getInstance();
+        G_FontFamilyData = fileUtilsInst->getFileData(
+            "DroidSansFallback.ttf", "r", &G_FontFamilyDataSize);
 
-    // 创建 Fontconfig 模式对象
-    FcPattern *pattern =
-        FcNameParse(reinterpret_cast<const FcChar8 *>(fontName.c_str()));
-    if (!pattern) {
-        spdlog::get("plugin")->error("Failed to parse font name: {}", fontName);
-    }
-
-    // 完成模式对象
-    FcConfigSubstitute(nullptr, pattern, FcMatchPattern);
-    FcDefaultSubstitute(pattern);
-    FcConfigAppFontAddDir(nullptr, (FcChar8 *)"/system/fonts");
-    // 执行匹配
-    FcResult result;
-    FcPattern *font = FcFontMatch(nullptr, pattern, &result);
-    if (!font) {
-        spdlog::get("plugin")->error(
-            "Font not found: {} fallback to default font.", fontName);
-
-        // 尝试使用系统默认字体
-        FcPatternDestroy(pattern);
-        FcPattern *defaultPattern = FcPatternCreate();
-        if (!defaultPattern) {
-            spdlog::get("plugin")->error(
-                "Failed to create default font pattern.");
-            return -1;
-        }
-
-        font = FcFontMatch(nullptr, defaultPattern, &result);
-        FcPatternDestroy(defaultPattern);
-
-        if (!font) {
-            spdlog::get("plugin")->error("Failed to find system default font.");
-            return -1;
+        if (!G_FontFamilyData || G_FontFamilyDataSize == 0) {
+            spdlog::get("plugin")->error("load font file failed!");
         }
     }
 
-    // 获取字体文件路径
-    FcChar8 *filePath = nullptr;
-    if (FcPatternGetString(font, FC_FILE, 0, &filePath) != FcResultMatch) {
-        spdlog::get("plugin")->error("Failed to get font file path.");
+    FT_Error code = FT_New_Memory_Face(library, G_FontFamilyData,
+                                       G_FontFamilyDataSize, 0, face);
 
-        FcPatternDestroy(font);
-        FcPatternDestroy(pattern);
-        return -1;
+    if (code != 0) {
+        spdlog::get("plugin")->error("create FT_Face failed");
+        return false;
     }
 
-    // 加载字体到 FreeType
-    if (FT_New_Face(library, reinterpret_cast<const char *>(filePath), 0,
-                    face) != 0) {
-        return -1;
-    }
-
-    // 清理 Fontconfig 资源
-    FcPatternDestroy(font);
-    FcPatternDestroy(pattern);
-
-    return 0; // 成功
+    return true;
 }
 
 /**
@@ -272,8 +260,8 @@ int LoadFontByName(FT_Library library, const std::string &fontName,
  * @param emSize フォントのサイズ
  * @param style フォントスタイル
  */
-FontInfo::FontInfo(const tjs_char *, REAL emSize, INT style) {
-    setFamilyName(G_FamilyName);
+FontInfo::FontInfo(const tjs_char *fName, REAL emSize, INT style) {
+    setFamilyName(fName);
     setEmSize(emSize);
     setStyle(style);
 }
@@ -282,27 +270,22 @@ FontInfo::FontInfo(const tjs_char *, REAL emSize, INT style) {
  * コピーコンストラクタ
  */
 FontInfo::FontInfo(const FontInfo &orig) {
-    fontFamily = nullptr;
-    if (orig.fontFamily) {
-        GdipCloneFontFamily(orig.fontFamily, &fontFamily);
-    }
+    //    this->fontFamily = nullptr;
+    //    if (orig.fontFamily) {
+    //        GdipCloneFontFamily(orig.fontFamily, &this->fontFamily);
+    //    }
     this->emSize = orig.emSize;
     this->style = orig.style;
-    this->ftFace = orig.ftFace;
 
-    std::string path = tTJSString{familyName}.AsNarrowStdString();
+    if (!orig.ftFace)
+        return;
+
     const FT_Open_Args args{.flags = FT_OPEN_PATHNAME,
-                            .pathname = new char[path.length() + 1]};
+                            .pathname = ftFace->family_name};
 
-    std::memcpy(args.pathname, path.c_str(), path.length() + 1);
-    FT_Open_Face(ftLibrary, &args,
-                 (style & 2U) << 7 | (style & 1U) << 9 |
-                     ((uint)style >> 2 & 1) << 10 |
-                     ((uint)style >> 3 & 1) << 0xb,
-                 &this->ftFace);
+    FT_Open_Face(ftLibrary, &args, 0, &this->ftFace);
 
-    FT_Set_Char_Size(this->ftFace, 0, emSize * 64, 0x48, 0x48);
-    delete[] args.pathname;
+    FT_Set_Char_Size(this->ftFace, 0, emSize * 64, 72, 72);
 }
 
 /**
@@ -314,10 +297,10 @@ FontInfo::~FontInfo() { clear(); }
  * フォント情報のクリア
  */
 void FontInfo::clear() {
-    GdipDeleteFontFamily(this->fontFamily);
+    //    GdipDeleteFontFamily(this->fontFamily);
     FT_Done_Face(this->ftFace);
     this->ftFace = nullptr;
-    this->fontFamily = nullptr;
+    //    this->fontFamily = nullptr;
     this->familyName = "";
     this->gdiPlusUnsupportedFont = false;
     this->propertyModified = true;
@@ -326,39 +309,54 @@ void FontInfo::clear() {
 /**
  * フォントの指定
  */
-void FontInfo::setFamilyName(const tjs_char *_) {
+void FontInfo::setFamilyName(const tjs_char *fName) {
+    // HOOK familyFont
     propertyModified = true;
 
     if (forceSelfPathDraw) {
         clear();
         gdiPlusUnsupportedFont = true;
-        this->familyName = G_FamilyName;
+        this->familyName = fName;
         return;
     }
-
-    auto status = GdipCreateFontFamilyFromName(
-        reinterpret_cast<const WCHAR *>(G_FamilyName), nullptr,
-        &this->fontFamily);
-
-    if (status == Ok) {
-        this->familyName = G_FamilyName;
+    if (!fName)
         return;
+    clear();
+
+    // 中日韩字体 有衬字体： Noto Serif CJK SC
+    static auto defaultFamily = "Noto Sans CJK SC";
+
+    // FIXME: 目前gdiplus无法正常绘制字符不知道为什么！
+    // WCHAR* wDefaultFamily = g_utf8_to_utf16(defaultFamily, -1, nullptr,
+    // nullptr, nullptr); auto status = GdipCreateFontFamilyFromName(
+    //         wDefaultFamily,
+    //         privateFontCollection->getFontCollection(),
+    //         &this->fontFamily
+    // );
+    //
+    // g_free(wDefaultFamily);
+    //  if (status == Ok) {
+    //      this->familyName = fName;
+    //      return;
+    //  }
+
+    //    spdlog::get("plugin")->error(
+    //        "can't load gdi+ font: rollback custom draw string");
+    clear();
+    gdiPlusUnsupportedFont = true;
+    this->familyName = fName;
+    const auto pair = findFontPath(defaultFamily);
+    if (std::equal(pair.second.begin(), pair.second.end(), defaultFamily)) {
+        spdlog::get("plugin")->debug("using system font file");
+        FT_New_Face(ftLibrary, pair.first.c_str(), 0, &this->ftFace);
     } else {
-        clear();
-        gdiPlusUnsupportedFont = true;
-        this->familyName = G_FamilyName;
+        spdlog::get("plugin")->debug("using embedded font file");
+        loadFontFromAssets(ftLibrary, &this->ftFace);
     }
-
-    std::string n = tTJSString{G_FamilyName}.AsNarrowStdString();
-    LoadFontByName(ftLibrary, n, &this->ftFace);
-    FT_Set_Pixel_Sizes(this->ftFace, 0, this->emSize);
+    FT_Set_Char_Size(this->ftFace, 0, emSize * 64, 72, 72);
 }
 
-void FontInfo::setForceSelfPathDraw(bool state) {
-    forceSelfPathDraw = state;
-    ttstr _name = familyName;
-    this->setFamilyName(_name.c_str());
-}
+void FontInfo::setForceSelfPathDraw(bool state) { forceSelfPathDraw = state; }
 
 bool FontInfo::getForceSelfPathDraw() const { return forceSelfPathDraw; }
 
@@ -387,19 +385,9 @@ void FontInfo::updateSizeParams() const {
         static_cast<float>(FT_MulFix(this->ftFace->height, scale)) / 64.0f;
 
     // 上升部件的 leading
-    ascentLeading =
-        ascent -
-        static_cast<float>(FT_MulFix(this->ftFace->ascender, scale)) / 64.0f;
-
+    ascentLeading = (lineSpacing - ascent) / 2;
     // 下降部件的 leading
-    descentLeading =
-        descent -
-        static_cast<float>(FT_MulFix(this->ftFace->descender, scale)) / 64.0f;
-    //    ascent = REAL(otm->otmTextMetrics.tmAscent);
-    //    descent = REAL(otm->otmTextMetrics.tmDescent);
-    //    ascentLeading = ascent - REAL(otm->otmAscent);
-    //    descentLeading = descent - REAL(- otm->otmDescent);
-    //    lineSpacing = REAL(otm->otmTextMetrics.tmHeight);
+    descentLeading = -ascentLeading;
 }
 
 REAL FontInfo::getAscent() const {
@@ -645,7 +633,7 @@ void commonBrushParameter(ncbPropAccessor &info, T *brush) {
  * ブラシの生成
  */
 BrushBase *createBrush(tTJSVariant colorOrBrush) {
-    BrushBase *brush;
+    BrushBase *brush = nullptr;
     if (colorOrBrush.Type() != tvtObject) {
         brush = new SolidBrush{Color{(ARGB)(tjs_int)colorOrBrush}};
     } else {
@@ -655,17 +643,15 @@ BrushBase *createBrush(tTJSVariant colorOrBrush) {
             (BrushType)info.getIntValue(TJS_W("type"), BrushTypeSolidColor);
         switch (type) {
         case BrushTypeSolidColor:
-            brush = new SolidBrush{Color{
-                (ARGB)(tjs_int)info.getIntValue(TJS_W("color"), 0xffffffff)}};
+            brush = new SolidBrush{
+                Color{(ARGB)info.getRealValue(TJS_W("color"), 0xffffffff)}};
             break;
         case BrushTypeHatchFill:
             brush = new HatchBrush(
                 (HatchStyle)info.getIntValue(TJS_W("hatchStyle"),
                                              HatchStyleHorizontal),
-                Color{(ARGB)(tjs_int)info.getIntValue(TJS_W("foreColor"),
-                                                      0xffffffff)},
-                Color{(ARGB)(tjs_int)info.getIntValue(TJS_W("backColor"),
-                                                      0xff000000)});
+                Color{(ARGB)info.getRealValue(TJS_W("foreColor"), 0xffffffff)},
+                Color{(ARGB)info.getRealValue(TJS_W("backColor"), 0xff000000)});
             break;
         case BrushTypeTextureFill: {
             ttstr imgname =
@@ -940,7 +926,7 @@ LayerExDraw::LayerExDraw(DispatchT obj)
       graphics(nullptr), clipLeft(-1), clipTop(-1), clipWidth(-1),
       clipHeight(-1), smoothingMode(SmoothingModeAntiAlias),
       textRenderingHint(TextRenderingHintAntiAlias), metafile(nullptr),
-      metaGraphics(nullptr), updateWhenDraw(true) {}
+      /*metaGraphics(nullptr),*/ updateWhenDraw(true) {}
 
 /**
  * デストラクタ
@@ -1032,10 +1018,10 @@ void LayerExDraw::updateTransform() {
     calcTransform.Multiply(&viewTransform, MatrixOrderAppend);
     GdipSetWorldTransform(this->graphics,
                           static_cast<GpMatrix *>(calcTransform));
-    if (metaGraphics) {
-        GdipSetWorldTransform(this->metaGraphics,
-                              static_cast<GpMatrix *>(transform));
-    }
+    //    if (metaGraphics) {
+    //        GdipSetWorldTransform(this->metaGraphics,
+    //                              static_cast<GpMatrix *>(transform));
+    //    }
 }
 
 /**
@@ -1076,10 +1062,10 @@ void LayerExDraw::translateTransform(REAL dx, REAL dy) {
  */
 void LayerExDraw::clear(ARGB argb) {
     GdipGraphicsClear(this->graphics, argb);
-    if (metaGraphics) {
-        createRecord();
-        GdipGraphicsClear(this->metaGraphics, argb);
-    }
+    //    if (metaGraphics) {
+    //        createRecord();
+    //        GdipGraphicsClear(this->metaGraphics, argb);
+    //    }
     _pUpdate(0, nullptr);
 }
 
@@ -1179,9 +1165,9 @@ RectFClass LayerExDraw::_drawPath(const Appearance *app, GpPath *path) {
             case 0: {
                 auto *pen = (Pen *)i->info;
                 draw(graphics, pen, &matrix, path);
-                if (metaGraphics) {
-                    draw(metaGraphics, pen, &matrix, path);
-                }
+                //                if (metaGraphics) {
+                //                    draw(metaGraphics, pen, &matrix, path);
+                //                }
                 matrix.Multiply(&calcTransform, MatrixOrderAppend);
                 if (first) {
                     GdipGetPathWorldBounds(path, &rect,
@@ -1198,9 +1184,10 @@ RectFClass LayerExDraw::_drawPath(const Appearance *app, GpPath *path) {
             } break;
             case 1:
                 fill(graphics, (BrushBase *)i->info, &matrix, path);
-                if (metaGraphics) {
-                    fill(metaGraphics, (BrushBase *)i->info, &matrix, path);
-                }
+                //                if (metaGraphics) {
+                //                    fill(metaGraphics, (BrushBase *)i->info,
+                //                    &matrix, path);
+                //                }
                 matrix.Multiply(&calcTransform, MatrixOrderAppend);
                 if (first) {
                     GdipGetPathWorldBounds(
@@ -1533,19 +1520,26 @@ RectFClass LayerExDraw::drawPathString(const FontInfo *font,
     if (font->getSelfPathDraw())
         return drawPathString2(font, app, x, y, text);
 
+    spdlog::get("plugin")->error("gdi+ draw path string current no implement");
+    return {};
     // 文字列のパスを準備
-    GpPath *path{};
-    GdipCreatePath(FillModeAlternate, &path);
-    GpStringFormat *sf{};
-    GdipStringFormatGetGenericDefault(&sf);
-    const auto *n = reinterpret_cast<const WCHAR *>(text);
-    RectF rect{x, y};
-    GdipAddPathString(path, n, -1, font->fontFamily, font->style, font->emSize,
-                      &rect, sf);
-    auto r = _drawPath(app, path);
-    GdipDeletePath(path);
-    GdipDeleteStringFormat(sf);
-    return r;
+    //    GpPath *path{};
+    //    GdipCreatePath(FillModeAlternate, &path);
+    //    GpStringFormat *sf{};
+    //    GdipCreateStringFormat(0, 0, &sf);
+    //    GdipStringFormatGetGenericDefault(&sf);
+    //    const auto *n = reinterpret_cast<const WCHAR *>(text);
+    //    const RectF rect{x, y};
+    //    // FIXME: libgdiplus 6.x.x: length = -1 works fine.
+    //    // FIXME: libgdiplus 5.x.x: length = -1 fails
+    //    // FIXME: 5.x.x font backend: Pango uses length, but Cairo ignore.
+    //    GdipAddPathString(path, n, 1, font->fontFamily, font->style,
+    //    font->emSize,
+    //                      &rect, sf);
+    //    auto r = _drawPath(app, path);
+    //    GdipDeleteStringFormat(sf);
+    //    GdipDeletePath(path);
+    //    return r;
 }
 
 static void transformRect(MatrixClass &calcTransform, RectFClass &rect) {
@@ -1598,64 +1592,72 @@ RectFClass LayerExDraw::drawString(const FontInfo *font, const Appearance *app,
     if (font->getSelfPathDraw())
         return drawPathString2(font, app, x, y, text);
 
-    GdipSetTextRenderingHint(this->graphics, textRenderingHint);
-    if (metaGraphics) {
-        GdipSetTextRenderingHint(this->metaGraphics, textRenderingHint);
-    }
-
-    // 領域記録用
-    RectFClass rect{};
-    // 描画フォント
-    GpFont *f{};
-    GdipCreateFont(font->fontFamily, font->emSize, font->style, UnitPixel, &f);
-    GpStringFormat *sf{};
-    GdipStringFormatGetGenericDefault(&sf);
-    // 描画情報を使って次々描画
-    //    bool first = true;
-    auto i = app->drawInfos.begin();
-    while (i != app->drawInfos.end()) {
-        if (i->info) {
-            if (i->type == 1) { // ブラシのみ
-
-                const auto *n = reinterpret_cast<const WCHAR *>(text);
-
-                auto *brush = (BrushBase *)i->info;
-                RectFClass rectF{x + i->ox, y + i->oy, 0, 0};
-                GdipDrawString(this->graphics, n, -1, f, &rectF, sf,
-                               static_cast<GpBrush *>(*brush));
-                if (metaGraphics) {
-                    GdipDrawString(this->metaGraphics, n, -1, f, &rectF, sf,
-                                   static_cast<GpBrush *>(*brush));
-                }
-                // 更新領域計算
-                //                if (first) {
-                int codepointsFitted{};
-                int linesFilled{};
-                GdipMeasureString(this->graphics, n, -1, f, &rectF, sf, &rect,
-                                  &codepointsFitted, &linesFilled);
-                transformRect(calcTransform, rect);
-                //                    first = false;
-                //                } else {
-                //                    RectFClass r;
-                //                    int codepointsFitted{};
-                //                    int linesFilled{};
-                //                    GdipMeasureString(
-                //                            this->graphics, n, -1, f, &rectF,
-                //                            sf, &r, &codepointsFitted,
-                //                            &linesFilled
-                //                    );
-                //                    transformRect(calcTransform, r);
-                //                    RectFClass::Union(rect, rect, r);
-                //                }
-                break;
-            }
-        }
-        i++;
-    }
-    updateRect(rect);
-    GdipDeleteFont(f);
-    GdipDeleteStringFormat(sf);
-    return rect;
+    spdlog::get("plugin")->error("gdi+ draw string current no implement");
+    return {};
+    //    GdipSetTextRenderingHint(this->graphics, textRenderingHint);
+    //    //    if (metaGraphics) {
+    //    //        GdipSetTextRenderingHint(this->metaGraphics,
+    //    textRenderingHint);
+    //    //    }
+    //
+    //    // 領域記録用
+    //    RectFClass rect{};
+    //    // 描画フォント
+    //    GpFont *f{};
+    //    GdipCreateFont(font->fontFamily, font->emSize, font->style, UnitPixel,
+    //    &f); GpStringFormat *sf{}; GdipCreateStringFormat(0, 0, &sf);
+    //    GdipStringFormatGetGenericDefault(&sf);
+    //    // 描画情報を使って次々描画
+    //    //    bool first = true;
+    //    auto i = app->drawInfos.begin();
+    //    while (i != app->drawInfos.end()) {
+    //        if (i->info) {
+    //            if (i->type == 1) { // ブラシのみ
+    //
+    //                const auto *n = reinterpret_cast<const WCHAR *>(text);
+    //
+    //                auto *brush = (BrushBase *)i->info;
+    //                RectFClass rectF{x + i->ox, y + i->oy, 0, 0};
+    //                GdipDrawString(this->graphics, n, 1, f, &rectF, sf,
+    //                               static_cast<GpBrush *>(*brush));
+    //                //                if (metaGraphics) {
+    //                //                    GdipDrawString(this->metaGraphics,
+    //                n, -1,
+    //                //                    f, &rectF, sf,
+    //                //                                   static_cast<GpBrush
+    //                //                                   *>(*brush));
+    //                //                }
+    //                // 更新領域計算
+    //                //                if (first) {
+    //                int codepointsFitted{};
+    //                int linesFilled{};
+    //                GdipMeasureString(this->graphics, n, 1, f, &rectF, sf,
+    //                &rect,
+    //                                  &codepointsFitted, &linesFilled);
+    //                transformRect(calcTransform, rect);
+    //                //                    first = false;
+    //                //                } else {
+    //                //                    RectFClass r;
+    //                //                    int codepointsFitted{};
+    //                //                    int linesFilled{};
+    //                //                    GdipMeasureString(
+    //                //                            this->graphics, n, -1, f,
+    //                &rectF,
+    //                //                            sf, &r, &codepointsFitted,
+    //                //                            &linesFilled
+    //                //                    );
+    //                //                    transformRect(calcTransform, r);
+    //                //                    RectFClass::Union(rect, rect, r);
+    //                //                }
+    //                break;
+    //            }
+    //        }
+    //        i++;
+    //    }
+    //    updateRect(rect);
+    //    GdipDeleteFont(f);
+    //    GdipDeleteStringFormat(sf);
+    //    return rect;
 }
 
 /**
@@ -1669,25 +1671,29 @@ RectFClass LayerExDraw::measureString(const FontInfo *font,
     if (font->getSelfPathDraw())
         return measureString2(font, text);
 
-    const auto *n = reinterpret_cast<const WCHAR *>(text);
-
-    GdipSetTextRenderingHint(this->graphics, textRenderingHint);
-
-    GpFont *f{};
-    GdipCreateFont(font->fontFamily, font->emSize, font->style, UnitPixel, &f);
-
-    GpStringFormat *sf{};
-    GdipStringFormatGetGenericDefault(&sf);
-
-    RectFClass r{};
-    int codepointsFitted{};
-    int linesFilled{};
-    GpRectF layout{};
-    GdipMeasureString(this->graphics, n, -1, f, &layout, sf, &r,
-                      &codepointsFitted, &linesFilled);
-    GdipDeleteFont(f);
-    GdipDeleteStringFormat(sf);
-    return r;
+    spdlog::get("plugin")->error("gdi+ measure string current no implement");
+    return {};
+    //    const auto *n = reinterpret_cast<const WCHAR *>(text);
+    //
+    //    GdipSetTextRenderingHint(this->graphics, textRenderingHint);
+    //
+    //    GpFont *f{};
+    //    GdipCreateFont(font->fontFamily, font->emSize, font->style, UnitPixel,
+    //    &f);
+    //
+    //    GpStringFormat *sf{};
+    //    GdipCreateStringFormat(0, 0, &sf);
+    //    GdipStringFormatGetGenericDefault(&sf);
+    //
+    //    RectFClass r{};
+    //    int codepointsFitted{};
+    //    int linesFilled{};
+    //    GpRectF layout{};
+    //    GdipMeasureString(this->graphics, n, 1, f, &layout, sf, &r,
+    //                      &codepointsFitted, &linesFilled);
+    //    GdipDeleteFont(f);
+    //    GdipDeleteStringFormat(sf);
+    //    return r;
 }
 
 /**
@@ -1701,32 +1707,37 @@ RectFClass LayerExDraw::measureStringInternal(const FontInfo *font,
     if (font->getSelfPathDraw())
         return measureStringInternal2(font, text);
 
-    const auto *n = reinterpret_cast<const WCHAR *>(text);
-
-    GdipSetTextRenderingHint(this->graphics, textRenderingHint);
-
-    GpFont *f{};
-    GdipCreateFont(font->fontFamily, font->emSize, font->style, UnitPixel, &f);
-
-    GpStringFormat *sf{};
-    GdipStringFormatGetGenericDefault(&sf);
-
-    RectFClass r{};
-    int codepointsFitted{};
-    int linesFilled{};
-    GpRectF layout{};
-    GdipMeasureString(this->graphics, n, -1, f, &layout, sf, &r,
-                      &codepointsFitted, &linesFilled);
-    CharacterRange charRange{0, tTJSString{text}.length()};
-    GdipSetStringFormatMeasurableCharacterRanges(sf, 1, &charRange);
-    GpRegion *region{};
-    GdipMeasureCharacterRanges(this->graphics, n, -1, f, &r, sf, 1, &region);
-    RectFClass regionBounds{};
-    GdipGetRegionBounds(region, this->graphics, &regionBounds);
-
-    GdipDeleteFont(f);
-    GdipDeleteStringFormat(sf);
-    return regionBounds;
+    spdlog::get("plugin")->error(
+        "gdi+ measure string internal current no implement");
+    return {};
+    //    const auto *n = reinterpret_cast<const WCHAR *>(text);
+    //
+    //    GdipSetTextRenderingHint(this->graphics, textRenderingHint);
+    //
+    //    GpFont *f{};
+    //    GdipCreateFont(font->fontFamily, font->emSize, font->style, UnitPixel,
+    //    &f);
+    //
+    //    GpStringFormat *sf{};
+    //    GdipCreateStringFormat(0, 0, &sf);
+    //    GdipStringFormatGetGenericDefault(&sf);
+    //
+    //    RectFClass r{};
+    //    int codepointsFitted{};
+    //    int linesFilled{};
+    //    GpRectF layout{};
+    //    GdipMeasureString(this->graphics, n, 1, f, &layout, sf, &r,
+    //                      &codepointsFitted, &linesFilled);
+    //    CharacterRange charRange{0, tTJSString{text}.length()};
+    //    GdipSetStringFormatMeasurableCharacterRanges(sf, 1, &charRange);
+    //    GpRegion *region{};
+    //    GdipMeasureCharacterRanges(this->graphics, n, 1, f, &r, sf, 1,
+    //    &region); RectFClass regionBounds{}; GdipGetRegionBounds(region,
+    //    this->graphics, &regionBounds);
+    //
+    //    GdipDeleteFont(f);
+    //    GdipDeleteStringFormat(sf);
+    //    return regionBounds;
 }
 
 /**
@@ -1806,8 +1817,8 @@ RectFClass LayerExDraw::drawImageAffine(ImageClass *src, REAL sleft, REAL stop,
     if (src) {
         PointFClass points[4]; // 元座標値
         if (affine) {
-#define AFFINEX(x, y) A *x + C *y + E
-#define AFFINEY(x, y) B *x + D *y + F
+#define AFFINEX(x, y) (A * x + C * y + E)
+#define AFFINEY(x, y) (B * x + D * y + F)
             points[0].X = AFFINEX(0, 0);
             points[0].Y = AFFINEY(0, 0);
             points[1].X = AFFINEX(swidth, 0);
@@ -1829,13 +1840,14 @@ RectFClass LayerExDraw::drawImageAffine(ImageClass *src, REAL sleft, REAL stop,
         GdipDrawImagePointsRect(this->graphics, static_cast<GpImage *>(*src),
                                 points, 3, sleft, stop, swidth, sheight,
                                 UnitPixel, nullptr, nullptr, nullptr);
-        if (metaGraphics) {
-
-            GdipDrawImagePointsRect(this->metaGraphics,
-                                    static_cast<GpImage *>(*src), points, 3,
-                                    sleft, stop, swidth, sheight, UnitPixel,
-                                    nullptr, nullptr, nullptr);
-        }
+        //        if (metaGraphics) {
+        //
+        //            GdipDrawImagePointsRect(this->metaGraphics,
+        //                                    static_cast<GpImage *>(*src),
+        //                                    points, 3, sleft, stop, swidth,
+        //                                    sheight, UnitPixel, nullptr,
+        //                                    nullptr, nullptr);
+        //        }
 
         // 描画領域を取得
         calcTransform.TransformPoints(points, 4);
@@ -1868,33 +1880,36 @@ RectFClass LayerExDraw::drawImageAffine(ImageClass *src, REAL sleft, REAL stop,
 }
 
 void LayerExDraw::createRecord() {
-    //    destroyRecord();
-    //    if ((metaBuffer = ::GlobalAlloc(GMEM_MOVEABLE, 0))){
-    //        if (::CreateStreamOnHGlobal(metaBuffer, FALSE, &metaStream) ==
-    //        S_OK)
-    //        {
-    //            metafile = new Metafile(metaStream, metaHDC,
-    //            EmfTypeEmfPlusOnly); metaGraphics = new Graphics(metafile);
-    //            metaGraphics->SetCompositingMode(CompositingModeSourceOver);
-    //            metaGraphics->SetTransform(&transform);
-    //        }
-    //    }
+    // FIXME: implement
+    // destroyRecord();
+    // if ((metaBuffer = ::GlobalAlloc(GMEM_MOVEABLE, 0))){
+    //     if (::CreateStreamOnHGlobal(metaBuffer, FALSE, &metaStream) ==
+    //     S_OK)
+    //     {
+    //         metafile = new Metafile(metaStream, metaHDC,
+    //         EmfTypeEmfPlusOnly); metaGraphics = new Graphics(metafile);
+    //         metaGraphics->SetCompositingMode(CompositingModeSourceOver);
+    //         metaGraphics->SetTransform(&transform);
+    //     }
+    // }
     destroyRecord();
-    GpMetafile *emfMetafile{};
-    GdipCreateMetafileFromFile((WCHAR *)TJS_W("krkr2_layerexdraw_emf.metafile"),
-                               &emfMetafile);
-    GdipCreateMetafileFromEmf(emfMetafile, false, &metafile);
-    GdipGetImageGraphicsContext((GpImage *)&metafile, &metaGraphics);
-    GdipSetCompositingMode(metaGraphics, CompositingModeSourceOver);
-    GdipSetWorldTransform(metaGraphics, static_cast<GpMatrix *>(transform));
+    //    GpMetafile *emfMetafile{};
+    //    GdipCreateMetafileFromFile((WCHAR
+    //    *)TJS_W("krkr2_layerexdraw_emf.metafile"),
+    //                               &emfMetafile);
+    //    GdipCreateMetafileFromEmf(emfMetafile, false, &metafile);
+    //    GdipGetImageGraphicsContext((GpImage *)&metafile, &metaGraphics);
+    //    GdipSetCompositingMode(metaGraphics, CompositingModeSourceOver);
+    //    GdipSetWorldTransform(metaGraphics, static_cast<GpMatrix
+    //    *>(transform));
 }
 
 /**
  * 記録情報の破棄
  */
 void LayerExDraw::destroyRecord() {
-    GdipDeleteGraphics(this->metaGraphics);
-    metaGraphics = nullptr;
+    //    GdipDeleteGraphics(this->metaGraphics);
+    //    metaGraphics = nullptr;
     GdipDisposeImage((GpImage *)&metafile);
     metafile = nullptr;
 }
@@ -1917,19 +1932,20 @@ void LayerExDraw::setRecord(bool record) {
 bool LayerExDraw::redraw(ImageClass *image) {
     if (image) {
         RectFClass *bounds = getBounds(image);
-        if (metaGraphics) {
-            GdipGraphicsClear(this->metaGraphics, 0);
-            GdipResetWorldTransform(this->metaGraphics);
-            GdipDrawImageRect(this->metaGraphics,
-                              static_cast<GpImage *>(*image), bounds->X,
-                              bounds->Y, bounds->Width, bounds->Height);
-            GpMatrix *tmp{};
-            GdipSetWorldTransform(this->metaGraphics, tmp);
-            transform = MatrixClass{tmp};
-        }
-        GdipGraphicsClear(this->metaGraphics, 0);
-        GdipSetWorldTransform(this->metaGraphics,
-                              static_cast<GpMatrix *>(viewTransform));
+        //        if (metaGraphics) {
+        //            GdipGraphicsClear(this->metaGraphics, 0);
+        //            GdipResetWorldTransform(this->metaGraphics);
+        //            GdipDrawImageRect(this->metaGraphics,
+        //                              static_cast<GpImage *>(*image),
+        //                              bounds->X, bounds->Y, bounds->Width,
+        //                              bounds->Height);
+        //            GpMatrix *tmp{};
+        //            GdipSetWorldTransform(this->metaGraphics, tmp);
+        //            transform = MatrixClass{tmp};
+        //        }
+        //        GdipGraphicsClear(this->metaGraphics, 0);
+        //        GdipSetWorldTransform(this->metaGraphics,
+        //                              static_cast<GpMatrix *>(viewTransform));
 
         GdipDrawImageRect(this->graphics, static_cast<GpImage *>(*image),
                           bounds->X, bounds->Y, bounds->Width, bounds->Height);
@@ -1949,32 +1965,32 @@ bool LayerExDraw::redraw(ImageClass *image) {
  */
 ImageClass *LayerExDraw::getRecordImage() {
     ImageClass *image = nullptr;
-    if (metafile) {
-        // メタ情報を取得するには一度閉じる必要がある
-        if (metaGraphics) {
-            GdipDisposeImage((GpImage *)this->metaGraphics);
-            metaGraphics = nullptr;
-        }
+    //    if (metafile) {
+    // メタ情報を取得するには一度閉じる必要がある
+    //        if (metaGraphics) {
+    //            GdipDisposeImage((GpImage *)this->metaGraphics);
+    //            metaGraphics = nullptr;
+    //        }
 
-        //閉じたあと継続するための再描画先を別途構築
-        //        HGLOBAL oldBuffer = metaBuffer;
-        //        metaBuffer = nullptr;
-        //        createRecord();
-        //
-        //        // 再描画
-        //        if (oldBuffer) {
-        //            IStream* pStream = nullptr;
-        //            if(::CreateStreamOnHGlobal(oldBuffer, FALSE, &pStream) ==
-        //            S_OK) 	{
-        //                image = Image::FromStream(pStream,false);
-        //                if (image) {
-        //                    redraw(image);
-        //                }
-        //                pStream->Release();
-        //            }
-        //            ::GlobalFree(oldBuffer);
-        //        }
-    }
+    //閉じたあと継続するための再描画先を別途構築
+    //        HGLOBAL oldBuffer = metaBuffer;
+    //        metaBuffer = nullptr;
+    //        createRecord();
+    //
+    //        // 再描画
+    //        if (oldBuffer) {
+    //            IStream* pStream = nullptr;
+    //            if(::CreateStreamOnHGlobal(oldBuffer, FALSE, &pStream) ==
+    //            S_OK) 	{
+    //                image = Image::FromStream(pStream,false);
+    //                if (image) {
+    //                    redraw(image);
+    //                }
+    //                pStream->Release();
+    //            }
+    //            ::GlobalFree(oldBuffer);
+    //        }
+    //    }
     return image;
 }
 
@@ -1995,21 +2011,21 @@ bool LayerExDraw::redrawRecord() {
  */
 bool LayerExDraw::saveRecord(const tjs_char *filename) {
     bool ret = false;
-    if (metafile) {
-        // メタ情報を取得するには一度閉じる必要がある
-        GdipDisposeImage((GpImage *)this->metaGraphics);
-        this->metaGraphics = nullptr;
-        ULONG size;
-        // ファイルに書き出す
-        if (metafile) {
-            GdipSaveImageToFile((GpImage *)&metafile, (const WCHAR *)filename,
-                                &emfEncoderClsid, nullptr);
-        }
-
-        // 再描画処理
-        ImageClass *image = getRecordImage();
-        delete image;
-    }
+    //    if (metafile) {
+    //        // メタ情報を取得するには一度閉じる必要がある
+    //        GdipDisposeImage((GpImage *)this->metaGraphics);
+    //        this->metaGraphics = nullptr;
+    //        // ファイルに書き出す
+    //        if (metafile) {
+    //            GdipSaveImageToFile((GpImage *)&metafile, (const WCHAR
+    //            *)filename,
+    //                                &emfEncoderClsid, nullptr);
+    //        }
+    //
+    //        // 再描画処理
+    //        ImageClass *image = getRecordImage();
+    //        delete image;
+    //    }
     return ret;
 }
 
@@ -2042,9 +2058,8 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
     if (glyphIndex == 0) {
         // 不支持此字符
         spdlog::get("plugin")->error(
-            "not find Unicode >> {} << in FontFamily: {}",
-            ttstr{(tjs_char)charcode}.AsNarrowStdString(),
-            fontInfo->familyName.AsNarrowStdString());
+            "not find Unicode >> {} << in FontFamily",
+            ttstr{(tjs_char)charcode}.AsNarrowStdString());
     }
 
     FT_Int32 flags = FT_LOAD_DEFAULT | FT_LOAD_NO_BITMAP;
@@ -2064,13 +2079,18 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
         return;
     }
 
-    const float scaleFactor =
-        static_cast<float>(fontInfo->emSize) /
-            static_cast<float>(fontInfo->ftFace->units_per_EM) /
-            4.0f  // adjustmentFactor = 4
-        + 0.009f; // 因为手机屏幕小，纠正一下字体大小
+    const auto unitsPerEM = static_cast<float>(fontInfo->ftFace->units_per_EM);
+    const auto emSize = static_cast<float>(fontInfo->emSize);
 
-    PointFClass glyphOffset{offset.X, offset.Y + fontInfo->getAscent()};
+    // 动态调整因子，基于units_per_EM
+    const float adjustmentFactor = (unitsPerEM > 1000) ? 4.0f : 1.2f;
+
+    const float scaleFactor = (emSize / unitsPerEM) / adjustmentFactor +
+                              0.009f; // 0.009f修正因子, 弥补精度丢失
+    PointFClass glyphOffset{offset.X, offset.Y + fontInfo->getAscent() +
+                                          fabs(fontInfo->getDescent()) +
+                                          fabs(fontInfo->getDescentLeading()) +
+                                          fontInfo->getAscentLeading()};
 
     FT_Outline outline = glyph->outline;
 
@@ -2125,12 +2145,22 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
             prevTag = FT_CURVE_TAG(outline.tags[j - 1]);
             currentTag = FT_CURVE_TAG(outline.tags[j]);
 
-            if (currentTag == FT_CURVE_TAG_CUBIC) {
-                throw std::logic_error{"not support FT_CURVE_TAG_CUBIC"};
-            }
-
             prevP = getPoint(j - 1);
             currentP = getPoint(j);
+
+            if (prevTag == FT_CURVE_TAG_CUBIC &&
+                currentTag == FT_CURVE_TAG_ON) {
+                g_assert(FT_CURVE_TAG(outline.tags[j - 3]) == FT_CURVE_TAG_ON);
+                g_assert(FT_CURVE_TAG(outline.tags[j - 2]) ==
+                         FT_CURVE_TAG_CUBIC);
+
+                PointFClass startP = getPoint(j - 3);
+                PointFClass control = getPoint(j - 2);
+                GdipAddPathBezier(path, startP.X, startP.Y, control.X,
+                                  control.Y, prevP.X, prevP.Y, currentP.X,
+                                  currentP.Y);
+                continue;
+            }
 
             if (prevTag == FT_CURVE_TAG_ON && currentTag == FT_CURVE_TAG_ON) {
                 GdipAddPathLine(path, prevP.X, prevP.Y, currentP.X, currentP.Y);
@@ -2175,16 +2205,12 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
                 currentP, contourStartP);
         }
 
-        if (currentTag == FT_CURVE_TAG_CONIC &&
-            contourStartTag == FT_CURVE_TAG_CONIC) {
+        if (currentTag == FT_CURVE_TAG_CUBIC) {
 
-            //            addPathConicBezier(
-            //                    prevTag == FT_CURVE_TAG_ON ? prevP : (prevP +
-            //                    currentP) / 2.0f, contourStartP,
-            //                    getConicEndPoint(contourStart, contourStart,
-            //                    contourEnd)
-            //            );
-            spdlog::get("plugin")->critical("end tag is CONIC not support!!");
+            PointFClass startP = getPoint(contourEnd - 2);
+            GdipAddPathBezier(path, startP.X, startP.Y, prevP.X, prevP.Y,
+                              currentP.X, currentP.Y, contourStartP.X,
+                              contourStartP.Y);
         }
 
         GdipClosePathFigure(path);
@@ -2467,11 +2493,11 @@ tTJSVariant LayerExDraw::getColorRegionRects(ARGB color) {
                 tTJSVariant *points[4] = {&x, &y, &w, &h};
                 static tjs_uint32 pushHint;
                 iTJSDispatch2 *rarray = TJSCreateArrayObject();
-                rarray->FuncCall(0, TJS_W("push"), &pushHint, 0, 4, points,
-                                 rarray);
+                rarray->FuncCall(0, TJS_W("push"), &pushHint, nullptr, 4,
+                                 points, rarray);
                 tTJSVariant var(rarray, rarray), *param = &var;
                 rarray->Release();
-                array->FuncCall(0, TJS_W("push"), &pushHint, 0, 1, &param,
+                array->FuncCall(0, TJS_W("push"), &pushHint, nullptr, 1, &param,
                                 array);
             }
             delete[] rects;

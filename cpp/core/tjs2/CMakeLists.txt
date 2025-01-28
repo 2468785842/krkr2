@@ -22,7 +22,7 @@ set(BISON_FILES
     ${CMAKE_CURRENT_LIST_DIR}/bison/tjsdate.y
     ${CMAKE_CURRENT_LIST_DIR}/bison/tjspp.y
 )
-
+set(PARSE_TAB_CPP_FILES)
 foreach(BISON_FILE ${BISON_FILES})
     get_filename_component(FILE_NAME ${BISON_FILE} NAME_WE)
 
@@ -33,18 +33,22 @@ foreach(BISON_FILE ${BISON_FILES})
         COMMAND_ECHO STDOUT
     )
 
-    add_custom_target(generate_bison_${FILE_NAME}_file
-        BYPRODUCTS
+    add_custom_command(
+        OUTPUT
             ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.cpp
             ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.hpp
+        PRE_BUILD
         DEPENDS ${BISON_FILE}
         COMMAND ${BISON} ${BISON_FILE}
         WORKING_DIRECTORY ${GEN_CODE_BINARY_DIR}
         COMMENT "Generate Bison File From ${BISON_FILE}"
     )
-    add_dependencies(${PROJECT_NAME} generate_bison_${FILE_NAME}_file)
-    target_sources(${PROJECT_NAME} PRIVATE ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.cpp)
+
+    list(APPEND PARSE_TAB_CPP_FILES ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.cpp)
 endforeach()
+
+add_custom_target(GENERATE_CPP_FILES DEPENDS ${PARSE_TAB_CPP_FILES})
+add_dependencies(${PROJECT_NAME} GENERATE_CPP_FILES)
 
 install(DIRECTORY "${GEN_CODE_BINARY_DIR}/"
     DESTINATION "include/tjs2/parser"
@@ -64,6 +68,7 @@ execute_process(
 )
 
 target_sources(${PROJECT_NAME} PRIVATE
+    ${PARSE_TAB_CPP_FILES}
     tjsLex.cpp
     tjsNative.cpp
     tjsRandomGenerator.cpp

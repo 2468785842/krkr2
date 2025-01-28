@@ -1678,8 +1678,8 @@ tjs_int tTJSInterCodeContext::GenNodeCode(tjs_int &frame, tTJSExprNode *node,
         }
         tjs_int32 code;
         switch (node->GetOpecode()) {
-            //			case parser::token_kind_type::T_EXCRAMATION:		code =
-            //VM_LNOT;
+            //			case parser::token_kind_type::T_EXCRAMATION:		code
+            //= VM_LNOT;
             // break;
         case parser::token_kind_type::T_TILDE:
             code = VM_BNOT;
