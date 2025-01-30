@@ -15,18 +15,15 @@
 // macros
 //---------------------------------------------------------------------------
 #if !defined(TVP_WNF_A) && !defined(TVP_WNF_B)
-#define TVP_NATIVE_FUNC_REG(type, calltype, name, args, module)                \
-    extern type(calltype *proc##name) args;
+#define TVP_NATIVE_FUNC_REG(type, calltype, name, args, module) extern type(calltype *proc##name) args;
 #endif
 
 #if defined(TVP_WNF_A)
-#define TVP_NATIVE_FUNC_REG(type, calltype, name, args, module)                \
-    type(calltype *proc##name) args = nullptr;
+#define TVP_NATIVE_FUNC_REG(type, calltype, name, args, module) type(calltype *proc##name) args = nullptr;
 #endif
 
 #if defined(TVP_WNF_B)
-#define TVP_NATIVE_FUNC_REG(type, calltype, name, args, module)                \
-    {(void **)&proc##name, #name, module},
+#define TVP_NATIVE_FUNC_REG(type, calltype, name, args, module) { (void **)&proc##name, #name, module },
 
 struct tTVPCompatibleNativeFunc {
     void **Ptr;
@@ -37,30 +34,20 @@ struct tTVPCompatibleNativeFunc {
     //---------------------------------------------------------------------------
 
     TVP_NATIVE_FUNC_REG(BOOL, WINAPI, GetTouchInputInfo,
-                        (HTOUCHINPUT hTouchInput, UINT cInputs,
-                         PTOUCHINPUT pInputs, int cbSize),
-                        L"USER32.DLL")
+                        (HTOUCHINPUT hTouchInput, UINT cInputs, PTOUCHINPUT pInputs, int cbSize), L"USER32.DLL")
 
-        TVP_NATIVE_FUNC_REG(BOOL, WINAPI, CloseTouchInputHandle,
-                            (HTOUCHINPUT hTouchInput), L"USER32.DLL")
+        TVP_NATIVE_FUNC_REG(BOOL, WINAPI, CloseTouchInputHandle, (HTOUCHINPUT hTouchInput), L"USER32.DLL")
 
-            TVP_NATIVE_FUNC_REG(
-                BOOL, WINAPI, GetGestureInfo,
-                (HGESTUREINFO hGestureInfo, PGESTUREINFO pGestureInfo),
-                L"USER32.DLL")
+            TVP_NATIVE_FUNC_REG(BOOL, WINAPI, GetGestureInfo, (HGESTUREINFO hGestureInfo, PGESTUREINFO pGestureInfo),
+                                L"USER32.DLL")
 
-                TVP_NATIVE_FUNC_REG(BOOL, WINAPI, CloseGestureInfoHandle,
-                                    (HGESTUREINFO hGestureInfo), L"USER32.DLL")
+                TVP_NATIVE_FUNC_REG(BOOL, WINAPI, CloseGestureInfoHandle, (HGESTUREINFO hGestureInfo), L"USER32.DLL")
 
-                    TVP_NATIVE_FUNC_REG(BOOL, WINAPI, RegisterTouchWindow,
-                                        (HWND hWnd, ULONG ulFlags),
-                                        L"USER32.DLL")
+                    TVP_NATIVE_FUNC_REG(BOOL, WINAPI, RegisterTouchWindow, (HWND hWnd, ULONG ulFlags), L"USER32.DLL")
 
-                        TVP_NATIVE_FUNC_REG(BOOL, WINAPI, UnregisterTouchWindow,
-                                            (HWND hWnd), L"USER32.DLL")
+                        TVP_NATIVE_FUNC_REG(BOOL, WINAPI, UnregisterTouchWindow, (HWND hWnd), L"USER32.DLL")
 
-                            TVP_NATIVE_FUNC_REG(BOOL, WINAPI, IsTouchWindow,
-                                                (HWND hWnd, PULONG pulFlags),
+                            TVP_NATIVE_FUNC_REG(BOOL, WINAPI, IsTouchWindow, (HWND hWnd, PULONG pulFlags),
                                                 L"USER32.DLL")
 /////
 //---------------------------------------------------------------------------

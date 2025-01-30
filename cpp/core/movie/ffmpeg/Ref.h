@@ -6,7 +6,8 @@
 
 NS_KRMOVIE_BEGIN
 
-template <typename T> struct IRef {
+template <typename T>
+struct IRef {
     IRef() : m_refs(1) {}
 
     virtual ~IRef() {}
@@ -23,8 +24,8 @@ template <typename T> struct IRef {
     virtual long Release() {
         intptr_t count = --m_refs;
         assert(count >= 0);
-        if (count == 0)
-            delete (T *)this;
+        if(count == 0)
+            delete(T *)this;
         return count;
     }
 

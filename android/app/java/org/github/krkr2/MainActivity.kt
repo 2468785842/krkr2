@@ -12,6 +12,7 @@ import android.view.WindowManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.libsdl.app.SDLAudioManager
 import org.tvp.kirikiri2.KR2Activity
 
 
@@ -40,6 +41,17 @@ class MainActivity : KR2Activity() {
         if (!checkStoragePermission()) {
             requestStoragePermission()
         }
+
+        SDLAudioManager.nativeSetupJNI()
+        SDLAudioManager.initialize()
+        SDLAudioManager.setContext(getContext())
+
+    }
+
+    override fun onDestroy()
+    {
+        super.onDestroy()
+        SDLAudioManager.release(this)
     }
 
     private fun checkStoragePermission(): Boolean {

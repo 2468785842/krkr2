@@ -7,15 +7,15 @@
 
 */
 
-#define KMPMODULE_VERSION 100                // KMPMODULE のバージョン
-#define KMP_GETMODULE kmp_GetTestModule      //まだテスト版...
+#define KMPMODULE_VERSION 100 // KMPMODULE のバージョン
+#define KMP_GETMODULE kmp_GetTestModule //まだテスト版...
 #define SZ_KMP_GETMODULE "kmp_GetTestModule" //まだテスト版...
 
 typedef void *HKMP; //'K'b'M'edia 'P'layer Plugin の Handle
 
-typedef struct {           //オープンしたサウンドデータの情報
+typedef struct { //オープンしたサウンドデータの情報
     DWORD dwSamplesPerSec; //サンプリング周波数(44100, 22050 など)
-    DWORD dwChannels;      //チャンネル数( mono = 1, stereo = 2)
+    DWORD dwChannels; //チャンネル数( mono = 1, stereo = 2)
     DWORD dwBitsPerSample; //量子化ビット数( 8 or 16)
     DWORD dwLength; //曲の長さ（SPC のように計算不可能な場合は 0xFFFFFFFF）
     DWORD dwSeekable; //シークをサポートしている場合は 1、しない場合は 0

@@ -21,8 +21,8 @@
 // tTVPPeriodEventType : event type in onPeriod event
 //---------------------------------------------------------------------------
 enum tTVPPeriodEventReason {
-    perLoop,    // the event is by loop rewind
-    perPeriod,  // the event is by period point specified by the user
+    perLoop, // the event is by loop rewind
+    perPeriod, // the event is by period point specified by the user
     perPrepare, // the event is by prepare() method
     perSegLoop, // the event is by segment loop rewind
 };
@@ -38,8 +38,7 @@ class tTJSNI_BaseVideoOverlay : public tTJSNativeInstance {
 
 public:
     tTJSNI_BaseVideoOverlay();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
     void TJS_INTF_METHOD Invalidate();
 
 protected:

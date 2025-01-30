@@ -45,7 +45,7 @@ static void TVPGetCPUTypeForOne() {
 #else
     __try {
         TVPCheckCPU(); // in detect_cpu.nas
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    } __except(EXCEPTION_EXECUTE_HANDLER) {
         // exception had been ocured
         throw Exception(TVPCpuCheckFailure);
     }
@@ -54,11 +54,11 @@ static void TVPGetCPUTypeForOne() {
     // check OSFXSR
     // WinXP以降ならサポートしているので、もうこのチェックは無意味かな
 #ifndef TJS_64BIT_OS
-    if (TVPCPUFeatures & TVP_CPU_HAS_SSE) {
+    if(TVPCPUFeatures & TVP_CPU_HAS_SSE) {
         __try {
             //__emit__(0x0f, 0x57, 0xc0); // xorps xmm0, xmm0   (SSE)
             __asm xorps xmm0, xmm0
-        } __except (EXCEPTION_EXECUTE_HANDLER) {
+        } __except(EXCEPTION_EXECUTE_HANDLER) {
             // exception had been ocured
             // execution of 'xorps' is failed (XMM registers not available)
             TVPCPUFeatures &= ~TVP_CPU_HAS_SSE;
@@ -104,7 +104,7 @@ public:
 void tTVPCPUCheckThread::Execute() {
     try {
         TVPGetCPUTypeForOne();
-    } catch (...) {
+    } catch(...) {
         Succeeded = false;
     }
 }
@@ -113,13 +113,13 @@ void tTVPCPUCheckThread::Execute() {
 //---------------------------------------------------------------------------
 static ttstr TVPDumpCPUFeatures(tjs_uint32 features) {
     ttstr ret;
-#define TVP_DUMP_CPU(x, n)                                                     \
-    {                                                                          \
-        ret += TJS_W("  ") TJS_W(n);                                           \
-        if (features & x)                                                      \
-            ret += TJS_W(":yes");                                              \
-        else                                                                   \
-            ret += TJS_W(":no");                                               \
+#define TVP_DUMP_CPU(x, n)                                                                                             \
+    {                                                                                                                  \
+        ret += TJS_W("  ") TJS_W(n);                                                                                   \
+        if(features & x)                                                                                               \
+            ret += TJS_W(":yes");                                                                                      \
+        else                                                                                                           \
+            ret += TJS_W(":no");                                                                                       \
     }
 
     TVP_DUMP_CPU(TVP_CPU_HAS_FPU, "FPU");
@@ -157,10 +157,10 @@ static ttstr TVPDumpCPUInfo(tjs_int cpu_num) {
     tjs_uint32 vendor = TVPCPUFeatures & TVP_CPU_VENDOR_MASK;
 
 #undef TVP_DUMP_CPU
-#define TVP_DUMP_CPU(x, n)                                                     \
-    {                                                                          \
-        if (vendor == x)                                                       \
-            features += TJS_W("  ") TJS_W(n);                                  \
+#define TVP_DUMP_CPU(x, n)                                                                                             \
+    {                                                                                                                  \
+        if(vendor == x)                                                                                                \
+            features += TJS_W("  ") TJS_W(n);                                                                          \
     }
 
     TVP_DUMP_CPU(TVP_CPU_IS_INTEL, "Intel");
@@ -178,23 +178,18 @@ static ttstr TVPDumpCPUInfo(tjs_int cpu_num) {
 
 #undef TVP_DUMP_CPU
 
-    features +=
-        TJS_W("(") + ttstr((const tjs_nchar *)TVPCPUVendor) + TJS_W(")");
+    features += TJS_W("(") + ttstr((const tjs_nchar *)TVPCPUVendor) + TJS_W(")");
 
-    if (TVPCPUName[0] != 0)
-        features +=
-            TJS_W(" [") + ttstr((const tjs_nchar *)TVPCPUName) + TJS_W("]");
+    if(TVPCPUName[0] != 0)
+        features += TJS_W(" [") + ttstr((const tjs_nchar *)TVPCPUName) + TJS_W("]");
 
     features += TJS_W("  CPUID(1)/EAX=") + TJSInt32ToHex(TVPCPUID1_EAX);
     features += TJS_W(" CPUID(1)/EBX=") + TJSInt32ToHex(TVPCPUID1_EBX);
 
     TVPAddImportantLog(features);
 
-    if (((TVPCPUID1_EAX >> 8) & 0x0f) <= 4)
-        throw Exception(
-            TVPFormatMessage(TVPCpuCheckFailureCpuFamilyOrLesserIsNotSupported,
-                             features)
-                .c_str());
+    if(((TVPCPUID1_EAX >> 8) & 0x0f) <= 4)
+        throw Exception(TVPFormatMessage(TVPCpuCheckFailureCpuFamilyOrLesserIsNotSupported, features).c_str());
 
     return features;
 }
@@ -206,17 +201,17 @@ static ttstr TVPDumpCPUInfo(tjs_int cpu_num) {
 static void TVPDisableCPU(tjs_uint32 featurebit, const tjs_char *name) {
     tTJSVariant val;
     ttstr str;
-    if (TVPGetCommandLine(name, &val)) {
+    if(TVPGetCommandLine(name, &val)) {
         str = val;
-        if (str == TJS_W("no"))
+        if(str == TJS_W("no"))
             TVPCPUType &= ~featurebit;
-        else if (str == TJS_W("force"))
+        else if(str == TJS_W("force"))
             TVPCPUType |= featurebit;
     }
 }
 //---------------------------------------------------------------------------
 void TVPDetectCPU() {
-    if (TVPCPUChecked)
+    if(TVPCPUChecked)
         return;
     TVPCPUChecked = true;
 
@@ -224,9 +219,8 @@ void TVPDetectCPU() {
 
     // get process affinity mask
     ULONGLONG pam = 1;
-    HANDLE hp = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE,
-                              ::GetCurrentProcessId());
-    if (hp) {
+    HANDLE hp = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, ::GetCurrentProcessId());
+    if(hp) {
         ULONGLONG sam = 1;
         ::GetProcessAffinityMask(hp, (PDWORD_PTR)&pam, (PDWORD_PTR)&sam);
         ::CloseHandle(hp);
@@ -236,18 +230,18 @@ void TVPDetectCPU() {
     ttstr cpuinfo;
     bool first = true;
     tjs_uint32 features = 0;
-    for (tjs_int cpu = 0; cpu < 64; cpu++) {
-        if (pam & (1ULL << cpu)) {
+    for(tjs_int cpu = 0; cpu < 64; cpu++) {
+        if(pam & (1ULL << cpu)) {
             tTVPCPUCheckThread *thread = new tTVPCPUCheckThread(1 << cpu);
             thread->WaitEnd();
             bool succeeded = thread->GetSucceeded();
             delete thread;
-            if (!succeeded)
+            if(!succeeded)
                 throw Exception(L"CPU check failure");
             cpuinfo += TVPDumpCPUInfo(cpu) + TJS_W("\r\n");
 
             // mask features
-            if (first) {
+            if(first) {
                 features = (TVPCPUFeatures & TVP_CPU_FEATURE_MASK);
                 TVPCPUType = TVPCPUFeatures;
                 first = false;
@@ -259,9 +253,8 @@ void TVPDetectCPU() {
 #else
     // get process affinity mask
     DWORD pam = 1;
-    HANDLE hp = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE,
-                              ::GetCurrentProcessId());
-    if (hp) {
+    HANDLE hp = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, ::GetCurrentProcessId());
+    if(hp) {
         DWORD sam = 1;
         ::GetProcessAffinityMask(hp, &pam, &sam);
         ::CloseHandle(hp);
@@ -271,18 +264,18 @@ void TVPDetectCPU() {
     ttstr cpuinfo;
     bool first = true;
     tjs_uint32 features = 0;
-    for (tjs_int cpu = 0; cpu < 32; cpu++) {
-        if (pam & (1 << cpu)) {
+    for(tjs_int cpu = 0; cpu < 32; cpu++) {
+        if(pam & (1 << cpu)) {
             tTVPCPUCheckThread *thread = new tTVPCPUCheckThread(1 << cpu);
             thread->WaitEnd();
             bool succeeded = thread->GetSucceeded();
             delete thread;
-            if (!succeeded)
+            if(!succeeded)
                 throw Exception(L"CPU check failure");
             cpuinfo += TVPDumpCPUInfo(cpu) + TJS_W("\r\n");
 
             // mask features
-            if (first) {
+            if(first) {
                 features = (TVPCPUFeatures & TVP_CPU_FEATURE_MASK);
                 TVPCPUType = TVPCPUFeatures;
                 first = false;
@@ -314,13 +307,10 @@ void TVPDetectCPU() {
     TVPDisableCPU(TVP_CPU_HAS_FMA3, TJS_W("-cpufma3"));
     TVPDisableCPU(TVP_CPU_HAS_AES, TJS_W("-cpuaes"));
 
-    if (TVPCPUType == 0)
-        throw Exception(
-            TVPFormatMessage(TVPCpuCheckFailureNotSupprtedCpu, cpuinfo)
-                .c_str());
+    if(TVPCPUType == 0)
+        throw Exception(TVPFormatMessage(TVPCpuCheckFailureNotSupprtedCpu, cpuinfo).c_str());
 
-    TVPAddImportantLog(TVPFormatMessage(TVPInfoFinallyDetectedCpuFeatures,
-                                        TVPDumpCPUFeatures(TVPCPUType)));
+    TVPAddImportantLog(TVPFormatMessage(TVPInfoFinallyDetectedCpuFeatures, TVPDumpCPUFeatures(TVPCPUType)));
 }
 //---------------------------------------------------------------------------
 

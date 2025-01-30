@@ -36,7 +36,7 @@ using namespace TJS;
 // KAG Parser debug level
 //---------------------------------------------------------------------------
 enum tTVPKAGDebugLevel {
-    tkdlNone,   // none is reported
+    tkdlNone, // none is reported
     tkdlSimple, // simple report
     tkdlVerbose // complete report ( verbose )
 };
@@ -54,12 +54,10 @@ public:
 
     ~tTVPCharHolder() { Clear(); }
 
-    tTVPCharHolder(const tTVPCharHolder &ref) : Buffer(nullptr), BufferSize(0) {
-        operator=(ref);
-    }
+    tTVPCharHolder(const tTVPCharHolder &ref) : Buffer(nullptr), BufferSize(0) { operator=(ref); }
 
     void Clear() {
-        if (Buffer)
+        if(Buffer)
             delete[] Buffer, Buffer = nullptr;
         BufferSize = 0;
     }
@@ -73,7 +71,7 @@ public:
 
     void operator=(const tjs_char *ref) {
         Clear();
-        if (ref) {
+        if(ref) {
             BufferSize = TJS_strlen(ref) + 1;
             Buffer = new tjs_char[BufferSize];
             memcpy(Buffer, ref, BufferSize * sizeof(tjs_char));
@@ -137,9 +135,7 @@ private:
     void LoadScenario(const ttstr &name, bool isstring);
     // load file or string to buffer
 public:
-    const ttstr &GetLabelAliasFromLine(tjs_int line) const {
-        return LabelAliases[line];
-    }
+    const ttstr &GetLabelAliasFromLine(tjs_int line) const { return LabelAliases[line]; }
 
     void EnsureLabelCache();
 
@@ -160,17 +156,16 @@ class tTJSNI_KAGParser : public tTJSNativeInstance {
 public:
     tTJSNI_KAGParser();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
 
     void TJS_INTF_METHOD Invalidate();
 
 private:
     iTJSDispatch2 *Owner; // owner object
 
-    iTJSDispatch2 *DicClear;  // Dictionary.Clear method pointer
+    iTJSDispatch2 *DicClear; // Dictionary.Clear method pointer
     iTJSDispatch2 *DicAssign; // Dictionary
-    iTJSDispatch2 *DicObj;    // DictionaryObject
+    iTJSDispatch2 *DicObj; // DictionaryObject
 
     iTJSDispatch2 *Macros; // Macro Dictionary Object
 
@@ -179,9 +174,9 @@ private:
     tjs_uint MacroArgStackBase;
 
     struct tCallStackData {
-        ttstr Storage;    // caller storage
-        ttstr Label;      // caller nearest label
-        tjs_int Offset;   // line offset from the label
+        ttstr Storage; // caller storage
+        ttstr Label; // caller nearest label
+        tjs_int Offset; // line offset from the label
         ttstr OrgLineStr; // original line string
         ttstr LineBuffer; // line string (if alive)
         tjs_int Pos;
@@ -193,21 +188,15 @@ private:
         tjs_int ExcludeLevel;
         tjs_int IfLevel;
 
-        tCallStackData(const ttstr &storage, const ttstr &label, tjs_int offset,
-                       const ttstr &orglinestr, const ttstr &linebuffer,
-                       tjs_int pos, bool linebufferusing,
-                       tjs_uint macroargstackbase, tjs_uint macroargstackdepth,
-                       const std::vector<tjs_int> &excludelevelstack,
-                       tjs_int excludelevel,
-                       const std::vector<bool> &iflevelexecutedstack,
-                       tjs_int iflevel)
-            : Storage(storage), Label(label), Offset(offset),
-              OrgLineStr(orglinestr), LineBuffer(linebuffer), Pos(pos),
-              LineBufferUsing(linebufferusing),
-              MacroArgStackBase(macroargstackbase),
-              MacroArgStackDepth(macroargstackdepth),
-              ExcludeLevelStack(excludelevelstack), ExcludeLevel(excludelevel),
-              IfLevelExecutedStack(iflevelexecutedstack), IfLevel(iflevel) {
+        tCallStackData(const ttstr &storage, const ttstr &label, tjs_int offset, const ttstr &orglinestr,
+                       const ttstr &linebuffer, tjs_int pos, bool linebufferusing, tjs_uint macroargstackbase,
+                       tjs_uint macroargstackdepth, const std::vector<tjs_int> &excludelevelstack, tjs_int excludelevel,
+                       const std::vector<bool> &iflevelexecutedstack, tjs_int iflevel) :
+            Storage(storage),
+            Label(label), Offset(offset), OrgLineStr(orglinestr), LineBuffer(linebuffer), Pos(pos),
+            LineBufferUsing(linebufferusing), MacroArgStackBase(macroargstackbase),
+            MacroArgStackDepth(macroargstackdepth), ExcludeLevelStack(excludelevelstack), ExcludeLevel(excludelevel),
+            IfLevelExecutedStack(iflevelexecutedstack), IfLevel(iflevel) {
             ;
         }
     };
@@ -216,25 +205,25 @@ private:
 
     tTVPScenarioCacheItem *Scenario;
     tTVPScenarioCacheItem::tLine *Lines; // is copied from Scenario
-    tjs_int LineCount;                   // is copied from Scenario
+    tjs_int LineCount; // is copied from Scenario
 
     ttstr StorageName;
     ttstr StorageShortName;
 
-    tjs_int CurLine;            // current processing line
-    tjs_int CurPos;             // current processing position ( column )
+    tjs_int CurLine; // current processing line
+    tjs_int CurPos; // current processing position ( column )
     const tjs_char *CurLineStr; // current line string
-    ttstr LineBuffer;           // line buffer ( if any macro/emb was expanded )
+    ttstr LineBuffer; // line buffer ( if any macro/emb was expanded )
     bool LineBufferUsing;
-    ttstr CurLabel;  // Current Label
-    ttstr CurPage;   // Current Page Name
+    ttstr CurLabel; // Current Label
+    ttstr CurPage; // Current Page Name
     tjs_int TagLine; // line number of previous tag
 
     tTVPKAGDebugLevel DebugLevel; // debugging log level
-    bool ProcessSpecialTags;      // whether to process special tags
-    bool IgnoreCR;       // CR is not interpreted as [r] tag when this is true
+    bool ProcessSpecialTags; // whether to process special tags
+    bool IgnoreCR; // CR is not interpreted as [r] tag when this is true
     bool RecordingMacro; // recording a macro
-    ttstr RecordingMacroStr;  // recording macro content
+    ttstr RecordingMacroStr; // recording macro content
     ttstr RecordingMacroName; // recording macro's name
 
     tTJSVariant ValueVariant;
@@ -292,11 +281,9 @@ private:
 
     void PopCallStack(const ttstr &storage, const ttstr &label);
 
-    void StoreIntStackToDic(iTJSDispatch2 *dic, std::vector<tjs_int> &stack,
-                            const tjs_char *membername);
+    void StoreIntStackToDic(iTJSDispatch2 *dic, std::vector<tjs_int> &stack, const tjs_char *membername);
 
-    void StoreBoolStackToDic(iTJSDispatch2 *dic, std::vector<bool> &stack,
-                             const tjs_char *membername);
+    void StoreBoolStackToDic(iTJSDispatch2 *dic, std::vector<bool> &stack, const tjs_char *membername);
 
     void RestoreIntStackFromStr(std::vector<tjs_int> &stack, const ttstr &str);
 

@@ -47,25 +47,25 @@ static tTJSStaticCriticalSection TVPCreateStreamCS;
 //---------------------------------------------------------------------------
 ttstr TVPStringFromBMPUnicode(const tjs_uint16 *src, tjs_int maxlen) {
     // convert to ttstr from BMP unicode
-    if (sizeof(tjs_char) == 2) {
+    if(sizeof(tjs_char) == 2) {
         // sizeof(tjs_char) is 2 (windows native)
-        if (maxlen == -1)
+        if(maxlen == -1)
             return ttstr((const tjs_char *)src);
         else
             return ttstr((const tjs_char *)src, maxlen);
-    } else if (sizeof(tjs_char) == 4) {
+    } else if(sizeof(tjs_char) == 4) {
         // sizeof(tjs_char) is 4 (UCS32)
         // FIXME: NOT TESTED CODE
         tjs_int len = 0;
         const tjs_uint16 *p = src;
-        while (*p)
+        while(*p)
             len++, p++;
-        if (maxlen != -1 && len > maxlen)
+        if(maxlen != -1 && len > maxlen)
             len = maxlen;
         ttstr ret((tTJSStringBufferLength)(len));
         tjs_char *dest = ret.Independ();
         p = src;
-        while (len && *p) {
+        while(len && *p) {
             *dest = *p;
             dest++;
             p++;
@@ -89,18 +89,17 @@ class tTVPStorageMediaManager {
             const tjs_char *l_p = c_str();
             const tjs_char *r_p = rhs.c_str();
 
-            while (*l_p && *r_p) {
-                if (*l_p == TJS_W(':'))
+            while(*l_p && *r_p) {
+                if(*l_p == TJS_W(':'))
                     break;
-                if (*r_p == TJS_W(':'))
+                if(*r_p == TJS_W(':'))
                     break;
-                if (*l_p != *r_p)
+                if(*l_p != *r_p)
                     break;
                 l_p++;
                 r_p++;
             }
-            if ((*l_p == TJS_W(':') || *l_p == 0) &&
-                (*r_p == TJS_W(':') || *r_p == 0))
+            if((*l_p == TJS_W(':') || *l_p == 0) && (*r_p == TJS_W(':') || *r_p == 0))
                 return true;
             return false;
         }
@@ -109,11 +108,11 @@ class tTVPStorageMediaManager {
     class tHashFunc {
     public:
         static tjs_uint32 Make(const tMediaNameString &key) {
-            if (key.IsEmpty())
+            if(key.IsEmpty())
                 return 0;
             const tjs_char *str = key.c_str();
             tjs_uint32 ret = 0;
-            while (*str && *str != ':') {
+            while(*str && *str != ':') {
                 ret += *str;
                 ret += (ret << 10);
                 ret ^= (ret >> 6);
@@ -122,7 +121,7 @@ class tTVPStorageMediaManager {
             ret += (ret << 3);
             ret ^= (ret >> 11);
             ret += (ret << 15);
-            if (!ret)
+            if(!ret)
                 ret = (tjs_uint32)-1;
             return ret;
         }
@@ -136,8 +135,7 @@ class tTVPStorageMediaManager {
         tjs_int MediaNameLen;
         //		bool IsCaseSensitive;
 
-        tMediaRecord(iTVPStorageMedia *media)
-            : MediaIntf(media), CurrentDomain("."), CurrentPath("/") {
+        tMediaRecord(iTVPStorageMedia *media) : MediaIntf(media), CurrentDomain("."), CurrentPath("/") {
             ttstr name;
             media->GetName(name);
             MediaNameLen = name.GetLen();
@@ -149,8 +147,7 @@ class tTVPStorageMediaManager {
             }
     };
 
-    typedef tTJSHashTable<tMediaNameString, tMediaRecord, tHashFunc, 16>
-        tHashTable;
+    typedef tTJSHashTable<tMediaNameString, tMediaRecord, tHashFunc, 16> tHashTable;
 
     tHashTable HashTable;
 
@@ -169,8 +166,7 @@ public:
 
     void Unregister(iTVPStorageMedia *media);
 
-    ttstr NormalizeStorageName(const ttstr &name, ttstr *ret_media = nullptr,
-                               ttstr *ret_domain = nullptr,
+    ttstr NormalizeStorageName(const ttstr &name, ttstr *ret_media = nullptr, ttstr *ret_domain = nullptr,
                                ttstr *ret_path = nullptr);
 
     void SetCurrentDirectory(const ttstr &name);
@@ -202,10 +198,9 @@ void tTVPStorageMediaManager::ThrowUnsupportedMediaType(const ttstr &name) {
 }
 
 //---------------------------------------------------------------------------
-tTVPStorageMediaManager::tMediaRecord *
-tTVPStorageMediaManager::GetMediaRecord(const ttstr &name) {
+tTVPStorageMediaManager::tMediaRecord *tTVPStorageMediaManager::GetMediaRecord(const ttstr &name) {
     tMediaRecord *rec = HashTable.Find(*(tMediaNameString *)&name);
-    if (!rec)
+    if(!rec)
         ThrowUnsupportedMediaType(name);
     return rec;
 }
@@ -216,9 +211,8 @@ void tTVPStorageMediaManager::Register(iTVPStorageMedia *media) {
     media->GetName(medianame);
 
     tMediaRecord *rec = HashTable.Find(*(tMediaNameString *)&medianame);
-    if (rec)
-        TVPThrowExceptionMessage(TVPMediaNameHadAlreadyBeenRegistered,
-                                 medianame);
+    if(rec)
+        TVPThrowExceptionMessage(TVPMediaNameHadAlreadyBeenRegistered, medianame);
 
     tMediaRecord new_rec(media);
 
@@ -231,15 +225,13 @@ void tTVPStorageMediaManager::Unregister(iTVPStorageMedia *media) {
     media->GetName(medianame);
 
     tMediaRecord *rec = HashTable.Find(*(tMediaNameString *)&medianame);
-    if (!rec)
+    if(!rec)
         TVPThrowExceptionMessage(TVPMediaNameIsNotRegistered, medianame);
     HashTable.Delete(*(tMediaNameString *)&medianame);
 }
 
 //---------------------------------------------------------------------------
-ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
-                                                    ttstr *ret_media,
-                                                    ttstr *ret_domain,
+ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name, ttstr *ret_media, ttstr *ret_domain,
                                                     ttstr *ret_path) {
     // Normalize storage name.
 
@@ -251,7 +243,7 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
     // path is where the data is in the computer.
 
     // empty check
-    if (name.IsEmpty())
+    if(name.IsEmpty())
         return name; // empty name is empty name
 
     // pre-normalize
@@ -263,8 +255,8 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
 
     // unify path delimiter
     pa = tmp.Independ();
-    while (*pa) {
-        if (*pa == TJS_W('\\'))
+    while(*pa) {
+        if(*pa == TJS_W('\\'))
             *pa = TJS_W('/');
         pa++;
     }
@@ -274,13 +266,13 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
     bool inarc_name_found = false;
     pca = tmp.c_str();
     pa = const_cast<tjs_char *>(TJS_strchr(pca, TVPArchiveDelimiter));
-    if (pa) {
+    if(pa) {
         inarchive_name = ttstr(pa + 1);
         tTVPArchive::NormalizeInArchiveStorageName(inarchive_name);
         inarc_name_found = true;
         tmp = ttstr(pca, (int)(pa - pca));
     }
-    if (tmp.IsEmpty())
+    if(tmp.IsEmpty())
         TVPThrowExceptionMessage(TVPInvalidPathName, name);
 
     // split the name into media, domain, path
@@ -290,14 +282,13 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
     // - find media name
     //   media name is: /^[A-Za-z]+:/
     pa = pb = tmp.Independ();
-    while (*pa) {
-        if (!((*pa >= TJS_W('A') && *pa <= TJS_W('Z')) ||
-              (*pa >= TJS_W('a') && *pa <= TJS_W('z'))))
+    while(*pa) {
+        if(!((*pa >= TJS_W('A') && *pa <= TJS_W('Z')) || (*pa >= TJS_W('a') && *pa <= TJS_W('z'))))
             break;
         pa++;
     }
 
-    if (*pa == TJS_W(':')) {
+    if(*pa == TJS_W(':')) {
         // media name found
         media = ttstr(pb, (int)(pa - pb));
         pa++;
@@ -312,9 +303,9 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
     //  /path          (domain is omitted)
     //  relative-path  (domain and current path are omitted)
 
-    if (pa[0] == TJS_W('/')) {
-        if (pa[1] == TJS_W('/')) {
-            if (pa[2] == TJS_W('/')) {
+    if(pa[0] == TJS_W('/')) {
+        if(pa[1] == TJS_W('/')) {
+            if(pa[2] == TJS_W('/')) {
                 // slash count 3: domain is ommited
                 pa += 2;
             } else {
@@ -322,7 +313,7 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
                 pa += 2;
                 // find '/' as a domain delimiter
                 pc = TJS_strchr(pa, TJS_W('/'));
-                if (!pc)
+                if(!pc)
                     TVPThrowExceptionMessage(TVPInvalidPathName, name);
                 domain = ttstr(pa, (int)(pc - pa));
                 pa = pc;
@@ -338,13 +329,13 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
     path = pa;
 
     // supply omitted and normalize
-    if (media.IsEmpty()) {
+    if(media.IsEmpty()) {
         media = TVPCurrentMedia;
     } else {
         // normalize media name ( make them all small )
         tjs_char *p = media.Independ();
-        while (*p) {
-            if (*p >= TJS_W('A') && *p <= TJS_W('Z'))
+        while(*p) {
+            if(*p >= TJS_W('A') && *p <= TJS_W('Z'))
                 *p += (TJS_W('a') - TJS_W('A'));
             p++;
         }
@@ -352,66 +343,65 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
 
     tMediaRecord *mediarec = GetMediaRecord(media);
 
-    if (domain.IsEmpty())
+    if(domain.IsEmpty())
         domain = mediarec->CurrentDomain;
     mediarec->MediaIntf.GetObjectNoAddRef()->NormalizeDomainName(domain);
 
-    if (path.IsEmpty()) {
+    if(path.IsEmpty()) {
         path = TJS_W("/");
-    } else if (path.c_str()[0] != TJS_W('/')) {
+    } else if(path.c_str()[0] != TJS_W('/')) {
         path = mediarec->CurrentPath + path;
     }
     mediarec->MediaIntf.GetObjectNoAddRef()->NormalizePathName(path);
 
     // compress redudant path accesses
-    if (inarc_name_found) {
+    if(inarc_name_found) {
         tjs_char tmp[2];
         tmp[0] = TVPArchiveDelimiter;
         tmp[1] = 0;
         path += tmp + inarchive_name;
     }
 
-    pa = pb = pc =
-        path.Independ(); // pa = read pointer, pb = write pointer, pc = start
+    pa = pb = pc = path.Independ(); // pa = read pointer, pb = write pointer, pc = start
     tjs_int dot_count = -1;
 
-    while (true) {
-        if (*pa == TVPArchiveDelimiter || *pa == TJS_W('/') || *pa == 0) {
+    while(true) {
+        if(*pa == TVPArchiveDelimiter || *pa == TJS_W('/') || *pa == 0) {
             tjs_char delim = 0;
 
-            if (*pa && dot_count == 0) {
+            if(*pa && dot_count == 0) {
                 // duplicated slashes
                 pb--;
-            } else if (dot_count > 0) {
+            } else if(dot_count > 0) {
                 pb--;
-                while (pb >= pc) {
-                    if (*pb == TJS_W('/') || *pb == TVPArchiveDelimiter) {
+                while(pb >= pc) {
+                    if(*pb == TJS_W('/') || *pb == TVPArchiveDelimiter) {
                         dot_count--;
-                        if (dot_count == 0) {
+                        if(dot_count == 0) {
                             delim = *pb;
                             break;
                         }
-                        if (*pb == TVPArchiveDelimiter)
+                        if(*pb == TVPArchiveDelimiter)
                             TVPThrowExceptionMessage(TVPInvalidPathName, name);
                     }
                     pb--;
                 }
-                if (pb < pc)
+                if(pb < pc)
                     TVPThrowExceptionMessage(TVPInvalidPathName, name);
             }
 
-            if (!delim)
+            if(!delim)
                 *pb = *pa;
             else
                 *pb = delim;
-            if (*pa == 0)
+            if(*pa == 0)
                 break;
             pb++;
             pa++;
             dot_count = 0;
-        } else if (*pa == TJS_W('.')) {
+        } else if(*pa == TJS_W('.')) {
             *(pb++) = *(pa++);
-            if (dot_count != -1)
+            if(dot_count != -1)
                 dot_count++;
         } else {
             *(pb++) = *(pa++);
@@ -422,11 +412,11 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
     path.FixLen();
 
     // merge and return normalize storage name
-    if (ret_media)
+    if(ret_media)
         *ret_media = media;
-    if (ret_domain)
+    if(ret_domain)
         *ret_domain = domain;
-    if (ret_path)
+    if(ret_path)
         *ret_path = path;
 
     tmp = media + TJS_W("://") + domain + path;
@@ -437,7 +427,7 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
 //---------------------------------------------------------------------------
 void tTVPStorageMediaManager::SetCurrentDirectory(const ttstr &name) {
     tjs_char ch = name.GetLastChar();
-    if (ch != TJS_W('/') && ch != TJS_W('\\') && ch != TVPArchiveDelimiter)
+    if(ch != TJS_W('/') && ch != TJS_W('\\') && ch != TVPArchiveDelimiter)
         TVPThrowExceptionMessage(TVPMissingPathDelimiterAtLast);
 
     ttstr media, domain, path;
@@ -456,7 +446,7 @@ ttstr tTVPStorageMediaManager::ExtractMediaName(const ttstr &name) {
 
     const tjs_char *p = name.c_str();
     const tjs_char *po = p;
-    while (*p && *p != TJS_W(':'))
+    while(*p && *p != TJS_W(':'))
         p++;
     return ttstr(po, (int)(p - po));
 }
@@ -466,28 +456,23 @@ bool tTVPStorageMediaManager::CheckExistentStorage(const ttstr &name) {
     // gateway for CheckExistentStorage
     // name must not be an in-archive storage name
     tMediaRecord *rec = GetMediaRecord(name);
-    return rec->MediaIntf.GetObjectNoAddRef()->CheckExistentStorage(
-        rec->GetDomainAndPath(name));
+    return rec->MediaIntf.GetObjectNoAddRef()->CheckExistentStorage(rec->GetDomainAndPath(name));
 }
 
 //---------------------------------------------------------------------------
-tTJSBinaryStream *tTVPStorageMediaManager::Open(const ttstr &name,
-                                                tjs_uint32 flags) {
+tTJSBinaryStream *tTVPStorageMediaManager::Open(const ttstr &name, tjs_uint32 flags) {
     // gateway for Open
     // name must not be an in-archive storage name
     tMediaRecord *rec = GetMediaRecord(name);
-    return rec->MediaIntf.GetObjectNoAddRef()->Open(rec->GetDomainAndPath(name),
-                                                    flags);
+    return rec->MediaIntf.GetObjectNoAddRef()->Open(rec->GetDomainAndPath(name), flags);
 }
 
 //---------------------------------------------------------------------------
-void tTVPStorageMediaManager::GetListAt(const ttstr &name,
-                                        iTVPStorageLister *lister) {
+void tTVPStorageMediaManager::GetListAt(const ttstr &name, iTVPStorageLister *lister) {
     // gateway for GetListAt
     // name must not be an in-archive storage name
     tMediaRecord *rec = GetMediaRecord(name);
-    /*return */ rec->MediaIntf.GetObjectNoAddRef()->GetListAt(
-        rec->GetDomainAndPath(name), lister);
+    /*return */ rec->MediaIntf.GetObjectNoAddRef()->GetListAt(rec->GetDomainAndPath(name), lister);
 }
 
 //---------------------------------------------------------------------------
@@ -501,19 +486,13 @@ ttstr tTVPStorageMediaManager::GetLocallyAccessibleName(const ttstr &name) {
 }
 
 //---------------------------------------------------------------------------
-void TVPGetListAt(const ttstr &name, iTVPStorageLister *lister) {
-    TVPStorageMediaManager.GetListAt(name, lister);
-}
+void TVPGetListAt(const ttstr &name, iTVPStorageLister *lister) { TVPStorageMediaManager.GetListAt(name, lister); }
 
 //---------------------------------------------------------------------------
-void TVPRegisterStorageMedia(iTVPStorageMedia *media) {
-    TVPStorageMediaManager.Register(media);
-}
+void TVPRegisterStorageMedia(iTVPStorageMedia *media) { TVPStorageMediaManager.Register(media); }
 
 //---------------------------------------------------------------------------
-void TVPUnregisterStorageMedia(iTVPStorageMedia *media) {
-    TVPStorageMediaManager.Unregister(media);
-}
+void TVPUnregisterStorageMedia(iTVPStorageMedia *media) { TVPStorageMediaManager.Unregister(media); }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -540,14 +519,14 @@ void TVPSetCurrentDirectory(const ttstr &_name) {
 //---------------------------------------------------------------------------
 void TVPGetLocalName(ttstr &name) {
     ttstr tmp = TVPGetLocallyAccessibleName(name);
-    if (tmp.IsEmpty())
+    if(tmp.IsEmpty())
         TVPThrowExceptionMessage(TVPCannotGetLocalName, name);
     name = tmp;
 }
 
 //---------------------------------------------------------------------------
 ttstr TVPGetLocallyAccessibleName(const ttstr &name) {
-    if (TJS_strchr(name.c_str(), TVPArchiveDelimiter))
+    if(TJS_strchr(name.c_str(), TVPArchiveDelimiter))
         return TJS_W("");
     // in-archive storage is always not accessible from local file system
     return TVPStorageMediaManager.GetLocallyAccessibleName(name);
@@ -559,16 +538,16 @@ ttstr TVPGetLocallyAccessibleName(const ttstr &name) {
 //---------------------------------------------------------------------------
 void tTVPArchive::NormalizeInArchiveStorageName(ttstr &name) {
     // normalization of in-archive storage name does :
-    if (name.IsEmpty())
+    if(name.IsEmpty())
         return;
 
     // make all characters small
     // change '\\' to '/'
     tjs_char *ptr = name.Independ();
-    while (*ptr) {
-        if (*ptr >= TJS_W('A') && *ptr <= TJS_W('Z'))
+    while(*ptr) {
+        if(*ptr >= TJS_W('A') && *ptr <= TJS_W('Z'))
             *ptr += TJS_W('a') - TJS_W('A');
-        else if (*ptr == TJS_W('\\'))
+        else if(*ptr == TJS_W('\\'))
             *ptr = TJS_W('/');
         ptr++;
     }
@@ -577,18 +556,18 @@ void tTVPArchive::NormalizeInArchiveStorageName(ttstr &name) {
     ptr = name.Independ();
     tjs_char *org_ptr = ptr;
     tjs_char *dest = ptr;
-    while (*ptr) {
-        if (*ptr != TJS_W('/')) {
+    while(*ptr) {
+        if(*ptr != TJS_W('/')) {
             *dest = *ptr;
             ptr++;
             dest++;
         } else {
-            if (ptr != org_ptr) {
+            if(ptr != org_ptr) {
                 *dest = *ptr;
                 ptr++;
                 dest++;
             }
-            while (*ptr == TJS_W('/'))
+            while(*ptr == TJS_W('/'))
                 ptr++;
         }
     }
@@ -602,7 +581,7 @@ void tTVPArchive::AddToHash() {
     // enter all names to the hash table
     tjs_uint Count = GetCount();
     tjs_uint i;
-    for (i = 0; i < Count; i++) {
+    for(i = 0; i < Count; i++) {
         ttstr name = GetName(i);
         NormalizeInArchiveStorageName(name);
         Hash.Add(name, i);
@@ -611,28 +590,27 @@ void tTVPArchive::AddToHash() {
 
 //---------------------------------------------------------------------------
 tTJSBinaryStream *tTVPArchive::CreateStream(const ttstr &name) {
-    if (name.IsEmpty())
+    if(name.IsEmpty())
         return nullptr;
 
-    if (!Init) {
+    if(!Init) {
         Init = true;
         AddToHash();
     }
 
     tjs_uint *p = Hash.Find(name);
-    if (!p)
-        TVPThrowExceptionMessage(TVPStorageInArchiveNotFound, name,
-                                 ArchiveName);
+    if(!p)
+        TVPThrowExceptionMessage(TVPStorageInArchiveNotFound, name, ArchiveName);
 
     return CreateStreamByIndex(*p);
 }
 
 //---------------------------------------------------------------------------
 bool tTVPArchive::IsExistent(const ttstr &name) {
-    if (name.IsEmpty())
+    if(name.IsEmpty())
         return false;
 
-    if (!Init) {
+    if(!Init) {
         Init = true;
         AddToHash();
     }
@@ -648,9 +626,9 @@ tjs_int tTVPArchive::GetFirstIndexStartsWith(const ttstr &prefix) {
     // will not work propertly.
     tjs_uint total_count = GetCount();
     tjs_int s = 0, e = total_count;
-    while (e - s > 1) {
+    while(e - s > 1) {
         tjs_int m = (e + s) / 2;
-        if (!(GetName(m) < prefix)) {
+        if(!(GetName(m) < prefix)) {
             // m is after or at the target
             e = m;
         } else {
@@ -661,14 +639,14 @@ tjs_int tTVPArchive::GetFirstIndexStartsWith(const ttstr &prefix) {
 
     // at this point, s or s+1 should point the target.
     // be certain.
-    if (s >= (tjs_int)total_count)
+    if(s >= (tjs_int)total_count)
         return -1; // out of the index
-    if (GetName(s).StartsWith(prefix))
+    if(GetName(s).StartsWith(prefix))
         return s;
     s++;
-    if (s >= (tjs_int)total_count)
+    if(s >= (tjs_int)total_count)
         return -1; // out of the index
-    if (GetName(s).StartsWith(prefix))
+    if(GetName(s).StartsWith(prefix))
         return s;
     return -1;
 }
@@ -699,12 +677,12 @@ public:
         tTJSCSH csh(CS);
         tjs_uint32 hash = tTJSHashCache<ttstr, tHolder>::MakeHash(name);
         tHolder *ptr = ArchiveCache.FindAndTouchWithHash(name, hash);
-        if (ptr) {
+        if(ptr) {
             // exist in the cache
             return ptr->GetObject();
         }
 
-        if (!TVPIsExistentStorageNoSearch(name)) {
+        if(!TVPIsExistentStorageNoSearch(name)) {
             // storage not found
             TVPThrowExceptionMessage(TVPCannotFindStorage, name);
         }
@@ -721,8 +699,7 @@ private:
 
 static void TVPClearArchiveCache() { TVPArchiveCache.Clear(); }
 
-static tTVPAtExit TVPClearArchiveCacheAtExit(TVP_ATEXIT_PRI_SHUTDOWN,
-                                             TVPClearArchiveCache);
+static tTVPAtExit TVPClearArchiveCacheAtExit(TVP_ATEXIT_PRI_SHUTDOWN, TVPClearArchiveCache);
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -733,7 +710,7 @@ bool TVPIsExistentStorageNoSearchNoNormalize(const ttstr &name) {
     tTJSCriticalSectionHolder cs_holder(TVPCreateStreamCS);
 
     const tjs_char *sharp_pos = TJS_strchr(name.c_str(), TVPArchiveDelimiter);
-    if (sharp_pos) {
+    if(sharp_pos) {
         // this storagename indicates a file in an archive
 
         ttstr arcname(name, (int)(sharp_pos - name.c_str()));
@@ -745,7 +722,7 @@ bool TVPIsExistentStorageNoSearchNoNormalize(const ttstr &name) {
             ttstr in_arc_name(sharp_pos + 1);
             tTVPArchive::NormalizeInArchiveStorageName(in_arc_name);
             ret = arc->IsExistent(in_arc_name);
-        } catch (...) {
+        } catch(...) {
             arc->Release();
             throw;
         }
@@ -758,8 +735,7 @@ bool TVPIsExistentStorageNoSearchNoNormalize(const ttstr &name) {
 
 //---------------------------------------------------------------------------
 bool TVPIsExistentStorageNoSearch(const ttstr &_name) {
-    return TVPIsExistentStorageNoSearchNoNormalize(
-        TVPNormalizeStorageName(_name));
+    return TVPIsExistentStorageNoSearchNoNormalize(TVPNormalizeStorageName(_name));
 }
 //---------------------------------------------------------------------------
 
@@ -776,14 +752,14 @@ ttstr TVPExtractStorageExt(const ttstr &name) {
     tjs_int slen = name.GetLen();
     const tjs_char *p = s + slen;
     p--;
-    while (p >= s) {
-        if (*p == TJS_W('\\'))
+    while(p >= s) {
+        if(*p == TJS_W('\\'))
             break;
-        if (*p == TJS_W('/'))
+        if(*p == TJS_W('/'))
             break;
-        if (*p == TVPArchiveDelimiter)
+        if(*p == TVPArchiveDelimiter)
             break;
-        if (*p == TJS_W('.')) {
+        if(*p == TJS_W('.')) {
             // found extension delimiter
             tjs_int extlen = (tjs_int)(slen - (p - s));
             return ttstr(p, extlen);
@@ -806,19 +782,19 @@ ttstr TVPExtractStorageName(const ttstr &name) {
     tjs_int slen = name.GetLen();
     const tjs_char *p = s + slen;
     p--;
-    while (p >= s) {
-        if (*p == TJS_W('\\'))
+    while(p >= s) {
+        if(*p == TJS_W('\\'))
             break;
-        if (*p == TJS_W('/'))
+        if(*p == TJS_W('/'))
             break;
-        if (*p == TVPArchiveDelimiter)
+        if(*p == TVPArchiveDelimiter)
             break;
 
         p--;
     }
 
     p++;
-    if (p == s)
+    if(p == s)
         return name;
     else
         return ttstr(p, (int)(slen - (p - s)));
@@ -834,12 +810,12 @@ ttstr TVPExtractStoragePath(const ttstr &name) {
     tjs_int slen = name.GetLen();
     const tjs_char *p = s + slen;
     p--;
-    while (p >= s) {
-        if (*p == TJS_W('\\'))
+    while(p >= s) {
+        if(*p == TJS_W('\\'))
             break;
-        if (*p == TJS_W('/'))
+        if(*p == TJS_W('/'))
             break;
-        if (*p == TVPArchiveDelimiter)
+        if(*p == TVPArchiveDelimiter)
             break;
 
         p--;
@@ -859,14 +835,14 @@ extern ttstr TVPChopStorageExt(const ttstr &name) {
     tjs_int slen = name.GetLen();
     const tjs_char *p = s + slen;
     p--;
-    while (p >= s) {
-        if (*p == TJS_W('\\'))
+    while(p >= s) {
+        if(*p == TJS_W('\\'))
             break;
-        if (*p == TJS_W('/'))
+        if(*p == TJS_W('/'))
             break;
-        if (*p == TVPArchiveDelimiter)
+        if(*p == TVPArchiveDelimiter)
             break;
-        if (*p == TJS_W('.')) {
+        if(*p == TJS_W('.')) {
             // found extension delimiter
             return ttstr(s, (int)(p - s));
         }
@@ -885,8 +861,7 @@ extern ttstr TVPChopStorageExt(const ttstr &name) {
 #define TVP_AUTO_PATH_HASH_SIZE 1024
 std::vector<ttstr> TVPAutoPathList;
 tTJSHashCache<ttstr, ttstr> TVPAutoPathCache(TVP_DEFAULT_AUTOPATH_CACHE_NUM);
-tTJSHashTable<ttstr, ttstr, tTJSHashFunc<ttstr>, TVP_AUTO_PATH_HASH_SIZE>
-    TVPAutoPathTable;
+tTJSHashTable<ttstr, ttstr, tTJSHashFunc<ttstr>, TVP_AUTO_PATH_HASH_SIZE> TVPAutoPathTable;
 bool AutoPathTableInit = false;
 
 //---------------------------------------------------------------------------
@@ -899,7 +874,7 @@ static void TVPClearAutoPathCache() {
 //---------------------------------------------------------------------------
 struct tTVPClearAutoPathCacheCallback : public tTVPCompactEventCallbackIntf {
     virtual void TJS_INTF_METHOD OnCompact(tjs_int level) {
-        if (level >= TVP_COMPACT_LEVEL_DEACTIVATE) {
+        if(level >= TVP_COMPACT_LEVEL_DEACTIVATE) {
             // clear the auto search path cache on application deactivate
             tTJSCriticalSectionHolder cs_holder(TVPCreateStreamCS);
             TVPClearAutoPathCache();
@@ -914,15 +889,13 @@ void TVPAddAutoPath(const ttstr &name) {
     tTJSCriticalSectionHolder cs_holder(TVPCreateStreamCS);
 
     tjs_char lastchar = name.GetLastChar();
-    if (lastchar != TVPArchiveDelimiter && lastchar != TJS_W('/') &&
-        lastchar != TJS_W('\\'))
+    if(lastchar != TVPArchiveDelimiter && lastchar != TJS_W('/') && lastchar != TJS_W('\\'))
         TVPThrowExceptionMessage(TVPMissingPathDelimiterAtLast);
 
     ttstr normalized = TVPNormalizeStorageName(name);
 
-    std::vector<ttstr>::iterator i =
-        std::find(TVPAutoPathList.begin(), TVPAutoPathList.end(), normalized);
-    if (i == TVPAutoPathList.end())
+    std::vector<ttstr>::iterator i = std::find(TVPAutoPathList.begin(), TVPAutoPathList.end(), normalized);
+    if(i == TVPAutoPathList.end())
         TVPAutoPathList.push_back(normalized);
 
     TVPClearAutoPathCache();
@@ -933,15 +906,13 @@ void TVPRemoveAutoPath(const ttstr &name) {
     tTJSCriticalSectionHolder cs_holder(TVPCreateStreamCS);
 
     tjs_char lastchar = name.GetLastChar();
-    if (lastchar != TVPArchiveDelimiter && lastchar != TJS_W('/') &&
-        lastchar != TJS_W('\\'))
+    if(lastchar != TVPArchiveDelimiter && lastchar != TJS_W('/') && lastchar != TJS_W('\\'))
         TVPThrowExceptionMessage(TVPMissingPathDelimiterAtLast);
 
     ttstr normalized = TVPNormalizeStorageName(name);
 
-    std::vector<ttstr>::iterator i =
-        std::find(TVPAutoPathList.begin(), TVPAutoPathList.end(), normalized);
-    if (i != TVPAutoPathList.end())
+    std::vector<ttstr>::iterator i = std::find(TVPAutoPathList.begin(), TVPAutoPathList.end(), normalized);
+    if(i != TVPAutoPathList.end())
         TVPAutoPathList.erase(i);
 
     TVPClearAutoPathCache();
@@ -950,7 +921,7 @@ void TVPRemoveAutoPath(const ttstr &name) {
 //---------------------------------------------------------------------------
 static tjs_uint TVPRebuildAutoPathTable() {
     // rebuild auto path table
-    if (AutoPathTableInit)
+    if(AutoPathTableInit)
         return 0;
 
     tTJSCriticalSectionHolder cs_holder(TVPCreateStreamCS);
@@ -963,13 +934,12 @@ static tjs_uint TVPRebuildAutoPathTable() {
     tjs_uint totalcount = 0;
 
     std::vector<ttstr>::iterator it;
-    for (it = TVPAutoPathList.begin(); it != TVPAutoPathList.end(); it++) {
+    for(it = TVPAutoPathList.begin(); it != TVPAutoPathList.end(); it++) {
         const ttstr &path = *it;
         tjs_uint count = 0;
 
-        const tjs_char *sharp_pos =
-            TJS_strchr(path.c_str(), TVPArchiveDelimiter);
-        if (sharp_pos) {
+        const tjs_char *sharp_pos = TJS_strchr(path.c_str(), TVPArchiveDelimiter);
+        if(sharp_pos) {
             // this storagename indicates a file in an archive
 
             ttstr arcname(path, (int)(sharp_pos - path.c_str()));
@@ -986,13 +956,12 @@ static tjs_uint TVPRebuildAutoPathTable() {
                 // get first index which the item has 'in_arc_name' as its start
                 // of the string.
                 tjs_int i = arc->GetFirstIndexStartsWith(in_arc_name);
-                if (i != -1) {
-                    for (; i < (tjs_int)storagecount; i++) {
+                if(i != -1) {
+                    for(; i < (tjs_int)storagecount; i++) {
                         ttstr name = arc->GetName(i);
 
-                        if (name.StartsWith(in_arc_name)) {
-                            if (!TJS_strchr(name.c_str() + in_arc_name_len,
-                                            TJS_W('/'))) {
+                        if(name.StartsWith(in_arc_name)) {
+                            if(!TJS_strchr(name.c_str() + in_arc_name_len, TJS_W('/'))) {
                                 ttstr sname = TVPExtractStorageName(name);
                                 TVPAutoPathTable.Add(sname, path);
                                 count++;
@@ -1004,7 +973,7 @@ static tjs_uint TVPRebuildAutoPathTable() {
                         }
                     }
                 }
-            } catch (...) {
+            } catch(...) {
                 arc->Release();
                 throw;
             }
@@ -1015,14 +984,11 @@ static tjs_uint TVPRebuildAutoPathTable() {
             public:
                 std::vector<ttstr> list;
 
-                void TJS_INTF_METHOD Add(const ttstr &file) {
-                    list.push_back(file);
-                }
+                void TJS_INTF_METHOD Add(const ttstr &file) { list.push_back(file); }
             } lister;
 
             TVPStorageMediaManager.GetListAt(path, &lister);
-            for (std::vector<ttstr>::iterator i = lister.list.begin();
-                 i != lister.list.end(); i++) {
+            for(std::vector<ttstr>::iterator i = lister.list.begin(); i != lister.list.end(); i++) {
                 TVPAutoPathTable.Add(*i, path);
                 count++;
             }
@@ -1037,10 +1003,8 @@ static tjs_uint TVPRebuildAutoPathTable() {
 
     tjs_uint64 endtick = TVPGetTickCount();
 
-    TVPAddLog(ttstr(TJS_W("(info) Total ")) + ttstr((tjs_int)totalcount) +
-              TJS_W(" file(s) found, ") +
-              ttstr((tjs_int)TVPAutoPathTable.GetCount()) +
-              TJS_W(" file(s) activated.") + TJS_W(" (") +
+    TVPAddLog(ttstr(TJS_W("(info) Total ")) + ttstr((tjs_int)totalcount) + TJS_W(" file(s) found, ") +
+              ttstr((tjs_int)TVPAutoPathTable.GetCount()) + TJS_W(" file(s) activated.") + TJS_W(" (") +
               ttstr((tjs_int)(endtick - tick)) + TJS_W("ms)"));
 
     AutoPathTableInit = true;
@@ -1065,7 +1029,7 @@ ttstr TVPGetPlacedPath(const ttstr &name) {
 #endif
 
     ttstr *incache = TVPAutoPathCache.FindAndTouch(name);
-    if (incache)
+    if(incache)
         return *incache; // found in cache
 
     tTJSCriticalSectionHolder cs_holder(TVPCreateStreamCS);
@@ -1073,7 +1037,7 @@ ttstr TVPGetPlacedPath(const ttstr &name) {
     ttstr normalized(TVPNormalizeStorageName(name));
 
     bool found = TVPIsExistentStorageNoSearchNoNormalize(normalized);
-    if (found) {
+    if(found) {
         // found in current folder
         TVPAutoPathCache.Add(name, normalized);
         return normalized;
@@ -1086,7 +1050,7 @@ ttstr TVPGetPlacedPath(const ttstr &name) {
 
     TVPRebuildAutoPathTable(); // ensure auto path table
     ttstr *result = TVPAutoPathTable.Find(storagename);
-    if (result) {
+    if(result) {
         // found in table
         ttstr found = *result + storagename;
         TVPAutoPathCache.Add(name, found);
@@ -1104,7 +1068,7 @@ ttstr TVPGetPlacedPath(const ttstr &name) {
 //---------------------------------------------------------------------------
 ttstr TVPSearchPlacedPath(const ttstr &name) {
     ttstr place = TVPGetPlacedPath(name);
-    if (place.IsEmpty())
+    if(place.IsEmpty())
         TVPThrowExceptionMessage(TVPCannotFindStorage, name);
     return place;
 }
@@ -1113,37 +1077,34 @@ ttstr TVPSearchPlacedPath(const ttstr &name) {
 //---------------------------------------------------------------------------
 // TVPIsExistentStorage
 //---------------------------------------------------------------------------
-bool TVPIsExistentStorage(const ttstr &name) {
-    return !TVPGetPlacedPath(name).IsEmpty();
-}
+bool TVPIsExistentStorage(const ttstr &name) { return !TVPGetPlacedPath(name).IsEmpty(); }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 // TVPCreateStream
 //---------------------------------------------------------------------------
-static tTJSBinaryStream *_TVPCreateStream(const ttstr &_name,
-                                          tjs_uint32 flags) {
+static tTJSBinaryStream *_TVPCreateStream(const ttstr &_name, tjs_uint32 flags) {
     tTJSCriticalSectionHolder cs_holder(TVPCreateStreamCS);
 
     ttstr name;
 
     tjs_uint32 access = flags & TJS_BS_ACCESS_MASK;
-    if (access == TJS_BS_WRITE)
+    if(access == TJS_BS_WRITE)
         name = TVPNormalizeStorageName(_name);
     else
         name = TVPGetPlacedPath(_name); // file must exist
 
-    if (name.IsEmpty()) {
-        if (access >= 1)
+    if(name.IsEmpty()) {
+        if(access >= 1)
             TVPRemoveFromStorageCache(_name);
         TVPThrowExceptionMessage(TVPCannotOpenStorage, _name);
     }
 
     // does name contain > ?
     const tjs_char *sharp_pos = TJS_strchr(name.c_str(), TVPArchiveDelimiter);
-    if (sharp_pos) {
+    if(sharp_pos) {
         // this storagename indicates a file in an archive
-        if ((flags & TJS_BS_ACCESS_MASK) != TJS_BS_READ)
+        if((flags & TJS_BS_ACCESS_MASK) != TJS_BS_READ)
             TVPThrowExceptionMessage(TVPCannotWriteToArchive);
 
         ttstr arcname(name, (int)(sharp_pos - name.c_str()));
@@ -1155,13 +1116,13 @@ static tTJSBinaryStream *_TVPCreateStream(const ttstr &_name,
             ttstr in_arc_name(sharp_pos + 1);
             tTVPArchive::NormalizeInArchiveStorageName(in_arc_name);
             stream = arc->CreateStream(in_arc_name);
-        } catch (...) {
+        } catch(...) {
             arc->Release();
-            if (access >= 1)
+            if(access >= 1)
                 TVPRemoveFromStorageCache(_name);
             throw;
         }
-        if (access >= 1)
+        if(access >= 1)
             TVPRemoveFromStorageCache(_name);
         arc->Release();
         return stream;
@@ -1170,12 +1131,12 @@ static tTJSBinaryStream *_TVPCreateStream(const ttstr &_name,
     tTJSBinaryStream *stream;
     try {
         stream = TVPStorageMediaManager.Open(name, flags);
-    } catch (...) {
-        if (access >= 1)
+    } catch(...) {
+        if(access >= 1)
             TVPRemoveFromStorageCache(_name);
         throw;
     }
-    if (access >= 1)
+    if(access >= 1)
         TVPRemoveFromStorageCache(_name);
     return stream;
 }
@@ -1183,31 +1144,22 @@ static tTJSBinaryStream *_TVPCreateStream(const ttstr &_name,
 tTJSBinaryStream *TVPCreateStream(const ttstr &_name, tjs_uint32 flags) {
     try {
         return _TVPCreateStream(_name, flags);
-    } catch (eTJSScriptException &e) {
-        if (TJS_strchr(_name.c_str(), '#'))
-            e.AppendMessage(
-                TJS_W("[") +
-                TVPFormatMessage(TVPFilenameContainsSharpWarn, _name) +
-                TJS_W("]"));
+    } catch(eTJSScriptException &e) {
+        if(TJS_strchr(_name.c_str(), '#'))
+            e.AppendMessage(TJS_W("[") + TVPFormatMessage(TVPFilenameContainsSharpWarn, _name) + TJS_W("]"));
         throw e;
-    } catch (eTJSScriptError &e) {
-        if (TJS_strchr(_name.c_str(), '#'))
-            e.AppendMessage(
-                TJS_W("[") +
-                TVPFormatMessage(TVPFilenameContainsSharpWarn, _name) +
-                TJS_W("]"));
+    } catch(eTJSScriptError &e) {
+        if(TJS_strchr(_name.c_str(), '#'))
+            e.AppendMessage(TJS_W("[") + TVPFormatMessage(TVPFilenameContainsSharpWarn, _name) + TJS_W("]"));
         throw e;
-    } catch (eTJSError &e) {
-        if (TJS_strchr(_name.c_str(), '#'))
-            e.AppendMessage(
-                TJS_W("[") +
-                TVPFormatMessage(TVPFilenameContainsSharpWarn, _name) +
-                TJS_W("]"));
+    } catch(eTJSError &e) {
+        if(TJS_strchr(_name.c_str(), '#'))
+            e.AppendMessage(TJS_W("[") + TVPFormatMessage(TVPFilenameContainsSharpWarn, _name) + TJS_W("]"));
         throw e;
-    } catch (...) {
+    } catch(...) {
         // check whether the filename contains '#' (former delimiter for archive
         // filename before 2.19 beta 14)
-        if (TJS_strchr(_name.c_str(), '#'))
+        if(TJS_strchr(_name.c_str(), '#'))
             TVPAddLog(TVPFormatMessage(TVPFilenameContainsSharpWarn, _name));
         throw;
     }
@@ -1224,33 +1176,30 @@ void TVPClearStorageCaches() {
 }
 //---------------------------------------------------------------------------
 
-void TVPRemoveFromStorageCache(const ttstr &name) {
-    TVPAutoPathCache.Delete(name);
-}
+void TVPRemoveFromStorageCache(const ttstr &name) { TVPAutoPathCache.Delete(name); }
 
 //---------------------------------------------------------------------------
 // tTJSNC_Storages
 //---------------------------------------------------------------------------
 tjs_uint32 tTJSNC_Storages::ClassID = -1;
 
-tTJSNC_Storages::tTJSNC_Storages()
-    : inherited(TJS_W("Storages")){
-          // registration of native members
+tTJSNC_Storages::tTJSNC_Storages() :
+    inherited(TJS_W("Storages")){
+        // registration of native members
 
-          TJS_BEGIN_NATIVE_MEMBERS(Storages) TJS_DECL_EMPTY_FINALIZE_METHOD
-              //----------------------------------------------------------------------
+        TJS_BEGIN_NATIVE_MEMBERS(Storages) TJS_DECL_EMPTY_FINALIZE_METHOD
+            //----------------------------------------------------------------------
 
-              //-- methods
+            //-- methods
 
-              //----------------------------------------------------------------------
-              TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ addAutoPath){
-                  if (numparams < 1) return TJS_E_BADPARAMCOUNT;
+            //----------------------------------------------------------------------
+            TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ addAutoPath){ if(numparams < 1) return TJS_E_BADPARAMCOUNT;
 
 ttstr path = *param[0];
 
 TVPAddAutoPath(path);
 
-if (result)
+if(result)
     result->Clear();
 
 return TJS_S_OK;
@@ -1258,14 +1207,14 @@ return TJS_S_OK;
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ addAutoPath)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ removeAutoPath) {
-    if (numparams < 1)
+    if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
 
     ttstr path = *param[0];
 
     TVPRemoveAutoPath(path);
 
-    if (result)
+    if(result)
         result->Clear();
 
     return TJS_S_OK;
@@ -1273,12 +1222,12 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ removeAutoPath) {
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ removeAutoPath)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getFullPath) {
-    if (numparams < 1)
+    if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
 
     ttstr path = *param[0];
 
-    if (result)
+    if(result)
         *result = TVPNormalizeStorageName(path);
 
     return TJS_S_OK;
@@ -1286,12 +1235,12 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getFullPath) {
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ getFullPath)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getPlacedPath) {
-    if (numparams < 1)
+    if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
 
     ttstr path = *param[0];
 
-    if (result)
+    if(result)
         *result = TVPGetPlacedPath(path);
 
     return TJS_S_OK;
@@ -1299,12 +1248,12 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getPlacedPath) {
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ getPlacedPath)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ isExistentStorage) {
-    if (numparams < 1)
+    if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
 
     ttstr path = *param[0];
 
-    if (result)
+    if(result)
         *result = (tjs_int)TVPIsExistentStorage(path);
 
     return TJS_S_OK;
@@ -1312,12 +1261,12 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ isExistentStorage) {
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ isExistentStorage)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ extractStorageExt) {
-    if (numparams < 1)
+    if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
 
     ttstr path = *param[0];
 
-    if (result)
+    if(result)
         *result = TVPExtractStorageExt(path);
 
     return TJS_S_OK;
@@ -1325,12 +1274,12 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ extractStorageExt) {
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ extractStorageExt)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ extractStorageName) {
-    if (numparams < 1)
+    if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
 
     ttstr path = *param[0];
 
-    if (result)
+    if(result)
         *result = TVPExtractStorageName(path);
 
     return TJS_S_OK;
@@ -1338,12 +1287,12 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ extractStorageName) {
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ extractStorageName)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ extractStoragePath) {
-    if (numparams < 1)
+    if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
 
     ttstr path = *param[0];
 
-    if (result)
+    if(result)
         *result = TVPExtractStoragePath(path);
 
     return TJS_S_OK;
@@ -1351,12 +1300,12 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ extractStoragePath) {
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ extractStoragePath)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ chopStorageExt) {
-    if (numparams < 1)
+    if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
 
     ttstr path = *param[0];
 
-    if (result)
+    if(result)
         *result = TVPChopStorageExt(path);
 
     return TJS_S_OK;

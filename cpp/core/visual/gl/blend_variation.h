@@ -22,7 +22,8 @@
 // アルファの扱い
 //--------------------------------------------------------------------------------------------------------
 // srcのアルファを使用するバージョン
-template <class blend_func> struct normal_op {
+template <class blend_func>
+struct normal_op {
     blend_func func_;
     inline normal_op() {}
     inline normal_op(tjs_uint32 opa) {}
@@ -33,7 +34,8 @@ template <class blend_func> struct normal_op {
 };
 //--------------------------------------------------------------------------------------------------------
 // 透明度を指定するバージョン
-template <class blend_func> struct translucent_op {
+template <class blend_func>
+struct translucent_op {
     const tjs_int opa_;
     blend_func func_;
     inline translucent_op() : opa_(255) {}
@@ -44,18 +46,18 @@ template <class blend_func> struct translucent_op {
     }
 };
 // ソースのアルファを使用しない
-template <class blend_func> struct translucent_nsa_op {
+template <class blend_func>
+struct translucent_nsa_op {
     const tjs_int opa_;
     blend_func func_;
     inline translucent_nsa_op() : opa_(255) {}
     inline translucent_nsa_op(tjs_uint32 opa) : opa_(opa) {}
-    inline tjs_uint32 operator()(tjs_uint32 d, tjs_uint32 s) const {
-        return func_(d, s, opa_);
-    }
+    inline tjs_uint32 operator()(tjs_uint32 d, tjs_uint32 s) const { return func_(d, s, opa_); }
 };
 //--------------------------------------------------------------------------------------------------------
 // destアルファを保護するバージョン
-template <class blend_func> struct hda_op {
+template <class blend_func>
+struct hda_op {
     blend_func func_;
     inline hda_op() {}
     inline hda_op(tjs_uint32 opa) {}
@@ -65,7 +67,8 @@ template <class blend_func> struct hda_op {
     }
 };
 // ソースのアルファを使用しない
-template <class blend_func> struct hda_nsa_op {
+template <class blend_func>
+struct hda_nsa_op {
     blend_func func_;
     inline hda_nsa_op() {}
     inline hda_nsa_op(tjs_uint32 opa) {}
@@ -75,7 +78,8 @@ template <class blend_func> struct hda_nsa_op {
 };
 //--------------------------------------------------------------------------------------------------------
 // destアルファを保護し、透明度を指定するバージョン
-template <class blend_func> struct hda_translucent_op {
+template <class blend_func>
+struct hda_translucent_op {
     const tjs_uint32 opa_;
     blend_func func_;
     inline hda_translucent_op() : opa_(255) {}
@@ -86,7 +90,8 @@ template <class blend_func> struct hda_translucent_op {
     }
 };
 // ソースのアルファを使用しない
-template <class blend_func> struct hda_translucent_nsa_op {
+template <class blend_func>
+struct hda_translucent_nsa_op {
     const tjs_uint32 opa_;
     blend_func func_;
     inline hda_translucent_nsa_op() : opa_(255) {}
@@ -97,7 +102,8 @@ template <class blend_func> struct hda_translucent_nsa_op {
 };
 //--------------------------------------------------------------------------------------------------------
 // destのアルファを使用するバージョン
-template <class blend_func> struct dest_alpha_op {
+template <class blend_func>
+struct dest_alpha_op {
     blend_func func_;
     inline dest_alpha_op() {}
     inline dest_alpha_op(tjs_uint32 opa) {}
@@ -106,7 +112,7 @@ template <class blend_func> struct dest_alpha_op {
         tjs_uint32 sa = s >> 24;
         tjs_uint32 da = d >> 24;
         tjs_uint32 sopa;
-        if (da) {
+        if(da) {
             float at = (float)(da / 255.0);
             float bt = (float)(sa / 255.0);
             float c = bt / at;
@@ -115,8 +121,7 @@ template <class blend_func> struct dest_alpha_op {
         } else {
             sopa = 255;
         }
-        tjs_uint32 destalpha =
-            (unsigned char)(255 - (255 - da) * (255 - sa) / 255) << 24;
+        tjs_uint32 destalpha = (unsigned char)(255 - (255 - da) * (255 - sa) / 255) << 24;
 #else
         tjs_uint32 addr = ((s >> 16) & 0xff00) + (d >> 24);
         tjs_uint32 destalpha = TVPNegativeMulTable[addr] << 24;
@@ -139,7 +144,8 @@ template <class blend_func> struct dest_alpha_op {
 // と同じ結果になるので、ソースのアルファを使用しないバージョンは不要か
 //--------------------------------------------------------------------------------------------------------
 // destのアルファを使用する、透明度を指定するバージョン
-template <class blend_func> struct dest_alpha_translucent_op {
+template <class blend_func>
+struct dest_alpha_translucent_op {
     const tjs_int opa_;
     blend_func func_;
     inline dest_alpha_translucent_op() : opa_(255) {}
@@ -149,7 +155,7 @@ template <class blend_func> struct dest_alpha_translucent_op {
         tjs_uint32 sa = ((s >> 24) * opa_) >> 8;
         tjs_uint32 da = d >> 24;
         tjs_uint32 sopa;
-        if (da) {
+        if(da) {
             float at = (float)(da / 255.0);
             float bt = (float)(sa / 255.0);
             float c = bt / at;
@@ -158,8 +164,7 @@ template <class blend_func> struct dest_alpha_translucent_op {
         } else {
             sopa = 255;
         }
-        tjs_uint32 destalpha =
-            (unsigned char)(255 - (255 - da) * (255 - sa) / 255) << 24;
+        tjs_uint32 destalpha = (unsigned char)(255 - (255 - da) * (255 - sa) / 255) << 24;
 #else
         tjs_uint32 addr = (((s >> 24) * opa_) & 0xff00) + (d >> 24);
         tjs_uint32 destalpha = TVPNegativeMulTable[addr] << 24;

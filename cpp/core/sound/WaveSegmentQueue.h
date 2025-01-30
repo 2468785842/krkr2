@@ -25,8 +25,7 @@ struct tTVPWaveSegment {
         Length = FilteredLength = length;
     }
 
-    tTVPWaveSegment(tjs_int64 start, tjs_int64 length,
-                    tjs_int64 filteredlength) {
+    tTVPWaveSegment(tjs_int64 start, tjs_int64 length, tjs_int64 filteredlength) {
         Start = start;
         Length = length;
         FilteredLength = filteredlength;
@@ -36,8 +35,7 @@ struct tTVPWaveSegment {
                      //!< サンプルグラニュール数単位)
     tjs_int64 Length; //!< オリジナルデコーダ上でのセグメントの長さ (PCM
                       //!< サンプルグラニュール数単位)
-    tjs_int64
-        FilteredLength; //!< フィルタ後の長さ (PCM サンプルグラニュール数単位)
+    tjs_int64 FilteredLength; //!< フィルタ後の長さ (PCM サンプルグラニュール数単位)
 };
 //---------------------------------------------------------------------------
 
@@ -60,29 +58,22 @@ struct tTVPWaveLabel {
 #ifdef TVP_IN_LOOP_TUNER
     // these are only used by the loop tuner
     tjs_int NameWidth; // display name width
-    tjs_int Index;     // index
+    tjs_int Index; // index
 #endif
 
     struct tSortByPositionFuncObj {
-        bool operator()(const tTVPWaveLabel &lhs,
-                        const tTVPWaveLabel &rhs) const {
+        bool operator()(const tTVPWaveLabel &lhs, const tTVPWaveLabel &rhs) const {
             return lhs.Position < rhs.Position;
         }
     };
 
     struct tSortByOffsetFuncObj {
-        bool operator()(const tTVPWaveLabel &lhs,
-                        const tTVPWaveLabel &rhs) const {
-            return lhs.Offset < rhs.Offset;
-        }
+        bool operator()(const tTVPWaveLabel &lhs, const tTVPWaveLabel &rhs) const { return lhs.Offset < rhs.Offset; }
     };
 
 #ifdef TVP_IN_LOOP_TUNER
     struct tSortByIndexFuncObj {
-        bool operator()(const tTVPWaveLabel &lhs,
-                        const tTVPWaveLabel &rhs) const {
-            return lhs.Index < rhs.Index;
-        }
+        bool operator()(const tTVPWaveLabel &lhs, const tTVPWaveLabel &rhs) const { return lhs.Index < rhs.Index; }
     };
 #endif
 
@@ -97,8 +88,8 @@ struct tTVPWaveLabel {
     }
 
     //! @brief コンストラクタ
-    tTVPWaveLabel(tjs_int64 position, const ttstr &name, tjs_int offset)
-        : Position(position), Name(name), Offset(offset) {
+    tTVPWaveLabel(tjs_int64 position, const ttstr &name, tjs_int offset) :
+        Position(position), Name(name), Offset(offset) {
 #ifdef TVP_IN_LOOP_TUNER
         NameWidth = 0;
         Index = 0;
@@ -107,9 +98,7 @@ struct tTVPWaveLabel {
 };
 
 //---------------------------------------------------------------------------
-bool inline operator<(const tTVPWaveLabel &lhs, const tTVPWaveLabel &rhs) {
-    return lhs.Position < rhs.Position;
-}
+bool inline operator<(const tTVPWaveLabel &lhs, const tTVPWaveLabel &rhs) { return lhs.Position < rhs.Position; }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -120,7 +109,7 @@ class tTVPWaveSegmentQueue {
     // 実用上は、これらの配列に大量のデータが入ることはまずないので
     // vector で十分なのかもしれないが ...
     std::deque<tTVPWaveSegment> Segments; //!< セグメントの配列
-    std::deque<tTVPWaveLabel> Labels;     //!< ラベルの配列
+    std::deque<tTVPWaveLabel> Labels; //!< ラベルの配列
 
 public:
     //! @brief		内容をクリアする

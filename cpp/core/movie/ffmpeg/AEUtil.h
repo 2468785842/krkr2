@@ -44,9 +44,9 @@ struct AEDelayStatus {
 
     double GetDelay();
 
-    double delay;         // delay in sink currently
+    double delay; // delay in sink currently
     double maxcorrection; // time correction must not be greater than sink delay
-    int64_t tick;         // timestamp when delay was calculated
+    int64_t tick; // timestamp when delay was calculated
 };
 
 /**
@@ -83,12 +83,10 @@ protected:
 
 class CAESpinLock {
 public:
-    CAESpinLock(CAESpinSection &section)
-        : m_section(section), m_begin(section.m_enter) {}
+    CAESpinLock(CAESpinSection &section) : m_section(section), m_begin(section.m_enter) {}
 
     bool retry() {
-        if (m_section.m_enter != m_begin ||
-            m_section.m_enter != m_section.m_leave) {
+        if(m_section.m_enter != m_begin || m_section.m_enter != m_section.m_leave) {
             m_begin = m_section.m_enter;
             return true;
         } else
@@ -114,19 +112,15 @@ public:
     //  channels);
     static const char *GetStdChLayoutName(const enum AEStdChLayout layout);
 
-    static const unsigned int
-    DataFormatToBits(const enum AEDataFormat dataFormat);
+    static const unsigned int DataFormatToBits(const enum AEDataFormat dataFormat);
 
-    static const unsigned int
-    DataFormatToUsedBits(const enum AEDataFormat dataFormat);
+    static const unsigned int DataFormatToUsedBits(const enum AEDataFormat dataFormat);
 
-    static const unsigned int
-    DataFormatToDitherBits(const enum AEDataFormat dataFormat);
+    static const unsigned int DataFormatToDitherBits(const enum AEDataFormat dataFormat);
 
     static const char *DataFormatToStr(const enum AEDataFormat dataFormat);
 
-    static const char *
-    StreamTypeToStr(const enum CAEStreamInfo::DataType dataType);
+    static const char *StreamTypeToStr(const enum CAEStreamInfo::DataType dataType);
 
     /*! \brief convert a volume percentage (as a proportion) to a dB gain
      We assume a dB range of 60dB, i.e. assume that 0% volume corresponds
@@ -161,12 +155,12 @@ public:
     static inline const float GainToScale(const float dB) {
         float val = 0.0f;
         // we need to make sure that our lowest db returns plain zero
-        if (dB > -60.0f)
+        if(dB > -60.0f)
             val = pow(10.0f, dB / 20);
 
         // in order to not introduce computing overhead for nearly zero
         // values of dB e.g. -0.01 or -0.001 we clamp to top
-        if (val >= 0.99f)
+        if(val >= 0.99f)
             val = 1.0f;
 
         return val;
@@ -178,14 +172,11 @@ public:
      \return dB the gain in decibels.
      \sa GainToScale
      */
-    static inline const float ScaleToGain(const float scale) {
-        return 20 * log10(scale);
-    }
+    static inline const float ScaleToGain(const float scale) { return 20 * log10(scale); }
 
 #if defined(HAVE_SSE) && defined(__SSE__)
     static void SSEMulArray(float *data, const float mul, uint32_t count);
-    static void SSEMulAddArray(float *data, float *add, const float mul,
-                               uint32_t count);
+    static void SSEMulAddArray(float *data, float *add, const float mul, uint32_t count);
 #endif
 
     static void ClampArray(float *data, uint32_t count);
@@ -198,8 +189,7 @@ public:
     */
     static float FloatRand1(const float min, const float max);
 
-    static void FloatRand4(const float min, const float max, float result[4],
-                           __m128 *sseresult = nullptr);
+    static void FloatRand4(const float min, const float max, float result[4], __m128 *sseresult = nullptr);
 
     static bool S16NeedsByteSwap(AEDataFormat in, AEDataFormat out);
 

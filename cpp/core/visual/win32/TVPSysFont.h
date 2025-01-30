@@ -25,7 +25,6 @@ public:
 };
 
 extern void TVPGetAllFontList(std::vector<ttstr> &list);
-extern void TVPGetFontList(std::vector<ttstr> &list, tjs_uint32 flags,
-                           const tTVPFont &font);
+extern void TVPGetFontList(std::vector<ttstr> &list, tjs_uint32 flags, const tTVPFont &font);
 extern tjs_uint8 TVPGetCharSetFromFaceName(const tjs_char *face);
 #endif // __TVP_SYS_FONT_H__

@@ -28,9 +28,9 @@ public:
     tjs_int OriginX; //!< 文字Bitmapを描画するascent位置との横オフセット
     tjs_int OriginY; //!< 文字Bitmapを描画するascent位置との縦オフセット
     tGlyphMetrics Metrics; //!< メトリック、送り幅と高さを保持
-    tjs_int Pitch;         //!< 保持している画像ピッチ
-    tjs_uint BlackBoxX;    //!< 保持している画像幅
-    tjs_uint BlackBoxY;    //!< 保持している画像高さ
+    tjs_int Pitch; //!< 保持している画像ピッチ
+    tjs_uint BlackBoxX; //!< 保持している画像幅
+    tjs_uint BlackBoxY; //!< 保持している画像高さ
     tjs_int BlurLevel;
     tjs_int BlurWidth;
     tjs_uint Gray; // 階調
@@ -44,9 +44,8 @@ public:
         RefCount = 1;
         Data = nullptr;
     }
-    tTVPCharacterData(const tjs_uint8 *indata, tjs_int inpitch, tjs_int originx,
-                      tjs_int originy, tjs_uint blackboxw, tjs_uint blackboxh,
-                      const tGlyphMetrics &metrics, bool fullcolor = false);
+    tTVPCharacterData(const tjs_uint8 *indata, tjs_int inpitch, tjs_int originx, tjs_int originy, tjs_uint blackboxw,
+                      tjs_uint blackboxh, const tGlyphMetrics &metrics, bool fullcolor = false);
     tTVPCharacterData(const tTVPCharacterData &ref);
     ~tTVPCharacterData();
 
@@ -56,7 +55,7 @@ public:
 
     void AddRef() { RefCount++; }
     void Release() {
-        if (RefCount == 1) {
+        if(RefCount == 1) {
             delete this;
         } else {
             RefCount--;
@@ -96,10 +95,8 @@ struct tTVPFontAndCharacterData {
     bool Blured;
     bool Hinting;
     bool operator==(const tTVPFontAndCharacterData &rhs) const {
-        return Character == rhs.Character && Font == rhs.Font &&
-               Antialiased == rhs.Antialiased && BlurLevel == rhs.BlurLevel &&
-               BlurWidth == rhs.BlurWidth && Blured == rhs.Blured &&
-               Hinting == rhs.Hinting;
+        return Character == rhs.Character && Font == rhs.Font && Antialiased == rhs.Antialiased &&
+            BlurLevel == rhs.BlurLevel && BlurWidth == rhs.BlurWidth && Blured == rhs.Blured && Hinting == rhs.Hinting;
     }
 };
 //---------------------------------------------------------------------------

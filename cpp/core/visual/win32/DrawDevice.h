@@ -57,8 +57,7 @@ public:
     //! @note		プライマリレイヤが invalidate される際に呼び出される。
     // TODO:
     // プライマリレイヤ無効化、あるいはウィンドウ破棄時の終了処理が正しいか？
-    virtual void TJS_INTF_METHOD
-    RemoveLayerManager(iTVPLayerManager *manager) = 0;
+    virtual void TJS_INTF_METHOD RemoveLayerManager(iTVPLayerManager *manager) = 0;
 
     //---- 描画位置・サイズ関連
     //! @brief		(Window→DrawDevice) 描画先ウィンドウの設定
@@ -117,8 +116,7 @@ public:
     //! @note
     //! レイヤマネージャにアタッチされているプライマリレイヤのサイズが変わった
     //!				際に呼び出される
-    virtual void TJS_INTF_METHOD
-    NotifyLayerResize(iTVPLayerManager *manager) = 0;
+    virtual void TJS_INTF_METHOD NotifyLayerResize(iTVPLayerManager *manager) = 0;
 
     //! @brief		(LayerManager→DrawDevice) レイヤの画像の変更の通知
     //! @param		manager		レイヤマネージャ
@@ -129,8 +127,7 @@ public:
     //!				この通知を受け取っても無視することは可能。その場合は、
     //!				次に iTVPLayerManager::UpdateToDrawDevice()
     //!を呼んだ際に、 それまでの変更分がすべて描画される。
-    virtual void TJS_INTF_METHOD
-    NotifyLayerImageChange(iTVPLayerManager *manager) = 0;
+    virtual void TJS_INTF_METHOD NotifyLayerImageChange(iTVPLayerManager *manager) = 0;
 
     //---- ユーザーインターフェース関連
     //! @brief		(Window→DrawDevice) クリックされた
@@ -154,9 +151,7 @@ public:
     //! 位置(描画矩形の左上が原点)
     //! @param		mb		どのマウスボタンか
     //! @param		flags	フラグ(TVP_SS_*定数の組み合わせ)
-    virtual void TJS_INTF_METHOD OnMouseDown(tjs_int x, tjs_int y,
-                                             tTVPMouseButton mb,
-                                             tjs_uint32 flags) = 0;
+    virtual void TJS_INTF_METHOD OnMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb, tjs_uint32 flags) = 0;
 
     //! @brief		(Window→DrawDevice) マウスボタンが離された
     //! @param		x		描画矩形内における x
@@ -165,9 +160,7 @@ public:
     //! 位置(描画矩形の左上が原点)
     //! @param		mb		どのマウスボタンか
     //! @param		flags	フラグ(TVP_SS_*定数の組み合わせ)
-    virtual void TJS_INTF_METHOD OnMouseUp(tjs_int x, tjs_int y,
-                                           tTVPMouseButton mb,
-                                           tjs_uint32 flags) = 0;
+    virtual void TJS_INTF_METHOD OnMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb, tjs_uint32 flags) = 0;
 
     //! @brief		(Window→DrawDevice) マウスが移動した
     //! @param		x		描画矩形内における x
@@ -175,8 +168,7 @@ public:
     //! @param		y		描画矩形内における y
     //! 位置(描画矩形の左上が原点)
     //! @param		flags	フラグ(TVP_SS_*定数の組み合わせ)
-    virtual void TJS_INTF_METHOD OnMouseMove(tjs_int x, tjs_int y,
-                                             tjs_uint32 flags) = 0;
+    virtual void TJS_INTF_METHOD OnMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) = 0;
 
     //! @brief		(Window→DrawDevice) レイヤのマウスキャプチャを解放する
     //! @note
@@ -208,8 +200,7 @@ public:
     //! 位置(描画矩形の左上が原点)
     //! @param		y		描画矩形内における y
     //! 位置(描画矩形の左上が原点)
-    virtual void TJS_INTF_METHOD OnMouseWheel(tjs_uint32 shift, tjs_int delta,
-                                              tjs_int x, tjs_int y) = 0;
+    virtual void TJS_INTF_METHOD OnMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x, tjs_int y) = 0;
 
     //! @brief		(Window→DrawDevice) 画面がタッチされた
     //! @param		x		描画矩形内における x
@@ -219,9 +210,7 @@ public:
     //! @param		cx		触れている幅
     //! @param		cy		触れている高さ
     //! @param		id		タッチ識別用ID
-    virtual void TJS_INTF_METHOD OnTouchDown(tjs_real x, tjs_real y,
-                                             tjs_real cx, tjs_real cy,
-                                             tjs_uint32 id) = 0;
+    virtual void TJS_INTF_METHOD OnTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) = 0;
 
     //! @brief		(Window→DrawDevice) タッチが離された
     //! @param		x		描画矩形内における x
@@ -231,8 +220,7 @@ public:
     //! @param		cx		触れている幅
     //! @param		cy		触れている高さ
     //! @param		id		タッチ識別用ID
-    virtual void TJS_INTF_METHOD OnTouchUp(tjs_real x, tjs_real y, tjs_real cx,
-                                           tjs_real cy, tjs_uint32 id) = 0;
+    virtual void TJS_INTF_METHOD OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) = 0;
 
     //! @brief		(Window→DrawDevice) タッチが移動した
     //! @param		x		描画矩形内における x
@@ -242,9 +230,7 @@ public:
     //! @param		cx		触れている幅
     //! @param		cy		触れている高さ
     //! @param		id		タッチ識別用ID
-    virtual void TJS_INTF_METHOD OnTouchMove(tjs_real x, tjs_real y,
-                                             tjs_real cx, tjs_real cy,
-                                             tjs_uint32 id) = 0;
+    virtual void TJS_INTF_METHOD OnTouchMove(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) = 0;
 
     //! @brief		(Window→DrawDevice) 拡大タッチ操作が行われた
     //! @param		startdist	開始時の2点間の幅
@@ -252,9 +238,8 @@ public:
     //! @param		cx		触れている幅
     //! @param		cy		触れている高さ
     //! @param		flag	タッチ状態フラグ
-    virtual void TJS_INTF_METHOD OnTouchScaling(tjs_real startdist,
-                                                tjs_real curdist, tjs_real cx,
-                                                tjs_real cy, tjs_int flag) = 0;
+    virtual void TJS_INTF_METHOD OnTouchScaling(tjs_real startdist, tjs_real curdist, tjs_real cx, tjs_real cy,
+                                                tjs_int flag) = 0;
 
     //! @brief		(Window→DrawDevice) 回転タッチ操作が行われた
     //! @param		startangle	開始時の角度
@@ -263,10 +248,8 @@ public:
     //! @param		cx		触れている幅
     //! @param		cy		触れている高さ
     //! @param		flag	タッチ状態フラグ
-    virtual void TJS_INTF_METHOD OnTouchRotate(tjs_real startangle,
-                                               tjs_real curangle, tjs_real dist,
-                                               tjs_real cx, tjs_real cy,
-                                               tjs_int flag) = 0;
+    virtual void TJS_INTF_METHOD OnTouchRotate(tjs_real startangle, tjs_real curangle, tjs_real dist, tjs_real cx,
+                                               tjs_real cy, tjs_int flag) = 0;
 
     //! @brief		(Window→DrawDevice) マルチタッチ状態が更新された
     virtual void TJS_INTF_METHOD OnMultiTouch() = 0;
@@ -277,9 +260,7 @@ public:
     //! @param		bpp			Bits per pixel
     //! @param		width		画面幅
     //! @param		height		画面高さ
-    virtual void TJS_INTF_METHOD OnDisplayRotate(tjs_int orientation,
-                                                 tjs_int rotate, tjs_int bpp,
-                                                 tjs_int width,
+    virtual void TJS_INTF_METHOD OnDisplayRotate(tjs_int orientation, tjs_int rotate, tjs_int bpp, tjs_int width,
                                                  tjs_int height) = 0;
 
     //! @brief		(Window->DrawDevice) 入力状態のチェック
@@ -297,14 +278,12 @@ public:
     //! @param		manager		レイヤマネージャ
     //! @note
     //! マウスカーソルの形状をデフォルトの物に戻したい場合に呼ばれる
-    virtual void TJS_INTF_METHOD
-    SetDefaultMouseCursor(iTVPLayerManager *manager) = 0;
+    virtual void TJS_INTF_METHOD SetDefaultMouseCursor(iTVPLayerManager *manager) = 0;
 
     //! @brief		(LayerManager→DrawDevice) マウスカーソルの形状を設定する
     //! @param		manager		レイヤマネージャ
     //! @param		cursor		マウスカーソル形状番号
-    virtual void TJS_INTF_METHOD SetMouseCursor(iTVPLayerManager *manager,
-                                                tjs_int cursor) = 0;
+    virtual void TJS_INTF_METHOD SetMouseCursor(iTVPLayerManager *manager, tjs_int cursor) = 0;
 
     //! @brief		(LayerManager→DrawDevice) マウスカーソルの位置を取得する
     //! @param		manager		レイヤマネージャ
@@ -314,8 +293,7 @@ public:
     //! プライマリレイヤ上の座標におけるマウスカーソルのy位置
     //! @note
     //! 座標はプライマリレイヤ上の座標なので、必要ならば変換を行う
-    virtual void TJS_INTF_METHOD GetCursorPos(iTVPLayerManager *manager,
-                                              tjs_int &x, tjs_int &y) = 0;
+    virtual void TJS_INTF_METHOD GetCursorPos(iTVPLayerManager *manager, tjs_int &x, tjs_int &y) = 0;
 
     //! @brief		(LayerManager→DrawDevice) マウスカーソルの位置を設定する
     //! @param		manager		レイヤマネージャ
@@ -325,8 +303,7 @@ public:
     //! プライマリレイヤ上の座標におけるマウスカーソルのy位置
     //! @note
     //! 座標はプライマリレイヤ上の座標なので、必要ならば変換を行う
-    virtual void TJS_INTF_METHOD SetCursorPos(iTVPLayerManager *manager,
-                                              tjs_int x, tjs_int y) = 0;
+    virtual void TJS_INTF_METHOD SetCursorPos(iTVPLayerManager *manager, tjs_int x, tjs_int y) = 0;
 
     //! @brief		(LayerManager→DrawDevice)
     //! ウィンドウのマウスキャプチャを解放する
@@ -340,16 +317,13 @@ public:
     //!				独自に管理している物である。このメソッドでは基本的には
     //!::ReleaseCapture() などで
     //!マウスのキャプチャを開放する。
-    virtual void TJS_INTF_METHOD
-    WindowReleaseCapture(iTVPLayerManager *manager) = 0;
+    virtual void TJS_INTF_METHOD WindowReleaseCapture(iTVPLayerManager *manager) = 0;
 
     //! @brief		(LayerManager→DrawDevice) ツールチップヒントを設定する
     //! @param		manager		レイヤマネージャ
     //! @param		text
     //! ヒントテキスト(空文字列の場合はヒントの表示をキャンセルする)
-    virtual void TJS_INTF_METHOD SetHintText(iTVPLayerManager *manager,
-                                             iTJSDispatch2 *sender,
-                                             const ttstr &text) = 0;
+    virtual void TJS_INTF_METHOD SetHintText(iTVPLayerManager *manager, iTJSDispatch2 *sender, const ttstr &text) = 0;
 
     //! @brief		(LayerManager→DrawDevice) 注視ポイントの設定
     //! @param		manager		レイヤマネージャ
@@ -367,20 +341,17 @@ public:
     //!				するインターフェースは今のところない。
     //! @note
     //! 座標はプライマリレイヤ上の座標なので、必要ならば変換を行う。
-    virtual void TJS_INTF_METHOD SetAttentionPoint(iTVPLayerManager *manager,
-                                                   tTJSNI_BaseLayer *layer,
-                                                   tjs_int l, tjs_int t) = 0;
+    virtual void TJS_INTF_METHOD SetAttentionPoint(iTVPLayerManager *manager, tTJSNI_BaseLayer *layer, tjs_int l,
+                                                   tjs_int t) = 0;
 
     //! @brief		(LayerManager→DrawDevice) 注視ポイントの解除
     //! @param		manager		レイヤマネージャ
-    virtual void TJS_INTF_METHOD
-    DisableAttentionPoint(iTVPLayerManager *manager) = 0;
+    virtual void TJS_INTF_METHOD DisableAttentionPoint(iTVPLayerManager *manager) = 0;
 
     //! @brief		(LayerManager→DrawDevice) IMEモードの設定
     //! @param		manager		レイヤマネージャ
     //! @param		mode		IMEモード
-    virtual void TJS_INTF_METHOD SetImeMode(iTVPLayerManager *manager,
-                                            tTVPImeMode mode) = 0;
+    virtual void TJS_INTF_METHOD SetImeMode(iTVPLayerManager *manager, tTVPImeMode mode) = 0;
 
     //! @brief		(LayerManager→DrawDevice) IMEモードのリセット
     //! @param		manager		レイヤマネージャ
@@ -449,8 +420,7 @@ public:
     //! EndBitmapCompletion() が呼ばれる。
     //!				必要ならば、このタイミングで描画デバイス側でサーフェースのロックなどを
     //!				行うこと。
-    virtual void TJS_INTF_METHOD
-    StartBitmapCompletion(iTVPLayerManager *manager) = 0;
+    virtual void TJS_INTF_METHOD StartBitmapCompletion(iTVPLayerManager *manager) = 0;
 
     //! @brief		(LayerManager->DrawDevice) ビットマップの描画を通知する
     //! @param		manager		画像の提供元のレイヤマネージャ
@@ -472,14 +442,13 @@ public:
     //!と bitmapinfo で表されるビットマップのうち、cliprect で 示される矩形を x,
     //! y 位置に転送すればよいが、描画矩形の大きさに合わせた
     //!				拡大や縮小などは描画デバイス側で面倒を見る必要がある。
-    virtual void TJS_INTF_METHOD NotifyBitmapCompleted(
-        iTVPLayerManager *manager, tjs_int x, tjs_int y, tTVPBaseTexture *bmp,
-        const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity) = 0;
+    virtual void TJS_INTF_METHOD NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y,
+                                                       tTVPBaseTexture *bmp, const tTVPRect &cliprect,
+                                                       tTVPLayerType type, tjs_int opacity) = 0;
 
     //! @brief		(LayerManager->DrawDevice) ビットマップの描画を終了する
     //! @param		manager		描画を終了するレイヤマネージャ
-    virtual void TJS_INTF_METHOD
-    EndBitmapCompletion(iTVPLayerManager *manager) = 0;
+    virtual void TJS_INTF_METHOD EndBitmapCompletion(iTVPLayerManager *manager) = 0;
 
     //---- デバッグ支援
     //! @brief		(Window->DrawDevice) レイヤ構造をコンソールにダンプする
@@ -501,9 +470,7 @@ public:
     //! @param		bpp			Bit per pixels
     //! @param		color		16bpp の時 565 か 555を指定
     //! @param		changeresolution	解像度変更を行うかどうか
-    virtual bool TJS_INTF_METHOD SwitchToFullScreen(int window, tjs_uint w,
-                                                    tjs_uint h, tjs_uint bpp,
-                                                    tjs_uint color,
+    virtual bool TJS_INTF_METHOD SwitchToFullScreen(int window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color,
                                                     bool changeresolution) = 0;
 
     //! @brief		(Window->DrawDevice) フルスクリーンを解除する
@@ -512,8 +479,7 @@ public:
     //! @param		h			要求する高さ
     //! @param		bpp			元々のBit per pixels
     //! @param		color		16bpp の時 565 か 555を指定
-    virtual void TJS_INTF_METHOD RevertFromFullScreen(int window, tjs_uint w,
-                                                      tjs_uint h, tjs_uint bpp,
+    virtual void TJS_INTF_METHOD RevertFromFullScreen(int window, tjs_uint w, tjs_uint h, tjs_uint bpp,
                                                       tjs_uint color) = 0;
 
     //! @brief		(Window->DrawDevice) VBlank待ちを行う
@@ -522,8 +488,7 @@ public:
     //! @param		delayed
     //! 1フレーム遅延が発生したかどうかを返す( !0 : 発生、0: 発生せず )
     //! @return		Wait可不可 true : 可能、false : 不可
-    virtual bool TJS_INTF_METHOD WaitForVBlank(tjs_int *in_vblank,
-                                               tjs_int *delayed) = 0;
+    virtual bool TJS_INTF_METHOD WaitForVBlank(tjs_int *in_vblank, tjs_int *delayed) = 0;
 };
 //---------------------------------------------------------------------------
 /*]*/
@@ -536,7 +501,7 @@ protected:
     iTVPWindow *Window;
     size_t PrimaryLayerManagerIndex; //!< プライマリレイヤマネージャ
     std::vector<iTVPLayerManager *> Managers; //!< レイヤマネージャの配列
-    tTVPRect DestRect;                        //!< 描画先位置
+    tTVPRect DestRect; //!< 描画先位置
     tjs_int SrcWidth, SrcHeight;
     tjs_int WinWidth, WinHeight;
     tjs_int LockedWidth = 0, LockedHeight = 0;
@@ -553,7 +518,7 @@ public:
     //! @return		指定位置にあるレイヤマネージャ(AddRefされないので注意)。
     //!				指定位置にレイヤマネージャがなければNULLが返る
     iTVPLayerManager *GetLayerManagerAt(size_t index) {
-        if (Managers.size() <= index)
+        if(Managers.size() <= index)
             return nullptr;
         return Managers[index];
     }
@@ -595,71 +560,45 @@ public:
     virtual void TJS_INTF_METHOD SetClipRectangle(const tTVPRect &rect);
     virtual void TJS_INTF_METHOD GetSrcSize(tjs_int &w, tjs_int &h);
     virtual void TJS_INTF_METHOD NotifyLayerResize(iTVPLayerManager *manager);
-    virtual void TJS_INTF_METHOD
-    NotifyLayerImageChange(iTVPLayerManager *manager);
+    virtual void TJS_INTF_METHOD NotifyLayerImageChange(iTVPLayerManager *manager);
 
     //---- ユーザーインターフェース関連
     // window → drawdevice
     virtual void TJS_INTF_METHOD OnClick(tjs_int x, tjs_int y);
     virtual void TJS_INTF_METHOD OnDoubleClick(tjs_int x, tjs_int y);
-    virtual void TJS_INTF_METHOD OnMouseDown(tjs_int x, tjs_int y,
-                                             tTVPMouseButton mb,
-                                             tjs_uint32 flags);
-    virtual void TJS_INTF_METHOD OnMouseUp(tjs_int x, tjs_int y,
-                                           tTVPMouseButton mb,
-                                           tjs_uint32 flags);
-    virtual void TJS_INTF_METHOD OnMouseMove(tjs_int x, tjs_int y,
-                                             tjs_uint32 flags);
+    virtual void TJS_INTF_METHOD OnMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb, tjs_uint32 flags);
+    virtual void TJS_INTF_METHOD OnMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb, tjs_uint32 flags);
+    virtual void TJS_INTF_METHOD OnMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags);
     virtual void TJS_INTF_METHOD OnReleaseCapture();
     virtual void TJS_INTF_METHOD OnMouseOutOfWindow();
     virtual void TJS_INTF_METHOD OnKeyDown(tjs_uint key, tjs_uint32 shift);
     virtual void TJS_INTF_METHOD OnKeyUp(tjs_uint key, tjs_uint32 shift);
     virtual void TJS_INTF_METHOD OnKeyPress(tjs_char key);
-    virtual void TJS_INTF_METHOD OnMouseWheel(tjs_uint32 shift, tjs_int delta,
-                                              tjs_int x, tjs_int y);
-    virtual void TJS_INTF_METHOD OnTouchDown(tjs_real x, tjs_real y,
-                                             tjs_real cx, tjs_real cy,
-                                             tjs_uint32 id);
-    virtual void TJS_INTF_METHOD OnTouchUp(tjs_real x, tjs_real y, tjs_real cx,
-                                           tjs_real cy, tjs_uint32 id);
-    virtual void TJS_INTF_METHOD OnTouchMove(tjs_real x, tjs_real y,
-                                             tjs_real cx, tjs_real cy,
-                                             tjs_uint32 id);
-    virtual void TJS_INTF_METHOD OnTouchScaling(tjs_real startdist,
-                                                tjs_real curdist, tjs_real cx,
-                                                tjs_real cy, tjs_int flag);
-    virtual void TJS_INTF_METHOD OnTouchRotate(tjs_real startangle,
-                                               tjs_real curangle, tjs_real dist,
-                                               tjs_real cx, tjs_real cy,
-                                               tjs_int flag);
+    virtual void TJS_INTF_METHOD OnMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x, tjs_int y);
+    virtual void TJS_INTF_METHOD OnTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id);
+    virtual void TJS_INTF_METHOD OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id);
+    virtual void TJS_INTF_METHOD OnTouchMove(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id);
+    virtual void TJS_INTF_METHOD OnTouchScaling(tjs_real startdist, tjs_real curdist, tjs_real cx, tjs_real cy,
+                                                tjs_int flag);
+    virtual void TJS_INTF_METHOD OnTouchRotate(tjs_real startangle, tjs_real curangle, tjs_real dist, tjs_real cx,
+                                               tjs_real cy, tjs_int flag);
     virtual void TJS_INTF_METHOD OnMultiTouch();
-    virtual void TJS_INTF_METHOD OnDisplayRotate(tjs_int orientation,
-                                                 tjs_int rotate, tjs_int bpp,
-                                                 tjs_int width, tjs_int height);
+    virtual void TJS_INTF_METHOD OnDisplayRotate(tjs_int orientation, tjs_int rotate, tjs_int bpp, tjs_int width,
+                                                 tjs_int height);
     virtual void TJS_INTF_METHOD RecheckInputState();
 
     // layer manager → drawdevice
-    virtual void TJS_INTF_METHOD
-    SetDefaultMouseCursor(iTVPLayerManager *manager);
-    virtual void TJS_INTF_METHOD SetMouseCursor(iTVPLayerManager *manager,
-                                                tjs_int cursor);
-    virtual void TJS_INTF_METHOD GetCursorPos(iTVPLayerManager *manager,
-                                              tjs_int &x, tjs_int &y);
-    virtual void TJS_INTF_METHOD SetCursorPos(iTVPLayerManager *manager,
-                                              tjs_int x, tjs_int y);
-    virtual void TJS_INTF_METHOD SetHintText(iTVPLayerManager *manager,
-                                             iTJSDispatch2 *sender,
-                                             const ttstr &text);
-    virtual void TJS_INTF_METHOD
-    WindowReleaseCapture(iTVPLayerManager *manager);
+    virtual void TJS_INTF_METHOD SetDefaultMouseCursor(iTVPLayerManager *manager);
+    virtual void TJS_INTF_METHOD SetMouseCursor(iTVPLayerManager *manager, tjs_int cursor);
+    virtual void TJS_INTF_METHOD GetCursorPos(iTVPLayerManager *manager, tjs_int &x, tjs_int &y);
+    virtual void TJS_INTF_METHOD SetCursorPos(iTVPLayerManager *manager, tjs_int x, tjs_int y);
+    virtual void TJS_INTF_METHOD SetHintText(iTVPLayerManager *manager, iTJSDispatch2 *sender, const ttstr &text);
+    virtual void TJS_INTF_METHOD WindowReleaseCapture(iTVPLayerManager *manager);
 
-    virtual void TJS_INTF_METHOD SetAttentionPoint(iTVPLayerManager *manager,
-                                                   tTJSNI_BaseLayer *layer,
-                                                   tjs_int l, tjs_int t);
-    virtual void TJS_INTF_METHOD
-    DisableAttentionPoint(iTVPLayerManager *manager);
-    virtual void TJS_INTF_METHOD SetImeMode(iTVPLayerManager *manager,
-                                            tTVPImeMode mode);
+    virtual void TJS_INTF_METHOD SetAttentionPoint(iTVPLayerManager *manager, tTJSNI_BaseLayer *layer, tjs_int l,
+                                                   tjs_int t);
+    virtual void TJS_INTF_METHOD DisableAttentionPoint(iTVPLayerManager *manager);
+    virtual void TJS_INTF_METHOD SetImeMode(iTVPLayerManager *manager, tTVPImeMode mode);
     virtual void TJS_INTF_METHOD ResetImeMode(iTVPLayerManager *manager);
 
     //---- プライマリレイヤ関連
@@ -671,8 +610,7 @@ public:
     virtual void TJS_INTF_METHOD RequestInvalidation(const tTVPRect &rect);
     virtual void TJS_INTF_METHOD Update();
     virtual void TJS_INTF_METHOD Show() = 0;
-    virtual bool TJS_INTF_METHOD WaitForVBlank(tjs_int *in_vblank,
-                                               tjs_int *delayed);
+    virtual bool TJS_INTF_METHOD WaitForVBlank(tjs_int *in_vblank, tjs_int *delayed);
 
     //---- デバッグ支援
     virtual void TJS_INTF_METHOD DumpLayerStructure();
@@ -680,13 +618,9 @@ public:
 
     void SetLockedSize(tjs_int w, tjs_int h);
     //---- フルスクリーン
-    virtual bool TJS_INTF_METHOD SwitchToFullScreen(int window, tjs_uint w,
-                                                    tjs_uint h, tjs_uint bpp,
-                                                    tjs_uint color,
+    virtual bool TJS_INTF_METHOD SwitchToFullScreen(int window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color,
                                                     bool changeresolution);
-    virtual void TJS_INTF_METHOD RevertFromFullScreen(int window, tjs_uint w,
-                                                      tjs_uint h, tjs_uint bpp,
-                                                      tjs_uint color);
+    virtual void TJS_INTF_METHOD RevertFromFullScreen(int window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color);
 
     // ほかのメソッドについては実装しない
 };

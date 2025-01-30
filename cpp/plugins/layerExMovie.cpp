@@ -25,16 +25,12 @@ protected:
         std::function<void(KRMovieEvent, void *)> m_funcCallback;
 
     public:
-        VideoLayer(const std::function<void(KRMovieEvent, void *)> &func)
-            : m_funcCallback(func) {}
-        void BuildGraph(IStream *stream, const tjs_char *streamname,
-                        const tjs_char *type, uint64_t size) {
+        VideoLayer(const std::function<void(KRMovieEvent, void *)> &func) : m_funcCallback(func) {}
+        void BuildGraph(IStream *stream, const tjs_char *streamname, const tjs_char *type, uint64_t size) {
             m_pPlayer->SetCallback(m_funcCallback);
             m_pPlayer->OpenFromStream(stream, streamname, type, size);
         }
-        virtual void OnPlayEvent(KRMovieEvent msg, void *p) override {
-            m_funcCallback(msg, p);
-        }
+        virtual void OnPlayEvent(KRMovieEvent msg, void *p) override { m_funcCallback(msg, p); }
     };
     VideoLayer *VideoOverlay;
     // MessageDelegate *UtilWindow;
@@ -95,8 +91,7 @@ public:
 /**
  * コンストラクタ
  */
-layerExMovie::layerExMovie(DispatchT obj)
-    : /*_pType(obj, TJS_W("type")),*/ layerExBase_GL(obj) {
+layerExMovie::layerExMovie(DispatchT obj) : /*_pType(obj, TJS_W("type")),*/ layerExBase_GL(obj) {
     VideoOverlay = nullptr;
     loop = false;
     alpha = false;
@@ -105,18 +100,15 @@ layerExMovie::layerExMovie(DispatchT obj)
     in = nullptr;
     {
         tTJSVariant var;
-        if (TJS_SUCCEEDED(obj->PropGet(TJS_IGNOREPROP, TJS_W("onStartMovie"),
-                                       nullptr, &var, obj)))
+        if(TJS_SUCCEEDED(obj->PropGet(TJS_IGNOREPROP, TJS_W("onStartMovie"), nullptr, &var, obj)))
             onStartMovie = var;
         else
             onStartMovie = nullptr;
-        if (TJS_SUCCEEDED(obj->PropGet(TJS_IGNOREPROP, TJS_W("onStopMovie"),
-                                       nullptr, &var, obj)))
+        if(TJS_SUCCEEDED(obj->PropGet(TJS_IGNOREPROP, TJS_W("onStopMovie"), nullptr, &var, obj)))
             onStopMovie = var;
         else
             onStopMovie = nullptr;
-        if (TJS_SUCCEEDED(obj->PropGet(TJS_IGNOREPROP, TJS_W("onUpdateMovie"),
-                                       nullptr, &var, obj)))
+        if(TJS_SUCCEEDED(obj->PropGet(TJS_IGNOREPROP, TJS_W("onUpdateMovie"), nullptr, &var, obj)))
             onUpdateMovie = var;
         else
             onUpdateMovie = nullptr;
@@ -132,14 +124,14 @@ layerExMovie::layerExMovie(DispatchT obj)
 layerExMovie::~layerExMovie() {
     stopMovie();
     // if (UtilWindow) delete UtilWindow;
-    if (Bitmap[0])
+    if(Bitmap[0])
         delete Bitmap[0];
-    if (Bitmap[1])
+    if(Bitmap[1])
         delete Bitmap[1];
 }
 
 void layerExMovie::clearMovie() {
-    if (VideoOverlay) {
+    if(VideoOverlay) {
         VideoOverlay->Release(), VideoOverlay = nullptr;
     }
     // 	if (in) {
@@ -159,7 +151,7 @@ void layerExMovie::openMovie(const tjs_char *filename, bool alpha) {
     movieHeight = 0;
 
     // ファイルをテンポラリにコピーして対応
-    if ((in = TVPCreateStream(filename, TJS_BS_READ)) == nullptr) {
+    if((in = TVPCreateStream(filename, TJS_BS_READ)) == nullptr) {
         ttstr error = filename;
         error += TJS_W(":ファイルが開けません");
         TVPAddLog(error);
@@ -171,19 +163,18 @@ void layerExMovie::openMovie(const tjs_char *filename, bool alpha) {
         std::lock_guard<std::mutex> lk(mtxEvent);
         PostEvents.push_back(msg);
     });
-    pOverlay->BuildGraph(TVPCreateIStream(in), filename, ext.c_str(),
-                         in->GetSize());
+    pOverlay->BuildGraph(TVPCreateIStream(in), filename, ext.c_str(), in->GetSize());
     VideoOverlay = pOverlay;
     VideoOverlay->GetVideoSize(&movieWidth, &movieHeight);
-    if (Bitmap[0])
+    if(Bitmap[0])
         delete Bitmap[0];
-    if (Bitmap[1])
+    if(Bitmap[1])
         delete Bitmap[1];
     long size = movieWidth * movieHeight * 4;
     Bitmap[0] = new tTVPBaseTexture(movieWidth, movieHeight /*, 32*/);
     Bitmap[1] = new tTVPBaseTexture(movieWidth, movieHeight /*, 32*/);
     VideoOverlay->SetVideoBuffer(Bitmap[0], Bitmap[1], size);
-    if (alpha) {
+    if(alpha) {
         movieWidth /= 2;
     }
     // 	_pWidth.SetValue(movieWidth);
@@ -197,14 +188,13 @@ void layerExMovie::openMovie(const tjs_char *filename, bool alpha) {
  * ムービーの開始
  */
 void layerExMovie::startMovie(bool loop) {
-    if (VideoOverlay) {
+    if(VideoOverlay) {
         // 再生開始
         this->loop = loop;
         VideoOverlay->Play();
         start();
-        if (onStartMovie != nullptr) {
-            onStartMovie->FuncCall(0, nullptr, nullptr, nullptr, 0, nullptr,
-                                   _obj);
+        if(onStartMovie != nullptr) {
+            onStartMovie->FuncCall(0, nullptr, nullptr, nullptr, 0, nullptr, _obj);
         }
     }
 }
@@ -214,14 +204,13 @@ void layerExMovie::startMovie(bool loop) {
  */
 void layerExMovie::stopMovie() {
     bool p = playing;
-    if (VideoOverlay)
+    if(VideoOverlay)
         VideoOverlay->Stop();
     stop();
     clearMovie();
-    if (p) {
-        if (onStopMovie != nullptr) {
-            onStopMovie->FuncCall(0, nullptr, nullptr, nullptr, 0, nullptr,
-                                  _obj);
+    if(p) {
+        if(onStopMovie != nullptr) {
+            onStopMovie->FuncCall(0, nullptr, nullptr, nullptr, 0, nullptr, _obj);
         }
     }
 }
@@ -247,37 +236,31 @@ void layerExMovie::onUpdate() {
     // サーフェースからレイヤに画面コピー
     reset();
     tTVPBaseTexture *frontbmp = VideoOverlay->GetFrontBuffer();
-    if (frontbmp) {
+    if(frontbmp) {
         iTVPTexture2D *src = frontbmp->GetTexture();
-        iTVPTexture2D *dst =
-            _this->GetMainImage()->GetTextureForRender(false, nullptr);
-        tTVPRect rcdst(_clipLeft, _clipTop, _clipLeft + _clipWidth,
-                       _clipTop + _clipHeight);
+        iTVPTexture2D *dst = _this->GetMainImage()->GetTextureForRender(false, nullptr);
+        tTVPRect rcdst(_clipLeft, _clipTop, _clipLeft + _clipWidth, _clipTop + _clipHeight);
         iTVPRenderMethod *method;
-        if (alpha) {
-            static iTVPRenderMethod *_method =
-                TVPGetRenderManager()->GetRenderMethod("CopyColor");
+        if(alpha) {
+            static iTVPRenderMethod *_method = TVPGetRenderManager()->GetRenderMethod("CopyColor");
             method = _method;
         } else {
-            static iTVPRenderMethod *_method =
-                TVPGetRenderManager()->GetRenderMethod("Copy");
+            static iTVPRenderMethod *_method = TVPGetRenderManager()->GetRenderMethod("Copy");
             method = _method;
         }
-        tRenderTexRectArray::Element src_tex[] = {tRenderTexRectArray::Element(
-            src, tTVPRect(0, 0, std::min(_width, (tjs_int)movieWidth),
-                          std::min(_height, (tjs_int)movieHeight)))};
-        TVPGetRenderManager()->OperateRect(method, dst, nullptr, rcdst,
-                                           src_tex);
+        tRenderTexRectArray::Element src_tex[] = { tRenderTexRectArray::Element(
+            src, tTVPRect(0, 0, std::min(_width, (tjs_int)movieWidth), std::min(_height, (tjs_int)movieHeight))) };
+        TVPGetRenderManager()->OperateRect(method, dst, nullptr, rcdst, src_tex);
     }
     // redraw();
-    if (onUpdateMovie != nullptr) {
+    if(onUpdateMovie != nullptr) {
         onUpdateMovie->FuncCall(0, nullptr, nullptr, nullptr, 0, nullptr, _obj);
     }
 }
 
 void layerExMovie::onEnded() {
     // 更新終了
-    if (loop) {
+    if(loop) {
         VideoOverlay->Rewind();
         VideoOverlay->Play();
     } else {
@@ -286,7 +269,7 @@ void layerExMovie::onEnded() {
 }
 
 void TJS_INTF_METHOD layerExMovie::OnContinuousCallback(tjs_uint64 tick) {
-    if (VideoOverlay) {
+    if(VideoOverlay) {
         // 更新
         VideoOverlay->OnContinuousCallback(tick);
         std::vector<KRMovieEvent> vecEvent;
@@ -294,16 +277,16 @@ void TJS_INTF_METHOD layerExMovie::OnContinuousCallback(tjs_uint64 tick) {
             std::lock_guard<std::mutex> lk(mtxEvent);
             vecEvent.swap(PostEvents);
         }
-        for (KRMovieEvent msg : vecEvent) {
-            switch (msg) {
-            case KRMovieEvent::Update:
-                onUpdate();
-                break;
-            case KRMovieEvent::Ended:
-                onEnded();
-                break;
-            default:
-                break;
+        for(KRMovieEvent msg : vecEvent) {
+            switch(msg) {
+                case KRMovieEvent::Update:
+                    onUpdate();
+                    break;
+                case KRMovieEvent::Ended:
+                    onEnded();
+                    break;
+                default:
+                    break;
             }
         }
     } else {
@@ -315,14 +298,11 @@ void TJS_INTF_METHOD layerExMovie::OnContinuousCallback(tjs_uint64 tick) {
 
 NCB_GET_INSTANCE_HOOK(layerExMovie){
     // インスタンスゲッタ
-    NCB_INSTANCE_GETTER(objthis){
-        // objthis を iTJSDispatch2* 型の引数とする
-        ClassT *obj =
-            GetNativeInstance(objthis); // ネイティブインスタンスポインタ取得
-if (!obj) {
+    NCB_INSTANCE_GETTER(objthis){ // objthis を iTJSDispatch2* 型の引数とする
+                                  ClassT *obj = GetNativeInstance(objthis); // ネイティブインスタンスポインタ取得
+if(!obj) {
     obj = new ClassT(objthis); // ない場合は生成する
-    SetNativeInstance(
-        objthis, obj); // objthis に obj をネイティブインスタンスとして登録する
+    SetNativeInstance(objthis, obj); // objthis に obj をネイティブインスタンスとして登録する
 }
 return obj;
 }

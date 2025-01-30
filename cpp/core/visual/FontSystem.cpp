@@ -13,13 +13,13 @@ extern const ttstr &TVPGetDefaultFontName();
 
 void FontSystem::InitFontNames() {
     // enumlate all fonts
-    if (FontNamesInit)
+    if(FontNamesInit)
         return;
 
     std::vector<ttstr> list;
     TVPGetAllFontList(list);
     size_t count = list.size();
-    for (size_t i = 0; i < count; i++) {
+    for(size_t i = 0; i < count; i++) {
         AddFont(list[i]);
     }
 
@@ -36,12 +36,10 @@ bool FontSystem::FontExists(const ttstr &name) {
     return t != nullptr;
 }
 
-FontSystem::FontSystem() : FontNamesInit(false), DefaultLOGFONTCreated(false) {
-    ConstructDefaultFont();
-}
+FontSystem::FontSystem() : FontNamesInit(false), DefaultLOGFONTCreated(false) { ConstructDefaultFont(); }
 
 void FontSystem::ConstructDefaultFont() {
-    if (!DefaultLOGFONTCreated) {
+    if(!DefaultLOGFONTCreated) {
         DefaultLOGFONTCreated = true;
         DefaultFont.Height = -12;
         DefaultFont.Flags = 0;
@@ -56,7 +54,7 @@ ttstr FontSystem::GetBeingFont(ttstr fonts) {
 
     bool vfont;
 
-    if (fonts.c_str()[0] == TJS_W('@')) { // for vertical writing
+    if(fonts.c_str()[0] == TJS_W('@')) { // for vertical writing
         fonts = fonts.c_str() + 1;
         vfont = true;
     } else {
@@ -64,14 +62,13 @@ ttstr FontSystem::GetBeingFont(ttstr fonts) {
     }
 
     static bool force_default_font =
-        IndividualConfigManager::GetInstance()->GetValue<bool>(
-            "force_default_font", false);
-    if (!force_default_font) {
+        IndividualConfigManager::GetInstance()->GetValue<bool>("force_default_font", false);
+    if(!force_default_font) {
         bool prev_empty_name = false;
-        while (fonts != TJS_W("")) {
+        while(fonts != TJS_W("")) {
             ttstr fontname;
             int pos = fonts.IndexOf(TJS_W(","));
-            if (pos != -1) {
+            if(pos != -1) {
                 fontname = Trim(fonts.SubString(0, pos));
                 fonts = fonts.SubString(pos + 1, -1);
             } else {
@@ -82,9 +79,8 @@ ttstr FontSystem::GetBeingFont(ttstr fonts) {
             // no existing check if previously specified font candidate is empty
             // eg. ",Fontname"
 
-            if (fontname != TJS_W("") &&
-                (prev_empty_name || FontExists(fontname))) {
-                if (vfont && fontname.c_str()[0] != TJS_W('@')) {
+            if(fontname != TJS_W("") && (prev_empty_name || FontExists(fontname))) {
+                if(vfont && fontname.c_str()[0] != TJS_W('@')) {
                     return TJS_W("@") + fontname;
                 } else {
                     return fontname;
@@ -95,7 +91,7 @@ ttstr FontSystem::GetBeingFont(ttstr fonts) {
         }
     }
 
-    if (vfont) {
+    if(vfont) {
         return ttstr(TJS_W("@")) + TVPGetDefaultFontName();
     } else {
         return TVPGetDefaultFontName();

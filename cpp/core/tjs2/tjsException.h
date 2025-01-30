@@ -14,17 +14,17 @@
 #include "tjsNative.h"
 
 namespace TJS {
-//---------------------------------------------------------------------------
-// tTJSNC_Exception
-//---------------------------------------------------------------------------
-class tTJSNC_Exception : public tTJSNativeClass {
-public:
-    tTJSNC_Exception();
+    //---------------------------------------------------------------------------
+    // tTJSNC_Exception
+    //---------------------------------------------------------------------------
+    class tTJSNC_Exception : public tTJSNativeClass {
+    public:
+        tTJSNC_Exception();
 
-private:
-    static tjs_uint32 ClassID;
-};
-//---------------------------------------------------------------------------
+    private:
+        static tjs_uint32 ClassID;
+    };
+    //---------------------------------------------------------------------------
 } // namespace TJS
 
 #endif

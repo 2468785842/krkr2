@@ -23,16 +23,16 @@ struct ObjectVector : public std::vector<T *> { // thread safe vector
     tjs_int Find(const T *object) const {
         tTJSSpinLockHolder holder(((ObjectVector *)this)->Lock);
         auto it = std::find(this->begin(), this->end(), object);
-        if (it == this->end())
+        if(it == this->end())
             return -1;
         return it - this->begin();
     }
 
     bool Add(T *object, tjs_int idx = -1) {
         tTJSSpinLockHolder holder(Lock);
-        if (std::find(this->begin(), this->end(), object) != this->end())
+        if(std::find(this->begin(), this->end(), object) != this->end())
             return false;
-        if (idx == -1)
+        if(idx == -1)
             this->push_back(object);
         else
             this->insert(this->begin() + idx, object);
@@ -42,7 +42,7 @@ struct ObjectVector : public std::vector<T *> { // thread safe vector
     bool Remove(T *object) {
         tTJSSpinLockHolder holder(Lock);
         auto it = std::find(this->begin(), this->end(), object);
-        if (it == this->end())
+        if(it == this->end())
             return false;
         this->erase(it);
         return true;
@@ -73,16 +73,14 @@ protected:
 
 public:
     tTJSNI_BaseMenuItem();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
     void TJS_INTF_METHOD Invalidate();
 
 public:
     static tTJSNI_MenuItem *CastFromVariant(const tTJSVariant &from);
 
 protected:
-    virtual bool
-    CanDeliverEvents() const = 0; // must be implemented in each platforms
+    virtual bool CanDeliverEvents() const = 0; // must be implemented in each platforms
 
 protected:
     void AddChild(tTJSNI_BaseMenuItem *item);
@@ -150,8 +148,7 @@ class tTVPOnMenuItemClickInputEvent : public tTVPBaseInputEvent {
     static tTVPUniqueTagForInputEvent Tag;
 
 public:
-    tTVPOnMenuItemClickInputEvent(tTJSNI_BaseMenuItem *menu)
-        : tTVPBaseInputEvent(menu, Tag){};
+    tTVPOnMenuItemClickInputEvent(tTJSNI_BaseMenuItem *menu) : tTVPBaseInputEvent(menu, Tag){};
     void Deliver() const { ((tTJSNI_BaseMenuItem *)GetSource())->OnClick(); }
 };
 //---------------------------------------------------------------------------

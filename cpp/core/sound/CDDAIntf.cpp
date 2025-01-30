@@ -19,20 +19,17 @@
 tTJSNI_BaseCDDASoundBuffer::tTJSNI_BaseCDDASoundBuffer() {}
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_BaseCDDASoundBuffer::Construct(
-    tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj) {
+tjs_error TJS_INTF_METHOD tTJSNI_BaseCDDASoundBuffer::Construct(tjs_int numparams, tTJSVariant **param,
+                                                                iTJSDispatch2 *tjs_obj) {
     tjs_error hr = inherited::Construct(numparams, param, tjs_obj);
-    if (TJS_FAILED(hr))
+    if(TJS_FAILED(hr))
         return hr;
 
     return TJS_S_OK;
 }
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_BaseCDDASoundBuffer::Invalidate() {
-
-    inherited::Invalidate();
-}
+void TJS_INTF_METHOD tTJSNI_BaseCDDASoundBuffer::Invalidate() { inherited::Invalidate(); }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -40,8 +37,7 @@ void TJS_INTF_METHOD tTJSNI_BaseCDDASoundBuffer::Invalidate() {
 //---------------------------------------------------------------------------
 tjs_uint32 tTJSNC_CDDASoundBuffer::ClassID = -1;
 
-tTJSNC_CDDASoundBuffer::tTJSNC_CDDASoundBuffer()
-    : tTJSNativeClass(TJS_W("CDDASoundBuffer")) {
+tTJSNC_CDDASoundBuffer::tTJSNC_CDDASoundBuffer() : tTJSNativeClass(TJS_W("CDDASoundBuffer")) {
     // registration of native members
 
     TJS_BEGIN_NATIVE_MEMBERS(CDDASoundBuffer) // constructor
@@ -62,7 +58,7 @@ tTJSNC_CDDASoundBuffer::tTJSNC_CDDASoundBuffer()
         TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
                                 /*var. type*/ tTJSNI_CDDASoundBuffer);
 
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
 #ifdef ENABLE_CDDA
         _this->Open(*param[0]);
@@ -98,7 +94,7 @@ tTJSNC_CDDASoundBuffer::tTJSNC_CDDASoundBuffer()
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fade) {
         TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
                                 /*var. type*/ tTJSNI_CDDASoundBuffer);
-        if (numparams < 2)
+        if(numparams < 2)
             return TJS_E_BADPARAMCOUNT;
 
 #ifdef ENABLE_CDDA
@@ -107,7 +103,7 @@ tTJSNC_CDDASoundBuffer::tTJSNC_CDDASoundBuffer()
         tjs_int delay = 0;
         to = (tjs_int)(*param[0]);
         time = (tjs_int)(*param[1]);
-        if (numparams >= 3 && param[2]->Type() != tvtVoid)
+        if(numparams >= 3 && param[2]->Type() != tvtVoid)
             delay = (tjs_int)(*param[2]);
 
         _this->Fade(to, time, delay);
@@ -138,7 +134,7 @@ tTJSNC_CDDASoundBuffer::tTJSNC_CDDASoundBuffer()
                                 /*var. type*/ tTJSNI_CDDASoundBuffer);
 
         tTJSVariantClosure obj = _this->GetActionOwnerNoAddRef();
-        if (obj.Object) {
+        if(obj.Object) {
             TVP_ACTION_INVOKE_BEGIN(1, "onStatusChanged", objthis);
             TVP_ACTION_INVOKE_MEMBER("status");
             TVP_ACTION_INVOKE_END(obj);
@@ -153,7 +149,7 @@ tTJSNC_CDDASoundBuffer::tTJSNC_CDDASoundBuffer()
                                 /*var. type*/ tTJSNI_CDDASoundBuffer);
 
         tTJSVariantClosure obj = _this->GetActionOwnerNoAddRef();
-        if (obj.Object) {
+        if(obj.Object) {
             TVP_ACTION_INVOKE_BEGIN(0, "onFadeCompleted", objthis);
             TVP_ACTION_INVOKE_END(obj);
         }
@@ -166,9 +162,9 @@ tTJSNC_CDDASoundBuffer::tTJSNC_CDDASoundBuffer()
     //-- properties
 
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(position){TJS_BEGIN_NATIVE_PROP_GETTER{
-        TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                                tTJSNI_CDDASoundBuffer);
+    TJS_BEGIN_NATIVE_PROP_DECL(position){
+        TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                              tTJSNI_CDDASoundBuffer);
 
     // not yet implemented
 
@@ -188,9 +184,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(position)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(paused){TJS_BEGIN_NATIVE_PROP_GETTER{
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                            tTJSNI_CDDASoundBuffer);
+TJS_BEGIN_NATIVE_PROP_DECL(paused){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                          tTJSNI_CDDASoundBuffer);
 
 // not yet implemented
 
@@ -210,9 +206,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(paused)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(totalTime){TJS_BEGIN_NATIVE_PROP_GETTER{
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                            tTJSNI_CDDASoundBuffer);
+TJS_BEGIN_NATIVE_PROP_DECL(totalTime){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                          tTJSNI_CDDASoundBuffer);
 
 // not yet implemented
 
@@ -232,9 +228,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(totalTime)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(looping){TJS_BEGIN_NATIVE_PROP_GETTER{
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                            tTJSNI_CDDASoundBuffer);
+TJS_BEGIN_NATIVE_PROP_DECL(looping){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                          tTJSNI_CDDASoundBuffer);
 
 #ifdef ENABLE_CDDA
 *result = _this->GetLooping();
@@ -257,9 +253,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(looping)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(volume){TJS_BEGIN_NATIVE_PROP_GETTER{
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                            tTJSNI_CDDASoundBuffer);
+TJS_BEGIN_NATIVE_PROP_DECL(volume){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                          tTJSNI_CDDASoundBuffer);
 
 #ifdef ENABLE_CDDA
 *result = _this->GetVolume();
@@ -283,9 +279,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(volume)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(volume2){TJS_BEGIN_NATIVE_PROP_GETTER{
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                            tTJSNI_CDDASoundBuffer);
+TJS_BEGIN_NATIVE_PROP_DECL(volume2){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                          tTJSNI_CDDASoundBuffer);
 
 #ifdef ENABLE_CDDA
 *result = _this->GetVolume2();
@@ -311,9 +307,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(volume2)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(status){TJS_BEGIN_NATIVE_PROP_GETTER{
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                            tTJSNI_CDDASoundBuffer);
+TJS_BEGIN_NATIVE_PROP_DECL(status){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                          tTJSNI_CDDASoundBuffer);
 
 *result = _this->GetStatusString();
 

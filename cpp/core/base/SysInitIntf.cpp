@@ -23,7 +23,7 @@
 // global data
 //---------------------------------------------------------------------------
 ttstr TVPProjectDir; // project directory (in unified storage name)
-ttstr TVPDataPath;   // data directory (in unified storage name)
+ttstr TVPDataPath; // data directory (in unified storage name)
 //---------------------------------------------------------------------------
 
 extern void TVPGL_C_Init();
@@ -34,12 +34,12 @@ extern void TVPGL_C_Init();
 void TVPSystemInit() {
 #if CC_TARGET_PLATFORM != CC_PLATFORM_WIN32
 #ifndef CC_TARGET_OS_IPHONE
-    if (!TVPProtectInit())
+    if(!TVPProtectInit())
         return;
 #endif
 //#else
 #ifdef USING_PROTECT
-    while (!TVPProtectInit()) {
+    while(!TVPProtectInit()) {
         TVPUpdateLicense();
     }
 #endif
@@ -64,7 +64,7 @@ static void TVPCauseAtExit();
 bool TVPSystemUninitCalled = false;
 
 void TVPSystemUninit() {
-    if (TVPSystemUninitCalled)
+    if(TVPSystemUninitCalled)
         return;
     TVPSystemUninitCalled = true;
 
@@ -74,7 +74,7 @@ void TVPSystemUninit() {
 
     try {
         TVPUninitScriptEngine();
-    } catch (...) {
+    } catch(...) {
         // ignore errors
     }
 
@@ -88,25 +88,17 @@ void TVPSystemUninit() {
 // TVPAddAtExitHandler related
 //---------------------------------------------------------------------------
 struct tTVPAtExitInfo {
-    tTVPAtExitInfo(tjs_int pri, void (*handler)()) {
-        Priority = pri, Handler = handler;
-    }
+    tTVPAtExitInfo(tjs_int pri, void (*handler)()) { Priority = pri, Handler = handler; }
 
     tjs_int Priority;
 
     void (*Handler)();
 
-    bool operator<(const tTVPAtExitInfo &r) const {
-        return this->Priority < r.Priority;
-    }
+    bool operator<(const tTVPAtExitInfo &r) const { return this->Priority < r.Priority; }
 
-    bool operator>(const tTVPAtExitInfo &r) const {
-        return this->Priority > r.Priority;
-    }
+    bool operator>(const tTVPAtExitInfo &r) const { return this->Priority > r.Priority; }
 
-    bool operator==(const tTVPAtExitInfo &r) const {
-        return this->Priority == r.Priority;
-    }
+    bool operator==(const tTVPAtExitInfo &r) const { return this->Priority == r.Priority; }
 };
 
 static std::vector<tTVPAtExitInfo> *TVPAtExitInfos = nullptr;
@@ -114,17 +106,17 @@ static bool TVPAtExitShutdown = false;
 
 //---------------------------------------------------------------------------
 void TVPAddAtExitHandler(tjs_int pri, void (*handler)()) {
-    if (TVPAtExitShutdown)
+    if(TVPAtExitShutdown)
         return;
 
-    if (!TVPAtExitInfos)
+    if(!TVPAtExitInfos)
         TVPAtExitInfos = new std::vector<tTVPAtExitInfo>();
     TVPAtExitInfos->emplace_back(pri, handler);
 }
 
 //---------------------------------------------------------------------------
 static void TVPCauseAtExit() {
-    if (TVPAtExitShutdown)
+    if(TVPAtExitShutdown)
         return;
     TVPAtExitShutdown = true;
 
@@ -132,7 +124,7 @@ static void TVPCauseAtExit() {
               TVPAtExitInfos->end()); // descending sort
 
     std::vector<tTVPAtExitInfo>::iterator i;
-    for (i = TVPAtExitInfos->begin(); i != TVPAtExitInfos->end(); i++) {
+    for(i = TVPAtExitInfos->begin(); i != TVPAtExitInfos->end(); i++) {
         i->Handler();
     }
 

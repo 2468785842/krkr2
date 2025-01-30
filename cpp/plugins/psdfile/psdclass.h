@@ -35,8 +35,7 @@ public:
     /**
      * インスタンス生成ファクトリ
      */
-    static tjs_error factory(PSD **result, tjs_int numparams,
-                             tTJSVariant **params, iTJSDispatch2 *objthis);
+    static tjs_error factory(PSD **result, tjs_int numparams, tTJSVariant **params, iTJSDispatch2 *objthis);
 
     /**
      * 生成時の自己オブジェクトを取得
@@ -52,7 +51,7 @@ public:
 
     static void clearStorageCache();
 
-#define INTGETTER(tag)                                                         \
+#define INTGETTER(tag)                                                                                                 \
     int get_##tag() { return isLoaded ? header.tag : -1; }
 
     INTGETTER(width);
@@ -144,7 +143,7 @@ public:
 
 protected:
     iTJSDispatch2 *objthis; ///< 自己オブジェクト情報の参照
-    ttstr dname;            ///< 登録用ベース名
+    ttstr dname; ///< 登録用ベース名
 
 #ifdef LOAD_MEMORY
     HGLOBAL hBuffer; // オンメモリ保持用ハンドル
@@ -220,8 +219,7 @@ protected:
 
     // パス名記録用
 
-    typedef std::map<int, int>
-        LayerIdIdxMap; // layerId とレイヤ情報インデックスのマップ
+    typedef std::map<int, int> LayerIdIdxMap; // layerId とレイヤ情報インデックスのマップ
     LayerIdIdxMap layerIdIdxMap;
 
     typedef std::map<ttstr, int> NameIdxMap; //< レイヤ名とlayerId のマップ

@@ -16,18 +16,14 @@ class Pen {
 public:
     Pen(GpPen *gpPen) : _gpPen(gpPen) {}
 
-    Pen(const BrushBase *brush, float width) {
-        GdipCreatePen2((Brush *)brush, width, UnitWorld, &this->_gpPen);
-    }
+    Pen(const BrushBase *brush, float width) { GdipCreatePen2((Brush *)brush, width, UnitWorld, &this->_gpPen); }
 
-    Pen(const Color &color, float width) {
-        GdipCreatePen1(*(ARGB *)&color, width, UnitWorld, &this->_gpPen);
-    }
+    Pen(const Color &color, float width) { GdipCreatePen1(*(ARGB *)&color, width, UnitWorld, &this->_gpPen); }
 
     [[nodiscard]] Pen *Clone() const {
-        GpPen *cloned{nullptr};
+        GpPen *cloned{ nullptr };
         this->_gpStatus = GdipClonePen(this->_gpPen, &cloned);
-        return new Pen{cloned};
+        return new Pen{ cloned };
     }
 
     GpStatus SetWidth(float width) {
@@ -41,8 +37,7 @@ public:
     }
 
     GpStatus SetCompoundArray(const float *compoundArray, int count) {
-        this->_gpStatus =
-            GdipSetPenCompoundArray(this->_gpPen, compoundArray, count);
+        this->_gpStatus = GdipSetPenCompoundArray(this->_gpPen, compoundArray, count);
         return this->_gpStatus;
     }
 
@@ -101,7 +96,7 @@ public:
     ~Pen() { GdipDeletePen(this->_gpPen); }
 
 private:
-    GpPen *_gpPen{nullptr};
+    GpPen *_gpPen{ nullptr };
     mutable GpStatus _gpStatus{};
 };
 

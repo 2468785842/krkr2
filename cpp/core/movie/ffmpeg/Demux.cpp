@@ -7,17 +7,17 @@ int64_t IDemux::NewGuid() {
 }
 
 std::string CDemuxStreamAudio::GetStreamType() {
-    switch (iChannels) {
-    case 1:
-        return "Mono";
-    case 2:
-        return "Stereo";
-    case 6:
-        return "5.1";
-    case 8:
-        return "7.1";
-    default:
-        return "";
+    switch(iChannels) {
+        case 1:
+            return "Mono";
+        case 2:
+            return "Stereo";
+        case 6:
+            return "5.1";
+        case 8:
+            return "7.1";
+        default:
+            return "";
     }
 }
 

@@ -14,13 +14,12 @@
 
 // #define RENDER_FLAG_LAST        0x40
 
-#define RENDER_FLAG_NOOSD 0x04      /* don't draw any osd */
+#define RENDER_FLAG_NOOSD 0x04 /* don't draw any osd */
 #define RENDER_FLAG_NOOSDALPHA 0x08 /* don't allow alpha when osd is drawn */
 
 /* these two flags will be used if we need to render same image twice (bob
  * deinterlacing) */
-#define RENDER_FLAG_NOLOCK                                                     \
-    0x10 /* don't attempt to lock texture before rendering */
+#define RENDER_FLAG_NOLOCK 0x10 /* don't attempt to lock texture before rendering */
 #define RENDER_FLAG_NOUNLOCK 0x20 /* don't unlock texture after rendering */
 
 /* this defines what color translation coefficients */
@@ -36,12 +35,9 @@
 /* defines color primaries */
 #define CONF_FLAGS_COLPRI_MASK(a) ((a)&0xe0)
 #define CONF_FLAGS_COLPRI_BT709 0x20 // sRGB, HDTV (ITU-R BT.709)
-#define CONF_FLAGS_COLPRI_BT470M                                               \
-    0x40 // NTSC (1953) (FCC 1953, ITU-R BT.470 System M)
-#define CONF_FLAGS_COLPRI_BT470BG                                              \
-    0x60 // PAL/SECAM (1970) (EBU Tech. 3213, ITU-R BT.470 System B, G)
-#define CONF_FLAGS_COLPRI_170M                                                 \
-    0x80 // NTSC (1987) (SMPTE RP 145 "SMPTE C", SMPTE 170M)
+#define CONF_FLAGS_COLPRI_BT470M 0x40 // NTSC (1953) (FCC 1953, ITU-R BT.470 System M)
+#define CONF_FLAGS_COLPRI_BT470BG 0x60 // PAL/SECAM (1970) (EBU Tech. 3213, ITU-R BT.470 System B, G)
+#define CONF_FLAGS_COLPRI_170M 0x80 // NTSC (1987) (SMPTE RP 145 "SMPTE C", SMPTE 170M)
 #define CONF_FLAGS_COLPRI_240M 0xa0 // SMPTE-240M
 
 /* defines chroma subsampling sample location */
@@ -69,18 +65,17 @@ NS_KRMOVIE_BEGIN
 
 namespace RenderManager {
 
-unsigned int GetFlagsColorMatrix(unsigned int color_matrix, unsigned width,
-                                 unsigned height);
+    unsigned int GetFlagsColorMatrix(unsigned int color_matrix, unsigned width, unsigned height);
 
-unsigned int GetFlagsChromaPosition(unsigned int chroma_position);
+    unsigned int GetFlagsChromaPosition(unsigned int chroma_position);
 
-unsigned int GetFlagsColorPrimaries(unsigned int color_primaries);
+    unsigned int GetFlagsColorPrimaries(unsigned int color_primaries);
 
-unsigned int GetFlagsColorTransfer(unsigned int color_transfer);
+    unsigned int GetFlagsColorTransfer(unsigned int color_transfer);
 
-unsigned int GetStereoModeFlags(const std::string &mode);
+    unsigned int GetStereoModeFlags(const std::string &mode);
 
-std::string GetStereoModeInvert(const std::string &mode);
+    std::string GetStereoModeInvert(const std::string &mode);
 
 } // namespace RenderManager
 

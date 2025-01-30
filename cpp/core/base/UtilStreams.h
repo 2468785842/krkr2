@@ -23,12 +23,10 @@ class tTVPStreamHolder {
 public:
     tTVPStreamHolder() { Stream = nullptr; }
 
-    tTVPStreamHolder(const ttstr &name, tjs_uint32 mode = 0) {
-        Stream = TVPCreateStream(name, mode);
-    }
+    tTVPStreamHolder(const ttstr &name, tjs_uint32 mode = 0) { Stream = TVPCreateStream(name, mode); }
 
     ~tTVPStreamHolder() {
-        if (Stream)
+        if(Stream)
             delete Stream;
     }
 
@@ -37,7 +35,7 @@ public:
     tTJSBinaryStream *Get() const { return Stream; }
 
     void Close() {
-        if (Stream) {
+        if(Stream) {
             delete Stream;
             Stream = nullptr;
         }
@@ -46,7 +44,7 @@ public:
     void Disown() { Stream = nullptr; }
 
     void Open(const ttstr &name, tjs_uint32 flag = 0) {
-        if (Stream)
+        if(Stream)
             delete Stream, Stream = nullptr;
         Stream = TVPCreateStream(name, flag);
     }
@@ -143,8 +141,7 @@ private:
     tjs_uint64 CurrentPos;
 
 public:
-    tTVPPartialStream(tTJSBinaryStream *stream, tjs_uint64 start,
-                      tjs_uint64 size);
+    tTVPPartialStream(tTJSBinaryStream *stream, tjs_uint64 start, tjs_uint64 size);
 
     ~tTVPPartialStream();
 
@@ -183,7 +180,7 @@ public:
 
     virtual bool Open(const std::string &path) = 0;
 
-    virtual int GetFileCount() = 0;       // -1 for unknown file count
+    virtual int GetFileCount() = 0; // -1 for unknown file count
     virtual tjs_int64 GetTotalSize() = 0; // -1 for unknown size
     virtual void ExtractTo(const std::string &path) = 0;
 };
@@ -193,8 +190,7 @@ public:
     tTVPUnpackArchive();
 
     virtual ~tTVPUnpackArchive(); // must ve deconstructed from main thread
-    int Prepare(const std::string &path, const std::string &_outpath,
-                tjs_uint64 *totalSize);
+    int Prepare(const std::string &path, const std::string &_outpath, tjs_uint64 *totalSize);
 
     void Start();
 
@@ -202,13 +198,11 @@ public:
 
     void Close();
 
-    void SetCallback(
-        const std::function<void()> &funcOnEnded,
-        const std::function<void(int, const char *)> &funcOnError,
-        const std::function<void(tjs_uint64, tjs_uint64)> &funcOnProgress,
-        const std::function<void(int, const std::string &, tjs_uint64)>
-            &funcOnNewFile,
-        const std::function<std::string()> &funcPassword) {
+    void SetCallback(const std::function<void()> &funcOnEnded,
+                     const std::function<void(int, const char *)> &funcOnError,
+                     const std::function<void(tjs_uint64, tjs_uint64)> &funcOnProgress,
+                     const std::function<void(int, const std::string &, tjs_uint64)> &funcOnNewFile,
+                     const std::function<std::string()> &funcPassword) {
         FuncOnEnded = funcOnEnded;
         FuncOnError = funcOnError;
         FuncOnProgress = funcOnProgress;
@@ -219,18 +213,17 @@ public:
 protected:
     // these callbacks are not in main thread !
     virtual void OnEnded() {
-        if (FuncOnEnded)
+        if(FuncOnEnded)
             FuncOnEnded();
     }
 
     virtual void OnProgress(tjs_uint64 total_size, tjs_uint64 file_size) {
-        if (FuncOnProgress)
+        if(FuncOnProgress)
             FuncOnProgress(total_size, file_size);
     }
 
-    virtual void OnNewFile(int idx, const char *utf8name,
-                           tjs_uint64 file_size) {
-        if (FuncOnNewFile)
+    virtual void OnNewFile(int idx, const char *utf8name, tjs_uint64 file_size) {
+        if(FuncOnNewFile)
             FuncOnNewFile(idx, utf8name, file_size);
     }
 

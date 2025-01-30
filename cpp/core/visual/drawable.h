@@ -19,9 +19,9 @@
 enum tTVPLayerType {
     ltBinder = 0,
     ltCoverRect = 1,
-    ltOpaque = 1,      // the same as ltCoverRect
+    ltOpaque = 1, // the same as ltCoverRect
     ltTransparent = 2, // alpha blend
-    ltAlpha = 2,       // the same as ltTransparent
+    ltAlpha = 2, // the same as ltTransparent
     ltAdditive = 3,
     ltSubtractive = 4,
     ltMultiplicative = 5,
@@ -51,19 +51,14 @@ enum tTVPLayerType {
 };
 //---------------------------------------------------------------------------
 static bool inline TVPIsTypeUsingAlpha(tTVPLayerType type) {
-    return type == ltAlpha || type == ltPsNormal || type == ltPsAdditive ||
-           type == ltPsSubtractive || type == ltPsMultiplicative ||
-           type == ltPsScreen || type == ltPsOverlay || type == ltPsHardLight ||
-           type == ltPsSoftLight || type == ltPsColorDodge ||
-           type == ltPsColorDodge5 || type == ltPsColorBurn ||
-           type == ltPsLighten || type == ltPsDarken ||
-           type == ltPsDifference || type == ltPsDifference5 ||
-           type == ltPsExclusion;
+    return type == ltAlpha || type == ltPsNormal || type == ltPsAdditive || type == ltPsSubtractive ||
+        type == ltPsMultiplicative || type == ltPsScreen || type == ltPsOverlay || type == ltPsHardLight ||
+        type == ltPsSoftLight || type == ltPsColorDodge || type == ltPsColorDodge5 || type == ltPsColorBurn ||
+        type == ltPsLighten || type == ltPsDarken || type == ltPsDifference || type == ltPsDifference5 ||
+        type == ltPsExclusion;
 }
 
-static bool inline TVPIsTypeUsingAddAlpha(tTVPLayerType type) {
-    return type == ltAddAlpha;
-}
+static bool inline TVPIsTypeUsingAddAlpha(tTVPLayerType type) { return type == ltAddAlpha; }
 
 static bool inline TVPIsTypeUsingAlphaChannel(tTVPLayerType type) {
     return TVPIsTypeUsingAddAlpha(type) || TVPIsTypeUsingAlpha(type);
@@ -80,8 +75,7 @@ struct tTVPRect;
 class tTVPDrawable {
 public:
     // base class of draw-able objects.
-    virtual tTVPBaseTexture *GetDrawTargetBitmap(const tTVPRect &rect,
-                                                 tTVPRect &cliprect) = 0;
+    virtual tTVPBaseTexture *GetDrawTargetBitmap(const tTVPRect &rect, tTVPRect &cliprect) = 0;
     // returns target bitmap which has given size
     // (rect.get_width() * rect.get_height()).
     // put actually to be drawn rectangle to "cliprect"
@@ -89,9 +83,8 @@ public:
     virtual tTVPLayerType GetTargetLayerType() = 0;
     // returns target layer type
 
-    virtual void DrawCompleted(const tTVPRect &destrect, tTVPBaseTexture *bmp,
-                               const tTVPRect &cliprect, tTVPLayerType type,
-                               tjs_int opacity) = 0;
+    virtual void DrawCompleted(const tTVPRect &destrect, tTVPBaseTexture *bmp, const tTVPRect &cliprect,
+                               tTVPLayerType type, tjs_int opacity) = 0;
     // call this when the drawing is completed, passing
     // the bitmap containing the image, and its clip region.
 };

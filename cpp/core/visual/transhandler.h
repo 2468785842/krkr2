@@ -25,7 +25,7 @@
 #pragma option push -b
 #endif
 enum tTVPTransType {
-    ttSimple,  // transition using only one(self) layer ( eg. simple fading )
+    ttSimple, // transition using only one(self) layer ( eg. simple fading )
     ttExchange // transition using two layer ( eg. cross fading )
 };
 #ifdef __BORLANDC__
@@ -125,8 +125,7 @@ public:
 
     virtual tjs_error TJS_INTF_METHOD Reserved2() = 0;
 
-    virtual tjs_error TJS_INTF_METHOD
-    GetDispatchObject(iTJSDispatch2 **dsp) = 0;
+    virtual tjs_error TJS_INTF_METHOD GetDispatchObject(iTJSDispatch2 **dsp) = 0;
     // retrieve internal dispatch object ( if exists )
 };
 //---------------------------------------------------------------------------
@@ -160,8 +159,7 @@ public:
 // layer update region notification interface
 class iTVPLayerUpdater {
 public:
-    virtual tjs_error TJS_INTF_METHOD UpdateRect(tjs_int left, tjs_int top,
-                                                 tjs_int right, tjs_int bottom);
+    virtual tjs_error TJS_INTF_METHOD UpdateRect(tjs_int left, tjs_int top, tjs_int right, tjs_int bottom);
     // notify that the layer image had been changed.
 };
 //---------------------------------------------------------------------------
@@ -175,19 +173,19 @@ public:
 #endif
 
 struct tTVPDivisibleData {
-    /*const*/ tjs_int Left;               // processing rectangle left
-    /*const*/ tjs_int Top;                // processing rectangle top
-    /*const*/ tjs_int Width;              // processing rectangle width
-    /*const*/ tjs_int Height;             // processing rectangle height
-    iTVPScanLineProvider *Dest;           // destination image
-    tjs_int DestLeft;                     // destination image rectangle's left
-    tjs_int DestTop;                      // destination image rectangle's top
+    /*const*/ tjs_int Left; // processing rectangle left
+    /*const*/ tjs_int Top; // processing rectangle top
+    /*const*/ tjs_int Width; // processing rectangle width
+    /*const*/ tjs_int Height; // processing rectangle height
+    iTVPScanLineProvider *Dest; // destination image
+    tjs_int DestLeft; // destination image rectangle's left
+    tjs_int DestTop; // destination image rectangle's top
     /*const*/ iTVPScanLineProvider *Src1; // source 1 (self layer image)
-    /*const*/ tjs_int Src1Left;           // source 1 image rectangle's left
-    /*const*/ tjs_int Src1Top;            // source 1 image rectangle's top
+    /*const*/ tjs_int Src1Left; // source 1 image rectangle's left
+    /*const*/ tjs_int Src1Top; // source 1 image rectangle's top
     /*const*/ iTVPScanLineProvider *Src2; // source 2 (other layer image)
-    /*const*/ tjs_int Src2Left;           // source 2 image rectangle's left
-    /*const*/ tjs_int Src2Top;            // source 2 image rectangle's top
+    /*const*/ tjs_int Src2Left; // source 2 image rectangle's left
+    /*const*/ tjs_int Src2Top; // source 2 image rectangle's top
 };
 /* note that "Src2" will be nullptr when transition type is ttSimple. */
 /* Src1Left, Src1Top, Src2Left, Src2Top are not used when the transition is
@@ -241,8 +239,8 @@ public:
 
     virtual tjs_error TJS_INTF_METHOD MakeFinalImage(
         /*in,out*/ iTVPScanLineProvider **dest, // destination
-        /*in*/ iTVPScanLineProvider *src1,      // source 1
-        /*in*/ iTVPScanLineProvider *src2       // source 2
+        /*in*/ iTVPScanLineProvider *src1, // source 1
+        /*in*/ iTVPScanLineProvider *src2 // source 2
         ) = 0;
     // will be called after StartProcess/EndProcess returns TJS_S_FALSE.
     // this function does not called in some occasions.
@@ -258,10 +256,10 @@ class iTVPGiveUpdateTransHandler : public iTVPBaseTransHandler {
 public:
     virtual tjs_error TJS_INTF_METHOD Process(
         /*in*/ tjs_uint64 tick, // tick count provided by the system in ms
-        /*in*/ iTVPLayerUpdater *updater,  // layer updater object
+        /*in*/ iTVPLayerUpdater *updater, // layer updater object
         /*in*/ iTVPScanLineProvider *dest, // destination
         /*in*/ iTVPScanLineProvider *src1, // source 1
-        /*in*/ iTVPScanLineProvider *src2  // source 2
+        /*in*/ iTVPScanLineProvider *src2 // source 2
         ) = 0;
     // process the transition.
     // callee must call updater->UpdateLayerRect when changing the layer image.
@@ -286,12 +284,12 @@ public:
     virtual tjs_error TJS_INTF_METHOD StartTransition(
         /*in*/ iTVPSimpleOptionProvider *options, // option provider
         /*in*/ iTVPSimpleImageProvider *imagepro, // image provider
-        /*in*/ tTVPLayerType layertype,           // destination layer type
-        /*in*/ tjs_uint src1w, tjs_uint src1h,    // source 1 size
-        /*in*/ tjs_uint src2w, tjs_uint src2h,    // source 2 size
-        /*out*/ tTVPTransType *type,              // transition type
-        /*out*/ tTVPTransUpdateType *updatetype,  // update typwe
-        /*out*/ iTVPBaseTransHandler **handler    // transition handler
+        /*in*/ tTVPLayerType layertype, // destination layer type
+        /*in*/ tjs_uint src1w, tjs_uint src1h, // source 1 size
+        /*in*/ tjs_uint src2w, tjs_uint src2h, // source 2 size
+        /*out*/ tTVPTransType *type, // transition type
+        /*out*/ tTVPTransUpdateType *updatetype, // update typwe
+        /*out*/ iTVPBaseTransHandler **handler // transition handler
         ) = 0;
     // start transition and return a handler.
     // "handler" is an object of iTVPDivisibleTransHandler when

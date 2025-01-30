@@ -13,8 +13,7 @@ public:
     intptr_t LParam;
 
     //	NativeEvent(){}
-    NativeEvent(int mes)
-        : /*Result(0), HWnd(nullptr),*/ Message(mes), WParam(0), LParam(0) {}
+    NativeEvent(int mes) : /*Result(0), HWnd(nullptr),*/ Message(mes), WParam(0), LParam(0) {}
 };
 
 #if 0
@@ -70,8 +69,7 @@ class NativeEventQueue : public NativeEventQueueImplement {
     T *owner_;
 
 public:
-    NativeEventQueue(T *owner, void (T::*Handler)(NativeEvent &))
-        : owner_(owner), handler_(Handler) {}
+    NativeEventQueue(T *owner, void (T::*Handler)(NativeEvent &)) : owner_(owner), handler_(Handler) {}
 
     void Dispatch(NativeEvent &ev) { (owner_->*handler_)(ev); }
 

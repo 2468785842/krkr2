@@ -47,7 +47,7 @@ static void _do_compact() { TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_MAX); }
 static void _no_memory_cb() {
     tTJSCSH lock(_NoMemCallBackCS);
     free(_reservedMem);
-    if (TVPMainThreadID == std::this_thread::get_id()) {
+    if(TVPMainThreadID == std::this_thread::get_id()) {
         _do_compact();
     } else {
         Application->PostUserMessage(_do_compact);
@@ -61,14 +61,13 @@ typedef void *F_alloc_t(void *, size_t);
 static void *__do_alloc_func(F_alloc_t *f, void *p, size_t c) {
     void *ptr = f(p, c);
 
-    if (!ptr) {
+    if(!ptr) {
         _no_memory_cb();
         ptr = f(p, c);
-        if (!ptr) {
+        if(!ptr) {
             tTJSCSH lock(_cs);
-            const char *btns[2] = {_retry.c_str(), _cancel.c_str()};
-            while (!ptr && TVPShowSimpleMessageBox(_msg.c_str(), _title.c_str(),
-                                                   2, btns) == 0) {
+            const char *btns[2] = { _retry.c_str(), _cancel.c_str() };
+            while(!ptr && TVPShowSimpleMessageBox(_msg.c_str(), _title.c_str(), 2, btns) == 0) {
                 ptr = f(p, c);
             }
             // TVPExitApplication(-1);
@@ -79,7 +78,7 @@ static void *__do_alloc_func(F_alloc_t *f, void *p, size_t c) {
 
 ttstr TVPGetErrorDialogTitle() {
     const ttstr &title = Application->GetTitle();
-    if (title.IsEmpty()) {
+    if(title.IsEmpty()) {
         return TVPGetPackageVersionString() + " Error";
     } else {
         return ttstr(TVPGetPackageVersionString()) + " " + title;
@@ -97,9 +96,9 @@ void TVPUnlockSoundMixer();
 static bool _warnLowMem = true;
 void TVPCheckMemory() {
 #if defined(_DEBUG)
-    if (_warnLowMem) {
+    if(_warnLowMem) {
         tjs_int freeMem = TVPGetSystemFreeMemory();
-        if (freeMem < 24) {
+        if(freeMem < 24) {
             char buf[256];
             sprintf(buf,
                     "Insufficient memory (%dMB available)\nYou can diable this "
@@ -115,8 +114,7 @@ void TVPCheckMemory() {
 
 int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption) {
     std::vector<ttstr> normal;
-    normal.emplace_back(
-        LocaleConfigManager::GetInstance()->GetText("msgbox_ok"));
+    normal.emplace_back(LocaleConfigManager::GetInstance()->GetText("msgbox_ok"));
     return TVPShowSimpleMessageBox(text, caption, normal);
 }
 
@@ -128,9 +126,7 @@ int TVPShowSimpleMessageBoxYesNo(const ttstr &text, const ttstr &caption) {
     return TVPShowSimpleMessageBox(text, caption, normal);
 }
 
-ttstr TVPGetMessageByLocale(const std::string &key) {
-    return LocaleConfigManager::GetInstance()->GetText(key);
-}
+ttstr TVPGetMessageByLocale(const std::string &key) { return LocaleConfigManager::GetInstance()->GetText(key); }
 
 int _argc;
 char **_argv;
@@ -277,10 +273,9 @@ int APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	return TVPTerminateCode;
 }
 #endif
-tTVPApplication::tTVPApplication()
-    : is_attach_console_(false), tarminate_(false),
-      application_activating_(true), image_load_thread_(nullptr),
-      has_map_report_process_(false) {}
+tTVPApplication::tTVPApplication() :
+    is_attach_console_(false), tarminate_(false), application_activating_(true), image_load_thread_(nullptr),
+    has_map_report_process_(false) {}
 tTVPApplication::~tTVPApplication() {
     // 	while( windows_list_.size() ) {
     // 		std::vector<TTVPWindowForm*>::iterator i =
@@ -318,17 +313,16 @@ bool tTVPApplication::StartApplication(ttstr path) {
         TVPInitFontNames();
 
         // banner
-        TVPAddImportantLog(TVPFormatMessage(TVPProgramStartedOn, TVPGetOSName(),
-                                            TVPGetPlatformName()));
+        TVPAddImportantLog(TVPFormatMessage(TVPProgramStartedOn, TVPGetOSName(), TVPGetPlatformName()));
 
         // TVPInitializeBaseSystems
         TVPInitializeBaseSystems();
 
         Initialize();
 
-        if (TVPCheckPrintDataPath())
+        if(TVPCheckPrintDataPath())
             return true;
-        if (TVPExecuteUserConfig())
+        if(TVPExecuteUserConfig())
             return true;
 
         image_load_thread_ = new tTVPAsyncImageLoader();
@@ -336,7 +330,7 @@ bool tTVPApplication::StartApplication(ttstr path) {
         tvpLoadPlugins(); // load plugin module *.tpm
         TVPSystemInit();
 
-        if (TVPCheckAbout())
+        if(TVPCheckAbout())
             return true; // version information dialog box;
 
         SetTitle(TVPKirikiri.operator const tjs_char *());
@@ -349,23 +343,23 @@ bool tTVPApplication::StartApplication(ttstr path) {
 
         TVPInitializeStartupScript();
         _project_startup = true;
-    } catch (const EAbort &) {
+    } catch(const EAbort &) {
         // nothing to do
-    } catch (const Exception &exception) {
+    } catch(const Exception &exception) {
         TVPOnError();
-        if (!TVPSystemUninitCalled)
+        if(!TVPSystemUninitCalled)
             ShowException(exception.what());
-    } catch (const TJS::eTJSScriptError &e) {
+    } catch(const TJS::eTJSScriptError &e) {
         TVPOnError();
-        if (!TVPSystemUninitCalled) {
+        if(!TVPSystemUninitCalled) {
             ttstr msg;
-            if (!title_.IsEmpty()) {
+            if(!title_.IsEmpty()) {
                 msg += title_;
                 msg += "\n";
             }
             msg += e.GetMessage();
             const tjs_char *pszBlockName = e.GetBlockName();
-            if (pszBlockName && *pszBlockName) {
+            if(pszBlockName && *pszBlockName) {
                 msg += TJS_W("\n@line(");
                 tjs_char tmp[34];
                 msg += TJS_int_to_str(e.GetSourceLine(), tmp);
@@ -376,17 +370,17 @@ bool tTVPApplication::StartApplication(ttstr path) {
             msg += e.GetTrace();
             ShowException(msg);
         }
-    } catch (const TJS::eTJS &e) {
+    } catch(const TJS::eTJS &e) {
         TVPOnError();
-        if (!TVPSystemUninitCalled)
+        if(!TVPSystemUninitCalled)
             ShowException(e.GetMessage());
-    } catch (const std::exception &e) {
+    } catch(const std::exception &e) {
         ShowException(e.what());
-    } catch (const char *e) {
+    } catch(const char *e) {
         ShowException(e);
-    } catch (const tjs_char *e) {
+    } catch(const tjs_char *e) {
         ShowException(e);
-    } catch (...) {
+    } catch(...) {
         ShowException((const tjs_char *)TVPUnknownError);
     }
 
@@ -397,7 +391,7 @@ bool tTVPApplication::StartApplication(ttstr path) {
  */
 void tTVPApplication::CheckConsole() {
 #ifdef TVP_LOG_TO_COMMANDLINE_CONSOLE
-    if (has_map_report_process_)
+    if(has_map_report_process_)
         return; // 書き出し用子プロセスして起動されていた時はコンソール接続しない
     HANDLE hin = ::GetStdHandle(STD_INPUT_HANDLE);
     HANDLE hout = ::GetStdHandle(STD_OUTPUT_HANDLE);
@@ -407,27 +401,27 @@ void tTVPApplication::CheckConsole() {
     DWORD processList[256];
     DWORD count = ::GetConsoleProcessList(processList, 256);
     bool thisProcHasConsole = false;
-    for (DWORD i = 0; i < count; i++) {
-        if (processList[i] == curProcId) {
+    for(DWORD i = 0; i < count; i++) {
+        if(processList[i] == curProcId) {
             thisProcHasConsole = true;
             break;
         }
     }
     bool attachedConsole = true;
-    if (thisProcHasConsole == false) {
+    if(thisProcHasConsole == false) {
         attachedConsole = ::AttachConsole(ATTACH_PARENT_PROCESS) != 0;
     }
 
-    if ((hin == 0 || hout == 0 || herr == 0) && attachedConsole) {
+    if((hin == 0 || hout == 0 || herr == 0) && attachedConsole) {
         wchar_t console[256];
         ::GetConsoleTitle(console, 256);
         console_title_ = std::wstring(console);
         // 元のハンドルを再割り当て
-        if (hin)
+        if(hin)
             ::SetStdHandle(STD_INPUT_HANDLE, hin);
-        if (hout)
+        if(hout)
             ::SetStdHandle(STD_OUTPUT_HANDLE, hout);
-        if (herr)
+        if(herr)
             ::SetStdHandle(STD_ERROR_HANDLE, herr);
     }
     is_attach_console_ = attachedConsole;
@@ -447,9 +441,7 @@ void tTVPApplication::CloseConsole() {
 #endif
 }
 void TVPConsoleLog(const ttstr &mes, bool important);
-void tTVPApplication::PrintConsole(const ttstr &mes, bool important) {
-    TVPConsoleLog(mes, important);
-}
+void tTVPApplication::PrintConsole(const ttstr &mes, bool important) { TVPConsoleLog(mes, important); }
 #if 0
 HWND tTVPApplication::GetHandle() {
 	if( windows_list_.size() > 0 ) {
@@ -488,34 +480,34 @@ void tTVPApplication::ShowException(const ttstr &e) {
 }
 void tTVPApplication::Run() {
     try {
-        if (TVPTerminated) {
+        if(TVPTerminated) {
             TVPSystemUninit();
             TVPExitApplication(TVPTerminateCode);
         }
         //	TVPBreathe();
         ProcessMessages();
-        if (TVPSystemControl)
+        if(TVPSystemControl)
             TVPSystemControl->SystemWatchTimerTimer();
         //		TVPDeliverWindowUpdateEvents(); // from
         // SystemWatchTimerTimer
-    } catch (const EAbort &) {
+    } catch(const EAbort &) {
         // nothing to do
 #if !(defined(_MSC_VER) && defined(_DEBUG))
-    } catch (const Exception &exception) {
+    } catch(const Exception &exception) {
         TVPOnError();
-        if (!TVPSystemUninitCalled)
+        if(!TVPSystemUninitCalled)
             ShowException(exception.what());
-    } catch (const TJS::eTJSScriptError &e) {
+    } catch(const TJS::eTJSScriptError &e) {
         TVPOnError();
-        if (!TVPSystemUninitCalled) {
+        if(!TVPSystemUninitCalled) {
             ttstr msg;
-            if (!title_.IsEmpty()) {
+            if(!title_.IsEmpty()) {
                 msg += title_;
                 msg += "\n";
             }
             msg += e.GetMessage();
             const tjs_char *pszBlockName = e.GetBlockName();
-            if (pszBlockName && *pszBlockName) {
+            if(pszBlockName && *pszBlockName) {
                 msg += TJS_W("\n@line(");
                 tjs_char tmp[34];
                 msg += TJS_int_to_str(e.GetSourceLine(), tmp);
@@ -526,17 +518,17 @@ void tTVPApplication::Run() {
             msg += e.GetTrace();
             ShowException(msg);
         }
-    } catch (const TJS::eTJS &e) {
+    } catch(const TJS::eTJS &e) {
         TVPOnError();
-        if (!TVPSystemUninitCalled)
+        if(!TVPSystemUninitCalled)
             ShowException(e.GetMessage());
-    } catch (const std::exception &e) {
+    } catch(const std::exception &e) {
         ShowException(e.what());
-    } catch (const char *e) {
+    } catch(const char *e) {
         ShowException(e);
-    } catch (const tjs_char *e) {
+    } catch(const tjs_char *e) {
         ShowException(e);
-    } catch (...) {
+    } catch(...) {
         ShowException((const tjs_char *)TVPUnknownError);
 #endif
     }
@@ -548,7 +540,7 @@ void tTVPApplication::ProcessMessages() {
         std::lock_guard<std::mutex> cs(m_msgQueueLock);
         m_lstUserMsg.swap(lstUserMsg);
     }
-    for (std::tuple<void *, int, tMsg> &it : lstUserMsg) {
+    for(std::tuple<void *, int, tMsg> &it : lstUserMsg) {
         std::get<2>(it)();
     }
     TVPTimer::ProgressAllTimer();
@@ -721,22 +713,19 @@ void tTVPApplication::CheckDigitizer() {
 #endif
 }
 
-void tTVPApplication::PostUserMessage(const std::function<void()> &func,
-                                      void *host, int msg) {
+void tTVPApplication::PostUserMessage(const std::function<void()> &func, void *host, int msg) {
     std::lock_guard<std::mutex> cs(m_msgQueueLock);
     m_lstUserMsg.emplace_back(host, msg, func);
 }
 
-void tTVPApplication::FilterUserMessage(
-    const std::function<void(std::vector<std::tuple<void *, int, tMsg>> &)>
-        &func) {
+void tTVPApplication::FilterUserMessage(const std::function<void(std::vector<std::tuple<void *, int, tMsg>> &)> &func) {
     std::lock_guard<std::mutex> cs(m_msgQueueLock);
     func(m_lstUserMsg);
 }
 
 void tTVPApplication::OnActivate() {
     application_activating_ = true;
-    if (!_project_startup)
+    if(!_project_startup)
         return;
 
     //	TVPRestoreFullScreenWindowAtActivation();
@@ -745,13 +734,13 @@ void tTVPApplication::OnActivate() {
 
     // trigger System.onActivate event
     TVPPostApplicationActivateEvent();
-    for (auto &it : m_activeEvents) {
+    for(auto &it : m_activeEvents) {
         it.second(it.first, eTVPActiveEvent::onActive);
     }
 }
 void tTVPApplication::OnDeactivate() {
     application_activating_ = false;
-    if (!_project_startup)
+    if(!_project_startup)
         return;
 
     //	TVPMinimizeFullScreenWindowAtInactivation();
@@ -765,7 +754,7 @@ void tTVPApplication::OnDeactivate() {
 
     // trigger System.onDeactivate event
     TVPPostApplicationDeactivateEvent();
-    for (auto &it : m_activeEvents) {
+    for(auto &it : m_activeEvents) {
         it.second(it.first, eTVPActiveEvent::onDeactive);
     }
 }
@@ -780,7 +769,7 @@ void tTVPApplication::OnExit() {
 }
 
 void tTVPApplication::OnLowMemory() {
-    if (!_project_startup)
+    if(!_project_startup)
         return;
     TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_MAX);
 }
@@ -814,18 +803,15 @@ void tTVPApplication::ModalFinished() {
 	}
 }
 #endif
-void tTVPApplication::LoadImageRequest(class iTJSDispatch2 *owner,
-                                       class tTJSNI_Bitmap *bmp,
-                                       const ttstr &name) {
-    if (image_load_thread_) {
+void tTVPApplication::LoadImageRequest(class iTJSDispatch2 *owner, class tTJSNI_Bitmap *bmp, const ttstr &name) {
+    if(image_load_thread_) {
         image_load_thread_->LoadRequest(owner, bmp, name);
     }
 }
 
 void tTVPApplication::RegisterActiveEvent(
-    void *host, const std::function<void(void *, eTVPActiveEvent)>
-                    &func /*empty = unregister*/) {
-    if (func)
+    void *host, const std::function<void(void *, eTVPActiveEvent)> &func /*empty = unregister*/) {
+    if(func)
         m_activeEvents.emplace(host, func);
     else
         m_activeEvents.erase(host);
@@ -860,75 +846,73 @@ void TVPDeleteAcceleratorKeyTable( HWND hWnd ) {
 
 void TVPInitWindowOptions() { ; }
 
-std::string ExtractFileDir(const std::string &FileName) {
-    return av_dirname((char *)FileName.c_str());
-}
+std::string ExtractFileDir(const std::string &FileName) { return av_dirname((char *)FileName.c_str()); }
 
 unsigned long ColorToRGB(unsigned int col) {
     // 0xBBGGRR
-    switch (col) {
-    case clScrollBar:
-        return 0xc8c8c8;
-    case clBackground:
-        return 0;
-    case clActiveCaption:
-        return 0xd1b499;
-    case clInactiveCaption:
-        return 0xdbcdbf;
-    case clMenu:
-        return 0xf0f0f0;
-    case clWindow:
-        return 0xffffff;
-    case clWindowFrame:
-        return 0x646464;
-    case clMenuText:
-    case clWindowText:
-        return 0;
-    case clCaptionText:
-        return 0;
-    case clActiveBorder:
-        return 0xb4b4b4;
-    case clInactiveBorder:
-        return 0xfcf7f4;
-    case clAppWorkSpace:
-        return 0xababab;
-    case clHighlight:
-        return 0xff9933;
-    case clHighlightText:
-        return 0xffffff;
-    case clBtnFace:
-        return 0xf0f0f0;
-    case clBtnShadow:
-        return 0xa0a0a0;
-    case clGrayText:
-        return 0x6d6d6d;
-    case clBtnText:
-        return 0;
-    case clInactiveCaptionText:
-        return 0x544e43;
-    case clBtnHighlight:
-        return 0xffffff;
-    case cl3DDkShadow:
-        return 0x696969;
-    case cl3DLight:
-        return 0xe3e3e3;
-    case clInfoText:
-        return 0;
-    case clInfoBk:
-        return 0xe1ffff;
-    case clUnknown:
-        return 0;
-    case clHotLight:
-        return 0xcc6600;
-    case clGradientActiveCaption:
-        return 0xead1b9;
-    case clGradientInactiveCaption:
-        return 0xf2e4d7;
-    case clMenuLight:
-        return 0xff9933;
-    case clMenuBar:
-        return 0xf0f0f0;
-    default:
-        return col & 0xFFFFFF;
+    switch(col) {
+        case clScrollBar:
+            return 0xc8c8c8;
+        case clBackground:
+            return 0;
+        case clActiveCaption:
+            return 0xd1b499;
+        case clInactiveCaption:
+            return 0xdbcdbf;
+        case clMenu:
+            return 0xf0f0f0;
+        case clWindow:
+            return 0xffffff;
+        case clWindowFrame:
+            return 0x646464;
+        case clMenuText:
+        case clWindowText:
+            return 0;
+        case clCaptionText:
+            return 0;
+        case clActiveBorder:
+            return 0xb4b4b4;
+        case clInactiveBorder:
+            return 0xfcf7f4;
+        case clAppWorkSpace:
+            return 0xababab;
+        case clHighlight:
+            return 0xff9933;
+        case clHighlightText:
+            return 0xffffff;
+        case clBtnFace:
+            return 0xf0f0f0;
+        case clBtnShadow:
+            return 0xa0a0a0;
+        case clGrayText:
+            return 0x6d6d6d;
+        case clBtnText:
+            return 0;
+        case clInactiveCaptionText:
+            return 0x544e43;
+        case clBtnHighlight:
+            return 0xffffff;
+        case cl3DDkShadow:
+            return 0x696969;
+        case cl3DLight:
+            return 0xe3e3e3;
+        case clInfoText:
+            return 0;
+        case clInfoBk:
+            return 0xe1ffff;
+        case clUnknown:
+            return 0;
+        case clHotLight:
+            return 0xcc6600;
+        case clGradientActiveCaption:
+            return 0xead1b9;
+        case clGradientInactiveCaption:
+            return 0xf2e4d7;
+        case clMenuLight:
+            return 0xff9933;
+        case clMenuBar:
+            return 0xf0f0f0;
+        default:
+            return col & 0xFFFFFF;
     }
 }

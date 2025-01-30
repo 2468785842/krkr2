@@ -30,13 +30,13 @@ public:
 private:
     tjs_int RefCount;
 
-    void *Bits;                   // pointer to bitmap bits
+    void *Bits; // pointer to bitmap bits
     BitmapInfomation *BitmapInfo; // DIB information
 
     tjs_int PitchBytes; // bytes required in a line
-    tjs_int PitchStep;  // step bytes to next(below) line
-    tjs_int Width;      // actual width
-    tjs_int Height;     // actual height
+    tjs_int PitchStep; // step bytes to next(below) line
+    tjs_int Width; // actual width
+    tjs_int Height; // actual height
 
     tjs_int ActualPalCount;
     tjs_uint *Palette;
@@ -56,7 +56,7 @@ public:
     void AddRef() { RefCount++; }
 
     void Release() {
-        if (RefCount == 1)
+        if(RefCount == 1)
             delete this;
         else
             RefCount--;
@@ -77,9 +77,7 @@ public:
 
     const BitmapInfomation *GetBitmapInfomation() const { return BitmapInfo; }
 #ifdef _WIN32
-    const TVPBITMAPINFO *GetBITMAPINFO() const {
-        return BitmapInfo->GetBITMAPINFO();
-    }
+    const TVPBITMAPINFO *GetBITMAPINFO() const { return BitmapInfo->GetBITMAPINFO(); }
     const TVPBITMAPINFOHEADER *GetBITMAPINFOHEADER() const {
         return (const TVPBITMAPINFOHEADER *)(BitmapInfo->GetBITMAPINFO());
     }
@@ -147,8 +145,7 @@ public:
 
     /* other utilities */
     iTVPTexture2D *GetTexture() const { return Bitmap; }
-    virtual iTVPTexture2D *GetTextureForRender(bool isBlendTarget,
-                                               const tTVPRect *rc);
+    virtual iTVPTexture2D *GetTextureForRender(bool isBlendTarget, const tTVPRect *rc);
 #if 0
 	tjs_uint GetPalette( tjs_uint index ) const;
 	void SetPalette( tjs_uint index, tjs_uint color );
@@ -179,55 +176,39 @@ public:
     void UnmapPrerenderedFont();
 
 private:
-    bool InternalBlendText(tTVPCharacterData *data, tTVPDrawTextData *dtdata,
-                           tjs_uint32 color, const tTVPRect &srect,
+    bool InternalBlendText(tTVPCharacterData *data, tTVPDrawTextData *dtdata, tjs_uint32 color, const tTVPRect &srect,
                            tTVPRect &drect);
 
-    bool InternalDrawText(tTVPCharacterData *data, tjs_int x, tjs_int y,
-                          tjs_uint32 shadowcolor, tTVPDrawTextData *dtdata,
-                          tTVPRect &drect);
+    bool InternalDrawText(tTVPCharacterData *data, tjs_int x, tjs_int y, tjs_uint32 shadowcolor,
+                          tTVPDrawTextData *dtdata, tTVPRect &drect);
 
 public:
-    void DrawTextSingle(const tTVPRect &destrect, tjs_int x, tjs_int y,
-                        const ttstr &text, tjs_uint32 color,
-                        tTVPBBBltMethod bltmode, tjs_int opa = 255,
-                        bool holdalpha = true, bool aa = true,
-                        tjs_int shlevel = 0, tjs_uint32 shadowcolor = 0,
-                        tjs_int shwidth = 0, tjs_int shofsx = 0,
-                        tjs_int shofsy = 0,
-                        tTVPComplexRect *updaterects = nullptr);
-    void DrawTextMultiple(const tTVPRect &destrect, tjs_int x, tjs_int y,
-                          const ttstr &text, tjs_uint32 color,
-                          tTVPBBBltMethod bltmode, tjs_int opa = 255,
-                          bool holdalpha = true, bool aa = true,
-                          tjs_int shlevel = 0, tjs_uint32 shadowcolor = 0,
-                          tjs_int shwidth = 0, tjs_int shofsx = 0,
-                          tjs_int shofsy = 0,
-                          tTVPComplexRect *updaterects = nullptr);
-    void DrawText(const tTVPRect &destrect, tjs_int x, tjs_int y,
-                  const ttstr &text, tjs_uint32 color, tTVPBBBltMethod bltmode,
-                  tjs_int opa = 255, bool holdalpha = true, bool aa = true,
-                  tjs_int shlevel = 0, tjs_uint32 shadowcolor = 0,
-                  tjs_int shwidth = 0, tjs_int shofsx = 0, tjs_int shofsy = 0,
-                  tTVPComplexRect *updaterects = nullptr) {
+    void DrawTextSingle(const tTVPRect &destrect, tjs_int x, tjs_int y, const ttstr &text, tjs_uint32 color,
+                        tTVPBBBltMethod bltmode, tjs_int opa = 255, bool holdalpha = true, bool aa = true,
+                        tjs_int shlevel = 0, tjs_uint32 shadowcolor = 0, tjs_int shwidth = 0, tjs_int shofsx = 0,
+                        tjs_int shofsy = 0, tTVPComplexRect *updaterects = nullptr);
+    void DrawTextMultiple(const tTVPRect &destrect, tjs_int x, tjs_int y, const ttstr &text, tjs_uint32 color,
+                          tTVPBBBltMethod bltmode, tjs_int opa = 255, bool holdalpha = true, bool aa = true,
+                          tjs_int shlevel = 0, tjs_uint32 shadowcolor = 0, tjs_int shwidth = 0, tjs_int shofsx = 0,
+                          tjs_int shofsy = 0, tTVPComplexRect *updaterects = nullptr);
+    void DrawText(const tTVPRect &destrect, tjs_int x, tjs_int y, const ttstr &text, tjs_uint32 color,
+                  tTVPBBBltMethod bltmode, tjs_int opa = 255, bool holdalpha = true, bool aa = true,
+                  tjs_int shlevel = 0, tjs_uint32 shadowcolor = 0, tjs_int shwidth = 0, tjs_int shofsx = 0,
+                  tjs_int shofsy = 0, tTVPComplexRect *updaterects = nullptr) {
         tjs_int len = text.GetLen();
-        if (len == 0)
+        if(len == 0)
             return;
-        if (len >= 2)
-            DrawTextMultiple(destrect, x, y, text, color, bltmode, opa,
-                             holdalpha, aa, shlevel, shadowcolor, shwidth,
+        if(len >= 2)
+            DrawTextMultiple(destrect, x, y, text, color, bltmode, opa, holdalpha, aa, shlevel, shadowcolor, shwidth,
                              shofsx, shofsy, updaterects);
         else /* if len == 1 */
-            DrawTextSingle(destrect, x, y, text, color, bltmode, opa, holdalpha,
-                           aa, shlevel, shadowcolor, shwidth, shofsx, shofsy,
-                           updaterects);
+            DrawTextSingle(destrect, x, y, text, color, bltmode, opa, holdalpha, aa, shlevel, shadowcolor, shwidth,
+                           shofsx, shofsy, updaterects);
     }
-    void DrawGlyph(iTJSDispatch2 *glyph, const tTVPRect &destrect, tjs_int x,
-                   tjs_int y, tjs_uint32 color, tTVPBBBltMethod bltmode,
-                   tjs_int opa = 255, bool holdalpha = true, bool aa = true,
-                   tjs_int shlevel = 0, tjs_uint32 shadowcolor = 0,
-                   tjs_int shwidth = 0, tjs_int shofsx = 0, tjs_int shofsy = 0,
-                   tTVPComplexRect *updaterects = nullptr);
+    void DrawGlyph(iTJSDispatch2 *glyph, const tTVPRect &destrect, tjs_int x, tjs_int y, tjs_uint32 color,
+                   tTVPBBBltMethod bltmode, tjs_int opa = 255, bool holdalpha = true, bool aa = true,
+                   tjs_int shlevel = 0, tjs_uint32 shadowcolor = 0, tjs_int shwidth = 0, tjs_int shofsx = 0,
+                   tjs_int shofsy = 0, tTVPComplexRect *updaterects = nullptr);
 
 private:
     tjs_int TextWidth;

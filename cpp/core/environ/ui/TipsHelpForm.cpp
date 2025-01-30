@@ -15,27 +15,26 @@ TVPTipsHelpForm *TVPTipsHelpForm::create() {
 
 TVPTipsHelpForm *TVPTipsHelpForm::show(const char *tipName) {
     TVPTipsHelpForm *ui = create();
-    if (tipName)
+    if(tipName)
         ui->setOneTip(tipName);
-    TVPMainScene::GetInstance()->pushUIForm(
-        ui, TVPMainScene::eEnterAniOverFromRight);
+    TVPMainScene::GetInstance()->pushUIForm(ui, TVPMainScene::eEnterAniOverFromRight);
     return ui;
 }
 
 void TVPTipsHelpForm::setOneTip(const std::string &tipName) {
     auto &allCell = _tipslist->getItems();
     int cellCount = allCell.size();
-    while (!_tipslist->getItems().empty()) {
+    while(!_tipslist->getItems().empty()) {
         Node *cell = _tipslist->getItem(_tipslist->getItems().size() - 1);
-        if (cell->getName() == tipName) {
+        if(cell->getName() == tipName) {
             break;
         } else {
             _tipslist->removeLastItem();
         }
     }
-    while (!_tipslist->getItems().empty()) {
+    while(!_tipslist->getItems().empty()) {
         Node *cell = _tipslist->getItem(0);
-        if (cell->getName() == tipName) {
+        if(cell->getName() == tipName) {
             break;
         } else {
             _tipslist->removeItem(0);

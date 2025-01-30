@@ -19,10 +19,8 @@
 // tTVPRect - intersection and union
 //---------------------------------------------------------------------------
 struct tTVPRect;
-extern bool TVPIntersectRect(tTVPRect *dest, const tTVPRect &src1,
-                             const tTVPRect &src2);
-extern bool TVPUnionRect(tTVPRect *dest, const tTVPRect &src1,
-                         const tTVPRect &src2);
+extern bool TVPIntersectRect(tTVPRect *dest, const tTVPRect &src1, const tTVPRect &src2);
+extern bool TVPUnionRect(tTVPRect *dest, const tTVPRect &src1, const tTVPRect &src2);
 //---------------------------------------------------------------------------
 
 /*[*/
@@ -43,9 +41,7 @@ struct tTVPPointD {
 };
 //---------------------------------------------------------------------------
 struct tTVPRect {
-    tTVPRect(tjs_int l, tjs_int t, tjs_int r, tjs_int b) {
-        left = l, top = t, right = r, bottom = b;
-    }
+    tTVPRect(tjs_int l, tjs_int t, tjs_int r, tjs_int b) { left = l, top = t, right = r, bottom = b; }
 
     tTVPRect(){};
 
@@ -105,15 +101,15 @@ struct tTVPRect {
     bool is_empty() const { return left >= right || top >= bottom; }
 
     bool do_union(const tTVPRect &ref) {
-        if (ref.is_empty())
+        if(ref.is_empty())
             return false;
-        if (left > ref.left)
+        if(left > ref.left)
             left = ref.left;
-        if (top > ref.top)
+        if(top > ref.top)
             top = ref.top;
-        if (right < ref.right)
+        if(right < ref.right)
             right = ref.right;
-        if (bottom < ref.bottom)
+        if(bottom < ref.bottom)
             bottom = ref.bottom;
         return true;
     }
@@ -126,46 +122,37 @@ struct tTVPRect {
 #endif
     bool intersects_with_no_empty_check(const tTVPRect &ref) const {
         // returns wether this has intersection with "ref"
-        return !(left >= ref.right || top >= ref.bottom || right <= ref.left ||
-                 bottom <= ref.top);
+        return !(left >= ref.right || top >= ref.bottom || right <= ref.left || bottom <= ref.top);
     }
 
     bool intersects_with(const tTVPRect &ref) const {
         // returns wether this has intersection with "ref"
-        if (ref.is_empty() || is_empty())
+        if(ref.is_empty() || is_empty())
             return false;
         return intersects_with_no_empty_check(ref);
     }
 
     bool included_in_no_empty_check(const tTVPRect &ref) const {
         // returns wether this is included in "ref"
-        return ref.left <= left && ref.top <= top && ref.right >= right &&
-               ref.bottom >= bottom;
+        return ref.left <= left && ref.top <= top && ref.right >= right && ref.bottom >= bottom;
     }
 
     bool included_in(const tTVPRect &ref) const {
         // returns wether this is included in "ref"
-        if (ref.is_empty() || is_empty())
+        if(ref.is_empty() || is_empty())
             return false;
         return included_in_no_empty_check(ref);
     }
 
 public: // comparison operators for sorting
-    bool operator<(const tTVPRect &rhs) const {
-        return top < rhs.top || (top == rhs.top && left < rhs.left);
-    }
-    bool operator>(const tTVPRect &rhs) const {
-        return top > rhs.top || (top == rhs.top && left > rhs.left);
-    }
+    bool operator<(const tTVPRect &rhs) const { return top < rhs.top || (top == rhs.top && left < rhs.left); }
+    bool operator>(const tTVPRect &rhs) const { return top > rhs.top || (top == rhs.top && left > rhs.left); }
 
     // comparison methods
     bool operator==(const tTVPRect &rhs) const {
-        return top == rhs.top && left == rhs.left && right == rhs.right &&
-               bottom == rhs.bottom;
+        return top == rhs.top && left == rhs.left && right == rhs.right && bottom == rhs.bottom;
     }
-    bool operator!=(const tTVPRect &rhs) const {
-        return !this->operator==(rhs);
-    }
+    bool operator!=(const tTVPRect &rhs) const { return !this->operator==(rhs); }
 };
 //---------------------------------------------------------------------------
 
@@ -179,15 +166,13 @@ extern tTVPRegionRect *TVPAllocateRegionRect();
 extern void TVPDeallocateRegionRect(tTVPRegionRect *rect);
 //---------------------------------------------------------------------------
 class tTVPRegionRect : public tTVPRect {
-public:                   // data members
+public: // data members
     tTVPRegionRect *Prev; // previous link
     tTVPRegionRect *Next; // next link
 
 public: // new and delete
     void *operator new(size_t size) { return TVPAllocateRegionRect(); }
-    void operator delete(void *p) {
-        TVPDeallocateRegionRect((tTVPRegionRect *)p);
-    }
+    void operator delete(void *p) { TVPDeallocateRegionRect((tTVPRegionRect *)p); }
 
 public: // constructors and destructor
     tTVPRegionRect() { ; };
@@ -235,9 +220,7 @@ public: // iterator
 
     public: // constructor and destructor
         tIterator() : Head(nullptr), Current(nullptr) { ; }
-        tIterator(const tTVPRegionRect *head) : Head(head), Current(nullptr) {
-            ;
-        }
+        tIterator(const tTVPRegionRect *head) : Head(head), Current(nullptr) { ; }
 
     public: // operator function (data access)
         const tTVPRect &operator*() const { return *Current; }
@@ -253,13 +236,13 @@ public: // iterator
             //   while(it.Step()) { .. do something with it .. }
         bool Step() {
             // Step forward
-            if (!Head)
+            if(!Head)
                 return false;
-            if (!Current) {
+            if(!Current) {
                 Current = Head;
                 return true;
             }
-            if (Current->Next == Head) {
+            if(Current->Next == Head) {
                 return false;
             }
             Current = Current->Next;
@@ -267,12 +250,12 @@ public: // iterator
         }
     };
 
-private:                     // data members
-    tTVPRegionRect *Head;    // head of the link list
+private: // data members
+    tTVPRegionRect *Head; // head of the link list
     tTVPRegionRect *Current; // a rectangle which is touched last time
-    tjs_int Count;           // rectangle Count
-    tTVPRect Bound;          // bounding rectangle
-    bool BoundValid;         // whether the bounding rectangle is ready to use
+    tjs_int Count; // rectangle Count
+    tTVPRect Bound; // bounding rectangle
+    bool BoundValid; // whether the bounding rectangle is ready to use
 
 public: // constructors and destructors
     tTVPComplexRect();
@@ -282,14 +265,13 @@ public: // constructors and destructors
 public: // storage management
     void Clear();
 
-private:                               // storage management
-    void FreeAllRectangles();          // free all rectangles
-    void Init();                       // initialize internal states
-    void SetCount(tjs_int count);      // grow or shrink rectangle storage area
+private: // storage management
+    void FreeAllRectangles(); // free all rectangles
+    void Init(); // initialize internal states
+    void SetCount(tjs_int count); // grow or shrink rectangle storage area
     bool Insert(const tTVPRect &rect); // insert inplace
     void Remove(tTVPRegionRect *rect); // remove a rectangle
-    void Merge(
-        const tTVPComplexRect &rects); // merge non-overlaped complex rectangle
+    void Merge(const tTVPComplexRect &rects); // merge non-overlaped complex rectangle
 public:
     tjs_int GetCount() const { return Count; }
 
@@ -301,8 +283,7 @@ public: // logical operations
     void And(const tTVPRect &r);
 
 public: // operation utilities
-    void CopyWithOffsets(const tTVPComplexRect &ref, const tTVPRect &clip,
-                         tjs_int ofsx, tjs_int ofsy);
+    void CopyWithOffsets(const tTVPComplexRect &ref, const tTVPRect &clip, tjs_int ofsx, tjs_int ofsy);
 
 public: // bounding rectangle
     const tTVPRect &GetBound() const {
@@ -319,26 +300,25 @@ public: // bounding rectangle
 
 private:
     void EnsureBound() {
-        if (!BoundValid)
+        if(!BoundValid)
             CalcBound();
     }
     void CalcBound();
 
 private: // geometric rectangle operations
-    tjs_int GetRectangleIntersectionCode(const tTVPRect &r,
-                                         const tTVPRect &rr) {
+    tjs_int GetRectangleIntersectionCode(const tTVPRect &r, const tTVPRect &rr) {
         // Retrieve condition code which represents
         // how two rectangles have the intersection.
         tjs_int cond;
-        if (rr.left <= r.left && rr.right >= r.left)
+        if(rr.left <= r.left && rr.right >= r.left)
             cond = 8;
         else
             cond = 0;
-        if (rr.left <= r.right && rr.right >= r.right)
+        if(rr.left <= r.right && rr.right >= r.right)
             cond |= 4;
-        if (rr.top <= r.top && rr.bottom >= r.top)
+        if(rr.top <= r.top && rr.bottom >= r.top)
             cond |= 2;
-        if (rr.top <= r.bottom && rr.bottom >= r.bottom)
+        if(rr.top <= r.bottom && rr.bottom >= r.bottom)
             cond |= 1;
         /*
                            +8             +4
@@ -365,7 +345,7 @@ public:
 
 public: // iterator
     tIterator GetIterator() const {
-        if (Count)
+        if(Count)
             return tIterator(Head);
         else
             return tIterator(nullptr);

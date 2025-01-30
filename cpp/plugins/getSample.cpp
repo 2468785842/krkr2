@@ -12,24 +12,21 @@
  * 値が負のサンプル値は無視されます。
  * @param n 取得するサンプルの数。省略すると 100
  */
-tjs_error getSample(tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
-                    iTJSDispatch2 *objthis) {
+tjs_error getSample(tTJSVariant *result, tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis) {
     tjs_error ret = TJS_S_OK;
     tjs_int n = numparams > 0 ? (tjs_int)*param[0] : 100;
-    if (n > 0 && result) {
+    if(n > 0 && result) {
         short *buf = (short *)malloc(n * sizeof(*buf));
-        if (buf) {
+        if(buf) {
             tTJSVariant buffer = (tTVInteger)buf;
             tTJSVariant numsamples = n;
             tTJSVariant channel = 1;
-            tTJSVariant *p[3] = {&buffer, &numsamples, &channel};
-            if (TJS_SUCCEEDED(ret = objthis->FuncCall(0, TJS_W("getVisBuffer"),
-                                                      nullptr, nullptr, 3, p,
-                                                      objthis))) {
+            tTJSVariant *p[3] = { &buffer, &numsamples, &channel };
+            if(TJS_SUCCEEDED(ret = objthis->FuncCall(0, TJS_W("getVisBuffer"), nullptr, nullptr, 3, p, objthis))) {
                 int c = 0;
                 int sum = 0;
-                for (int i = 0; i < n; i++) {
-                    if (buf[i] >= 0) {
+                for(int i = 0; i < n; i++) {
+                    if(buf[i] >= 0) {
                         sum += buf[i];
                         c++;
                     }
@@ -70,15 +67,13 @@ protected:
     static int defaultCounts, defaultAheads;
 
 public:
-    WaveSoundBufferAdd(iTJSDispatch2 *objthis)
-        : objthis(objthis), counts(defaultCounts), aheads(defaultAheads),
-          hint(0) {
+    WaveSoundBufferAdd(iTJSDispatch2 *objthis) :
+        objthis(objthis), counts(defaultCounts), aheads(defaultAheads), hint(0) {
         buf = new short[counts];
         // useVisBuffer = true; にする
         tTJSVariant val(1);
-        tjs_error r =
-            objthis->PropSet(0, TJS_W("useVisBuffer"), nullptr, &val, objthis);
-        if (r != TJS_S_OK)
+        tjs_error r = objthis->PropSet(0, TJS_W("useVisBuffer"), nullptr, &val, objthis);
+        if(r != TJS_S_OK)
             TVPAddLog(ttstr(TJS_W("useVisBuffer=1 failed: ")) + ttstr(r));
 
         // getVisBuffer用の引数を作る
@@ -102,20 +97,19 @@ public:
     double getSampleValue() {
         memset(buf, 0, counts * sizeof(short));
         tTJSVariant result;
-        tjs_error r = objthis->FuncCall(0, TJS_W("getVisBuffer"), &hint,
-                                        &result, 4, params, objthis);
+        tjs_error r = objthis->FuncCall(0, TJS_W("getVisBuffer"), &hint, &result, 4, params, objthis);
 
-        if (r != TJS_S_OK)
+        if(r != TJS_S_OK)
             TVPAddLog(ttstr(TJS_W("getVisBuffer failed: ")) + ttstr(r));
 
         int cnt = (int)result.AsInteger();
-        if (cnt > counts || cnt < 0)
+        if(cnt > counts || cnt < 0)
             cnt = counts;
 
         // サンプルの二乗中の最大値を返す
         double max = 0;
         int imax = 0;
-        for (int i = cnt - 1; i >= 0; i--) {
+        for(int i = cnt - 1; i >= 0; i--) {
             imax = std::max(imax, (int)std::abs(buf[i]));
         }
         max = (imax) / +32768.0;
@@ -151,14 +145,12 @@ int WaveSoundBufferAdd::defaultCounts = 100;
 int WaveSoundBufferAdd::defaultAheads = 0;
 
 // インスタンスゲッタ
-NCB_GET_INSTANCE_HOOK(WaveSoundBufferAdd){NCB_INSTANCE_GETTER(objthis){
-    // objthis を iTJSDispatch2* 型の引数とする
-    ClassT *obj =
-        GetNativeInstance(objthis); // ネイティブインスタンスポインタ取得
-if (!obj) {
+NCB_GET_INSTANCE_HOOK(WaveSoundBufferAdd){
+    NCB_INSTANCE_GETTER(objthis){ // objthis を iTJSDispatch2* 型の引数とする
+                                  ClassT *obj = GetNativeInstance(objthis); // ネイティブインスタンスポインタ取得
+if(!obj) {
     obj = new ClassT(objthis); // ない場合は生成する
-    SetNativeInstance(
-        objthis, obj); // objthis に obj をネイティブインスタンスとして登録する
+    SetNativeInstance(objthis, obj); // objthis に obj をネイティブインスタンスとして登録する
 }
 return obj;
 }
@@ -168,12 +160,8 @@ return obj;
 // 登録
 NCB_ATTACH_CLASS_WITH_HOOK(WaveSoundBufferAdd, WaveSoundBuffer) {
     Property(TJS_W("sampleValue"), &Class::getSampleValue, (int)0);
-    Property(TJS_W("sampleCount"), &Class::getSampleCount,
-             &Class::setSampleCount);
-    Property(TJS_W("sampleAhead"), &Class::getSampleAhead,
-             &Class::setSampleAhead);
+    Property(TJS_W("sampleCount"), &Class::getSampleCount, &Class::setSampleCount);
+    Property(TJS_W("sampleAhead"), &Class::getSampleAhead, &Class::setSampleAhead);
 }
-NCB_ATTACH_FUNCTION(setDefaultCounts, WaveSoundBuffer,
-                    WaveSoundBufferAdd::setDefaultCounts);
-NCB_ATTACH_FUNCTION(setDefaultAheads, WaveSoundBuffer,
-                    WaveSoundBufferAdd::setDefaultAheads);
+NCB_ATTACH_FUNCTION(setDefaultCounts, WaveSoundBuffer, WaveSoundBufferAdd::setDefaultCounts);
+NCB_ATTACH_FUNCTION(setDefaultAheads, WaveSoundBuffer, WaveSoundBufferAdd::setDefaultAheads);

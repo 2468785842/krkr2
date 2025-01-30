@@ -4,10 +4,8 @@
 
 extern void TVPThrowWindowsErrorException();
 extern void TVPOutputWindowsErrorToDebugMessage();
-extern void TVPOutputWindowsErrorToConsole(const char *file = nullptr,
-                                           int line = 0);
+extern void TVPOutputWindowsErrorToConsole(const char *file = nullptr, int line = 0);
 
-#define TVP_WINDOWS_ERROR_LOG                                                  \
-    TVPOutputWindowsErrorToConsole(__FILE__, __LINE__);
+#define TVP_WINDOWS_ERROR_LOG TVPOutputWindowsErrorToConsole(__FILE__, __LINE__);
 
 #endif // __WINDOWS_ERROR_EXCEPTION_H__

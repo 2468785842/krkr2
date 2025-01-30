@@ -18,9 +18,7 @@
 //---------------------------------------------------------------------------
 class tTJSNI_BasePad : public tTJSNativeInstance {
 public:
-    virtual tjs_error TJS_INTF_METHOD Construct(tjs_int numparams,
-                                                tTJSVariant **param,
-                                                iTJSDispatch2 *dsp);
+    virtual tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *dsp);
 
     virtual void TJS_INTF_METHOD Invalidate();
 };

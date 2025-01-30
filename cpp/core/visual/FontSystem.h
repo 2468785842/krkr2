@@ -11,10 +11,10 @@ class tTVPWStringHash {
 public:
     static tjs_uint32 Make(const ttstr &val) {
         const tjs_char *ptr = val.c_str();
-        if (*ptr == 0)
+        if(*ptr == 0)
             return 0;
         tjs_uint32 v = 0;
-        while (*ptr) {
+        while(*ptr) {
             v += *ptr;
             v += (v << 10);
             v ^= (v >> 6);
@@ -23,7 +23,7 @@ public:
         v += (v << 3);
         v ^= (v >> 11);
         v += (v << 15);
-        if (!v)
+        if(!v)
             v = (tjs_uint32)-1;
         return v;
     }

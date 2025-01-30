@@ -21,8 +21,8 @@ class tTVPBitmapBitsAlloc {
 //---------------------------------------------------------------------------
 #pragma pack(push, 1)
     struct tTVPLayerBitmapMemoryRecord {
-        void *alloc_ptr;             // allocated pointer
-        tjs_uint size;               // original bmp bits size, in bytes
+        void *alloc_ptr; // allocated pointer
+        tjs_uint size; // original bmp bits size, in bytes
         tjs_uint32 sentinel_backup1; // sentinel value 1
         tjs_uint32 sentinel_backup2; // sentinel value 2
     };

@@ -102,7 +102,7 @@ iTVPMemoryAllocator *tTVPBitmapBitsAlloc::Allocator = nullptr;
 tTJSCriticalSection tTVPBitmapBitsAlloc::AllocCS;
 
 void tTVPBitmapBitsAlloc::InitializeAllocator() {
-    if (Allocator == nullptr) {
+    if(Allocator == nullptr) {
 #if 0
 		tTJSVariant val;
 		if (TVPGetCommandLine(TJS_W("-bitmapallocator"), &val)) {
@@ -122,39 +122,33 @@ void tTVPBitmapBitsAlloc::InitializeAllocator() {
     }
 }
 void tTVPBitmapBitsAlloc::FreeAllocator() {
-    if (Allocator)
+    if(Allocator)
         delete Allocator;
     Allocator = nullptr;
 }
-static tTVPAtExit TVPUninitMessageLoad(TVP_ATEXIT_PRI_CLEANUP,
-                                       tTVPBitmapBitsAlloc::FreeAllocator);
+static tTVPAtExit TVPUninitMessageLoad(TVP_ATEXIT_PRI_CLEANUP, tTVPBitmapBitsAlloc::FreeAllocator);
 
-void *tTVPBitmapBitsAlloc::Alloc(tjs_uint size, tjs_uint width,
-                                 tjs_uint height) {
-    if (size == 0)
+void *tTVPBitmapBitsAlloc::Alloc(tjs_uint size, tjs_uint width, tjs_uint height) {
+    if(size == 0)
         return nullptr;
     tTJSCriticalSectionHolder Lock(AllocCS); // Lock
 
     InitializeAllocator();
     tjs_uint8 *ptrorg, *ptr;
-    tjs_uint allocbytes = 16 + size + sizeof(tTVPLayerBitmapMemoryRecord) +
-                          sizeof(tjs_uint32) * 2;
+    tjs_uint allocbytes = 16 + size + sizeof(tTVPLayerBitmapMemoryRecord) + sizeof(tjs_uint32) * 2;
 
     ptr = ptrorg = (tjs_uint8 *)Allocator->allocate(allocbytes);
-    if (!ptr)
-        TVPThrowExceptionMessage(
-            TVPCannotAllocateBitmapBits, TJS_W("at TVPAllocBitmapBits"),
-            ttstr((tjs_int)allocbytes) + TJS_W("(") + ttstr((int)width) +
-                TJS_W("x") + ttstr((int)height) + TJS_W(")"));
+    if(!ptr)
+        TVPThrowExceptionMessage(TVPCannotAllocateBitmapBits, TJS_W("at TVPAllocBitmapBits"),
+                                 ttstr((tjs_int)allocbytes) + TJS_W("(") + ttstr((int)width) + TJS_W("x") +
+                                     ttstr((int)height) + TJS_W(")"));
     // align to a paragraph ( 16-bytes )
     ptr += 16 + sizeof(tTVPLayerBitmapMemoryRecord);
     *reinterpret_cast<tTJSPointerSizedInteger *>(&ptr) >>= 4;
     *reinterpret_cast<tTJSPointerSizedInteger *>(&ptr) <<= 4;
 
     tTVPLayerBitmapMemoryRecord *record =
-        (tTVPLayerBitmapMemoryRecord *)(ptr -
-                                        sizeof(tTVPLayerBitmapMemoryRecord) -
-                                        sizeof(tjs_uint32));
+        (tTVPLayerBitmapMemoryRecord *)(ptr - sizeof(tTVPLayerBitmapMemoryRecord) - sizeof(tjs_uint32));
 
     // fill memory allocation record
     record->alloc_ptr = (void *)ptrorg;
@@ -175,25 +169,19 @@ void *tTVPBitmapBitsAlloc::Alloc(tjs_uint size, tjs_uint width,
     return ptr;
 }
 void tTVPBitmapBitsAlloc::Free(void *ptr) {
-    if (ptr) {
+    if(ptr) {
         tTJSCriticalSectionHolder Lock(AllocCS); // Lock
 
         // get memory allocation record pointer
         tjs_uint8 *bptr = (tjs_uint8 *)ptr;
         tTVPLayerBitmapMemoryRecord *record =
-            (tTVPLayerBitmapMemoryRecord *)(bptr -
-                                            sizeof(
-                                                tTVPLayerBitmapMemoryRecord) -
-                                            sizeof(tjs_uint32));
+            (tTVPLayerBitmapMemoryRecord *)(bptr - sizeof(tTVPLayerBitmapMemoryRecord) - sizeof(tjs_uint32));
 
         // check sentinel
-        if (~(*(tjs_uint32 *)(bptr - sizeof(tjs_uint32))) !=
-            record->sentinel_backup1)
-            TVPThrowExceptionMessage(
-                TVPLayerBitmapBufferUnderrunDetectedCheckYourDrawingCode);
-        if (~(*(tjs_uint32 *)(bptr + record->size)) != record->sentinel_backup2)
-            TVPThrowExceptionMessage(
-                TVPLayerBitmapBufferOverrunDetectedCheckYourDrawingCode);
+        if(~(*(tjs_uint32 *)(bptr - sizeof(tjs_uint32))) != record->sentinel_backup1)
+            TVPThrowExceptionMessage(TVPLayerBitmapBufferUnderrunDetectedCheckYourDrawingCode);
+        if(~(*(tjs_uint32 *)(bptr + record->size)) != record->sentinel_backup2)
+            TVPThrowExceptionMessage(TVPLayerBitmapBufferOverrunDetectedCheckYourDrawingCode);
 
         Allocator->free(record->alloc_ptr);
     }

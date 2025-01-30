@@ -38,11 +38,10 @@ static void TVP_TB_SetGrayscalePalette(Graphics::TBitmap *bmp) {
     pal.palversion = 0x300;
     pal.numentries = psize;
 
-    for (i = 0; i < psize; i++) {
-        if (c >= 256)
+    for(i = 0; i < psize; i++) {
+        if(c >= 256)
             c = 255;
-        pal.entry[i].peRed = pal.entry[i].peGreen = pal.entry[i].peBlue =
-            (BYTE)c;
+        pal.entry[i].peRed = pal.entry[i].peGreen = pal.entry[i].peBlue = (BYTE)c;
         pal.entry[i].peFlags = 0;
         c += icol;
     }
@@ -67,7 +66,7 @@ static void TVPHintWindowRegister() {
 static TTVPHintWindow *TVPMostRecentHintWindow = nullptr;
 //---------------------------------------------------------------------------
 HDWP TVPShowHintWindowTop(HDWP hdwp) {
-    if (TVPFullScreenedWindow != nullptr && TVPMostRecentHintWindow)
+    if(TVPFullScreenedWindow != nullptr && TVPMostRecentHintWindow)
         hdwp = TVPMostRecentHintWindow->ShowTop(hdwp);
     return hdwp;
 }
@@ -76,15 +75,9 @@ HDWP TVPShowHintWindowTop(HDWP hdwp) {
 //---------------------------------------------------------------------------
 // TTVPHintWindow
 //---------------------------------------------------------------------------
-__fastcall TTVPHintWindow::TTVPHintWindow(TComponent *AOwner)
-    : THintWindow(AOwner) {
-    Init();
-}
+__fastcall TTVPHintWindow::TTVPHintWindow(TComponent *AOwner) : THintWindow(AOwner) { Init(); }
 //---------------------------------------------------------------------------
-__fastcall TTVPHintWindow::TTVPHintWindow(HWND ParentWindow)
-    : THintWindow(ParentWindow) {
-    Init();
-}
+__fastcall TTVPHintWindow::TTVPHintWindow(HWND ParentWindow) : THintWindow(ParentWindow) { Init(); }
 //---------------------------------------------------------------------------
 void __fastcall TTVPHintWindow::Init() { BackBMP = new Graphics::TBitmap(); }
 //---------------------------------------------------------------------------
@@ -93,15 +86,12 @@ __fastcall TTVPHintWindow::~TTVPHintWindow() {
     delete BackBMP;
 }
 //---------------------------------------------------------------------------
-void __fastcall TTVPHintWindow::ActivateHint(const TRect &ARect,
-                                             const AnsiString AHint) {
+void __fastcall TTVPHintWindow::ActivateHint(const TRect &ARect, const AnsiString AHint) {
     SetWindowPos(Handle, HWND_TOPMOST, 0, 0, 0, 0,
-                 SWP_HIDEWINDOW | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE |
-                     SWP_NOZORDER);
+                 SWP_HIDEWINDOW | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER);
 
     // change the window style
-    SetWindowLong(Handle, GWL_STYLE,
-                  GetWindowLong(Handle, GWL_STYLE) & ~WS_BORDER);
+    SetWindowLong(Handle, GWL_STYLE, GetWindowLong(Handle, GWL_STYLE) & ~WS_BORDER);
 
     // adjust position
     TRect Rect = ARect;
@@ -110,13 +100,13 @@ void __fastcall TTVPHintWindow::ActivateHint(const TRect &ARect,
     Rect.Bottom += 4;
     UpdateBoundsRect(Rect);
 
-    if (Rect.Top + Height > Screen->DesktopHeight)
+    if(Rect.Top + Height > Screen->DesktopHeight)
         Rect.Top = Screen->DesktopHeight - Height;
-    if (Rect.Left + Width > Screen->DesktopWidth)
+    if(Rect.Left + Width > Screen->DesktopWidth)
         Rect.Left = Screen->DesktopWidth - Width;
-    if (Rect.Left < Screen->DesktopLeft)
+    if(Rect.Left < Screen->DesktopLeft)
         Rect.Left = Screen->DesktopLeft;
-    if (Rect.Bottom < Screen->DesktopTop)
+    if(Rect.Bottom < Screen->DesktopTop)
         Rect.Bottom = Screen->DesktopTop;
 
     // save bitmap which to be laid under the window
@@ -132,36 +122,29 @@ void __fastcall TTVPHintWindow::ActivateHint(const TRect &ARect,
     destrect.Right = BackBMP->Width;
     destrect.Bottom = BackBMP->Height;
 
-    BitBlt(BackBMP->Canvas->Handle, 0, 0, BackBMP->Width, BackBMP->Height, dc,
-           Rect.Left, Rect.Top, SRCCOPY);
+    BitBlt(BackBMP->Canvas->Handle, 0, 0, BackBMP->Width, BackBMP->Height, dc, Rect.Left, Rect.Top, SRCCOPY);
 
     ReleaseDC(0, dc);
 
     BackBMP->PixelFormat = pf32bit;
 
     // window reposition and showing
-    SetWindowPos(Handle, HWND_TOPMOST, Rect.Left, Rect.Top, Width, Height,
-                 SWP_SHOWWINDOW | SWP_NOACTIVATE);
+    SetWindowPos(Handle, HWND_TOPMOST, Rect.Left, Rect.Top, Width, Height, SWP_SHOWWINDOW | SWP_NOACTIVATE);
 
     TVPMostRecentHintWindow = this;
 }
 //---------------------------------------------------------------------------
-void __fastcall TTVPHintWindow::ActivateHintData(const TRect &Rect,
-                                                 const AnsiString AHint,
-                                                 void *AData) {
+void __fastcall TTVPHintWindow::ActivateHintData(const TRect &Rect, const AnsiString AHint, void *AData) {
     ActivateHint(Rect, AHint);
 }
 //---------------------------------------------------------------------------
-TRect __fastcall TTVPHintWindow::CalcHintRect(int MaxWidth,
-                                              const AnsiString AHint,
-                                              void *AData) {
+TRect __fastcall TTVPHintWindow::CalcHintRect(int MaxWidth, const AnsiString AHint, void *AData) {
     RECT result;
     result.left = 0;
     result.top = 0;
     result.right = MaxWidth;
     result.bottom = 0;
-    DrawText(Canvas->Handle, AHint.c_str(), -1, &result,
-             DT_CALCRECT | DT_LEFT | DT_WORDBREAK | DT_NOPREFIX);
+    DrawText(Canvas->Handle, AHint.c_str(), -1, &result, DT_CALCRECT | DT_LEFT | DT_WORDBREAK | DT_NOPREFIX);
     result.right += 6;
     result.bottom += 2;
     return TRect(result);
@@ -169,9 +152,9 @@ TRect __fastcall TTVPHintWindow::CalcHintRect(int MaxWidth,
 //---------------------------------------------------------------------------
 bool __fastcall TTVPHintWindow::IsHintMsg(tagMSG &Msg) {
     bool b = THintWindow::IsHintMsg(Msg);
-    if (b) {
+    if(b) {
         // to preventing disappering hint window by keys
-        if ((Msg.message >= WM_KEYFIRST) && (Msg.message <= WM_KEYLAST))
+        if((Msg.message >= WM_KEYFIRST) && (Msg.message <= WM_KEYLAST))
             return false;
     }
     return b;
@@ -203,7 +186,7 @@ void __fastcall TTVPHintWindow::Paint() {
     bmprect.bottom = BackBMP->Height;
 
     // fill mask with gray
-    for (int i = 0; i < mask->Height; i++)
+    for(int i = 0; i < mask->Height; i++)
         memset(mask->ScanLine[i], 192, mask->Width);
 
     // fill main with clInfoBk
@@ -231,8 +214,7 @@ void __fastcall TTVPHintWindow::Paint() {
         r2.top--;
         r2.right--;
         r2.bottom--;
-        DrawText(mask->Canvas->Handle, Caption.c_str(), -1, &r2,
-                 DT_LEFT | DT_NOPREFIX | DT_WORDBREAK);
+        DrawText(mask->Canvas->Handle, Caption.c_str(), -1, &r2, DT_LEFT | DT_NOPREFIX | DT_WORDBREAK);
     }
 
     {
@@ -241,8 +223,7 @@ void __fastcall TTVPHintWindow::Paint() {
         r2.top--;
         r2.right++;
         r2.bottom--;
-        DrawText(mask->Canvas->Handle, Caption.c_str(), -1, &r2,
-                 DT_LEFT | DT_NOPREFIX | DT_WORDBREAK);
+        DrawText(mask->Canvas->Handle, Caption.c_str(), -1, &r2, DT_LEFT | DT_NOPREFIX | DT_WORDBREAK);
     }
 
     {
@@ -251,8 +232,7 @@ void __fastcall TTVPHintWindow::Paint() {
         r2.top++;
         r2.right--;
         r2.bottom++;
-        DrawText(mask->Canvas->Handle, Caption.c_str(), -1, &r2,
-                 DT_LEFT | DT_NOPREFIX | DT_WORDBREAK);
+        DrawText(mask->Canvas->Handle, Caption.c_str(), -1, &r2, DT_LEFT | DT_NOPREFIX | DT_WORDBREAK);
     }
 
     {
@@ -261,18 +241,15 @@ void __fastcall TTVPHintWindow::Paint() {
         r2.top++;
         r2.right++;
         r2.bottom++;
-        DrawText(mask->Canvas->Handle, Caption.c_str(), -1, &r2,
-                 DT_LEFT | DT_NOPREFIX | DT_WORDBREAK);
+        DrawText(mask->Canvas->Handle, Caption.c_str(), -1, &r2, DT_LEFT | DT_NOPREFIX | DT_WORDBREAK);
     }
 
     main->Canvas->Font->Color = clInfoText;
-    DrawText(main->Canvas->Handle, Caption.c_str(), -1, &r,
-             DT_LEFT | DT_NOPREFIX | DT_WORDBREAK);
+    DrawText(main->Canvas->Handle, Caption.c_str(), -1, &r, DT_LEFT | DT_NOPREFIX | DT_WORDBREAK);
 
     mask->Canvas->Font->Color = (TColor)0x00ffffff;
 
-    DrawText(mask->Canvas->Handle, Caption.c_str(), -1, &r,
-             DT_LEFT | DT_NOPREFIX | DT_WORDBREAK);
+    DrawText(mask->Canvas->Handle, Caption.c_str(), -1, &r, DT_LEFT | DT_NOPREFIX | DT_WORDBREAK);
 
     // draw frame
     mask->Canvas->Pen->Width = 1;
@@ -284,19 +261,16 @@ void __fastcall TTVPHintWindow::Paint() {
     mask->Canvas->LineTo(0, 0);
 
     // bind
-    for (int i = 0; i < mask->Height; i++)
-        TVPBindMaskToMain((tjs_uint32 *)main->ScanLine[i],
-                          (const tjs_uint8 *)mask->ScanLine[i], mask->Width);
+    for(int i = 0; i < mask->Height; i++)
+        TVPBindMaskToMain((tjs_uint32 *)main->ScanLine[i], (const tjs_uint8 *)mask->ScanLine[i], mask->Width);
 
     // copy BackBMP to disp
-    for (int i = 0; i < mask->Height; i++)
-        memcpy(disp->ScanLine[i], BackBMP->ScanLine[i],
-               BackBMP->Width * sizeof(tjs_uint32));
+    for(int i = 0; i < mask->Height; i++)
+        memcpy(disp->ScanLine[i], BackBMP->ScanLine[i], BackBMP->Width * sizeof(tjs_uint32));
 
     // pile main to disp via pixel alpha blending
-    for (int i = 0; i < mask->Height; i++)
-        TVPAlphaBlend((tjs_uint32 *)disp->ScanLine[i],
-                      (const tjs_uint32 *)main->ScanLine[i], mask->Width);
+    for(int i = 0; i < mask->Height; i++)
+        TVPAlphaBlend((tjs_uint32 *)disp->ScanLine[i], (const tjs_uint32 *)main->ScanLine[i], mask->Width);
 
     // draw to the canvas
     Canvas->Draw(0, 0, disp);
@@ -314,11 +288,10 @@ void __fastcall TTVPHintWindow::WMNCPaint(TMessage &message) {
 void __fastcall TTVPHintWindow::NCPaint(HDC dc) {}
 //---------------------------------------------------------------------------
 HDWP __fastcall TTVPHintWindow::ShowTop(HDWP hdwp) {
-    if (HandleAllocated() && Visible) {
-        hdwp =
-            DeferWindowPos(hdwp, Handle, HWND_TOPMOST, 0, 0, 0, 0,
-                           SWP_NOSENDCHANGING | SWP_NOACTIVATE | SWP_NOMOVE |
-                               SWP_NOREPOSITION | SWP_NOSIZE | WM_SHOWWINDOW);
+    if(HandleAllocated() && Visible) {
+        hdwp = DeferWindowPos(hdwp, Handle, HWND_TOPMOST, 0, 0, 0, 0,
+                              SWP_NOSENDCHANGING | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOREPOSITION | SWP_NOSIZE |
+                                  WM_SHOWWINDOW);
         Invalidate();
     }
     return hdwp;

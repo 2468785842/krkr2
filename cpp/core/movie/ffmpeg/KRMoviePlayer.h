@@ -12,9 +12,9 @@ class iTVPSoundBuffer;
 class TVPYUVSprite;
 
 namespace cocos2d {
-class Sprite;
+    class Sprite;
 
-class Node;
+    class Node;
 } // namespace cocos2d
 
 NS_KRMOVIE_BEGIN
@@ -99,12 +99,10 @@ public:
     // function for layer mode
     virtual tTVPBaseTexture *GetFrontBuffer() override { return nullptr; }
 
-    virtual void SetVideoBuffer(tTVPBaseTexture *buff1, tTVPBaseTexture *buff2,
-                                long size) override {}
+    virtual void SetVideoBuffer(tTVPBaseTexture *buff1, tTVPBaseTexture *buff2, long size) override {}
 
     // function for mixer mode
-    virtual void SetMixingBitmap(class tTVPBaseTexture *dest,
-                                 float alpha) override {}
+    virtual void SetMixingBitmap(class tTVPBaseTexture *dest, float alpha) override {}
 
     virtual void ResetMixingBitmap() override {}
 
@@ -114,9 +112,7 @@ public:
 
     virtual void SetMixingMovieBGColor(unsigned long col) override {}
 
-    virtual void GetMixingMovieBGColor(unsigned long *col) override {
-        *col = 0xFF000000;
-    }
+    virtual void GetMixingMovieBGColor(unsigned long *col) override { *col = 0xFF000000; }
 
     virtual void PresentVideoImage() override {}
 
@@ -172,8 +168,7 @@ public:
 
     virtual int AddVideoPicture(DVDVideoPicture &pic, int index) override;
 
-    virtual int WaitForBuffer(volatile std::atomic_bool &bStop,
-                              int timeout = 0) override;
+    virtual int WaitForBuffer(volatile std::atomic_bool &bStop, int timeout = 0) override;
 
     virtual void Flush() override;
 
@@ -204,7 +199,7 @@ protected:
 
         BitmapPicture() {
             fmt = RENDER_FMT_NONE;
-            for (int i = 0; i < sizeof(data) / sizeof(data[0]); ++i)
+            for(int i = 0; i < sizeof(data) / sizeof(data[0]); ++i)
                 data[i] = nullptr;
         }
 
@@ -223,8 +218,7 @@ protected:
     double m_curpts = 0;
 };
 
-class VideoPresentOverlay
-    : public TVPMoviePlayer // cocos2d compatible video display overlay
+class VideoPresentOverlay : public TVPMoviePlayer // cocos2d compatible video display overlay
 {
 protected:
     cocos2d::Node *m_pRootNode = nullptr;
@@ -256,8 +250,7 @@ public:
 
     virtual void SetWindow(class tTJSNI_Window *window) override;
 
-    void BuildGraph(tTJSNI_VideoOverlay *callbackwin, IStream *stream,
-                    const tjs_char *streamname, const tjs_char *type,
+    void BuildGraph(tTJSNI_VideoOverlay *callbackwin, IStream *stream, const tjs_char *streamname, const tjs_char *type,
                     uint64_t size);
 
     virtual const tTVPRect &GetBounds() override;
@@ -271,9 +264,7 @@ class VideoPresentOverlay2 : public VideoPresentOverlay {
 public:
     virtual const tTVPRect &GetBounds() override { return m_funcGetBounds(); }
 
-    void SetFuncGetBounds(const std::function<const tTVPRect &()> &func) {
-        m_funcGetBounds = func;
-    }
+    void SetFuncGetBounds(const std::function<const tTVPRect &()> &func) { m_funcGetBounds = func; }
 
     BasePlayer *GetPlayer() { return m_pPlayer; }
 

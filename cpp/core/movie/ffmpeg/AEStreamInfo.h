@@ -49,8 +49,7 @@ public:
 
     ~CAEStreamParser();
 
-    int AddData(uint8_t *data, unsigned int size, uint8_t **buffer = nullptr,
-                unsigned int *bufferSize = 0);
+    int AddData(uint8_t *data, unsigned int size, uint8_t **buffer = nullptr, unsigned int *bufferSize = 0);
 
     void SetCoreOnly(bool value) { m_coreOnly = value; }
 
@@ -82,8 +81,7 @@ private:
     unsigned int m_bufferSize;
     unsigned int m_skipBytes;
 
-    typedef unsigned int (CAEStreamParser::*ParseFunc)(uint8_t *data,
-                                                       unsigned int size);
+    typedef unsigned int (CAEStreamParser::*ParseFunc)(uint8_t *data, unsigned int size);
 
     CAEStreamInfo m_info;
     bool m_coreOnly;
@@ -95,8 +93,8 @@ private:
     unsigned int m_dtsBlocks;
     unsigned int m_fsize;
     unsigned int m_fsizeMain; /* used for EAC3 substreams */
-    int m_substreams;         /* used for TrueHD  */
-    AVCRC m_crcTrueHD[1024];  /* TrueHD crc table */
+    int m_substreams; /* used for TrueHD  */
+    AVCRC m_crcTrueHD[1024]; /* TrueHD crc table */
 
     void GetPacket(uint8_t **buffer, unsigned int *bufferSize);
 

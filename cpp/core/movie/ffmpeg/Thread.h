@@ -50,8 +50,7 @@ public:
 
     bool WaitMSec(unsigned int milliSeconds) {
         CSingleLock lock(mutex);
-        return m_cond.wait_for(lock, std::chrono::milliseconds(milliSeconds)) !=
-               std::cv_status::timeout;
+        return m_cond.wait_for(lock, std::chrono::milliseconds(milliSeconds)) != std::cv_status::timeout;
     }
 
     void Wait() {

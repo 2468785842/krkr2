@@ -19,20 +19,17 @@
 tTJSNI_BaseMIDISoundBuffer::tTJSNI_BaseMIDISoundBuffer() {}
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_BaseMIDISoundBuffer::Construct(
-    tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj) {
+tjs_error TJS_INTF_METHOD tTJSNI_BaseMIDISoundBuffer::Construct(tjs_int numparams, tTJSVariant **param,
+                                                                iTJSDispatch2 *tjs_obj) {
     tjs_error hr = inherited::Construct(numparams, param, tjs_obj);
-    if (TJS_FAILED(hr))
+    if(TJS_FAILED(hr))
         return hr;
 
     return TJS_S_OK;
 }
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_BaseMIDISoundBuffer::Invalidate() {
-
-    inherited::Invalidate();
-}
+void TJS_INTF_METHOD tTJSNI_BaseMIDISoundBuffer::Invalidate() { inherited::Invalidate(); }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -40,8 +37,7 @@ void TJS_INTF_METHOD tTJSNI_BaseMIDISoundBuffer::Invalidate() {
 //---------------------------------------------------------------------------
 tjs_uint32 tTJSNC_MIDISoundBuffer::ClassID = -1;
 
-tTJSNC_MIDISoundBuffer::tTJSNC_MIDISoundBuffer()
-    : tTJSNativeClass(TJS_W("MIDISoundBuffer")) {
+tTJSNC_MIDISoundBuffer::tTJSNC_MIDISoundBuffer() : tTJSNativeClass(TJS_W("MIDISoundBuffer")) {
     // registration of native members
 
     TJS_BEGIN_NATIVE_MEMBERS(MIDISoundBuffer) // constructor
@@ -62,7 +58,7 @@ tTJSNC_MIDISoundBuffer::tTJSNC_MIDISoundBuffer()
         TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
                                 /*var. type*/ tTJSNI_MIDISoundBuffer);
 
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
 #ifdef TVP_ENABLE_MIDI
         _this->Open(*param[0]);
@@ -99,7 +95,7 @@ tTJSNC_MIDISoundBuffer::tTJSNC_MIDISoundBuffer()
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fade) {
         TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
                                 /*var. type*/ tTJSNI_MIDISoundBuffer);
-        if (numparams < 2)
+        if(numparams < 2)
             return TJS_E_BADPARAMCOUNT;
 #ifdef TVP_ENABLE_MIDI
 
@@ -108,7 +104,7 @@ tTJSNC_MIDISoundBuffer::tTJSNC_MIDISoundBuffer()
         tjs_int delay = 0;
         to = (tjs_int)(*param[0]);
         time = (tjs_int)(*param[1]);
-        if (numparams >= 3 && param[2]->Type() != tvtVoid)
+        if(numparams >= 3 && param[2]->Type() != tvtVoid)
             delay = (tjs_int)(*param[2]);
 
         _this->Fade(to, time, delay);
@@ -139,7 +135,7 @@ tTJSNC_MIDISoundBuffer::tTJSNC_MIDISoundBuffer()
                                 /*var. type*/ tTJSNI_MIDISoundBuffer);
 
         tTJSVariantClosure obj = _this->GetActionOwnerNoAddRef();
-        if (obj.Object) {
+        if(obj.Object) {
             TVP_ACTION_INVOKE_BEGIN(1, "onStatusChanged", objthis);
             TVP_ACTION_INVOKE_MEMBER("status");
             TVP_ACTION_INVOKE_END(obj);
@@ -154,7 +150,7 @@ tTJSNC_MIDISoundBuffer::tTJSNC_MIDISoundBuffer()
                                 /*var. type*/ tTJSNI_MIDISoundBuffer);
 
         tTJSVariantClosure obj = _this->GetActionOwnerNoAddRef();
-        if (obj.Object) {
+        if(obj.Object) {
             TVP_ACTION_INVOKE_BEGIN(0, "onFadeCompleted", objthis);
             TVP_ACTION_INVOKE_END(obj);
         }
@@ -167,9 +163,9 @@ tTJSNC_MIDISoundBuffer::tTJSNC_MIDISoundBuffer()
     //-- properties
 
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(position){TJS_BEGIN_NATIVE_PROP_GETTER{
-        TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                                tTJSNI_MIDISoundBuffer);
+    TJS_BEGIN_NATIVE_PROP_DECL(position){
+        TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                              tTJSNI_MIDISoundBuffer);
 
     // not yet implemented
 
@@ -189,9 +185,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(position)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(paused){TJS_BEGIN_NATIVE_PROP_GETTER{
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                            tTJSNI_MIDISoundBuffer);
+TJS_BEGIN_NATIVE_PROP_DECL(paused){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                          tTJSNI_MIDISoundBuffer);
 
 // not yet implemented
 
@@ -211,9 +207,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(paused)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(totalTime){TJS_BEGIN_NATIVE_PROP_GETTER{
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                            tTJSNI_MIDISoundBuffer);
+TJS_BEGIN_NATIVE_PROP_DECL(totalTime){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                          tTJSNI_MIDISoundBuffer);
 
 // not yet implemented
 
@@ -233,9 +229,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(totalTime)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(looping){TJS_BEGIN_NATIVE_PROP_GETTER{
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                            tTJSNI_MIDISoundBuffer);
+TJS_BEGIN_NATIVE_PROP_DECL(looping){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                          tTJSNI_MIDISoundBuffer);
 
 #ifdef TVP_ENABLE_MIDI
 *result = _this->GetLooping();
@@ -258,9 +254,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(looping)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(volume){TJS_BEGIN_NATIVE_PROP_GETTER{
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                            tTJSNI_MIDISoundBuffer);
+TJS_BEGIN_NATIVE_PROP_DECL(volume){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                          tTJSNI_MIDISoundBuffer);
 
 *result = _this->GetVolume();
 
@@ -280,9 +276,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(volume)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(volume2){TJS_BEGIN_NATIVE_PROP_GETTER{
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                            tTJSNI_MIDISoundBuffer);
+TJS_BEGIN_NATIVE_PROP_DECL(volume2){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                          tTJSNI_MIDISoundBuffer);
 
 #ifdef TVP_ENABLE_MIDI
 *result = _this->GetVolume2();
@@ -308,9 +304,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(volume2)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(status){TJS_BEGIN_NATIVE_PROP_GETTER{
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
-                            tTJSNI_MIDISoundBuffer);
+TJS_BEGIN_NATIVE_PROP_DECL(status){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
+                                                          tTJSNI_MIDISoundBuffer);
 
 *result = _this->GetStatusString();
 

@@ -24,8 +24,7 @@ class CDemuxStreamVideoFFmpeg : public CDemuxStreamVideo {
     AVStream *m_stream;
 
 public:
-    CDemuxStreamVideoFFmpeg(CDVDDemuxFFmpeg *parent, AVStream *stream)
-        : m_parent(parent), m_stream(stream) {}
+    CDemuxStreamVideoFFmpeg(CDVDDemuxFFmpeg *parent, AVStream *stream) : m_parent(parent), m_stream(stream) {}
 
     std::string m_description;
 
@@ -37,8 +36,7 @@ class CDemuxStreamAudioFFmpeg : public CDemuxStreamAudio {
     AVStream *m_stream;
 
 public:
-    CDemuxStreamAudioFFmpeg(CDVDDemuxFFmpeg *parent, AVStream *stream)
-        : m_parent(parent), m_stream(stream) {}
+    CDemuxStreamAudioFFmpeg(CDVDDemuxFFmpeg *parent, AVStream *stream) : m_parent(parent), m_stream(stream) {}
 
     std::string m_description;
 
@@ -53,8 +51,7 @@ public:
 
     virtual ~CDVDDemuxFFmpeg();
 
-    bool Open(InputStream *pInput, bool streaminfo = true,
-              bool fileinfo = false);
+    bool Open(InputStream *pInput, bool streaminfo = true, bool fileinfo = false);
 
     void Dispose();
 
@@ -69,8 +66,7 @@ public:
 
     DemuxPacket *Read() override;
 
-    bool SeekTime(int time, bool backwords = false,
-                  double *startpts = nullptr) override;
+    bool SeekTime(int time, bool backwords = false, double *startpts = nullptr) override;
 
     bool SeekByte(int64_t pos);
 
@@ -122,8 +118,7 @@ protected:
 
     std::string GetStereoModeFromMetadata(AVDictionary *pMetadata);
 
-    std::string ConvertCodecToInternalStereoMode(
-        const std::string &mode, const StereoModeConversionMap *conversionMap);
+    std::string ConvertCodecToInternalStereoMode(const std::string &mode, const StereoModeConversionMap *conversionMap);
 
     //	void GetL16Parameters(int &channels, int &samplerate);
     double SelectAspect(AVStream *st, bool &forced);
@@ -145,7 +140,7 @@ protected:
     // signals STREAMCHANGE to player
     struct {
         AVPacket pkt; // packet ffmpeg returned
-        int result;   // result from av_read_packet
+        int result; // result from av_read_packet
     } m_pkt;
 
     bool m_streaminfo;

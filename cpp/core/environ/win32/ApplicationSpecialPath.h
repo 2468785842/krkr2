@@ -42,8 +42,7 @@ public:
 		return result;
 	}
 #endif
-    static inline ttstr ReplaceStringAll(ttstr src, const ttstr &target,
-                                         const ttstr &dest) {
+    static inline ttstr ReplaceStringAll(ttstr src, const ttstr &target, const ttstr &dest) {
         src.Replace(target, dest);
         return src;
     }

@@ -31,12 +31,12 @@ bool TVPSystemControlAlive = false;
 static bool TVPMainThreadPriorityControlInit = false;
 static bool TVPMainThreadPriorityControl = false;
 static bool TVPGetMainThreadPriorityControl() {
-    if (TVPMainThreadPriorityControlInit)
+    if(TVPMainThreadPriorityControlInit)
         return TVPMainThreadPriorityControl;
     tTJSVariant val;
-    if (TVPGetCommandLine(TJS_W("-lowpri"), &val)) {
+    if(TVPGetCommandLine(TJS_W("-lowpri"), &val)) {
         ttstr str(val);
-        if (str == TJS_W("yes"))
+        if(str == TJS_W("yes"))
             TVPMainThreadPriorityControl = true;
     }
 
@@ -68,10 +68,10 @@ void tTVPSystemControl::CallDeliverAllEventsOnIdle() {
 }
 
 void tTVPSystemControl::BeginContinuousEvent() {
-    if (!ContinuousEventCalling) {
+    if(!ContinuousEventCalling) {
         ContinuousEventCalling = true;
         InvokeEvents();
-        if (TVPGetMainThreadPriorityControl()) {
+        if(TVPGetMainThreadPriorityControl()) {
             // make main thread priority lower
             //			SetThreadPriority(GetCurrentThread(),
             // THREAD_PRIORITY_LOWEST);
@@ -79,9 +79,9 @@ void tTVPSystemControl::BeginContinuousEvent() {
     }
 }
 void tTVPSystemControl::EndContinuousEvent() {
-    if (ContinuousEventCalling) {
+    if(ContinuousEventCalling) {
         ContinuousEventCalling = false;
-        if (TVPGetMainThreadPriorityControl()) {
+        if(TVPGetMainThreadPriorityControl()) {
             // make main thread priority normal
             //			SetThreadPriority(GetCurrentThread(),
             // THREAD_PRIORITY_NORMAL);
@@ -108,16 +108,16 @@ bool tTVPSystemControl::ApplicationIdle() {
 }
 
 void tTVPSystemControl::DeliverEvents() {
-    if (ContinuousEventCalling)
+    if(ContinuousEventCalling)
         TVPProcessContinuousHandlerEventFlag = true; // set flag
 
-    if (EventEnable) {
+    if(EventEnable) {
         TVPDeliverAllEvents();
     }
 }
 
 void tTVPSystemControl::SystemWatchTimerTimer() {
-    if (TVPTerminated) {
+    if(TVPTerminated) {
         // this will ensure terminating the application.
         // the WM_QUIT message disappears in some unknown situations...
         //		Application->PostMessageToMainWindow(
@@ -132,8 +132,7 @@ void tTVPSystemControl::SystemWatchTimerTimer() {
     // push environ noise
     TVPPushEnvironNoise(&tick, sizeof(tick));
     TVPPushEnvironNoise(&LastCompactedTick, sizeof(LastCompactedTick));
-    TVPPushEnvironNoise(&LastShowModalWindowSentTick,
-                        sizeof(LastShowModalWindowSentTick));
+    TVPPushEnvironNoise(&LastShowModalWindowSentTick, sizeof(LastShowModalWindowSentTick));
     TVPPushEnvironNoise(&MixedIdleTick, sizeof(MixedIdleTick));
 #if 0
 	POINT pt;
@@ -163,25 +162,25 @@ void tTVPSystemControl::SystemWatchTimerTimer() {
 
     // call TickBeat
     tjs_int count = TVPGetWindowCount();
-    for (tjs_int i = 0; i < count; i++) {
+    for(tjs_int i = 0; i < count; i++) {
         tTJSNI_Window *win = TVPGetWindowListAt(i);
         win->TickBeat();
     }
 
-    if (!ContinuousEventCalling && tick - LastCompactedTick > 4000) {
+    if(!ContinuousEventCalling && tick - LastCompactedTick > 4000) {
         // idle state over 4 sec.
         LastCompactedTick = tick;
 
         // fire compact event
         TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_IDLE);
     }
-    if (!ContinuousEventCalling && tick > LastRehashedTick + 1500) {
+    if(!ContinuousEventCalling && tick > LastRehashedTick + 1500) {
         // TJS2 object rehash
         LastRehashedTick = tick;
         TJSDoRehash();
     }
     // ensure modal window visible
-    if (tick > LastShowModalWindowSentTick + 4100) {
+    if(tick > LastShowModalWindowSentTick + 4100) {
         //	::PostMessage(Handle, WM_USER+0x32, 0, 0);
         // This is currently disabled because IME composition window
         // hides behind the window which is bringed top by the

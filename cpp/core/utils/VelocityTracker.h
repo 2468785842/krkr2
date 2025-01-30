@@ -53,7 +53,7 @@ public:
             time = 0;
             degree = 0;
             confidence = 0;
-            for (size_t i = 0; i <= MAX_DEGREE; i++) {
+            for(size_t i = 0; i <= MAX_DEGREE; i++) {
                 xCoeff[i] = 0;
                 yCoeff[i] = 0;
             }
@@ -79,10 +79,10 @@ public:
 class LeastSquaresVelocityTrackerStrategy : public VelocityTrackerStrategy {
 public:
     enum Weighting {
-        WEIGHTING_NONE,    // No weights applied.  All data points are equally
-                           // reliable.
-        WEIGHTING_DELTA,   // Weight by time delta.  Data points clustered
-                           // together are weighted less.
+        WEIGHTING_NONE, // No weights applied.  All data points are equally
+                        // reliable.
+        WEIGHTING_DELTA, // Weight by time delta.  Data points clustered
+                         // together are weighted less.
         WEIGHTING_CENTRAL, // Weight such that points within a certain horizon
                            // are weighed more than those outside of that
                            // horizon.
@@ -91,8 +91,7 @@ public:
     };
 
     // Degree must be no greater than Estimator::MAX_DEGREE.
-    LeastSquaresVelocityTrackerStrategy(tjs_uint32 degree,
-                                        Weighting weighting = WEIGHTING_NONE);
+    LeastSquaresVelocityTrackerStrategy(tjs_uint32 degree, Weighting weighting = WEIGHTING_NONE);
 
     virtual ~LeastSquaresVelocityTrackerStrategy();
 
@@ -151,9 +150,7 @@ public:
     // positions are included in the movement. The positions array contains
     // position information for each pointer in order by increasing id.  Its
     // size should be equal to the number of one bits in idBits.
-    void addMovement(tjs_uint64 eventTime, float x, float y) {
-        mStrategy.addMovement(eventTime, x, y);
-    }
+    void addMovement(tjs_uint64 eventTime, float x, float y) { mStrategy.addMovement(eventTime, x, y); }
 
     // Gets the velocity of the specified pointer id in position units per
     // second. Returns false and sets the velocity components to zero if there
@@ -162,7 +159,7 @@ public:
 
     bool getVelocity(float &speed) const {
         float x, y;
-        if (getVelocity(x, y)) {
+        if(getVelocity(x, y)) {
             speed = hypotf(x, y);
             return true;
         }
@@ -198,8 +195,8 @@ private:
 
 private:
     int findEmptyEntry() const {
-        for (int i = 0; i < MAX_TRACKING; i++) {
-            if (tracker_[i].getID() < 0) {
+        for(int i = 0; i < MAX_TRACKING; i++) {
+            if(tracker_[i].getID() < 0) {
                 return i;
             }
         }
@@ -207,8 +204,8 @@ private:
     }
 
     int findEntry(tjs_int32 id) const {
-        for (int i = 0; i < MAX_TRACKING; i++) {
-            if (tracker_[i].getID() == id) {
+        for(int i = 0; i < MAX_TRACKING; i++) {
+            if(tracker_[i].getID() == id) {
                 return i;
             }
         }
@@ -218,7 +215,7 @@ private:
 public:
     void start(tjs_int id) {
         int index = findEmptyEntry();
-        if (index >= 0) {
+        if(index >= 0) {
             tracker_[index].clear();
             tracker_[index].setID(id);
         }
@@ -226,22 +223,22 @@ public:
 
     void update(tjs_int id, tjs_uint32 tick, float x, float y) {
         int index = findEntry(id);
-        if (index >= 0) {
+        if(index >= 0) {
             tracker_[index].addMovement(tick, x, y);
         }
     }
 
     void end(tjs_int id) {
         int index = findEntry(id);
-        if (index >= 0) {
+        if(index >= 0) {
             tracker_[index].clearID();
         }
     }
 
     bool getVelocity(tjs_int id, float &x, float &y, float &speed) const {
         int index = findEntry(id);
-        if (index >= 0) {
-            if (tracker_[index].getVelocity(x, y)) {
+        if(index >= 0) {
+            if(tracker_[index].getVelocity(x, y)) {
                 speed = hypotf(x, y);
                 return true;
             }

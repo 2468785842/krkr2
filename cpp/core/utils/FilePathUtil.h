@@ -13,27 +13,27 @@
 static std::string IncludeTrailingBackslash(const std::string &path) {
     int n = path.length();
 
-    if (n == 0)
+    if(n == 0)
         return "/";
-    switch (path.c_str()[n - 1]) {
-    case '\\':
-    case '/':
-        return path;
-    default:
-        return path + '/';
+    switch(path.c_str()[n - 1]) {
+        case '\\':
+        case '/':
+            return path;
+        default:
+            return path + '/';
     }
 }
 
 static ttstr IncludeTrailingBackslash(const ttstr &path) {
     int n = path.length();
-    if (n == 0)
+    if(n == 0)
         return TJS_W("/");
-    switch (path.c_str()[n - 1]) {
-    case '\\':
-    case '/':
-        return path;
-    default:
-        return path + '/';
+    switch(path.c_str()[n - 1]) {
+        case '\\':
+        case '/':
+            return path;
+        default:
+            return path + '/';
     }
 
 #if 0
@@ -45,7 +45,7 @@ static ttstr IncludeTrailingBackslash(const ttstr &path) {
 }
 
 inline ttstr ExcludeTrailingBackslash(const ttstr &path) {
-    if (path[path.length() - 1] == L'\\') {
+    if(path[path.length() - 1] == L'\\') {
         return ttstr(path, path.length() - 1);
     }
     return path;

@@ -16,7 +16,7 @@ if (VCPKG_TARGET_ARCHITECTURE STREQUAL "x86" OR VCPKG_TARGET_ARCHITECTURE STREQU
     vcpkg_add_to_path("${NASM_EXE_PATH}")
 endif()
 
-set(OPTIONS "--enable-pic --disable-doc --enable-debug --enable-runtime-cpudetect")
+set(OPTIONS "--enable-pic --disable-doc --enable-debug=3 --enable-runtime-cpudetect")
 
 if(VCPKG_TARGET_IS_MINGW)
     if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86")
@@ -186,7 +186,7 @@ set(ENABLE_SWSCALE ON)
 list(APPEND FFMPEG_PKGCONFIG_MODULES libswscale)
 set(OPTIONS_CROSS "--enable-cross-compile")
 
-set(OPTIONS "${OPTIONS} --disable-ffmpeg --enable-small --disable-ffplay --disable-ffprobe --disable-avdevice --disable-programs --enable-stripping")
+set(OPTIONS "${OPTIONS} --disable-ffmpeg --enable-small --disable-ffplay --disable-ffprobe --disable-avdevice --disable-programs")
 
 # ffmpeg needs --cross-prefix option to use appropriate tools for cross-compiling.
 if(VCPKG_DETECTED_CMAKE_C_COMPILER MATCHES "([^\/]*-)gcc$")
@@ -268,8 +268,8 @@ if (VCPKG_TARGET_IS_IOS)
     set(OPTIONS "${OPTIONS} --extra-ldflags=-isysroot\"${vcpkg_osx_sysroot}\"")
 endif ()
 
-set(OPTIONS_DEBUG "--disable-optimizations")
-set(OPTIONS_RELEASE "--enable-optimizations")
+set(OPTIONS_DEBUG "--disable-optimizations --disable-stripping")
+set(OPTIONS_RELEASE "--enable-optimizations --enable-stripping")
 
 set(OPTIONS "${OPTIONS} ${OPTIONS_CROSS}")
 
@@ -300,7 +300,7 @@ endif()
 message(STATUS "Building Options: ${OPTIONS}")
 
 # Release build
-if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
+if (NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
     if (VCPKG_DETECTED_MSVC)
         set(OPTIONS_RELEASE "${OPTIONS_RELEASE} --extra-ldflags=-libpath:\"${CURRENT_INSTALLED_DIR}/lib\"")
     else()
@@ -344,7 +344,7 @@ if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
 endif()
 
 # Debug build
-if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
+if (NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
     if (VCPKG_DETECTED_MSVC)
         set(OPTIONS_DEBUG "${OPTIONS_DEBUG} --extra-ldflags=-libpath:\"${CURRENT_INSTALLED_DIR}/debug/lib\"")
     else()

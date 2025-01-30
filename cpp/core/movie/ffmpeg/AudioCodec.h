@@ -2,7 +2,7 @@
 
 #include "KRMovieDef.h"
 
-#if (defined HAVE_CONFIG_H) && (!defined TARGET_WINDOWS)
+#if(defined HAVE_CONFIG_H) && (!defined TARGET_WINDOWS)
 #include "config.h"
 #endif
 
@@ -109,16 +109,12 @@ public:
     /*
      * should return the ffmpeg matrix encoding type
      */
-    virtual enum AVMatrixEncoding GetMatrixEncoding() {
-        return AV_MATRIX_ENCODING_NONE;
-    }
+    virtual enum AVMatrixEncoding GetMatrixEncoding() { return AV_MATRIX_ENCODING_NONE; }
 
     /*
      * should return the ffmpeg audio service type
      */
-    virtual enum AVAudioServiceType GetAudioServiceType() {
-        return AV_AUDIO_SERVICE_TYPE_MAIN;
-    }
+    virtual enum AVAudioServiceType GetAudioServiceType() { return AV_AUDIO_SERVICE_TYPE_MAIN; }
 
     /*
      * should return the ffmpeg profile value

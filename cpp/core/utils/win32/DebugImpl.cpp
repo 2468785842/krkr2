@@ -49,8 +49,7 @@ tTJSNC_Controller::tTJSNC_Controller() : tTJSNativeClass(TJS_W("Controller")) {
     // properties
 
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(visible){
-        TJS_BEGIN_NATIVE_PROP_GETTER{ *result = 0; // TVPMainForm->getVisible();
+    TJS_BEGIN_NATIVE_PROP_DECL(visible){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = 0; // TVPMainForm->getVisible();
     return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -100,18 +99,16 @@ tTJSNC_Console::tTJSNC_Console() : tTJSNativeClass(TJS_W("Console")) {
     TJS_BEGIN_NATIVE_MEMBERS(Debug)
     TJS_DECL_EMPTY_FINALIZE_METHOD
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(/*TJS class name*/ Console) {
-        return TJS_S_OK;
-    }
+    TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(/*TJS class name*/ Console) { return TJS_S_OK; }
     TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ Console)
     //----------------------------------------------------------------------
 
     // properties
 
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(visible){TJS_BEGIN_NATIVE_PROP_GETTER{
-            //		*result = TVPMainForm->GetConsoleVisible();
-            *result = false;
+    TJS_BEGIN_NATIVE_PROP_DECL(visible){
+        TJS_BEGIN_NATIVE_PROP_GETTER{ //		*result = TVPMainForm->GetConsoleVisible();
+                                          *result = false;
     return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -153,8 +150,7 @@ tTJSNativeClass *TVPCreateNativeClass_Debug() {
     tTJSNativeClass *cls = new tTJSNC_Debug();
 
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(controller){TJS_BEGIN_NATIVE_PROP_GETTER{
-        iTJSDispatch2 *dsp = TVPGetControllerClass();
+    TJS_BEGIN_NATIVE_PROP_DECL(controller){ TJS_BEGIN_NATIVE_PROP_GETTER{ iTJSDispatch2 *dsp = TVPGetControllerClass();
     *result = tTJSVariant(dsp, dsp);
     dsp->Release();
     return TJS_S_OK;
@@ -165,8 +161,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, controller)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(console){
-    TJS_BEGIN_NATIVE_PROP_GETTER{iTJSDispatch2 *dsp = TVPGetConsoleClass();
+TJS_BEGIN_NATIVE_PROP_DECL(console){ TJS_BEGIN_NATIVE_PROP_GETTER{ iTJSDispatch2 *dsp = TVPGetConsoleClass();
 *result = tTJSVariant(dsp, dsp);
 dsp->Release();
 return TJS_S_OK;

@@ -103,10 +103,8 @@ public:
 //---------------------------------------------------------------------------
 // handler management functions
 //---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(void, TVPAddTransHandlerProvider,
-                 (iTVPTransHandlerProvider * pro));
-TJS_EXP_FUNC_DEF(void, TVPRemoveTransHandlerProvider,
-                 (iTVPTransHandlerProvider * pro));
+TJS_EXP_FUNC_DEF(void, TVPAddTransHandlerProvider, (iTVPTransHandlerProvider * pro));
+TJS_EXP_FUNC_DEF(void, TVPRemoveTransHandlerProvider, (iTVPTransHandlerProvider * pro));
 iTVPTransHandlerProvider *TVPFindTransHandlerProvider(const ttstr &name);
 //---------------------------------------------------------------------------
 
@@ -137,19 +135,19 @@ public:
     tjs_error TJS_INTF_METHOD StartTransition(
         /*in*/ iTVPSimpleOptionProvider *options, // option provider
         /*in*/ iTVPSimpleImageProvider *imagepro, // image provider
-        /*in*/ tTVPLayerType layertype,           // destination layer type
-        /*in*/ tjs_uint src1w, tjs_uint src1h,    // source 1 size
-        /*in*/ tjs_uint src2w, tjs_uint src2h,    // source 2 size
-        /*out*/ tTVPTransType *type,              // transition type
-        /*out*/ tTVPTransUpdateType *updatetype,  // update typwe
-        /*out*/ iTVPBaseTransHandler **handler    // transition handler
+        /*in*/ tTVPLayerType layertype, // destination layer type
+        /*in*/ tjs_uint src1w, tjs_uint src1h, // source 1 size
+        /*in*/ tjs_uint src2w, tjs_uint src2h, // source 2 size
+        /*out*/ tTVPTransType *type, // transition type
+        /*out*/ tTVPTransUpdateType *updatetype, // update typwe
+        /*out*/ iTVPBaseTransHandler **handler // transition handler
     );
 
     virtual iTVPBaseTransHandler *GetTransitionObject(
         /*in*/ iTVPSimpleOptionProvider *options, // option provider
         /*in*/ iTVPSimpleImageProvider *imagepro, // image provider
         /*in*/ tTVPLayerType layertype,
-        /*in*/ tjs_uint src1w, tjs_uint src1h,  // source 1 size
+        /*in*/ tjs_uint src1w, tjs_uint src1h, // source 1 size
         /*in*/ tjs_uint src2w, tjs_uint src2h); // source 2 size
 };
 

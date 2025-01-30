@@ -15,12 +15,13 @@ std::map<ttstr, ncbAutoRegister::INTERNAL_PLUGIN_LISTS > ncbAutoRegister::_inter
 bool ncbAutoRegister::LoadModule(const ttstr &_name)
 {
 	ttstr name = _name.AsLowerCase();
-	if (TVPRegisteredPlugins.find(name) != TVPRegisteredPlugins.end())
-		return false;
+	// already load
+    if (TVPRegisteredPlugins.find(name) != TVPRegisteredPlugins.end())
+		return true;
 	auto it = _internal_plugins.find(name);
 	if (it != _internal_plugins.end()) {
 		for (const auto & plugin_list : it->second.lists) {
-				for (auto i : plugin_list) {
+            for (auto i : plugin_list) {
 				i->Regist();
 			}
 		}

@@ -15,11 +15,11 @@
  * http://demo.and.or.jp/makedemo/effect/math/hypot/fast_hypot.c */
 static inline tjs_uint fast_int_hypot(tjs_int lx, tjs_int ly) {
     tjs_uint len1, len2, t, length;
-    if (lx < 0)
+    if(lx < 0)
         lx = -lx;
-    if (ly < 0)
+    if(ly < 0)
         ly = -ly;
-    if (lx >= ly) {
+    if(lx >= ly) {
         len1 = lx;
         len2 = ly;
     } else {

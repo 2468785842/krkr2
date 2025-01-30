@@ -43,8 +43,7 @@ public:
     CVideoPlayerVideo(CDVDClock *pClock
                       //	, CDVDOverlayContainer* pOverlayContainer
                       ,
-                      CDVDMessageQueue &parent, CRenderManager &renderManager,
-                      CProcessInfo &processInfo);
+                      CDVDMessageQueue &parent, CRenderManager &renderManager, CProcessInfo &processInfo);
 
     virtual ~CVideoPlayerVideo();
 
@@ -62,9 +61,7 @@ public:
 
     bool IsInited() const { return m_messageQueue.IsInited(); }
 
-    void SendMessage(CDVDMsg *pMsg, int priority = 0) {
-        m_messageQueue.Put(pMsg, priority);
-    }
+    void SendMessage(CDVDMsg *pMsg, int priority = 0) { m_messageQueue.Put(pMsg, priority); }
 
     void FlushMessages() { m_messageQueue.Flush(); }
 
@@ -104,8 +101,7 @@ protected:
 
     virtual void Process();
 
-    bool ProcessDecoderOutput(int &decoderState, double &frametime,
-                              double &pts);
+    bool ProcessDecoderOutput(int &decoderState, double &frametime, double &pts);
 
     int OutputPicture(const DVDVideoPicture *src, double pts);
 

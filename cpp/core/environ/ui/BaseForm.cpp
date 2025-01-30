@@ -18,39 +18,31 @@ using namespace cocos2d::ui;
 
 NodeMap::NodeMap() : FileName(nullptr) {}
 
-NodeMap::NodeMap(const char *filename, cocos2d::Node *node)
-    : FileName(filename) {
-    initFromNode(node);
-}
+NodeMap::NodeMap(const char *filename, cocos2d::Node *node) : FileName(filename) { initFromNode(node); }
 
 template <>
-cocos2d::Node *NodeMap::findController<cocos2d::Node>(const std::string &name,
-                                                      bool notice) const {
+cocos2d::Node *NodeMap::findController<cocos2d::Node>(const std::string &name, bool notice) const {
     auto it = this->find(name);
-    if (it != this->end())
+    if(it != this->end())
         return it->second;
-    if (notice) {
-        TVPShowSimpleMessageBox(
-            fmt::format("Node {} not exist in {}", name, FileName),
-            "Fail to load ui");
+    if(notice) {
+        TVPShowSimpleMessageBox(fmt::format("Node {} not exist in {}", name, FileName), "Fail to load ui");
     }
     return nullptr;
 }
 
 void NodeMap::initFromNode(cocos2d::Node *node) {
     const Vector<Node *> &childlist = node->getChildren();
-    for (auto child : childlist) {
+    for(auto child : childlist) {
         std::string name = child->getName();
-        if (!name.empty())
+        if(!name.empty())
             (*this)[name] = child;
         initFromNode(child);
     }
 }
 
 void NodeMap::onLoadError(const std::string &name) const {
-    TVPShowSimpleMessageBox(
-        fmt::format("Node {} wrong controller type in {}", name, FileName),
-        "Fail to load ui");
+    TVPShowSimpleMessageBox(fmt::format("Node {} wrong controller type in {}", name, FileName), "Fail to load ui");
 }
 
 Node *CSBReader::Load(const char *filename) {
@@ -59,18 +51,17 @@ Node *CSBReader::Load(const char *filename) {
     Node *ret = CSLoader::createNode(filename, [this](Ref *p) {
         Node *node = dynamic_cast<Node *>(p);
         std::string name = node->getName();
-        if (!name.empty())
+        if(!name.empty())
             operator[](name) = node;
         int nAction = node->getNumberOfRunningActions();
-        if (nAction == 1) {
-            auto *action = dynamic_cast<cocostudio::timeline::ActionTimeline *>(
-                node->getActionByTag(node->getTag()));
-            if (action && action->IsAnimationInfoExists("autoplay")) {
+        if(nAction == 1) {
+            auto *action = dynamic_cast<cocostudio::timeline::ActionTimeline *>(node->getActionByTag(node->getTag()));
+            if(action && action->IsAnimationInfoExists("autoplay")) {
                 action->play("autoplay", true);
             }
         }
     });
-    if (!ret) {
+    if(!ret) {
         TVPShowSimpleMessageBox(filename, "Fail to load ui file");
     }
     return ret;
@@ -80,17 +71,16 @@ iTVPBaseForm::~iTVPBaseForm() {}
 
 void iTVPBaseForm::Show() {}
 
-bool iTVPBaseForm::initFromFile(const char *navibar, const char *body,
-                                const char *bottombar, cocos2d::Node *parent) {
+bool iTVPBaseForm::initFromFile(const char *navibar, const char *body, const char *bottombar, cocos2d::Node *parent) {
     bool ret = cocos2d::Node::init();
     // NaviBar.Title = nullptr;
     NaviBar.Left = nullptr;
     NaviBar.Right = nullptr;
     NaviBar.Root = nullptr;
     CSBReader reader;
-    if (navibar) {
+    if(navibar) {
         NaviBar.Root = reader.Load(navibar);
-        if (!NaviBar.Root) {
+        if(!NaviBar.Root) {
             return false;
         }
         // 		NaviBar.Title =
@@ -98,18 +88,16 @@ bool iTVPBaseForm::initFromFile(const char *navibar, const char *body,
         // (NaviBar.Title)
         // { 			NaviBar.Title->setEnabled(false); // normally
         // 		}
-        NaviBar.Left =
-            dynamic_cast<Button *>(reader.findController("left", false));
-        NaviBar.Right =
-            dynamic_cast<Widget *>(reader.findController("right", false));
+        NaviBar.Left = dynamic_cast<Button *>(reader.findController("left", false));
+        NaviBar.Right = dynamic_cast<Widget *>(reader.findController("right", false));
         bindHeaderController(reader);
     }
 
     BottomBar.Root = nullptr;
     // BottomBar.Panel = nullptr;
-    if (bottombar) {
+    if(bottombar) {
         BottomBar.Root = reader.Load(bottombar);
-        if (!BottomBar.Root) {
+        if(!BottomBar.Root) {
             return false;
         }
         // BottomBar.Panel =
@@ -118,16 +106,16 @@ bool iTVPBaseForm::initFromFile(const char *navibar, const char *body,
     }
     // FIXME: 依靠bug运行， 此处应为非法转换, 危险操作！！
     RootNode = reinterpret_cast<Widget *>(reader.Load(body));
-    if (!RootNode) {
+    if(!RootNode) {
         return false;
     }
-    if (!parent) {
+    if(!parent) {
         parent = this;
     }
     parent->addChild(RootNode);
-    if (NaviBar.Root)
+    if(NaviBar.Root)
         parent->addChild(NaviBar.Root);
-    if (BottomBar.Root)
+    if(BottomBar.Root)
         parent->addChild(BottomBar.Root);
     rearrangeLayout();
     bindBodyController(reader);
@@ -139,7 +127,7 @@ void iTVPBaseForm::rearrangeLayout() {
     Size sceneSize = TVPMainScene::GetInstance()->getUINodeSize();
     setContentSize(sceneSize);
     Size bodySize = RootNode->getParent()->getContentSize();
-    if (NaviBar.Root) {
+    if(NaviBar.Root) {
         Size size = NaviBar.Root->getContentSize();
         size.width = bodySize.width / scale;
         NaviBar.Root->setContentSize(size);
@@ -149,7 +137,7 @@ void iTVPBaseForm::rearrangeLayout() {
         bodySize.height -= size.height;
         NaviBar.Root->setPosition(0, bodySize.height);
     }
-    if (BottomBar.Root) {
+    if(BottomBar.Root) {
         Size size = BottomBar.Root->getContentSize();
         size.width = bodySize.width / scale;
         BottomBar.Root->setContentSize(size);
@@ -159,23 +147,20 @@ void iTVPBaseForm::rearrangeLayout() {
         bodySize.height -= size.height;
         BottomBar.Root->setPosition(Vec2::ZERO);
     }
-    if (RootNode) {
+    if(RootNode) {
         bodySize.height /= scale;
         bodySize.width /= scale;
         RootNode->setContentSize(bodySize);
         RootNode->setScale(scale);
         ui::Helper::doLayout(RootNode);
-        if (BottomBar.Root)
-            RootNode->setPosition(
-                Vec2(0, BottomBar.Root->getContentSize().height * scale));
+        if(BottomBar.Root)
+            RootNode->setPosition(Vec2(0, BottomBar.Root->getContentSize().height * scale));
     }
 }
 
-void iTVPBaseForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
-                                cocos2d::Event *event) {
-    if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_BACK) {
-        TVPMainScene::GetInstance()->popUIForm(
-            this, TVPMainScene::eLeaveAniLeaveFromLeft);
+void iTVPBaseForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event) {
+    if(keyCode == cocos2d::EventKeyboard::KeyCode::KEY_BACK) {
+        TVPMainScene::GetInstance()->popUIForm(this, TVPMainScene::eLeaveAniLeaveFromLeft);
     }
 }
 
@@ -200,7 +185,7 @@ void iTVPFloatForm::rearrangeLayout() {
     Vec2 center = sceneSize / 2;
     sceneSize.height *= 0.75f;
     sceneSize.width *= 0.75f;
-    if (RootNode) {
+    if(RootNode) {
         sceneSize.width /= scale;
         sceneSize.height /= scale;
         RootNode->setContentSize(sceneSize);

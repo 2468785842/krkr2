@@ -19,15 +19,14 @@ bool PSDFile::load(const char *filename) {
     const std::filesystem::path file(filename);
     std::error_code error;
     const bool result = fs::exists(file, error);
-    if (!result || error) {
+    if(!result || error) {
         std::cerr << "file not found!: '" << filename << "'" << std::endl;
         return false;
     }
 
     in.open(filename);
-    if (!in.is_open()) {
-        std::cerr << "could not open input file: '" << filename << "'"
-                  << std::endl;
+    if(!in.is_open()) {
+        std::cerr << "could not open input file: '" << filename << "'" << std::endl;
         return false;
     }
 
@@ -37,7 +36,7 @@ bool PSDFile::load(const char *filename) {
 
     psd::Parser<iterator_type> parser(*this);
     bool r = parse(iter, end, parser);
-    if (r && iter == end) {
+    if(r && iter == end) {
         dprint("succeeded\n");
         isLoaded = processParsed();
     } else {

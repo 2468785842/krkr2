@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.19)
 project(layerExDraw)
 
-add_library(${PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME} STATIC)
+
+target_sources(${PROJECT_NAME} PUBLIC
+    main.cpp
     LayerExDraw.cpp
     DrawPath.cpp
 )
-
-target_sources(${PROJECT_NAME} PUBLIC main.cpp)
 
 find_package(Libgdiplus REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Libgdiplus_INCLUDE_DIRS})

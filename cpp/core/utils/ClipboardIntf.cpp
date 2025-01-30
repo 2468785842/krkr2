@@ -13,9 +13,7 @@
 #include "ClipboardIntf.h"
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_BaseClipboard::Construct(tjs_int numparams,
-                                                          tTJSVariant **param,
-                                                          iTJSDispatch2 *dsp) {
+tjs_error TJS_INTF_METHOD tTJSNI_BaseClipboard::Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *dsp) {
     return TJS_S_OK;
 }
 
@@ -27,15 +25,14 @@ void TJS_INTF_METHOD tTJSNI_BaseClipboard::Invalidate() {}
 tjs_uint32 tTJSNC_Clipboard::ClassID = -1;
 
 //---------------------------------------------------------------------------
-tTJSNC_Clipboard::tTJSNC_Clipboard()
-    : inherited(TJS_W("Clipboard")){
-          // registration of native members
+tTJSNC_Clipboard::tTJSNC_Clipboard() :
+    inherited(TJS_W("Clipboard")){ // registration of native members
 
-          TJS_BEGIN_NATIVE_MEMBERS(Clipboard) // constructor
-          TJS_DECL_EMPTY_FINALIZE_METHOD
-              //----------------------------------------------------------------------
-              TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(
-                  /*TJS class name*/ Clipboard){return TJS_S_OK;
+                                   TJS_BEGIN_NATIVE_MEMBERS(Clipboard) // constructor
+                                   TJS_DECL_EMPTY_FINALIZE_METHOD
+                                       //----------------------------------------------------------------------
+                                       TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(
+                                           /*TJS class name*/ Clipboard){ return TJS_S_OK;
 }
 TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ Clipboard)
 //----------------------------------------------------------------------
@@ -44,14 +41,14 @@ TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ Clipboard)
 
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ hasFormat) {
-    if (numparams < 1)
+    if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
 
     tTVPClipboardFormat format = (tTVPClipboardFormat)(tjs_int)*param[0];
 
     bool has = TVPClipboardHasFormat(format);
 
-    if (result)
+    if(result)
         *result = has;
 
     return TJS_S_OK;
@@ -67,9 +64,9 @@ TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ hasFormat)
 //--properties
 
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(asText){TJS_BEGIN_NATIVE_PROP_GETTER{ttstr text;
+TJS_BEGIN_NATIVE_PROP_DECL(asText){ TJS_BEGIN_NATIVE_PROP_GETTER{ ttstr text;
 bool got = TVPClipboardGetText(text);
-if (got)
+if(got)
     *result = text;
 else
     result->Clear();

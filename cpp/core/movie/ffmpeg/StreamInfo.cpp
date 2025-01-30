@@ -6,8 +6,7 @@ CDVDStreamInfo::CDVDStreamInfo() {
     Clear();
 }
 
-CDVDStreamInfo::CDVDStreamInfo(const CDVDStreamInfo &right,
-                               bool withextradata) {
+CDVDStreamInfo::CDVDStreamInfo(const CDVDStreamInfo &right, bool withextradata) {
     extradata = nullptr;
     Clear();
     Assign(right, withextradata);
@@ -20,7 +19,7 @@ CDVDStreamInfo::CDVDStreamInfo(const CDemuxStream &right, bool withextradata) {
 }
 
 CDVDStreamInfo::~CDVDStreamInfo() {
-    if (extradata && extrasize)
+    if(extradata && extrasize)
         free(extradata);
 
     extradata = nullptr;
@@ -38,7 +37,7 @@ void CDVDStreamInfo::Clear() {
     filename.clear();
     //	dvd = false;
 
-    if (extradata && extrasize)
+    if(extradata && extrasize)
         free(extradata);
 
     extradata = nullptr;
@@ -69,37 +68,32 @@ void CDVDStreamInfo::Clear() {
 }
 
 bool CDVDStreamInfo::Equal(const CDVDStreamInfo &right, bool withextradata) {
-    if (codec != right.codec
-        //	|| type != right.type
-        || uniqueId != right.uniqueId || realtime != right.realtime ||
-        codec_tag != right.codec_tag || flags != right.flags)
+    if(codec != right.codec
+       //	|| type != right.type
+       || uniqueId != right.uniqueId || realtime != right.realtime || codec_tag != right.codec_tag ||
+       flags != right.flags)
         return false;
 
-    if (withextradata) {
-        if (extrasize != right.extrasize)
+    if(withextradata) {
+        if(extrasize != right.extrasize)
             return false;
-        if (extrasize) {
-            if (memcmp(extradata, right.extradata, extrasize) != 0)
+        if(extrasize) {
+            if(memcmp(extradata, right.extradata, extrasize) != 0)
                 return false;
         }
     }
 
     // VIDEO
-    if (fpsscale != right.fpsscale || fpsrate != right.fpsrate ||
-        height != right.height || width != right.width ||
-        stills != right.stills || level != right.level ||
-        profile != right.profile || ptsinvalid != right.ptsinvalid ||
-        forced_aspect != right.forced_aspect ||
-        bitsperpixel != right.bitsperpixel || vfr != right.vfr
-        //	|| stereo_mode != right.stereo_mode
+    if(fpsscale != right.fpsscale || fpsrate != right.fpsrate || height != right.height || width != right.width ||
+       stills != right.stills || level != right.level || profile != right.profile || ptsinvalid != right.ptsinvalid ||
+       forced_aspect != right.forced_aspect || bitsperpixel != right.bitsperpixel || vfr != right.vfr
+       //	|| stereo_mode != right.stereo_mode
     )
         return false;
 
     // AUDIO
-    if (channels != right.channels || samplerate != right.samplerate ||
-        blockalign != right.blockalign || bitrate != right.bitrate ||
-        bitspersample != right.bitspersample ||
-        channellayout != right.channellayout)
+    if(channels != right.channels || samplerate != right.samplerate || blockalign != right.blockalign ||
+       bitrate != right.bitrate || bitspersample != right.bitspersample || channellayout != right.channellayout)
         return false;
 
     // SUBTITLE
@@ -124,13 +118,13 @@ void CDVDStreamInfo::Assign(const CDVDStreamInfo &right, bool withextradata) {
     filename = right.filename;
     //	dvd = right.dvd;
 
-    if (extradata && extrasize)
+    if(extradata && extrasize)
         free(extradata);
 
-    if (withextradata && right.extrasize) {
+    if(withextradata && right.extrasize) {
         extrasize = right.extrasize;
         extradata = malloc(extrasize);
-        if (!extradata)
+        if(!extradata)
             return;
         memcpy(extradata, right.extradata, extrasize);
     } else {
@@ -178,26 +172,24 @@ void CDVDStreamInfo::Assign(const CDemuxStream &right, bool withextradata) {
     level = right.level;
     flags = right.flags;
 
-    if (withextradata && right.ExtraSize) {
+    if(withextradata && right.ExtraSize) {
         extrasize = right.ExtraSize;
         extradata = malloc(extrasize);
-        if (!extradata)
+        if(!extradata)
             return;
         memcpy(extradata, right.ExtraData, extrasize);
     }
 
-    if (right.type == STREAM_AUDIO) {
-        const CDemuxStreamAudio *stream =
-            static_cast<const CDemuxStreamAudio *>(&right);
+    if(right.type == STREAM_AUDIO) {
+        const CDemuxStreamAudio *stream = static_cast<const CDemuxStreamAudio *>(&right);
         channels = stream->iChannels;
         samplerate = stream->iSampleRate;
         blockalign = stream->iBlockAlign;
         bitrate = stream->iBitRate;
         bitspersample = stream->iBitsPerSample;
         channellayout = stream->iChannelLayout;
-    } else if (right.type == STREAM_VIDEO) {
-        const CDemuxStreamVideo *stream =
-            static_cast<const CDemuxStreamVideo *>(&right);
+    } else if(right.type == STREAM_VIDEO) {
+        const CDemuxStreamVideo *stream = static_cast<const CDemuxStreamVideo *>(&right);
         fpsscale = stream->iFpsScale;
         fpsrate = stream->iFpsRate;
         height = stream->iHeight;

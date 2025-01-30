@@ -7,8 +7,7 @@
 /**
  * Stream 用の Iterator
  */
-class PSDIterator : public std::iterator<std::random_access_iterator_tag,
-                                         const unsigned char> {
+class PSDIterator : public std::iterator<std::random_access_iterator_tag, const unsigned char> {
 public:
     typedef size_t diff_t;
 
@@ -45,7 +44,7 @@ public:
     // イテレータを進める(前置)
     PSDIterator &operator++() {
         _pos++;
-        if (_pos > _size)
+        if(_pos > _size)
             _pos = _size;
         return *this;
     }
@@ -54,14 +53,14 @@ public:
     PSDIterator operator++(int) {
         PSDIterator ret = *this;
         _pos++;
-        if (_pos > _size)
+        if(_pos > _size)
             _pos = _size;
         return ret;
     }
 
     PSDIterator &operator+=(diff_t n) {
         _pos += n;
-        if (_pos > _size)
+        if(_pos > _size)
             _pos = _size;
         return *this;
     }
@@ -75,7 +74,7 @@ public:
     // イテレータを戻す(前置)
     PSDIterator &operator--() {
         _pos--;
-        if (_pos < 0)
+        if(_pos < 0)
             _pos = 0;
         return *this;
     }
@@ -84,14 +83,14 @@ public:
     PSDIterator operator--(int) {
         PSDIterator ret = *this;
         _pos--;
-        if (_pos < 0)
+        if(_pos < 0)
             _pos = 0;
         return ret;
     }
 
     PSDIterator &operator-=(diff_t n) {
         _pos -= n;
-        if (_pos < 0)
+        if(_pos < 0)
             _pos = 0;
         return *this;
     }
@@ -111,9 +110,7 @@ public:
     }
 
     // 差分
-    diff_t operator-(const PSDIterator &b) const {
-        return (diff_t)(_pos - b._pos);
-    }
+    diff_t operator-(const PSDIterator &b) const { return (diff_t)(_pos - b._pos); }
 
     // イテレータの一致判定
     bool operator==(const PSDIterator &o) const { return o._pos == _pos; }
@@ -128,26 +125,18 @@ public:
 private:
     PSD *_psd;
     tTVInteger _size; //< ストリームサイズ保持用
-    tTVInteger _pos;  //< 参照位置
+    tTVInteger _pos; //< 参照位置
 };
 
 namespace psd {
 
-inline void copyToBuffer(uint8_t *buffer, PSDIterator &cur, int size) {
-    cur.copyToBuffer(buffer, size);
-}
+    inline void copyToBuffer(uint8_t *buffer, PSDIterator &cur, int size) { cur.copyToBuffer(buffer, size); }
 
-inline void getShortLE(uint8_t *buffer, PSDIterator &cur) {
-    cur.copyToBuffer(buffer, 2);
-}
+    inline void getShortLE(uint8_t *buffer, PSDIterator &cur) { cur.copyToBuffer(buffer, 2); }
 
-inline void getLongLE(uint8_t *buffer, PSDIterator &cur) {
-    cur.copyToBuffer(buffer, 4);
-}
+    inline void getLongLE(uint8_t *buffer, PSDIterator &cur) { cur.copyToBuffer(buffer, 4); }
 
-inline void getLongLongLE(uint8_t *buffer, PSDIterator &cur) {
-    cur.copyToBuffer(buffer, 8);
-}
+    inline void getLongLongLE(uint8_t *buffer, PSDIterator &cur) { cur.copyToBuffer(buffer, 8); }
 } // namespace psd
 
 bool PSD::loadStream(const ttstr &filename) {
@@ -156,7 +145,7 @@ bool PSD::loadStream(const ttstr &filename) {
     // ストリームのまま
     isLoaded = false;
     pStream = TVPCreateIStream(filename, TJS_BS_READ);
-    if (pStream) {
+    if(pStream) {
 
         STATSTG stat;
         pStream->Stat(&stat, STATFLAG_NONAME);
@@ -166,11 +155,11 @@ bool PSD::loadStream(const ttstr &filename) {
         PSDIterator end(this, false);
         psd::Parser<PSDIterator> parser(*this);
         bool r = parse(begin, end, parser);
-        if (r && begin == end) {
+        if(r && begin == end) {
             dprint("succeeded\n");
             isLoaded = processParsed();
         }
-        if (!isLoaded) {
+        if(!isLoaded) {
             clearData();
         }
     }

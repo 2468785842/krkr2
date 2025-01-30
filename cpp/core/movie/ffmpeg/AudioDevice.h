@@ -1,5 +1,5 @@
 #pragma once
-#if (defined HAVE_CONFIG_H) && (!defined TARGET_WINDOWS)
+#if(defined HAVE_CONFIG_H) && (!defined TARGET_WINDOWS)
 #include "config.h"
 #endif
 
@@ -30,8 +30,7 @@ public:
 
     void Resume();
 
-    bool Create(const DVDAudioFrame &audioframe, AVCodecID codec,
-                bool needresampler);
+    bool Create(const DVDAudioFrame &audioframe, AVCodecID codec, bool needresampler);
 
     bool IsValidFormat(const DVDAudioFrame &audioframe);
 

@@ -93,13 +93,13 @@ struct TVPTextureFormat {
 };
 
 namespace cocos2d {
-class Texture2D;
+    class Texture2D;
 };
 
 class iTVPTexture2D {
 protected:
     int RefCount;
-    tjs_int Width;  // actual width
+    tjs_int Width; // actual width
     tjs_int Height; // actual height
     // int Flags, TexWidth, TexHeight, ActualWidth, ActualHeight;
     iTVPTexture2D(tjs_int w, tjs_int h) : Width(w), Height(h), RefCount(1) {}
@@ -121,22 +121,18 @@ public:
     virtual TVPTextureFormat::e GetFormat() const = 0;
     virtual const void *GetScanLineForRead(tjs_uint l) { return nullptr; }
     virtual const void *GetPixelData() { return GetScanLineForRead(0); }
-    virtual void *GetScanLineForWrite(tjs_uint l) {
-        return (void *)GetScanLineForRead(l);
-    }
+    virtual void *GetScanLineForWrite(tjs_uint l) { return (void *)GetScanLineForRead(l); }
     virtual tjs_int GetPitch() const { return 0x100000; }
     bool IsIndependent() const { return RefCount == 1; }
 
     // virtual tGLTexture* GetTexture() = 0;
-    virtual void Update(const void *pixel, TVPTextureFormat::e format,
-                        int pitch, const tTVPRect &rc) = 0;
+    virtual void Update(const void *pixel, TVPTextureFormat::e format, int pitch, const tTVPRect &rc) = 0;
     virtual uint32_t GetPoint(int x, int y) = 0;
     virtual void SetPoint(int x, int y, uint32_t clr) = 0;
     virtual bool IsStatic() = 0; // aka. is readonly
     virtual bool IsOpaque() = 0;
     // virtual void RefreshBitmap() = 0;
-    virtual cocos2d::Texture2D *
-    GetAdapterTexture(cocos2d::Texture2D *origTex) = 0;
+    virtual cocos2d::Texture2D *GetAdapterTexture(cocos2d::Texture2D *origTex) = 0;
     virtual bool GetScale(float &x, float &y) {
         x = 1.f;
         y = 1.f;
@@ -161,9 +157,7 @@ public:
     virtual void SetParameterColor4B(int id, unsigned int clr){};
     virtual void SetParameterOpa(int id, int Value){};
     virtual void SetParameterFloatArray(int id, float *Value, int nElem){};
-    virtual iTVPRenderMethod *SetBlendFuncSeparate(int func, int srcRGB,
-                                                   int dstRGB, int srcAlpha,
-                                                   int dstAlpha) {
+    virtual iTVPRenderMethod *SetBlendFuncSeparate(int func, int srcRGB, int dstRGB, int srcAlpha, int dstAlpha) {
         return this;
     }
     virtual bool IsBlendTarget() { return true; }
@@ -171,24 +165,23 @@ public:
     const std::string &GetName() { return Name; }
 };
 
-template <typename TElem> class tRenderTextureArray {
+template <typename TElem>
+class tRenderTextureArray {
     const std::pair<iTVPTexture2D *, TElem> *pElem;
     size_t nCount;
 
 public:
     typedef std::pair<iTVPTexture2D *, TElem> Element;
     tRenderTextureArray() : pElem(nullptr), nCount(0) {}
-    tRenderTextureArray(std::pair<iTVPTexture2D *, TElem> *p, size_t n)
-        : pElem(p), nCount(n) {}
+    tRenderTextureArray(std::pair<iTVPTexture2D *, TElem> *p, size_t n) : pElem(p), nCount(n) {}
 
-    template <typename T> tRenderTextureArray(const T &arr) {
+    template <typename T>
+    tRenderTextureArray(const T &arr) {
         pElem = arr;
         nCount = sizeof(arr) / sizeof(arr[0]);
     }
 
-    const std::pair<iTVPTexture2D *, TElem> &operator[](size_t i) const {
-        return pElem[i];
-    }
+    const std::pair<iTVPTexture2D *, TElem> &operator[](size_t i) const { return pElem[i]; }
 
     size_t size() const { return nCount; }
 };
@@ -198,15 +191,13 @@ typedef tRenderTextureArray<const tTVPPointD *> tRenderTexQuadArray;
 
 class tTVPBitmap;
 namespace TJS {
-class tTJSBinaryStream;
+    class tTJSBinaryStream;
 }
 class iTVPRenderManager {
 protected:
     virtual ~iTVPRenderManager() {} // undeletable
     void RegisterRenderMethod(const char *name, iTVPRenderMethod *method);
-    virtual iTVPRenderMethod *GetRenderMethodFromScript(const char *script,
-                                                        int nTex,
-                                                        unsigned int flags) {
+    virtual iTVPRenderMethod *GetRenderMethodFromScript(const char *script, int nTex, unsigned int flags) {
         return nullptr;
     }
     std::unordered_map<uint32_t, iTVPRenderMethod *> AllMethods;
@@ -218,44 +209,31 @@ public:
 #define RENDER_CREATE_TEXTURE_FLAG_ANY 0
 #define RENDER_CREATE_TEXTURE_FLAG_STATIC 1
 #define RENDER_CREATE_TEXTURE_FLAG_NO_COMPRESS 2
-    virtual iTVPTexture2D *
-    CreateTexture2D(const void *pixel, int pitch, unsigned int w,
-                    unsigned int h, TVPTextureFormat::e format,
-                    int flags = RENDER_CREATE_TEXTURE_FLAG_ANY) = 0;
-    virtual iTVPTexture2D *
-    CreateTexture2D(tTVPBitmap *bmp) = 0; // for province image
-    virtual iTVPTexture2D *CreateTexture2D(
-        TJS::tTJSBinaryStream *s) = 0; // for compressed or special image format
-    virtual iTVPTexture2D *
-    CreateTexture2D( // create and copy content from exist texture
+    virtual iTVPTexture2D *CreateTexture2D(const void *pixel, int pitch, unsigned int w, unsigned int h,
+                                           TVPTextureFormat::e format, int flags = RENDER_CREATE_TEXTURE_FLAG_ANY) = 0;
+    virtual iTVPTexture2D *CreateTexture2D(tTVPBitmap *bmp) = 0; // for province image
+    virtual iTVPTexture2D *CreateTexture2D(TJS::tTJSBinaryStream *s) = 0; // for compressed or special image format
+    virtual iTVPTexture2D *CreateTexture2D( // create and copy content from exist texture
         unsigned int neww, unsigned int newh, iTVPTexture2D *tex) = 0;
 
     // each method is singleton in whole lifecycle
-    virtual iTVPRenderMethod *GetRenderMethod(const char *name,
-                                              uint32_t *hint = nullptr);
+    virtual iTVPRenderMethod *GetRenderMethod(const char *name, uint32_t *hint = nullptr);
 #define RENDER_METHOD_FLAG_NONE 0
 #define RENDER_METHOD_FLAG_TARGET_AS_INPUT 1
-    iTVPRenderMethod *CompileRenderMethod(const char *name,
-                                          const char *glsl_script, int nTex,
-                                          unsigned int flags = 0);
-    iTVPRenderMethod *GetOrCompileRenderMethod(const char *name, uint32_t *hint,
-                                               const char *glsl_script,
-                                               int nTex,
+    iTVPRenderMethod *CompileRenderMethod(const char *name, const char *glsl_script, int nTex, unsigned int flags = 0);
+    iTVPRenderMethod *GetOrCompileRenderMethod(const char *name, uint32_t *hint, const char *glsl_script, int nTex,
                                                unsigned int flags = 0);
 
     virtual bool IsSoftware() { return false; }
     virtual const char *GetName() = 0;
 
     virtual bool GetRenderStat(unsigned int &drawCount, uint64_t &vmemsize) = 0;
-    virtual bool GetTextureStat(iTVPTexture2D *texture, uint64_t &vmemsize) {
-        return false;
-    }
+    virtual bool GetTextureStat(iTVPTexture2D *texture, uint64_t &vmemsize) { return false; }
 
     virtual void BeginStencil(iTVPTexture2D *reftex) {}
     virtual void EndStencil() {}
 
-    virtual void SetRenderTarget(iTVPTexture2D *target) {
-    } // for manual rendering
+    virtual void SetRenderTarget(iTVPTexture2D *target) {} // for manual rendering
 
     // interface to access custom parameter
     virtual int EnumParameterID(const char *name) { return -1; }
@@ -268,46 +246,37 @@ public:
     // dst x Tex1 x ... x TexN -> dst
     // referenced target texture would be used if target texture is required as
     // source
-    virtual void OperateRect(iTVPRenderMethod *method, iTVPTexture2D *tar,
-                             iTVPTexture2D *reftar, const tTVPRect &rctar,
+    virtual void OperateRect(iTVPRenderMethod *method, iTVPTexture2D *tar, iTVPTexture2D *reftar, const tTVPRect &rctar,
                              const tRenderTexRectArray &textures) = 0;
 
     // src x dst -> tar
-    virtual void OperateTriangles(iTVPRenderMethod *method, int nTriangles,
-                                  iTVPTexture2D *target, iTVPTexture2D *reftar,
-                                  const tTVPRect &rcclip,
-                                  const tTVPPointD *pttar,
+    virtual void OperateTriangles(iTVPRenderMethod *method, int nTriangles, iTVPTexture2D *target,
+                                  iTVPTexture2D *reftar, const tTVPRect &rcclip, const tTVPPointD *pttar,
                                   const tRenderTexQuadArray &textures) = 0;
 
     // src -> tar
-    virtual void
-    OperatePerspective(iTVPRenderMethod *method, int nQuads,
-                       iTVPTexture2D *target, iTVPTexture2D *reftar,
-                       const tTVPRect &rcclip,
-                       const tTVPPointD *pttar /*quad{lt,rt,lb,rb}*/,
-                       const tRenderTexQuadArray &textures) = 0;
+    virtual void OperatePerspective(iTVPRenderMethod *method, int nQuads, iTVPTexture2D *target, iTVPTexture2D *reftar,
+                                    const tTVPRect &rcclip, const tTVPPointD *pttar /*quad{lt,rt,lb,rb}*/,
+                                    const tRenderTexQuadArray &textures) = 0;
 
 public:
     // utility function
-    iTVPRenderMethod *GetRenderMethod(tjs_int opa, bool hda,
-                                      int /*tTVPBBBltMethod*/ method);
+    iTVPRenderMethod *GetRenderMethod(tjs_int opa, bool hda, int /*tTVPBBBltMethod*/ method);
     struct tRenderMethodCache *RenderMethodCache = nullptr;
 };
 
 void TVPRegisterRenderManager(const char *name, iTVPRenderManager *(*func)());
 
-#define REGISTER_RENDERMANAGER(MGR, NAME)                                      \
-    static iTVPRenderManager *__##MGR##Factory() { return new MGR(); }         \
-    static class __##MGR##AutoReigster {                                       \
-    public:                                                                    \
-        __##MGR##AutoReigster() {                                              \
-            TVPRegisterRenderManager(#NAME, __##MGR##Factory);                 \
-        }                                                                      \
+#define REGISTER_RENDERMANAGER(MGR, NAME)                                                                              \
+    static iTVPRenderManager *__##MGR##Factory() { return new MGR(); }                                                 \
+    static class __##MGR##AutoReigster {                                                                               \
+    public:                                                                                                            \
+        __##MGR##AutoReigster() { TVPRegisterRenderManager(#NAME, __##MGR##Factory); }                                 \
     } __##MGR##AutoReigster_instance;
 
 iTVPRenderManager *TVPGetRenderManager();
 namespace TJS {
-class tTJSString;
+    class tTJSString;
 }
 iTVPRenderManager *TVPGetRenderManager(const TJS::tTJSString &name);
 bool TVPIsSoftwareRenderManager();

@@ -12,7 +12,7 @@ class tTVPVSyncTimingThread : public tTVPThread {
     tjs_uint32 SleepTime;
     tTVPThreadEvent Event;
     tTJSCriticalSection CS;
-    tjs_uint32 VSyncInterval;  //!< VSync の間隔(参考値)
+    tjs_uint32 VSyncInterval; //!< VSync の間隔(参考値)
     tjs_uint32 LastVBlankTick; //!< 最後の vblank の時間
 
     bool Enabled;

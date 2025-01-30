@@ -451,7 +451,7 @@ extern std::set<ttstr> TVPRegisteredPlugins;
 void TVPLoadPlugin(const ttstr &name) {
     bool success = TVPLoadInternalPlugin(name);
     std::string msg = "Loading Plugin: " + name.AsStdString();
-    if (success) {
+    if(success) {
         msg.append(" Success");
     } else {
         msg.append(" Failed");
@@ -495,11 +495,10 @@ struct tTVPFoundPlugin {
 
 static tjs_int TVPAutoLoadPluginCount = 0;
 
-static void TVPSearchPluginsAt(std::vector<tTVPFoundPlugin> &list,
-                               std::string folder) {
+static void TVPSearchPluginsAt(std::vector<tTVPFoundPlugin> &list, std::string folder) {
     TVPListDir(folder, [&](const std::string &filename, int mask) {
-        if (mask & S_IFREG) {
-            if (!strcasecmp(filename.c_str() + filename.length() - 4, ".tpm")) {
+        if(mask & S_IFREG) {
+            if(!strcasecmp(filename.c_str() + filename.length() - 4, ".tpm")) {
                 tTVPFoundPlugin fp;
                 fp.Path = folder;
                 fp.Name = filename;
@@ -554,9 +553,8 @@ void tvpLoadPlugins() {
 
     // load each plugin
     TVPAutoLoadPluginCount = (tjs_int)list.size();
-    for (auto &i : list) {
-        TVPAddImportantLog(ttstr(TJS_W("(info) Loading ")) +
-                           ttstr(i.Name.c_str()));
+    for(auto &i : list) {
+        TVPAddImportantLog(ttstr(TJS_W("(info) Loading ")) + ttstr(i.Name.c_str()));
         TVPLoadPlugin((i.Path + "/" + i.Name).c_str());
     }
 }
@@ -622,15 +620,13 @@ ITSSWaveDecoder * TVPSearchAvailTSSWaveDecoder(const ttstr & storage, const ttst
 #endif
 //---------------------------------------------------------------------------
 #ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
-IWaveUnpacker *TVPSearchAvailWaveUnpacker(const ttstr &storage,
-                                          IStream **stream) {
+IWaveUnpacker *TVPSearchAvailWaveUnpacker(const ttstr &storage, IStream **stream) {
     tTVPPluginVectorType::iterator i;
-    for (i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end();
-         i++) {
-        if ((*i)->CreateWaveUnpacker)
+    for(i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end(); i++) {
+        if((*i)->CreateWaveUnpacker)
             break;
     }
-    if (i == TVPPluginVector.Vector.end())
+    if(i == TVPPluginVector.Vector.end())
         return nullptr; // KPI not found
 
     // retrieve IStream interface
@@ -641,8 +637,8 @@ IWaveUnpacker *TVPSearchAvailWaveUnpacker(const ttstr &storage,
     try {
         stream0 = TVPCreateStream(storage);
         size = (long)stream0->GetSize();
-    } catch (...) {
-        if (stream0)
+    } catch(...) {
+        if(stream0)
             delete stream0;
         return nullptr;
     }
@@ -651,20 +647,18 @@ IWaveUnpacker *TVPSearchAvailWaveUnpacker(const ttstr &storage,
 
     try {
 
-        for (i = TVPPluginVector.Vector.begin();
-             i != TVPPluginVector.Vector.end(); i++) {
-            if ((*i)->CreateWaveUnpacker) {
+        for(i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end(); i++) {
+            if((*i)->CreateWaveUnpacker) {
                 // call CreateWaveUnpacker to retrieve decoder instance
                 IWaveUnpacker *out;
-                HRESULT hr = (*i)->CreateWaveUnpacker(istream, size,
-                                                      ansiname.c_str(), &out);
-                if (SUCCEEDED(hr)) {
+                HRESULT hr = (*i)->CreateWaveUnpacker(istream, size, ansiname.c_str(), &out);
+                if(SUCCEEDED(hr)) {
                     *stream = istream;
                     return out;
                 }
             }
         }
-    } catch (...) {
+    } catch(...) {
         istream->Release();
         return nullptr;
     }
@@ -675,20 +669,18 @@ IWaveUnpacker *TVPSearchAvailWaveUnpacker(const ttstr &storage,
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 #ifdef TVP_SUPPORT_KPI
-void *TVPSearchAvailKMPWaveDecoder(const ttstr &storage, KMPMODULE **module,
-                                   SOUNDINFO *info) {
+void *TVPSearchAvailKMPWaveDecoder(const ttstr &storage, KMPMODULE **module, SOUNDINFO *info) {
     tTVPPluginVectorType::iterator i;
-    for (i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end();
-         i++) {
-        if ((*i)->KMPModule)
+    for(i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end(); i++) {
+        if((*i)->KMPModule)
             break;
     }
-    if (i == TVPPluginVector.Vector.end())
+    if(i == TVPPluginVector.Vector.end())
         return nullptr; // KPI not found
 
     AnsiString localname;
 
-    if (TJS_strchr(storage.c_str(), TVPArchiveDelimiter))
+    if(TJS_strchr(storage.c_str(), TVPArchiveDelimiter))
         return nullptr;
     // in-archive storage is not supported
 
@@ -696,28 +688,27 @@ void *TVPSearchAvailKMPWaveDecoder(const ttstr &storage, KMPMODULE **module,
         ttstr ln(TVPSearchPlacedPath(storage));
         TVPGetLocalName(ln);
         localname = ln.AsAnsiString();
-    } catch (...) {
+    } catch(...) {
         return nullptr;
     }
 
     AnsiString ext = TVPExtractStorageExt(storage).AsAnsiString();
 
-    for (i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end();
-         i++) {
-        if ((*i)->KMPModule) {
+    for(i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end(); i++) {
+        if((*i)->KMPModule) {
             // search over available extensions
             const char **module_ext = (*i)->KMPModule->ppszSupportExts;
-            while (*module_ext) {
-                if (!strcmpi(ext.c_str(), *module_ext))
+            while(*module_ext) {
+                if(!strcmpi(ext.c_str(), *module_ext))
                     break;
                 module_ext++;
             }
-            if (!*module_ext)
+            if(!*module_ext)
                 continue; // not found in this plug-in
 
             *module = (*i)->KMPModule;
             HKMP hkmp = (*i)->KMPModule->Open(localname.c_str(), info);
-            if (hkmp)
+            if(hkmp)
                 (*i)->KMPModule->SetPosition(hkmp, 0);
             // rewind; some plug-ins crash when the initial rewind is
             // not processed...
@@ -734,28 +725,24 @@ void *TVPSearchAvailKMPWaveDecoder(const ttstr &storage, KMPMODULE **module,
 //---------------------------------------------------------------------------
 #include <zlib.h>
 
-int ZLIB_uncompress(unsigned char *dest, unsigned long *destlen,
-                    const unsigned char *source, unsigned long sourcelen) {
+int ZLIB_uncompress(unsigned char *dest, unsigned long *destlen, const unsigned char *source, unsigned long sourcelen) {
     return uncompress(dest, destlen, source, sourcelen);
 }
 
 //---------------------------------------------------------------------------
-int ZLIB_compress(unsigned char *dest, unsigned long *destlen,
-                  const unsigned char *source, unsigned long sourcelen) {
+int ZLIB_compress(unsigned char *dest, unsigned long *destlen, const unsigned char *source, unsigned long sourcelen) {
     return compress(dest, destlen, source, sourcelen);
 }
 
 //---------------------------------------------------------------------------
-int ZLIB_compress2(unsigned char *dest, unsigned long *destlen,
-                   const unsigned char *source, unsigned long sourcelen,
+int ZLIB_compress2(unsigned char *dest, unsigned long *destlen, const unsigned char *source, unsigned long sourcelen,
                    int level) {
     return compress2(dest, destlen, source, sourcelen, level);
 }
 //---------------------------------------------------------------------------
 #include "md5.h"
 
-static char TVP_assert_md5_state_t_size[(sizeof(TVP_md5_state_t) >=
-                                         sizeof(md5_state_t))];
+static char TVP_assert_md5_state_t_size[(sizeof(TVP_md5_state_t) >= sizeof(md5_state_t))];
 
 // if this errors, sizeof(TVP_md5_state_t) is not equal to sizeof(md5_state_t).
 // sizeof(TVP_md5_state_t) must be equal to sizeof(md5_state_t).
@@ -768,9 +755,7 @@ void TVP_md5_append(TVP_md5_state_t *pms, const tjs_uint8 *data, int nbytes) {
 }
 
 //---------------------------------------------------------------------------
-void TVP_md5_finish(TVP_md5_state_t *pms, tjs_uint8 *digest) {
-    md5_finish((md5_state_t *)pms, digest);
-}
+void TVP_md5_finish(TVP_md5_state_t *pms, tjs_uint8 *digest) { md5_finish((md5_state_t *)pms, digest); }
 
 #if 0
 //---------------------------------------------------------------------------
@@ -798,7 +783,7 @@ bool TVPRegisterGlobalObject(const tjs_char *name, iTJSDispatch2 *dsp) {
     tjs_error er;
     try {
         er = global->PropSet(TJS_MEMBERENSURE, name, nullptr, &val, global);
-    } catch (...) {
+    } catch(...) {
         global->Release();
         return false;
     }
@@ -810,12 +795,12 @@ bool TVPRegisterGlobalObject(const tjs_char *name, iTJSDispatch2 *dsp) {
 bool TVPRemoveGlobalObject(const tjs_char *name) {
     // remove registration of global object
     iTJSDispatch2 *global = TVPGetScriptDispatch();
-    if (!global)
+    if(!global)
         return false;
     tjs_error er;
     try {
         er = global->DeleteMember(0, name, nullptr, global);
-    } catch (...) {
+    } catch(...) {
         global->Release();
         return false;
     }
@@ -824,30 +809,29 @@ bool TVPRemoveGlobalObject(const tjs_char *name) {
 }
 
 //---------------------------------------------------------------------------
-void TVPDoTryBlock(tTVPTryBlockFunction tryblock,
-                   tTVPCatchBlockFunction catchblock,
+void TVPDoTryBlock(tTVPTryBlockFunction tryblock, tTVPCatchBlockFunction catchblock,
                    tTVPFinallyBlockFunction finallyblock, void *data) {
     try {
         tryblock(data);
-    } catch (const eTJS &e) {
-        if (finallyblock)
+    } catch(const eTJS &e) {
+        if(finallyblock)
             finallyblock(data);
         tTVPExceptionDesc desc;
         desc.type = TJS_W("eTJS");
         desc.message = e.GetMessage();
-        if (catchblock(data, desc))
+        if(catchblock(data, desc))
             throw;
         return;
-    } catch (...) {
-        if (finallyblock)
+    } catch(...) {
+        if(finallyblock)
             finallyblock(data);
         tTVPExceptionDesc desc;
         desc.type = TJS_W("unknown");
-        if (catchblock(data, desc))
+        if(catchblock(data, desc))
             throw;
         return;
     }
-    if (finallyblock)
+    if(finallyblock)
         finallyblock(data);
 }
 //---------------------------------------------------------------------------
@@ -927,7 +911,7 @@ tTJSNativeClass *TVPCreateNativeClass_Plugins() {
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ link) {
 
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
 
         ttstr name = *param[0];
@@ -940,14 +924,14 @@ tTJSNativeClass *TVPCreateNativeClass_Plugins() {
                                             /*func. name*/ link)
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ unlink) {
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
 
         ttstr name = *param[0];
 
         bool res = TVPUnloadPlugin(name);
 
-        if (result)
+        if(result)
             *result = (tjs_int)res;
 
         return TJS_S_OK;
@@ -959,7 +943,7 @@ tTJSNativeClass *TVPCreateNativeClass_Plugins() {
         iTJSDispatch2 *array = TJSCreateArrayObject();
         try {
             tjs_int idx = 0;
-            for (ttstr name : TVPRegisteredPlugins) {
+            for(ttstr name : TVPRegisteredPlugins) {
                 tTJSVariant val(name);
                 array->PropSetByNum(TJS_MEMBERENSURE, idx++, &val, array);
             }
@@ -972,9 +956,9 @@ tTJSNativeClass *TVPCreateNativeClass_Plugins() {
                         array->PropSetByNum(TJS_MEMBERENSURE, idx++, &val, array);
                     }
 #endif
-            if (result)
+            if(result)
                 *result = tTJSVariant(array, array);
-        } catch (...) {
+        } catch(...) {
             array->Release();
             throw;
         }

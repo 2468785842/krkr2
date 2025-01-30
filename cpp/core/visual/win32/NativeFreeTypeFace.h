@@ -34,7 +34,7 @@
 class tNativeFreeTypeFace : public tBaseFreeTypeFace {
 protected:
     std::wstring FaceName; //!< Face名 = フォント名
-    FT_Face Face;          //!< FreeType face オブジェクト
+    FT_Face Face; //!< FreeType face オブジェクト
 
 private:
     // 	HDC DC;			//!< デバイスコンテキスト
@@ -56,8 +56,7 @@ public:
 
 private:
     void Clear();
-    static unsigned long IoFunc(FT_Stream stream, unsigned long offset,
-                                unsigned char *buffer, unsigned long count);
+    static unsigned long IoFunc(FT_Stream stream, unsigned long offset, unsigned char *buffer, unsigned long count);
     static void CloseFunc(FT_Stream stream);
 
     bool OpenFaceByIndex(int index);

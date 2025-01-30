@@ -17,23 +17,15 @@ public:
     bool isShrinked();
 
 private:
-    bool onHandlerTouchBegan(cocos2d::Touch *touch,
-                             cocos2d::Event *unusedEvent);
-    void onHandlerTouchMoved(cocos2d::Touch *touch,
-                             cocos2d::Event *unusedEvent);
-    void onHandlerTouchEnded(cocos2d::Touch *touch,
-                             cocos2d::Event *unusedEvent);
-    void onHandlerTouchCancelled(cocos2d::Touch *touch,
-                                 cocos2d::Event *unusedEvent);
+    bool onHandlerTouchBegan(cocos2d::Touch *touch, cocos2d::Event *unusedEvent);
+    void onHandlerTouchMoved(cocos2d::Touch *touch, cocos2d::Event *unusedEvent);
+    void onHandlerTouchEnded(cocos2d::Touch *touch, cocos2d::Event *unusedEvent);
+    void onHandlerTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *unusedEvent);
 
-    bool onBackgroundTouchBegan(cocos2d::Touch *touch,
-                                cocos2d::Event *unusedEvent);
-    void onBackgroundTouchMoved(cocos2d::Touch *touch,
-                                cocos2d::Event *unusedEvent);
-    void onBackgroundTouchEnded(cocos2d::Touch *touch,
-                                cocos2d::Event *unusedEvent);
-    void onBackgroundTouchCancelled(cocos2d::Touch *touch,
-                                    cocos2d::Event *unusedEvent);
+    bool onBackgroundTouchBegan(cocos2d::Touch *touch, cocos2d::Event *unusedEvent);
+    void onBackgroundTouchMoved(cocos2d::Touch *touch, cocos2d::Event *unusedEvent);
+    void onBackgroundTouchEnded(cocos2d::Touch *touch, cocos2d::Event *unusedEvent);
+    void onBackgroundTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *unusedEvent);
 
     GLubyte _handler_inactive_opacity;
     bool _hitted;

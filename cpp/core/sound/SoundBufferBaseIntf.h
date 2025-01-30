@@ -18,10 +18,10 @@
 //---------------------------------------------------------------------------
 enum tTVPSoundStatus {
     ssUnload, // data is not specified
-    ssStop,   // stop
-    ssPlay,   // play
-    ssPause,  // pause
-    ssReady,  // ready
+    ssStop, // stop
+    ssPlay, // play
+    ssPause, // pause
+    ssReady, // ready
 };
 //---------------------------------------------------------------------------
 
@@ -36,15 +36,14 @@ class tTJSNI_BaseSoundBuffer : public tTJSNativeInstance {
 public:
     tTJSNI_BaseSoundBuffer();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
 
     void TJS_INTF_METHOD Invalidate();
 
 protected:
-    iTJSDispatch2 *Owner;           // owner object
+    iTJSDispatch2 *Owner; // owner object
     tTJSVariantClosure ActionOwner; // object to send action
-    tTVPSoundStatus Status;         // status
+    tTVPSoundStatus Status; // status
 
     // volume functions ( implement this in child classes )
     // tTJSNI_BaseSoundBuffer/tTJSNI_SoundBuffer manage this when fading the
@@ -79,9 +78,9 @@ protected:
 private:
     bool InFading;
     tjs_int TargetVolume; // distination volume
-    tjs_int DeltaVolume;  // delta volume for each interval
-    tjs_int FadeCount;    // beat count over fading
-    tjs_int BlankLeft;    // blank time until fading
+    tjs_int DeltaVolume; // delta volume for each interval
+    tjs_int FadeCount; // beat count over fading
+    tjs_int BlankLeft; // blank time until fading
 
 public:
     void Fade(tjs_int to, tjs_int time, tjs_int blanktime);

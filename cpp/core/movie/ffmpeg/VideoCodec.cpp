@@ -1,10 +1,9 @@
 #include "VideoCodec.h"
 
 NS_KRMOVIE_BEGIN
-bool CDVDVideoCodec::IsSettingVisible(const std::string &condition,
-                                      const std::string &value,
-                                      const CSetting *setting, void *data) {
-    if (setting == nullptr || value.empty())
+bool CDVDVideoCodec::IsSettingVisible(const std::string &condition, const std::string &value, const CSetting *setting,
+                                      void *data) {
+    if(setting == nullptr || value.empty())
         return false;
 #if 0
         const std::string &settingId = setting->GetId();
@@ -40,10 +39,9 @@ bool CDVDVideoCodec::IsSettingVisible(const std::string &condition,
     return true;
 }
 
-bool CDVDVideoCodec::IsCodecDisabled(
-    const std::map<AVCodecID, std::string> &map, AVCodecID id) {
+bool CDVDVideoCodec::IsCodecDisabled(const std::map<AVCodecID, std::string> &map, AVCodecID id) {
     auto codec = map.find(id);
-    if (codec != map.end()) {
+    if(codec != map.end()) {
         return false;
         //     return (!CSettings::GetInstance().GetBool(codec->second) ||
         //             !CDVDVideoCodec::IsSettingVisible("unused", "unused",

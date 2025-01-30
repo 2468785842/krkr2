@@ -15,15 +15,15 @@
 
 namespace TJS {
 
-//---------------------------------------------------------------------------
-class tTJSNC_Math : public tTJSNativeClass {
-public:
-    tTJSNC_Math();
+    //---------------------------------------------------------------------------
+    class tTJSNC_Math : public tTJSNativeClass {
+    public:
+        tTJSNC_Math();
 
-private:
-    static tjs_uint32 ClassID;
-};
-//---------------------------------------------------------------------------
+    private:
+        static tjs_uint32 ClassID;
+    };
+    //---------------------------------------------------------------------------
 } // namespace TJS
 
 #endif

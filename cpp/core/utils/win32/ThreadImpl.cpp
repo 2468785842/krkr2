@@ -39,10 +39,10 @@ tTVPThread::tTVPThread(bool suspended) {
     Suspended = suspended;
 
     pthread_attr_t attr;
-    if (pthread_attr_init(&attr) != 0) {
+    if(pthread_attr_init(&attr) != 0) {
         TVPThrowInternalError;
     }
-    if (pthread_create(&Handle, &attr, StartProc, this) != 0) {
+    if(pthread_create(&Handle, &attr, StartProc, this) != 0) {
         pthread_attr_destroy(&attr);
         TVPThrowInternalError;
     }
@@ -57,7 +57,7 @@ tTVPThread::~tTVPThread() {
 //---------------------------------------------------------------------------
 void *tTVPThread::StartProc(void *arg) {
     tTVPThread *_this = ((tTVPThread *)arg);
-    if (_this->Suspended) {
+    if(_this->Suspended) {
         std::unique_lock<std::mutex> lk(_this->_mutex);
         _this->_cond.wait(lk);
     }
@@ -74,27 +74,27 @@ void tTVPThread::WaitFor() {
 
 //---------------------------------------------------------------------------
 tTVPThreadPriority tTVPThread::GetPriority() {
-    sched_param npri = {0};
+    sched_param npri = { 0 };
     int policy = 0;
     pthread_getschedparam(Handle, &policy, &npri);
 
-    switch (policy) {
-    case 5 /*SCHED_IDLE*/:
-        return ttpIdle;
-    case 3 /*SCHED_BATCH*/:
-        return (npri.sched_priority == 0) ? ttpLowest : ttpLower;
-    case 0 /*SCHED_NORMAL*/:
-        switch (npri.sched_priority) {
-        case 0:
-            return ttpNormal;
-        case 1:
-            return ttpHigher;
-        case 2:
-            return ttpHighest;
-        }
-        break;
-    case 2 /*SCHED_RR*/:
-        return ttpTimeCritical;
+    switch(policy) {
+        case 5 /*SCHED_IDLE*/:
+            return ttpIdle;
+        case 3 /*SCHED_BATCH*/:
+            return (npri.sched_priority == 0) ? ttpLowest : ttpLower;
+        case 0 /*SCHED_NORMAL*/:
+            switch(npri.sched_priority) {
+                case 0:
+                    return ttpNormal;
+                case 1:
+                    return ttpHigher;
+                case 2:
+                    return ttpHighest;
+            }
+            break;
+        case 2 /*SCHED_RR*/:
+            return ttpTimeCritical;
     }
 
     return ttpNormal;
@@ -102,34 +102,34 @@ tTVPThreadPriority tTVPThread::GetPriority() {
 
 //---------------------------------------------------------------------------
 void tTVPThread::SetPriority(tTVPThreadPriority pri) {
-    sched_param npri = {0}; // SCHED_NORMAL
+    sched_param npri = { 0 }; // SCHED_NORMAL
     int policy = 0;
-    switch (pri) {
-    case ttpIdle:
-        policy = 5 /*SCHED_IDLE*/;
-        break;
-    case ttpLowest:
-        policy = 3 /*SCHED_BATCH*/;
-        npri.sched_priority = 0;
-        break;
-    case ttpLower:
-        policy = 3 /*SCHED_BATCH*/;
-        npri.sched_priority = 1;
-        break;
-    case ttpNormal:
-        policy = 0 /*SCHED_NORMAL*/;
-        break;
-    case ttpHigher:
-        policy = 0 /*SCHED_NORMAL*/;
-        npri.sched_priority = 1;
-        break;
-    case ttpHighest:
-        policy = 0 /*SCHED_NORMAL*/;
-        npri.sched_priority = 2;
-        break;
-    case ttpTimeCritical:
-        policy = 2 /*SCHED_RR*/;
-        break;
+    switch(pri) {
+        case ttpIdle:
+            policy = 5 /*SCHED_IDLE*/;
+            break;
+        case ttpLowest:
+            policy = 3 /*SCHED_BATCH*/;
+            npri.sched_priority = 0;
+            break;
+        case ttpLower:
+            policy = 3 /*SCHED_BATCH*/;
+            npri.sched_priority = 1;
+            break;
+        case ttpNormal:
+            policy = 0 /*SCHED_NORMAL*/;
+            break;
+        case ttpHigher:
+            policy = 0 /*SCHED_NORMAL*/;
+            npri.sched_priority = 1;
+            break;
+        case ttpHighest:
+            policy = 0 /*SCHED_NORMAL*/;
+            npri.sched_priority = 2;
+            break;
+        case ttpTimeCritical:
+            policy = 2 /*SCHED_RR*/;
+            break;
     }
     pthread_setschedparam(Handle, policy, &npri);
 }
@@ -162,7 +162,7 @@ void tTVPThreadEvent::WaitFor(tjs_uint timeout) {
     // false.
 
     std::unique_lock<std::mutex> lk(Mutex);
-    if (timeout != 0) {
+    if(timeout != 0) {
         Handle.wait_for(lk, std::chrono::milliseconds(timeout));
     } else {
         Handle.wait(lk);
@@ -185,11 +185,10 @@ static tjs_int TVPThreadTaskNum, TVPThreadTaskCount;
 //---------------------------------------------------------------------------
 static tjs_int GetProcesserNum() {
     static tjs_int processor_num = 0;
-    if (!processor_num) {
+    if(!processor_num) {
         processor_num = std::thread::hardware_concurrency();
         tjs_char tmp[34];
-        TVPAddLog(ttstr(TJS_W("Detected CPU core(s): ")) +
-                  TJS_tTVInt_to_str(processor_num, tmp));
+        TVPAddLog(ttstr(TJS_W("Detected CPU core(s): ")) + TJS_tTVInt_to_str(processor_num, tmp));
     }
     return processor_num;
 }
@@ -205,21 +204,21 @@ tjs_int TVPGetThreadNum() {
 
 //---------------------------------------------------------------------------
 void TVPExecThreadTask(int numThreads, TVP_THREAD_TASK_FUNC func) {
-    if (numThreads == 1) {
+    if(numThreads == 1) {
         func(0);
         return;
     }
 #if !defined(USING_THREADPOOL11)
 #pragma omp parallel for schedule(static)
-    for (int i = 0; i < numThreads; ++i)
+    for(int i = 0; i < numThreads; ++i)
         func(i);
 #else
     static threadpool11::Pool pool;
     std::vector<std::future<void>> futures;
-    for (int i = 0; i < numThreads; ++i) {
+    for(int i = 0; i < numThreads; ++i) {
         futures.emplace_back(pool.postWork<void>(std::bind(func, i)));
     }
-    for (auto &it : futures)
+    for(auto &it : futures)
         it.get();
 #endif
 #if 0
@@ -237,11 +236,9 @@ void TVPExecThreadTask(int numThreads, TVP_THREAD_TASK_FUNC func) {
 std::vector<std::function<void()>> _OnThreadExitedEvents;
 
 void TVPOnThreadExited() {
-    for (const auto &ev : _OnThreadExitedEvents) {
+    for(const auto &ev : _OnThreadExitedEvents) {
         ev();
     }
 }
 
-void TVPAddOnThreadExitEvent(const std::function<void()> &ev) {
-    _OnThreadExitedEvents.emplace_back(ev);
-}
+void TVPAddOnThreadExitEvent(const std::function<void()> &ev) { _OnThreadExitedEvents.emplace_back(ev); }

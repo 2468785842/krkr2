@@ -38,7 +38,7 @@ public:
     }
     ~ImeControl() {}
     bool IsOpen() {
-        if (hOldImc_ != INVALID_HANDLE_VALUE)
+        if(hOldImc_ != INVALID_HANDLE_VALUE)
             return false;
 
         HIMC hImc = ::ImmGetContext(hWnd_);
@@ -65,13 +65,13 @@ public:
     // ImmSetStatusWindowPos 関数を呼び出すと、アプリケーションに
     // IMN_SETSTATUSWINDOWPOS メッセージが送信されます。
     void SetStatusPosition(int x, int y) {
-        POINT pt = {x, y};
+        POINT pt = { x, y };
         HIMC hImc = ::ImmGetContext(hWnd_);
         ::ImmSetStatusWindowPos(hImc, &pt);
         ::ImmReleaseContext(hWnd_, hImc);
     }
     void GetStatusPosition(int &x, int &y) {
-        POINT pt = {0, 0};
+        POINT pt = { 0, 0 };
         HIMC hImc = ::ImmGetContext(hWnd_);
         ::ImmGetStatusWindowPos(hImc, &pt);
         ::ImmReleaseContext(hWnd_, hImc);
@@ -79,7 +79,7 @@ public:
         y = pt.y;
     }
     void Reset() {
-        if (mode_ == ModeDisable) {
+        if(mode_ == ModeDisable) {
             Open();
         }
     }
@@ -87,12 +87,12 @@ public:
      このスレッドのIMEを無効にする
      */
     void Disable() {
-        if (hOldImc_ == INVALID_HANDLE_VALUE) {
+        if(hOldImc_ == INVALID_HANDLE_VALUE) {
             hOldImc_ = ::ImmAssociateContext(hWnd_, 0);
         }
     }
     void Enable() {
-        if (hOldImc_ != INVALID_HANDLE_VALUE) {
+        if(hOldImc_ != INVALID_HANDLE_VALUE) {
             ::ImmAssociateContext(hWnd_, hOldImc_);
             hOldImc_ = INVALID_HANDLE_VALUE;
         }
@@ -100,7 +100,7 @@ public:
     // この関数を呼び出すと、アプリケーションに IMN_SETCOMPOSITIONFONT
     // メッセージが送信されます。
     void SetCompositionFont(tTVPSysFont *font) {
-        LOGFONT logfont = {0};
+        LOGFONT logfont = { 0 };
         font->GetFont(&logfont);
         HIMC hImc = ::ImmGetContext(hWnd_);
         ::ImmSetCompositionFont(hImc, &logfont);
@@ -116,7 +116,7 @@ public:
         ::ImmReleaseContext(hWnd_, hImc);
     }
     void GetCompositionWindow(int &x, int &y) {
-        COMPOSITIONFORM pos = {0};
+        COMPOSITIONFORM pos = { 0 };
         pos.dwStyle = CFS_POINT;
         HIMC hImc = ::ImmGetContext(hWnd_);
         ::ImmGetCompositionWindow(hImc, &pos);
@@ -181,60 +181,52 @@ public:
         HIMC hImc = ::ImmGetContext(hWnd_);
         DWORD conversion, sentence;
         ::ImmGetConversionStatus(hImc, &conversion, &sentence);
-        switch (mode) {
-        case ModeDisable:
-            if (hOldImc_ == INVALID_HANDLE_VALUE) {
-                hOldImc_ = ::ImmAssociateContext(hWnd_, 0);
-            }
-            break;
-        case ModeClose:
-            ::ImmSetOpenStatus(hImc, FALSE);
-            break;
-        case ModeOpen:
-            ::ImmSetOpenStatus(hImc, TRUE);
-            break;
-        case ModeDontCare:
-            break;
-        case ModeSAlpha:
-            ::ImmSetOpenStatus(hImc, TRUE);
-            ::ImmSetConversionStatus(hImc, IME_CMODE_ALPHANUMERIC, sentence);
-            break;
-        case ModeAlpha:
-            ::ImmSetOpenStatus(hImc, TRUE);
-            ::ImmSetConversionStatus(
-                hImc, IME_CMODE_ALPHANUMERIC | IME_CMODE_FULLSHAPE, sentence);
-            break;
-        case ModeHira:
-            ::ImmSetOpenStatus(hImc, TRUE);
-            ::ImmSetConversionStatus(
-                hImc, IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE, sentence);
-            break;
-        case ModeSKata:
-            ::ImmSetOpenStatus(hImc, TRUE);
-            ::ImmSetConversionStatus(
-                hImc, IME_CMODE_NATIVE | IME_CMODE_KATAKANA, sentence);
-            break;
-        case ModeKata:
-            ::ImmSetOpenStatus(hImc, TRUE);
-            ::ImmSetConversionStatus(hImc,
-                                     IME_CMODE_NATIVE | IME_CMODE_KATAKANA |
-                                         IME_CMODE_FULLSHAPE,
-                                     sentence);
-            break;
-        case ModeChinese:
-            ::ImmSetOpenStatus(hImc, TRUE);
-            ::ImmSetConversionStatus(
-                hImc, IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE, sentence);
-            break;
-        case ModeSHanguel:
-            ::ImmSetOpenStatus(hImc, TRUE);
-            ::ImmSetConversionStatus(hImc, IME_CMODE_NATIVE, sentence);
-            break;
-        case ModeHanguel:
-            ::ImmSetOpenStatus(hImc, TRUE);
-            ::ImmSetConversionStatus(
-                hImc, IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE, sentence);
-            break;
+        switch(mode) {
+            case ModeDisable:
+                if(hOldImc_ == INVALID_HANDLE_VALUE) {
+                    hOldImc_ = ::ImmAssociateContext(hWnd_, 0);
+                }
+                break;
+            case ModeClose:
+                ::ImmSetOpenStatus(hImc, FALSE);
+                break;
+            case ModeOpen:
+                ::ImmSetOpenStatus(hImc, TRUE);
+                break;
+            case ModeDontCare:
+                break;
+            case ModeSAlpha:
+                ::ImmSetOpenStatus(hImc, TRUE);
+                ::ImmSetConversionStatus(hImc, IME_CMODE_ALPHANUMERIC, sentence);
+                break;
+            case ModeAlpha:
+                ::ImmSetOpenStatus(hImc, TRUE);
+                ::ImmSetConversionStatus(hImc, IME_CMODE_ALPHANUMERIC | IME_CMODE_FULLSHAPE, sentence);
+                break;
+            case ModeHira:
+                ::ImmSetOpenStatus(hImc, TRUE);
+                ::ImmSetConversionStatus(hImc, IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE, sentence);
+                break;
+            case ModeSKata:
+                ::ImmSetOpenStatus(hImc, TRUE);
+                ::ImmSetConversionStatus(hImc, IME_CMODE_NATIVE | IME_CMODE_KATAKANA, sentence);
+                break;
+            case ModeKata:
+                ::ImmSetOpenStatus(hImc, TRUE);
+                ::ImmSetConversionStatus(hImc, IME_CMODE_NATIVE | IME_CMODE_KATAKANA | IME_CMODE_FULLSHAPE, sentence);
+                break;
+            case ModeChinese:
+                ::ImmSetOpenStatus(hImc, TRUE);
+                ::ImmSetConversionStatus(hImc, IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE, sentence);
+                break;
+            case ModeSHanguel:
+                ::ImmSetOpenStatus(hImc, TRUE);
+                ::ImmSetConversionStatus(hImc, IME_CMODE_NATIVE, sentence);
+                break;
+            case ModeHanguel:
+                ::ImmSetOpenStatus(hImc, TRUE);
+                ::ImmSetConversionStatus(hImc, IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE, sentence);
+                break;
         }
         ::ImmReleaseContext(hWnd_, hImc);
     }

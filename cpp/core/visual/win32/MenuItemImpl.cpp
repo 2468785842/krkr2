@@ -22,12 +22,11 @@
 
 static std::map<tTVInteger, iTJSDispatch2 *> MENU_LIST;
 static void AddMenuDispatch(tTVInteger hWnd, iTJSDispatch2 *menu) {
-    MENU_LIST.insert(
-        std::map<tTVInteger, iTJSDispatch2 *>::value_type(hWnd, menu));
+    MENU_LIST.insert(std::map<tTVInteger, iTJSDispatch2 *>::value_type(hWnd, menu));
 }
 iTJSDispatch2 *TVPGetMenuDispatch(tTVInteger hWnd) {
     std::map<tTVInteger, iTJSDispatch2 *>::iterator i = MENU_LIST.find(hWnd);
-    if (i != MENU_LIST.end()) {
+    if(i != MENU_LIST.end()) {
         return i->second;
     }
     return nullptr;
@@ -35,8 +34,8 @@ iTJSDispatch2 *TVPGetMenuDispatch(tTVInteger hWnd) {
 static void DelMenuDispatch(tTVInteger hWnd) { MENU_LIST.erase(hWnd); }
 static bool _IsWindow(tTVInteger hWnd) {
     tjs_int count = TVPGetWindowCount();
-    for (tjs_int i = 0; i < count; ++i) {
-        if (TVPGetWindowListAt(i) == (tTJSNI_Window *)(hWnd))
+    for(tjs_int i = 0; i < count; ++i) {
+        if(TVPGetWindowListAt(i) == (tTJSNI_Window *)(hWnd))
             return true;
     }
     return false;
@@ -44,10 +43,10 @@ static bool _IsWindow(tTVInteger hWnd) {
 
 static void UpdateMenuList() {
     std::map<tTVInteger, iTJSDispatch2 *>::iterator i = MENU_LIST.begin();
-    for (; i != MENU_LIST.end();) {
+    for(; i != MENU_LIST.end();) {
         tTVInteger hWnd = i->first;
         bool exist = _IsWindow(hWnd);
-        if (exist == false) {
+        if(exist == false) {
             // �Ȥˤʤ��ʤä�Window
             std::map<tTVInteger, iTJSDispatch2 *>::iterator target = i;
             i++;
@@ -61,17 +60,15 @@ static void UpdateMenuList() {
     }
 }
 
-tjs_error TJS_INTF_METHOD WindowMenuProperty::PropGet(
-    tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-    tTJSVariant *result, iTJSDispatch2 *objthis) {
+tjs_error TJS_INTF_METHOD WindowMenuProperty::PropGet(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
+                                                      tTJSVariant *result, iTJSDispatch2 *objthis) {
     tTJSVariant var;
-    if (TJS_FAILED(
-            objthis->PropGet(0, TJS_W("HWND"), nullptr, &var, objthis))) {
+    if(TJS_FAILED(objthis->PropGet(0, TJS_W("HWND"), nullptr, &var, objthis))) {
         return TJS_E_INVALIDOBJECT;
     }
     tTVInteger hWnd = var.AsInteger();
     iTJSDispatch2 *menu = TVPGetMenuDispatch(hWnd);
-    if (menu == nullptr) {
+    if(menu == nullptr) {
         UpdateMenuList();
         menu = TVPCreateMenuItemObject(objthis);
         AddMenuDispatch(hWnd, menu);
@@ -80,9 +77,8 @@ tjs_error TJS_INTF_METHOD WindowMenuProperty::PropGet(
     return TJS_S_OK;
 }
 
-tjs_error TJS_INTF_METHOD WindowMenuProperty::PropSet(
-    tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-    const tTJSVariant *param, iTJSDispatch2 *objthis) {
+tjs_error TJS_INTF_METHOD WindowMenuProperty::PropSet(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
+                                                      const tTJSVariant *param, iTJSDispatch2 *objthis) {
     return TJS_E_ACCESSDENYED;
 }
 
@@ -98,13 +94,11 @@ tTJSNI_MenuItem::tTJSNI_MenuItem() {
     GroupIndex = 0;
 }
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_MenuItem::Construct(tjs_int numparams,
-                                                     tTJSVariant **param,
-                                                     iTJSDispatch2 *tjs_obj) {
+tjs_error TJS_INTF_METHOD tTJSNI_MenuItem::Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj) {
     inherited::Construct(numparams, param, tjs_obj);
 
     // create or attach MenuItem object
-    if (Window) {
+    if(Window) {
         // MenuItem = Window->GetRootMenuItem();
         IsAttched = true;
     } else {
@@ -115,7 +109,7 @@ tjs_error TJS_INTF_METHOD tTJSNI_MenuItem::Construct(tjs_int numparams,
     }
 
     // fetch initial caption
-    if (!Window && numparams >= 2) {
+    if(!Window && numparams >= 2) {
         Caption = *param[1];
         // MenuItem->setCaption (Caption);
     }
@@ -143,8 +137,8 @@ bool tTJSNI_MenuItem::CanDeliverEvents() const {
     bool enabled = true;
 
     const tTJSNI_MenuItem *item = this;
-    while (item) {
-        if (!item->GetEnabled()) {
+    while(item) {
+        if(!item->GetEnabled()) {
             enabled = false;
             break;
         }
@@ -165,9 +159,9 @@ void tTJSNI_MenuItem::Insert(tTJSNI_MenuItem *item, tjs_int index) {
     // 	if(MenuItem && item->MenuItem)
     // 	{
     // 		MenuItem->Insert(index, item->MenuItem);
-    if (Children.Add(item, index)) {
+    if(Children.Add(item, index)) {
         ChildrenArrayValid = false;
-        if (item->Owner)
+        if(item->Owner)
             item->Owner->AddRef();
         item->Parent = this;
     }
@@ -192,12 +186,12 @@ void *tTJSNI_MenuItem::GetMenuItemHandleForPlugin() const {
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_MenuItem::GetIndex() const {
-    if (!Parent)
+    if(!Parent)
         return 0;
     // if(!MenuItem) return 0;
     // return MenuItem->getMenuIndex();
     tjs_int idx = Parent->Children.Find((tTJSNI_BaseMenuItem *)this);
-    if (idx < 0)
+    if(idx < 0)
         idx = 0;
     return idx;
 }
@@ -222,10 +216,10 @@ void tTJSNI_MenuItem::GetCaption(ttstr &caption) const {
 void tTJSNI_MenuItem::SetChecked(bool b) {
     // if(!MenuItem) return;
     // MenuItem->setChecked (b);
-    if (b && IsRadio && Parent) {
-        for (tTJSNI_BaseMenuItem *_item : Parent->Children) {
+    if(b && IsRadio && Parent) {
+        for(tTJSNI_BaseMenuItem *_item : Parent->Children) {
             tTJSNI_MenuItem *item = static_cast<tTJSNI_MenuItem *>(_item);
-            if (item->IsRadio && item->GroupIndex == GroupIndex)
+            if(item->IsRadio && item->GroupIndex == GroupIndex)
                 item->IsChecked = false;
         }
     }
@@ -300,8 +294,7 @@ bool tTJSNI_MenuItem::GetVisible() const {
 void TVPShowPopMenu(tTJSNI_MenuItem *menu);
 
 //---------------------------------------------------------------------------
-tjs_int tTJSNI_MenuItem::TrackPopup(tjs_uint32 flags, tjs_int x,
-                                    tjs_int y) const {
+tjs_int tTJSNI_MenuItem::TrackPopup(tjs_uint32 flags, tjs_int x, tjs_int y) const {
     // if (!MenuItem) return 0;
     //  TODO
     TVPShowPopMenu((tTJSNI_MenuItem *)this);
@@ -344,21 +337,19 @@ static bool SetShortCutKeyCode(ttstr text, int key, bool force) {
     tTJSVariant vkey(key);
 
     text.ToLowerCase();
-    if (TJS_FAILED(textToKeycodeMap->PropSet(TJS_MEMBERENSURE, text.c_str(),
-                                             nullptr, &vkey, textToKeycodeMap)))
+    if(TJS_FAILED(textToKeycodeMap->PropSet(TJS_MEMBERENSURE, text.c_str(), nullptr, &vkey, textToKeycodeMap)))
         return false;
     tTJSVariant var;
     keycodeToTextList->PropGetByNum(0, key, &var, keycodeToTextList);
-    if (var.Type() == tvtString)
+    if(var.Type() == tvtString)
         return true;
-    return TJS_SUCCEEDED(keycodeToTextList->PropSetByNum(
-        TJS_MEMBERENSURE, key, &vtext, keycodeToTextList));
+    return TJS_SUCCEEDED(keycodeToTextList->PropSetByNum(TJS_MEMBERENSURE, key, &vtext, keycodeToTextList));
 }
 
 void CreateShortCutKeyCodeTable() {
     textToKeycodeMap = TJSCreateDictionaryObject();
     keycodeToTextList = TJSCreateArrayObject();
-    if (textToKeycodeMap == nullptr || keycodeToTextList == nullptr)
+    if(textToKeycodeMap == nullptr || keycodeToTextList == nullptr)
         return;
 #if 0
     tjs_char tempKeyText[32];
@@ -387,9 +378,7 @@ void CreateShortCutKeyCodeTable() {
 //---------------------------------------------------------------------------
 // tTJSNC_MenuItem::CreateNativeInstance
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_MenuItem::CreateNativeInstance() {
-    return new tTJSNI_MenuItem();
-}
+tTJSNativeInstance *tTJSNC_MenuItem::CreateNativeInstance() { return new tTJSNI_MenuItem(); }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -401,10 +390,9 @@ tTJSNativeClass *TVPCreateNativeClass_MenuItem() {
     TJS_NCM_CLASSID = tTJSNC_MenuItem::ClassID;
 
     //---------------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(HMENU){
-        TJS_BEGIN_NATIVE_PROP_GETTER{TJS_GET_NATIVE_INSTANCE(
-            /*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
-    if (result)
+    TJS_BEGIN_NATIVE_PROP_DECL(HMENU){ TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    if(result)
         *result = (tTVInteger)(void *)_this->GetMenuItemHandleForPlugin();
     return TJS_S_OK;
 }
@@ -414,8 +402,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL_OUTER(cls, HMENU)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(textToKeycode){TJS_BEGIN_NATIVE_PROP_GETTER{
-    if (result) *result = tTJSVariant(textToKeycodeMap, textToKeycodeMap);
+TJS_BEGIN_NATIVE_PROP_DECL(textToKeycode){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ if(result) *result = tTJSVariant(textToKeycodeMap, textToKeycodeMap);
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -424,8 +412,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, textToKeycode)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(keycodeToText){TJS_BEGIN_NATIVE_PROP_GETTER{
-    if (result) *result = tTJSVariant(keycodeToTextList, keycodeToTextList);
+TJS_BEGIN_NATIVE_PROP_DECL(keycodeToText){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ if(result) *result = tTJSVariant(keycodeToTextList, keycodeToTextList);
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER

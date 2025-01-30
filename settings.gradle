@@ -15,6 +15,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = 'krkr2'
+
+include ':sdl'
+project(':sdl').projectDir = file('android/libsdl')
 include ':cocos2dx'
 project(':cocos2dx').projectDir = file('android/libcocos2dx')
 include ':app'

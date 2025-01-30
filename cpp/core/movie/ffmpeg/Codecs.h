@@ -2,7 +2,7 @@
 
 #include "KRMovieDef.h"
 
-#if (defined HAVE_CONFIG_H) && (!defined TARGET_WINDOWS)
+#if(defined HAVE_CONFIG_H) && (!defined TARGET_WINDOWS)
 #include "config.h"
 #endif
 
@@ -17,8 +17,7 @@ NS_KRMOVIE_BEGIN
 // special options that can be passed to a codec
 class CDVDCodecOption {
 public:
-    CDVDCodecOption(const std::string &name, const std::string &value)
-        : m_name(name), m_value(value) {}
+    CDVDCodecOption(const std::string &name, const std::string &value) : m_name(name), m_value(value) {}
 
     std::string m_name;
     std::string m_value;

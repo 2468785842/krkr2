@@ -3,6 +3,5 @@
 
 class IndividualPreferenceForm : public TVPPreferenceForm {
 public:
-    static IndividualPreferenceForm *
-    create(const tPreferenceScreen *config = nullptr);
+    static IndividualPreferenceForm *create(const tPreferenceScreen *config = nullptr);
 };

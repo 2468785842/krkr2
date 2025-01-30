@@ -10,54 +10,52 @@ namespace TJS {
 
 #define TJS_MT_N 624
 
-struct tTJSMersenneTwisterData {
-    int left;
-    unsigned long *next;           /* points a value in 'state' */
-    unsigned long state[TJS_MT_N]; /* the array for the state vector  */
-};
+    struct tTJSMersenneTwisterData {
+        int left;
+        unsigned long *next; /* points a value in 'state' */
+        unsigned long state[TJS_MT_N]; /* the array for the state vector  */
+    };
 
-class tTJSMersenneTwister : protected tTJSMersenneTwisterData {
+    class tTJSMersenneTwister : protected tTJSMersenneTwisterData {
 
-public:
-    tTJSMersenneTwister(unsigned long s = 5489UL);
+    public:
+        tTJSMersenneTwister(unsigned long s = 5489UL);
 
-    /* initializes state[N] with a seed */
-    tTJSMersenneTwister(unsigned long init_key[], unsigned long key_length);
-    /* initialize by an array with array-length */
-    /* init_key is the array for initializing keys */
-    /* key_length is its length */
-    tTJSMersenneTwister(const tTJSMersenneTwisterData &data);
+        /* initializes state[N] with a seed */
+        tTJSMersenneTwister(unsigned long init_key[], unsigned long key_length);
+        /* initialize by an array with array-length */
+        /* init_key is the array for initializing keys */
+        /* key_length is its length */
+        tTJSMersenneTwister(const tTJSMersenneTwisterData &data);
 
-    /* construct tTJSMersenneTwisterData data */
+        /* construct tTJSMersenneTwisterData data */
 
-    virtual ~tTJSMersenneTwister() { ; }
+        virtual ~tTJSMersenneTwister() { ; }
 
-    static tTJSMersenneTwister &sharedInstance();
+        static tTJSMersenneTwister &sharedInstance();
 
-private:
-    void init_genrand(unsigned long s);
+    private:
+        void init_genrand(unsigned long s);
 
-    void next_state();
+        void next_state();
 
-public:
-    unsigned long
-    int32();        /* generates a random number on [0,0xffffffff]-interval */
-    long int31();   /* generates a random number on [0,0x7fffffff]-interval */
-    double real1(); /* generates a random number on [0,1]-real-interval */
-    double real2(); /* generates a random number on [0,1)-real-interval */
-    double real3(); /* generates a random number on (0,1)-real-interval */
-    double
-    res53(); /* generates a random number on [0,1) with 53-bit resolution*/
+    public:
+        unsigned long int32(); /* generates a random number on [0,0xffffffff]-interval */
+        long int31(); /* generates a random number on [0,0x7fffffff]-interval */
+        double real1(); /* generates a random number on [0,1]-real-interval */
+        double real2(); /* generates a random number on [0,1)-real-interval */
+        double real3(); /* generates a random number on (0,1)-real-interval */
+        double res53(); /* generates a random number on [0,1) with 53-bit resolution*/
 
-    double rand_double(); /* generates a random number on [0,1) with IEEE
-                                 64-bit double precision */
+        double rand_double(); /* generates a random number on [0,1) with IEEE
+                                     64-bit double precision */
 
-    const tTJSMersenneTwisterData &GetData() const { return *this; }
+        const tTJSMersenneTwisterData &GetData() const { return *this; }
 
-    /* retrieve data */
-    void SetData(const tTJSMersenneTwisterData &rhs);
-    /* set data */
-};
+        /* retrieve data */
+        void SetData(const tTJSMersenneTwisterData &rhs);
+        /* set data */
+    };
 
 } // namespace TJS
 

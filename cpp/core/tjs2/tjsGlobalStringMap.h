@@ -14,15 +14,15 @@
 #include "tjsString.h"
 
 namespace TJS {
-//---------------------------------------------------------------------------
-// tTJSGlobalStringMap - hash map to keep constant strings shared
-//---------------------------------------------------------------------------
-extern void TJSAddRefGlobalStringMap();
+    //---------------------------------------------------------------------------
+    // tTJSGlobalStringMap - hash map to keep constant strings shared
+    //---------------------------------------------------------------------------
+    extern void TJSAddRefGlobalStringMap();
 
-extern void TJSReleaseGlobalStringMap();
+    extern void TJSReleaseGlobalStringMap();
 
-TJS_EXP_FUNC_DEF(ttstr, TJSMapGlobalStringMap, (const ttstr &string));
-//---------------------------------------------------------------------------
+    TJS_EXP_FUNC_DEF(ttstr, TJSMapGlobalStringMap, (const ttstr &string));
+    //---------------------------------------------------------------------------
 } // namespace TJS
 
 #endif

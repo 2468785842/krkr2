@@ -17,129 +17,129 @@
 using namespace std;
 
 namespace TJS {
-//---------------------------------------------------------------------------
-class iTJSDispatch;
+    //---------------------------------------------------------------------------
+    class iTJSDispatch;
 
-//---------------------------------------------------------------------------
-// tTJSLocalSymbolList
-//---------------------------------------------------------------------------
-struct tTJSLocalSymbol {
-    tjs_char *Name;
-};
+    //---------------------------------------------------------------------------
+    // tTJSLocalSymbolList
+    //---------------------------------------------------------------------------
+    struct tTJSLocalSymbol {
+        tjs_char *Name;
+    };
 
-//---------------------------------------------------------------------------
-class tTJSLocalSymbolList {
-    vector<tTJSLocalSymbol *> List;
-    tjs_int LocalCountStart;
-    tjs_int *StartWriteAddr;
-    tjs_int *CountWriteAddr;
+    //---------------------------------------------------------------------------
+    class tTJSLocalSymbolList {
+        vector<tTJSLocalSymbol *> List;
+        tjs_int LocalCountStart;
+        tjs_int *StartWriteAddr;
+        tjs_int *CountWriteAddr;
 
-public:
-    tTJSLocalSymbolList(tjs_int LocalCount);
+    public:
+        tTJSLocalSymbolList(tjs_int LocalCount);
 
-    ~tTJSLocalSymbolList();
+        ~tTJSLocalSymbolList();
 
-    void SetWriteAddr(tjs_int *StartWriteAddr, tjs_int *CountWriteAddr);
+        void SetWriteAddr(tjs_int *StartWriteAddr, tjs_int *CountWriteAddr);
 
-    void Add(const tjs_char *name);
+        void Add(const tjs_char *name);
 
-    tjs_int Find(const tjs_char *name);
+        tjs_int Find(const tjs_char *name);
 
-    void Remove(const tjs_char *name);
+        void Remove(const tjs_char *name);
 
-    tjs_int GetCount() const { return (tjs_int)List.size(); }
+        tjs_int GetCount() const { return (tjs_int)List.size(); }
 
-    // this count includes variable holder that is marked as un-used
-    tjs_int GetLocalCountStart() const { return LocalCountStart; }
+        // this count includes variable holder that is marked as un-used
+        tjs_int GetLocalCountStart() const { return LocalCountStart; }
 
-    tjs_int *GetStartWriteAddr() const { return StartWriteAddr; }
+        tjs_int *GetStartWriteAddr() const { return StartWriteAddr; }
 
-    tjs_int *GetCountWriteAddr() const { return CountWriteAddr; }
-};
+        tjs_int *GetCountWriteAddr() const { return CountWriteAddr; }
+    };
 
-//---------------------------------------------------------------------------
-// tTJSLocalNamespace
-//---------------------------------------------------------------------------
-class tTJSLocalNamespace {
-    vector<tTJSLocalSymbolList *> Levels;
-    tjs_int MaxCount;     // max count of local variables
-    tjs_int CurrentCount; // current local variable count
-    tjs_int *MaxCountWriteAddr;
+    //---------------------------------------------------------------------------
+    // tTJSLocalNamespace
+    //---------------------------------------------------------------------------
+    class tTJSLocalNamespace {
+        vector<tTJSLocalSymbolList *> Levels;
+        tjs_int MaxCount; // max count of local variables
+        tjs_int CurrentCount; // current local variable count
+        tjs_int *MaxCountWriteAddr;
 
-public:
-    tTJSLocalNamespace();
+    public:
+        tTJSLocalNamespace();
 
-    ~tTJSLocalNamespace();
+        ~tTJSLocalNamespace();
 
-    void SetMaxCountWriteAddr(tjs_int *MaxCountWriteAddr);
+        void SetMaxCountWriteAddr(tjs_int *MaxCountWriteAddr);
 
-    tjs_int GetCount();
+        tjs_int GetCount();
 
-    tjs_int GetMaxCount() const { return MaxCount; }
+        tjs_int GetMaxCount() const { return MaxCount; }
 
-    tjs_int Find(const tjs_char *name);
+        tjs_int Find(const tjs_char *name);
 
-    tjs_int GetLevel();
+        tjs_int GetLevel();
 
-    void Add(const tjs_char *name);
+        void Add(const tjs_char *name);
 
-    void Remove(const tjs_char *name);
+        void Remove(const tjs_char *name);
 
-    void Commit();
+        void Commit();
 
-    tTJSLocalSymbolList *GetTopSymbolList();
+        tTJSLocalSymbolList *GetTopSymbolList();
 
-    void Push();
+        void Push();
 
-    void Pop();
+        void Pop();
 
-    void Clear(); // all clear
-};
+        void Clear(); // all clear
+    };
 
-//---------------------------------------------------------------------------
-// tTJSLocalNamespaceAutoPushPop
-//---------------------------------------------------------------------------
-class tTJSLocalNamespaceAutoPushPop {
-    tTJSLocalNamespace *Space;
+    //---------------------------------------------------------------------------
+    // tTJSLocalNamespaceAutoPushPop
+    //---------------------------------------------------------------------------
+    class tTJSLocalNamespaceAutoPushPop {
+        tTJSLocalNamespace *Space;
 
-public:
-    tTJSLocalNamespaceAutoPushPop(tTJSLocalNamespace *space) {
-        Space = space;
-        Space->Push();
-    }
-
-    ~tTJSLocalNamespaceAutoPushPop() { Space->Pop(); }
-};
-
-//---------------------------------------------------------------------------
-// tTJSLocalNamespaceAutoClass
-//---------------------------------------------------------------------------
-class tTJSLocalNamespaceAutoClass {
-    // create namespace if necessary
-    tTJSLocalNamespace *Space;
-    bool SpaceCreated;
-
-public:
-    tTJSLocalNamespaceAutoClass(tTJSLocalNamespace *space) {
-        Space = space;
-        if (Space == nullptr) {
-            Space = new tTJSLocalNamespace;
-            SpaceCreated = true;
-        } else {
-            SpaceCreated = false;
+    public:
+        tTJSLocalNamespaceAutoPushPop(tTJSLocalNamespace *space) {
+            Space = space;
+            Space->Push();
         }
-        Space->Push();
-    }
 
-    ~tTJSLocalNamespaceAutoClass() {
-        Space->Pop();
-        if (SpaceCreated)
-            delete Space;
-    }
+        ~tTJSLocalNamespaceAutoPushPop() { Space->Pop(); }
+    };
 
-    tTJSLocalNamespace *GetNamespace() { return Space; }
-};
-//---------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
+    // tTJSLocalNamespaceAutoClass
+    //---------------------------------------------------------------------------
+    class tTJSLocalNamespaceAutoClass {
+        // create namespace if necessary
+        tTJSLocalNamespace *Space;
+        bool SpaceCreated;
+
+    public:
+        tTJSLocalNamespaceAutoClass(tTJSLocalNamespace *space) {
+            Space = space;
+            if(Space == nullptr) {
+                Space = new tTJSLocalNamespace;
+                SpaceCreated = true;
+            } else {
+                SpaceCreated = false;
+            }
+            Space->Push();
+        }
+
+        ~tTJSLocalNamespaceAutoClass() {
+            Space->Pop();
+            if(SpaceCreated)
+                delete Space;
+        }
+
+        tTJSLocalNamespace *GetNamespace() { return Space; }
+    };
+    //---------------------------------------------------------------------------
 
 } // namespace TJS
 #endif

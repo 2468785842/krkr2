@@ -9,14 +9,14 @@ public:
     virtual void Handle() = 0;
 };
 
-template <typename T> class TVPTimerEvent : public TVPTimerEventIntarface {
+template <typename T>
+class TVPTimerEvent : public TVPTimerEventIntarface {
     void (T::*handler_)();
 
     T *owner_;
 
 public:
-    TVPTimerEvent(T *owner, void (T::*Handler)())
-        : owner_(owner), handler_(Handler) {}
+    TVPTimerEvent(T *owner, void (T::*Handler)()) : owner_(owner), handler_(Handler) {}
 
     void Handle() { (owner_->*handler_)(); }
 };
@@ -31,7 +31,7 @@ class TVPTimer {
     void UpdateTimer();
 
     void FireEvent() {
-        if (event_) {
+        if(event_) {
             event_->Handle();
         }
     }
@@ -47,14 +47,14 @@ public:
 
     template <typename T>
     void SetOnTimerHandler(T *owner, void (T::*Handler)()) {
-        if (event_)
+        if(event_)
             delete event_;
         event_ = new TVPTimerEvent<T>(owner, Handler);
         UpdateTimer();
     }
 
     void SetInterval(int i) {
-        if (interval_ != i) {
+        if(interval_ != i) {
             interval_ = i;
             UpdateTimer();
         }
@@ -63,7 +63,7 @@ public:
     int GetInterval() const { return interval_; }
 
     void SetEnabled(bool b) {
-        if (enabled_ != b) {
+        if(enabled_ != b) {
             enabled_ = b;
             UpdateTimer();
         }

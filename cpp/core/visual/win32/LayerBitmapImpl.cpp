@@ -66,9 +66,8 @@ static bool TVPFontRasterizersInit = false;
 static tjs_int TVPCurrentFontRasterizers = FONT_RASTER_FREE_TYPE;
 // static tjs_int TVPCurrentFontRasterizers = FONT_RASTER_GDI;
 void TVPInializeFontRasterizers() {
-    if (TVPFontRasterizersInit == false) {
-        TVPFontRasterizers[FONT_RASTER_FREE_TYPE] =
-            new FreeTypeFontRasterizer();
+    if(TVPFontRasterizersInit == false) {
+        TVPFontRasterizers[FONT_RASTER_FREE_TYPE] = new FreeTypeFontRasterizer();
         //		TVPFontRasterizers[FONT_RASTER_GDI] = new
         // GDIFontRasterizer();
 
@@ -77,32 +76,28 @@ void TVPInializeFontRasterizers() {
     }
 }
 void TVPUninitializeFontRasterizers() {
-    for (tjs_int i = 0; i < FONT_RASTER_EOT; i++) {
-        if (TVPFontRasterizers[i]) {
+    for(tjs_int i = 0; i < FONT_RASTER_EOT; i++) {
+        if(TVPFontRasterizers[i]) {
             TVPFontRasterizers[i]->Release();
             TVPFontRasterizers[i] = nullptr;
         }
     }
-    if (TVPFontSystem) {
+    if(TVPFontSystem) {
         delete TVPFontSystem;
         TVPFontSystem = nullptr;
     }
 }
-static tTVPAtExit TVPUninitializeFontRaster(TVP_ATEXIT_PRI_RELEASE,
-                                            TVPUninitializeFontRasterizers);
+static tTVPAtExit TVPUninitializeFontRaster(TVP_ATEXIT_PRI_RELEASE, TVPUninitializeFontRasterizers);
 
 void TVPSetFontRasterizer(tjs_int index) {
-    if (TVPCurrentFontRasterizers != index && index >= 0 &&
-        index < FONT_RASTER_EOT) {
+    if(TVPCurrentFontRasterizers != index && index >= 0 && index < FONT_RASTER_EOT) {
         TVPCurrentFontRasterizers = index;
         TVPClearFontCache(); // ラスタライザが切り替わる時、キャッシュはクリアしてしまう
         TVPGlobalFontStateMagic++; // ApplyFont が走るようにする
     }
 }
 tjs_int TVPGetFontRasterizer() { return TVPCurrentFontRasterizers; }
-FontRasterizer *GetCurrentRasterizer() {
-    return TVPFontRasterizers[TVPCurrentFontRasterizers];
-}
+FontRasterizer *GetCurrentRasterizer() { return TVPFontRasterizers[TVPCurrentFontRasterizers]; }
 
 //---------------------------------------------------------------------------
 #define TVP_CH_MAX_CACHE_COUNT 1300
@@ -119,7 +114,7 @@ tTJSHashTable<ttstr, tTVPPrerenderedFont *> TVPPrerenderedFonts;
 // tTVPPrerenderedFontMap
 //---------------------------------------------------------------------------
 struct tTVPPrerenderedFontMap {
-    tTVPFont Font;               // mapped font
+    tTVPFont Font; // mapped font
     tTVPPrerenderedFont *Object; // prerendered font object
 };
 static std::vector<tTVPPrerenderedFontMap> TVPPrerenderedFontMapVector;
@@ -132,7 +127,7 @@ void TVPMapPrerenderedFont(const tTVPFont &font, const ttstr &storage) {
     tTVPPrerenderedFont *object;
 
     tTVPPrerenderedFont **found = TVPPrerenderedFonts.Find(fn);
-    if (!found) {
+    if(!found) {
         // not yet exist; create
         object = new tTVPPrerenderedFont(fn);
     } else {
@@ -143,9 +138,8 @@ void TVPMapPrerenderedFont(const tTVPFont &font, const ttstr &storage) {
 
     // search existing mapped font
     std::vector<tTVPPrerenderedFontMap>::iterator i;
-    for (i = TVPPrerenderedFontMapVector.begin();
-         i != TVPPrerenderedFontMapVector.end(); i++) {
-        if (i->Font == font) {
+    for(i = TVPPrerenderedFontMapVector.begin(); i != TVPPrerenderedFontMapVector.end(); i++) {
+        if(i->Font == font) {
             // found font
             // replace existing
             i->Object->Release();
@@ -153,7 +147,7 @@ void TVPMapPrerenderedFont(const tTVPFont &font, const ttstr &storage) {
             break;
         }
     }
-    if (i == TVPPrerenderedFontMapVector.end()) {
+    if(i == TVPPrerenderedFontMapVector.end()) {
         // not found
         tTVPPrerenderedFontMap map;
         map.Font = font;
@@ -169,9 +163,8 @@ void TVPMapPrerenderedFont(const tTVPFont &font, const ttstr &storage) {
 void TVPUnmapPrerenderedFont(const tTVPFont &font) {
     // unmap specified font
     std::vector<tTVPPrerenderedFontMap>::iterator i;
-    for (i = TVPPrerenderedFontMapVector.begin();
-         i != TVPPrerenderedFontMapVector.end(); i++) {
-        if (i->Font == font) {
+    for(i = TVPPrerenderedFontMapVector.begin(); i != TVPPrerenderedFontMapVector.end(); i++) {
+        if(i->Font == font) {
             // found font
             // replace existing
             i->Object->Release();
@@ -186,24 +179,20 @@ void TVPUnmapPrerenderedFont(const tTVPFont &font) {
 static void TVPUnmapAllPrerenderedFonts() {
     // unmap all prerendered fonts
     std::vector<tTVPPrerenderedFontMap>::iterator i;
-    for (i = TVPPrerenderedFontMapVector.begin();
-         i != TVPPrerenderedFontMapVector.end(); i++) {
+    for(i = TVPPrerenderedFontMapVector.begin(); i != TVPPrerenderedFontMapVector.end(); i++) {
         i->Object->Release();
     }
     TVPPrerenderedFontMapVector.clear();
     TVPGlobalFontStateMagic++; // increase magic number
 }
 //---------------------------------------------------------------------------
-static tTVPAtExit
-    TVPUnmapAllPrerenderedFontsAtExit(TVP_ATEXIT_PRI_PREPARE,
-                                      TVPUnmapAllPrerenderedFonts);
+static tTVPAtExit TVPUnmapAllPrerenderedFontsAtExit(TVP_ATEXIT_PRI_PREPARE, TVPUnmapAllPrerenderedFonts);
 //---------------------------------------------------------------------------
 static tTVPPrerenderedFont *TVPGetPrerenderedMappedFont(const tTVPFont &font) {
     // search mapped prerendered font
     std::vector<tTVPPrerenderedFontMap>::iterator i;
-    for (i = TVPPrerenderedFontMapVector.begin();
-         i != TVPPrerenderedFontMapVector.end(); i++) {
-        if (i->Font == font) {
+    for(i = TVPPrerenderedFontMapVector.begin(); i != TVPPrerenderedFontMapVector.end(); i++) {
+        if(i->Font == font) {
             // found font
             // replace existing
             i->Object->AddRef();
@@ -219,8 +208,7 @@ static tTVPPrerenderedFont *TVPGetPrerenderedMappedFont(const tTVPFont &font) {
 //---------------------------------------------------------------------------
 typedef tTJSRefHolder<tTVPCharacterData> tTVPCharacterDataHolder;
 
-typedef tTJSHashCache<tTVPFontAndCharacterData, tTVPCharacterDataHolder,
-                      tTVPFontHashFunc, TVP_CH_MAX_CACHE_HASH_SIZE>
+typedef tTJSHashCache<tTVPFontAndCharacterData, tTVPCharacterDataHolder, tTVPFontHashFunc, TVP_CH_MAX_CACHE_HASH_SIZE>
     tTVPFontCache;
 tTVPFontCache TVPFontCache(TVP_CH_MAX_CACHE_COUNT);
 //---------------------------------------------------------------------------
@@ -233,7 +221,7 @@ void TVPClearFontCache() { TVPFontCache.Clear(); }
 //---------------------------------------------------------------------------
 struct tTVPClearFontCacheCallback : public tTVPCompactEventCallbackIntf {
     virtual void TJS_INTF_METHOD OnCompact(tjs_int level) {
-        if (level >= TVP_COMPACT_LEVEL_MINIMIZE) {
+        if(level >= TVP_COMPACT_LEVEL_MINIMIZE) {
             // clear the font cache on application minimize
             TVPClearFontCache();
         }
@@ -241,15 +229,13 @@ struct tTVPClearFontCacheCallback : public tTVPCompactEventCallbackIntf {
 } static TVPClearFontCacheCallback;
 static bool TVPClearFontCacheCallbackInit = false;
 //---------------------------------------------------------------------------
-static tTVPCharacterData *TVPGetCharacter(const tTVPFontAndCharacterData &font,
-                                          tTVPNativeBaseBitmap *bmp,
-                                          tTVPPrerenderedFont *pfont,
-                                          tjs_int aofsx, tjs_int aofsy) {
+static tTVPCharacterData *TVPGetCharacter(const tTVPFontAndCharacterData &font, tTVPNativeBaseBitmap *bmp,
+                                          tTVPPrerenderedFont *pfont, tjs_int aofsx, tjs_int aofsy) {
     // returns specified character data.
     // draw a character if needed.
 
     // compact interface initialization
-    if (!TVPClearFontCacheCallbackInit) {
+    if(!TVPClearFontCacheCallbackInit) {
         TVPAddCompactEventHook(&TVPClearFontCacheCallback);
         TVPClearFontCacheCallbackInit = true;
     }
@@ -257,9 +243,8 @@ static tTVPCharacterData *TVPGetCharacter(const tTVPFontAndCharacterData &font,
     // make hash and search over cache
     tjs_uint32 hash = tTVPFontCache::MakeHash(font);
 
-    tTVPCharacterDataHolder *ptr =
-        TVPFontCache.FindAndTouchWithHash(font, hash);
-    if (ptr) {
+    tTVPCharacterDataHolder *ptr = TVPFontCache.FindAndTouchWithHash(font, hash);
+    if(ptr) {
         // found in the cache
         return ptr->GetObject();
     }
@@ -268,10 +253,10 @@ static tTVPCharacterData *TVPGetCharacter(const tTVPFontAndCharacterData &font,
 
     // look prerendered font
     const tTVPPrerenderedCharacterItem *pitem = nullptr;
-    if (pfont)
+    if(pfont)
         pitem = pfont->Find(font.Character);
 
-    if (pitem) {
+    if(pitem) {
         // prerendered font
         tTVPCharacterData *data = new tTVPCharacterData();
         data->BlackBoxX = pitem->Width;
@@ -290,7 +275,7 @@ static tTVPCharacterData *TVPGetCharacter(const tTVPFontAndCharacterData &font,
         data->BlurLevel = font.BlurLevel;
 
         try {
-            if (data->BlackBoxX && data->BlackBoxY) {
+            if(data->BlackBoxX && data->BlackBoxY) {
                 // render
                 tjs_int newpitch = (((pitem->Width - 1) >> 2) + 1) << 2;
                 data->Pitch = newpitch;
@@ -300,14 +285,14 @@ static tTVPCharacterData *TVPGetCharacter(const tTVPFontAndCharacterData &font,
                 pfont->Retrieve(pitem, data->GetData(), newpitch);
                 data->Gray = 256;
                 // apply blur
-                if (font.Blured)
+                if(font.Blured)
                     data->Blur(); // nasty ...
 
                 // add to hash table
                 tTVPCharacterDataHolder holder(data);
                 TVPFontCache.AddWithHash(font, hash, holder);
             }
-        } catch (...) {
+        } catch(...) {
             data->Release();
             throw;
         }
@@ -315,8 +300,7 @@ static tTVPCharacterData *TVPGetCharacter(const tTVPFontAndCharacterData &font,
         return data;
     } else {
         // render font
-        tTVPCharacterData *data =
-            GetCurrentRasterizer()->GetBitmap(font, aofsx, aofsy);
+        tTVPCharacterData *data = GetCurrentRasterizer()->GetBitmap(font, aofsx, aofsy);
 
         // add to hash table
         tTVPCharacterDataHolder holder(data);
@@ -345,8 +329,7 @@ tTVPBitmap::tTVPBitmap(tjs_uint width, tjs_uint height, tjs_uint bpp) {
     Allocate(width, height, bpp); // allocate initial bitmap
 }
 //---------------------------------------------------------------------------
-tTVPBitmap::tTVPBitmap(tjs_uint width, tjs_uint height, tjs_uint bpp,
-                       void *bits) {
+tTVPBitmap::tTVPBitmap(tjs_uint width, tjs_uint height, tjs_uint bpp, void *bits) {
     // tTVPBitmap constructor
     TVPInitWindowOptions(); // ensure window/bitmap usage options are
                             // initialized
@@ -362,14 +345,14 @@ tTVPBitmap::tTVPBitmap(tjs_uint width, tjs_uint height, tjs_uint bpp,
     // set bitmap bits
     try {
         Bits = bits;
-        if (bpp == 8) {
+        if(bpp == 8) {
             Palette = new tjs_uint[DEFAULT_PALETTE_COUNT];
             ActualPalCount = 0;
         } else {
             Palette = nullptr;
             ActualPalCount = 0;
         }
-    } catch (...) {
+    } catch(...) {
         delete BitmapInfo;
         BitmapInfo = nullptr;
         throw;
@@ -379,7 +362,7 @@ tTVPBitmap::tTVPBitmap(tjs_uint width, tjs_uint height, tjs_uint bpp,
 tTVPBitmap::~tTVPBitmap() {
     tTVPBitmapBitsAlloc::Free(Bits);
     delete BitmapInfo;
-    if (Palette)
+    if(Palette)
         delete Palette;
 }
 //---------------------------------------------------------------------------
@@ -397,9 +380,9 @@ tTVPBitmap::tTVPBitmap(const tTVPBitmap &r) {
     *BitmapInfo = *r.BitmapInfo;
 
     // copy Bits
-    if (r.Bits)
+    if(r.Bits)
         memcpy(Bits, r.Bits, r.BitmapInfo->GetImageSize());
-    if (r.Palette) {
+    if(r.Palette) {
         memcpy(Palette, r.Palette, sizeof(tjs_uint) * DEFAULT_PALETTE_COUNT);
         ActualPalCount = r.ActualPalCount;
     }
@@ -423,16 +406,15 @@ void tTVPBitmap::Allocate(tjs_uint width, tjs_uint height, tjs_uint bpp) {
 
     // allocate bitmap bits
     try {
-        Bits = tTVPBitmapBitsAlloc::Alloc(BitmapInfo->GetImageSize(), width,
-                                          height);
-        if (bpp == 8) {
+        Bits = tTVPBitmapBitsAlloc::Alloc(BitmapInfo->GetImageSize(), width, height);
+        if(bpp == 8) {
             Palette = new tjs_uint[DEFAULT_PALETTE_COUNT];
             ActualPalCount = 0;
         } else {
             Palette = nullptr;
             ActualPalCount = 0;
         }
-    } catch (...) {
+    } catch(...) {
         delete BitmapInfo;
         BitmapInfo = nullptr;
         throw;
@@ -440,18 +422,17 @@ void tTVPBitmap::Allocate(tjs_uint width, tjs_uint height, tjs_uint bpp) {
 }
 //---------------------------------------------------------------------------
 void *tTVPBitmap::GetScanLine(tjs_uint l) const {
-    if ((tjs_int)l >= BitmapInfo->GetHeight()) {
-        TVPThrowExceptionMessage(TVPScanLineRangeOver, ttstr((tjs_int)l),
-                                 ttstr((tjs_int)BitmapInfo->GetHeight() - 1));
+    if((tjs_int)l >= BitmapInfo->GetHeight()) {
+        TVPThrowExceptionMessage(TVPScanLineRangeOver, ttstr((tjs_int)l), ttstr((tjs_int)BitmapInfo->GetHeight() - 1));
     }
 
     return l * PitchBytes + (tjs_uint8 *)Bits;
 }
 //---------------------------------------------------------------------------
 void tTVPBitmap::SetPaletteCount(tjs_uint count) {
-    if (!Is8bit())
+    if(!Is8bit())
         TVPThrowExceptionMessage(TVPInvalidOperationFor32BPP);
-    if (count >= DEFAULT_PALETTE_COUNT)
+    if(count >= DEFAULT_PALETTE_COUNT)
         TVPThrowExceptionMessage(TJSRangeError);
 
     ActualPalCount = count;
@@ -481,7 +462,7 @@ tTVPNativeBaseBitmap::tTVPNativeBaseBitmap(const tTVPNativeBaseBitmap &r) {
     // TVPFontRasterizer->AddRef(); TODO
 
     Bitmap = r.Bitmap;
-    if (Bitmap)
+    if(Bitmap)
         Bitmap->AddRef();
 
     Font = r.Font;
@@ -492,9 +473,9 @@ tTVPNativeBaseBitmap::tTVPNativeBaseBitmap(const tTVPNativeBaseBitmap &r) {
 }
 //---------------------------------------------------------------------------
 tTVPNativeBaseBitmap::~tTVPNativeBaseBitmap() {
-    if (Bitmap)
+    if(Bitmap)
         Bitmap->Release();
-    if (PrerenderedFont)
+    if(PrerenderedFont)
         PrerenderedFont->Release();
 
     // TVPFontRasterizer->Release(); TODO
@@ -502,29 +483,24 @@ tTVPNativeBaseBitmap::~tTVPNativeBaseBitmap() {
 //---------------------------------------------------------------------------
 tjs_uint tTVPNativeBaseBitmap::GetWidth() const { return Bitmap->GetWidth(); }
 //---------------------------------------------------------------------------
-void tTVPNativeBaseBitmap::SetWidth(tjs_uint w) {
-    SetSize(w, Bitmap->GetHeight());
-}
+void tTVPNativeBaseBitmap::SetWidth(tjs_uint w) { SetSize(w, Bitmap->GetHeight()); }
 //---------------------------------------------------------------------------
 tjs_uint tTVPNativeBaseBitmap::GetHeight() const { return Bitmap->GetHeight(); }
 //---------------------------------------------------------------------------
-void tTVPNativeBaseBitmap::SetHeight(tjs_uint h) {
-    SetSize(Bitmap->GetWidth(), h);
-}
+void tTVPNativeBaseBitmap::SetHeight(tjs_uint h) { SetSize(Bitmap->GetWidth(), h); }
 //---------------------------------------------------------------------------
 void tTVPNativeBaseBitmap::SetSize(tjs_uint w, tjs_uint h, bool keepimage) {
-    if (w == 0)
+    if(w == 0)
         w = 1;
-    if (h == 0)
+    if(h == 0)
         h = 1;
-    if (Bitmap->GetWidth() != w || Bitmap->GetHeight() != h) {
+    if(Bitmap->GetWidth() != w || Bitmap->GetHeight() != h) {
         // create a new bitmap and copy existing bitmap
         iTVPTexture2D *newbitmap;
-        if (keepimage)
+        if(keepimage)
             newbitmap = GetRenderManager()->CreateTexture2D(w, h, Bitmap);
         else
-            newbitmap = GetRenderManager()->CreateTexture2D(
-                nullptr, 0, w, h, Bitmap->GetFormat());
+            newbitmap = GetRenderManager()->CreateTexture2D(nullptr, 0, w, h, Bitmap->GetFormat());
 #if 0
 		tTVPBitmap *newbitmap = new tTVPBitmap(w, h, Bitmap->GetBPP());
 
@@ -564,35 +540,31 @@ void tTVPNativeBaseBitmap::SetSizeAndImageBuffer(tTVPBitmap *bmp) {
 }
 //---------------------------------------------------------------------------
 tjs_uint tTVPNativeBaseBitmap::GetBPP() const {
-    switch (Bitmap->GetFormat()) {
-    case TVPTextureFormat::Gray:
-        return 8;
-    case TVPTextureFormat::RGBA:
-        return 32;
-    case TVPTextureFormat::RGB:
-        return 24;
-    default:
-        // error !
-        return 0;
+    switch(Bitmap->GetFormat()) {
+        case TVPTextureFormat::Gray:
+            return 8;
+        case TVPTextureFormat::RGBA:
+            return 32;
+        case TVPTextureFormat::RGB:
+            return 24;
+        default:
+            // error !
+            return 0;
     }
 #if 0
 	return Bitmap->GetBPP();
 #endif
 }
 //---------------------------------------------------------------------------
-bool tTVPNativeBaseBitmap::Is32BPP() const {
-    return Bitmap->GetFormat() != TVPTextureFormat::Gray;
-}
+bool tTVPNativeBaseBitmap::Is32BPP() const { return Bitmap->GetFormat() != TVPTextureFormat::Gray; }
 //---------------------------------------------------------------------------
-bool tTVPNativeBaseBitmap::Is8BPP() const {
-    return Bitmap->GetFormat() == TVPTextureFormat::Gray;
-}
+bool tTVPNativeBaseBitmap::Is8BPP() const { return Bitmap->GetFormat() == TVPTextureFormat::Gray; }
 
 bool tTVPNativeBaseBitmap::IsOpaque() const { return Bitmap->IsOpaque(); }
 
 //---------------------------------------------------------------------------
 bool tTVPNativeBaseBitmap::Assign(const tTVPNativeBaseBitmap &rhs) {
-    if (this == &rhs || Bitmap == rhs.Bitmap)
+    if(this == &rhs || Bitmap == rhs.Bitmap)
         return false;
 
     Bitmap->Release();
@@ -607,7 +579,7 @@ bool tTVPNativeBaseBitmap::Assign(const tTVPNativeBaseBitmap &rhs) {
 //---------------------------------------------------------------------------
 bool tTVPNativeBaseBitmap::AssignBitmap(const tTVPNativeBaseBitmap &rhs) {
     // assign only bitmap
-    if (this == &rhs || Bitmap == rhs.Bitmap)
+    if(this == &rhs || Bitmap == rhs.Bitmap)
         return false;
 
     Bitmap->Release();
@@ -620,7 +592,7 @@ bool tTVPNativeBaseBitmap::AssignBitmap(const tTVPNativeBaseBitmap &rhs) {
     return true;
 }
 bool tTVPNativeBaseBitmap::AssignTexture(iTVPTexture2D *tex) {
-    if (Bitmap == tex)
+    if(Bitmap == tex)
         return false;
 
     Bitmap->Release();
@@ -633,9 +605,7 @@ bool tTVPNativeBaseBitmap::AssignTexture(iTVPTexture2D *tex) {
     return true;
 }
 //---------------------------------------------------------------------------
-const void *tTVPNativeBaseBitmap::GetScanLine(tjs_uint l) const {
-    return Bitmap->GetScanLineForRead(l);
-}
+const void *tTVPNativeBaseBitmap::GetScanLine(tjs_uint l) const { return Bitmap->GetScanLineForRead(l); }
 //---------------------------------------------------------------------------
 void *tTVPNativeBaseBitmap::GetScanLineForWrite(tjs_uint l) {
     Independ();
@@ -643,17 +613,16 @@ void *tTVPNativeBaseBitmap::GetScanLineForWrite(tjs_uint l) {
 }
 //---------------------------------------------------------------------------
 tjs_int tTVPNativeBaseBitmap::GetPitchBytes() const {
-    if (Bitmap)
+    if(Bitmap)
         return Bitmap->GetPitch();
     return 0;
 }
 //---------------------------------------------------------------------------
 void tTVPNativeBaseBitmap::Independ() {
     // sever Bitmap's image sharing
-    if (Bitmap->IsIndependent() && !Bitmap->IsStatic())
+    if(Bitmap->IsIndependent() && !Bitmap->IsStatic())
         return;
-    iTVPTexture2D *newb = GetRenderManager()->CreateTexture2D(
-        Bitmap->GetWidth(), Bitmap->GetHeight(), Bitmap);
+    iTVPTexture2D *newb = GetRenderManager()->CreateTexture2D(Bitmap->GetWidth(), Bitmap->GetHeight(), Bitmap);
     Bitmap->Release();
     Bitmap = newb;
     FontChanged = true; // informs internal font information is invalidated
@@ -661,27 +630,23 @@ void tTVPNativeBaseBitmap::Independ() {
 //---------------------------------------------------------------------------
 void tTVPNativeBaseBitmap::IndependNoCopy() {
     // indepent the bitmap, but not to copy the original bitmap
-    if (!Bitmap->IsStatic() && Bitmap->IsIndependent())
+    if(!Bitmap->IsStatic() && Bitmap->IsIndependent())
         return;
     Recreate();
 }
 //---------------------------------------------------------------------------
 void tTVPNativeBaseBitmap::Recreate() {
-    Recreate(Bitmap->GetWidth(), Bitmap->GetHeight(),
-             Bitmap->GetFormat() == TVPTextureFormat::Gray ? 8 : 32);
+    Recreate(Bitmap->GetWidth(), Bitmap->GetHeight(), Bitmap->GetFormat() == TVPTextureFormat::Gray ? 8 : 32);
 }
 //---------------------------------------------------------------------------
 void tTVPNativeBaseBitmap::Recreate(tjs_uint w, tjs_uint h, tjs_uint bpp) {
     Bitmap->Release();
-    Bitmap = GetRenderManager()->CreateTexture2D(
-        nullptr, 0, w, h,
-        bpp == 8 ? TVPTextureFormat::Gray : TVPTextureFormat::RGBA);
+    Bitmap = GetRenderManager()->CreateTexture2D(nullptr, 0, w, h,
+                                                 bpp == 8 ? TVPTextureFormat::Gray : TVPTextureFormat::RGBA);
     FontChanged = true; // informs internal font information is invalidated
 }
 
-bool tTVPNativeBaseBitmap::IsIndependent() const {
-    return Bitmap->IsIndependent() && !Bitmap->IsStatic();
-}
+bool tTVPNativeBaseBitmap::IsIndependent() const { return Bitmap->IsIndependent() && !Bitmap->IsStatic(); }
 #if 0
 //---------------------------------------------------------------------------
 tjs_uint tTVPNativeBaseBitmap::GetPalette( tjs_uint index ) const {
@@ -703,7 +668,7 @@ void tTVPNativeBaseBitmap::SetPalette( tjs_uint index, tjs_uint color ) {
 //---------------------------------------------------------------------------
 void tTVPNativeBaseBitmap::ApplyFont() {
     // apply font
-    if (FontChanged || GlobalFontState != TVPGlobalFontStateMagic) {
+    if(FontChanged || GlobalFontState != TVPGlobalFontStateMagic) {
         Independ();
 
         FontChanged = false;
@@ -711,7 +676,7 @@ void tTVPNativeBaseBitmap::ApplyFont() {
         CachedText.Clear();
         TextWidth = TextHeight = 0;
 
-        if (PrerenderedFont)
+        if(PrerenderedFont)
             PrerenderedFont->Release();
         PrerenderedFont = TVPGetPrerenderedMappedFont(Font);
 
@@ -737,13 +702,11 @@ void tTVPNativeBaseBitmap::SetFont(const tTVPFont &font) {
 }
 //---------------------------------------------------------------------------
 extern void TVPGetAllFontList(std::vector<ttstr> &list);
-void tTVPNativeBaseBitmap::GetFontList(tjs_uint32 flags,
-                                       std::vector<ttstr> &list) {
+void tTVPNativeBaseBitmap::GetFontList(tjs_uint32 flags, std::vector<ttstr> &list) {
     ApplyFont();
     std::vector<ttstr> ansilist;
     TVPGetAllFontList(ansilist);
-    for (std::vector<ttstr>::iterator i = ansilist.begin(); i != ansilist.end();
-         i++)
+    for(std::vector<ttstr>::iterator i = ansilist.begin(); i != ansilist.end(); i++)
         list.push_back(*i);
 }
 //---------------------------------------------------------------------------
@@ -767,14 +730,10 @@ struct tTVPDrawTextData {
     tTVPBBBltMethod bltmode;
 };
 
-static iTVPTexture2D *_CharacterTexture = nullptr,
-                     *_CharacterTextureRGBA = nullptr;
+static iTVPTexture2D *_CharacterTexture = nullptr, *_CharacterTextureRGBA = nullptr;
 
-bool tTVPNativeBaseBitmap::InternalBlendText(tTVPCharacterData *data,
-                                             tTVPDrawTextData *dtdata,
-                                             tjs_uint32 color,
-                                             const tTVPRect &srect,
-                                             tTVPRect &drect) {
+bool tTVPNativeBaseBitmap::InternalBlendText(tTVPCharacterData *data, tTVPDrawTextData *dtdata, tjs_uint32 color,
+                                             const tTVPRect &srect, tTVPRect &drect) {
     // blend to the bitmap
     tjs_int pitch = data->Pitch;
     // tjs_uint8 *sl = (tjs_uint8*)GetScanLineForWrite(drect.top);
@@ -784,56 +743,48 @@ bool tTVPNativeBaseBitmap::InternalBlendText(tTVPCharacterData *data,
 
     iTVPRenderMethod *method = nullptr;
     int opa_id, clr_id;
-#define GEMTHOD_OPA_CLR(n)                                                     \
-    static iTVPRenderMethod *_method =                                         \
-        TVPGetRenderManager()->GetRenderMethod(#n);                            \
-    static int _opa_id = _method->EnumParameterID("opacity");                  \
-    static int _clr_id = _method->EnumParameterID("color");                    \
-    method = _method;                                                          \
-    opa_id = _opa_id;                                                          \
+#define GEMTHOD_OPA_CLR(n)                                                                                             \
+    static iTVPRenderMethod *_method = TVPGetRenderManager()->GetRenderMethod(#n);                                     \
+    static int _opa_id = _method->EnumParameterID("opacity");                                                          \
+    static int _clr_id = _method->EnumParameterID("color");                                                            \
+    method = _method;                                                                                                  \
+    opa_id = _opa_id;                                                                                                  \
     clr_id = _clr_id;
 
-    static bool fastGPURoute =
-        !TVPIsSoftwareRenderManager() &&
-        !IndividualConfigManager::GetInstance()->GetValue<bool>(
-            "ogl_accurate_render", false);
+    static bool fastGPURoute = !TVPIsSoftwareRenderManager() &&
+        !IndividualConfigManager::GetInstance()->GetValue<bool>("ogl_accurate_render", false);
 
     iTVPTexture2D *pTexSrc;
-    if (fastGPURoute && dtdata->bltmode == bmAlphaOnAlpha && dtdata->opa > 0) {
+    if(fastGPURoute && dtdata->bltmode == bmAlphaOnAlpha && dtdata->opa > 0) {
         // convert to addalpha bitmap
         tTVPBitmap *tmp = new tTVPBitmap(w, h, 32);
         tjs_int spitch = pitch;
         tjs_int dpitch = tmp->GetPitch();
         tjs_uint8 *src = bp;
         tjs_uint8 *dst = (tjs_uint8 *)tmp->GetBits();
-        for (tjs_int y = 0; y < h; ++y) {
-            for (tjs_int x = 0; x < w; ++x) {
+        for(tjs_int y = 0; y < h; ++y) {
+            for(tjs_int x = 0; x < w; ++x) {
                 ((tjs_uint32 *)dst)[x] = (color & 0xFFFFFF) | (src[x] << 24);
             }
             TVPConvertAlphaToAdditiveAlpha((tjs_uint32 *)dst, w);
             dst += dpitch;
             src += spitch;
         }
-        if (_CharacterTextureRGBA) {
-            if (_CharacterTextureRGBA->GetFormat() != TVPTextureFormat::RGBA) {
+        if(_CharacterTextureRGBA) {
+            if(_CharacterTextureRGBA->GetFormat() != TVPTextureFormat::RGBA) {
                 _CharacterTextureRGBA->Release();
                 _CharacterTextureRGBA = nullptr;
             }
         }
-        if (!_CharacterTextureRGBA) {
+        if(!_CharacterTextureRGBA) {
             _CharacterTextureRGBA = GetRenderManager()->CreateTexture2D(
-                tmp->GetBits(), dpitch, w, h, TVPTextureFormat::RGBA,
-                RENDER_CREATE_TEXTURE_FLAG_NO_COMPRESS);
-        } else if (_CharacterTextureRGBA->GetInternalWidth() < w ||
-                   _CharacterTextureRGBA->GetInternalHeight() < h) {
+                tmp->GetBits(), dpitch, w, h, TVPTextureFormat::RGBA, RENDER_CREATE_TEXTURE_FLAG_NO_COMPRESS);
+        } else if(_CharacterTextureRGBA->GetInternalWidth() < w || _CharacterTextureRGBA->GetInternalHeight() < h) {
             _CharacterTextureRGBA->Release();
             _CharacterTextureRGBA = GetRenderManager()->CreateTexture2D(
-                tmp->GetBits(), dpitch, w, h, TVPTextureFormat::RGBA,
-                RENDER_CREATE_TEXTURE_FLAG_NO_COMPRESS);
+                tmp->GetBits(), dpitch, w, h, TVPTextureFormat::RGBA, RENDER_CREATE_TEXTURE_FLAG_NO_COMPRESS);
         } else {
-            _CharacterTextureRGBA->Update(tmp->GetBits(),
-                                          TVPTextureFormat::RGBA, dpitch,
-                                          tTVPRect(0, 0, w, h));
+            _CharacterTextureRGBA->Update(tmp->GetBits(), TVPTextureFormat::RGBA, dpitch, tTVPRect(0, 0, w, h));
         }
 
         tmp->Release();
@@ -842,31 +793,27 @@ bool tTVPNativeBaseBitmap::InternalBlendText(tTVPCharacterData *data,
         method->SetParameterOpa(opa_id, dtdata->opa);
         pTexSrc = _CharacterTextureRGBA;
     } else {
-        if (dtdata->bltmode == bmAlphaOnAlpha) {
-            if (dtdata->opa > 0) {
+        if(dtdata->bltmode == bmAlphaOnAlpha) {
+            if(dtdata->opa > 0) {
                 GEMTHOD_OPA_CLR(ApplyColorMap_d);
             } else {
                 // opacity removal
                 GEMTHOD_OPA_CLR(RemoveOpacity);
             }
-        } else if (dtdata->bltmode == bmAlphaOnAddAlpha) {
+        } else if(dtdata->bltmode == bmAlphaOnAddAlpha) {
             GEMTHOD_OPA_CLR(ApplyColorMap_a);
         } else {
             GEMTHOD_OPA_CLR(ApplyColorMap);
         }
 
         // blend to the texture
-        if (!_CharacterTexture) {
-            _CharacterTexture = GetRenderManager()->CreateTexture2D(
-                nullptr, pitch, w, h, TVPTextureFormat::Gray);
-        } else if (_CharacterTexture->GetInternalWidth() < w ||
-                   _CharacterTexture->GetInternalHeight() < h) {
+        if(!_CharacterTexture) {
+            _CharacterTexture = GetRenderManager()->CreateTexture2D(nullptr, pitch, w, h, TVPTextureFormat::Gray);
+        } else if(_CharacterTexture->GetInternalWidth() < w || _CharacterTexture->GetInternalHeight() < h) {
             _CharacterTexture->Release();
-            _CharacterTexture = GetRenderManager()->CreateTexture2D(
-                nullptr, pitch, w, h, TVPTextureFormat::Gray);
+            _CharacterTexture = GetRenderManager()->CreateTexture2D(nullptr, pitch, w, h, TVPTextureFormat::Gray);
         }
-        _CharacterTexture->Update(bp, TVPTextureFormat::Gray, pitch,
-                                  tTVPRect(0, 0, w, h));
+        _CharacterTexture->Update(bp, TVPTextureFormat::Gray, pitch, tTVPRect(0, 0, w, h));
 
         method->SetParameterOpa(opa_id, dtdata->opa);
         method->SetParameterColor4B(clr_id, color);
@@ -896,18 +843,14 @@ bool tTVPNativeBaseBitmap::InternalBlendText(tTVPCharacterData *data,
         tmptex->Release();
     }
 #endif
-    tRenderTexRectArray::Element src_tex[] = {
-        tRenderTexRectArray::Element(pTexSrc, tTVPRect(0, 0, w, h))};
-    TVPGetRenderManager()->OperateRect(
-        method, GetTextureForRender(method->IsBlendTarget(), &drect), nullptr,
-        drect, tRenderTexRectArray(src_tex));
+    tRenderTexRectArray::Element src_tex[] = { tRenderTexRectArray::Element(pTexSrc, tTVPRect(0, 0, w, h)) };
+    TVPGetRenderManager()->OperateRect(method, GetTextureForRender(method->IsBlendTarget(), &drect), nullptr, drect,
+                                       tRenderTexRectArray(src_tex));
     return true;
 }
 
-bool tTVPNativeBaseBitmap::InternalDrawText(tTVPCharacterData *data, tjs_int x,
-                                            tjs_int y, tjs_uint32 color,
-                                            tTVPDrawTextData *dtdata,
-                                            tTVPRect &drect) {
+bool tTVPNativeBaseBitmap::InternalDrawText(tTVPCharacterData *data, tjs_int x, tjs_int y, tjs_uint32 color,
+                                            tTVPDrawTextData *dtdata, tTVPRect &drect) {
     // setup destination and source rectangle
     drect.left = x + data->OriginX;
     drect.top = y + data->OriginY;
@@ -920,67 +863,65 @@ bool tTVPNativeBaseBitmap::InternalDrawText(tTVPCharacterData *data, tjs_int x,
     srect.bottom = data->BlackBoxY;
 
     // check boundary
-    if (drect.left < dtdata->rect.left) {
+    if(drect.left < dtdata->rect.left) {
         srect.left += (dtdata->rect.left - drect.left);
         drect.left = dtdata->rect.left;
     }
 
-    if (drect.right > dtdata->rect.right) {
+    if(drect.right > dtdata->rect.right) {
         srect.right -= (drect.right - dtdata->rect.right);
         drect.right = dtdata->rect.right;
     }
 
-    if (srect.left >= srect.right)
+    if(srect.left >= srect.right)
         return false; // not drawable
 
-    if (drect.top < dtdata->rect.top) {
+    if(drect.top < dtdata->rect.top) {
         srect.top += (dtdata->rect.top - drect.top);
         drect.top = dtdata->rect.top;
     }
 
-    if (drect.bottom > dtdata->rect.bottom) {
+    if(drect.bottom > dtdata->rect.bottom) {
         srect.bottom -= (drect.bottom - dtdata->rect.bottom);
         drect.bottom = dtdata->rect.bottom;
     }
 
-    if (srect.top >= srect.bottom)
+    if(srect.top >= srect.bottom)
         return false; // not drawable
 
     return InternalBlendText(data, dtdata, color, srect, drect);
 }
 //---------------------------------------------------------------------------
-void tTVPNativeBaseBitmap::DrawGlyph(
-    iTJSDispatch2 *glyph, const tTVPRect &destrect, tjs_int x, tjs_int y,
-    tjs_uint32 color, tTVPBBBltMethod bltmode, tjs_int opa, bool holdalpha,
-    bool aa, tjs_int shlevel, tjs_uint32 shadowcolor, tjs_int shwidth,
-    tjs_int shofsx, tjs_int shofsy, tTVPComplexRect *updaterects) {
-    if (!Is32BPP())
+void tTVPNativeBaseBitmap::DrawGlyph(iTJSDispatch2 *glyph, const tTVPRect &destrect, tjs_int x, tjs_int y,
+                                     tjs_uint32 color, tTVPBBBltMethod bltmode, tjs_int opa, bool holdalpha, bool aa,
+                                     tjs_int shlevel, tjs_uint32 shadowcolor, tjs_int shwidth, tjs_int shofsx,
+                                     tjs_int shofsy, tTVPComplexRect *updaterects) {
+    if(!Is32BPP())
         TVPThrowExceptionMessage(TVPInvalidOperationFor8BPP);
 
-    if (bltmode == bmAlphaOnAlpha) {
-        if (opa < -255)
+    if(bltmode == bmAlphaOnAlpha) {
+        if(opa < -255)
             opa = -255;
-        if (opa > 255)
+        if(opa > 255)
             opa = 255;
     } else {
-        if (opa < 0)
+        if(opa < 0)
             opa = 0;
-        if (opa > 255)
+        if(opa > 255)
             opa = 255;
     }
 
-    if (opa == 0)
+    if(opa == 0)
         return; // nothing to do
 
     tjs_int itemcount;
     tTJSVariant tmp;
-    if (TJS_SUCCEEDED(glyph->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("count"), 0,
-                                     &tmp, glyph)))
+    if(TJS_SUCCEEDED(glyph->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("count"), 0, &tmp, glyph)))
         itemcount = tmp;
     else
         itemcount = 0;
 
-    if (itemcount < 8)
+    if(itemcount < 8)
         TVPThrowExceptionMessage(TVPFaildGlyphForDrawGlyph);
 
     enum {
@@ -996,21 +937,18 @@ void tTVPNativeBaseBitmap::DrawGlyph(
         GLYPH_EOT
     };
     tjs_int glyphitem[7];
-    for (tjs_int i = 0; i < 7; i++) {
-        if (TJS_FAILED(
-                glyph->PropGetByNum(TJS_MEMBERMUSTEXIST, i, &tmp, glyph)))
+    for(tjs_int i = 0; i < 7; i++) {
+        if(TJS_FAILED(glyph->PropGetByNum(TJS_MEMBERMUSTEXIST, i, &tmp, glyph)))
             TVPThrowExceptionMessage(TVPFaildGlyphForDrawGlyph);
         glyphitem[i] = tmp;
     }
 
-    if (TJS_FAILED(glyph->PropGetByNum(TJS_MEMBERMUSTEXIST, GLYPH_BITMAP, &tmp,
-                                       glyph)))
+    if(TJS_FAILED(glyph->PropGetByNum(TJS_MEMBERMUSTEXIST, GLYPH_BITMAP, &tmp, glyph)))
         TVPThrowExceptionMessage(TVPFaildGlyphForDrawGlyph);
 
     tjs_int numcolor = 256;
-    if (itemcount >= 9) {
-        if (TJS_FAILED(glyph->PropGetByNum(TJS_MEMBERMUSTEXIST, GLYPH_COLORS,
-                                           &tmp, glyph)))
+    if(itemcount >= 9) {
+        if(TJS_FAILED(glyph->PropGetByNum(TJS_MEMBERMUSTEXIST, GLYPH_COLORS, &tmp, glyph)))
             TVPThrowExceptionMessage(TVPFaildGlyphForDrawGlyph);
         numcolor = tmp;
     }
@@ -1032,62 +970,55 @@ void tTVPNativeBaseBitmap::DrawGlyph(
         tGlyphMetrics metrics;
         metrics.CellIncX = glyphitem[GLYPH_INCX];
         metrics.CellIncY = glyphitem[GLYPH_INCY];
-        data = new tTVPCharacterData(
-            o->GetData(), glyphitem[GLYPH_WIDTH],
-            glyphitem[GLYPH_ORIGINX] + AscentOfsX,
-            -glyphitem[GLYPH_ORIGINY] + AscentOfsY, glyphitem[GLYPH_WIDTH],
-            glyphitem[GLYPH_HEIGHT], metrics, numcolor > 256);
+        data = new tTVPCharacterData(o->GetData(), glyphitem[GLYPH_WIDTH], glyphitem[GLYPH_ORIGINX] + AscentOfsX,
+                                     -glyphitem[GLYPH_ORIGINY] + AscentOfsY, glyphitem[GLYPH_WIDTH],
+                                     glyphitem[GLYPH_HEIGHT], metrics, numcolor > 256);
 
         data->Antialiased = aa;
         data->Blured = false;
         data->BlurWidth = shwidth;
         data->BlurLevel = shlevel;
         data->Gray = numcolor;
-        if (shlevel != 0) {
-            if (shlevel == 255 && shwidth == 0) {
+        if(shlevel != 0) {
+            if(shlevel == 255 && shwidth == 0) {
                 // normal shadow
                 shadow = data;
                 shadow->AddRef();
             } else {
                 // blured shadow
-                shadow = new tTVPCharacterData(
-                    o->GetData(), glyphitem[GLYPH_WIDTH],
-                    glyphitem[GLYPH_ORIGINX] + AscentOfsX,
-                    -glyphitem[GLYPH_ORIGINY] + AscentOfsY,
-                    glyphitem[GLYPH_WIDTH], glyphitem[GLYPH_HEIGHT], metrics,
-                    numcolor > 256);
+                shadow =
+                    new tTVPCharacterData(o->GetData(), glyphitem[GLYPH_WIDTH], glyphitem[GLYPH_ORIGINX] + AscentOfsX,
+                                          -glyphitem[GLYPH_ORIGINY] + AscentOfsY, glyphitem[GLYPH_WIDTH],
+                                          glyphitem[GLYPH_HEIGHT], metrics, numcolor > 256);
                 shadow->Antialiased = aa;
                 shadow->Blured = true;
                 shadow->BlurWidth = shwidth;
                 shadow->BlurLevel = shlevel;
                 shadow->Gray = numcolor;
-                if (!shadow->FullColored)
+                if(!shadow->FullColored)
                     shadow->Blur();
             }
         }
 
-        if (data) {
+        if(data) {
 
-            if (data->BlackBoxX != 0 && data->BlackBoxY != 0) {
+            if(data->BlackBoxX != 0 && data->BlackBoxY != 0) {
                 tTVPRect drect;
                 tTVPRect shadowdrect;
 
                 bool shadowdrawn = false;
 
-                if (shadow) {
-                    shadowdrawn =
-                        InternalDrawText(shadow, x + shofsx, y + shofsy,
-                                         shadowcolor, &dtdata, shadowdrect);
+                if(shadow) {
+                    shadowdrawn = InternalDrawText(shadow, x + shofsx, y + shofsy, shadowcolor, &dtdata, shadowdrect);
                 }
 
-                bool drawn =
-                    InternalDrawText(data, x, y, color, &dtdata, drect);
-                if (updaterects) {
-                    if (!shadowdrawn) {
-                        if (drawn)
+                bool drawn = InternalDrawText(data, x, y, color, &dtdata, drect);
+                if(updaterects) {
+                    if(!shadowdrawn) {
+                        if(drawn)
                             updaterects->Or(drect);
                     } else {
-                        if (drawn) {
+                        if(drawn) {
                             tTVPRect d;
                             TVPUnionRect(&d, drect, shadowdrect);
                             updaterects->Or(d);
@@ -1098,43 +1029,42 @@ void tTVPNativeBaseBitmap::DrawGlyph(
                 }
             }
         }
-    } catch (...) {
-        if (data)
+    } catch(...) {
+        if(data)
             data->Release();
-        if (shadow)
+        if(shadow)
             shadow->Release();
         throw;
     }
 
-    if (data)
+    if(data)
         data->Release();
-    if (shadow)
+    if(shadow)
         shadow->Release();
 }
 //---------------------------------------------------------------------------
-void tTVPNativeBaseBitmap::DrawTextSingle(
-    const tTVPRect &destrect, tjs_int x, tjs_int y, const ttstr &text,
-    tjs_uint32 color, tTVPBBBltMethod bltmode, tjs_int opa, bool holdalpha,
-    bool aa, tjs_int shlevel, tjs_uint32 shadowcolor, tjs_int shwidth,
-    tjs_int shofsx, tjs_int shofsy, tTVPComplexRect *updaterects) {
+void tTVPNativeBaseBitmap::DrawTextSingle(const tTVPRect &destrect, tjs_int x, tjs_int y, const ttstr &text,
+                                          tjs_uint32 color, tTVPBBBltMethod bltmode, tjs_int opa, bool holdalpha,
+                                          bool aa, tjs_int shlevel, tjs_uint32 shadowcolor, tjs_int shwidth,
+                                          tjs_int shofsx, tjs_int shofsy, tTVPComplexRect *updaterects) {
     // text drawing function for single character
 
-    if (!Is32BPP())
+    if(!Is32BPP())
         TVPThrowExceptionMessage(TVPInvalidOperationFor8BPP);
 
-    if (bltmode == bmAlphaOnAlpha) {
-        if (opa < -255)
+    if(bltmode == bmAlphaOnAlpha) {
+        if(opa < -255)
             opa = -255;
-        if (opa > 255)
+        if(opa > 255)
             opa = 255;
     } else {
-        if (opa < 0)
+        if(opa < 0)
             opa = 0;
-        if (opa > 255)
+        if(opa > 255)
             opa = 255;
     }
 
-    if (opa == 0)
+    if(opa == 0)
         return; // nothing to do
 
     Independ();
@@ -1164,44 +1094,39 @@ void tTVPNativeBaseBitmap::DrawTextSingle(
     tTVPCharacterData *data = nullptr;
 
     try {
-        data = TVPGetCharacter(font, this, PrerenderedFont, AscentOfsX,
-                               AscentOfsY);
+        data = TVPGetCharacter(font, this, PrerenderedFont, AscentOfsX, AscentOfsY);
 
-        if (shlevel != 0) {
-            if (shlevel == 255 && shwidth == 0) {
+        if(shlevel != 0) {
+            if(shlevel == 255 && shwidth == 0) {
                 // normal shadow
                 shadow = data;
                 shadow->AddRef();
             } else {
                 // blured shadow
                 font.Blured = true;
-                shadow = TVPGetCharacter(font, this, PrerenderedFont,
-                                         AscentOfsX, AscentOfsY);
+                shadow = TVPGetCharacter(font, this, PrerenderedFont, AscentOfsX, AscentOfsY);
             }
         }
 
-        if (data) {
+        if(data) {
 
-            if (data->BlackBoxX != 0 && data->BlackBoxY != 0) {
+            if(data->BlackBoxX != 0 && data->BlackBoxY != 0) {
                 tTVPRect drect;
                 tTVPRect shadowdrect;
 
                 bool shadowdrawn = false;
 
-                if (shadow) {
-                    shadowdrawn =
-                        InternalDrawText(shadow, x + shofsx, y + shofsy,
-                                         shadowcolor, &dtdata, shadowdrect);
+                if(shadow) {
+                    shadowdrawn = InternalDrawText(shadow, x + shofsx, y + shofsy, shadowcolor, &dtdata, shadowdrect);
                 }
 
-                bool drawn =
-                    InternalDrawText(data, x, y, color, &dtdata, drect);
-                if (updaterects) {
-                    if (!shadowdrawn) {
-                        if (drawn)
+                bool drawn = InternalDrawText(data, x, y, color, &dtdata, drect);
+                if(updaterects) {
+                    if(!shadowdrawn) {
+                        if(drawn)
                             updaterects->Or(drect);
                     } else {
-                        if (drawn) {
+                        if(drawn) {
                             tTVPRect d;
                             TVPUnionRect(&d, drect, shadowdrect);
                             updaterects->Or(d);
@@ -1212,46 +1137,45 @@ void tTVPNativeBaseBitmap::DrawTextSingle(
                 }
             }
         }
-    } catch (...) {
-        if (data)
+    } catch(...) {
+        if(data)
             data->Release();
-        if (shadow)
+        if(shadow)
             shadow->Release();
         throw;
     }
 
-    if (data)
+    if(data)
         data->Release();
-    if (shadow)
+    if(shadow)
         shadow->Release();
 }
 //---------------------------------------------------------------------------
 // structure for holding data for a character
 struct tTVPCharacterDrawData {
-    tTVPCharacterData *Data;   // main character data
+    tTVPCharacterData *Data; // main character data
     tTVPCharacterData *Shadow; // shadow character data
     tjs_int X, Y;
     tTVPRect ShadowRect;
     bool ShadowDrawn;
 
-    tTVPCharacterDrawData(tTVPCharacterData *data, tTVPCharacterData *shadow,
-                          tjs_int x, tjs_int y) {
+    tTVPCharacterDrawData(tTVPCharacterData *data, tTVPCharacterData *shadow, tjs_int x, tjs_int y) {
         Data = data;
         Shadow = shadow;
         X = x;
         Y = y;
         ShadowDrawn = false;
 
-        if (Data)
+        if(Data)
             Data->AddRef();
-        if (Shadow)
+        if(Shadow)
             Shadow->AddRef();
     }
 
     ~tTVPCharacterDrawData() {
-        if (Data)
+        if(Data)
             Data->Release();
-        if (Shadow)
+        if(Shadow)
             Shadow->Release();
     }
 
@@ -1266,46 +1190,45 @@ struct tTVPCharacterDrawData {
         ShadowRect = rhs.ShadowRect;
         ShadowDrawn = rhs.ShadowDrawn;
 
-        if (Data != rhs.Data) {
-            if (Data)
+        if(Data != rhs.Data) {
+            if(Data)
                 Data->Release();
             Data = rhs.Data;
-            if (Data)
+            if(Data)
                 Data->AddRef();
         }
-        if (Shadow != rhs.Shadow) {
-            if (Shadow)
+        if(Shadow != rhs.Shadow) {
+            if(Shadow)
                 Shadow->Release();
             Shadow = rhs.Shadow;
-            if (Shadow)
+            if(Shadow)
                 Shadow->AddRef();
         }
     }
 };
 //---------------------------------------------------------------------------
-void tTVPNativeBaseBitmap::DrawTextMultiple(
-    const tTVPRect &destrect, tjs_int x, tjs_int y, const ttstr &text,
-    tjs_uint32 color, tTVPBBBltMethod bltmode, tjs_int opa, bool holdalpha,
-    bool aa, tjs_int shlevel, tjs_uint32 shadowcolor, tjs_int shwidth,
-    tjs_int shofsx, tjs_int shofsy, tTVPComplexRect *updaterects) {
+void tTVPNativeBaseBitmap::DrawTextMultiple(const tTVPRect &destrect, tjs_int x, tjs_int y, const ttstr &text,
+                                            tjs_uint32 color, tTVPBBBltMethod bltmode, tjs_int opa, bool holdalpha,
+                                            bool aa, tjs_int shlevel, tjs_uint32 shadowcolor, tjs_int shwidth,
+                                            tjs_int shofsx, tjs_int shofsy, tTVPComplexRect *updaterects) {
     // text drawing function for multiple characters
 
-    if (!Is32BPP())
+    if(!Is32BPP())
         TVPThrowExceptionMessage(TVPInvalidOperationFor8BPP);
 
-    if (bltmode == bmAlphaOnAlpha) {
-        if (opa < -255)
+    if(bltmode == bmAlphaOnAlpha) {
+        if(opa < -255)
             opa = -255;
-        if (opa > 255)
+        if(opa > 255)
             opa = 255;
     } else {
-        if (opa < 0)
+        if(opa < 0)
             opa = 0;
-        if (opa > 255)
+        if(opa > 255)
             opa = 255;
     }
 
-    if (opa == 0)
+    if(opa == 0)
         return; // nothing to do
 
     Independ();
@@ -1332,7 +1255,7 @@ void tTVPNativeBaseBitmap::DrawTextMultiple(
     drawdata.reserve(text.GetLen());
 
     // prepare all drawn characters
-    while (*p) // while input string is remaining
+    while(*p) // while input string is remaining
     {
         font.Character = *p;
 
@@ -1340,12 +1263,11 @@ void tTVPNativeBaseBitmap::DrawTextMultiple(
         tTVPCharacterData *data = nullptr;
         tTVPCharacterData *shadow = nullptr;
         try {
-            data = TVPGetCharacter(font, this, PrerenderedFont, AscentOfsX,
-                                   AscentOfsY);
+            data = TVPGetCharacter(font, this, PrerenderedFont, AscentOfsX, AscentOfsY);
 
-            if (data) {
-                if (shlevel != 0) {
-                    if (shlevel == 255 && shwidth == 0) {
+            if(data) {
+                if(shlevel != 0) {
+                    if(shlevel == 255 && shwidth == 0) {
                         // normal shadow
                         // shadow is the same as main character data
                         shadow = data;
@@ -1353,75 +1275,70 @@ void tTVPNativeBaseBitmap::DrawTextMultiple(
                     } else {
                         // blured shadow
                         font.Blured = true;
-                        shadow = TVPGetCharacter(font, this, PrerenderedFont,
-                                                 AscentOfsX, AscentOfsY);
+                        shadow = TVPGetCharacter(font, this, PrerenderedFont, AscentOfsX, AscentOfsY);
                     }
                 }
 
-                if (data->BlackBoxX != 0 && data->BlackBoxY != 0) {
+                if(data->BlackBoxX != 0 && data->BlackBoxY != 0) {
                     // append to array
-                    drawdata.push_back(
-                        tTVPCharacterDrawData(data, shadow, x, y));
+                    drawdata.push_back(tTVPCharacterDrawData(data, shadow, x, y));
                 }
 
                 // step to the next character position
                 x += data->Metrics.CellIncX;
-                if (data->Metrics.CellIncY != 0) {
+                if(data->Metrics.CellIncY != 0) {
                     // Windows 9x returns negative CellIncY.
                     // so we must verify whether CellIncY is proper.
-                    if (Font.Angle < 1800) {
-                        if (data->Metrics.CellIncY > 0)
+                    if(Font.Angle < 1800) {
+                        if(data->Metrics.CellIncY > 0)
                             data->Metrics.CellIncY = -data->Metrics.CellIncY;
                     } else {
-                        if (data->Metrics.CellIncY < 0)
+                        if(data->Metrics.CellIncY < 0)
                             data->Metrics.CellIncY = -data->Metrics.CellIncY;
                     }
                     y += data->Metrics.CellIncY;
                 }
             }
-        } catch (...) {
-            if (data)
+        } catch(...) {
+            if(data)
                 data->Release();
-            if (shadow)
+            if(shadow)
                 shadow->Release();
             throw;
         }
-        if (data)
+        if(data)
             data->Release();
-        if (shadow)
+        if(shadow)
             shadow->Release();
 
         p++;
     }
 
     // draw shadows first
-    if (shlevel != 0) {
-        for (std::vector<tTVPCharacterDrawData>::iterator i = drawdata.begin();
-             i != drawdata.end(); i++) {
+    if(shlevel != 0) {
+        for(std::vector<tTVPCharacterDrawData>::iterator i = drawdata.begin(); i != drawdata.end(); i++) {
             tTVPCharacterData *shadow = i->Shadow;
 
-            if (shadow) {
+            if(shadow) {
                 i->ShadowDrawn =
-                    InternalDrawText(shadow, i->X + shofsx, i->Y + shofsy,
-                                     shadowcolor, &dtdata, i->ShadowRect);
+                    InternalDrawText(shadow, i->X + shofsx, i->Y + shofsy, shadowcolor, &dtdata, i->ShadowRect);
             }
         }
     }
 
     // then draw main characters
     // and compute returning update rectangle
-    for (std::vector<tTVPCharacterDrawData>::iterator i = drawdata.begin();
-         i != drawdata.end(); i++) {
+    for(std::vector<tTVPCharacterDrawData>::iterator i = drawdata.begin(); i != drawdata.end(); i++) {
         tTVPCharacterData *data = i->Data;
         tTVPRect drect;
 
         bool drawn = InternalDrawText(data, i->X, i->Y, color, &dtdata, drect);
-        if (updaterects) {
-            if (!i->ShadowDrawn) {
-                if (drawn)
+        if(updaterects) {
+            if(!i->ShadowDrawn) {
+                if(drawn)
                     updaterects->Or(drect);
             } else {
-                if (drawn) {
+                if(drawn) {
                     tTVPRect d;
                     TVPUnionRect(&d, drect, i->ShadowRect);
                     updaterects->Or(d);
@@ -1436,16 +1353,15 @@ void tTVPNativeBaseBitmap::DrawTextMultiple(
 void tTVPNativeBaseBitmap::GetTextSize(const ttstr &text) {
     ApplyFont();
 
-    if (text != CachedText) {
+    if(text != CachedText) {
         CachedText = text;
 
-        if (PrerenderedFont) {
+        if(PrerenderedFont) {
             tjs_uint width = 0;
             const tjs_char *buf = text.c_str();
-            while (*buf) {
-                const tTVPPrerenderedCharacterItem *item =
-                    PrerenderedFont->Find(*buf);
-                if (item != nullptr) {
+            while(*buf) {
+                const tTVPPrerenderedCharacterItem *item = PrerenderedFont->Find(*buf);
+                if(item != nullptr) {
                     width += item->Inc;
                 } else {
                     tjs_int w, h;
@@ -1460,7 +1376,7 @@ void tTVPNativeBaseBitmap::GetTextSize(const ttstr &text) {
             tjs_uint width = 0;
             const tjs_char *buf = text.c_str();
 
-            while (*buf) {
+            while(*buf) {
                 tjs_int w, h;
                 GetCurrentRasterizer()->GetTextExtent(*buf, w, h);
                 width += w;
@@ -1502,19 +1418,16 @@ double tTVPNativeBaseBitmap::GetEscHeightY(const ttstr &text) {
     return cos(RadianAngle) * TextHeight;
 }
 //---------------------------------------------------------------------------
-void tTVPNativeBaseBitmap::GetFontGlyphDrawRect(const ttstr &text,
-                                                struct tTVPRect &area) {
+void tTVPNativeBaseBitmap::GetFontGlyphDrawRect(const ttstr &text, struct tTVPRect &area) {
     ApplyFont();
     GetCurrentRasterizer()->GetGlyphDrawRect(text, area);
 }
-iTVPTexture2D *tTVPNativeBaseBitmap::GetTextureForRender(bool isBlendTarget,
-                                                         const tTVPRect *rc) {
-    if (isBlendTarget || !rc)
+iTVPTexture2D *tTVPNativeBaseBitmap::GetTextureForRender(bool isBlendTarget, const tTVPRect *rc) {
+    if(isBlendTarget || !rc)
         Independ();
     else {
         int w = Bitmap->GetWidth(), h = Bitmap->GetHeight();
-        if (rc->left == 0 && rc->top == 0 && rc->right >= w &&
-            rc->bottom >= h) {
+        if(rc->left == 0 && rc->top == 0 && rc->right >= w && rc->bottom >= h) {
             IndependNoCopy();
         } else {
             Independ();

@@ -32,7 +32,7 @@ static DWORD TVPCheckTickOverflow() {
         tTJSCriticalSectionHolder holder(TVPTickWatchCS);
 
         curtick = TVPGetRoughTickCount32();
-        if (curtick < TVPWatchLastTick) {
+        if(curtick < TVPWatchLastTick) {
             // timeGetTime() was overflowed
             TVPTickCountBias += 0x100000000L; // add 1<<32
         }
@@ -75,7 +75,7 @@ tTVPWatchThread::~tTVPWatchThread() {
 
 //---------------------------------------------------------------------------
 void tTVPWatchThread::Execute() {
-    while (!GetTerminated()) {
+    while(!GetTerminated()) {
         TVPCheckTickOverflow();
 
         Event.WaitFor(0x10000000);
@@ -86,22 +86,21 @@ void tTVPWatchThread::Execute() {
 
 //---------------------------------------------------------------------------
 static void TVPWatchThreadInit() {
-    if (!TVPWatchThread) {
+    if(!TVPWatchThread) {
         TVPWatchThread = new tTVPWatchThread();
     }
 }
 
 //---------------------------------------------------------------------------
 static void TVPWatchThreadUninit() {
-    if (TVPWatchThread) {
+    if(TVPWatchThread) {
         delete TVPWatchThread;
         TVPWatchThread = nullptr;
     }
 }
 
 //---------------------------------------------------------------------------
-static tTVPAtExit TVPWatchThreadUninitAtExit(TVP_ATEXIT_PRI_SHUTDOWN,
-                                             TVPWatchThreadUninit);
+static tTVPAtExit TVPWatchThreadUninitAtExit(TVP_ATEXIT_PRI_SHUTDOWN, TVPWatchThreadUninit);
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------

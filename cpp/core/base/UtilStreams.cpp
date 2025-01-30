@@ -31,7 +31,7 @@ tTVPLocalTempStorageHolder::tTVPLocalTempStorageHolder(const ttstr &name) {
     FileMustBeDeleted = false;
     FolderMustBeDeleted = false;
     LocalName = TVPGetLocallyAccessibleName(name);
-    if (LocalName.IsEmpty()) {
+    if(LocalName.IsEmpty()) {
         // file must be copied to local filesystem
 
         // note that the basename is much more important than the directory
@@ -47,26 +47,25 @@ tTVPLocalTempStorageHolder::tTVPLocalTempStorageHolder(const ttstr &name) {
         try {
             // copy to local file
             tTVPStreamHolder src(name);
-            tTVPStreamHolder dest(LocalName,
-                                  TJS_BS_WRITE | TJS_BS_DELETE_ON_CLOSE);
+            tTVPStreamHolder dest(LocalName, TJS_BS_WRITE | TJS_BS_DELETE_ON_CLOSE);
             tjs_uint8 *buffer = new tjs_uint8[TVP_LOCAL_TEMP_COPY_BLOCK_SIZE];
             try {
                 tjs_uint read;
-                while (true) {
+                while(true) {
                     read = src->Read(buffer, TVP_LOCAL_TEMP_COPY_BLOCK_SIZE);
-                    if (read == 0)
+                    if(read == 0)
                         break;
                     dest->WriteBuffer(buffer, read);
                 }
-            } catch (...) {
+            } catch(...) {
                 delete[] buffer;
                 throw;
             }
             delete[] buffer;
-        } catch (...) {
-            if (FileMustBeDeleted)
+        } catch(...) {
+            if(FileMustBeDeleted)
                 TVPRemoveFile(LocalName);
-            if (FolderMustBeDeleted)
+            if(FolderMustBeDeleted)
                 TVPRemoveFolder(LocalFolder);
             throw;
         }
@@ -75,9 +74,9 @@ tTVPLocalTempStorageHolder::tTVPLocalTempStorageHolder(const ttstr &name) {
 
 //---------------------------------------------------------------------------
 tTVPLocalTempStorageHolder::~tTVPLocalTempStorageHolder() {
-    if (FileMustBeDeleted)
+    if(FileMustBeDeleted)
         TVPRemoveFile(LocalName);
-    if (FolderMustBeDeleted)
+    if(FolderMustBeDeleted)
         TVPRemoveFolder(LocalFolder);
 }
 //---------------------------------------------------------------------------
@@ -91,9 +90,9 @@ tTVPMemoryStream::tTVPMemoryStream() { Init(); }
 tTVPMemoryStream::tTVPMemoryStream(const void *block, tjs_uint size) {
     Init();
     Block = (void *)block;
-    if (!Block) {
+    if(!Block) {
         Block = Alloc(size);
-        if (!Block)
+        if(!Block)
             TVPThrowExceptionMessage(TVPInsufficientMemory);
     } else {
         Reference = true; // memory block was given
@@ -105,45 +104,43 @@ tTVPMemoryStream::tTVPMemoryStream(const void *block, tjs_uint size) {
 
 //---------------------------------------------------------------------------
 tTVPMemoryStream::~tTVPMemoryStream() {
-    if (Block && !Reference)
+    if(Block && !Reference)
         Free(Block);
 }
 
 //---------------------------------------------------------------------------
-tjs_uint64 TJS_INTF_METHOD tTVPMemoryStream::Seek(tjs_int64 offset,
-                                                  tjs_int whence) {
+tjs_uint64 TJS_INTF_METHOD tTVPMemoryStream::Seek(tjs_int64 offset, tjs_int whence) {
     tjs_int64 newpos;
-    switch (whence) {
-    case TJS_BS_SEEK_SET:
-        if (offset >= 0) {
-            if (offset <= Size)
-                CurrentPos = static_cast<tjs_uint>(offset);
-        }
-        return CurrentPos;
+    switch(whence) {
+        case TJS_BS_SEEK_SET:
+            if(offset >= 0) {
+                if(offset <= Size)
+                    CurrentPos = static_cast<tjs_uint>(offset);
+            }
+            return CurrentPos;
 
-    case TJS_BS_SEEK_CUR:
-        if ((newpos = offset + (tjs_int64)CurrentPos) >= 0) {
-            tjs_uint np = (tjs_uint)newpos;
-            if (np <= Size)
-                CurrentPos = np;
-        }
-        return CurrentPos;
+        case TJS_BS_SEEK_CUR:
+            if((newpos = offset + (tjs_int64)CurrentPos) >= 0) {
+                tjs_uint np = (tjs_uint)newpos;
+                if(np <= Size)
+                    CurrentPos = np;
+            }
+            return CurrentPos;
 
-    case TJS_BS_SEEK_END:
-        if ((newpos = offset + (tjs_int64)Size) >= 0) {
-            tjs_uint np = (tjs_uint)newpos;
-            if (np <= Size)
-                CurrentPos = np;
-        }
-        return CurrentPos;
+        case TJS_BS_SEEK_END:
+            if((newpos = offset + (tjs_int64)Size) >= 0) {
+                tjs_uint np = (tjs_uint)newpos;
+                if(np <= Size)
+                    CurrentPos = np;
+            }
+            return CurrentPos;
     }
     return CurrentPos;
 }
 
 //---------------------------------------------------------------------------
-tjs_uint TJS_INTF_METHOD tTVPMemoryStream::Read(void *buffer,
-                                                tjs_uint read_size) {
-    if (CurrentPos + read_size >= Size) {
+tjs_uint TJS_INTF_METHOD tTVPMemoryStream::Read(void *buffer, tjs_uint read_size) {
+    if(CurrentPos + read_size >= Size) {
         read_size = Size - CurrentPos;
     }
 
@@ -155,34 +152,33 @@ tjs_uint TJS_INTF_METHOD tTVPMemoryStream::Read(void *buffer,
 }
 
 //---------------------------------------------------------------------------
-tjs_uint TJS_INTF_METHOD tTVPMemoryStream::Write(const void *buffer,
-                                                 tjs_uint write_size) {
+tjs_uint TJS_INTF_METHOD tTVPMemoryStream::Write(const void *buffer, tjs_uint write_size) {
     // writing may increase the internal buffer size.
-    if (Reference)
+    if(Reference)
         TVPThrowExceptionMessage(TVPWriteError);
 
     tjs_uint newpos = CurrentPos + write_size;
-    if (newpos >= AllocSize) {
+    if(newpos >= AllocSize) {
         // exceeds AllocSize
         tjs_uint onesize;
-        if (AllocSize < 64 * 1024)
+        if(AllocSize < 64 * 1024)
             onesize = 4 * 1024;
-        else if (AllocSize < 512 * 1024)
+        else if(AllocSize < 512 * 1024)
             onesize = 16 * 1024;
-        else if (AllocSize < 4096 * 1024)
+        else if(AllocSize < 4096 * 1024)
             onesize = 256 * 1024;
         else
             onesize = 2024 * 1024;
         AllocSize += onesize;
 
-        if (CurrentPos + write_size >= AllocSize) // still insufficient ?
+        if(CurrentPos + write_size >= AllocSize) // still insufficient ?
         {
             AllocSize = CurrentPos + write_size;
         }
 
         Block = Realloc(Block, AllocSize);
 
-        if (AllocSize && !Block)
+        if(AllocSize && !Block)
             TVPThrowExceptionMessage(TVPInsufficientMemory);
         // this exception cannot be repaird; a fatal error.
     }
@@ -191,7 +187,7 @@ tjs_uint TJS_INTF_METHOD tTVPMemoryStream::Write(const void *buffer,
 
     CurrentPos = newpos;
 
-    if (CurrentPos > Size)
+    if(CurrentPos > Size)
         Size = CurrentPos;
 
     return write_size;
@@ -199,43 +195,43 @@ tjs_uint TJS_INTF_METHOD tTVPMemoryStream::Write(const void *buffer,
 
 //---------------------------------------------------------------------------
 void TJS_INTF_METHOD tTVPMemoryStream::SetEndOfStorage() {
-    if (Reference)
+    if(Reference)
         TVPThrowExceptionMessage(TVPWriteError);
 
     Size = CurrentPos;
     AllocSize = Size;
     Block = Realloc(Block, Size);
-    if (Size && !Block)
+    if(Size && !Block)
         TVPThrowExceptionMessage(TVPInsufficientMemory);
 }
 
 //---------------------------------------------------------------------------
 void tTVPMemoryStream::Clear() {
-    if (Block && !Reference)
+    if(Block && !Reference)
         Free(Block);
     Init();
 }
 
 //---------------------------------------------------------------------------
 void tTVPMemoryStream::SetSize(tjs_uint size) {
-    if (Reference)
+    if(Reference)
         TVPThrowExceptionMessage(TVPWriteError);
 
-    if (Size > size) {
+    if(Size > size) {
         // decrease
         Size = size;
         AllocSize = size;
         Block = Realloc(Block, size);
-        if (CurrentPos > Size)
+        if(CurrentPos > Size)
             CurrentPos = Size;
-        if (size && !Block)
+        if(size && !Block)
             TVPThrowExceptionMessage(TVPInsufficientMemory);
     } else {
         // increase
         AllocSize = size;
         Size = size;
         Block = Realloc(Block, size);
-        if (size && !Block)
+        if(size && !Block)
             TVPThrowExceptionMessage(TVPInsufficientMemory);
     }
 }
@@ -253,9 +249,7 @@ void tTVPMemoryStream::Init() {
 void *tTVPMemoryStream::Alloc(size_t size) { return TJS_malloc(size); }
 
 //---------------------------------------------------------------------------
-void *tTVPMemoryStream::Realloc(void *orgblock, size_t size) {
-    return TJS_realloc(orgblock, size);
-}
+void *tTVPMemoryStream::Realloc(void *orgblock, size_t size) { return TJS_realloc(orgblock, size); }
 
 //---------------------------------------------------------------------------
 void tTVPMemoryStream::Free(void *block) { TJS_free(block); }
@@ -264,8 +258,7 @@ void tTVPMemoryStream::Free(void *block) { TJS_free(block); }
 //---------------------------------------------------------------------------
 // tTVPPartialStream
 //---------------------------------------------------------------------------
-tTVPPartialStream::tTVPPartialStream(tTJSBinaryStream *stream, tjs_uint64 start,
-                                     tjs_uint64 size) {
+tTVPPartialStream::tTVPPartialStream(tTJSBinaryStream *stream, tjs_uint64 start, tjs_uint64 size) {
     // the stream given as a argument here will be owned by this instance,
     // and freed at the destruction.
 
@@ -276,7 +269,7 @@ tTVPPartialStream::tTVPPartialStream(tTJSBinaryStream *stream, tjs_uint64 start,
 
     try {
         Stream->SetPosition(Start);
-    } catch (...) {
+    } catch(...) {
         delete Stream;
         Stream = nullptr;
         throw;
@@ -285,46 +278,44 @@ tTVPPartialStream::tTVPPartialStream(tTJSBinaryStream *stream, tjs_uint64 start,
 
 //---------------------------------------------------------------------------
 tTVPPartialStream::~tTVPPartialStream() {
-    if (Stream)
+    if(Stream)
         delete Stream;
 }
 
 //---------------------------------------------------------------------------
-tjs_uint64 TJS_INTF_METHOD tTVPPartialStream::Seek(tjs_int64 offset,
-                                                   tjs_int whence) {
+tjs_uint64 TJS_INTF_METHOD tTVPPartialStream::Seek(tjs_int64 offset, tjs_int whence) {
     tjs_int64 newpos;
-    switch (whence) {
-    case TJS_BS_SEEK_SET:
-        newpos = offset;
-        if (offset >= 0 && offset <= static_cast<tjs_int64>(Size)) {
-            newpos += Start;
-            CurrentPos = Stream->Seek(newpos, TJS_BS_SEEK_SET) - Start;
-        }
-        return CurrentPos;
+    switch(whence) {
+        case TJS_BS_SEEK_SET:
+            newpos = offset;
+            if(offset >= 0 && offset <= static_cast<tjs_int64>(Size)) {
+                newpos += Start;
+                CurrentPos = Stream->Seek(newpos, TJS_BS_SEEK_SET) - Start;
+            }
+            return CurrentPos;
 
-    case TJS_BS_SEEK_CUR:
-        newpos = offset + CurrentPos;
-        if (offset >= 0 && offset <= static_cast<tjs_int64>(Size)) {
-            newpos += Start;
-            CurrentPos = Stream->Seek(newpos, TJS_BS_SEEK_SET) - Start;
-        }
-        return CurrentPos;
+        case TJS_BS_SEEK_CUR:
+            newpos = offset + CurrentPos;
+            if(offset >= 0 && offset <= static_cast<tjs_int64>(Size)) {
+                newpos += Start;
+                CurrentPos = Stream->Seek(newpos, TJS_BS_SEEK_SET) - Start;
+            }
+            return CurrentPos;
 
-    case TJS_BS_SEEK_END:
-        newpos = offset + Size;
-        if (offset >= 0 && offset <= static_cast<tjs_int64>(Size)) {
-            newpos += Start;
-            CurrentPos = Stream->Seek(newpos, TJS_BS_SEEK_SET) - Start;
-        }
-        return CurrentPos;
+        case TJS_BS_SEEK_END:
+            newpos = offset + Size;
+            if(offset >= 0 && offset <= static_cast<tjs_int64>(Size)) {
+                newpos += Start;
+                CurrentPos = Stream->Seek(newpos, TJS_BS_SEEK_SET) - Start;
+            }
+            return CurrentPos;
     }
     return CurrentPos;
 }
 
 //---------------------------------------------------------------------------
-tjs_uint TJS_INTF_METHOD tTVPPartialStream::Read(void *buffer,
-                                                 tjs_uint read_size) {
-    if (CurrentPos + read_size >= Size) {
+tjs_uint TJS_INTF_METHOD tTVPPartialStream::Read(void *buffer, tjs_uint read_size) {
+    if(CurrentPos + read_size >= Size) {
         read_size = static_cast<tjs_uint>(Size - CurrentPos);
     }
 
@@ -336,10 +327,7 @@ tjs_uint TJS_INTF_METHOD tTVPPartialStream::Read(void *buffer,
 }
 
 //---------------------------------------------------------------------------
-tjs_uint TJS_INTF_METHOD tTVPPartialStream::Write(const void *buffer,
-                                                  tjs_uint write_size) {
-    return 0;
-}
+tjs_uint TJS_INTF_METHOD tTVPPartialStream::Write(const void *buffer, tjs_uint write_size) { return 0; }
 
 //---------------------------------------------------------------------------
 tjs_uint64 TJS_INTF_METHOD tTVPPartialStream::GetSize() { return Size; }
@@ -447,7 +435,7 @@ tTVPArchive *TVPOpenLibArchive(const ttstr & name, tTJSBinaryStream *st, bool no
 static FILE *_fileopen(ttstr path) {
     std::string strpath = path.AsStdString();
     FILE *fp = fopen(strpath.c_str(), "wb");
-    if (!fp) { // make dirs
+    if(!fp) { // make dirs
         path = TVPExtractStoragePath(path);
         TVPCreateFolders(path);
         fp = fopen(strpath.c_str(), "wb");
@@ -475,7 +463,7 @@ public:
     }
 
     ~tTVPUnpackArchiveThread() {
-        if (ThreadObj->joinable()) {
+        if(ThreadObj->joinable()) {
             ThreadObj->join();
         }
         delete ThreadObj;
@@ -491,20 +479,19 @@ class tTVPUnpackArchiveImplLibArchive : public iTVPUnpackArchiveImpl {
     int _totalFileCount = 0;
     FILE *FpIn = nullptr;
 
-    static const char *_onPassphraseCallback(struct archive *,
-                                             void *clientdata);
+    static const char *_onPassphraseCallback(struct archive *, void *clientdata);
 
     std::string onPassphraseCallback();
 
 public:
     virtual ~tTVPUnpackArchiveImplLibArchive() {
-        if (pTVPArc)
+        if(pTVPArc)
             pTVPArc->Release();
-        if (FpIn) {
+        if(FpIn) {
             fclose(FpIn);
             FpIn = nullptr;
         }
-        if (ArcObj) {
+        if(ArcObj) {
             archive_read_free(ArcObj);
             ArcObj = nullptr;
         }
@@ -517,23 +504,22 @@ public:
         ArcObj = archive_read_new();
         archive_read_support_filter_all(ArcObj);
         archive_read_support_format_all(ArcObj);
-        archive_read_set_passphrase_callback(ArcObj, this,
-                                             _onPassphraseCallback);
+        archive_read_set_passphrase_callback(ArcObj, this, _onPassphraseCallback);
         int r = archive_read_open_FILE(ArcObj, FpIn);
 
-        if (r < ARCHIVE_OK) {
+        if(r < ARCHIVE_OK) {
             fclose(FpIn);
             FpIn = nullptr;
             archive_read_free(ArcObj);
             ArcObj = nullptr;
             // try TVPArchive
             pTVPArc = TVPOpenArchive(path, false);
-            if (pTVPArc) {
+            if(pTVPArc) {
                 file_count = pTVPArc->GetCount();
                 _totalSize = 0;
-                for (int i = 0; i < file_count; ++i) {
+                for(int i = 0; i < file_count; ++i) {
                     tTJSBinaryStream *str = pTVPArc->CreateStreamByIndex(i);
-                    if (str) {
+                    if(str) {
                         _totalSize += str->GetSize();
                         delete str;
                     }
@@ -543,24 +529,24 @@ public:
             }
             return false;
         }
-        if (archive_read_has_encrypted_entries(ArcObj) > 0) {
+        if(archive_read_has_encrypted_entries(ArcObj) > 0) {
             std::string psw = onPassphraseCallback();
-            if (psw.empty()) {
+            if(psw.empty()) {
                 return false;
             }
             archive_read_add_passphrase(ArcObj, psw.c_str());
         }
         r = 0;
-        while (true) {
+        while(true) {
             struct archive_entry *entry;
             int r = archive_read_next_header(ArcObj, &entry);
-            if (r == ARCHIVE_EOF) {
+            if(r == ARCHIVE_EOF) {
                 r = ARCHIVE_OK;
                 break;
             }
-            if (r < ARCHIVE_OK)
+            if(r < ARCHIVE_OK)
                 _callbacks->FuncOnError(r, archive_error_string(ArcObj));
-            if (r < ARCHIVE_WARN)
+            if(r < ARCHIVE_WARN)
                 break;
             ++file_count;
             size_count += archive_entry_size(entry);
@@ -580,36 +566,33 @@ public:
 
     virtual void ExtractTo(const std::string &OutPath) override {
         tjs_uint64 total_size = 0;
-        if (pTVPArc) {
+        if(pTVPArc) {
             int file_count = pTVPArc->GetCount();
             std::vector<char> buffer;
             buffer.resize(4 * 1024 * 1024);
-            for (int index = 0; index < file_count && !StopRequired; ++index) {
+            for(int index = 0; index < file_count && !StopRequired; ++index) {
                 tjs_uint64 file_size = 0;
                 std::string filename = pTVPArc->GetName(index).AsStdString();
-                if (filename.size() > 600)
+                if(filename.size() > 600)
                     continue;
                 std::string fullpath = OutPath + filename;
                 FILE *fp = _fileopen(fullpath);
-                if (!fp) {
-                    _callbacks->FuncOnError(ARCHIVE_FAILED,
-                                            "Cannot open output file");
+                if(!fp) {
+                    _callbacks->FuncOnError(ARCHIVE_FAILED, "Cannot open output file");
                     break;
                 }
                 tTJSBinaryStream *str = pTVPArc->CreateStreamByIndex(index);
-                if (!str) {
-                    _callbacks->FuncOnError(ARCHIVE_FAILED,
-                                            "Cannot open archive stream");
+                if(!str) {
+                    _callbacks->FuncOnError(ARCHIVE_FAILED, "Cannot open archive stream");
                     fclose(fp);
                     break;
                 }
-                _callbacks->FuncOnNewFile(index, filename.c_str(),
-                                          str->GetSize());
-                while (!StopRequired) {
+                _callbacks->FuncOnNewFile(index, filename.c_str(), str->GetSize());
+                while(!StopRequired) {
                     tjs_uint readed = str->Read(&buffer.front(), buffer.size());
-                    if (readed == 0)
+                    if(readed == 0)
                         break;
-                    if (readed != fwrite(&buffer.front(), 1, readed, fp)) {
+                    if(readed != fwrite(&buffer.front(), 1, readed, fp)) {
                         _callbacks->FuncOnError(ARCHIVE_FAILED,
                                                 "Fail to write file.\nPlease "
                                                 "check the disk space.");
@@ -618,7 +601,7 @@ public:
                     file_size += readed;
                     total_size += readed;
                     _callbacks->FuncOnProgress(total_size, file_size);
-                    if (readed < buffer.size())
+                    if(readed < buffer.size())
                         break;
                 }
                 delete str;
@@ -635,52 +618,49 @@ public:
         archive_read_support_filter_all(ArcObj);
         archive_read_support_format_all(ArcObj);
         int r = archive_read_open_FILE(ArcObj, FpIn);
-        if (r < ARCHIVE_OK) {
+        if(r < ARCHIVE_OK) {
             _callbacks->FuncOnError(r, archive_error_string(ArcObj));
             _callbacks->FuncOnEnded();
             return;
         }
-        for (int index = 0; !StopRequired; ++index) {
+        for(int index = 0; !StopRequired; ++index) {
             struct archive_entry *entry;
             int r = archive_read_next_header(ArcObj, &entry);
-            if (r == ARCHIVE_EOF) {
+            if(r == ARCHIVE_EOF) {
                 r = ARCHIVE_OK;
                 break;
             }
-            if (r < ARCHIVE_OK)
+            if(r < ARCHIVE_OK)
                 _callbacks->FuncOnError(r, archive_error_string(ArcObj));
-            if (r < ARCHIVE_WARN)
+            if(r < ARCHIVE_WARN)
                 break;
             const char *filename = archive_entry_pathname_utf8(entry);
             std::string fullpath = OutPath + filename;
             FILE *fp = _fileopen(fullpath);
-            if (!fp) {
-                _callbacks->FuncOnError(ARCHIVE_FAILED,
-                                        "Cannot open output file");
+            if(!fp) {
+                _callbacks->FuncOnError(ARCHIVE_FAILED, "Cannot open output file");
                 break;
             }
-            _callbacks->FuncOnNewFile(index, filename,
-                                      archive_entry_size(entry));
+            _callbacks->FuncOnNewFile(index, filename, archive_entry_size(entry));
 
             const void *buff;
             size_t size;
             la_int64_t offset;
             tjs_uint64 file_size = 0;
             const char *errmsg;
-            while (!StopRequired) {
+            while(!StopRequired) {
                 r = archive_read_data_block(ArcObj, &buff, &size, &offset);
-                if (r == ARCHIVE_EOF) {
+                if(r == ARCHIVE_EOF) {
                     r = ARCHIVE_OK;
                     break;
                 }
-                if (r < ARCHIVE_OK) {
+                if(r < ARCHIVE_OK) {
                     errmsg = archive_error_string(ArcObj);
                     break;
                 }
-                if (size != fwrite(buff, 1, size, fp)) {
+                if(size != fwrite(buff, 1, size, fp)) {
                     r = ARCHIVE_FAILED;
-                    errmsg =
-                        "Fail to write file.\nPlease check the disk space.";
+                    errmsg = "Fail to write file.\nPlease check the disk space.";
                     break;
                 }
                 file_size += size;
@@ -688,11 +668,11 @@ public:
                 _callbacks->FuncOnProgress(total_size, file_size);
             }
             fclose(fp);
-            if (r < ARCHIVE_OK)
+            if(r < ARCHIVE_OK)
                 _callbacks->FuncOnError(r, errmsg);
-            if (r < ARCHIVE_WARN)
+            if(r < ARCHIVE_WARN)
                 break;
-            if (archive_entry_mtime_is_set(entry)) {
+            if(archive_entry_mtime_is_set(entry)) {
                 TVP_utime(fullpath.c_str(), archive_entry_mtime(entry));
             }
         }
@@ -701,15 +681,10 @@ public:
     }
 };
 
-std::string tTVPUnpackArchiveImplLibArchive::onPassphraseCallback() {
-    return _callbacks->FuncPassword();
-}
+std::string tTVPUnpackArchiveImplLibArchive::onPassphraseCallback() { return _callbacks->FuncPassword(); }
 
-const char *
-tTVPUnpackArchiveImplLibArchive::_onPassphraseCallback(archive *,
-                                                       void *clientdata) {
-    static std::string psw =
-        ((tTVPUnpackArchiveImplLibArchive *)clientdata)->onPassphraseCallback();
+const char *tTVPUnpackArchiveImplLibArchive::_onPassphraseCallback(archive *, void *clientdata) {
+    static std::string psw = ((tTVPUnpackArchiveImplLibArchive *)clientdata)->onPassphraseCallback();
     return psw.c_str();
 }
 
@@ -745,40 +720,39 @@ class tTVPUnpackArchiveImplUnRAR : public iTVPUnpackArchiveImpl {
         }
 
         void Close() {
-            if (_handle)
+            if(_handle)
                 RARCloseArchive(_handle);
             _handle = nullptr;
         }
     };
 
     int OnCallback(UINT msg, LPARAM P1, LPARAM P2) {
-        switch (msg) {
-        case UCM_CHANGEVOLUME:
-        case UCM_CHANGEVOLUMEW:
-            return -1; // manual change multi-volume file name is not supported
-                       // yet
-        case UCM_NEEDPASSWORD: {
-            bool hasPsw = !_lastUsedPassword.empty();
-            if (!hasPsw) {
-                _lastUsedPassword = _callbacks->FuncPassword();
+        switch(msg) {
+            case UCM_CHANGEVOLUME:
+            case UCM_CHANGEVOLUMEW:
+                return -1; // manual change multi-volume file name is not supported
+                           // yet
+            case UCM_NEEDPASSWORD: {
+                bool hasPsw = !_lastUsedPassword.empty();
+                if(!hasPsw) {
+                    _lastUsedPassword = _callbacks->FuncPassword();
+                }
+                if(_lastUsedPassword.empty()) {
+                    return -1;
+                }
+                int len = _lastUsedPassword.size();
+                if(len > P2)
+                    len = P2;
+                strncpy((char *)P1, _lastUsedPassword.c_str(), len);
+                if(hasPsw)
+                    _lastUsedPassword.clear();
+                return 0;
             }
-            if (_lastUsedPassword.empty()) {
-                return -1;
-            }
-            int len = _lastUsedPassword.size();
-            if (len > P2)
-                len = P2;
-            strncpy((char *)P1, _lastUsedPassword.c_str(), len);
-            if (hasPsw)
-                _lastUsedPassword.clear();
-            return 0;
-        }
-        case UCM_PROCESSDATA:
-            _totalProcessedBytes += P2;
-            _curProcessedBytes += P2;
-            _callbacks->FuncOnProgress(_totalProcessedBytes,
-                                       _curProcessedBytes);
-            return _reqBreak ? -1 : 0;
+            case UCM_PROCESSDATA:
+                _totalProcessedBytes += P2;
+                _curProcessedBytes += P2;
+                _callbacks->FuncOnProgress(_totalProcessedBytes, _curProcessedBytes);
+                return _reqBreak ? -1 : 0;
         }
         return -1;
     }
@@ -789,26 +763,25 @@ public:
     virtual bool Open(const std::string &path) override {
         _archivePath = path;
         RARArc arc;
-        if (!arc.Open((char *)_archivePath.c_str(), RAR_OM_LIST)) {
+        if(!arc.Open((char *)_archivePath.c_str(), RAR_OM_LIST)) {
             return false;
         }
         RARSetCallback(
             arc._handle,
             [](UINT msg, LPARAM UserData, LPARAM P1, LPARAM P2) -> int {
-                return ((tTVPUnpackArchiveImplUnRAR *)UserData)
-                    ->OnCallback(msg, P1, P2);
+                return ((tTVPUnpackArchiveImplUnRAR *)UserData)->OnCallback(msg, P1, P2);
             },
             (LPARAM)this);
 
         RARHeaderData headerData;
         _totalSize = 0;
         _filelist.clear();
-        while (1) {
+        while(1) {
             RARHeaderDataEx headerData;
             memset(&headerData, 0, sizeof(headerData));
             int result = RARReadHeaderEx(arc._handle, &headerData);
-            if (result != 0) {
-                if (result != ERAR_END_ARCHIVE) {
+            if(result != 0) {
+                if(result != ERAR_END_ARCHIVE) {
                     return false;
                 }
                 break;
@@ -818,7 +791,7 @@ public:
             _filelist.emplace_back(headerData.FileName);
             // Find next file
             result = RARProcessFile(arc._handle, RAR_SKIP, nullptr, nullptr);
-            if (result != 0) {
+            if(result != 0) {
                 return false;
             }
         }
@@ -831,25 +804,24 @@ public:
 
     virtual void ExtractTo(const std::string &path) override {
         RARArc arc;
-        if (!arc.Open((char *)_archivePath.c_str(), RAR_OM_EXTRACT)) {
+        if(!arc.Open((char *)_archivePath.c_str(), RAR_OM_EXTRACT)) {
             _callbacks->FuncOnError(1001, "Cannot open file");
             return;
         }
         RARSetCallback(
             arc._handle,
             [](UINT msg, LPARAM UserData, LPARAM P1, LPARAM P2) -> int {
-                return ((tTVPUnpackArchiveImplUnRAR *)UserData)
-                    ->OnCallback(msg, P1, P2);
+                return ((tTVPUnpackArchiveImplUnRAR *)UserData)->OnCallback(msg, P1, P2);
             },
             (LPARAM)this);
         RARHeaderData headerData;
 
-        for (int counter = 0;; ++counter) {
+        for(int counter = 0;; ++counter) {
             RARHeaderDataEx headerData;
             memset(&headerData, 0, sizeof(headerData));
             int result = RARReadHeaderEx(arc._handle, &headerData);
-            if (result != 0) {
-                if (result != ERAR_END_ARCHIVE) {
+            if(result != 0) {
+                if(result != ERAR_END_ARCHIVE) {
                     _callbacks->FuncOnError(result, "Extraction Fail");
                     return;
                 }
@@ -858,13 +830,11 @@ public:
 
             // _filelist.emplace_back(headerData.FileName);
             _callbacks->FuncOnNewFile(counter, headerData.FileName,
-                                      (headerData.UnpSizeHigh << 32) |
-                                          headerData.UnpSize);
+                                      (headerData.UnpSizeHigh << 32) | headerData.UnpSize);
             _curProcessedBytes = 0;
             // Find next file
-            result = RARProcessFile(arc._handle, RAR_EXTRACT,
-                                    (char *)path.c_str(), nullptr);
-            if (result != 0) {
+            result = RARProcessFile(arc._handle, RAR_EXTRACT, (char *)path.c_str(), nullptr);
+            if(result != 0) {
                 _callbacks->FuncOnError(result, "Extraction Fail");
                 return;
             }
@@ -876,21 +846,19 @@ public:
 
 #endif
 
-int tTVPUnpackArchive::Prepare(const std::string &path,
-                               const std::string &_outpath,
-                               tjs_uint64 *totalSize) {
+int tTVPUnpackArchive::Prepare(const std::string &path, const std::string &_outpath, tjs_uint64 *totalSize) {
     FILE *FpIn = fopen(path.c_str(), "rb");
-    if (!FpIn)
+    if(!FpIn)
         return -1;
     char signature[4];
-    if (fread(signature, 1, 4, FpIn) != 4) {
+    if(fread(signature, 1, 4, FpIn) != 4) {
         fclose(FpIn);
         return -2;
     }
     OutPath = _outpath + "/";
     fclose(FpIn);
 #ifdef _UNRAR_DLL_
-    if (!memcmp(signature, "Rar!", 4)) {
+    if(!memcmp(signature, "Rar!", 4)) {
         _impl = new tTVPUnpackArchiveImplUnRAR();
     } else
 #endif
@@ -898,14 +866,14 @@ int tTVPUnpackArchive::Prepare(const std::string &path,
         _impl = new tTVPUnpackArchiveImplLibArchive();
     }
     _impl->SetCallback(this);
-    if (!_impl->Open(path)) {
+    if(!_impl->Open(path)) {
         Close();
         return -2;
     }
-    if (totalSize)
+    if(totalSize)
         *totalSize = _impl->GetTotalSize();
     int file_count = _impl->GetFileCount();
-    if (file_count) {
+    if(file_count) {
         ArcThread = new tTVPUnpackArchiveThread(this);
     }
     return file_count;
@@ -922,13 +890,13 @@ void tTVPUnpackArchive::Stop() {
 }
 
 void tTVPUnpackArchive::Close() {
-    if (_impl)
+    if(_impl)
         delete _impl;
     _impl = nullptr;
 }
 
 void tTVPUnpackArchive::Process() {
-    if (_impl->StopRequired)
+    if(_impl->StopRequired)
         return;
     _impl->ExtractTo(OutPath);
 }
@@ -936,6 +904,6 @@ void tTVPUnpackArchive::Process() {
 tTVPUnpackArchive::tTVPUnpackArchive() {}
 
 tTVPUnpackArchive::~tTVPUnpackArchive() {
-    if (ArcThread)
+    if(ArcThread)
         delete ArcThread;
 }

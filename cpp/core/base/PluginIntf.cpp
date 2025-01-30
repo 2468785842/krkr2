@@ -18,26 +18,26 @@
 //---------------------------------------------------------------------------
 tjs_uint32 tTJSNC_Plugins::ClassID = -1;
 
-tTJSNC_Plugins::tTJSNC_Plugins() : inherited(TJS_W("Plugins")) {
-    // registration of native members
+tTJSNC_Plugins::tTJSNC_Plugins() :
+    inherited(TJS_W("Plugins")){ // registration of native members
 
-    TJS_BEGIN_NATIVE_MEMBERS(Plugins)
-        TJS_DECL_EMPTY_FINALIZE_METHOD
-//----------------------------------------------------------------------
+                                 TJS_BEGIN_NATIVE_MEMBERS(Plugins) TJS_DECL_EMPTY_FINALIZE_METHOD
+                                     //----------------------------------------------------------------------
 
-//-- methods
+                                     //-- methods
 
-//----------------------------------------------------------------------
+                                     //----------------------------------------------------------------------
 
-//--properties
+                                     //--properties
 
-//---------------------------------------------------------------------------
+                                     //---------------------------------------------------------------------------
 
-    TJS_END_NATIVE_MEMBERS
-}
+                                     TJS_END_NATIVE_MEMBERS
+    }
 
-//---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_Plugins::CreateNativeInstance() {
+    //---------------------------------------------------------------------------
+    tTJSNativeInstance
+    * tTJSNC_Plugins::CreateNativeInstance() {
     // this class cannot create an instance
     TVPThrowExceptionMessage(TVPCannotCreateInstance);
     return nullptr;

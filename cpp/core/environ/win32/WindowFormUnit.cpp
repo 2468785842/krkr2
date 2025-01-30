@@ -73,14 +73,14 @@ std::vector<TTVPWindowForm *> TVPModalWindowList;
 static void TVPAddModalWindow(TTVPWindowForm *window) {
     std::vector<TTVPWindowForm *>::iterator i;
     i = std::find(TVPModalWindowList.begin(), TVPModalWindowList.end(), window);
-    if (i == TVPModalWindowList.end())
+    if(i == TVPModalWindowList.end())
         TVPModalWindowList.push_back(window);
 }
 //---------------------------------------------------------------------------
 static void TVPRemoveModalWindow(TTVPWindowForm *window) {
     std::vector<TTVPWindowForm *>::iterator i;
     i = std::find(TVPModalWindowList.begin(), TVPModalWindowList.end(), window);
-    if (i != TVPModalWindowList.end())
+    if(i != TVPModalWindowList.end())
         TVPModalWindowList.erase(i);
 }
 //---------------------------------------------------------------------------
@@ -143,34 +143,34 @@ static bool TVPControlImeState = true;
 //---------------------------------------------------------------------------
 void TVPInitWindowOptions() {
     // initialize various options around window/graphics
-    if (TVPWindowOptionsInit)
+    if(TVPWindowOptionsInit)
         return;
 
     tTJSVariant val;
 
-    if (TVPGetCommandLine(TJS_W("-wheel"), &val)) {
+    if(TVPGetCommandLine(TJS_W("-wheel"), &val)) {
         ttstr str(val);
-        if (str == TJS_W("dinput"))
+        if(str == TJS_W("dinput"))
             TVPWheelDetectionType = wdtDirectInput;
-        else if (str == TJS_W("message"))
+        else if(str == TJS_W("message"))
             TVPWheelDetectionType = wdtWindowMessage;
         else
             TVPWheelDetectionType = wdtNone;
     }
 
 #ifndef DISABLE_EMBEDDED_GAME_PAD
-    if (TVPGetCommandLine(TJS_W("-joypad"), &val)) {
+    if(TVPGetCommandLine(TJS_W("-joypad"), &val)) {
         ttstr str(val);
-        if (str == TJS_W("dinput"))
+        if(str == TJS_W("dinput"))
             TVPJoyPadDetectionType = jdtDirectInput;
         else
             TVPJoyPadDetectionType = jdtNone;
     }
 #endif
 
-    if (TVPGetCommandLine(TJS_W("-controlime"), &val)) {
+    if(TVPGetCommandLine(TJS_W("-controlime"), &val)) {
         ttstr str(val);
-        if (str == TJS_W("no"))
+        if(str == TJS_W("no"))
             TVPControlImeState = false;
     }
 
@@ -178,13 +178,10 @@ void TVPInitWindowOptions() {
 }
 //---------------------------------------------------------------------------
 
-TTVPWindowForm::TTVPWindowForm(tTVPApplication *app, tTJSNI_Window *ni,
-                               tTJSNI_Window *parent)
-    : tTVPWindow(), CurrentMouseCursor(crDefault), touch_points_(this),
-      LayerLeft(0), LayerTop(0), LayerWidth(32), LayerHeight(32),
-      LastMouseDownX(0), LastMouseDownY(0), HintTimer(nullptr),
-      HintDelay(TVP_TOOLTIP_SHOW_DELAY), LastHintSender(nullptr),
-      FullScreenDestRect(0, 0, 0, 0) {
+TTVPWindowForm::TTVPWindowForm(tTVPApplication *app, tTJSNI_Window *ni, tTJSNI_Window *parent) :
+    tTVPWindow(), CurrentMouseCursor(crDefault), touch_points_(this), LayerLeft(0), LayerTop(0), LayerWidth(32),
+    LayerHeight(32), LastMouseDownX(0), LastMouseDownY(0), HintTimer(nullptr), HintDelay(TVP_TOOLTIP_SHOW_DELAY),
+    LastHintSender(nullptr), FullScreenDestRect(0, 0, 0, 0) {
     CreateWnd(L"TVPMainWindow", Application->GetTitle(), 10, 10, parent);
     TVPInitWindowOptions();
 
@@ -246,20 +243,20 @@ TTVPWindowForm::TTVPWindowForm(tTVPApplication *app, tTJSNI_Window *ni,
     DisplayRotate = -1;
 }
 TTVPWindowForm::~TTVPWindowForm() {
-    if (HintTimer) {
+    if(HintTimer) {
         delete HintTimer;
         HintTimer = nullptr;
     }
-    if (AttentionFont) {
+    if(AttentionFont) {
         delete AttentionFont;
         AttentionFont = nullptr;
     }
-    if (DIWheelDevice) {
+    if(DIWheelDevice) {
         delete DIWheelDevice;
         DIWheelDevice = nullptr;
     }
 #ifndef DISABLE_EMBEDDED_GAME_PAD
-    if (DIPadDevice) {
+    if(DIPadDevice) {
         delete DIPadDevice;
         DIPadDevice = nullptr;
     }
@@ -275,14 +272,14 @@ void TTVPWindowForm::OnDestroy() {
 
     FreeDirectInputDevice();
 
-    if (AttentionFont) {
+    if(AttentionFont) {
         delete AttentionFont, AttentionFont = nullptr;
     }
 
     tjs_int count = WindowMessageReceivers.GetCount();
-    for (tjs_int i = 0; i < count; i++) {
+    for(tjs_int i = 0; i < count; i++) {
         tTVPMessageReceiverRecord *item = WindowMessageReceivers[i];
-        if (!item)
+        if(!item)
             continue;
         delete item;
         WindowMessageReceivers.Remove(i);
@@ -293,7 +290,7 @@ void TTVPWindowForm::OnDestroy() {
 }
 void TTVPWindowForm::CleanupFullScreen() {
     // called at destruction
-    if (TVPFullScreenedWindow != this)
+    if(TVPFullScreenedWindow != this)
         return;
     TVPFullScreenedWindow = nullptr;
 }
@@ -301,17 +298,17 @@ void TTVPWindowForm::CleanupFullScreen() {
 tjs_uint32 TVPGetCurrentShiftKeyState() {
     tjs_uint32 f = 0;
 
-    if (TVPGetAsyncKeyState(VK_SHIFT))
+    if(TVPGetAsyncKeyState(VK_SHIFT))
         f += TVP_SS_SHIFT;
-    if (TVPGetAsyncKeyState(VK_MENU))
+    if(TVPGetAsyncKeyState(VK_MENU))
         f += TVP_SS_ALT;
-    if (TVPGetAsyncKeyState(VK_CONTROL))
+    if(TVPGetAsyncKeyState(VK_CONTROL))
         f += TVP_SS_CTRL;
-    if (TVPGetAsyncKeyState(VK_LBUTTON))
+    if(TVPGetAsyncKeyState(VK_LBUTTON))
         f += TVP_SS_LEFT;
-    if (TVPGetAsyncKeyState(VK_RBUTTON))
+    if(TVPGetAsyncKeyState(VK_RBUTTON))
         f += TVP_SS_RIGHT;
-    if (TVPGetAsyncKeyState(VK_MBUTTON))
+    if(TVPGetAsyncKeyState(VK_MBUTTON))
         f += TVP_SS_MIDDLE;
 
     return f;
@@ -428,9 +425,7 @@ void TTVPWindowForm::WMAcquireImeControl() {
 	AcquireImeControl();
 }
 #endif
-bool TTVPWindowForm::GetFormEnabled() {
-    return TRUE == ::IsWindowEnabled(GetHandle());
-}
+bool TTVPWindowForm::GetFormEnabled() { return TRUE == ::IsWindowEnabled(GetHandle()); }
 
 void TTVPWindowForm::TickBeat() {
     // called every 50ms intervally
@@ -438,7 +433,7 @@ void TTVPWindowForm::TickBeat() {
     bool focused = HasFocus();
 
     // mouse key
-    if (UseMouseKey && focused) {
+    if(UseMouseKey && focused) {
         GenerateMouseEvent(false, false, false, false);
     }
 #if 0
@@ -451,31 +446,30 @@ void TTVPWindowForm::TickBeat() {
 #endif
     // wheel rotation detection
     tjs_uint32 shift = TVPGetCurrentShiftKeyState();
-    if (TVPWheelDetectionType == wdtDirectInput) {
+    if(TVPWheelDetectionType == wdtDirectInput) {
         CreateDirectInputDevice();
-        if (focused && TJSNativeInstance && DIWheelDevice) {
+        if(focused && TJSNativeInstance && DIWheelDevice) {
             tjs_int delta = DIWheelDevice->GetWheelDelta();
-            if (delta) {
-                POINT origin = {0, 0};
+            if(delta) {
+                POINT origin = { 0, 0 };
                 ::ClientToScreen(GetHandle(), &origin);
 
-                POINT mp = {0, 0};
+                POINT mp = { 0, 0 };
                 ::GetCursorPos(&mp);
                 tjs_int x = mp.x - origin.x;
                 tjs_int y = mp.y - origin.y;
                 TranslateWindowToDrawArea(x, y);
-                TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(
-                    TJSNativeInstance, shift, delta, x, y));
+                TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(TJSNativeInstance, shift, delta, x, y));
             }
         }
     }
 
 #ifndef DISABLE_EMBEDDED_GAME_PAD
     // pad detection
-    if (TVPJoyPadDetectionType == jdtDirectInput) {
+    if(TVPJoyPadDetectionType == jdtDirectInput) {
         CreateDirectInputDevice();
-        if (DIPadDevice && TJSNativeInstance) {
-            if (focused)
+        if(DIPadDevice && TJSNativeInstance) {
+            if(focused)
                 DIPadDevice->UpdateWithCurrentState();
             else
                 DIPadDevice->UpdateWithSuspendedState();
@@ -486,15 +480,15 @@ void TTVPWindowForm::TickBeat() {
             std::vector<WORD>::const_iterator i;
 
             // for upped pad buttons
-            for (i = uppedkeys.begin(); i != uppedkeys.end(); i++) {
+            for(i = uppedkeys.begin(); i != uppedkeys.end(); i++) {
                 InternalKeyUp(*i, shift);
             }
             // for downed pad buttons
-            for (i = downedkeys.begin(); i != downedkeys.end(); i++) {
+            for(i = downedkeys.begin(); i != downedkeys.end(); i++) {
                 InternalKeyDown(*i, shift);
             }
             // for repeated pad buttons
-            for (i = repeatkeys.begin(); i != repeatkeys.end(); i++) {
+            for(i = repeatkeys.begin(); i != repeatkeys.end(); i++) {
                 InternalKeyDown(*i, shift | TVP_SS_REPEAT);
             }
         }
@@ -502,24 +496,22 @@ void TTVPWindowForm::TickBeat() {
 #endif
 
     // check RecheckInputState
-    if (tickcount - LastRecheckInputStateSent > 1000) {
+    if(tickcount - LastRecheckInputStateSent > 1000) {
         LastRecheckInputStateSent = tickcount;
-        if (TJSNativeInstance)
+        if(TJSNativeInstance)
             TJSNativeInstance->RecheckInputState();
     }
 }
-bool TTVPWindowForm::GetWindowActive() {
-    return ::GetForegroundWindow() == GetHandle();
-}
+bool TTVPWindowForm::GetWindowActive() { return ::GetForegroundWindow() == GetHandle(); }
 void TTVPWindowForm::SetDrawDeviceDestRect() {
     tTVPRect destrect;
     tjs_int w = MulDiv(LayerWidth, ActualZoomNumer, ActualZoomDenom);
     tjs_int h = MulDiv(LayerHeight, ActualZoomNumer, ActualZoomDenom);
-    if (w < 1)
+    if(w < 1)
         w = 1;
-    if (h < 1)
+    if(h < 1)
         h = 1;
-    if (GetFullScreenMode()) {
+    if(GetFullScreenMode()) {
         destrect.left = FullScreenDestRect.left;
         destrect.top = FullScreenDestRect.top;
         destrect.right = destrect.left + w;
@@ -530,11 +522,10 @@ void TTVPWindowForm::SetDrawDeviceDestRect() {
         destrect.bottom = h;
     }
 
-    if (LastSentDrawDeviceDestRect != destrect) {
-        if (TJSNativeInstance) {
-            if (GetFullScreenMode()) {
-                TJSNativeInstance->GetDrawDevice()->SetClipRectangle(
-                    FullScreenDestRect);
+    if(LastSentDrawDeviceDestRect != destrect) {
+        if(TJSNativeInstance) {
+            if(GetFullScreenMode()) {
+                TJSNativeInstance->GetDrawDevice()->SetClipRectangle(FullScreenDestRect);
             } else {
                 TJSNativeInstance->GetDrawDevice()->SetClipRectangle(destrect);
             }
@@ -545,19 +536,18 @@ void TTVPWindowForm::SetDrawDeviceDestRect() {
 }
 void TTVPWindowForm::OnPaint() {
     // a painting event
-    if (NextSetWindowHandleToDrawDevice) {
+    if(NextSetWindowHandleToDrawDevice) {
         bool ismain = false;
-        if (TJSNativeInstance)
+        if(TJSNativeInstance)
             ismain = TJSNativeInstance->IsMainWindow();
-        if (TJSNativeInstance)
-            TJSNativeInstance->GetDrawDevice()->SetTargetWindow(GetHandle(),
-                                                                ismain);
+        if(TJSNativeInstance)
+            TJSNativeInstance->GetDrawDevice()->SetTargetWindow(GetHandle(), ismain);
         NextSetWindowHandleToDrawDevice = false;
     }
 
     SetDrawDeviceDestRect();
 
-    if (TJSNativeInstance) {
+    if(TJSNativeInstance) {
         tTVPRect r;
         GetClientRect(r);
         TJSNativeInstance->NotifyWindowExposureToLayer(r);
@@ -566,16 +556,16 @@ void TTVPWindowForm::OnPaint() {
 
 void TTVPWindowForm::SetUseMouseKey(bool b) {
     UseMouseKey = b;
-    if (b) {
+    if(b) {
         MouseLeftButtonEmulatedPushed = false;
         MouseRightButtonEmulatedPushed = false;
         LastMouseKeyTick = GetTickCount();
     } else {
-        if (MouseLeftButtonEmulatedPushed) {
+        if(MouseLeftButtonEmulatedPushed) {
             MouseLeftButtonEmulatedPushed = false;
             OnMouseUp(mbLeft, 0, LastMouseMovedPos.x, LastMouseMovedPos.y);
         }
-        if (MouseRightButtonEmulatedPushed) {
+        if(MouseRightButtonEmulatedPushed) {
             MouseRightButtonEmulatedPushed = false;
             OnMouseUp(mbRight, 0, LastMouseMovedPos.x, LastMouseMovedPos.y);
         }
@@ -585,7 +575,7 @@ bool TTVPWindowForm::GetUseMouseKey() const { return UseMouseKey; }
 
 void TTVPWindowForm::SetTrapKey(bool b) {
     TrapKeys = b;
-    if (TrapKeys) {
+    if(TrapKeys) {
         // reset CanReceiveTrappedKeys and InReceivingTrappedKeys
         CanReceiveTrappedKeys = false;
         InReceivingTrappedKeys = false;
@@ -598,26 +588,24 @@ bool TTVPWindowForm::GetTrapKey() const { return TrapKeys; }
 void TTVPWindowForm::SetMaskRegion(HRGN threshold) {
     ::SetWindowRgn(GetHandle(), threshold, GetVisible() ? TRUE : FALSE);
 }
-void TTVPWindowForm::RemoveMaskRegion() {
-    ::SetWindowRgn(GetHandle(), nullptr, GetVisible() ? TRUE : FALSE);
-}
+void TTVPWindowForm::RemoveMaskRegion() { ::SetWindowRgn(GetHandle(), nullptr, GetVisible() ? TRUE : FALSE); }
 
 void TTVPWindowForm::HideMouseCursor() {
     // hide mouse cursor temporarily
     SetMouseCursorState(mcsTempHidden);
 }
 void TTVPWindowForm::SetMouseCursorState(tTVPMouseCursorState mcs) {
-    if (MouseCursorState == mcsVisible && mcs != mcsVisible) {
+    if(MouseCursorState == mcsVisible && mcs != mcsVisible) {
         // formerly visible and newly invisible
-        if (!ForceMouseCursorVisible)
+        if(!ForceMouseCursorVisible)
             SetMouseCursorVisibleState(false);
-    } else if (MouseCursorState != mcsVisible && mcs == mcsVisible) {
+    } else if(MouseCursorState != mcsVisible && mcs == mcsVisible) {
         // formerly invisible and newly visible
-        if (!ForceMouseCursorVisible)
+        if(!ForceMouseCursorVisible)
             SetMouseCursorVisibleState(true);
     }
 
-    if (MouseCursorState != mcs && mcs == mcsTempHidden) {
+    if(MouseCursorState != mcs && mcs == mcsTempHidden) {
         POINT pt;
         ::GetCursorPos(&pt);
         LastMouseScreenX = pt.x;
@@ -628,10 +616,10 @@ void TTVPWindowForm::SetMouseCursorState(tTVPMouseCursorState mcs) {
 
 void TTVPWindowForm::RestoreMouseCursor() {
     // restore mouse cursor hidden by HideMouseCursor
-    if (MouseCursorState == mcsTempHidden) {
+    if(MouseCursorState == mcsTempHidden) {
         POINT pt;
         ::GetCursorPos(&pt);
-        if (LastMouseScreenX != pt.x || LastMouseScreenY != pt.y) {
+        if(LastMouseScreenX != pt.x || LastMouseScreenY != pt.y) {
             SetMouseCursorState(mcsVisible);
         }
     }
@@ -639,15 +627,15 @@ void TTVPWindowForm::RestoreMouseCursor() {
 void TTVPWindowForm::SetMouseCursorVisibleState(bool b) {
     // set mouse cursor visible state
     // this does not look MouseCursorState
-    if (b)
+    if(b)
         SetMouseCursorToWindow(CurrentMouseCursor);
     else
         SetMouseCursorToWindow(crNone);
 }
 void TTVPWindowForm::SetForceMouseCursorVisible(bool s) {
-    if (ForceMouseCursorVisible != s) {
+    if(ForceMouseCursorVisible != s) {
         ForceMouseCursorVisible = s;
-        if (s) {
+        if(s) {
             // force visible mode
             // the cursor is to be fixed in crDefault
             SetMouseCursorToWindow(crDefault);
@@ -658,9 +646,7 @@ void TTVPWindowForm::SetForceMouseCursorVisible(bool s) {
         }
     }
 }
-void TTVPWindowForm::SetMouseCursorToWindow(tjs_int cursor) {
-    MouseCursorManager.SetCursorIndex(cursor, GetHandle());
-}
+void TTVPWindowForm::SetMouseCursorToWindow(tjs_int cursor) { MouseCursorManager.SetCursorIndex(cursor, GetHandle()); }
 
 //---------------------------------------------------------------------------
 void TTVPWindowForm::SetFocusable(bool b) {
@@ -674,7 +660,7 @@ void TTVPWindowForm::InternalSetPaintBoxSize() { SetDrawDeviceDestRect(); }
 void TTVPWindowForm::AdjustNumerAndDenom(tjs_int &n, tjs_int &d) {
     tjs_int a = n;
     tjs_int b = d;
-    while (b) {
+    while(b) {
         tjs_int t = b;
         b = a % b;
         a = t;
@@ -688,27 +674,27 @@ void TTVPWindowForm::SetZoom(tjs_int numer, tjs_int denom, bool set_logical) {
     // the zooming factor is passed in numerator/denoiminator style.
     // we must find GCM to optimize numer/denium via Euclidean algorithm.
     AdjustNumerAndDenom(numer, denom);
-    if (set_logical) {
-        if (ZoomNumer != numer || ZoomDenom != denom) {
+    if(set_logical) {
+        if(ZoomNumer != numer || ZoomDenom != denom) {
             ischanged = true;
         }
         ZoomNumer = numer;
         ZoomDenom = denom;
     }
-    if (!GetFullScreenMode()) {
+    if(!GetFullScreenMode()) {
         // in fullscreen mode, zooming factor is controlled by the system
         ActualZoomDenom = denom;
         ActualZoomNumer = numer;
     }
     InternalSetPaintBoxSize();
-    if (ischanged)
+    if(ischanged)
         ::InvalidateRect(GetHandle(), nullptr, FALSE);
 }
 void TTVPWindowForm::RelocateFullScreenMode() {
-    if (TVPFullScreenedWindow != this)
+    if(TVPFullScreenedWindow != this)
         return;
 
-    if (TJSNativeInstance)
+    if(TJSNativeInstance)
         TJSNativeInstance->DetachVideoOverlay();
 
     tjs_int desired_fs_w = OrgClientWidth;
@@ -739,11 +725,10 @@ void TTVPWindowForm::RelocateFullScreenMode() {
     }
 
     // reset window size
-    HMONITOR hMonitor =
-        ::MonitorFromWindow(GetHandle(), MONITOR_DEFAULTTOPRIMARY);
-    MONITORINFO mi = {sizeof(MONITORINFO)};
+    HMONITOR hMonitor = ::MonitorFromWindow(GetHandle(), MONITOR_DEFAULTTOPRIMARY);
+    MONITORINFO mi = { sizeof(MONITORINFO) };
     int ml = 0, mt = 0;
-    if (::GetMonitorInfo(hMonitor, &mi)) {
+    if(::GetMonitorInfo(hMonitor, &mi)) {
         ml = mi.rcMonitor.left;
         mt = mi.rcMonitor.top;
     }
@@ -751,7 +736,7 @@ void TTVPWindowForm::RelocateFullScreenMode() {
     SetInnerSize(fs_w, fs_h);
 
     // re-adjust video rect
-    if (TJSNativeInstance)
+    if(TJSNativeInstance)
         TJSNativeInstance->ReadjustVideoRect();
 }
 void TTVPWindowForm::SetFullScreenMode(bool b) {
@@ -759,16 +744,16 @@ void TTVPWindowForm::SetFullScreenMode(bool b) {
     // videos.
     CallFullScreenChanging(); // notify to plugin
     try {
-        if (TJSNativeInstance)
+        if(TJSNativeInstance)
             TJSNativeInstance->DetachVideoOverlay();
 
         // due to re-create window (but current implementation may not re-create
         // the window)
 
-        if (b) {
-            if (TVPFullScreenedWindow == this)
+        if(b) {
+            if(TVPFullScreenedWindow == this)
                 return;
-            if (TVPFullScreenedWindow)
+            if(TVPFullScreenedWindow)
                 TVPFullScreenedWindow->SetFullScreenMode(false);
 
             // save position and size
@@ -791,16 +776,13 @@ void TTVPWindowForm::SetFullScreenMode(bool b) {
 
             // try to switch to fullscreen
             try {
-                if (TJSNativeInstance)
-                    TVPSwitchToFullScreen(GetHandle(), desired_fs_w,
-                                          desired_fs_h,
-                                          TJSNativeInstance->GetDrawDevice());
-            } catch (...) {
+                if(TJSNativeInstance)
+                    TVPSwitchToFullScreen(GetHandle(), desired_fs_w, desired_fs_h, TJSNativeInstance->GetDrawDevice());
+            } catch(...) {
                 SetFullScreenMode(false);
                 return;
             }
-            ::SetWindowLong(GetHandle(), GWL_STYLE,
-                            WS_POPUP | WS_VISIBLE | WS_CLIPCHILDREN);
+            ::SetWindowLong(GetHandle(), GWL_STYLE, WS_POPUP | WS_VISIBLE | WS_CLIPCHILDREN);
 
             // get resulted screen size
             tjs_int fs_w = TVPFullScreenMode.Width;
@@ -814,8 +796,7 @@ void TTVPWindowForm::SetFullScreenMode(bool b) {
             sb_h = desired_fs_h * zoom_n / zoom_d;
 
             FullScreenDestRect.set_size(sb_w, sb_h);
-            FullScreenDestRect.set_offsets((fs_w - sb_w) / 2,
-                                           (fs_h - sb_h) / 2);
+            FullScreenDestRect.set_offsets((fs_w - sb_w) / 2, (fs_h - sb_h) / 2);
 
             SetZoom(zoom_n, zoom_d, false);
 
@@ -823,11 +804,10 @@ void TTVPWindowForm::SetFullScreenMode(bool b) {
             TVPFullScreenedWindow = this;
 
             // reset window size
-            HMONITOR hMonitor =
-                ::MonitorFromWindow(GetHandle(), MONITOR_DEFAULTTOPRIMARY);
-            MONITORINFO mi = {sizeof(MONITORINFO)};
+            HMONITOR hMonitor = ::MonitorFromWindow(GetHandle(), MONITOR_DEFAULTTOPRIMARY);
+            MONITORINFO mi = { sizeof(MONITORINFO) };
             int ml = 0, mt = 0;
-            if (::GetMonitorInfo(hMonitor, &mi)) {
+            if(::GetMonitorInfo(hMonitor, &mi)) {
                 ml = mi.rcMonitor.left;
                 mt = mi.rcMonitor.top;
             }
@@ -835,7 +815,7 @@ void TTVPWindowForm::SetFullScreenMode(bool b) {
             SetInnerSize(fs_w, fs_h);
 
             // re-adjust video rect
-            if (TJSNativeInstance)
+            if(TJSNativeInstance)
                 TJSNativeInstance->ReadjustVideoRect();
 
             // activate self
@@ -844,18 +824,16 @@ void TTVPWindowForm::SetFullScreenMode(bool b) {
 
             // activate self (again)
             ::SetWindowPos(GetHandle(), HWND_TOP, 0, 0, 0, 0,
-                           SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOREPOSITION |
-                               SWP_NOSIZE | SWP_SHOWWINDOW);
+                           SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOREPOSITION | SWP_NOSIZE | SWP_SHOWWINDOW);
         } else {
-            if (TVPFullScreenedWindow != this)
+            if(TVPFullScreenedWindow != this)
                 return;
 
             SetBounds(OrgLeft, OrgTop, OrgWidth, OrgHeight);
 
             // revert from fullscreen
-            if (TJSNativeInstance)
-                TVPRevertFromFullScreen(GetHandle(), OrgClientWidth,
-                                        OrgClientHeight,
+            if(TJSNativeInstance)
+                TVPRevertFromFullScreen(GetHandle(), OrgClientWidth, OrgClientHeight,
                                         TJSNativeInstance->GetDrawDevice());
             TVPFullScreenedWindow = nullptr;
             FullScreenDestRect.set_offsets(0, 0);
@@ -874,14 +852,13 @@ void TTVPWindowForm::SetFullScreenMode(bool b) {
             SetBounds(OrgLeft, OrgTop, OrgWidth, OrgHeight);
             SetInnerSize(OrgClientWidth, OrgClientHeight);
             ::SetWindowPos(GetHandle(), HWND_NOTOPMOST, 0, 0, 0, 0,
-                           SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOREPOSITION |
-                               SWP_NOSIZE | SWP_SHOWWINDOW);
+                           SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOREPOSITION | SWP_NOSIZE | SWP_SHOWWINDOW);
 
             // re-adjust video rect
-            if (TJSNativeInstance)
+            if(TJSNativeInstance)
                 TJSNativeInstance->ReadjustVideoRect();
         }
-    } catch (...) {
+    } catch(...) {
         CallFullScreenChanged();
         throw;
     }
@@ -889,13 +866,11 @@ void TTVPWindowForm::SetFullScreenMode(bool b) {
 
     MouseCursorManager.UpdateCursor();
 }
-bool TTVPWindowForm::GetFullScreenMode() const {
-    return TVPFullScreenedWindow == this;
-}
+bool TTVPWindowForm::GetFullScreenMode() const { return TVPFullScreenedWindow == this; }
 
 //---------------------------------------------------------------------------
 void TTVPWindowForm::CallWindowDetach(bool close) {
-    if (TJSNativeInstance)
+    if(TJSNativeInstance)
         TJSNativeInstance->GetDrawDevice()->SetTargetWindow(nullptr, false);
 
     tTVPWindowMessage msg;
@@ -941,20 +916,18 @@ void TTVPWindowForm::CallFullScreenChanging() {
 }
 
 bool TTVPWindowForm::InternalDeliverMessageToReceiver(tTVPWindowMessage &msg) {
-    if (!TJSNativeInstance)
+    if(!TJSNativeInstance)
         return false;
-    if (TVPPluginUnloadedAtSystemExit)
+    if(TVPPluginUnloadedAtSystemExit)
         return false;
 
-    tObjectListSafeLockHolder<tTVPMessageReceiverRecord> holder(
-        WindowMessageReceivers);
+    tObjectListSafeLockHolder<tTVPMessageReceiverRecord> holder(WindowMessageReceivers);
     tjs_int count = WindowMessageReceivers.GetSafeLockedObjectCount();
 
     bool block = false;
-    for (tjs_int i = 0; i < count; i++) {
-        tTVPMessageReceiverRecord *item =
-            WindowMessageReceivers.GetSafeLockedObjectAt(i);
-        if (!item)
+    for(tjs_int i = 0; i < count; i++) {
+        tTVPMessageReceiverRecord *item = WindowMessageReceivers.GetSafeLockedObjectAt(i);
+        if(!item)
             continue;
         bool b = item->Deliver(&msg);
         block = block || b;
@@ -963,7 +936,7 @@ bool TTVPWindowForm::InternalDeliverMessageToReceiver(tTVPWindowMessage &msg) {
 }
 
 void TTVPWindowForm::UpdateWindow(tTVPUpdateType type) {
-    if (TJSNativeInstance) {
+    if(TJSNativeInstance) {
         tTVPRect r;
         r.left = 0;
         r.top = 0;
@@ -980,7 +953,7 @@ void TTVPWindowForm::ShowWindowAsModal() {
     TVPAddModalWindow(this); // add to modal window list
     try {
         ShowModal();
-    } catch (...) {
+    } catch(...) {
         TVPRemoveModalWindow(this);
         throw;
     }
@@ -988,14 +961,13 @@ void TTVPWindowForm::ShowWindowAsModal() {
 }
 //---------------------------------------------------------------------------
 void TTVPWindowForm::SetVisibleFromScript(bool b) {
-    if (Focusable) {
+    if(Focusable) {
         SetVisible(b);
     } else {
-        if (!GetVisible()) {
+        if(!GetVisible()) {
             // just show window, not activate
-            SetWindowPos(
-                GetHandle(), GetStayOnTop() ? HWND_TOPMOST : HWND_TOP, 0, 0, 0,
-                0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+            SetWindowPos(GetHandle(), GetStayOnTop() ? HWND_TOPMOST : HWND_TOP, 0, 0, 0, 0,
+                         SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
             SetVisible(true);
         } else {
             SetVisible(false);
@@ -1003,35 +975,33 @@ void TTVPWindowForm::SetVisibleFromScript(bool b) {
     }
 }
 
-void TTVPWindowForm::RegisterWindowMessageReceiver(tTVPWMRRegMode mode,
-                                                   void *proc,
-                                                   const void *userdata) {
-    if (mode == wrmRegister) {
+void TTVPWindowForm::RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void *proc, const void *userdata) {
+    if(mode == wrmRegister) {
         // register
         tjs_int count = WindowMessageReceivers.GetCount();
         tjs_int i;
-        for (i = 0; i < count; i++) {
+        for(i = 0; i < count; i++) {
             tTVPMessageReceiverRecord *item = WindowMessageReceivers[i];
-            if (!item)
+            if(!item)
                 continue;
-            if ((void *)item->Proc == proc)
+            if((void *)item->Proc == proc)
                 break; // have already registered
         }
-        if (i == count) {
+        if(i == count) {
             // not have registered
             tTVPMessageReceiverRecord *item = new tTVPMessageReceiverRecord();
             item->Proc = (tTVPWindowMessageReceiver)proc;
             item->UserData = userdata;
             WindowMessageReceivers.Add(item);
         }
-    } else if (mode == wrmUnregister) {
+    } else if(mode == wrmUnregister) {
         // unregister
         tjs_int count = WindowMessageReceivers.GetCount();
-        for (tjs_int i = 0; i < count; i++) {
+        for(tjs_int i = 0; i < count; i++) {
             tTVPMessageReceiverRecord *item = WindowMessageReceivers[i];
-            if (!item)
+            if(!item)
                 continue;
-            if ((void *)item->Proc == proc) {
+            if((void *)item->Proc == proc) {
                 // found
                 WindowMessageReceivers.Remove(i);
                 delete item;
@@ -1041,20 +1011,20 @@ void TTVPWindowForm::RegisterWindowMessageReceiver(tTVPWMRRegMode mode,
     }
 }
 void TTVPWindowForm::OnClose(CloseAction &action) {
-    if (modal_result_ == 0)
+    if(modal_result_ == 0)
         action = caNone;
     else
         action = caHide;
 
-    if (ProgramClosing) {
-        if (TJSNativeInstance) {
-            if (TJSNativeInstance->IsMainWindow()) {
+    if(ProgramClosing) {
+        if(TJSNativeInstance) {
+            if(TJSNativeInstance->IsMainWindow()) {
                 // this is the main window
             } else {
                 // not the main window
                 action = caFree;
             }
-            if (TVPFullScreenedWindow != this) {
+            if(TVPFullScreenedWindow != this) {
                 // if this is not a fullscreened window
                 SetVisible(false);
             }
@@ -1071,23 +1041,23 @@ bool TTVPWindowForm::OnCloseQuery() {
     // 2. "close" method
     // 3. object invalidation
 
-    if (TVPGetBreathing()) {
+    if(TVPGetBreathing()) {
         return false;
     }
 
     // the default event handler will invalidate this object when an
     // onCloseQuery event reaches the handler.
-    if (TJSNativeInstance && (modal_result_ == 0 || modal_result_ == mrCancel /* mrCancel=when close button is pushed in modal window */)) {
+    if(TJSNativeInstance &&
+       (modal_result_ == 0 || modal_result_ == mrCancel /* mrCancel=when close button is pushed in modal window */)) {
         iTJSDispatch2 *obj = TJSNativeInstance->GetOwnerNoAddRef();
-        if (obj) {
-            tTJSVariant arg[1] = {true};
+        if(obj) {
+            tTJSVariant arg[1] = { true };
             static ttstr eventname(TJS_W("onCloseQuery"));
 
-            if (!ProgramClosing) {
+            if(!ProgramClosing) {
                 // close action does not happen immediately
-                if (TJSNativeInstance) {
-                    TVPPostInputEvent(
-                        new tTVPOnCloseInputEvent(TJSNativeInstance));
+                if(TJSNativeInstance) {
+                    TVPPostInputEvent(new tTVPOnCloseInputEvent(TJSNativeInstance));
                 }
 
                 Closing = true; // waiting closing...
@@ -1109,13 +1079,13 @@ bool TTVPWindowForm::OnCloseQuery() {
 }
 void TTVPWindowForm::Close() {
     // closing action by "close" method
-    if (Closing)
+    if(Closing)
         return; // already waiting closing...
 
     ProgramClosing = true;
     try {
         tTVPWindow::Close();
-    } catch (...) {
+    } catch(...) {
         ProgramClosing = false;
         throw;
     }
@@ -1127,24 +1097,24 @@ void TTVPWindowForm::InvalidateClose() {
     TJSNativeInstance = nullptr;
     SetVisible(false);
     BOOL ret = ::DestroyWindow(GetHandle());
-    if (ret == FALSE) {
+    if(ret == FALSE) {
         TVPThrowWindowsErrorException();
     }
     delete this;
 }
 void TTVPWindowForm::OnCloseQueryCalled(bool b) {
     // closing is allowed by onCloseQuery event handler
-    if (!ProgramClosing) {
+    if(!ProgramClosing) {
         // closing action by the user
-        if (b) {
-            if (in_mode_)
+        if(b) {
+            if(in_mode_)
                 modal_result_ = 1; // when modal
             else
                 SetVisible(false); // just hide
 
             Closing = false;
-            if (TJSNativeInstance) {
-                if (TJSNativeInstance->IsMainWindow()) {
+            if(TJSNativeInstance) {
+                if(TJSNativeInstance->IsMainWindow()) {
                     // this is the main window
                     iTJSDispatch2 *obj = TJSNativeInstance->GetOwnerNoAddRef();
                     obj->Invalidate(0, nullptr, nullptr, obj);
@@ -1162,19 +1132,16 @@ void TTVPWindowForm::OnCloseQueryCalled(bool b) {
         CanCloseWork = b;
     }
 }
-void TTVPWindowForm::SendCloseMessage() {
-    ::PostMessage(GetHandle(), WM_CLOSE, 0, 0);
-}
+void TTVPWindowForm::SendCloseMessage() { ::PostMessage(GetHandle(), WM_CLOSE, 0, 0); }
 
-void TTVPWindowForm::ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right,
-                                   tjs_int &bottom) {
+void TTVPWindowForm::ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right, tjs_int &bottom) {
     left = MulDiv(left, ActualZoomNumer, ActualZoomDenom);
     top = MulDiv(top, ActualZoomNumer, ActualZoomDenom);
     right = MulDiv(right, ActualZoomNumer, ActualZoomDenom);
     bottom = MulDiv(bottom, ActualZoomNumer, ActualZoomDenom);
 }
 void TTVPWindowForm::GetVideoOffset(tjs_int &ofsx, tjs_int &ofsy) {
-    if (GetFullScreenMode()) {
+    if(GetFullScreenMode()) {
         ofsx = FullScreenDestRect.left;
         ofsy = FullScreenDestRect.top;
     } else {
@@ -1211,22 +1178,20 @@ void TTVPWindowForm::InternalKeyUp(WORD key, tjs_uint32 shift) {
     TVPPushEnvironNoise(&tick, sizeof(tick));
     TVPPushEnvironNoise(&key, sizeof(key));
     TVPPushEnvironNoise(&shift, sizeof(shift));
-    if (TJSNativeInstance) {
-        if (UseMouseKey /*&& PaintBox*/) {
-            if (key == VK_RETURN || key == VK_SPACE || key == VK_ESCAPE ||
-                key == VK_PAD1 || key == VK_PAD2) {
+    if(TJSNativeInstance) {
+        if(UseMouseKey /*&& PaintBox*/) {
+            if(key == VK_RETURN || key == VK_SPACE || key == VK_ESCAPE || key == VK_PAD1 || key == VK_PAD2) {
                 POINT p;
                 ::GetCursorPos(&p);
                 ::ScreenToClient(GetHandle(), &p);
-                if (p.x >= 0 && p.y >= 0 && p.x < GetInnerWidth() &&
-                    p.y < GetInnerHeight()) {
-                    if (key == VK_RETURN || key == VK_SPACE || key == VK_PAD1) {
+                if(p.x >= 0 && p.y >= 0 && p.x < GetInnerWidth() && p.y < GetInnerHeight()) {
+                    if(key == VK_RETURN || key == VK_SPACE || key == VK_PAD1) {
                         OnMouseClick(mbLeft, 0, p.x, p.y);
                         MouseLeftButtonEmulatedPushed = false;
                         OnMouseUp(mbLeft, 0, p.x, p.y);
                     }
 
-                    if (key == VK_ESCAPE || key == VK_PAD2) {
+                    if(key == VK_ESCAPE || key == VK_PAD2) {
                         MouseRightButtonEmulatedPushed = false;
                         OnMouseUp(mbRight, 0, p.x, p.y);
                     }
@@ -1235,8 +1200,7 @@ void TTVPWindowForm::InternalKeyUp(WORD key, tjs_uint32 shift) {
             }
         }
 
-        TVPPostInputEvent(
-            new tTVPOnKeyUpInputEvent(TJSNativeInstance, key, shift));
+        TVPPostInputEvent(new tTVPOnKeyUpInputEvent(TJSNativeInstance, key, shift));
     }
 }
 void TTVPWindowForm::InternalKeyDown(WORD key, tjs_uint32 shift) {
@@ -1245,21 +1209,19 @@ void TTVPWindowForm::InternalKeyDown(WORD key, tjs_uint32 shift) {
     TVPPushEnvironNoise(&key, sizeof(key));
     TVPPushEnvironNoise(&shift, sizeof(shift));
 
-    if (TJSNativeInstance) {
-        if (UseMouseKey /*&& PaintBox*/) {
-            if (key == VK_RETURN || key == VK_SPACE || key == VK_ESCAPE ||
-                key == VK_PAD1 || key == VK_PAD2) {
+    if(TJSNativeInstance) {
+        if(UseMouseKey /*&& PaintBox*/) {
+            if(key == VK_RETURN || key == VK_SPACE || key == VK_ESCAPE || key == VK_PAD1 || key == VK_PAD2) {
                 POINT p;
                 ::GetCursorPos(&p);
                 ::ScreenToClient(GetHandle(), &p);
-                if (p.x >= 0 && p.y >= 0 && p.x < GetInnerWidth() &&
-                    p.y < GetInnerHeight()) {
-                    if (key == VK_RETURN || key == VK_SPACE || key == VK_PAD1) {
+                if(p.x >= 0 && p.y >= 0 && p.x < GetInnerWidth() && p.y < GetInnerHeight()) {
+                    if(key == VK_RETURN || key == VK_SPACE || key == VK_PAD1) {
                         MouseLeftButtonEmulatedPushed = true;
                         OnMouseDown(mbLeft, 0, p.x, p.y);
                     }
 
-                    if (key == VK_ESCAPE || key == VK_PAD2) {
+                    if(key == VK_ESCAPE || key == VK_PAD2) {
                         MouseRightButtonEmulatedPushed = true;
                         OnMouseDown(mbLeft, 0, p.x, p.y);
                     }
@@ -1267,119 +1229,113 @@ void TTVPWindowForm::InternalKeyDown(WORD key, tjs_uint32 shift) {
                 return;
             }
 
-            switch (key) {
-            case VK_LEFT:
-            case VK_PADLEFT:
-                if (MouseKeyXAccel == 0 && MouseKeyYAccel == 0) {
-                    GenerateMouseEvent(true, false, false, false);
-                    LastMouseKeyTick = GetTickCount() + 100;
-                }
-                return;
-            case VK_RIGHT:
-            case VK_PADRIGHT:
-                if (MouseKeyXAccel == 0 && MouseKeyYAccel == 0) {
-                    GenerateMouseEvent(false, true, false, false);
-                    LastMouseKeyTick = GetTickCount() + 100;
-                }
-                return;
-            case VK_UP:
-            case VK_PADUP:
-                if (MouseKeyXAccel == 0 && MouseKeyYAccel == 0) {
-                    GenerateMouseEvent(false, false, true, false);
-                    LastMouseKeyTick = GetTickCount() + 100;
-                }
-                return;
-            case VK_DOWN:
-            case VK_PADDOWN:
-                if (MouseKeyXAccel == 0 && MouseKeyYAccel == 0) {
-                    GenerateMouseEvent(false, false, false, true);
-                    LastMouseKeyTick = GetTickCount() + 100;
-                }
-                return;
+            switch(key) {
+                case VK_LEFT:
+                case VK_PADLEFT:
+                    if(MouseKeyXAccel == 0 && MouseKeyYAccel == 0) {
+                        GenerateMouseEvent(true, false, false, false);
+                        LastMouseKeyTick = GetTickCount() + 100;
+                    }
+                    return;
+                case VK_RIGHT:
+                case VK_PADRIGHT:
+                    if(MouseKeyXAccel == 0 && MouseKeyYAccel == 0) {
+                        GenerateMouseEvent(false, true, false, false);
+                        LastMouseKeyTick = GetTickCount() + 100;
+                    }
+                    return;
+                case VK_UP:
+                case VK_PADUP:
+                    if(MouseKeyXAccel == 0 && MouseKeyYAccel == 0) {
+                        GenerateMouseEvent(false, false, true, false);
+                        LastMouseKeyTick = GetTickCount() + 100;
+                    }
+                    return;
+                case VK_DOWN:
+                case VK_PADDOWN:
+                    if(MouseKeyXAccel == 0 && MouseKeyYAccel == 0) {
+                        GenerateMouseEvent(false, false, false, true);
+                        LastMouseKeyTick = GetTickCount() + 100;
+                    }
+                    return;
             }
         }
-        TVPPostInputEvent(
-            new tTVPOnKeyDownInputEvent(TJSNativeInstance, key, shift));
+        TVPPostInputEvent(new tTVPOnKeyDownInputEvent(TJSNativeInstance, key, shift));
     }
 }
 void TTVPWindowForm::GenerateMouseEvent(bool fl, bool fr, bool fu, bool fd) {
-    if (!fl && !fr && !fu && !fd) {
-        if (GetTickCount() - 45 < LastMouseKeyTick)
+    if(!fl && !fr && !fu && !fd) {
+        if(GetTickCount() - 45 < LastMouseKeyTick)
             return;
     }
 
     bool shift = 0 != (GetAsyncKeyState(VK_SHIFT) & 0x8000);
-    bool left = fl || GetAsyncKeyState(VK_LEFT) & 0x8000 ||
-                TVPGetJoyPadAsyncState(VK_PADLEFT, true);
-    bool right = fr || GetAsyncKeyState(VK_RIGHT) & 0x8000 ||
-                 TVPGetJoyPadAsyncState(VK_PADRIGHT, true);
-    bool up = fu || GetAsyncKeyState(VK_UP) & 0x8000 ||
-              TVPGetJoyPadAsyncState(VK_PADUP, true);
-    bool down = fd || GetAsyncKeyState(VK_DOWN) & 0x8000 ||
-                TVPGetJoyPadAsyncState(VK_PADDOWN, true);
+    bool left = fl || GetAsyncKeyState(VK_LEFT) & 0x8000 || TVPGetJoyPadAsyncState(VK_PADLEFT, true);
+    bool right = fr || GetAsyncKeyState(VK_RIGHT) & 0x8000 || TVPGetJoyPadAsyncState(VK_PADRIGHT, true);
+    bool up = fu || GetAsyncKeyState(VK_UP) & 0x8000 || TVPGetJoyPadAsyncState(VK_PADUP, true);
+    bool down = fd || GetAsyncKeyState(VK_DOWN) & 0x8000 || TVPGetJoyPadAsyncState(VK_PADDOWN, true);
 
     DWORD flags = 0;
-    if (left || right || up || down)
+    if(left || right || up || down)
         flags |= MOUSEEVENTF_MOVE;
 
-    if (!right && !left && !up && !down) {
+    if(!right && !left && !up && !down) {
         LastMouseMoved = false;
         MouseKeyXAccel = MouseKeyYAccel = 0;
     }
 
-    if (!shift) {
-        if (!right && left && MouseKeyXAccel > 0)
+    if(!shift) {
+        if(!right && left && MouseKeyXAccel > 0)
             MouseKeyXAccel = -0;
-        if (!left && right && MouseKeyXAccel < 0)
+        if(!left && right && MouseKeyXAccel < 0)
             MouseKeyXAccel = 0;
-        if (!down && up && MouseKeyYAccel > 0)
+        if(!down && up && MouseKeyYAccel > 0)
             MouseKeyYAccel = -0;
-        if (!up && down && MouseKeyYAccel < 0)
+        if(!up && down && MouseKeyYAccel < 0)
             MouseKeyYAccel = 0;
     } else {
-        if (left)
+        if(left)
             MouseKeyXAccel = -TVP_MOUSE_SHIFT_ACCEL;
-        if (right)
+        if(right)
             MouseKeyXAccel = TVP_MOUSE_SHIFT_ACCEL;
-        if (up)
+        if(up)
             MouseKeyYAccel = -TVP_MOUSE_SHIFT_ACCEL;
-        if (down)
+        if(down)
             MouseKeyYAccel = TVP_MOUSE_SHIFT_ACCEL;
     }
 
-    if (right || left || up || down) {
-        if (left)
-            if (MouseKeyXAccel > -TVP_MOUSE_MAX_ACCEL)
+    if(right || left || up || down) {
+        if(left)
+            if(MouseKeyXAccel > -TVP_MOUSE_MAX_ACCEL)
                 MouseKeyXAccel = MouseKeyXAccel ? MouseKeyXAccel - 2 : -2;
-        if (right)
-            if (MouseKeyXAccel < TVP_MOUSE_MAX_ACCEL)
+        if(right)
+            if(MouseKeyXAccel < TVP_MOUSE_MAX_ACCEL)
                 MouseKeyXAccel = MouseKeyXAccel ? MouseKeyXAccel + 2 : +2;
-        if (!left && !right) {
-            if (MouseKeyXAccel > 0)
+        if(!left && !right) {
+            if(MouseKeyXAccel > 0)
                 MouseKeyXAccel--;
-            else if (MouseKeyXAccel < 0)
+            else if(MouseKeyXAccel < 0)
                 MouseKeyXAccel++;
         }
 
-        if (up)
-            if (MouseKeyYAccel > -TVP_MOUSE_MAX_ACCEL)
+        if(up)
+            if(MouseKeyYAccel > -TVP_MOUSE_MAX_ACCEL)
                 MouseKeyYAccel = MouseKeyYAccel ? MouseKeyYAccel - 2 : -2;
-        if (down)
-            if (MouseKeyYAccel < TVP_MOUSE_MAX_ACCEL)
+        if(down)
+            if(MouseKeyYAccel < TVP_MOUSE_MAX_ACCEL)
                 MouseKeyYAccel = MouseKeyYAccel ? MouseKeyYAccel + 2 : +2;
-        if (!up && !down) {
-            if (MouseKeyYAccel > 0)
+        if(!up && !down) {
+            if(MouseKeyYAccel > 0)
                 MouseKeyYAccel--;
-            else if (MouseKeyYAccel < 0)
+            else if(MouseKeyYAccel < 0)
                 MouseKeyYAccel++;
         }
     }
 
-    if (flags) {
+    if(flags) {
         POINT pt;
-        if (::GetCursorPos(&pt)) {
-            ::SetCursorPos(pt.x + (MouseKeyXAccel >> 1),
-                           pt.y + (MouseKeyYAccel >> 1));
+        if(::GetCursorPos(&pt)) {
+            ::SetCursorPos(pt.x + (MouseKeyXAccel >> 1), pt.y + (MouseKeyYAccel >> 1));
         }
         LastMouseMoved = true;
     }
@@ -1393,17 +1349,17 @@ void TTVPWindowForm::SetPaintBoxSize(tjs_int w, tjs_int h) {
 }
 
 void TTVPWindowForm::SetDefaultMouseCursor() {
-    if (CurrentMouseCursor != crDefault) {
+    if(CurrentMouseCursor != crDefault) {
         CurrentMouseCursor = crDefault;
-        if (MouseCursorState == mcsVisible && !ForceMouseCursorVisible) {
+        if(MouseCursorState == mcsVisible && !ForceMouseCursorVisible) {
             SetMouseCursorToWindow(crDefault);
         }
     }
 }
 void TTVPWindowForm::SetMouseCursor(tjs_int handle) {
-    if (CurrentMouseCursor != handle) {
+    if(CurrentMouseCursor != handle) {
         CurrentMouseCursor = handle;
-        if (MouseCursorState == mcsVisible && !ForceMouseCursorVisible) {
+        if(MouseCursorState == mcsVisible && !ForceMouseCursorVisible) {
             SetMouseCursorToWindow(handle);
         }
     }
@@ -1412,7 +1368,7 @@ void TTVPWindowForm::SetMouseCursor(tjs_int handle) {
  * クライアント領域座標からウィンドウ領域座標へ変換する
  */
 void TTVPWindowForm::OffsetClientPoint(int &x, int &y) {
-    POINT origin = {0, 0};
+    POINT origin = { 0, 0 };
     ::ClientToScreen(GetHandle(), &origin);
     x = -origin.x;
     y = -origin.y;
@@ -1420,9 +1376,9 @@ void TTVPWindowForm::OffsetClientPoint(int &x, int &y) {
 // Layer.cursorX/cursorYで呼ばれる
 void TTVPWindowForm::GetCursorPos(tjs_int &x, tjs_int &y) {
     // get mouse cursor position in client
-    POINT origin = {0, 0};
+    POINT origin = { 0, 0 };
     ::ClientToScreen(GetHandle(), &origin);
-    POINT mp = {0, 0};
+    POINT mp = { 0, 0 };
     ::GetCursorPos(&mp);
     x = mp.x - origin.x;
     y = mp.y - origin.y;
@@ -1431,7 +1387,7 @@ void TTVPWindowForm::GetCursorPos(tjs_int &x, tjs_int &y) {
 void TTVPWindowForm::SetCursorPos(tjs_int x, tjs_int y) {
     TranslateDrawAreaToWindow(x, y);
 
-    POINT pt = {x, y};
+    POINT pt = { x, y };
     ::ClientToScreen(GetHandle(), &pt);
     ::SetCursorPos(pt.x, pt.y);
     LastMouseScreenX = LastMouseScreenY = -1; // force to display mouse cursor
@@ -1440,30 +1396,29 @@ void TTVPWindowForm::SetCursorPos(tjs_int x, tjs_int y) {
 
 void TTVPWindowForm::SetHintText(iTJSDispatch2 *sender, const ttstr &text) {
     bool updatetext = HintMessage != text;
-    if (updatetext && text.IsEmpty() != true) {
+    if(updatetext && text.IsEmpty() != true) {
         HintMessage.Clear();
         UpdateHint();
     }
     HintMessage = text;
 
-    if (text.IsEmpty()) {
-        if (HintTimer)
+    if(text.IsEmpty()) {
+        if(HintTimer)
             HintTimer->SetEnabled(false);
         UpdateHint();
     } else {
-        if (LastHintSender != sender || updatetext) {
-            if (HintTimer)
+        if(LastHintSender != sender || updatetext) {
+            if(HintTimer)
                 HintTimer->SetEnabled(false);
-            if (HintDelay > 0) {
-                if (HintTimer == nullptr) {
+            if(HintDelay > 0) {
+                if(HintTimer == nullptr) {
                     HintTimer = new TVPTimer();
-                    HintTimer->SetOnTimerHandler(this,
-                                                 &TTVPWindowForm::UpdateHint);
+                    HintTimer->SetOnTimerHandler(this, &TTVPWindowForm::UpdateHint);
                 }
                 HintTimer->SetEnabled(false);
                 HintTimer->SetInterval(HintDelay);
                 HintTimer->SetEnabled(true);
-            } else if (HintDelay == 0) {
+            } else if(HintDelay == 0) {
                 UpdateHint();
             }
         }
@@ -1471,19 +1426,18 @@ void TTVPWindowForm::SetHintText(iTJSDispatch2 *sender, const ttstr &text) {
     LastHintSender = sender;
 }
 void TTVPWindowForm::UpdateHint() {
-    if (TJSNativeInstance) {
+    if(TJSNativeInstance) {
         POINT p;
         ::GetCursorPos(&p);
         ::ScreenToClient(GetHandle(), &p);
-        TVPPostInputEvent(new tTVPOnHintChangeInputEvent(
-            TJSNativeInstance, HintMessage, p.x, p.y,
-            HintMessage.IsEmpty() == false));
+        TVPPostInputEvent(
+            new tTVPOnHintChangeInputEvent(TJSNativeInstance, HintMessage, p.x, p.y, HintMessage.IsEmpty() == false));
     }
-    if (HintTimer)
+    if(HintTimer)
         HintTimer->SetEnabled(false);
 }
 void TTVPWindowForm::UnacquireImeControl() {
-    if (TVPControlImeState) {
+    if(TVPControlImeState) {
         GetIME()->Reset();
     }
 }
@@ -1492,12 +1446,12 @@ TTVPWindowForm *TTVPWindowForm::GetKeyTrapperWindow() {
     // find most recent "trapKeys = true" window and return it.
     // returnts "this" window if there is no trapping window.
     tjs_int count = TVPGetWindowCount();
-    for (tjs_int i = count - 1; i >= 0; i--) {
+    for(tjs_int i = count - 1; i >= 0; i--) {
         tTJSNI_Window *win = TVPGetWindowListAt(i);
-        if (win) {
+        if(win) {
             TTVPWindowForm *form = win->GetForm();
-            if (form && form != this) {
-                if (form->TrapKeys && form->GetVisible()) {
+            if(form && form != this) {
+                if(form->TrapKeys && form->GetVisible()) {
                     // found
                     return form;
                 }
@@ -1558,20 +1512,19 @@ void TTVPWindowForm::SetImeMode(tTVPImeMode mode) {
 }
 void TTVPWindowForm::SetDefaultImeMode(tTVPImeMode mode, bool reset) {
     DefaultImeMode = mode;
-    if (reset)
+    if(reset)
         ResetImeMode();
 }
 void TTVPWindowForm::ResetImeMode() { SetImeMode(DefaultImeMode); }
 
-void TTVPWindowForm::SetAttentionPoint(tjs_int left, tjs_int top,
-                                       const tTVPFont *font) {
+void TTVPWindowForm::SetAttentionPoint(tjs_int left, tjs_int top, const tTVPFont *font) {
     TranslateDrawAreaToWindow(left, top);
 
     // set attention point information
     AttentionPoint.x = left;
     AttentionPoint.y = top;
     AttentionPointEnabled = true;
-    if (font) {
+    if(font) {
         AttentionFont->Assign(*font);
     } else {
         tTVPSysFont *default_font = new tTVPSysFont();
@@ -1582,32 +1535,31 @@ void TTVPWindowForm::SetAttentionPoint(tjs_int left, tjs_int top,
 }
 void TTVPWindowForm::DisableAttentionPoint() { AttentionPointEnabled = false; }
 void TTVPWindowForm::CreateDirectInputDevice() {
-    if (!DIWheelDevice)
+    if(!DIWheelDevice)
         DIWheelDevice = new tTVPWheelDirectInputDevice(GetHandle());
 #ifndef DISABLE_EMBEDDED_GAME_PAD
-    if (!DIPadDevice)
+    if(!DIPadDevice)
         DIPadDevice = new tTVPPadDirectInputDevice(GetHandle());
 #endif
 }
 void TTVPWindowForm::FreeDirectInputDevice() {
-    if (DIWheelDevice) {
+    if(DIWheelDevice) {
         delete DIWheelDevice;
         DIWheelDevice = nullptr;
     }
 #ifndef DISABLE_EMBEDDED_GAME_PAD
-    if (DIPadDevice) {
+    if(DIPadDevice) {
         delete DIPadDevice;
         DIPadDevice = nullptr;
     }
 #endif
 }
 
-void TTVPWindowForm::OnKeyDown(WORD vk, int shift, int repeat,
-                               bool prevkeystate) {
-    if (TJSNativeInstance) {
+void TTVPWindowForm::OnKeyDown(WORD vk, int shift, int repeat, bool prevkeystate) {
+    if(TJSNativeInstance) {
         tjs_uint32 s = TVP_TShiftState_To_uint32(shift);
         s |= GetMouseButtonState();
-        if (prevkeystate && repeat > 0)
+        if(prevkeystate && repeat > 0)
             s |= TVP_SS_REPEAT;
         InternalKeyDown(vk, s);
     }
@@ -1617,39 +1569,38 @@ void TTVPWindowForm::OnKeyUp(WORD vk, int shift) {
     s |= GetMouseButtonState();
     InternalKeyUp(vk, s);
 }
-void TTVPWindowForm::OnKeyPress(WORD vk, int repeat, bool prevkeystate,
-                                bool convertkey) {
-    if (TJSNativeInstance && vk) {
-        if (UseMouseKey && (vk == 0x1b || vk == 13 || vk == 32))
+void TTVPWindowForm::OnKeyPress(WORD vk, int repeat, bool prevkeystate, bool convertkey) {
+    if(TJSNativeInstance && vk) {
+        if(UseMouseKey && (vk == 0x1b || vk == 13 || vk == 32))
             return;
         // UNICODE なのでそのまま渡してしまう
         TVPPostInputEvent(new tTVPOnKeyPressInputEvent(TJSNativeInstance, vk));
     }
 }
 void TTVPWindowForm::TranslateWindowToDrawArea(int &x, int &y) {
-    if (GetFullScreenMode()) {
+    if(GetFullScreenMode()) {
         x -= FullScreenDestRect.left;
         y -= FullScreenDestRect.top;
     }
 }
 
 void TTVPWindowForm::TranslateWindowToDrawArea(double &x, double &y) {
-    if (GetFullScreenMode()) {
+    if(GetFullScreenMode()) {
         x -= FullScreenDestRect.left;
         y -= FullScreenDestRect.top;
     }
 }
 void TTVPWindowForm::TranslateDrawAreaToWindow(int &x, int &y) {
-    if (GetFullScreenMode()) {
+    if(GetFullScreenMode()) {
         x += FullScreenDestRect.left;
         y += FullScreenDestRect.top;
     }
 }
 void TTVPWindowForm::FirePopupHide() {
     // fire "onPopupHide" event
-    if (!CanSendPopupHide())
+    if(!CanSendPopupHide())
         return;
-    if (!GetVisible())
+    if(!GetVisible())
         return;
     TVPPostInputEvent(new tTVPOnPopupHideInputEvent(TJSNativeInstance));
 }
@@ -1657,11 +1608,11 @@ void TTVPWindowForm::FirePopupHide() {
 void TTVPWindowForm::DeliverPopupHide() {
     // deliver onPopupHide event to unfocusable windows
     tjs_int count = TVPGetWindowCount();
-    for (tjs_int i = count - 1; i >= 0; i--) {
+    for(tjs_int i = count - 1; i >= 0; i--) {
         tTJSNI_Window *win = TVPGetWindowListAt(i);
-        if (win) {
+        if(win) {
             TTVPWindowForm *form = win->GetForm();
-            if (form) {
+            if(form) {
                 form->FirePopupHide();
             }
         }
@@ -1669,11 +1620,11 @@ void TTVPWindowForm::DeliverPopupHide() {
 }
 
 void TTVPWindowForm::SetEnableTouch(bool b) {
-    if (b != GetEnableTouch()) {
-        if (procRegisterTouchWindow && procUnregisterTouchWindow) {
+    if(b != GetEnableTouch()) {
+        if(procRegisterTouchWindow && procUnregisterTouchWindow) {
             int value = ::GetSystemMetrics(SM_DIGITIZER);
-            if ((value & NID_READY) == NID_READY) {
-                if (b) {
+            if((value & NID_READY) == NID_READY) {
+                if(b) {
                     procRegisterTouchWindow(GetHandle(), REGISTER_TOUCH_FLAG);
                 } else {
                     procUnregisterTouchWindow(GetHandle());
@@ -1685,7 +1636,7 @@ void TTVPWindowForm::SetEnableTouch(bool b) {
 }
 
 bool TTVPWindowForm::GetEnableTouch() const {
-    if (procIsTouchWindow) {
+    if(procIsTouchWindow) {
         BOOL ret = procIsTouchWindow(GetHandle(), nullptr);
         return ret != 0;
     }
@@ -1702,23 +1653,19 @@ void TTVPWindowForm::InvokeShowTop(bool activate) {
 }
 //---------------------------------------------------------------------------
 HDWP TTVPWindowForm::ShowTop(HDWP hdwp) {
-    if (GetVisible()) {
+    if(GetVisible()) {
         hdwp = ::DeferWindowPos(hdwp, GetHandle(), HWND_TOPMOST, 0, 0, 0, 0,
-                                SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOREPOSITION |
-                                    SWP_NOSIZE | WM_SHOWWINDOW);
+                                SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOREPOSITION | SWP_NOSIZE | WM_SHOWWINDOW);
     }
     return hdwp;
 }
 void TTVPWindowForm::OnMouseMove(int shift, int x, int y) {
     TranslateWindowToDrawArea(x, y);
-    MouseVelocityTracker.addMovement(TVPGetRoughTickCount32(), (float)x,
-                                     (float)y);
-    if (TJSNativeInstance) {
+    MouseVelocityTracker.addMovement(TVPGetRoughTickCount32(), (float)x, (float)y);
+    if(TJSNativeInstance) {
         tjs_uint32 s = TVP_TShiftState_To_uint32(shift);
         s |= GetMouseButtonState();
-        TVPPostInputEvent(
-            new tTVPOnMouseMoveInputEvent(TJSNativeInstance, x, y, s),
-            TVP_EPT_DISCARDABLE);
+        TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(TJSNativeInstance, x, y, s), TVP_EPT_DISCARDABLE);
     }
 
     RestoreMouseCursor();
@@ -1730,123 +1677,106 @@ void TTVPWindowForm::OnMouseMove(int shift, int x, int y) {
     LastMouseMovedPos.y = y;
 }
 void TTVPWindowForm::OnMouseDown(int button, int shift, int x, int y) {
-    if (!CanSendPopupHide())
+    if(!CanSendPopupHide())
         DeliverPopupHide();
 
     TranslateWindowToDrawArea(x, y);
     SetMouseCapture();
-    MouseVelocityTracker.addMovement(TVPGetRoughTickCount32(), (float)x,
-                                     (float)y);
+    MouseVelocityTracker.addMovement(TVPGetRoughTickCount32(), (float)x, (float)y);
 
     LastMouseDownX = x;
     LastMouseDownY = y;
 
-    if (TJSNativeInstance) {
+    if(TJSNativeInstance) {
         tjs_uint32 s = TVP_TShiftState_To_uint32(shift);
         s |= GetMouseButtonState();
         tTVPMouseButton b = TVP_TMouseButton_To_tTVPMouseButton(button);
-        TVPPostInputEvent(
-            new tTVPOnMouseDownInputEvent(TJSNativeInstance, x, y, b, s));
+        TVPPostInputEvent(new tTVPOnMouseDownInputEvent(TJSNativeInstance, x, y, b, s));
     }
 }
 void TTVPWindowForm::OnMouseUp(int button, int shift, int x, int y) {
     TranslateWindowToDrawArea(x, y);
     ReleaseMouseCapture();
-    MouseVelocityTracker.addMovement(TVPGetRoughTickCount32(), (float)x,
-                                     (float)y);
-    if (TJSNativeInstance) {
+    MouseVelocityTracker.addMovement(TVPGetRoughTickCount32(), (float)x, (float)y);
+    if(TJSNativeInstance) {
         tjs_uint32 s = TVP_TShiftState_To_uint32(shift);
         s |= GetMouseButtonState();
         tTVPMouseButton b = TVP_TMouseButton_To_tTVPMouseButton(button);
-        TVPPostInputEvent(
-            new tTVPOnMouseUpInputEvent(TJSNativeInstance, x, y, b, s));
+        TVPPostInputEvent(new tTVPOnMouseUpInputEvent(TJSNativeInstance, x, y, b, s));
     }
 }
 void TTVPWindowForm::OnMouseDoubleClick(int button, int x, int y) {
     // fire double click event
-    if (TJSNativeInstance) {
-        TVPPostInputEvent(new tTVPOnDoubleClickInputEvent(
-            TJSNativeInstance, LastMouseDownX, LastMouseDownY));
+    if(TJSNativeInstance) {
+        TVPPostInputEvent(new tTVPOnDoubleClickInputEvent(TJSNativeInstance, LastMouseDownX, LastMouseDownY));
     }
 }
 void TTVPWindowForm::OnMouseClick(int button, int shift, int x, int y) {
     // fire click event
-    if (TJSNativeInstance) {
-        TVPPostInputEvent(new tTVPOnClickInputEvent(
-            TJSNativeInstance, LastMouseDownX, LastMouseDownY));
+    if(TJSNativeInstance) {
+        TVPPostInputEvent(new tTVPOnClickInputEvent(TJSNativeInstance, LastMouseDownX, LastMouseDownY));
     }
 }
 void TTVPWindowForm::OnMouseWheel(int delta, int shift, int x, int y) {
     TranslateWindowToDrawArea(x, y);
-    if (TVPWheelDetectionType == wdtWindowMessage) {
+    if(TVPWheelDetectionType == wdtWindowMessage) {
         // wheel
-        if (TJSNativeInstance) {
+        if(TJSNativeInstance) {
             tjs_uint32 s = TVP_TShiftState_To_uint32(shift);
             s |= GetMouseButtonState();
-            TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(TJSNativeInstance,
-                                                             s, delta, x, y));
+            TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(TJSNativeInstance, s, delta, x, y));
         }
     }
 }
 
-void TTVPWindowForm::OnTouchDown(double x, double y, double cx, double cy,
-                                 DWORD id, DWORD tick) {
+void TTVPWindowForm::OnTouchDown(double x, double y, double cx, double cy, DWORD id, DWORD tick) {
     TranslateWindowToDrawArea(x, y);
 
     TouchVelocityTracker.start(id);
     TouchVelocityTracker.update(id, tick, (float)x, (float)y);
 
-    if (TJSNativeInstance) {
-        TVPPostInputEvent(
-            new tTVPOnTouchDownInputEvent(TJSNativeInstance, x, y, cx, cy, id));
+    if(TJSNativeInstance) {
+        TVPPostInputEvent(new tTVPOnTouchDownInputEvent(TJSNativeInstance, x, y, cx, cy, id));
     }
     touch_points_.TouchDown(x, y, cx, cy, id, tick);
 }
-void TTVPWindowForm::OnTouchMove(double x, double y, double cx, double cy,
-                                 DWORD id, DWORD tick) {
+void TTVPWindowForm::OnTouchMove(double x, double y, double cx, double cy, DWORD id, DWORD tick) {
     TranslateWindowToDrawArea(x, y);
 
     TouchVelocityTracker.update(id, tick, (float)x, (float)y);
 
-    if (TJSNativeInstance) {
-        TVPPostInputEvent(
-            new tTVPOnTouchMoveInputEvent(TJSNativeInstance, x, y, cx, cy, id));
+    if(TJSNativeInstance) {
+        TVPPostInputEvent(new tTVPOnTouchMoveInputEvent(TJSNativeInstance, x, y, cx, cy, id));
     }
     touch_points_.TouchMove(x, y, cx, cy, id, tick);
 }
-void TTVPWindowForm::OnTouchUp(double x, double y, double cx, double cy,
-                               DWORD id, DWORD tick) {
+void TTVPWindowForm::OnTouchUp(double x, double y, double cx, double cy, DWORD id, DWORD tick) {
     TranslateWindowToDrawArea(x, y);
 
     TouchVelocityTracker.update(id, tick, (float)x, (float)y);
 
-    if (TJSNativeInstance) {
-        TVPPostInputEvent(
-            new tTVPOnTouchUpInputEvent(TJSNativeInstance, x, y, cx, cy, id));
+    if(TJSNativeInstance) {
+        TVPPostInputEvent(new tTVPOnTouchUpInputEvent(TJSNativeInstance, x, y, cx, cy, id));
     }
     touch_points_.TouchUp(x, y, cx, cy, id, tick);
 
     // TouchVelocityTracker.end( id );
 }
 
-void TTVPWindowForm::OnTouchScaling(double startdist, double currentdist,
-                                    double cx, double cy, int flag) {
-    if (TJSNativeInstance) {
-        TVPPostInputEvent(new tTVPOnTouchScalingInputEvent(
-            TJSNativeInstance, startdist, currentdist, cx, cy, flag));
+void TTVPWindowForm::OnTouchScaling(double startdist, double currentdist, double cx, double cy, int flag) {
+    if(TJSNativeInstance) {
+        TVPPostInputEvent(new tTVPOnTouchScalingInputEvent(TJSNativeInstance, startdist, currentdist, cx, cy, flag));
     }
 }
-void TTVPWindowForm::OnTouchRotate(double startangle, double currentangle,
-                                   double distance, double cx, double cy,
+void TTVPWindowForm::OnTouchRotate(double startangle, double currentangle, double distance, double cx, double cy,
                                    int flag) {
-    if (TJSNativeInstance) {
-        TVPPostInputEvent(new tTVPOnTouchRotateInputEvent(
-            TJSNativeInstance, startangle, currentangle, distance, cx, cy,
-            flag));
+    if(TJSNativeInstance) {
+        TVPPostInputEvent(
+            new tTVPOnTouchRotateInputEvent(TJSNativeInstance, startangle, currentangle, distance, cx, cy, flag));
     }
 }
 void TTVPWindowForm::OnMultiTouch() {
-    if (TJSNativeInstance) {
+    if(TJSNativeInstance) {
         TVPPostInputEvent(new tTVPOnMultiTouchInputEvent(TJSNativeInstance));
     }
 }
@@ -1855,20 +1785,18 @@ void TTVPWindowForm::OnTouchSequenceStart() {
 }
 void TTVPWindowForm::OnTouchSequenceEnd() {}
 void TTVPWindowForm::OnActive(HWND preactive) {
-    if (TVPFullScreenedWindow == this)
+    if(TVPFullScreenedWindow == this)
         TVPShowModalAtAppActivate();
 
     Application->OnActiveAnyWindow();
 }
 void TTVPWindowForm::OnDeactive(HWND postactive) {
-    if (TJSNativeInstance) {
-        TVPPostInputEvent(
-            new tTVPOnReleaseCaptureInputEvent(TJSNativeInstance));
+    if(TJSNativeInstance) {
+        TVPPostInputEvent(new tTVPOnReleaseCaptureInputEvent(TJSNativeInstance));
     }
 }
-void TTVPWindowForm::OnApplicationActivateChange(bool activated,
-                                                 DWORD thread_id) {
-    if (activated) {
+void TTVPWindowForm::OnApplicationActivateChange(bool activated, DWORD thread_id) {
+    if(activated) {
         Application->OnActivate(GetHandle());
     } else {
         Application->OnDeactivate(GetHandle());
@@ -1876,21 +1804,19 @@ void TTVPWindowForm::OnApplicationActivateChange(bool activated,
 }
 
 void TTVPWindowForm::OnMove(int x, int y) {
-    if (TJSNativeInstance) {
+    if(TJSNativeInstance) {
         TJSNativeInstance->WindowMoved();
     }
 }
 void TTVPWindowForm::OnResize(UINT_PTR state, int w, int h) {
-    if (state == SIZE_MINIMIZED || state == SIZE_MAXSHOW ||
-        state == SIZE_MAXHIDE)
+    if(state == SIZE_MINIMIZED || state == SIZE_MAXSHOW || state == SIZE_MAXHIDE)
         return;
     // state == SIZE_RESTORED, SIZE_MAXIMIZED,
     // on resize
-    if (TJSNativeInstance) {
+    if(TJSNativeInstance) {
         // here specifies TVP_EPT_REMOVE_POST, to remove redundant onResize
         // events.
-        TVPPostInputEvent(new tTVPOnResizeInputEvent(TJSNativeInstance),
-                          TVP_EPT_REMOVE_POST);
+        TVPPostInputEvent(new tTVPOnResizeInputEvent(TJSNativeInstance), TVP_EPT_REMOVE_POST);
     }
 }
 void TTVPWindowForm::OnDropFile(HDROP hDrop) {
@@ -1899,35 +1825,33 @@ void TTVPWindowForm::OnDropFile(HDROP hDrop) {
     iTJSDispatch2 *array = TJSCreateArrayObject();
     try {
         tjs_int count = 0;
-        for (tjs_int i = filecount - 1; i >= 0; i--) {
+        for(tjs_int i = filecount - 1; i >= 0; i--) {
             ::DragQueryFile(hDrop, i, filename, MAX_PATH);
             WIN32_FIND_DATA fd;
             HANDLE h;
             // existence checking
-            if ((h = ::FindFirstFile(filename, &fd)) != INVALID_HANDLE_VALUE) {
+            if((h = ::FindFirstFile(filename, &fd)) != INVALID_HANDLE_VALUE) {
                 ::FindClose(h);
                 tTJSVariant val = TVPNormalizeStorageName(ttstr(filename));
                 // push into array
-                array->PropSetByNum(TJS_MEMBERENSURE | TJS_IGNOREPROP, count++,
-                                    &val, array);
+                array->PropSetByNum(TJS_MEMBERENSURE | TJS_IGNOREPROP, count++, &val, array);
             }
         }
         ::DragFinish(hDrop);
 
         tTJSVariant arg(array, array);
         TVPPostInputEvent(new tTVPOnFileDropInputEvent(TJSNativeInstance, arg));
-    } catch (...) {
+    } catch(...) {
         array->Release();
         throw;
     }
     array->Release();
 }
 
-int TTVPWindowForm::OnMouseActivate(HWND hTopLevelParentWnd, WORD hitTestCode,
-                                    WORD MouseMsg) {
-    if (!Focusable) {
+int TTVPWindowForm::OnMouseActivate(HWND hTopLevelParentWnd, WORD hitTestCode, WORD MouseMsg) {
+    if(!Focusable) {
         // override default action (which activates the window)
-        if (hitTestCode == HTCLIENT)
+        if(hitTestCode == HTCLIENT)
             return MA_NOACTIVATE;
         else
             return MA_NOACTIVATEANDEAT;
@@ -1936,9 +1860,8 @@ int TTVPWindowForm::OnMouseActivate(HWND hTopLevelParentWnd, WORD hitTestCode,
     }
 }
 
-bool TTVPWindowForm::OnSetCursor(HWND hContainsCursorWnd, WORD hitTestCode,
-                                 WORD MouseMsg) {
-    if (GetHandle() == hContainsCursorWnd && hitTestCode == HTCLIENT) {
+bool TTVPWindowForm::OnSetCursor(HWND hContainsCursorWnd, WORD hitTestCode, WORD MouseMsg) {
+    if(GetHandle() == hContainsCursorWnd && hitTestCode == HTCLIENT) {
         MouseCursorManager.UpdateCursor();
         return true;
     }
@@ -1947,36 +1870,30 @@ bool TTVPWindowForm::OnSetCursor(HWND hContainsCursorWnd, WORD hitTestCode,
 
 void TTVPWindowForm::OnEnable(bool enabled) {
     // enabled status has changed
-    if (TJSNativeInstance) {
-        TVPPostInputEvent(
-            new tTVPOnReleaseCaptureInputEvent(TJSNativeInstance));
+    if(TJSNativeInstance) {
+        TVPPostInputEvent(new tTVPOnReleaseCaptureInputEvent(TJSNativeInstance));
     }
 }
 void TTVPWindowForm::OnDeviceChange(UINT_PTR event, void *data) {
-    if (event == DBT_DEVNODES_CHANGED) {
+    if(event == DBT_DEVNODES_CHANGED) {
         // reload DInput device
-        ReloadDevice = true;                      // to reload device
+        ReloadDevice = true; // to reload device
         ReloadDeviceTick = GetTickCount() + 4000; // reload at 4secs later
     }
 }
-void TTVPWindowForm::OnNonClientMouseDown(int button, UINT_PTR hittest, int x,
-                                          int y) {
-    if (!CanSendPopupHide()) {
+void TTVPWindowForm::OnNonClientMouseDown(int button, UINT_PTR hittest, int x, int y) {
+    if(!CanSendPopupHide()) {
         DeliverPopupHide();
     }
 }
-void TTVPWindowForm::OnEnterMenuLoop(bool entered) {
-    SetForceMouseCursorVisible(true);
-}
-void TTVPWindowForm::OnExitMenuLoop(bool isShortcutMenu) {
-    SetForceMouseCursorVisible(false);
-}
+void TTVPWindowForm::OnEnterMenuLoop(bool entered) { SetForceMouseCursorVisible(true); }
+void TTVPWindowForm::OnExitMenuLoop(bool isShortcutMenu) { SetForceMouseCursorVisible(false); }
 void TTVPWindowForm::OnMouseEnter() {
     // mouse entered in client area
     DWORD tick = GetTickCount();
     TVPPushEnvironNoise(&tick, sizeof(tick));
     MouseVelocityTracker.clear();
-    if (TJSNativeInstance) {
+    if(TJSNativeInstance) {
         TVPPostInputEvent(new tTVPOnMouseEnterInputEvent(TJSNativeInstance));
     }
 }
@@ -1984,9 +1901,8 @@ void TTVPWindowForm::OnMouseLeave() {
     // mouse leaved from client area
     DWORD tick = GetTickCount();
     TVPPushEnvironNoise(&tick, sizeof(tick));
-    if (TJSNativeInstance) {
-        TVPPostInputEvent(
-            new tTVPOnMouseOutOfWindowInputEvent(TJSNativeInstance));
+    if(TJSNativeInstance) {
+        TVPPostInputEvent(new tTVPOnMouseOutOfWindowInputEvent(TJSNativeInstance));
         TVPPostInputEvent(new tTVPOnMouseLeaveInputEvent(TJSNativeInstance));
     }
 }
@@ -2001,10 +1917,10 @@ void TTVPWindowForm::OnFocus(HWND hFocusLostWnd) {
     ::CreateCaret(GetHandle(), nullptr, 1, 1);
 
 #ifndef DISABLE_EMBEDDED_GAME_PAD
-    if (DIPadDevice && TJSNativeInstance)
+    if(DIPadDevice && TJSNativeInstance)
         DIPadDevice->WindowActivated();
 #endif
-    if (TJSNativeInstance)
+    if(TJSNativeInstance)
         TJSNativeInstance->FireOnActivate(true);
 }
 void TTVPWindowForm::OnFocusLost(HWND hFocusingWnd) {
@@ -2012,17 +1928,17 @@ void TTVPWindowForm::OnFocusLost(HWND hFocusingWnd) {
     UnacquireImeControl();
 
 #ifndef DISABLE_EMBEDDED_GAME_PAD
-    if (DIPadDevice && TJSNativeInstance)
+    if(DIPadDevice && TJSNativeInstance)
         DIPadDevice->WindowDeactivated();
 #endif
-    if (TJSNativeInstance)
+    if(TJSNativeInstance)
         TJSNativeInstance->FireOnActivate(false);
 }
 void TTVPWindowForm::UpdateOrientation() {
-    if (DisplayOrientation == orientUnknown || DisplayRotate < 0) {
+    if(DisplayOrientation == orientUnknown || DisplayRotate < 0) {
         int orient, rot;
-        if (GetOrientation(orient, rot)) {
-            if (DisplayOrientation != orient || DisplayRotate != rot) {
+        if(GetOrientation(orient, rot)) {
+            if(DisplayOrientation != orient || DisplayRotate != rot) {
                 DisplayOrientation = orient;
                 DisplayRotate = rot;
             }
@@ -2030,17 +1946,16 @@ void TTVPWindowForm::UpdateOrientation() {
     }
 }
 bool TTVPWindowForm::GetOrientation(int &orientation, int &rotate) const {
-    DEVMODE mode = {0};
+    DEVMODE mode = { 0 };
     mode.dmSize = sizeof(DEVMODE);
     mode.dmDriverExtra = 0;
     mode.dmFields |= DM_DISPLAYORIENTATION | DM_PELSWIDTH | DM_PELSHEIGHT;
 
-    BOOL ret = ::EnumDisplaySettingsEx(nullptr, ENUM_CURRENT_SETTINGS, &mode,
-                                       EDS_ROTATEDMODE);
-    if (ret) {
-        if (mode.dmPelsWidth > mode.dmPelsHeight) {
+    BOOL ret = ::EnumDisplaySettingsEx(nullptr, ENUM_CURRENT_SETTINGS, &mode, EDS_ROTATEDMODE);
+    if(ret) {
+        if(mode.dmPelsWidth > mode.dmPelsHeight) {
             orientation = orientLandscape;
-        } else if (mode.dmPelsWidth < mode.dmPelsHeight) {
+        } else if(mode.dmPelsWidth < mode.dmPelsHeight) {
             orientation = orientPortrait;
         } else {
             orientation = orientUnknown;
@@ -2053,44 +1968,42 @@ bool TTVPWindowForm::GetOrientation(int &orientation, int &rotate) const {
         orientUnknown;
         }
         */
-        switch (mode.dmDisplayOrientation) {
-        case DMDO_DEFAULT:
-            rotate = 0;
-            break;
-        case DMDO_90:
-            rotate = 90;
-            break;
-        case DMDO_180:
-            rotate = 180;
-            break;
-        case DMDO_270:
-            rotate = 270;
-            break;
-        default:
-            rotate = -1;
+        switch(mode.dmDisplayOrientation) {
+            case DMDO_DEFAULT:
+                rotate = 0;
+                break;
+            case DMDO_90:
+                rotate = 90;
+                break;
+            case DMDO_180:
+                rotate = 180;
+                break;
+            case DMDO_270:
+                rotate = 270;
+                break;
+            default:
+                rotate = -1;
         }
     }
     return ret != FALSE;
 }
 void TTVPWindowForm::OnDisplayChange(UINT_PTR bpp, WORD hres, WORD vres) {
-    if (GetFullScreenMode())
+    if(GetFullScreenMode())
         RelocateFullScreenMode();
 
     int orient;
     int rot;
-    if (GetOrientation(orient, rot)) {
-        if (DisplayOrientation != orient || DisplayRotate != rot) {
+    if(GetOrientation(orient, rot)) {
+        if(DisplayOrientation != orient || DisplayRotate != rot) {
             DisplayOrientation = orient;
             DisplayRotate = rot;
             OnDisplayRotate(orient, rot, (int)bpp, hres, vres);
         }
     }
 }
-void TTVPWindowForm::OnDisplayRotate(int orientation, int rotate, int bpp,
-                                     int hresolution, int vresolution) {
-    if (TJSNativeInstance) {
-        TVPPostInputEvent(new tTVPOnDisplayRotateInputEvent(
-            TJSNativeInstance, orientation, rotate, bpp, hresolution,
-            vresolution));
+void TTVPWindowForm::OnDisplayRotate(int orientation, int rotate, int bpp, int hresolution, int vresolution) {
+    if(TJSNativeInstance) {
+        TVPPostInputEvent(
+            new tTVPOnDisplayRotateInputEvent(TJSNativeInstance, orientation, rotate, bpp, hresolution, vresolution));
     }
 }

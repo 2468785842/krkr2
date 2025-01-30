@@ -14,8 +14,7 @@ class CDVDClock;
 
 class CVideoPlayerAudio : public CThread, public IDVDStreamPlayerAudio {
 public:
-    CVideoPlayerAudio(CDVDClock *pClock, CDVDMessageQueue &parent,
-                      CProcessInfo &processInfo);
+    CVideoPlayerAudio(CDVDClock *pClock, CDVDMessageQueue &parent, CProcessInfo &processInfo);
 
     virtual ~CVideoPlayerAudio();
 
@@ -36,9 +35,7 @@ public:
 
     bool IsInited() const { return m_messageQueue.IsInited(); }
 
-    void SendMessage(CDVDMsg *pMsg, int priority = 0) {
-        m_messageQueue.Put(pMsg, priority);
-    }
+    void SendMessage(CDVDMsg *pMsg, int priority = 0) { m_messageQueue.Put(pMsg, priority); }
 
     void FlushMessages() { m_messageQueue.Flush(); }
 
@@ -88,8 +85,8 @@ protected:
 
     double m_audioClock;
 
-    CDVDAudio m_dvdAudio;          // audio output device
-    CDVDClock *m_pClock;           // dvd master clock
+    CDVDAudio m_dvdAudio; // audio output device
+    CDVDClock *m_pClock; // dvd master clock
     CDVDAudioCodec *m_pAudioCodec; // audio codec
     BitstreamStats m_audioStats;
 

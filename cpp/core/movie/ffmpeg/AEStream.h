@@ -28,13 +28,7 @@ public:
     double error;
     double rr; // resample ratio
     unsigned int errortime;
-    enum AESyncState {
-        SYNC_OFF,
-        SYNC_INSYNC,
-        SYNC_START,
-        SYNC_MUTE,
-        SYNC_ADJUST
-    };
+    enum AESyncState { SYNC_OFF, SYNC_INSYNC, SYNC_START, SYNC_MUTE, SYNC_ADJUST };
     AESyncState state;
 };
 
@@ -64,8 +58,7 @@ public:
      * @param pts timestamp
      * @return The number of frames consumed
      */
-    virtual unsigned int AddData(const uint8_t *const *data,
-                                 unsigned int offset, unsigned int frames,
+    virtual unsigned int AddData(const uint8_t *const *data, unsigned int offset, unsigned int frames,
                                  double pts = 0.0) = 0;
 
     /**

@@ -20,9 +20,9 @@
 //---------------------------------------------------------------------------
 enum tTVPVideoOverlayMode {
     vomOverlay, // Overlay
-    vomLayer,   // Draw Layer
-    vomMixer,   // VMR
-    vomMFEVR,   // Media Foundation with EVR
+    vomLayer, // Draw Layer
+    vomMixer, // VMR
+    vomMFEVR, // Media Foundation with EVR
 };
 
 /*]*/

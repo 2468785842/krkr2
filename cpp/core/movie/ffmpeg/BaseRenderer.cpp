@@ -16,7 +16,7 @@ CBaseRenderer::CBaseRenderer() {
     m_oldDestRect.SetRect(0.0f, 0.0f, 0.0f, 0.0f);
     m_iFlags = 0;
 
-    for (int i = 0; i < 4; i++) {
+    for(int i = 0; i < 4; i++) {
         m_rotatedDestCoords[i].x = 0;
         m_rotatedDestCoords[i].y = 0;
         m_savedRotatedDestCoords[i].x = 0;
@@ -40,25 +40,25 @@ void CBaseRenderer::GetVideoRect(CRect &source, CRect &dest, CRect &view) {
 
 inline void CBaseRenderer::ReorderDrawPoints() {
     // 0 - top left, 1 - top right, 2 - bottom right, 3 - bottom left
-    float origMat[4][2] = {{m_destRect.x1, m_destRect.y1},
-                           {m_destRect.x2, m_destRect.y1},
-                           {m_destRect.x2, m_destRect.y2},
-                           {m_destRect.x1, m_destRect.y2}};
+    float origMat[4][2] = { { m_destRect.x1, m_destRect.y1 },
+                            { m_destRect.x2, m_destRect.y1 },
+                            { m_destRect.x2, m_destRect.y2 },
+                            { m_destRect.x1, m_destRect.y2 } };
     bool changeAspect = false;
     int pointOffset = 0;
 
-    switch (m_renderOrientation) {
-    case 90:
-        pointOffset = 1;
-        changeAspect = true;
-        break;
-    case 180:
-        pointOffset = 2;
-        break;
-    case 270:
-        pointOffset = 3;
-        changeAspect = true;
-        break;
+    switch(m_renderOrientation) {
+        case 90:
+            pointOffset = 1;
+            changeAspect = true;
+            break;
+        case 180:
+            pointOffset = 2;
+            break;
+        case 270:
+            pointOffset = 3;
+            changeAspect = true;
+            break;
     }
 
     // if renderer doesn't support rotation
@@ -75,35 +75,27 @@ inline void CBaseRenderer::ReorderDrawPoints() {
     int centerX = 0;
     int centerY = 0;
 
-    if (changeAspect) // we are either rotating by 90 or 270 degrees which
-                      // inverts aspect ratio
+    if(changeAspect) // we are either rotating by 90 or 270 degrees which
+                     // inverts aspect ratio
     {
         int newWidth = m_destRect.Height(); // new width is old height
         int newHeight = m_destRect.Width(); // new height is old width
-        int diffWidth =
-            newWidth -
-            m_destRect.Width(); // difference between old and new width
-        int diffHeight =
-            newHeight -
-            m_destRect.Height(); // difference between old and new height
+        int diffWidth = newWidth - m_destRect.Width(); // difference between old and new width
+        int diffHeight = newHeight - m_destRect.Height(); // difference between old and new height
 
         // if the new width is bigger then the old or
         // the new height is bigger then the old - we need to scale down
-        if (diffWidth > 0 || diffHeight > 0) {
+        if(diffWidth > 0 || diffHeight > 0) {
             float aspectRatio = GetAspectRatio();
             // scale to fit screen width because
             // the difference in width is bigger then the
             // difference in height
-            if (diffWidth > diffHeight) {
-                newWidth =
-                    m_destRect
-                        .Width(); // clamp to the width of the old dest rect
+            if(diffWidth > diffHeight) {
+                newWidth = m_destRect.Width(); // clamp to the width of the old dest rect
                 newHeight *= aspectRatio;
             } else // scale to fit screen height
             {
-                newHeight =
-                    m_destRect
-                        .Height(); // clamp to the height of the old dest rect
+                newHeight = m_destRect.Height(); // clamp to the height of the old dest rect
                 newWidth /= aspectRatio;
             }
         }
@@ -120,28 +112,28 @@ inline void CBaseRenderer::ReorderDrawPoints() {
         diffY = newHeight / 2;
     }
 
-    for (int destIdx = 0, srcIdx = pointOffset; destIdx < 4; destIdx++) {
+    for(int destIdx = 0, srcIdx = pointOffset; destIdx < 4; destIdx++) {
         m_rotatedDestCoords[destIdx].x = origMat[srcIdx][0];
         m_rotatedDestCoords[destIdx].y = origMat[srcIdx][1];
 
-        if (changeAspect) {
-            switch (srcIdx) {
-            case 0: // top left
-                m_rotatedDestCoords[destIdx].x = centerX - diffX;
-                m_rotatedDestCoords[destIdx].y = centerY - diffY;
-                break;
-            case 1: // top right
-                m_rotatedDestCoords[destIdx].x = centerX + diffX;
-                m_rotatedDestCoords[destIdx].y = centerY - diffY;
-                break;
-            case 2: // bottom right
-                m_rotatedDestCoords[destIdx].x = centerX + diffX;
-                m_rotatedDestCoords[destIdx].y = centerY + diffY;
-                break;
-            case 3: // bottom left
-                m_rotatedDestCoords[destIdx].x = centerX - diffX;
-                m_rotatedDestCoords[destIdx].y = centerY + diffY;
-                break;
+        if(changeAspect) {
+            switch(srcIdx) {
+                case 0: // top left
+                    m_rotatedDestCoords[destIdx].x = centerX - diffX;
+                    m_rotatedDestCoords[destIdx].y = centerY - diffY;
+                    break;
+                case 1: // top right
+                    m_rotatedDestCoords[destIdx].x = centerX + diffX;
+                    m_rotatedDestCoords[destIdx].y = centerY - diffY;
+                    break;
+                case 2: // bottom right
+                    m_rotatedDestCoords[destIdx].x = centerX + diffX;
+                    m_rotatedDestCoords[destIdx].y = centerY + diffY;
+                    break;
+                case 3: // bottom left
+                    m_rotatedDestCoords[destIdx].x = centerX - diffX;
+                    m_rotatedDestCoords[destIdx].y = centerY + diffY;
+                    break;
             }
         }
         srcIdx++;
@@ -150,7 +142,7 @@ inline void CBaseRenderer::ReorderDrawPoints() {
 }
 
 void CBaseRenderer::saveRotatedCoords() {
-    for (int i = 0; i < 4; i++)
+    for(int i = 0; i < 4; i++)
         m_savedRotatedDestCoords[i] = m_rotatedDestCoords[i];
 }
 
@@ -166,17 +158,14 @@ void CBaseRenderer::syncDestRectToRotatedPoints() {
 }
 
 void CBaseRenderer::restoreRotatedCoords() {
-    for (int i = 0; i < 4; i++)
+    for(int i = 0; i < 4; i++)
         m_rotatedDestCoords[i] = m_savedRotatedDestCoords[i];
 }
 
-void CBaseRenderer::CalcNormalRenderRect(float offsetX, float offsetY,
-                                         float width, float height,
-                                         float inputFrameRatio,
-                                         float zoomAmount,
-                                         float verticalShift) {
+void CBaseRenderer::CalcNormalRenderRect(float offsetX, float offsetY, float width, float height, float inputFrameRatio,
+                                         float zoomAmount, float verticalShift) {
     // if view window is empty, set empty destination
-    if (height == 0 || width == 0) {
+    if(height == 0 || width == 0) {
         m_destRect.SetRect(0.0f, 0.0f, 0.0f, 0.0f);
         return;
     }
@@ -276,16 +265,14 @@ void CBaseRenderer::CalcNormalRenderRect(float offsetX, float offsetY,
 // non-square pixel TV set, so the pixels are defined to be the same ratio as
 // the intended display pixels. These formats are determined by frame size.
 //***************************************************************************************
-void CBaseRenderer::CalculateFrameAspectRatio(unsigned int desired_width,
-                                              unsigned int desired_height) {
+void CBaseRenderer::CalculateFrameAspectRatio(unsigned int desired_width, unsigned int desired_height) {
     m_sourceFrameRatio = (float)desired_width / desired_height;
 
     // Check whether mplayer has decided that the size of the video file should
     // be changed This indicates either a scaling has taken place (which we
     // didn't ask for) or it has found an aspect ratio parameter from the file,
     // and is changing the frame size based on that.
-    if (m_sourceWidth == (unsigned int)desired_width &&
-        m_sourceHeight == (unsigned int)desired_height)
+    if(m_sourceWidth == (unsigned int)desired_width && m_sourceHeight == (unsigned int)desired_height)
         return;
 
     // mplayer is scaling in one or both directions.  We must alter our Source
@@ -307,34 +294,30 @@ void CBaseRenderer::CalculateFrameAspectRatio(unsigned int desired_width,
     //       two wrongs may indeed make a right.  The "wrong" values here ensure
     //       the output frame is 4x3 (or 16x9)
     const float PALPixelRatio = 16.0f / 15.0f; // 128.0f / 117.0f;
-    const float NTSCPixelRatio = 8.0f / 9.0f;  // 4320.0f / 4739.0f;
+    const float NTSCPixelRatio = 8.0f / 9.0f; // 4320.0f / 4739.0f;
 
     // Calculate the correction needed for anamorphic sources
     float Non4by3Correction = m_sourceFrameRatio / (4.0f / 3.0f);
 
     // Finally, check for a VCD, SVCD or DVD frame size as these need special
     // aspect ratios
-    if (m_sourceWidth == 352) {    // VCD?
-        if (m_sourceHeight == 240) // NTSC
+    if(m_sourceWidth == 352) { // VCD?
+        if(m_sourceHeight == 240) // NTSC
             m_sourceFrameRatio = imageFrameRatio * NTSCPixelRatio;
-        if (m_sourceHeight == 288) // PAL
+        if(m_sourceHeight == 288) // PAL
             m_sourceFrameRatio = imageFrameRatio * PALPixelRatio;
     }
-    if (m_sourceWidth == 480) {    // SVCD?
-        if (m_sourceHeight == 480) // NTSC
-            m_sourceFrameRatio = imageFrameRatio * 3.0f / 2.0f *
-                                 NTSCPixelRatio * Non4by3Correction;
-        if (m_sourceHeight == 576) // PAL
-            m_sourceFrameRatio = imageFrameRatio * 3.0f / 2.0f * PALPixelRatio *
-                                 Non4by3Correction;
+    if(m_sourceWidth == 480) { // SVCD?
+        if(m_sourceHeight == 480) // NTSC
+            m_sourceFrameRatio = imageFrameRatio * 3.0f / 2.0f * NTSCPixelRatio * Non4by3Correction;
+        if(m_sourceHeight == 576) // PAL
+            m_sourceFrameRatio = imageFrameRatio * 3.0f / 2.0f * PALPixelRatio * Non4by3Correction;
     }
-    if (m_sourceWidth == 720) {    // DVD?
-        if (m_sourceHeight == 480) // NTSC
-            m_sourceFrameRatio =
-                imageFrameRatio * NTSCPixelRatio * Non4by3Correction;
-        if (m_sourceHeight == 576) // PAL
-            m_sourceFrameRatio =
-                imageFrameRatio * PALPixelRatio * Non4by3Correction;
+    if(m_sourceWidth == 720) { // DVD?
+        if(m_sourceHeight == 480) // NTSC
+            m_sourceFrameRatio = imageFrameRatio * NTSCPixelRatio * Non4by3Correction;
+        if(m_sourceHeight == 576) // PAL
+            m_sourceFrameRatio = imageFrameRatio * PALPixelRatio * Non4by3Correction;
     }
 }
 
@@ -534,20 +517,15 @@ void CBaseRenderer::MarkDirty() {
     // g_windowManager.MarkDirty(m_destRect);
 }
 
-void CBaseRenderer::
-    SettingOptionsRenderMethodsFiller(/*const CSetting *setting,*/
-                                      std::vector<std::pair<std::string, int>>
-                                          &list,
-                                      int &current, void *data) {
-    list.emplace_back("rendermethod_auto" /*g_localizeStrings.Get(13416)*/,
-                      RENDER_METHOD_AUTO);
+void CBaseRenderer::SettingOptionsRenderMethodsFiller(/*const CSetting *setting,*/
+                                                      std::vector<std::pair<std::string, int>> &list, int &current,
+                                                      void *data) {
+    list.emplace_back("rendermethod_auto" /*g_localizeStrings.Get(13416)*/, RENDER_METHOD_AUTO);
 
 #ifdef HAS_DX
     list.push_back(make_pair(g_localizeStrings.Get(16319), RENDER_METHOD_DXVA));
-    list.push_back(
-        make_pair(g_localizeStrings.Get(13431), RENDER_METHOD_D3D_PS));
-    list.push_back(
-        make_pair(g_localizeStrings.Get(13419), RENDER_METHOD_SOFTWARE));
+    list.push_back(make_pair(g_localizeStrings.Get(13431), RENDER_METHOD_D3D_PS));
+    list.push_back(make_pair(g_localizeStrings.Get(13419), RENDER_METHOD_SOFTWARE));
 #endif
 
 #ifdef HAS_GL

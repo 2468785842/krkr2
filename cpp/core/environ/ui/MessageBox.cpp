@@ -11,9 +11,7 @@
 using namespace cocos2d;
 using namespace cocos2d::ui;
 
-void TVPMessageBoxForm::show(const std::string &caption,
-                             const std::string &text, int nBtns,
-                             const std::string *btnText,
+void TVPMessageBoxForm::show(const std::string &caption, const std::string &text, int nBtns, const std::string *btnText,
                              const std::function<void(int)> &callback) {
     TVPMessageBoxForm *ret = new TVPMessageBoxForm;
     ret->autorelease();
@@ -21,32 +19,28 @@ void TVPMessageBoxForm::show(const std::string &caption,
     TVPMainScene::GetInstance()->pushUIForm(ret, TVPMainScene::eEnterAniNone);
 }
 
-void TVPMessageBoxForm::showYesNo(const std::string &caption,
-                                  const std::string &text,
+void TVPMessageBoxForm::showYesNo(const std::string &caption, const std::string &text,
                                   const std::function<void(int)> &callback) {
     LocaleConfigManager *mgr = LocaleConfigManager::GetInstance();
-    std::string btns[2] = {mgr->GetText("msgbox_yes"),
-                           mgr->GetText("msgbox_no")};
+    std::string btns[2] = { mgr->GetText("msgbox_yes"), mgr->GetText("msgbox_no") };
     return show(caption, text, 2, btns, callback);
 }
 
-void TVPMessageBoxForm::init(const std::string &caption,
-                             const std::string &text, int nBtns,
-                             const std::string *btnText,
+void TVPMessageBoxForm::init(const std::string &caption, const std::string &text, int nBtns, const std::string *btnText,
                              const std::function<void(int)> &callback) {
     _callback = callback;
 
     initFromFile(nullptr, "ui/MessageBox.csb", nullptr);
 
-    if (_title)
+    if(_title)
         _title->setString(caption);
-    if (_textContent) {
+    if(_textContent) {
         _textContent->setString("");
         _textContent->ignoreContentAdaptWithSize(true);
         _textContent->setString(text);
         const Size &textSize = _textContent->getContentSize();
         const Size &viewSize = _textContainer->getInnerContainerSize();
-        if (textSize.height > viewSize.height) {
+        if(textSize.height > viewSize.height) {
             _textContainer->setInnerContainerSize(textSize);
             _textContent->setPosition(Vec2(0, textSize.height));
         }
@@ -61,26 +55,25 @@ void TVPMessageBoxForm::init(const std::string &caption,
     Size origsize = _btnModel->getContentSize();
     Size btnSize = _btnBody->getContentSize();
 
-    for (int i = 0; i < nBtns; ++i) {
+    for(int i = 0; i < nBtns; ++i) {
         _btnBody->setTitleText(btnText[i]);
         Size textSize = _btnBody->getTitleRenderer()->getContentSize();
         float fontSize = _btnBody->getTitleFontSize();
         textSize.width += fontSize;
         _btnBody->addClickEventListener([this, i](Ref *node) {
             retain();
-            TVPMainScene::GetInstance()->popUIForm(this,
-                                                   TVPMainScene::eLeaveAniNone);
-            if (_callback)
+            TVPMainScene::GetInstance()->popUIForm(this, TVPMainScene::eLeaveAniNone);
+            if(_callback)
                 _callback(i);
             release();
         });
         Size size = _btnModel->getContentSize();
-        if (btnSize.width < textSize.width) {
+        if(btnSize.width < textSize.width) {
             Size size = origsize;
             size.width += textSize.width - btnSize.width;
             _btnModel->setContentSize(size);
             ui::Helper::doLayout(_btnModel);
-        } else if (size.width != origsize.width) {
+        } else if(size.width != origsize.width) {
             _btnModel->setContentSize(origsize);
             ui::Helper::doLayout(_btnModel);
         }
@@ -91,14 +84,14 @@ void TVPMessageBoxForm::init(const std::string &caption,
         btn->setTag(i);
     }
     float gap = _btnList->getContentSize().width - totalWidth;
-    if (gap < 0) {
+    if(gap < 0) {
         gap /= nBtns + 1;
     } else {
         gap /= nBtns + 1;
     }
     float x = gap;
 
-    for (Widget *btn : btns) {
+    for(Widget *btn : btns) {
         Vec2 pos = btn->getPosition();
         pos.x = x;
         btn->setPosition(pos);
@@ -118,11 +111,9 @@ void TVPMessageBoxForm::bindBodyController(const NodeMap &allNodes) {
     _btnList = _btnModel->getParent();
 }
 
-void TVPMessageBoxForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
-                                     cocos2d::Event *event) {
-    if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_BACK) {
-        TVPMainScene::GetInstance()->popUIForm(this,
-                                               TVPMainScene::eLeaveAniNone);
+void TVPMessageBoxForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event) {
+    if(keyCode == cocos2d::EventKeyboard::KeyCode::KEY_BACK) {
+        TVPMainScene::GetInstance()->popUIForm(this, TVPMainScene::eLeaveAniNone);
     }
 }
 
@@ -134,21 +125,18 @@ TVPSimpleProgressForm *TVPSimpleProgressForm::create() {
 }
 
 void TVPSimpleProgressForm::initButtons(
-    const std::vector<
-        std::pair<std::string, std::function<void(cocos2d::Ref *)>>> &vec) {
+    const std::vector<std::pair<std::string, std::function<void(cocos2d::Ref *)>>> &vec) {
     Size btnSize = _btnCell->getContentSize();
     float totalWidth = 0;
     float containerWidth = _btnContainer->getContentSize().width;
     float edge = _btnCell->getPosition().x;
     containerWidth -= edge * 2;
     std::vector<Node *> buttons;
-    float btnEdge =
-        btnSize.width - _btnButton->getTitleRenderer()->getContentSize().width;
-    for (const auto &it : vec) {
+    float btnEdge = btnSize.width - _btnButton->getTitleRenderer()->getContentSize().width;
+    for(const auto &it : vec) {
         _btnButton->setTitleText(it.first);
         _btnButton->addClickEventListener(it.second);
-        btnSize.width =
-            _btnButton->getTitleRenderer()->getContentSize().width + btnEdge;
+        btnSize.width = _btnButton->getTitleRenderer()->getContentSize().width + btnEdge;
         _btnCell->setContentSize(btnSize);
         ui::Helper::doLayout(_btnCell);
         totalWidth += btnSize.width;
@@ -158,18 +146,14 @@ void TVPSimpleProgressForm::initButtons(
     }
     float x = edge;
     float gap = (containerWidth - totalWidth) / buttons.size();
-    for (Node *btn : buttons) {
+    for(Node *btn : buttons) {
         btn->setPositionX(x);
         x += btn->getContentSize().width;
     }
 }
 
-void TVPSimpleProgressForm::setTitle(const std::string &text) {
-    _textTitle->setString(text);
-}
-void TVPSimpleProgressForm::setContent(const std::string &text) {
-    _textContent->setString(text);
-}
+void TVPSimpleProgressForm::setTitle(const std::string &text) { _textTitle->setString(text); }
+void TVPSimpleProgressForm::setContent(const std::string &text) { _textContent->setString(text); }
 
 void TVPSimpleProgressForm::setPercentWithText(float percent) {
     _progressBar[0]->setPercent(percent);
@@ -184,21 +168,13 @@ void TVPSimpleProgressForm::setPercentWithText2(float percent) {
     _textProgress[1]->setString(tmp);
 }
 
-void TVPSimpleProgressForm::setPercentOnly(float percent) {
-    _progressBar[0]->setPercent(percent * 100);
-}
+void TVPSimpleProgressForm::setPercentOnly(float percent) { _progressBar[0]->setPercent(percent * 100); }
 
-void TVPSimpleProgressForm::setPercentOnly2(float percent) {
-    _progressBar[1]->setPercent(percent * 100);
-}
+void TVPSimpleProgressForm::setPercentOnly2(float percent) { _progressBar[1]->setPercent(percent * 100); }
 
-void TVPSimpleProgressForm::setPercentText(const std::string &text) {
-    _textProgress[0]->setString(text);
-}
+void TVPSimpleProgressForm::setPercentText(const std::string &text) { _textProgress[0]->setString(text); }
 
-void TVPSimpleProgressForm::setPercentText2(const std::string &text) {
-    _textProgress[1]->setString(text);
-}
+void TVPSimpleProgressForm::setPercentText2(const std::string &text) { _textProgress[1]->setString(text); }
 
 void TVPSimpleProgressForm::setProgress2Visible(bool visible) {
     // TODO

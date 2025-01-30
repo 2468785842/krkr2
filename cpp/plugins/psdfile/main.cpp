@@ -37,8 +37,8 @@ public:
      */
     void remove(PSD *psd) {
         PSDMap::iterator it = psdMap.begin();
-        while (it != psdMap.end()) {
-            if (it->second == psd) {
+        while(it != psdMap.end()) {
+            if(it->second == psd) {
                 it = psdMap.erase(it);
             } else {
                 it++;
@@ -59,7 +59,7 @@ public:
     virtual void TJS_INTF_METHOD AddRef() { refCount++; };
 
     virtual void TJS_INTF_METHOD Release() {
-        if (refCount == 1) {
+        if(refCount == 1) {
             delete this;
         } else {
             refCount--;
@@ -86,7 +86,7 @@ public:
     virtual bool TJS_INTF_METHOD CheckExistentStorage(const ttstr &name) {
         ttstr fname;
         PSD *psd = getPSD(name, fname);
-        if (psd) {
+        if(psd) {
             bool ret = psd->CheckExistentStorage(fname);
             return ret;
         }
@@ -96,17 +96,15 @@ public:
     // open a storage and return a iTJSBinaryStream instance.
     // name does not contain in-archive storage name but
     // is normalized.
-    virtual tTJSBinaryStream *TJS_INTF_METHOD Open(const ttstr &name,
-                                                   tjs_uint32 flags) {
-        if (flags == TJS_BS_READ) { // 読み込みのみ
+    virtual tTJSBinaryStream *TJS_INTF_METHOD Open(const ttstr &name, tjs_uint32 flags) {
+        if(flags == TJS_BS_READ) { // 読み込みのみ
             ttstr fname;
             PSD *psd = getPSD(name, fname);
-            if (psd) {
+            if(psd) {
                 IStream *stream = psd->openLayerImage(fname);
-                if (stream) {
+                if(stream) {
 
-                    tTJSBinaryStream *ret =
-                        TVPCreateBinaryStreamAdapter(stream);
+                    tTJSBinaryStream *ret = TVPCreateBinaryStreamAdapter(stream);
                     stream->Release();
                     return ret;
                 }
@@ -117,11 +115,10 @@ public:
     }
 
     // list files at given place
-    virtual void TJS_INTF_METHOD GetListAt(const ttstr &name,
-                                           iTVPStorageLister *lister) {
+    virtual void TJS_INTF_METHOD GetListAt(const ttstr &name, iTVPStorageLister *lister) {
         ttstr fname;
         PSD *psd = getPSD(name, fname);
-        if (psd) {
+        if(psd) {
             psd->GetListAt(fname, lister);
         }
     }
@@ -129,16 +126,14 @@ public:
     // basically the same as above,
     // check wether given name is easily accessible from local OS filesystem.
     // if true, returns local OS native name. otherwise returns an empty string.
-    virtual void TJS_INTF_METHOD GetLocallyAccessibleName(ttstr &name) {
-        name = "";
-    }
+    virtual void TJS_INTF_METHOD GetLocallyAccessibleName(ttstr &name) { name = ""; }
 
 public:
     // -----------------------------------
     // tTVPCompactEventCallbackIntf
     // -----------------------------------
     virtual void TJS_INTF_METHOD OnCompact(tjs_int level) {
-        if (level > TVP_COMPACT_LEVEL_MINIMIZE) {
+        if(level > TVP_COMPACT_LEVEL_MINIMIZE) {
             clearCache();
         }
     }
@@ -157,7 +152,7 @@ protected:
         tTJSString dname;
         const tjs_char *p = name.c_str();
         const tjs_char *q;
-        if ((q = TJS_strchr(p, '/'))) {
+        if((q = TJS_strchr(p, '/'))) {
             dname = ttstr(p, q - p);
             fname = ttstr(q + 1);
         } else {
@@ -167,16 +162,14 @@ protected:
         PSD *psd = 0;
 
         // 直近のキャッシュが合致する場合はそれを返す
-        if (cache.Type() == tvtObject &&
-            (psd = ncbInstanceAdaptor<PSD>::GetNativeInstance(
-                 cache.AsObjectNoAddRef())) &&
-            psd->dname == dname) {
+        if(cache.Type() == tvtObject && (psd = ncbInstanceAdaptor<PSD>::GetNativeInstance(cache.AsObjectNoAddRef())) &&
+           psd->dname == dname) {
             return psd;
         }
 
         // PSDオブジェクトの弱参照から探す
         PSDMap::iterator it = psdMap.find(dname);
-        if (it != psdMap.end()) {
+        if(it != psdMap.end()) {
             // 既存データがある
             cache = it->second->getSelf();
             return it->second;
@@ -184,10 +177,9 @@ protected:
 
         // 自分でopenしてそのままキャッシュとして持つ
         TVPExecuteExpression(TJS_W("new PSD()"), &cache);
-        psd = ncbInstanceAdaptor<PSD>::GetNativeInstance(
-            cache.AsObjectNoAddRef());
-        if (psd) {
-            if (psd->load(dname.c_str())) {
+        psd = ncbInstanceAdaptor<PSD>::GetNativeInstance(cache.AsObjectNoAddRef());
+        if(psd) {
+            if(psd->load(dname.c_str())) {
                 return psd;
             } else {
                 clearCache();
@@ -215,27 +207,27 @@ void PSD::addToStorage(const ttstr &filename) {
     // 登録用ベース名を生成
     const tjs_char *p = filename.c_str();
     const tjs_char *q;
-    if ((q = TJS_strchr(p, '/'))) {
+    if((q = TJS_strchr(p, '/'))) {
         dname = ttstr(q + 1);
     } else {
         dname = filename;
     }
     // 小文字で正規化
     dname.ToLowerCase();
-    if (psdStorage != nullptr) {
+    if(psdStorage != nullptr) {
         psdStorage->add(dname, this);
     }
 }
 
 // 弱参照解除
 void PSD::removeFromStorage() {
-    if (psdStorage != nullptr) {
+    if(psdStorage != nullptr) {
         psdStorage->remove(this);
     }
 }
 
 void PSD::clearStorageCache() {
-    if (psdStorage != nullptr) {
+    if(psdStorage != nullptr) {
         psdStorage->clearCache();
     }
 }
@@ -243,7 +235,7 @@ void PSD::clearStorageCache() {
 // --------------------------------------------------------------------
 
 void initStorage() {
-    if (psdStorage == nullptr) {
+    if(psdStorage == nullptr) {
         psdStorage = new PSDStorage();
         TVPRegisterStorageMedia(psdStorage);
         TVPAddCompactEventHook((tTVPCompactEventCallbackIntf *)psdStorage);
@@ -251,7 +243,7 @@ void initStorage() {
 }
 
 void doneStorage() {
-    if (psdStorage != nullptr) {
+    if(psdStorage != nullptr) {
         TVPRemoveCompactEventHook((tTVPCompactEventCallbackIntf *)psdStorage);
         TVPUnregisterStorageMedia(psdStorage);
         psdStorage->Release();

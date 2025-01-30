@@ -33,8 +33,7 @@ class IRenderMsg {
 protected:
     virtual void VideoParamsChange() = 0;
 
-    virtual void GetDebugInfo(std::string &audio, std::string &video,
-                              std::string &general) = 0;
+    virtual void GetDebugInfo(std::string &audio, std::string &video, std::string &general) = 0;
 
     virtual void UpdateClockSync(bool enabled) = 0;
 
@@ -60,8 +59,7 @@ public:
 
     bool HasFrame();
 
-    void Render(bool clear, uint32_t flags = 0, uint32_t alpha = 255,
-                bool gui = true);
+    void Render(bool clear, uint32_t flags = 0, uint32_t alpha = 255, bool gui = true);
 
     bool IsGuiLayer();
 
@@ -105,8 +103,7 @@ public:
      * @param orientation
      * @param numbers of kept buffer references
      */
-    bool Configure(DVDVideoPicture &picture, float fps, unsigned flags,
-                   unsigned int orientation, int buffers = 0);
+    bool Configure(DVDVideoPicture &picture, float fps, unsigned flags, unsigned int orientation, int buffers = 0);
 
     int AddVideoPicture(DVDVideoPicture &picture);
 
@@ -125,10 +122,8 @@ public:
      * @param sync signals frame, top, or bottom field
      * @param wait: block until pic has been rendered
      */
-    void
-    FlipPage(volatile std::atomic_bool &bStop,
-             double pts /*, EINTERLACEMETHOD deintMethod, EFIELDSYNC sync*/,
-             bool wait);
+    void FlipPage(volatile std::atomic_bool &bStop, double pts /*, EINTERLACEMETHOD deintMethod, EFIELDSYNC sync*/,
+                  bool wait);
 
     //	void AddOverlay(CDVDOverlay* o, double pts);
 
@@ -196,13 +191,7 @@ protected:
     bool m_renderDebug;
     Timer m_debugTimer;
 
-    enum EPRESENTSTEP {
-        PRESENT_IDLE = 0,
-        PRESENT_FLIP,
-        PRESENT_FRAME,
-        PRESENT_FRAME2,
-        PRESENT_READY
-    };
+    enum EPRESENTSTEP { PRESENT_IDLE = 0, PRESENT_FLIP, PRESENT_FRAME, PRESENT_FRAME2, PRESENT_READY };
 
     enum EPRESENTMETHOD {
         PRESENT_METHOD_SINGLE = 0,

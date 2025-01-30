@@ -19,20 +19,18 @@
 #define TVERSION "00"
 #define TVERSLEN 2
 
-#define REGTYPE '0'   /* Regular file */
+#define REGTYPE '0' /* Regular file */
 #define AREGTYPE '\0' /* Regular file; old V7 format */
-#define LNKTYPE '1'   /* Link */
-#define SYMTYPE '2'   /* Symbolic link */
-#define CHRTYPE '3'   /* Character special */
-#define BLKTYPE '4'   /* Block special */
-#define DIRTYPE '5'   /* Directory */
-#define FIFOTYPE '6'  /* FIFO special */
-#define CONTTYPE '7'  /* Continguous file */
-#define LONGLINK 'L'  /* Long name Link by tantan*/
-#define PAX_ENTRTY                                                             \
-    'x' /* PAX header block for file entry : added by claybird 2011.11.29 */
-#define PAX_GLOBAL                                                             \
-    'g' /* PAX global extended header : added by claybird 2011.11.29 */
+#define LNKTYPE '1' /* Link */
+#define SYMTYPE '2' /* Symbolic link */
+#define CHRTYPE '3' /* Character special */
+#define BLKTYPE '4' /* Block special */
+#define DIRTYPE '5' /* Directory */
+#define FIFOTYPE '6' /* FIFO special */
+#define CONTTYPE '7' /* Continguous file */
+#define LONGLINK 'L' /* Long name Link by tantan*/
+#define PAX_ENTRTY 'x' /* PAX header block for file entry : added by claybird 2011.11.29 */
+#define PAX_GLOBAL 'g' /* PAX global extended header : added by claybird 2011.11.29 */
 
 #define MULTYPE 'M' /* Added by GNUtar, not POSIX */
 #define VOLTYPE 'V' /* Added by GNUtar, not POSIX */
@@ -41,15 +39,15 @@
 #define TSGID 02000 /* Set GID on execution */
 #define TSVTX 01000 /* Reserved */
 /* File permissions */
-#define TUREAD 00400  /* read by owner */
+#define TUREAD 00400 /* read by owner */
 #define TUWRITE 00200 /* write by owner */
-#define TUEXEC 00100  /* execute/search by owner */
-#define TGREAD 00040  /* read by group */
+#define TUEXEC 00100 /* execute/search by owner */
+#define TGREAD 00040 /* read by group */
 #define TGWRITE 00020 /* write by group */
-#define TGEXEC 00010  /* execute/search by group */
-#define TOREAD 00004  /* read by other */
+#define TGEXEC 00010 /* execute/search by group */
+#define TOREAD 00004 /* read by other */
 #define TOWRITE 00002 /* write by other */
-#define TOEXEC 00001  /* execute/search by other */
+#define TOEXEC 00001 /* execute/search by other */
 
 #define TBLOCK 512
 #define NAMSIZ 100
@@ -76,7 +74,7 @@ typedef union hblock {
         char gname[32];
         char devmajor[8];
         char devminor[8];
-        union _exthead {    // header extension
+        union _exthead { // header extension
             struct _POSIX { // POSIX ustar format
                 char prefix[155];
                 char pad[12];
@@ -93,11 +91,11 @@ typedef union hblock {
     unsigned int compsum() {
         unsigned int sum = 0;
         int i;
-        for (i = 0; i < TBLOCK; i++) {
+        for(i = 0; i < TBLOCK; i++) {
             sum += (unsigned char)dummy[i];
         }
         /* calc without checksum field */
-        for (i = 0; i < sizeof(dbuf.chksum); i++) {
+        for(i = 0; i < sizeof(dbuf.chksum); i++) {
             sum -= dbuf.chksum[i];
             sum += ' ';
         }
@@ -108,12 +106,11 @@ typedef union hblock {
     int compsum_oldtar() {
         unsigned int sum = 0;
         int i;
-        for (i = 0; i < TBLOCK; i++) {
-            sum +=
-                (signed char)dummy[i]; // different way to compute like old unix
+        for(i = 0; i < TBLOCK; i++) {
+            sum += (signed char)dummy[i]; // different way to compute like old unix
         }
         /* calc without checksum field */
-        for (i = 0; i < sizeof(dbuf.chksum); i++) {
+        for(i = 0; i < sizeof(dbuf.chksum); i++) {
             sum -= dbuf.chksum[i];
             sum += ' ';
         }
@@ -121,7 +118,7 @@ typedef union hblock {
     }
 
     int getFormat() const {
-        if (dbuf.magic[5] == TOMAGIC[5]) {
+        if(dbuf.magic[5] == TOMAGIC[5]) {
             return TAR_FORMAT_GNU;
         } else {
             return TAR_FORMAT_POSIX;

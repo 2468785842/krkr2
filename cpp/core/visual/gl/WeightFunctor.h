@@ -19,7 +19,7 @@ struct BilinearWeight {
     static const float RANGE;
     inline float operator()(float distance) const {
         float x = std::abs(distance);
-        if (x < 1.0f) {
+        if(x < 1.0f) {
             return 1.0f - x;
         } else {
             return 0.0f;
@@ -47,9 +47,9 @@ struct BicubicWeight {
     }
     inline float operator()(float distance) const {
         float x = std::abs(distance);
-        if (x <= 1.0f) {
+        if(x <= 1.0f) {
             return 1.0f - p[0] * x * x + p[1] * x * x * x;
-        } else if (x <= 2.0f) {
+        } else if(x <= 2.0f) {
             return p[2] + p[3] * x - p[4] * x * x + coeff * x * x * x;
         } else {
             return 0.0f;
@@ -60,20 +60,21 @@ struct BicubicWeight {
 /**
  * Lanczos
  */
-template <int TTap> struct LanczosWeight {
+template <int TTap>
+struct LanczosWeight {
     static const float RANGE;
     inline float operator()(float distance) {
         float x = std::abs(distance);
-        if (x < FLT_EPSILON)
+        if(x < FLT_EPSILON)
             return 1.0f;
-        if (x >= (float)TTap)
+        if(x >= (float)TTap)
             return 0.0f;
-        return std::sin((float)M_PI * distance) *
-               std::sin((float)M_PI * distance / TTap) /
-               ((float)M_PI * (float)M_PI * distance * distance / TTap);
+        return std::sin((float)M_PI * distance) * std::sin((float)M_PI * distance / TTap) /
+            ((float)M_PI * (float)M_PI * distance * distance / TTap);
     }
 };
-template <int TTap> const float LanczosWeight<TTap>::RANGE = (float)TTap;
+template <int TTap>
+const float LanczosWeight<TTap>::RANGE = (float)TTap;
 
 /**
  * Spline16 用ウェイト関数
@@ -82,11 +83,10 @@ struct Spline16Weight {
     static const float RANGE;
     inline float operator()(float distance) const {
         float x = std::abs(distance);
-        if (x <= 1.0f) {
+        if(x <= 1.0f) {
             return x * x * x - x * x * 9.0f / 5.0f - x * 1.0f / 5.0f + 1.0f;
-        } else if (x <= 2.0f) {
-            return -x * x * x * 1.0f / 3.0f + x * x * 9.0f / 5.0f -
-                   x * 46.0f / 15.0f + 8.0f / 5.0f;
+        } else if(x <= 2.0f) {
+            return -x * x * x * 1.0f / 3.0f + x * x * 9.0f / 5.0f - x * 46.0f / 15.0f + 8.0f / 5.0f;
         } else {
             return 0.0f;
         }
@@ -100,15 +100,12 @@ struct Spline36Weight {
     static const float RANGE;
     inline float operator()(float distance) const {
         float x = std::abs(distance);
-        if (x <= 1.0f) {
-            return x * x * x * 13.0f / 11.0f - x * x * 453.0f / 209.0f -
-                   x * 3.0f / 209.0f + 1.0f;
-        } else if (x <= 2.0f) {
-            return -x * x * x * 6.0f / 11.0f + x * x * 612.0f / 209.0f -
-                   x * 1038.0f / 209.0f + 540.0f / 209.0f;
-        } else if (x <= 3.0f) {
-            return x * x * x * 1.0f / 11.0f - x * x * 159.0f / 209.0f +
-                   x * 434.0f / 209.0f - 384.0f / 209.0f;
+        if(x <= 1.0f) {
+            return x * x * x * 13.0f / 11.0f - x * x * 453.0f / 209.0f - x * 3.0f / 209.0f + 1.0f;
+        } else if(x <= 2.0f) {
+            return -x * x * x * 6.0f / 11.0f + x * x * 612.0f / 209.0f - x * 1038.0f / 209.0f + 540.0f / 209.0f;
+        } else if(x <= 3.0f) {
+            return x * x * x * 1.0f / 11.0f - x * x * 159.0f / 209.0f + x * 434.0f / 209.0f - 384.0f / 209.0f;
         } else {
             return 0.0f;
         }
@@ -138,12 +135,12 @@ struct BlackmanSincWeight {
     BlackmanSincWeight(float c = RANGE) : coeff(1.0f / c) {}
     inline float operator()(float distance) const {
         float x = std::abs(distance);
-        if (x < FLT_EPSILON) {
+        if(x < FLT_EPSILON) {
             return 1.0f;
         } else {
             return (0.42f + 0.5f * std::cos((float)M_PI * x * coeff) +
                     0.08f * std::cos(2.0f * (float)M_PI * x * coeff)) *
-                   (std::sin((float)M_PI * x) / ((float)M_PI * x));
+                (std::sin((float)M_PI * x) / ((float)M_PI * x));
         }
     }
 };

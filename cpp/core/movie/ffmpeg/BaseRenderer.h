@@ -50,10 +50,8 @@ public:
     virtual ~CBaseRenderer();
 
     // Player functions
-    virtual bool Configure(unsigned int width, unsigned int height,
-                           unsigned int d_width, unsigned int d_height,
-                           float fps, unsigned flags, ERenderFormat format,
-                           unsigned extended_formatl,
+    virtual bool Configure(unsigned int width, unsigned int height, unsigned int d_width, unsigned int d_height,
+                           float fps, unsigned flags, ERenderFormat format, unsigned extended_formatl,
                            unsigned int orientation) {
         return true;
     }
@@ -90,19 +88,13 @@ public:
 
     virtual void Update() {}
 
-    virtual void RenderUpdate(bool clear, unsigned int flags = 0,
-                              unsigned int alpha = 255) {}
+    virtual void RenderUpdate(bool clear, unsigned int flags = 0, unsigned int alpha = 255) {}
 
     virtual bool RenderCapture(CRenderCapture *capture) { return false; }
 
-    virtual bool HandlesRenderFormat(ERenderFormat format) {
-        return format == m_format;
-    };
+    virtual bool HandlesRenderFormat(ERenderFormat format) { return format == m_format; };
 
-    virtual int WaitForBuffer(volatile std::atomic_bool &bStop,
-                              int timeout = 0) {
-        return -1;
-    }
+    virtual int WaitForBuffer(volatile std::atomic_bool &bStop, int timeout = 0) { return -1; }
 
     // Feature support
     //  virtual bool SupportsMultiPassRendering() { return false; }
@@ -123,19 +115,15 @@ public:
 
     float GetAspectRatio() const;
 
-    static void
-    SettingOptionsRenderMethodsFiller(/*const CSetting *setting,*/
-                                      std::vector<std::pair<std::string, int>>
-                                          &list,
-                                      int &current, void *data);
+    static void SettingOptionsRenderMethodsFiller(/*const CSetting *setting,*/
+                                                  std::vector<std::pair<std::string, int>> &list, int &current,
+                                                  void *data);
 
 protected:
-    void CalcNormalRenderRect(float offsetX, float offsetY, float width,
-                              float height, float inputFrameRatio,
+    void CalcNormalRenderRect(float offsetX, float offsetY, float width, float height, float inputFrameRatio,
                               float zoomAmount, float verticalShift);
 
-    void CalculateFrameAspectRatio(unsigned int desired_width,
-                                   unsigned int desired_height);
+    void CalculateFrameAspectRatio(unsigned int desired_width, unsigned int desired_height);
 
     void ManageRenderArea();
 
@@ -143,7 +131,7 @@ protected:
     void saveRotatedCoords(); // saves the current state of m_rotatedDestCoords
     void syncDestRectToRotatedPoints(); // sync any changes of m_destRect to
                                         // m_rotatedDestCoords
-    void restoreRotatedCoords();        // restore the current state of
+    void restoreRotatedCoords(); // restore the current state of
                                  // m_rotatedDestCoords from saveRotatedCoords
     void MarkDirty();
 
@@ -152,8 +140,8 @@ protected:
     float m_sourceFrameRatio;
     float m_fps;
 
-    unsigned int m_renderOrientation;    // orientation of the video in degress
-                                         // counter clockwise
+    unsigned int m_renderOrientation; // orientation of the video in degress
+                                      // counter clockwise
     unsigned int m_oldRenderOrientation; // orientation of the previous frame
     // for drawing the texture with glVertex4f (holds all 4 corner points of the
     // destination rect with correct orientation based on m_renderOrientation 0

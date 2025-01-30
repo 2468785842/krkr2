@@ -1,0 +1,5 @@
+set(DYNAMIC_LIBRARIES sdl2)
+
+if(PORT IN_LIST DYNAMIC_LIBRARIES)
+    set(VCPKG_LIBRARY_LINKAGE dynamic)
+endif ()

@@ -27,19 +27,19 @@ class tTVPPassThroughDrawDevice : public tTVPDrawDevice {
 public:
     //! @brief	drawerのタイプ
     enum tDrawerType {
-        dtNone,    //!< drawer なし
+        dtNone, //!< drawer なし
         dtDrawDib, //!< もっとも単純なdrawer
-        dtDBGDI,   // GDI によるダブルバッファリングを行うdrawer
+        dtDBGDI, // GDI によるダブルバッファリングを行うdrawer
         dtDBDD, // DirectDraw によるダブルバッファリングを行うdrawer
         dtDBD3D // Direct3D によるダブルバッファリングを行うdrawer
     };
 
 private:
-    tDrawerType DrawerType;          //!< drawer のタイプ
+    tDrawerType DrawerType; //!< drawer のタイプ
     tDrawerType PreferredDrawerType; //!< 使って欲しい drawer のタイプ
 
     bool DestSizeChanged; //!< DestRect のサイズに変更があったか
-    bool SrcSizeChanged;  //!< SrcSize に変更があったか
+    bool SrcSizeChanged; //!< SrcSize に変更があったか
 
 public:
     tTVPPassThroughDrawDevice(); //!< コンストラクタ
@@ -58,9 +58,7 @@ public:
     void EnsureDrawer();
 
     tDrawerType GetDrawerType() const { return DrawerType; }
-    void SetPreferredDrawerType(tDrawerType type) {
-        PreferredDrawerType = type;
-    }
+    void SetPreferredDrawerType(tDrawerType type) { PreferredDrawerType = type; }
     tDrawerType GetPreferredDrawerType() const { return PreferredDrawerType; }
 
     //---- LayerManager の管理関連
@@ -75,11 +73,10 @@ public:
     virtual void TJS_INTF_METHOD Show();
 
     //---- LayerManager からの画像受け渡し関連
-    virtual void TJS_INTF_METHOD
-    StartBitmapCompletion(iTVPLayerManager *manager);
-    virtual void TJS_INTF_METHOD NotifyBitmapCompleted(
-        iTVPLayerManager *manager, tjs_int x, tjs_int y, tTVPBaseTexture *bmp,
-        const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity);
+    virtual void TJS_INTF_METHOD StartBitmapCompletion(iTVPLayerManager *manager);
+    virtual void TJS_INTF_METHOD NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y,
+                                                       tTVPBaseTexture *bmp, const tTVPRect &cliprect,
+                                                       tTVPLayerType type, tjs_int opacity);
     virtual void TJS_INTF_METHOD EndBitmapCompletion(iTVPLayerManager *manager);
 
     //---- デバッグ支援
@@ -99,8 +96,7 @@ class tTJSNI_PassThroughDrawDevice : public tTJSNativeInstance {
 public:
     tTJSNI_PassThroughDrawDevice();
     ~tTJSNI_PassThroughDrawDevice();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
     void TJS_INTF_METHOD Invalidate();
 
 public:

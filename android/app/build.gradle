@@ -30,6 +30,7 @@ android {
 
     externalNativeBuild {
         cmake {
+            version '3.31.1'
             buildStagingDirectory '../../out/cmake-build-android'
             path '../../CMakeLists.txt'
         }
@@ -56,12 +57,6 @@ android {
 
     buildTypes {
         release {
-            externalNativeBuild {
-                cmake {
-                    arguments "-DCMAKE_BUILD_TYPE=Release"
-                }
-            }
-
             debuggable false
             minifyEnabled true
             shrinkResources true
@@ -70,11 +65,6 @@ android {
         }
 
         debug {
-            externalNativeBuild {
-                cmake {
-                    arguments "-DCMAKE_BUILD_TYPE=Debug"
-                }
-            }
             debuggable true
         }
     }
@@ -122,6 +112,7 @@ android {
 
 dependencies {
     //implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':sdl')
     implementation project(':cocos2dx')
 
     //noinspection GradleDependency

@@ -78,7 +78,7 @@ class tTJSNI_Window;
 struct tTVPRect;
 class tTVPBaseBitmap;
 class tTVPWheelDirectInputDevice; // class for DirectInputDevice management
-class tTVPPadDirectInputDevice;   // class for DirectInputDevice management
+class tTVPPadDirectInputDevice; // class for DirectInputDevice management
 
 class TTVPWindowForm : public tTVPWindow, public TouchHandler {
     static const int TVP_MOUSE_MAX_ACCEL = 30;
@@ -159,8 +159,8 @@ private:
     tjs_int LayerTop;
     tjs_int LayerWidth;
     tjs_int LayerHeight;
-    tjs_int ZoomDenom;       // Zooming factor denominator (setting)
-    tjs_int ZoomNumer;       // Zooming factor numerator (setting)
+    tjs_int ZoomDenom; // Zooming factor denominator (setting)
+    tjs_int ZoomNumer; // Zooming factor numerator (setting)
     tjs_int ActualZoomDenom; // Zooming factor denominator (actual)
     tjs_int ActualZoomNumer; // Zooming factor numerator (actual)
 
@@ -185,9 +185,7 @@ private:
     void TranslateDrawAreaToWindow(int &x, int &y);
 
     void FirePopupHide();
-    bool CanSendPopupHide() const {
-        return !Focusable && GetVisible() && GetStayOnTop();
-    }
+    bool CanSendPopupHide() const { return !Focusable && GetVisible() && GetStayOnTop(); }
 
     void RestoreMouseCursor();
     void SetMouseCursorVisibleState(bool b);
@@ -226,8 +224,7 @@ protected:
     //);
 
 public:
-    TTVPWindowForm(class tTVPApplication *app, tTJSNI_Window *ni,
-                   tTJSNI_Window *parent = nullptr);
+    TTVPWindowForm(class tTVPApplication *app, tTJSNI_Window *ni, tTJSNI_Window *parent = nullptr);
     virtual ~TTVPWindowForm();
 
     static void DeliverPopupHide();
@@ -254,9 +251,7 @@ public:
 
     void HideMouseCursor();
     void SetMouseCursorState(tTVPMouseCursorState mcs);
-    tTVPMouseCursorState GetMouseCursorState() const {
-        return MouseCursorState;
-    }
+    tTVPMouseCursorState GetMouseCursorState() const { return MouseCursorState; }
 
     void SetFocusable(bool b);
     bool GetFocusable() const { return Focusable; }
@@ -279,8 +274,7 @@ public:
 
     void SetVisibleFromScript(bool b);
 
-    void RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void *proc,
-                                       const void *userdata);
+    void RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void *proc, const void *userdata);
 
     //-- close action related
     bool Closing;
@@ -291,8 +285,7 @@ public:
     void OnCloseQueryCalled(bool b);
     void SendCloseMessage();
 
-    void ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right,
-                       tjs_int &bottom);
+    void ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right, tjs_int &bottom);
     void GetVideoOffset(tjs_int &ofsx, tjs_int &ofsy);
 
     HWND GetSurfaceWindowHandle() { return GetHandle(); }
@@ -326,8 +319,7 @@ public:
     tTVPImeMode GetDefaultImeMode() const { return DefaultImeMode; }
     void ResetImeMode();
 
-    void SetAttentionPoint(tjs_int left, tjs_int top,
-                           const struct tTVPFont *font);
+    void SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont *font);
     void DisableAttentionPoint();
 
     void InvokeShowVisible();
@@ -353,8 +345,7 @@ public:
 
     virtual void OnKeyDown(WORD vk, int shift, int repeat, bool prevkeystate);
     virtual void OnKeyUp(WORD vk, int shift);
-    virtual void OnKeyPress(WORD vk, int repeat, bool prevkeystate,
-                            bool convertkey);
+    virtual void OnKeyPress(WORD vk, int repeat, bool prevkeystate, bool convertkey);
 
     virtual void OnPaint();
     virtual void OnClose(CloseAction &action);
@@ -369,14 +360,11 @@ public:
     virtual void OnMove(int x, int y);
     virtual void OnResize(UINT_PTR state, int w, int h);
     //	virtual void OnDropFile( HDROP hDrop );
-    virtual int OnMouseActivate(HWND hTopLevelParentWnd, WORD hitTestCode,
-                                WORD MouseMsg);
-    virtual bool OnSetCursor(HWND hContainsCursorWnd, WORD hitTestCode,
-                             WORD MouseMsg);
+    virtual int OnMouseActivate(HWND hTopLevelParentWnd, WORD hitTestCode, WORD MouseMsg);
+    virtual bool OnSetCursor(HWND hContainsCursorWnd, WORD hitTestCode, WORD MouseMsg);
     virtual void OnEnable(bool enabled);
     virtual void OnDeviceChange(UINT_PTR event, void *data);
-    virtual void OnNonClientMouseDown(int button, UINT_PTR hittest, int x,
-                                      int y);
+    virtual void OnNonClientMouseDown(int button, UINT_PTR hittest, int x, int y);
     virtual void OnMouseEnter();
     virtual void OnMouseLeave();
     virtual void OnEnterMenuLoop(bool entered);
@@ -387,24 +375,18 @@ public:
     virtual void OnFocus(HWND hFocusLostWnd);
     virtual void OnFocusLost(HWND hFocusingWnd);
 
-    virtual void OnTouchDown(double x, double y, double cx, double cy, DWORD id,
-                             DWORD tick);
-    virtual void OnTouchMove(double x, double y, double cx, double cy, DWORD id,
-                             DWORD tick);
-    virtual void OnTouchUp(double x, double y, double cx, double cy, DWORD id,
-                           DWORD tick);
+    virtual void OnTouchDown(double x, double y, double cx, double cy, DWORD id, DWORD tick);
+    virtual void OnTouchMove(double x, double y, double cx, double cy, DWORD id, DWORD tick);
+    virtual void OnTouchUp(double x, double y, double cx, double cy, DWORD id, DWORD tick);
     virtual void OnTouchSequenceStart();
     virtual void OnTouchSequenceEnd();
 
-    virtual void OnTouchScaling(double startdist, double currentdist, double cx,
-                                double cy, int flag);
-    virtual void OnTouchRotate(double startangle, double currentangle,
-                               double distance, double cx, double cy, int flag);
+    virtual void OnTouchScaling(double startdist, double currentdist, double cx, double cy, int flag);
+    virtual void OnTouchRotate(double startangle, double currentangle, double distance, double cx, double cy, int flag);
     virtual void OnMultiTouch();
 
     virtual void OnDisplayChange(UINT_PTR bpp, WORD hres, WORD vres);
-    virtual void OnDisplayRotate(int orientation, int rotate, int bpp,
-                                 int hresolution, int vresolution);
+    virtual void OnDisplayRotate(int orientation, int rotate, int bpp, int hresolution, int vresolution);
 
     virtual void OnApplicationActivateChange(bool activated, DWORD thread_id);
 
@@ -415,39 +397,21 @@ public:
 	void WMRetrieveFocus();
 	void WMAcquireImeControl();
 #endif
-    void SetTouchScaleThreshold(double threshold) {
-        touch_points_.SetScaleThreshold(threshold);
-    }
-    double GetTouchScaleThreshold() const {
-        return touch_points_.GetScaleThreshold();
-    }
-    void SetTouchRotateThreshold(double threshold) {
-        touch_points_.SetRotateThreshold(threshold);
-    }
-    double GetTouchRotateThreshold() const {
-        return touch_points_.GetRotateThreshold();
-    }
-    tjs_real GetTouchPointStartX(tjs_int index) const {
-        return touch_points_.GetStartX(index);
-    }
-    tjs_real GetTouchPointStartY(tjs_int index) const {
-        return touch_points_.GetStartY(index);
-    }
-    tjs_real GetTouchPointX(tjs_int index) const {
-        return touch_points_.GetX(index);
-    }
-    tjs_real GetTouchPointY(tjs_int index) const {
-        return touch_points_.GetY(index);
-    }
-    tjs_int GetTouchPointID(tjs_int index) const {
-        return touch_points_.GetID(index);
-    }
+    void SetTouchScaleThreshold(double threshold) { touch_points_.SetScaleThreshold(threshold); }
+    double GetTouchScaleThreshold() const { return touch_points_.GetScaleThreshold(); }
+    void SetTouchRotateThreshold(double threshold) { touch_points_.SetRotateThreshold(threshold); }
+    double GetTouchRotateThreshold() const { return touch_points_.GetRotateThreshold(); }
+    tjs_real GetTouchPointStartX(tjs_int index) const { return touch_points_.GetStartX(index); }
+    tjs_real GetTouchPointStartY(tjs_int index) const { return touch_points_.GetStartY(index); }
+    tjs_real GetTouchPointX(tjs_int index) const { return touch_points_.GetX(index); }
+    tjs_real GetTouchPointY(tjs_int index) const { return touch_points_.GetY(index); }
+    tjs_int GetTouchPointID(tjs_int index) const { return touch_points_.GetID(index); }
     tjs_int GetTouchPointCount() const { return touch_points_.CountUsePoint(); }
     bool GetTouchVelocity(tjs_int id, float &x, float &y, float &speed) const {
         return TouchVelocityTracker.getVelocity(id, x, y, speed);
     }
     bool GetMouseVelocity(float &x, float &y, float &speed) const {
-        if (MouseVelocityTracker.getVelocity(x, y)) {
+        if(MouseVelocityTracker.getVelocity(x, y)) {
             speed = hypotf(x, y);
             return true;
         }

@@ -67,7 +67,7 @@ bool TVPGetAsyncKeyState(tjs_uint keycode, bool getcurrent) {
     // otherwise, return whether the key is pushed during previous call of
     // TVPGetAsyncKeyState at the same keycode.
 
-    if (keycode >= VK_PAD_FIRST && keycode <= VK_PAD_LAST) {
+    if(keycode >= VK_PAD_FIRST && keycode <= VK_PAD_LAST) {
         // JoyPad related keys are treated in DInputMgn.cpp
         return TVPGetJoyPadAsyncState(keycode, getcurrent);
     }
@@ -268,14 +268,13 @@ static tTJSVariant RegisterData;
 
 ttstr TVPGetAppDataPath();
 
-void TVPExecuteStorage(const ttstr &name, tTJSVariant *result,
-                       bool isexpression, const tjs_char *modestr);
+void TVPExecuteStorage(const ttstr &name, tTJSVariant *result, bool isexpression, const tjs_char *modestr);
 
 static void InitRegisterData() {
     static bool dataInited = false;
-    if (!dataInited) {
+    if(!dataInited) {
         ttstr regfile = TVPGetAppDataPath() + TJS_W("RegisterData.tjs");
-        if (TVPIsExistentStorageNoSearch(regfile)) {
+        if(TVPIsExistentStorageNoSearch(regfile)) {
             TVPExecuteStorage(regfile, &RegisterData, true, TJS_W(""));
         }
     }
@@ -286,7 +285,7 @@ static void InitRegisterData() {
 //---------------------------------------------------------------------------
 static void TVPReadRegValue(tTJSVariant &result, const ttstr &key) {
     // open specified registry key
-    if (key.IsEmpty()) {
+    if(key.IsEmpty()) {
         result.Clear();
         return;
     }
@@ -299,39 +298,37 @@ static void TVPReadRegValue(tTJSVariant &result, const ttstr &key) {
     // search value name
     tTJSVariant CurrentNode = RegisterData;
     const tjs_char *start = key_p;
-    while (*start && CurrentNode.Type() != tvtObject) {
+    while(*start && CurrentNode.Type() != tvtObject) {
         iTJSDispatch2 *pObj;
 
-        switch (*key_p) {
-        case '\\':
-        case '/':
-            ++key_p;
-        case '\0':
-            start = key_p;
-            if (CurrentNode.Type() != tvtObject) {
-                CurrentNode.Clear();
-                break;
-            }
-            pObj = CurrentNode.AsObject();
-            if (!pObj) {
-                CurrentNode.Clear();
-                break;
-            }
-            if (!TJS_SUCCEEDED(
-                    pObj->PropGet(TJS_MEMBERMUSTEXIST,
-                                  ttstr(start, key_p - start - 1).c_str(), 0,
-                                  &CurrentNode, pObj))) {
-                CurrentNode.Clear();
-                break;
-            }
-            start = key_p;
-            continue;
-        default:
-            ++key_p;
-            continue;
+        switch(*key_p) {
+            case '\\':
+            case '/':
+                ++key_p;
+            case '\0':
+                start = key_p;
+                if(CurrentNode.Type() != tvtObject) {
+                    CurrentNode.Clear();
+                    break;
+                }
+                pObj = CurrentNode.AsObject();
+                if(!pObj) {
+                    CurrentNode.Clear();
+                    break;
+                }
+                if(!TJS_SUCCEEDED(pObj->PropGet(TJS_MEMBERMUSTEXIST, ttstr(start, key_p - start - 1).c_str(), 0,
+                                                &CurrentNode, pObj))) {
+                    CurrentNode.Clear();
+                    break;
+                }
+                start = key_p;
+                continue;
+            default:
+                ++key_p;
+                continue;
         }
     }
-    if (*start) {
+    if(*start) {
         CurrentNode.Clear();
         return;
     }
@@ -642,9 +639,8 @@ class tTVPOnApplicationActivateEvent : public tTVPBaseInputEvent {
     static tTVPUniqueTagForInputEvent Tag;
     bool ActivateOrDeactivate; // true for activate; otherwise deactivate
 public:
-    tTVPOnApplicationActivateEvent(bool activate_or_deactivate)
-        : tTVPBaseInputEvent(Application, Tag),
-          ActivateOrDeactivate(activate_or_deactivate){};
+    tTVPOnApplicationActivateEvent(bool activate_or_deactivate) :
+        tTVPBaseInputEvent(Application, Tag), ActivateOrDeactivate(activate_or_deactivate){};
 
     void Deliver() const { TVPOnApplicationActivate(ActivateOrDeactivate); }
 };
@@ -653,27 +649,25 @@ tTVPUniqueTagForInputEvent tTVPOnApplicationActivateEvent::Tag;
 
 //---------------------------------------------------------------------------
 void TVPPostApplicationActivateEvent() {
-    TVPPostInputEvent(new tTVPOnApplicationActivateEvent(true),
-                      TVP_EPT_REMOVE_POST);
+    TVPPostInputEvent(new tTVPOnApplicationActivateEvent(true), TVP_EPT_REMOVE_POST);
 }
 
 //---------------------------------------------------------------------------
 void TVPPostApplicationDeactivateEvent() {
-    TVPPostInputEvent(new tTVPOnApplicationActivateEvent(false),
-                      TVP_EPT_REMOVE_POST);
+    TVPPostInputEvent(new tTVPOnApplicationActivateEvent(false), TVP_EPT_REMOVE_POST);
 }
 
 //---------------------------------------------------------------------------
 static void TVPOnApplicationActivate(bool activate_or_deactivate) {
     // called by event system, to fire System.onActivate or
     // System.onDeactivate event
-    if (!TVPSystemControlAlive)
+    if(!TVPSystemControlAlive)
         return;
 
     // check the state again (because the state may change during the event
     // delivering). but note that this implementation might fire activate events
     // even in the application is already activated (the same as deactivation).
-    if (activate_or_deactivate != Application->GetActivating())
+    if(activate_or_deactivate != Application->GetActivating())
         return;
 
     // fire the event
@@ -766,36 +760,29 @@ extern void TVPDoSaveSystemVariables() {
     try {
         // hack for save system variable
         iTJSDispatch2 *global = TVPGetScriptDispatch();
-        if (!global)
+        if(!global)
             return;
         tTJSVariant var;
-        if (global->PropGet(0, TJS_W("kag"), nullptr, &var, global) ==
-                TJS_S_OK &&
-            var.Type() == tvtObject) {
+        if(global->PropGet(0, TJS_W("kag"), nullptr, &var, global) == TJS_S_OK && var.Type() == tvtObject) {
             iTJSDispatch2 *kag = var.AsObjectNoAddRef();
-            if (kag->PropGet(0, TJS_W("saveSystemVariables"), nullptr, &var,
-                             kag) == TJS_S_OK) {
+            if(kag->PropGet(0, TJS_W("saveSystemVariables"), nullptr, &var, kag) == TJS_S_OK) {
                 iTJSDispatch2 *fn = var.AsObjectNoAddRef();
-                if (fn->IsInstanceOf(0, nullptr, nullptr, TJS_W("Function"),
-                                     fn)) {
+                if(fn->IsInstanceOf(0, nullptr, nullptr, TJS_W("Function"), fn)) {
                     tTJSVariant *args = nullptr;
                     fn->FuncCall(0, nullptr, nullptr, nullptr, 0, &args, kag);
                 }
             }
-            if (TVPAutoSaveBookMark &&
-                kag->PropGet(0, TJS_W("saveBookMark"), nullptr, &var, kag) ==
-                    TJS_S_OK &&
-                var.Type() == tvtObject) {
+            if(TVPAutoSaveBookMark && kag->PropGet(0, TJS_W("saveBookMark"), nullptr, &var, kag) == TJS_S_OK &&
+               var.Type() == tvtObject) {
                 iTJSDispatch2 *fn = var.AsObjectNoAddRef();
-                if (fn->IsInstanceOf(0, nullptr, nullptr, TJS_W("Function"),
-                                     fn)) {
+                if(fn->IsInstanceOf(0, nullptr, nullptr, TJS_W("Function"), fn)) {
                     tTJSVariant num((tjs_int32)0);
                     tTJSVariant *args = &num;
                     fn->FuncCall(0, nullptr, nullptr, nullptr, 1, &args, kag);
                 }
             }
         }
-    } catch (...) {
+    } catch(...) {
         ;
     }
 }
@@ -814,40 +801,39 @@ tTJSNativeClass *TVPCreateNativeClass_System() {
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ inform) {
         // show simple message box
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
 
         ttstr text = *param[0];
 
         ttstr caption;
-        if (numparams >= 2 && param[1]->Type() != tvtVoid)
+        if(numparams >= 2 && param[1]->Type() != tvtVoid)
             caption = *param[1];
         else
             caption = TJS_W("Information");
 
-        if (numparams >= 3 && param[2]->Type() != tvtVoid) {
-            if (param[2]->Type() == tvtObject) { // vector of button
+        if(numparams >= 3 && param[2]->Type() != tvtVoid) {
+            if(param[2]->Type() == tvtObject) { // vector of button
                 tTJSArrayNI *ni;
-                param[2]->AsObjectNoAddRef()->NativeInstanceSupport(
-                    TJS_NIS_GETINSTANCE, TJSGetArrayClassID(),
-                    (iTJSNativeInstance **)&ni);
+                param[2]->AsObjectNoAddRef()->NativeInstanceSupport(TJS_NIS_GETINSTANCE, TJSGetArrayClassID(),
+                                                                    (iTJSNativeInstance **)&ni);
                 std::vector<ttstr> vecButtons;
                 vecButtons.reserve(ni->Items.size());
-                for (const ttstr &label : ni->Items) {
+                for(const ttstr &label : ni->Items) {
                     vecButtons.emplace_back(label);
                 }
                 int ret = TVPShowSimpleMessageBox(text, caption, vecButtons);
-                if (result)
+                if(result)
                     result->operator=(ret);
             } else {
                 int nButtons = param[2]->AsInteger();
                 std::vector<ttstr> vecButtons;
-                if (nButtons >= 1)
+                if(nButtons >= 1)
                     vecButtons.emplace_back(TJS_W("OK"));
-                if (nButtons >= 2)
+                if(nButtons >= 2)
                     vecButtons.emplace_back(TJS_W("Cancel"));
                 int ret = TVPShowSimpleMessageBox(text, caption, vecButtons);
-                if (result)
+                if(result)
                     result->operator=(ret);
             }
             return TJS_S_OK;
@@ -855,7 +841,7 @@ tTJSNativeClass *TVPCreateNativeClass_System() {
 
         TVPShowSimpleMessageBox(text, caption);
 
-        if (result)
+        if(result)
             result->Clear();
 
         return TJS_S_OK;
@@ -864,7 +850,7 @@ tTJSNativeClass *TVPCreateNativeClass_System() {
                                             /*func. name*/ inform)
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getTickCount) {
-        if (result) {
+        if(result) {
             TVPStartTickCount();
 
             *result = (tjs_int64)TVPGetTickCount();
@@ -875,18 +861,18 @@ tTJSNativeClass *TVPCreateNativeClass_System() {
                                             /*func. name*/ getTickCount)
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getKeyState) {
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
 
         tjs_uint code = (tjs_int)*param[0];
 
         bool getcurrent = true;
-        if (numparams >= 2)
+        if(numparams >= 2)
             getcurrent = 0 != (tjs_int)*param[1];
 
         bool res = TVPGetAsyncKeyState(code, getcurrent);
 
-        if (result)
+        if(result)
             *result = (tjs_int)res;
         return TJS_S_OK;
     }
@@ -894,18 +880,18 @@ tTJSNativeClass *TVPCreateNativeClass_System() {
                                             /*func. name*/ getKeyState)
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ shellExecute) {
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
 
         ttstr target = *param[0];
         ttstr execparam;
 
-        if (numparams >= 2)
+        if(numparams >= 2)
             execparam = *param[1];
 
         bool res = TVPShellExecute(target, execparam);
 
-        if (result)
+        if(result)
             *result = (tjs_int)res;
         return TJS_S_OK;
     }
@@ -913,17 +899,16 @@ tTJSNativeClass *TVPCreateNativeClass_System() {
                                             /*func. name*/ shellExecute)
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ system) {
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
 
         ttstr target = *param[0];
 
         int ret = 0; // _wsystem(target.c_str());
 
-        TVPDeliverCompactEvent(
-            TVP_COMPACT_LEVEL_MAX); // this should clear all caches
+        TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_MAX); // this should clear all caches
 
-        if (result)
+        if(result)
             *result = (tjs_int)ret;
         return TJS_S_OK;
     }
@@ -931,9 +916,9 @@ tTJSNativeClass *TVPCreateNativeClass_System() {
                                             /*func. name*/ system)
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ readRegValue) {
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
-        if (!result)
+        if(!result)
             return TJS_S_OK;
 
         ttstr key = *param[0];
@@ -946,16 +931,16 @@ tTJSNativeClass *TVPCreateNativeClass_System() {
                                             /*func. name*/ readRegValue)
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getArgument) {
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
-        if (!result)
+        if(!result)
             return TJS_S_OK;
 
         ttstr name = *param[0];
 
         bool res = TVPGetCommandLine(name.c_str(), result);
 
-        if (!res)
+        if(!res)
             result->Clear();
 
         return TJS_S_OK;
@@ -964,7 +949,7 @@ tTJSNativeClass *TVPCreateNativeClass_System() {
                                             /*func. name*/ getArgument)
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setArgument) {
-        if (numparams < 2)
+        if(numparams < 2)
             return TJS_E_BADPARAMCOUNT;
 
         ttstr name = *param[0];
@@ -978,16 +963,16 @@ tTJSNativeClass *TVPCreateNativeClass_System() {
                                             /*func. name*/ setArgument)
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ createAppLock) {
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
-        if (!result)
+        if(!result)
             return TJS_S_OK;
 
         ttstr lockname = *param[0];
 
         bool res = TVPCreateAppLock(lockname);
 
-        if (result)
+        if(result)
             *result = (tjs_int)res;
 
         return TJS_S_OK;
@@ -1028,8 +1013,7 @@ tTJSNativeClass *TVPCreateNativeClass_System() {
     //-- properties
 
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(exePath){
-        TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetAppPath();
+    TJS_BEGIN_NATIVE_PROP_DECL(exePath){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetAppPath();
     return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -1038,8 +1022,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, exePath)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(personalPath){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetPersonalPath();
+TJS_BEGIN_NATIVE_PROP_DECL(personalPath){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetPersonalPath();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -1048,8 +1031,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, personalPath)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(appDataPath){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetAppDataPath();
+TJS_BEGIN_NATIVE_PROP_DECL(appDataPath){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetAppDataPath();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -1058,8 +1040,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, appDataPath)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(dataPath){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPDataPath;
+TJS_BEGIN_NATIVE_PROP_DECL(dataPath){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPDataPath;
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -1068,8 +1049,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, dataPath)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(exeName){TJS_BEGIN_NATIVE_PROP_GETTER{
-    static ttstr exename(TVPNormalizeStorageName(ExePath()));
+TJS_BEGIN_NATIVE_PROP_DECL(exeName){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ static ttstr exename(TVPNormalizeStorageName(ExePath()));
 *result = exename;
 return TJS_S_OK;
 }
@@ -1079,8 +1060,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, exeName)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(savedGamesPath){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetSavedGamesPath();
+TJS_BEGIN_NATIVE_PROP_DECL(savedGamesPath){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetSavedGamesPath();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -1089,8 +1069,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, savedGamesPath)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(title){
-    TJS_BEGIN_NATIVE_PROP_GETTER{if (!TVPAppTitleInit){TVPAppTitleInit = true;
+TJS_BEGIN_NATIVE_PROP_DECL(title){ TJS_BEGIN_NATIVE_PROP_GETTER{ if(!TVPAppTitleInit){ TVPAppTitleInit = true;
 TVPAppTitle = Application->GetTitle();
 }
 *result = TVPAppTitle;
@@ -1107,8 +1086,7 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, title)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(screenWidth){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTVPScreen::GetWidth();
+TJS_BEGIN_NATIVE_PROP_DECL(screenWidth){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTVPScreen::GetWidth();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -1117,8 +1095,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, screenWidth)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(screenHeight){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTVPScreen::GetHeight();
+TJS_BEGIN_NATIVE_PROP_DECL(screenHeight){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTVPScreen::GetHeight();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -1127,8 +1104,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, screenHeight)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(desktopLeft){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTVPScreen::GetDesktopLeft();
+TJS_BEGIN_NATIVE_PROP_DECL(desktopLeft){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTVPScreen::GetDesktopLeft();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -1137,8 +1113,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, desktopLeft)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(desktopTop){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTVPScreen::GetDesktopTop();
+TJS_BEGIN_NATIVE_PROP_DECL(desktopTop){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTVPScreen::GetDesktopTop();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -1147,8 +1122,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, desktopTop)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(desktopWidth){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTVPScreen::GetDesktopWidth();
+TJS_BEGIN_NATIVE_PROP_DECL(desktopWidth){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTVPScreen::GetDesktopWidth();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -1157,8 +1131,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, desktopWidth)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(desktopHeight){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTVPScreen::GetDesktopHeight();
+TJS_BEGIN_NATIVE_PROP_DECL(desktopHeight){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTVPScreen::GetDesktopHeight();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -1167,8 +1140,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, desktopHeight)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(touchDevice){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetSupportTouchDevice();
+TJS_BEGIN_NATIVE_PROP_DECL(touchDevice){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetSupportTouchDevice();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER

@@ -17,7 +17,7 @@
 
 //-- global data
 extern ttstr TVPProjectDir; // project directory
-extern ttstr TVPDataPath;   // data directory
+extern ttstr TVPDataPath; // data directory
 
 //-- implementation in this unit
 extern void TVPSystemInit();
@@ -32,10 +32,8 @@ extern void TVPBeforeSystemUninit();
 
 extern void TVPAfterSystemUninit();
 
-extern void
-TVPTerminateAsync(int code = 0); // do acynchronous teminating of application
-extern void TVPTerminateSync(
-    int code = 0); // do synchronous teminating of application(never return)
+extern void TVPTerminateAsync(int code = 0); // do acynchronous teminating of application
+extern void TVPTerminateSync(int code = 0); // do synchronous teminating of application(never return)
 extern void TVPMainWindowClosed(); // called from WindowIntf.cpp, caused by
                                    // closing main window.
 // this function must shutdown the application, unless the controller window is
@@ -53,9 +51,7 @@ extern bool TVPSystemUninitCalled;
 void TVPAddAtExitHandler(tjs_int pri, void (*handler)());
 
 struct tTVPAtExit {
-    tTVPAtExit(tjs_int pri, void (*handler)()) {
-        TVPAddAtExitHandler(pri, handler);
-    }
+    tTVPAtExit(tjs_int pri, void (*handler)()) { TVPAddAtExitHandler(pri, handler); }
 };
 
 #define TVP_ATEXIT_PRI_PREPARE 10
@@ -67,8 +63,7 @@ struct tTVPAtExit {
 //---------------------------------------------------------------------------
 // Command line parameter operations (implement in each platform)
 //---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(bool, TVPGetCommandLine,
-                 (const tjs_char *name, tTJSVariant *value = nullptr));
+TJS_EXP_FUNC_DEF(bool, TVPGetCommandLine, (const tjs_char *name, tTJSVariant *value = nullptr));
 // retrieves command line parameter named "name".
 // command line parameter format must be "-name=value"
 // returns false if the the parameter is not exist, otherwise
@@ -77,8 +72,7 @@ TJS_EXP_FUNC_DEF(tjs_int, TVPGetCommandLineArgumentGeneration, ());
 // retrieves command line argument generation count. you can check
 // whether the command line options has changed, by comparing this value
 // to your value which is remembered when of previous call of this.
-TJS_EXP_FUNC_DEF(void, TVPSetCommandLine,
-                 (const tjs_char *name, const ttstr &value));
+TJS_EXP_FUNC_DEF(void, TVPSetCommandLine, (const tjs_char *name, const ttstr &value));
 // sets command line to the specified value.
 // note that this function does not check any consistency or correctness of the
 // value.

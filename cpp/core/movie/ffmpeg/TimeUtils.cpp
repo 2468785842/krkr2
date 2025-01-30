@@ -1,6 +1,6 @@
 #include "TimeUtils.h"
 
-#if (defined HAVE_CONFIG_H) && (!defined TARGET_WINDOWS)
+#if(defined HAVE_CONFIG_H) && (!defined TARGET_WINDOWS)
 #include "config.h"
 #endif
 
@@ -50,10 +50,10 @@ unsigned int CTimeUtils::frameTime = 0;
 void CTimeUtils::UpdateFrameTime(bool flip) {
     unsigned int currentTime = TVPGetRoughTickCount32();
     unsigned int last = frameTime;
-    while (frameTime < currentTime) {
+    while(frameTime < currentTime) {
         frameTime += (unsigned int)(1000 / 60 /*g_graphicsContext.GetFPS()*/);
         // observe wrap around
-        if (frameTime < last)
+        if(frameTime < last)
             break;
     }
 }

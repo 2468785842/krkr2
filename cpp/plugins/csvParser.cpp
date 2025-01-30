@@ -32,7 +32,7 @@ public:
     int getc() { return pos < (uint32_t)dat.length() ? dat[pos++] : EOF; }
 
     void ungetc() {
-        if (pos > 0) {
+        if(pos > 0) {
             pos--;
         }
     }
@@ -44,9 +44,9 @@ public:
      */
     bool endOfLine(tjs_char c) {
         bool eol = (c == '\r' || c == '\n');
-        if (c == '\r') {
+        if(c == '\r') {
             c = getc();
-            if (!eof() && c != '\n') {
+            if(!eof() && c != '\n') {
                 ungetc();
             }
         }
@@ -56,11 +56,11 @@ public:
     bool addNextLine(ttstr &str) {
         int l = 0;
         int c;
-        while ((c = getc()) != EOF && !endOfLine(c)) {
+        while((c = getc()) != EOF && !endOfLine(c)) {
             str += c;
             l++;
         }
-        if (l > 0 || c != EOF) {
+        if(l > 0 || c != EOF) {
             return true;
         } else {
             return false;
@@ -70,23 +70,20 @@ public:
 
 // -----------------------------------------------------------------
 
-static void addMember(iTJSDispatch2 *dispatch, const tjs_char *name,
-                      iTJSDispatch2 *member) {
+static void addMember(iTJSDispatch2 *dispatch, const tjs_char *name, iTJSDispatch2 *member) {
     tTJSVariant var(member);
     member->Release();
-    dispatch->PropSet(
-        TJS_MEMBERENSURE, // メンバがなかった場合には作成するようにするフラグ
-        name,    // メンバ名 ( かならず TJS_W( ) で囲む )
-        nullptr, // ヒント ( 本来はメンバ名のハッシュ値だが、nullptr でもよい )
-        &var,    // 登録する値
-        dispatch // コンテキスト
+    dispatch->PropSet(TJS_MEMBERENSURE, // メンバがなかった場合には作成するようにするフラグ
+                      name, // メンバ名 ( かならず TJS_W( ) で囲む )
+                      nullptr, // ヒント ( 本来はメンバ名のハッシュ値だが、nullptr でもよい )
+                      &var, // 登録する値
+                      dispatch // コンテキスト
     );
 }
 
 static iTJSDispatch2 *getMember(iTJSDispatch2 *dispatch, const tjs_char *name) {
     tTJSVariant val;
-    if (TJS_FAILED(
-            dispatch->PropGet(TJS_IGNOREPROP, name, nullptr, &val, dispatch))) {
+    if(TJS_FAILED(dispatch->PropGet(TJS_IGNOREPROP, name, nullptr, &val, dispatch))) {
         ttstr msg = TJS_W("can't get member:");
         msg += name;
         TVPThrowExceptionMessage(msg.c_str());
@@ -95,13 +92,12 @@ static iTJSDispatch2 *getMember(iTJSDispatch2 *dispatch, const tjs_char *name) {
 }
 
 static bool isValidMember(iTJSDispatch2 *dispatch, const tjs_char *name) {
-    return dispatch->IsValid(TJS_IGNOREPROP, name, nullptr, dispatch) ==
-           TJS_S_TRUE;
+    return dispatch->IsValid(TJS_IGNOREPROP, name, nullptr, dispatch) == TJS_S_TRUE;
 }
 
 static void delMember(iTJSDispatch2 *dispatch, const tjs_char *name) {
-    dispatch->DeleteMember(0,       // フラグ ( 0 でよい )
-                           name,    // メンバ名
+    dispatch->DeleteMember(0, // フラグ ( 0 でよい )
+                           name, // メンバ名
                            nullptr, // ヒント
                            dispatch // コンテキスト
     );
@@ -142,8 +138,8 @@ protected:
     // 文字さがし
     int find(ttstr &line, tjs_char ch, int start) {
         int i;
-        for (i = start; i < line.length(); i++) {
-            if (ch == line[i]) {
+        for(i = start; i < line.length(); i++) {
+            if(ch == line[i]) {
                 return i;
             }
         }
@@ -157,23 +153,23 @@ protected:
         int i, j;
         tjs_int cnt = 0;
 
-        if (line.length() == 0) {
+        if(line.length() == 0) {
             return;
         }
         i = 0;
         do {
-            if (i < line.length() && line[i] == '"') {
+            if(i < line.length() && line[i] == '"') {
                 ++i;
                 fld = TJS_W("");
                 j = i;
                 do {
-                    for (; j < line.length(); j++) {
-                        if (line[j] == '"' && line[++j] != '"') {
+                    for(; j < line.length(); j++) {
+                        if(line[j] == '"' && line[++j] != '"') {
                             int k = find(line, separator, j);
-                            if (k > line.length()) {
+                            if(k > line.length()) {
                                 k = line.length();
                             }
-                            for (k -= j; k-- > 0;)
+                            for(k -= j; k-- > 0;)
                                 fld += line[j++];
                             goto next;
                         }
@@ -181,10 +177,10 @@ protected:
                     }
                     // 改行追加処理
                     fld += newline;
-                } while (addline());
+                } while(addline());
             } else {
                 j = find(line, separator, i);
-                if (j > line.length()) {
+                if(j > line.length()) {
                     j = line.length();
                 }
                 fld = ttstr(line.c_str() + i, j - i);
@@ -195,7 +191,7 @@ protected:
             fields->PropSetByNum(TJS_MEMBERENSURE, cnt++, &var, fields);
         }
             i = j + 1;
-        } while (j < line.length());
+        } while(j < line.length());
     }
 
 public:
@@ -218,13 +214,12 @@ public:
      * @param param
      * @param tjs_obj this オブジェクト
      */
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj) {
-        if (numparams > 0) {
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj) {
+        if(numparams > 0) {
             target = param[0]->AsObject();
-            if (numparams > 1) {
+            if(numparams > 1) {
                 separator = (tjs_int)*param[1];
-                if (numparams > 2) {
+                if(numparams > 2) {
                     newline = *param[2];
                 }
             }
@@ -236,7 +231,7 @@ public:
      * ファイルクローズ処理
      */
     void clear() {
-        if (file) {
+        if(file) {
             delete file;
             file = nullptr;
         }
@@ -247,7 +242,7 @@ public:
      */
     void TJS_INTF_METHOD Invalidate() {
         clear();
-        if (target) {
+        if(target) {
             target->Release();
             target = nullptr;
         }
@@ -268,7 +263,7 @@ public:
     void initStorage(tTJSVariantString *filename, bool utf8 = false) {
         clear();
         ttstr text;
-        if (utf8) {
+        if(utf8) {
             tTJSBinaryStream *pStream = TVPCreateStream(filename, TJS_BS_READ);
             tjs_uint streamsize = pStream->GetSize();
             char *buff = new char[streamsize + 1];
@@ -278,8 +273,7 @@ public:
             delete[] buff;
             delete pStream;
         } else {
-            iTJSTextReadStream *pStream =
-                TVPCreateTextStreamForRead(filename, TJS_W(""));
+            iTJSTextReadStream *pStream = TVPCreateTextStreamForRead(filename, TJS_W(""));
             pStream->Read(text, 0);
             delete pStream;
         }
@@ -290,13 +284,13 @@ public:
     // 1行読み出し
     bool getNextLine(tTJSVariant *result = nullptr) {
         bool ret = false;
-        if (file) {
+        if(file) {
             line = TJS_W("");
-            if (addline()) {
+            if(addline()) {
                 lineNo++;
                 iTJSDispatch2 *fields = TJSCreateArrayObject();
                 split(fields);
-                if (result) {
+                if(result) {
                     result->SetObject(fields, fields);
                 }
                 fields->Release();
@@ -319,10 +313,10 @@ public:
      */
     void parse(iTJSDispatch2 *objthis) {
         iTJSDispatch2 *target = this->target ? this->target : objthis;
-        if (file && isValidMember(target, TJS_W("doLine"))) {
+        if(file && isValidMember(target, TJS_W("doLine"))) {
             iTJSDispatch2 *method = getMember(target, TJS_W("doLine"));
             tTJSVariant result;
-            while (getNextLine(&result)) {
+            while(getNextLine(&result)) {
                 tTJSVariant var2(lineNo);
                 tTJSVariant *vars[2];
                 vars[0] = &result;
@@ -335,13 +329,10 @@ public:
     }
 };
 
-static iTJSNativeInstance *TJS_INTF_METHOD Create_NI_CSVParser() {
-    return new NI_CSVParser();
-}
+static iTJSNativeInstance *TJS_INTF_METHOD Create_NI_CSVParser() { return new NI_CSVParser(); }
 
 static iTJSDispatch2 *Create_NC_CSVParser() {
-    tTJSNativeClassForPlugin *classobj =
-        TJSCreateNativeClassForPlugin(TJS_W("CSVParser"), Create_NI_CSVParser);
+    tTJSNativeClassForPlugin *classobj = TJSCreateNativeClassForPlugin(TJS_W("CSVParser"), Create_NI_CSVParser);
 
     TJS_BEGIN_NATIVE_MEMBERS(/*TJS class name*/ CSVParser)
 
@@ -358,7 +349,7 @@ static iTJSDispatch2 *Create_NC_CSVParser() {
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ init) {
         TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
                                 /*var. type*/ NI_CSVParser);
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
         _this->init(param[0]->AsStringNoAddRef());
         return TJS_S_OK;
@@ -368,10 +359,9 @@ static iTJSDispatch2 *Create_NC_CSVParser() {
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ initStorage) {
         TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
                                 /*var. type*/ NI_CSVParser);
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
-        _this->initStorage(param[0]->AsStringNoAddRef(),
-                           numparams > 1 && (tjs_int)*param[1] != 0);
+        _this->initStorage(param[0]->AsStringNoAddRef(), numparams > 1 && (tjs_int)*param[1] != 0);
         return TJS_S_OK;
     }
     TJS_END_NATIVE_METHOD_DECL(/*func. name*/ initStorage)
@@ -387,7 +377,7 @@ static iTJSDispatch2 *Create_NC_CSVParser() {
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ parse) {
         TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
                                 /*var. type*/ NI_CSVParser);
-        if (numparams > 0) {
+        if(numparams > 0) {
             _this->init(param[0]->AsStringNoAddRef());
         }
         _this->parse(objthis);
@@ -398,18 +388,16 @@ static iTJSDispatch2 *Create_NC_CSVParser() {
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ parseStorage) {
         TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
                                 /*var. type*/ NI_CSVParser);
-        if (numparams > 0) {
-            _this->initStorage(param[0]->AsStringNoAddRef(),
-                               numparams > 1 && (tjs_int)*param[1] != 0);
+        if(numparams > 0) {
+            _this->initStorage(param[0]->AsStringNoAddRef(), numparams > 1 && (tjs_int)*param[1] != 0);
         }
         _this->parse(objthis);
         return TJS_S_OK;
     }
     TJS_END_NATIVE_METHOD_DECL(/*func. name*/ parseStorage)
 
-    TJS_BEGIN_NATIVE_PROP_DECL(currentLineNumber){
-        TJS_BEGIN_NATIVE_PROP_GETTER{TJS_GET_NATIVE_INSTANCE(
-            /*var. name*/ _this, /*var. type*/ NI_CSVParser);
+    TJS_BEGIN_NATIVE_PROP_DECL(currentLineNumber){ TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this, /*var. type*/ NI_CSVParser);
     *result = _this->getLineNumber();
     return TJS_S_OK;
 }
@@ -432,7 +420,7 @@ void InitPlugin_CSVParser() {
     // TJS のグローバルオブジェクトを取得する
     iTJSDispatch2 *global = TVPGetScriptDispatch();
 
-    if (global) {
+    if(global) {
 
         // Arary クラスメンバー取得
         {

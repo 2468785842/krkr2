@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.28)
 project(krkr2core)
+
+add_subdirectory(tjs2)
+add_subdirectory(utils)
 
 file(GLOB KRKR2CORE_SOURCES
     ${KRKR2CORE_PATH}/visual/*.cpp
@@ -21,11 +24,6 @@ file(GLOB KRKR2CORE_SOURCES
     ${KRKR2CORE_PATH}/msg/win32/OptionsDesc.cpp
     ${KRKR2CORE_PATH}/sound/*.cpp
     ${KRKR2CORE_PATH}/sound/win32/*.cpp
-    ${KRKR2CORE_PATH}/utils/*.c
-    ${KRKR2CORE_PATH}/utils/*.cpp
-    ${KRKR2CORE_PATH}/utils/encoding/*.c
-    ${KRKR2CORE_PATH}/utils/minizip/zip.c
-    ${KRKR2CORE_PATH}/utils/win32/*.cpp
     ${KRKR2CORE_PATH}/visual/gl/*.cpp
     ${KRKR2CORE_PATH}/visual/ogl/*.cpp
     ${KRKR2CORE_PATH}/visual/win32/*.cpp
@@ -46,12 +44,14 @@ list(REMOVE_ITEM KRKR2CORE_SOURCES
 
 # Create the static library
 add_library(${PROJECT_NAME} STATIC
+    ${UTILS_SOURCE_FILES}
     ${KRKR2CORE_PATH}/environ/android/AndroidUtils.cpp
     ${KRKR2CORE_SOURCES}
 )
 
 # Common include directories
 target_include_directories(${PROJECT_NAME} PUBLIC
+    ${UTILS_HEADERS_DIR}
     ${KRKR2CORE_PATH}/
     ${KRKR2CORE_PATH}/base
     ${KRKR2CORE_PATH}/base/win32
@@ -64,8 +64,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${KRKR2CORE_PATH}/extension
     ${KRKR2CORE_PATH}/sound
     ${KRKR2CORE_PATH}/sound/win32
-    ${KRKR2CORE_PATH}/utils
-    ${KRKR2CORE_PATH}/utils/win32
     ${KRKR2CORE_PATH}/visual
     ${KRKR2CORE_PATH}/visual/ARM
     ${KRKR2CORE_PATH}/visual/win32
@@ -81,9 +79,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     -DWINAPI=
 )
 
-add_subdirectory(tjs2)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC tjs2)
+target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 minizip)
 
 # 启用 OpenMP 支持
 find_package(OpenMP REQUIRED)
@@ -95,10 +91,7 @@ else()
     message(WARNING "OpenMP not found, fallback to single-threading.")
 endif()
 
-android_ndk_import_module_cpufeatures()
-
 target_link_libraries(${PROJECT_NAME} PUBLIC
-    -Wl,-Bdynamic
     log
     android
     EGL
@@ -129,7 +122,6 @@ find_package(Opus CONFIG REQUIRED)
 find_package(Ogg CONFIG REQUIRED)
 find_package(Vorbis CONFIG REQUIRED)
 find_package(OpusFile CONFIG REQUIRED)
-find_package(libbpg CONFIG REQUIRED)
 find_package(lz4 CONFIG REQUIRED)
 
 find_package(SDL2 CONFIG REQUIRED)
@@ -140,7 +132,6 @@ find_package(OpenAL CONFIG REQUIRED)
 
 set(OpenCV_ROOT "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/opencv4")
 find_package(OpenCV REQUIRED)
-# target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
 
 find_package(FFMPEG COMPONENTS
     avutil
@@ -156,8 +147,6 @@ find_package(cocos2dx CONFIG REQUIRED)
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC
-    -Wl,-Bstatic
-
     ${FFMPEG_LIBRARIES}
 
     # audio
@@ -194,4 +183,5 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 
     # cocos2d
     cocos2dx::cocos2d
+    $<$<BOOL:${ANDROID}>:$<LINK_LIBRARY:WHOLE_ARCHIVE,cocos2dx::cpp_android_spec>>
 )

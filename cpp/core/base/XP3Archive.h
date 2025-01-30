@@ -21,21 +21,18 @@
 #pragma pack(push, 4)
 
 struct tTVPXP3ExtractionFilterInfo {
-    const tjs_uint
-        SizeOfSelf; // structure size of tTVPXP3ExtractionFilterInfo itself
-    const tjs_uint64
-        Offset;   // offset of the buffer data in uncompressed stream position
+    const tjs_uint SizeOfSelf; // structure size of tTVPXP3ExtractionFilterInfo itself
+    const tjs_uint64 Offset; // offset of the buffer data in uncompressed stream position
     void *Buffer; // target data buffer
     const tjs_uint BufferSize; // buffer size in bytes pointed by "Buffer"
     const tjs_uint32 FileHash; // hash value of the file (since inteface v2)
     const ttstr &FileName;
 
-    tTVPXP3ExtractionFilterInfo(tjs_uint64 offset, void *buffer,
-                                tjs_uint buffersize, tjs_uint32 filehash,
-                                const ttstr &filename)
-        : Offset(offset), Buffer(buffer), BufferSize(buffersize),
-          FileHash(filehash), FileName(filename),
-          SizeOfSelf(sizeof(tTVPXP3ExtractionFilterInfo)) {
+    tTVPXP3ExtractionFilterInfo(tjs_uint64 offset, void *buffer, tjs_uint buffersize, tjs_uint32 filehash,
+                                const ttstr &filename) :
+        Offset(offset),
+        Buffer(buffer), BufferSize(buffersize), FileHash(filehash), FileName(filename),
+        SizeOfSelf(sizeof(tTVPXP3ExtractionFilterInfo)) {
         ;
     }
 };
@@ -52,22 +49,19 @@ struct tTVPXP3ExtractionFilterInfo {
 // TVP_tTVPXP3ArchiveExtractionFilter_CONV is _stdcall on win32 platforms,
 // for backward application compatibility.
 
-typedef void(TVP_tTVPXP3ArchiveExtractionFilter_CONVENTION
-                 *tTVPXP3ArchiveExtractionFilter)(
+typedef void(TVP_tTVPXP3ArchiveExtractionFilter_CONVENTION *tTVPXP3ArchiveExtractionFilter)(
     tTVPXP3ExtractionFilterInfo *info, tTJSVariant *ctx);
 
-typedef tjs_int(
-    TVP_tTVPXP3ArchiveExtractionFilter_CONVENTION *tTVPXP3ArchiveContentFilter)(
-    const ttstr &filepath, const ttstr &archivename, tjs_uint64 filesize,
-    tTJSVariant *ctx);
+typedef tjs_int(TVP_tTVPXP3ArchiveExtractionFilter_CONVENTION *tTVPXP3ArchiveContentFilter)(const ttstr &filepath,
+                                                                                            const ttstr &archivename,
+                                                                                            tjs_uint64 filesize,
+                                                                                            tTJSVariant *ctx);
 
 /*]*/
 //---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(void, TVPSetXP3ArchiveExtractionFilter,
-                 (tTVPXP3ArchiveExtractionFilter filter));
+TJS_EXP_FUNC_DEF(void, TVPSetXP3ArchiveExtractionFilter, (tTVPXP3ArchiveExtractionFilter filter));
 
-TJS_EXP_FUNC_DEF(void, TVPSetXP3ArchiveContentFilter,
-                 (tTVPXP3ArchiveContentFilter filter));
+TJS_EXP_FUNC_DEF(void, TVPSetXP3ArchiveContentFilter, (tTVPXP3ArchiveContentFilter filter));
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -87,14 +81,14 @@ TJS_EXP_FUNC_DEF(void, TVPSetXP3ArchiveContentFilter,
 
 //---------------------------------------------------------------------------
 extern bool TVPIsXP3Archive(const ttstr &name); // check XP3 archive
-extern void TVPClearXP3SegmentCache();          // clear XP3 segment cache
+extern void TVPClearXP3SegmentCache(); // clear XP3 segment cache
 //---------------------------------------------------------------------------
 struct tTVPXP3ArchiveSegment {
-    tjs_uint64 Start;   // start position in archive storage
-    tjs_uint64 Offset;  // offset in in-archive storage (in uncompressed offset)
+    tjs_uint64 Start; // start position in archive storage
+    tjs_uint64 Offset; // offset in in-archive storage (in uncompressed offset)
     tjs_uint64 OrgSize; // original segment (uncompressed) size
     tjs_uint64 ArcSize; // in-archive segment (compressed) size
-    bool IsCompressed;  // is compressed ?
+    bool IsCompressed; // is compressed ?
 };
 
 //---------------------------------------------------------------------------
@@ -107,37 +101,30 @@ public:
         tjs_uint64 ArcSize; // in-archive size
         std::vector<tTVPXP3ArchiveSegment> Segments;
 
-        bool operator<(const tArchiveItem &rhs) const {
-            return this->Name < rhs.Name;
-        }
+        bool operator<(const tArchiveItem &rhs) const { return this->Name < rhs.Name; }
     };
 
     tjs_int Count = 0;
 
     std::vector<tArchiveItem> ItemVector;
 
-    void Init(tTJSBinaryStream *st, tjs_int64 offset,
-              bool normalizeName = true);
+    void Init(tTJSBinaryStream *st, tjs_int64 offset, bool normalizeName = true);
 
 public:
     tTVPXP3Archive(const ttstr &name, int) : tTVPArchive(name) {}
 
-    tTVPXP3Archive(const ttstr &name, tTJSBinaryStream *st = nullptr,
-                   tjs_int64 offset = -1, bool normalizeFileName = true);
+    tTVPXP3Archive(const ttstr &name, tTJSBinaryStream *st = nullptr, tjs_int64 offset = -1,
+                   bool normalizeFileName = true);
 
     ~tTVPXP3Archive();
 
-    static tTVPArchive *Create(const ttstr &name,
-                               tTJSBinaryStream *st = nullptr,
-                               bool normalizeFileName = true);
+    static tTVPArchive *Create(const ttstr &name, tTJSBinaryStream *st = nullptr, bool normalizeFileName = true);
 
     tjs_uint GetCount() { return Count; }
 
     const ttstr &GetName(tjs_uint idx) const { return ItemVector[idx].Name; }
 
-    tjs_uint32 GetFileHash(tjs_uint idx) const {
-        return ItemVector[idx].FileHash;
-    }
+    tjs_uint32 GetFileHash(tjs_uint idx) const { return ItemVector[idx].FileHash; }
 
     ttstr GetName(tjs_uint idx) { return ItemVector[idx].Name; }
 
@@ -146,8 +133,7 @@ public:
     tTJSBinaryStream *CreateStreamByIndex(tjs_uint idx);
 
 private:
-    static bool FindChunk(const tjs_uint8 *data, const tjs_uint8 *name,
-                          tjs_uint &start, tjs_uint &size);
+    static bool FindChunk(const tjs_uint8 *data, const tjs_uint8 *name, tjs_uint &start, tjs_uint &size);
 
     static tjs_int16 ReadI16FromMem(const tjs_uint8 *mem);
 
@@ -180,7 +166,7 @@ class tTVPXP3ArchiveStream : public tTJSBinaryStream {
     tjs_uint64 CurPos; // current position in absolute file position
 
     tjs_uint64 SegmentRemain; // remain bytes in current segment
-    tjs_uint64 SegmentPos;    // offset from current segment's start
+    tjs_uint64 SegmentPos; // offset from current segment's start
 
     tTVPSegmentData *SegmentData; // uncompressed segment data
 
@@ -188,8 +174,7 @@ class tTVPXP3ArchiveStream : public tTJSBinaryStream {
     tTJSVariant FilterContext;
 
 public:
-    tTVPXP3ArchiveStream(tTVPXP3Archive *owner, tjs_int storageindex,
-                         std::vector<tTVPXP3ArchiveSegment> *segments,
+    tTVPXP3ArchiveStream(tTVPXP3Archive *owner, tjs_int storageindex, std::vector<tTVPXP3ArchiveSegment> *segments,
                          tTJSBinaryStream *stream, tjs_uint64 orgsize);
 
     ~tTVPXP3ArchiveStream();
@@ -197,7 +182,7 @@ public:
     tTJSVariant &GetFilterContext() { return FilterContext; }
 
 private:
-    void EnsureSegment();                // ensure accessing to current segment
+    void EnsureSegment(); // ensure accessing to current segment
     void SeekToPosition(tjs_uint64 pos); // open segment at 'pos' and seek
     bool OpenNextSegment();
 

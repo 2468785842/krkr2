@@ -23,13 +23,13 @@ class CSetting;
 #define FRAME_TYPE_D 4
 
 namespace DXVA {
-class CRenderPicture;
+    class CRenderPicture;
 }
 namespace VAAPI {
-class CVaapiRenderPicture;
+    class CVaapiRenderPicture;
 }
 namespace VDPAU {
-class CVdpauRenderPicture;
+    class CVdpauRenderPicture;
 }
 class COpenMax;
 
@@ -96,11 +96,9 @@ struct DVDVideoPicture {
 
     double iRepeatPicture;
     double iDuration;
-    unsigned int
-        iFrameType : 4; //< see defines above // 1->I, 2->P, 3->B, 0->Undef
+    unsigned int iFrameType : 4; //< see defines above // 1->I, 2->P, 3->B, 0->Undef
     unsigned int color_matrix : 4;
-    unsigned int
-        color_range : 1; //< 1 indicate if we have a full range of color
+    unsigned int color_range : 1; //< 1 indicate if we have a full range of color
     unsigned int chroma_position;
     unsigned int color_primaries;
     unsigned int color_transfer;
@@ -113,7 +111,7 @@ struct DVDVideoPicture {
 
     unsigned int iWidth;
     unsigned int iHeight;
-    unsigned int iDisplayWidth;  //< width of the picture without black bars
+    unsigned int iDisplayWidth; //< width of the picture without black bars
     unsigned int iDisplayHeight; //< height of the picture without black bars
 
     ERenderFormat format;
@@ -125,28 +123,22 @@ struct DVDVideoUserData {
 };
 
 #define DVP_FLAG_TOP_FIELD_FIRST 0x00000001
-#define DVP_FLAG_REPEAT_TOP_FIELD                                              \
-    0x00000002 //< Set to indicate that the top field should be repeated
-#define DVP_FLAG_ALLOCATED                                                     \
-    0x00000004 //< Set to indicate that this has allocated data
-#define DVP_FLAG_INTERLACED                                                    \
-    0x00000008 //< Set to indicate that this frame is interlaced
+#define DVP_FLAG_REPEAT_TOP_FIELD 0x00000002 //< Set to indicate that the top field should be repeated
+#define DVP_FLAG_ALLOCATED 0x00000004 //< Set to indicate that this has allocated data
+#define DVP_FLAG_INTERLACED 0x00000008 //< Set to indicate that this frame is interlaced
 
-#define DVP_FLAG_DROPPED                                                       \
+#define DVP_FLAG_DROPPED                                                                                               \
     0x00000010 //< indicate that this picture has been dropped in decoder stage,
                // will have no data
 
-#define DVD_CODEC_CTRL_SKIPDEINT                                               \
+#define DVD_CODEC_CTRL_SKIPDEINT                                                                                       \
     0x01000000 //< indicate that this picture was requested to have been dropped
                // in deint stage
 #define DVD_CODEC_CTRL_NO_POSTPROC 0x02000000 //< see GetCodecStats
-#define DVD_CODEC_CTRL_HURRY 0x04000000       //< see GetCodecStats
-#define DVD_CODEC_CTRL_DROP                                                    \
-    0x08000000 //< this frame is going to be dropped in output
-#define DVD_CODEC_CTRL_DRAIN                                                   \
-    0x10000000 //< squeeze out pictured without feeding new packets
-#define DVD_CODEC_CTRL_ROTATE                                                  \
-    0x20000000 //< rotate if renderer does not support it
+#define DVD_CODEC_CTRL_HURRY 0x04000000 //< see GetCodecStats
+#define DVD_CODEC_CTRL_DROP 0x08000000 //< this frame is going to be dropped in output
+#define DVD_CODEC_CTRL_DRAIN 0x10000000 //< squeeze out pictured without feeding new packets
+#define DVD_CODEC_CTRL_ROTATE 0x20000000 //< rotate if renderer does not support it
 
 // DVP_FLAG 0x00000100 - 0x00000f00 is in use by libmpeg2!
 
@@ -162,21 +154,20 @@ class CDVDCodecOption;
 class CDVDCodecOptions;
 
 // VC_ messages, messages can be combined
-#define VC_ERROR                                                               \
-    0x00000001 //< an error occured, no other messages will be returned
+#define VC_ERROR 0x00000001 //< an error occured, no other messages will be returned
 #define VC_BUFFER 0x00000002 //< the decoder needs more data
-#define VC_PICTURE                                                             \
+#define VC_PICTURE                                                                                                     \
     0x00000004 //< the decoder got a picture, call Decode(nullptr, 0) again to
                // parse the rest of the data
-#define VC_USERDATA                                                            \
+#define VC_USERDATA                                                                                                    \
     0x00000008 //< the decoder found some userdata,  call Decode(nullptr, 0)
                // again to parse the rest of the data
-#define VC_FLUSHED                                                             \
+#define VC_FLUSHED                                                                                                     \
     0x00000010 //< the decoder lost it's state, we need to restart decoding
                // again
-#define VC_DROPPED 0x00000020  //< needed to identify if a picture was dropped
+#define VC_DROPPED 0x00000020 //< needed to identify if a picture was dropped
 #define VC_NOBUFFER 0x00000040 //< last FFmpeg GetBuffer failed
-#define VC_REOPEN 0x00000080   //< decoder request to re-open
+#define VC_REOPEN 0x00000080 //< decoder request to re-open
 
 class CDVDVideoCodec {
 public:
@@ -261,15 +252,13 @@ public:
     /**
      * Hide or Show Settings depending on the currently running hardware
      */
-    static bool IsSettingVisible(const std::string &condition,
-                                 const std::string &value,
-                                 const CSetting *setting, void *data);
+    static bool IsSettingVisible(const std::string &condition, const std::string &value, const CSetting *setting,
+                                 void *data);
 
     /**
      * Interact with user settings so that user disabled codecs are disabled
      */
-    static bool IsCodecDisabled(const std::map<AVCodecID, std::string> &map,
-                                AVCodecID id);
+    static bool IsCodecDisabled(const std::map<AVCodecID, std::string> &map, AVCodecID id);
 
     /**
      * For calculation of dropping requirements player asks for some
@@ -286,8 +275,7 @@ public:
      * there may be quite some frames queued up between exit decoder and entry
      * player.
      */
-    virtual bool GetCodecStats(double &pts, int &droppedFrames,
-                               int &skippedPics) {
+    virtual bool GetCodecStats(double &pts, int &droppedFrames, int &skippedPics) {
         droppedFrames = -1;
         skippedPics = -1;
         return false;

@@ -1,16 +1,22 @@
 #include "argb.h"
 
-template <> void tTVPARGB<tjs_uint8>::Zero() { *(tjs_uint32 *)this = 0; }
+template <>
+void tTVPARGB<tjs_uint8>::Zero() {
+    *(tjs_uint32 *)this = 0;
+}
 
-template <> void tTVPARGB<tjs_uint8>::operator=(tjs_uint32 v) {
+template <>
+void tTVPARGB<tjs_uint8>::operator=(tjs_uint32 v) {
     *(tjs_uint32 *)this = v;
 }
 
-template <> tTVPARGB<tjs_uint8>::operator tjs_uint32() const {
+template <>
+tTVPARGB<tjs_uint8>::operator tjs_uint32() const {
     return *(const tjs_uint32 *)this;
 }
 
-template <> void tTVPARGB<tjs_uint8>::average(tjs_int n) {
+template <>
+void tTVPARGB<tjs_uint8>::average(tjs_int n) {
     tjs_int half_n = n >> 1;
 
     tjs_int recip = (1L << 23) / n;
@@ -21,7 +27,8 @@ template <> void tTVPARGB<tjs_uint8>::average(tjs_int n) {
     a = (a + half_n) * recip >> 23;
 }
 
-template <> void tTVPARGB<tjs_uint16>::average(tjs_int n) {
+template <>
+void tTVPARGB<tjs_uint16>::average(tjs_int n) {
     tjs_int half_n = n >> 1;
 
     tjs_int recip = (1L << 16) / n;
@@ -32,7 +39,8 @@ template <> void tTVPARGB<tjs_uint16>::average(tjs_int n) {
     a = (a + half_n) * recip >> 16;
 }
 
-template <> void tTVPARGB<tjs_uint32>::average(tjs_int n) {
+template <>
+void tTVPARGB<tjs_uint32>::average(tjs_int n) {
     tjs_int half_n = n >> 1;
 
     b = (b + half_n) / n;

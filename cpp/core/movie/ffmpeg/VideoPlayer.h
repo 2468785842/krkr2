@@ -35,9 +35,7 @@ public:
 
     bool OMXStep(int steps = 1, bool lock = true) { return false; }
 
-    bool OMXReset(bool has_video, bool has_audio, bool lock = true) {
-        return false;
-    }
+    bool OMXReset(bool has_video, bool has_audio, bool lock = true) { return false; }
 
     double OMXMediaTime(bool lock = true) { return 0.0; }
 
@@ -49,9 +47,7 @@ public:
 
     bool OMXResume(bool lock = true) { return false; }
 
-    bool OMXSetSpeed(int speed, bool lock = true, bool pause_resume = false) {
-        return false;
-    }
+    bool OMXSetSpeed(int speed, bool lock = true, bool pause_resume = false) { return false; }
 
     bool OMXFlush(bool lock = true) { return false; }
 
@@ -71,10 +67,10 @@ struct SOmxPlayerState {
     //	EINTERLACEMETHOD interlace_method; // current deinterlace method
     bool bOmxWaitVideo; // whether we need to wait for video to play out on EOS
     bool bOmxWaitAudio; // whether we need to wait for audio to play out on EOS
-    bool bOmxSentEOFs;  // flag if we've send EOFs to audio/video players
+    bool bOmxSentEOFs; // flag if we've send EOFs to audio/video players
     float threshold; // current fifo threshold required to come out of buffering
     unsigned int last_check_time; // we periodically check for gpu underrun
-    double stamp;                 // last media timestamp
+    double stamp; // last media timestamp
 };
 
 class tTJSNI_Window;
@@ -95,15 +91,15 @@ NS_KRMOVIE_BEGIN
 
 struct CCurrentStream {
     int64_t demuxerId; // demuxer's id of current playing stream
-    int id;            // id of current playing stream
+    int id; // id of current playing stream
     int source;
-    double dts;          // last dts from demuxer, used to find disncontinuities
-    double dur;          // last frame expected duration
-    int dispTime;        // display time from input stream
+    double dts; // last dts from demuxer, used to find disncontinuities
+    double dur; // last frame expected duration
+    int dispTime; // display time from input stream
     CDVDStreamInfo hint; // stream hints, used to notice stream changes
     void *stream; // pointer or integer, identifying stream playing. if it
                   // changes stream changed
-    int changes;  // remembered counter from stream to track codec changes
+    int changes; // remembered counter from stream to track codec changes
     bool inited;
     unsigned int packets;
     IDVDStreamPlayer::ESyncState syncState;
@@ -139,9 +135,9 @@ struct CCurrentStream {
     }
 
     double dts_end() {
-        if (dts == DVD_NOPTS_VALUE)
+        if(dts == DVD_NOPTS_VALUE)
             return DVD_NOPTS_VALUE;
-        if (dur == DVD_NOPTS_VALUE)
+        if(dur == DVD_NOPTS_VALUE)
             return dts;
         return dts + dur;
     }
@@ -171,13 +167,13 @@ struct SPlayerState {
         lastSeek = 0;
     }
 
-    double timestamp;   // last time of update
-    double lastSeek;    // time of last seek
+    double timestamp; // last time of update
+    double lastSeek; // time of last seek
     double time_offset; // difference between time and pts
 
-    double time;       // current playback time
+    double time; // current playback time
     double time_total; // total playback time
-    double dts;        // last known dts
+    double dts; // last known dts
 
     std::string player_state; // full player state
     bool isInMenu;
@@ -185,12 +181,12 @@ struct SPlayerState {
 
     bool canrecord; // can input stream record
     bool recording; // are we currently recording
-    bool canpause;  // pvr: can pause the current playing item
-    bool canseek;   // pvr: can seek in the current playing item
+    bool canpause; // pvr: can pause the current playing item
+    bool canseek; // pvr: can seek in the current playing item
     bool caching;
 
     int64_t cache_bytes; // number of bytes current's cached
-    double cache_level;  // current estimated required cache level
+    double cache_level; // current estimated required cache level
     double cache_delay; // time until cache is expected to reach estimated level
     double cache_offset; // percentage of file ahead of current position
 };
@@ -241,9 +237,7 @@ public:
     int IndexOf(StreamType type, int source, int64_t demuxerId, int id);
 
     //	int              IndexOf(StreamType type, const Player& p);
-    int Count(StreamType type) {
-        return IndexOf(type, STREAM_SOURCE_NONE, -1, -1) + 1;
-    }
+    int Count(StreamType type) { return IndexOf(type, STREAM_SOURCE_NONE, -1, -1) + 1; }
 
     int CountSource(StreamType type, StreamSource source) const;
 
@@ -266,8 +260,7 @@ public:
 
     void Update(SelectionStream &s);
 
-    void Update(InputStream *input, IDemux *demuxer,
-                const std::string &filename2 = "");
+    void Update(InputStream *input, IDemux *demuxer, const std::string &filename2 = "");
 };
 
 class IDVDStreamPlayerVideo;
@@ -285,8 +278,7 @@ public:
     // IRenderMsg
     virtual void VideoParamsChange() override;
 
-    virtual void GetDebugInfo(std::string &audio, std::string &video,
-                              std::string &general) override;
+    virtual void GetDebugInfo(std::string &audio, std::string &video, std::string &general) override;
 
     virtual void UpdateClockSync(bool enabled) override;
 
@@ -299,8 +291,7 @@ public:
 
     virtual ~BasePlayer();
 
-    bool OpenFromStream(IStream *stream, const tjs_char *streamname,
-                        const tjs_char *type, uint64_t size);
+    bool OpenFromStream(IStream *stream, const tjs_char *streamname, const tjs_char *type, uint64_t size);
 
     bool CloseInputStream();
 
@@ -319,8 +310,7 @@ public:
 
     void DestroyPlayers();
 
-    bool OpenStream(CCurrentStream &current, int64_t demuxerId, int iStream,
-                    int source, bool reset = true);
+    bool OpenStream(CCurrentStream &current, int64_t demuxerId, int iStream, int source, bool reset = true);
 
     bool OpenAudioStream(CDVDStreamInfo &hint, bool reset = true);
 
@@ -328,8 +318,7 @@ public:
 
     bool CloseStream(CCurrentStream &current, bool bWaitForBuffers);
 
-    bool CheckIsCurrent(CCurrentStream &current, CDemuxStream *stream,
-                        DemuxPacket *pkg);
+    bool CheckIsCurrent(CCurrentStream &current, CDemuxStream *stream, DemuxPacket *pkg);
 
     void ProcessPacket(CDemuxStream *pStream, DemuxPacket *pPacket);
 
@@ -343,9 +332,9 @@ public:
 
     enum ECacheState {
         CACHESTATE_DONE = 0,
-        CACHESTATE_FULL,  // player is filling up the demux queue
-        CACHESTATE_INIT,  // player is waiting for first packet of each stream
-        CACHESTATE_PLAY,  // player is waiting for players to not be stalled
+        CACHESTATE_FULL, // player is filling up the demux queue
+        CACHESTATE_INIT, // player is waiting for first packet of each stream
+        CACHESTATE_PLAY, // player is waiting for players to not be stalled
         CACHESTATE_FLUSH, // temporary state player will choose startup between
                           // init or full
     };
@@ -354,8 +343,7 @@ public:
 
     double GetQueueTime();
 
-    bool GetCachingTimes(double &play_left, double &cache_left,
-                         double &file_offset);
+    bool GetCachingTimes(double &play_left, double &cache_left, double &file_offset);
 
     void SetSpeed(double speed);
 
@@ -379,8 +367,7 @@ public:
 
     int GetAudioStream();
 
-    void FlushBuffers(bool queued, double pts = DVD_NOPTS_VALUE,
-                      bool accurate = true, bool sync = true);
+    void FlushBuffers(bool queued, double pts = DVD_NOPTS_VALUE, bool accurate = true, bool sync = true);
 
     void HandleMessages();
 
@@ -427,10 +414,7 @@ public:
 
     bool IsStop() { return m_bStopStatus; }
 
-    double GetFPS() {
-        return (double)m_CurrentVideo.hint.fpsrate /
-               m_CurrentVideo.hint.fpsscale;
-    }
+    double GetFPS() { return (double)m_CurrentVideo.hint.fpsrate / m_CurrentVideo.hint.fpsscale; }
 
     int64_t GetTotalTime() { return llrint(m_State.time_total); }
 
@@ -438,9 +422,7 @@ public:
 
     CDVDMessageQueue &GetMessageQueue() { return m_messenger; }
 
-    void SetCallback(const std::function<void(KRMovieEvent, void *)> &func) {
-        m_callback = func;
-    }
+    void SetCallback(const std::function<void(KRMovieEvent, void *)> &func) { m_callback = func; }
 
     IDVDStreamPlayerAudio *GetAudioPlayer() { return m_VideoPlayerAudio; }
 
@@ -492,8 +474,7 @@ private:
     CDVDClock m_clock;
     //	CDVDOverlayContainer m_overlayContainer;
 
-    InputStream *m_pInputStream =
-        nullptr;                  // input stream for current playing file
+    InputStream *m_pInputStream = nullptr; // input stream for current playing file
     IDemux *m_pDemuxer = nullptr; // demuxer for current playing file
 
     CRenderManager m_renderManager;

@@ -93,35 +93,29 @@ TJS_EXP_FUNC_DEF(bool, TVPGetSystemEventDisabledState, ());
 /*]*/
 //---------------------------------------------------------------------------
 TJS_EXP_FUNC_DEF(void, TVPPostEvent,
-                 (iTJSDispatch2 * source, iTJSDispatch2 *target,
-                  ttstr &eventname, tjs_uint32 tag, tjs_uint32 flag,
+                 (iTJSDispatch2 * source, iTJSDispatch2 *target, ttstr &eventname, tjs_uint32 tag, tjs_uint32 flag,
                   tjs_uint numargs, tTJSVariant *args));
 // posts TVP event. this function itself is thread-safe.
 
 TJS_EXP_FUNC_DEF(tjs_int, TVPCancelEvents,
-                 (iTJSDispatch2 * source, iTJSDispatch2 *target,
-                  const ttstr &eventname, tjs_uint32 tag = 0));
+                 (iTJSDispatch2 * source, iTJSDispatch2 *target, const ttstr &eventname, tjs_uint32 tag = 0));
 // removes events that has specified source/target/name/tag.
 // tag == 0 removes all tag from queue.
 // returns count of removed events.
 
 TJS_EXP_FUNC_DEF(bool, TVPAreEventsInQueue,
-                 (iTJSDispatch2 * source, iTJSDispatch2 *target,
-                  const ttstr &eventname, tjs_uint32 tag));
+                 (iTJSDispatch2 * source, iTJSDispatch2 *target, const ttstr &eventname, tjs_uint32 tag));
 // returns whether the events are in queue that have specified
 // source/target/name/tag.
 // tag == 0 matches all tag in queue.
 
 TJS_EXP_FUNC_DEF(tjs_int, TVPCountEventsInQueue,
-                 (iTJSDispatch2 * source, iTJSDispatch2 *target,
-                  const ttstr &eventname, tjs_uint32 tag));
+                 (iTJSDispatch2 * source, iTJSDispatch2 *target, const ttstr &eventname, tjs_uint32 tag));
 // returns count of the events in queue that have specified
 // source/target/name/tag.
 // tag == 0 matches all tag in queue.
 
-TJS_EXP_FUNC_DEF(void, TVPCancelEventsByTag,
-                 (iTJSDispatch2 * source, iTJSDispatch2 *target,
-                  tjs_uint32 tag = 0));
+TJS_EXP_FUNC_DEF(void, TVPCancelEventsByTag, (iTJSDispatch2 * source, iTJSDispatch2 *target, tjs_uint32 tag = 0));
 // removes all events which have the same source/target/tag.
 // tag == 0 removes all tag from queue.
 
@@ -192,40 +186,37 @@ extern tjs_int TVPGetInputEventCount();
 // TVPCreateEventObject
 //---------------------------------------------------------------------------
 TJS_EXP_FUNC_DEF(iTJSDispatch2 *, TVPCreateEventObject,
-                 (const tjs_char *type, iTJSDispatch2 *targthis,
-                  iTJSDispatch2 *targ));
+                 (const tjs_char *type, iTJSDispatch2 *targthis, iTJSDispatch2 *targ));
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 // some macros for driving "action" method
 //---------------------------------------------------------------------------
 extern ttstr TVPActionName;
-#define TVP_ACTION_INVOKE_BEGIN(argnum, name, object)                          \
-    {                                                                          \
-        if (numparams < (argnum))                                              \
-            return TJS_E_BADPARAMCOUNT;                                        \
-        tjs_int arg_count = 0;                                                 \
-        iTJSDispatch2 *evobj =                                                 \
-            TVPCreateEventObject(TJS_W(name), (object), (object));             \
-        tTJSVariant evval(evobj, evobj);                                       \
+#define TVP_ACTION_INVOKE_BEGIN(argnum, name, object)                                                                  \
+    {                                                                                                                  \
+        if(numparams < (argnum))                                                                                       \
+            return TJS_E_BADPARAMCOUNT;                                                                                \
+        tjs_int arg_count = 0;                                                                                         \
+        iTJSDispatch2 *evobj = TVPCreateEventObject(TJS_W(name), (object), (object));                                  \
+        tTJSVariant evval(evobj, evobj);                                                                               \
         evobj->Release();
 
-#define TVP_ACTION_INVOKE_MEMBER(name)                                         \
-    {                                                                          \
-        static ttstr member_name(TJS_W(name));                                 \
-        evobj->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, member_name.c_str(), \
-                       member_name.GetHint(), param[arg_count++], evobj);      \
+#define TVP_ACTION_INVOKE_MEMBER(name)                                                                                 \
+    {                                                                                                                  \
+        static ttstr member_name(TJS_W(name));                                                                         \
+        evobj->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, member_name.c_str(), member_name.GetHint(),                  \
+                       param[arg_count++], evobj);                                                                     \
     }
 
-#define TVP_ACTION_INVOKE_END(object)                                          \
-    tTJSVariant *pevval = &evval;                                              \
-    (object).FuncCall(0, TVPActionName.c_str(), TVPActionName.GetHint(),       \
-                      result, 1, &pevval, nullptr);                            \
+#define TVP_ACTION_INVOKE_END(object)                                                                                  \
+    tTJSVariant *pevval = &evval;                                                                                      \
+    (object).FuncCall(0, TVPActionName.c_str(), TVPActionName.GetHint(), result, 1, &pevval, nullptr);                 \
     }
 
-#define TVP_ACTION_INVOKE_END_NAME(object, name, hint)                         \
-    tTJSVariant *pevval = &evval;                                              \
-    (object).FuncCall(0, (name), (hint), result, 1, &pevval, nullptr);         \
+#define TVP_ACTION_INVOKE_END_NAME(object, name, hint)                                                                 \
+    tTJSVariant *pevval = &evval;                                                                                      \
+    (object).FuncCall(0, (name), (hint), result, 1, &pevval, nullptr);                                                 \
     }
 //---------------------------------------------------------------------------
 
@@ -241,11 +232,9 @@ public:
 };
 /*]*/
 //---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(void, TVPAddContinuousEventHook,
-                 (tTVPContinuousEventCallbackIntf * cb));
+TJS_EXP_FUNC_DEF(void, TVPAddContinuousEventHook, (tTVPContinuousEventCallbackIntf * cb));
 
-TJS_EXP_FUNC_DEF(void, TVPRemoveContinuousEventHook,
-                 (tTVPContinuousEventCallbackIntf * cb));
+TJS_EXP_FUNC_DEF(void, TVPRemoveContinuousEventHook, (tTVPContinuousEventCallbackIntf * cb));
 
 extern void TVPBeginContinuousEvent();
 // must be implemented in each platforms
@@ -271,9 +260,9 @@ extern bool TVPProcessContinuousHandlerEventFlag;
 //---------------------------------------------------------------------------
 // System "Compact" Event related
 //---------------------------------------------------------------------------
-#define TVP_COMPACT_LEVEL_IDLE 5        // the application is in idle state
+#define TVP_COMPACT_LEVEL_IDLE 5 // the application is in idle state
 #define TVP_COMPACT_LEVEL_DEACTIVATE 10 // the application had been deactivated
-#define TVP_COMPACT_LEVEL_MINIMIZE 15   // the application had been minimized
+#define TVP_COMPACT_LEVEL_MINIMIZE 15 // the application had been minimized
 #define TVP_COMPACT_LEVEL_MAX 100 // strongest level, should clear all caches
 
 //---------------------------------------------------------------------------
@@ -285,11 +274,9 @@ public:
 };
 /*]*/
 //---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(void, TVPAddCompactEventHook,
-                 (tTVPCompactEventCallbackIntf * cb));
+TJS_EXP_FUNC_DEF(void, TVPAddCompactEventHook, (tTVPCompactEventCallbackIntf * cb));
 
-TJS_EXP_FUNC_DEF(void, TVPRemoveCompactEventHook,
-                 (tTVPCompactEventCallbackIntf * cb));
+TJS_EXP_FUNC_DEF(void, TVPRemoveCompactEventHook, (tTVPCompactEventCallbackIntf * cb));
 
 extern void TVPDeliverCompactEvent(tjs_int level);
 // must be called by each platforms's implementation
@@ -318,15 +305,14 @@ protected:
     tTJSVariantClosure ActionOwner; // object to send action
     ttstr ActionName;
 
-    bool Cached;               // cached operation
+    bool Cached; // cached operation
     tTVPAsyncTriggerMode Mode; // event mode
     tjs_int IdlePendingCount;
 
 public:
     tTJSNI_AsyncTrigger();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
 
     void TJS_INTF_METHOD Invalidate();
 

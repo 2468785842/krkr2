@@ -17,9 +17,9 @@
 // clipboard related functions
 //---------------------------------------------------------------------------
 bool TVPClipboardHasFormat(tTVPClipboardFormat format) {
-    switch (format) {
-    case cbfText: {
-        bool result = false;
+    switch(format) {
+        case cbfText: {
+            bool result = false;
 #if 0
             if( ::OpenClipboard(0) ) {
                 result = 0 != ::IsClipboardFormatAvailable(CF_TEXT);
@@ -29,10 +29,10 @@ bool TVPClipboardHasFormat(tTVPClipboardFormat format) {
                 ::CloseClipboard();
             }
 #endif
-        return result; // ANSI text or UNICODE text
-    }
-    default:
-        return false;
+            return result; // ANSI text or UNICODE text
+        }
+        default:
+            return false;
     }
 }
 

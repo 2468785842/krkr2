@@ -59,205 +59,97 @@ namespace TJS {
 #define N TJS_MT_N
 #define M 397
 #define MATRIX_A 0x9908b0dfUL /* constant vector a */
-#define UMASK 0x80000000UL    /* most significant w-r bits */
-#define LMASK 0x7fffffffUL    /* least significant r bits */
+#define UMASK 0x80000000UL /* most significant w-r bits */
+#define LMASK 0x7fffffffUL /* least significant r bits */
 #define MIXBITS(u, v) (((u)&UMASK) | ((v)&LMASK))
 #define TWIST(u, v) ((MIXBITS(u, v) >> 1) ^ ((v)&1UL ? MATRIX_A : 0UL))
 
-/* initializes state[N] with a seed */
-tTJSMersenneTwister::tTJSMersenneTwister(unsigned long s) {
-    left = 1;
+    /* initializes state[N] with a seed */
+    tTJSMersenneTwister::tTJSMersenneTwister(unsigned long s) {
+        left = 1;
 
-    init_genrand(s);
-}
-
-/* initializes state[N] with a seed */
-void tTJSMersenneTwister::init_genrand(unsigned long s) {
-    int j;
-    state[0] = s & 0xffffffffUL;
-    for (j = 1; j < N; j++) {
-        state[j] = (1812433253UL * (state[j - 1] ^ (state[j - 1] >> 30)) + j);
-        /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
-        /* In the previous versions, MSBs of the seed affect   */
-        /* only MSBs of the array state[]. */
-        /* 2002/01/09 modified by Makoto Matsumoto			   */
-        state[j] &= 0xffffffffUL; /* for >32 bit machines */
+        init_genrand(s);
     }
-    left = 1;
-    next = state; /* this is not actually needed, but we do here to avoid CG
-                     warning; W.Dee */
-}
 
-/* initialize by an array with array-length */
-/* init_key is the array for initializing keys */
-/* key_length is its length */
-tTJSMersenneTwister::tTJSMersenneTwister(unsigned long init_key[],
-                                         unsigned long key_length) {
-    int i, j, k;
-    init_genrand(19650218UL);
-    i = 1;
-    j = 0;
-    k = (N > key_length ? N : key_length);
-    for (; k; k--) {
-        state[i] =
-            (state[i] ^ ((state[i - 1] ^ (state[i - 1] >> 30)) * 1664525UL)) +
-            init_key[j] + j;      /* non linear */
-        state[i] &= 0xffffffffUL; /* for WORDSIZE > 32 machines */
-        i++;
-        j++;
-        if (i >= N) {
-            state[0] = state[N - 1];
-            i = 1;
+    /* initializes state[N] with a seed */
+    void tTJSMersenneTwister::init_genrand(unsigned long s) {
+        int j;
+        state[0] = s & 0xffffffffUL;
+        for(j = 1; j < N; j++) {
+            state[j] = (1812433253UL * (state[j - 1] ^ (state[j - 1] >> 30)) + j);
+            /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
+            /* In the previous versions, MSBs of the seed affect   */
+            /* only MSBs of the array state[]. */
+            /* 2002/01/09 modified by Makoto Matsumoto			   */
+            state[j] &= 0xffffffffUL; /* for >32 bit machines */
         }
-        if ((unsigned long)j >= key_length)
-            j = 0;
+        left = 1;
+        next = state; /* this is not actually needed, but we do here to avoid CG
+                         warning; W.Dee */
     }
-    for (k = N - 1; k; k--) {
-        state[i] = (state[i] ^
-                    ((state[i - 1] ^ (state[i - 1] >> 30)) * 1566083941UL)) -
-                   i;             /* non linear */
-        state[i] &= 0xffffffffUL; /* for WORDSIZE > 32 machines */
-        i++;
-        if (i >= N) {
-            state[0] = state[N - 1];
-            i = 1;
+
+    /* initialize by an array with array-length */
+    /* init_key is the array for initializing keys */
+    /* key_length is its length */
+    tTJSMersenneTwister::tTJSMersenneTwister(unsigned long init_key[], unsigned long key_length) {
+        int i, j, k;
+        init_genrand(19650218UL);
+        i = 1;
+        j = 0;
+        k = (N > key_length ? N : key_length);
+        for(; k; k--) {
+            state[i] =
+                (state[i] ^ ((state[i - 1] ^ (state[i - 1] >> 30)) * 1664525UL)) + init_key[j] + j; /* non linear */
+            state[i] &= 0xffffffffUL; /* for WORDSIZE > 32 machines */
+            i++;
+            j++;
+            if(i >= N) {
+                state[0] = state[N - 1];
+                i = 1;
+            }
+            if((unsigned long)j >= key_length)
+                j = 0;
         }
+        for(k = N - 1; k; k--) {
+            state[i] = (state[i] ^ ((state[i - 1] ^ (state[i - 1] >> 30)) * 1566083941UL)) - i; /* non linear */
+            state[i] &= 0xffffffffUL; /* for WORDSIZE > 32 machines */
+            i++;
+            if(i >= N) {
+                state[0] = state[N - 1];
+                i = 1;
+            }
+        }
+
+        state[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */
+        left = 1;
+        next = state; /* this is not actually needed, but we do here to avoid CG
+                         warning; W.Dee */
     }
 
-    state[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */
-    left = 1;
-    next = state; /* this is not actually needed, but we do here to avoid CG
-                     warning; W.Dee */
-}
+    /* construct tTJSMersenneTwisterData data */
+    tTJSMersenneTwister::tTJSMersenneTwister(const tTJSMersenneTwisterData &data) { SetData(data); }
 
-/* construct tTJSMersenneTwisterData data */
-tTJSMersenneTwister::tTJSMersenneTwister(const tTJSMersenneTwisterData &data) {
-    SetData(data);
-}
+    void tTJSMersenneTwister::next_state() {
+        unsigned long *p = state;
+        int j;
 
-void tTJSMersenneTwister::next_state() {
-    unsigned long *p = state;
-    int j;
+        left = N;
+        next = state;
 
-    left = N;
-    next = state;
+        for(j = N - M + 1; --j; p++)
+            *p = p[M] ^ TWIST(p[0], p[1]);
 
-    for (j = N - M + 1; --j; p++)
-        *p = p[M] ^ TWIST(p[0], p[1]);
+        for(j = M; --j; p++)
+            *p = p[M - N] ^ TWIST(p[0], p[1]);
 
-    for (j = M; --j; p++)
-        *p = p[M - N] ^ TWIST(p[0], p[1]);
+        *p = p[M - N] ^ TWIST(p[0], state[0]);
+    }
 
-    *p = p[M - N] ^ TWIST(p[0], state[0]);
-}
+    /* generates a random number on [0,0xffffffff]-interval */
+    unsigned long tTJSMersenneTwister::int32() {
+        unsigned long y;
 
-/* generates a random number on [0,0xffffffff]-interval */
-unsigned long tTJSMersenneTwister::int32() {
-    unsigned long y;
-
-    if (--left == 0)
-        next_state();
-    y = *next++;
-
-    /* Tempering */
-    y ^= (y >> 11);
-    y ^= (y << 7) & 0x9d2c5680UL;
-    y ^= (y << 15) & 0xefc60000UL;
-    y ^= (y >> 18);
-
-    return y;
-}
-
-/* generates a random number on [0,0x7fffffff]-interval */
-long tTJSMersenneTwister::int31() {
-    unsigned long y;
-
-    if (--left == 0)
-        next_state();
-    y = *next++;
-
-    /* Tempering */
-    y ^= (y >> 11);
-    y ^= (y << 7) & 0x9d2c5680UL;
-    y ^= (y << 15) & 0xefc60000UL;
-    y ^= (y >> 18);
-
-    return (long)(y >> 1);
-}
-
-/* generates a random number on [0,1]-real-interval */
-double tTJSMersenneTwister::real1() {
-    unsigned long y;
-
-    if (--left == 0)
-        next_state();
-    y = *next++;
-
-    /* Tempering */
-    y ^= (y >> 11);
-    y ^= (y << 7) & 0x9d2c5680UL;
-    y ^= (y << 15) & 0xefc60000UL;
-    y ^= (y >> 18);
-
-    return (double)y * (1.0 / 4294967295.0);
-    /* divided by 2^32-1 */
-}
-
-/* generates a random number on [0,1)-real-interval */
-double tTJSMersenneTwister::real2() {
-    unsigned long y;
-
-    if (--left == 0)
-        next_state();
-    y = *next++;
-
-    /* Tempering */
-    y ^= (y >> 11);
-    y ^= (y << 7) & 0x9d2c5680UL;
-    y ^= (y << 15) & 0xefc60000UL;
-    y ^= (y >> 18);
-
-    return (double)y * (1.0 / 4294967296.0);
-    /* divided by 2^32 */
-}
-
-/* generates a random number on (0,1)-real-interval */
-double tTJSMersenneTwister::real3() {
-    unsigned long y;
-
-    if (--left == 0)
-        next_state();
-    y = *next++;
-
-    /* Tempering */
-    y ^= (y >> 11);
-    y ^= (y << 7) & 0x9d2c5680UL;
-    y ^= (y << 15) & 0xefc60000UL;
-    y ^= (y >> 18);
-
-    return ((double)y + 0.5) * (1.0 / 4294967296.0);
-    /* divided by 2^32 */
-}
-
-/* generates a random number on [0,1) with 53-bit resolution*/
-double tTJSMersenneTwister::res53() {
-    TJSSetFPUE();
-    unsigned long a = int32() >> 5, b = int32() >> 6;
-    return (a * 67108864.0 + b) * (1.0 / 9007199254740992.0);
-}
-
-/* These real versions are due to Isaku Wada, 2002/01/09 added */
-
-double tTJSMersenneTwister::rand_double() {
-    // Added by W.Dee
-    /* generates a random number on [0,1) with IEEE 64-bit double precision */
-
-    tjs_uint64 v;
-
-    unsigned long y;
-
-    {
-        if (--left == 0)
+        if(--left == 0)
             next_state();
         y = *next++;
 
@@ -266,12 +158,15 @@ double tTJSMersenneTwister::rand_double() {
         y ^= (y << 7) & 0x9d2c5680UL;
         y ^= (y << 15) & 0xefc60000UL;
         y ^= (y >> 18);
+
+        return y;
     }
 
-    ((tjs_uint32 *)&v)[0] = y;
+    /* generates a random number on [0,0x7fffffff]-interval */
+    long tTJSMersenneTwister::int31() {
+        unsigned long y;
 
-    {
-        if (--left == 0)
+        if(--left == 0)
             next_state();
         y = *next++;
 
@@ -280,37 +175,135 @@ double tTJSMersenneTwister::rand_double() {
         y ^= (y << 7) & 0x9d2c5680UL;
         y ^= (y << 15) & 0xefc60000UL;
         y ^= (y >> 18);
+
+        return (long)(y >> 1);
     }
 
-    ((tjs_uint32 *)&v)[1] = y;
+    /* generates a random number on [0,1]-real-interval */
+    double tTJSMersenneTwister::real1() {
+        unsigned long y;
 
-    v &= TJS_IEEE_D_SIGNIFICAND_MASK;
+        if(--left == 0)
+            next_state();
+        y = *next++;
 
-    v = TJS_IEEE_D_MAKE_SIGNIFICAND(v) | TJS_IEEE_D_MAKE_SIGN(0) |
-        TJS_IEEE_D_MAKE_EXP(0);
+        /* Tempering */
+        y ^= (y >> 11);
+        y ^= (y << 7) & 0x9d2c5680UL;
+        y ^= (y << 15) & 0xefc60000UL;
+        y ^= (y >> 18);
 
-    // at this point, v is : 1.0 <= v < 2.0
+        return (double)y * (1.0 / 4294967295.0);
+        /* divided by 2^32-1 */
+    }
 
-    TJSSetFPUE();
-    return *(double *)&v - 1.0; // returned value x is : 0.0 <= x < 1.0
-}
+    /* generates a random number on [0,1)-real-interval */
+    double tTJSMersenneTwister::real2() {
+        unsigned long y;
 
-void tTJSMersenneTwister::SetData(const tTJSMersenneTwisterData &rhs) {
-    *(tTJSMersenneTwisterData *)this = rhs;
-    next = rhs.next - rhs.state + state; // fix pointer
-}
+        if(--left == 0)
+            next_state();
+        y = *next++;
 
-tTJSMersenneTwister &tTJSMersenneTwister::sharedInstance() {
-    static tTJSMersenneTwister *instance = nullptr;
+        /* Tempering */
+        y ^= (y >> 11);
+        y ^= (y << 7) & 0x9d2c5680UL;
+        y ^= (y << 15) & 0xefc60000UL;
+        y ^= (y >> 18);
 
-    tjs_uint32 uptime = 0;
-    timespec on{};
-    if (clock_gettime(CLOCK_MONOTONIC, &on) == 0)
-        uptime = on.tv_sec * 1000 + on.tv_nsec / 1000000;
+        return (double)y * (1.0 / 4294967296.0);
+        /* divided by 2^32 */
+    }
 
-    if (!instance)
-        instance = new tTJSMersenneTwister(uptime);
-    return *instance;
-}
+    /* generates a random number on (0,1)-real-interval */
+    double tTJSMersenneTwister::real3() {
+        unsigned long y;
+
+        if(--left == 0)
+            next_state();
+        y = *next++;
+
+        /* Tempering */
+        y ^= (y >> 11);
+        y ^= (y << 7) & 0x9d2c5680UL;
+        y ^= (y << 15) & 0xefc60000UL;
+        y ^= (y >> 18);
+
+        return ((double)y + 0.5) * (1.0 / 4294967296.0);
+        /* divided by 2^32 */
+    }
+
+    /* generates a random number on [0,1) with 53-bit resolution*/
+    double tTJSMersenneTwister::res53() {
+        TJSSetFPUE();
+        unsigned long a = int32() >> 5, b = int32() >> 6;
+        return (a * 67108864.0 + b) * (1.0 / 9007199254740992.0);
+    }
+
+    /* These real versions are due to Isaku Wada, 2002/01/09 added */
+
+    double tTJSMersenneTwister::rand_double() {
+        // Added by W.Dee
+        /* generates a random number on [0,1) with IEEE 64-bit double precision */
+
+        tjs_uint64 v;
+
+        unsigned long y;
+
+        {
+            if(--left == 0)
+                next_state();
+            y = *next++;
+
+            /* Tempering */
+            y ^= (y >> 11);
+            y ^= (y << 7) & 0x9d2c5680UL;
+            y ^= (y << 15) & 0xefc60000UL;
+            y ^= (y >> 18);
+        }
+
+        ((tjs_uint32 *)&v)[0] = y;
+
+        {
+            if(--left == 0)
+                next_state();
+            y = *next++;
+
+            /* Tempering */
+            y ^= (y >> 11);
+            y ^= (y << 7) & 0x9d2c5680UL;
+            y ^= (y << 15) & 0xefc60000UL;
+            y ^= (y >> 18);
+        }
+
+        ((tjs_uint32 *)&v)[1] = y;
+
+        v &= TJS_IEEE_D_SIGNIFICAND_MASK;
+
+        v = TJS_IEEE_D_MAKE_SIGNIFICAND(v) | TJS_IEEE_D_MAKE_SIGN(0) | TJS_IEEE_D_MAKE_EXP(0);
+
+        // at this point, v is : 1.0 <= v < 2.0
+
+        TJSSetFPUE();
+        return *(double *)&v - 1.0; // returned value x is : 0.0 <= x < 1.0
+    }
+
+    void tTJSMersenneTwister::SetData(const tTJSMersenneTwisterData &rhs) {
+        *(tTJSMersenneTwisterData *)this = rhs;
+        next = rhs.next - rhs.state + state; // fix pointer
+    }
+
+    tTJSMersenneTwister &tTJSMersenneTwister::sharedInstance() {
+        static tTJSMersenneTwister *instance = nullptr;
+
+        tjs_uint32 uptime = 0;
+        timespec on{};
+        if(clock_gettime(CLOCK_MONOTONIC, &on) == 0)
+            uptime = on.tv_sec * 1000 + on.tv_nsec / 1000000;
+
+        if(!instance)
+            instance = new tTJSMersenneTwister(uptime);
+        return *instance;
+    }
 
 } // namespace TJS

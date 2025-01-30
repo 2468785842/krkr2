@@ -21,9 +21,8 @@ public:
     void newline();
 };
 
-tTVPStringStream::tTVPStringStream(tTJSBinaryStream *s, bool onlyLF /*= false*/)
-    : stream(s) {
-    if (onlyLF)
+tTVPStringStream::tTVPStringStream(tTJSBinaryStream *s, bool onlyLF /*= false*/) : stream(s) {
+    if(onlyLF)
         _newline = TJS_W("\n");
     else
         _newline = TJS_W("\r\n");
@@ -31,9 +30,7 @@ tTVPStringStream::tTVPStringStream(tTJSBinaryStream *s, bool onlyLF /*= false*/)
 
 void tTVPStringStream::write(tjs_char c) { stream->Write(&c, sizeof(c)); }
 
-void tTVPStringStream::write(const tjs_char *s) {
-    stream->Write(s, TJS_strlen(s) * sizeof(*s));
-}
+void tTVPStringStream::write(const tjs_char *s) { stream->Write(s, TJS_strlen(s) * sizeof(*s)); }
 
 void tTVPStringStream::write(tTVInteger var) {
     ttstr s = tTJSVariant(var).AsString();
@@ -48,14 +45,14 @@ void tTVPStringStream::write(tTVReal var) {
 void tTVPStringStream::newline() { write(_newline); }
 
 static void quoteString(const tjs_char *str, tTVPStringStream *writer) {
-    if (str) {
+    if(str) {
         writer->write((tjs_char)'"');
         const tjs_char *p = str;
         int ch;
-        while ((ch = *p++)) {
-            if (ch == '"') {
+        while((ch = *p++)) {
+            if(ch == '"') {
                 writer->write(TJS_W("\\\""));
-            } else if (ch == '\\') {
+            } else if(ch == '\\') {
                 writer->write(TJS_W("\\\\"));
             } else {
                 writer->write((tjs_char)ch);
@@ -71,8 +68,8 @@ static void quoteOctet(tTJSVariantOctet *octet, tTVPStringStream *writer) {
     const tjs_uint8 *data = octet->GetData();
     tjs_uint length = octet->GetLength();
     writer->write(TJS_W("<% "));
-    for (tjs_uint i = 0; i < length; i++) {
-        writer->write(ttstr{fmt::format("{:02x} ", data[i])}.c_str());
+    for(tjs_uint i = 0; i < length; i++) {
+        writer->write(ttstr{ fmt::format("{:02x} ", data[i]) }.c_str());
     }
     writer->write(TJS_W("%>"));
 }
@@ -89,24 +86,21 @@ protected:
     bool first;
 
 public:
-    DictMemberDispCaller(tTVPStringStream *writer) : writer(writer) {
-        first = true;
-    };
+    DictMemberDispCaller(tTVPStringStream *writer) : writer(writer) { first = true; };
 
     virtual tjs_error TJS_INTF_METHOD FuncCall( // function invocation
-        tjs_uint32 flag,                        // calling flag
-        const tjs_char
-            *membername,       // member name ( nullptr for a default member )
-        tjs_uint32 *hint,      // hint for the member name (in/out)
-        tTJSVariant *result,   // result
-        tjs_int numparams,     // number of parameters
-        tTJSVariant **param,   // parameters
+        tjs_uint32 flag, // calling flag
+        const tjs_char *membername, // member name ( nullptr for a default member )
+        tjs_uint32 *hint, // hint for the member name (in/out)
+        tTJSVariant *result, // result
+        tjs_int numparams, // number of parameters
+        tTJSVariant **param, // parameters
         iTJSDispatch2 *objthis // object as "this"
     ) {
-        if (numparams > 1) {
+        if(numparams > 1) {
             tTVInteger flag = param[1]->AsInteger();
-            if (!(flag & TJS_HIDDENMEMBER)) {
-                if (first) {
+            if(!(flag & TJS_HIDDENMEMBER)) {
+                if(first) {
                     first = false;
                 } else {
                     writer->write((tjs_char)',');
@@ -118,7 +112,7 @@ public:
                 getVariantString(*param[2], writer);
             }
         }
-        if (result) {
+        if(result) {
             *result = true;
         }
         return TJS_S_OK;
@@ -145,19 +139,17 @@ static void getArrayString(iTJSDispatch2 *array, tTVPStringStream *writer) {
     tjs_int count = 0;
     {
         tTJSVariant result;
-        if (TJS_SUCCEEDED(
-                ArrayCountProp->PropGet(0, nullptr, nullptr, &result, array))) {
+        if(TJS_SUCCEEDED(ArrayCountProp->PropGet(0, nullptr, nullptr, &result, array))) {
             count = result;
         }
     }
-    for (tjs_int i = 0; i < count; i++) {
-        if (i != 0) {
+    for(tjs_int i = 0; i < count; i++) {
+        if(i != 0) {
             writer->write((tjs_char)',');
             // writer->newline();
         }
         tTJSVariant result;
-        if (array->PropGetByNum(TJS_IGNOREPROP, i, &result, array) ==
-            TJS_S_OK) {
+        if(array->PropGetByNum(TJS_IGNOREPROP, i, &result, array) == TJS_S_OK) {
             getVariantString(result, writer);
         }
     }
@@ -166,46 +158,44 @@ static void getArrayString(iTJSDispatch2 *array, tTVPStringStream *writer) {
 }
 
 static void getVariantString(tTJSVariant &var, tTVPStringStream *writer) {
-    switch (var.Type()) {
+    switch(var.Type()) {
 
-    case tvtVoid:
-        writer->write(TJS_W("void"));
-        break;
+        case tvtVoid:
+            writer->write(TJS_W("void"));
+            break;
 
-    case tvtObject: {
-        iTJSDispatch2 *obj = var.AsObjectNoAddRef();
-        if (obj == nullptr) {
-            writer->write(TJS_W("nullptr"));
-        } else if (obj->IsInstanceOf(TJS_IGNOREPROP, nullptr, nullptr,
-                                     TJS_W("Array"), obj) == TJS_S_TRUE) {
-            getArrayString(obj, writer);
-        } else {
-            getDictString(obj, writer);
-        }
-    } break;
+        case tvtObject: {
+            iTJSDispatch2 *obj = var.AsObjectNoAddRef();
+            if(obj == nullptr) {
+                writer->write(TJS_W("nullptr"));
+            } else if(obj->IsInstanceOf(TJS_IGNOREPROP, nullptr, nullptr, TJS_W("Array"), obj) == TJS_S_TRUE) {
+                getArrayString(obj, writer);
+            } else {
+                getDictString(obj, writer);
+            }
+        } break;
 
-    case tvtString:
-        quoteString(var.GetString(), writer);
-        break;
+        case tvtString:
+            quoteString(var.GetString(), writer);
+            break;
 
-    case tvtOctet:
-        quoteOctet(var.AsOctetNoAddRef(), writer);
-        break;
+        case tvtOctet:
+            quoteOctet(var.AsOctetNoAddRef(), writer);
+            break;
 
-    case tvtInteger:
-        writer->write(TJS_W("int "));
-        writer->write(
-            TJSIntegerToString((tTVInteger)var)->operator const tjs_char *());
-        break;
+        case tvtInteger:
+            writer->write(TJS_W("int "));
+            writer->write(TJSIntegerToString((tTVInteger)var)->operator const tjs_char *());
+            break;
 
-    case tvtReal:
-        writer->write(TJS_W("real "));
-        writer->write((tTVReal)var);
-        break;
+        case tvtReal:
+            writer->write(TJS_W("real "));
+            writer->write((tTVReal)var);
+            break;
 
-    default:
-        writer->write(TJS_W("void"));
-        break;
+        default:
+            writer->write(TJS_W("void"));
+            break;
     };
 }
 
@@ -226,14 +216,11 @@ public:
      * @param newline 改行コード 0:CRLF 1:LF
      * @return 実行結果
      */
-    static tjs_error TJS_INTF_METHOD save2(tTJSVariant *result,
-                                           tjs_int numparams,
-                                           tTJSVariant **param,
+    static tjs_error TJS_INTF_METHOD save2(tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
                                            iTJSDispatch2 *objthis) {
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
-        tTJSBinaryStream *stream =
-            TVPCreateStream(param[0]->AsString(), TJS_BS_WRITE);
+        tTJSBinaryStream *stream = TVPCreateStream(param[0]->AsString(), TJS_BS_WRITE);
         tTVPStringStream writer(stream,
                                 // numparams > 1 ? (int)*param[1] != 0: false,
                                 numparams > 2 ? (int)*param[2] : 0);
@@ -247,15 +234,13 @@ public:
         tjs_int count = 0;
         {
             tTJSVariant result;
-            if (TJS_SUCCEEDED(ArrayCountProp->PropGet(0, nullptr, nullptr,
-                                                      &result, objthis))) {
+            if(TJS_SUCCEEDED(ArrayCountProp->PropGet(0, nullptr, nullptr, &result, objthis))) {
                 count = result;
             }
         }
-        for (tjs_int i = 0; i < count; i++) {
+        for(tjs_int i = 0; i < count; i++) {
             tTJSVariant result;
-            if (objthis->PropGetByNum(TJS_IGNOREPROP, i, &result, objthis) ==
-                TJS_S_OK) {
+            if(objthis->PropGetByNum(TJS_IGNOREPROP, i, &result, objthis) == TJS_S_OK) {
                 writer.write(result.GetString());
                 writer.newline();
             }
@@ -271,14 +256,11 @@ public:
      * @param newline 改行コード 0:CRLF 1:LF
      * @return 実行結果
      */
-    static tjs_error TJS_INTF_METHOD saveStruct2(tTJSVariant *result,
-                                                 tjs_int numparams,
-                                                 tTJSVariant **param,
+    static tjs_error TJS_INTF_METHOD saveStruct2(tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
                                                  iTJSDispatch2 *objthis) {
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
-        tTJSBinaryStream *stream =
-            TVPCreateStream(param[0]->AsString(), TJS_BS_WRITE);
+        tTJSBinaryStream *stream = TVPCreateStream(param[0]->AsString(), TJS_BS_WRITE);
         tTVPStringStream writer(stream,
                                 // numparams > 1 ? (int)*param[1] != 0: false,
                                 numparams > 2 ? (int)*param[2] : 0);
@@ -299,11 +281,9 @@ public:
      * @param newline 改行コード 0:CRLF 1:LF
      * @return 実行結果
      */
-    static tjs_error TJS_INTF_METHOD toStructString(tTJSVariant *result,
-                                                    tjs_int numparams,
-                                                    tTJSVariant **param,
+    static tjs_error TJS_INTF_METHOD toStructString(tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
                                                     iTJSDispatch2 *objthis) {
-        if (result) {
+        if(result) {
             tTVPMemoryStream ms;
             tTVPStringStream writer(&ms, numparams > 0 ? (int)*param[0] : 0);
             getArrayString(objthis, &writer);
@@ -334,14 +314,11 @@ public:
      * @param newline 改行コード 0:CRLF 1:LF
      * @return 実行結果
      */
-    static tjs_error TJS_INTF_METHOD saveStruct2(tTJSVariant *result,
-                                                 tjs_int numparams,
-                                                 tTJSVariant **param,
+    static tjs_error TJS_INTF_METHOD saveStruct2(tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
                                                  iTJSDispatch2 *objthis) {
-        if (numparams < 1)
+        if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
-        tTJSBinaryStream *stream =
-            TVPCreateStream(param[0]->AsString(), TJS_BS_WRITE);
+        tTJSBinaryStream *stream = TVPCreateStream(param[0]->AsString(), TJS_BS_WRITE);
         tTVPStringStream writer(stream,
                                 // numparams > 1 ? (int)*param[1] != 0: false,
                                 numparams > 2 ? (int)*param[2] : 0);
@@ -355,11 +332,9 @@ public:
      * @param newline 改行コード 0:CRLF 1:LF
      * @return 実行結果
      */
-    static tjs_error TJS_INTF_METHOD toStructString(tTJSVariant *result,
-                                                    tjs_int numparams,
-                                                    tTJSVariant **param,
+    static tjs_error TJS_INTF_METHOD toStructString(tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
                                                     iTJSDispatch2 *objthis) {
-        if (result) {
+        if(result) {
             tTVPMemoryStream ms;
             tTVPStringStream writer(&ms, numparams > 0 ? (int)*param[0] : 0);
             getDictString(objthis, &writer);
@@ -385,8 +360,7 @@ static void PostRegistCallback() {
         TVPExecuteExpression(TJS_W("Array"), &varScripts);
         iTJSDispatch2 *dispatch = varScripts.AsObjectNoAddRef();
         tTJSVariant val;
-        if (TJS_FAILED(dispatch->PropGet(TJS_IGNOREPROP, TJS_W("count"),
-                                         nullptr, &val, dispatch))) {
+        if(TJS_FAILED(dispatch->PropGet(TJS_IGNOREPROP, TJS_W("count"), nullptr, &val, dispatch))) {
             TVPThrowExceptionMessage(TJS_W("can't get Array.count"));
         }
         ArrayCountProp = val.AsObject();
@@ -397,7 +371,7 @@ static void PostRegistCallback() {
  * 開放処理前
  */
 static void PreUnregistCallback() {
-    if (ArrayCountProp) {
+    if(ArrayCountProp) {
         ArrayCountProp->Release();
         ArrayCountProp = nullptr;
     }

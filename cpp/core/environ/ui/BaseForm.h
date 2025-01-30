@@ -6,37 +6,37 @@
 #include "extensions/GUI/CCScrollView/CCTableViewCell.h"
 
 namespace cocos2d {
-class Ref;
+    class Ref;
 
-class Node;
-namespace ui {
-class Widget;
+    class Node;
+    namespace ui {
+        class Widget;
 
-class Button;
+        class Button;
 
-class Text;
+        class Text;
 
-class ListView;
+        class ListView;
 
-class CheckBox;
+        class CheckBox;
 
-class PageView;
+        class PageView;
 
-class TextField;
+        class TextField;
 
-class Slider;
+        class Slider;
 
-class ScrollView;
+        class ScrollView;
 
-class LoadingBar;
-} // namespace ui
-namespace extension {
-class TableView;
-}
+        class LoadingBar;
+    } // namespace ui
+    namespace extension {
+        class TableView;
+    }
 } // namespace cocos2d
 
 namespace cocostudio::timeline {
-class ActionTimeline;
+    class ActionTimeline;
 }
 
 class NodeMap : public std::unordered_map<std::string, cocos2d::Node *> {
@@ -53,14 +53,13 @@ public:
     template <typename T = cocos2d::Node>
     T *findController(const std::string &name, bool notice = true) const {
         cocos2d::Node *node = findController<cocos2d::Node>(name, notice);
-        if (node) {
+        if(node) {
             return dynamic_cast<T *>(node);
         }
         return nullptr;
     }
 
-    cocos2d::ui::Widget *findWidget(const std::string &name,
-                                    bool notice = true) const {
+    cocos2d::ui::Widget *findWidget(const std::string &name, bool notice = true) const {
         return findController<cocos2d::ui::Widget>(name, notice);
     }
 
@@ -68,8 +67,7 @@ public:
 };
 
 template <>
-cocos2d::Node *NodeMap::findController<cocos2d::Node>(const std::string &name,
-                                                      bool notice) const;
+cocos2d::Node *NodeMap::findController<cocos2d::Node>(const std::string &name, bool notice) const;
 
 class CSBReader : public NodeMap {
 public:
@@ -86,16 +84,12 @@ public:
 
     virtual void rearrangeLayout();
 
-    virtual void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
-                              cocos2d::Event *event);
+    virtual void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event);
 
 protected:
-    bool initFromFile(const char *navibar, const char *body,
-                      const char *bottombar, cocos2d::Node *parent = nullptr);
+    bool initFromFile(const char *navibar, const char *body, const char *bottombar, cocos2d::Node *parent = nullptr);
 
-    bool initFromFile(const char *body) {
-        return initFromFile(nullptr, body, nullptr);
-    }
+    bool initFromFile(const char *body) { return initFromFile(nullptr, body, nullptr); }
 
     virtual void bindBodyController(const NodeMap &allNodes) {}
 
@@ -120,8 +114,7 @@ protected:
 
 class TTouchEventRouter : public cocos2d::ui::Widget {
 public:
-    typedef std::function<void(cocos2d::ui::Widget::TouchEventType event,
-                               cocos2d::ui::Widget *sender,
+    typedef std::function<void(cocos2d::ui::Widget::TouchEventType event, cocos2d::ui::Widget *sender,
                                cocos2d::Touch *touch)>
         EventFunc;
 
@@ -134,10 +127,9 @@ public:
 
     void setEventFunc(const EventFunc &func) { _func = func; }
 
-    virtual void interceptTouchEvent(cocos2d::ui::Widget::TouchEventType event,
-                                     cocos2d::ui::Widget *sender,
+    virtual void interceptTouchEvent(cocos2d::ui::Widget::TouchEventType event, cocos2d::ui::Widget *sender,
                                      cocos2d::Touch *touch) override {
-        if (_func)
+        if(_func)
             _func(event, sender, touch);
     }
 
@@ -153,13 +145,13 @@ protected: // must be inherited
 
 public:
     virtual ~TCommonTableCell() {
-        if (_router)
+        if(_router)
             _router->release();
     }
 
     virtual void setContentSize(const cocos2d::Size &contentSize) {
         inherit::setContentSize(contentSize);
-        if (_router)
+        if(_router)
             _router->setContentSize(contentSize);
     }
 

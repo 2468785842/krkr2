@@ -21,11 +21,12 @@
 //---------------------------------------------------------------------------
 //! @brief		固定長リングバッファの実装
 //---------------------------------------------------------------------------
-template <typename T> class tRisaRingBuffer {
-    T *Buffer;       //!< バッファ
-    size_t Size;     //!< バッファのサイズ
+template <typename T>
+class tRisaRingBuffer {
+    T *Buffer; //!< バッファ
+    size_t Size; //!< バッファのサイズ
     size_t WritePos; //!< 書き込み位置
-    size_t ReadPos;  //!< 読み込み位置
+    size_t ReadPos; //!< 読み込み位置
     size_t DataSize; //!< バッファに入っているデータのサイズ
 
 public:
@@ -72,12 +73,12 @@ public:
     //!			などのチェックはいっさい行わない。事前に GetDataSize
     //!を調べ、読み込みたい
     //!			サイズが実際にバッファにあるかどうかをチェックすること。
-    void GetReadPointer(size_t readsize, const T *&p1, size_t &p1size,
-                        const T *&p2, size_t &p2size, ptrdiff_t offset = 0) {
+    void GetReadPointer(size_t readsize, const T *&p1, size_t &p1size, const T *&p2, size_t &p2size,
+                        ptrdiff_t offset = 0) {
         size_t pos = ReadPos + offset;
-        while (pos >= Size)
+        while(pos >= Size)
             pos -= Size;
-        if (readsize + pos > Size) {
+        if(readsize + pos > Size) {
             // readsize + pos がバッファの終端を超えている
             //  → 返されるブロックは2つ
             p1 = pos + Buffer;
@@ -101,7 +102,7 @@ public:
     //!			必要ならば呼び出し側でチェックすること。
     void AdvanceReadPos(size_t advance = 1) {
         ReadPos += advance;
-        if (ReadPos >= Size)
+        if(ReadPos >= Size)
             ReadPos -= Size;
         DataSize -= advance;
     }
@@ -124,7 +125,7 @@ public:
     //!			の動作は未定義である。このメソッドは読み込みポインタを移動しない。
     const T &GetAt(size_t n) const {
         size_t pos = ReadPos + n;
-        while (pos >= Size)
+        while(pos >= Size)
             pos -= Size;
         return Buffer[pos];
     }
@@ -139,12 +140,11 @@ public:
     //! @param	p2size	p2の表すブロックのサイズ(0があり得る)
     //! @param	offset	WritePos に加算されるオフセット
     //! @note	GetReadPointerの説明も参照のこと
-    void GetWritePointer(size_t writesize, T *&p1, size_t &p1size, T *&p2,
-                         size_t &p2size, ptrdiff_t offset = 0) {
+    void GetWritePointer(size_t writesize, T *&p1, size_t &p1size, T *&p2, size_t &p2size, ptrdiff_t offset = 0) {
         size_t pos = WritePos + offset;
-        while (pos >= Size)
+        while(pos >= Size)
             pos -= Size;
-        if (writesize + pos > Size) {
+        if(writesize + pos > Size) {
             // writesize + pos がバッファの終端を超えている
             //  → 返されるブロックは2つ
             p1 = pos + Buffer;
@@ -168,7 +168,7 @@ public:
     //!			必要ならば呼び出し側でチェックすること。
     void AdvanceWritePos(size_t advance = 1) {
         WritePos += advance;
-        if (WritePos >= Size)
+        if(WritePos >= Size)
             WritePos -= Size;
         DataSize += advance;
     }
@@ -179,10 +179,10 @@ public:
     //! と異なり、バッファがあふれたら、データの先頭を捨てる。
     void AdvanceWritePosWithDiscard(size_t advance = 1) {
         WritePos += advance;
-        if (WritePos >= Size)
+        if(WritePos >= Size)
             WritePos -= Size;
         DataSize += advance;
-        if (DataSize > Size) {
+        if(DataSize > Size) {
             AdvanceReadPos(DataSize - Size);
         }
     }

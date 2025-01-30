@@ -33,7 +33,7 @@ static const tjs_uint64 ASSUME_POINTER_STOPPED_TIME = 40 * NANOS_PER_MS;
 
 static float vectorDot(const float *a, const float *b, tjs_uint32 m) {
     float r = 0;
-    while (m--) {
+    while(m--) {
         r += *(a++) * *(b++);
     }
     return r;
@@ -41,7 +41,7 @@ static float vectorDot(const float *a, const float *b, tjs_uint32 m) {
 
 static float vectorNorm(const float *a, tjs_uint32 m) {
     float r = 0;
-    while (m--) {
+    while(m--) {
         float t = *(a++);
         r += t * t;
     }
@@ -55,7 +55,7 @@ VelocityTracker::~VelocityTracker() {}
 
 bool VelocityTracker::getVelocity(float &outVx, float &outVy) const {
     VelocityTrackerStrategy::Estimator estimator;
-    if (getEstimator(&estimator) && estimator.degree >= 1) {
+    if(getEstimator(&estimator) && estimator.degree >= 1) {
         outVx = estimator.xCoeff[1];
         outVy = estimator.yCoeff[1];
         return true;
@@ -70,9 +70,8 @@ bool VelocityTracker::getVelocity(float &outVx, float &outVy) const {
 // const tjs_uint64 LeastSquaresVelocityTrackerStrategy::HORIZON;
 // const tjs_uint32 LeastSquaresVelocityTrackerStrategy::HISTORY_SIZE;
 
-LeastSquaresVelocityTrackerStrategy::LeastSquaresVelocityTrackerStrategy(
-    tjs_uint32 degree, Weighting weighting)
-    : mDegree(degree), mWeighting(weighting) {
+LeastSquaresVelocityTrackerStrategy::LeastSquaresVelocityTrackerStrategy(tjs_uint32 degree, Weighting weighting) :
+    mDegree(degree), mWeighting(weighting) {
     clear();
 }
 
@@ -83,9 +82,8 @@ void LeastSquaresVelocityTrackerStrategy::clear() {
     mMovements[0].usingThis = false;
 }
 
-void LeastSquaresVelocityTrackerStrategy::addMovement(tjs_uint64 eventTime,
-                                                      float x, float y) {
-    if (++mIndex == HISTORY_SIZE) {
+void LeastSquaresVelocityTrackerStrategy::addMovement(tjs_uint64 eventTime, float x, float y) {
+    if(++mIndex == HISTORY_SIZE) {
         mIndex = 0;
     }
 
@@ -148,18 +146,17 @@ void LeastSquaresVelocityTrackerStrategy::addMovement(tjs_uint64 eventTime,
  * http://en.wikipedia.org/wiki/Numerical_methods_for_linear_least_squares
  * http://en.wikipedia.org/wiki/Gram-Schmidt
  */
-static bool solveLeastSquares(const float *x, const float *y, const float *w,
-                              tjs_uint32 m, tjs_uint32 n, float *outB,
+static bool solveLeastSquares(const float *x, const float *y, const float *w, tjs_uint32 m, tjs_uint32 n, float *outB,
                               float *outDet) {
 
     // Expand the X vector to a matrix A, pre-multiplied by the weights.
     // float a[n][m]; // column-major order
     std::vector<std::vector<float>> a(n);
-    for (tjs_uint32 i = 0; i < n; i++)
+    for(tjs_uint32 i = 0; i < n; i++)
         a[i].resize(m);
-    for (tjs_uint32 h = 0; h < m; h++) {
+    for(tjs_uint32 h = 0; h < m; h++) {
         a[0][h] = w[h];
-        for (tjs_uint32 i = 1; i < n; i++) {
+        for(tjs_uint32 i = 1; i < n; i++) {
             a[i][h] = a[i - 1][h] * x[h];
         }
     }
@@ -167,34 +164,34 @@ static bool solveLeastSquares(const float *x, const float *y, const float *w,
     // Apply the Gram-Schmidt process to A to obtain its QR decomposition.
     // float q[n][m]; // orthonormal basis, column-major order
     std::vector<std::vector<float>> q(n);
-    for (tjs_uint32 i = 0; i < n; i++)
+    for(tjs_uint32 i = 0; i < n; i++)
         q[i].resize(m);
     // float r[n][n]; // upper triangular matrix, row-major order
     std::vector<std::vector<float>> r(n);
-    for (tjs_uint32 i = 0; i < n; i++)
+    for(tjs_uint32 i = 0; i < n; i++)
         r[i].resize(n);
-    for (tjs_uint32 j = 0; j < n; j++) {
-        for (tjs_uint32 h = 0; h < m; h++) {
+    for(tjs_uint32 j = 0; j < n; j++) {
+        for(tjs_uint32 h = 0; h < m; h++) {
             q[j][h] = a[j][h];
         }
-        for (tjs_uint32 i = 0; i < j; i++) {
+        for(tjs_uint32 i = 0; i < j; i++) {
             float dot = vectorDot(&q[j][0], &q[i][0], m);
-            for (tjs_uint32 h = 0; h < m; h++) {
+            for(tjs_uint32 h = 0; h < m; h++) {
                 q[j][h] -= dot * q[i][h];
             }
         }
 
         float norm = vectorNorm(&q[j][0], m);
-        if (norm < 0.000001f) {
+        if(norm < 0.000001f) {
             // vectors are linearly dependent or zero so no solution
             return false;
         }
 
         float invNorm = 1.0f / norm;
-        for (tjs_uint32 h = 0; h < m; h++) {
+        for(tjs_uint32 h = 0; h < m; h++) {
             q[j][h] *= invNorm;
         }
-        for (tjs_uint32 i = 0; i < n; i++) {
+        for(tjs_uint32 i = 0; i < n; i++) {
             r[j][i] = i < j ? 0 : vectorDot(&q[j][0], &a[i][0], m);
         }
     }
@@ -202,12 +199,12 @@ static bool solveLeastSquares(const float *x, const float *y, const float *w,
     // triangular. We just work from bottom-right to top-left calculating B's
     // coefficients. float wy[m];
     std::vector<float> wy(m);
-    for (tjs_uint32 h = 0; h < m; h++) {
+    for(tjs_uint32 h = 0; h < m; h++) {
         wy[h] = y[h] * w[h];
     }
-    for (tjs_uint32 i = n; i-- != 0;) {
+    for(tjs_uint32 i = n; i-- != 0;) {
         outB[i] = vectorDot(&q[i][0], &(wy[0]), m);
-        for (tjs_uint32 j = n - 1; j > i; j--) {
+        for(tjs_uint32 j = n - 1; j > i; j--) {
             outB[i] -= r[i][j] * outB[j];
         }
         outB[i] /= r[i][i];
@@ -218,17 +215,17 @@ static bool solveLeastSquares(const float *x, const float *y, const float *w,
     // and SStot is the total sum of squares (variance of the data) where each
     // has been weighted.
     float ymean = 0;
-    for (tjs_uint32 h = 0; h < m; h++) {
+    for(tjs_uint32 h = 0; h < m; h++) {
         ymean += y[h];
     }
     ymean /= m;
 
     float sserr = 0;
     float sstot = 0;
-    for (tjs_uint32 h = 0; h < m; h++) {
+    for(tjs_uint32 h = 0; h < m; h++) {
         float err = y[h] - outB[0];
         float term = 1;
-        for (tjs_uint32 i = 1; i < n; i++) {
+        for(tjs_uint32 i = 1; i < n; i++) {
             term *= x[h];
             err -= term * outB[i];
         }
@@ -240,8 +237,7 @@ static bool solveLeastSquares(const float *x, const float *y, const float *w,
     return true;
 }
 
-bool LeastSquaresVelocityTrackerStrategy::getEstimator(
-    VelocityTrackerStrategy::Estimator *outEstimator) const {
+bool LeastSquaresVelocityTrackerStrategy::getEstimator(VelocityTrackerStrategy::Estimator *outEstimator) const {
     outEstimator->clear();
 
     // Iterate over movement samples in reverse time order and collect samples.
@@ -254,11 +250,11 @@ bool LeastSquaresVelocityTrackerStrategy::getEstimator(
     const Movement &newestMovement = mMovements[mIndex];
     do {
         const Movement &movement = mMovements[index];
-        if (!movement.usingThis) {
+        if(!movement.usingThis) {
             break;
         }
         tjs_uint64 age = newestMovement.eventTime - movement.eventTime;
-        if (age > HORIZON) {
+        if(age > HORIZON) {
             break;
         }
 
@@ -269,22 +265,22 @@ bool LeastSquaresVelocityTrackerStrategy::getEstimator(
         // time[m] = -age * 0.000000001f;
         time[m] = -(tjs_int64)age * 0.001f;
         index = (index == 0 ? HISTORY_SIZE : index) - 1;
-    } while (++m < HISTORY_SIZE);
+    } while(++m < HISTORY_SIZE);
 
-    if (m == 0) {
+    if(m == 0) {
         return false; // no data
     }
 
     // Calculate a least squares polynomial fit.
     tjs_uint32 degree = mDegree;
-    if (degree > m - 1) {
+    if(degree > m - 1) {
         degree = m - 1;
     }
-    if (degree >= 1) {
+    if(degree >= 1) {
         float xdet, ydet;
         tjs_uint32 n = degree + 1;
-        if (solveLeastSquares(time, x, w, m, n, outEstimator->xCoeff, &xdet) &&
-            solveLeastSquares(time, y, w, m, n, outEstimator->yCoeff, &ydet)) {
+        if(solveLeastSquares(time, x, w, m, n, outEstimator->xCoeff, &xdet) &&
+           solveLeastSquares(time, y, w, m, n, outEstimator->yCoeff, &ydet)) {
             outEstimator->time = newestMovement.eventTime;
             outEstimator->degree = degree;
             outEstimator->confidence = xdet * ydet;
@@ -302,78 +298,74 @@ bool LeastSquaresVelocityTrackerStrategy::getEstimator(
     return true;
 }
 
-float LeastSquaresVelocityTrackerStrategy::chooseWeight(
-    tjs_uint32 index) const {
-    switch (mWeighting) {
-    case WEIGHTING_DELTA: {
-        // Weight points based on how much time elapsed between them and the
-        // next point so that points that "cover" a shorter time span are
-        // weighed less.
-        //   delta  0ms: 0.5
-        //   delta 10ms: 1.0
-        if (index == mIndex) {
+float LeastSquaresVelocityTrackerStrategy::chooseWeight(tjs_uint32 index) const {
+    switch(mWeighting) {
+        case WEIGHTING_DELTA: {
+            // Weight points based on how much time elapsed between them and the
+            // next point so that points that "cover" a shorter time span are
+            // weighed less.
+            //   delta  0ms: 0.5
+            //   delta 10ms: 1.0
+            if(index == mIndex) {
+                return 1.0f;
+            }
+            tjs_uint32 nextIndex = (index + 1) % HISTORY_SIZE;
+            // float deltaMillis = (mMovements[nextIndex].eventTime-
+            // mMovements[index].eventTime) * 0.000001f;
+            float deltaMillis = (float)(mMovements[nextIndex].eventTime - mMovements[index].eventTime);
+            if(deltaMillis < 0) {
+                return 0.5f;
+            }
+            if(deltaMillis < 10) {
+                return 0.5f + deltaMillis * 0.05f;
+            }
             return 1.0f;
         }
-        tjs_uint32 nextIndex = (index + 1) % HISTORY_SIZE;
-        // float deltaMillis = (mMovements[nextIndex].eventTime-
-        // mMovements[index].eventTime) * 0.000001f;
-        float deltaMillis = (float)(mMovements[nextIndex].eventTime -
-                                    mMovements[index].eventTime);
-        if (deltaMillis < 0) {
+
+        case WEIGHTING_CENTRAL: {
+            // Weight points based on their age, weighing very recent and very old
+            // points less.
+            //   age  0ms: 0.5
+            //   age 10ms: 1.0
+            //   age 50ms: 1.0
+            //   age 60ms: 0.5
+            // float ageMillis = (mMovements[mIndex].eventTime -
+            // mMovements[index].eventTime) * 0.000001f;
+            float ageMillis = (float)(mMovements[mIndex].eventTime - mMovements[index].eventTime);
+            if(ageMillis < 0) {
+                return 0.5f;
+            }
+            if(ageMillis < 10) {
+                return 0.5f + ageMillis * 0.05f;
+            }
+            if(ageMillis < 50) {
+                return 1.0f;
+            }
+            if(ageMillis < 60) {
+                return 0.5f + (60 - ageMillis) * 0.05f;
+            }
             return 0.5f;
         }
-        if (deltaMillis < 10) {
-            return 0.5f + deltaMillis * 0.05f;
-        }
-        return 1.0f;
-    }
 
-    case WEIGHTING_CENTRAL: {
-        // Weight points based on their age, weighing very recent and very old
-        // points less.
-        //   age  0ms: 0.5
-        //   age 10ms: 1.0
-        //   age 50ms: 1.0
-        //   age 60ms: 0.5
-        // float ageMillis = (mMovements[mIndex].eventTime -
-        // mMovements[index].eventTime) * 0.000001f;
-        float ageMillis =
-            (float)(mMovements[mIndex].eventTime - mMovements[index].eventTime);
-        if (ageMillis < 0) {
+        case WEIGHTING_RECENT: {
+            // Weight points based on their age, weighing older points less.
+            //   age   0ms: 1.0
+            //   age  50ms: 1.0
+            //   age 100ms: 0.5
+            // float ageMillis = (mMovements[mIndex].eventTime -
+            // mMovements[index].eventTime) * 0.000001f;
+            float ageMillis = (float)(mMovements[mIndex].eventTime - mMovements[index].eventTime);
+            if(ageMillis < 50) {
+                return 1.0f;
+            }
+            if(ageMillis < 100) {
+                return 0.5f + (100 - ageMillis) * 0.01f;
+            }
             return 0.5f;
         }
-        if (ageMillis < 10) {
-            return 0.5f + ageMillis * 0.05f;
-        }
-        if (ageMillis < 50) {
-            return 1.0f;
-        }
-        if (ageMillis < 60) {
-            return 0.5f + (60 - ageMillis) * 0.05f;
-        }
-        return 0.5f;
-    }
 
-    case WEIGHTING_RECENT: {
-        // Weight points based on their age, weighing older points less.
-        //   age   0ms: 1.0
-        //   age  50ms: 1.0
-        //   age 100ms: 0.5
-        // float ageMillis = (mMovements[mIndex].eventTime -
-        // mMovements[index].eventTime) * 0.000001f;
-        float ageMillis =
-            (float)(mMovements[mIndex].eventTime - mMovements[index].eventTime);
-        if (ageMillis < 50) {
+        case WEIGHTING_NONE:
+        default:
             return 1.0f;
-        }
-        if (ageMillis < 100) {
-            return 0.5f + (100 - ageMillis) * 0.01f;
-        }
-        return 0.5f;
-    }
-
-    case WEIGHTING_NONE:
-    default:
-        return 1.0f;
     }
 }

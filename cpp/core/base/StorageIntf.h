@@ -47,7 +47,7 @@ public:
     void AddRef() { RefCount++; }
 
     void Release() {
-        if (RefCount == 1)
+        if(RefCount == 1)
             delete this;
         else
             RefCount--;
@@ -135,14 +135,12 @@ public:
     virtual bool TJS_INTF_METHOD CheckExistentStorage(const ttstr &name) = 0;
     // check file existence
 
-    virtual tTJSBinaryStream *TJS_INTF_METHOD Open(const ttstr &name,
-                                                   tjs_uint32 flags) = 0;
+    virtual tTJSBinaryStream *TJS_INTF_METHOD Open(const ttstr &name, tjs_uint32 flags) = 0;
     // open a storage and return a tTJSBinaryStream instance.
     // name does not contain in-archive storage name but
     // is normalized.
 
-    virtual void TJS_INTF_METHOD GetListAt(const ttstr &name,
-                                           iTVPStorageLister *lister) = 0;
+    virtual void TJS_INTF_METHOD GetListAt(const ttstr &name, iTVPStorageLister *lister) = 0;
     // list files at given place
 
     virtual void TJS_INTF_METHOD GetLocallyAccessibleName(ttstr &name) = 0;
@@ -220,8 +218,7 @@ TJS_EXP_FUNC_DEF(void, TVPRegisterStorageMedia, (iTVPStorageMedia * media));
 TJS_EXP_FUNC_DEF(void, TVPUnregisterStorageMedia, (iTVPStorageMedia * media));
 // remove storage media
 
-extern tTJSBinaryStream *TVPCreateStream(const ttstr &name,
-                                         tjs_uint32 flags = 0);
+extern tTJSBinaryStream *TVPCreateStream(const ttstr &name, tjs_uint32 flags = 0);
 // open "name" and return tTJSBinaryStream instance.
 // name will be local storage, network storage, in-archive storage, etc...
 
@@ -229,8 +226,7 @@ TJS_EXP_FUNC_DEF(bool, TVPIsExistentStorageNoSearch, (const ttstr &name));
 // if "name" is exists, return true. otherwise return false.
 // this does not search any auto search path.
 
-TJS_EXP_FUNC_DEF(bool, TVPIsExistentStorageNoSearchNoNormalize,
-                 (const ttstr &name));
+TJS_EXP_FUNC_DEF(bool, TVPIsExistentStorageNoSearchNoNormalize, (const ttstr &name));
 
 TJS_EXP_FUNC_DEF(ttstr, TVPNormalizeStorageName, (const ttstr &name));
 
@@ -310,7 +306,7 @@ protected:
     virtual void TJS_INTF_METHOD AddRef() override { refCount++; }
 
     virtual void TJS_INTF_METHOD Release() override {
-        if (refCount == 1) {
+        if(refCount == 1) {
             delete this;
         } else {
             refCount--;
@@ -321,8 +317,7 @@ protected:
 
     virtual void TJS_INTF_METHOD NormalizePathName(ttstr &name) override {}
 
-    virtual void TJS_INTF_METHOD
-    GetLocallyAccessibleName(ttstr &name) override {}
+    virtual void TJS_INTF_METHOD GetLocallyAccessibleName(ttstr &name) override {}
 };
 
 class TArchiveStream : public tTJSBinaryStream {
@@ -337,29 +332,29 @@ public:
     virtual ~TArchiveStream();
 
     virtual tjs_uint64 TJS_INTF_METHOD Seek(tjs_int64 offset, tjs_int whence) {
-        switch (whence) {
-        case TJS_BS_SEEK_SET:
-            CurrentPos = offset;
-            break;
+        switch(whence) {
+            case TJS_BS_SEEK_SET:
+                CurrentPos = offset;
+                break;
 
-        case TJS_BS_SEEK_CUR:
-            CurrentPos = offset + CurrentPos;
-            break;
+            case TJS_BS_SEEK_CUR:
+                CurrentPos = offset + CurrentPos;
+                break;
 
-        case TJS_BS_SEEK_END:
-            CurrentPos = offset + DataLength;
-            break;
+            case TJS_BS_SEEK_END:
+                CurrentPos = offset + DataLength;
+                break;
         }
-        if (CurrentPos < 0)
+        if(CurrentPos < 0)
             CurrentPos = 0;
-        else if (CurrentPos > (tjs_int64)DataLength)
+        else if(CurrentPos > (tjs_int64)DataLength)
             CurrentPos = DataLength;
         _instr->SetPosition(CurrentPos + StartPos);
         return CurrentPos;
     }
 
     virtual tjs_uint TJS_INTF_METHOD Read(void *buffer, tjs_uint read_size) {
-        if (CurrentPos + read_size >= (tjs_int64)DataLength) {
+        if(CurrentPos + read_size >= (tjs_int64)DataLength) {
             read_size = (tjs_uint)(DataLength - CurrentPos);
         }
 
@@ -370,10 +365,7 @@ public:
         return read_size;
     }
 
-    virtual tjs_uint TJS_INTF_METHOD Write(const void *buffer,
-                                           tjs_uint write_size) {
-        return 0;
-    }
+    virtual tjs_uint TJS_INTF_METHOD Write(const void *buffer, tjs_uint write_size) { return 0; }
 
     virtual tjs_uint64 TJS_INTF_METHOD GetSize() { return DataLength; }
 };

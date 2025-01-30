@@ -11,7 +11,7 @@
 
 请确保以下工具已正确安装：
 - [ninja@latest](https://github.com/ninja-build/ninja/releases)
-- [cmake@22+](https://cmake.org/download/)
+- [cmake@3.31.1+](https://cmake.org/download/)
 - [vcpkg@latest](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started)
 - [AndroidSDK@33](https://developer.android.com/tools/releases/platform-tools)
 - [AndroidNDK@27.2.12479018](https://developer.android.com/ndk/downloads)

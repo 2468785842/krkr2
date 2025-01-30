@@ -46,7 +46,7 @@ enum tTVPPadKeyFlag {
 #define TVP_NUM_PAD_KEY (4 + 10)
 // count of supported pad buttions (including cross keys)
 extern const int TVPPadVirtualKeyMap[TVP_NUM_PAD_KEY];
-extern tTVPWheelDetectionType TVPWheelDetectionType;   // = wdtDirectInput;
+extern tTVPWheelDetectionType TVPWheelDetectionType; // = wdtDirectInput;
 extern tTVPJoyPadDetectionType TVPJoyPadDetectionType; // = jdtDirectInput;
 
 //---------------------------------------------------------------------------
@@ -57,7 +57,7 @@ class tTVPKeyRepeatEmulator {
     bool Pressed;
     tjs_int LastRepeatCount;
 
-    static tjs_int HoldTime;     // keyboard key-repeats hold-time
+    static tjs_int HoldTime; // keyboard key-repeats hold-time
     static tjs_int IntervalTime; // keyboard key-repeats interval-time
 
     /*
@@ -136,8 +136,7 @@ public:
     ~tTVPPadDirectInputDevice();
 
 private:
-    static bool CALLBACK EnumJoySticksCallback(LPCDIDEVICEINSTANCE lpddi,
-                                               void *pvRef);
+    static bool CALLBACK EnumJoySticksCallback(LPCDIDEVICEINSTANCE lpddi, void *pvRef);
 
 private:
     void Update(tjs_uint32 newstate);

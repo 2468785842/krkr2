@@ -43,7 +43,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     FileUtils::setDelegate(TVPCreateCustomFileUtils());
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
-    if (!glview) {
+    if(!glview) {
         glview = GLViewImpl::create("kirikiri2 frame");
         director->setOpenGLView(glview);
 #if CC_PLATFORM_WIN32 == CC_TARGET_PLATFORM
@@ -52,13 +52,12 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     }
     // Set the design resolution
     Size screenSize = glview->getFrameSize();
-    if (screenSize.width < screenSize.height) {
+    if(screenSize.width < screenSize.height) {
         std::swap(screenSize.width, screenSize.height);
     }
     Size designSize = designResolutionSize;
     designSize.height = designSize.width * screenSize.height / screenSize.width;
-    glview->setDesignResolutionSize(screenSize.width, screenSize.height,
-                                    ResolutionPolicy::EXACT_FIT);
+    glview->setDesignResolutionSize(screenSize.width, screenSize.height, ResolutionPolicy::EXACT_FIT);
 
     Size frameSize = glview->getFrameSize();
 
@@ -96,9 +95,8 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
         [](float dt) {
             TVPMainScene::GetInstance()->unschedule("launch");
             TVPGlobalPreferenceForm::Initialize();
-            if (!TVPCheckStartupArg()) {
-                TVPMainScene::GetInstance()->pushUIForm(
-                    TVPMainFileSelectorForm::create());
+            if(!TVPCheckStartupArg()) {
+                TVPMainScene::GetInstance()->pushUIForm(TVPMainFileSelectorForm::create());
             }
         },
         0, "launch");
@@ -107,7 +105,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
 }
 
 void TVPAppDelegate::initGLContextAttrs() {
-    GLContextAttrs glContextAttrs = {8, 8, 8, 8, 24, 8};
+    GLContextAttrs glContextAttrs = { 8, 8, 8, 8, 24, 8 };
     GLView::setGLContextAttrs(glContextAttrs);
 }
 
@@ -117,6 +115,5 @@ void TVPAppDelegate::applicationScreenSizeChanged(int newWidth, int newHeight) {
 }
 
 void TVPOpenPatchLibUrl() {
-    cocos2d::Application::getInstance()->openURL(
-        "https://zeas2.github.io/Kirikiroid2_patch/patch");
+    cocos2d::Application::getInstance()->openURL("https://zeas2.github.io/Kirikiroid2_patch/patch");
 }

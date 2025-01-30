@@ -12,12 +12,12 @@ extern "C" {
 NS_KRMOVIE_BEGIN
 enum StreamType {
     STREAM_NONE = 0, // if unknown
-    STREAM_AUDIO,    // audio stream
-    STREAM_VIDEO,    // video stream
-    STREAM_DATA,     // data stream
-                     // 	STREAM_SUBTITLE,// subtitle stream
-                     // 	STREAM_TELETEXT, // Teletext data stream
-                     // 	STREAM_RADIO_RDS // Radio RDS data stream
+    STREAM_AUDIO, // audio stream
+    STREAM_VIDEO, // video stream
+    STREAM_DATA, // data stream
+                 // 	STREAM_SUBTITLE,// subtitle stream
+                 // 	STREAM_TELETEXT, // Teletext data stream
+                 // 	STREAM_RADIO_RDS // Radio RDS data stream
 };
 
 enum StreamSource {
@@ -66,21 +66,21 @@ public:
     unsigned int codec_fourcc; // if available
     int profile; // encoder profile of the stream reported by the decoder. used
                  // to qualify hw decoders.
-    int level;   // encoder level of the stream reported by the decoder. used to
-                 // qualify hw decoders.
+    int level; // encoder level of the stream reported by the decoder. used to
+               // qualify hw decoders.
     StreamType type;
     int source;
     bool realtime;
     unsigned int bandwidth;
 
-    int iDuration;          // in mseconds
-    void *pPrivate;         // private pointer for the demuxer
-    uint8_t *ExtraData;     // extra data for codec to use
+    int iDuration; // in mseconds
+    void *pPrivate; // private pointer for the demuxer
+    uint8_t *ExtraData; // extra data for codec to use
     unsigned int ExtraSize; // size of extra data
 
     char language[4]; // ISO 639 3-letter language code (empty string if
                       // undefined)
-    bool disabled;    // set when stream is disabled. (when no decoder exists)
+    bool disabled; // set when stream is disabled. (when no decoder exists)
 
     std::string codecName;
 
@@ -120,13 +120,13 @@ public:
 
     int iFpsScale; // scale of 1000 and a rate of 29970 will result in 29.97 fps
     int iFpsRate;
-    int iHeight;        // height of the stream reported by the demuxer
-    int iWidth;         // width of the stream reported by the demuxer
-    float fAspect;      // display aspect of stream
-    bool bVFR;          // variable framerate
-    bool bPTSInvalid;   // pts cannot be trusted (avi's).
+    int iHeight; // height of the stream reported by the demuxer
+    int iWidth; // width of the stream reported by the demuxer
+    float fAspect; // display aspect of stream
+    bool bVFR; // variable framerate
+    bool bPTSInvalid; // pts cannot be trusted (avi's).
     bool bForcedAspect; // aspect is forced from container
-    int iOrientation;   // orientation of the video in degress counter clockwise
+    int iOrientation; // orientation of the video in degress counter clockwise
     int iBitsPerPixel;
     std::string stereo_mode; // expected stereo mode
 };
@@ -175,28 +175,21 @@ public:
 
     virtual DemuxPacket *Read() = 0;
 
-    virtual bool SeekTime(int time, bool backwords = false,
-                          double *startpts = nullptr) = 0;
+    virtual bool SeekTime(int time, bool backwords = false, double *startpts = nullptr) = 0;
 
     virtual void SetSpeed(int iSpeed) = 0;
 
     virtual int GetStreamLength() = 0;
 
-    virtual CDemuxStream *GetStream(int64_t demuxerId, int iStreamId) const {
-        return GetStream(iStreamId);
-    };
+    virtual CDemuxStream *GetStream(int64_t demuxerId, int iStreamId) const { return GetStream(iStreamId); };
 
     virtual std::vector<CDemuxStream *> GetStreams() const = 0;
 
     virtual int GetNrOfStreams() const = 0;
 
-    virtual std::string GetStreamCodecName(int64_t demuxerId, int iStreamId) {
-        return GetStreamCodecName(iStreamId);
-    };
+    virtual std::string GetStreamCodecName(int64_t demuxerId, int iStreamId) { return GetStreamCodecName(iStreamId); };
 
-    virtual void EnableStream(int64_t demuxerId, int id, bool enable) {
-        EnableStream(id, enable);
-    };
+    virtual void EnableStream(int64_t demuxerId, int id, bool enable) { EnableStream(id, enable); };
 
     virtual void SetVideoResolution(int width, int height){};
 

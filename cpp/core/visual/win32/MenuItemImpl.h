@@ -35,8 +35,7 @@ class tTJSNI_MenuItem : public tTJSNI_BaseMenuItem {
 
 public:
     tTJSNI_MenuItem();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
     void TJS_INTF_METHOD Invalidate();
 
 private:
@@ -77,9 +76,7 @@ public:
 
     tjs_int TrackPopup(tjs_uint32 flags, tjs_int x, tjs_int y) const;
 
-    const ObjectVector<tTJSNI_BaseMenuItem> &GetChildren() const {
-        return Children;
-    }
+    const ObjectVector<tTJSNI_BaseMenuItem> &GetChildren() const { return Children; }
 
     //-- interface to plugin
     /*HMENU*/ void *GetMenuItemHandleForPlugin() const;
@@ -87,15 +84,10 @@ public:
 //---------------------------------------------------------------------------
 
 class WindowMenuProperty : public tTJSDispatch {
-    tjs_error TJS_INTF_METHOD PropGet(tjs_uint32 flag,
-                                      const tjs_char *membername,
-                                      tjs_uint32 *hint, tTJSVariant *result,
-                                      iTJSDispatch2 *objthis) override;
-    tjs_error TJS_INTF_METHOD PropSet(tjs_uint32 flag,
-                                      const tjs_char *membername,
-                                      tjs_uint32 *hint,
-                                      const tTJSVariant *param,
-                                      iTJSDispatch2 *objthis) override;
+    tjs_error TJS_INTF_METHOD PropGet(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
+                                      tTJSVariant *result, iTJSDispatch2 *objthis) override;
+    tjs_error TJS_INTF_METHOD PropSet(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
+                                      const tTJSVariant *param, iTJSDispatch2 *objthis) override;
 };
 
 void CreateShortCutKeyCodeTable();

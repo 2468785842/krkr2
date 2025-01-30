@@ -16,57 +16,53 @@
 
 tTVPTmpBitmapImage::tTVPTmpBitmapImage() : MetaInfo(nullptr) {}
 tTVPTmpBitmapImage::~tTVPTmpBitmapImage() {
-    if (bmp) {
+    if(bmp) {
         delete bmp;
         bmp = nullptr;
     }
-    if (MetaInfo) {
+    if(MetaInfo) {
         delete MetaInfo;
         MetaInfo = nullptr;
     }
 }
-tTVPImageLoadCommand::tTVPImageLoadCommand()
-    : owner_(nullptr), bmp_(nullptr), dest_(nullptr) {}
+tTVPImageLoadCommand::tTVPImageLoadCommand() : owner_(nullptr), bmp_(nullptr), dest_(nullptr) {}
 tTVPImageLoadCommand::~tTVPImageLoadCommand() {
-    if (owner_) {
+    if(owner_) {
         owner_->Release();
         owner_ = nullptr;
     }
-    if (dest_) {
+    if(dest_) {
         delete dest_;
         dest_ = nullptr;
     }
     bmp_ = nullptr;
 }
 
-static int TVPLoadGraphicAsync_SizeCallback(void *callbackdata, tjs_uint w,
-                                            tjs_uint h,
-                                            tTVPGraphicPixelFormat fmt) {
+static int TVPLoadGraphicAsync_SizeCallback(void *callbackdata, tjs_uint w, tjs_uint h, tTVPGraphicPixelFormat fmt) {
     tTVPTmpBitmapImage *img = (tTVPTmpBitmapImage *)callbackdata;
-    if (!img->bmp) {
+    if(!img->bmp) {
         img->bmp = new tTVPBitmap(w, h, 32);
-    } else if (img->bmp->GetWidth() != w || img->bmp->GetHeight() != h) {
+    } else if(img->bmp->GetWidth() != w || img->bmp->GetHeight() != h) {
         img->bmp->Release();
         img->bmp = new tTVPBitmap(w, h, 32);
     }
-    switch (fmt) {
-    case gpfLuminance:
-    case gpfRGB:
-        img->bmp->IsOpaque = true;
-        break;
-    case gpfPalette:
-    case gpfRGBA:
-        img->bmp->IsOpaque = false;
-        break;
+    switch(fmt) {
+        case gpfLuminance:
+        case gpfRGB:
+            img->bmp->IsOpaque = true;
+            break;
+        case gpfPalette:
+        case gpfRGBA:
+            img->bmp->IsOpaque = false;
+            break;
     }
     return img->bmp->GetPitch();
 }
 //---------------------------------------------------------------------------
-static void *TVPLoadGraphicAsync_ScanLineCallback(void *callbackdata,
-                                                  tjs_int y) {
+static void *TVPLoadGraphicAsync_ScanLineCallback(void *callbackdata, tjs_int y) {
     tTVPTmpBitmapImage *img = (tTVPTmpBitmapImage *)callbackdata;
-    if (y >= 0) {
-        if (y < (tjs_int)img->bmp->GetHeight()) {
+    if(y >= 0) {
+        if(y < (tjs_int)img->bmp->GetHeight()) {
             return img->bmp->GetScanLine(y);
         } else {
             return nullptr;
@@ -75,31 +71,28 @@ static void *TVPLoadGraphicAsync_ScanLineCallback(void *callbackdata,
     return nullptr; // -1 の時のフラッシュ処理は何もしない
 }
 //---------------------------------------------------------------------------
-static void TVPLoadGraphicAsync_MetaInfoPushCallback(void *callbackdata,
-                                                     const ttstr &name,
-                                                     const ttstr &value) {
+static void TVPLoadGraphicAsync_MetaInfoPushCallback(void *callbackdata, const ttstr &name, const ttstr &value) {
     tTVPTmpBitmapImage *img = (tTVPTmpBitmapImage *)callbackdata;
 
-    if (!img->MetaInfo)
+    if(!img->MetaInfo)
         img->MetaInfo = new std::vector<tTVPGraphicMetaInfoPair>();
     img->MetaInfo->push_back(tTVPGraphicMetaInfoPair(name, value));
 }
 //---------------------------------------------------------------------------
 
-tTVPAsyncImageLoader::tTVPAsyncImageLoader()
-    : EventQueue(this, &tTVPAsyncImageLoader::Proc), tTVPThread(true) {
+tTVPAsyncImageLoader::tTVPAsyncImageLoader() : EventQueue(this, &tTVPAsyncImageLoader::Proc), tTVPThread(true) {
     EventQueue.Allocate();
 }
 tTVPAsyncImageLoader::~tTVPAsyncImageLoader() {
     ExitRequest();
     WaitFor();
     EventQueue.Deallocate();
-    while (CommandQueue.size() > 0) {
+    while(CommandQueue.size() > 0) {
         tTVPImageLoadCommand *cmd = CommandQueue.front();
         CommandQueue.pop();
         delete cmd;
     }
-    while (LoadedQueue.size() > 0) {
+    while(LoadedQueue.size() > 0) {
         tTVPImageLoadCommand *cmd = LoadedQueue.front();
         LoadedQueue.pop();
         delete cmd;
@@ -119,7 +112,7 @@ void tTVPAsyncImageLoader::SendToLoadFinish() {
     EventQueue.PostEvent(ev);
 }
 void tTVPAsyncImageLoader::Proc(NativeEvent &ev) {
-    if (ev.Message != TVP_EV_IMAGE_LOAD_THREAD) {
+    if(ev.Message != TVP_EV_IMAGE_LOAD_THREAD) {
         EventQueue.HandlerDefault(ev);
         return;
     }
@@ -132,44 +125,37 @@ void tTVPAsyncImageLoader::HandleLoadedImage() {
         tTVPImageLoadCommand *cmd = nullptr;
         {
             tTJSCriticalSectionHolder cs(ImageQueueCS);
-            if (LoadedQueue.size() > 0) {
+            if(LoadedQueue.size() > 0) {
                 cmd = LoadedQueue.front();
                 LoadedQueue.pop();
                 loading = true;
             }
         }
-        if (cmd != nullptr) {
+        if(cmd != nullptr) {
             cmd->bmp_->SetLoading(false);
-            if (cmd->result_.length() > 0) {
+            if(cmd->result_.length() > 0) {
                 // error
                 tTJSVariant param[4];
-                param[0] = tTJSVariant((iTJSDispatch2 *)nullptr,
-                                       (iTJSDispatch2 *)nullptr);
-                param[1] = 1;            // true async
-                param[2] = 1;            // true error
+                param[0] = tTJSVariant((iTJSDispatch2 *)nullptr, (iTJSDispatch2 *)nullptr);
+                param[1] = 1; // true async
+                param[2] = 1; // true error
                 param[3] = cmd->result_; // error_mes
                 static ttstr eventname(TJS_W("onLoaded"));
-                if (cmd->owner_ &&
-                    cmd->owner_->IsValid(0, nullptr, nullptr, cmd->owner_) ==
-                        TJS_S_TRUE) {
-                    TVPPostEvent(cmd->owner_, cmd->owner_, eventname, 0,
-                                 TVP_EPT_IMMEDIATE, 4, param);
+                if(cmd->owner_ && cmd->owner_->IsValid(0, nullptr, nullptr, cmd->owner_) == TJS_S_TRUE) {
+                    TVPPostEvent(cmd->owner_, cmd->owner_, eventname, 0, TVP_EPT_IMMEDIATE, 4, param);
                 }
 
-                if (cmd->dest_->MetaInfo) {
+                if(cmd->dest_->MetaInfo) {
                     delete cmd->dest_->MetaInfo;
                     cmd->dest_->MetaInfo = nullptr;
                 }
             } else {
-                iTJSDispatch2 *metainfo =
-                    TVPMetaInfoPairsToDictionary(cmd->dest_->MetaInfo);
+                iTJSDispatch2 *metainfo = TVPMetaInfoPairsToDictionary(cmd->dest_->MetaInfo);
 
                 cmd->bmp_->SetSizeAndImageBuffer(cmd->dest_->bmp);
                 // 読込み完了時にもキャッシュチェック(非同期なので完了前に読み込まれている可能性あり)
-                if (TVPHasImageCache(cmd->path_, glmNormal, 0, 0, TVP_clNone) ==
-                    false) {
-                    TVPPushGraphicCache(cmd->path_, cmd->dest_->bmp,
-                                        cmd->dest_->MetaInfo);
+                if(TVPHasImageCache(cmd->path_, glmNormal, 0, 0, TVP_clNone) == false) {
+                    TVPPushGraphicCache(cmd->path_, cmd->dest_->bmp, cmd->dest_->MetaInfo);
                     cmd->dest_->MetaInfo = nullptr;
                 } else {
                     delete cmd->dest_->MetaInfo;
@@ -180,60 +166,54 @@ void tTVPAsyncImageLoader::HandleLoadedImage() {
 
                 tTJSVariant param[4];
                 param[0] = tTJSVariant(metainfo, metainfo);
-                if (metainfo)
+                if(metainfo)
                     metainfo->Release();
-                param[1] = 1;         // true async
-                param[2] = 0;         // false error
+                param[1] = 1; // true async
+                param[2] = 0; // false error
                 param[3] = TJS_W(""); // error_mes
                 static ttstr eventname(TJS_W("onLoaded"));
-                if (cmd->owner_ &&
-                    cmd->owner_->IsValid(0, nullptr, nullptr, cmd->owner_) ==
-                        TJS_S_TRUE) {
-                    TVPPostEvent(cmd->owner_, cmd->owner_, eventname, 0,
-                                 TVP_EPT_IMMEDIATE, 4, param);
+                if(cmd->owner_ && cmd->owner_->IsValid(0, nullptr, nullptr, cmd->owner_) == TJS_S_TRUE) {
+                    TVPPostEvent(cmd->owner_, cmd->owner_, eventname, 0, TVP_EPT_IMMEDIATE, 4, param);
                 }
             }
             delete cmd;
         }
-    } while (loading);
+    } while(loading);
 }
 //---------------------------------------------------------------------------
 
 // onLoaded( dic, is_async, is_error, error_mes ); エラーは
 // sync ( main thead )
-void tTVPAsyncImageLoader::LoadRequest(iTJSDispatch2 *owner, tTJSNI_Bitmap *bmp,
-                                       const ttstr &name) {
+void tTVPAsyncImageLoader::LoadRequest(iTJSDispatch2 *owner, tTJSNI_Bitmap *bmp, const ttstr &name) {
     // tTVPBaseBitmap* dest = new tTVPBaseBitmap( 32, 32, 32 );
     tTVPBaseBitmap dest(TVPGetInitialBitmap());
     iTJSDispatch2 *metainfo = nullptr;
     ttstr nname = TVPNormalizeStorageName(name);
-    if (TVPCheckImageCache(nname, &dest, glmNormal, 0, 0, TVP_clNone,
-                           &metainfo)) {
+    if(TVPCheckImageCache(nname, &dest, glmNormal, 0, 0, TVP_clNone, &metainfo)) {
         // キャッシュ内に発見、即座に読込みを完了する
-        if (bmp) {
+        if(bmp) {
             bmp->CopyFrom(&dest);
             bmp->SetLoading(false);
         }
-        if (!owner)
+        if(!owner)
             return;
         tTJSVariant param[4];
         param[0] = tTJSVariant(metainfo, metainfo);
-        if (metainfo)
+        if(metainfo)
             metainfo->Release();
-        param[1] = 0;         // false
-        param[2] = 0;         // false
+        param[1] = 0; // false
+        param[2] = 0; // false
         param[3] = TJS_W(""); // error_mes
         static ttstr eventname(TJS_W("onLoaded"));
         TVPPostEvent(owner, owner, eventname, 0, TVP_EPT_IMMEDIATE, 4, param);
         return;
     }
-    if (TVPIsExistentStorage(name) == false) {
+    if(TVPIsExistentStorage(name) == false) {
         TVPThrowExceptionMessage(TVPCannotFindStorage, name);
     }
     ttstr ext = TVPExtractStorageExt(name);
-    if (ext == TJS_W("")) {
-        TVPThrowExceptionMessage(TJS_W("Filename extension not found/%1"),
-                                 name);
+    if(ext == TJS_W("")) {
+        TVPThrowExceptionMessage(TJS_W("Filename extension not found/%1"), name);
     }
 
     PushLoadQueue(owner, bmp, nname);
@@ -243,12 +223,10 @@ void tTVPAsyncImageLoader::LoadRequest(iTJSDispatch2 *owner, tTJSNI_Bitmap *bmp,
 //	tTJSBinaryStream* stream = TVPCreateStream(nname, TJS_BS_READ);
 // TVPCreateStream はロックされているので、非同期で実行可能
 
-void tTVPAsyncImageLoader::PushLoadQueue(iTJSDispatch2 *owner,
-                                         tTJSNI_Bitmap *bmp,
-                                         const ttstr &nname) {
+void tTVPAsyncImageLoader::PushLoadQueue(iTJSDispatch2 *owner, tTJSNI_Bitmap *bmp, const ttstr &nname) {
     tTVPImageLoadCommand *cmd = new tTVPImageLoadCommand();
     cmd->owner_ = owner;
-    if (owner)
+    if(owner)
         owner->AddRef();
     cmd->bmp_ = bmp;
     cmd->path_ = nname;
@@ -263,10 +241,10 @@ void tTVPAsyncImageLoader::PushLoadQueue(iTJSDispatch2 *owner,
     PushCommandQueueEvent.Set();
 }
 void tTVPAsyncImageLoader::LoadingThread() {
-    while (!GetTerminated()) {
+    while(!GetTerminated()) {
         // キュー追加イベント待ち
         PushCommandQueueEvent.WaitFor(0);
-        if (GetTerminated())
+        if(GetTerminated())
             break;
         bool loading;
         do {
@@ -275,12 +253,12 @@ void tTVPAsyncImageLoader::LoadingThread() {
 
             { // Lock
                 tTJSCriticalSectionHolder cs(CommandQueueCS);
-                if (CommandQueue.size()) {
+                if(CommandQueue.size()) {
                     cmd = CommandQueue.front();
                     CommandQueue.pop();
                 }
             }
-            if (cmd) {
+            if(cmd) {
                 loading = true;
                 LoadImageFromCommand(cmd);
                 { // Lock
@@ -290,7 +268,7 @@ void tTVPAsyncImageLoader::LoadingThread() {
                 // Send to message
                 SendToLoadFinish();
             }
-        } while (loading && !GetTerminated());
+        } while(loading && !GetTerminated());
     }
 }
 tTVPGraphicHandlerType *TVPGuessGraphicLoadHandler(ttstr &name);
@@ -298,22 +276,20 @@ void tTVPAsyncImageLoader::LoadImageFromCommand(tTVPImageLoadCommand *cmd) {
     ttstr ext = TVPExtractStorageExt(cmd->path_);
     tTVPGraphicHandlerType *handler = nullptr;
     ttstr name(cmd->path_);
-    if (ext.IsEmpty()) {
+    if(ext.IsEmpty()) {
         // missing extension
         handler = TVPGuessGraphicLoadHandler(name);
         //		cmd->result_ = TJS_W("Filename extension not found");
     } else {
         handler = TVPGetGraphicLoadHandler(ext);
     }
-    if (handler) {
+    if(handler) {
         try {
             tTVPStreamHolder holder(name);
-            handler->Load(handler->FormatData, (void *)cmd->dest_,
-                          TVPLoadGraphicAsync_SizeCallback,
-                          TVPLoadGraphicAsync_ScanLineCallback,
-                          TVPLoadGraphicAsync_MetaInfoPushCallback,
-                          holder.Get(), -1, glmNormal);
-        } catch (...) {
+            handler->Load(handler->FormatData, (void *)cmd->dest_, TVPLoadGraphicAsync_SizeCallback,
+                          TVPLoadGraphicAsync_ScanLineCallback, TVPLoadGraphicAsync_MetaInfoPushCallback, holder.Get(),
+                          -1, glmNormal);
+        } catch(...) {
             // 例外は全てキャッチ
             cmd->result_ = TVPFormatMessage(TVPImageLoadError, cmd->path_);
         }

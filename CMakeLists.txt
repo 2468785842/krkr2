@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.28)
 
 set(VCPKG_TARGET_ANDROID ON)
 
@@ -16,19 +16,12 @@ set(KRKR2PLUGIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/plugins)
 
 add_library(${PROJECT_NAME} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/cpp/krkr2_android.cpp)
 
-include(cmake/AndroidNdkModules.cmake)
-
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
 
 # build library
 add_subdirectory(${KRKR2CORE_PATH})
 add_subdirectory(${KRKR2PLUGIN_PATH})
 
-find_package(cocos2dx CONFIG REQUIRED)
-
 target_link_libraries(${PROJECT_NAME} PUBLIC
-    -Wl,-Bstatic
-    -Wl,--whole-archive
-    cocos2dx::cpp_android_spec krkr2plugin krkr2core
-    -Wl,--no-whole-archive
+    krkr2plugin krkr2core
 )

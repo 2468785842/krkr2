@@ -16,27 +16,27 @@
 #include "tjsNative.h"
 
 namespace TJS {
-//---------------------------------------------------------------------------
-class tTJSNI_Date : public tTJSNativeInstance {
-public:
-    tTJSNI_Date();
+    //---------------------------------------------------------------------------
+    class tTJSNI_Date : public tTJSNativeInstance {
+    public:
+        tTJSNI_Date();
 
-    time_t DateTime;
+        time_t DateTime;
 
-private:
-};
+    private:
+    };
 
-//---------------------------------------------------------------------------
-class tTJSNC_Date : public tTJSNativeClass {
-public:
-    tTJSNC_Date();
+    //---------------------------------------------------------------------------
+    class tTJSNC_Date : public tTJSNativeClass {
+    public:
+        tTJSNC_Date();
 
-    static tjs_uint32 ClassID;
+        static tjs_uint32 ClassID;
 
-private:
-    tTJSNativeInstance *CreateNativeInstance();
-};
-//---------------------------------------------------------------------------
+    private:
+        tTJSNativeInstance *CreateNativeInstance();
+    };
+    //---------------------------------------------------------------------------
 } // namespace TJS
 
 #endif

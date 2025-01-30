@@ -31,7 +31,8 @@
 #include <vector>
 #include <algorithm>
 
-template <typename T> class CPointGen {
+template <typename T>
+class CPointGen {
 public:
     typedef CPointGen<T> this_type;
 
@@ -45,7 +46,8 @@ public:
         y = b;
     };
 
-    template <class U> CPointGen<T>(const CPointGen<U> &rhs) {
+    template <class U>
+    CPointGen<T>(const CPointGen<U> &rhs) {
         x = rhs.x;
         y = rhs.y;
     }
@@ -77,9 +79,9 @@ public:
     };
 
     bool operator!=(const this_type &point) const {
-        if (x != point.x)
+        if(x != point.x)
             return true;
-        if (y != point.y)
+        if(y != point.y)
             return true;
         return false;
     };
@@ -87,7 +89,8 @@ public:
     T x, y;
 };
 
-template <typename T> class CRectGen {
+template <typename T>
+class CRectGen {
 public:
     typedef CRectGen<T> this_type;
 
@@ -107,7 +110,8 @@ public:
         y2 = p2.y;
     }
 
-    template <class U> CRectGen<T>(const CRectGen<U> &rhs) {
+    template <class U>
+    CRectGen<T>(const CRectGen<U> &rhs) {
         x1 = rhs.x1;
         y1 = rhs.y1;
         x2 = rhs.x2;
@@ -122,13 +126,12 @@ public:
     };
 
     bool PtInRect(const CPointGen<T> &point) const {
-        if (x1 <= point.x && point.x <= x2 && y1 <= point.y && point.y <= y2)
+        if(x1 <= point.x && point.x <= x2 && y1 <= point.y && point.y <= y2)
             return true;
         return false;
     };
 
-    inline const this_type &
-    operator-=(const CPointGen<T> &point) XBMC_FORCE_INLINE {
+    inline const this_type &operator-=(const CPointGen<T> &point) XBMC_FORCE_INLINE {
         x1 -= point.x;
         y1 -= point.y;
         x2 -= point.x;
@@ -136,8 +139,7 @@ public:
         return *this;
     };
 
-    inline const this_type &
-    operator+=(const CPointGen<T> &point) XBMC_FORCE_INLINE {
+    inline const this_type &operator+=(const CPointGen<T> &point) XBMC_FORCE_INLINE {
         x1 += point.x;
         y1 += point.y;
         x2 += point.x;
@@ -154,9 +156,9 @@ public:
     };
 
     const this_type &Union(const this_type &rect) {
-        if (IsEmpty())
+        if(IsEmpty())
             *this = rect;
-        else if (!rect.IsEmpty()) {
+        else if(!rect.IsEmpty()) {
             x1 = std::min(x1, rect.x1);
             y1 = std::min(y1, rect.y1);
 
@@ -167,17 +169,11 @@ public:
         return *this;
     };
 
-    inline bool IsEmpty() const XBMC_FORCE_INLINE {
-        return (x2 - x1) * (y2 - y1) == 0;
-    };
+    inline bool IsEmpty() const XBMC_FORCE_INLINE { return (x2 - x1) * (y2 - y1) == 0; };
 
-    inline CPointGen<T> P1() const XBMC_FORCE_INLINE {
-        return CPointGen<T>(x1, y1);
-    }
+    inline CPointGen<T> P1() const XBMC_FORCE_INLINE { return CPointGen<T>(x1, y1); }
 
-    inline CPointGen<T> P2() const XBMC_FORCE_INLINE {
-        return CPointGen<T>(x2, y2);
-    }
+    inline CPointGen<T> P2() const XBMC_FORCE_INLINE { return CPointGen<T>(x2, y2); }
 
     inline T Width() const XBMC_FORCE_INLINE { return x2 - x1; };
 
@@ -189,29 +185,27 @@ public:
         std::vector<this_type> newRectaglesList;
         this_type intersection = splitterRect.Intersect(*this);
 
-        if (!intersection.IsEmpty()) {
+        if(!intersection.IsEmpty()) {
             this_type add;
 
             // add rect above intersection if not empty
             add = this_type(x1, y1, x2, intersection.y1);
-            if (!add.IsEmpty())
+            if(!add.IsEmpty())
                 newRectaglesList.push_back(add);
 
             // add rect below intersection if not empty
             add = this_type(x1, intersection.y2, x2, y2);
-            if (!add.IsEmpty())
+            if(!add.IsEmpty())
                 newRectaglesList.push_back(add);
 
             // add rect left intersection if not empty
-            add = this_type(x1, intersection.y1, intersection.x1,
-                            intersection.y2);
-            if (!add.IsEmpty())
+            add = this_type(x1, intersection.y1, intersection.x1, intersection.y2);
+            if(!add.IsEmpty())
                 newRectaglesList.push_back(add);
 
             // add rect right intersection if not empty
-            add = this_type(intersection.x2, intersection.y1, x2,
-                            intersection.y2);
-            if (!add.IsEmpty())
+            add = this_type(intersection.x2, intersection.y1, x2, intersection.y2);
+            if(!add.IsEmpty())
                 newRectaglesList.push_back(add);
         } else {
             newRectaglesList.push_back(*this);
@@ -220,41 +214,35 @@ public:
         return newRectaglesList;
     }
 
-    std::vector<this_type>
-    SubtractRects(std::vector<this_type> intersectionList) {
+    std::vector<this_type> SubtractRects(std::vector<this_type> intersectionList) {
         std::vector<this_type> fragmentsList;
         fragmentsList.push_back(*this);
 
-        for (typename std::vector<this_type>::iterator splitter =
-                 intersectionList.begin();
-             splitter != intersectionList.end(); ++splitter) {
+        for(typename std::vector<this_type>::iterator splitter = intersectionList.begin();
+            splitter != intersectionList.end(); ++splitter) {
             typename std::vector<this_type> toAddList;
 
-            for (typename std::vector<this_type>::iterator fragment =
-                     fragmentsList.begin();
-                 fragment != fragmentsList.end(); ++fragment) {
-                std::vector<this_type> newFragmentsList =
-                    fragment->SubtractRect(*splitter);
-                toAddList.insert(toAddList.end(), newFragmentsList.begin(),
-                                 newFragmentsList.end());
+            for(typename std::vector<this_type>::iterator fragment = fragmentsList.begin();
+                fragment != fragmentsList.end(); ++fragment) {
+                std::vector<this_type> newFragmentsList = fragment->SubtractRect(*splitter);
+                toAddList.insert(toAddList.end(), newFragmentsList.begin(), newFragmentsList.end());
             }
 
             fragmentsList.clear();
-            fragmentsList.insert(fragmentsList.end(), toAddList.begin(),
-                                 toAddList.end());
+            fragmentsList.insert(fragmentsList.end(), toAddList.begin(), toAddList.end());
         }
 
         return fragmentsList;
     }
 
     bool operator!=(const this_type &rect) const {
-        if (x1 != rect.x1)
+        if(x1 != rect.x1)
             return true;
-        if (x2 != rect.x2)
+        if(x2 != rect.x2)
             return true;
-        if (y1 != rect.y1)
+        if(y1 != rect.y1)
             return true;
-        if (y2 != rect.y2)
+        if(y2 != rect.y2)
             return true;
         return false;
     };
@@ -262,9 +250,7 @@ public:
     T x1, y1, x2, y2;
 
 private:
-    inline static T clamp_range(T x, T l, T h) XBMC_FORCE_INLINE {
-        return (x > h) ? h : ((x < l) ? l : x);
-    }
+    inline static T clamp_range(T x, T l, T h) XBMC_FORCE_INLINE { return (x > h) ? h : ((x < l) ? l : x); }
 };
 
 typedef CPointGen<float> CPoint;

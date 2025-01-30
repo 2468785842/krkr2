@@ -15,71 +15,67 @@
 #include "tjsString.h"
 
 namespace TJS {
-//---------------------------------------------------------------------------
-// this class maps message and its object
-//---------------------------------------------------------------------------
-extern void TJSAddRefMessageMapper();
+    //---------------------------------------------------------------------------
+    // this class maps message and its object
+    //---------------------------------------------------------------------------
+    extern void TJSAddRefMessageMapper();
 
-extern void TJSReleaseMessageMapper();
+    extern void TJSReleaseMessageMapper();
 
-class tTJSMessageHolder;
+    class tTJSMessageHolder;
 
-extern void TJSRegisterMessageMap(const tjs_char *name,
-                                  tTJSMessageHolder *holder);
+    extern void TJSRegisterMessageMap(const tjs_char *name, tTJSMessageHolder *holder);
 
-extern void TJSUnregisterMessageMap(const tjs_char *name);
+    extern void TJSUnregisterMessageMap(const tjs_char *name);
 
-extern bool TJSAssignMessage(const tjs_char *name, const tjs_char *newmsg);
+    extern bool TJSAssignMessage(const tjs_char *name, const tjs_char *newmsg);
 
-extern ttstr TJSCreateMessageMapString();
+    extern ttstr TJSCreateMessageMapString();
 
-TJS_EXP_FUNC_DEF(ttstr, TJSGetMessageMapMessage, (const tjs_char *name));
-//---------------------------------------------------------------------------
+    TJS_EXP_FUNC_DEF(ttstr, TJSGetMessageMapMessage, (const tjs_char *name));
+    //---------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
-// a simple class to hold message
-// this holder should be created as a static object
-//---------------------------------------------------------------------------
-class tTJSMessageHolder {
-    const tjs_char *Name;
-    const tjs_char *DefaultMessage;
-    tjs_char *AssignedMessage;
+    //---------------------------------------------------------------------------
+    // a simple class to hold message
+    // this holder should be created as a static object
+    //---------------------------------------------------------------------------
+    class tTJSMessageHolder {
+        const tjs_char *Name;
+        const tjs_char *DefaultMessage;
+        tjs_char *AssignedMessage;
 
-public:
-    tTJSMessageHolder(const tjs_char *name, const tjs_char *defmsg,
-                      bool regist = true) {
-        /* "name" and "defmsg" must point static area */
-        AssignedMessage = nullptr;
-        Name = nullptr;
-        DefaultMessage = defmsg;
-        TJSAddRefMessageMapper();
-        if (regist) {
-            Name = name;
-            TJSRegisterMessageMap(Name, this);
+    public:
+        tTJSMessageHolder(const tjs_char *name, const tjs_char *defmsg, bool regist = true) {
+            /* "name" and "defmsg" must point static area */
+            AssignedMessage = nullptr;
+            Name = nullptr;
+            DefaultMessage = defmsg;
+            TJSAddRefMessageMapper();
+            if(regist) {
+                Name = name;
+                TJSRegisterMessageMap(Name, this);
+            }
         }
-    }
 
-    ~tTJSMessageHolder() {
-        if (Name)
-            TJSUnregisterMessageMap(Name);
-        if (AssignedMessage)
-            delete[] AssignedMessage, AssignedMessage = nullptr;
-        TJSReleaseMessageMapper();
-    }
+        ~tTJSMessageHolder() {
+            if(Name)
+                TJSUnregisterMessageMap(Name);
+            if(AssignedMessage)
+                delete[] AssignedMessage, AssignedMessage = nullptr;
+            TJSReleaseMessageMapper();
+        }
 
-    void AssignMessage(const tjs_char *msg) {
-        if (AssignedMessage)
-            delete[] AssignedMessage, AssignedMessage = nullptr;
-        AssignedMessage = new tjs_char[TJS_strlen(msg) + 1];
-        TJS_strcpy(AssignedMessage, msg);
-    }
+        void AssignMessage(const tjs_char *msg) {
+            if(AssignedMessage)
+                delete[] AssignedMessage, AssignedMessage = nullptr;
+            AssignedMessage = new tjs_char[TJS_strlen(msg) + 1];
+            TJS_strcpy(AssignedMessage, msg);
+        }
 
-    operator const tjs_char *() {
-        return AssignedMessage ? AssignedMessage : DefaultMessage;
-    }
-    /* this function may called after destruction */
-};
-//---------------------------------------------------------------------------
+        operator const tjs_char *() { return AssignedMessage ? AssignedMessage : DefaultMessage; }
+        /* this function may called after destruction */
+    };
+    //---------------------------------------------------------------------------
 } // namespace TJS
 
 extern ttstr TVPGetMessageByLocale(const std::string &key);

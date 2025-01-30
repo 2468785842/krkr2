@@ -47,8 +47,7 @@ class tTJSNI_VideoOverlay : public tTJSNI_BaseVideoOverlay {
     tTVPLocalTempStorageHolder *LocalTempStorageHolder;
     class tTJSNI_BaseLayer *Layer1;
     class tTJSNI_BaseLayer *Layer2;
-    tTVPVideoOverlayMode
-        Mode; //!< Modeの動的な変更は出来ない。open前にセットしておくこと
+    tTVPVideoOverlayMode Mode; //!< Modeの動的な変更は出来ない。open前にセットしておくこと
     bool Loop;
 
     class tTVPBaseTexture *Bitmap[2]; //!< Layer描画用バッファ用Bitmap
@@ -57,7 +56,7 @@ class tTJSNI_VideoOverlay : public tTJSNI_BaseVideoOverlay {
     bool IsPrepare; //!< 準備モードかどうか
 
     int SegLoopStartFrame; //!< セグメントループ開始フレーム
-    int SegLoopEndFrame;   //!< セグメントループ終了フレーム
+    int SegLoopEndFrame; //!< セグメントループ終了フレーム
 
     //! イベントが設定された時、現在フレームの方が進んでいたかどうか。
     //! イベントが設定されているフレームより前に現在フレームが移動した時、このフラグは解除される。
@@ -66,8 +65,7 @@ class tTJSNI_VideoOverlay : public tTJSNI_BaseVideoOverlay {
 
 public:
     tTJSNI_VideoOverlay();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
     void TJS_INTF_METHOD Invalidate();
 
 public:

@@ -24,19 +24,18 @@
 */
 
 //---------------------------------------------------------------------------
-tTJSBinaryStream *TVPCreateBinaryStreamForRead(const ttstr &name,
-                                               const ttstr &modestr) {
+tTJSBinaryStream *TVPCreateBinaryStreamForRead(const ttstr &name, const ttstr &modestr) {
     // check o mode
     tTJSBinaryStream *stream = TVPCreateStream(name, TJS_BS_READ);
 
     const tjs_char *o_ofs = TJS_strchr(modestr.c_str(), TJS_W('o'));
-    if (o_ofs != nullptr) {
+    if(o_ofs != nullptr) {
         // seek to offset
         o_ofs++;
         tjs_char buf[256];
         int i;
-        for (i = 0; i < 255; i++) {
-            if (o_ofs[i] >= TJS_W('0') && o_ofs[i] <= TJS_W('9'))
+        for(i = 0; i < 255; i++) {
+            if(o_ofs[i] >= TJS_W('0') && o_ofs[i] <= TJS_W('9'))
                 buf[i] = o_ofs[i];
             else
                 break;
@@ -49,19 +48,18 @@ tTJSBinaryStream *TVPCreateBinaryStreamForRead(const ttstr &name,
 }
 
 //---------------------------------------------------------------------------
-tTJSBinaryStream *TVPCreateBinaryStreamForWrite(const ttstr &name,
-                                                const ttstr &modestr) {
+tTJSBinaryStream *TVPCreateBinaryStreamForWrite(const ttstr &name, const ttstr &modestr) {
     tTJSBinaryStream *stream;
     // check o mode
     const tjs_char *o_ofs;
     o_ofs = TJS_strchr(modestr.c_str(), TJS_W('o'));
-    if (o_ofs != nullptr) {
+    if(o_ofs != nullptr) {
         // seek to offset
         o_ofs++;
         tjs_char buf[256];
         int i;
-        for (i = 0; i < 255; i++) {
-            if (o_ofs[i] >= TJS_W('0') && o_ofs[i] <= TJS_W('9'))
+        for(i = 0; i < 255; i++) {
+            if(o_ofs[i] >= TJS_W('0') && o_ofs[i] <= TJS_W('9'))
                 buf[i] = o_ofs[i];
             else
                 break;

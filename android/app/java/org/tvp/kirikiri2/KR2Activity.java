@@ -6,13 +6,14 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.graphics.PixelFormat;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,7 +31,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -414,42 +414,28 @@ public class KR2Activity extends Cocos2dxActivity implements ActivityCompat.OnRe
     }
 
     StorageManager mStorageManager = null;
-    Method mMethodGetPaths = null;
-    Method mGetVolumeState = null;
 
     public String[] getStoragePath() {
-        String[] ret = new String[0];
-        if (mStorageManager == null) {
-            mStorageManager = (StorageManager) getSystemService(STORAGE_SERVICE);
-            try {
-                mMethodGetPaths = StorageManager.class.getMethod("getVolumePaths");
-                mGetVolumeState = StorageManager.class.getMethod("getVolumeState", String.class);
-            } catch (NoSuchMethodException e) {
-                Log.e("getStorage failed", String.valueOf(e));
-            }
-        }
-        if (mMethodGetPaths != null) {
-            try {
-                ret = (String[]) mMethodGetPaths.invoke(mStorageManager);
-            } catch (Exception ignored) {
-
-            }
-        }
-
-        if (mGetVolumeState != null) {
-            try {
-                for (int i = 0; i < Objects.requireNonNull(ret).length; ++i) {
-                    String status = (String) mGetVolumeState.invoke(mStorageManager, ret[i]);
-                    if (!Environment.MEDIA_MOUNTED.equals(status) && !Environment.MEDIA_MOUNTED_READ_ONLY.equals(status)) {
-                        ret[i] = null;
-                    }
+        List<String> storagePaths = new ArrayList<>();
+        if (mStorageManager != null) {
+            for (StorageVolume volume : mStorageManager.getStorageVolumes()) {
+                String volumeState = volume.getState();
+                if (!Environment.MEDIA_MOUNTED.equals(volumeState) && !Environment.MEDIA_MOUNTED_READ_ONLY.equals(volumeState)) {
+                    break;
                 }
-            } catch (Exception ignored) {
-
+                File volumeFile = null;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // API 30+
+                    volumeFile = volume.getDirectory();
+                } else if (volume.isPrimary()) {
+                    volumeFile = Environment.getExternalStorageDirectory();
+                }
+                if (volumeFile != null) {
+                    storagePaths.add(volumeFile.getAbsolutePath());
+                }
             }
         }
 
-        return ret;
+        return storagePaths.toArray(new String[0]);
     }
 
 

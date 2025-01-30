@@ -11,9 +11,8 @@
 #include "MsgIntf.h"
 
 //---------------------------------------------------------------------------
-tTVPVSyncTimingThread::tTVPVSyncTimingThread(tTJSNI_Window *owner)
-    : tTVPThread(true), EventQueue(this, &tTVPVSyncTimingThread::Proc),
-      OwnerWindow(owner) {
+tTVPVSyncTimingThread::tTVPVSyncTimingThread(tTJSNI_Window *owner) :
+    tTVPThread(true), EventQueue(this, &tTVPVSyncTimingThread::Proc), OwnerWindow(owner) {
     SleepTime = 1;
     LastVBlankTick = 0;
     VSyncInterval = 16; // 約60FPS
@@ -36,7 +35,7 @@ tTVPVSyncTimingThread::~tTVPVSyncTimingThread() {
 
 //---------------------------------------------------------------------------
 void tTVPVSyncTimingThread::Execute() {
-    while (!GetTerminated()) {
+    while(!GetTerminated()) {
         // SleepTime と LastVBlankTick を得る
         DWORD sleep_time, last_vblank_tick;
         { // thread-protected
@@ -51,7 +50,7 @@ void tTVPVSyncTimingThread::Execute() {
 
         DWORD sleep_time_adj = sleep_start_tick - last_vblank_tick;
 
-        if (sleep_time_adj < sleep_time) {
+        if(sleep_time_adj < sleep_time) {
             ::Sleep(sleep_time - sleep_time_adj);
         } else {
             // 普通、メインスレッド内で Event.Set() したならば、
@@ -77,11 +76,11 @@ void tTVPVSyncTimingThread::Execute() {
 
 //---------------------------------------------------------------------------
 void tTVPVSyncTimingThread::Proc(NativeEvent &ev) {
-    if (ev.Message != TVP_EV_VSYNC_TIMING_THREAD) {
+    if(ev.Message != TVP_EV_VSYNC_TIMING_THREAD) {
         EventQueue.HandlerDefault(ev);
         return;
     }
-    if (OwnerWindow == nullptr)
+    if(OwnerWindow == nullptr)
         return;
 
     // tTVPVSyncTimingThread から投げられたメッセージ
@@ -89,21 +88,20 @@ void tTVPVSyncTimingThread::Proc(NativeEvent &ev) {
     tjs_int in_vblank = 0;
     tjs_int delayed = 0;
     bool supportvwait = OwnerWindow->WaitForVBlank(&in_vblank, &delayed);
-    if (supportvwait ==
-        false) { // VBlank待ちはサポートされていないので、気にせずそのまま進行(待ち時間はいい加減だが気にしないことにする)
+    if(supportvwait ==
+       false) { // VBlank待ちはサポートされていないので、気にせずそのまま進行(待ち時間はいい加減だが気にしないことにする)
         in_vblank = 0;
         delayed = 0;
     }
 
     // タイマの時間原点を設定する
-    if (!delayed) {
+    if(!delayed) {
         tTJSCriticalSectionHolder holder(CS);
         LastVBlankTick = timeGetTime(); // これが次に眠る時間の起算点になる
     } else {
         tTJSCriticalSectionHolder holder(CS);
-        LastVBlankTick +=
-            VSyncInterval; // これが次に眠る時間の起算点になる(おおざっぱ)
-        if ((long)(timeGetTime() - (LastVBlankTick + SleepTime)) <= 0) {
+        LastVBlankTick += VSyncInterval; // これが次に眠る時間の起算点になる(おおざっぱ)
+        if((long)(timeGetTime() - (LastVBlankTick + SleepTime)) <= 0) {
             // 眠った後、次に起きようとする時間がすでに過去なので眠れません
             LastVBlankTick = timeGetTime(); // 強制的に今の時刻にします
         }
@@ -114,10 +112,10 @@ void tTVPVSyncTimingThread::Proc(NativeEvent &ev) {
 
     // もし vsync 待ちを行う直前、すでに vblank に入っていた場合は、
     // 待つ時間が長すぎたと言うことである
-    if (in_vblank) {
+    if(in_vblank) {
         // その場合は SleepTime を減らす
         tTJSCriticalSectionHolder holder(CS);
-        if (SleepTime > 8)
+        if(SleepTime > 8)
             SleepTime--;
     } else {
         // vblank で無かった場合は二つの場合が考えられる
@@ -127,7 +125,7 @@ void tTVPVSyncTimingThread::Proc(NativeEvent &ev) {
         // SleepTime を増やす。ただしこれが VSyncInterval を超えるはずはない。
         tTJSCriticalSectionHolder holder(CS);
         SleepTime++;
-        if (SleepTime > VSyncInterval)
+        if(SleepTime > VSyncInterval)
             SleepTime = VSyncInterval;
     }
 
@@ -136,8 +134,7 @@ void tTVPVSyncTimingThread::Proc(NativeEvent &ev) {
 
     // ContinuousHandler を呼ぶ
     // これは十分な時間をとれるよう、vsync 待ちの直後に呼ばれる
-    TVPProcessContinuousHandlerEventFlag =
-        true; // set flag to invoke continuous handler on next idle
+    TVPProcessContinuousHandlerEventFlag = true; // set flag to invoke continuous handler on next idle
 }
 //---------------------------------------------------------------------------
 
@@ -152,16 +149,15 @@ void tTVPVSyncTimingThread::MeasureVSyncInterval() {
     vsync_rate = ::GetDeviceCaps(dc, VREFRESH);
     ::ReleaseDC(0, dc);
 
-    if (vsync_rate != 0)
+    if(vsync_rate != 0)
         vsync_interval = 1000 / vsync_rate;
     else
         vsync_interval = 0;
 
-    TVPAddLog(TVPFormatMessage(TVPRoughVsyncIntervalReadFromApi,
-                               ttstr((int)vsync_interval)));
+    TVPAddLog(TVPFormatMessage(TVPRoughVsyncIntervalReadFromApi, ttstr((int)vsync_interval)));
 
     // vsync 周期は適切っぽい？
-    if (vsync_interval < 6 || vsync_interval > 66) {
+    if(vsync_interval < 6 || vsync_interval > 66) {
         TVPAddLog((const tjs_char *)TVPRoughVsyncIntervalStillSeemsWrong);
         vsync_interval = 16;
     }

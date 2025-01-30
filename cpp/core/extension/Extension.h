@@ -5,13 +5,10 @@
 //---------------------------------------------------------------------------
 // tTVPAtInstallClass
 //---------------------------------------------------------------------------
-extern void TVPAddClassHandler(const tjs_char *name,
-                               iTJSDispatch2 *(*handler)(iTJSDispatch2 *),
+extern void TVPAddClassHandler(const tjs_char *name, iTJSDispatch2 *(*handler)(iTJSDispatch2 *),
                                const tjs_char *dependences);
 struct tTVPAtInstallClass {
-    tTVPAtInstallClass(const tjs_char *name,
-                       iTJSDispatch2 *(*handler)(iTJSDispatch2 *),
-                       const tjs_char *dependences) {
+    tTVPAtInstallClass(const tjs_char *name, iTJSDispatch2 *(*handler)(iTJSDispatch2 *), const tjs_char *dependences) {
         TVPAddClassHandler(name, handler, dependences);
     }
 };

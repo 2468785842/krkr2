@@ -12,48 +12,48 @@ public:
         // messages used in the whole system
 
         GENERAL_RESYNC, //
-        GENERAL_FLUSH,  // flush all buffers
-        GENERAL_RESET,  // reset codecs for new data
+        GENERAL_FLUSH, // flush all buffers
+        GENERAL_RESET, // reset codecs for new data
         GENERAL_PAUSE,
         GENERAL_STREAMCHANGE, //
-        GENERAL_SYNCHRONIZE,  //
-        GENERAL_GUI_ACTION,   // gui action of some sort
-        GENERAL_EOF,          // eof of stream
+        GENERAL_SYNCHRONIZE, //
+        GENERAL_GUI_ACTION, // gui action of some sort
+        GENERAL_EOF, // eof of stream
 
         // player core related messages (cVideoPlayer.cpp)
 
-        PLAYER_SET_AUDIOSTREAM,            //
-        PLAYER_SET_VIDEOSTREAM,            //
-        PLAYER_SET_SUBTITLESTREAM,         //
+        PLAYER_SET_AUDIOSTREAM, //
+        PLAYER_SET_VIDEOSTREAM, //
+        PLAYER_SET_SUBTITLESTREAM, //
         PLAYER_SET_SUBTITLESTREAM_VISIBLE, //
-        PLAYER_SET_STATE,    // restore the VideoPlayer to a certain state
-        PLAYER_SET_RECORD,   // set record state
-        PLAYER_SEEK,         //
+        PLAYER_SET_STATE, // restore the VideoPlayer to a certain state
+        PLAYER_SET_RECORD, // set record state
+        PLAYER_SEEK, //
         PLAYER_SEEK_CHAPTER, //
-        PLAYER_SETSPEED,     // set the playback speed
+        PLAYER_SETSPEED, // set the playback speed
 
-        PLAYER_CHANNEL_NEXT,          // switches to next playback channel
-        PLAYER_CHANNEL_PREV,          // switches to previous playback channel
-        PLAYER_CHANNEL_PREVIEW_NEXT,  // switches to next channel preview (does
-                                      // not switch the channel)
-        PLAYER_CHANNEL_PREVIEW_PREV,  // switches to previous channel preview
-                                      // (does not switch the channel)
+        PLAYER_CHANNEL_NEXT, // switches to next playback channel
+        PLAYER_CHANNEL_PREV, // switches to previous playback channel
+        PLAYER_CHANNEL_PREVIEW_NEXT, // switches to next channel preview (does
+                                     // not switch the channel)
+        PLAYER_CHANNEL_PREVIEW_PREV, // switches to previous channel preview
+                                     // (does not switch the channel)
         PLAYER_CHANNEL_SELECT_NUMBER, // switches to the channel with the
                                       // provided channel number
-        PLAYER_CHANNEL_SELECT,        // switches to the provided channel
-        PLAYER_STARTED,  // sent whenever a sub player has finished it's first
-                         // frame after open
+        PLAYER_CHANNEL_SELECT, // switches to the provided channel
+        PLAYER_STARTED, // sent whenever a sub player has finished it's first
+                        // frame after open
         PLAYER_AVCHANGE, // signal a change in audio or video parameters
 
         // demuxer related messages
 
         DEMUXER_PACKET, // data packet
-        DEMUXER_RESET,  // reset the demuxer
+        DEMUXER_RESET, // reset the demuxer
 
         // video related messages
 
         VIDEO_SET_ASPECT, // set aspectratio of video
-        VIDEO_DRAIN,      // wait for decoder to output last frame
+        VIDEO_DRAIN, // wait for decoder to output last frame
 
         // audio related messages
 
@@ -106,7 +106,8 @@ private:
     class CDVDMsgGeneralSynchronizePriv *m_p;
 };
 
-template <typename T> class CDVDMsgType : public CDVDMsg {
+template <typename T>
+class CDVDMsgType : public CDVDMsg {
 public:
     CDVDMsgType(Message type, const T &value) : CDVDMsg(type), m_value(value) {}
 
@@ -121,10 +122,7 @@ typedef CDVDMsgType<double> CDVDMsgDouble;
 
 class CDVDMsgPlayerSetAudioStream : public CDVDMsg {
 public:
-    CDVDMsgPlayerSetAudioStream(int streamId)
-        : CDVDMsg(PLAYER_SET_AUDIOSTREAM) {
-        m_streamId = streamId;
-    }
+    CDVDMsgPlayerSetAudioStream(int streamId) : CDVDMsg(PLAYER_SET_AUDIOSTREAM) { m_streamId = streamId; }
 
     int GetStreamId() { return m_streamId; }
 
@@ -134,10 +132,7 @@ private:
 
 class CDVDMsgPlayerSetVideoStream : public CDVDMsg {
 public:
-    CDVDMsgPlayerSetVideoStream(int streamId)
-        : CDVDMsg(PLAYER_SET_VIDEOSTREAM) {
-        m_streamId = streamId;
-    }
+    CDVDMsgPlayerSetVideoStream(int streamId) : CDVDMsg(PLAYER_SET_VIDEOSTREAM) { m_streamId = streamId; }
 
     int GetStreamId() const { return m_streamId; }
 
@@ -158,8 +153,7 @@ public:
         bool trickplay = false;
     };
 
-    CDVDMsgPlayerSeek(CDVDMsgPlayerSeek::CMode mode)
-        : CDVDMsg(PLAYER_SEEK), m_mode(mode) {}
+    CDVDMsgPlayerSeek(CDVDMsgPlayerSeek::CMode mode) : CDVDMsg(PLAYER_SEEK), m_mode(mode) {}
 
     int GetTime() { return m_mode.time; }
 

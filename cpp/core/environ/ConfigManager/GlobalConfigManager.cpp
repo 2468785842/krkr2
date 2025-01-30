@@ -5,8 +5,7 @@
 #include "UtilStreams.h"
 #include "LocaleConfigManager.h"
 
-bool TVPWriteDataToFile(const ttstr &filepath, const void *data,
-                        unsigned int len);
+bool TVPWriteDataToFile(const ttstr &filepath, const void *data, unsigned int len);
 class XMLMemPrinter : public tinyxml2::XMLPrinter {
     tTVPMemoryStream _stream;
     char _buffer[4096];
@@ -20,12 +19,9 @@ public:
         _stream.Write(_buffer, n);
     }
     void SaveFile(const std::string &path) {
-        if (!TVPWriteDataToFile(path, _stream.GetInternalBuffer(),
-                                _stream.GetSize())) {
-            TVPShowSimpleMessageBox(LocaleConfigManager::GetInstance()->GetText(
-                                        "cannot_create_preference"),
-                                    LocaleConfigManager::GetInstance()->GetText(
-                                        "readonly_storage"));
+        if(!TVPWriteDataToFile(path, _stream.GetInternalBuffer(), _stream.GetSize())) {
+            TVPShowSimpleMessageBox(LocaleConfigManager::GetInstance()->GetText("cannot_create_preference"),
+                                    LocaleConfigManager::GetInstance()->GetText("readonly_storage"));
         }
     }
 };
@@ -50,68 +46,62 @@ void iSysConfigManager::Initialize() {
     fp = fopen(GetFilePath().c_str(), "rb");
 #endif
 
-    if (fp && !doc.LoadFile(fp)) {
+    if(fp && !doc.LoadFile(fp)) {
         tinyxml2::XMLElement *rootElement = doc.RootElement();
-        if (rootElement) {
-            for (tinyxml2::XMLElement *item =
-                     rootElement->FirstChildElement("Item");
-                 item; item = item->NextSiblingElement("Item")) {
+        if(rootElement) {
+            for(tinyxml2::XMLElement *item = rootElement->FirstChildElement("Item"); item;
+                item = item->NextSiblingElement("Item")) {
                 const char *key = item->Attribute("key");
                 const char *val = item->Attribute("value");
-                if (key && val) {
+                if(key && val) {
                     AllConfig[key] = val;
                 }
             }
-            for (tinyxml2::XMLElement *item =
-                     rootElement->FirstChildElement("Custom");
-                 item; item = item->NextSiblingElement("Custom")) {
+            for(tinyxml2::XMLElement *item = rootElement->FirstChildElement("Custom"); item;
+                item = item->NextSiblingElement("Custom")) {
                 const char *key = item->Attribute("key");
                 const char *val = item->Attribute("value");
-                if (key && val) {
+                if(key && val) {
                     CustomArguments.emplace_back(key, val);
                 }
             }
-            for (tinyxml2::XMLElement *item =
-                     rootElement->FirstChildElement("KeyMap");
-                 item; item = item->NextSiblingElement("KeyMap")) {
+            for(tinyxml2::XMLElement *item = rootElement->FirstChildElement("KeyMap"); item;
+                item = item->NextSiblingElement("KeyMap")) {
                 int key, val;
-                if (tinyxml2::XML_SUCCESS ==
-                        item->QueryIntAttribute("key", &key) &&
-                    tinyxml2::XML_SUCCESS ==
-                        item->QueryIntAttribute("value", &val) &&
-                    key && val) {
+                if(tinyxml2::XML_SUCCESS == item->QueryIntAttribute("key", &key) &&
+                   tinyxml2::XML_SUCCESS == item->QueryIntAttribute("value", &val) && key && val) {
                     KeyMap.emplace(key, val);
                 }
             }
         }
     }
-    if (fp)
+    if(fp)
         fclose(fp);
 }
 
 void iSysConfigManager::SaveToFile() {
-    if (!ConfigUpdated)
+    if(!ConfigUpdated)
         return;
     std::string filepath = GetFilePath();
-    if (filepath.empty())
+    if(filepath.empty())
         return;
     tinyxml2::XMLDocument doc;
     doc.LinkEndChild(doc.NewDeclaration());
     tinyxml2::XMLElement *rootElement = doc.NewElement("GlobalPreference");
-    for (auto it = AllConfig.begin(); it != AllConfig.end(); ++it) {
+    for(auto it = AllConfig.begin(); it != AllConfig.end(); ++it) {
         tinyxml2::XMLElement *item = doc.NewElement("Item");
         item->SetAttribute("key", it->first.c_str());
         item->SetAttribute("value", it->second.c_str());
         rootElement->LinkEndChild(item);
     }
-    for (auto it = CustomArguments.begin(); it != CustomArguments.end(); ++it) {
+    for(auto it = CustomArguments.begin(); it != CustomArguments.end(); ++it) {
         tinyxml2::XMLElement *item = doc.NewElement("Custom");
         item->SetAttribute("key", it->first.c_str());
         item->SetAttribute("value", it->second.c_str());
         rootElement->LinkEndChild(item);
     }
-    for (auto &it : KeyMap) {
-        if (it.first && it.second) {
+    for(auto &it : KeyMap) {
+        if(it.first && it.second) {
             tinyxml2::XMLElement *item = doc.NewElement("KeyMap");
             item->SetAttribute("key", it.first);
             item->SetAttribute("value", it.second);
@@ -130,21 +120,17 @@ bool iSysConfigManager::IsValueExist(const std::string &name) {
     return it != AllConfig.end();
 }
 
-std::string GlobalConfigManager::GetFilePath() {
-    return TVPGetInternalPreferencePath() + "GlobalPreference.xml";
-}
+std::string GlobalConfigManager::GetFilePath() { return TVPGetInternalPreferencePath() + "GlobalPreference.xml"; }
 
 template <>
-bool iSysConfigManager::GetValue<bool>(const std::string &name,
-                                       const bool &defVal) {
+bool iSysConfigManager::GetValue<bool>(const std::string &name, const bool &defVal) {
     return !!GetValue<int>(name, defVal);
 }
 
 template <>
-int iSysConfigManager::GetValue<int>(const std::string &name,
-                                     const int &defVal) {
+int iSysConfigManager::GetValue<int>(const std::string &name, const int &defVal) {
     auto it = AllConfig.find(name);
-    if (it == AllConfig.end()) {
+    if(it == AllConfig.end()) {
         SetValueInt(name, defVal);
         return defVal;
     }
@@ -152,10 +138,9 @@ int iSysConfigManager::GetValue<int>(const std::string &name,
 }
 
 template <>
-float iSysConfigManager::GetValue<float>(const std::string &name,
-                                         const float &defVal) {
+float iSysConfigManager::GetValue<float>(const std::string &name, const float &defVal) {
     auto it = AllConfig.find(name);
-    if (it == AllConfig.end()) {
+    if(it == AllConfig.end()) {
         SetValueFloat(name, defVal);
         return defVal;
     }
@@ -163,11 +148,9 @@ float iSysConfigManager::GetValue<float>(const std::string &name,
 }
 
 template <>
-std::string
-iSysConfigManager::GetValue<std::string>(const std::string &name,
-                                         const std::string &defVal) {
+std::string iSysConfigManager::GetValue<std::string>(const std::string &name, const std::string &defVal) {
     auto it = AllConfig.find(name);
-    if (it == AllConfig.end()) {
+    if(it == AllConfig.end()) {
         SetValue(name, defVal);
         return defVal;
     }
@@ -188,14 +171,13 @@ void iSysConfigManager::SetValueFloat(const std::string &name, float val) {
     ConfigUpdated = true;
 }
 
-void iSysConfigManager::SetValue(const std::string &name,
-                                 const std::string &val) {
+void iSysConfigManager::SetValue(const std::string &name, const std::string &val) {
     AllConfig[name] = val;
     ConfigUpdated = true;
 }
 
 void iSysConfigManager::SetKeyMap(int k /* 0 means remove */, int v) {
-    if (v == 0) {
+    if(v == 0) {
         KeyMap.erase(k);
     } else {
         KeyMap[k] = v;
@@ -204,7 +186,7 @@ void iSysConfigManager::SetKeyMap(int k /* 0 means remove */, int v) {
 
 std::vector<std::string> iSysConfigManager::GetCustomArgumentsForPush() {
     std::vector<std::string> ret;
-    for (auto arg : CustomArguments) {
+    for(auto arg : CustomArguments) {
         std::string line("-");
         line += arg.first;
         line += "=";

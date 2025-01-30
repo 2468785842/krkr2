@@ -33,16 +33,15 @@ class tTJSNI_BaseTimer : public tTJSNativeInstance {
 protected:
     iTJSDispatch2 *Owner;
     tTJSVariantClosure ActionOwner; // object to send action
-    tjs_uint16 Counter;             // serial number for event tag
-    tjs_int Capacity;               // max queue size for this timer object
+    tjs_uint16 Counter; // serial number for event tag
+    tjs_int Capacity; // max queue size for this timer object
     ttstr ActionName;
     tTVPAsyncTriggerMode Mode; // trigger mode
 
 public:
     tTJSNI_BaseTimer();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
 
     void TJS_INTF_METHOD Invalidate();
 

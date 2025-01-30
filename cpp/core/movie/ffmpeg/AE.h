@@ -24,8 +24,8 @@ class IAEClockCallback;
 class CAEStreamInfo;
 
 /* sound options */
-#define AE_SOUND_OFF 0    /* disable sounds */
-#define AE_SOUND_IDLE 1   /* only play sounds while no streams are running */
+#define AE_SOUND_OFF 0 /* disable sounds */
+#define AE_SOUND_IDLE 1 /* only play sounds while no streams are running */
 #define AE_SOUND_ALWAYS 2 /* always play sounds */
 
 /* config options */
@@ -35,17 +35,16 @@ class CAEStreamInfo;
 
 enum AEQuality {
     AE_QUALITY_UNKNOWN = -1, /* Unset, unknown or incorrect quality level */
-    AE_QUALITY_DEFAULT = 0,  /* Engine's default quality level */
+    AE_QUALITY_DEFAULT = 0, /* Engine's default quality level */
 
     /* Basic quality levels */
-    AE_QUALITY_LOW = 20,  /* Low quality level */
-    AE_QUALITY_MID = 30,  /* Standard quality level */
+    AE_QUALITY_LOW = 20, /* Low quality level */
+    AE_QUALITY_MID = 30, /* Standard quality level */
     AE_QUALITY_HIGH = 50, /* Best sound processing quality */
 
     /* Optional quality levels */
-    AE_QUALITY_REALLYHIGH =
-        100,              /* Uncompromised optional quality level,
-                    usually with unmeasurable and unnoticeable improvement */
+    AE_QUALITY_REALLYHIGH = 100, /* Uncompromised optional quality level,
+                           usually with unmeasurable and unnoticeable improvement */
     AE_QUALITY_GPU = 101, /* GPU acceleration */
 };
 
@@ -145,8 +144,7 @@ public:
      * @param options A bit field of stream options (see: enum AEStreamOptions)
      * @return a new IAEStream that will accept data in the requested format
      */
-    virtual IAEStream *MakeStream(AEAudioFormat &audioFormat,
-                                  unsigned int options = 0,
+    virtual IAEStream *MakeStream(AEAudioFormat &audioFormat, unsigned int options = 0,
                                   IAEClockCallback *clock = nullptr) = 0;
 
     /**
@@ -182,8 +180,7 @@ public:
      * @param devices The device list to append supported devices to
      * @param passthrough True if only passthrough devices are wanted
      */
-    virtual void EnumerateOutputDevices(AEDeviceList &devices,
-                                        bool passthrough) = 0;
+    virtual void EnumerateOutputDevices(AEDeviceList &devices, bool passthrough) = 0;
 
     /**
      * Returns the default audio device
@@ -235,9 +232,7 @@ public:
      * AE decides whether this settings should be displayed
      * @return true if AudioEngine wants to display this setting
      */
-    virtual bool IsSettingVisible(const std::string &settingId) {
-        return false;
-    }
+    virtual bool IsSettingVisible(const std::string &settingId) { return false; }
 
     /**
      * Instruct AE to keep configuration for a specified time
@@ -261,9 +256,7 @@ public:
      * @param Current sink data format. For more details see AEAudioFormat.
      * @return Returns true on success, else false.
      */
-    virtual bool GetCurrentSinkFormat(AEAudioFormat &SinkFormat) {
-        return false;
-    }
+    virtual bool GetCurrentSinkFormat(AEAudioFormat &SinkFormat) { return false; }
 };
 
 NS_KRMOVIE_END

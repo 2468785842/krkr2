@@ -44,8 +44,7 @@
  * @param fontname	フォント名
  * @param options	オプション
  */
-tNativeFreeTypeFace::tNativeFreeTypeFace(const std::wstring &fontname,
-                                         tjs_uint32 options) {
+tNativeFreeTypeFace::tNativeFreeTypeFace(const std::wstring &fontname, tjs_uint32 options) {
     // フィールドのクリア
     FaceName = fontname;
     Face = nullptr;
@@ -54,10 +53,8 @@ tNativeFreeTypeFace::tNativeFreeTypeFace(const std::wstring &fontname,
     OldFont = nullptr;
     IsTTC = false;
 
-    unsigned char *name_content =
-        nullptr; // Windows から取得した name タグの内容
-    unsigned char *name_content_ft =
-        nullptr; // FreeType から取得した name タグの内容
+    unsigned char *name_content = nullptr; // Windows から取得した name タグの内容
+    unsigned char *name_content_ft = nullptr; // FreeType から取得した name タグの内容
     tjs_int name_content_size;
 
     // TrueType ライブラリをフック
@@ -90,10 +87,9 @@ tNativeFreeTypeFace::tNativeFreeTypeFace(const std::wstring &fontname,
         // (name タグは GetFontData が扱うような TrueType/OpenType フォントには
         //  必ず入っている)
         DWORD result = GetFontData(DC, TVP_TT_TABLE_name, 0, nullptr, 0);
-        if (result == GDI_ERROR) {
+        if(result == GDI_ERROR) {
             // エラー; GetFontData では扱えなかった
-            TVPThrowExceptionMessage(TJS_W("Font '%1$s' cannot be used"),
-                                     fontname);
+            TVPThrowExceptionMessage(TJS_W("Font '%1$s' cannot be used"), fontname);
         }
 
         //- この時点で result は name タグの内容が入るのに必要なバイト数
@@ -102,12 +98,10 @@ tNativeFreeTypeFace::tNativeFreeTypeFace(const std::wstring &fontname,
         name_content_ft = new unsigned char[name_content_size]; // メモリを確保
 
         //- name タグの内容をメモリに読み込む
-        result = GetFontData(DC, TVP_TT_TABLE_name, 0, name_content,
-                             name_content_size);
-        if (result == GDI_ERROR) {
+        result = GetFontData(DC, TVP_TT_TABLE_name, 0, name_content, name_content_size);
+        if(result == GDI_ERROR) {
             // エラー; メモリに読み込むことが出来なかった
-            TVPThrowExceptionMessage(TJS_W("Font '%1$s' cannot be used"),
-                                     fontname);
+            TVPThrowExceptionMessage(TJS_W("Font '%1$s' cannot be used"), fontname);
         }
 
         // フォントファイルのサイズを取得する
@@ -125,7 +119,7 @@ tNativeFreeTypeFace::tNativeFreeTypeFace(const std::wstring &fontname,
         // fonts
         unsigned char buf[4];
         result = GetFontData(DC, TVP_TT_TABLE_ttcf, 0, &buf, 1);
-        if (result == 1) {
+        if(result == 1) {
             // TTC ファイルだと思われる
             result = GetFontData(DC, TVP_TT_TABLE_ttcf, 0, nullptr, 0);
             IsTTC = true;
@@ -133,10 +127,9 @@ tNativeFreeTypeFace::tNativeFreeTypeFace(const std::wstring &fontname,
             result = GetFontData(DC, 0, 0, nullptr, 0);
         }
 
-        if (result == GDI_ERROR) {
+        if(result == GDI_ERROR) {
             // エラー; GetFontData では扱えなかった
-            TVPThrowExceptionMessage(TJS_W("Font '%1$s' cannot be used"),
-                                     fontname);
+            TVPThrowExceptionMessage(TJS_W("Font '%1$s' cannot be used"), fontname);
         }
         fontsize = result;
 
@@ -154,9 +147,8 @@ tNativeFreeTypeFace::tNativeFreeTypeFace(const std::wstring &fontname,
         // 試しに 0 番の Face を開く
         // (この時点で開くことが出来なければ例外を発生させる)
         int index = 0;
-        if (!OpenFaceByIndex(index)) {
-            TVPThrowExceptionMessage(TJS_W("Font '%1$s' cannot be used"),
-                                     fontname);
+        if(!OpenFaceByIndex(index)) {
+            TVPThrowExceptionMessage(TJS_W("Font '%1$s' cannot be used"), fontname);
         }
 
         // GDIが現在選択しているファイルとFreeTypeがアクセスしているファイルが
@@ -164,29 +156,25 @@ tNativeFreeTypeFace::tNativeFreeTypeFace(const std::wstring &fontname,
         // とくに TTC ファイルの場合は、name タグの一致を見ながら、face
         // のインデッ
         // クスを一つずつ増やしながら、対象とするフォントを探さなければならない。
-        while (true) {
+        while(true) {
             // FreeType から、name タグのサイズを取得する
             FT_ULong length = 0;
-            FT_Error err =
-                FT_Load_Sfnt_Table(Face, TTAG_name, 0, nullptr, &length);
-            if (err) {
-                TVPThrowExceptionMessage(TJS_W("Font '%1$s' cannot be used"),
-                                         fontname);
+            FT_Error err = FT_Load_Sfnt_Table(Face, TTAG_name, 0, nullptr, &length);
+            if(err) {
+                TVPThrowExceptionMessage(TJS_W("Font '%1$s' cannot be used"), fontname);
             }
 
             // FreeType から得た name タグの長さを Windows から得た長さと比較
-            if (length == name_content_size) {
+            if(length == name_content_size) {
                 // FreeType から name タグを取得
-                err = FT_Load_Sfnt_Table(Face, TTAG_name, 0, name_content_ft,
-                                         &length);
-                if (err) {
-                    TVPThrowExceptionMessage(
-                        TJS_W("Font '%1$s' cannot be used"), fontname);
+                err = FT_Load_Sfnt_Table(Face, TTAG_name, 0, name_content_ft, &length);
+                if(err) {
+                    TVPThrowExceptionMessage(TJS_W("Font '%1$s' cannot be used"), fontname);
                 }
                 // FreeType から読み込んだ name タグの内容と、Windows
                 // から読み込んだ name タグの内容を比較する。 一致していればその
                 // index のフォントを使う。
-                if (!memcmp(name_content, name_content_ft, name_content_size)) {
+                if(!memcmp(name_content, name_content_ft, name_content_size)) {
                     // 一致した
                     // face は開いたまま
                     break; // ループを抜ける
@@ -197,23 +185,22 @@ tNativeFreeTypeFace::tNativeFreeTypeFace(const std::wstring &fontname,
             // インデックスを一つ増やし、その face を開く
             index++;
 
-            if (!OpenFaceByIndex(index)) {
+            if(!OpenFaceByIndex(index)) {
                 // 一致する face がないまま インデックスが範囲を超えたと見られる
                 // index を 0 に設定してその index を開き、ループを抜ける
                 index = 0;
-                if (!OpenFaceByIndex(index)) {
-                    TVPThrowExceptionMessage(
-                        TJS_W("Font '%1$s' cannot be used"), fontname);
+                if(!OpenFaceByIndex(index)) {
+                    TVPThrowExceptionMessage(TJS_W("Font '%1$s' cannot be used"), fontname);
                 }
                 break;
             }
         }
 
-    } catch (...) {
+    } catch(...) {
         Clear();
-        if (name_content)
+        if(name_content)
             delete[] name_content;
-        if (name_content_ft)
+        if(name_content_ft)
             delete[] name_content_ft;
         throw;
     }
@@ -242,10 +229,10 @@ FT_Face tNativeFreeTypeFace::GetFTFace() const { return Face; }
  */
 tjs_char tNativeFreeTypeFace::GetDefaultChar() const {
     FT_UInt ret = FT_Get_Char_Index(Face, TextMetric.tmDefaultChar);
-    if (ret != 0)
+    if(ret != 0)
         return TextMetric.tmDefaultChar;
     ret = FT_Get_Char_Index(Face, TextMetric.tmBreakChar);
-    if (ret != 0)
+    if(ret != 0)
         return TextMetric.tmBreakChar;
     return L' ';
 }
@@ -256,8 +243,7 @@ tjs_char tNativeFreeTypeFace::GetDefaultChar() const {
  * このフォントファイルが持っているフォントを配列として返す
  * @param dest	格納先配列
  */
-void tNativeFreeTypeFace::GetFaceNameList(
-    std::vector<std::wstring> &dest) const {
+void tNativeFreeTypeFace::GetFaceNameList(std::vector<std::wstring> &dest) const {
     // このFaceの場合、既にFaceは特定されているため、利用可能な
     // Face 数は常に1で、フォント名はこのオブジェクトが構築された際に渡された
     // フォント名となる
@@ -271,14 +257,14 @@ void tNativeFreeTypeFace::GetFaceNameList(
  * 全てのオブジェクトを解放する
  */
 void tNativeFreeTypeFace::Clear() {
-    if (Face)
+    if(Face)
         FT_Done_Face(Face), Face = nullptr;
-    if (OldFont && DC) {
+    if(OldFont && DC) {
         HFONT font = static_cast<HFONT>(SelectObject(DC, OldFont));
         DeleteObject(font);
         OldFont = nullptr;
     }
-    if (DC)
+    if(DC)
         ReleaseDC(0, DC), DC = nullptr;
 }
 //---------------------------------------------------------------------------
@@ -292,17 +278,12 @@ void tNativeFreeTypeFace::Clear() {
  * @param count		読み出すバイト数
  * @return	何バイト読み込まれたか
  */
-unsigned long tNativeFreeTypeFace::IoFunc(FT_Stream stream,
-                                          unsigned long offset,
-                                          unsigned char *buffer,
+unsigned long tNativeFreeTypeFace::IoFunc(FT_Stream stream, unsigned long offset, unsigned char *buffer,
                                           unsigned long count) {
-    if (count != 0) {
-        tNativeFreeTypeFace *_this =
-            static_cast<tNativeFreeTypeFace *>(stream->descriptor.pointer);
-        DWORD result =
-            GetFontData(_this->DC, _this->IsTTC ? TVP_TT_TABLE_ttcf : 0, offset,
-                        buffer, count);
-        if (result == GDI_ERROR) {
+    if(count != 0) {
+        tNativeFreeTypeFace *_this = static_cast<tNativeFreeTypeFace *>(stream->descriptor.pointer);
+        DWORD result = GetFontData(_this->DC, _this->IsTTC ? TVP_TT_TABLE_ttcf : 0, offset, buffer, count);
+        if(result == GDI_ERROR) {
             // エラー
             return 0;
         }
@@ -330,12 +311,11 @@ extern FT_Library FreeTypeLibrary;
  * @return	Faceを開ければ true そうでなければ false
  */
 bool tNativeFreeTypeFace::OpenFaceByIndex(int index) {
-    if (Face)
+    if(Face)
         FT_Done_Face(Face), Face = nullptr;
 
     FT_Parameter parameters[1];
-    parameters[0].tag =
-        FT_PARAM_TAG_UNPATENTED_HINTING; // Appleの特許回避を行う
+    parameters[0].tag = FT_PARAM_TAG_UNPATENTED_HINTING; // Appleの特許回避を行う
     parameters[0].data = nullptr;
 
     FT_Open_Args args;

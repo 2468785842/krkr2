@@ -39,7 +39,7 @@ static void TVPGetCPUTypeForOne() {
         TVPCPUFeatures = 0;
 
         // TVPCheckCPU(); // in detect_cpu.nas
-    } catch (... /*EXCEPTION_EXECUTE_HANDLER*/) {
+    } catch(... /*EXCEPTION_EXECUTE_HANDLER*/) {
         // exception had been ocured
         throw Exception("CPU check failure.");
     }
@@ -150,7 +150,7 @@ static void TVPDisableCPU(tjs_uint32 featurebit, const tjs_char *name) {
 #endif
 //---------------------------------------------------------------------------
 void TVPDetectCPU() {
-    if (TVPCPUChecked)
+    if(TVPCPUChecked)
         return;
     TVPCPUChecked = true;
 
@@ -164,7 +164,7 @@ void TVPDetectCPU() {
 #if defined(__arm64__) || defined(__aarch64__) || defined(__LP64__)
     TVPCPUFeatures |= TVP_CPU_HAS_NEON; // aka. asimd
 #else
-    if ((android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON) != 0) {
+    if((android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON) != 0) {
         TVPCPUFeatures |= TVP_CPU_HAS_NEON;
     }
 #endif

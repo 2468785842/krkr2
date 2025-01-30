@@ -92,8 +92,8 @@ enum tTVPWaveLoopLinkCondition {
 //---------------------------------------------------------------------------
 struct tTVPWaveLoopLink {
     tjs_int64 From; // 'From' in sample position
-    tjs_int64 To;   // 'To' in sample position
-    bool Smooth;    // Smooth transition (uses short 50ms crossfade)
+    tjs_int64 To; // 'To' in sample position
+    bool Smooth; // Smooth transition (uses short 50ms crossfade)
     tTVPWaveLoopLinkCondition Condition; // Condition
     tjs_int RefValue;
     tjs_int CondVar; // Condition variable index
@@ -101,25 +101,23 @@ struct tTVPWaveLoopLink {
     // these are only used by the loop tuner
     tjs_int FromTier; // display tier of vertical 'from' line
     tjs_int LinkTier; // display tier of horizontal link
-    tjs_int ToTier;   // display tier of vertical 'to' allow line
-    tjs_int Index;    // link index
+    tjs_int ToTier; // display tier of vertical 'to' allow line
+    tjs_int Index; // link index
 
     struct tSortByDistanceFuncObj {
-        bool operator()(const tTVPWaveLoopLink &lhs,
-                        const tTVPWaveLoopLink &rhs) const {
+        bool operator()(const tTVPWaveLoopLink &lhs, const tTVPWaveLoopLink &rhs) const {
             tjs_int64 lhs_dist = lhs.From - lhs.To;
-            if (lhs_dist < 0)
+            if(lhs_dist < 0)
                 lhs_dist = -lhs_dist;
             tjs_int64 rhs_dist = rhs.From - rhs.To;
-            if (rhs_dist < 0)
+            if(rhs_dist < 0)
                 rhs_dist = -rhs_dist;
             return lhs_dist < rhs_dist;
         }
     };
 
     struct tSortByIndexFuncObj {
-        bool operator()(const tTVPWaveLoopLink &lhs,
-                        const tTVPWaveLoopLink &rhs) const {
+        bool operator()(const tTVPWaveLoopLink &lhs, const tTVPWaveLoopLink &rhs) const {
             return lhs.Index < rhs.Index;
         }
     };
@@ -139,13 +137,12 @@ struct tTVPWaveLoopLink {
 };
 
 //---------------------------------------------------------------------------
-bool inline operator<(const tTVPWaveLoopLink &lhs,
-                      const tTVPWaveLoopLink &rhs) {
-    if (lhs.From < rhs.From)
+bool inline operator<(const tTVPWaveLoopLink &lhs, const tTVPWaveLoopLink &rhs) {
+    if(lhs.From < rhs.From)
         return true;
-    if (lhs.From == rhs.From) {
+    if(lhs.From == rhs.From) {
         // give priority to conditional link
-        if (lhs.Condition != rhs.Condition)
+        if(lhs.Condition != rhs.Condition)
             return lhs.Condition > rhs.Condition;
         // give priority to conditional expression
         return lhs.CondVar > rhs.CondVar;
@@ -164,8 +161,7 @@ struct tTVPWaveFormat;
 
 class tTVPSampleAndLabelSource {
 public:
-    virtual void Decode(void *dest, tjs_uint samples, tjs_uint &written,
-                        tTVPWaveSegmentQueue &segments) = 0;
+    virtual void Decode(void *dest, tjs_uint samples, tjs_uint &written, tTVPWaveSegmentQueue &segments) = 0;
 
     virtual const tTVPWaveFormat &GetFormat() const = 0;
 
@@ -200,7 +196,7 @@ class tTVPWaveLoopManager : public tTVPSampleAndLabelSource {
     tjs_int CrossFadeLen;
     tjs_int CrossFadePosition;
 
-    bool IsLinksSorted;  // false if links are not yet sorted
+    bool IsLinksSorted; // false if links are not yet sorted
     bool IsLabelsSorted; // false if labels are not yet sorted
 
     bool IgnoreLinks; // decode the samples with ignoring links
@@ -244,9 +240,8 @@ public:
 
     void SetLooping(bool b) { Looping = b; }
 
-    void
-    Decode(void *dest, tjs_uint samples, tjs_uint &written,
-           tTVPWaveSegmentQueue &segments); // from tTVPSampleAndLabelSource
+    void Decode(void *dest, tjs_uint samples, tjs_uint &written,
+                tTVPWaveSegmentQueue &segments); // from tTVPSampleAndLabelSource
 
     const tTVPWaveFormat &GetFormat() const { return *Format; }
 
@@ -254,44 +249,38 @@ public:
     virtual bool DesiredFormat(const tTVPWaveFormat &format);
 
 private:
-    bool GetNearestEvent(tjs_int64 current, tTVPWaveLoopLink &link,
-                         bool ignore_conditions);
+    bool GetNearestEvent(tjs_int64 current, tTVPWaveLoopLink &link, bool ignore_conditions);
 
-    void GetLabelAt(tjs_int64 from, tjs_int64 to,
-                    std::deque<tTVPWaveLabel> &labels);
+    void GetLabelAt(tjs_int64 from, tjs_int64 to, std::deque<tTVPWaveLabel> &labels);
 
-    void DoCrossFade(void *dest, void *src1, void *src2, tjs_int samples,
-                     tjs_int ratiostart, tjs_int ratioend);
+    void DoCrossFade(void *dest, void *src1, void *src2, tjs_int samples, tjs_int ratiostart, tjs_int ratioend);
 
     void ClearCrossFadeInformation();
 
     //--- flag manupulation by label expression
     enum tExpressionToken {
         etUnknown,
-        etEOE,        // End of the expression
-        etLBracket,   // '['
-        etRBracket,   // ']'
-        etInteger,    // integer number
-        etEqual,      // '='
-        etPlus,       // '+'
-        etMinus,      // '-'
-        etPlusEqual,  // '+='
+        etEOE, // End of the expression
+        etLBracket, // '['
+        etRBracket, // ']'
+        etInteger, // integer number
+        etEqual, // '='
+        etPlus, // '+'
+        etMinus, // '-'
+        etPlusEqual, // '+='
         etMinusEqual, // '-='
-        etIncrement,  // '++'
-        etDecrement   // '--'
+        etIncrement, // '++'
+        etDecrement // '--'
     };
 
 public:
-    static bool GetLabelExpression(const tTVPLabelStringType &label,
-                                   tExpressionToken *ope = nullptr,
-                                   tjs_int *lv = nullptr, tjs_int *rv = nullptr,
-                                   bool *is_rv_indirect = nullptr);
+    static bool GetLabelExpression(const tTVPLabelStringType &label, tExpressionToken *ope = nullptr,
+                                   tjs_int *lv = nullptr, tjs_int *rv = nullptr, bool *is_rv_indirect = nullptr);
 
 private:
     bool EvalLabelExpression(const tTVPLabelStringType &label);
 
-    static tExpressionToken GetExpressionToken(const tTVPLabelCharType *&p,
-                                               tjs_int *value);
+    static tExpressionToken GetExpressionToken(const tTVPLabelCharType *&p, tjs_int *value);
 
     static bool GetLabelCharInt(const tTVPLabelCharType *s, tjs_int &v);
 

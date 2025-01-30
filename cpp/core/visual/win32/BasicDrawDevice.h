@@ -27,7 +27,7 @@ class tTVPBasicDrawDevice : public tTVPDrawDevice {
     void *TextureBuffer; //!< テクスチャのサーフェースへのメモリポインタ
                          // 	long	TexturePitch; //!< テクスチャのピッチ
 
-    tjs_uint TextureWidth;  //!< テクスチャの横幅
+    tjs_uint TextureWidth; //!< テクスチャの横幅
     tjs_uint TextureHeight; //!< テクスチャの縦幅
 
     bool ShouldShow; //!< show で実際に画面に画像を転送すべきか
@@ -64,17 +64,15 @@ private:
 public:
     //	void SetToRecreateDrawer() { DestroyD3DDevice(); }
     enum tDrawerType {
-        dtNone,    //!< drawer なし
+        dtNone, //!< drawer なし
         dtDrawDib, //!< もっとも単純なdrawer
-        dtDBGDI,   // GDI によるダブルバッファリングを行うdrawer
+        dtDBGDI, // GDI によるダブルバッファリングを行うdrawer
         dtDBDD, // DirectDraw によるダブルバッファリングを行うdrawer
         dtDBD3D // Direct3D によるダブルバッファリングを行うdrawer
     } DrawerType = dtDrawDib,
       PreferredDrawerType = dtDrawDib;
     tDrawerType GetDrawerType() const { return DrawerType; }
-    void SetPreferredDrawerType(tDrawerType type) {
-        PreferredDrawerType = type;
-    }
+    void SetPreferredDrawerType(tDrawerType type) { PreferredDrawerType = type; }
     tDrawerType GetPreferredDrawerType() const { return PreferredDrawerType; }
 
 public:
@@ -94,11 +92,10 @@ public:
     // delayed );
 
     //---- LayerManager からの画像受け渡し関連
-    virtual void TJS_INTF_METHOD
-    StartBitmapCompletion(iTVPLayerManager *manager);
-    virtual void TJS_INTF_METHOD NotifyBitmapCompleted(
-        iTVPLayerManager *manager, tjs_int x, tjs_int y, tTVPBaseTexture *bmp,
-        const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity);
+    virtual void TJS_INTF_METHOD StartBitmapCompletion(iTVPLayerManager *manager);
+    virtual void TJS_INTF_METHOD NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y,
+                                                       tTVPBaseTexture *bmp, const tTVPRect &cliprect,
+                                                       tTVPLayerType type, tjs_int opacity);
     virtual void TJS_INTF_METHOD EndBitmapCompletion(iTVPLayerManager *manager);
 
     //---- デバッグ支援
@@ -122,8 +119,7 @@ class tTJSNI_BasicDrawDevice : public tTJSNativeInstance {
 public:
     tTJSNI_BasicDrawDevice();
     ~tTJSNI_BasicDrawDevice();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
     void TJS_INTF_METHOD Invalidate();
 
 public:

@@ -20,9 +20,7 @@ class tRisaPhaseVocoderDSP;
 //---------------------------------------------------------------------------
 // tTJSNI_PhaseVocoder
 //---------------------------------------------------------------------------
-class tTJSNI_PhaseVocoder : public tTJSNativeInstance,
-                            public iTVPBasicWaveFilter,
-                            public tTVPSampleAndLabelSource {
+class tTJSNI_PhaseVocoder : public tTJSNativeInstance, public iTVPBasicWaveFilter, public tTVPSampleAndLabelSource {
     typedef tTJSNativeInstance inherited;
 
 public:
@@ -30,16 +28,15 @@ public:
 
     ~tTJSNI_PhaseVocoder();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
 
     void TJS_INTF_METHOD Invalidate();
 
 private:
-    int Window;  // window size
+    int Window; // window size
     int Overlap; // overlap scale
     float Pitch; // pitch scale
-    float Time;  // time scale
+    float Time; // time scale
 
 public:
     int GetWindow() const { return Window; }
@@ -62,8 +59,8 @@ private:
     tTVPSampleAndLabelSource *Recreate(tTVPSampleAndLabelSource *source);
 
     // from iTVPBasicWaveFilter
-    void Clear();  // from iTVPBasicWaveFilter
-    void Reset();  // from iTVPBasicWaveFilter
+    void Clear(); // from iTVPBasicWaveFilter
+    void Reset(); // from iTVPBasicWaveFilter
     void Update(); // from iTVPBasicWaveFilter
 
 private:
@@ -79,12 +76,10 @@ private:
     tTVPWaveSegmentQueue InputSegments;
     tTVPWaveSegmentQueue OutputSegments;
 
-    void Fill(float *dest, tjs_uint samples, tjs_uint &written,
-              tTVPWaveSegmentQueue &segments);
+    void Fill(float *dest, tjs_uint samples, tjs_uint &written, tTVPWaveSegmentQueue &segments);
 
-    void
-    Decode(void *dest, tjs_uint samples, tjs_uint &written,
-           tTVPWaveSegmentQueue &segments); // from tTVPSampleAndLabelSource
+    void Decode(void *dest, tjs_uint samples, tjs_uint &written,
+                tTVPWaveSegmentQueue &segments); // from tTVPSampleAndLabelSource
 
     const tTVPWaveFormat &GetFormat() const { return OutputFormat; }
     // from tTVPSampleAndLabelSource

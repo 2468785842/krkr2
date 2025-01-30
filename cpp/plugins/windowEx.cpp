@@ -271,40 +271,35 @@ typedef uintptr_t ULONG_PTR;
 #define WM_USER 0x0400
 
 #define HTBORDER 18 // 沒有重設大小框線的視窗框線中。
-#define HTBOTTOM                                                               \
-    15 // 可重設大小的視窗的下水準框線中（使用者可以按鼠以垂直調整視窗大小）。
-#define HTBOTTOMLEFT                                                           \
-    16 // 可重設大小的視窗框線左下角（使用者可以按鼠以對角調整視窗大小）。
-#define HTBOTTOMRIGHT                                                          \
-    17 // 可重設大小的視窗框線右下角（使用者可以按鼠以對角調整視窗大小）。
+#define HTBOTTOM 15 // 可重設大小的視窗的下水準框線中（使用者可以按鼠以垂直調整視窗大小）。
+#define HTBOTTOMLEFT 16 // 可重設大小的視窗框線左下角（使用者可以按鼠以對角調整視窗大小）。
+#define HTBOTTOMRIGHT 17 // 可重設大小的視窗框線右下角（使用者可以按鼠以對角調整視窗大小）。
 #define TCAPTION 2 // 標題列中。
-#define TCLIENT 1  // 工作區中。
-#define TCLOSE 20  // [關閉] 按鈕中。
-#define HTERROR                                                                \
+#define TCLIENT 1 // 工作區中。
+#define TCLOSE 20 // [關閉] 按鈕中。
+#define HTERROR                                                                                                        \
     -2 // 螢幕背景或視窗之間的分隔線上（與 HTNOWHERE 相同，不同之處在於
        // DefWindowProc 函式會產生系統嗶聲來指出錯誤）。
 #define HTGROWBOX 4 // 大小方塊中（與 HTSIZE 相同）。
-#define HTHELP 21   // [ 說明] 按鈕中。
+#define HTHELP 21 // [ 說明] 按鈕中。
 #define HTHSCROLL 6 // 水平滾動條中。
-#define HTLEFT                                                                 \
-    10 // 可重設大小的視窗左框線中（使用者可以按鼠水平調整視窗大小）。
-#define HTMENU 5      // 功能表中。
+#define HTLEFT 10 // 可重設大小的視窗左框線中（使用者可以按鼠水平調整視窗大小）。
+#define HTMENU 5 // 功能表中。
 #define HTMAXBUTTON 9 // [最大化] 按鈕中。
 #define HTMINBUTTON 8 // [最小化] 按鈕中。
-#define HTNOWHERE 0   // 畫面背景或視窗之間的分隔線上。
-#define HTREDUCE 8    // [最小化] 按鈕中。
-#define HTRIGHT                                                                \
-    11 // 可重設大小的視窗右框線中（使用者可以按鼠水平調整視窗大小）。
-#define HTSIZE 4      // 大小方塊中（與 HTGROWBOX 相同）。
-#define HTSYSMENU 3   // 視窗選單或子視窗的 [ 關閉 ] 按鈕中。
-#define HTTOP 12      // 視窗的上水平框線中。
-#define HTTOPLEFT 13  // 視窗框線的左上角。
+#define HTNOWHERE 0 // 畫面背景或視窗之間的分隔線上。
+#define HTREDUCE 8 // [最小化] 按鈕中。
+#define HTRIGHT 11 // 可重設大小的視窗右框線中（使用者可以按鼠水平調整視窗大小）。
+#define HTSIZE 4 // 大小方塊中（與 HTGROWBOX 相同）。
+#define HTSYSMENU 3 // 視窗選單或子視窗的 [ 關閉 ] 按鈕中。
+#define HTTOP 12 // 視窗的上水平框線中。
+#define HTTOPLEFT 13 // 視窗框線的左上角。
 #define HTTOPRIGHT 14 // 視窗框線的右上角。
 #define HTTRANSPARENT -1 // 目前由相同線程中另一個視窗所涵蓋的視窗中。
 #define HTVSCROLL 7 // 垂直滾動條中。
-#define HTZOOM 9    // [最大化] 按鈕中。
+#define HTZOOM 9 // [最大化] 按鈕中。
 #define HTCAPTION 2 // In a title bar.
-#define HTCLIENT 1  // In a client area.
+#define HTCLIENT 1 // In a client area.
 
 // イベント名一覧
 #define EXEV_MINIMIZE TJS_W("onMinimize")
@@ -355,61 +350,47 @@ struct WindowEx {
     // クラス追加メソッド(RawCallback形式)
 
     // minimize, maximize, showRestore
-    static tjs_error TJS_INTF_METHOD minimize(tTJSVariant *r, tjs_int n,
-                                              tTJSVariant **p,
-                                              iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD minimize(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD maximize(tTJSVariant *r, tjs_int n,
-                                              tTJSVariant **p,
-                                              iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD maximize(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD showRestore(tTJSVariant *r, tjs_int n,
-                                                 tTJSVariant **p,
-                                                 iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD showRestore(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD focusMenuByKey(tTJSVariant *r, tjs_int n,
-                                                    tTJSVariant **p,
-                                                    iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD focusMenuByKey(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         (*p)->AsInteger();
         return TJS_S_OK;
     }
 
     // resetWindowIcon
-    static tjs_error TJS_INTF_METHOD resetWindowIcon(tTJSVariant *r, tjs_int n,
-                                                     tTJSVariant **p,
-                                                     iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD resetWindowIcon(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx::GetHWND(obj);
         return TJS_S_OK;
     }
 
     // setWindowIcon
-    static tjs_error TJS_INTF_METHOD setWindowIcon(tTJSVariant *r, tjs_int n,
-                                                   tTJSVariant **p,
-                                                   iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD setWindowIcon(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
     // getWindowRect
-    static tjs_error TJS_INTF_METHOD getWindowRect(tTJSVariant *r, tjs_int n,
-                                                   tTJSVariant **p,
-                                                   iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD getWindowRect(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx::GetHWND(obj);
-        if (r != nullptr) {
+        if(r != nullptr) {
             r->Clear();
         }
 
-        ncbPropAccessor ncbPropAcc{obj};
+        ncbPropAccessor ncbPropAcc{ obj };
         tjs_int left = ncbPropAcc.getIntValue(TJS_W("left"));
         tjs_int top = ncbPropAcc.getIntValue(TJS_W("top"));
         tjs_int width = ncbPropAcc.getIntValue(TJS_W("width"));
         tjs_int height = ncbPropAcc.getIntValue(TJS_W("height"));
-        tTVPRect rect{left, top, width + left, height + top};
+        tTVPRect rect{ left, top, width + left, height + top };
 
         ncbDictionaryAccessor ncbDictAcc;
 
@@ -426,116 +407,88 @@ struct WindowEx {
     }
 
     // getClientRect
-    static tjs_error TJS_INTF_METHOD getClientRect(tTJSVariant *r, tjs_int n,
-                                                   tTJSVariant **p,
-                                                   iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD getClientRect(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         getWindowRect(r, n, p, obj);
         return TJS_S_OK;
     }
 
     // getNormalRect
-    static tjs_error TJS_INTF_METHOD getNormalRect(tTJSVariant *r, tjs_int n,
-                                                   tTJSVariant **p,
-                                                   iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD getNormalRect(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         getWindowRect(r, n, p, obj);
         return TJS_S_OK;
     }
 
     // property maximized box
-    static tjs_error TJS_INTF_METHOD getMaximizeBox(tTJSVariant *r, tjs_int n,
-                                                    tTJSVariant **p,
-                                                    iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD getMaximizeBox(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD setMaximizeBox(tTJSVariant *r, tjs_int n,
-                                                    tTJSVariant **p,
-                                                    iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD setMaximizeBox(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
     // property minimized box
-    static tjs_error TJS_INTF_METHOD getMinimizeBox(tTJSVariant *r, tjs_int n,
-                                                    tTJSVariant **p,
-                                                    iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD getMinimizeBox(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD setMinimizeBox(tTJSVariant *r, tjs_int n,
-                                                    tTJSVariant **p,
-                                                    iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD setMinimizeBox(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
     // property maximized
     static bool isMaximized(iTJSDispatch2 *obj) { return true; }
 
-    static tjs_error TJS_INTF_METHOD getMaximized(tTJSVariant *r, tjs_int n,
-                                                  tTJSVariant **p,
-                                                  iTJSDispatch2 *obj) {
-        if (r)
+    static tjs_error TJS_INTF_METHOD getMaximized(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
+        if(r)
             *r = isMaximized(obj);
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD setMaximized(tTJSVariant *r, tjs_int n,
-                                                  tTJSVariant **p,
-                                                  iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD setMaximized(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
     // property minimized
     static bool isMinimized(iTJSDispatch2 *obj) { return false; }
 
-    static tjs_error TJS_INTF_METHOD getMinimized(tTJSVariant *r, tjs_int n,
-                                                  tTJSVariant **p,
-                                                  iTJSDispatch2 *obj) {
-        if (r)
+    static tjs_error TJS_INTF_METHOD getMinimized(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
+        if(r)
             *r = isMinimized(obj);
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD setMinimized(tTJSVariant *r, tjs_int n,
-                                                  tTJSVariant **p,
-                                                  iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD setMinimized(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
     // property disableResize
-    static tjs_error TJS_INTF_METHOD getDisableResize(tTJSVariant *r, tjs_int n,
-                                                      tTJSVariant **p,
-                                                      iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD getDisableResize(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (r)
+        if(r)
             *r = (self != nullptr && self->disableResize);
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD setDisableResize(tTJSVariant *r, tjs_int n,
-                                                      tTJSVariant **p,
-                                                      iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD setDisableResize(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (self == nullptr)
+        if(self == nullptr)
             return TJS_E_ACCESSDENYED;
         self->disableResize = !!p[0]->AsInteger();
         return TJS_S_OK;
     }
 
     // property disableMove
-    static tjs_error TJS_INTF_METHOD getDisableMove(tTJSVariant *r, tjs_int n,
-                                                    tTJSVariant **p,
-                                                    iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD getDisableMove(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (r)
+        if(r)
             *r = (self != nullptr && self->disableMove);
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD setDisableMove(tTJSVariant *r, tjs_int n,
-                                                    tTJSVariant **p,
-                                                    iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD setDisableMove(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (self == nullptr)
+        if(self == nullptr)
             return TJS_E_ACCESSDENYED;
         self->disableMove = !!p[0]->AsInteger();
         //_resetExSystemMenu(self);
@@ -543,31 +496,24 @@ struct WindowEx {
     }
 
     // setOverlayBitmap
-    static tjs_error TJS_INTF_METHOD setOverlayBitmap(tTJSVariant *r, tjs_int n,
-                                                      tTJSVariant **p,
-                                                      iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD setOverlayBitmap(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        return (self != nullptr) ? self->_setOverlayBitmap(n, p)
-                                 : TJS_E_ACCESSDENYED;
+        return (self != nullptr) ? self->_setOverlayBitmap(n, p) : TJS_E_ACCESSDENYED;
     }
 
     // property exSystemMenu
-    static tjs_error TJS_INTF_METHOD getExSystemMenu(tTJSVariant *r, tjs_int n,
-                                                     tTJSVariant **p,
-                                                     iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD getExSystemMenu(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (r && self != nullptr)
+        if(r && self != nullptr)
             *r = tTJSVariant(self->sysMenuModified, self->sysMenuModified);
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD setExSystemMenu(tTJSVariant *r, tjs_int n,
-                                                     tTJSVariant **p,
-                                                     iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD setExSystemMenu(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (self == nullptr)
+        if(self == nullptr)
             return TJS_E_ACCESSDENYED;
-        if (self->sysMenuModified != nullptr) {
+        if(self->sysMenuModified != nullptr) {
             self->resetSystemMenu();
             self->sysMenuModified->Release();
         }
@@ -577,38 +523,29 @@ struct WindowEx {
     }
 
     // resetExSystemMenu
-    static tjs_error TJS_INTF_METHOD resetExSystemMenu(tTJSVariant *r,
-                                                       tjs_int n,
-                                                       tTJSVariant **p,
-                                                       iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD resetExSystemMenu(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
     // property enableNCMouseEvent
-    static tjs_error TJS_INTF_METHOD getEnNCMEvent(tTJSVariant *r, tjs_int n,
-                                                   tTJSVariant **p,
-                                                   iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD getEnNCMEvent(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (r)
+        if(r)
             *r = (self != nullptr && self->enableNCMEvent);
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD setEnNCMEvent(tTJSVariant *r, tjs_int n,
-                                                   tTJSVariant **p,
-                                                   iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD setEnNCMEvent(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (self == nullptr)
+        if(self == nullptr)
             return TJS_E_ACCESSDENYED;
         self->enableNCMEvent = !!p[0]->AsInteger();
         return TJS_S_OK;
     }
 
     // ncHitTest
-    static tjs_error TJS_INTF_METHOD nonClientHitTest(tTJSVariant *r, tjs_int n,
-                                                      tTJSVariant **p,
-                                                      iTJSDispatch2 *obj) {
-        if (n < 2)
+    static tjs_error TJS_INTF_METHOD nonClientHitTest(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
+        if(n < 2)
             return TJS_E_BADPARAMCOUNT;
         tjs_int x = (p[0]->AsInteger()) & 0xFFFF;
         tjs_int y = (p[1]->AsInteger()) & 0xFFFF;
@@ -616,59 +553,53 @@ struct WindowEx {
     }
 
     // setMessageHook
-    static tjs_error TJS_INTF_METHOD setMessageHook(tTJSVariant *r, tjs_int n,
-                                                    tTJSVariant **p,
-                                                    iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD setMessageHook(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx *self = GetInstance(obj);
-        if (self == nullptr)
+        if(self == nullptr)
             return TJS_E_ACCESSDENYED;
         bool on = (n >= 1) && !!p[0]->AsInteger();
         bool ret = false;
-        if (n >= 2) {
+        if(n >= 2) {
             tjs_int num;
-            if (p[1]->Type() == tvtString) {
+            if(p[1]->Type() == tvtString) {
                 ttstr key(*p[1]);
                 num = getWindowNotificationNum(key);
             } else {
                 num = (tjs_int)*p[1];
             }
-            if (num < 0 || num >= 0x400)
+            if(num < 0 || num >= 0x400)
                 return TJS_E_FAIL;
             ret = self->setMessageHookOnel(on, num);
         } else {
             ret = self->setMessageHookAll(on);
         }
-        if (r)
+        if(r)
             *r = ret;
         return TJS_S_OK;
     }
 
     // bringTo
-    static tjs_error TJS_INTF_METHOD bringTo(tTJSVariant *r, tjs_int n,
-                                             tTJSVariant **p,
-                                             iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD bringTo(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         HWND hwnd = GetHWND(obj);
-        if (hwnd != nullptr) {
-            if (n >= 1) {
-                switch (p[0]->Type()) {
-                case tvtString: {
-                    ttstr str(*p[0]);
-                    str.ToLowerCase();
-                } break;
-                case tvtObject: {
-                    iTJSDispatch2 *win = p[0]->AsObjectNoAddRef();
-                    if (win && win->IsInstanceOf(0, 0, 0, TJS_W("Window"), win))
-                        GetHWND(win);
-                } break;
+        if(hwnd != nullptr) {
+            if(n >= 1) {
+                switch(p[0]->Type()) {
+                    case tvtString: {
+                        ttstr str(*p[0]);
+                        str.ToLowerCase();
+                    } break;
+                    case tvtObject: {
+                        iTJSDispatch2 *win = p[0]->AsObjectNoAddRef();
+                        if(win && win->IsInstanceOf(0, 0, 0, TJS_W("Window"), win))
+                            GetHWND(win);
+                    } break;
                 }
             }
         }
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD sendToBack(tTJSVariant *r, tjs_int n,
-                                                tTJSVariant **p,
-                                                iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD sendToBack(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         WindowEx::GetHWND(obj);
         return TJS_S_OK;
     }
@@ -681,13 +612,12 @@ struct WindowEx {
     // メンバが存在するか
     bool hasMember(tjs_char const *name) const {
         tTJSVariant func;
-        return TJS_SUCCEEDED(
-            self->PropGet(TJS_MEMBERMUSTEXIST, name, 0, &func, self));
+        return TJS_SUCCEEDED(self->PropGet(TJS_MEMBERMUSTEXIST, name, 0, &func, self));
     }
 
     // TJSメソッド呼び出し
-    tjs_error funcCall(tjs_char const *name, tTJSVariant *result,
-                       tjs_int numparams = 0, tTJSVariant **params = 0) const {
+    tjs_error funcCall(tjs_char const *name, tTJSVariant *result, tjs_int numparams = 0,
+                       tTJSVariant **params = 0) const {
         //        return Try_iTJSDispatch2_FuncCall(self, 0, name, 0, result,
         //        numparams, params, self);
         return self->FuncCall(0, name, 0, result, numparams, params, self);
@@ -695,7 +625,7 @@ struct WindowEx {
 
     // 引数なしコールバック
     bool callback(tjs_char const *name) const {
-        if (!hasMember(name))
+        if(!hasMember(name))
             return false;
         tTJSVariant rslt;
         funcCall(name, &rslt, 0, 0);
@@ -704,7 +634,7 @@ struct WindowEx {
 
     // variant渡しコールバック
     bool callback(tjs_char const *name, tTJSVariant *v) const {
-        if (!hasMember(name))
+        if(!hasMember(name))
             return false;
         tTJSVariant rslt;
         funcCall(name, &rslt, 1, &v);
@@ -714,7 +644,7 @@ struct WindowEx {
     // 座標渡しコールバック
     bool callback(tjs_char const *name, int x, int y) const {
         tTJSVariant vx(x), vy(y);
-        tTJSVariant rslt, *params[] = {&vx, &vy};
+        tTJSVariant rslt, *params[] = { &vx, &vy };
         funcCall(name, &rslt, 2, params);
         return !!rslt.AsInteger();
     }
@@ -722,7 +652,7 @@ struct WindowEx {
     // ４個渡しコールバック
     bool callback(tjs_char const *name, int a, int b, int c, int d) const {
         tTJSVariant va(a), vb(b), vc(c), vd(d);
-        tTJSVariant rslt, *params[] = {&va, &vb, &vc, &vd};
+        tTJSVariant rslt, *params[] = { &va, &vb, &vc, &vd };
         funcCall(name, &rslt, 4, params);
         return !!rslt.AsInteger();
     }
@@ -734,18 +664,17 @@ struct WindowEx {
     void regist(bool en) {}
 
     // ネイティブインスタンスの生成・破棄にあわせてレシーバを登録・解除する
-    WindowEx(iTJSDispatch2 *obj)
-        : self(obj), menuex(0), sysMenuModified(0), sysMenuModMap(0),
-          disableResize(false), disableMove(false), enableNCMEvent(false),
-          enableWinMsgHook(false) {
+    WindowEx(iTJSDispatch2 *obj) :
+        self(obj), menuex(0), sysMenuModified(0), sysMenuModMap(0), disableResize(false), disableMove(false),
+        enableNCMEvent(false), enableWinMsgHook(false) {
         regist(true);
         setMessageHookAll(false);
     }
 
     ~WindowEx() {
-        if (menuex)
+        if(menuex)
             menuex->Release();
-        if (sysMenuModified)
+        if(sysMenuModified)
             sysMenuModified->Release();
         resetSystemMenu();
         deleteOverlayBitmap();
@@ -760,7 +689,7 @@ struct WindowEx {
     }
 
     void deleteOverlayBitmap() {
-        if (ovbmp)
+        if(ovbmp)
             delete ovbmp;
         ovbmp = nullptr;
     }
@@ -775,7 +704,7 @@ struct WindowEx {
 
     static tjs_int getWindowNotificationNum(ttstr key) {
         tTJSVariant tmp;
-        if (!_getNotificationVariant(tmp))
+        if(!_getNotificationVariant(tmp))
             TVPThrowExceptionMessage(TJS_W("cache setup failed."));
         ncbPropAccessor nf(tmp);
         return nf.getIntValue(key.c_str(), -1);
@@ -783,7 +712,7 @@ struct WindowEx {
 
     static ttstr getWindowNotificationName(tjs_int num) {
         tTJSVariant tmp;
-        if (!_getNotificationVariant(tmp))
+        if(!_getNotificationVariant(tmp))
             TVPThrowExceptionMessage(TJS_W("cache setup failed."));
         ncbPropAccessor nf(tmp);
         return nf.getStrValue(num);
@@ -791,13 +720,13 @@ struct WindowEx {
 
 protected:
     tjs_error _setOverlayBitmap(tjs_int n, tTJSVariant **p) {
-        if (n > 0 && p[0]->Type() == tvtObject) {
-            if (!ovbmp) {
+        if(n > 0 && p[0]->Type() == tvtObject) {
+            if(!ovbmp) {
                 ovbmp = new OverlayBitmap();
-                if (!ovbmp)
+                if(!ovbmp)
                     return TJS_E_FAIL;
             }
-            if (!ovbmp->setBitmap(self, p[0]->AsObjectNoAddRef())) {
+            if(!ovbmp->setBitmap(self, p[0]->AsObjectNoAddRef())) {
                 deleteOverlayBitmap();
                 return TJS_E_FAIL;
             }
@@ -808,96 +737,62 @@ protected:
     static bool _getNotificationVariant(tTJSVariant &tmp) {
         iTJSDispatch2 *obj = TVPGetScriptDispatch();
         tmp.Clear();
-        bool hasval = TJS_SUCCEEDED(
-            obj->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("Window"), 0, &tmp, obj));
+        bool hasval = TJS_SUCCEEDED(obj->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("Window"), 0, &tmp, obj));
         obj->Release();
-        if (!hasval)
+        if(!hasval)
             return false;
 
         obj = tmp.AsObjectNoAddRef();
         tmp.Clear();
-        if (TJS_FAILED(obj->PropGet(TJS_MEMBERMUSTEXIST,
-                                    TJS_W("_Notifications"), 0, &tmp, obj))) {
+        if(TJS_FAILED(obj->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("_Notifications"), 0, &tmp, obj))) {
             ncbDictionaryAccessor dict;
 #ifndef WM_CTLCOLOR
 #define WM_CTLCOLOR 0x0019
 #endif
-#define WM(key)                                                                \
-    dict.SetValue(TJS_W(#key), WM_##key),                                      \
-        dict.SetValue(WM_##key, ttstr(TJS_W(#key)))
-            WM(NULL), WM(CREATE), WM(DESTROY), WM(MOVE), WM(SIZE), WM(ACTIVATE),
-                WM(SETFOCUS), WM(KILLFOCUS), WM(ENABLE), WM(SETREDRAW),
-                WM(SETTEXT), WM(GETTEXT), WM(GETTEXTLENGTH), WM(PAINT),
-                WM(CLOSE), WM(QUERYENDSESSION), WM(QUERYOPEN), WM(ENDSESSION),
-                WM(QUIT), WM(ERASEBKGND), WM(SYSCOLORCHANGE), WM(SHOWWINDOW),
-                WM(CTLCOLOR), WM(WININICHANGE), WM(SETTINGCHANGE),
-                WM(DEVMODECHANGE), WM(ACTIVATEAPP), WM(FONTCHANGE),
-                WM(TIMECHANGE), WM(CANCELMODE), WM(SETCURSOR),
-                WM(MOUSEACTIVATE), WM(CHILDACTIVATE), WM(QUEUESYNC),
-                WM(GETMINMAXINFO), WM(PAINTICON), WM(ICONERASEBKGND),
-                WM(NEXTDLGCTL), WM(SPOOLERSTATUS), WM(DRAWITEM),
-                WM(MEASUREITEM), WM(DELETEITEM), WM(VKEYTOITEM), WM(CHARTOITEM),
-                WM(SETFONT), WM(GETFONT), WM(SETHOTKEY), WM(GETHOTKEY),
-                WM(QUERYDRAGICON), WM(COMPAREITEM), WM(GETOBJECT),
-                WM(COMPACTING), WM(COMMNOTIFY), WM(WINDOWPOSCHANGING),
-                WM(WINDOWPOSCHANGED), WM(POWER), WM(COPYDATA),
-                WM(CANCELJOURNAL), WM(NOTIFY), WM(INPUTLANGCHANGEREQUEST),
-                WM(INPUTLANGCHANGE), WM(TCARD), WM(HELP), WM(USERCHANGED),
-                WM(NOTIFYFORMAT), WM(CONTEXTMENU), WM(STYLECHANGING),
-                WM(STYLECHANGED), WM(DISPLAYCHANGE), WM(GETICON), WM(SETICON),
-                WM(NCCREATE), WM(NCDESTROY), WM(NCCALCSIZE), WM(NCHITTEST),
-                WM(NCPAINT), WM(NCACTIVATE), WM(GETDLGCODE), WM(SYNCPAINT),
-                WM(NCMOUSEMOVE), WM(NCLBUTTONDOWN), WM(NCLBUTTONUP),
-                WM(NCLBUTTONDBLCLK), WM(NCRBUTTONDOWN), WM(NCRBUTTONUP),
-                WM(NCRBUTTONDBLCLK), WM(NCMBUTTONDOWN), WM(NCMBUTTONUP),
-                WM(NCMBUTTONDBLCLK), WM(NCXBUTTONDOWN), WM(NCXBUTTONUP),
-                WM(NCXBUTTONDBLCLK), WM(INPUT_DEVICE_CHANGE), WM(INPUT),
-                WM(KEYFIRST), WM(KEYDOWN), WM(KEYUP), WM(CHAR), WM(DEADCHAR),
-                WM(SYSKEYDOWN), WM(SYSKEYUP), WM(SYSCHAR), WM(SYSDEADCHAR),
-                WM(UNICHAR), WM(KEYLAST), WM(KEYLAST), WM(IME_STARTCOMPOSITION),
-                WM(IME_ENDCOMPOSITION), WM(IME_COMPOSITION), WM(IME_KEYLAST),
-                WM(INITDIALOG), WM(COMMAND), WM(SYSCOMMAND), WM(TIMER),
-                WM(HSCROLL), WM(VSCROLL), WM(INITMENU), WM(INITMENUPOPUP),
-                WM(MENUSELECT), WM(MENUCHAR), WM(ENTERIDLE), WM(MENURBUTTONUP),
-                WM(MENUDRAG), WM(MENUGETOBJECT), WM(UNINITMENUPOPUP),
-                WM(MENUCOMMAND), WM(CHANGEUISTATE), WM(UPDATEUISTATE),
-                WM(QUERYUISTATE), WM(CTLCOLORMSGBOX), WM(CTLCOLOREDIT),
-                WM(CTLCOLORLISTBOX), WM(CTLCOLORBTN), WM(CTLCOLORDLG),
-                WM(CTLCOLORSCROLLBAR), WM(CTLCOLORSTATIC), WM(MOUSEFIRST),
-                WM(MOUSEMOVE), WM(LBUTTONDOWN), WM(LBUTTONUP),
-                WM(LBUTTONDBLCLK), WM(RBUTTONDOWN), WM(RBUTTONUP),
-                WM(RBUTTONDBLCLK), WM(MBUTTONDOWN), WM(MBUTTONUP),
-                WM(MBUTTONDBLCLK), WM(MOUSEWHEEL), WM(XBUTTONDOWN),
-                WM(XBUTTONUP), WM(XBUTTONDBLCLK), WM(MOUSEHWHEEL),
-                WM(MOUSELAST), WM(MOUSELAST), WM(MOUSELAST), WM(MOUSELAST),
-                WM(PARENTNOTIFY), WM(ENTERMENULOOP), WM(EXITMENULOOP),
-                WM(NEXTMENU), WM(SIZING), WM(CAPTURECHANGED), WM(MOVING),
-                WM(POWERBROADCAST), WM(DEVICECHANGE), WM(MDICREATE),
-                WM(MDIDESTROY), WM(MDIACTIVATE), WM(MDIRESTORE), WM(MDINEXT),
-                WM(MDIMAXIMIZE), WM(MDITILE), WM(MDICASCADE),
-                WM(MDIICONARRANGE), WM(MDIGETACTIVE), WM(MDISETMENU),
-                WM(ENTERSIZEMOVE), WM(EXITSIZEMOVE), WM(DROPFILES),
-                WM(MDIREFRESHMENU), WM(IME_SETCONTEXT), WM(IME_NOTIFY),
-                WM(IME_CONTROL), WM(IME_COMPOSITIONFULL), WM(IME_SELECT),
-                WM(IME_CHAR), WM(IME_REQUEST), WM(IME_KEYDOWN), WM(IME_KEYUP),
-                WM(MOUSEHOVER), WM(MOUSELEAVE), WM(NCMOUSEHOVER),
-                WM(NCMOUSELEAVE), WM(WTSSESSION_CHANGE), WM(TABLET_FIRST),
-                WM(TABLET_LAST), WM(CUT), WM(COPY), WM(PASTE), WM(CLEAR),
-                WM(UNDO), WM(RENDERFORMAT), WM(RENDERALLFORMATS),
-                WM(DESTROYCLIPBOARD), WM(DRAWCLIPBOARD), WM(PAINTCLIPBOARD),
-                WM(VSCROLLCLIPBOARD), WM(SIZECLIPBOARD), WM(ASKCBFORMATNAME),
-                WM(CHANGECBCHAIN), WM(HSCROLLCLIPBOARD), WM(QUERYNEWPALETTE),
-                WM(PALETTEISCHANGING), WM(PALETTECHANGED), WM(HOTKEY),
-                WM(PRINT), WM(PRINTCLIENT), WM(APPCOMMAND), WM(THEMECHANGED),
-                WM(CLIPBOARDUPDATE), WM(DWMCOMPOSITIONCHANGED),
-                WM(DWMNCRENDERINGCHANGED), WM(DWMCOLORIZATIONCOLORCHANGED),
-                WM(DWMWINDOWMAXIMIZEDCHANGE), WM(GETTITLEBARINFOEX),
-                WM(HANDHELDFIRST), WM(HANDHELDLAST), WM(AFXFIRST), WM(AFXLAST),
-                WM(PENWINFIRST), WM(PENWINLAST),
+#define WM(key) dict.SetValue(TJS_W(#key), WM_##key), dict.SetValue(WM_##key, ttstr(TJS_W(#key)))
+            WM(NULL), WM(CREATE), WM(DESTROY), WM(MOVE), WM(SIZE), WM(ACTIVATE), WM(SETFOCUS), WM(KILLFOCUS),
+                WM(ENABLE), WM(SETREDRAW), WM(SETTEXT), WM(GETTEXT), WM(GETTEXTLENGTH), WM(PAINT), WM(CLOSE),
+                WM(QUERYENDSESSION), WM(QUERYOPEN), WM(ENDSESSION), WM(QUIT), WM(ERASEBKGND), WM(SYSCOLORCHANGE),
+                WM(SHOWWINDOW), WM(CTLCOLOR), WM(WININICHANGE), WM(SETTINGCHANGE), WM(DEVMODECHANGE), WM(ACTIVATEAPP),
+                WM(FONTCHANGE), WM(TIMECHANGE), WM(CANCELMODE), WM(SETCURSOR), WM(MOUSEACTIVATE), WM(CHILDACTIVATE),
+                WM(QUEUESYNC), WM(GETMINMAXINFO), WM(PAINTICON), WM(ICONERASEBKGND), WM(NEXTDLGCTL), WM(SPOOLERSTATUS),
+                WM(DRAWITEM), WM(MEASUREITEM), WM(DELETEITEM), WM(VKEYTOITEM), WM(CHARTOITEM), WM(SETFONT), WM(GETFONT),
+                WM(SETHOTKEY), WM(GETHOTKEY), WM(QUERYDRAGICON), WM(COMPAREITEM), WM(GETOBJECT), WM(COMPACTING),
+                WM(COMMNOTIFY), WM(WINDOWPOSCHANGING), WM(WINDOWPOSCHANGED), WM(POWER), WM(COPYDATA), WM(CANCELJOURNAL),
+                WM(NOTIFY), WM(INPUTLANGCHANGEREQUEST), WM(INPUTLANGCHANGE), WM(TCARD), WM(HELP), WM(USERCHANGED),
+                WM(NOTIFYFORMAT), WM(CONTEXTMENU), WM(STYLECHANGING), WM(STYLECHANGED), WM(DISPLAYCHANGE), WM(GETICON),
+                WM(SETICON), WM(NCCREATE), WM(NCDESTROY), WM(NCCALCSIZE), WM(NCHITTEST), WM(NCPAINT), WM(NCACTIVATE),
+                WM(GETDLGCODE), WM(SYNCPAINT), WM(NCMOUSEMOVE), WM(NCLBUTTONDOWN), WM(NCLBUTTONUP), WM(NCLBUTTONDBLCLK),
+                WM(NCRBUTTONDOWN), WM(NCRBUTTONUP), WM(NCRBUTTONDBLCLK), WM(NCMBUTTONDOWN), WM(NCMBUTTONUP),
+                WM(NCMBUTTONDBLCLK), WM(NCXBUTTONDOWN), WM(NCXBUTTONUP), WM(NCXBUTTONDBLCLK), WM(INPUT_DEVICE_CHANGE),
+                WM(INPUT), WM(KEYFIRST), WM(KEYDOWN), WM(KEYUP), WM(CHAR), WM(DEADCHAR), WM(SYSKEYDOWN), WM(SYSKEYUP),
+                WM(SYSCHAR), WM(SYSDEADCHAR), WM(UNICHAR), WM(KEYLAST), WM(KEYLAST), WM(IME_STARTCOMPOSITION),
+                WM(IME_ENDCOMPOSITION), WM(IME_COMPOSITION), WM(IME_KEYLAST), WM(INITDIALOG), WM(COMMAND),
+                WM(SYSCOMMAND), WM(TIMER), WM(HSCROLL), WM(VSCROLL), WM(INITMENU), WM(INITMENUPOPUP), WM(MENUSELECT),
+                WM(MENUCHAR), WM(ENTERIDLE), WM(MENURBUTTONUP), WM(MENUDRAG), WM(MENUGETOBJECT), WM(UNINITMENUPOPUP),
+                WM(MENUCOMMAND), WM(CHANGEUISTATE), WM(UPDATEUISTATE), WM(QUERYUISTATE), WM(CTLCOLORMSGBOX),
+                WM(CTLCOLOREDIT), WM(CTLCOLORLISTBOX), WM(CTLCOLORBTN), WM(CTLCOLORDLG), WM(CTLCOLORSCROLLBAR),
+                WM(CTLCOLORSTATIC), WM(MOUSEFIRST), WM(MOUSEMOVE), WM(LBUTTONDOWN), WM(LBUTTONUP), WM(LBUTTONDBLCLK),
+                WM(RBUTTONDOWN), WM(RBUTTONUP), WM(RBUTTONDBLCLK), WM(MBUTTONDOWN), WM(MBUTTONUP), WM(MBUTTONDBLCLK),
+                WM(MOUSEWHEEL), WM(XBUTTONDOWN), WM(XBUTTONUP), WM(XBUTTONDBLCLK), WM(MOUSEHWHEEL), WM(MOUSELAST),
+                WM(MOUSELAST), WM(MOUSELAST), WM(MOUSELAST), WM(PARENTNOTIFY), WM(ENTERMENULOOP), WM(EXITMENULOOP),
+                WM(NEXTMENU), WM(SIZING), WM(CAPTURECHANGED), WM(MOVING), WM(POWERBROADCAST), WM(DEVICECHANGE),
+                WM(MDICREATE), WM(MDIDESTROY), WM(MDIACTIVATE), WM(MDIRESTORE), WM(MDINEXT), WM(MDIMAXIMIZE),
+                WM(MDITILE), WM(MDICASCADE), WM(MDIICONARRANGE), WM(MDIGETACTIVE), WM(MDISETMENU), WM(ENTERSIZEMOVE),
+                WM(EXITSIZEMOVE), WM(DROPFILES), WM(MDIREFRESHMENU), WM(IME_SETCONTEXT), WM(IME_NOTIFY),
+                WM(IME_CONTROL), WM(IME_COMPOSITIONFULL), WM(IME_SELECT), WM(IME_CHAR), WM(IME_REQUEST),
+                WM(IME_KEYDOWN), WM(IME_KEYUP), WM(MOUSEHOVER), WM(MOUSELEAVE), WM(NCMOUSEHOVER), WM(NCMOUSELEAVE),
+                WM(WTSSESSION_CHANGE), WM(TABLET_FIRST), WM(TABLET_LAST), WM(CUT), WM(COPY), WM(PASTE), WM(CLEAR),
+                WM(UNDO), WM(RENDERFORMAT), WM(RENDERALLFORMATS), WM(DESTROYCLIPBOARD), WM(DRAWCLIPBOARD),
+                WM(PAINTCLIPBOARD), WM(VSCROLLCLIPBOARD), WM(SIZECLIPBOARD), WM(ASKCBFORMATNAME), WM(CHANGECBCHAIN),
+                WM(HSCROLLCLIPBOARD), WM(QUERYNEWPALETTE), WM(PALETTEISCHANGING), WM(PALETTECHANGED), WM(HOTKEY),
+                WM(PRINT), WM(PRINTCLIENT), WM(APPCOMMAND), WM(THEMECHANGED), WM(CLIPBOARDUPDATE),
+                WM(DWMCOMPOSITIONCHANGED), WM(DWMNCRENDERINGCHANGED), WM(DWMCOLORIZATIONCOLORCHANGED),
+                WM(DWMWINDOWMAXIMIZEDCHANGE), WM(GETTITLEBARINFOEX), WM(HANDHELDFIRST), WM(HANDHELDLAST), WM(AFXFIRST),
+                WM(AFXLAST), WM(PENWINFIRST), WM(PENWINLAST),
 #undef WM
                 tmp = dict;
-            if (TJS_FAILED(obj->PropSet(TJS_MEMBERENSURE,
-                                        TJS_W("_Notifications"), 0, &tmp, obj)))
+            if(TJS_FAILED(obj->PropSet(TJS_MEMBERENSURE, TJS_W("_Notifications"), 0, &tmp, obj)))
                 return false;
         }
         return true;
@@ -910,10 +805,10 @@ private:
     HMENU sysMenu;
     HICON externalIcon;
     bool hasResizing, hasMoving, hasMove,
-        hasNcMsMove;       //< メソッドが存在するかフラグ
-    bool disableResize;    //< サイズ変更禁止
-    bool disableMove;      //< ウィンドウ移動禁止
-    bool enableNCMEvent;   //< WM_SETCURSORコールバック
+        hasNcMsMove; //< メソッドが存在するかフラグ
+    bool disableResize; //< サイズ変更禁止
+    bool disableMove; //< ウィンドウ移動禁止
+    bool enableNCMEvent; //< WM_SETCURSORコールバック
     bool enableWinMsgHook; //< メッセージフック有効
     DWORD bitHooks[0x0400 / 32];
 
@@ -925,7 +820,7 @@ public:
         OverlayBitmap() : overlay(0), bitmap(0), bmpdc(0) {}
 
         bool setBitmap(iTJSDispatch2 *win, iTJSDispatch2 *lay) {
-            if (!lay || !lay->IsInstanceOf(0, 0, 0, TJS_W("Layer"), lay))
+            if(!lay || !lay->IsInstanceOf(0, 0, 0, TJS_W("Layer"), lay))
                 return false;
             WindowEx::GetHWND(win);
             return true;
@@ -941,13 +836,12 @@ public:
 };
 
 // 拡張イベント用ネイティブインスタンスゲッタ
-NCB_GET_INSTANCE_HOOK(WindowEx){
-    /**/ NCB_GET_INSTANCE_HOOK_CLASS(){}
+NCB_GET_INSTANCE_HOOK(WindowEx){ /**/ NCB_GET_INSTANCE_HOOK_CLASS(){}
 
-    /**/ ~NCB_GET_INSTANCE_HOOK_CLASS(){}
+                                 /**/ ~NCB_GET_INSTANCE_HOOK_CLASS(){}
 
-    NCB_INSTANCE_GETTER(objthis){ClassT *obj = GetNativeInstance(objthis);
-if (!obj)
+                                 NCB_INSTANCE_GETTER(objthis){ ClassT *obj = GetNativeInstance(objthis);
+if(!obj)
     SetNativeInstance(objthis, (obj = new ClassT(objthis)));
 return obj;
 }
@@ -994,16 +888,13 @@ NCB_ATTACH_CLASS_WITH_HOOK(WindowEx, Window) {
     RawCallback(TJS_W("getWindowRect"), &Class::getWindowRect, 0);
     RawCallback(TJS_W("getClientRect"), &Class::getClientRect, 0);
     RawCallback(TJS_W("getNormalRect"), &Class::getNormalRect, 0);
-    RawCallback(TJS_W("disableResize"), &Class::getDisableResize,
-                &Class::setDisableResize, 0);
+    RawCallback(TJS_W("disableResize"), &Class::getDisableResize, &Class::setDisableResize, 0);
     // RawCallback(TJS_W("disableMove"), &Class::getDisableMove,
     // &Class::setDisableMove, 0);
     RawCallback(TJS_W("setOverlayBitmap"), &Class::setOverlayBitmap, 0);
-    RawCallback(TJS_W("exSystemMenu"), &Class::getExSystemMenu,
-                &Class::setExSystemMenu, 0);
+    RawCallback(TJS_W("exSystemMenu"), &Class::getExSystemMenu, &Class::setExSystemMenu, 0);
     // RawCallback(TJS_W("resetExSystemMenu"), &Class::resetExSystemMenu, 0);
-    RawCallback(TJS_W("enableNCMouseEvent"), &Class::getEnNCMEvent,
-                &Class::setEnNCMEvent, 0);
+    RawCallback(TJS_W("enableNCMouseEvent"), &Class::getEnNCMEvent, &Class::setEnNCMEvent, 0);
     RawCallback(TJS_W("ncHitTest"), &Class::nonClientHitTest, 0);
     RawCallback(TJS_W("focusMenuByKey"), &Class::focusMenuByKey, 0);
     RawCallback(TJS_W("setMessageHook"), &Class::setMessageHook, 0);
@@ -1022,11 +913,11 @@ struct MenuItemEx {
 
     // メニューを取得
     static HMENU GetHMENU(iTJSDispatch2 *obj) {
-        if (!obj)
+        if(!obj)
             return nullptr;
         tTJSVariant val;
         iTJSDispatch2 *global = TVPGetScriptDispatch(), *mi;
-        if (global) {
+        if(global) {
             global->PropGet(0, TJS_W("MenuItem"), 0, &val, obj);
             mi = val.AsObjectNoAddRef();
             val.Clear();
@@ -1058,20 +949,20 @@ struct MenuItemEx {
         tTJSVariant val, child;
         parent->PropGet(0, TJS_W("children"), 0, &child, parent);
         ncbPropAccessor charr(child);
-        if (!charr.IsValid())
+        if(!charr.IsValid())
             return (UINT)-1;
 
         obj->PropGet(0, TJS_W("index"), 0, &val, obj);
         int max = (int)val.AsInteger();
         UINT ret = (UINT)max;
-        for (int i = 0; i <= max; i++) {
+        for(int i = 0; i <= max; i++) {
             tTJSVariant vitem;
-            if (charr.checkVariant(i, vitem)) {
+            if(charr.checkVariant(i, vitem)) {
                 ncbPropAccessor item(vitem);
-                if (item.IsValid()) {
+                if(item.IsValid()) {
                     // 非表示の場合はカウントされない
-                    if (!item.getIntValue(TJS_W("visible"))) {
-                        if (i == max)
+                    if(!item.getIntValue(TJS_W("visible"))) {
+                        if(i == max)
                             return (UINT)-1;
                         ret--;
                     }
@@ -1083,12 +974,12 @@ struct MenuItemEx {
 
     // ウィンドウを取得
     static iTJSDispatch2 *GetWindow(iTJSDispatch2 *obj) {
-        if (!obj)
+        if(!obj)
             return nullptr;
         tTJSVariant val;
         obj->PropGet(0, TJS_W("root"), 0, &val, obj);
         obj = val.AsObjectNoAddRef();
-        if (!obj)
+        if(!obj)
             return nullptr;
         val.Clear();
         obj->PropGet(0, TJS_W("window"), 0, &val, obj);
@@ -1124,25 +1015,25 @@ struct MenuItemEx {
     void setBmpUnchecked(tTJSVariant v) { setBmpSelect(v, BMP_UNCHK); }
 
     tjs_int64 getBmpSelect(int sel) const {
-        switch (bmptype[sel]) {
-        case BMT_BMP:
-            return -1;
-        default:
-            return 0;
+        switch(bmptype[sel]) {
+            case BMT_BMP:
+                return -1;
+            default:
+                return 0;
         }
     }
 
     void setBmpSelect(tTJSVariant &v, int sel) {
         removeBitmap(sel);
-        switch (v.Type()) {
-        case tvtVoid:
-        case tvtInteger:
-        case tvtString:
-            bmptype[sel] = BMT_SYS;
-            bitmap[sel] = (HBITMAP)v.AsInteger();
-            break;
-        case tvtObject:
-            bmptype[sel] = BMT_BMP;
+        switch(v.Type()) {
+            case tvtVoid:
+            case tvtInteger:
+            case tvtString:
+                bmptype[sel] = BMT_SYS;
+                bitmap[sel] = (HBITMAP)v.AsInteger();
+                break;
+            case tvtObject:
+                bmptype[sel] = BMT_BMP;
         }
         updateMenuItemInfo();
     }
@@ -1155,7 +1046,7 @@ struct MenuItemEx {
     void updateMenuItemInfo() {
         iTJSDispatch2 *parent = GetParentMenu(obj);
         HMENU hmenu = GetHMENU(parent);
-        if (hmenu != nullptr) {
+        if(hmenu != nullptr) {
             GetIndex(obj, parent);
         }
     }
@@ -1163,23 +1054,21 @@ struct MenuItemEx {
     static UINT GetMenuItemID(iTJSDispatch2 *obj) { return 0; }
 
     void updateMenuItemID() {
-        if (id != 0)
+        if(id != 0)
             setMenuItemID(false);
         id = GetMenuItemID(obj);
     }
 
     void setMenuItemID(bool isset) {
         iTJSDispatch2 *win = GetWindow(obj);
-        if (win) {
+        if(win) {
             WindowEx *wex = WindowEx::GetInstance(win);
-            if (wex)
+            if(wex)
                 wex->setMenuItemID(obj, id, isset);
         }
     }
 
-    MenuItemEx(iTJSDispatch2 *_obj) : obj(_obj), id(0), rj(-1) {
-        updateMenuItemID();
-    }
+    MenuItemEx(iTJSDispatch2 *_obj) : obj(_obj), id(0), rj(-1) { updateMenuItemID(); }
 
     ~MenuItemEx() { setMenuItemID(false); }
 
@@ -1191,33 +1080,29 @@ private:
     HBITMAP bitmap[BMP_MAX];
 
 public:
-    static bool InsertMenuItem(HMENU menu, iTJSDispatch2 *obj, WORD &curid,
-                               WORD idmv, iTJSDispatch2 *items, DWORD sysdt) {
+    static bool InsertMenuItem(HMENU menu, iTJSDispatch2 *obj, WORD &curid, WORD idmv, iTJSDispatch2 *items,
+                               DWORD sysdt) {
         return true;
     }
 
-    static HMENU CreateMenuList(HMENU menu, iTJSDispatch2 *obj, WORD &curid,
-                                WORD idmv, iTJSDispatch2 *items,
+    static HMENU CreateMenuList(HMENU menu, iTJSDispatch2 *obj, WORD &curid, WORD idmv, iTJSDispatch2 *items,
                                 ULONG_PTR sysdt) {
         return nullptr;
     }
 
     // MenuItem.popupEx(flags, x=cursorX, y=cursorY, hwnd=this.root.window,
     // rect, menulist=this.children)
-    static tjs_error TJS_INTF_METHOD popupEx(tTJSVariant *r, tjs_int n,
-                                             tTJSVariant **p,
-                                             iTJSDispatch2 *objthis) {
+    static tjs_error TJS_INTF_METHOD popupEx(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *objthis) {
         return TJS_S_OK;
     }
 };
 
-NCB_GET_INSTANCE_HOOK(MenuItemEx){
-    /**/ NCB_GET_INSTANCE_HOOK_CLASS(){}
+NCB_GET_INSTANCE_HOOK(MenuItemEx){ /**/ NCB_GET_INSTANCE_HOOK_CLASS(){}
 
-    /**/ ~NCB_GET_INSTANCE_HOOK_CLASS(){}
+                                   /**/ ~NCB_GET_INSTANCE_HOOK_CLASS(){}
 
-    NCB_INSTANCE_GETTER(objthis){ClassT *obj = GetNativeInstance(objthis);
-if (!obj)
+                                   NCB_INSTANCE_GETTER(objthis){ ClassT *obj = GetNativeInstance(objthis);
+if(!obj)
     SetNativeInstance(objthis, (obj = new ClassT(objthis)));
 return obj;
 }
@@ -1248,26 +1133,23 @@ NCB_ATTACH_CLASS_WITH_HOOK(MenuItemEx, MenuItem) {
     Variant(TJS_W("biPopupMaximize"), (tjs_int64)HBMMENU_POPUP_MAXIMIZE);
     Variant(TJS_W("biPopupMinimize"), (tjs_int64)HBMMENU_POPUP_MINIMIZE);
 
-    Property(TJS_W("rightJustify"), &Class::getRightJustify,
-             &Class::setRightJustify);
+    Property(TJS_W("rightJustify"), &Class::getRightJustify, &Class::setRightJustify);
     Property(TJS_W("bmpItem"), &Class::getBmpItem, &Class::setBmpItem);
     Property(TJS_W("bmpChecked"), &Class::getBmpChecked, &Class::setBmpChecked);
-    Property(TJS_W("bmpUnchecked"), &Class::getBmpUnchecked,
-             &Class::setBmpUnchecked);
+    Property(TJS_W("bmpUnchecked"), &Class::getBmpUnchecked, &Class::setBmpUnchecked);
 }
 
 NCB_ATTACH_FUNCTION(popupEx, MenuItem, MenuItemEx::popupEx);
 
 void WindowEx::checkUpdateMenuItem(HMENU menu, int pos, UINT id) {
-    if (id == 0 || id == (UINT)-1)
+    if(id == 0 || id == (UINT)-1)
         return;
 
     ttstr idstr((tjs_int)(id));
     tTJSVariant var;
 
-    tjs_error chk = menuex->PropGet(TJS_MEMBERMUSTEXIST, idstr.c_str(),
-                                    idstr.GetHint(), &var, menuex);
-    if (TJS_SUCCEEDED(chk) && var.Type() == tvtObject) {
+    tjs_error chk = menuex->PropGet(TJS_MEMBERMUSTEXIST, idstr.c_str(), idstr.GetHint(), &var, menuex);
+    if(TJS_SUCCEEDED(chk) && var.Type() == tvtObject) {
         iTJSDispatch2 *obj = var.AsObjectNoAddRef();
         MenuItemEx *ex = ncbInstanceAdaptor<MenuItemEx>::GetNativeInstance(obj);
         //        if (ex != nullptr) ex->setMenuItemInfo(menu, pos, true);
@@ -1275,27 +1157,26 @@ void WindowEx::checkUpdateMenuItem(HMENU menu, int pos, UINT id) {
 }
 
 void WindowEx::setMenuItemID(iTJSDispatch2 *obj, UINT id, bool set) {
-    if (id == 0 || id == (UINT)-1)
+    if(id == 0 || id == (UINT)-1)
         return;
 
     ttstr idstr((tjs_int)(id));
     tTJSVariant var(obj, obj);
 
-    if (!menuex)
+    if(!menuex)
         menuex = TJSCreateDictionaryObject();
-    menuex->PropSet(TJS_MEMBERENSURE, idstr.c_str(), idstr.GetHint(), &var,
-                    menuex);
+    menuex->PropSet(TJS_MEMBERENSURE, idstr.c_str(), idstr.GetHint(), &var, menuex);
 }
 
 void WindowEx::resetSystemMenu() {
-    if (sysMenuModMap != nullptr)
+    if(sysMenuModMap != nullptr)
         sysMenuModMap->Release();
     sysMenuModMap = nullptr;
 }
 
 void WindowEx::modifySystemMenu() {
     resetSystemMenu();
-    if (sysMenuModified == nullptr || cachedHWND == nullptr)
+    if(sysMenuModified == nullptr || cachedHWND == nullptr)
         return;
     sysMenuModMap = TJSCreateDictionaryObject();
     WORD id = 0xF000 - 1;
@@ -1306,70 +1187,49 @@ void WindowEx::modifySystemMenu() {
 
 ////////////////////////////////////////////////////////////////
 struct ConsoleEx {
-    static tjs_error TJS_INTF_METHOD restoreMaximize(tTJSVariant *r, tjs_int n,
-                                                     tTJSVariant **p,
-                                                     iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD restoreMaximize(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD maximize(tTJSVariant *r, tjs_int n,
-                                              tTJSVariant **p,
-                                              iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD maximize(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
     // getRect
-    static tjs_error TJS_INTF_METHOD getRect(tTJSVariant *r, tjs_int n,
-                                             tTJSVariant **p,
-                                             iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD getRect(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD setPos(tTJSVariant *r, tjs_int n,
-                                            tTJSVariant **p,
-                                            iTJSDispatch2 *obj) {
-        if (n < 2)
+    static tjs_error TJS_INTF_METHOD setPos(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
+        if(n < 2)
             return TJS_E_BADPARAMCOUNT;
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD bringAfter(tTJSVariant *r, tjs_int n,
-                                                tTJSVariant **p,
-                                                iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD bringAfter(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD getPlacement(tTJSVariant *r, tjs_int n,
-                                                  tTJSVariant **p,
-                                                  iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD getPlacement(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD setPlacement(tTJSVariant *r, tjs_int n,
-                                                  tTJSVariant **p,
-                                                  iTJSDispatch2 *obj) {
-        if (n < 1)
+    static tjs_error TJS_INTF_METHOD setPlacement(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
+        if(n < 1)
             return TJS_E_BADPARAMCOUNT;
-        if (p[0]->Type() != tvtObject)
+        if(p[0]->Type() != tvtObject)
             return TJS_E_INVALIDPARAM;
         return TJS_S_OK;
     }
 };
 
-NCB_ATTACH_FUNCTION_WITHTAG(restoreMaximize, Debug_console, Debug.console,
-                            ConsoleEx::restoreMaximize);
-NCB_ATTACH_FUNCTION_WITHTAG(maximize, Debug_console, Debug.console,
-                            ConsoleEx::maximize);
-NCB_ATTACH_FUNCTION_WITHTAG(getRect, Debug_console, Debug.console,
-                            ConsoleEx::getRect);
-NCB_ATTACH_FUNCTION_WITHTAG(setPos, Debug_console, Debug.console,
-                            ConsoleEx::setPos);
-NCB_ATTACH_FUNCTION_WITHTAG(getPlacement, Debug_console, Debug.console,
-                            ConsoleEx::getPlacement);
-NCB_ATTACH_FUNCTION_WITHTAG(setPlacement, Debug_console, Debug.console,
-                            ConsoleEx::setPlacement);
-NCB_ATTACH_FUNCTION_WITHTAG(bringAfter, Debug_console, Debug.console,
-                            ConsoleEx::bringAfter);
+NCB_ATTACH_FUNCTION_WITHTAG(restoreMaximize, Debug_console, Debug.console, ConsoleEx::restoreMaximize);
+NCB_ATTACH_FUNCTION_WITHTAG(maximize, Debug_console, Debug.console, ConsoleEx::maximize);
+NCB_ATTACH_FUNCTION_WITHTAG(getRect, Debug_console, Debug.console, ConsoleEx::getRect);
+NCB_ATTACH_FUNCTION_WITHTAG(setPos, Debug_console, Debug.console, ConsoleEx::setPos);
+NCB_ATTACH_FUNCTION_WITHTAG(getPlacement, Debug_console, Debug.console, ConsoleEx::getPlacement);
+NCB_ATTACH_FUNCTION_WITHTAG(setPlacement, Debug_console, Debug.console, ConsoleEx::setPlacement);
+NCB_ATTACH_FUNCTION_WITHTAG(bringAfter, Debug_console, Debug.console, ConsoleEx::bringAfter);
 
 ////////////////////////////////////////////////////////////////
 struct PadEx {
@@ -1384,7 +1244,7 @@ struct PadEx {
         obj->PropGet(0, TJS_W("title"), 0, &val, obj);
         obj->PropSet(0, TJS_W("title"), 0, &_uuid, obj);
 
-        SearchWork wk = {TJS_W("TTVPPadForm"), _uuid, nullptr};
+        SearchWork wk = { TJS_W("TTVPPadForm"), _uuid, nullptr };
         obj->PropSet(0, TJS_W("title"), 0, &val, obj);
         return wk.result;
     }
@@ -1392,13 +1252,12 @@ struct PadEx {
     // メンバが存在するか
     bool hasMember(tjs_char const *name) const {
         tTJSVariant func;
-        return TJS_SUCCEEDED(
-            self->PropGet(TJS_MEMBERMUSTEXIST, name, 0, &func, self));
+        return TJS_SUCCEEDED(self->PropGet(TJS_MEMBERMUSTEXIST, name, 0, &func, self));
     }
 
     // TJSメソッド呼び出し
-    tjs_error funcCall(tjs_char const *name, tTJSVariant *result,
-                       tjs_int numparams = 0, tTJSVariant **params = 0) const {
+    tjs_error funcCall(tjs_char const *name, tTJSVariant *result, tjs_int numparams = 0,
+                       tTJSVariant **params = 0) const {
         //        return Try_iTJSDispatch2_FuncCall(self, 0, name, 0, result,
         //        numparams, params, self);
         return self->FuncCall(0, name, 0, result, numparams, params, self);
@@ -1406,7 +1265,7 @@ struct PadEx {
 
     // 引数なしコールバック
     bool callback(tjs_char const *name) const {
-        if (!hasMember(name))
+        if(!hasMember(name))
             return false;
         tTJSVariant rslt;
         funcCall(name, &rslt, 0, 0);
@@ -1426,116 +1285,97 @@ private:
     HWND hwnd;
 };
 
-NCB_GET_INSTANCE_HOOK(PadEx){
-    /**/ NCB_GET_INSTANCE_HOOK_CLASS(){}
+NCB_GET_INSTANCE_HOOK(PadEx){ /**/ NCB_GET_INSTANCE_HOOK_CLASS(){}
 
-    /**/ ~NCB_GET_INSTANCE_HOOK_CLASS(){}
+                              /**/ ~NCB_GET_INSTANCE_HOOK_CLASS(){}
 
-    NCB_INSTANCE_GETTER(objthis){ClassT *obj = GetNativeInstance(objthis);
-if (!obj)
+                              NCB_INSTANCE_GETTER(objthis){ ClassT *obj = GetNativeInstance(objthis);
+if(!obj)
     SetNativeInstance(objthis, (obj = new ClassT(objthis)));
 return obj;
 }
 }
 ;
 
-NCB_ATTACH_CLASS_WITH_HOOK(PadEx, Pad) {
-    Method(TJS_W("registerExEvent"), &Class::registerExEvents);
-}
+NCB_ATTACH_CLASS_WITH_HOOK(PadEx, Pad) { Method(TJS_W("registerExEvent"), &Class::registerExEvents); }
 ////////////////////////////////////////////////////////////////
 
 struct System {
     static tjs_int getDoubleClickTime() { return -1; }
 
-    static tjs_error TJS_INTF_METHOD
-    getDisplayMonitors(tTJSVariant *result, tjs_int numparams,
-                       tTJSVariant **param, iTJSDispatch2 *objthis) {
+    static tjs_error TJS_INTF_METHOD getDisplayMonitors(tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
+                                                        iTJSDispatch2 *objthis) {
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD getMonitorInfo(tTJSVariant *result,
-                                                    tjs_int numparams,
-                                                    tTJSVariant **param,
+    static tjs_error TJS_INTF_METHOD getMonitorInfo(tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
                                                     iTJSDispatch2 *objthis) {
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD getCursorPos(tTJSVariant *r, tjs_int n,
-                                                  tTJSVariant **p,
-                                                  iTJSDispatch2 *obj) {
+    static tjs_error TJS_INTF_METHOD getCursorPos(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD setCursorPos(tTJSVariant *r, tjs_int n,
-                                                  tTJSVariant **p,
-                                                  iTJSDispatch2 *obj) {
-        if (n < 2)
+    static tjs_error TJS_INTF_METHOD setCursorPos(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *obj) {
+        if(n < 2)
             return TJS_E_BADPARAMCOUNT;
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD getSystemMetrics(tTJSVariant *r, tjs_int n,
-                                                      tTJSVariant **p,
+    static tjs_error TJS_INTF_METHOD getSystemMetrics(tTJSVariant *r, tjs_int n, tTJSVariant **p,
                                                       iTJSDispatch2 *objthis) {
-        if (n < 1)
+        if(n < 1)
             return TJS_E_BADPARAMCOUNT;
 
-        if (p[0]->Type() != tvtString)
+        if(p[0]->Type() != tvtString)
             return TJS_E_INVALIDPARAM;
         ttstr key(p[0]->AsStringNoAddRef());
-        if (key == TJS_W(""))
+        if(key == TJS_W(""))
             return TJS_E_INVALIDPARAM;
-        key.ToUppserCase();
+        key.ToUpperCase();
 
         tTJSVariant tmp;
         iTJSDispatch2 *obj = TVPGetScriptDispatch();
-        bool hasval = TJS_SUCCEEDED(
-            obj->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("System"), 0, &tmp, obj));
+        bool hasval = TJS_SUCCEEDED(obj->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("System"), 0, &tmp, obj));
         obj->Release();
-        if (!hasval)
+        if(!hasval)
             return TJS_E_FAIL;
 
         obj = tmp.AsObjectNoAddRef();
         tmp.Clear();
-        if (TJS_FAILED(obj->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("metrics"), 0,
-                                    &tmp, obj))) {
+        if(TJS_FAILED(obj->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("metrics"), 0, &tmp, obj))) {
             ncbDictionaryAccessor dict;
             tmp = dict;
-            if (TJS_FAILED(obj->PropSet(TJS_MEMBERENSURE, TJS_W("metrics"), 0,
-                                        &tmp, obj)))
+            if(TJS_FAILED(obj->PropSet(TJS_MEMBERENSURE, TJS_W("metrics"), 0, &tmp, obj)))
                 return TJS_E_FAIL;
         }
         ncbPropAccessor metrics(tmp);
         tjs_int num = metrics.getIntValue(key.c_str(), -1);
-        if (num < 0)
+        if(num < 0)
             return TJS_E_INVALIDPARAM;
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD readEnvValue(tTJSVariant *r, tjs_int n,
-                                                  tTJSVariant **p,
-                                                  iTJSDispatch2 *objthis) {
-        if (n < 1)
+    static tjs_error TJS_INTF_METHOD readEnvValue(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *objthis) {
+        if(n < 1)
             return TJS_E_BADPARAMCOUNT;
-        if (p[0]->Type() != tvtString)
+        if(p[0]->Type() != tvtString)
             return TJS_E_INVALIDPARAM;
         ttstr name(p[0]->AsStringNoAddRef());
-        if (name == TJS_W(""))
+        if(name == TJS_W(""))
             return TJS_E_INVALIDPARAM;
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD expandEnvString(tTJSVariant *r, tjs_int n,
-                                                     tTJSVariant **p,
+    static tjs_error TJS_INTF_METHOD expandEnvString(tTJSVariant *r, tjs_int n, tTJSVariant **p,
                                                      iTJSDispatch2 *objthis) {
-        if (n < 1)
+        if(n < 1)
             return TJS_E_BADPARAMCOUNT;
         return TJS_S_OK;
     }
 
-    static tjs_error TJS_INTF_METHOD setApplicationIcon(tTJSVariant *r,
-                                                        tjs_int n,
-                                                        tTJSVariant **p,
+    static tjs_error TJS_INTF_METHOD setApplicationIcon(tTJSVariant *r, tjs_int n, tTJSVariant **p,
                                                         iTJSDispatch2 *obj) {
         return TJS_S_OK;
     }
@@ -1573,19 +1413,17 @@ struct Scripts {
     }
 
     // Scripts.eval オーバーライド
-    static tjs_error TJS_INTF_METHOD eval(tTJSVariant *r, tjs_int n,
-                                          tTJSVariant **p,
-                                          iTJSDispatch2 *objthis) {
-        if (outputErrorLogOnEval)
+    static tjs_error TJS_INTF_METHOD eval(tTJSVariant *r, tjs_int n, tTJSVariant **p, iTJSDispatch2 *objthis) {
+        if(outputErrorLogOnEval)
             return evalOrig->FuncCall(0, nullptr, nullptr, r, n, p, objthis);
 
-        if (n < 1)
+        if(n < 1)
             return TJS_E_BADPARAMCOUNT;
         ttstr content = *p[0], name;
         tjs_int lineofs = 0;
-        if (n >= 2)
+        if(n >= 2)
             name = *p[1];
-        if (n >= 3)
+        if(n >= 3)
             lineofs = *p[2];
 
         TVPExecuteExpression(content, name, lineofs, r);
@@ -1600,7 +1438,7 @@ struct Scripts {
     }
 
     static void UnRegist() {
-        if (evalOrig)
+        if(evalOrig)
             evalOrig->Release();
         evalOrig = nullptr;
     }

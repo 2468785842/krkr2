@@ -21,24 +21,18 @@ private:
     cocos2d::Node *_root;
 };
 
-class TVPBaseFileSelectorForm : public iTVPBaseForm,
-                                public cocos2d::extension::TableViewDataSource {
+class TVPBaseFileSelectorForm : public iTVPBaseForm, public cocos2d::extension::TableViewDataSource {
 public:
     TVPBaseFileSelectorForm();
     virtual ~TVPBaseFileSelectorForm();
 
-    cocos2d::Size tableCellSizeForIndex(cocos2d::extension::TableView *table,
-                                        ssize_t idx) override;
-    cocos2d::extension::TableViewCell *
-    tableCellAtIndex(cocos2d::extension::TableView *table,
-                     ssize_t idx) override;
-    ssize_t
-    numberOfCellsInTableView(cocos2d::extension::TableView *table) override;
+    cocos2d::Size tableCellSizeForIndex(cocos2d::extension::TableView *table, ssize_t idx) override;
+    cocos2d::extension::TableViewCell *tableCellAtIndex(cocos2d::extension::TableView *table, ssize_t idx) override;
+    ssize_t numberOfCellsInTableView(cocos2d::extension::TableView *table) override;
     virtual void onCellClicked(int idx);
     virtual void onCellLongPress(int idx);
     void rearrangeLayout() override;
-    static std::pair<std::string, std::string>
-    PathSplit(const std::string &path);
+    static std::pair<std::string, std::string> PathSplit(const std::string &path);
 
 protected:
     virtual void bindBodyController(const NodeMap &allNodes) override;
@@ -58,12 +52,10 @@ protected:
     cocos2d::Node *_fileOperateMenuNode = nullptr;
     cocos2d::Node *_fileOperateMenu = nullptr;
     cocos2d::ui::ListView *_fileOperateMenulist;
-    cocos2d::RefPtr<cocos2d::ui::Widget> _fileOperateCell_unselect,
-        _fileOperateCell_view, _fileOperateCell_copy, _fileOperateCell_cut,
-        _fileOperateCell_paste, _fileOperateCell_unpack,
+    cocos2d::RefPtr<cocos2d::ui::Widget> _fileOperateCell_unselect, _fileOperateCell_view, _fileOperateCell_copy,
+        _fileOperateCell_cut, _fileOperateCell_paste, _fileOperateCell_unpack,
         _fileOperateCell_repack, // TODO
-        _fileOperateCell_delete, _fileOperateCell_rename,
-        _fileOperateCell_sendto;
+        _fileOperateCell_delete, _fileOperateCell_rename, _fileOperateCell_sendto;
 
     std::vector<std::string> _clipboardForFileManager;
     std::string _clipboardPath;
@@ -109,8 +101,7 @@ protected:
 
         void initFromFile(const char *filename, float width);
 
-        void setInfo(int idx, const FileInfo &info, bool selected,
-                     bool showSelect);
+        void setInfo(int idx, const FileInfo &info, bool selected, bool showSelect);
 
         void reset() { _set = false; }
 
@@ -129,16 +120,13 @@ protected:
         FileItemCell *_owner;
     };
     cocos2d::RefPtr<FileItemCellImpl> CellTemplateForSize;
-    FileItemCellImpl *FetchCell(FileItemCellImpl *CellModel,
-                                cocos2d::extension::TableView *table,
-                                ssize_t idx);
+    FileItemCellImpl *FetchCell(FileItemCellImpl *CellModel, cocos2d::extension::TableView *table, ssize_t idx);
 
     class FileItemCell : public cocos2d::extension::TableViewCell {
         typedef cocos2d::extension::TableViewCell inherit;
 
     public:
-        FileItemCell(TVPBaseFileSelectorForm *owner)
-            : _owner(owner), _impl(nullptr) {}
+        FileItemCell(TVPBaseFileSelectorForm *owner) : _owner(owner), _impl(nullptr) {}
 
         static FileItemCell *create(TVPBaseFileSelectorForm *owner) {
             FileItemCell *ret = new FileItemCell(owner);
@@ -150,7 +138,7 @@ protected:
         // retained
         FileItemCellImpl *detach() {
             FileItemCellImpl *ret = _impl;
-            if (ret) {
+            if(ret) {
                 _impl = nullptr;
                 ret->retain();
                 ret->removeFromParentAndCleanup(false);
@@ -182,13 +170,9 @@ class TVPFileSelectorForm : public TVPBaseFileSelectorForm {
     typedef TVPBaseFileSelectorForm inherit;
 
 public:
-    static TVPFileSelectorForm *create(const std::string &initfilename,
-                                       const std::string &initdir, bool issave);
-    void initFromPath(const std::string &initfilename,
-                      const std::string &initdir, bool issave);
-    void setOnClose(const std::function<void(const std::string &)> &func) {
-        _funcOnClose = func;
-    }
+    static TVPFileSelectorForm *create(const std::string &initfilename, const std::string &initdir, bool issave);
+    void initFromPath(const std::string &initfilename, const std::string &initdir, bool issave);
+    void setOnClose(const std::function<void(const std::string &)> &func) { _funcOnClose = func; }
 
 protected:
     virtual void bindFooterController(const NodeMap &allNodes) override;

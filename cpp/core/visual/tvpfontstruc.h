@@ -25,8 +25,7 @@ struct tTVPFont {
     ttstr Face; // font name
 
     bool operator==(const tTVPFont &rhs) const {
-        return Height == rhs.Height && Flags == rhs.Flags &&
-               Angle == rhs.Angle && Face == rhs.Face;
+        return Height == rhs.Height && Flags == rhs.Flags && Angle == rhs.Angle && Face == rhs.Face;
     }
     bool operator!=(const tTVPFont &rhs) const { return !(operator==(rhs)); }
 };
@@ -42,9 +41,9 @@ struct tTVPFont {
 #define TVP_TF_FONTFILE 0x1000
 
 //---------------------------------------------------------------------------
-#define TVP_FSF_FIXEDPITCH 0x01   // fsfFixedPitch
-#define TVP_FSF_SAMECHARSET 0x02  // fsfSameCharSet
-#define TVP_FSF_NOVERTICAL 0x04   // fsfNoVertical
+#define TVP_FSF_FIXEDPITCH 0x01 // fsfFixedPitch
+#define TVP_FSF_SAMECHARSET 0x02 // fsfSameCharSet
+#define TVP_FSF_NOVERTICAL 0x04 // fsfNoVertical
 #define TVP_FSF_TRUETYPEONLY 0x08 // fsfTrueTypeOnly
 #define TVP_FSF_IGNORESYMBOL 0x10 // fsfIgnoreSymbol
 #define TVP_FSF_USEFONTFACE 0x100 // fsfUseFontFace

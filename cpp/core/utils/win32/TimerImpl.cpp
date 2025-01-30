@@ -38,8 +38,7 @@ class tTVPTimerThread : public tTVPThread {
     // too short interval ( roughly less than 50ms ).
 
     std::vector<tTJSNI_Timer *> List;
-    std::vector<tTJSNI_Timer *>
-        Pending; // timer object which has pending events
+    std::vector<tTJSNI_Timer *> Pending; // timer object which has pending events
     bool PendingEventsAvailable;
     tTVPThreadEvent Event;
 
@@ -87,8 +86,7 @@ public:
 } static *TVPTimerThread = nullptr;
 
 //---------------------------------------------------------------------------
-tTVPTimerThread::tTVPTimerThread()
-    : tTVPThread(true), EventQueue(this, &tTVPTimerThread::Proc) {
+tTVPTimerThread::tTVPTimerThread() : tTVPThread(true), EventQueue(this, &tTVPTimerThread::Proc) {
     PendingEventsAvailable = false;
     SetPriority(TVPLimitTimerCapacity ? ttpNormal : ttpHighest);
     EventQueue.Allocate();
@@ -106,7 +104,7 @@ tTVPTimerThread::~tTVPTimerThread() {
 
 //---------------------------------------------------------------------------
 void tTVPTimerThread::Execute() {
-    while (!GetTerminated()) {
+    while(!GetTerminated()) {
         tjs_uint64 step_next = (tjs_uint64)(tjs_int64)-1L; // invalid value
         tjs_uint64 curtick = TVPGetTickCount() << TVP_SUBMILLI_FRAC_BITS;
         tjs_uint32 sleeptime;
@@ -117,17 +115,16 @@ void tTVPTimerThread::Execute() {
             bool any_triggered = false;
 
             std::vector<tTJSNI_Timer *>::iterator i;
-            for (i = List.begin(); i != List.end(); i++) {
+            for(i = List.begin(); i != List.end(); i++) {
                 tTJSNI_Timer *item = *i;
 
-                if (!item->GetEnabled() || item->GetInterval() == 0)
+                if(!item->GetEnabled() || item->GetInterval() == 0)
                     continue;
 
-                if (item->GetNextTick() < curtick) {
-                    tjs_uint n = static_cast<tjs_uint>(
-                        (curtick - item->GetNextTick()) / item->GetInterval());
+                if(item->GetNextTick() < curtick) {
+                    tjs_uint n = static_cast<tjs_uint>((curtick - item->GetNextTick()) / item->GetInterval());
                     n++;
-                    if (n > 40) {
+                    if(n > 40) {
                         // too large amount of event at once; discard rest
                         item->Trigger(1);
                         any_triggered = true;
@@ -135,38 +132,36 @@ void tTVPTimerThread::Execute() {
                     } else {
                         item->Trigger(n);
                         any_triggered = true;
-                        item->SetNextTick(item->GetNextTick() +
-                                          n * item->GetInterval());
+                        item->SetNextTick(item->GetNextTick() + n * item->GetInterval());
                     }
                 }
 
                 tjs_uint64 to_next = item->GetNextTick() - curtick;
 
-                if (step_next == (tjs_uint64)(tjs_int64)-1L) {
+                if(step_next == (tjs_uint64)(tjs_int64)-1L) {
                     step_next = to_next;
                 } else {
-                    if (step_next > to_next)
+                    if(step_next > to_next)
                         step_next = to_next;
                 }
             }
 
-            if (step_next != (tjs_uint64)(tjs_int64)-1L) {
+            if(step_next != (tjs_uint64)(tjs_int64)-1L) {
                 // too large step_next must be diminished to size of DWORD.
-                if (step_next >= 0x80000000)
-                    sleeptime =
-                        0x7fffffff; // smaller value than step_next is OK
+                if(step_next >= 0x80000000)
+                    sleeptime = 0x7fffffff; // smaller value than step_next is OK
                 else
                     sleeptime = static_cast<tjs_uint32>(step_next);
             } else {
                 sleeptime = INFINITE;
             }
 
-            if (List.size() == 0)
+            if(List.size() == 0)
                 sleeptime = INFINITE;
 
-            if (any_triggered) {
+            if(any_triggered) {
                 // triggered; post notification message to the UtilWindow
-                if (!PendingEventsAvailable) {
+                if(!PendingEventsAvailable) {
                     PendingEventsAvailable = true;
                     EventQueue.PostEvent(NativeEvent(TVP_EV_TIMER_THREAD));
                 }
@@ -176,14 +171,12 @@ void tTVPTimerThread::Execute() {
 
         // now, sleeptime has sub-milliseconds precision but we need millisecond
         // precision time.
-        if (sleeptime != INFINITE)
+        if(sleeptime != INFINITE)
             sleeptime = (sleeptime >> TVP_SUBMILLI_FRAC_BITS) +
-                        (sleeptime & ((1 << TVP_SUBMILLI_FRAC_BITS) - 1)
-                             ? 1
-                             : 0); // round up
+                (sleeptime & ((1 << TVP_SUBMILLI_FRAC_BITS) - 1) ? 1 : 0); // round up
 
         // clamp to TVP_LEAST_TIMER_INTERVAL ...
-        if (sleeptime != INFINITE && sleeptime < TVP_LEAST_TIMER_INTERVAL)
+        if(sleeptime != INFINITE && sleeptime < TVP_LEAST_TIMER_INTERVAL)
             sleeptime = TVP_LEAST_TIMER_INTERVAL;
 
         Event.WaitFor(sleeptime); // wait until sleeptime is elapsed or
@@ -195,12 +188,12 @@ void tTVPTimerThread::Execute() {
 // void __fastcall tTVPTimerThread::UtilWndProc(Messages::TMessage &Msg)
 void tTVPTimerThread::Proc(NativeEvent &ev) {
     // Window procedure of UtilWindow
-    if (ev.Message == TVP_EV_TIMER_THREAD && !GetTerminated()) {
+    if(ev.Message == TVP_EV_TIMER_THREAD && !GetTerminated()) {
         // pending events occur
         tTJSCriticalSectionHolder holder(TVPTimerCS); // protect the object
 
         std::vector<tTJSNI_Timer *>::iterator i;
-        for (i = Pending.begin(); i != Pending.end(); i++) {
+        for(i = Pending.begin(); i != Pending.end(); i++) {
             tTJSNI_Timer *item = *i;
             item->FirePendingEventsAndClear();
         }
@@ -216,7 +209,7 @@ void tTVPTimerThread::Proc(NativeEvent &ev) {
 void tTVPTimerThread::AddItem(tTJSNI_Timer *item) {
     tTJSCriticalSectionHolder holder(TVPTimerCS);
 
-    if (std::find(List.begin(), List.end(), item) == List.end())
+    if(std::find(List.begin(), List.end(), item) == List.end())
         List.push_back(item);
 }
 
@@ -227,8 +220,8 @@ bool tTVPTimerThread::RemoveItem(tTJSNI_Timer *item) {
     std::vector<tTJSNI_Timer *>::iterator i;
 
     // remove from the List
-    for (i = List.begin(); i != List.end(); /**/) {
-        if (*i == item)
+    for(i = List.begin(); i != List.end(); /**/) {
+        if(*i == item)
             i = List.erase(i);
         else
             i++;
@@ -244,8 +237,8 @@ bool tTVPTimerThread::RemoveItem(tTJSNI_Timer *item) {
 void tTVPTimerThread::RemoveFromPendingItem(tTJSNI_Timer *item) {
     // remove item from pending list
     std::vector<tTJSNI_Timer *>::iterator i;
-    for (i = Pending.begin(); i != Pending.end(); /**/) {
-        if (*i == item)
+    for(i = Pending.begin(); i != Pending.end(); /**/) {
+        if(*i == item)
             i = Pending.erase(i);
         else
             i++;
@@ -266,16 +259,15 @@ void tTVPTimerThread::SetEnabled(tTJSNI_Timer *item, bool enabled) {
         tTJSCriticalSectionHolder holder(TVPTimerCS);
 
         item->InternalSetEnabled(enabled);
-        if (enabled) {
-            item->SetNextTick((TVPGetTickCount() << TVP_SUBMILLI_FRAC_BITS) +
-                              item->GetInterval());
+        if(enabled) {
+            item->SetNextTick((TVPGetTickCount() << TVP_SUBMILLI_FRAC_BITS) + item->GetInterval());
         } else {
             item->CancelEvents();
             item->ZeroPendingCount();
         }
     } // end-of-thread-protected
 
-    if (enabled)
+    if(enabled)
         Event.Set();
 }
 
@@ -285,21 +277,20 @@ void tTVPTimerThread::SetInterval(tTJSNI_Timer *item, tjs_uint64 interval) {
         tTJSCriticalSectionHolder holder(TVPTimerCS);
 
         item->InternalSetInterval(interval);
-        if (item->GetEnabled()) {
+        if(item->GetEnabled()) {
             item->CancelEvents();
             item->ZeroPendingCount();
-            item->SetNextTick((TVPGetTickCount() << TVP_SUBMILLI_FRAC_BITS) +
-                              item->GetInterval());
+            item->SetNextTick((TVPGetTickCount() << TVP_SUBMILLI_FRAC_BITS) + item->GetInterval());
         }
     } // end-of-thread-protected
 
-    if (item->GetEnabled())
+    if(item->GetEnabled())
         Event.Set();
 }
 
 //---------------------------------------------------------------------------
 void tTVPTimerThread::Init() {
-    if (!TVPTimerThread) {
+    if(!TVPTimerThread) {
         TVPStartTickCount(); // in TickCount.cpp
         TVPTimerThread = new tTVPTimerThread();
     }
@@ -307,15 +298,14 @@ void tTVPTimerThread::Init() {
 
 //---------------------------------------------------------------------------
 void tTVPTimerThread::Uninit() {
-    if (TVPTimerThread) {
+    if(TVPTimerThread) {
         delete TVPTimerThread;
         TVPTimerThread = nullptr;
     }
 }
 
 //---------------------------------------------------------------------------
-static tTVPAtExit TVPTimerThreadUninitAtExit(TVP_ATEXIT_PRI_SHUTDOWN,
-                                             tTVPTimerThread::Uninit);
+static tTVPAtExit TVPTimerThreadUninitAtExit(TVP_ATEXIT_PRI_SHUTDOWN, tTVPTimerThread::Uninit);
 
 //---------------------------------------------------------------------------
 void tTVPTimerThread::Add(tTJSNI_Timer *item) {
@@ -328,22 +318,22 @@ void tTVPTimerThread::Add(tTJSNI_Timer *item) {
 
 //---------------------------------------------------------------------------
 void tTVPTimerThread::Remove(tTJSNI_Timer *item) {
-    if (TVPTimerThread) {
-        if (!TVPTimerThread->RemoveItem(item))
+    if(TVPTimerThread) {
+        if(!TVPTimerThread->RemoveItem(item))
             Uninit();
     }
 }
 
 //---------------------------------------------------------------------------
 void tTVPTimerThread::RemoveFromPending(tTJSNI_Timer *item) {
-    if (TVPTimerThread) {
+    if(TVPTimerThread) {
         TVPTimerThread->RemoveFromPendingItem(item);
     }
 }
 
 //---------------------------------------------------------------------------
 void tTVPTimerThread::RegisterToPending(tTJSNI_Timer *item) {
-    if (TVPTimerThread) {
+    if(TVPTimerThread) {
         TVPTimerThread->RegisterToPendingItem(item);
     }
 }
@@ -360,9 +350,7 @@ tTJSNI_Timer::tTJSNI_Timer() {
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_Timer::Construct(tjs_int numparams,
-                                                  tTJSVariant **param,
-                                                  iTJSDispatch2 *tjs_obj) {
+tjs_error TJS_INTF_METHOD tTJSNI_Timer::Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj) {
     inherited::Construct(numparams, param, tjs_obj);
 
     tTVPTimerThread::Add(this);
@@ -378,9 +366,7 @@ void TJS_INTF_METHOD tTJSNI_Timer::Invalidate() {
 }
 
 //---------------------------------------------------------------------------
-void tTJSNI_Timer::SetInterval(tjs_uint64 n) {
-    TVPTimerThread->SetInterval(this, n);
-}
+void tTJSNI_Timer::SetInterval(tjs_uint64 n) { TVPTimerThread->SetInterval(this, n); }
 
 //---------------------------------------------------------------------------
 tjs_uint64 tTJSNI_Timer::GetInterval() const { return Interval; }
@@ -394,7 +380,7 @@ void tTJSNI_Timer::SetEnabled(bool b) { TVPTimerThread->SetEnabled(this, b); }
 //---------------------------------------------------------------------------
 void tTJSNI_Timer::Trigger(tjs_uint n) {
     // this function is called by sub-thread.
-    if (PendingCount == 0)
+    if(PendingCount == 0)
         tTVPTimerThread::RegisterToPending(this);
     PendingCount += n;
 }
@@ -402,7 +388,7 @@ void tTJSNI_Timer::Trigger(tjs_uint n) {
 //---------------------------------------------------------------------------
 void tTJSNI_Timer::FirePendingEventsAndClear() {
     // fire all pending events and clear the pending event count
-    if (PendingCount) {
+    if(PendingCount) {
         Fire(PendingCount);
         ZeroPendingCount();
     }
@@ -412,9 +398,7 @@ void tTJSNI_Timer::FirePendingEventsAndClear() {
 //---------------------------------------------------------------------------
 // tTJSNC_Timer
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_Timer::CreateNativeInstance() {
-    return new tTJSNI_Timer();
-}
+tTJSNativeInstance *tTJSNC_Timer::CreateNativeInstance() { return new tTJSNI_Timer(); }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------

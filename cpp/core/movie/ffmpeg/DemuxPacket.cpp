@@ -9,12 +9,12 @@ extern "C" {
 
 NS_KRMOVIE_BEGIN
 void DemuxPacket::Free(DemuxPacket *pPacket) {
-    if (pPacket) {
+    if(pPacket) {
         try {
-            if (pPacket->pData)
+            if(pPacket->pData)
                 TJSAlignedDealloc(pPacket->pData);
             delete pPacket;
-        } catch (...) {
+        } catch(...) {
             //			CLog::Log(LOGERROR, "%s - Exception thrown while
             // freeing packet", __FUNCTION__);
         }
@@ -23,13 +23,13 @@ void DemuxPacket::Free(DemuxPacket *pPacket) {
 
 DemuxPacket *DemuxPacket::Allocate(int iDataSize /*= 0*/) {
     DemuxPacket *pPacket = new DemuxPacket;
-    if (!pPacket)
+    if(!pPacket)
         return nullptr;
 
     try {
         memset(pPacket, 0, sizeof(DemuxPacket));
 
-        if (iDataSize > 0) {
+        if(iDataSize > 0) {
             // need to allocate a few bytes more.
             // From avcodec.h (ffmpeg)
             /**
@@ -40,9 +40,8 @@ DemuxPacket *DemuxPacket::Allocate(int iDataSize /*= 0*/) {
              * additional bytes are not 0 then damaged MPEG bitstreams could
              * cause overread and segfault
              */
-            pPacket->pData = (uint8_t *)TJSAlignedAlloc(
-                iDataSize + FF_INPUT_BUFFER_PADDING_SIZE, 4);
-            if (!pPacket->pData) {
+            pPacket->pData = (uint8_t *)TJSAlignedAlloc(iDataSize + FF_INPUT_BUFFER_PADDING_SIZE, 4);
+            if(!pPacket->pData) {
                 Free(pPacket);
                 return nullptr;
             }
@@ -56,7 +55,7 @@ DemuxPacket *DemuxPacket::Allocate(int iDataSize /*= 0*/) {
         pPacket->pts = DVD_NOPTS_VALUE;
         pPacket->iStreamId = -1;
         pPacket->dispTime = 0;
-    } catch (...) {
+    } catch(...) {
         //		CLog::Log(LOGERROR, "%s - Exception thrown",
         //__FUNCTION__);
         Free(pPacket);

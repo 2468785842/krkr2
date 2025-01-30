@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 void TVPGetVersion() {
     static bool DoGet = true;
-    if (DoGet) {
+    if(DoGet) {
         DoGet = false;
 
         TVPVersionMajor = 2;

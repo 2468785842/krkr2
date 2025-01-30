@@ -3,7 +3,7 @@ project(krkr2plugin)
 
 add_library(${PROJECT_NAME} STATIC)
 
-target_sources(${PROJECT_NAME} PRIVATE
+target_sources(${PROJECT_NAME} PUBLIC
     scriptsEx.cpp
     InternalPlugins.cpp
     win32dialog.cpp
@@ -53,7 +53,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC krkr2core)
 
 add_subdirectory(psdfile)
 add_subdirectory(layerex_draw)
-target_link_libraries(${PROJECT_NAME} PRIVATE psdfile layerExDraw)
+target_link_libraries(${PROJECT_NAME} PUBLIC psdfile layerExDraw)
 
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt-header-only)

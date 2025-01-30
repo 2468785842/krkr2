@@ -40,9 +40,7 @@ struct tTVPLocalFileInfo {
     time_t CreationTime;
 };
 
-void TVPGetLocalFileListAt(
-    const ttstr &name,
-    const std::function<void(const ttstr &, tTVPLocalFileInfo *)> &cb);
+void TVPGetLocalFileListAt(const ttstr &name, const std::function<void(const ttstr &, tTVPLocalFileInfo *)> &cb);
 
 //---------------------------------------------------------------------------
 // tTVPLocalFileStream
@@ -55,8 +53,7 @@ private:
     ttstr FileName;
 
 public:
-    tTVPLocalFileStream(const ttstr &origname, const ttstr &localname,
-                        tjs_uint32 flag);
+    tTVPLocalFileStream(const ttstr &origname, const ttstr &localname, tjs_uint32 flag);
 
     ~tTVPLocalFileStream();
 
@@ -124,8 +121,7 @@ struct IStream;
 //---------------------------------------------------------------------------
 // IStream creator
 //---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(IStream *, TVPCreateIStream,
-                 (const ttstr &name, tjs_uint32 flags));
+TJS_EXP_FUNC_DEF(IStream *, TVPCreateIStream, (const ttstr &name, tjs_uint32 flags));
 
 TJS_EXP_FUNC_DEF(IStream *, TVPCreateIStream, (tTJSBinaryStream *));
 //---------------------------------------------------------------------------
@@ -167,8 +163,7 @@ public:
 //---------------------------------------------------------------------------
 // tTVPBinaryStreamAdapter creator
 //---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(tTJSBinaryStream *, TVPCreateBinaryStreamAdapter,
-                 (IStream * refstream));
+TJS_EXP_FUNC_DEF(tTJSBinaryStream *, TVPCreateBinaryStreamAdapter, (IStream * refstream));
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -193,10 +188,8 @@ public:
 };
 //---------------------------------------------------------------------------
 
-void TVPListDir(const std::string &folder,
-                std::function<void(const std::string &, int)> cb);
+void TVPListDir(const std::string &folder, std::function<void(const std::string &, int)> cb);
 
-bool TVPSaveStreamToFile(tTJSBinaryStream *st, tjs_uint64 offset,
-                         tjs_uint64 size, ttstr outpath);
+bool TVPSaveStreamToFile(tTJSBinaryStream *st, tjs_uint64 offset, tjs_uint64 size, ttstr outpath);
 
 #endif

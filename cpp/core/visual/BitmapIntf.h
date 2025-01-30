@@ -17,8 +17,7 @@ protected:
 public:
     tTJSNI_Bitmap();
     virtual ~tTJSNI_Bitmap();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
     void TJS_INTF_METHOD Invalidate();
 
 public:
@@ -35,8 +34,7 @@ public:
 
     iTJSDispatch2 *Load(const ttstr &name, tjs_uint32 colorkey);
     void LoadAsync(const ttstr &name);
-    void Save(const ttstr &name, const ttstr &type,
-              iTJSDispatch2 *meta = nullptr);
+    void Save(const ttstr &name, const ttstr &type, iTJSDispatch2 *meta = nullptr);
 
     void SetSize(tjs_uint width, tjs_uint height, bool keepimage = true);
     // for async load

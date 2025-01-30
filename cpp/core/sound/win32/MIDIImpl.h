@@ -33,8 +33,7 @@ class tTJSNI_MIDISoundBuffer : public tTJSNI_BaseMIDISoundBuffer {
 public:
     tTJSNI_MIDISoundBuffer();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param,
-                                        iTJSDispatch2 *tjs_obj);
+    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
 
     void TJS_INTF_METHOD Invalidate();
 
@@ -49,7 +48,7 @@ private:
 
     tjs_int64 TickCountDelta; //
 
-    bool UsingChannel[16];       // using channel is true
+    bool UsingChannel[16]; // using channel is true
     tjs_uint32 UsingNote[16][4]; // using notes
 
     int Volumes[16]; // track volumes
@@ -91,7 +90,7 @@ private:
 
 public:
     tjs_int GetVolume() const { return Volume; } // GetVolume override
-    void SetVolume(tjs_int v);                   // SetVolume override
+    void SetVolume(tjs_int v); // SetVolume override
 
     tjs_int GetVolume2() const { return Volume2; }
     void SetVolume2(tjs_int v);

@@ -21,9 +21,8 @@
 
 #include "TVPScreen.h"
 
-std::string TVPShowFileSelector(const std::string &title,
-                                const std::string &filename,
-                                std::string initdir, bool issave);
+std::string TVPShowFileSelector(const std::string &title, const std::string &filename, std::string initdir,
+                                bool issave);
 
 //---------------------------------------------------------------------------
 // TVPSelectFile related
@@ -311,8 +310,7 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
     std::string result;
 
     // get filter
-    if (TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("filter"), 0,
-                                      &val, params))) {
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("filter"), 0, &val, params))) {
     }
 
     // 		if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST,
@@ -320,28 +318,24 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
     // ofn.nFilterIndex = (tjs_int)val; 		else ofn.nFilterIndex = 0;
 
     // initial dir
-    if (TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("initialDir"),
-                                      0, &val, params))) {
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("initialDir"), 0, &val, params))) {
         ttstr lname(val);
-        if (!lname.IsEmpty()) {
+        if(!lname.IsEmpty()) {
             TVPGetLocalName(lname);
             initialdir = tTJSNarrowStringHolder(lname.c_str());
         }
     }
 
     // default extension
-    if (TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("defaultExt"),
-                                      0, &val, params))) {
-        defaultext = tTJSNarrowStringHolder(
-            val.AsStringNoAddRef()->operator const tjs_char *());
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("defaultExt"), 0, &val, params))) {
+        defaultext = tTJSNarrowStringHolder(val.AsStringNoAddRef()->operator const tjs_char *());
     }
 
     // filenames
-    if (TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("name"), 0,
-                                      &val, params))) {
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("name"), 0, &val, params))) {
         ttstr lname(val);
-        if (!lname.IsEmpty()) {
-            if (lname.IndexOf('/') >= 0) {
+        if(!lname.IsEmpty()) {
+            if(lname.IndexOf('/') >= 0) {
                 lname = TVPNormalizeStorageName(lname);
                 TVPGetLocalName(lname);
                 ttstr path = TVPExtractStoragePath(lname);
@@ -351,8 +345,8 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
             } else {
             }
 
-            if (!defaultext.empty() && TVPExtractStorageExt(lname).IsEmpty()) {
-                if (defaultext[0] != '.')
+            if(!defaultext.empty() && TVPExtractStorageExt(lname).IsEmpty()) {
+                if(defaultext[0] != '.')
                     lname += TJS_W(".");
                 lname += defaultext.c_str();
             }
@@ -361,28 +355,24 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
     }
 
     // title
-    if (TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("title"), 0,
-                                      &val, params))) {
-        title = tTJSNarrowStringHolder(
-            val.AsStringNoAddRef()->operator const tjs_char *());
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("title"), 0, &val, params))) {
+        title = tTJSNarrowStringHolder(val.AsStringNoAddRef()->operator const tjs_char *());
     }
 
     // flags
     bool issave = false;
-    if (TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("save"), 0,
-                                      &val, params)))
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("save"), 0, &val, params)))
         issave = val.operator bool();
 
     // show dialog box
     result = TVPShowFileSelector(title, filename, initialdir, issave);
 
-    if (!result.empty()) {
+    if(!result.empty()) {
         // returns some informations
 
         // filter index
         val = (tjs_int)0;
-        params->PropSet(TJS_MEMBERENSURE, TJS_W("filterIndex"), 0, &val,
-                        params);
+        params->PropSet(TJS_MEMBERENSURE, TJS_W("filterIndex"), 0, &val, params);
 
         // file name
         ttstr tresult = TVPNormalizeStorageName(ttstr(result.c_str()));

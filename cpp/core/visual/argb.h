@@ -19,7 +19,8 @@
 #pragma pack(push, 1)
 #endif
 //---------------------------------------------------------------------------
-template <typename base_type> struct tTVPARGB {
+template <typename base_type>
+struct tTVPARGB {
     union {
         struct {
 #if TJS_HOST_IS_LITTLE_ENDIAN
@@ -89,34 +90,39 @@ template <typename base_type> struct tTVPARGB {
         a /= n;
     }
 
-    void operator=(tjs_uint32 v) {
-        a = v >> 24, r = (v >> 16) & 0xff, g = (v >> 8) & 0xff, b = v & 0xff;
-    }
+    void operator=(tjs_uint32 v) { a = v >> 24, r = (v >> 16) & 0xff, g = (v >> 8) & 0xff, b = v & 0xff; }
 
     operator tjs_uint32() const { return b + (g << 8) + (r << 16) + (a << 24); }
 };
 //---------------------------------------------------------------------------
 // special member functions for tjs_uint8
-template <> void tTVPARGB<tjs_uint8>::Zero();
+template <>
+void tTVPARGB<tjs_uint8>::Zero();
 
-template <> void tTVPARGB<tjs_uint8>::operator=(tjs_uint32 v);
+template <>
+void tTVPARGB<tjs_uint8>::operator=(tjs_uint32 v);
 
-template <> tTVPARGB<tjs_uint8>::operator tjs_uint32() const;
+template <>
+tTVPARGB<tjs_uint8>::operator tjs_uint32() const;
 
-template <> void tTVPARGB<tjs_uint8>::average(tjs_int n);
+template <>
+void tTVPARGB<tjs_uint8>::average(tjs_int n);
 
 //---------------------------------------------------------------------------
 // special member functions for tjs_uint16
-template <> void tTVPARGB<tjs_uint16>::average(tjs_int n);
+template <>
+void tTVPARGB<tjs_uint16>::average(tjs_int n);
 
 //---------------------------------------------------------------------------
 // special member functions for tjs_uint32
-template <> void tTVPARGB<tjs_uint32>::average(tjs_int n);
+template <>
+void tTVPARGB<tjs_uint32>::average(tjs_int n);
 
 //---------------------------------------------------------------------------
 // a structure delivered from tTVPARGB, using Additive-Alpha expression
 // for tjs_uint32 (packed ARGB) input/output.
-template <typename base_type> struct tTVPARGB_AA : public tTVPARGB<base_type> {
+template <typename base_type>
+struct tTVPARGB_AA : public tTVPARGB<base_type> {
     void operator+=(const tTVPARGB_AA &rhs) {
         this->b += rhs.b;
         this->g += rhs.g;
@@ -162,8 +168,7 @@ template <typename base_type> struct tTVPARGB_AA : public tTVPARGB<base_type> {
 
     operator tjs_uint32() const {
         tjs_uint8 *t = TVPDivTable + (this->a << 8);
-        return t[this->b] + (t[this->g] << 8) + (t[this->r] << 16) +
-               (this->a << 24);
+        return t[this->b] + (t[this->g] << 8) + (t[this->r] << 16) + (this->a << 24);
     }
 };
 
