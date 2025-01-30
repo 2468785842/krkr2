@@ -388,7 +388,7 @@ std::vector<std::string> TVPGetDriverPath() {
     while(fgets(buffer, sizeof(buffer), fp)) {
         std::vector<std::string> tabs;
         split(buffer, ' ', tabs);
-        if(tabs.size() < 3)
+        if(tabs.size() < 4)
             continue;
         if(mounted.find(tabs[0]) != mounted.end())
             continue;

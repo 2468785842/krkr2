@@ -6,14 +6,12 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.storage.StorageManager;
-import android.os.storage.StorageVolume;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -416,26 +414,27 @@ public class KR2Activity extends Cocos2dxActivity implements ActivityCompat.OnRe
     StorageManager mStorageManager = null;
 
     public String[] getStoragePath() {
-        List<String> storagePaths = new ArrayList<>();
-        if (mStorageManager != null) {
-            for (StorageVolume volume : mStorageManager.getStorageVolumes()) {
-                String volumeState = volume.getState();
-                if (!Environment.MEDIA_MOUNTED.equals(volumeState) && !Environment.MEDIA_MOUNTED_READ_ONLY.equals(volumeState)) {
-                    break;
-                }
-                File volumeFile = null;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // API 30+
-                    volumeFile = volume.getDirectory();
-                } else if (volume.isPrimary()) {
-                    volumeFile = Environment.getExternalStorageDirectory();
-                }
-                if (volumeFile != null) {
-                    storagePaths.add(volumeFile.getAbsolutePath());
-                }
-            }
-        }
-
-        return storagePaths.toArray(new String[0]);
+//        List<String> storagePaths = new ArrayList<>();
+//        if (mStorageManager != null) {
+//            for (StorageVolume volume : mStorageManager.getStorageVolumes()) {
+//                String volumeState = volume.getState();
+//                if (!Environment.MEDIA_MOUNTED.equals(volumeState) && !Environment.MEDIA_MOUNTED_READ_ONLY.equals(volumeState)) {
+//                    break;
+//                }
+//                File volumeFile = null;
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // API 30+
+//                    volumeFile = volume.getDirectory();
+//                } else if (volume.isPrimary()) {
+//                    volumeFile = Environment.getExternalStorageDirectory();
+//                }
+//                if (volumeFile != null) {
+//                    storagePaths.add(volumeFile.getAbsolutePath());
+//                }
+//            }
+//        }
+//
+//        return storagePaths.toArray(new String[0]);
+        return new String[]{Environment.getExternalStorageDirectory().getAbsolutePath()};
     }
 
 
