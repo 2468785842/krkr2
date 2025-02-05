@@ -50,16 +50,19 @@ public:
     virtual ~CBaseRenderer();
 
     // Player functions
-    virtual bool Configure(unsigned int width, unsigned int height, unsigned int d_width, unsigned int d_height,
-                           float fps, unsigned flags, ERenderFormat format, unsigned extended_formatl,
+    virtual bool Configure(unsigned int width, unsigned int height,
+                           unsigned int d_width, unsigned int d_height,
+                           float fps, unsigned flags, ERenderFormat format,
+                           unsigned extended_formatl,
                            unsigned int orientation) {
         return true;
     }
 
     virtual bool IsConfigured() { return true; }
 
-    //  virtual int GetImage(YV12Image *image, int source = -1, bool readonly =
-    //  false) {} virtual void ReleaseImage(int source, bool preserve = false)
+    //  virtual int GetImage(YV12Image *image, int source = -1, bool
+    //  readonly = false) {} virtual void ReleaseImage(int source,
+    //  bool preserve = false)
     //  {}
     virtual int AddVideoPicture(DVDVideoPicture &picture, int index) = 0;
 
@@ -88,18 +91,24 @@ public:
 
     virtual void Update() {}
 
-    virtual void RenderUpdate(bool clear, unsigned int flags = 0, unsigned int alpha = 255) {}
+    virtual void RenderUpdate(bool clear, unsigned int flags = 0,
+                              unsigned int alpha = 255) {}
 
     virtual bool RenderCapture(CRenderCapture *capture) { return false; }
 
-    virtual bool HandlesRenderFormat(ERenderFormat format) { return format == m_format; };
+    virtual bool HandlesRenderFormat(ERenderFormat format) {
+        return format == m_format;
+    };
 
-    virtual int WaitForBuffer(volatile std::atomic_bool &bStop, int timeout = 0) { return -1; }
+    virtual int WaitForBuffer(volatile std::atomic_bool &bStop,
+                              int timeout = 0) {
+        return -1;
+    }
 
     // Feature support
     //  virtual bool SupportsMultiPassRendering() { return false; }
-    //   virtual bool Supports(ERENDERFEATURE feature) { return false; };
-    //   virtual bool Supports(ESCALINGMETHOD method) {}
+    //   virtual bool Supports(ERENDERFEATURE feature) { return false;
+    //   }; virtual bool Supports(ESCALINGMETHOD method) {}
 
     virtual bool WantsDoublePass() { return false; };
 
@@ -107,32 +116,38 @@ public:
 
     /*! \brief Get video rectangle and view window
     \param source is original size of the video
-    \param dest is the target rendering area honoring aspect ratio of source
-    \param view is the entire target rendering area for the video (including
-    black bars)
+    \param dest is the target rendering area honoring aspect ratio of
+    source \param view is the entire target rendering area for the
+    video (including black bars)
     */
     void GetVideoRect(CRect &source, CRect &dest, CRect &view);
 
     float GetAspectRatio() const;
 
-    static void SettingOptionsRenderMethodsFiller(/*const CSetting *setting,*/
-                                                  std::vector<std::pair<std::string, int>> &list, int &current,
-                                                  void *data);
+    static void
+    SettingOptionsRenderMethodsFiller(/*const CSetting *setting,*/
+                                      std::vector<std::pair<std::string, int>>
+                                          &list,
+                                      int &current, void *data);
 
 protected:
-    void CalcNormalRenderRect(float offsetX, float offsetY, float width, float height, float inputFrameRatio,
+    void CalcNormalRenderRect(float offsetX, float offsetY, float width,
+                              float height, float inputFrameRatio,
                               float zoomAmount, float verticalShift);
 
-    void CalculateFrameAspectRatio(unsigned int desired_width, unsigned int desired_height);
+    void CalculateFrameAspectRatio(unsigned int desired_width,
+                                   unsigned int desired_height);
 
     void ManageRenderArea();
 
     virtual void ReorderDrawPoints(); // might be overwritten (by egl e.x.)
-    void saveRotatedCoords(); // saves the current state of m_rotatedDestCoords
-    void syncDestRectToRotatedPoints(); // sync any changes of m_destRect to
-                                        // m_rotatedDestCoords
+    void saveRotatedCoords(); // saves the current state of
+                              // m_rotatedDestCoords
+    void syncDestRectToRotatedPoints(); // sync any changes of m_destRect
+                                        // to m_rotatedDestCoords
     void restoreRotatedCoords(); // restore the current state of
-                                 // m_rotatedDestCoords from saveRotatedCoords
+                                 // m_rotatedDestCoords from
+                                 // saveRotatedCoords
     void MarkDirty();
 
     unsigned int m_sourceWidth;
@@ -140,15 +155,16 @@ protected:
     float m_sourceFrameRatio;
     float m_fps;
 
-    unsigned int m_renderOrientation; // orientation of the video in degress
-                                      // counter clockwise
+    unsigned int m_renderOrientation; // orientation of the video in
+                                      // degress counter clockwise
     unsigned int m_oldRenderOrientation; // orientation of the previous frame
-    // for drawing the texture with glVertex4f (holds all 4 corner points of the
-    // destination rect with correct orientation based on m_renderOrientation 0
+    // for drawing the texture with glVertex4f (holds all 4 corner
+    // points of the destination rect with correct orientation based
+    // on m_renderOrientation 0
     // - top left, 1 - top right, 2 - bottom right, 3 - bottom left
     CPoint m_rotatedDestCoords[4];
-    CPoint m_savedRotatedDestCoords[4]; // saved points from saveRotatedCoords
-                                        // call
+    CPoint m_savedRotatedDestCoords[4]; // saved points from
+                                        // saveRotatedCoords call
 
     CRect m_destRect;
     CRect m_oldDestRect; // destrect of the previous frame

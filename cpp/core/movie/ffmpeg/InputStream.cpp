@@ -2,7 +2,8 @@
 #include "combase.h"
 
 NS_KRMOVIE_BEGIN
-InputStream::InputStream(IStream *s, const std::string &filename) : m_pSource(s), m_strFileName(filename) {
+InputStream::InputStream(IStream *s, const std::string &filename) :
+    m_pSource(s), m_strFileName(filename) {
     s->AddRef();
 
     STATSTG stg;

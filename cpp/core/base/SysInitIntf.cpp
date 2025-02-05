@@ -88,17 +88,25 @@ void TVPSystemUninit() {
 // TVPAddAtExitHandler related
 //---------------------------------------------------------------------------
 struct tTVPAtExitInfo {
-    tTVPAtExitInfo(tjs_int pri, void (*handler)()) { Priority = pri, Handler = handler; }
+    tTVPAtExitInfo(tjs_int pri, void (*handler)()) {
+        Priority = pri, Handler = handler;
+    }
 
     tjs_int Priority;
 
     void (*Handler)();
 
-    bool operator<(const tTVPAtExitInfo &r) const { return this->Priority < r.Priority; }
+    bool operator<(const tTVPAtExitInfo &r) const {
+        return this->Priority < r.Priority;
+    }
 
-    bool operator>(const tTVPAtExitInfo &r) const { return this->Priority > r.Priority; }
+    bool operator>(const tTVPAtExitInfo &r) const {
+        return this->Priority > r.Priority;
+    }
 
-    bool operator==(const tTVPAtExitInfo &r) const { return this->Priority == r.Priority; }
+    bool operator==(const tTVPAtExitInfo &r) const {
+        return this->Priority == r.Priority;
+    }
 };
 
 static std::vector<tTVPAtExitInfo> *TVPAtExitInfos = nullptr;

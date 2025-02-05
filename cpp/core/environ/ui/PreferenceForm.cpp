@@ -10,7 +10,7 @@
 #include "tinyxml2/tinyxml2.h"
 #include "cocos2d/MainScene.h"
 #include "2d/CCSprite.h"
-#include "SeletListForm.h"
+#include "SelectListForm.h"
 #include "FileSelectorForm.h"
 #include "Platform.h"
 
@@ -35,7 +35,9 @@ void TVPPreferenceForm::initPref(const tPreferenceScreen *config) {
 void TVPPreferenceForm::bindBodyController(const NodeMap &allNodes) {
     PrefList = static_cast<ListView *>(allNodes.findController("list"));
     if(NaviBar.Left) {
-        NaviBar.Left->addClickEventListener([this](cocos2d::Ref *) { TVPMainScene::GetInstance()->popUIForm(this); });
+        NaviBar.Left->addClickEventListener([this](cocos2d::Ref *) {
+            TVPMainScene::GetInstance()->popUIForm(this);
+        });
     }
 }
 
@@ -51,7 +53,8 @@ void tPreferenceScreen::clear() {
     Preferences.clear();
 }
 
-void iPreferenceItem::initFromInfo(int idx, Size size, const std::string &title) {
+void iPreferenceItem::initFromInfo(int idx, Size size,
+                                   const std::string &title) {
     init();
     CSBReader reader;
     Node *root = reader.Load(getUIFileName());
@@ -86,14 +89,19 @@ tPreferenceItemCheckBox::tPreferenceItemCheckBox() : highlight(nullptr) {}
 void tPreferenceItemCheckBox::initController(const NodeMap &allNodes) {
     checkbox = static_cast<CheckBox *>(allNodes.findController("checkbox"));
     checkbox->setSelected(_getter());
-    checkbox->addEventListener(
-        [=](Ref *, CheckBox::EventType e) { this->_setter(e == CheckBox::EventType::SELECTED); });
+    checkbox->addEventListener([=](Ref *, CheckBox::EventType e) {
+        this->_setter(e == CheckBox::EventType::SELECTED);
+    });
     highlight = allNodes.findController("highlight");
     setTouchEnabled(true);
-    addClickEventListener([this](Ref *) { static_cast<HackCheckBox *>(checkbox)->fireReleaseUpEvent(); });
+    addClickEventListener([this](Ref *) {
+        static_cast<HackCheckBox *>(checkbox)->fireReleaseUpEvent();
+    });
 }
 
-const char *tPreferenceItemCheckBox::getUIFileName() const { return "ui/comctrl/CheckBoxItem.csb"; }
+const char *tPreferenceItemCheckBox::getUIFileName() const {
+    return "ui/comctrl/CheckBoxItem.csb";
+}
 
 void tPreferenceItemCheckBox::onPressStateChangedToNormal() {
     if(highlight)
@@ -138,7 +146,9 @@ void tPreferenceItemConstant::initController(const NodeMap &allNodes) {
     setContentSize(sizeTmp);
 }
 
-const char *tPreferenceItemSubDir::getUIFileName() const { return "ui/comctrl/SubDirItem.csb"; }
+const char *tPreferenceItemSubDir::getUIFileName() const {
+    return "ui/comctrl/SubDirItem.csb";
+}
 
 void tPreferenceItemWithHighlight::initController(const NodeMap &allNodes) {
     setTouchEnabled(true);
@@ -162,26 +172,34 @@ void tPreferenceItemSelectList::initController(const NodeMap &allNodes) {
     selected = static_cast<Text *>(allNodes.findController("selected"));
     updateHightlight();
     setTouchEnabled(true);
-    addClickEventListener(std::bind(&tPreferenceItemSelectList::showForm, this, std::placeholders::_1));
+    addClickEventListener(std::bind(&tPreferenceItemSelectList::showForm, this,
+                                    std::placeholders::_1));
 }
 
-const char *tPreferenceItemSelectList::getUIFileName() const { return "ui/comctrl/SelectListItem.csb"; }
+const char *tPreferenceItemSelectList::getUIFileName() const {
+    return "ui/comctrl/SelectListItem.csb";
+}
 
 void tPreferenceItemSelectList::showForm(cocos2d::Ref *) {
     std::vector<std::string> lst;
-    for(const std::pair<std::string, std::string> &item : CurInfo->getListInfo()) {
+    for(const std::pair<std::string, std::string> &item :
+        CurInfo->getListInfo()) {
         lst.emplace_back(item.first);
     }
-    TVPSelectListForm *form = TVPSelectListForm::create(lst, highlightTid, [this](int idx) {
-        const std::pair<std::string, std::string> &item = CurInfo->getListInfo()[idx];
-        highlightTid = item.first;
-        if(highlightTid.empty())
-            selected->setString(item.second);
-        else
-            LocaleConfigManager::GetInstance()->initText(selected, highlightTid);
-        _setter(item.second);
-    });
-    TVPMainScene::GetInstance()->pushUIForm(form, TVPMainScene::eEnterFromBottom);
+    TVPSelectListForm *form =
+        TVPSelectListForm::create(lst, highlightTid, [this](int idx) {
+            const std::pair<std::string, std::string> &item =
+                CurInfo->getListInfo()[idx];
+            highlightTid = item.first;
+            if(highlightTid.empty())
+                selected->setString(item.second);
+            else
+                LocaleConfigManager::GetInstance()->initText(selected,
+                                                             highlightTid);
+            _setter(item.second);
+        });
+    TVPMainScene::GetInstance()->pushUIForm(form,
+                                            TVPMainScene::eEnterFromBottom);
 }
 
 void tPreferenceItemSelectList::onPressStateChangedToNormal() {
@@ -198,7 +216,8 @@ tPreferenceItemSelectList::tPreferenceItemSelectList() : highlight(nullptr) {}
 
 void tPreferenceItemSelectList::updateHightlight() {
     std::string val = _getter();
-    for(const std::pair<std::string, std::string> &item : CurInfo->getListInfo()) {
+    for(const std::pair<std::string, std::string> &item :
+        CurInfo->getListInfo()) {
         if(item.second == val) {
             highlightTid = item.first;
             LocaleConfigManager::GetInstance()->initText(selected, item.first);
@@ -219,10 +238,13 @@ void tPreferenceItemKeyValPair::initController(const NodeMap &allNodes) {
     _title->setString(val.first);
     selected->setString(val.second);
     setTouchEnabled(true);
-    addClickEventListener(std::bind(&tPreferenceItemKeyValPair::showInput, this, std::placeholders::_1));
+    addClickEventListener(std::bind(&tPreferenceItemKeyValPair::showInput, this,
+                                    std::placeholders::_1));
 }
 
-const char *tPreferenceItemKeyValPair::getUIFileName() const { return "ui/comctrl/SelectListItem.csb"; }
+const char *tPreferenceItemKeyValPair::getUIFileName() const {
+    return "ui/comctrl/SelectListItem.csb";
+}
 
 void tPreferenceItemKeyValPair::onPressStateChangedToNormal() {
     if(highlight)
@@ -236,13 +258,15 @@ void tPreferenceItemKeyValPair::onPressStateChangedToPressed() {
 
 void tPreferenceItemKeyValPair::showInput(cocos2d::Ref *) {
     std::pair<std::string, std::string> val = _getter();
-    TVPTextPairInputForm *form =
-        TVPTextPairInputForm::create(val.first, val.second, [this](const std::string &t1, const std::string &t2) {
+    TVPTextPairInputForm *form = TVPTextPairInputForm::create(
+        val.first, val.second,
+        [this](const std::string &t1, const std::string &t2) {
             _title->setString(t1);
             selected->setString(t2);
             _setter(std::make_pair(t1, t2));
         });
-    TVPMainScene::GetInstance()->pushUIForm(form, TVPMainScene::eEnterFromBottom);
+    TVPMainScene::GetInstance()->pushUIForm(form,
+                                            TVPMainScene::eEnterFromBottom);
 }
 
 void tPreferenceItemKeyValPair::updateText() {
@@ -253,10 +277,11 @@ void tPreferenceItemKeyValPair::updateText() {
         selected->setString(val.second);
 }
 
-TVPCustomPreferenceForm *
-TVPCustomPreferenceForm::create(const std::string &tid_title, int count,
-                                const std::function<std::pair<std::string, std::string>(int)> &getter,
-                                const std::function<void(int, const std::pair<std::string, std::string> &)> &setter) {
+TVPCustomPreferenceForm *TVPCustomPreferenceForm::create(
+    const std::string &tid_title, int count,
+    const std::function<std::pair<std::string, std::string>(int)> &getter,
+    const std::function<void(int, const std::pair<std::string, std::string> &)>
+        &setter) {
     TVPCustomPreferenceForm *ret = new TVPCustomPreferenceForm;
     ret->initFromFile("ui/NaviBar.csb", "ui/ListView.csb", nullptr);
     ret->initFromInfo(tid_title, count, getter, setter);
@@ -267,7 +292,9 @@ TVPCustomPreferenceForm::create(const std::string &tid_title, int count,
 void TVPCustomPreferenceForm::bindBodyController(const NodeMap &allNodes) {
     _listview = static_cast<ListView *>(allNodes.findController("list"));
     if(NaviBar.Left) {
-        NaviBar.Left->addClickEventListener([this](cocos2d::Ref *) { TVPMainScene::GetInstance()->popUIForm(this); });
+        NaviBar.Left->addClickEventListener([this](cocos2d::Ref *) {
+            TVPMainScene::GetInstance()->popUIForm(this);
+        });
     }
 }
 
@@ -278,8 +305,10 @@ void TVPCustomPreferenceForm::bindHeaderController(const NodeMap &allNodes) {
 }
 
 void TVPCustomPreferenceForm::initFromInfo(
-    const std::string &tid_title, int count, const std::function<std::pair<std::string, std::string>(int)> &getter,
-    const std::function<void(int, const std::pair<std::string, std::string> &)> &setter) {
+    const std::string &tid_title, int count,
+    const std::function<std::pair<std::string, std::string>(int)> &getter,
+    const std::function<void(int, const std::pair<std::string, std::string> &)>
+        &setter) {
     _getter = getter;
     _setter = setter;
     if(_title)
@@ -291,7 +320,9 @@ void TVPCustomPreferenceForm::initFromInfo(
     CSBReader reader;
     for(int i = 0; i < count; ++i) {
         tPreferenceItemKeyValPair *item = new tPreferenceItemKeyValPair;
-        item->_getter = [=]() -> std::pair<std::string, std::string> { return _getter(i); };
+        item->_getter = [=]() -> std::pair<std::string, std::string> {
+            return _getter(i);
+        };
         item->_setter = [=](std::pair<std::string, std::string> val) {
             if(val.first.empty() && val.second.empty())
                 return;
@@ -351,7 +382,9 @@ void tPreferenceItemCursorSlider::initController(const NodeMap &allNodes) {
     });
 }
 
-const char *tPreferenceItemCursorSlider::getUIFileName() const { return "ui/comctrl/SliderIconItem.csb"; }
+const char *tPreferenceItemCursorSlider::getUIFileName() const {
+    return "ui/comctrl/SliderIconItem.csb";
+}
 
 void tPreferenceItemCursorSlider::onEnter() {
     inherit::onEnter();
@@ -362,7 +395,9 @@ void tPreferenceItemCursorSlider::onEnter() {
     _cursor->setScale(_cursor->getScale() / scale);
 }
 
-const char *tPreferenceItemTextSlider::getUIFileName() const { return "ui/comctrl/SliderTextItem.csb"; }
+const char *tPreferenceItemTextSlider::getUIFileName() const {
+    return "ui/comctrl/SliderTextItem.csb";
+}
 
 void tPreferenceItemTextSlider::initController(const NodeMap &allNodes) {
     inherit::initController(allNodes);
@@ -388,10 +423,13 @@ void tPreferenceItemFileSelect::initController(const NodeMap &allNodes) {
     selected = static_cast<Text *>(allNodes.findController("selected"));
     updateHightlight();
     setTouchEnabled(true);
-    addClickEventListener(std::bind(&tPreferenceItemFileSelect::showForm, this, std::placeholders::_1));
+    addClickEventListener(std::bind(&tPreferenceItemFileSelect::showForm, this,
+                                    std::placeholders::_1));
 }
 
-const char *tPreferenceItemFileSelect::getUIFileName() const { return "ui/comctrl/SelectListItem.csb"; }
+const char *tPreferenceItemFileSelect::getUIFileName() const {
+    return "ui/comctrl/SelectListItem.csb";
+}
 
 void tPreferenceItemFileSelect::onPressStateChangedToNormal() {
     if(highlight)
@@ -407,14 +445,16 @@ void tPreferenceItemFileSelect::showForm(cocos2d::Ref *) {
     std::string fullname = _getter();
     std::string initname, initdir;
     if(!fullname.empty()) {
-        std::pair<std::string, std::string> path = TVPBaseFileSelectorForm::PathSplit(fullname);
+        std::pair<std::string, std::string> path =
+            TVPBaseFileSelectorForm::PathSplit(fullname);
         initdir = path.first;
         initname = path.second;
     }
     if(initdir.empty()) {
         initdir = TVPGetDriverPath()[0];
     }
-    TVPFileSelectorForm *form = TVPFileSelectorForm::create(initname, initdir, false);
+    TVPFileSelectorForm *form =
+        TVPFileSelectorForm::create(initname, initdir, false);
     form->setOnClose([this](const std::string &result) {
         _setter(result);
         updateHightlight();
@@ -427,7 +467,8 @@ void tPreferenceItemFileSelect::updateHightlight() {
         selected->setString(_getter());
 }
 
-KeyMapPreferenceForm::KeyMapPreferenceForm(iSysConfigManager *mgr) : _mgr(mgr) {}
+KeyMapPreferenceForm::KeyMapPreferenceForm(iSysConfigManager *mgr) :
+    _mgr(mgr) {}
 
 void KeyMapPreferenceForm::initData() {
     LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
@@ -479,7 +520,8 @@ KeyMapPreferenceForm *KeyMapPreferenceForm::create(iSysConfigManager *mgr) {
 
 void tPreferenceItemDeletable::initController(const NodeMap &allNodes) {
     _deleteIcon = allNodes.findWidget("delete");
-    _scrollview = allNodes.findController<cocos2d::ui::ScrollView>("scrollview");
+    _scrollview =
+        allNodes.findController<cocos2d::ui::ScrollView>("scrollview");
     _scrollview->setScrollBarEnabled(false);
     Size viewSize = _scrollview->getContentSize();
     float iconWidth = _deleteIcon->getContentSize().width;
@@ -493,13 +535,17 @@ void tPreferenceItemDeletable::initController(const NodeMap &allNodes) {
     });
 }
 
-const char *tPreferenceItemDeletable::getUIFileName() const { return "ui/comctrl/DeletableItem.csb"; }
+const char *tPreferenceItemDeletable::getUIFileName() const {
+    return "ui/comctrl/DeletableItem.csb";
+}
 
-void tPreferenceItemDeletable::onTouchEvent(cocos2d::Ref *p, cocos2d::ui::Widget::TouchEventType ev) {}
+void tPreferenceItemDeletable::onTouchEvent(
+    cocos2d::Ref *p, cocos2d::ui::Widget::TouchEventType ev) {}
 
 void tPreferenceItemDeletable::walkTouchEvent(Widget *node) {
     node->addTouchEventListener(
-        std::bind(&tPreferenceItemDeletable::onTouchEvent, this, std::placeholders::_1, std::placeholders::_2));
+        std::bind(&tPreferenceItemDeletable::onTouchEvent, this,
+                  std::placeholders::_1, std::placeholders::_2));
     auto &vecChildren = node->getChildren();
     for(Node *child : vecChildren) {
         Widget *widget = static_cast<Widget *>(child);
@@ -509,7 +555,8 @@ void tPreferenceItemDeletable::walkTouchEvent(Widget *node) {
     }
 }
 
-void tPreferenceItemKeyMap::initData(int k, int v, int idx, const cocos2d::Size &size) {
+void tPreferenceItemKeyMap::initData(int k, int v, int idx,
+                                     const cocos2d::Size &size) {
     _keypair.first = k;
     _keypair.second = v;
     char buf[32];

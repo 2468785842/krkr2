@@ -13,9 +13,9 @@
  *  Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- * USA
+ *  License along with this library; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA  02110-1301 USA
  *
  */
 
@@ -26,7 +26,8 @@
 NS_KRMOVIE_BEGIN
 namespace RenderManager {
 
-    unsigned int GetFlagsColorMatrix(unsigned int color_matrix, unsigned width, unsigned height) {
+    unsigned int GetFlagsColorMatrix(unsigned int color_matrix, unsigned width,
+                                     unsigned height) {
         switch(color_matrix) {
             case 7: // SMPTE 240M (1987)
                 return CONF_FLAGS_YUVCOEF_240M;
@@ -91,9 +92,12 @@ namespace RenderManager {
         static std::map<std::string, unsigned int> convert;
         if(convert.empty()) {
             convert["mono"] = 0u;
-            convert["left_right"] = CONF_FLAGS_STEREO_MODE_SBS | CONF_FLAGS_STEREO_CADANCE_LEFT_RIGHT;
-            convert["bottom_top"] = CONF_FLAGS_STEREO_MODE_TAB | CONF_FLAGS_STEREO_CADANCE_RIGHT_LEFT;
-            convert["top_bottom"] = CONF_FLAGS_STEREO_MODE_TAB | CONF_FLAGS_STEREO_CADANCE_LEFT_RIGHT;
+            convert["left_right"] = CONF_FLAGS_STEREO_MODE_SBS |
+                CONF_FLAGS_STEREO_CADANCE_LEFT_RIGHT;
+            convert["bottom_top"] = CONF_FLAGS_STEREO_MODE_TAB |
+                CONF_FLAGS_STEREO_CADANCE_RIGHT_LEFT;
+            convert["top_bottom"] = CONF_FLAGS_STEREO_MODE_TAB |
+                CONF_FLAGS_STEREO_CADANCE_LEFT_RIGHT;
             convert["checkerboard_rl"] = 0u;
             convert["checkerboard_lr"] = 0u;
             convert["row_interleaved_rl"] = 0u;
@@ -101,7 +105,8 @@ namespace RenderManager {
             convert["col_interleaved_rl"] = 0u;
             convert["col_interleaved_lr"] = 0u;
             convert["anaglyph_cyan_red"] = 0u;
-            convert["right_left"] = CONF_FLAGS_STEREO_MODE_SBS | CONF_FLAGS_STEREO_CADANCE_RIGHT_LEFT;
+            convert["right_left"] = CONF_FLAGS_STEREO_MODE_SBS |
+                CONF_FLAGS_STEREO_CADANCE_RIGHT_LEFT;
             convert["anaglyph_green_magenta"] = 0u;
             convert["anaglyph_yellow_blue"] = 0u;
             convert["block_lr"] = 0u;

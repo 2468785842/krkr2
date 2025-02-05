@@ -26,8 +26,9 @@ tTJSNI_BaseSoundBuffer::tTJSNI_BaseSoundBuffer() {
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_BaseSoundBuffer::Construct(tjs_int numparams, tTJSVariant **param,
-                                                            iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_BaseSoundBuffer::Construct(tjs_int numparams,
+                                            tTJSVariant **param,
+                                            iTJSDispatch2 *tjs_obj) {
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
 
@@ -42,7 +43,7 @@ tjs_error TJS_INTF_METHOD tTJSNI_BaseSoundBuffer::Construct(tjs_int numparams, t
 }
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_BaseSoundBuffer::Invalidate() {
+void tTJSNI_BaseSoundBuffer::Invalidate() {
     CanDeliverEvents = false;
     TVPCancelSourceEvents(Owner);
     Owner = nullptr;
@@ -86,7 +87,8 @@ void tTJSNI_BaseSoundBuffer::SetStatus(tTVPSoundStatus s) {
                 // fire onStatusChanged event
                 tTJSVariant param(GetStatusString());
                 static ttstr eventname(TJS_W("onStatusChanged"));
-                TVPPostEvent(Owner, Owner, eventname, 0, TVP_EPT_IMMEDIATE, 1, &param);
+                TVPPostEvent(Owner, Owner, eventname, 0, TVP_EPT_IMMEDIATE, 1,
+                             &param);
             }
         }
     }
@@ -105,7 +107,8 @@ void tTJSNI_BaseSoundBuffer::SetStatusAsync(tTVPSoundStatus s) {
             if(Owner) {
                 tTJSVariant param(GetStatusString());
                 static ttstr eventname(TJS_W("onStatusChanged"));
-                TVPPostEvent(Owner, Owner, eventname, 0, TVP_EPT_POST, 1, &param);
+                TVPPostEvent(Owner, Owner, eventname, 0, TVP_EPT_POST, 1,
+                             &param);
             }
         }
     }
@@ -183,7 +186,8 @@ void tTJSNI_BaseSoundBuffer::StopFade(bool async, bool settargetvol) {
         // post "onFadeCompleted" event to the owner
         if(CanDeliverEvents) {
             static ttstr eventname(TJS_W("onFadeCompleted"));
-            TVPPostEvent(Owner, Owner, eventname, 0, async ? TVP_EPT_POST : TVP_EPT_IMMEDIATE, 0, nullptr);
+            TVPPostEvent(Owner, Owner, eventname, 0,
+                         async ? TVP_EPT_POST : TVP_EPT_IMMEDIATE, 0, nullptr);
         }
     }
 }

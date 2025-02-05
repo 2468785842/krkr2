@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -105,7 +106,8 @@ static bool TVPGetModalWindowRearrangeInFullScreen() {
             {
                     ttstr str(val);
                     if(str == TJS_W("yes"))
-                            TVPModalWindowRearrangeInFullScreen = true;
+                            TVPModalWindowRearrangeInFullScreen =
+       true;
             }
 
             TVPModalWindowRearrangeInFullScreenInit = true;
@@ -150,7 +152,8 @@ __fastcall TTVPMainForm::TTVPMainForm(TComponent *Owner) : TForm(Owner) {
 #else
     Application->OnIdle = EVENT_FUNC2(TTVPMainForm, ApplicationIdle);
     Application->OnActivate = EVENT_FUNC1(TTVPMainForm, ApplicationActivate);
-    Application->OnDeactivate = EVENT_FUNC1(TTVPMainForm, ApplicationDeactivate);
+    Application->OnDeactivate =
+        EVENT_FUNC1(TTVPMainForm, ApplicationDeactivate);
     Application->OnMinimize = EVENT_FUNC1(TTVPMainForm, ApplicationMinimize);
     Application->OnRestore = EVENT_FUNC1(TTVPMainForm, ApplicationRestore);
 #endif
@@ -199,7 +202,8 @@ void __fastcall TTVPMainForm::FormDestroy(TObject *Sender) {
     prof->WriteInteger(section, "stayontop", FormStyle == fsStayOnTop);
     section = "console";
     prof->WriteInteger(section, "autoshowonerror", (int)AutoShowConsoleOnError);
-    TVPEnvironProfileRelease(); // this may cause writing profile to disk
+    TVPEnvironProfileRelease(); // this may cause writing profile to
+                                // disk
 }
 //---------------------------------------------------------------------------
 void __fastcall TTVPMainForm::FormClose(TObject *Sender, TCloseAction &Action) {
@@ -215,7 +219,8 @@ void __fastcall TTVPMainForm::FormClose(TObject *Sender, TCloseAction &Action) {
     }
 }
 //---------------------------------------------------------------------------
-TShortCut TTVPMainForm::GetHotKeyFromOption(TShortCut def, const tjs_char *optname) {
+TShortCut TTVPMainForm::GetHotKeyFromOption(TShortCut def,
+                                            const tjs_char *optname) {
     tTJSVariant val;
     if(TVPGetCommandLine(optname, &val)) {
         TShortCut sc;
@@ -225,7 +230,8 @@ TShortCut TTVPMainForm::GetHotKeyFromOption(TShortCut def, const tjs_char *optna
         } else {
             sc = TextToShortCut(str.AsAnsiString());
             if(sc == 0)
-                TVPThrowExceptionMessage(TVPInvalidCommandLineParam, optname, str);
+                TVPThrowExceptionMessage(TVPInvalidCommandLineParam, optname,
+                                         str);
         }
         return sc;
     }
@@ -258,7 +264,9 @@ void TTVPMainForm::ShowController() {
     }
 }
 //---------------------------------------------------------------------------
-void __fastcall TTVPMainForm::ShowControllerMenuItemClick(TObject *Sender) { ShowController(); }
+void __fastcall TTVPMainForm::ShowControllerMenuItemClick(TObject *Sender) {
+    ShowController();
+}
 //---------------------------------------------------------------------------
 void __fastcall TTVPMainForm::ShowScriptEditorButtonClick(TObject *Sender) {
     if(TVPGetDebugSupportShowable()) {
@@ -347,7 +355,9 @@ bool TTVPMainForm::GetScriptEditorVisible() {
     return false;
 }
 //---------------------------------------------------------------------------
-void TTVPMainForm::NotifyScriptEditorHiding() { ShowScriptEditorButton->Down = false; }
+void TTVPMainForm::NotifyScriptEditorHiding() {
+    ShowScriptEditorButton->Down = false;
+}
 //---------------------------------------------------------------------------
 bool TTVPMainForm::GetWatchVisible() {
     if(TVPMainWatchForm)
@@ -357,7 +367,9 @@ bool TTVPMainForm::GetWatchVisible() {
 //---------------------------------------------------------------------------
 void TTVPMainForm::NotifyWatchHiding() { ShowWatchButton->Down = false; }
 //---------------------------------------------------------------------------
-void __fastcall TTVPMainForm::ExitButtonClick(TObject *Sender) { Application->Terminate(); }
+void __fastcall TTVPMainForm::ExitButtonClick(TObject *Sender) {
+    Application->Terminate();
+}
 //---------------------------------------------------------------------------
 void __fastcall TTVPMainForm::PopupMenuPopup(TObject *Sender) {
     ShowOnTopMenuItem->Checked = FormStyle == fsStayOnTop;
@@ -371,15 +383,24 @@ void __fastcall TTVPMainForm::EnableEventMenuItemClick(TObject *Sender) {
     TVPSetSystemEventDisabledState(EventButton->Down);
 }
 //---------------------------------------------------------------------------
-void __fastcall TTVPMainForm::EventButtonClick(TObject *Sender) { TVPSetSystemEventDisabledState(!EventButton->Down); }
+void __fastcall TTVPMainForm::EventButtonClick(TObject *Sender) {
+    TVPSetSystemEventDisabledState(!EventButton->Down);
+}
 //---------------------------------------------------------------------------
-void __fastcall TTVPMainForm::ShowAboutMenuItemClick(TObject *Sender) { TVPShowVersionForm(); }
+void __fastcall TTVPMainForm::ShowAboutMenuItemClick(TObject *Sender) {
+    TVPShowVersionForm();
+}
 //---------------------------------------------------------------------------
-void __fastcall TTVPMainForm::CopyImportantLogMenuItemClick(TObject *Sender) { TVPCopyImportantLogToClipboard(); }
+void __fastcall TTVPMainForm::CopyImportantLogMenuItemClick(TObject *Sender) {
+    TVPCopyImportantLogToClipboard();
+}
 //---------------------------------------------------------------------------
-void __fastcall TTVPMainForm::DumpMenuItemClick(TObject *Sender) { TVPDumpScriptEngine(); }
+void __fastcall TTVPMainForm::DumpMenuItemClick(TObject *Sender) {
+    TVPDumpScriptEngine();
+}
 //---------------------------------------------------------------------------
-void __fastcall TTVPMainForm::CreateMessageMapFileMenuItemClick(TObject *Sender) {
+void __fastcall TTVPMainForm::CreateMessageMapFileMenuItemClick(
+    TObject *Sender) {
     try {
         ttstr fn = TVPGetAppPath() + TJS_W("msgmap.tjs");
         TVPGetLocalName(fn);
@@ -393,7 +414,10 @@ void __fastcall TTVPMainForm::CreateMessageMapFileMenuItemClick(TObject *Sender)
     }
 }
 //---------------------------------------------------------------------------
-void __fastcall TTVPMainForm::RestartScriptEngineMenuItemClick(TObject *Sender) { TVPRestartScriptEngine(); }
+void __fastcall TTVPMainForm::RestartScriptEngineMenuItemClick(
+    TObject *Sender) {
+    TVPRestartScriptEngine();
+}
 //---------------------------------------------------------------------------
 void TTVPMainForm::InvokeEvents() { CallDeliverAllEventsOnIdle(); }
 //---------------------------------------------------------------------------
@@ -446,13 +470,16 @@ void TTVPMainForm::NotifySystemError() {
 void TTVPMainForm::SetApplicationStayOnTop(bool b) {
     ApplicationStayOnTop = b;
     if(ApplicationStayOnTop)
-        SetWindowPos(Application->Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE);
+        SetWindowPos(Application->Handle, HWND_TOPMOST, 0, 0, 0, 0,
+                     SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE);
     else
-        SetWindowPos(Application->Handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE);
+        SetWindowPos(Application->Handle, HWND_NOTOPMOST, 0, 0, 0, 0,
+                     SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE);
 }
 //---------------------------------------------------------------------------
 void __fastcall TTVPMainForm::WMInvokeEvents(TMessage &Msg) {
-    // indirectly called by TVPInvokeEvents  *** currently not used ***
+    // indirectly called by TVPInvokeEvents  *** currently not used
+    // ***
     if(EventButton->Down) {
         TVPDeliverAllEvents();
     }
@@ -500,9 +527,11 @@ void __fastcall TTVPMainForm::ApplicationDeactivate(TObject *Sender) {
 
     // set application-level stay-on-top state
     if(ApplicationStayOnTop)
-        SetWindowPos(Application->Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE);
+        SetWindowPos(Application->Handle, HWND_TOPMOST, 0, 0, 0, 0,
+                     SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE);
     else
-        SetWindowPos(Application->Handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE);
+        SetWindowPos(Application->Handle, HWND_NOTOPMOST, 0, 0, 0, 0,
+                     SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE);
 
     // set sound volume
     TVPResetVolumeToAllSoundBuffer();
@@ -531,7 +560,8 @@ void __fastcall TTVPMainForm::ApplicationRestore(TObject *Sender) {
 void __fastcall TTVPMainForm::SystemWatchTimerTimer(TObject *Sender) {
     if(TVPTerminated) {
         // this will ensure terminating the application.
-        // the WM_QUIT message disappears in some unknown situations...
+        // the WM_QUIT message disappears in some unknown
+        // situations...
         ::PostMessage(TVPMainForm->Handle, WM_USER + 0x31 /*dummy msg*/, 0, 0);
         Application->Terminate();
         ::PostMessage(TVPMainForm->Handle, WM_USER + 0x31 /*dummy msg*/, 0, 0);
@@ -543,7 +573,8 @@ void __fastcall TTVPMainForm::SystemWatchTimerTimer(TObject *Sender) {
     // push environ noise
     TVPPushEnvironNoise(&tick, sizeof(tick));
     TVPPushEnvironNoise(&LastCompactedTick, sizeof(LastCompactedTick));
-    TVPPushEnvironNoise(&LastShowModalWindowSentTick, sizeof(LastShowModalWindowSentTick));
+    TVPPushEnvironNoise(&LastShowModalWindowSentTick,
+                        sizeof(LastShowModalWindowSentTick));
     TVPPushEnvironNoise(&MixedIdleTick, sizeof(MixedIdleTick));
     POINT pt;
     GetCursorPos(&pt);
@@ -554,14 +585,16 @@ void __fastcall TTVPMainForm::SystemWatchTimerTimer(TObject *Sender) {
         static bool clock_rough_printed = false;
         if(!clock_rough_printed && TVPCPUClockAccuracy == ccaRough) {
             tjs_char msg[80];
-            TJS_sprintf(msg, TJS_W("(info) CPU clock (roughly) : %dMHz"), (int)TVPCPUClock);
+            TJS_sprintf(msg, TJS_W("(info) CPU clock (roughly) : %dMHz"),
+                        (int)TVPCPUClock);
             TVPAddImportantLog(msg);
             clock_rough_printed = true;
         }
         static bool clock_printed = false;
         if(!clock_printed && TVPCPUClockAccuracy == ccaAccurate) {
             tjs_char msg[80];
-            TJS_sprintf(msg, TJS_W("(info) CPU clock : %.1fMHz"), (float)TVPCPUClock);
+            TJS_sprintf(msg, TJS_W("(info) CPU clock : %.1fMHz"),
+                        (float)TVPCPUClock);
             TVPAddImportantLog(msg);
             clock_printed = true;
         }
@@ -612,7 +645,8 @@ void __fastcall TTVPMainForm::SystemWatchTimerTimer(TObject *Sender) {
 }
 //---------------------------------------------------------------------------
 void __fastcall TTVPMainForm::WMRearrangeModalWindows(TMessage &Msg) {
-    if(TVPFullScreenedWindow != nullptr && TVPGetModalWindowRearrangeInFullScreen()) {
+    if(TVPFullScreenedWindow != nullptr &&
+       TVPGetModalWindowRearrangeInFullScreen()) {
         HDWP hdwp = BeginDeferWindowPos(1);
         hdwp = TVPShowModalAtTimer(hdwp);
         hdwp = TVPShowFontSelectFormTop(hdwp);
@@ -639,9 +673,11 @@ static void TVPInitEnvironProfile() {
         else
             TVPProfileWrite = true;
         try {
-            TVPEnvironProfile = new tTVPProfileHolder(TVPNativeDataPath + "krenvprf.kep");
+            TVPEnvironProfile =
+                new tTVPProfileHolder(TVPNativeDataPath + "krenvprf.kep");
         } catch(...) {
-            TVPEnvironProfile = new tTVPProfileHolder(TVPGetTemporaryName().AsAnsiString());
+            TVPEnvironProfile =
+                new tTVPProfileHolder(TVPGetTemporaryName().AsAnsiString());
             TVPProfileWrite = false;
         }
     }
@@ -733,11 +769,15 @@ static AnsiString TVPUnescapeAnsiString(const AnsiString &str) {
     return ret;
 }
 //---------------------------------------------------------------------------
-void __fastcall tTVPProfileHolder::WriteStrings(const AnsiString &section, const AnsiString &ident, TStrings *strings) {
+void __fastcall tTVPProfileHolder::WriteStrings(const AnsiString &section,
+                                                const AnsiString &ident,
+                                                TStrings *strings) {
     WriteString(section, ident, TVPEscapeAnsiString(strings->Text));
 }
 //---------------------------------------------------------------------------
-void __fastcall tTVPProfileHolder::ReadStrings(const AnsiString &section, const AnsiString &ident, TStrings *strings) {
+void __fastcall tTVPProfileHolder::ReadStrings(const AnsiString &section,
+                                               const AnsiString &ident,
+                                               TStrings *strings) {
     AnsiString str;
     str = ReadString(section, ident, "");
     if(str != "")

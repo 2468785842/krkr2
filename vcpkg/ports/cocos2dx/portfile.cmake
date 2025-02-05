@@ -24,11 +24,6 @@ file(COPY "${CMAKE_CURRENT_LIST_DIR}/cocos2dx-config.cmake.in" DESTINATION "${SO
 file(COPY_FILE "${CMAKE_CURRENT_LIST_DIR}/patch/cocos2d-x/CMakeLists.txt" "${SOURCE_PATH}/CMakeLists.txt" ONLY_IF_DIFFERENT)
 file(COPY_FILE "${CMAKE_CURRENT_LIST_DIR}/patch/cocos2d-x/cocos/CMakeLists.txt" "${SOURCE_PATH}/cocos/CMakeLists.txt" ONLY_IF_DIFFERENT)
 
-file(COPY_FILE "${CMAKE_CURRENT_LIST_DIR}/patch/cocos2d-x/android_CCFileUtils-android.h" "${SOURCE_PATH}/cocos/platform/android/CCFileUtils-android.h" ONLY_IF_DIFFERENT)
-file(COPY_FILE "${CMAKE_CURRENT_LIST_DIR}/patch/cocos2d-x/android_CCFileUtils-android.cpp" "${SOURCE_PATH}/cocos/platform/android/CCFileUtils-android.cpp" ONLY_IF_DIFFERENT)
-file(COPY_FILE "${CMAKE_CURRENT_LIST_DIR}/patch/cocos2d-x/android_Java_org_cocos2dx_lib_Cocos2dxHelper.h" "${SOURCE_PATH}/cocos/platform/android/jni/Java_org_cocos2dx_lib_Cocos2dxHelper.h" ONLY_IF_DIFFERENT)
-file(COPY_FILE "${CMAKE_CURRENT_LIST_DIR}/patch/cocos2d-x/android_Java_org_cocos2dx_lib_Cocos2dxHelper.cpp" "${SOURCE_PATH}/cocos/platform/android/jni/Java_org_cocos2dx_lib_Cocos2dxHelper.cpp" ONLY_IF_DIFFERENT)
-
 include("${CMAKE_CURRENT_LIST_DIR}/DownloadDeps.cmake")
 
 file(COPY_FILE "${CMAKE_CURRENT_LIST_DIR}/patch/cocos2d-x/external/CMakeLists.txt" "${SOURCE_PATH}/external/CMakeLists.txt" ONLY_IF_DIFFERENT)

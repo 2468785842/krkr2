@@ -1,4 +1,4 @@
-#include "SeletListForm.h"
+#include "SelectListForm.h"
 #include "ui/UIHelper.h"
 #include "ui/UIPageView.h"
 #include "ui/UIButton.h"
@@ -29,8 +29,10 @@ void iTVPHalfScreenForm::rearrangeLayout() {
     }
 }
 
-TVPSelectListForm *TVPSelectListForm::create(const std::vector<std::string> &info, const std::string &highlight_tid,
-                                             const std::function<void(int)> &funcok) {
+TVPSelectListForm *
+TVPSelectListForm::create(const std::vector<std::string> &info,
+                          const std::string &highlight_tid,
+                          const std::function<void(int)> &funcok) {
     auto *ret = new TVPSelectListForm();
     ret->autorelease();
     ret->FuncOK = funcok;
@@ -48,14 +50,18 @@ void TVPSelectListForm::bindBodyController(const NodeMap &allNodes) {
     ui::Button *btn = static_cast<ui::Button *>(allNodes.findController("ok"));
     btn->addClickEventListener([this](Ref *) {
         FuncOK(pageView->getCurPageIndex());
-        TVPMainScene::GetInstance()->popUIForm(this, TVPMainScene::eLeaveToBottom);
+        TVPMainScene::GetInstance()->popUIForm(this,
+                                               TVPMainScene::eLeaveToBottom);
     });
     btn = static_cast<ui::Button *>(allNodes.findController("cancel"));
-    btn->addClickEventListener(
-        [this](Ref *) { TVPMainScene::GetInstance()->popUIForm(this, TVPMainScene::eLeaveToBottom); });
+    btn->addClickEventListener([this](Ref *) {
+        TVPMainScene::GetInstance()->popUIForm(this,
+                                               TVPMainScene::eLeaveToBottom);
+    });
 }
 
-void TVPSelectListForm::initWithInfo(const std::vector<std::string> &info, const std::string &highlight_tid) {
+void TVPSelectListForm::initWithInfo(const std::vector<std::string> &info,
+                                     const std::string &highlight_tid) {
     // pageView->removeAllPages();
     Size size = pageView->getViewSize();
     bool size_set = false;
@@ -81,8 +87,9 @@ void TVPSelectListForm::initWithInfo(const std::vector<std::string> &info, const
         cell->setContentSize(size);
         ui::Helper::doLayout(cell);
         LocaleConfigManager::GetInstance()->initText(text, str);
-        // text->addChild(LayerColor::create(cocos2d::Color4B(255, 255, 0, 255),
-        // text->getContentSize().width, text->getContentSize().height));
+        // text->addChild(LayerColor::create(cocos2d::Color4B(255,
+        // 255, 0, 255), text->getContentSize().width,
+        // text->getContentSize().height));
         Layout *lay = Layout::create();
         lay->setContentSize(size);
         lay->addChild(cell);
@@ -94,9 +101,10 @@ void TVPSelectListForm::initWithInfo(const std::vector<std::string> &info, const
     pageView->setCurPageIndex(selectedIdx);
 }
 
-TVPTextPairInputForm *
-TVPTextPairInputForm::create(const std::string &text1, const std::string &text2,
-                             const std::function<void(const std::string &, const std::string &)> &funcok) {
+TVPTextPairInputForm *TVPTextPairInputForm::create(
+    const std::string &text1, const std::string &text2,
+    const std::function<void(const std::string &, const std::string &)>
+        &funcok) {
     auto *ret = new TVPTextPairInputForm();
     ret->autorelease();
     ret->FuncOK = funcok;
@@ -112,19 +120,24 @@ void TVPTextPairInputForm::bindBodyController(const NodeMap &allNodes) {
     ui::Button *btn = static_cast<ui::Button *>(allNodes.findController("ok"));
     btn->addClickEventListener([this](Ref *) {
         FuncOK(input1->getString(), input2->getString());
-        TVPMainScene::GetInstance()->popUIForm(this, TVPMainScene::eLeaveToBottom);
+        TVPMainScene::GetInstance()->popUIForm(this,
+                                               TVPMainScene::eLeaveToBottom);
     });
     btn = static_cast<ui::Button *>(allNodes.findController("cancel"));
-    btn->addClickEventListener(
-        [this](Ref *) { TVPMainScene::GetInstance()->popUIForm(this, TVPMainScene::eLeaveToBottom); });
+    btn->addClickEventListener([this](Ref *) {
+        TVPMainScene::GetInstance()->popUIForm(this,
+                                               TVPMainScene::eLeaveToBottom);
+    });
 }
 
-void TVPTextPairInputForm::initWithInfo(const std::string &text1, const std::string &text2) {
+void TVPTextPairInputForm::initWithInfo(const std::string &text1,
+                                        const std::string &text2) {
     input1->setString(text1);
     input2->setString(text2);
 }
 
-TVPKeyPairSelectForm *TVPKeyPairSelectForm::create(const std::function<void(int)> &funcok) {
+TVPKeyPairSelectForm *
+TVPKeyPairSelectForm::create(const std::function<void(int)> &funcok) {
     auto *ret = new TVPKeyPairSelectForm;
     ret->autorelease();
     ret->_funcok = funcok;
@@ -156,14 +169,18 @@ void TVPKeyPairSelectForm::initWithInfo() {
     }
     inherit::initWithInfo(_keyinfo, "0");
     _keylistener = EventListenerKeyboard::create();
-    _keylistener->onKeyPressed = CC_CALLBACK_2(TVPKeyPairSelectForm::onKeyPressed, this);
-    _keylistener->onKeyReleased = CC_CALLBACK_2(TVPKeyPairSelectForm::onKeyReleased, this);
+    _keylistener->onKeyPressed =
+        CC_CALLBACK_2(TVPKeyPairSelectForm::onKeyPressed, this);
+    _keylistener->onKeyReleased =
+        CC_CALLBACK_2(TVPKeyPairSelectForm::onKeyReleased, this);
     _eventDispatcher->addEventListenerWithFixedPriority(_keylistener, 1);
 }
 
-void TVPKeyPairSelectForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event) {}
+void TVPKeyPairSelectForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
+                                        cocos2d::Event *event) {}
 
-void TVPKeyPairSelectForm::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event) {
+void TVPKeyPairSelectForm::onKeyReleased(
+    cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event) {
     unsigned int code = TVPConvertKeyCodeToVKCode(keyCode);
     if(!code || code >= 0x200)
         return;

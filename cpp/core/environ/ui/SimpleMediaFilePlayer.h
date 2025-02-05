@@ -43,7 +43,8 @@ private:
     cocos2d::ui::Slider *Timeline;
     cocos2d::Node *NaviBar, *ControlBar, *OSD, *Overlay;
     cocos2d::ui::Widget *PlayBtn;
-    cocos2d::Node *PlayBtnNormal, *PlayBtnPress, *PlayIconNormal, *PlayIconPress, *PauseIconNormal, *PauseIconPress;
+    cocos2d::Node *PlayBtnNormal, *PlayBtnPress, *PlayIconNormal,
+        *PlayIconPress, *PauseIconNormal, *PauseIconPress;
     void setPlayButtonHighlight(bool highlight);
     void refreshPlayButtonStatus();
 };

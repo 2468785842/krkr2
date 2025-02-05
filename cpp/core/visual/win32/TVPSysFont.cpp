@@ -64,13 +64,15 @@ void tTVPSysFont::InitializeMemDC() {
 
     hMemDC_ = ::CreateCompatibleDC(nullptr);
     char *Bits;
-    hBmp_ = ::CreateDIBSection(nullptr, &bmpinfo, DIB_RGB_COLORS, (void **)(&Bits), nullptr, 0);
+    hBmp_ = ::CreateDIBSection(nullptr, &bmpinfo, DIB_RGB_COLORS,
+                               (void **)(&Bits), nullptr, 0);
     hOldBmp_ = ::SelectObject(hMemDC_, hBmp_);
 }
 
 tTVPSysFont::tTVPSysFont() :
-    hFont_(INVALID_HANDLE_VALUE), hOldFont_(INVALID_HANDLE_VALUE), hMemDC_(INVALID_HANDLE_VALUE),
-    hBmp_(INVALID_HANDLE_VALUE), hOldBmp_(INVALID_HANDLE_VALUE) {
+    hFont_(INVALID_HANDLE_VALUE), hOldFont_(INVALID_HANDLE_VALUE),
+    hMemDC_(INVALID_HANDLE_VALUE), hBmp_(INVALID_HANDLE_VALUE),
+    hOldBmp_(INVALID_HANDLE_VALUE) {
 
     InitializeMemDC();
 
@@ -80,15 +82,17 @@ tTVPSysFont::tTVPSysFont() :
     logfont.lfHeight = -12;
     logfont.lfWidth = 0;
     logfont.lfCharSet = DEFAULT_CHARSET;
-    TJS_strncpy_s(logfont.lfFaceName, LF_FACESIZE, TVPGetDefaultFontName(), LF_FACESIZE);
+    TJS_strncpy_s(logfont.lfFaceName, LF_FACESIZE, TVPGetDefaultFontName(),
+                  LF_FACESIZE);
     logfont.lfItalic = FALSE;
     logfont.lfUnderline = FALSE;
     logfont.lfStrikeOut = FALSE;
     ApplyFont(&logfont);
 }
 tTVPSysFont::tTVPSysFont(const tTVPFont &font) :
-    hFont_(INVALID_HANDLE_VALUE), hOldFont_(INVALID_HANDLE_VALUE), hMemDC_(INVALID_HANDLE_VALUE),
-    hBmp_(INVALID_HANDLE_VALUE), hOldBmp_(INVALID_HANDLE_VALUE) {
+    hFont_(INVALID_HANDLE_VALUE), hOldFont_(INVALID_HANDLE_VALUE),
+    hMemDC_(INVALID_HANDLE_VALUE), hBmp_(INVALID_HANDLE_VALUE),
+    hOldBmp_(INVALID_HANDLE_VALUE) {
 
     InitializeMemDC();
 
@@ -105,7 +109,8 @@ tTVPSysFont::tTVPSysFont(const tTVPFont &font) :
     LogFont.lfQuality = DEFAULT_QUALITY;
     LogFont.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
     ttstr face = TVPFontSystem->GetBeingFont(font.Face.AsStdString());
-    TJS_strncpy_s(LogFont.lfFaceName, LF_FACESIZE, face.c_str(), LF_FACESIZE - 1);
+    TJS_strncpy_s(LogFont.lfFaceName, LF_FACESIZE, face.c_str(),
+                  LF_FACESIZE - 1);
     LogFont.lfFaceName[LF_FACESIZE - 1] = 0;
 
     ApplyFont(&LogFont);
@@ -151,7 +156,8 @@ void tTVPSysFont::Assign(const tTVPFont &font) {
     LogFont.lfQuality = DEFAULT_QUALITY;
     LogFont.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
     ttstr face = TVPFontSystem->GetBeingFont(font.Face.AsStdString());
-    TJS_strncpy_s(LogFont.lfFaceName, LF_FACESIZE, face.c_str(), LF_FACESIZE - 1);
+    TJS_strncpy_s(LogFont.lfFaceName, LF_FACESIZE, face.c_str(),
+                  LF_FACESIZE - 1);
     LogFont.lfFaceName[LF_FACESIZE - 1] = 0;
     ApplyFont(&LogFont);
 }
@@ -167,15 +173,19 @@ void tTVPSysFont::ApplyFont(const LOGFONT *info) {
         hFont_ = hFont;
     }
 }
-void tTVPSysFont::GetFont(LOGFONT *font) const { ::GetObject(hFont_, sizeof(LOGFONT), font); }
+void tTVPSysFont::GetFont(LOGFONT *font) const {
+    ::GetObject(hFont_, sizeof(LOGFONT), font);
+}
 
 //---------------------------------------------------------------------------
 struct tTVPFSEnumFontsProcData {
     std::vector<ttstr> &List;
     tjs_uint32 Flags;
     BYTE CharSet;
-    tTVPFSEnumFontsProcData(std::vector<ttstr> &list, tjs_uint32 flags, BYTE charSet) :
-        List(list), Flags(flags), CharSet(charSet) {}
+    tTVPFSEnumFontsProcData(std::vector<ttstr> &list, tjs_uint32 flags,
+                            BYTE charSet) :
+        List(list),
+        Flags(flags), CharSet(charSet) {}
 };
 //---------------------------------------------------------------------------
 /**
@@ -183,9 +193,12 @@ struct tTVPFSEnumFontsProcData {
  * @param lpntme : pointer to physical-font data
  * @param FontType : type of font
  */
-static int CALLBACK TVPFSFEnumFontsProc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme, int FontType, LPARAM userdata) {
+static int CALLBACK TVPFSFEnumFontsProc(ENUMLOGFONTEX *lpelfe,
+                                        NEWTEXTMETRICEX *lpntme, int FontType,
+                                        LPARAM userdata) {
     // enumerate fonts
-    tTVPFSEnumFontsProcData *data = reinterpret_cast<tTVPFSEnumFontsProcData *>(userdata);
+    tTVPFSEnumFontsProcData *data =
+        reinterpret_cast<tTVPFSEnumFontsProcData *>(userdata);
     if(data->Flags & TVP_FSF_FIXEDPITCH) {
         // fixed pitch only ?
         if(lpntme->ntmTm.tmPitchAndFamily & TMPF_FIXED_PITCH)
@@ -211,21 +224,24 @@ static int CALLBACK TVPFSFEnumFontsProc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *
 
     if(data->Flags & TVP_FSF_TRUETYPEONLY) {
         // true type or opentype only ?
-        bool is_outline = (lpntme->ntmTm.ntmFlags & NTM_PS_OPENTYPE) || (lpntme->ntmTm.ntmFlags & NTM_TT_OPENTYPE) ||
+        bool is_outline = (lpntme->ntmTm.ntmFlags & NTM_PS_OPENTYPE) ||
+            (lpntme->ntmTm.ntmFlags & NTM_TT_OPENTYPE) ||
             (FontType & TRUETYPE_FONTTYPE);
         if(!is_outline)
             return 1;
     }
 
     ttstr facename(lpelfe->elfLogFont.lfFaceName);
-    if(std::find(data->List.begin(), data->List.end(), facename) == data->List.end())
+    if(std::find(data->List.begin(), data->List.end(), facename) ==
+       data->List.end())
         data->List.push_back(facename); // not insert the same face twice
 
     return 1;
 }
 // フォント名からキャラセットを得る
-static int CALLBACK TVPFSFEnumCurFaceFontsProc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme, int FontType,
-                                               LPARAM userdata) {
+static int CALLBACK TVPFSFEnumCurFaceFontsProc(ENUMLOGFONTEX *lpelfe,
+                                               NEWTEXTMETRICEX *lpntme,
+                                               int FontType, LPARAM userdata) {
     BYTE *data = reinterpret_cast<BYTE *>(userdata);
     *data = lpelfe->elfLogFont.lfCharSet;
     // lpntme->ntmTm.tmDefaultChar;
@@ -250,7 +266,8 @@ static void SetDefaultLogFont(LOGFONT &l, const tjs_char *face) {
         l.lfFaceName[0] = '\0';
     }
 }
-void TVPGetFontList(std::vector<ttstr> &list, tjs_uint32 flags, const tTVPFont &font) {
+void TVPGetFontList(std::vector<ttstr> &list, tjs_uint32 flags,
+                    const tTVPFont &font) {
     LOGFONT l;
     SetDefaultLogFont(l, nullptr);
 
@@ -260,9 +277,11 @@ void TVPGetFontList(std::vector<ttstr> &list, tjs_uint32 flags, const tTVPFont &
 
     HDC dc = ::GetDC(nullptr);
     BYTE charSet = DEFAULT_CHARSET;
-    ::EnumFontFamiliesEx(dc, &clf, (FONTENUMPROC)TVPFSFEnumCurFaceFontsProc, reinterpret_cast<LPARAM>(&charSet), 0);
+    ::EnumFontFamiliesEx(dc, &clf, (FONTENUMPROC)TVPFSFEnumCurFaceFontsProc,
+                         reinterpret_cast<LPARAM>(&charSet), 0);
     tTVPFSEnumFontsProcData data(list, flags, charSet);
-    ::EnumFontFamiliesEx(dc, &l, (FONTENUMPROC)TVPFSFEnumFontsProc, reinterpret_cast<LPARAM>(&data), 0);
+    ::EnumFontFamiliesEx(dc, &l, (FONTENUMPROC)TVPFSFEnumFontsProc,
+                         reinterpret_cast<LPARAM>(&data), 0);
     ::ReleaseDC(nullptr, dc);
 }
 tjs_uint8 TVPGetCharSetFromFaceName(const tjs_char *face) {
@@ -270,7 +289,8 @@ tjs_uint8 TVPGetCharSetFromFaceName(const tjs_char *face) {
     SetDefaultLogFont(l, face);
     HDC dc = ::GetDC(nullptr);
     BYTE charSet = DEFAULT_CHARSET;
-    ::EnumFontFamiliesEx(dc, &l, (FONTENUMPROC)TVPFSFEnumCurFaceFontsProc, reinterpret_cast<LPARAM>(&charSet), 0);
+    ::EnumFontFamiliesEx(dc, &l, (FONTENUMPROC)TVPFSFEnumCurFaceFontsProc,
+                         reinterpret_cast<LPARAM>(&charSet), 0);
     ::ReleaseDC(nullptr, dc);
     return charSet;
 }
@@ -291,7 +311,8 @@ tjs_char TVPGetDefaultCharFromFaceName( const tjs_char* face ) {
 	return defchar;
 }
 #endif
-static int CALLBACK EnumAllFontsProc(LOGFONT *lplf, TEXTMETRIC *lptm, DWORD type, LPARAM data) {
+static int CALLBACK EnumAllFontsProc(LOGFONT *lplf, TEXTMETRIC *lptm,
+                                     DWORD type, LPARAM data) {
     std::vector<ttstr> *list = (std::vector<ttstr> *)data;
     list->push_back(ttstr(lplf->lfFaceName));
     return 1;

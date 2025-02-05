@@ -8,12 +8,16 @@
 #include "LayerIntf.h"
 #include "Application.h"
 
-tTJSNI_Bitmap::tTJSNI_Bitmap() : Owner(nullptr), Bitmap(nullptr), Loading(false) { TVPTempBitmapHolderAddRef(); }
+tTJSNI_Bitmap::tTJSNI_Bitmap() :
+    Owner(nullptr), Bitmap(nullptr), Loading(false) {
+    TVPTempBitmapHolderAddRef();
+}
 tTJSNI_Bitmap::~tTJSNI_Bitmap() { TVPTempBitmapHolderRelease(); }
 //----------------------------------------------------------------------
 // string, [uint] ファイル名、カラーキーの順で指定
 // uint, uint, [bpp] 幅、高さ、bppの順で指定
-tjs_error TJS_INTF_METHOD tTJSNI_Bitmap::Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_Bitmap::Construct(tjs_int numparams, tTJSVariant **param,
+                                   iTJSDispatch2 *tjs_obj) {
     Owner = tjs_obj;
     if(numparams > 0) {
         if(param[0]->Type() == tvtString) {
@@ -39,7 +43,7 @@ tjs_error TJS_INTF_METHOD tTJSNI_Bitmap::Construct(tjs_int numparams, tTJSVarian
     return TJS_S_OK;
 }
 //----------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Bitmap::Invalidate() {
+void tTJSNI_Bitmap::Invalidate() {
     if(Bitmap)
         delete Bitmap, Bitmap = nullptr;
 }
@@ -109,7 +113,8 @@ void tTJSNI_Bitmap::LoadAsync(const ttstr &name) {
     Application->LoadImageRequest(Owner, this, name);
 }
 //----------------------------------------------------------------------
-void tTJSNI_Bitmap::Save(const ttstr &name, const ttstr &type, iTJSDispatch2 *meta) {
+void tTJSNI_Bitmap::Save(const ttstr &name, const ttstr &type,
+                         iTJSDispatch2 *meta) {
     if(Loading)
         TVPThrowExceptionMessage(TVPCurrentlyAsyncLoadBitmap);
     if(!Bitmap)
@@ -204,9 +209,13 @@ tjs_int tTJSNI_Bitmap::GetPixelBufferPitch() const {
     return Bitmap->GetPitchBytes();
 }
 //----------------------------------------------------------------------
-void tTJSNI_Bitmap::CopyFrom(const tTJSNI_Bitmap *src) { Bitmap->Assign(*src->GetBitmap()); }
+void tTJSNI_Bitmap::CopyFrom(const tTJSNI_Bitmap *src) {
+    Bitmap->Assign(*src->GetBitmap());
+}
 //----------------------------------------------------------------------
-void tTJSNI_Bitmap::CopyFrom(const iTVPBaseBitmap *src) { Bitmap->Assign(*src); }
+void tTJSNI_Bitmap::CopyFrom(const iTVPBaseBitmap *src) {
+    Bitmap->Assign(*src);
+}
 //----------------------------------------------------------------------
 tjs_uint32 tTJSNC_Bitmap::ClassID = -1;
 
@@ -304,8 +313,9 @@ tTJSNC_Bitmap::tTJSNC_Bitmap() : inherited(TJS_W("Bitmap")) {
         tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
         tTJSNI_Bitmap *srcbmp = nullptr;
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                            (iTJSNativeInstance **)&srcbmp)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+                   (iTJSNativeInstance **)&srcbmp)))
                 return TJS_E_INVALIDPARAM;
             _this->CopyFrom(srcbmp);
         }
@@ -441,15 +451,17 @@ tTJSNC_Bitmap::tTJSNC_Bitmap() : inherited(TJS_W("Bitmap")) {
     //-- properties
 
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(width){ TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
-        /*var. name*/ _this, /*var. type*/ tTJSNI_Bitmap);
+    TJS_BEGIN_NATIVE_PROP_DECL(width){
+        TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+            /*var. name*/ _this, /*var. type*/ tTJSNI_Bitmap);
     *result = (tjs_int64)_this->GetWidth();
     return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Bitmap);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Bitmap);
     _this->SetWidth(static_cast<tjs_uint>((tjs_int64)*param));
     return TJS_S_OK;
 }
@@ -457,15 +469,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(width)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(height){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Bitmap);
+TJS_BEGIN_NATIVE_PROP_DECL(height){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Bitmap);
 *result = (tjs_int64)_this->GetHeight();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Bitmap);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Bitmap);
     _this->SetHeight(static_cast<tjs_uint>((tjs_int64)*param));
     return TJS_S_OK;
 }
@@ -473,8 +487,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(height)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(buffer){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Bitmap);
+TJS_BEGIN_NATIVE_PROP_DECL(buffer){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Bitmap);
 if(_this->IsLoading())
     TVPThrowExceptionMessage(TVPCurrentlyAsyncLoadBitmap);
 *result = (tTVInteger) reinterpret_cast<tjs_intptr_t>(_this->GetPixelBuffer());
@@ -486,11 +501,13 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(buffer)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(bufferForWrite){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Bitmap);
+TJS_BEGIN_NATIVE_PROP_DECL(bufferForWrite){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Bitmap);
 if(_this->IsLoading())
     TVPThrowExceptionMessage(TVPCurrentlyAsyncLoadBitmap);
-*result = (tTVInteger) reinterpret_cast<tjs_intptr_t>(_this->GetPixelBufferForWrite());
+*result = (tTVInteger) reinterpret_cast<tjs_intptr_t>(
+    _this->GetPixelBufferForWrite());
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -499,8 +516,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(bufferForWrite)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(bufferPitch){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Bitmap);
+TJS_BEGIN_NATIVE_PROP_DECL(bufferPitch){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Bitmap);
 if(_this->IsLoading())
     TVPThrowExceptionMessage(TVPCurrentlyAsyncLoadBitmap);
 *result = _this->GetPixelBufferPitch();
@@ -512,8 +530,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(bufferPitch)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(loading){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Bitmap);
+TJS_BEGIN_NATIVE_PROP_DECL(loading){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Bitmap);
 *result = (tjs_int)(_this->IsLoading() ? 1 : 0);
 return TJS_S_OK;
 }
@@ -547,7 +566,9 @@ struct tBitmapClassHolder {
     }
 } static bitmapclassholder;
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_Bitmap::CreateNativeInstance() { return new tTJSNI_Bitmap(); }
+tTJSNativeInstance *tTJSNC_Bitmap::CreateNativeInstance() {
+    return new tTJSNI_Bitmap();
+}
 //---------------------------------------------------------------------------
 tTJSNativeClass *TVPCreateNativeClass_Bitmap() {
     if(bitmapclassholder.Obj) {
@@ -565,7 +586,8 @@ iTJSDispatch2 *TVPCreateBitmapObject() {
         TVPThrowInternalError;
     }
     iTJSDispatch2 *out;
-    if(TJS_FAILED(bitmapclassholder.Obj->CreateNew(0, nullptr, nullptr, &out, 0, nullptr, bitmapclassholder.Obj)))
+    if(TJS_FAILED(bitmapclassholder.Obj->CreateNew(
+           0, nullptr, nullptr, &out, 0, nullptr, bitmapclassholder.Obj)))
         TVPThrowInternalError;
 
     return out;

@@ -1102,7 +1102,8 @@ tTJSNI_Window::tTJSNI_Window() {
     Form = nullptr;
 }
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_Window::Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_Window::Construct(tjs_int numparams, tTJSVariant **param,
+                                   iTJSDispatch2 *tjs_obj) {
     tjs_error hr = tTJSNI_BaseWindow::Construct(numparams, param, tjs_obj);
     if(TJS_FAILED(hr))
         return hr;
@@ -1110,8 +1111,9 @@ tjs_error TJS_INTF_METHOD tTJSNI_Window::Construct(tjs_int numparams, tTJSVarian
         tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
         tTJSNI_Window *win = nullptr;
         if(clo.Object != nullptr) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Window::ClassID,
-                                                            (iTJSNativeInstance **)&win)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Window::ClassID,
+                   (iTJSNativeInstance **)&win)))
                 TVPThrowExceptionMessage(TVPSpecifyWindow);
             if(!win)
                 TVPThrowExceptionMessage(TVPSpecifyWindow);
@@ -1126,7 +1128,7 @@ tjs_error TJS_INTF_METHOD tTJSNI_Window::Construct(tjs_int numparams, tTJSVarian
     return TJS_S_OK;
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::Invalidate() {
+void tTJSNI_Window::Invalidate() {
     tTJSNI_BaseWindow::Invalidate();
 #if 0
 	if( VSyncTimingThread )
@@ -1216,21 +1218,26 @@ void tTJSNI_Window::PostInputEvent(const ttstr &name, iTJSDispatch2 *params) {
         tjs_uint32 shift = 0;
 
         tTJSVariant val;
-        if(TJS_SUCCEEDED(params->PropGet(0, key_name.c_str(), key_name.GetHint(), &val, params)))
+        if(TJS_SUCCEEDED(params->PropGet(0, key_name.c_str(),
+                                         key_name.GetHint(), &val, params)))
             key = (tjs_int)val;
         else
-            TVPThrowExceptionMessage(TVPSpecifiedEventNeedsParameter2, name, TJS_W("key"));
+            TVPThrowExceptionMessage(TVPSpecifiedEventNeedsParameter2, name,
+                                     TJS_W("key"));
 
-        if(TJS_SUCCEEDED(params->PropGet(0, shift_name.c_str(), shift_name.GetHint(), &val, params)))
+        if(TJS_SUCCEEDED(params->PropGet(0, shift_name.c_str(),
+                                         shift_name.GetHint(), &val, params)))
             shift = (tjs_int)val;
         else
-            TVPThrowExceptionMessage(TVPSpecifiedEventNeedsParameter2, name, TJS_W("shift"));
+            TVPThrowExceptionMessage(TVPSpecifiedEventNeedsParameter2, name,
+                                     TJS_W("shift"));
 
         uint16_t vcl_key = key;
         if(type == etOnKeyDown)
             Form->InternalKeyDown(key, shift);
         else if(type == etOnKeyUp)
-            // Form->OnKeyUp(Form, vcl_key, TVP_TShiftState_From_uint32(shift));
+            // Form->OnKeyUp(Form, vcl_key,
+            // TVP_TShiftState_From_uint32(shift));
             Form->OnKeyUp(vcl_key, TVP_TShiftState_From_uint32(shift));
     } else if(type == etOnKeyPress) {
         // this needs param, "key"
@@ -1240,10 +1247,12 @@ void tTJSNI_Window::PostInputEvent(const ttstr &name, iTJSDispatch2 *params) {
         tjs_uint key;
 
         tTJSVariant val;
-        if(TJS_SUCCEEDED(params->PropGet(0, key_name.c_str(), key_name.GetHint(), &val, params)))
+        if(TJS_SUCCEEDED(params->PropGet(0, key_name.c_str(),
+                                         key_name.GetHint(), &val, params)))
             key = (tjs_int)val;
         else
-            TVPThrowExceptionMessage(TVPSpecifiedEventNeedsParameter2, name, TJS_W("key"));
+            TVPThrowExceptionMessage(TVPSpecifiedEventNeedsParameter2, name,
+                                     TJS_W("key"));
 
         char vcl_key = key;
         // Form->OnKeyPress(Form, vcl_key);
@@ -1252,7 +1261,7 @@ void tTJSNI_Window::PostInputEvent(const ttstr &name, iTJSDispatch2 *params) {
 }
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::NotifySrcResize() {
+void tTJSNI_Window::NotifySrcResize() {
     tTJSNI_BaseWindow::NotifySrcResize();
 
     // is called from primary layer
@@ -1263,41 +1272,42 @@ void TJS_INTF_METHOD tTJSNI_Window::NotifySrcResize() {
         Form->SetPaintBoxSize(w, h);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::SetDefaultMouseCursor() {
+void tTJSNI_Window::SetDefaultMouseCursor() {
     // set window mouse cursor to default
     if(Form)
         Form->SetDefaultMouseCursor();
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::SetMouseCursor(tjs_int handle) {
+void tTJSNI_Window::SetMouseCursor(tjs_int handle) {
     // set window mouse cursor
     if(Form)
         Form->SetMouseCursor(handle);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::GetCursorPos(tjs_int &x, tjs_int &y) {
+void tTJSNI_Window::GetCursorPos(tjs_int &x, tjs_int &y) {
     // get cursor pos in primary layer's coordinates
     if(Form)
         Form->GetCursorPos(x, y);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::SetCursorPos(tjs_int x, tjs_int y) {
+void tTJSNI_Window::SetCursorPos(tjs_int x, tjs_int y) {
     // set cursor pos in primar layer's coordinates
     if(Form)
         Form->SetCursorPos(x, y);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::WindowReleaseCapture() {
+void tTJSNI_Window::WindowReleaseCapture() {
     //::ReleaseCapture(); // Windows API
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::SetHintText(iTJSDispatch2 *sender, const ttstr &text) {
+void tTJSNI_Window::SetHintText(iTJSDispatch2 *sender, const ttstr &text) {
     // set hint text to window
     if(Form)
         Form->SetHintText(sender, text);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::SetAttentionPoint(tTJSNI_BaseLayer *layer, tjs_int l, tjs_int t) {
+void tTJSNI_Window::SetAttentionPoint(tTJSNI_BaseLayer *layer, tjs_int l,
+                                      tjs_int t) {
     // set attention point to window
     if(Form) {
         // class TFont * font = nullptr;
@@ -1316,13 +1326,13 @@ void TJS_INTF_METHOD tTJSNI_Window::SetAttentionPoint(tTJSNI_BaseLayer *layer, t
     }
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::DisableAttentionPoint() {
+void tTJSNI_Window::DisableAttentionPoint() {
     // disable attention point
     if(Form)
         Form->DisableAttentionPoint();
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::SetImeMode(tTVPImeMode mode) {
+void tTJSNI_Window::SetImeMode(tTVPImeMode mode) {
     // set ime mode
     if(Form)
         Form->SetImeMode(mode);
@@ -1342,13 +1352,16 @@ tTVPImeMode tTJSNI_Window::GetDefaultImeMode() const {
     return ::imDisable;
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::ResetImeMode() {
-    // set default ime mode ( default mode is imDisable; IME is disabled )
+void tTJSNI_Window::ResetImeMode() {
+    // set default ime mode ( default mode is imDisable; IME is
+    // disabled )
     if(Form)
         Form->ResetImeMode();
 }
 //---------------------------------------------------------------------------
-void tTJSNI_Window::BeginUpdate(const tTVPComplexRect &rects) { tTJSNI_BaseWindow::BeginUpdate(rects); }
+void tTJSNI_Window::BeginUpdate(const tTVPComplexRect &rects) {
+    tTJSNI_BaseWindow::BeginUpdate(rects);
+}
 //---------------------------------------------------------------------------
 void tTJSNI_Window::EndUpdate() { tTJSNI_BaseWindow::EndUpdate(); }
 //---------------------------------------------------------------------------
@@ -1360,7 +1373,8 @@ HWND tTJSNI_Window::GetSurfaceWindowHandle()
 }
 #endif
 //---------------------------------------------------------------------------
-void tTJSNI_Window::ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right, tjs_int &bottom) {
+void tTJSNI_Window::ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right,
+                                  tjs_int &bottom) {
     if(!Form)
         return;
     Form->ZoomRectangle(left, top, right, bottom);
@@ -1394,7 +1408,8 @@ void tTJSNI_Window::ReadjustVideoRect() {
     tjs_int count = VideoOverlay.GetSafeLockedObjectCount();
 
     for(tjs_int i = 0; i < count; i++) {
-        tTJSNI_VideoOverlay *item = (tTJSNI_VideoOverlay *)VideoOverlay.GetSafeLockedObjectAt(i);
+        tTJSNI_VideoOverlay *item =
+            (tTJSNI_VideoOverlay *)VideoOverlay.GetSafeLockedObjectAt(i);
         if(!item)
             continue;
         item->ResetOverlayParams();
@@ -1403,14 +1418,16 @@ void tTJSNI_Window::ReadjustVideoRect() {
 //---------------------------------------------------------------------------
 void tTJSNI_Window::WindowMoved() {
     // inform video overlays that the window has moved.
-    // video overlays typically owns Direct3D surface which is not a part of
-    // normal window systems and does not matter where the owner window is.
-    // so we must inform window moving to overlay window.
+    // video overlays typically owns Direct3D surface which is not a
+    // part of normal window systems and does not matter where the
+    // owner window is. so we must inform window moving to overlay
+    // window.
 
     tObjectListSafeLockHolder<tTJSNI_BaseVideoOverlay> holder(VideoOverlay);
     tjs_int count = VideoOverlay.GetSafeLockedObjectCount();
     for(tjs_int i = 0; i < count; i++) {
-        tTJSNI_VideoOverlay *item = (tTJSNI_VideoOverlay *)VideoOverlay.GetSafeLockedObjectAt(i);
+        tTJSNI_VideoOverlay *item =
+            (tTJSNI_VideoOverlay *)VideoOverlay.GetSafeLockedObjectAt(i);
         if(!item)
             continue;
         item->SetRectangleToVideoOverlay();
@@ -1419,11 +1436,13 @@ void tTJSNI_Window::WindowMoved() {
 //---------------------------------------------------------------------------
 void tTJSNI_Window::DetachVideoOverlay() {
     // detach video overlay window
-    // this is done before the window is being fullscreened or un-fullscreened.
+    // this is done before the window is being fullscreened or
+    // un-fullscreened.
     tObjectListSafeLockHolder<tTJSNI_BaseVideoOverlay> holder(VideoOverlay);
     tjs_int count = VideoOverlay.GetSafeLockedObjectCount();
     for(tjs_int i = 0; i < count; i++) {
-        tTJSNI_VideoOverlay *item = (tTJSNI_VideoOverlay *)VideoOverlay.GetSafeLockedObjectAt(i);
+        tTJSNI_VideoOverlay *item =
+            (tTJSNI_VideoOverlay *)VideoOverlay.GetSafeLockedObjectAt(i);
         if(!item)
             continue;
         item->DetachVideoOverlay();
@@ -1438,7 +1457,9 @@ HWND tTJSNI_Window::GetWindowHandleForPlugin()
 }
 #endif
 //---------------------------------------------------------------------------
-void tTJSNI_Window::RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void *proc, const void *userdata) {
+void tTJSNI_Window::RegisterWindowMessageReceiver(tTVPWMRRegMode mode,
+                                                  void *proc,
+                                                  const void *userdata) {
     if(!Form)
         return;
     Form->RegisterWindowMessageReceiver(mode, proc, userdata);
@@ -1911,7 +1932,8 @@ tjs_int tTJSNI_Window::GetTouchPointCount() {
     return Form->GetTouchPointCount();
 }
 //---------------------------------------------------------------------------
-bool tTJSNI_Window::GetTouchVelocity(tjs_int id, float &x, float &y, float &speed) const {
+bool tTJSNI_Window::GetTouchVelocity(tjs_int id, float &x, float &y,
+                                     float &speed) const {
     if(!Form)
         return false;
     return Form->GetTouchVelocity(id, x, y, speed);
@@ -1986,28 +2008,32 @@ void tTJSNI_Window::UpdateVSyncThread() {
 #endif
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::StartBitmapCompletion(iTVPLayerManager *manager) {
+void tTJSNI_Window::StartBitmapCompletion(iTVPLayerManager *manager) {
     if(DrawDevice)
         DrawDevice->StartBitmapCompletion(manager);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::NotifyBitmapCompleted(class iTVPLayerManager *manager, tjs_int x, tjs_int y,
-                                                          tTVPBaseTexture *bmp, const tTVPRect &cliprect,
-                                                          tTVPLayerType type, tjs_int opacity) {
+void tTJSNI_Window::NotifyBitmapCompleted(class iTVPLayerManager *manager,
+                                          tjs_int x, tjs_int y,
+                                          tTVPBaseTexture *bmp,
+                                          const tTVPRect &cliprect,
+                                          tTVPLayerType type, tjs_int opacity) {
     if(DrawDevice) {
 #if 0
 		DrawDevice->NotifyBitmapCompleted(manager,x,y,bits,bitmapinfo->GetBITMAPINFO(), cliprect, type, opacity );
 #endif
-        DrawDevice->NotifyBitmapCompleted(manager, x, y, bmp, cliprect, type, opacity);
+        DrawDevice->NotifyBitmapCompleted(manager, x, y, bmp, cliprect, type,
+                                          opacity);
     }
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::EndBitmapCompletion(iTVPLayerManager *manager) {
+void tTJSNI_Window::EndBitmapCompletion(iTVPLayerManager *manager) {
     if(DrawDevice)
         DrawDevice->EndBitmapCompletion(manager);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::SetMouseCursor(class iTVPLayerManager *manager, tjs_int cursor) {
+void tTJSNI_Window::SetMouseCursor(class iTVPLayerManager *manager,
+                                   tjs_int cursor) {
     if(DrawDevice) {
         if(cursor == 0)
             DrawDevice->SetDefaultMouseCursor(manager);
@@ -2016,59 +2042,65 @@ void TJS_INTF_METHOD tTJSNI_Window::SetMouseCursor(class iTVPLayerManager *manag
     }
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::GetCursorPos(class iTVPLayerManager *manager, tjs_int &x, tjs_int &y) {
+void tTJSNI_Window::GetCursorPos(class iTVPLayerManager *manager, tjs_int &x,
+                                 tjs_int &y) {
     if(DrawDevice)
         DrawDevice->GetCursorPos(manager, x, y);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::SetCursorPos(class iTVPLayerManager *manager, tjs_int x, tjs_int y) {
+void tTJSNI_Window::SetCursorPos(class iTVPLayerManager *manager, tjs_int x,
+                                 tjs_int y) {
     if(DrawDevice)
         DrawDevice->SetCursorPos(manager, x, y);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::ReleaseMouseCapture(class iTVPLayerManager *manager) {
+void tTJSNI_Window::ReleaseMouseCapture(class iTVPLayerManager *manager) {
     if(DrawDevice)
         DrawDevice->WindowReleaseCapture(manager);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::SetHint(class iTVPLayerManager *manager, iTJSDispatch2 *sender, const ttstr &hint) {
+void tTJSNI_Window::SetHint(class iTVPLayerManager *manager,
+                            iTJSDispatch2 *sender, const ttstr &hint) {
     if(DrawDevice)
         DrawDevice->SetHintText(manager, sender, hint);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::NotifyLayerResize(class iTVPLayerManager *manager) {
+void tTJSNI_Window::NotifyLayerResize(class iTVPLayerManager *manager) {
     if(DrawDevice)
         DrawDevice->NotifyLayerResize(manager);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::NotifyLayerImageChange(class iTVPLayerManager *manager) {
+void tTJSNI_Window::NotifyLayerImageChange(class iTVPLayerManager *manager) {
     if(DrawDevice)
         DrawDevice->NotifyLayerImageChange(manager);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::SetAttentionPoint(class iTVPLayerManager *manager, tTJSNI_BaseLayer *layer,
-                                                      tjs_int x, tjs_int y) {
+void tTJSNI_Window::SetAttentionPoint(class iTVPLayerManager *manager,
+                                      tTJSNI_BaseLayer *layer, tjs_int x,
+                                      tjs_int y) {
     if(DrawDevice)
         DrawDevice->SetAttentionPoint(manager, layer, x, y);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::DisableAttentionPoint(class iTVPLayerManager *manager) {
+void tTJSNI_Window::DisableAttentionPoint(class iTVPLayerManager *manager) {
     if(DrawDevice)
         DrawDevice->DisableAttentionPoint(manager);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::SetImeMode(class iTVPLayerManager *manager, tjs_int mode) // mode == tTVPImeMode
+void tTJSNI_Window::SetImeMode(class iTVPLayerManager *manager,
+                               tjs_int mode) // mode == tTVPImeMode
 {
     if(DrawDevice)
         DrawDevice->SetImeMode(manager, (tTVPImeMode)mode);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Window::ResetImeMode(class iTVPLayerManager *manager) {
+void tTJSNI_Window::ResetImeMode(class iTVPLayerManager *manager) {
     if(DrawDevice)
         DrawDevice->ResetImeMode(manager);
 }
 //---------------------------------------------------------------------------
-void tTJSNI_Window::OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) {
+void tTJSNI_Window::OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
+                              tjs_uint32 id) {
     tTJSNI_BaseWindow::OnTouchUp(x, y, cx, cy, id);
     if(Form) {
         Form->ResetTouchVelocity(id);
@@ -2077,9 +2109,12 @@ void tTJSNI_Window::OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, 
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// tTJSNC_Window::CreateNativeInstance : returns proper instance object
+// tTJSNC_Window::CreateNativeInstance : returns proper instance
+// object
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_Window::CreateNativeInstance() { return new tTJSNI_Window(); }
+tTJSNativeInstance *tTJSNC_Window::CreateNativeInstance() {
+    return new tTJSNI_Window();
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -2117,9 +2152,10 @@ tTJSNativeClass *TVPCreateNativeClass_Window() {
         if(numparams < 3)
             return TJS_E_BADPARAMCOUNT;
 
-        _this->RegisterWindowMessageReceiver((tTVPWMRRegMode)((tjs_int)*param[0]),
-                                             reinterpret_cast<void *>(param[1]->AsInteger()),
-                                             reinterpret_cast<const void *>(param[2]->AsInteger()));
+        _this->RegisterWindowMessageReceiver(
+            (tTVPWMRRegMode)((tjs_int)*param[0]),
+            reinterpret_cast<void *>(param[1]->AsInteger()),
+            reinterpret_cast<const void *>(param[2]->AsInteger()));
 
         return TJS_S_OK;
     }
@@ -2143,32 +2179,39 @@ tTJSNativeClass *TVPCreateNativeClass_Window() {
                 static ttstr ID_name(TJS_W("ID"));
                 {
                     tTJSVariant val(_this->GetTouchPointStartX(index));
-                    if(TJS_FAILED(object->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, startX_name.c_str(),
-                                                  startX_name.GetHint(), &val, object)))
+                    if(TJS_FAILED(object->PropSet(
+                           TJS_MEMBERENSURE | TJS_IGNOREPROP,
+                           startX_name.c_str(), startX_name.GetHint(), &val,
+                           object)))
                         TVPThrowInternalError;
                 }
                 {
                     tTJSVariant val(_this->GetTouchPointStartY(index));
-                    if(TJS_FAILED(object->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, startY_name.c_str(),
-                                                  startY_name.GetHint(), &val, object)))
+                    if(TJS_FAILED(object->PropSet(
+                           TJS_MEMBERENSURE | TJS_IGNOREPROP,
+                           startY_name.c_str(), startY_name.GetHint(), &val,
+                           object)))
                         TVPThrowInternalError;
                 }
                 {
                     tTJSVariant val(_this->GetTouchPointX(index));
-                    if(TJS_FAILED(object->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, X_name.c_str(), X_name.GetHint(),
-                                                  &val, object)))
+                    if(TJS_FAILED(object->PropSet(
+                           TJS_MEMBERENSURE | TJS_IGNOREPROP, X_name.c_str(),
+                           X_name.GetHint(), &val, object)))
                         TVPThrowInternalError;
                 }
                 {
                     tTJSVariant val(_this->GetTouchPointY(index));
-                    if(TJS_FAILED(object->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, Y_name.c_str(), Y_name.GetHint(),
-                                                  &val, object)))
+                    if(TJS_FAILED(object->PropSet(
+                           TJS_MEMBERENSURE | TJS_IGNOREPROP, Y_name.c_str(),
+                           Y_name.GetHint(), &val, object)))
                         TVPThrowInternalError;
                 }
                 {
                     tTJSVariant val(_this->GetTouchPointID(index));
-                    if(TJS_FAILED(object->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, ID_name.c_str(), ID_name.GetHint(),
-                                                  &val, object)))
+                    if(TJS_FAILED(object->PropSet(
+                           TJS_MEMBERENSURE | TJS_IGNOREPROP, ID_name.c_str(),
+                           ID_name.GetHint(), &val, object)))
                         TVPThrowInternalError;
                 }
                 tTJSVariant objval(object, object);
@@ -2241,8 +2284,9 @@ tTJSNativeClass *TVPCreateNativeClass_Window() {
     }
     TJS_END_NATIVE_METHOD_DECL_OUTER(cls, resetMouseVelocity)
     //---------------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(HWND){ TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
-        /*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_BEGIN_NATIVE_PROP_DECL(HWND){
+        TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+            /*var. name*/ _this, /*var. type*/ tTJSNI_Window);
     *result = (tTVInteger)(tjs_intptr_t)_this /*->GetWindowHandleForPlugin()*/;
     return TJS_S_OK;
 }
@@ -2252,15 +2296,17 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL_OUTER(cls, HWND)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(drawDevice){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(drawDevice){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetDrawDeviceObject();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetDrawDeviceObject(*param);
     return TJS_S_OK;
 }
@@ -2268,15 +2314,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL_OUTER(cls, drawDevice)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(touchScaleThreshold){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(touchScaleThreshold){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetTouchScaleThreshold();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetTouchScaleThreshold(*param);
     return TJS_S_OK;
 }
@@ -2284,15 +2332,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL_OUTER(cls, touchScaleThreshold)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(touchRotateThreshold){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(touchRotateThreshold){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetTouchRotateThreshold();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetTouchRotateThreshold(*param);
     return TJS_S_OK;
 }
@@ -2300,8 +2350,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL_OUTER(cls, touchRotateThreshold)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(touchPointCount){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(touchPointCount){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetTouchPointCount();
 return TJS_S_OK;
 }
@@ -2311,15 +2362,17 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL_OUTER(cls, touchPointCount)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(hintDelay){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(hintDelay){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetHintDelay();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetHintDelay(*param);
     return TJS_S_OK;
 }
@@ -2327,15 +2380,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL_OUTER(cls, hintDelay)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(enableTouch){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(enableTouch){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetEnableTouch() ? 1 : 0;
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetEnableTouch(((tjs_int)*param) ? true : false);
     return TJS_S_OK;
 }
@@ -2343,8 +2398,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL_OUTER(cls, enableTouch)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(displayOrientation){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(displayOrientation){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetDisplayOrientation();
 return TJS_S_OK;
 }
@@ -2354,8 +2410,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL_OUTER(cls, displayOrientation)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(displayRotate){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(displayRotate){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetDisplayRotate();
 return TJS_S_OK;
 }

@@ -49,7 +49,8 @@ public:
 
     ~CAEStreamParser();
 
-    int AddData(uint8_t *data, unsigned int size, uint8_t **buffer = nullptr, unsigned int *bufferSize = 0);
+    int AddData(uint8_t *data, unsigned int size, uint8_t **buffer = nullptr,
+                unsigned int *bufferSize = 0);
 
     void SetCoreOnly(bool value) { m_coreOnly = value; }
 
@@ -81,7 +82,8 @@ private:
     unsigned int m_bufferSize;
     unsigned int m_skipBytes;
 
-    typedef unsigned int (CAEStreamParser::*ParseFunc)(uint8_t *data, unsigned int size);
+    typedef unsigned int (CAEStreamParser::*ParseFunc)(uint8_t *data,
+                                                       unsigned int size);
 
     CAEStreamInfo m_info;
     bool m_coreOnly;

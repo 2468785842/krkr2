@@ -5,8 +5,9 @@
 #include "WindowFormUnit.h"
 
 const LPTSTR MouseCursor::CURSORS[CURSOR_EOT] = {
-    IDC_APPSTARTING, IDC_ARROW,    IDC_CROSS,  IDC_HAND,     IDC_IBEAM,  IDC_HELP,    IDC_NO,
-    IDC_SIZEALL,     IDC_SIZENESW, IDC_SIZENS, IDC_SIZENWSE, IDC_SIZEWE, IDC_UPARROW, IDC_WAIT,
+    IDC_APPSTARTING, IDC_ARROW,  IDC_CROSS,   IDC_HAND,     IDC_IBEAM,
+    IDC_HELP,        IDC_NO,     IDC_SIZEALL, IDC_SIZENESW, IDC_SIZENS,
+    IDC_SIZENWSE,    IDC_SIZEWE, IDC_UPARROW, IDC_WAIT,
 };
 
 const int MouseCursor::CURSOR_INDEXES[MouseCursor::CURSOR_INDEXES_NUM] = {
@@ -80,7 +81,8 @@ int MouseCursor::GetCurrentCursor() {
     int size = (int)CURSOR_HANDLES_FOR_INDEXES.size();
     int handleIndex = cursor_index_ + CURSOR_OFFSET;
 
-    if(handleIndex >= 0 && handleIndex < size && CURSOR_HANDLES_FOR_INDEXES[handleIndex] == hCursor) {
+    if(handleIndex >= 0 && handleIndex < size &&
+       CURSOR_HANDLES_FOR_INDEXES[handleIndex] == hCursor) {
         // まずはcursor_index_カーソルと比較
         return cursor_index_;
     } else if(CURSOR_HANDLES[CURSOR_ARROW] == hCursor) {
@@ -126,9 +128,11 @@ void MouseCursor::SetCursorIndex(int index, HWND hWnd) {
             ::GetCursorPos(&p);
             HWND hTarget = ::WindowFromPoint(p);
             if(hTarget && hTarget == hWnd) {
-                LRESULT hitTestCode = ::SendMessage(hWnd, WM_NCHITTEST, 0, MAKELPARAM(p.x, p.y));
+                LRESULT hitTestCode =
+                    ::SendMessage(hWnd, WM_NCHITTEST, 0, MAKELPARAM(p.x, p.y));
                 if(index == crDefault) {
-                    ::SendMessage(hWnd, WM_SETCURSOR, WPARAM(hWnd), (LPARAM)MAKELONG(hitTestCode, WM_MOUSEMOVE));
+                    ::SendMessage(hWnd, WM_SETCURSOR, WPARAM(hWnd),
+                                  (LPARAM)MAKELONG(hitTestCode, WM_MOUSEMOVE));
                 } else if(hitTestCode == HTCLIENT) {
                     SetMouseCursor(index);
                 }

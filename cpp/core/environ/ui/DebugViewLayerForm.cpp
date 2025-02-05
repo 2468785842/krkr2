@@ -68,8 +68,8 @@ public:
             _sprite->setScale(r * scalex, r * scaley);
             const char *prefix = tex->IsStatic() ? "static " : "";
             char tmp[64];
-            sprintf(tmp, "%s[%d x %d] %.2fMB", prefix, (int)tex->GetWidth(), (int)tex->GetHeight(),
-                    data.VMemSize / (1024.f * 1024.f));
+            sprintf(tmp, "%s[%d x %d] %.2fMB", prefix, (int)tex->GetWidth(),
+                    (int)tex->GetHeight(), data.VMemSize / (1024.f * 1024.f));
             _memsize->setVisible(true);
             _memsize->setString(tmp);
             _memsize->setPosition(laySize.width, laySize.height + 2);
@@ -99,7 +99,9 @@ DebugViewLayerForm *DebugViewLayerForm::create() {
 
 class tHackTVPDrawDevice : public tTVPDrawDevice {
 public:
-    iTVPLayerManager *getPrimaryLayerManager() { return GetLayerManagerAt(PrimaryLayerManagerIndex); }
+    iTVPLayerManager *getPrimaryLayerManager() {
+        return GetLayerManagerAt(PrimaryLayerManagerIndex);
+    }
 };
 
 class tHackTableView : public TableView {
@@ -113,7 +115,8 @@ public:
 
 static unsigned char _2x2_block_Image[] = {
     // RGBA8888
-    0x2F, 0x2F, 0x2F, 0xFF, 0x40, 0x40, 0x40, 0xFF, 0x40, 0x40, 0x40, 0xFF, 0x2F, 0x2F, 0x2F, 0xFF
+    0x2F, 0x2F, 0x2F, 0xFF, 0x40, 0x40, 0x40, 0xFF,
+    0x40, 0x40, 0x40, 0xFF, 0x2F, 0x2F, 0x2F, 0xFF
 };
 
 bool DebugViewLayerForm::init() {
@@ -123,14 +126,17 @@ bool DebugViewLayerForm::init() {
 
     Texture2D *tex = new Texture2D();
     tex->autorelease();
-    tex->initWithData(_2x2_block_Image, 16, Texture2D::PixelFormat::RGBA8888, 2, 2, Size::ZERO);
-    tex->setTexParameters(Texture2D::TexParams{ GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT });
+    tex->initWithData(_2x2_block_Image, 16, Texture2D::PixelFormat::RGBA8888, 2,
+                      2, Size::ZERO);
+    tex->setTexParameters(
+        Texture2D::TexParams{ GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT });
     Sprite *_backGround = Sprite::create();
     _backGround->setTexture(tex);
     _backGround->setScale(16);
-    _backGround->setTextureRect(Rect(0, 0, selfsize.width / 16, selfsize.height / 16));
-    // LayerColor *_backGround = LayerColor::create(Color4B(16, 16, 16, 255),
-    // selfsize.width, selfsize.height);
+    _backGround->setTextureRect(
+        Rect(0, 0, selfsize.width / 16, selfsize.height / 16));
+    // LayerColor *_backGround = LayerColor::create(Color4B(16, 16,
+    // 16, 255), selfsize.width, selfsize.height);
     _backGround->setAnchorPoint(Vec2::ZERO);
     addChild(_backGround);
 
@@ -144,14 +150,16 @@ bool DebugViewLayerForm::init() {
     _totalSize->setAnchorPoint(Vec2(1, 1));
 
     iTVPLayerManager *manager =
-        static_cast<tHackTVPDrawDevice *>(TVPMainWindow->GetDrawDevice())->getPrimaryLayerManager();
+        static_cast<tHackTVPDrawDevice *>(TVPMainWindow->GetDrawDevice())
+            ->getPrimaryLayerManager();
     uint64_t totalSize = addToLayerVec(0, "", manager->GetPrimaryLayer());
     char tmp[32];
     sprintf(tmp, "%.2fMB", (float)((double)totalSize / (1024.f * 1024.f)));
     _totalSize->setString(tmp);
     addChild(_totalSize);
 
-    ui::Button *btnClose = ui::Button::create("img/Cancel_Normal.png", "img/Cancel_Press.png");
+    ui::Button *btnClose =
+        ui::Button::create("img/Cancel_Normal.png", "img/Cancel_Press.png");
     btnClose->setTouchEnabled(true);
     btnClose->addClickEventListener([this](Ref *) { removeFromParent(); });
     btnClose->setPosition(getContentSize() - btnClose->getContentSize());
@@ -177,8 +185,9 @@ Size DebugViewLayerForm::tableCellSizeForIndex(TableView *table, ssize_t idx) {
     return laySize;
 }
 
-cocos2d::extension::TableViewCell *DebugViewLayerForm::tableCellAtIndex(cocos2d::extension::TableView *table,
-                                                                        ssize_t idx) {
+cocos2d::extension::TableViewCell *
+DebugViewLayerForm::tableCellAtIndex(cocos2d::extension::TableView *table,
+                                     ssize_t idx) {
     iTVPTexture2D *tex = _layers[idx].Texture;
     cocos2d::Size laySize(getContentSize().width, 0);
     if(tex) {
@@ -189,7 +198,8 @@ cocos2d::extension::TableViewCell *DebugViewLayerForm::tableCellAtIndex(cocos2d:
         }
     }
 
-    DebugViewLayerCell *cell = static_cast<DebugViewLayerCell *>(table->dequeueCell());
+    DebugViewLayerCell *cell =
+        static_cast<DebugViewLayerCell *>(table->dequeueCell());
     if(!cell)
         cell = DebugViewLayerCell::create();
 
@@ -205,7 +215,9 @@ void DebugViewLayerForm::onExitCallback() {
     TVPMainScene::GetInstance()->scheduleUpdate();
 }
 
-uint64_t DebugViewLayerForm::addToLayerVec(int indent, const std::string &prefix, tTJSNI_BaseLayer *lay) {
+uint64_t DebugViewLayerForm::addToLayerVec(int indent,
+                                           const std::string &prefix,
+                                           tTJSNI_BaseLayer *lay) {
     if(!lay)
         return 0;
     iTVPBaseBitmap *img = lay->GetMainImage();

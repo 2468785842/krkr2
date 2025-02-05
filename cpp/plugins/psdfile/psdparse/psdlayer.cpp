@@ -2,7 +2,8 @@
 #include "psddesc.h"
 
 namespace psd {
-    bool loadLayerSectionDivider(LayerInfo &layer, AdditionalLayerInfo &additional) {
+    bool loadLayerSectionDivider(LayerInfo &layer,
+                                 AdditionalLayerInfo &additional) {
         int type = additional.data->getInt32();
         switch(type) {
             default:
@@ -27,7 +28,8 @@ namespace psd {
         return true;
     }
 
-    bool loadLayerUnicodeName(LayerInfo &layer, AdditionalLayerInfo &additional) {
+    bool loadLayerUnicodeName(LayerInfo &layer,
+                              AdditionalLayerInfo &additional) {
         additional.data->getUnicodeString(layer.layerNameUnicode);
         return true;
     }
@@ -37,7 +39,8 @@ namespace psd {
         return true;
     }
 
-    bool loadLayerFillOpacity(LayerInfo &layer, AdditionalLayerInfo &additional) {
+    bool loadLayerFillOpacity(LayerInfo &layer,
+                              AdditionalLayerInfo &additional) {
         layer.fill_opacity = additional.data->getCh();
         return true;
     }
@@ -63,7 +66,8 @@ namespace psd {
                 }
                 // dprint("----\n");
                 // dsc.dump();
-                DescriptorList *settings = (DescriptorList *)dsc.findItem("layerSettings");
+                DescriptorList *settings =
+                    (DescriptorList *)dsc.findItem("layerSettings");
                 if(settings) {
                     bool lastEnabled = true;
                     for(int i = 0; i < (int)settings->items.size(); i++) {
@@ -73,7 +77,8 @@ namespace psd {
                             LayerCompInfo ci{};
                             memset(&ci, 0, sizeof(ci));
 
-                            int compId = ((DescriptorInteger *)compList->items[0])->val;
+                            int compId =
+                                ((DescriptorInteger *)compList->items[0])->val;
                             ci.id = compId;
 
                             Descriptor *offset = comp->item("Ofst");
@@ -91,8 +96,9 @@ namespace psd {
                                 ci.isEnabled = lastEnabled;
                             }
 
-                            dprint("Comp: id:0x%08x, offX:%d, offY:%d, enabled:%d\n", ci.id, ci.offsetX, ci.offsetY,
-                                   ci.isEnabled);
+                            dprint("Comp: id:0x%08x, offX:%d, "
+                                   "offY:%d, enabled:%d\n",
+                                   ci.id, ci.offsetX, ci.offsetY, ci.isEnabled);
 
                             layer.layerComps[compId] = ci;
                         }

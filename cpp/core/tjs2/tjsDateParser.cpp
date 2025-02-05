@@ -25,7 +25,9 @@ namespace TJSDate {
         return tok;
     }
 
-    void parser::error(const std::string &msg) { spdlog::get("tjs2")->critical(msg); }
+    void parser::error(const std::string &msg) {
+        spdlog::get("tjs2")->critical(msg);
+    }
     //---------------------------------------------------------------------------
     // Character component classifications
     //---------------------------------------------------------------------------
@@ -57,7 +59,8 @@ namespace TJSDate {
     tTJSDateParser::tTJSDateParser(const tjs_char *in) {
         Input = InputPointer = in;
 
-        YearSet = MonthSet = MDaySet = HourSet = MinSet = SecSet = TimeZoneSet = TimeZoneOffsetSet = AMPMSet = false;
+        YearSet = MonthSet = MDaySet = HourSet = MinSet = SecSet = TimeZoneSet =
+            TimeZoneOffsetSet = AMPMSet = false;
         auto bisonDateParser = parser{ this };
         if(bisonDateParser.parse())
             TJS_eTJSError(TJSCannotParseDate);
@@ -83,12 +86,14 @@ namespace TJSDate {
             bool sign = TimeZoneOffset < 0;
             if(sign)
                 TimeZoneOffset = -TimeZoneOffset;
-            TimeZoneOffset = (int)(TimeZoneOffset / 100) * 60 * 60 + (TimeZoneOffset % 100) * 60;
+            TimeZoneOffset = (int)(TimeZoneOffset / 100) * 60 * 60 +
+                (TimeZoneOffset % 100) * 60;
             if(sign)
                 TimeZoneOffset = -TimeZoneOffset;
         }
 
-        // Timezone is default system timezone when timezone is omitted.
+        // Timezone is default system timezone when timezone is
+        // omitted.
         if(!TimeZoneSet && !TimeZoneOffsetSet) {
             TimeZoneSet = true;
             TimeZone = -TJS_timezone;

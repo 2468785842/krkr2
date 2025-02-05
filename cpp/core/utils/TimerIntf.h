@@ -41,9 +41,10 @@ protected:
 public:
     tTJSNI_BaseTimer();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
 
-    void TJS_INTF_METHOD Invalidate();
+    void Invalidate();
 
 protected:
     void Fire(tjs_uint n);

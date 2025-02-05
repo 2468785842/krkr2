@@ -64,10 +64,10 @@ public:
     int64_t demuxerId; // id of the associated demuxer
     AVCodecID codec;
     unsigned int codec_fourcc; // if available
-    int profile; // encoder profile of the stream reported by the decoder. used
-                 // to qualify hw decoders.
-    int level; // encoder level of the stream reported by the decoder. used to
-               // qualify hw decoders.
+    int profile; // encoder profile of the stream reported by the
+                 // decoder. used to qualify hw decoders.
+    int level; // encoder level of the stream reported by the decoder.
+               // used to qualify hw decoders.
     StreamType type;
     int source;
     bool realtime;
@@ -78,13 +78,15 @@ public:
     uint8_t *ExtraData; // extra data for codec to use
     unsigned int ExtraSize; // size of extra data
 
-    char language[4]; // ISO 639 3-letter language code (empty string if
-                      // undefined)
-    bool disabled; // set when stream is disabled. (when no decoder exists)
+    char language[4]; // ISO 639 3-letter language code (empty string
+                      // if undefined)
+    bool disabled; // set when stream is disabled. (when no decoder
+                   // exists)
 
     std::string codecName;
 
-    int changes; // increment on change which player may need to know about
+    int changes; // increment on change which player may need to know
+                 // about
 
     enum EFlags {
         FLAG_NONE = 0x0000,
@@ -118,7 +120,8 @@ public:
 
     virtual ~CDemuxStreamVideo() {}
 
-    int iFpsScale; // scale of 1000 and a rate of 29970 will result in 29.97 fps
+    int iFpsScale; // scale of 1000 and a rate of 29970 will result
+                   // in 29.97 fps
     int iFpsRate;
     int iHeight; // height of the stream reported by the demuxer
     int iWidth; // width of the stream reported by the demuxer
@@ -126,7 +129,8 @@ public:
     bool bVFR; // variable framerate
     bool bPTSInvalid; // pts cannot be trusted (avi's).
     bool bForcedAspect; // aspect is forced from container
-    int iOrientation; // orientation of the video in degress counter clockwise
+    int iOrientation; // orientation of the video in degress counter
+                      // clockwise
     int iBitsPerPixel;
     std::string stereo_mode; // expected stereo mode
 };
@@ -175,21 +179,28 @@ public:
 
     virtual DemuxPacket *Read() = 0;
 
-    virtual bool SeekTime(int time, bool backwords = false, double *startpts = nullptr) = 0;
+    virtual bool SeekTime(int time, bool backwords = false,
+                          double *startpts = nullptr) = 0;
 
     virtual void SetSpeed(int iSpeed) = 0;
 
     virtual int GetStreamLength() = 0;
 
-    virtual CDemuxStream *GetStream(int64_t demuxerId, int iStreamId) const { return GetStream(iStreamId); };
+    virtual CDemuxStream *GetStream(int64_t demuxerId, int iStreamId) const {
+        return GetStream(iStreamId);
+    };
 
     virtual std::vector<CDemuxStream *> GetStreams() const = 0;
 
     virtual int GetNrOfStreams() const = 0;
 
-    virtual std::string GetStreamCodecName(int64_t demuxerId, int iStreamId) { return GetStreamCodecName(iStreamId); };
+    virtual std::string GetStreamCodecName(int64_t demuxerId, int iStreamId) {
+        return GetStreamCodecName(iStreamId);
+    };
 
-    virtual void EnableStream(int64_t demuxerId, int id, bool enable) { EnableStream(id, enable); };
+    virtual void EnableStream(int64_t demuxerId, int id, bool enable) {
+        EnableStream(id, enable);
+    };
 
     virtual void SetVideoResolution(int width, int height){};
 

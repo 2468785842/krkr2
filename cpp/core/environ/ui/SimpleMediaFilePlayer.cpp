@@ -25,11 +25,13 @@ class SimplePlayerOverlay {
 public:
     SimplePlayerOverlay() {
         _overlay = KRMovie::VideoPresentOverlay2::create();
-        _overlay->SetFuncGetBounds(std::bind(&SimplePlayerOverlay::GetBounds, this));
+        _overlay->SetFuncGetBounds(
+            std::bind(&SimplePlayerOverlay::GetBounds, this));
     }
     ~SimplePlayerOverlay() { _overlay->Release(); }
     void SetBounds(const tTVPRect &rect) { _rect = rect; }
-    void OpenFromStream(IStream *stream, const tjs_char *streamname, const tjs_char *type, uint64_t size) {
+    void OpenFromStream(IStream *stream, const tjs_char *streamname,
+                        const tjs_char *type, uint64_t size) {
         _overlay->GetPlayer()->OpenFromStream(stream, streamname, type, size);
     }
     void SetCallback(const std::function<void(KRMovieEvent, void *)> &func) {
@@ -52,7 +54,8 @@ static std::string _formatTime(unsigned int t, char prefix = 0) {
     tmp[15] = 0;
     char *p = &tmp[15];
 
-    static const char numtbl[10] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+    static const char numtbl[10] = { '0', '1', '2', '3', '4',
+                                     '5', '6', '7', '8', '9' };
 
     // second
     *--p = numtbl[t % 10];
@@ -82,8 +85,9 @@ static std::string _formatTime(unsigned int t, char prefix = 0) {
 
 SimpleMediaFilePlayer::SimpleMediaFilePlayer() {
     _player = new SimplePlayerOverlay;
-    _player->SetCallback(
-        std::bind(&SimpleMediaFilePlayer::onPlayerEvent, this, std::placeholders::_1, std::placeholders::_2));
+    _player->SetCallback(std::bind(&SimpleMediaFilePlayer::onPlayerEvent, this,
+                                   std::placeholders::_1,
+                                   std::placeholders::_2));
 }
 
 SimpleMediaFilePlayer::~SimpleMediaFilePlayer() {
@@ -96,7 +100,8 @@ SimpleMediaFilePlayer::~SimpleMediaFilePlayer() {
 SimpleMediaFilePlayer *SimpleMediaFilePlayer::create() {
     SimpleMediaFilePlayer *ret = new SimpleMediaFilePlayer;
     ret->autorelease();
-    ret->initFromFile("ui/MediaPlayerNavi.csb", "ui/MediaPlayerBody.csb", "ui/MediaPlayerFoot.csb");
+    ret->initFromFile("ui/MediaPlayerNavi.csb", "ui/MediaPlayerBody.csb",
+                      "ui/MediaPlayerFoot.csb");
     return ret;
 }
 
@@ -105,7 +110,8 @@ void SimpleMediaFilePlayer::PlayFile(ttstr uri) {
     tTJSBinaryStream *stream = TVPCreateStream(uri, TJS_BS_READ);
     ttstr ext = TVPExtractStorageExt(uri);
     ttstr filename = TVPExtractStorageName(uri);
-    _player->OpenFromStream(TVPCreateIStream(stream), uri.c_str(), ext.c_str(), stream->GetSize());
+    _player->OpenFromStream(TVPCreateIStream(stream), uri.c_str(), ext.c_str(),
+                            stream->GetSize());
     int64_t totaltime;
     _player->GetOverlay().GetTotalTime(&totaltime);
     _totalTime = totaltime / 1000;
@@ -219,7 +225,9 @@ void SimpleMediaFilePlayer::bindFooterController(const NodeMap &allNodes) {
                 setPlayButtonHighlight(true);
                 break;
             case Widget::TouchEventType::MOVED:
-                setPlayButtonHighlight(p->hitTest(p->getTouchMovePosition(), Camera::getVisitingCamera(), nullptr));
+                setPlayButtonHighlight(p->hitTest(p->getTouchMovePosition(),
+                                                  Camera::getVisitingCamera(),
+                                                  nullptr));
                 break;
             case Widget::TouchEventType::ENDED:
             case Widget::TouchEventType::CANCELED:
@@ -245,7 +253,8 @@ void SimpleMediaFilePlayer::bindFooterController(const NodeMap &allNodes) {
 
 void SimpleMediaFilePlayer::bindHeaderController(const NodeMap &allNodes) {
     NaviBar = allNodes.findController("NaviBar");
-    cocos2d::ui::Button *Back = static_cast<Button *>(allNodes.findController("Back"));
+    cocos2d::ui::Button *Back =
+        static_cast<Button *>(allNodes.findController("Back"));
     Back->addClickEventListener([this](Ref *) { removeFromParent(); });
 
     Title = static_cast<Text *>(allNodes.findController("Title"));
@@ -253,7 +262,8 @@ void SimpleMediaFilePlayer::bindHeaderController(const NodeMap &allNodes) {
     RemainTime = static_cast<Text *>(allNodes.findController("RemainTime"));
     Timeline = static_cast<Slider *>(allNodes.findController("Timeline"));
 
-    Timeline->addEventListener([this](Ref *, Slider::EventType ev) { onSliderChanged(); });
+    Timeline->addEventListener(
+        [this](Ref *, Slider::EventType ev) { onSliderChanged(); });
 }
 
 void SimpleMediaFilePlayer::Pause() {
@@ -288,12 +298,15 @@ void SimpleMediaFilePlayer::update(float dt) {
         hideRemain -= dt;
         if(hideRemain <= 0) {
             NaviBar->runAction(Sequence::createWithTwoActions(
-                FadeOut::create(0.3), CallFuncN::create([](Node *p) { p->setVisible(false); })));
+                FadeOut::create(0.3),
+                CallFuncN::create([](Node *p) { p->setVisible(false); })));
             ControlBar->runAction(Sequence::createWithTwoActions(
-                FadeOut::create(0.3), CallFuncN::create([](Node *p) { p->setVisible(false); })));
+                FadeOut::create(0.3),
+                CallFuncN::create([](Node *p) { p->setVisible(false); })));
             if(OSD->isVisible()) {
                 OSD->runAction(Sequence::createWithTwoActions(
-                    FadeOut::create(0.3), CallFuncN::create([](Node *p) { p->setVisible(false); })));
+                    FadeOut::create(0.3),
+                    CallFuncN::create([](Node *p) { p->setVisible(false); })));
             }
             hideRemain = 5;
         }
@@ -317,13 +330,15 @@ void SimpleMediaFilePlayer::setPlayButtonHighlight(bool highlight) {
         PlayIconNormal->setVisible(false);
         PauseIconNormal->setVisible(false);
         PlayBtnPress->setVisible(true);
-        (status == vsPlaying ? PauseIconPress : PlayIconPress)->setVisible(true);
+        (status == vsPlaying ? PauseIconPress : PlayIconPress)
+            ->setVisible(true);
     } else {
         PlayBtnPress->setVisible(false);
         PlayIconPress->setVisible(false);
         PauseIconPress->setVisible(false);
         PlayBtnNormal->setVisible(true);
-        (status == vsPlaying ? PauseIconNormal : PlayIconNormal)->setVisible(true);
+        (status == vsPlaying ? PauseIconNormal : PlayIconNormal)
+            ->setVisible(true);
     }
 }
 
@@ -333,10 +348,12 @@ void SimpleMediaFilePlayer::refreshPlayButtonStatus() {
     if(PlayBtnPress->isVisible()) { // highlight
         PlayIconPress->setVisible(false);
         PauseIconPress->setVisible(false);
-        (status == vsPlaying ? PauseIconPress : PlayIconPress)->setVisible(true);
+        (status == vsPlaying ? PauseIconPress : PlayIconPress)
+            ->setVisible(true);
     } else {
         PlayIconNormal->setVisible(false);
         PauseIconNormal->setVisible(false);
-        (status == vsPlaying ? PauseIconNormal : PlayIconNormal)->setVisible(true);
+        (status == vsPlaying ? PauseIconNormal : PlayIconNormal)
+            ->setVisible(true);
     }
 }

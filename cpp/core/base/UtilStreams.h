@@ -23,12 +23,10 @@ class tTVPStreamHolder {
 public:
     tTVPStreamHolder() { Stream = nullptr; }
 
-    tTVPStreamHolder(const ttstr &name, tjs_uint32 mode = 0) { Stream = TVPCreateStream(name, mode); }
+    tTVPStreamHolder(const ttstr &name, tjs_uint32 mode = 0) :
+        Stream{ TVPCreateStream(name, mode) } {}
 
-    ~tTVPStreamHolder() {
-        if(Stream)
-            delete Stream;
-    }
+    ~tTVPStreamHolder() { delete Stream; }
 
     tTJSBinaryStream *operator->() const { return Stream; }
 
@@ -54,8 +52,8 @@ public:
 //---------------------------------------------------------------------------
 // tTVPLocalTempStorageHolder
 //---------------------------------------------------------------------------
-// this class holds storage as local filesystem file ( does not open it ).
-// storage is copied to local fliesystem if needed.
+// this class holds storage as local filesystem file ( does not open
+// it ). storage is copied to local fliesystem if needed.
 class tTVPLocalTempStorageHolder {
     bool FileMustBeDeleted;
     bool FolderMustBeDeleted;
@@ -77,8 +75,8 @@ public:
 // tTVPMemoryStream
 //---------------------------------------------------------------------------
 /*
-        this class provides a tTJSBinaryStream based access method for a memory
-   block.
+        this class provides a tTJSBinaryStream based access method for
+   a memory block.
 */
 class tTVPMemoryStream : public tTJSBinaryStream {
 protected:
@@ -93,17 +91,17 @@ public:
 
     tTVPMemoryStream(const void *block, tjs_uint size);
 
-    ~tTVPMemoryStream();
+    ~tTVPMemoryStream() override;
 
-    tjs_uint64 TJS_INTF_METHOD Seek(tjs_int64 offset, tjs_int whence);
+    tjs_uint64 Seek(tjs_int64 offset, tjs_int whence) override;
 
-    tjs_uint TJS_INTF_METHOD Read(void *buffer, tjs_uint read_size);
+    tjs_uint Read(void *buffer, tjs_uint read_size) override;
 
-    tjs_uint TJS_INTF_METHOD Write(const void *buffer, tjs_uint write_size);
+    tjs_uint Write(const void *buffer, tjs_uint write_size) override;
 
-    void TJS_INTF_METHOD SetEndOfStorage();
+    void SetEndOfStorage() override;
 
-    tjs_uint64 TJS_INTF_METHOD GetSize() { return Size; }
+    tjs_uint64 GetSize() override { return Size; }
 
     // non-tTJSBinaryStream based methods
     void *GetInternalBuffer() const { return Block; }
@@ -128,9 +126,9 @@ protected:
 // tTVPPartialStream
 //---------------------------------------------------------------------------
 /*
-        this class offers read-only accesses for a partial of the other stream,
-        limited by given start position for original stream and given limited
-   size.
+        this class offers read-only accesses for a partial of the
+   other stream, limited by given start position for original stream
+   and given limited size.
 */
 //---------------------------------------------------------------------------
 class tTVPPartialStream : public tTJSBinaryStream {
@@ -141,19 +139,20 @@ private:
     tjs_uint64 CurrentPos;
 
 public:
-    tTVPPartialStream(tTJSBinaryStream *stream, tjs_uint64 start, tjs_uint64 size);
+    tTVPPartialStream(tTJSBinaryStream *stream, tjs_uint64 start,
+                      tjs_uint64 size);
 
-    ~tTVPPartialStream();
+    ~tTVPPartialStream() override;
 
-    tjs_uint64 TJS_INTF_METHOD Seek(tjs_int64 offset, tjs_int whence);
+    tjs_uint64 Seek(tjs_int64 offset, tjs_int whence) override;
 
-    tjs_uint TJS_INTF_METHOD Read(void *buffer, tjs_uint read_size);
+    tjs_uint Read(void *buffer, tjs_uint read_size) override;
 
-    tjs_uint TJS_INTF_METHOD Write(const void *buffer, tjs_uint write_size);
+    tjs_uint Write(const void *buffer, tjs_uint write_size) override;
 
     // void SetEndOfStorage(); // use default behavior
 
-    tjs_uint64 TJS_INTF_METHOD GetSize();
+    tjs_uint64 GetSize() override;
 };
 
 //---------------------------------------------------------------------------
@@ -189,8 +188,10 @@ class tTVPUnpackArchive : public tTVPUnpackArchiveCallbacks {
 public:
     tTVPUnpackArchive();
 
-    virtual ~tTVPUnpackArchive(); // must ve deconstructed from main thread
-    int Prepare(const std::string &path, const std::string &_outpath, tjs_uint64 *totalSize);
+    virtual ~tTVPUnpackArchive(); // must ve deconstructed from main
+                                  // thread
+    int Prepare(const std::string &path, const std::string &_outpath,
+                tjs_uint64 *totalSize);
 
     void Start();
 
@@ -198,11 +199,13 @@ public:
 
     void Close();
 
-    void SetCallback(const std::function<void()> &funcOnEnded,
-                     const std::function<void(int, const char *)> &funcOnError,
-                     const std::function<void(tjs_uint64, tjs_uint64)> &funcOnProgress,
-                     const std::function<void(int, const std::string &, tjs_uint64)> &funcOnNewFile,
-                     const std::function<std::string()> &funcPassword) {
+    void SetCallback(
+        const std::function<void()> &funcOnEnded,
+        const std::function<void(int, const char *)> &funcOnError,
+        const std::function<void(tjs_uint64, tjs_uint64)> &funcOnProgress,
+        const std::function<void(int, const std::string &, tjs_uint64)>
+            &funcOnNewFile,
+        const std::function<std::string()> &funcPassword) {
         FuncOnEnded = funcOnEnded;
         FuncOnError = funcOnError;
         FuncOnProgress = funcOnProgress;
@@ -222,7 +225,8 @@ protected:
             FuncOnProgress(total_size, file_size);
     }
 
-    virtual void OnNewFile(int idx, const char *utf8name, tjs_uint64 file_size) {
+    virtual void OnNewFile(int idx, const char *utf8name,
+                           tjs_uint64 file_size) {
         if(FuncOnNewFile)
             FuncOnNewFile(idx, utf8name, file_size);
     }

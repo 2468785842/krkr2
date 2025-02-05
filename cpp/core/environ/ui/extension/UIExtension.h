@@ -25,9 +25,12 @@ public:
     void setTouchEnabled(bool enabled);
 
 private:
-    virtual bool onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *unusedEvent) override;
-    virtual void onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *unusedEvent) override;
-    virtual void onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *unusedEvent) override;
+    virtual bool onTouchBegan(cocos2d::Touch *touch,
+                              cocos2d::Event *unusedEvent) override;
+    virtual void onTouchMoved(cocos2d::Touch *touch,
+                              cocos2d::Event *unusedEvent) override;
+    virtual void onTouchEnded(cocos2d::Touch *touch,
+                              cocos2d::Event *unusedEvent) override;
 
     void performedAnimatedScroll(float dt);
     int current_index;

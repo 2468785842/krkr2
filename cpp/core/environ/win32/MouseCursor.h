@@ -25,15 +25,17 @@ class MouseCursor {
     };
     static const int CURSOR_OFFSET = 22;
     static const int CURSOR_INDEXES_NUM = 24;
-    static const int
-        CURSOR_INDEXES[CURSOR_INDEXES_NUM]; // 内部のカーソルインデックスと公開カーソルインデックスの変換テーブル
+    static const int CURSOR_INDEXES
+        [CURSOR_INDEXES_NUM]; // 内部のカーソルインデックスと公開カーソルインデックスの変換テーブル
     //	static std::vector<HCURSOR> CURSOR_HANDLES_FOR_INDEXES;	//
     //全カーソルのハンドル、新規読込みされたものは追加される
 
     // 	static const LPTSTR CURSORS[CURSOR_EOT];	//
     // カーソルとリソースIDの対応テーブル 	static HCURSOR
-    // CURSOR_HANDLES[CURSOR_EOT];	// デフォルトカーソルのハンドルテーブル
-    static const int INVALID_CURSOR_INDEX = 0x7FFFFFFF; // 無効なカーソルインデックス
+    // CURSOR_HANDLES[CURSOR_EOT];	//
+    // デフォルトカーソルのハンドルテーブル
+    static const int INVALID_CURSOR_INDEX =
+        0x7FFFFFFF; // 無効なカーソルインデックス
     static bool CURSOR_INITIALIZED; // カーソル初期化済みか否か
 
     static bool is_cursor_hide_; // カーソルがcrNoneで非表示になっているかどうか

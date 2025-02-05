@@ -56,22 +56,31 @@ bool IndividualConfigManager::UsePreferenceAt(const std::string &folder) {
 }
 
 template <>
-bool IndividualConfigManager::GetValue<bool>(const std::string &name, const bool &defVal /*= false*/) {
-    return inherit::GetValue<bool>(name, GlobalConfigManager::GetInstance()->GetValue<bool>(name, defVal));
+bool IndividualConfigManager::GetValue<bool>(const std::string &name,
+                                             const bool &defVal /*= false*/) {
+    return inherit::GetValue<bool>(
+        name, GlobalConfigManager::GetInstance()->GetValue<bool>(name, defVal));
 }
 template <>
-int IndividualConfigManager::GetValue<int>(const std::string &name, const int &defVal /*= 0*/) {
-    return inherit::GetValue<int>(name, GlobalConfigManager::GetInstance()->GetValue<int>(name, defVal));
+int IndividualConfigManager::GetValue<int>(const std::string &name,
+                                           const int &defVal /*= 0*/) {
+    return inherit::GetValue<int>(
+        name, GlobalConfigManager::GetInstance()->GetValue<int>(name, defVal));
 }
 template <>
-float IndividualConfigManager::GetValue<float>(const std::string &name, const float &defVal /*= 0*/) {
-    return inherit::GetValue<float>(name, GlobalConfigManager::GetInstance()->GetValue<float>(name, defVal));
+float IndividualConfigManager::GetValue<float>(const std::string &name,
+                                               const float &defVal /*= 0*/) {
+    return inherit::GetValue<float>(
+        name,
+        GlobalConfigManager::GetInstance()->GetValue<float>(name, defVal));
 }
 template <>
-std::string IndividualConfigManager::GetValue<std::string>(const std::string &name,
-                                                           const std::string &defVal /*= ""*/) {
-    return inherit::GetValue<std::string>(name,
-                                          GlobalConfigManager::GetInstance()->GetValue<std::string>(name, defVal));
+std::string IndividualConfigManager::GetValue<std::string>(
+    const std::string &name, const std::string &defVal /*= ""*/) {
+    return inherit::GetValue<std::string>(
+        name,
+        GlobalConfigManager::GetInstance()->GetValue<std::string>(name,
+                                                                  defVal));
 }
 
 std::vector<std::string> IndividualConfigManager::GetCustomArgumentsForPush() {

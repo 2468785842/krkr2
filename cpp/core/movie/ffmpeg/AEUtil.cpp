@@ -19,7 +19,9 @@ NS_KRMOVIE_BEGIN
 unsigned int CAEUtil::m_seed = (unsigned int)(CurrentHostCounter() / 1000.0f);
 #if defined(HAVE_SSE2) && defined(__SSE2__)
 /* declare the SSE seed and initialize it */
-MEMALIGN(16, __m128i CAEUtil::m_sseSeed) = _mm_set_epi32(CAEUtil::m_seed, CAEUtil::m_seed + 1, CAEUtil::m_seed,
+MEMALIGN(16, __m128i CAEUtil::m_sseSeed) = _mm_set_epi32(CAEUtil::m_seed,
+                                                         CAEUtil::m_seed + 1,
+                                                         CAEUtil::m_seed,
                                                          CAEUtil::m_seed + 1);
 #endif
 
@@ -69,13 +71,15 @@ const char *CAEUtil::GetStdChLayoutName(const enum AEStdChLayout layout) {
     if(layout < 0 || layout >= AE_CH_LAYOUT_MAX)
         return "UNKNOWN";
 
-    static const char *layouts[AE_CH_LAYOUT_MAX] = { "1.0", "2.0", "2.1", "3.0", "3.1", "4.0",
-                                                     "4.1", "5.0", "5.1", "7.0", "7.1" };
+    static const char *layouts[AE_CH_LAYOUT_MAX] = { "1.0", "2.0", "2.1", "3.0",
+                                                     "3.1", "4.0", "4.1", "5.0",
+                                                     "5.1", "7.0", "7.1" };
 
     return layouts[layout];
 }
 
-const unsigned int CAEUtil::DataFormatToBits(const enum AEDataFormat dataFormat) {
+const unsigned int
+CAEUtil::DataFormatToBits(const enum AEDataFormat dataFormat) {
     if(dataFormat < 0 || dataFormat >= AE_FMT_MAX)
         return 0;
 
@@ -117,15 +121,17 @@ const unsigned int CAEUtil::DataFormatToBits(const enum AEDataFormat dataFormat)
     return formats[dataFormat];
 }
 
-const unsigned int CAEUtil::DataFormatToUsedBits(const enum AEDataFormat dataFormat) {
-    if(dataFormat == AE_FMT_S24BE4 || dataFormat == AE_FMT_S24LE4 || dataFormat == AE_FMT_S24NE4 ||
-       dataFormat == AE_FMT_S24NE4MSB)
+const unsigned int
+CAEUtil::DataFormatToUsedBits(const enum AEDataFormat dataFormat) {
+    if(dataFormat == AE_FMT_S24BE4 || dataFormat == AE_FMT_S24LE4 ||
+       dataFormat == AE_FMT_S24NE4 || dataFormat == AE_FMT_S24NE4MSB)
         return 24;
     else
         return DataFormatToBits(dataFormat);
 }
 
-const unsigned int CAEUtil::DataFormatToDitherBits(const enum AEDataFormat dataFormat) {
+const unsigned int
+CAEUtil::DataFormatToDitherBits(const enum AEDataFormat dataFormat) {
     if(dataFormat == AE_FMT_S24NE4MSB)
         return 8;
     if(dataFormat == AE_FMT_S24NE3)
@@ -134,7 +140,8 @@ const unsigned int CAEUtil::DataFormatToDitherBits(const enum AEDataFormat dataF
         return 0;
 }
 
-const char *CAEUtil::StreamTypeToStr(const enum CAEStreamInfo::DataType dataType) {
+const char *
+CAEUtil::StreamTypeToStr(const enum CAEStreamInfo::DataType dataType) {
     switch(dataType) {
         case CAEStreamInfo::STREAM_TYPE_AC3:
             return "STREAM_TYPE_AC3";
@@ -164,25 +171,26 @@ const char *CAEUtil::DataFormatToStr(const enum AEDataFormat dataFormat) {
     if(dataFormat < 0 || dataFormat >= AE_FMT_MAX)
         return "UNKNOWN";
 
-    static const char *formats[AE_FMT_MAX] = { "AE_FMT_U8",
+    static const char *formats[AE_FMT_MAX] = {
+        "AE_FMT_U8",
 
-                                               "AE_FMT_S16BE", "AE_FMT_S16LE", "AE_FMT_S16NE",
+        "AE_FMT_S16BE", "AE_FMT_S16LE", "AE_FMT_S16NE",
 
-                                               "AE_FMT_S32BE", "AE_FMT_S32LE", "AE_FMT_S32NE",
+        "AE_FMT_S32BE", "AE_FMT_S32LE", "AE_FMT_S32NE",
 
-                                               "AE_FMT_S24BE4", "AE_FMT_S24LE4", "AE_FMT_S24NE4", /* S24 in 4 bytes */
-                                               "AE_FMT_S24NE4MSB",
+        "AE_FMT_S24BE4", "AE_FMT_S24LE4", "AE_FMT_S24NE4", /* S24 in 4 bytes */
+        "AE_FMT_S24NE4MSB",
 
-                                               "AE_FMT_S24BE3", "AE_FMT_S24LE3", "AE_FMT_S24NE3", /* S24 in 3 bytes */
+        "AE_FMT_S24BE3", "AE_FMT_S24LE3", "AE_FMT_S24NE3", /* S24 in 3 bytes */
 
-                                               "AE_FMT_DOUBLE", "AE_FMT_FLOAT",
+        "AE_FMT_DOUBLE", "AE_FMT_FLOAT",
 
-                                               "AE_FMT_RAW",
+        "AE_FMT_RAW",
 
-                                               /* planar formats */
-                                               "AE_FMT_U8P", "AE_FMT_S16NEP", "AE_FMT_S32NEP", "AE_FMT_S24NE4P",
-                                               "AE_FMT_S24NE4MSBP", "AE_FMT_S24NE3P", "AE_FMT_DOUBLEP",
-                                               "AE_FMT_FLOATP" };
+        /* planar formats */
+        "AE_FMT_U8P", "AE_FMT_S16NEP", "AE_FMT_S32NEP", "AE_FMT_S24NE4P",
+        "AE_FMT_S24NE4MSBP", "AE_FMT_S24NE3P", "AE_FMT_DOUBLEP", "AE_FMT_FLOATP"
+    };
 
     return formats[dataFormat];
 }
@@ -226,7 +234,8 @@ void CAEUtil::SSEMulArray(float *data, const float mul, uint32_t count) {
     }
 }
 
-void CAEUtil::SSEMulAddArray(float *data, float *add, const float mul, uint32_t count) {
+void CAEUtil::SSEMulAddArray(float *data, float *add, const float mul,
+                             uint32_t count) {
     const __m128 m = _mm_set_ps1(mul);
 
     /* work around invalid alignment */
@@ -273,9 +282,10 @@ void CAEUtil::SSEMulAddArray(float *data, float *add, const float mul, uint32_t 
 inline float CAEUtil::SoftClamp(const float x) {
 #if 1
     /*
-       This is a rational function to approximate a tanh-like soft clipper.
-       It is based on the pade-approximation of the tanh function with tweaked
-       coefficients. See: http://www.musicdsp.org/showone.php?id=238
+       This is a rational function to approximate a tanh-like soft
+       clipper. It is based on the pade-approximation of the tanh
+       function with tweaked coefficients. See:
+       http://www.musicdsp.org/showone.php?id=238
     */
     if(x < -3.0f)
         return -1.0f;
@@ -325,7 +335,8 @@ void CAEUtil::ClampArray(float *data, uint32_t count) {
         /* tanh approx clamp */
         __m128 dt = _mm_load_ps(data);
         __m128 tmp = _mm_mul_ps(dt, dt);
-        *(__m128 *)data = _mm_div_ps(_mm_mul_ps(dt, _mm_add_ps(c1, tmp)), _mm_add_ps(c2, tmp));
+        *(__m128 *)data = _mm_div_ps(_mm_mul_ps(dt, _mm_add_ps(c1, tmp)),
+                                     _mm_add_ps(c2, tmp));
     }
 
     if(even != count) {
@@ -340,7 +351,8 @@ void CAEUtil::ClampArray(float *data, uint32_t count) {
                 /* tanh approx clamp */
                 dt = _mm_setr_ps(data[0], data[1], 0, 0);
                 tmp = _mm_mul_ps(dt, dt);
-                out = _mm_div_ps(_mm_mul_ps(dt, _mm_add_ps(c1, tmp)), _mm_add_ps(c2, tmp));
+                out = _mm_div_ps(_mm_mul_ps(dt, _mm_add_ps(c1, tmp)),
+                                 _mm_add_ps(c2, tmp));
 
                 data[0] = ((float *)&out)[0];
                 data[1] = ((float *)&out)[1];
@@ -348,7 +360,8 @@ void CAEUtil::ClampArray(float *data, uint32_t count) {
                 /* tanh approx clamp */
                 dt = _mm_setr_ps(data[0], data[1], data[2], 0);
                 tmp = _mm_mul_ps(dt, dt);
-                out = _mm_div_ps(_mm_mul_ps(dt, _mm_add_ps(c1, tmp)), _mm_add_ps(c2, tmp));
+                out = _mm_div_ps(_mm_mul_ps(dt, _mm_add_ps(c1, tmp)),
+                                 _mm_add_ps(c2, tmp));
 
                 data[0] = ((float *)&out)[0];
                 data[1] = ((float *)&out)[1];
@@ -371,7 +384,8 @@ float CAEUtil::FloatRand1(const float min, const float max) {
     return ((float)(m_seed = (214013 * m_seed + 2531011)) * factor) - delta;
 }
 
-void CAEUtil::FloatRand4(const float min, const float max, float result[4], __m128 *sseresult /* = nullptr */) {
+void CAEUtil::FloatRand4(const float min, const float max, float result[4],
+                         __m128 *sseresult /* = nullptr */) {
 #if defined(HAVE_SSE2) && defined(__SSE2__)
     /*
       this method may be called from other SSE code, we need
@@ -379,17 +393,23 @@ void CAEUtil::FloatRand4(const float min, const float max, float result[4], __m1
       state is unknown and _mm_clear() is expensive.
     */
     MEMALIGN(16, static const __m128 point5) = _mm_set_ps1(0.5f);
-    MEMALIGN(16, static const __m128 int32max) = _mm_set_ps1((const float)INT32_MAX);
-    MEMALIGN(16, __m128 f) = _mm_div_ps(_mm_mul_ps(_mm_sub_ps(_mm_set_ps1(max), _mm_set_ps1(min)), point5), int32max);
+    MEMALIGN(16, static const __m128 int32max) =
+        _mm_set_ps1((const float)INT32_MAX);
+    MEMALIGN(16, __m128 f) = _mm_div_ps(
+        _mm_mul_ps(_mm_sub_ps(_mm_set_ps1(max), _mm_set_ps1(min)), point5),
+        int32max);
 
     MEMALIGN(16, __m128i cur_seed_split);
     MEMALIGN(16, __m128i multiplier);
     MEMALIGN(16, __m128i adder);
     MEMALIGN(16, __m128i mod_mask);
     MEMALIGN(16, __m128 res);
-    MEMALIGN(16, static const unsigned int mult[4]) = { 214013, 17405, 214013, 69069 };
-    MEMALIGN(16, static const unsigned int gadd[4]) = { 2531011, 10395331, 13737667, 1 };
-    MEMALIGN(16, static const unsigned int mask[4]) = { 0xFFFFFFFF, 0, 0xFFFFFFFF, 0 };
+    MEMALIGN(16, static const unsigned int mult[4]) = { 214013, 17405, 214013,
+                                                        69069 };
+    MEMALIGN(16, static const unsigned int gadd[4]) = { 2531011, 10395331,
+                                                        13737667, 1 };
+    MEMALIGN(16, static const unsigned int mask[4]) = { 0xFFFFFFFF, 0,
+                                                        0xFFFFFFFF, 0 };
 
     adder = _mm_load_si128((__m128i *)gadd);
     multiplier = _mm_load_si128((__m128i *)mult);
@@ -425,10 +445,14 @@ void CAEUtil::FloatRand4(const float min, const float max, float result[4], __m1
     /* cant return sseresult if we are not using SSE intrinsics */
     assert(result && !sseresult);
 
-    result[0] = ((float)(m_seed = (214013 * m_seed + 2531011)) * factor) - delta;
-    result[1] = ((float)(m_seed = (214013 * m_seed + 2531011)) * factor) - delta;
-    result[2] = ((float)(m_seed = (214013 * m_seed + 2531011)) * factor) - delta;
-    result[3] = ((float)(m_seed = (214013 * m_seed + 2531011)) * factor) - delta;
+    result[0] =
+        ((float)(m_seed = (214013 * m_seed + 2531011)) * factor) - delta;
+    result[1] =
+        ((float)(m_seed = (214013 * m_seed + 2531011)) * factor) - delta;
+    result[2] =
+        ((float)(m_seed = (214013 * m_seed + 2531011)) * factor) - delta;
+    result[3] =
+        ((float)(m_seed = (214013 * m_seed + 2531011)) * factor) - delta;
 #endif
 }
 

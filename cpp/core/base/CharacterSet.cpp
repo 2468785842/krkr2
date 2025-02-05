@@ -37,7 +37,8 @@ static tjs_int inline TVPWideCharToUtf8(tjs_char in, char *out) {
     }
 #if 1
     else {
-        TVPThrowExceptionMessage(TJS_W("Out of UTF-16 range conversion from UTF-8 code"));
+        TVPThrowExceptionMessage(
+            TJS_W("Out of UTF-16 range conversion from UTF-8 code"));
     }
 #else
     // 以下オリジナルのコードだけど、通らないはず。
@@ -137,7 +138,8 @@ static bool inline TVPUtf8ToWideChar(const char *&in, tjs_char *out) {
         if((p[3] & 0xc0) != 0x80)
             return false;
         if(out)
-            *out = ((p[0] & 0x07) << 18) + ((p[1] & 0x3f) << 12) + ((p[2] & 0x3f) << 6) + (p[3] & 0x3f);
+            *out = ((p[0] & 0x07) << 18) + ((p[1] & 0x3f) << 12) +
+                ((p[2] & 0x3f) << 6) + (p[3] & 0x3f);
         in += 4;
         return true;
     } else if(p[0] < 0xfc) {
@@ -151,8 +153,8 @@ static bool inline TVPUtf8ToWideChar(const char *&in, tjs_char *out) {
         if((p[4] & 0xc0) != 0x80)
             return false;
         if(out)
-            *out = ((p[0] & 0x03) << 24) + ((p[1] & 0x3f) << 18) + ((p[2] & 0x3f) << 12) + ((p[3] & 0x3f) << 6) +
-                (p[4] & 0x3f);
+            *out = ((p[0] & 0x03) << 24) + ((p[1] & 0x3f) << 18) +
+                ((p[2] & 0x3f) << 12) + ((p[3] & 0x3f) << 6) + (p[4] & 0x3f);
         in += 5;
         return true;
     } else if(p[0] < 0xfe) {
@@ -168,7 +170,8 @@ static bool inline TVPUtf8ToWideChar(const char *&in, tjs_char *out) {
         if((p[5] & 0xc0) != 0x80)
             return false;
         if(out)
-            *out = ((p[0] & 0x01) << 30) + ((p[1] & 0x3f) << 24) + ((p[2] & 0x3f) << 18) + ((p[3] & 0x3f) << 12) +
+            *out = ((p[0] & 0x01) << 30) + ((p[1] & 0x3f) << 24) +
+                ((p[2] & 0x3f) << 18) + ((p[3] & 0x3f) << 12) +
                 ((p[4] & 0x3f) << 6) + (p[5] & 0x3f);
         in += 6;
         return true;
@@ -196,7 +199,8 @@ tjs_int TVPUtf8ToWideCharString(const char *in, tjs_char *out) {
 }
 
 //---------------------------------------------------------------------------
-tjs_int TVPUtf8ToWideCharString(const char *in, tjs_uint length, tjs_char *out) {
+tjs_int TVPUtf8ToWideCharString(const char *in, tjs_uint length,
+                                tjs_char *out) {
     // convert input utf-8 string to output wide string
     int count = 0;
     const char *end = in + length;

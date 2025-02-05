@@ -21,8 +21,9 @@
 
 #include "TVPScreen.h"
 
-std::string TVPShowFileSelector(const std::string &title, const std::string &filename, std::string initdir,
-                                bool issave);
+std::string TVPShowFileSelector(const std::string &title,
+                                const std::string &filename,
+                                std::string initdir, bool issave);
 
 //---------------------------------------------------------------------------
 // TVPSelectFile related
@@ -98,7 +99,8 @@ static void TVPPushFilterPair(std::vector<std::wstring> &filters, std::wstring f
 //---------------------------------------------------------------------------
 bool TVPSelectFile(iTJSDispatch2 *params) {
     // show open dialog box
-    // NOTE: currently this only shows ANSI version of file open dialog.
+    // NOTE: currently this only shows ANSI version of file open
+    // dialog.
     tTJSVariant val;
     std::string initialdir;
     std::string title;
@@ -310,15 +312,18 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
     std::string result;
 
     // get filter
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("filter"), 0, &val, params))) {
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("filter"), 0,
+                                     &val, params))) {
     }
 
     // 		if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST,
     // TJS_W("filterIndex"), 0, 			&val, params)))
-    // ofn.nFilterIndex = (tjs_int)val; 		else ofn.nFilterIndex = 0;
+    // ofn.nFilterIndex = (tjs_int)val; 		else ofn.nFilterIndex =
+    // 0;
 
     // initial dir
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("initialDir"), 0, &val, params))) {
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("initialDir"),
+                                     0, &val, params))) {
         ttstr lname(val);
         if(!lname.IsEmpty()) {
             TVPGetLocalName(lname);
@@ -327,12 +332,15 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
     }
 
     // default extension
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("defaultExt"), 0, &val, params))) {
-        defaultext = tTJSNarrowStringHolder(val.AsStringNoAddRef()->operator const tjs_char *());
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("defaultExt"),
+                                     0, &val, params))) {
+        defaultext = tTJSNarrowStringHolder(
+            val.AsStringNoAddRef()->operator const tjs_char *());
     }
 
     // filenames
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("name"), 0, &val, params))) {
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("name"), 0,
+                                     &val, params))) {
         ttstr lname(val);
         if(!lname.IsEmpty()) {
             if(lname.IndexOf('/') >= 0) {
@@ -355,13 +363,16 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
     }
 
     // title
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("title"), 0, &val, params))) {
-        title = tTJSNarrowStringHolder(val.AsStringNoAddRef()->operator const tjs_char *());
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("title"), 0,
+                                     &val, params))) {
+        title = tTJSNarrowStringHolder(
+            val.AsStringNoAddRef()->operator const tjs_char *());
     }
 
     // flags
     bool issave = false;
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("save"), 0, &val, params)))
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("save"), 0,
+                                     &val, params)))
         issave = val.operator bool();
 
     // show dialog box
@@ -372,7 +383,8 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
 
         // filter index
         val = (tjs_int)0;
-        params->PropSet(TJS_MEMBERENSURE, TJS_W("filterIndex"), 0, &val, params);
+        params->PropSet(TJS_MEMBERENSURE, TJS_W("filterIndex"), 0, &val,
+                        params);
 
         // file name
         ttstr tresult = TVPNormalizeStorageName(ttstr(result.c_str()));

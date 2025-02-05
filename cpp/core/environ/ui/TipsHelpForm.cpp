@@ -17,7 +17,8 @@ TVPTipsHelpForm *TVPTipsHelpForm::show(const char *tipName) {
     TVPTipsHelpForm *ui = create();
     if(tipName)
         ui->setOneTip(tipName);
-    TVPMainScene::GetInstance()->pushUIForm(ui, TVPMainScene::eEnterAniOverFromRight);
+    TVPMainScene::GetInstance()->pushUIForm(
+        ui, TVPMainScene::eEnterAniOverFromRight);
     return ui;
 }
 

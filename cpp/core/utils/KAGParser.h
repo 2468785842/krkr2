@@ -54,7 +54,9 @@ public:
 
     ~tTVPCharHolder() { Clear(); }
 
-    tTVPCharHolder(const tTVPCharHolder &ref) : Buffer(nullptr), BufferSize(0) { operator=(ref); }
+    tTVPCharHolder(const tTVPCharHolder &ref) : Buffer(nullptr), BufferSize(0) {
+        operator=(ref);
+    }
 
     void Clear() {
         if(Buffer)
@@ -135,7 +137,9 @@ private:
     void LoadScenario(const ttstr &name, bool isstring);
     // load file or string to buffer
 public:
-    const ttstr &GetLabelAliasFromLine(tjs_int line) const { return LabelAliases[line]; }
+    const ttstr &GetLabelAliasFromLine(tjs_int line) const {
+        return LabelAliases[line];
+    }
 
     void EnsureLabelCache();
 
@@ -156,9 +160,10 @@ class tTJSNI_KAGParser : public tTJSNativeInstance {
 public:
     tTJSNI_KAGParser();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
 
-    void TJS_INTF_METHOD Invalidate();
+    void Invalidate();
 
 private:
     iTJSDispatch2 *Owner; // owner object
@@ -188,14 +193,20 @@ private:
         tjs_int ExcludeLevel;
         tjs_int IfLevel;
 
-        tCallStackData(const ttstr &storage, const ttstr &label, tjs_int offset, const ttstr &orglinestr,
-                       const ttstr &linebuffer, tjs_int pos, bool linebufferusing, tjs_uint macroargstackbase,
-                       tjs_uint macroargstackdepth, const std::vector<tjs_int> &excludelevelstack, tjs_int excludelevel,
-                       const std::vector<bool> &iflevelexecutedstack, tjs_int iflevel) :
+        tCallStackData(const ttstr &storage, const ttstr &label, tjs_int offset,
+                       const ttstr &orglinestr, const ttstr &linebuffer,
+                       tjs_int pos, bool linebufferusing,
+                       tjs_uint macroargstackbase, tjs_uint macroargstackdepth,
+                       const std::vector<tjs_int> &excludelevelstack,
+                       tjs_int excludelevel,
+                       const std::vector<bool> &iflevelexecutedstack,
+                       tjs_int iflevel) :
             Storage(storage),
-            Label(label), Offset(offset), OrgLineStr(orglinestr), LineBuffer(linebuffer), Pos(pos),
-            LineBufferUsing(linebufferusing), MacroArgStackBase(macroargstackbase),
-            MacroArgStackDepth(macroargstackdepth), ExcludeLevelStack(excludelevelstack), ExcludeLevel(excludelevel),
+            Label(label), Offset(offset), OrgLineStr(orglinestr),
+            LineBuffer(linebuffer), Pos(pos), LineBufferUsing(linebufferusing),
+            MacroArgStackBase(macroargstackbase),
+            MacroArgStackDepth(macroargstackdepth),
+            ExcludeLevelStack(excludelevelstack), ExcludeLevel(excludelevel),
             IfLevelExecutedStack(iflevelexecutedstack), IfLevel(iflevel) {
             ;
         }
@@ -221,7 +232,8 @@ private:
 
     tTVPKAGDebugLevel DebugLevel; // debugging log level
     bool ProcessSpecialTags; // whether to process special tags
-    bool IgnoreCR; // CR is not interpreted as [r] tag when this is true
+    bool IgnoreCR; // CR is not interpreted as [r] tag when this is
+                   // true
     bool RecordingMacro; // recording a macro
     ttstr RecordingMacroStr; // recording macro content
     ttstr RecordingMacroName; // recording macro's name
@@ -250,7 +262,8 @@ private:
 
     void Rewind(); // set current position to first
 
-    void BreakConditionAndMacro(); // break condition state and macro expansion
+    void BreakConditionAndMacro(); // break condition state and macro
+                                   // expansion
 
 public:
     void LoadScenario(const ttstr &name);
@@ -281,9 +294,11 @@ private:
 
     void PopCallStack(const ttstr &storage, const ttstr &label);
 
-    void StoreIntStackToDic(iTJSDispatch2 *dic, std::vector<tjs_int> &stack, const tjs_char *membername);
+    void StoreIntStackToDic(iTJSDispatch2 *dic, std::vector<tjs_int> &stack,
+                            const tjs_char *membername);
 
-    void StoreBoolStackToDic(iTJSDispatch2 *dic, std::vector<bool> &stack, const tjs_char *membername);
+    void StoreBoolStackToDic(iTJSDispatch2 *dic, std::vector<bool> &stack,
+                             const tjs_char *membername);
 
     void RestoreIntStackFromStr(std::vector<tjs_int> &stack, const ttstr &str);
 

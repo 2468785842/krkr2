@@ -28,7 +28,8 @@ namespace psd {
     };
 #pragma pack()
 
-    bool saveBmp(void *buffer, int width, int height, int size, const char *filename) {
+    bool saveBmp(void *buffer, int width, int height, int size,
+                 const char *filename) {
         BmpFileHeader bmfh;
         memset(&bmfh, 0, sizeof(BmpFileHeader));
         bmfh.type = 0x4d42;
@@ -50,14 +51,17 @@ namespace psd {
         info.clrImportant = 0;
 
         std::ofstream out;
-        out.open(filename, std::ofstream::out | std::ofstream::binary | std::ofstream::trunc);
+        out.open(filename,
+                 std::ofstream::out | std::ofstream::binary |
+                     std::ofstream::trunc);
         if(out.is_open()) {
             out.write((char *)&bmfh, sizeof(BmpFileHeader));
             out.write((char *)&info, sizeof(BmpInfoHeader));
             out.write((char *)buffer, size);
             out.close();
         } else {
-            std::cout << "could not open output bmp file: '" << filename << "'" << std::endl;
+            std::cout << "could not open output bmp file: '" << filename << "'"
+                      << std::endl;
             return false;
         }
 

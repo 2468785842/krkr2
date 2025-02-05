@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -33,9 +34,10 @@ class tTJSNI_MIDISoundBuffer : public tTJSNI_BaseMIDISoundBuffer {
 public:
     tTJSNI_MIDISoundBuffer();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
 
-    void TJS_INTF_METHOD Invalidate();
+    void Invalidate();
 
 #ifdef TVP_ENABLE_MIDI
 private:
@@ -65,7 +67,8 @@ private:
 
     tjs_uint64 LastTickTime; // tick count of last OnTimer()
 
-    HWND UtilWindow; // a dummy window for receiving status from playing thread
+    HWND UtilWindow; // a dummy window for receiving status from
+                     // playing thread
     void WndProc(Messages::TMessage &Msg); // its window procedure
 
 private:

@@ -27,7 +27,9 @@ namespace TJS {
         return true;
     }
 
-    tTJSScriptBlock *tTJSByteCodeLoader::ReadByteCode(tTJS *owner, const tjs_char *name, const tjs_uint8 *buf,
+    tTJSScriptBlock *tTJSByteCodeLoader::ReadByteCode(tTJS *owner,
+                                                      const tjs_char *name,
+                                                      const tjs_uint8 *buf,
                                                       size_t size) {
         ReadBuffer = buf;
         ReadIndex = 0;
@@ -64,12 +66,13 @@ namespace TJS {
         // int objsize = ibuff.get();
         int objsize = read4byte(&(databuff[offset]));
         offset += 4;
-        tTJSScriptBlock *block = new tTJSScriptBlock(owner, name, 0);
+        auto *block = new tTJSScriptBlock(owner, name, 0);
         ReadObjects(block, databuff, offset, objsize);
         return block;
     }
 
-    void tTJSByteCodeLoader::ReadDataArea(const tjs_uint8 *buff, int offset, size_t size) {
+    void tTJSByteCodeLoader::ReadDataArea(const tjs_uint8 *buff, int offset,
+                                          size_t size) {
         int count = read4byte(&(buff[offset]));
         offset += 4;
         if(count > 0) {
@@ -133,7 +136,8 @@ namespace TJS {
                     ch[j] = read2byte(&(buff[offset]));
                     offset += 2;
                 }
-                StringArray.push_back(TJSMapGlobalStringMap((const tjs_char *)&(ch[0])));
+                StringArray.push_back(
+                    TJSMapGlobalStringMap((const tjs_char *)&(ch[0])));
                 offset += (len & 1) << 1;
             }
         }
@@ -145,20 +149,24 @@ namespace TJS {
             for(int i = 0; i < count; i++) {
                 int len = read4byte(&(buff[offset]));
                 offset += 4;
-                tTJSVariantOctet *octet = new tTJSVariantOctet(&(buff[offset]), len); // データはコピーされる
+                auto *octet = new tTJSVariantOctet(&(buff[offset]),
+                                                   len); // データはコピーされる
                 OctetArray.push_back(octet);
                 offset += ((len + 3) >> 2) << 2;
             }
         }
     }
 
-    void tTJSByteCodeLoader::ReadObjects(tTJSScriptBlock *block, const tjs_uint8 *buff, int offset, int size) {
+    void tTJSByteCodeLoader::ReadObjects(tTJSScriptBlock *block,
+                                         const tjs_uint8 *buff, int offset,
+                                         int size) {
         int toplevel = read4byte(&(buff[offset]));
         offset += 4;
         int objcount = read4byte(&(buff[offset]));
         offset += 4;
 
-        // tTJSInterCodeContext** objs = new tTJSInterCodeContext*[objcount];
+        // tTJSInterCodeContext** objs = new
+        // tTJSInterCodeContext*[objcount];
         std::vector<tTJSInterCodeContext *> objs(objcount);
         std::vector<VariantRepalace> work;
         std::vector<int> parent(objcount);
@@ -224,7 +232,8 @@ namespace TJS {
             count = read4byte(&(buff[offset]));
             const tjs_int codeSize = count;
             offset += 4;
-            tjs_int32 *code = (tjs_int32 *)TJS_malloc(count * sizeof(tjs_int32));
+            tjs_int32 *code =
+                (tjs_int32 *)TJS_malloc(count * sizeof(tjs_int32));
             for(int i = 0; i < count; i++) {
                 tjs_int16 c = (tjs_int16)read2byte(&(buff[offset]));
                 code[i] = c;
@@ -242,7 +251,7 @@ namespace TJS {
                 offset += 2;
             }
 
-            tTJSVariant *vdata = new tTJSVariant[count];
+            auto *vdata = new tTJSVariant[count];
             const tjs_int datacount = count;
             for(int i = 0; i < datacount; i++) {
                 int pos = i << 1;
@@ -310,9 +319,11 @@ namespace TJS {
             }
 
             tTJSInterCodeContext *obj = new tTJSInterCodeContext(
-                block, StringArray[name].c_str(), (tTJSContextType)contextType, code, codeSize, vdata, datacount,
-                maxVariableCount, variableReserveCount, maxFrameCount, funcDeclArgCount, funcDeclUnnamedArgArrayBase,
-                funcDeclCollapseBase, true, srcPos, srcPosArraySize, scgetterps);
+                block, StringArray[name].c_str(), (tTJSContextType)contextType,
+                code, codeSize, vdata, datacount, maxVariableCount,
+                variableReserveCount, maxFrameCount, funcDeclArgCount,
+                funcDeclUnnamedArgArrayBase, funcDeclCollapseBase, true, srcPos,
+                srcPosArraySize, scgetterps);
             objs[o] = obj;
         }
         tTJSVariant val;
@@ -334,7 +345,8 @@ namespace TJS {
             if(superClassGetter[o] >= 0) {
                 superClassGetterObj = objs[superClassGetter[o]];
             }
-            objs[o]->SetCodeObject(parentObj, propSetterObj, propGetterObj, superClassGetterObj);
+            objs[o]->SetCodeObject(parentObj, propSetterObj, propGetterObj,
+                                   superClassGetterObj);
 
             if(properties[o].size() > 0) {
                 tTJSInterCodeContext *obj = parentObj;
@@ -346,7 +358,9 @@ namespace TJS {
                     int pobj = prop[pos + 1];
                     // register members to the parent object
                     val = objs[pobj];
-                    obj->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, StringArray[pname].c_str(), nullptr, &val, obj);
+                    obj->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP,
+                                 StringArray[pname].c_str(), nullptr, &val,
+                                 obj);
                 }
             }
         }
@@ -370,7 +384,9 @@ namespace TJS {
     /**
      * バイトコード中のアドレスは配列のインデックスを指しているので、それをアドレスに変換する
      */
-    void tTJSByteCodeLoader::TranslateCodeAddress(tTJSScriptBlock *block, tjs_int32 *code, const tjs_int32 codeSize) {
+    void tTJSByteCodeLoader::TranslateCodeAddress(tTJSScriptBlock *block,
+                                                  tjs_int32 *code,
+                                                  const tjs_int32 codeSize) {
         tjs_int i = 0;
         for(; i < codeSize;) {
             tjs_int size;
@@ -387,11 +403,11 @@ namespace TJS {
                     size = 3;
                     break;
 
-#define OP2_DISASM(c)                                                                                                  \
-    case c:                                                                                                            \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        size = 3;                                                                                                      \
+#define OP2_DISASM(c)                                                          \
+    case c:                                                                    \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        size = 3;                                                              \
         break
 
                     OP2_DISASM(VM_CP);
@@ -402,31 +418,31 @@ namespace TJS {
                     OP2_DISASM(VM_CHKINS);
 #undef OP2_DISASM
 
-#define OP2_DISASM(c)                                                                                                  \
-    case c:                                                                                                            \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        size = 3;                                                                                                      \
-        break;                                                                                                         \
-    case c + 1:                                                                                                        \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 4]);                                                                           \
-        size = 5;                                                                                                      \
-        break;                                                                                                         \
-    case c + 2:                                                                                                        \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 4]);                                                                           \
-        size = 5;                                                                                                      \
-        break;                                                                                                         \
-    case c + 3:                                                                                                        \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                                                           \
-        size = 4;                                                                                                      \
+#define OP2_DISASM(c)                                                          \
+    case c:                                                                    \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        size = 3;                                                              \
+        break;                                                                 \
+    case c + 1:                                                                \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 4]);                                   \
+        size = 5;                                                              \
+        break;                                                                 \
+    case c + 2:                                                                \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 4]);                                   \
+        size = 5;                                                              \
+        break;                                                                 \
+    case c + 3:                                                                \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                   \
+        size = 4;                                                              \
         break
 
                     OP2_DISASM(VM_LOR);
@@ -445,68 +461,68 @@ namespace TJS {
                     OP2_DISASM(VM_MUL);
 #undef OP2_DISASM
 
-#define OP1_DISASM                                                                                                     \
-    TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                               \
+#define OP1_DISASM                                                             \
+    TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                       \
     size = 2;
                 case VM_TT:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_TF:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_SETF:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_SETNF:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_LNOT:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_BNOT:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_ASC:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_CHR:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_NUM:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_CHS:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_CL:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_INV:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_CHKINV:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_TYPEOF:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_EVAL:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_EEXP:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_INT:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_REAL:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_STR:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
                 case VM_OCTET:
-                    OP1_DISASM;
+                    OP1_DISASM
                     break;
 #undef OP1_DISASM
 
@@ -515,44 +531,44 @@ namespace TJS {
                     size = 3;
                     break;
 
-#define OP1_DISASM(c)                                                                                                  \
-    case c:                                                                                                            \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        size = 2;                                                                                                      \
-        break;                                                                                                         \
-    case c + 1:                                                                                                        \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                                                           \
-        size = 4;                                                                                                      \
-        break;                                                                                                         \
-    case c + 2:                                                                                                        \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                                                           \
-        size = 4;                                                                                                      \
-        break;                                                                                                         \
-    case c + 3:                                                                                                        \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        size = 3;                                                                                                      \
+#define OP1_DISASM(c)                                                          \
+    case c:                                                                    \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        size = 2;                                                              \
+        break;                                                                 \
+    case c + 1:                                                                \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                   \
+        size = 4;                                                              \
+        break;                                                                 \
+    case c + 2:                                                                \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                   \
+        size = 4;                                                              \
+        break;                                                                 \
+    case c + 3:                                                                \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        size = 3;                                                              \
         break
 
                     OP1_DISASM(VM_INC);
                     OP1_DISASM(VM_DEC);
 #undef OP1_DISASM
 
-#define OP1A_DISASM                                                                                                    \
-    TJS_OFFSET_VM_CODE_ADDR(code[i + 1]);                                                                              \
+#define OP1A_DISASM                                                            \
+    TJS_OFFSET_VM_CODE_ADDR(code[i + 1]);                                      \
     size = 2;
                 case VM_JF:
-                    OP1A_DISASM;
+                    OP1A_DISASM
                     break;
                 case VM_JNF:
-                    OP1A_DISASM;
+                    OP1A_DISASM
                     break;
                 case VM_JMP:
-                    OP1A_DISASM;
+                    OP1A_DISASM
                     break;
 #undef OP1A_DISASM
 
@@ -581,10 +597,12 @@ namespace TJS {
                         for(tjs_int j = 0; j < num; j++) {
                             switch(code[i + st + j * 2]) {
                                 case fatNormal:
-                                    TJS_OFFSET_VM_REG_ADDR(code[i + st + j * 2 + 1]);
+                                    TJS_OFFSET_VM_REG_ADDR(
+                                        code[i + st + j * 2 + 1]);
                                     break;
                                 case fatExpand:
-                                    TJS_OFFSET_VM_REG_ADDR(code[i + st + j * 2 + 1]);
+                                    TJS_OFFSET_VM_REG_ADDR(
+                                        code[i + st + j * 2 + 1]);
                                     break;
                                 case fatUnnamedExpand:
                                     break;

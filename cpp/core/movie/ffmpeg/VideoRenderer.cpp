@@ -16,7 +16,9 @@ NS_KRMOVIE_BEGIN
 DispDeviceDesc g_graphicsContext;
 AppliactionDesc g_application;
 
-bool AppliactionDesc::IsCurrentThread() { return std::this_thread::get_id() == TVPMainThreadID; }
+bool AppliactionDesc::IsCurrentThread() {
+    return std::this_thread::get_id() == TVPMainThreadID;
+}
 
 static void requeue(std::deque<int> &trg, std::deque<int> &src) {
     trg.push_back(src.front());
@@ -79,15 +81,18 @@ void CRenderManager::CClockSync::Reset() {
 // unsigned int CRenderManager::m_nextCaptureId = 0;
 
 CRenderManager::CRenderManager(CDVDClock &clock, IRenderMsg *player) :
-    m_pRenderer(nullptr), m_bTriggerUpdateResolution(false), m_bRenderGUI(true), m_waitForBufferCount(0),
-    m_rendermethod(0),
+    m_pRenderer(nullptr), m_bTriggerUpdateResolution(false), m_bRenderGUI(true),
+    m_waitForBufferCount(0), m_rendermethod(0),
     // m_renderedOverlay(false),
-    m_renderDebug(false), m_renderState(STATE_UNCONFIGURED), m_displayLatency(0.0), m_QueueSize(2), m_QueueSkip(0),
-    m_format(RENDER_FMT_NONE), m_width(0), m_height(0), m_dwidth(0), m_dheight(0), m_fps(0.0f), m_extended_format(0),
-    m_orientation(0), m_NumberBuffers(0), m_lateframes(-1), m_presentpts(0.0), m_presentstep(PRESENT_IDLE),
-    m_forceNext(false), m_presentsource(0), m_dvdClock(clock), m_playerPort(player) //,
-                                                                                    // m_captureWaitCounter(0),
-                                                                                    // m_hasCaptures(false)
+    m_renderDebug(false), m_renderState(STATE_UNCONFIGURED),
+    m_displayLatency(0.0), m_QueueSize(2), m_QueueSkip(0),
+    m_format(RENDER_FMT_NONE), m_width(0), m_height(0), m_dwidth(0),
+    m_dheight(0), m_fps(0.0f), m_extended_format(0), m_orientation(0),
+    m_NumberBuffers(0), m_lateframes(-1), m_presentpts(0.0),
+    m_presentstep(PRESENT_IDLE), m_forceNext(false), m_presentsource(0),
+    m_dvdClock(clock), m_playerPort(player) //,
+                                            // m_captureWaitCounter(0),
+                                            // m_hasCaptures(false)
 {
     m_videoDelay = 0;
 }
@@ -110,27 +115,33 @@ float CRenderManager::GetAspectRatio() {
         return 1.0f;
 }
 
-bool CRenderManager::Configure(DVDVideoPicture &picture, float fps, unsigned flags, unsigned int orientation,
+bool CRenderManager::Configure(DVDVideoPicture &picture, float fps,
+                               unsigned flags, unsigned int orientation,
                                int buffers) {
 
     // check if something has changed
     {
         CSingleLock lock(m_statelock);
 
-        if(m_width == picture.iWidth && m_height == picture.iHeight && m_dwidth == picture.iDisplayWidth &&
+        if(m_width == picture.iWidth && m_height == picture.iHeight &&
+           m_dwidth == picture.iDisplayWidth &&
            m_dheight == picture.iDisplayHeight && m_fps == fps &&
-           (m_flags & ~CONF_FLAGS_FULLSCREEN) == (flags & ~CONF_FLAGS_FULLSCREEN) && m_format == picture.format &&
-           m_extended_format == picture.extended_format && m_orientation == orientation && m_NumberBuffers == buffers &&
+           (m_flags & ~CONF_FLAGS_FULLSCREEN) ==
+               (flags & ~CONF_FLAGS_FULLSCREEN) &&
+           m_format == picture.format &&
+           m_extended_format == picture.extended_format &&
+           m_orientation == orientation && m_NumberBuffers == buffers &&
            m_pRenderer != nullptr) {
             return true;
         }
     }
 
     std::string formatstr = GetRenderFormatName(picture.format);
-    //	CLog::Log(LOGDEBUG, "CRenderManager::Configure - change configuration.
-    //%dx%d. display: %dx%d. framerate: %4.2f. format: %s", picture.iWidth,
-    // picture.iHeight, picture.iDisplayWidth, picture.iDisplayHeight, fps,
-    // formatstr.c_str());
+    //	CLog::Log(LOGDEBUG, "CRenderManager::Configure - change
+    // configuration. %dx%d. display: %dx%d. framerate: %4.2f. format:
+    //%s", picture.iWidth,
+    // picture.iHeight, picture.iDisplayWidth, picture.iDisplayHeight,
+    // fps, formatstr.c_str());
 
     // make sure any queued frame was fully presented
     {
@@ -142,7 +153,8 @@ bool CRenderManager::Configure(DVDVideoPicture &picture, float fps, unsigned fla
                 // timeout waiting for state");
                 return false;
             }
-            m_presentevent.wait_for(lock, std::chrono::milliseconds(endtime.MillisLeft()));
+            m_presentevent.wait_for(
+                lock, std::chrono::milliseconds(endtime.MillisLeft()));
         }
     }
 
@@ -170,7 +182,8 @@ bool CRenderManager::Configure(DVDVideoPicture &picture, float fps, unsigned fla
     return true;
 
     CSingleLock stateLock(m_stateMutex);
-    if(m_stateEvent.wait_for(stateLock, std::chrono::milliseconds(1000)) == std::cv_status::timeout) {
+    if(m_stateEvent.wait_for(stateLock, std::chrono::milliseconds(1000)) ==
+       std::cv_status::timeout) {
         //	CLog::Log(LOGWARNING, "CRenderManager::Configure - timeout
         // waiting for configure");
         return false;
@@ -178,7 +191,8 @@ bool CRenderManager::Configure(DVDVideoPicture &picture, float fps, unsigned fla
 
     CSingleLock lock(m_statelock);
     if(m_renderState != STATE_CONFIGURED) {
-        //	CLog::Log(LOGWARNING, "CRenderManager::Configure - failed to
+        //	CLog::Log(LOGWARNING, "CRenderManager::Configure - failed
+        // to
         // configure");
         return false;
     }
@@ -202,7 +216,8 @@ bool CRenderManager::Configure() {
             return false;
     }
 
-    bool result = m_pRenderer->Configure(m_width, m_height, m_dwidth, m_dheight, m_fps, m_flags, m_format,
+    bool result = m_pRenderer->Configure(m_width, m_height, m_dwidth, m_dheight,
+                                         m_fps, m_flags, m_format,
                                          m_extended_format, m_orientation);
     if(result) {
         CRenderInfo info = m_pRenderer->GetRenderInfo();
@@ -215,7 +230,8 @@ bool CRenderManager::Configure() {
         m_QueueSize = std::min(m_QueueSize, NUM_BUFFERS);
         if(m_QueueSize < 2) {
             m_QueueSize = 2;
-            //	CLog::Log(LOGWARNING, "CRenderManager::Configure - queue size
+            //	CLog::Log(LOGWARNING, "CRenderManager::Configure -
+            // queue size
             // too small (%d, %d, %d)", m_QueueSize, renderbuffers,
             // m_NumberBuffers);
         }
@@ -267,7 +283,8 @@ void CRenderManager::FrameWait(int ms) {
     Timer timeout(ms);
     CSingleLock lock(m_presentlock);
     while(m_presentstep == PRESENT_IDLE && !timeout.IsTimePast())
-        m_presentevent.wait_for(lock, std::chrono::milliseconds(timeout.MillisLeft()));
+        m_presentevent.wait_for(
+            lock, std::chrono::milliseconds(timeout.MillisLeft()));
 }
 
 bool CRenderManager::HasFrame() {
@@ -275,7 +292,8 @@ bool CRenderManager::HasFrame() {
         return false;
 
     CSingleLock lock(m_presentlock);
-    if(m_presentstep == PRESENT_READY || m_presentstep == PRESENT_FRAME || m_presentstep == PRESENT_FRAME2)
+    if(m_presentstep == PRESENT_READY || m_presentstep == PRESENT_FRAME ||
+       m_presentstep == PRESENT_FRAME2)
         return true;
     else
         return false;
@@ -319,7 +337,8 @@ void CRenderManager::FrameMove() {
         }
 
         // release all previous
-        for(std::deque<int>::iterator it = m_discard.begin(); it != m_discard.end();) {
+        for(std::deque<int>::iterator it = m_discard.begin();
+            it != m_discard.end();) {
             // renderer may want to keep the frame for postprocessing
             if(!m_pRenderer->NeedBuffer(*it) || !m_bRenderGUI) {
                 m_pRenderer->ReleaseBuffer(*it);
@@ -338,7 +357,8 @@ void CRenderManager::FrameMove() {
 
 void CRenderManager::PreInit() {
     if(!g_application.IsCurrentThread()) {
-        //	CLog::Log(LOGERROR, "CRenderManager::PreInit - not called from
+        //	CLog::Log(LOGERROR, "CRenderManager::PreInit - not called
+        // from
         // render thread");
         return;
     }
@@ -360,7 +380,8 @@ void CRenderManager::PreInit() {
 
 void CRenderManager::UnInit() {
     if(!g_application.IsCurrentThread()) {
-        //	CLog::Log(LOGERROR, "CRenderManager::UnInit - not called from
+        //	CLog::Log(LOGERROR, "CRenderManager::UnInit - not called
+        // from
         // render thread");
         return;
     }
@@ -381,7 +402,8 @@ bool CRenderManager::Flush() {
         return true;
 
     if(g_application.IsCurrentThread()) {
-        //	CLog::Log(LOGDEBUG, "%s - flushing renderer", __FUNCTION__);
+        //	CLog::Log(LOGDEBUG, "%s - flushing renderer",
+        //__FUNCTION__);
 
         //		CSingleExit exitlock(g_graphicsContext);
 
@@ -409,7 +431,8 @@ bool CRenderManager::Flush() {
         m_flushEvent.Reset();
         //		CApplicationMessenger::GetInstance().PostMsg(TMSG_RENDERER_FLUSH);
         if(!m_flushEvent.WaitMSec(1000)) {
-            //	CLog::Log(LOGERROR, "%s - timed out waiting for renderer to
+            //	CLog::Log(LOGERROR, "%s - timed out waiting for
+            // renderer to
             // flush", __FUNCTION__);
             return false;
         } else
@@ -493,13 +516,15 @@ void CRenderManager::CreateRenderer() {
             m_pRenderer->PreInit();
         // 		else
         // 			CLog::Log(LOGERROR,
-        // "RenderManager::CreateRenderer: failed to create renderer");
+        // "RenderManager::CreateRenderer: failed to create
+        // renderer");
     }
 }
 
 void CRenderManager::DeleteRenderer() {
     if(m_pRenderer) {
-        //	CLog::Log(LOGDEBUG, "%s - deleting renderer", __FUNCTION__);
+        //	CLog::Log(LOGDEBUG, "%s - deleting renderer",
+        //__FUNCTION__);
 
         //	delete m_pRenderer;
         m_pRenderer = nullptr;
@@ -681,8 +706,9 @@ void CRenderManager::SetViewMode(int iViewMode) {
     m_playerPort->VideoParamsChange();
 }
 
-void CRenderManager::FlipPage(volatile std::atomic_bool &bStop, double pts,
-                              /*EINTERLACEMETHOD deintMethod, EFIELDSYNC sync,*/ bool wait) {
+void CRenderManager::FlipPage(
+    volatile std::atomic_bool &bStop, double pts,
+    /*EINTERLACEMETHOD deintMethod, EFIELDSYNC sync,*/ bool wait) {
     {
         CSingleLock lock(m_statelock);
 
@@ -749,7 +775,8 @@ void CRenderManager::FlipPage(volatile std::atomic_bool &bStop, double pts,
             m_presentevent.wait_for(lock, std::chrono::milliseconds(20));
             if(endtime.IsTimePast() || bStop) {
                 if(!bStop) {
-                    //	CLog::Log(LOGWARNING, "CRenderManager::FlipPage -
+                    //	CLog::Log(LOGWARNING,
+                    //"CRenderManager::FlipPage -
                     // timeout waiting for render");
                 }
                 break;
@@ -775,7 +802,8 @@ void CRenderManager::FlipPage(volatile std::atomic_bool &bStop, double pts,
     }
 #endif
 
-void CRenderManager::Render(bool clear, uint32_t flags, uint32_t alpha, bool gui) {
+void CRenderManager::Render(bool clear, uint32_t flags, uint32_t alpha,
+                            bool gui) {
     //	CSingleExit exitLock(g_graphicsContext);
 
     {
@@ -804,7 +832,8 @@ void CRenderManager::Render(bool clear, uint32_t flags, uint32_t alpha, bool gui
         if(!m_pRenderer->IsGuiLayer())
             m_pRenderer->Update();
 
-        //	m_renderedOverlay = m_overlays.HasOverlay(m_presentsource);
+        //	m_renderedOverlay =
+        // m_overlays.HasOverlay(m_presentsource);
         CRect src, dst, view;
         m_pRenderer->GetVideoRect(src, dst, view);
         // 		m_overlays.SetVideoRect(src, dst, view);
@@ -817,9 +846,10 @@ void CRenderManager::Render(bool clear, uint32_t flags, uint32_t alpha, bool gui
 
             double refreshrate, clockspeed;
             int missedvblanks;
-            // 			vsync = StringUtils::Format("VSyncOff: %.1f  ",
+            // 			vsync = StringUtils::Format("VSyncOff: %.1f ",
             // m_clockSync.m_syncOffset / 1000); 			if
-            // (m_dvdClock.GetClockInfo(missedvblanks, clockspeed, refreshrate))
+            // (m_dvdClock.GetClockInfo(missedvblanks, clockspeed,
+            // refreshrate))
             // 			{
             // 				vsync += StringUtils::Format("VSync:
             // refresh:%.3f missed:%i speed:%.3f%%",
@@ -829,7 +859,8 @@ void CRenderManager::Render(bool clear, uint32_t flags, uint32_t alpha, bool gui
             // 			}
 
             // 			m_debugRenderer.SetInfo(audio, video, player,
-            // vsync); 			m_debugRenderer.Render(src, dst, view);
+            // vsync); 			m_debugRenderer.Render(src, dst,
+            // view);
 
             m_debugTimer.Set(1000);
             //	m_renderedOverlay = true;
@@ -842,7 +873,8 @@ void CRenderManager::Render(bool clear, uint32_t flags, uint32_t alpha, bool gui
         CSingleLock lock(m_presentlock);
 
         if(m_presentstep == PRESENT_FRAME) {
-            if(m.presentmethod == PRESENT_METHOD_BOB || m.presentmethod == PRESENT_METHOD_WEAVE)
+            if(m.presentmethod == PRESENT_METHOD_BOB ||
+               m.presentmethod == PRESENT_METHOD_WEAVE)
                 m_presentstep = PRESENT_FRAME2;
             else
                 m_presentstep = PRESENT_IDLE;
@@ -895,8 +927,8 @@ void CRenderManager::PresentSingle(bool clear, uint32_t flags, uint32_t alpha) {
     // 	if (m.presentfield == FS_BOT)
     // 		m_pRenderer->RenderUpdate(clear, flags | RENDER_FLAG_BOT,
     // alpha); 	else if (m.presentfield == FS_TOP)
-    // m_pRenderer->RenderUpdate(clear, flags | RENDER_FLAG_TOP, alpha);
-    // else
+    // m_pRenderer->RenderUpdate(clear, flags | RENDER_FLAG_TOP,
+    // alpha); else
     m_pRenderer->RenderUpdate(clear, flags, alpha);
 }
 
@@ -909,12 +941,14 @@ void CRenderManager::PresentFields(bool clear, uint32_t flags, uint32_t alpha) {
         // 		if (m.presentfield == FS_BOT)
         // 			m_pRenderer->RenderUpdate(clear, flags |
         // RENDER_FLAG_BOT | RENDER_FLAG_FIELD0, alpha); 		else
-        m_pRenderer->RenderUpdate(clear, flags | RENDER_FLAG_TOP | RENDER_FLAG_FIELD0, alpha);
+        m_pRenderer->RenderUpdate(
+            clear, flags | RENDER_FLAG_TOP | RENDER_FLAG_FIELD0, alpha);
     } else {
         // 		if (m.presentfield == FS_TOP)
         // 			m_pRenderer->RenderUpdate(clear, flags |
         // RENDER_FLAG_BOT | RENDER_FLAG_FIELD1, alpha); 		else
-        m_pRenderer->RenderUpdate(clear, flags | RENDER_FLAG_TOP | RENDER_FLAG_FIELD1, alpha);
+        m_pRenderer->RenderUpdate(
+            clear, flags | RENDER_FLAG_TOP | RENDER_FLAG_FIELD1, alpha);
     }
 }
 
@@ -924,10 +958,11 @@ void CRenderManager::PresentBlend(bool clear, uint32_t flags, uint32_t alpha) {
     // 	if (m.presentfield == FS_BOT)
     // 	{
     // 		m_pRenderer->RenderUpdate(clear, flags | RENDER_FLAG_BOT |
-    // RENDER_FLAG_NOOSD, alpha); 		m_pRenderer->RenderUpdate(false,
+    // RENDER_FLAG_NOOSD, alpha); m_pRenderer->RenderUpdate(false,
     // flags | RENDER_FLAG_TOP, alpha / 2); 	} else
     {
-        m_pRenderer->RenderUpdate(clear, flags | RENDER_FLAG_TOP | RENDER_FLAG_NOOSD, alpha);
+        m_pRenderer->RenderUpdate(
+            clear, flags | RENDER_FLAG_TOP | RENDER_FLAG_NOOSD, alpha);
         m_pRenderer->RenderUpdate(false, flags | RENDER_FLAG_BOT, alpha / 2);
     }
 }
@@ -936,9 +971,10 @@ void CRenderManager::UpdateDisplayLatency() {
     float fps = g_graphicsContext.GetFPS();
     float refresh = fps;
     // 	if (g_graphicsContext.GetVideoResolution() == RES_WINDOW)
-    // 		refresh = 0; // No idea about refresh rate when windowed, just
-    // get the default latency
-    m_displayLatency = 0; // (double)g_advancedSettings.GetDisplayLatency(refresh);
+    // 		refresh = 0; // No idea about refresh rate when windowed,
+    // just get the default latency
+    m_displayLatency =
+        0; // (double)g_advancedSettings.GetDisplayLatency(refresh);
 
     int buffers = 2 /*g_Windowing.NoOfBuffers()*/;
     m_displayLatency += (buffers - 1) / fps;
@@ -1078,7 +1114,8 @@ int CRenderManager::AddVideoPicture(DVDVideoPicture &pic) {
     }
 #endif
 
-int CRenderManager::WaitForBuffer(volatile std::atomic_bool &bStop, int timeout) {
+int CRenderManager::WaitForBuffer(volatile std::atomic_bool &bStop,
+                                  int timeout) {
     return m_pRenderer->WaitForBuffer(bStop, timeout);
 
     CSingleLock lock(m_presentlock);
@@ -1106,10 +1143,12 @@ int CRenderManager::WaitForBuffer(volatile std::atomic_bool &bStop, int timeout)
 
     Timer endtime(timeout);
     while(m_free.empty()) {
-        m_presentevent.wait_for(lock, std::chrono::milliseconds(std::min(50, timeout)));
+        m_presentevent.wait_for(
+            lock, std::chrono::milliseconds(std::min(50, timeout)));
         if(endtime.IsTimePast() || bStop) {
             if(timeout != 0 && !bStop) {
-                //	CLog::Log(LOGWARNING, "CRenderManager::WaitForBuffer -
+                //	CLog::Log(LOGWARNING,
+                //"CRenderManager::WaitForBuffer -
                 // timeout waiting for buffer");
                 m_waitForBufferCount++;
                 if(m_waitForBufferCount > 2) {
@@ -1122,7 +1161,8 @@ int CRenderManager::WaitForBuffer(volatile std::atomic_bool &bStop, int timeout)
 
     m_waitForBufferCount = 0;
 
-    // make sure overlay buffer is released, this won't happen on AddOverlay
+    // make sure overlay buffer is released, this won't happen on
+    // AddOverlay
     //	m_overlays.Release(m_free.front());
 
     // return buffer level
@@ -1131,7 +1171,8 @@ int CRenderManager::WaitForBuffer(volatile std::atomic_bool &bStop, int timeout)
 
 void CRenderManager::PrepareNextRender() {
     if(m_queued.empty()) {
-        //	CLog::Log(LOGERROR, "CRenderManager::PrepareNextRender - asked
+        //	CLog::Log(LOGERROR, "CRenderManager::PrepareNextRender -
+        // asked
         // to prepare with nothing available");
         m_presentstep = PRESENT_IDLE;
         m_presentevent.notify_all();
@@ -1142,9 +1183,10 @@ void CRenderManager::PrepareNextRender() {
     double frametime = 1.0 / g_graphicsContext.GetFPS() * DVD_TIME_BASE;
 
     // correct display latency
-    // internal buffers of driver, assume that driver lets us go one frame in
-    // advance
-    double totalLatency = DVD_SEC_TO_TIME(m_displayLatency) - DVD_MSEC_TO_TIME(m_videoDelay) + 2 * frametime;
+    // internal buffers of driver, assume that driver lets us go one
+    // frame in advance
+    double totalLatency = DVD_SEC_TO_TIME(m_displayLatency) -
+        DVD_MSEC_TO_TIME(m_videoDelay) + 2 * frametime;
 
     double renderPts = frameOnScreen + totalLatency;
 
@@ -1175,11 +1217,13 @@ void CRenderManager::PrepareNextRender() {
         int idx = *iter;
         ++iter;
         while(iter != m_queued.end()) {
-            // the slot for rendering in time is [pts .. (pts +  x * frametime)]
-            // renderer/drivers have internal queues, being slightliy late here
-            // does not mean that we are really late. The likelihood that we
-            // recover decreases the greater m_lateframes get. Skipping a frame
-            // is easier than having decoder dropping one (lateframes > 10)
+            // the slot for rendering in time is [pts .. (pts +  x *
+            // frametime)] renderer/drivers have internal queues,
+            // being slightliy late here does not mean that we are
+            // really late. The likelihood that we recover decreases
+            // the greater m_lateframes get. Skipping a frame is
+            // easier than having decoder dropping one (lateframes >
+            // 10)
             double x = (m_lateframes <= 6) ? 0.98 : 0;
             if(renderPts < m_Queue[*iter].pts + x * frametime)
                 break;
@@ -1220,7 +1264,8 @@ void CRenderManager::DiscardBuffer() {
     m_presentevent.notify_all();
 }
 
-bool CRenderManager::GetStats(int &lateframes, double &pts, int &queued, int &discard) {
+bool CRenderManager::GetStats(int &lateframes, double &pts, int &queued,
+                              int &discard) {
     CSingleLock lock(m_presentlock);
     lateframes = m_lateframes / 10;
     // pts = m_presentpts;

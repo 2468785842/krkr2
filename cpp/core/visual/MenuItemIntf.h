@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -73,14 +74,16 @@ protected:
 
 public:
     tTJSNI_BaseMenuItem();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
-    void TJS_INTF_METHOD Invalidate();
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
+    void Invalidate();
 
 public:
     static tTJSNI_MenuItem *CastFromVariant(const tTJSVariant &from);
 
 protected:
-    virtual bool CanDeliverEvents() const = 0; // must be implemented in each platforms
+    virtual bool
+    CanDeliverEvents() const = 0; // must be implemented in each platforms
 
 protected:
     void AddChild(tTJSNI_BaseMenuItem *item);
@@ -148,7 +151,8 @@ class tTVPOnMenuItemClickInputEvent : public tTVPBaseInputEvent {
     static tTVPUniqueTagForInputEvent Tag;
 
 public:
-    tTVPOnMenuItemClickInputEvent(tTJSNI_BaseMenuItem *menu) : tTVPBaseInputEvent(menu, Tag){};
+    tTVPOnMenuItemClickInputEvent(tTJSNI_BaseMenuItem *menu) :
+        tTVPBaseInputEvent(menu, Tag){};
     void Deliver() const { ((tTJSNI_BaseMenuItem *)GetSource())->OnClick(); }
 };
 //---------------------------------------------------------------------------

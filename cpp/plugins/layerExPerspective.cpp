@@ -6,15 +6,19 @@ using namespace std;
 
 #define NCB_MODULE_NAME TJS_W("perspective.dll")
 
-static const char *copyright = "----- AntiGrainGeometry Copyright START -----\n"
-                               "Anti-Grain Geometry - Version 2.4\n"
-                               "Copyright (C) 2002-2005 Maxim Shemanarev (McSeem)\n"
-                               "\n"
-                               "Permission to copy, use, modify, sell and distribute this software\n"
-                               "is granted provided this copyright notice appears in all copies. \n"
-                               "This software is provided \"as is\" without express or implied\n"
-                               "warranty, and with no claim as to its suitability for any purpose.\n"
-                               "----- AntiGrainGeometry Copyright END -----\n";
+static const char *copyright =
+    "----- AntiGrainGeometry Copyright START -----\n"
+    "Anti-Grain Geometry - Version 2.4\n"
+    "Copyright (C) 2002-2005 Maxim Shemanarev (McSeem)\n"
+    "\n"
+    "Permission to copy, use, modify, sell and distribute this "
+    "software\n"
+    "is granted provided this copyright notice appears in all "
+    "copies. \n"
+    "This software is provided \"as is\" without express or implied\n"
+    "warranty, and with no claim as to its suitability for any "
+    "purpose.\n"
+    "----- AntiGrainGeometry Copyright END -----\n";
 
 #include "ncbind/ncbind.hpp"
 
@@ -43,7 +47,7 @@ class tPerspectiveCopy : public tTJSDispatch
 {
 protected:
 public:
-	tjs_error TJS_INTF_METHOD FuncCall(
+	tjs_error FuncCall(
 		tjs_uint32 flag, const tjs_char * membername, tjs_uint32 *hint,
 		tTJSVariant *result,
 		tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis) {
@@ -144,14 +148,17 @@ public:
 #endif
 static int TJS_NATIVE_CLASSID_NAME = -1;
 
-static tjs_error PerspectiveCopy_GL(tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
+static tjs_error PerspectiveCopy_GL(tTJSVariant *result, tjs_int numparams,
+                                    tTJSVariant **param,
                                     iTJSDispatch2 *objthis) {
     if(!objthis)
         return TJS_E_NATIVECLASSCRASH;
     tTJSNI_Layer *_this;
     {
         tjs_error hr;
-        hr = objthis->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Layer::ClassID, (iTJSNativeInstance **)&_this);
+        hr = objthis->NativeInstanceSupport(TJS_NIS_GETINSTANCE,
+                                            tTJSNC_Layer::ClassID,
+                                            (iTJSNativeInstance **)&_this);
         if(TJS_FAILED(hr))
             return TJS_E_NATIVECLASSCRASH;
     }
@@ -162,8 +169,9 @@ static tjs_error PerspectiveCopy_GL(tTJSVariant *result, tjs_int numparams, tTJS
     tTJSNI_BaseLayer *src = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Layer::ClassID,
-                                                        (iTJSNativeInstance **)&src)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Layer::ClassID,
+               (iTJSNativeInstance **)&src)))
             TVPThrowExceptionMessage(TVPSpecifyLayer);
     }
 
@@ -184,12 +192,15 @@ static tjs_error PerspectiveCopy_GL(tTJSVariant *result, tjs_int numparams, tTJS
         { param[9]->AsReal(), param[10]->AsReal() }, // 左下
         { param[11]->AsReal(), param[12]->AsReal() }, // 右下
     };
-    static iTVPRenderMethod *method = TVPGetRenderManager()->GetRenderMethod("PerspectiveAlphaBlend_a");
+    static iTVPRenderMethod *method =
+        TVPGetRenderManager()->GetRenderMethod("PerspectiveAlphaBlend_a");
     static int id_opa = method->EnumParameterID("opacity");
     method->SetParameterOpa(id_opa, 255);
     iTVPTexture2D *tex = src->GetMainImage()->GetTexture();
-    tRenderTexQuadArray::Element src_tex[] = { tRenderTexQuadArray::Element(tex, srcpt) };
-    int w = _this->GetMainImage()->GetWidth(), h = _this->GetMainImage()->GetHeight();
+    tRenderTexQuadArray::Element src_tex[] = { tRenderTexQuadArray::Element(
+        tex, srcpt) };
+    int w = _this->GetMainImage()->GetWidth(),
+        h = _this->GetMainImage()->GetHeight();
     tTVPRect rctar(w, h, 0, 0);
     for(int i = 0; i < 4; ++i) {
         if(rctar.left > dstpt[i].x)
@@ -210,20 +221,25 @@ static tjs_error PerspectiveCopy_GL(tTJSVariant *result, tjs_int numparams, tTJS
     if(rctar.bottom > h)
         rctar.bottom = h;
     TVPGetRenderManager()->OperatePerspective(
-        method, 1, _this->GetMainImage()->GetTextureForRender(method->IsBlendTarget(), &rctar), nullptr, rctar, dstpt,
-        tRenderTexQuadArray(src_tex));
+        method, 1,
+        _this->GetMainImage()->GetTextureForRender(method->IsBlendTarget(),
+                                                   &rctar),
+        nullptr, rctar, dstpt, tRenderTexQuadArray(src_tex));
     _this->Update();
     return TJS_S_OK;
 }
 
-static void addMethod(iTJSDispatch2 *dispatch, const tjs_char *methodName, tTJSDispatch *method) {
+static void addMethod(iTJSDispatch2 *dispatch, const tjs_char *methodName,
+                      tTJSDispatch *method) {
     tTJSVariant var = tTJSVariant(method);
     method->Release();
-    dispatch->PropSet(TJS_MEMBERENSURE, // メンバがなかった場合には作成するようにするフラグ
-                      methodName, // メンバ名 ( かならず TJS_W( ) で囲む )
-                      nullptr, // ヒント ( 本来はメンバ名のハッシュ値だが、nullptr でもよい )
-                      &var, // 登録する値
-                      dispatch // コンテキスト
+    dispatch->PropSet(
+        TJS_MEMBERENSURE, // メンバがなかった場合には作成するようにするフラグ
+        methodName, // メンバ名 ( かならず TJS_W( ) で囲む )
+        nullptr, // ヒント ( 本来はメンバ名のハッシュ値だが、nullptr
+                 // でもよい )
+        &var, // 登録する値
+        dispatch // コンテキスト
     );
 }
 
@@ -243,7 +259,8 @@ void InitPlugin_Perspective() {
     // 	    // クラスオブジェクトチェック
     // 	    if ((NI_LayerExBase::classId =
     // TJSFindNativeClassID(TJS_W("LayerExBase"))) <= 0) {
-    // NI_LayerExBase::classId = TJSRegisterNativeClass(TJS_W("LayerExBase"));
+    // NI_LayerExBase::classId =
+    // TJSRegisterNativeClass(TJS_W("LayerExBase"));
     // 	    }
     //
     // 	    {
@@ -253,8 +270,8 @@ void InitPlugin_Perspective() {
     // 		    // Layer クラスオブジェクトを取得
     // 		    tTJSVariant varScripts;
     // 		    TVPExecuteExpression(TJS_W("Layer"), &varScripts);
-    // 		    iTJSDispatch2 *dispatch = varScripts.AsObjectNoAddRef();
-    // 		    if (dispatch) {
+    // 		    iTJSDispatch2 *dispatch =
+    // varScripts.AsObjectNoAddRef(); 		    if (dispatch) {
     // 			    // プロパティ初期化
     // 			    NI_LayerExBase::init(dispatch);
     //
@@ -271,7 +288,8 @@ void InitPlugin_Perspective() {
     global->PropGet(0, TJS_W("Layer"), nullptr, &varScripts, global);
     iTJSDispatch2 *dispatch = varScripts.AsObjectNoAddRef();
     if(dispatch) {
-        addMethod(dispatch, TJS_W("perspectiveCopy"), TJSCreateNativeClassMethod(PerspectiveCopy_GL));
+        addMethod(dispatch, TJS_W("perspectiveCopy"),
+                  TJSCreateNativeClassMethod(PerspectiveCopy_GL));
     }
     //}
 }

@@ -44,7 +44,8 @@ namespace TJS {
     const tjs_int TJSVersionMajor = 2;
     const tjs_int TJSVersionMinor = 4;
     const tjs_int TJSVersionRelease = 28;
-    const tjs_int TJSVersionHex = TJSVersionMajor * 0x1000000 + TJSVersionMinor * 0x10000 + TJSVersionRelease;
+    const tjs_int TJSVersionHex = TJSVersionMajor * 0x1000000 +
+        TJSVersionMinor * 0x10000 + TJSVersionRelease;
 
 #ifdef _MSC_VER
 #define WIDEN2(x) L##x
@@ -53,16 +54,17 @@ namespace TJS {
 #else
     const char TJSCompiledDate[] = "" __DATE__ " " __TIME__;
 #endif
-    // first empty literal string is to avoid a compile error with bcc which can not
-    // process directly L __DATE__ as a pre-processer wide literal string.
+    // first empty literal string is to avoid a compile error with bcc
+    // which can not process directly L __DATE__ as a pre-processer
+    // wide literal string.
     //---------------------------------------------------------------------------
 
     //---------------------------------------------------------------------------
     // global options
     //---------------------------------------------------------------------------
     bool TJSEvalOperatorIsOnGlobal = false;
-    // Post-! operator (evaluate expression) is to be executed on "this" context
-    // since TJS2 version 2.4.1
+    // Post-! operator (evaluate expression) is to be executed on
+    // "this" context since TJS2 version 2.4.1
     bool TJSWarnOnNonGlobalEvalOperator = false;
     // Output warning against non-local post-! operator.
     bool TJSEnableDebugMode = false;
@@ -71,13 +73,13 @@ namespace TJS {
     // Do not use this mode unless you want to debug the program.
     bool TJSWarnOnExecutionOnDeletingObject = false;
     // Output warning against running code on context of
-    // deleting-in-progress object. This is available only the Debug mode is
-    // enabled.
+    // deleting-in-progress object. This is available only the Debug
+    // mode is enabled.
     bool TJSUnaryAsteriskIgnoresPropAccess = false;
-    // Unary '*' operator means accessing property object directly without
-    // normal property access, if this options is set true.
-    // This is replaced with '&' operator since TJS2 2.4.15. Turn true for
-    // gaining old compatibility.
+    // Unary '*' operator means accessing property object directly
+    // without normal property access, if this options is set true.
+    // This is replaced with '&' operator since TJS2 2.4.15. Turn true
+    // for gaining old compatibility.
     //---------------------------------------------------------------------------
 
     //---------------------------------------------------------------------------
@@ -139,19 +141,22 @@ namespace TJS {
             dsp = new tTJSArrayClass(); // TJSCreateArrayClass();
             val = tTJSVariant(dsp, nullptr);
             dsp->Release();
-            Global->PropSet(TJS_MEMBERENSURE, TJS_W("Array"), nullptr, &val, Global);
+            Global->PropSet(TJS_MEMBERENSURE, TJS_W("Array"), nullptr, &val,
+                            Global);
 
             // Dictionary
             dsp = new tTJSDictionaryClass();
             val = tTJSVariant(dsp, nullptr);
             dsp->Release();
-            Global->PropSet(TJS_MEMBERENSURE, TJS_W("Dictionary"), nullptr, &val, Global);
+            Global->PropSet(TJS_MEMBERENSURE, TJS_W("Dictionary"), nullptr,
+                            &val, Global);
 
             // Date
             dsp = new tTJSNC_Date();
             val = tTJSVariant(dsp, nullptr);
             dsp->Release();
-            Global->PropSet(TJS_MEMBERENSURE, TJS_W("Date"), nullptr, &val, Global);
+            Global->PropSet(TJS_MEMBERENSURE, TJS_W("Date"), nullptr, &val,
+                            Global);
 
             // Math
             {
@@ -160,26 +165,31 @@ namespace TJS {
                 dsp = math = new tTJSNC_Math();
                 val = tTJSVariant(dsp, nullptr);
                 dsp->Release();
-                Global->PropSet(TJS_MEMBERENSURE, TJS_W("Math"), nullptr, &val, Global);
+                Global->PropSet(TJS_MEMBERENSURE, TJS_W("Math"), nullptr, &val,
+                                Global);
 
                 // Math.RandomGenerator
                 dsp = new tTJSNC_RandomGenerator();
                 val = tTJSVariant(dsp, nullptr);
                 dsp->Release();
-                math->PropSet(TJS_MEMBERENSURE, TJS_W("RandomGenerator"), nullptr, &val, math);
+                math->PropSet(TJS_MEMBERENSURE, TJS_W("RandomGenerator"),
+                              nullptr, &val, math);
             }
 
             // Exception
             dsp = new tTJSNC_Exception();
             val = tTJSVariant(dsp, nullptr);
             dsp->Release();
-            Global->PropSet(TJS_MEMBERENSURE, TJS_W("Exception"), nullptr, &val, Global);
+            Global->PropSet(TJS_MEMBERENSURE, TJS_W("Exception"), nullptr, &val,
+                            Global);
 #ifndef TJS_NO_REGEXP
             // RegExp
-            dsp = TJSCreateRegExpClass(); // the body is implemented in tjsRegExp.cpp
+            dsp = TJSCreateRegExpClass(); // the body is implemented
+                                          // in tjsRegExp.cpp
             val = tTJSVariant(dsp, nullptr);
             dsp->Release();
-            Global->PropSet(TJS_MEMBERENSURE, TJS_W("RegExp"), nullptr, &val, Global);
+            Global->PropSet(TJS_MEMBERENSURE, TJS_W("RegExp"), nullptr, &val,
+                            Global);
 #endif
         } catch(...) {
             Cleanup();
@@ -204,10 +214,8 @@ namespace TJS {
         if(Global)
             Global->Release(), Global = nullptr;
 
-        if(PPValues)
-            delete PPValues;
-        if(Cache)
-            delete Cache;
+        delete PPValues;
+        delete Cache;
 
         TJSReservedWordsHashRelease();
 
@@ -253,11 +261,13 @@ namespace TJS {
     iTJSDispatch2 *tTJS::GetGlobalNoAddRef() const { return Global; }
 
     //---------------------------------------------------------------------------
-    void tTJS::AddScriptBlock(tTJSScriptBlock *block) { ScriptBlocks.push_back(block); }
+    void tTJS::AddScriptBlock(tTJSScriptBlock *block) {
+        ScriptBlocks.push_back(block);
+    }
 
     //---------------------------------------------------------------------------
     void tTJS::RemoveScriptBlock(tTJSScriptBlock *block) {
-        std::vector<tTJSScriptBlock *>::iterator i = ScriptBlocks.begin();
+        auto i = ScriptBlocks.begin();
         while(i != ScriptBlocks.end()) {
             if(*i == block) {
                 ScriptBlocks.erase(i);
@@ -288,8 +298,10 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJS::OutputToConsoleWithCentering(const tjs_char *msg, tjs_uint width) const {
-        // this function does not matter whether msg includes ZENKAKU characters ...
+    void tTJS::OutputToConsoleWithCentering(const tjs_char *msg,
+                                            tjs_uint width) const {
+        // this function does not matter whether msg includes ZENKAKU
+        // characters ...
         if(!msg)
             return;
         tjs_int len = (tjs_int)TJS_strlen(msg);
@@ -314,7 +326,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJS::OutputToConsoleSeparator(const tjs_char *text, tjs_uint count) const {
+    void tTJS::OutputToConsoleSeparator(const tjs_char *text,
+                                        tjs_uint count) const {
         tjs_int len = (tjs_int)TJS_strlen(text);
         tjs_char *outbuf = new tjs_char[len * count + 1];
         tjs_char *p = outbuf;
@@ -335,7 +348,8 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     void tTJS::Dump(tjs_uint width) const {
-        ttstr version{ fmt::format("TJS version {}.{}.{} ({})", TJSVersionMajor, TJSVersionMinor, TJSVersionRelease,
+        ttstr version{ fmt::format("TJS version {}.{}.{} ({})", TJSVersionMajor,
+                                   TJSVersionMinor, TJSVersionRelease,
                                    TJSCompiledDate) };
         OutputToConsoleSeparator(TJS_W("#"), width);
         OutputToConsoleWithCentering(TJS_W("TJS Context Dump"), width);
@@ -346,7 +360,8 @@ namespace TJS {
         if(!ScriptBlocks.empty()) {
             std::vector<tTJSScriptBlock *>::const_iterator i;
 
-            ttstr buf{ fmt::format("Total {} script block(s)", ScriptBlocks.size()) };
+            ttstr buf{ fmt::format("Total {} script block(s)",
+                                   ScriptBlocks.size()) };
             OutputToConsole(buf.c_str());
             OutputToConsole(TJS_W(""));
 
@@ -389,11 +404,14 @@ namespace TJS {
 
                 OutputToConsole(TJS_W(""));
             }
-            buf = { fmt::format("Total count of contexts      : {}", totalcontexts) };
+            buf = { fmt::format("Total count of contexts      : {}",
+                                totalcontexts) };
             OutputToConsole(buf.c_str());
-            buf = { fmt::format("Total VM code area size      : {} words", totalcodesize) };
+            buf = { fmt::format("Total VM code area size      : {} words",
+                                totalcodesize) };
             OutputToConsole(buf.c_str());
-            buf = { fmt::format("Total VM constant data count : {}", totaldatasize) };
+            buf = { fmt::format("Total VM constant data count : {}",
+                                totaldatasize) };
             OutputToConsole(buf.c_str());
 
             OutputToConsole(TJS_W(""));
@@ -428,16 +446,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJS::ExecScript(const tjs_char *script, tTJSVariant *result, iTJSDispatch2 *context, const tjs_char *name,
-                          tjs_int lineofs) {
-        TJS_F_TRACE("tTJS::ExecScript");
-        TJSSetFPUE();
-        if(Cache)
-            Cache->ExecScript(script, result, context, name, lineofs);
-    }
-
-    //---------------------------------------------------------------------------
-    void tTJS::ExecScript(const ttstr &script, tTJSVariant *result, iTJSDispatch2 *context, const ttstr *name,
+    void tTJS::ExecScript(const tjs_char *script, tTJSVariant *result,
+                          iTJSDispatch2 *context, const tjs_char *name,
                           tjs_int lineofs) {
         TJSSetFPUE();
         if(Cache)
@@ -445,15 +455,17 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJS::EvalExpression(const tjs_char *expression, tTJSVariant *result, iTJSDispatch2 *context,
-                              const tjs_char *name, tjs_int lineofs) {
+    void tTJS::ExecScript(const ttstr &script, tTJSVariant *result,
+                          iTJSDispatch2 *context, const ttstr *name,
+                          tjs_int lineofs) {
         TJSSetFPUE();
         if(Cache)
-            Cache->EvalExpression(expression, result, context, name, lineofs);
+            Cache->ExecScript(script, result, context, name, lineofs);
     }
 
     //---------------------------------------------------------------------------
-    void tTJS::EvalExpression(const ttstr &expression, tTJSVariant *result, iTJSDispatch2 *context, const ttstr *name,
+    void tTJS::EvalExpression(const tjs_char *expression, tTJSVariant *result,
+                              iTJSDispatch2 *context, const tjs_char *name,
                               tjs_int lineofs) {
         TJSSetFPUE();
         if(Cache)
@@ -461,7 +473,18 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJS::SetPPValue(const tjs_char *name, tjs_int32 value) { PPValues->Values.Add(ttstr(name), value); }
+    void tTJS::EvalExpression(const ttstr &expression, tTJSVariant *result,
+                              iTJSDispatch2 *context, const ttstr *name,
+                              tjs_int lineofs) {
+        TJSSetFPUE();
+        if(Cache)
+            Cache->EvalExpression(expression, result, context, name, lineofs);
+    }
+
+    //---------------------------------------------------------------------------
+    void tTJS::SetPPValue(const tjs_char *name, tjs_int32 value) {
+        PPValues->Values.Add(ttstr(name), value);
+    }
 
     //---------------------------------------------------------------------------
     tjs_int32 tTJS::GetPPValue(const tjs_char *name) {
@@ -480,17 +503,17 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     // for Bytecode
-    void tTJS::LoadByteCode(const tjs_uint8 *buff, size_t len, tTJSVariant *result, iTJSDispatch2 *context,
+    void tTJS::LoadByteCode(const tjs_uint8 *buff, size_t len,
+                            tTJSVariant *result, iTJSDispatch2 *context,
                             const tjs_char *name) {
-        TJS_F_TRACE("tTJS::LoadByteCode");
         TJSSetFPUE();
         if(Cache)
             Cache->LoadByteCode(buff, len, result, context, name);
     }
 
     //---------------------------------------------------------------------------
-    bool tTJS::LoadByteCode(class tTJSBinaryStream *stream, tTJSVariant *result, iTJSDispatch2 *context,
-                            const tjs_char *name) {
+    bool tTJS::LoadByteCode(class tTJSBinaryStream *stream, tTJSVariant *result,
+                            iTJSDispatch2 *context, const tjs_char *name) {
         bool ret = false;
         tjs_uint8 *buff = nullptr;
         try {
@@ -502,14 +525,16 @@ namespace TJS {
                     stream->Seek(0, TJS_BS_SEEK_SET);
                     buff = new tjs_uint8[static_cast<unsigned int>(streamlen)];
                     stream->Read(buff, static_cast<tjs_uint>(streamlen));
-                    LoadByteCode(buff, static_cast<size_t>(streamlen), result, context, name);
+                    LoadByteCode(buff, static_cast<size_t>(streamlen), result,
+                                 context, name);
                     ret = true;
                 } else {
-                    assert(tTJSScriptBlock::BYTECODE_FILE_TAG_SIZE == tTJSBinarySerializer::HEADER_LENGTH);
-                    if(result != nullptr && tTJSBinarySerializer::IsBinary(header)) {
+                    assert(tTJSScriptBlock::BYTECODE_FILE_TAG_SIZE ==
+                           tTJSBinarySerializer::HEADER_LENGTH);
+                    if(result != nullptr &&
+                       tTJSBinarySerializer::IsBinary(header)) {
                         tTJSBinarySerializer binload;
                         tTJSVariant *var = binload.Read(stream);
-                        ;
                         if(var) {
                             *result = *var;
                             delete var;
@@ -527,7 +552,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    bool tTJS::LoadBinaryDictionayArray(class tTJSBinaryStream *stream, tTJSVariant *result) {
+    bool tTJS::LoadBinaryDictionayArray(class tTJSBinaryStream *stream,
+                                        tTJSVariant *result) {
         if(result == nullptr)
             return false;
 
@@ -554,13 +580,17 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJS::CompileScript(const tjs_char *script, class tTJSBinaryStream *output, bool isresultneeded,
-                             bool outputdebug, bool isexpression, const tjs_char *name, tjs_int lineofs) {
+    void tTJS::CompileScript(const tjs_char *script,
+                             class tTJSBinaryStream *output,
+                             bool isresultneeded, bool outputdebug,
+                             bool isexpression, const tjs_char *name,
+                             tjs_int lineofs) {
         tTJSScriptBlock *blk = new tTJSScriptBlock(this);
         try {
             if(name)
                 blk->SetName(name, lineofs);
-            blk->Compile(script, isexpression, isresultneeded, outputdebug, output);
+            blk->Compile(script, isexpression, isresultneeded, outputdebug,
+                         output);
         } catch(...) {
             blk->Release();
             throw;
@@ -572,44 +602,53 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // TextStream Creation
     //---------------------------------------------------------------------------
-    iTJSTextReadStream *TJSDefCreateTextStreamForRead(const tTJSString &name, const tTJSString &mode) {
+    iTJSTextReadStream *TJSDefCreateTextStreamForRead(const tTJSString &name,
+                                                      const tTJSString &mode) {
         return nullptr;
     }
 
-    iTJSTextWriteStream *TJSDefCreateTextStreamForWrite(const tTJSString &name, const tTJSString &mode) {
+    iTJSTextWriteStream *
+    TJSDefCreateTextStreamForWrite(const tTJSString &name,
+                                   const tTJSString &mode) {
         return nullptr;
     }
 
-    tTJSBinaryStream *TJSDefCreateBinaryStreamForRead(const tTJSString &name, const tTJSString &mode) {
+    tTJSBinaryStream *TJSDefCreateBinaryStreamForRead(const tTJSString &name,
+                                                      const tTJSString &mode) {
         return nullptr;
     }
 
-    tTJSBinaryStream *TJSDefCreateBinaryStreamForWrite(const tTJSString &name, const tTJSString &mode) {
+    tTJSBinaryStream *TJSDefCreateBinaryStreamForWrite(const tTJSString &name,
+                                                       const tTJSString &mode) {
         return nullptr;
     }
 
     //---------------------------------------------------------------------------
     iTJSTextReadStream *(*TJSCreateTextStreamForRead)(const tTJSString &name,
-                                                      const tTJSString &mode) = TJSDefCreateTextStreamForRead;
+                                                      const tTJSString &mode) =
+        TJSDefCreateTextStreamForRead;
 
-    iTJSTextWriteStream *(*TJSCreateTextStreamForWrite)(const tTJSString &name,
-                                                        const tTJSString &mode) = TJSDefCreateTextStreamForWrite;
+    iTJSTextWriteStream *(*TJSCreateTextStreamForWrite)(
+        const tTJSString &name,
+        const tTJSString &mode) = TJSDefCreateTextStreamForWrite;
 
     tTJSBinaryStream *(*TJSCreateBinaryStreamForRead)(const tTJSString &name,
-                                                      const tTJSString &mode) = TJSDefCreateBinaryStreamForRead;
+                                                      const tTJSString &mode) =
+        TJSDefCreateBinaryStreamForRead;
 
     tTJSBinaryStream *(*TJSCreateBinaryStreamForWrite)(const tTJSString &name,
-                                                       const tTJSString &mode) = TJSDefCreateBinaryStreamForWrite;
+                                                       const tTJSString &mode) =
+        TJSDefCreateBinaryStreamForWrite;
     //---------------------------------------------------------------------------
 
     //---------------------------------------------------------------------------
     // tTJSBinaryStream
     //---------------------------------------------------------------------------
 
-    void TJS_INTF_METHOD tTJSBinaryStream::SetEndOfStorage() { TJS_eTJSError(TJSWriteError); }
+    void tTJSBinaryStream::SetEndOfStorage() { TJS_eTJSError(TJSWriteError); }
 
     //---------------------------------------------------------------------------
-    tjs_uint64 TJS_INTF_METHOD tTJSBinaryStream::GetSize() {
+    tjs_uint64 tTJSBinaryStream::GetSize() {
         tjs_uint64 orgpos = GetPosition();
         tjs_uint64 size = Seek(0, TJS_BS_SEEK_END);
         Seek(orgpos, SEEK_SET);
@@ -632,7 +671,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJSBinaryStream::WriteBuffer(const void *buffer, tjs_uint write_size) {
+    void tTJSBinaryStream::WriteBuffer(const void *buffer,
+                                       tjs_uint write_size) {
         if(Write(buffer, write_size) != write_size)
             TJS_eTJSError(TJSWriteError);
     }

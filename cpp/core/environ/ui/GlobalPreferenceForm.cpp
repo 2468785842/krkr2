@@ -14,10 +14,13 @@ using namespace cocos2d::ui;
 const char *const FileName_NaviBar = "ui/NaviBar.csb";
 const char *const FileName_Body = "ui/ListView.csb";
 
-static iSysConfigManager *GetConfigManager() { return GlobalConfigManager::GetInstance(); }
+static iSysConfigManager *GetConfigManager() {
+    return GlobalConfigManager::GetInstance();
+}
 #include "PreferenceConfig.h"
 
-TVPGlobalPreferenceForm *TVPGlobalPreferenceForm::create(const tPreferenceScreen *config) {
+TVPGlobalPreferenceForm *
+TVPGlobalPreferenceForm::create(const tPreferenceScreen *config) {
     Initialize();
     if(!config)
         config = &RootPreference;
@@ -26,7 +29,8 @@ TVPGlobalPreferenceForm *TVPGlobalPreferenceForm::create(const tPreferenceScreen
     ret->initFromFile(FileName_NaviBar, FileName_Body, nullptr);
     PrefListSize = ret->PrefList->getContentSize();
     ret->initPref(config);
-    ret->setOnExitCallback(std::bind(&GlobalConfigManager::SaveToFile, GlobalConfigManager::GetInstance()));
+    ret->setOnExitCallback(std::bind(&GlobalConfigManager::SaveToFile,
+                                     GlobalConfigManager::GetInstance()));
     return ret;
 }
 
@@ -44,10 +48,13 @@ void TVPGlobalPreferenceForm::Initialize() {
     static bool Inited = false;
     if(!Inited) {
         Inited = true;
-        if(!GlobalConfigManager::GetInstance()->IsValueExist("GL_EXT_shader_framebuffer_fetch")) {
-            // disable GL_EXT_shader_framebuffer_fetch normally for adreno GPU
+        if(!GlobalConfigManager::GetInstance()->IsValueExist(
+               "GL_EXT_shader_framebuffer_fetch")) {
+            // disable GL_EXT_shader_framebuffer_fetch normally for
+            // adreno GPU
             if(strstr((const char *)glGetString(GL_RENDERER), "Adreno")) {
-                GlobalConfigManager::GetInstance()->SetValueInt("GL_EXT_shader_framebuffer_fetch", 0);
+                GlobalConfigManager::GetInstance()->SetValueInt(
+                    "GL_EXT_shader_framebuffer_fetch", 0);
             }
         }
 

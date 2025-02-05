@@ -32,7 +32,8 @@ namespace TJS {
                 val.CopyRef(*param[0]);
 
             static tTJSString message_name(TJS_W("message"));
-            objthis->PropSet(TJS_MEMBERENSURE, message_name.c_str(), message_name.GetHint(), &val, objthis);
+            objthis->PropSet(TJS_MEMBERENSURE, message_name.c_str(),
+                             message_name.GetHint(), &val, objthis);
 
             if(TJS_PARAM_EXIST(1))
                 val.CopyRef(*param[1]);
@@ -40,7 +41,8 @@ namespace TJS {
                 val = TJS_W("");
 
             static tTJSString trace_name(TJS_W("trace"));
-            objthis->PropSet(TJS_MEMBERENSURE, trace_name.c_str(), trace_name.GetHint(), &val, objthis);
+            objthis->PropSet(TJS_MEMBERENSURE, trace_name.c_str(),
+                             trace_name.GetHint(), &val, objthis);
 
             return TJS_S_OK;
         }

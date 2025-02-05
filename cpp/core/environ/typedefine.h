@@ -6,7 +6,8 @@
 #include "tjsTypes.h"
 #include <stdint.h>
 
-/* public enums and structures that GDI+ reuse from the other Windows API */
+/* public enums and structures that GDI+ reuse from the other Windows
+ * API */
 
 #define LF_FACESIZE 32
 

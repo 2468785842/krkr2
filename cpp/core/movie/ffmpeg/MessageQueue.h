@@ -60,9 +60,11 @@ public:
 
     MsgQueueReturnCode Put(CDVDMsg *pMsg, int priority = 0, bool front = true);
 
-    MsgQueueReturnCode Get(CDVDMsg **pMsg, unsigned int iTimeoutInMilliSeconds, int &priority);
+    MsgQueueReturnCode Get(CDVDMsg **pMsg, unsigned int iTimeoutInMilliSeconds,
+                           int &priority);
 
-    MsgQueueReturnCode Get(CDVDMsg **pMsg, unsigned int iTimeoutInMilliSeconds) {
+    MsgQueueReturnCode Get(CDVDMsg **pMsg,
+                           unsigned int iTimeoutInMilliSeconds) {
         int priority = 0;
         return Get(pMsg, iTimeoutInMilliSeconds, priority);
     }

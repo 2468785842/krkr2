@@ -17,7 +17,8 @@
 
 namespace TJS {
     //---------------------------------------------------------------------------
-    // tTJSCriticalSection ( implement on each platform for multi-threading support
+    // tTJSCriticalSection ( implement on each platform for
+    // multi-threading support
     // )
     //---------------------------------------------------------------------------
     struct tTJSCriticalSectionImpl;
@@ -34,8 +35,8 @@ namespace TJS {
         void unlock();
     };
     //---------------------------------------------------------------------------
-    // interlocked operation ( implement on each platform for multi-threading
-    // support )
+    // interlocked operation ( implement on each platform for
+    // multi-threading support )
     //---------------------------------------------------------------------------
     /*
     #ifdef __WIN32__
@@ -120,27 +121,32 @@ namespace TJS {
 
     extern iTJSDispatch2 *TJSObjectTraceTarget;
 
-#define TJS_DEBUG_REFERENCE_BREAK                                                                                      \
-    if(TJSObjectTraceTarget == (iTJSDispatch2 *)this)                                                                  \
+#define TJS_DEBUG_REFERENCE_BREAK                                              \
+    if(TJSObjectTraceTarget == (iTJSDispatch2 *)this)                          \
     TJSNativeDebuggerBreak()
 #define TJS_SET_REFERENCE_BREAK(x) TJSObjectTraceTarget = (x)
     //---------------------------------------------------------------------------
-    TJS_EXP_FUNC_DEF(const tjs_char *, TJSVariantTypeToTypeString, (tTJSVariantType type));
-    // convert given variant type to type string ( "void", "int", "object" etc.)
+    TJS_EXP_FUNC_DEF(const tjs_char *, TJSVariantTypeToTypeString,
+                     (tTJSVariantType type));
+    // convert given variant type to type string ( "void", "int",
+    // "object" etc.)
 
-    TJS_EXP_FUNC_DEF(tTJSString, TJSVariantToReadableString, (const tTJSVariant &val, tjs_int maxlen = 512));
+    TJS_EXP_FUNC_DEF(tTJSString, TJSVariantToReadableString,
+                     (const tTJSVariant &val, tjs_int maxlen = 512));
     // convert given variant to human-readable string
     // ( eg. "(string)\"this is a\\nstring\"" )
-    TJS_EXP_FUNC_DEF(tTJSString, TJSVariantToExpressionString, (const tTJSVariant &val));
-    // convert given variant to string which can be interpret as an expression.
-    // this function does not convert objects ( returns empty string )
+    TJS_EXP_FUNC_DEF(tTJSString, TJSVariantToExpressionString,
+                     (const tTJSVariant &val));
+    // convert given variant to string which can be interpret as an
+    // expression. this function does not convert objects ( returns
+    // empty string )
 
     //---------------------------------------------------------------------------
 
     /*[*/
     //---------------------------------------------------------------------------
-    // tTJSRefHolder : a object holder for classes that has AddRef and Release
-    // methods
+    // tTJSRefHolder : a object holder for classes that has AddRef and
+    // Release methods
     //---------------------------------------------------------------------------
     template <typename T>
     class tTJSRefHolder {
@@ -353,13 +359,19 @@ namespace TJS {
                 int nNewCapacity;
                 if(!PointerBuffPtr) {
                     nNewCapacity = VECLIST_MIN_CAPACITY;
-                    PointerBuffPtr = (_tVectorList_Node *)new char[VECLIST_MIN_CAPACITY * sizeof(_tVectorList_Node)];
+                    PointerBuffPtr = (_tVectorList_Node
+                                          *)new char[VECLIST_MIN_CAPACITY *
+                                                     sizeof(_tVectorList_Node)];
                 } else {
                     nNewCapacity = (nCpacity < VECLIST_MAX_CAPACITY_INCREASE)
                         ? nCpacity * 2
                         : nCpacity + VECLIST_MAX_CAPACITY_INCREASE;
-                    _tVectorList_Node *newPtr = (_tVectorList_Node *)new char[nNewCapacity * sizeof(_tVectorList_Node)];
-                    memcpy(newPtr, PointerBuffPtr, sizeof(_tVectorList_Node) * nCpacity);
+                    _tVectorList_Node *newPtr =
+                        (_tVectorList_Node
+                             *)new char[nNewCapacity *
+                                        sizeof(_tVectorList_Node)];
+                    memcpy(newPtr, PointerBuffPtr,
+                           sizeof(_tVectorList_Node) * nCpacity);
                     delete[](char *) PointerBuffPtr;
                     PointerBuffPtr = newPtr;
                 }
@@ -371,7 +383,9 @@ namespace TJS {
         }
 
     public:
-        tVectorList() : nCpacity(0), nQuantity(0), PointerBuffPtr(0), lastIndex(-1), firstIndex(-1) {}
+        tVectorList() :
+            nCpacity(0), nQuantity(0), PointerBuffPtr(0), lastIndex(-1),
+            firstIndex(-1) {}
 
         ~tVectorList() { clear(); }
 
@@ -484,11 +498,16 @@ namespace TJS {
         public:
             iterator() : m_pNodeBuffer(0), index(-1) {}
 
-            iterator(_tVectorList_Node **_p, int _index) : m_pNodeBuffer(_p), index(_index) {}
+            iterator(_tVectorList_Node **_p, int _index) :
+                m_pNodeBuffer(_p), index(_index) {}
 
-            bool operator==(iterator rhs) { return m_pNodeBuffer == rhs.m_pNodeBuffer && index == rhs.index; }
+            bool operator==(iterator rhs) {
+                return m_pNodeBuffer == rhs.m_pNodeBuffer && index == rhs.index;
+            }
 
-            bool operator!=(iterator rhs) { return m_pNodeBuffer != rhs.m_pNodeBuffer || index != rhs.index; }
+            bool operator!=(iterator rhs) {
+                return m_pNodeBuffer != rhs.m_pNodeBuffer || index != rhs.index;
+            }
 
             iterator &operator++() { // ++ prefix
                 if(!end()) {
@@ -547,19 +566,31 @@ namespace TJS {
 
         iterator rend() { return iterator(&PointerBuffPtr, -1); }
 
-        iterator find(T &_Val) { return iterator(&PointerBuffPtr, _find(_Val)); }
+        iterator find(T &_Val) {
+            return iterator(&PointerBuffPtr, _find(_Val));
+        }
 
         typedef iterator const_iterator;
 
-        const_iterator begin() const { return const_iterator(&PointerBuffPtr, firstIndex); }
+        const_iterator begin() const {
+            return const_iterator(&PointerBuffPtr, firstIndex);
+        }
 
-        const_iterator rbegin() const { return const_iterator(&PointerBuffPtr, lastIndex); }
+        const_iterator rbegin() const {
+            return const_iterator(&PointerBuffPtr, lastIndex);
+        }
 
-        const_iterator end() const { return const_iterator(&PointerBuffPtr, -1); }
+        const_iterator end() const {
+            return const_iterator(&PointerBuffPtr, -1);
+        }
 
-        const_iterator rend() const { return const_iterator(&PointerBuffPtr, -1); }
+        const_iterator rend() const {
+            return const_iterator(&PointerBuffPtr, -1);
+        }
 
-        const_iterator find(T &_Val) const { return const_iterator(&PointerBuffPtr, _find(_Val)); }
+        const_iterator find(T &_Val) const {
+            return const_iterator(&PointerBuffPtr, _find(_Val));
+        }
 
         void erase(const iterator &it) { _erase(it.index); }
 
@@ -585,7 +616,8 @@ namespace TJS {
             int currentIndex = UnusedIndexStack.back();
             UnusedIndexStack.pop_back();
             _tVectorList_Node &Node = PointerBuffPtr[currentIndex];
-            _tVectorList_Node &PrevNode = PointerBuffPtr[IteratorNode.prevIndex];
+            _tVectorList_Node &PrevNode =
+                PointerBuffPtr[IteratorNode.prevIndex];
             Node.Data = _Val;
 
             Node.prevIndex = IteratorNode.prevIndex; // PrevNode
@@ -617,7 +649,8 @@ namespace TJS {
             int currentIndex = UnusedIndexStack.back();
             UnusedIndexStack.pop_back();
             _tVectorList_Node &Node = PointerBuffPtr[currentIndex];
-            _tVectorList_Node &NextNode = PointerBuffPtr[IteratorNode.nextIndex];
+            _tVectorList_Node &NextNode =
+                PointerBuffPtr[IteratorNode.nextIndex];
             Node.Data = _Val;
 
             Node.prevIndex = it.index;
@@ -631,7 +664,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // TJSAlignedAlloc : aligned memory allocater
     //---------------------------------------------------------------------------
-    TJS_EXP_FUNC_DEF(void *, TJSAlignedAlloc, (tjs_uint bytes, tjs_uint align_bits));
+    TJS_EXP_FUNC_DEF(void *, TJSAlignedAlloc,
+                     (tjs_uint bytes, tjs_uint align_bits));
 
     TJS_EXP_FUNC_DEF(void, TJSAlignedDealloc, (void *ptr));
 //---------------------------------------------------------------------------

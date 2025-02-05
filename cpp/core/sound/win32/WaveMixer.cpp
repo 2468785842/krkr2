@@ -43,9 +43,11 @@ void MixAudioS16CPP(void *dst, const void *src, int samples, int16_t *volume) {
             src_sample = (src_sample * volume[i]) >> 14;
             int dest_sample = *dst16;
             if(src_sample > 0 && dest_sample > 0) {
-                dest_sample = src_sample + dest_sample - ((dest_sample * src_sample + 0x8000) >> 15);
+                dest_sample = src_sample + dest_sample -
+                    ((dest_sample * src_sample + 0x8000) >> 15);
             } else if(src_sample < 0 && dest_sample < 0) {
-                dest_sample = src_sample + dest_sample + ((dest_sample * src_sample) >> 15);
+                dest_sample = src_sample + dest_sample +
+                    ((dest_sample * src_sample) >> 15);
             } else {
                 dest_sample += src_sample;
             }
@@ -67,9 +69,11 @@ void MixAudioF32CPP(void *dst, const void *src, int samples, int16_t *volume) {
             float src_sample = SDL_SwapFloatLE(*src32++) * fvolume[i];
             float dest_sample = SDL_SwapFloatLE(*dst32);
             if(src_sample > 0 && dest_sample > 0) {
-                dest_sample = src_sample + dest_sample - dest_sample * src_sample;
+                dest_sample =
+                    src_sample + dest_sample - dest_sample * src_sample;
             } else if(src_sample < 0 && dest_sample < 0) {
-                dest_sample = src_sample + dest_sample + dest_sample * src_sample;
+                dest_sample =
+                    src_sample + dest_sample + dest_sample * src_sample;
             } else {
                 dest_sample += src_sample;
             }
@@ -78,15 +82,18 @@ void MixAudioF32CPP(void *dst, const void *src, int samples, int16_t *volume) {
     }
 }
 
-typedef void(FAudioMix)(void *dst, const void *src, int samples, int16_t *volume);
+typedef void(FAudioMix)(void *dst, const void *src, int samples,
+                        int16_t *volume);
 
 static FAudioMix *_AudioMixS16[8] = { // 7.1 max
-    &MixAudioS16CPP<1>, &MixAudioS16CPP<2>, &MixAudioS16CPP<3>, &MixAudioS16CPP<4>,
-    &MixAudioS16CPP<5>, &MixAudioS16CPP<6>, &MixAudioS16CPP<7>, &MixAudioS16CPP<8>
+    &MixAudioS16CPP<1>, &MixAudioS16CPP<2>, &MixAudioS16CPP<3>,
+    &MixAudioS16CPP<4>, &MixAudioS16CPP<5>, &MixAudioS16CPP<6>,
+    &MixAudioS16CPP<7>, &MixAudioS16CPP<8>
 };
 static FAudioMix *_AudioMixF32[8] = { // 7.1 max
-    &MixAudioF32CPP<1>, &MixAudioF32CPP<2>, &MixAudioF32CPP<3>, &MixAudioF32CPP<4>,
-    &MixAudioF32CPP<5>, &MixAudioF32CPP<6>, &MixAudioF32CPP<7>, &MixAudioF32CPP<8>
+    &MixAudioF32CPP<1>, &MixAudioF32CPP<2>, &MixAudioF32CPP<3>,
+    &MixAudioF32CPP<4>, &MixAudioF32CPP<5>, &MixAudioF32CPP<6>,
+    &MixAudioF32CPP<7>, &MixAudioF32CPP<8>
 };
 
 extern "C" void TVPWaveMixer_ASM_Init(FAudioMix **func16, FAudioMix **func32);
@@ -122,10 +129,13 @@ public:
     tjs_uint _sendedFrontBuffer = 0;
     tjs_uint _sendedSamples = 0, _inCachedSamples = 0;
 
-    tTVPSoundBuffer(int framesize, SDL_AudioCVT *cvt) : _frame_size(framesize), _cvt(cvt) {
+    tTVPSoundBuffer(int framesize, SDL_AudioCVT *cvt) :
+        _frame_size(framesize), _cvt(cvt) {
         RecalcVolume();
         if(cvt) {
-            _cvtbuf.resize(/*2352*/ 2400 * 2 * 4 * _cvt->len_mult); // IEEE f.32 stereo 48000kHz
+            _cvtbuf.resize(
+                /*2352*/ 2400 * 2 * 4 *
+                _cvt->len_mult); // IEEE f.32 stereo 48000kHz
             _cvt->buf = &_cvtbuf.front();
         }
     }
@@ -167,7 +177,8 @@ public:
 
     virtual float GetPan() override { return _pan; }
 
-    virtual void AppendBuffer(const void *_inbuf, unsigned int inlen /*, int tag = 0*/) override {
+    virtual void AppendBuffer(const void *_inbuf,
+                              unsigned int inlen /*, int tag = 0*/) override {
         if(_cvt) {
             std::vector<uint8_t> buffer;
             uint8_t *inbuf = (uint8_t *)_inbuf;
@@ -176,7 +187,8 @@ public:
             while(inlen > buflen) { // fill 2352 samples to fit 48k/44.1k
                 memcpy(_cvt->buf, inbuf, buflen);
                 SDL_ConvertAudio(_cvt);
-                buffer.insert(buffer.end(), _cvt->buf, _cvt->buf + _cvt->len_cvt);
+                buffer.insert(buffer.end(), _cvt->buf,
+                              _cvt->buf + _cvt->len_cvt);
                 inlen -= buflen;
                 inbuf += buflen;
             }
@@ -185,7 +197,8 @@ public:
                 memcpy(_cvt->buf, inbuf, buflen);
                 _cvt->len = buflen;
                 SDL_ConvertAudio(_cvt);
-                buffer.insert(buffer.end(), _cvt->buf, _cvt->buf + _cvt->len_cvt);
+                buffer.insert(buffer.end(), _cvt->buf,
+                              _cvt->buf + _cvt->len_cvt);
             }
             std::lock_guard<std::mutex> lk(_buffer_mtx);
             _inCachedSamples += buffer.size() / _frame_size;
@@ -193,14 +206,16 @@ public:
             _buffers.back().swap(buffer);
         } else {
             std::lock_guard<std::mutex> lk(_buffer_mtx);
-            _buffers.emplace_back((uint8_t *)_inbuf, ((uint8_t *)_inbuf) + inlen);
+            _buffers.emplace_back((uint8_t *)_inbuf,
+                                  ((uint8_t *)_inbuf) + inlen);
             _inCachedSamples += inlen / _frame_size;
         }
     }
 
     virtual bool IsBufferValid() override {
         return true; // unlimited buffer size
-                     // return !_buffers.empty(); // thread safe if read only
+                     // return !_buffers.empty(); // thread safe if
+                     // read only
     }
 
     virtual tjs_uint GetLatencySamples() override;
@@ -254,7 +269,8 @@ public:
         } else if(_spec.format == AUDIO_F32LSB) {
             DoMixAudio = _AudioMixF32[_spec.channels - 1];
         } else {
-            DoMixAudio = [](void *dst, const void *src, int samples, int16_t *volume) {};
+            DoMixAudio = [](void *dst, const void *src, int samples,
+                            int16_t *volume) {};
         }
     }
 
@@ -283,17 +299,20 @@ public:
             }
         }
         SDL_AudioCVT *cvt = nullptr;
-        if(spec.freq != _spec.freq || spec.channels != _spec.channels || spec.format != _spec.format) {
+        if(spec.freq != _spec.freq || spec.channels != _spec.channels ||
+           spec.format != _spec.format) {
             cvt = new SDL_AudioCVT;
             int err =
-                SDL_BuildAudioCVT(cvt, spec.format, spec.channels, spec.freq, _spec.format, _spec.channels, _spec.freq);
+                SDL_BuildAudioCVT(cvt, spec.format, spec.channels, spec.freq,
+                                  _spec.format, _spec.channels, _spec.freq);
             if(err != 1) {
                 delete cvt;
                 return nullptr;
             }
         }
 
-        tTVPSoundBuffer *s = new tTVPSoundBuffer(fmt.BytesPerSample * fmt.Channels, cvt);
+        tTVPSoundBuffer *s =
+            new tTVPSoundBuffer(fmt.BytesPerSample * fmt.Channels, cvt);
         std::lock_guard<std::mutex> lk(_streams_mtx);
         _streams.emplace(s);
         return s;
@@ -342,7 +361,9 @@ tjs_uint tTVPSoundBuffer::GetCurrentPlaySamples() {
     return _sendedSamples - samples; // -GetLatencySamples();
 }
 
-float tTVPSoundBuffer::GetLatencySeconds() { return GetLatencySamples() / TVPAudioRenderer->GetSpec().freq; }
+float tTVPSoundBuffer::GetLatencySeconds() {
+    return GetLatencySamples() / TVPAudioRenderer->GetSpec().freq;
+}
 
 void tTVPSoundBuffer::FillBuffer(uint8_t *out, int len) {
     if(!_playing)
@@ -352,7 +373,8 @@ void tTVPSoundBuffer::FillBuffer(uint8_t *out, int len) {
         std::vector<uint8_t> &buf = _buffers.front();
         if(buf.size() > _sendedFrontBuffer) {
             int n = std::min((size_t)len, buf.size() - _sendedFrontBuffer);
-            int samples = TVPAudioRenderer->MixAudio(out, &buf.front() + _sendedFrontBuffer, n, _volume_raw);
+            int samples = TVPAudioRenderer->MixAudio(
+                out, &buf.front() + _sendedFrontBuffer, n, _volume_raw);
             _sendedSamples += samples;
             _inCachedSamples -= samples;
             _sendedFrontBuffer += n;
@@ -372,7 +394,8 @@ class tTVPAudioRendererSDL : public iTVPAudioRenderer {
 public:
     bool Init() override {
         InitMixer();
-        _playback_id = SDL_OpenAudioDevice(nullptr, false, &_spec, &_spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
+        _playback_id = SDL_OpenAudioDevice(nullptr, false, &_spec, &_spec,
+                                           SDL_AUDIO_ALLOW_ANY_CHANGE);
         if(_playback_id <= 0) {
             SDL_Log("Fail to open audio @%dHz.", _spec.freq);
             return false;
@@ -387,7 +410,8 @@ public:
 
 #ifdef __ANDROID__
 
-class tTVPAudioRendererOboe : public iTVPAudioRenderer, public oboe::AudioStreamCallback {
+class tTVPAudioRendererOboe : public iTVPAudioRenderer,
+                              public oboe::AudioStreamCallback {
     oboe::AudioStream *_oboeAudioStream = nullptr;
 
 public:
@@ -434,7 +458,8 @@ public:
         return false;
     }
 
-    virtual oboe::DataCallbackResult onAudioReady(oboe::AudioStream *oboeStream, void *audioData,
+    virtual oboe::DataCallbackResult onAudioReady(oboe::AudioStream *oboeStream,
+                                                  void *audioData,
                                                   int32_t numFrames) override {
         int len = _frame_size * numFrames;
         memset(audioData, 0, _frame_size * numFrames);
@@ -449,7 +474,8 @@ public:
     virtual int32_t GetUnprocessedSamples() {
         int64_t hardwareFrameIndex;
         int64_t timeNanoseconds;
-        oboe::Result result = _oboeAudioStream->getTimestamp(CLOCK_MONOTONIC, &hardwareFrameIndex, &timeNanoseconds);
+        oboe::Result result = _oboeAudioStream->getTimestamp(
+            CLOCK_MONOTONIC, &hardwareFrameIndex, &timeNanoseconds);
         if(result != oboe::Result::OK) { // OpenSL TODO accumulate calc
             return 0;
         }
@@ -473,7 +499,8 @@ class tTVPSoundBufferAL : public tTVPSoundBuffer {
 
 public:
     tTVPSoundBufferAL(tTVPWaveFormat &desired, int bufcount) :
-        tTVPSoundBuffer(desired.BytesPerSample * desired.Channels, nullptr), _bufferCount(bufcount) {
+        tTVPSoundBuffer(desired.BytesPerSample * desired.Channels, nullptr),
+        _bufferCount(bufcount) {
         _bufferIds = new ALuint[bufcount];
         _bufferIds2 = new ALuint[bufcount];
         _bufferSize = new tjs_uint[bufcount];
@@ -526,7 +553,8 @@ public:
         return queued < _bufferCount;
     }
 
-    virtual void AppendBuffer(const void *buf, unsigned int len /*, int tag = 0*/) override {
+    virtual void AppendBuffer(const void *buf,
+                              unsigned int len /*, int tag = 0*/) override {
         if(len <= 0)
             return;
         std::lock_guard<std::mutex> lk(_buffer_mtx);
@@ -661,7 +689,9 @@ public:
         return total / _frame_size;
     }
 
-    virtual float GetLatencySeconds() override { return (float)GetLatencySamples() / _format.SamplesPerSec; }
+    virtual float GetLatencySeconds() override {
+        return (float)GetLatencySamples() / _format.SamplesPerSec;
+    }
 
     virtual tjs_uint GetCurrentPlaySamples() override {
         ALint offset = 0;
@@ -686,13 +716,15 @@ public:
     }
 
     bool Init() override {
-        ALboolean enumeration = alcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT");
+        ALboolean enumeration =
+            alcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT");
         if(enumeration == AL_FALSE) {
             // enumeration not supported
             _device = alcOpenDevice(nullptr);
         } else {
             // enumeration supported
-            const ALCchar *devices = alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
+            const ALCchar *devices =
+                alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
             std::vector<std::string> alldev;
             ttstr log(TJS_W("(info) Sound Driver/Device found : "));
             while(*devices) {
@@ -711,7 +743,8 @@ public:
         return true;
     }
 
-    virtual tTVPSoundBuffer *CreateStream(tTVPWaveFormat &fmt, int bufcount) override {
+    virtual tTVPSoundBuffer *CreateStream(tTVPWaveFormat &fmt,
+                                          int bufcount) override {
         tTVPSoundBuffer *s = new tTVPSoundBufferAL(fmt, bufcount);
         _streams.emplace(s);
         return s;
@@ -722,7 +755,8 @@ public:
 
 void tTVPSoundBufferAL::checkerr(const char *funcname) {
 #if _DEBUG
-    ALCcontext *ctx = static_cast<tTVPAudioRendererAL *>(TVPAudioRenderer)->GetContext();
+    ALCcontext *ctx =
+        static_cast<tTVPAudioRendererAL *>(TVPAudioRenderer)->GetContext();
     if(alcGetCurrentContext() != ctx) {
         alcMakeContextCurrent(ctx);
     }

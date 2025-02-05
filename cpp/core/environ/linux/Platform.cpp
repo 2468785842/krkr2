@@ -17,8 +17,10 @@ void TVPGetMemoryInfo(TVPMemoryInfo &m) {
     /* Try to read /proc/meminfo, bail out if fails */
     meminfo = fopen("/proc/meminfo", "r");
 
-    static const char pszMemFree[] = "MemFree:", pszMemTotal[] = "MemTotal:", pszSwapTotal[] = "SwapTotal:",
-                      pszSwapFree[] = "SwapFree:", pszVmallocTotal[] = "VmallocTotal:",
+    static const char pszMemFree[] = "MemFree:", pszMemTotal[] = "MemTotal:",
+                      pszSwapTotal[] = "SwapTotal:",
+                      pszSwapFree[] = "SwapFree:",
+                      pszVmallocTotal[] = "VmallocTotal:",
                       pszVmallocUsed[] = "VmallocUsed:";
 
     /* Read each line untill we got all we ned */

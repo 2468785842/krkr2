@@ -69,7 +69,8 @@ struct LanczosWeight {
             return 1.0f;
         if(x >= (float)TTap)
             return 0.0f;
-        return std::sin((float)M_PI * distance) * std::sin((float)M_PI * distance / TTap) /
+        return std::sin((float)M_PI * distance) *
+            std::sin((float)M_PI * distance / TTap) /
             ((float)M_PI * (float)M_PI * distance * distance / TTap);
     }
 };
@@ -86,7 +87,8 @@ struct Spline16Weight {
         if(x <= 1.0f) {
             return x * x * x - x * x * 9.0f / 5.0f - x * 1.0f / 5.0f + 1.0f;
         } else if(x <= 2.0f) {
-            return -x * x * x * 1.0f / 3.0f + x * x * 9.0f / 5.0f - x * 46.0f / 15.0f + 8.0f / 5.0f;
+            return -x * x * x * 1.0f / 3.0f + x * x * 9.0f / 5.0f -
+                x * 46.0f / 15.0f + 8.0f / 5.0f;
         } else {
             return 0.0f;
         }
@@ -101,11 +103,14 @@ struct Spline36Weight {
     inline float operator()(float distance) const {
         float x = std::abs(distance);
         if(x <= 1.0f) {
-            return x * x * x * 13.0f / 11.0f - x * x * 453.0f / 209.0f - x * 3.0f / 209.0f + 1.0f;
+            return x * x * x * 13.0f / 11.0f - x * x * 453.0f / 209.0f -
+                x * 3.0f / 209.0f + 1.0f;
         } else if(x <= 2.0f) {
-            return -x * x * x * 6.0f / 11.0f + x * x * 612.0f / 209.0f - x * 1038.0f / 209.0f + 540.0f / 209.0f;
+            return -x * x * x * 6.0f / 11.0f + x * x * 612.0f / 209.0f -
+                x * 1038.0f / 209.0f + 540.0f / 209.0f;
         } else if(x <= 3.0f) {
-            return x * x * x * 1.0f / 11.0f - x * x * 159.0f / 209.0f + x * 434.0f / 209.0f - 384.0f / 209.0f;
+            return x * x * x * 1.0f / 11.0f - x * x * 159.0f / 209.0f +
+                x * 434.0f / 209.0f - 384.0f / 209.0f;
         } else {
             return 0.0f;
         }
@@ -126,8 +131,8 @@ struct GaussianWeight {
 
 /**
  * Blackman-Sinc 関数
- * Blackman(x) = 0.42 - 0.5 cos( 2 pi x ) + 0.08 cos( 4 pi x ); if 0 <= x <= 1
- * Sinc(x) = sin( pi x ) / (pi x)
+ * Blackman(x) = 0.42 - 0.5 cos( 2 pi x ) + 0.08 cos( 4 pi x ); if 0
+ * <= x <= 1 Sinc(x) = sin( pi x ) / (pi x)
  */
 struct BlackmanSincWeight {
     static const float RANGE;

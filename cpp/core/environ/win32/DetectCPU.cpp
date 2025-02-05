@@ -24,8 +24,8 @@
 #pragma intrinsic(__rdtsc)
 
 /*
-        Note: CPU clock measuring routine is in EmergencyExit.cpp, reusing
-        hot-key watching thread.
+        Note: CPU clock measuring routine is in EmergencyExit.cpp,
+   reusing hot-key watching thread.
 */
 
 //---------------------------------------------------------------------------
@@ -60,7 +60,8 @@ static void TVPGetCPUTypeForOne() {
             __asm xorps xmm0, xmm0
         } __except(EXCEPTION_EXECUTE_HANDLER) {
             // exception had been ocured
-            // execution of 'xorps' is failed (XMM registers not available)
+            // execution of 'xorps' is failed (XMM registers not
+            // available)
             TVPCPUFeatures &= ~TVP_CPU_HAS_SSE;
             TVPCPUFeatures &= ~TVP_CPU_HAS_SSE2;
             TVPCPUFeatures &= ~TVP_CPU_HAS_SSE3;
@@ -113,13 +114,13 @@ void tTVPCPUCheckThread::Execute() {
 //---------------------------------------------------------------------------
 static ttstr TVPDumpCPUFeatures(tjs_uint32 features) {
     ttstr ret;
-#define TVP_DUMP_CPU(x, n)                                                                                             \
-    {                                                                                                                  \
-        ret += TJS_W("  ") TJS_W(n);                                                                                   \
-        if(features & x)                                                                                               \
-            ret += TJS_W(":yes");                                                                                      \
-        else                                                                                                           \
-            ret += TJS_W(":no");                                                                                       \
+#define TVP_DUMP_CPU(x, n)                                                     \
+    {                                                                          \
+        ret += TJS_W("  ") TJS_W(n);                                           \
+        if(features & x)                                                       \
+            ret += TJS_W(":yes");                                              \
+        else                                                                   \
+            ret += TJS_W(":no");                                               \
     }
 
     TVP_DUMP_CPU(TVP_CPU_HAS_FPU, "FPU");
@@ -157,10 +158,10 @@ static ttstr TVPDumpCPUInfo(tjs_int cpu_num) {
     tjs_uint32 vendor = TVPCPUFeatures & TVP_CPU_VENDOR_MASK;
 
 #undef TVP_DUMP_CPU
-#define TVP_DUMP_CPU(x, n)                                                                                             \
-    {                                                                                                                  \
-        if(vendor == x)                                                                                                \
-            features += TJS_W("  ") TJS_W(n);                                                                          \
+#define TVP_DUMP_CPU(x, n)                                                     \
+    {                                                                          \
+        if(vendor == x)                                                        \
+            features += TJS_W("  ") TJS_W(n);                                  \
     }
 
     TVP_DUMP_CPU(TVP_CPU_IS_INTEL, "Intel");
@@ -178,10 +179,12 @@ static ttstr TVPDumpCPUInfo(tjs_int cpu_num) {
 
 #undef TVP_DUMP_CPU
 
-    features += TJS_W("(") + ttstr((const tjs_nchar *)TVPCPUVendor) + TJS_W(")");
+    features +=
+        TJS_W("(") + ttstr((const tjs_nchar *)TVPCPUVendor) + TJS_W(")");
 
     if(TVPCPUName[0] != 0)
-        features += TJS_W(" [") + ttstr((const tjs_nchar *)TVPCPUName) + TJS_W("]");
+        features +=
+            TJS_W(" [") + ttstr((const tjs_nchar *)TVPCPUName) + TJS_W("]");
 
     features += TJS_W("  CPUID(1)/EAX=") + TJSInt32ToHex(TVPCPUID1_EAX);
     features += TJS_W(" CPUID(1)/EBX=") + TJSInt32ToHex(TVPCPUID1_EBX);
@@ -189,7 +192,10 @@ static ttstr TVPDumpCPUInfo(tjs_int cpu_num) {
     TVPAddImportantLog(features);
 
     if(((TVPCPUID1_EAX >> 8) & 0x0f) <= 4)
-        throw Exception(TVPFormatMessage(TVPCpuCheckFailureCpuFamilyOrLesserIsNotSupported, features).c_str());
+        throw Exception(
+            TVPFormatMessage(TVPCpuCheckFailureCpuFamilyOrLesserIsNotSupported,
+                             features)
+                .c_str());
 
     return features;
 }
@@ -219,7 +225,8 @@ void TVPDetectCPU() {
 
     // get process affinity mask
     ULONGLONG pam = 1;
-    HANDLE hp = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, ::GetCurrentProcessId());
+    HANDLE hp = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE,
+                              ::GetCurrentProcessId());
     if(hp) {
         ULONGLONG sam = 1;
         ::GetProcessAffinityMask(hp, (PDWORD_PTR)&pam, (PDWORD_PTR)&sam);
@@ -253,7 +260,8 @@ void TVPDetectCPU() {
 #else
     // get process affinity mask
     DWORD pam = 1;
-    HANDLE hp = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, ::GetCurrentProcessId());
+    HANDLE hp = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE,
+                              ::GetCurrentProcessId());
     if(hp) {
         DWORD sam = 1;
         ::GetProcessAffinityMask(hp, &pam, &sam);
@@ -308,9 +316,12 @@ void TVPDetectCPU() {
     TVPDisableCPU(TVP_CPU_HAS_AES, TJS_W("-cpuaes"));
 
     if(TVPCPUType == 0)
-        throw Exception(TVPFormatMessage(TVPCpuCheckFailureNotSupprtedCpu, cpuinfo).c_str());
+        throw Exception(
+            TVPFormatMessage(TVPCpuCheckFailureNotSupprtedCpu, cpuinfo)
+                .c_str());
 
-    TVPAddImportantLog(TVPFormatMessage(TVPInfoFinallyDetectedCpuFeatures, TVPDumpCPUFeatures(TVPCPUType)));
+    TVPAddImportantLog(TVPFormatMessage(TVPInfoFinallyDetectedCpuFeatures,
+                                        TVPDumpCPUFeatures(TVPCPUType)));
 }
 //---------------------------------------------------------------------------
 

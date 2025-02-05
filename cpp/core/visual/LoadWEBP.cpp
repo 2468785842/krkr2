@@ -5,9 +5,12 @@
 #include <memory>
 
 #include "decode.h"
-void TVPLoadWEBP(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback,
-                 tTVPGraphicScanLineCallback scanlinecallback, tTVPMetaInfoPushCallback metainfopushcallback,
-                 tTJSBinaryStream *src, tjs_int keyidx, tTVPGraphicLoadMode mode) {
+void TVPLoadWEBP(void *formatdata, void *callbackdata,
+                 tTVPGraphicSizeCallback sizecallback,
+                 tTVPGraphicScanLineCallback scanlinecallback,
+                 tTVPMetaInfoPushCallback metainfopushcallback,
+                 tTJSBinaryStream *src, tjs_int keyidx,
+                 tTVPGraphicLoadMode mode) {
     WebPDecoderConfig config;
     if(WebPInitDecoderConfig(&config) == 0) {
         TVPThrowExceptionMessage(TJS_W("Invalid WebP image"));
@@ -21,7 +24,8 @@ void TVPLoadWEBP(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
     }
 
     unsigned int stride =
-        sizecallback(callbackdata, config.input.width, config.input.height, config.input.has_alpha ? gpfRGBA : gpfRGB);
+        sizecallback(callbackdata, config.input.width, config.input.height,
+                     config.input.has_alpha ? gpfRGBA : gpfRGB);
 #if 0
 	WebPData webp_data = { data, datasize };
 	WebPDemuxer* demux = WebPDemux(&webp_data);
@@ -45,7 +49,8 @@ void TVPLoadWEBP(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
         }
     } else if(glmGrayscale == mode) {
         config.output.colorspace = MODE_YUV;
-        unsigned int uvSize = config.input.width * config.input.height / 4 + config.input.width + config.input.width;
+        unsigned int uvSize = config.input.width * config.input.height / 4 +
+            config.input.width + config.input.width;
         std::unique_ptr<uint8_t[]> dummy(new uint8_t[uvSize]);
         config.output.u.YUVA.y = scanline;
         config.output.u.YUVA.u = dummy.get();
@@ -62,15 +67,18 @@ void TVPLoadWEBP(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
         config.output.is_external_memory = 1;
 
         if(WebPDecode(data.get(), datasize, &config) != VP8_STATUS_OK) {
-            TVPThrowExceptionMessage(TJS_W("Invalid WebP image(Grayscale Mode)"));
+            TVPThrowExceptionMessage(
+                TJS_W("Invalid WebP image(Grayscale Mode)"));
         }
     } else {
-        TVPThrowExceptionMessage(TJS_W("WebP does not support palettized image"));
+        TVPThrowExceptionMessage(
+            TJS_W("WebP does not support palettized image"));
     }
     scanlinecallback(callbackdata, -1); // image was written
 }
 
-void TVPLoadHeaderWEBP(void *formatdata, tTJSBinaryStream *src, iTJSDispatch2 **dic) {
+void TVPLoadHeaderWEBP(void *formatdata, tTJSBinaryStream *src,
+                       iTJSDispatch2 **dic) {
     WebPDecoderConfig config;
     if(WebPInitDecoderConfig(&config) == 0) {
         TVPThrowExceptionMessage(TJS_W("Invalid WebP image"));

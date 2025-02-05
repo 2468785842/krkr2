@@ -34,7 +34,8 @@ struct TreeItem {
     tjs_int Value; // パラメータの設定値インデックス
     tjs_int Defalut; // パラメータのデフォルト値インデックス
     std::wstring Description; // 項目の説明
-    std::vector<std::pair<std::wstring, std::wstring>> Select; // 設定可能な値のリスト
+    std::vector<std::pair<std::wstring, std::wstring>>
+        Select; // 設定可能な値のリスト
 };
 
 class ConfigFormUnit {
@@ -71,7 +72,8 @@ private:
     // 項目を選択する
     void SelectItem(const TreeItem &item) {
         // 説明更新
-        ::SetDlgItemText(WindowHandle, IDC_DESCRIPTION_EDIT, item.Description.c_str());
+        ::SetDlgItemText(WindowHandle, IDC_DESCRIPTION_EDIT,
+                         item.Description.c_str());
 
         // 選択肢更新
         ::EnableWindow(OptionList, TRUE);
@@ -85,7 +87,8 @@ private:
         ClearOptionList();
         tjs_uint count = (tjs_uint)item.Select.size();
         for(tjs_uint i = 0; i < count; i++) {
-            std::wstring itemstr = item.Select[i].second + std::wstring(L" / ") + item.Select[i].first;
+            std::wstring itemstr = item.Select[i].second +
+                std::wstring(L" / ") + item.Select[i].first;
             ComboBox_InsertString(OptionList, -1, itemstr.c_str());
         }
         ComboBox_SetCurSel(OptionList, item.Value);
@@ -93,10 +96,13 @@ private:
         if(count <= 0)
             count = 1;
         int itemheight = ComboBox_GetItemHeight(OptionList);
-        ::SetWindowPos(OptionList, 0, 0, 0, OptionListWidth, itemheight * count + OptionListHeight + 2,
-                       SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOREDRAW | SWP_HIDEWINDOW);
+        ::SetWindowPos(OptionList, 0, 0, 0, OptionListWidth,
+                       itemheight * count + OptionListHeight + 2,
+                       SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE |
+                           SWP_NOREDRAW | SWP_HIDEWINDOW);
         ::SetWindowPos(OptionList, 0, 0, 0, 0, 0,
-                       SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+                       SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE |
+                           SWP_SHOWWINDOW);
     }
     void SelectNull() {
         ::SetDlgItemText(WindowHandle, IDC_DESCRIPTION_EDIT, L"");
@@ -114,11 +120,13 @@ private:
             }
             if(ischange) {
                 if(CurrentItem->Defalut != CurrentItem->Value) {
-                    CurrentItem->Caption = std::wstring(L"* ") + CurrentItem->Text + std::wstring(L" : ") +
+                    CurrentItem->Caption = std::wstring(L"* ") +
+                        CurrentItem->Text + std::wstring(L" : ") +
                         CurrentItem->Select[CurrentItem->Value].second;
                 } else {
-                    CurrentItem->Caption =
-                        CurrentItem->Text + std::wstring(L" : ") + CurrentItem->Select[CurrentItem->Value].second;
+                    CurrentItem->Caption = CurrentItem->Text +
+                        std::wstring(L" : ") +
+                        CurrentItem->Select[CurrentItem->Value].second;
                 }
                 if(CurrentItem->ItemHandle) {
                     SetTreeItem(CurrentItem->ItemHandle, CurrentItem->Caption);
@@ -127,7 +135,9 @@ private:
         }
     }
     // 指定フォルダにある指定拡張子のプラグインから設定情報を読み込む
-    void LoadPluginOptionDesc(tTVPCommandOptionList *coreopt, const std::wstring &path, const std::wstring &ext) {
+    void LoadPluginOptionDesc(tTVPCommandOptionList *coreopt,
+                              const std::wstring &path,
+                              const std::wstring &ext) {
         std::wstring exename = ExePath();
         exename = IncludeTrailingBackslash(ExtractFileDir(exename));
         std::wstring filepath = exename + path;
@@ -137,8 +147,8 @@ private:
         HANDLE hSearch = ::FindFirstFile(mask.c_str(), &fd);
         if(hSearch != INVALID_HANDLE_VALUE) {
             do {
-                tTVPCommandOptionList *options =
-                    TVPGetPluginCommandDesc((filepath + std::wstring(fd.cFileName)).c_str());
+                tTVPCommandOptionList *options = TVPGetPluginCommandDesc(
+                    (filepath + std::wstring(fd.cFileName)).c_str());
                 if(options) {
                     TVPMargeCommandDesc(*coreopt, *options);
                     delete options;
@@ -163,10 +173,13 @@ public:
     }
     ~ConfigFormUnit() {}
 
-    static LRESULT WINAPI DlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+    static LRESULT WINAPI DlgProc(HWND hWnd, UINT msg, WPARAM wParam,
+                                  LPARAM lParam);
     LRESULT Dispatch(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-    void SetDefaultButtonEnable(bool enable) { ::EnableWindow(DefaultButton, enable ? TRUE : FALSE); }
+    void SetDefaultButtonEnable(bool enable) {
+        ::EnableWindow(DefaultButton, enable ? TRUE : FALSE);
+    }
 
     void SetDescriptionText(const std::wstring &text) {
         ::SetDlgItemText(WindowHandle, IDC_DESCRIPTION_EDIT, text.c_str());
@@ -178,7 +191,8 @@ public:
             return;
 
         CurrentItem = nullptr;
-        for(std::vector<TreeItem>::iterator i = TreeItems.begin(); i != TreeItems.end(); i++) {
+        for(std::vector<TreeItem>::iterator i = TreeItems.begin();
+            i != TreeItems.end(); i++) {
             if((*i).ItemHandle == hItem) {
                 CurrentItem = &(*i);
                 break;
@@ -206,7 +220,8 @@ public:
     }
     std::string ToStringOption() {
         std::string ret;
-        for(std::vector<TreeItem>::const_iterator i = TreeItems.begin(); i != TreeItems.end(); i++) {
+        for(std::vector<TreeItem>::const_iterator i = TreeItems.begin();
+            i != TreeItems.end(); i++) {
             const TreeItem &item = *i;
             if(item.Value != item.Defalut) {
                 std::string name;
@@ -228,36 +243,48 @@ public:
             path.assign(str.c_str(), str.length());
         }
         std::wstring exename = ExePath();
-        std::wstring filename = ChangeFileExt(ExtractFileName(exename), L".cfu");
-        filename = ApplicationSpecialPath::GetDataPathDirectory(path, exename) + filename;
-        const char *warnings = "; "
-                               "=================================================================="
-                               "===="
-                               "======\r\n"
-                               "; *DO NOT EDIT* this file unless you are understanding what you "
-                               "are "
-                               "doing.\r\n"
-                               "; FYI:\r\n"
-                               ";  Each line consists of NAME=\"VALUE\" pair, VALUE is a series "
-                               "of\r\n"
-                               ";  \\xNN, where NN is hexadecimal representation of UNICODE "
-                               "codepoint.\r\n"
-                               ";  For example, opt=\"\\x61\\x62\\x63\\x3042\\x3044\\x3046\" "
-                               "means "
-                               "that the\r\n"
-                               ";  value of options \"opt\" is alphabets a, b, and c followed by "
-                               "Japanese\r\n"
-                               ";  Hiraganas A, I, and U.\r\n"
-                               ";  DO NOT PUT non-escaped value like opt=\"abc\". This doesn't "
-                               "work "
-                               "and should\r\n"
-                               ";  be like opt=\"\\x61\\x62\\x63\".\r\n"
-                               "; "
-                               "=================================================================="
-                               "===="
-                               "======\r\n"
-                               "";
-        tTJSBinaryStream *stream = TVPCreateBinaryStreamForWrite(ttstr(filename), L"");
+        std::wstring filename =
+            ChangeFileExt(ExtractFileName(exename), L".cfu");
+        filename = ApplicationSpecialPath::GetDataPathDirectory(path, exename) +
+            filename;
+        const char *warnings =
+            "; "
+            "========================================================"
+            "=========="
+            "===="
+            "======\r\n"
+            "; *DO NOT EDIT* this file unless you are understanding "
+            "what you "
+            "are "
+            "doing.\r\n"
+            "; FYI:\r\n"
+            ";  Each line consists of NAME=\"VALUE\" pair, VALUE is "
+            "a series "
+            "of\r\n"
+            ";  \\xNN, where NN is hexadecimal representation of "
+            "UNICODE "
+            "codepoint.\r\n"
+            ";  For example, "
+            "opt=\"\\x61\\x62\\x63\\x3042\\x3044\\x3046\" "
+            "means "
+            "that the\r\n"
+            ";  value of options \"opt\" is alphabets a, b, and c "
+            "followed by "
+            "Japanese\r\n"
+            ";  Hiraganas A, I, and U.\r\n"
+            ";  DO NOT PUT non-escaped value like opt=\"abc\". This "
+            "doesn't "
+            "work "
+            "and should\r\n"
+            ";  be like opt=\"\\x61\\x62\\x63\".\r\n"
+            "; "
+            "========================================================"
+            "=========="
+            "===="
+            "======\r\n"
+            "";
+        tTJSBinaryStream *stream =
+            TVPCreateBinaryStreamForWrite(ttstr(filename), L"");
         if(stream) {
             try {
                 stream->Write(warnings, (tjs_uint)strlen(warnings));
@@ -378,7 +405,8 @@ void ConfigFormUnit::LoadOptionTree() {
                     TreeItem &curitem = TreeItems[itemidx];
                     curitem.Text = option.Caption;
                     curitem.Parameter = option.Name;
-                    curitem.Description = std::wstring(L"-") + option.Name + std::wstring(L"\n") + option.Description;
+                    curitem.Description = std::wstring(L"-") + option.Name +
+                        std::wstring(L"\n") + option.Description;
                     ConvertReturnCode(curitem.Description);
                     tjs_uint valcount = (tjs_uint)option.Values.size();
                     curitem.Select.resize(valcount);
@@ -391,14 +419,16 @@ void ConfigFormUnit::LoadOptionTree() {
                     }
                     tjs_int selectindex = -1;
                     for(tjs_uint k = 0; k < valcount; k++) {
-                        std::pair<std::wstring, std::wstring> &sel = curitem.Select[k];
+                        std::pair<std::wstring, std::wstring> &sel =
+                            curitem.Select[k];
                         const tTVPCommandOptionsValue &val = option.Values[k];
                         sel.first = val.Value;
                         sel.second = val.Description;
                         if(val.IsDefault) {
                             curitem.Defalut = k;
                         }
-                        if(selectindex < 0 && !selectvalue.empty() && selectvalue == val.Value) {
+                        if(selectindex < 0 && !selectvalue.empty() &&
+                           selectvalue == val.Value) {
                             selectindex = k;
                         }
                     }
@@ -411,10 +441,12 @@ void ConfigFormUnit::LoadOptionTree() {
                     }
 
                     if(curitem.Defalut != curitem.Value) {
-                        curitem.Caption = std::wstring(L"* ") + curitem.Text + std::wstring(L" : ") +
+                        curitem.Caption = std::wstring(L"* ") + curitem.Text +
+                            std::wstring(L" : ") +
                             curitem.Select[curitem.Value].second;
                     } else {
-                        curitem.Caption = curitem.Text + std::wstring(L" : ") + curitem.Select[curitem.Value].second;
+                        curitem.Caption = curitem.Text + std::wstring(L" : ") +
+                            curitem.Select[curitem.Value].second;
                     }
                     curitem.ItemHandle = InsertTreeItem(hItem, curitem.Caption);
                     itemidx++;
@@ -427,7 +459,8 @@ void ConfigFormUnit::LoadOptionTree() {
     }
 }
 
-LRESULT ConfigFormUnit::Dispatch(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT ConfigFormUnit::Dispatch(HWND hWnd, UINT msg, WPARAM wParam,
+                                 LPARAM lParam) {
     switch(msg) {
         case WM_COMMAND:
             if(LOWORD(wParam) == IDOK) {
@@ -450,7 +483,8 @@ LRESULT ConfigFormUnit::Dispatch(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
                 // ツリーコントロールの通知で現在選択されているアイテムを認識
                 NMHDR *hdr = (LPNMHDR)lParam;
                 UINT code = hdr->code;
-                if(code == NM_SETCURSOR || code == NM_CLICK || code == NM_SETFOCUS) {
+                if(code == NM_SETCURSOR || code == NM_CLICK ||
+                   code == NM_SETFOCUS) {
                     HTREEITEM hItem = TreeView_GetSelection(TreeControl);
                     if(hItem)
                         SetCurrentItem(hItem);
@@ -463,7 +497,8 @@ LRESULT ConfigFormUnit::Dispatch(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
     return FALSE;
 }
 
-LRESULT WINAPI ConfigFormUnit::DlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT WINAPI ConfigFormUnit::DlgProc(HWND hWnd, UINT msg, WPARAM wParam,
+                                       LPARAM lParam) {
     if(msg == WM_INITDIALOG) {
         if(DialogForm)
             delete DialogForm;
@@ -479,11 +514,13 @@ LRESULT WINAPI ConfigFormUnit::DlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 void TVPShowUserConfig() {
     try {
         INT_PTR result =
-            ::DialogBox(nullptr, MAKEINTRESOURCE(IDD_CONFIG_DIALOG), nullptr, (DLGPROC)ConfigFormUnit::DlgProc);
+            ::DialogBox(nullptr, MAKEINTRESOURCE(IDD_CONFIG_DIALOG), nullptr,
+                        (DLGPROC)ConfigFormUnit::DlgProc);
         if(result == IDOK) {
             if(DialogForm) {
                 DialogForm->SaveSetting();
-                ::MessageBox(nullptr, L"設定を保存しました", L"Save Option", MB_OK);
+                ::MessageBox(nullptr, L"設定を保存しました", L"Save Option",
+                             MB_OK);
             }
         }
     } catch(...) {

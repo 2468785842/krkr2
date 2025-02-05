@@ -188,14 +188,17 @@ inline float _mm_min_horz(__m128 x) {
     return _mm_cvtss_f32(x);
 }
 
-#endif /* (defined(__SSE__)&&defined(__GNUC__))||defined(_MSC_VER) */
+#endif /* (defined(__SSE__)&&defined(__GNUC__))||defined(_MSC_VER)             \
+        */
 
 /**
  * 128ビット境界にポインタがアラインメントされているかどうか
  * @param p	ポインタ
  * @return	128ビット境界にポインタがアラインメントされているかどうか
  */
-inline bool IsAlignedTo128bits(const void *p) { return !(reinterpret_cast<tjs_offset>(p) & 0xf); }
+inline bool IsAlignedTo128bits(const void *p) {
+    return !(reinterpret_cast<tjs_offset>(p) & 0xf);
+}
 
 //---------------------------------------------------------------------------
 

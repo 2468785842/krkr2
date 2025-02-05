@@ -63,7 +63,9 @@ class FFWaveDecoder : public tTVPWaveDecoder // decoder interface
     bool ReadPacket();
 
 public:
-    FFWaveDecoder() : InputStream(nullptr), FormatCtx(nullptr), frame(nullptr) { memset(&Packet, 0, sizeof(Packet)); }
+    FFWaveDecoder() : InputStream(nullptr), FormatCtx(nullptr), frame(nullptr) {
+        memset(&Packet, 0, sizeof(Packet));
+    }
 
     ~FFWaveDecoder() { Clear(); }
 
@@ -96,7 +98,8 @@ static int64_t AVSeekFunc(void *opaque, int64_t offset, int whence) {
 
 void TVPInitLibAVCodec();
 
-tTVPWaveDecoder *FFWaveDecoderCreator::Create(const ttstr &storagename, const ttstr &extension) {
+tTVPWaveDecoder *FFWaveDecoderCreator::Create(const ttstr &storagename,
+                                              const ttstr &extension) {
     TVPInitLibAVCodec();
 
     FFWaveDecoder *decoder = new FFWaveDecoder();
@@ -108,7 +111,8 @@ tTVPWaveDecoder *FFWaveDecoderCreator::Create(const ttstr &storagename, const tt
 }
 
 template <typename T>
-static unsigned char *_CopySmaples(unsigned char *dst, AVFrame *frame, int samples, int buf_index) {
+static unsigned char *_CopySmaples(unsigned char *dst, AVFrame *frame,
+                                   int samples, int buf_index) {
     int buf_pos = buf_index * sizeof(T);
     T *pDst = (T *)dst;
     for(int i = 0; i < samples; ++i, buf_pos += sizeof(T)) {
@@ -121,7 +125,8 @@ static unsigned char *_CopySmaples(unsigned char *dst, AVFrame *frame, int sampl
 
 // optimized for stereo
 template <typename T>
-static unsigned char *_CopySmaples2(unsigned char *dst, AVFrame *frame, int samples, int buf_index) {
+static unsigned char *_CopySmaples2(unsigned char *dst, AVFrame *frame,
+                                    int samples, int buf_index) {
     int buf_pos = buf_index * sizeof(T);
     T *pDst = (T *)dst;
     for(int i = 0; i < samples; ++i, buf_pos += sizeof(T)) {
@@ -131,18 +136,21 @@ static unsigned char *_CopySmaples2(unsigned char *dst, AVFrame *frame, int samp
     return (unsigned char *)pDst;
 }
 
-static unsigned char *CopySmaples(unsigned char *dst, AVFrame *frame, int samples, int buf_index) {
+static unsigned char *CopySmaples(unsigned char *dst, AVFrame *frame,
+                                  int samples, int buf_index) {
     switch(frame->format) {
         case AV_SAMPLE_FMT_FLTP:
         case AV_SAMPLE_FMT_S32P:
             if(frame->channels == 2)
-                return _CopySmaples2<tjs_uint32>(dst, frame, samples, buf_index);
+                return _CopySmaples2<tjs_uint32>(dst, frame, samples,
+                                                 buf_index);
             else
                 return _CopySmaples<tjs_uint32>(dst, frame, samples, buf_index);
             break;
         case AV_SAMPLE_FMT_S16P:
             if(frame->channels == 2)
-                return _CopySmaples2<tjs_uint16>(dst, frame, samples, buf_index);
+                return _CopySmaples2<tjs_uint16>(dst, frame, samples,
+                                                 buf_index);
             else
                 return _CopySmaples<tjs_uint16>(dst, frame, samples, buf_index);
             break;
@@ -150,12 +158,14 @@ static unsigned char *CopySmaples(unsigned char *dst, AVFrame *frame, int sample
     return nullptr;
 }
 
-bool FFWaveDecoder::Render(void *buf, tjs_uint bufsamplelen, tjs_uint &rendered) {
+bool FFWaveDecoder::Render(void *buf, tjs_uint bufsamplelen,
+                           tjs_uint &rendered) {
     // render output PCM
     if(!InputStream)
         return false; // InputFile is yet not inited
     int remain = bufsamplelen; // remaining PCM (in sample)
-    int sample_size = av_samples_get_buffer_size(nullptr, Format.Channels, 1, AVFmt, 1);
+    int sample_size =
+        av_samples_get_buffer_size(nullptr, Format.Channels, 1, AVFmt, 1);
     unsigned char *stream = (unsigned char *)buf;
     while(remain) {
         if(audio_buf_index >= audio_buf_samples) {
@@ -171,7 +181,8 @@ bool FFWaveDecoder::Render(void *buf, tjs_uint bufsamplelen, tjs_uint &rendered)
             samples = remain;
 
         if(!IsPlanar || Format.Channels == 1) {
-            memcpy(stream, (frame->data[0] + audio_buf_index * sample_size), samples * sample_size);
+            memcpy(stream, (frame->data[0] + audio_buf_index * sample_size),
+                   samples * sample_size);
             stream += samples * sample_size;
         } else {
             stream = CopySmaples(stream, frame, samples, audio_buf_index);
@@ -192,7 +203,8 @@ bool FFWaveDecoder::SetPosition(tjs_uint64 samplepos) {
     if(samplepos && !Format.Seekable)
         return false;
 
-    int64_t seek_target = samplepos / av_q2d(AudioStream->time_base) / Format.SamplesPerSec;
+    int64_t seek_target =
+        samplepos / av_q2d(AudioStream->time_base) / Format.SamplesPerSec;
     if(AudioStream->start_time != AV_NOPTS_VALUE) {
         seek_target += AudioStream->start_time;
     }
@@ -200,7 +212,8 @@ bool FFWaveDecoder::SetPosition(tjs_uint64 samplepos) {
         if(Packet.data)
             av_free_packet(&Packet);
         if(!ReadPacket()) {
-            int ret = avformat_seek_file(FormatCtx, StreamIdx, 0, 0, 0, AVSEEK_FLAG_BACKWARD);
+            int ret = avformat_seek_file(FormatCtx, StreamIdx, 0, 0, 0,
+                                         AVSEEK_FLAG_BACKWARD);
             if(ret < 0)
                 return false;
             if(!ReadPacket())
@@ -211,7 +224,8 @@ bool FFWaveDecoder::SetPosition(tjs_uint64 samplepos) {
     for(;;) {
         if(seek_temp < 0)
             seek_temp = 0;
-        int ret = avformat_seek_file(FormatCtx, StreamIdx, seek_temp, seek_temp, seek_temp, AVSEEK_FLAG_BACKWARD);
+        int ret = avformat_seek_file(FormatCtx, StreamIdx, seek_temp, seek_temp,
+                                     seek_temp, AVSEEK_FLAG_BACKWARD);
         if(ret < 0)
             return false;
         if(Packet.data)
@@ -229,8 +243,9 @@ bool FFWaveDecoder::SetPosition(tjs_uint64 samplepos) {
                 return false;
             }
         } while(samplepos > audio_frame_next_pts);
-        audio_buf_index = (samplepos - frame->pts) /*/ av_q2d(AudioStream->time_base) /
-                                                      Format.SamplesPerSec*/
+        audio_buf_index =
+            (samplepos - frame->pts) /*/ av_q2d(AudioStream->time_base) /
+                                        Format.SamplesPerSec*/
             ;
         if(audio_buf_index < 0)
             audio_buf_index = 0;
@@ -245,13 +260,15 @@ bool FFWaveDecoder::SetStream(const ttstr &url) {
     if(!InputStream)
         return false;
     int bufSize = 32 * 1024;
-    AVIOContext *pIOCtx = avio_alloc_context((unsigned char *)av_malloc(bufSize + AVPROBE_PADDING_SIZE),
-                                             bufSize, // internal Buffer and its size
-                                             0, // bWriteable (1=true,0=false)
-                                             InputStream, // user data ; will be passed to our callback functions
-                                             AVReadFunc,
-                                             0, // Write callback function (not used in this example)
-                                             AVSeekFunc);
+    AVIOContext *pIOCtx = avio_alloc_context(
+        (unsigned char *)av_malloc(bufSize + AVPROBE_PADDING_SIZE),
+        bufSize, // internal Buffer and its size
+        0, // bWriteable (1=true,0=false)
+        InputStream, // user data ; will be passed to our callback
+                     // functions
+        AVReadFunc,
+        0, // Write callback function (not used in this example)
+        AVSeekFunc);
 
     AVInputFormat *fmt = nullptr;
     tTJSNarrowStringHolder holder(url.c_str());
@@ -270,7 +287,8 @@ bool FFWaveDecoder::SetStream(const ttstr &url) {
         ic->pb->eof_reached = 0; // FIXME hack, ffplay maybe should not use
                                  // url_feof() to test for the end
 
-    float max_frame_duration = (ic->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
+    float max_frame_duration =
+        (ic->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 
     StreamIdx = av_find_best_stream(ic, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
 
@@ -300,7 +318,9 @@ bool FFWaveDecoder::SetStream(const ttstr &url) {
 
     Format.SamplesPerSec = avctx->sample_rate;
     Format.Channels = avctx->channels;
-    Format.Seekable = (FormatCtx->iformat->flags & (AVFMT_NOBINSEARCH | AVFMT_NOGENSEARCH | AVFMT_NO_BYTE_SEEK)) !=
+    Format.Seekable =
+        (FormatCtx->iformat->flags &
+         (AVFMT_NOBINSEARCH | AVFMT_NOGENSEARCH | AVFMT_NO_BYTE_SEEK)) !=
         (AVFMT_NOBINSEARCH | AVFMT_NOGENSEARCH | AVFMT_NO_BYTE_SEEK);
     Format.IsFloat = false;
     // 	Format.BigEndian = false;
@@ -323,14 +343,17 @@ bool FFWaveDecoder::SetStream(const ttstr &url) {
             return false;
     }
     IsPlanar = false;
-    if(AVFmt == AV_SAMPLE_FMT_S16P || AVFmt == AV_SAMPLE_FMT_FLTP || AVFmt == AV_SAMPLE_FMT_S32P)
+    if(AVFmt == AV_SAMPLE_FMT_S16P || AVFmt == AV_SAMPLE_FMT_FLTP ||
+       AVFmt == AV_SAMPLE_FMT_S32P)
         IsPlanar = true;
     Format.BytesPerSample = Format.BitsPerSample / 8;
     Format.IsFloat = AVFmt == AV_SAMPLE_FMT_FLTP;
     Format.SpeakerConfig = 0;
     AudioStream = FormatCtx->streams[StreamIdx];
-    Format.TotalTime = av_q2d(AudioStream->time_base) * AudioStream->duration * 1000;
-    Format.TotalSamples = av_q2d(AudioStream->time_base) * AudioStream->duration * Format.SamplesPerSec;
+    Format.TotalTime =
+        av_q2d(AudioStream->time_base) * AudioStream->duration * 1000;
+    Format.TotalSamples = av_q2d(AudioStream->time_base) *
+        AudioStream->duration * Format.SamplesPerSec;
 
     audio_buf_index = 0;
     audio_buf_samples = 0;
@@ -362,7 +385,8 @@ int FFWaveDecoder::audio_decode_frame() {
             pkt_temp.dts = pkt_temp.pts = AV_NOPTS_VALUE;
             pkt_temp.data += len1;
             pkt_temp.size -= len1;
-            if((pkt_temp.data && pkt_temp.size <= 0) || (!pkt_temp.data && !got_frame))
+            if((pkt_temp.data && pkt_temp.size <= 0) ||
+               (!pkt_temp.data && !got_frame))
                 pkt_temp.stream_index = -1;
             if(!pkt_temp.data && !got_frame)
                 ; // is->audio_finished = is->audio_pkt_temp_serial;
@@ -375,7 +399,8 @@ int FFWaveDecoder::audio_decode_frame() {
             if(frame->pts != AV_NOPTS_VALUE)
                 frame->pts = av_rescale_q(frame->pts, dec->time_base, tb);
             else if(frame->pkt_pts != AV_NOPTS_VALUE)
-                frame->pts = av_rescale_q(frame->pkt_pts, audio_st->time_base, tb);
+                frame->pts =
+                    av_rescale_q(frame->pkt_pts, audio_st->time_base, tb);
             else if(audio_frame_next_pts != AV_NOPTS_VALUE) {
                 AVRational a = { 1, (int)Format.SamplesPerSec };
                 frame->pts = av_rescale_q(audio_frame_next_pts, a, tb);
@@ -384,10 +409,11 @@ int FFWaveDecoder::audio_decode_frame() {
             if(frame->pts != AV_NOPTS_VALUE)
                 audio_frame_next_pts = frame->pts + frame->nb_samples;
 
-            //             int data_size = av_samples_get_buffer_size(nullptr,
+            //             int data_size =
+            //             av_samples_get_buffer_size(nullptr,
             //             av_frame_get_channels(frame),
-            //                 frame->nb_samples, (AVSampleFormat)frame->format,
-            //                 1);
+            //                 frame->nb_samples,
+            //                 (AVSampleFormat)frame->format, 1);
 
             int wanted_nb_samples = frame->nb_samples;
 
@@ -403,7 +429,8 @@ int FFWaveDecoder::audio_decode_frame() {
         /* read next packet */
         if(!ReadPacket())
             return -1;
-        // packet_queue_get(&is->audioq, Packet, 1, &is->audio_pkt_temp_serial);
+        // packet_queue_get(&is->audioq, Packet, 1,
+        // &is->audio_pkt_temp_serial);
 
         pkt_temp = Packet;
     }

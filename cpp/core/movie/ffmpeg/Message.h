@@ -26,7 +26,8 @@ public:
         PLAYER_SET_VIDEOSTREAM, //
         PLAYER_SET_SUBTITLESTREAM, //
         PLAYER_SET_SUBTITLESTREAM_VISIBLE, //
-        PLAYER_SET_STATE, // restore the VideoPlayer to a certain state
+        PLAYER_SET_STATE, // restore the VideoPlayer to a certain
+                          // state
         PLAYER_SET_RECORD, // set record state
         PLAYER_SEEK, //
         PLAYER_SEEK_CHAPTER, //
@@ -34,16 +35,19 @@ public:
 
         PLAYER_CHANNEL_NEXT, // switches to next playback channel
         PLAYER_CHANNEL_PREV, // switches to previous playback channel
-        PLAYER_CHANNEL_PREVIEW_NEXT, // switches to next channel preview (does
-                                     // not switch the channel)
-        PLAYER_CHANNEL_PREVIEW_PREV, // switches to previous channel preview
-                                     // (does not switch the channel)
-        PLAYER_CHANNEL_SELECT_NUMBER, // switches to the channel with the
-                                      // provided channel number
+        PLAYER_CHANNEL_PREVIEW_NEXT, // switches to next channel
+                                     // preview (does not switch the
+                                     // channel)
+        PLAYER_CHANNEL_PREVIEW_PREV, // switches to previous channel
+                                     // preview (does not switch the
+                                     // channel)
+        PLAYER_CHANNEL_SELECT_NUMBER, // switches to the channel with
+                                      // the provided channel number
         PLAYER_CHANNEL_SELECT, // switches to the provided channel
-        PLAYER_STARTED, // sent whenever a sub player has finished it's first
-                        // frame after open
-        PLAYER_AVCHANGE, // signal a change in audio or video parameters
+        PLAYER_STARTED, // sent whenever a sub player has finished
+                        // it's first frame after open
+        PLAYER_AVCHANGE, // signal a change in audio or video
+                         // parameters
 
         // demuxer related messages
 
@@ -122,7 +126,10 @@ typedef CDVDMsgType<double> CDVDMsgDouble;
 
 class CDVDMsgPlayerSetAudioStream : public CDVDMsg {
 public:
-    CDVDMsgPlayerSetAudioStream(int streamId) : CDVDMsg(PLAYER_SET_AUDIOSTREAM) { m_streamId = streamId; }
+    CDVDMsgPlayerSetAudioStream(int streamId) :
+        CDVDMsg(PLAYER_SET_AUDIOSTREAM) {
+        m_streamId = streamId;
+    }
 
     int GetStreamId() { return m_streamId; }
 
@@ -132,7 +139,10 @@ private:
 
 class CDVDMsgPlayerSetVideoStream : public CDVDMsg {
 public:
-    CDVDMsgPlayerSetVideoStream(int streamId) : CDVDMsg(PLAYER_SET_VIDEOSTREAM) { m_streamId = streamId; }
+    CDVDMsgPlayerSetVideoStream(int streamId) :
+        CDVDMsg(PLAYER_SET_VIDEOSTREAM) {
+        m_streamId = streamId;
+    }
 
     int GetStreamId() const { return m_streamId; }
 
@@ -153,7 +163,8 @@ public:
         bool trickplay = false;
     };
 
-    CDVDMsgPlayerSeek(CDVDMsgPlayerSeek::CMode mode) : CDVDMsg(PLAYER_SEEK), m_mode(mode) {}
+    CDVDMsgPlayerSeek(CDVDMsgPlayerSeek::CMode mode) :
+        CDVDMsg(PLAYER_SEEK), m_mode(mode) {}
 
     int GetTime() { return m_mode.time; }
 

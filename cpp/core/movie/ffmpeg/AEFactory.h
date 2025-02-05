@@ -13,7 +13,8 @@ class CAEFactory {
 public:
     static bool SupportsRaw(AEAudioFormat &format);
 
-    static IAEStream *MakeStream(AEAudioFormat &audioFormat, unsigned int options = 0,
+    static IAEStream *MakeStream(AEAudioFormat &audioFormat,
+                                 unsigned int options = 0,
                                  IAEClockCallback *clock = nullptr);
 
     static bool FreeStream(IAEStream *stream);
@@ -21,9 +22,10 @@ public:
 private:
     static IAE *AE;
 
-    static void SettingOptionsAudioDevicesFillerGeneral(const CSetting *setting,
-                                                        std::vector<std::pair<std::string, std::string>> &list,
-                                                        std::string &current, bool passthrough);
+    static void SettingOptionsAudioDevicesFillerGeneral(
+        const CSetting *setting,
+        std::vector<std::pair<std::string, std::string>> &list,
+        std::string &current, bool passthrough);
 };
 
 NS_KRMOVIE_END

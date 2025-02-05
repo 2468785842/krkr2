@@ -26,32 +26,33 @@
 //---------------------------------------------------------------------------
 
 /*
-        Object Hash Map (implemented in tjsDebug) is a simple object memory leak
-        detector.
-        Object Hash Map rely on TVP logging facility for logging unfreed
-   objects. But TVP logging facility ends before some of TJS2 objects had been
-   freed.
+        Object Hash Map (implemented in tjsDebug) is a simple object
+   memory leak detector. Object Hash Map rely on TVP logging facility
+   for logging unfreed objects. But TVP logging facility ends before
+   some of TJS2 objects had been freed.
 
         To solve this problem, TJS2 uses two method to track objects;
-                on-memory hash map and interprocess communication (IPC).
+                on-memory hash map and interprocess communication
+   (IPC).
 
-        On-memory hash map is a simple method, tracking object's creation and
-        destruction on one hash map.
+        On-memory hash map is a simple method, tracking object's
+   creation and destruction on one hash map.
 
-        Interprocess communication throws all object creation/destruction log
-        to a process, which is specially created as a child-process for
-   processing received log. Interprocess communication is implemented using
-   low-level API, works very end of the parent process.
+        Interprocess communication throws all object
+   creation/destruction log to a process, which is specially created
+   as a child-process for processing received log. Interprocess
+   communication is implemented using low-level API, works very end of
+   the parent process.
 
         TVP switches these two methods at framework finalization.
         On-memory hash map is used during most of the time.
-        At the end of the framework, the framework switches to interprocess
-        communication method. This continues rest of Object Hash Map operation
-   until the process ends.
+        At the end of the framework, the framework switches to
+   interprocess communication method. This continues rest of Object
+   Hash Map operation until the process ends.
 
-        Process of receiving object hash map log is implemented as the same
-   executable of Kirikiri (There is a command line option for running this
-   facility).
+        Process of receiving object hash map log is implemented as the
+   same executable of Kirikiri (There is a command line option for
+   running this facility).
 */
 #if 0
 //---------------------------------------------------------------------------
@@ -73,19 +74,19 @@ public:
         CloseHandle(Handle);
     }
 
-    tjs_uint64 TJS_INTF_METHOD Seek(tjs_int64 offset, tjs_int whence)
+    tjs_uint64 Seek(tjs_int64 offset, tjs_int whence)
     {
         return 0; // pipes does not support seeking
     }
 
-    tjs_uint TJS_INTF_METHOD Read(void *buffer, tjs_uint read_size)
+    tjs_uint Read(void *buffer, tjs_uint read_size)
     {
         DWORD ret = 0;
         ReadFile(Handle, buffer, read_size, &ret, nullptr);
         return ret;
     }
 
-    tjs_uint TJS_INTF_METHOD Write(const void *buffer, tjs_uint write_size)
+    tjs_uint Write(const void *buffer, tjs_uint write_size)
     {
         DWORD ret = 0;
         WriteFile(Handle, buffer, write_size, &ret, nullptr);
@@ -93,12 +94,12 @@ public:
         return ret;
     }
 
-    void TJS_INTF_METHOD SetEndOfStorage()
+    void SetEndOfStorage()
     {
         return;
     }
 
-    tjs_uint64 TJS_INTF_METHOD GetSize()
+    tjs_uint64 GetSize()
     {
         return 0;
     }

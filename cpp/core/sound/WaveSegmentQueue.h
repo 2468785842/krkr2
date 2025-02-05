@@ -25,17 +25,19 @@ struct tTVPWaveSegment {
         Length = FilteredLength = length;
     }
 
-    tTVPWaveSegment(tjs_int64 start, tjs_int64 length, tjs_int64 filteredlength) {
+    tTVPWaveSegment(tjs_int64 start, tjs_int64 length,
+                    tjs_int64 filteredlength) {
         Start = start;
         Length = length;
         FilteredLength = filteredlength;
     }
 
-    tjs_int64 Start; //!< オリジナルデコーダ上でのセグメントのスタート位置 (PCM
-                     //!< サンプルグラニュール数単位)
-    tjs_int64 Length; //!< オリジナルデコーダ上でのセグメントの長さ (PCM
-                      //!< サンプルグラニュール数単位)
-    tjs_int64 FilteredLength; //!< フィルタ後の長さ (PCM サンプルグラニュール数単位)
+    tjs_int64 Start; //!< オリジナルデコーダ上でのセグメントのスタート位置
+                     //!< (PCM サンプルグラニュール数単位)
+    tjs_int64 Length; //!< オリジナルデコーダ上でのセグメントの長さ
+                      //!< (PCM サンプルグラニュール数単位)
+    tjs_int64 FilteredLength; //!< フィルタ後の長さ (PCM
+                              //!< サンプルグラニュール数単位)
 };
 //---------------------------------------------------------------------------
 
@@ -62,18 +64,25 @@ struct tTVPWaveLabel {
 #endif
 
     struct tSortByPositionFuncObj {
-        bool operator()(const tTVPWaveLabel &lhs, const tTVPWaveLabel &rhs) const {
+        bool operator()(const tTVPWaveLabel &lhs,
+                        const tTVPWaveLabel &rhs) const {
             return lhs.Position < rhs.Position;
         }
     };
 
     struct tSortByOffsetFuncObj {
-        bool operator()(const tTVPWaveLabel &lhs, const tTVPWaveLabel &rhs) const { return lhs.Offset < rhs.Offset; }
+        bool operator()(const tTVPWaveLabel &lhs,
+                        const tTVPWaveLabel &rhs) const {
+            return lhs.Offset < rhs.Offset;
+        }
     };
 
 #ifdef TVP_IN_LOOP_TUNER
     struct tSortByIndexFuncObj {
-        bool operator()(const tTVPWaveLabel &lhs, const tTVPWaveLabel &rhs) const { return lhs.Index < rhs.Index; }
+        bool operator()(const tTVPWaveLabel &lhs,
+                        const tTVPWaveLabel &rhs) const {
+            return lhs.Index < rhs.Index;
+        }
     };
 #endif
 
@@ -98,7 +107,9 @@ struct tTVPWaveLabel {
 };
 
 //---------------------------------------------------------------------------
-bool inline operator<(const tTVPWaveLabel &lhs, const tTVPWaveLabel &rhs) { return lhs.Position < rhs.Position; }
+bool inline operator<(const tTVPWaveLabel &lhs, const tTVPWaveLabel &rhs) {
+    return lhs.Position < rhs.Position;
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------

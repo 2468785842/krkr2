@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -22,7 +23,8 @@
 
 static std::map<tTVInteger, iTJSDispatch2 *> MENU_LIST;
 static void AddMenuDispatch(tTVInteger hWnd, iTJSDispatch2 *menu) {
-    MENU_LIST.insert(std::map<tTVInteger, iTJSDispatch2 *>::value_type(hWnd, menu));
+    MENU_LIST.insert(
+        std::map<tTVInteger, iTJSDispatch2 *>::value_type(hWnd, menu));
 }
 iTJSDispatch2 *TVPGetMenuDispatch(tTVInteger hWnd) {
     std::map<tTVInteger, iTJSDispatch2 *>::iterator i = MENU_LIST.find(hWnd);
@@ -60,8 +62,10 @@ static void UpdateMenuList() {
     }
 }
 
-tjs_error TJS_INTF_METHOD WindowMenuProperty::PropGet(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                      tTJSVariant *result, iTJSDispatch2 *objthis) {
+tjs_error WindowMenuProperty::PropGet(tjs_uint32 flag,
+                                      const tjs_char *membername,
+                                      tjs_uint32 *hint, tTJSVariant *result,
+                                      iTJSDispatch2 *objthis) {
     tTJSVariant var;
     if(TJS_FAILED(objthis->PropGet(0, TJS_W("HWND"), nullptr, &var, objthis))) {
         return TJS_E_INVALIDOBJECT;
@@ -77,8 +81,11 @@ tjs_error TJS_INTF_METHOD WindowMenuProperty::PropGet(tjs_uint32 flag, const tjs
     return TJS_S_OK;
 }
 
-tjs_error TJS_INTF_METHOD WindowMenuProperty::PropSet(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                      const tTJSVariant *param, iTJSDispatch2 *objthis) {
+tjs_error WindowMenuProperty::PropSet(tjs_uint32 flag,
+                                      const tjs_char *membername,
+                                      tjs_uint32 *hint,
+                                      const tTJSVariant *param,
+                                      iTJSDispatch2 *objthis) {
     return TJS_E_ACCESSDENYED;
 }
 
@@ -94,7 +101,8 @@ tTJSNI_MenuItem::tTJSNI_MenuItem() {
     GroupIndex = 0;
 }
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_MenuItem::Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_MenuItem::Construct(tjs_int numparams, tTJSVariant **param,
+                                     iTJSDispatch2 *tjs_obj) {
     inherited::Construct(numparams, param, tjs_obj);
 
     // create or attach MenuItem object
@@ -117,12 +125,13 @@ tjs_error TJS_INTF_METHOD tTJSNI_MenuItem::Construct(tjs_int numparams, tTJSVari
     return TJS_S_OK;
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_MenuItem::Invalidate() {
+void tTJSNI_MenuItem::Invalidate() {
     // invalidate inherited
     inherited::Invalidate(); // this sets Owner = nullptr
 
     // delete VCL object
-    // if (!IsAttched && MenuItem) delete MenuItem, MenuItem = nullptr;
+    // if (!IsAttched && MenuItem) delete MenuItem, MenuItem =
+    // nullptr;
 }
 //---------------------------------------------------------------------------
 void tTJSNI_MenuItem::MenuItemClick() {
@@ -173,7 +182,8 @@ void tTJSNI_MenuItem::Remove(tTJSNI_MenuItem *item) {
     // 	if(MenuItem && item->MenuItem)
     // 	{
     // 		int index = MenuItem->IndexOf(item->MenuItem);
-    // 		if(index == -1) TVPThrowExceptionMessage(TVPNotChildMenuItem);
+    // 		if(index == -1)
+    // TVPThrowExceptionMessage(TVPNotChildMenuItem);
     //
     // 		MenuItem->Delete(index);
     RemoveChild(item);
@@ -270,7 +280,8 @@ bool tTJSNI_MenuItem::GetRadio() const {
 //---------------------------------------------------------------------------
 void tTJSNI_MenuItem::SetShortcut(const ttstr &shortcut) {
     // if(!MenuItem) return;
-    //	MenuItem->setShortCut (TextToShortCut(shortcut.AsAnsiString()));
+    //	MenuItem->setShortCut
+    //(TextToShortCut(shortcut.AsAnsiString()));
 }
 //---------------------------------------------------------------------------
 void tTJSNI_MenuItem::GetShortcut(ttstr &shortcut) const {
@@ -281,7 +292,8 @@ void tTJSNI_MenuItem::GetShortcut(ttstr &shortcut) const {
 void tTJSNI_MenuItem::SetVisible(bool b) {
     IsVisible = b;
     // 	if(!MenuItem) return;
-    // 	if(Window) Window->SetMenuBarVisible(b); else MenuItem->setVisible (b);
+    // 	if(Window) Window->SetMenuBarVisible(b); else
+    // MenuItem->setVisible (b);
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_MenuItem::GetVisible() const {
@@ -294,7 +306,8 @@ bool tTJSNI_MenuItem::GetVisible() const {
 void TVPShowPopMenu(tTJSNI_MenuItem *menu);
 
 //---------------------------------------------------------------------------
-tjs_int tTJSNI_MenuItem::TrackPopup(tjs_uint32 flags, tjs_int x, tjs_int y) const {
+tjs_int tTJSNI_MenuItem::TrackPopup(tjs_uint32 flags, tjs_int x,
+                                    tjs_int y) const {
     // if (!MenuItem) return 0;
     //  TODO
     TVPShowPopMenu((tTJSNI_MenuItem *)this);
@@ -303,15 +316,14 @@ tjs_int tTJSNI_MenuItem::TrackPopup(tjs_uint32 flags, tjs_int x, tjs_int y) cons
     // 	HWND  hWindow;
     // 	if (GetRootMenuItem() && GetRootMenuItem()->GetWindow()) {
     // 		hWindow =
-    // GetRootMenuItem()->GetWindow()->GetMenuOwnerWindowHandle(); 	} else {
-    // return 0;
+    // GetRootMenuItem()->GetWindow()->GetMenuOwnerWindowHandle(); 	}
+    // else { return 0;
     // 	}
     // 	HMENU hMenuItem = GetMenuItemHandleForPlugin();
     //
     // 	// we assume where that x and y are in client coordinates.
-    // 	// TrackPopupMenuEx requires screen coordinates, so here converts them.
-    // 	POINT scrPoint;	// screen
-    // 	scrPoint.x = x;
+    // 	// TrackPopupMenuEx requires screen coordinates, so here
+    // converts them. 	POINT scrPoint;	// screen 	scrPoint.x = x;
     // 	scrPoint.y = y;
     // 	BOOL rvScr = ::ClientToScreen(hWindow, &scrPoint);
     // 	if (!rvScr)
@@ -337,13 +349,15 @@ static bool SetShortCutKeyCode(ttstr text, int key, bool force) {
     tTJSVariant vkey(key);
 
     text.ToLowerCase();
-    if(TJS_FAILED(textToKeycodeMap->PropSet(TJS_MEMBERENSURE, text.c_str(), nullptr, &vkey, textToKeycodeMap)))
+    if(TJS_FAILED(textToKeycodeMap->PropSet(TJS_MEMBERENSURE, text.c_str(),
+                                            nullptr, &vkey, textToKeycodeMap)))
         return false;
     tTJSVariant var;
     keycodeToTextList->PropGetByNum(0, key, &var, keycodeToTextList);
     if(var.Type() == tvtString)
         return true;
-    return TJS_SUCCEEDED(keycodeToTextList->PropSetByNum(TJS_MEMBERENSURE, key, &vtext, keycodeToTextList));
+    return TJS_SUCCEEDED(keycodeToTextList->PropSetByNum(
+        TJS_MEMBERENSURE, key, &vtext, keycodeToTextList));
 }
 
 void CreateShortCutKeyCodeTable() {
@@ -378,7 +392,9 @@ void CreateShortCutKeyCodeTable() {
 //---------------------------------------------------------------------------
 // tTJSNC_MenuItem::CreateNativeInstance
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_MenuItem::CreateNativeInstance() { return new tTJSNI_MenuItem(); }
+tTJSNativeInstance *tTJSNC_MenuItem::CreateNativeInstance() {
+    return new tTJSNI_MenuItem();
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -390,8 +406,9 @@ tTJSNativeClass *TVPCreateNativeClass_MenuItem() {
     TJS_NCM_CLASSID = tTJSNC_MenuItem::ClassID;
 
     //---------------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(HMENU){ TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
-        /*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_BEGIN_NATIVE_PROP_DECL(HMENU){
+        TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+            /*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
     if(result)
         *result = (tTVInteger)(void *)_this->GetMenuItemHandleForPlugin();
     return TJS_S_OK;
@@ -402,8 +419,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL_OUTER(cls, HMENU)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(textToKeycode){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ if(result) *result = tTJSVariant(textToKeycodeMap, textToKeycodeMap);
+TJS_BEGIN_NATIVE_PROP_DECL(textToKeycode){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    if(result) *result = tTJSVariant(textToKeycodeMap, textToKeycodeMap);
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -412,8 +429,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, textToKeycode)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(keycodeToText){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ if(result) *result = tTJSVariant(keycodeToTextList, keycodeToTextList);
+TJS_BEGIN_NATIVE_PROP_DECL(keycodeToText){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    if(result) *result = tTJSVariant(keycodeToTextList, keycodeToTextList);
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -435,20 +452,20 @@ TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, keycodeToText)
 //            val = tTJSVariant(gWindowMenuProperty);
 //            gWindowMenuProperty->Release();
 //            tTJSVariant win;
-//            if (TJS_SUCCEEDED(global->PropGet(0, TJS_W("Window"), nullptr,
-//            &win, global))) {
+//            if (TJS_SUCCEEDED(global->PropGet(0, TJS_W("Window"),
+//            nullptr, &win, global))) {
 //                iTJSDispatch2* obj = win.AsObjectNoAddRef();
-//                obj->PropSet(TJS_MEMBERENSURE, TJS_W("menu"), nullptr, &val,
-//                obj); win.Clear();
+//                obj->PropSet(TJS_MEMBERENSURE, TJS_W("menu"),
+//                nullptr, &val, obj); win.Clear();
 //            }
 //            val.Clear();
 //
 //            //-----------------------------------------------------------------------
-//            iTJSDispatch2 * tjsclass = TVPCreateNativeClass_MenuItem();
-//            val = tTJSVariant(tjsclass);
-//            tjsclass->Release();
-//            global->PropSet(TJS_MEMBERENSURE, TJS_W("MenuItem"), nullptr,
-//            &val, global);
+//            iTJSDispatch2 * tjsclass =
+//            TVPCreateNativeClass_MenuItem(); val =
+//            tTJSVariant(tjsclass); tjsclass->Release();
+//            global->PropSet(TJS_MEMBERENSURE, TJS_W("MenuItem"),
+//            nullptr, &val, global);
 //            //-----------------------------------------------------------------------
 //
 //        }

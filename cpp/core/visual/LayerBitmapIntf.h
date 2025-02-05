@@ -17,7 +17,8 @@
 #include "drawable.h"
 
 #ifndef TVP_REVRGB
-#define TVP_REVRGB(v) ((v & 0xFF00FF00) | ((v >> 16) & 0xFF) | ((v & 0xFF) << 16))
+#define TVP_REVRGB(v)                                                          \
+    ((v & 0xFF00FF00) | ((v >> 16) & 0xFF) | ((v & 0xFF) << 16))
 #endif
 
 /*[*/
@@ -61,7 +62,8 @@ enum tTVPBBBltMethod {
 
 enum tTVPBBStretchType {
     stNearest = 0, // primal method; nearest neighbor method
-    stFastLinear = 1, // fast linear interpolation (does not have so much precision)
+    stFastLinear = 1, // fast linear interpolation (does not have so
+                      // much precision)
     stLinear = 2, // (strict) linear interpolation
     stCubic = 3, // cubic interpolation
     stSemiFastLinear = 4,
@@ -84,8 +86,9 @@ enum tTVPBBStretchType {
     stTypeMask = 0x0000ffff, // stretch type mask
     stFlagMask = 0xffff0000, // flag mask
 
-    stRefNoClip = 0x10000 // referencing source is not limited by the given rectangle
-                          // (may allow to see the border pixel to interpolate)
+    stRefNoClip = 0x10000 // referencing source is not limited by the
+                          // given rectangle (may allow to see the
+                          // border pixel to interpolate)
 };
 /*]*/
 
@@ -99,7 +102,8 @@ enum tTVPBBStretchType {
 // t2DAffineMatrix
 //---------------------------------------------------------------------------
 struct t2DAffineMatrix {
-    /* structure for subscribing following 2D affine transformation matrix */
+    /* structure for subscribing following 2D affine transformation
+     * matrix */
     /*
     |                          | a  b  0 |
     | [x', y', 1] =  [x, y, 1] | c  d  0 |
@@ -144,8 +148,10 @@ public:
     // point access
     tjs_uint32 GetPoint(tjs_int x, tjs_int y) const;
     bool SetPoint(tjs_int x, tjs_int y, tjs_uint32 value);
-    bool SetPointMain(tjs_int x, tjs_int y, tjs_uint32 color); // for 32bpp
-    bool SetPointMask(tjs_int x, tjs_int y, tjs_int mask); // for 32bpp
+    bool SetPointMain(tjs_int x, tjs_int y,
+                      tjs_uint32 color); // for 32bpp
+    bool SetPointMask(tjs_int x, tjs_int y,
+                      tjs_int mask); // for 32bpp
 
     // drawing stuff
     virtual bool Fill(tTVPRect rect, tjs_uint32 value);
@@ -153,10 +159,13 @@ public:
     bool FillColor(tTVPRect rect, tjs_uint32 color, tjs_int opa);
 
 private:
-    bool BlendColor(tTVPRect rect, tjs_uint32 color, tjs_int opa, bool additive);
+    bool BlendColor(tTVPRect rect, tjs_uint32 color, tjs_int opa,
+                    bool additive);
 
 public:
-    bool FillColorOnAlpha(tTVPRect rect, tjs_uint32 color, tjs_int opa) { return BlendColor(rect, color, opa, false); }
+    bool FillColorOnAlpha(tTVPRect rect, tjs_uint32 color, tjs_int opa) {
+        return BlendColor(rect, color, opa, false);
+    }
 
     bool FillColorOnAddAlpha(tTVPRect rect, tjs_uint32 color, tjs_int opa) {
         return BlendColor(rect, color, opa, true);
@@ -166,11 +175,14 @@ public:
 
     bool FillMask(tTVPRect rect, tjs_int value);
 
-    virtual bool CopyRect(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref, tTVPRect refrect) {
-        return CopyRect(x, y, ref, refrect, TVP_BB_COPY_MAIN | TVP_BB_COPY_MASK);
+    virtual bool CopyRect(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref,
+                          tTVPRect refrect) {
+        return CopyRect(x, y, ref, refrect,
+                        TVP_BB_COPY_MAIN | TVP_BB_COPY_MASK);
     }
 
-    virtual bool CopyRect(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref, tTVPRect refrect, tjs_int plane);
+    virtual bool CopyRect(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref,
+                          tTVPRect refrect, tjs_int plane);
 
     /**
      * @param ref : コピー元画像(9patch形式)
@@ -178,24 +190,32 @@ public:
      */
     bool Copy9Patch(const iTVPBaseBitmap *ref, tTVPRect &margin);
 
-    bool Blt(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref, tTVPRect refrect, tTVPBBBltMethod method, tjs_int opa,
-             bool hda = true);
-    bool Blt(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref, const tTVPRect &refrect, tTVPLayerType type, tjs_int opa,
+    bool Blt(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref, tTVPRect refrect,
+             tTVPBBBltMethod method, tjs_int opa, bool hda = true);
+    bool Blt(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref,
+             const tTVPRect &refrect, tTVPLayerType type, tjs_int opa,
              bool hda = true);
 
 public:
-    bool StretchBlt(tTVPRect cliprect, tTVPRect destrect, const iTVPBaseBitmap *ref, tTVPRect refrect,
-                    tTVPBBBltMethod method, tjs_int opa, bool hda = true, tTVPBBStretchType type = stNearest,
-                    tjs_real typeopt = 0.0);
+    bool StretchBlt(tTVPRect cliprect, tTVPRect destrect,
+                    const iTVPBaseBitmap *ref, tTVPRect refrect,
+                    tTVPBBBltMethod method, tjs_int opa, bool hda = true,
+                    tTVPBBStretchType type = stNearest, tjs_real typeopt = 0.0);
 
 public:
-    bool AffineBlt(tTVPRect destrect, const iTVPBaseBitmap *ref, tTVPRect refrect, const tTVPPointD *points,
-                   tTVPBBBltMethod method, tjs_int opa, tTVPRect *updaterect = nullptr, bool hda = true,
-                   tTVPBBStretchType mode = stNearest, bool clear = false, tjs_uint32 clearcolor = 0);
+    bool AffineBlt(tTVPRect destrect, const iTVPBaseBitmap *ref,
+                   tTVPRect refrect, const tTVPPointD *points,
+                   tTVPBBBltMethod method, tjs_int opa,
+                   tTVPRect *updaterect = nullptr, bool hda = true,
+                   tTVPBBStretchType mode = stNearest, bool clear = false,
+                   tjs_uint32 clearcolor = 0);
 
-    bool AffineBlt(tTVPRect destrect, const iTVPBaseBitmap *ref, tTVPRect refrect, const t2DAffineMatrix &matrix,
-                   tTVPBBBltMethod method, tjs_int opa, tTVPRect *updaterect = nullptr, bool hda = true,
-                   tTVPBBStretchType mode = stNearest, bool clear = false, tjs_uint32 clearcolor = 0);
+    bool AffineBlt(tTVPRect destrect, const iTVPBaseBitmap *ref,
+                   tTVPRect refrect, const t2DAffineMatrix &matrix,
+                   tTVPBBBltMethod method, tjs_int opa,
+                   tTVPRect *updaterect = nullptr, bool hda = true,
+                   tTVPBBStretchType mode = stNearest, bool clear = false,
+                   tjs_uint32 clearcolor = 0);
 
 private:
     bool InternalDoBoxBlur(tTVPRect rect, tTVPRect area, bool hasalpha);
@@ -211,12 +231,14 @@ public:
     void DoGrayScale(tTVPRect rect);
 
     void AdjustGamma(tTVPRect rect, const tTVPGLGammaAdjustData &data);
-    void AdjustGammaForAdditiveAlpha(tTVPRect rect, const tTVPGLGammaAdjustData &data);
+    void AdjustGammaForAdditiveAlpha(tTVPRect rect,
+                                     const tTVPGLGammaAdjustData &data);
 
     void ConvertAddAlphaToAlpha();
     void ConvertAlphaToAddAlpha();
 
-    // font and text related functions are implemented in each platform.
+    // font and text related functions are implemented in each
+    // platform.
 };
 //---------------------------------------------------------------------------
 class iTVPRenderManager;
@@ -229,11 +251,14 @@ public:
     iTVPRenderManager *GetRenderManager() override;
     bool Fill(tTVPRect rect, tjs_uint32 value) override;
 
-    bool CopyRect(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref, tTVPRect refrect) override {
-        return CopyRect(x, y, ref, refrect, TVP_BB_COPY_MAIN | TVP_BB_COPY_MASK);
+    bool CopyRect(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref,
+                  tTVPRect refrect) override {
+        return CopyRect(x, y, ref, refrect,
+                        TVP_BB_COPY_MAIN | TVP_BB_COPY_MASK);
     }
 
-    bool CopyRect(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref, tTVPRect refrect, tjs_int plane) override;
+    bool CopyRect(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref,
+                  tTVPRect refrect, tjs_int plane) override;
     void UDFlip(const tTVPRect &rect) override;
     void LRFlip(const tTVPRect &rect) override;
 };
@@ -244,6 +269,7 @@ public:
     tTVPBaseTexture(const iTVPBaseBitmap &r) : iTVPBaseBitmap(r) {}
     virtual bool AssignBitmap(tTVPBitmap *bmp);
     iTVPRenderManager *GetRenderManager() override;
-    void Update(const void *pixel, unsigned int pitch, int x, int y, int w, int h);
+    void Update(const void *pixel, unsigned int pitch, int x, int y, int w,
+                int h);
 };
 #endif

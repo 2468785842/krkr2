@@ -44,7 +44,8 @@ static DWORD TVPCheckTickOverflow() {
 
 //---------------------------------------------------------------------------
 class tTVPWatchThread : public tTVPThread {
-    // thread which watches overflow of 32bit counter of TVPGetRoughTickCount32
+    // thread which watches overflow of 32bit counter of
+    // TVPGetRoughTickCount32
 
     tTVPThreadEvent Event;
 
@@ -79,7 +80,8 @@ void tTVPWatchThread::Execute() {
         TVPCheckTickOverflow();
 
         Event.WaitFor(0x10000000);
-        // 0x10000000 will be enough to watch timeGetTime()'s counter overflow.
+        // 0x10000000 will be enough to watch timeGetTime()'s counter
+        // overflow.
     }
 }
 //---------------------------------------------------------------------------
@@ -100,7 +102,8 @@ static void TVPWatchThreadUninit() {
 }
 
 //---------------------------------------------------------------------------
-static tTVPAtExit TVPWatchThreadUninitAtExit(TVP_ATEXIT_PRI_SHUTDOWN, TVPWatchThreadUninit);
+static tTVPAtExit TVPWatchThreadUninitAtExit(TVP_ATEXIT_PRI_SHUTDOWN,
+                                             TVPWatchThreadUninit);
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------

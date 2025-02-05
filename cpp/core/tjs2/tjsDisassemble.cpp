@@ -25,12 +25,13 @@ namespace TJS // following is in the namespace
 
     //---------------------------------------------------------------------------
     static tjs_uint32 dummy = (tjs_uint32)-1; // for data alignment
-    void tTJSInterCodeContext::Disassemble(void (*output_func)(const tjs_char *msg, const tjs_char *comment,
-                                                               tjs_int addr, const tjs_int32 *codestart, tjs_int size,
-                                                               void *data),
-                                           void (*output_func_src)(const tjs_char *msg, const tjs_char *name,
-                                                                   tjs_int line, void *data),
-                                           void *data, tjs_int start, tjs_int end) {
+    void tTJSInterCodeContext::Disassemble(
+        void (*output_func)(const tjs_char *msg, const tjs_char *comment,
+                            tjs_int addr, const tjs_int32 *codestart,
+                            tjs_int size, void *data),
+        void (*output_func_src)(const tjs_char *msg, const tjs_char *name,
+                                tjs_int line, void *data),
+        void *data, tjs_int start, tjs_int end) {
         // dis-assemble the intermediate code.
         // "output_func" points a line output function.
 
@@ -83,7 +84,8 @@ namespace TJS // following is in the namespace
                 tjs_char *buf = new tjs_char[len + 1];
                 TJS_strcpy_maxlen(buf, src, len);
                 try {
-                    output_func_src((const tjs_char *)buf, TJS_W(""), line, data);
+                    output_func_src((const tjs_char *)buf, TJS_W(""), line,
+                                    data);
                 } catch(...) {
                     delete[] buf;
                     throw;
@@ -106,20 +108,25 @@ namespace TJS // following is in the namespace
                     break;
 
                 case VM_CONST:
-                    msg.printf("const %%%d, *%d", TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                    msg.printf("const %%%d, *%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
                                TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]));
                     if(DataArea) {
                         com.printf(
                             "*%d = %ls", TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
-                            GetValueComment(TJS_GET_VM_REG(DataArea, CodeArea[i + 2])).AsNarrowStdString().c_str());
+                            GetValueComment(
+                                TJS_GET_VM_REG(DataArea, CodeArea[i + 2]))
+                                .AsNarrowStdString()
+                                .c_str());
                     }
                     size = 3;
                     break;
 
-#define OP2_DISASM(c, x)                                                                                               \
-    case c:                                                                                                            \
-        msg.printf("%s %%%d, %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]));  \
-        size = 3;                                                                                                      \
+#define OP2_DISASM(c, x)                                                       \
+    case c:                                                                    \
+        msg.printf("%s %%%d, %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),  \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]));                     \
+        size = 3;                                                              \
         break
                     // instructions that
                     // 1. have two operands that represent registers.
@@ -132,31 +139,41 @@ namespace TJS // following is in the namespace
                     OP2_DISASM(VM_CHKINS, "chkins");
 #undef OP2_DISASM
 
-#define OP2_DISASM(c, x)                                                                                               \
-    case c:                                                                                                            \
-        msg.printf("%s %%%d, %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]));  \
-        size = 3;                                                                                                      \
-        break;                                                                                                         \
-    case c + 1:                                                                                                        \
-        msg.printf("%spd %%%d, %%%d.*%d, %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),                              \
-                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]),                       \
-                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 4]));                                                             \
-        if(DataArea) {                                                                                                 \
-            com.printf("*%d = %ls", TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]),                                             \
-                       GetValueComment(TJS_GET_VM_REG(DataArea, CodeArea[i + 3])).AsNarrowStdString().c_str());        \
-        }                                                                                                              \
-        size = 5;                                                                                                      \
-        break;                                                                                                         \
-    case c + 2:                                                                                                        \
-        msg.printf("%spi %%%d, %%%d.%%%d, %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),                             \
-                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]),                       \
-                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 4]));                                                             \
-        size = 5;                                                                                                      \
-        break;                                                                                                         \
-    case c + 3:                                                                                                        \
-        msg.printf("%sp %%%d, %%%d, %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),                                   \
-                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));                      \
-        size = 4;                                                                                                      \
+#define OP2_DISASM(c, x)                                                       \
+    case c:                                                                    \
+        msg.printf("%s %%%d, %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),  \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]));                     \
+        size = 3;                                                              \
+        break;                                                                 \
+    case c + 1:                                                                \
+        msg.printf("%spd %%%d, %%%d.*%d, %%%d", x,                             \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),                      \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),                      \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]),                      \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 4]));                     \
+        if(DataArea) {                                                         \
+            com.printf(                                                        \
+                "*%d = %ls", TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]),            \
+                GetValueComment(TJS_GET_VM_REG(DataArea, CodeArea[i + 3]))     \
+                    .AsNarrowStdString()                                       \
+                    .c_str());                                                 \
+        }                                                                      \
+        size = 5;                                                              \
+        break;                                                                 \
+    case c + 2:                                                                \
+        msg.printf("%spi %%%d, %%%d.%%%d, %%%d", x,                            \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),                      \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),                      \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]),                      \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 4]));                     \
+        size = 5;                                                              \
+        break;                                                                 \
+    case c + 3:                                                                \
+        msg.printf("%sp %%%d, %%%d, %%%d", x,                                  \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),                      \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),                      \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));                     \
+        size = 4;                                                              \
         break
                     // instructions that
                     // 1. have two operands that represent registers.
@@ -177,11 +194,11 @@ namespace TJS // following is in the namespace
                     OP2_DISASM(VM_MUL, "mul");
 #undef OP2_DISASM
 
-#define OP1_DISASM(x)                                                                                                  \
-    msg.printf("%s %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]));                                                   \
+#define OP1_DISASM(x)                                                          \
+    msg.printf("%s %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]));           \
     size = 2
-                    // instructions that have one operand which represent a register,
-                    // except for inc, dec
+                    // instructions that have one operand which
+                    // represent a register, except for inc, dec
                 case VM_TT:
                     OP1_DISASM("tt");
                     break;
@@ -245,33 +262,43 @@ namespace TJS // following is in the namespace
 #undef OP1_DISASM
 
                 case VM_CCL:
-                    msg.printf("ccl %%%d-%%%d", TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
-                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]) + CodeArea[i + 2] - 1);
+                    msg.printf("ccl %%%d-%%%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]) +
+                                   CodeArea[i + 2] - 1);
                     size = 3;
                     break;
 
-#define OP1_DISASM(c, x)                                                                                               \
-    case c:                                                                                                            \
-        msg.printf("%s %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]));                                               \
-        size = 2;                                                                                                      \
-        break;                                                                                                         \
-    case c + 1:                                                                                                        \
-        msg.printf("%spd %%%d, %%%d.*%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),                                    \
-                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));                      \
-        if(DataArea) {                                                                                                 \
-            com.printf("*%d = %ls", TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]),                                             \
-                       GetValueComment(TJS_GET_VM_REG(DataArea, CodeArea[i + 3])).AsNarrowStdString().c_str());        \
-        }                                                                                                              \
-        size = 4;                                                                                                      \
-        break;                                                                                                         \
-    case c + 2:                                                                                                        \
-        msg.printf("%spi %%%d, %%%d.%%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),                                   \
-                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));                      \
-        size = 4;                                                                                                      \
-        break;                                                                                                         \
-    case c + 3:                                                                                                        \
-        msg.printf("%sp %%%d, %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 2])); \
-        size = 3;                                                                                                      \
+#define OP1_DISASM(c, x)                                                       \
+    case c:                                                                    \
+        msg.printf("%s %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]));       \
+        size = 2;                                                              \
+        break;                                                                 \
+    case c + 1:                                                                \
+        msg.printf("%spd %%%d, %%%d.*%d", x,                                   \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),                      \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),                      \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));                     \
+        if(DataArea) {                                                         \
+            com.printf(                                                        \
+                "*%d = %ls", TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]),            \
+                GetValueComment(TJS_GET_VM_REG(DataArea, CodeArea[i + 3]))     \
+                    .AsNarrowStdString()                                       \
+                    .c_str());                                                 \
+        }                                                                      \
+        size = 4;                                                              \
+        break;                                                                 \
+    case c + 2:                                                                \
+        msg.printf("%spi %%%d, %%%d.%%%d", x,                                  \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),                      \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),                      \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));                     \
+        size = 4;                                                              \
+        break;                                                                 \
+    case c + 3:                                                                \
+        msg.printf("%sp %%%d, %%%d", x, TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]), \
+                   TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]));                     \
+        size = 3;                                                              \
         break
 
                     // inc and dec
@@ -279,10 +306,11 @@ namespace TJS // following is in the namespace
                     OP1_DISASM(VM_DEC, "dec");
 #undef OP1_DISASM
 
-#define OP1A_DISASM(x)                                                                                                 \
-    msg.printf("%s %09d", x, TJS_FROM_VM_CODE_ADDR(CodeArea[i + 1]) + i);                                              \
+#define OP1A_DISASM(x)                                                         \
+    msg.printf("%s %09d", x, TJS_FROM_VM_CODE_ADDR(CodeArea[i + 1]) + i);      \
     size = 2
-                    // instructions that have one operand which represents code area
+                    // instructions that have one operand which
+                    // represents code area
                 case VM_JF:
                     OP1A_DISASM("jf");
                     break;
@@ -300,12 +328,14 @@ namespace TJS // following is in the namespace
                 case VM_NEW: {
                     // function call variants
 
-                    msg.printf(CodeArea[i] == VM_CALL        ? "call %%%d, %%%d("
-                                   : CodeArea[i] == VM_CALLD ? "calld %%%d, %%%d.*%d("
-                                   : CodeArea[i] == VM_CALLI ? "calli %%%d, %%%d.%%%d("
-                                                             : "new %%%d, %%%d(",
-                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
-                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));
+                    msg.printf(
+                        CodeArea[i] == VM_CALL        ? "call %%%d, %%%d("
+                            : CodeArea[i] == VM_CALLD ? "calld %%%d, %%%d.*%d("
+                            : CodeArea[i] == VM_CALLI ? "calli %%%d, %%%d.%%%d("
+                                                      : "new %%%d, %%%d(",
+                        TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                        TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
+                        TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));
                     tjs_int st; // start of arguments
                     if(CodeArea[i] == VM_CALLD || CodeArea[i] == VM_CALLI)
                         st = 5;
@@ -330,11 +360,17 @@ namespace TJS // following is in the namespace
                             first = false;
                             switch(CodeArea[i + st + j * 2]) {
                                 case fatNormal:
-                                    buf = { fmt::format("%{}", TJS_FROM_VM_REG_ADDR(CodeArea[i + st + j * 2 + 1])) };
+                                    buf = { fmt::format(
+                                        "%{}",
+                                        TJS_FROM_VM_REG_ADDR(
+                                            CodeArea[i + st + j * 2 + 1])) };
 
                                     break;
                                 case fatExpand:
-                                    buf = { fmt::format("%{}*", TJS_FROM_VM_REG_ADDR(CodeArea[i + st + j * 2 + 1])) };
+                                    buf = { fmt::format(
+                                        "%{}*",
+                                        TJS_FROM_VM_REG_ADDR(
+                                            CodeArea[i + st + j * 2 + 1])) };
 
                                     break;
                                 case fatUnnamedExpand:
@@ -350,7 +386,9 @@ namespace TJS // following is in the namespace
                             if(!first)
                                 msg += TJS_W(", ");
                             first = false;
-                            buf = { fmt::format("%{}", TJS_FROM_VM_REG_ADDR(CodeArea[i + c + st])) };
+                            buf = { fmt::format(
+                                "%{}",
+                                TJS_FROM_VM_REG_ADDR(CodeArea[i + c + st])) };
                             c++;
                             msg += buf;
                         }
@@ -360,7 +398,10 @@ namespace TJS // following is in the namespace
                     if(DataArea && CodeArea[i] == VM_CALLD) {
                         com.printf(
                             "*%d = %ls", TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]),
-                            GetValueComment(TJS_GET_VM_REG(DataArea, CodeArea[i + 3])).AsNarrowStdString().c_str());
+                            GetValueComment(
+                                TJS_GET_VM_REG(DataArea, CodeArea[i + 3]))
+                                .AsNarrowStdString()
+                                .c_str());
                     }
 
                     break;
@@ -369,13 +410,18 @@ namespace TJS // following is in the namespace
                 case VM_GPD:
                 case VM_GPDS:
                     // property get direct
-                    msg.printf(CodeArea[i] == VM_GPD ? "gpd %%%d, %%%d.*%d" : "gpds %%%d, %%%d.*%d",
-                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
+                    msg.printf(CodeArea[i] == VM_GPD ? "gpd %%%d, %%%d.*%d"
+                                                     : "gpds %%%d, %%%d.*%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
                                TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));
                     if(DataArea) {
                         com.printf(
                             "*%d = %ls", TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]),
-                            GetValueComment(TJS_GET_VM_REG(DataArea, CodeArea[i + 3])).AsNarrowStdString().c_str());
+                            GetValueComment(
+                                TJS_GET_VM_REG(DataArea, CodeArea[i + 3]))
+                                .AsNarrowStdString()
+                                .c_str());
                     }
                     size = 4;
                     break;
@@ -385,16 +431,21 @@ namespace TJS // following is in the namespace
                 case VM_SPDEH:
                 case VM_SPDS:
                     // property set direct
-                    msg.printf(CodeArea[i] == VM_SPD         ? "spd %%%d.*%d, %%%d"
-                                   : CodeArea[i] == VM_SPDE  ? "spde %%%d.*%d, %%%d"
-                                   : CodeArea[i] == VM_SPDEH ? "spdeh %%%d.*%d, %%%d"
-                                                             : "spds %%%d.*%d, %%%d",
-                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
-                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));
+                    msg.printf(
+                        CodeArea[i] == VM_SPD         ? "spd %%%d.*%d, %%%d"
+                            : CodeArea[i] == VM_SPDE  ? "spde %%%d.*%d, %%%d"
+                            : CodeArea[i] == VM_SPDEH ? "spdeh %%%d.*%d, %%%d"
+                                                      : "spds %%%d.*%d, %%%d",
+                        TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                        TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
+                        TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));
                     if(DataArea) {
                         com.printf(
                             "*%d = %ls", TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
-                            GetValueComment(TJS_GET_VM_REG(DataArea, CodeArea[i + 2])).AsNarrowStdString().c_str());
+                            GetValueComment(
+                                TJS_GET_VM_REG(DataArea, CodeArea[i + 2]))
+                                .AsNarrowStdString()
+                                .c_str());
                     }
 
                     size = 4;
@@ -403,8 +454,10 @@ namespace TJS // following is in the namespace
                 case VM_GPI:
                 case VM_GPIS:
                     // property get indirect
-                    msg.printf(CodeArea[i] == VM_GPI ? "gpi %%%d, %%%d.%%%d" : "gpis %%%d, %%%d.%%%d",
-                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
+                    msg.printf(CodeArea[i] == VM_GPI ? "gpi %%%d, %%%d.%%%d"
+                                                     : "gpis %%%d, %%%d.%%%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
                                TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));
                     size = 4;
                     break;
@@ -413,24 +466,28 @@ namespace TJS // following is in the namespace
                 case VM_SPIE:
                 case VM_SPIS:
                     // property set indirect
-                    msg.printf(CodeArea[i] == VM_SPI        ? "spi %%%d.%%%d, %%%d"
-                                   : CodeArea[i] == VM_SPIE ? "spie %%%d.%%%d, %%%d"
-                                                            : "spis %%%d.%%%d, %%%d",
-                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
+                    msg.printf(CodeArea[i] == VM_SPI ? "spi %%%d.%%%d, %%%d"
+                                   : CodeArea[i] == VM_SPIE
+                                   ? "spie %%%d.%%%d, %%%d"
+                                   : "spis %%%d.%%%d, %%%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
                                TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));
                     size = 4;
                     break;
 
                 case VM_SETP:
                     // property set
-                    msg.printf("setp %%%d, %%%d", TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                    msg.printf("setp %%%d, %%%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
                                TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]));
                     size = 3;
                     break;
 
                 case VM_GETP:
                     // property get
-                    msg.printf("getp %%%d, %%%d", TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                    msg.printf("getp %%%d, %%%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
                                TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]));
                     size = 3;
                     break;
@@ -438,13 +495,19 @@ namespace TJS // following is in the namespace
                 case VM_DELD:
                 case VM_TYPEOFD:
                     // member delete direct / typeof direct
-                    msg.printf(CodeArea[i] == VM_DELD ? "deld %%%d, %%%d.*%d" : "typeofd %%%d, %%%d.*%d",
-                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
+                    msg.printf(CodeArea[i] == VM_DELD
+                                   ? "deld %%%d, %%%d.*%d"
+                                   : "typeofd %%%d, %%%d.*%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
                                TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));
                     if(DataArea) {
                         com.printf(
                             "*%d = %ls", TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]),
-                            GetValueComment(TJS_GET_VM_REG(DataArea, CodeArea[i + 3])).AsNarrowStdString().c_str());
+                            GetValueComment(
+                                TJS_GET_VM_REG(DataArea, CodeArea[i + 3]))
+                                .AsNarrowStdString()
+                                .c_str());
                     }
                     size = 4;
                     break;
@@ -452,15 +515,19 @@ namespace TJS // following is in the namespace
                 case VM_DELI:
                 case VM_TYPEOFI:
                     // member delete indirect / typeof indirect
-                    msg.printf(CodeArea[i] == VM_DELI ? "deli %%%d, %%%d.%%%d" : "typeofi %%%d, %%%d.%%%d",
-                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]), TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
+                    msg.printf(CodeArea[i] == VM_DELI
+                                   ? "deli %%%d, %%%d.%%%d"
+                                   : "typeofi %%%d, %%%d.%%%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]),
                                TJS_FROM_VM_REG_ADDR(CodeArea[i + 3]));
                     size = 4;
                     break;
 
                 case VM_SRV:
                     // set return value
-                    msg.printf("srv %%%d", TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]));
+                    msg.printf("srv %%%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]));
                     size = 2;
                     break;
 
@@ -472,7 +539,8 @@ namespace TJS // following is in the namespace
 
                 case VM_ENTRY:
                     // enter try-protected block
-                    msg.printf("entry %09d, %%%d", TJS_FROM_VM_CODE_ADDR(CodeArea[i + 1]) + i,
+                    msg.printf("entry %09d, %%%d",
+                               TJS_FROM_VM_CODE_ADDR(CodeArea[i + 1]) + i,
                                TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]));
                     size = 3;
                     break;
@@ -484,23 +552,27 @@ namespace TJS // following is in the namespace
                     break;
 
                 case VM_THROW:
-                    msg.printf("throw %%%d", TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]));
+                    msg.printf("throw %%%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]));
                     size = 2;
                     break;
 
                 case VM_CHGTHIS:
-                    msg.printf("chgthis %%%d, %%%d", TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                    msg.printf("chgthis %%%d, %%%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
                                TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]));
                     size = 3;
                     break;
 
                 case VM_GLOBAL:
-                    msg.printf("global %%%d", TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]));
+                    msg.printf("global %%%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]));
                     size = 2;
                     break;
 
                 case VM_ADDCI:
-                    msg.printf("addci %%%d, %%%d", TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
+                    msg.printf("addci %%%d, %%%d",
+                               TJS_FROM_VM_REG_ADDR(CodeArea[i + 1]),
                                TJS_FROM_VM_REG_ADDR(CodeArea[i + 2]));
                     size = 3;
                     break;
@@ -530,14 +602,18 @@ namespace TJS // following is in the namespace
 
     //---------------------------------------------------------------------------
     struct of_data {
-        void (*func)(const tjs_char *, void *);
+        std::function<void(const tjs_char *msg, void *data)> func;
 
         void *funcdata;
     };
 
-    void tTJSInterCodeContext::_output_func(const tjs_char *msg, const tjs_char *comment, tjs_int addr,
-                                            const tjs_int32 *codestart, tjs_int size, void *data) {
-        ttstr buf{ fmt::format("{} {}", addr, ttstr{ msg }.AsNarrowStdString()) };
+    void tTJSInterCodeContext::_output_func(const tjs_char *msg,
+                                            const tjs_char *comment,
+                                            tjs_int addr,
+                                            const tjs_int32 *codestart,
+                                            tjs_int size, void *data) {
+        ttstr buf{ fmt::format("{} {}", addr,
+                               ttstr{ msg }.AsNarrowStdString()) };
 
         if(comment[0]) {
             buf = TJS_W("\t// ");
@@ -552,7 +628,9 @@ namespace TJS // following is in the namespace
         }
     }
 
-    void tTJSInterCodeContext::_output_func_src(const tjs_char *msg, const tjs_char *name, tjs_int line, void *data) {
+    void tTJSInterCodeContext::_output_func_src(const tjs_char *msg,
+                                                const tjs_char *name,
+                                                tjs_int line, void *data) {
         ttstr buf{};
         auto c_name = ttstr{ name }.AsNarrowStdString();
         auto c_msg = ttstr{ msg }.AsNarrowStdString();
@@ -569,8 +647,9 @@ namespace TJS // following is in the namespace
     }
 
     //---------------------------------------------------------------------------
-    void tTJSInterCodeContext::Disassemble(void (*output_func)(const tjs_char *msg, void *data), void *data,
-                                           tjs_int start, tjs_int end) {
+    void tTJSInterCodeContext::Disassemble(
+        std::function<void(const tjs_char *msg, void *data)> output_func,
+        void *data, tjs_int start, tjs_int end) {
         // dis-assemble
         of_data dat;
         dat.func = output_func;

@@ -1,14 +1,4 @@
 #pragma once
-#include "cocos2d.h"
+#include <string>
 
-void TVPAddAutoSearchArchive(const std::string &path);
-class TVPSkinManager {
-public:
-    static TVPSkinManager *getInstance();
-
-    void InitSkin();
-    static bool Check(const std::string &skin_path);
-    static void Reset();
-    static bool Use(const std::string &skin_path);
-    static bool InstallAndUse(const std::string &skin_path);
-};
+bool TVPCopyFile(const std::string &from, const std::string &to);

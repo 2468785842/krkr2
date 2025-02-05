@@ -23,7 +23,8 @@ class OptionDescReader {
     static const char *USER;
 
     static bool GetBoolean(const char *name, const picojson::object &obj) {
-        std::map<std::string, picojson::value>::const_iterator v = obj.find(std::string(name));
+        std::map<std::string, picojson::value>::const_iterator v =
+            obj.find(std::string(name));
         if(v != obj.end()) {
             const picojson::value &val = v->second;
             if(val.is<bool>()) {
@@ -34,7 +35,8 @@ class OptionDescReader {
     }
 
     static int GetInteger(const char *name, const picojson::object &obj) {
-        std::map<std::string, picojson::value>::const_iterator v = obj.find(std::string(name));
+        std::map<std::string, picojson::value>::const_iterator v =
+            obj.find(std::string(name));
         if(v != obj.end()) {
             const picojson::value &val = v->second;
             if(val.is<int>()) {
@@ -44,8 +46,10 @@ class OptionDescReader {
         return 0;
     }
 
-    static void RetriveString(std::wstring &out, const picojson::object &obj, const char *name) {
-        std::map<std::string, picojson::value>::const_iterator v = obj.find(std::string(name));
+    static void RetriveString(std::wstring &out, const picojson::object &obj,
+                              const char *name) {
+        std::map<std::string, picojson::value>::const_iterator v =
+            obj.find(std::string(name));
         if(v != obj.end()) {
             const picojson::value &val = v->second;
             if(val.is<std::string>()) {
@@ -65,7 +69,8 @@ class OptionDescReader {
 
     void ParseOption(tTVPCommandOption &opt, const picojson::object &option);
 
-    void ParseValue(tTVPCommandOptionsValue &val, const picojson::object &value);
+    void ParseValue(tTVPCommandOptionsValue &val,
+                    const picojson::object &value);
 
 public:
     tTVPCommandOptionList *Parse(const picojson::value &v);
@@ -84,13 +89,15 @@ const char *OptionDescReader::DESC = "desc";
 const char *OptionDescReader::DEFAULT = "default";
 const char *OptionDescReader::USER = "user";
 
-void OptionDescReader::ParseValue(tTVPCommandOptionsValue &val, const picojson::object &value) {
+void OptionDescReader::ParseValue(tTVPCommandOptionsValue &val,
+                                  const picojson::object &value) {
     RetriveString(val.Value, value, VALUE);
     RetriveString(val.Description, value, DESC);
     val.IsDefault = GetBoolean(DEFAULT, value);
 }
 
-void OptionDescReader::ParseOption(tTVPCommandOption &opt, const picojson::object &option) {
+void OptionDescReader::ParseOption(tTVPCommandOption &opt,
+                                   const picojson::object &option) {
     RetriveString(opt.Caption, option, CAPTION);
     RetriveString(opt.Description, option, DESCRIPTION);
     RetriveString(opt.Name, option, NAME);
@@ -107,7 +114,8 @@ void OptionDescReader::ParseOption(tTVPCommandOption &opt, const picojson::objec
         opt.Type = tTVPCommandOption::VT_Unknown;
     }
     opt.User = GetBoolean(USER, option);
-    std::map<std::string, picojson::value>::const_iterator v = option.find(std::string(VALUES));
+    std::map<std::string, picojson::value>::const_iterator v =
+        option.find(std::string(VALUES));
     if(v != option.end()) {
         const picojson::value &val = v->second;
         if(val.is<picojson::array>()) {
@@ -139,18 +147,21 @@ tTVPCommandOptionList *OptionDescReader::Parse(const picojson::value &v) {
                 const picojson::object &cat = category.get<picojson::object>();
                 RetriveString(optioncat.Name, cat, CATEGORY);
 
-                std::map<std::string, picojson::value>::const_iterator opt = cat.find(OPTIONS);
+                std::map<std::string, picojson::value>::const_iterator opt =
+                    cat.find(OPTIONS);
                 if(opt != cat.end()) {
                     const picojson::value &options = opt->second;
                     if(options.is<picojson::array>()) {
-                        const picojson::array &optionarray = options.get<picojson::array>();
+                        const picojson::array &optionarray =
+                            options.get<picojson::array>();
                         size_t optcount = optionarray.size();
                         optioncat.Options.resize(optcount);
                         for(size_t j = 0; j < optcount; j++) {
                             tTVPCommandOption &toption = optioncat.Options[j];
                             const picojson::value &option = optionarray[j];
                             if(option.is<picojson::object>()) {
-                                ParseOption(toption, option.get<picojson::object>());
+                                ParseOption(toption,
+                                            option.get<picojson::object>());
                             }
                         }
                     }
@@ -218,13 +229,15 @@ tTVPCommandOptionList *ParseCommandDesc(const char *buf, unsigned int size) {
 }
 
 extern "C" {
-static BOOL CALLBACK EnumResTypeProc(HMODULE hModule, LPTSTR lpszType, LONG_PTR lParam) {
+static BOOL CALLBACK EnumResTypeProc(HMODULE hModule, LPTSTR lpszType,
+                                     LONG_PTR lParam) {
     if(!IS_INTRESOURCE(lpszType)) {
         OutputDebugString(lpszType);
     }
     return TRUE;
 }
-static BOOL CALLBACK TVPEnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName, LONG_PTR lParam) {
+static BOOL CALLBACK TVPEnumResNameProc(HMODULE hModule, LPCTSTR lpszType,
+                                        LPTSTR lpszName, LONG_PTR lParam) {
     if(!IS_INTRESOURCE(lpszName)) {
         OutputDebugString(lpszName);
     }
@@ -268,7 +281,8 @@ tTVPCommandOptionList *TVPGetEngineCommandDesc() {
         return nullptr;
     const char *buf = nullptr;
     unsigned int size = 0;
-    HRSRC hRsrc = ::FindResource(hModule, MAKEINTRESOURCE(IDR_OPTION_DESC_JSON), TEXT("TEXT"));
+    HRSRC hRsrc = ::FindResource(hModule, MAKEINTRESOURCE(IDR_OPTION_DESC_JSON),
+                                 TEXT("TEXT"));
     if(hRsrc != nullptr) {
         size = ::SizeofResource(hModule, hRsrc);
         HGLOBAL hGlobal = ::LoadResource(hModule, hRsrc);
@@ -279,7 +293,8 @@ tTVPCommandOptionList *TVPGetEngineCommandDesc() {
     return ParseCommandDesc(buf, size);
 }
 
-void TVPMargeCommandDesc(tTVPCommandOptionList &dest, const tTVPCommandOptionList &src) {
+void TVPMargeCommandDesc(tTVPCommandOptionList &dest,
+                         const tTVPCommandOptionList &src) {
     tjs_uint count = (tjs_uint)src.Categories.size();
     std::vector<tjs_uint> addcat;
     addcat.reserve(count);
@@ -303,7 +318,8 @@ void TVPMargeCommandDesc(tTVPCommandOptionList &dest, const tTVPCommandOptionLis
             addcat.push_back(i);
         }
     }
-    for(std::vector<tjs_uint>::const_iterator i = addcat.begin(); i != addcat.end(); i++) {
+    for(std::vector<tjs_uint>::const_iterator i = addcat.begin();
+        i != addcat.end(); i++) {
         tjs_uint idx = *i;
         dest.Categories.push_back(src.Categories[idx]);
     }

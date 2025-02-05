@@ -1,6 +1,7 @@
 //
 // Created by lidong on 2025/1/7.
-// more: https://learn.microsoft.com/en-us/windows/win32/api/gdipluspen
+// more:
+// https://learn.microsoft.com/en-us/windows/win32/api/gdipluspen
 //
 
 #ifndef KRKR2_GDIP_CXX_PEN_H
@@ -16,9 +17,13 @@ class Pen {
 public:
     Pen(GpPen *gpPen) : _gpPen(gpPen) {}
 
-    Pen(const BrushBase *brush, float width) { GdipCreatePen2((Brush *)brush, width, UnitWorld, &this->_gpPen); }
+    Pen(const BrushBase *brush, float width) {
+        GdipCreatePen2((Brush *)brush, width, UnitWorld, &this->_gpPen);
+    }
 
-    Pen(const Color &color, float width) { GdipCreatePen1(*(ARGB *)&color, width, UnitWorld, &this->_gpPen); }
+    Pen(const Color &color, float width) {
+        GdipCreatePen1(*(ARGB *)&color, width, UnitWorld, &this->_gpPen);
+    }
 
     [[nodiscard]] Pen *Clone() const {
         GpPen *cloned{ nullptr };
@@ -37,7 +42,8 @@ public:
     }
 
     GpStatus SetCompoundArray(const float *compoundArray, int count) {
-        this->_gpStatus = GdipSetPenCompoundArray(this->_gpPen, compoundArray, count);
+        this->_gpStatus =
+            GdipSetPenCompoundArray(this->_gpPen, compoundArray, count);
         return this->_gpStatus;
     }
 

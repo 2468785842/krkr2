@@ -9,9 +9,9 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
  * -------------------------------------------------------------------
  * このソースコードは Android のソースコードから吉里吉里Zに合うように
  * 修正したものです。
@@ -41,12 +41,12 @@ public:
         // Polynomial coefficients describing motion in X and Y.
         float xCoeff[MAX_DEGREE + 1], yCoeff[MAX_DEGREE + 1];
 
-        // Polynomial degree (number of coefficients), or zero if no information
-        // is available.
+        // Polynomial degree (number of coefficients), or zero if no
+        // information is available.
         tjs_uint32 degree;
 
-        // Confidence (coefficient of determination), between 0 (no fit) and 1
-        // (perfect fit).
+        // Confidence (coefficient of determination), between 0 (no
+        // fit) and 1 (perfect fit).
         float confidence;
 
         inline void clear() {
@@ -74,24 +74,26 @@ public:
 };
 
 /*
- * Velocity tracker algorithm based on least-squares linear regression.
+ * Velocity tracker algorithm based on least-squares linear
+ * regression.
  */
 class LeastSquaresVelocityTrackerStrategy : public VelocityTrackerStrategy {
 public:
     enum Weighting {
-        WEIGHTING_NONE, // No weights applied.  All data points are equally
-                        // reliable.
-        WEIGHTING_DELTA, // Weight by time delta.  Data points clustered
-                         // together are weighted less.
-        WEIGHTING_CENTRAL, // Weight such that points within a certain horizon
-                           // are weighed more than those outside of that
-                           // horizon.
-        WEIGHTING_RECENT, // Weight such that points older than a certain amount
-                          // are weighed less.
+        WEIGHTING_NONE, // No weights applied.  All data points are
+                        // equally reliable.
+        WEIGHTING_DELTA, // Weight by time delta.  Data points
+                         // clustered together are weighted less.
+        WEIGHTING_CENTRAL, // Weight such that points within a certain
+                           // horizon are weighed more than those
+                           // outside of that horizon.
+        WEIGHTING_RECENT, // Weight such that points older than a
+                          // certain amount are weighed less.
     };
 
     // Degree must be no greater than Estimator::MAX_DEGREE.
-    LeastSquaresVelocityTrackerStrategy(tjs_uint32 degree, Weighting weighting = WEIGHTING_NONE);
+    LeastSquaresVelocityTrackerStrategy(tjs_uint32 degree,
+                                        Weighting weighting = WEIGHTING_NONE);
 
     virtual ~LeastSquaresVelocityTrackerStrategy();
 
@@ -103,9 +105,9 @@ public:
 
 private:
     // Sample horizon.
-    // We don't use too much history by default since we want to react to quick
-    // changes in direction.
-    // static const tjs_uint64 HORIZON = 100 * 1000000; // 100 ms
+    // We don't use too much history by default since we want to react
+    // to quick changes in direction. static const tjs_uint64 HORIZON
+    // = 100 * 1000000; // 100 ms
     static const tjs_uint64 HORIZON = 100; // 100 ms
 
     // Number of samples to keep.
@@ -134,7 +136,8 @@ private:
 class VelocityTracker {
 public:
     // Creates a velocity tracker using the specified strategy.
-    // If strategy is nullptr, uses the default strategy for the platform.
+    // If strategy is nullptr, uses the default strategy for the
+    // platform.
     VelocityTracker();
 
     ~VelocityTracker();
@@ -146,15 +149,19 @@ public:
     }
 
     // Adds movement information for a set of pointers.
-    // The idBits bitfield specifies the pointer ids of the pointers whose
-    // positions are included in the movement. The positions array contains
-    // position information for each pointer in order by increasing id.  Its
-    // size should be equal to the number of one bits in idBits.
-    void addMovement(tjs_uint64 eventTime, float x, float y) { mStrategy.addMovement(eventTime, x, y); }
+    // The idBits bitfield specifies the pointer ids of the pointers
+    // whose positions are included in the movement. The positions
+    // array contains position information for each pointer in order
+    // by increasing id.  Its size should be equal to the number of
+    // one bits in idBits.
+    void addMovement(tjs_uint64 eventTime, float x, float y) {
+        mStrategy.addMovement(eventTime, x, y);
+    }
 
-    // Gets the velocity of the specified pointer id in position units per
-    // second. Returns false and sets the velocity components to zero if there
-    // is insufficient movement information for the pointer.
+    // Gets the velocity of the specified pointer id in position units
+    // per second. Returns false and sets the velocity components to
+    // zero if there is insufficient movement information for the
+    // pointer.
     bool getVelocity(float &outVx, float &outVy) const;
 
     bool getVelocity(float &speed) const {
@@ -166,9 +173,9 @@ public:
         return false;
     }
 
-    // Gets an estimator for the recent movements of the specified pointer id.
-    // Returns false and clears the estimator if there is no information
-    // available about the pointer.
+    // Gets an estimator for the recent movements of the specified
+    // pointer id. Returns false and clears the estimator if there is
+    // no information available about the pointer.
     bool getEstimator(VelocityTrackerStrategy::Estimator *outEstimator) const {
         return mStrategy.getEstimator(outEstimator);
     }

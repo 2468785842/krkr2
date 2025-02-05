@@ -10,8 +10,8 @@
 #include "base/pvr.h"
 #include "LayerBitmapIntf.h"
 
-// pvr format only used as normal picture or univ trans rule ( not as province
-// image )
+// pvr format only used as normal picture or univ trans rule ( not as
+// province image )
 
 static ttstr TVPUnserializeString(tTJSBinaryStream *s) {
     tjs_uint16 l = s->ReadI16LE();
@@ -43,8 +43,9 @@ static tTJSVariant TVPUnserializePVRv3Variable(tTJSBinaryStream *s) {
     }
 }
 
-static int TVPUnserializePVRv3Metadata(tTJSBinaryStream *s,
-                                       const std::function<void(const ttstr &, const tTJSVariant &)> &cb) {
+static int TVPUnserializePVRv3Metadata(
+    tTJSBinaryStream *s,
+    const std::function<void(const ttstr &, const tTJSVariant &)> &cb) {
     char tmp[4];
     s->ReadBuffer(tmp, 4);
     if(memcmp(tmp, "tags", 4))
@@ -60,14 +61,16 @@ static int TVPUnserializePVRv3Metadata(tTJSBinaryStream *s,
     return count;
 }
 
-static unsigned int TVPSerializePVRv3String(tTJSBinaryStream *dst, const std::string &str) {
+static unsigned int TVPSerializePVRv3String(tTJSBinaryStream *dst,
+                                            const std::string &str) {
     tjs_uint16 l = str.size();
     dst->Write(&l, sizeof(l));
     dst->Write(str.c_str(), l);
     return l + 2;
 }
 
-static unsigned int TVPSerializePVRv3Variable(tTJSBinaryStream *dst, const tTJSVariant &v) {
+static unsigned int TVPSerializePVRv3Variable(tTJSBinaryStream *dst,
+                                              const tTJSVariant &v) {
     tjs_uint8 ty = v.Type();
     dst->WriteBuffer(&ty, sizeof(ty));
     tjs_int64 intv;
@@ -88,8 +91,9 @@ static unsigned int TVPSerializePVRv3Variable(tTJSBinaryStream *dst, const tTJSV
     }
 }
 
-static unsigned int TVPSerializePVRv3Metadata(tTJSBinaryStream *dst,
-                                              const std::vector<std::pair<ttstr, tTJSVariant>> &tags) {
+static unsigned int TVPSerializePVRv3Metadata(
+    tTJSBinaryStream *dst,
+    const std::vector<std::pair<ttstr, tTJSVariant>> &tags) {
     dst->WriteBuffer("tags", 4);
     tjs_uint32 count = tags.size();
     dst->WriteBuffer(&count, sizeof(count));
@@ -102,7 +106,9 @@ static unsigned int TVPSerializePVRv3Metadata(tTJSBinaryStream *dst,
 }
 
 // load texture directly
-iTVPTexture2D *TVPLoadPVRv3(tTJSBinaryStream *src, const std::function<void(const ttstr &, const tTJSVariant &)> &cb) {
+iTVPTexture2D *TVPLoadPVRv3(
+    tTJSBinaryStream *src,
+    const std::function<void(const ttstr &, const tTJSVariant &)> &cb) {
     iTVPTexture2D *ret = TVPGetRenderManager()->CreateTexture2D(src);
     if(!ret)
         return nullptr;
@@ -118,11 +124,15 @@ iTVPTexture2D *TVPLoadPVRv3(tTJSBinaryStream *src, const std::function<void(cons
     return ret;
 }
 
-void TVPLoadPVRv3(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback,
-                  tTVPGraphicScanLineCallback scanlinecallback, tTVPMetaInfoPushCallback metainfopushcallback,
-                  tTJSBinaryStream *src, tjs_int keyidx, tTVPGraphicLoadMode mode) {
+void TVPLoadPVRv3(void *formatdata, void *callbackdata,
+                  tTVPGraphicSizeCallback sizecallback,
+                  tTVPGraphicScanLineCallback scanlinecallback,
+                  tTVPMetaInfoPushCallback metainfopushcallback,
+                  tTJSBinaryStream *src, tjs_int keyidx,
+                  tTVPGraphicLoadMode mode) {
     if(mode == glmPalettized) {
-        TVPThrowExceptionMessage(TJS_W("PVR Load Error/Unsupport palettized image"));
+        TVPThrowExceptionMessage(
+            TJS_W("PVR Load Error/Unsupport palettized image"));
     }
     PVRv3Header hdr;
     src->ReadBuffer(&hdr, sizeof(hdr));
@@ -137,8 +147,10 @@ void TVPLoadPVRv3(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback 
         metadata.SetSize(hdr.metadataLength);
         src->ReadBuffer(metadata.GetInternalBuffer(), hdr.metadataLength);
         TVPUnserializePVRv3Metadata(&metadata,
-                                    [metainfopushcallback, callbackdata](const ttstr &k, const tTJSVariant &v) {
-                                        metainfopushcallback(callbackdata, k, v);
+                                    [metainfopushcallback, callbackdata](
+                                        const ttstr &k, const tTJSVariant &v) {
+                                        metainfopushcallback(callbackdata, k,
+                                                             v);
                                     });
     }
     unsigned int eachblkw = 0, eachblkh = 0;
@@ -202,7 +214,9 @@ void TVPLoadPVRv3(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback 
             fmt = gpfRGB;
             break;
         default:
-            TVPThrowExceptionMessage(TJS_W("PVR Load Error/Unsupport format [%1]"), ttstr((tjs_int)hdr.pixelFormat));
+            TVPThrowExceptionMessage(
+                TJS_W("PVR Load Error/Unsupport format [%1]"),
+                ttstr((tjs_int)hdr.pixelFormat));
     }
     // ignore mipmap
     unsigned int blkh = hdr.height / eachblkh + !!(hdr.height & (eachblkh - 1));
@@ -230,11 +244,13 @@ void TVPLoadPVRv3(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback 
             ETCPacker::decode(psrc, pixel, pitch, hdr.height, blkw, blkh);
             break;
         case PVR3TexturePixelFormat::ETC2_RGBA:
-            ETCPacker::decodeWithAlpha(psrc, pixel, pitch, hdr.height, blkw, blkh);
+            ETCPacker::decodeWithAlpha(psrc, pixel, pitch, hdr.height, blkw,
+                                       blkh);
             break;
         case PVR3TexturePixelFormat::BGRA8888:
             for(uint32_t y = 0; y < hdr.height; ++y) {
-                TVPReverseRGB((tjs_uint32 *)pixel, (const tjs_uint32 *)psrc, hdr.width);
+                TVPReverseRGB((tjs_uint32 *)pixel, (const tjs_uint32 *)psrc,
+                              hdr.width);
                 pdst += pitch;
                 psrc += hdr.width * 4;
             }
@@ -248,14 +264,16 @@ void TVPLoadPVRv3(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback 
             break;
         case PVR3TexturePixelFormat::RGB888:
             for(uint32_t y = 0; y < hdr.height; ++y) {
-                TVPConvert24BitTo32Bit((tjs_uint32 *)pixel, (const tjs_uint8 *)psrc, hdr.width);
+                TVPConvert24BitTo32Bit((tjs_uint32 *)pixel,
+                                       (const tjs_uint8 *)psrc, hdr.width);
                 pdst += pitch;
                 psrc += hdr.width * 3;
             }
             break;
         case PVR3TexturePixelFormat::L8:
             for(uint32_t y = 0; y < hdr.height; ++y) {
-                TVPExpand8BitTo32BitGray((tjs_uint32 *)pixel, (const tjs_uint8 *)psrc, hdr.width);
+                TVPExpand8BitTo32BitGray((tjs_uint32 *)pixel,
+                                         (const tjs_uint8 *)psrc, hdr.width);
                 pdst += pitch;
                 psrc += hdr.width;
             }
@@ -266,13 +284,16 @@ void TVPLoadPVRv3(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback 
         case PVR3TexturePixelFormat::A8:
         case PVR3TexturePixelFormat::LA88:
         default:
-            TVPThrowExceptionMessage(TJS_W("PVR Load Error/Unsupport format [%1]"), ttstr((tjs_int)hdr.pixelFormat));
+            TVPThrowExceptionMessage(
+                TJS_W("PVR Load Error/Unsupport format [%1]"),
+                ttstr((tjs_int)hdr.pixelFormat));
             break;
     }
     scanlinecallback(callbackdata, -1);
 }
 
-void TVPLoadHeaderPVRv3(void *formatdata, tTJSBinaryStream *src, iTJSDispatch2 **dic) {
+void TVPLoadHeaderPVRv3(void *formatdata, tTJSBinaryStream *src,
+                        iTJSDispatch2 **dic) {
     PVRv3Header hdr;
     src->ReadBuffer(&hdr, sizeof(hdr));
     if(hdr.version != 0x03525650) {
@@ -303,30 +324,38 @@ void TVPLoadHeaderPVRv3(void *formatdata, tTJSBinaryStream *src, iTJSDispatch2 *
             bpp = 8;
             break;
         default:
-            TVPThrowExceptionMessage(TJS_W("PVR Load Error/Unsupport format [%1]"), ttstr((tjs_int)hdr.pixelFormat));
+            TVPThrowExceptionMessage(
+                TJS_W("PVR Load Error/Unsupport format [%1]"),
+                ttstr((tjs_int)hdr.pixelFormat));
     }
     if(hdr.metadataLength > 8) {
         tTVPMemoryStream metadata;
         metadata.SetSize(hdr.metadataLength);
         src->ReadBuffer(metadata.GetInternalBuffer(), hdr.metadataLength);
-        TVPUnserializePVRv3Metadata(&metadata, [dic](const ttstr &k, const tTJSVariant &v) {
-            (*dic)->PropSet(TJS_MEMBERENSURE, k.c_str(), const_cast<ttstr &>(k).GetHint(), &v, (*dic));
-        });
+        TVPUnserializePVRv3Metadata(
+            &metadata, [dic](const ttstr &k, const tTJSVariant &v) {
+                (*dic)->PropSet(TJS_MEMBERENSURE, k.c_str(),
+                                const_cast<ttstr &>(k).GetHint(), &v, (*dic));
+            });
     }
     val = tTJSVariant(bpp);
     (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("bpp"), 0, &val, (*dic));
 }
 
-void TVPSavePVRv3(void *formatdata, tTJSBinaryStream *dst, const iTVPBaseBitmap *image, const ttstr &mode,
+void TVPSavePVRv3(void *formatdata, tTJSBinaryStream *dst,
+                  const iTVPBaseBitmap *image, const ttstr &mode,
                   iTJSDispatch2 *meta) {
     std::vector<std::pair<ttstr, tTJSVariant>> tags;
     if(meta) {
         struct MetaDictionaryEnumCallback : public tTJSDispatch {
             std::vector<std::pair<ttstr, tTJSVariant>> &Tags;
-            MetaDictionaryEnumCallback(std::vector<std::pair<ttstr, tTJSVariant>> &tags) : Tags(tags) {}
-            tjs_error TJS_INTF_METHOD FuncCall(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                               tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
-                                               iTJSDispatch2 *objthis) {
+            MetaDictionaryEnumCallback(
+                std::vector<std::pair<ttstr, tTJSVariant>> &tags) :
+                Tags(tags) {}
+            tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
+                               tjs_uint32 *hint, tTJSVariant *result,
+                               tjs_int numparams, tTJSVariant **param,
+                               iTJSDispatch2 *objthis) {
                 // called from tTJSCustomObject::EnumMembers
                 if(numparams < 3)
                     return TJS_E_BADPARAMCOUNT;
@@ -350,24 +379,28 @@ void TVPSavePVRv3(void *formatdata, tTJSBinaryStream *dst, const iTVPBaseBitmap 
     }
     tTVPMemoryStream memstr;
     const void *pixeldata = image->GetScanLine(0);
-    int w = image->GetWidth(), h = image->GetHeight(), pitch = image->GetPitchBytes();
+    int w = image->GetWidth(), h = image->GetHeight(),
+        pitch = image->GetPitchBytes();
     PVR3TexturePixelFormat pixelFormat = PVR3TexturePixelFormat::RGBA8888;
     if(mode == TJS_W("ETC2_RGB")) {
         pixelFormat = PVR3TexturePixelFormat::ETC2_RGB;
         // drop alpha data
         size_t size;
-        tjs_uint8 *data = (tjs_uint8 *)ETCPacker::convert(pixeldata, w, h, pitch, true, size);
+        tjs_uint8 *data =
+            (tjs_uint8 *)ETCPacker::convert(pixeldata, w, h, pitch, true, size);
         memstr.WriteBuffer(data, size);
     } else if(mode == TJS_W("ETC2_RGBA")) {
         pixelFormat = PVR3TexturePixelFormat::ETC2_RGBA;
         size_t size;
-        tjs_uint8 *data = (tjs_uint8 *)ETCPacker::convertWithAlpha(pixeldata, w, h, pitch, size);
+        tjs_uint8 *data = (tjs_uint8 *)ETCPacker::convertWithAlpha(
+            pixeldata, w, h, pitch, size);
         memstr.WriteBuffer(data, size);
     } else if(mode == TJS_W("ETC1")) {
         pixelFormat = PVR3TexturePixelFormat::ETC1;
         // drop alpha data
         size_t size;
-        tjs_uint8 *data = (tjs_uint8 *)ETCPacker::convert(pixeldata, w, h, pitch, false, size);
+        tjs_uint8 *data = (tjs_uint8 *)ETCPacker::convert(pixeldata, w, h,
+                                                          pitch, false, size);
         memstr.WriteBuffer(data, size);
     } else { // direct save as RGBA8888
         for(int y = 0; y < h; ++y) {

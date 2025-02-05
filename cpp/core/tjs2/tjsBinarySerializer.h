@@ -199,7 +199,8 @@ namespace TJS {
             }
         }
 
-        static inline void PutString(tTJSBinaryStream *stream, const tjs_char *val, tjs_uint len) {
+        static inline void PutString(tTJSBinaryStream *stream,
+                                     const tjs_char *val, tjs_uint len) {
             if(len <= TYPE_FIX_STRING_LEN) {
                 tjs_uint8 tmp[1];
                 tmp[0] = TYPE_FIX_STRING_MIN + len;
@@ -264,7 +265,8 @@ namespace TJS {
             stream->Write(tmp, sizeof(tmp));
         }
 
-        static inline void PutBytes(tTJSBinaryStream *stream, const tjs_uint8 *val, tjs_uint len) {
+        static inline void PutBytes(tTJSBinaryStream *stream,
+                                    const tjs_uint8 *val, tjs_uint len) {
             if(len <= TYPE_FIX_RAW_LEN) {
                 tjs_uint8 tmp[1];
                 tmp[0] = TYPE_FIX_RAW_MIN + len;
@@ -294,7 +296,8 @@ namespace TJS {
         /**
          * オクテット型の値を格納する
          */
-        static inline void PutOctet(tTJSBinaryStream *stream, tTJSVariantOctet *val) {
+        static inline void PutOctet(tTJSBinaryStream *stream,
+                                    tTJSVariantOctet *val) {
             tjs_uint len = 0;
             const tjs_uint8 *data = nullptr;
             if(val) {
@@ -307,7 +310,8 @@ namespace TJS {
         /**
          * 文字列を格納する
          */
-        static inline void PutString(tTJSBinaryStream *stream, const tTJSVariantString *val) {
+        static inline void PutString(tTJSBinaryStream *stream,
+                                     const tTJSVariantString *val) {
             const tjs_char *data = nullptr;
             tjs_int len = 0;
             if(val) {
@@ -321,7 +325,8 @@ namespace TJS {
             PutString(stream, data, len);
         }
 
-        static inline void PutStartMap(tTJSBinaryStream *stream, tjs_uint count) {
+        static inline void PutStartMap(tTJSBinaryStream *stream,
+                                       tjs_uint count) {
             if(count <= TYPE_FIX_MAP_LEN) {
                 tjs_uint8 tmp[1];
                 tmp[0] = TYPE_FIX_MAP_MIN + count;
@@ -347,7 +352,8 @@ namespace TJS {
             }
         }
 
-        static inline void PutStartArray(tTJSBinaryStream *stream, tjs_uint count) {
+        static inline void PutStartArray(tTJSBinaryStream *stream,
+                                         tjs_uint count) {
             if(count <= TYPE_FIX_ARRAY_LEN) {
                 tjs_uint8 tmp[1];
                 tmp[0] = TYPE_FIX_ARRAY_MIN + count;
@@ -379,28 +385,37 @@ namespace TJS {
             stream->Write(tmp, sizeof(tmp));
         }
 
-        static inline tjs_uint16 Read16(const tjs_uint8 *buff, tjs_uint &index) {
+        static inline tjs_uint16 Read16(const tjs_uint8 *buff,
+                                        tjs_uint &index) {
             tjs_uint16 ret = buff[index] | (buff[index + 1] << 8);
             index += sizeof(tjs_uint16);
             return ret;
         }
 
-        static inline tjs_uint32 Read32(const tjs_uint8 *buff, tjs_uint &index) {
-            tjs_uint32 ret = buff[index] | (buff[index + 1] << 8) | (buff[index + 2] << 16) | (buff[index + 3] << 24);
+        static inline tjs_uint32 Read32(const tjs_uint8 *buff,
+                                        tjs_uint &index) {
+            tjs_uint32 ret = buff[index] | (buff[index + 1] << 8) |
+                (buff[index + 2] << 16) | (buff[index + 3] << 24);
             index += sizeof(tjs_uint32);
             return ret;
         }
 
-        static inline tjs_uint64 Read64(const tjs_uint8 *buff, tjs_uint &index) {
-            tjs_uint64 ret = (tjs_uint64)buff[index] | ((tjs_uint64)buff[index + 1] << 8) |
-                ((tjs_uint64)buff[index + 2] << 16) | ((tjs_uint64)buff[index + 3] << 24) |
-                ((tjs_uint64)buff[index + 4] << 32) | ((tjs_uint64)buff[index + 5] << 40) |
-                ((tjs_uint64)buff[index + 6] << 48) | ((tjs_uint64)buff[index + 7] << 56);
+        static inline tjs_uint64 Read64(const tjs_uint8 *buff,
+                                        tjs_uint &index) {
+            tjs_uint64 ret = (tjs_uint64)buff[index] |
+                ((tjs_uint64)buff[index + 1] << 8) |
+                ((tjs_uint64)buff[index + 2] << 16) |
+                ((tjs_uint64)buff[index + 3] << 24) |
+                ((tjs_uint64)buff[index + 4] << 32) |
+                ((tjs_uint64)buff[index + 5] << 40) |
+                ((tjs_uint64)buff[index + 6] << 48) |
+                ((tjs_uint64)buff[index + 7] << 56);
             index += sizeof(tjs_uint64);
             return ret;
         }
 
-        static inline tjs_char *ReadChars(const tjs_uint8 *buff, tjs_uint len, tjs_uint &index) {
+        static inline tjs_char *ReadChars(const tjs_uint8 *buff, tjs_uint len,
+                                          tjs_uint &index) {
             if(len > 0) {
                 tjs_char *str = new tjs_char[len];
                 for(tjs_uint i = 0; i < len; i++) {
@@ -415,7 +430,8 @@ namespace TJS {
             }
         }
 
-        static inline tTJSVariantString *ReadString(const tjs_uint8 *buff, tjs_uint len, tjs_uint &index) {
+        static inline tTJSVariantString *
+        ReadString(const tjs_uint8 *buff, tjs_uint len, tjs_uint &index) {
             tTJSVariantString *ret = nullptr;
             if(len > 0) {
                 tjs_char *str = new tjs_char[len];
@@ -431,10 +447,12 @@ namespace TJS {
             return ret;
         }
 
-        static inline tTJSVariant *ReadStringVarint(const tjs_uint8 *buff, tjs_uint len, tjs_uint &index) {
+        static inline tTJSVariant *
+        ReadStringVarint(const tjs_uint8 *buff, tjs_uint len, tjs_uint &index) {
             tTJSVariantString *ret = ReadString(buff, len, index);
             if(!ret) {
-                tTJSVariant *var = new tTJSVariant(TJSMapGlobalStringMap(ttstr()));
+                tTJSVariant *var =
+                    new tTJSVariant(TJSMapGlobalStringMap(ttstr()));
                 return var;
             } else {
                 ttstr str(ret);
@@ -444,7 +462,8 @@ namespace TJS {
             }
         }
 
-        static inline tTJSVariant *ReadOctetVarint(const tjs_uint8 *buff, tjs_uint len, tjs_uint &index) {
+        static inline tTJSVariant *
+        ReadOctetVarint(const tjs_uint8 *buff, tjs_uint len, tjs_uint &index) {
             tTJSVariantOctet *oct = TJSAllocVariantOctet(&buff[index], len);
             index += len;
             tTJSVariant *var = new tTJSVariant();
@@ -480,15 +499,20 @@ namespace TJS {
 
         class tTJSArrayObject *CreateArray(tjs_uint count);
 
-        void AddDictionary(class tTJSDictionaryObject *dic, tTJSVariantString *name, tTJSVariant *value);
+        void AddDictionary(class tTJSDictionaryObject *dic,
+                           tTJSVariantString *name, tTJSVariant *value);
 
-        void InsertArray(class tTJSArrayObject *array, tjs_uint index, tTJSVariant *value);
+        void InsertArray(class tTJSArrayObject *array, tjs_uint index,
+                         tTJSVariant *value);
 
-        tTJSVariant *ReadBasicType(const tjs_uint8 *buff, const tjs_uint size, tjs_uint &index);
+        tTJSVariant *ReadBasicType(const tjs_uint8 *buff, const tjs_uint size,
+                                   tjs_uint &index);
 
-        tTJSVariant *ReadArray(const tjs_uint8 *buff, const tjs_uint size, const tjs_uint count, tjs_uint &index);
+        tTJSVariant *ReadArray(const tjs_uint8 *buff, const tjs_uint size,
+                               const tjs_uint count, tjs_uint &index);
 
-        tTJSVariant *ReadDictionary(const tjs_uint8 *buff, const tjs_uint size, const tjs_uint count, tjs_uint &index);
+        tTJSVariant *ReadDictionary(const tjs_uint8 *buff, const tjs_uint size,
+                                    const tjs_uint count, tjs_uint &index);
     };
 
 } // namespace TJS

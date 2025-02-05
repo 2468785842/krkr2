@@ -51,7 +51,8 @@ class CDVDVideoCodec;
 
 class IDVDStreamPlayerVideo : public IDVDStreamPlayer {
 public:
-    IDVDStreamPlayerVideo(CProcessInfo &processInfo) : IDVDStreamPlayer(processInfo){};
+    IDVDStreamPlayerVideo(CProcessInfo &processInfo) :
+        IDVDStreamPlayer(processInfo){};
 
     ~IDVDStreamPlayerVideo() {}
 
@@ -107,7 +108,8 @@ class CDVDAudioCodec;
 
 class IDVDStreamPlayerAudio : public IDVDStreamPlayer {
 public:
-    IDVDStreamPlayerAudio(CProcessInfo &processInfo) : IDVDStreamPlayer(processInfo){};
+    IDVDStreamPlayerAudio(CProcessInfo &processInfo) :
+        IDVDStreamPlayer(processInfo){};
 
     ~IDVDStreamPlayerAudio() {}
 

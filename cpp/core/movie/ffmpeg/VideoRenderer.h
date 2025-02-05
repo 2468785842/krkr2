@@ -33,7 +33,8 @@ class IRenderMsg {
 protected:
     virtual void VideoParamsChange() = 0;
 
-    virtual void GetDebugInfo(std::string &audio, std::string &video, std::string &general) = 0;
+    virtual void GetDebugInfo(std::string &audio, std::string &video,
+                              std::string &general) = 0;
 
     virtual void UpdateClockSync(bool enabled) = 0;
 
@@ -59,7 +60,8 @@ public:
 
     bool HasFrame();
 
-    void Render(bool clear, uint32_t flags = 0, uint32_t alpha = 255, bool gui = true);
+    void Render(bool clear, uint32_t flags = 0, uint32_t alpha = 255,
+                bool gui = true);
 
     bool IsGuiLayer();
 
@@ -103,17 +105,19 @@ public:
      * @param orientation
      * @param numbers of kept buffer references
      */
-    bool Configure(DVDVideoPicture &picture, float fps, unsigned flags, unsigned int orientation, int buffers = 0);
+    bool Configure(DVDVideoPicture &picture, float fps, unsigned flags,
+                   unsigned int orientation, int buffers = 0);
 
     int AddVideoPicture(DVDVideoPicture &picture);
 
     /**
      * Called by video player to flip render buffers
-     * If buffering is enabled this method does not block. In case of disabled
-     * buffering this method blocks waiting for the render thread to pass by.
-     * When buffering is used there might be no free buffer available after the
-     * call to this method. Player has to call WaitForBuffer. A free buffer will
-     * become available after the main thread has flipped front / back buffers.
+     * If buffering is enabled this method does not block. In case of
+     * disabled buffering this method blocks waiting for the render
+     * thread to pass by. When buffering is used there might be no
+     * free buffer available after the call to this method. Player has
+     * to call WaitForBuffer. A free buffer will become available
+     * after the main thread has flipped front / back buffers.
      *
      * @param bStop reference to stop flag of calling thread
      * @param timestamp of frame delivered with AddVideoPicture
@@ -122,8 +126,10 @@ public:
      * @param sync signals frame, top, or bottom field
      * @param wait: block until pic has been rendered
      */
-    void FlipPage(volatile std::atomic_bool &bStop, double pts /*, EINTERLACEMETHOD deintMethod, EFIELDSYNC sync*/,
-                  bool wait);
+    void
+    FlipPage(volatile std::atomic_bool &bStop,
+             double pts /*, EINTERLACEMETHOD deintMethod, EFIELDSYNC sync*/,
+             bool wait);
 
     //	void AddOverlay(CDVDOverlay* o, double pts);
 
@@ -131,23 +137,24 @@ public:
     CRenderInfo GetRenderInfo();
 
     /**
-     * If player uses buffering it has to wait for a buffer before it calls
-     * AddVideoPicture and AddOverlay. It waits for max 50 ms before it returns
-     * -1 in case no buffer is available. Player may call this in a loop and
-     * decides by itself when it wants to drop a frame. If no buffering is
-     * requested in Configure, player does not need to call this, because
-     * FlipPage will block.
+     * If player uses buffering it has to wait for a buffer before it
+     * calls AddVideoPicture and AddOverlay. It waits for max 50 ms
+     * before it returns -1 in case no buffer is available. Player may
+     * call this in a loop and decides by itself when it wants to drop
+     * a frame. If no buffering is requested in Configure, player does
+     * not need to call this, because FlipPage will block.
      */
     int WaitForBuffer(volatile std::atomic_bool &bStop, int timeout = 100);
 
     /**
-     * Can be called by player for lateness detection. This is done best by
-     * looking at the end of the queue.
+     * Can be called by player for lateness detection. This is done
+     * best by looking at the end of the queue.
      */
     bool GetStats(int &lateframes, double &pts, int &queued, int &discard);
 
     /**
-     * Video player call this on flush in oder to discard any queued frames
+     * Video player call this on flush in oder to discard any queued
+     * frames
      */
     void DiscardBuffer();
 
@@ -191,7 +198,13 @@ protected:
     bool m_renderDebug;
     Timer m_debugTimer;
 
-    enum EPRESENTSTEP { PRESENT_IDLE = 0, PRESENT_FLIP, PRESENT_FRAME, PRESENT_FRAME2, PRESENT_READY };
+    enum EPRESENTSTEP {
+        PRESENT_IDLE = 0,
+        PRESENT_FLIP,
+        PRESENT_FRAME,
+        PRESENT_FRAME2,
+        PRESENT_READY
+    };
 
     enum EPRESENTMETHOD {
         PRESENT_METHOD_SINGLE = 0,

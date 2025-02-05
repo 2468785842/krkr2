@@ -30,7 +30,8 @@ namespace TJS {
             bool MustReturnResult;
 
             bool operator==(const tScriptCacheData &rhs) const {
-                return Script == rhs.Script && ExpressionMode == rhs.ExpressionMode &&
+                return Script == rhs.Script &&
+                    ExpressionMode == rhs.ExpressionMode &&
                     MustReturnResult == rhs.MustReturnResult;
             }
         };
@@ -49,7 +50,9 @@ namespace TJS {
 
         typedef tTJSRefHolder<tTJSScriptBlock> tScriptBlockHolder;
 
-        typedef tTJSHashCache<tScriptCacheData, tScriptBlockHolder, tScriptCacheHashFunc> tCache;
+        typedef tTJSHashCache<tScriptCacheData, tScriptBlockHolder,
+                              tScriptCacheHashFunc>
+            tCache;
 
         tCache Cache;
 
@@ -58,21 +61,26 @@ namespace TJS {
         virtual ~tTJSScriptCache();
 
     public:
-        void ExecScript(const tjs_char *script, tTJSVariant *result, iTJSDispatch2 *context, const tjs_char *name,
+        void ExecScript(const tjs_char *script, tTJSVariant *result,
+                        iTJSDispatch2 *context, const tjs_char *name,
                         tjs_int lineofs);
 
-        void ExecScript(const ttstr &script, tTJSVariant *result, iTJSDispatch2 *context, const ttstr *name,
+        void ExecScript(const ttstr &script, tTJSVariant *result,
+                        iTJSDispatch2 *context, const ttstr *name,
                         tjs_int lineofs);
 
     public:
-        void EvalExpression(const tjs_char *expression, tTJSVariant *result, iTJSDispatch2 *context,
-                            const tjs_char *name, tjs_int lineofs);
+        void EvalExpression(const tjs_char *expression, tTJSVariant *result,
+                            iTJSDispatch2 *context, const tjs_char *name,
+                            tjs_int lineofs);
 
-        void EvalExpression(const ttstr &expression, tTJSVariant *result, iTJSDispatch2 *context, const ttstr *name,
+        void EvalExpression(const ttstr &expression, tTJSVariant *result,
+                            iTJSDispatch2 *context, const ttstr *name,
                             tjs_int lineofs);
 
         // for Bytecode
-        void LoadByteCode(const tjs_uint8 *buff, size_t len, tTJSVariant *result, iTJSDispatch2 *context,
+        void LoadByteCode(const tjs_uint8 *buff, size_t len,
+                          tTJSVariant *result, iTJSDispatch2 *context,
                           const tjs_char *name);
     };
     //---------------------------------------------------------------------------

@@ -29,17 +29,18 @@
 // DirectInput management
 //---------------------------------------------------------------------------
 /*
-        tvp32 uses DirectInput to detect wheel rotation. This will avoid
-        DirectX/Windows bug which prevents wheel messages when the window is
-        full-screened.
+        tvp32 uses DirectInput to detect wheel rotation. This will
+   avoid DirectX/Windows bug which prevents wheel messages when the
+   window is full-screened.
 */
-tTVPWheelDetectionType TVPWheelDetectionType = wdtWindowMessage /*wdtDirectInput*/;
+tTVPWheelDetectionType TVPWheelDetectionType =
+    wdtWindowMessage /*wdtDirectInput*/;
 tTVPJoyPadDetectionType TVPJoyPadDetectionType = jdtNone /*jdtDirectInput*/;
 static bool TVPDirectInputInit = false;
 static tjs_int TVPDirectInputLibRefCount = 0;
-// static HMODULE TVPDirectInputLibHandle = nullptr; // module handle for
-// dinput.dll static IDirectInput *TVPDirectInput = nullptr; // DirectInput
-// object
+// static HMODULE TVPDirectInputLibHandle = nullptr; // module handle
+// for dinput.dll static IDirectInput *TVPDirectInput = nullptr; //
+// DirectInput object
 //---------------------------------------------------------------------------
 #if 0
 struct tTVPDIWheelData { LONG delta; }; // data structure for DirectInput(Mouse)
@@ -51,8 +52,8 @@ static DIDATAFORMAT TVPWheelDIDF =
 	sizeof(tTVPDIWheelData), 1, TVPWheelDIODF
 };
 #endif
-// Joystick (pad) related codes are contributed by Mr. Kiyobee @ TYPE-MOON.
-// Say thanks to him.
+// Joystick (pad) related codes are contributed by Mr. Kiyobee @
+// TYPE-MOON. Say thanks to him.
 
 //	in http://www.mediawars.ne.jp/~freemage/progs/other03.htm
 const static tjs_uint32 q = 0x80000000;
@@ -116,11 +117,14 @@ static DIDATAFORMAT c_dfPad =
 #endif
 static const tjs_int PadAxisMax = +32767;
 static const tjs_int PadAxisMin = -32768;
-static const tjs_int PadAxisThreshold = 95; // Assumes 95% value can turn input on. 95%の入力でOK
-static const tjs_int PadAxisUpperThreshold = PadAxisMax * PadAxisThreshold / 100;
-static const tjs_int PadAxisLowerThreshold = PadAxisMin * PadAxisThreshold / 100;
-// static bool CALLBACK EnumJoySticksCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID
-// pvRef);
+static const tjs_int PadAxisThreshold =
+    95; // Assumes 95% value can turn input on. 95%の入力でOK
+static const tjs_int PadAxisUpperThreshold =
+    PadAxisMax * PadAxisThreshold / 100;
+static const tjs_int PadAxisLowerThreshold =
+    PadAxisMin * PadAxisThreshold / 100;
+// static bool CALLBACK EnumJoySticksCallback(LPCDIDEVICEINSTANCE
+// lpddi, LPVOID pvRef);
 static tjs_uint32 PadLastTrigger;
 static tjs_uint32 /*__fastcall*/ PadState();
 
@@ -174,8 +178,10 @@ static tTVPPadKeyFlag TVPVirtualKeyToPadCode(WORD vk)
 //---------------------------------------------------------------------------
 // tTVPKeyRepeatEmulator : A class for emulating keyboard key repeats.
 //---------------------------------------------------------------------------
-tjs_int32 tTVPKeyRepeatEmulator::HoldTime = 500; // keyboard key-repeats hold-time
-tjs_int32 tTVPKeyRepeatEmulator::IntervalTime = 30; // keyboard key-repeats interval-time
+tjs_int32 tTVPKeyRepeatEmulator::HoldTime =
+    500; // keyboard key-repeats hold-time
+tjs_int32 tTVPKeyRepeatEmulator::IntervalTime =
+    30; // keyboard key-repeats interval-time
 //---------------------------------------------------------------------------
 void tTVPKeyRepeatEmulator::GetKeyRepeatParam() {
     static tjs_int ArgumentGeneration = 0;
@@ -205,7 +211,8 @@ void tTVPKeyRepeatEmulator::Down() {
 void tTVPKeyRepeatEmulator::Up() { Pressed = false; }
 //---------------------------------------------------------------------------
 tjs_int tTVPKeyRepeatEmulator::GetRepeatCount() {
-    // calculate repeat count, from previous call of "GetRepeatCount" function.
+    // calculate repeat count, from previous call of "GetRepeatCount"
+    // function.
     GetKeyRepeatParam();
 
     if(!Pressed)
@@ -649,8 +656,10 @@ tjs_uint32 tTVPPadDirectInputDevice::GetState()
 
 	//	structure DIJOYSTATE => unsigned integer JoyState
 	tjs_uint32	press	= 0;
-#define JOY_CROSSKEY(value, plus, minus)                                                                               \
-    ((value) >= PadAxisUpperThreshold ? (plus) : ((value) <= PadAxisLowerThreshold ? (minus) : 0))
+#define JOY_CROSSKEY(value, plus, minus)                                       \
+    ((value) >= PadAxisUpperThreshold                                          \
+         ? (plus)                                                              \
+         : ((value) <= PadAxisLowerThreshold ? (minus) : 0))
 #define JOY_BUTTON(value, on) ((value & 0x80) ? (on) : 0)
 	press	|= JOY_CROSSKEY(js.lX, (1<<pkfRight), (1<<pkfLeft));
 	press	|= JOY_CROSSKEY(js.lY, (1<<pkfDown), (1<<pkfUp));

@@ -39,7 +39,8 @@ tTVPDrawDevice::~tTVPDrawDevice() {
     // そのため、ここではいったん配列をコピーしてからそれぞれの
     // Release() を呼ぶ。
     std::vector<iTVPLayerManager *> backup = Managers;
-    for(std::vector<iTVPLayerManager *>::iterator i = backup.begin(); i != backup.end(); i++)
+    for(std::vector<iTVPLayerManager *>::iterator i = backup.begin();
+        i != backup.end(); i++)
         (*i)->Release();
 }
 //---------------------------------------------------------------------------
@@ -57,7 +58,8 @@ bool tTVPDrawDevice::TransformToPrimaryLayerManager(tjs_int &x, tjs_int &y) {
         return false;
     // pl_w = WinWidth; pl_h = WinHeight;
 
-    // x , y は DestRect の 0, 0 を原点とした座標として渡されてきている
+    // x , y は DestRect の 0, 0
+    // を原点とした座標として渡されてきている
     tjs_int w = DestRect.get_width();
     tjs_int h = DestRect.get_height();
     x = w ? ((x - DestRect.left) * pl_w / w) : 0;
@@ -80,7 +82,8 @@ bool tTVPDrawDevice::TransformFromPrimaryLayerManager(tjs_int &x, tjs_int &y) {
         return false;
     // pl_w = WinWidth; pl_h = WinHeight;
 
-    // x , y は DestRect の 0, 0 を原点とした座標として渡されてきている
+    // x , y は DestRect の 0, 0
+    // を原点とした座標として渡されてきている
     x = pl_w ? (x * DestRect.get_width() / pl_w) : 0;
     y = pl_h ? (y * DestRect.get_height() / pl_h) : 0;
     x += DestRect.left;
@@ -100,7 +103,8 @@ bool tTVPDrawDevice::TransformToPrimaryLayerManager(tjs_real &x, tjs_real &y) {
     if(!manager->GetPrimaryLayerSize(pl_w, pl_h))
         return false;
 
-    // x , y は DestRect の 0, 0 を原点とした座標として渡されてきている
+    // x , y は DestRect の 0, 0
+    // を原点とした座標として渡されてきている
     tjs_int w = DestRect.get_width();
     tjs_int h = DestRect.get_height();
     x = w ? (x * pl_w / w) : 0.0;
@@ -111,15 +115,15 @@ bool tTVPDrawDevice::TransformToPrimaryLayerManager(tjs_real &x, tjs_real &y) {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::Destruct() { delete this; }
+void tTVPDrawDevice::Destruct() { delete this; }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::SetWindowInterface(iTVPWindow *window) { Window = window; }
+void tTVPDrawDevice::SetWindowInterface(iTVPWindow *window) { Window = window; }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::AddLayerManager(iTVPLayerManager *manager) {
+void tTVPDrawDevice::AddLayerManager(iTVPLayerManager *manager) {
     // Managers に manager を push する。AddRefするのを忘れないこと。
     Managers.push_back(manager);
     manager->AddRef();
@@ -127,9 +131,10 @@ void TJS_INTF_METHOD tTVPDrawDevice::AddLayerManager(iTVPLayerManager *manager) 
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::RemoveLayerManager(iTVPLayerManager *manager) {
+void tTVPDrawDevice::RemoveLayerManager(iTVPLayerManager *manager) {
     // Managers から manager を削除する。Releaseする。
-    std::vector<iTVPLayerManager *>::iterator i = std::find(Managers.begin(), Managers.end(), manager);
+    std::vector<iTVPLayerManager *>::iterator i =
+        std::find(Managers.begin(), Managers.end(), manager);
     if(i == Managers.end())
         TVPThrowInternalError;
     (*i)->Release();
@@ -138,7 +143,7 @@ void TJS_INTF_METHOD tTVPDrawDevice::RemoveLayerManager(iTVPLayerManager *manage
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::SetDestRectangle(const tTVPRect &rect) { DestRect = rect; }
+void tTVPDrawDevice::SetDestRectangle(const tTVPRect &rect) { DestRect = rect; }
 //---------------------------------------------------------------------------
 
 void tTVPDrawDevice::SetLockedSize(tjs_int w, tjs_int h) {
@@ -147,11 +152,11 @@ void tTVPDrawDevice::SetLockedSize(tjs_int w, tjs_int h) {
 }
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::SetClipRectangle(const tTVPRect &rect) { ClipRect = rect; }
+void tTVPDrawDevice::SetClipRectangle(const tTVPRect &rect) { ClipRect = rect; }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::GetSrcSize(tjs_int &w, tjs_int &h) {
+void tTVPDrawDevice::GetSrcSize(tjs_int &w, tjs_int &h) {
     w = LockedWidth;
     h = LockedHeight;
     if(w > 0 && h > 0)
@@ -167,23 +172,25 @@ void TJS_INTF_METHOD tTVPDrawDevice::GetSrcSize(tjs_int &w, tjs_int &h) {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::NotifyLayerResize(iTVPLayerManager *manager) {
-    iTVPLayerManager *primary_manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
+void tTVPDrawDevice::NotifyLayerResize(iTVPLayerManager *manager) {
+    iTVPLayerManager *primary_manager =
+        GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(primary_manager == manager)
         Window->NotifySrcResize();
 }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::NotifyLayerImageChange(iTVPLayerManager *manager) {
-    iTVPLayerManager *primary_manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
+void tTVPDrawDevice::NotifyLayerImageChange(iTVPLayerManager *manager) {
+    iTVPLayerManager *primary_manager =
+        GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(primary_manager == manager)
         Window->RequestUpdate();
 }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnClick(tjs_int x, tjs_int y) {
+void tTVPDrawDevice::OnClick(tjs_int x, tjs_int y) {
     if(!TransformToPrimaryLayerManager(x, y))
         return;
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
@@ -195,7 +202,7 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnClick(tjs_int x, tjs_int y) {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnDoubleClick(tjs_int x, tjs_int y) {
+void tTVPDrawDevice::OnDoubleClick(tjs_int x, tjs_int y) {
     if(!TransformToPrimaryLayerManager(x, y))
         return;
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
@@ -207,7 +214,8 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnDoubleClick(tjs_int x, tjs_int y) {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb, tjs_uint32 flags) {
+void tTVPDrawDevice::OnMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb,
+                                 tjs_uint32 flags) {
     if(!TransformToPrimaryLayerManager(x, y))
         return;
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
@@ -219,7 +227,8 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnMouseDown(tjs_int x, tjs_int y, tTVPMouse
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb, tjs_uint32 flags) {
+void tTVPDrawDevice::OnMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb,
+                               tjs_uint32 flags) {
     if(!TransformToPrimaryLayerManager(x, y))
         return;
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
@@ -231,7 +240,7 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnMouseUp(tjs_int x, tjs_int y, tTVPMouseBu
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) {
+void tTVPDrawDevice::OnMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) {
     if(!TransformToPrimaryLayerManager(x, y))
         return;
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
@@ -243,7 +252,7 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnMouseMove(tjs_int x, tjs_int y, tjs_uint3
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnReleaseCapture() {
+void tTVPDrawDevice::OnReleaseCapture() {
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!manager)
         return;
@@ -253,7 +262,7 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnReleaseCapture() {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnMouseOutOfWindow() {
+void tTVPDrawDevice::OnMouseOutOfWindow() {
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!manager)
         return;
@@ -263,7 +272,7 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnMouseOutOfWindow() {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnKeyDown(tjs_uint key, tjs_uint32 shift) {
+void tTVPDrawDevice::OnKeyDown(tjs_uint key, tjs_uint32 shift) {
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!manager)
         return;
@@ -273,7 +282,7 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnKeyDown(tjs_uint key, tjs_uint32 shift) {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnKeyUp(tjs_uint key, tjs_uint32 shift) {
+void tTVPDrawDevice::OnKeyUp(tjs_uint key, tjs_uint32 shift) {
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!manager)
         return;
@@ -283,7 +292,7 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnKeyUp(tjs_uint key, tjs_uint32 shift) {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnKeyPress(tjs_char key) {
+void tTVPDrawDevice::OnKeyPress(tjs_char key) {
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!manager)
         return;
@@ -293,7 +302,8 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnKeyPress(tjs_char key) {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x, tjs_int y) {
+void tTVPDrawDevice::OnMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x,
+                                  tjs_int y) {
     if(!TransformToPrimaryLayerManager(x, y))
         return;
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
@@ -305,7 +315,8 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnMouseWheel(tjs_uint32 shift, tjs_int delt
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) {
+void tTVPDrawDevice::OnTouchDown(tjs_real x, tjs_real y, tjs_real cx,
+                                 tjs_real cy, tjs_uint32 id) {
     if(!TransformToPrimaryLayerManager(x, y))
         return;
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
@@ -317,7 +328,8 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnTouchDown(tjs_real x, tjs_real y, tjs_rea
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) {
+void tTVPDrawDevice::OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
+                               tjs_uint32 id) {
     if(!TransformToPrimaryLayerManager(x, y))
         return;
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
@@ -329,7 +341,8 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnTouchUp(tjs_real x, tjs_real y, tjs_real 
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnTouchMove(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) {
+void tTVPDrawDevice::OnTouchMove(tjs_real x, tjs_real y, tjs_real cx,
+                                 tjs_real cy, tjs_uint32 id) {
     if(!TransformToPrimaryLayerManager(x, y))
         return;
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
@@ -341,8 +354,8 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnTouchMove(tjs_real x, tjs_real y, tjs_rea
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnTouchScaling(tjs_real startdist, tjs_real curdist, tjs_real cx, tjs_real cy,
-                                                    tjs_int flag) {
+void tTVPDrawDevice::OnTouchScaling(tjs_real startdist, tjs_real curdist,
+                                    tjs_real cx, tjs_real cy, tjs_int flag) {
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!manager)
         return;
@@ -352,8 +365,9 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnTouchScaling(tjs_real startdist, tjs_real
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnTouchRotate(tjs_real startangle, tjs_real curangle, tjs_real dist, tjs_real cx,
-                                                   tjs_real cy, tjs_int flag) {
+void tTVPDrawDevice::OnTouchRotate(tjs_real startangle, tjs_real curangle,
+                                   tjs_real dist, tjs_real cx, tjs_real cy,
+                                   tjs_int flag) {
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!manager)
         return;
@@ -363,7 +377,7 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnTouchRotate(tjs_real startangle, tjs_real
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnMultiTouch() {
+void tTVPDrawDevice::OnMultiTouch() {
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!manager)
         return;
@@ -373,14 +387,15 @@ void TJS_INTF_METHOD tTVPDrawDevice::OnMultiTouch() {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::OnDisplayRotate(tjs_int orientation, tjs_int rotate, tjs_int bpp, tjs_int width,
-                                                     tjs_int height) {
+void tTVPDrawDevice::OnDisplayRotate(tjs_int orientation, tjs_int rotate,
+                                     tjs_int bpp, tjs_int width,
+                                     tjs_int height) {
     // 何もしない
 }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::RecheckInputState() {
+void tTVPDrawDevice::RecheckInputState() {
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!manager)
         return;
@@ -390,8 +405,9 @@ void TJS_INTF_METHOD tTVPDrawDevice::RecheckInputState() {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::SetDefaultMouseCursor(iTVPLayerManager *manager) {
-    iTVPLayerManager *primary_manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
+void tTVPDrawDevice::SetDefaultMouseCursor(iTVPLayerManager *manager) {
+    iTVPLayerManager *primary_manager =
+        GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!primary_manager)
         return;
     if(primary_manager == manager) {
@@ -401,8 +417,9 @@ void TJS_INTF_METHOD tTVPDrawDevice::SetDefaultMouseCursor(iTVPLayerManager *man
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::SetMouseCursor(iTVPLayerManager *manager, tjs_int cursor) {
-    iTVPLayerManager *primary_manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
+void tTVPDrawDevice::SetMouseCursor(iTVPLayerManager *manager, tjs_int cursor) {
+    iTVPLayerManager *primary_manager =
+        GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!primary_manager)
         return;
     if(primary_manager == manager) {
@@ -412,8 +429,10 @@ void TJS_INTF_METHOD tTVPDrawDevice::SetMouseCursor(iTVPLayerManager *manager, t
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::GetCursorPos(iTVPLayerManager *manager, tjs_int &x, tjs_int &y) {
-    iTVPLayerManager *primary_manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
+void tTVPDrawDevice::GetCursorPos(iTVPLayerManager *manager, tjs_int &x,
+                                  tjs_int &y) {
+    iTVPLayerManager *primary_manager =
+        GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!primary_manager)
         return;
     Window->GetCursorPos(x, y);
@@ -426,8 +445,10 @@ void TJS_INTF_METHOD tTVPDrawDevice::GetCursorPos(iTVPLayerManager *manager, tjs
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::SetCursorPos(iTVPLayerManager *manager, tjs_int x, tjs_int y) {
-    iTVPLayerManager *primary_manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
+void tTVPDrawDevice::SetCursorPos(iTVPLayerManager *manager, tjs_int x,
+                                  tjs_int y) {
+    iTVPLayerManager *primary_manager =
+        GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!primary_manager)
         return;
     if(primary_manager == manager) {
@@ -438,8 +459,9 @@ void TJS_INTF_METHOD tTVPDrawDevice::SetCursorPos(iTVPLayerManager *manager, tjs
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::WindowReleaseCapture(iTVPLayerManager *manager) {
-    iTVPLayerManager *primary_manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
+void tTVPDrawDevice::WindowReleaseCapture(iTVPLayerManager *manager) {
+    iTVPLayerManager *primary_manager =
+        GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!primary_manager)
         return;
     if(primary_manager == manager) {
@@ -449,8 +471,10 @@ void TJS_INTF_METHOD tTVPDrawDevice::WindowReleaseCapture(iTVPLayerManager *mana
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::SetHintText(iTVPLayerManager *manager, iTJSDispatch2 *sender, const ttstr &text) {
-    iTVPLayerManager *primary_manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
+void tTVPDrawDevice::SetHintText(iTVPLayerManager *manager,
+                                 iTJSDispatch2 *sender, const ttstr &text) {
+    iTVPLayerManager *primary_manager =
+        GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!primary_manager)
         return;
     if(primary_manager == manager) {
@@ -460,9 +484,11 @@ void TJS_INTF_METHOD tTVPDrawDevice::SetHintText(iTVPLayerManager *manager, iTJS
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::SetAttentionPoint(iTVPLayerManager *manager, tTJSNI_BaseLayer *layer, tjs_int l,
-                                                       tjs_int t) {
-    iTVPLayerManager *primary_manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
+void tTVPDrawDevice::SetAttentionPoint(iTVPLayerManager *manager,
+                                       tTJSNI_BaseLayer *layer, tjs_int l,
+                                       tjs_int t) {
+    iTVPLayerManager *primary_manager =
+        GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!primary_manager)
         return;
     if(primary_manager == manager) {
@@ -473,8 +499,9 @@ void TJS_INTF_METHOD tTVPDrawDevice::SetAttentionPoint(iTVPLayerManager *manager
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::DisableAttentionPoint(iTVPLayerManager *manager) {
-    iTVPLayerManager *primary_manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
+void tTVPDrawDevice::DisableAttentionPoint(iTVPLayerManager *manager) {
+    iTVPLayerManager *primary_manager =
+        GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!primary_manager)
         return;
     if(primary_manager == manager) {
@@ -484,8 +511,9 @@ void TJS_INTF_METHOD tTVPDrawDevice::DisableAttentionPoint(iTVPLayerManager *man
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::SetImeMode(iTVPLayerManager *manager, tTVPImeMode mode) {
-    iTVPLayerManager *primary_manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
+void tTVPDrawDevice::SetImeMode(iTVPLayerManager *manager, tTVPImeMode mode) {
+    iTVPLayerManager *primary_manager =
+        GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!primary_manager)
         return;
     if(primary_manager == manager) {
@@ -495,8 +523,9 @@ void TJS_INTF_METHOD tTVPDrawDevice::SetImeMode(iTVPLayerManager *manager, tTVPI
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::ResetImeMode(iTVPLayerManager *manager) {
-    iTVPLayerManager *primary_manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
+void tTVPDrawDevice::ResetImeMode(iTVPLayerManager *manager) {
+    iTVPLayerManager *primary_manager =
+        GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!primary_manager)
         return;
     if(primary_manager == manager) {
@@ -506,7 +535,7 @@ void TJS_INTF_METHOD tTVPDrawDevice::ResetImeMode(iTVPLayerManager *manager) {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-tTJSNI_BaseLayer *TJS_INTF_METHOD tTVPDrawDevice::GetPrimaryLayer() {
+tTJSNI_BaseLayer *tTVPDrawDevice::GetPrimaryLayer() {
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!manager)
         return nullptr;
@@ -515,7 +544,7 @@ tTJSNI_BaseLayer *TJS_INTF_METHOD tTVPDrawDevice::GetPrimaryLayer() {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-tTJSNI_BaseLayer *TJS_INTF_METHOD tTVPDrawDevice::GetFocusedLayer() {
+tTJSNI_BaseLayer *tTVPDrawDevice::GetFocusedLayer() {
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!manager)
         return nullptr;
@@ -524,7 +553,7 @@ tTJSNI_BaseLayer *TJS_INTF_METHOD tTVPDrawDevice::GetFocusedLayer() {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::SetFocusedLayer(tTJSNI_BaseLayer *layer) {
+void tTVPDrawDevice::SetFocusedLayer(tTJSNI_BaseLayer *layer) {
     iTVPLayerManager *manager = GetLayerManagerAt(PrimaryLayerManagerIndex);
     if(!manager)
         return;
@@ -533,7 +562,7 @@ void TJS_INTF_METHOD tTVPDrawDevice::SetFocusedLayer(tTJSNI_BaseLayer *layer) {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::RequestInvalidation(const tTVPRect &rect) {
+void tTVPDrawDevice::RequestInvalidation(const tTVPRect &rect) {
     tjs_int l = rect.left, t = rect.top, r = rect.right, b = rect.bottom;
     if(!TransformToPrimaryLayerManager(l, t))
         return;
@@ -550,43 +579,48 @@ void TJS_INTF_METHOD tTVPDrawDevice::RequestInvalidation(const tTVPRect &rect) {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::Update() {
+void tTVPDrawDevice::Update() {
     // すべての layer manager の UpdateToDrawDevice を呼ぶ
-    for(std::vector<iTVPLayerManager *>::iterator i = Managers.begin(); i != Managers.end(); i++) {
+    for(std::vector<iTVPLayerManager *>::iterator i = Managers.begin();
+        i != Managers.end(); i++) {
         (*i)->UpdateToDrawDevice();
     }
 }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::Show() {
+void tTVPDrawDevice::Show() {
     // なにもしない
 }
 //---------------------------------------------------------------------------
-bool TJS_INTF_METHOD tTVPDrawDevice::WaitForVBlank(tjs_int *in_vblank, tjs_int *delayed) { return false; }
+bool tTVPDrawDevice::WaitForVBlank(tjs_int *in_vblank, tjs_int *delayed) {
+    return false;
+}
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::DumpLayerStructure() {
+void tTVPDrawDevice::DumpLayerStructure() {
     // すべての layer manager の DumpLayerStructure を呼ぶ
-    for(std::vector<iTVPLayerManager *>::iterator i = Managers.begin(); i != Managers.end(); i++) {
+    for(std::vector<iTVPLayerManager *>::iterator i = Managers.begin();
+        i != Managers.end(); i++) {
         (*i)->DumpLayerStructure();
     }
 }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::SetShowUpdateRect(bool b) {
+void tTVPDrawDevice::SetShowUpdateRect(bool b) {
     // なにもしない
 }
 
-void TJS_INTF_METHOD tTVPDrawDevice::SetWindowSize(tjs_int w, tjs_int h) {
+void tTVPDrawDevice::SetWindowSize(tjs_int w, tjs_int h) {
     WinWidth = w;
     WinHeight = h;
 }
 
 //---------------------------------------------------------------------------
-bool TJS_INTF_METHOD tTVPDrawDevice::SwitchToFullScreen(int window, tjs_uint w, tjs_uint h, tjs_uint bpp,
-                                                        tjs_uint color, bool changeresolution) {
+bool tTVPDrawDevice::SwitchToFullScreen(int window, tjs_uint w, tjs_uint h,
+                                        tjs_uint bpp, tjs_uint color,
+                                        bool changeresolution) {
     return true;
 #if 0
 	// ChangeDisplaySettings を使用したフルスクリーン化
@@ -631,8 +665,8 @@ bool TJS_INTF_METHOD tTVPDrawDevice::SwitchToFullScreen(int window, tjs_uint w, 
 #endif
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPDrawDevice::RevertFromFullScreen(int window, tjs_uint w, tjs_uint h, tjs_uint bpp,
-                                                          tjs_uint color) {
+void tTVPDrawDevice::RevertFromFullScreen(int window, tjs_uint w, tjs_uint h,
+                                          tjs_uint bpp, tjs_uint color) {
     // ChangeDisplaySettings を使用したフルスクリーン解除
     //	::ChangeDisplaySettings(nullptr, 0);
 }

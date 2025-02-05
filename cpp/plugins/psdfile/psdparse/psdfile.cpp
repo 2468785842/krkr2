@@ -26,7 +26,8 @@ bool PSDFile::load(const char *filename) {
 
     in.open(filename);
     if(!in.is_open()) {
-        std::cerr << "could not open input file: '" << filename << "'" << std::endl;
+        std::cerr << "could not open input file: '" << filename << "'"
+                  << std::endl;
         return false;
     }
 

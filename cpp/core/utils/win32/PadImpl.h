@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -23,9 +24,10 @@ class tTJSNI_Pad : public tTJSNI_BasePad {
     TTVPPadForm *Form;
 
 public:
-    virtual tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *dsp);
+    virtual tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                                iTJSDispatch2 *dsp);
 
-    virtual void TJS_INTF_METHOD Invalidate();
+    virtual void Invalidate();
 
     // methods
     virtual void OpenFromStorage(const ttstr &name);
@@ -124,9 +126,10 @@ public:
     virtual void SetUserCreationMode(bool mode);
 
 protected:
-    bool UserCreationMode; // true if this form was created by the userscript,
-    // otherwise (when created by the system as "Script Editor") this will be
-    // false
+    bool UserCreationMode; // true if this form was created by the
+                           // userscript,
+    // otherwise (when created by the system as "Script Editor") this
+    // will be false
     bool MultilineMode;
 
 private:

@@ -16,7 +16,8 @@ class TVPTimerEvent : public TVPTimerEventIntarface {
     T *owner_;
 
 public:
-    TVPTimerEvent(T *owner, void (T::*Handler)()) : owner_(owner), handler_(Handler) {}
+    TVPTimerEvent(T *owner, void (T::*Handler)()) :
+        owner_(owner), handler_(Handler) {}
 
     void Handle() { (owner_->*handler_)(); }
 };

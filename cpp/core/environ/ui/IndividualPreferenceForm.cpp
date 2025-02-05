@@ -15,7 +15,9 @@ const char *const FileName_NaviBar = "ui/NaviBar.csb";
 const char *const FileName_Body = "ui/ListView.csb";
 #define TVPGlobalPreferenceForm IndividualPreferenceForm
 
-static iSysConfigManager *GetConfigManager() { return IndividualConfigManager::GetInstance(); }
+static iSysConfigManager *GetConfigManager() {
+    return IndividualConfigManager::GetInstance();
+}
 #include "PreferenceConfig.h"
 
 #undef TVPGlobalPreferenceForm
@@ -27,7 +29,8 @@ static void initInividualConfig() {
     RootPreference.Title = "preference_title_individual";
 }
 
-IndividualPreferenceForm *IndividualPreferenceForm::create(const tPreferenceScreen *config) {
+IndividualPreferenceForm *
+IndividualPreferenceForm::create(const tPreferenceScreen *config) {
     initInividualConfig();
     if(!config)
         config = &RootPreference;
@@ -36,6 +39,7 @@ IndividualPreferenceForm *IndividualPreferenceForm::create(const tPreferenceScre
     ret->initFromFile(FileName_NaviBar, FileName_Body, nullptr);
     PrefListSize = ret->PrefList->getContentSize();
     ret->initPref(config);
-    ret->setOnExitCallback(std::bind(&IndividualConfigManager::SaveToFile, IndividualConfigManager::GetInstance()));
+    ret->setOnExitCallback(std::bind(&IndividualConfigManager::SaveToFile,
+                                     IndividualConfigManager::GetInstance()));
     return ret;
 }

@@ -9,13 +9,15 @@
 
 NS_KRMOVIE_BEGIN
 
-CDVDVideoCodec *CDVDFactoryCodec::OpenCodec(CDVDVideoCodec *pCodec, CDVDStreamInfo &hints, CDVDCodecOptions &options) {
+CDVDVideoCodec *CDVDFactoryCodec::OpenCodec(CDVDVideoCodec *pCodec,
+                                            CDVDStreamInfo &hints,
+                                            CDVDCodecOptions &options) {
     try {
-        //    CLog::Log(LOGDEBUG, "FactoryCodec - Video: %s - Opening",
-        //    pCodec->GetName());
+        //    CLog::Log(LOGDEBUG, "FactoryCodec - Video: %s -
+        //    Opening", pCodec->GetName());
         if(pCodec->Open(hints, options)) {
-            //      CLog::Log(LOGDEBUG, "FactoryCodec - Video: %s - Opened",
-            //      pCodec->GetName());
+            //      CLog::Log(LOGDEBUG, "FactoryCodec - Video: %s -
+            //      Opened", pCodec->GetName());
             return pCodec;
         }
 
@@ -23,18 +25,21 @@ CDVDVideoCodec *CDVDFactoryCodec::OpenCodec(CDVDVideoCodec *pCodec, CDVDStreamIn
         //    pCodec->GetName());
         delete pCodec;
     } catch(...) {
-        //   CLog::Log(LOGERROR, "FactoryCodec - Video: Failed with exception");
+        //   CLog::Log(LOGERROR, "FactoryCodec - Video: Failed with
+        //   exception");
     }
     return nullptr;
 }
 
-CDVDAudioCodec *CDVDFactoryCodec::OpenCodec(CDVDAudioCodec *pCodec, CDVDStreamInfo &hints, CDVDCodecOptions &options) {
+CDVDAudioCodec *CDVDFactoryCodec::OpenCodec(CDVDAudioCodec *pCodec,
+                                            CDVDStreamInfo &hints,
+                                            CDVDCodecOptions &options) {
     try {
         //   CLog::Log(LOGDEBUG, "FactoryCodec - Audio: %s - Opening",
         //   pCodec->GetName());
         if(pCodec->Open(hints, options)) {
-            //    CLog::Log(LOGDEBUG, "FactoryCodec - Audio: %s - Opened",
-            //    pCodec->GetName());
+            //    CLog::Log(LOGDEBUG, "FactoryCodec - Audio: %s -
+            //    Opened", pCodec->GetName());
             return pCodec;
         }
 
@@ -42,7 +47,8 @@ CDVDAudioCodec *CDVDFactoryCodec::OpenCodec(CDVDAudioCodec *pCodec, CDVDStreamIn
         //  pCodec->GetName());
         delete pCodec;
     } catch(...) {
-        //  CLog::Log(LOGERROR, "FactoryCodec - Audio: Failed with exception");
+        //  CLog::Log(LOGERROR, "FactoryCodec - Audio: Failed with
+        //  exception");
     }
     return nullptr;
 }
@@ -70,7 +76,8 @@ CDVDAudioCodec *CDVDFactoryCodec::OpenCodec(CDVDAudioCodec *pCodec, CDVDStreamIn
     }
 #endif
 
-CDVDVideoCodec *CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint, CProcessInfo &processInfo,
+CDVDVideoCodec *CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint,
+                                                   CProcessInfo &processInfo,
                                                    const CRenderInfo &info) {
     CDVDVideoCodec *pCodec = nullptr;
     CDVDCodecOptions options;
@@ -84,9 +91,11 @@ CDVDVideoCodec *CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint, CProces
 
     if(!hint.software) {
 #if defined(HAS_LIBAMCODEC)
-        // Amlogic can be present on multiple platforms (Linux, Android)
-        // try this first. if it does not open, we still try other hw decoders
-        pCodec = OpenCodec(new CDVDVideoCodecAmlogic(processInfo), hint, options);
+        // Amlogic can be present on multiple platforms (Linux,
+        // Android) try this first. if it does not open, we still try
+        // other hw decoders
+        pCodec =
+            OpenCodec(new CDVDVideoCodecAmlogic(processInfo), hint, options);
         if(pCodec)
             return pCodec;
 #endif
@@ -94,9 +103,11 @@ CDVDVideoCodec *CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint, CProces
 #if defined(HAS_IMXVPU)
         pCodec = OpenCodec(new CDVDVideoCodecIMX(processInfo), hint, options);
 #elif defined(TARGET_ANDROID)
-        pCodec = OpenCodec(new CDVDVideoCodecAndroidMediaCodec(processInfo), hint, options);
+        pCodec = OpenCodec(new CDVDVideoCodecAndroidMediaCodec(processInfo),
+                           hint, options);
 #elif defined(HAVE_LIBOPENMAX)
-        pCodec = OpenCodec(new CDVDVideoCodecOpenMax(processInfo), hint, options);
+        pCodec =
+            OpenCodec(new CDVDVideoCodecOpenMax(processInfo), hint, options);
 #elif defined(HAS_MMAL)
         pCodec = OpenCodec(new CMMALVideo(processInfo), hint, options);
 #endif
@@ -106,11 +117,12 @@ CDVDVideoCodec *CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint, CProces
 
     // try to decide if we want to try halfres decoding
 #if !defined(TARGET_POSIX) && !defined(TARGET_WINDOWS)
-    float pixelrate = (float)hint.width * hint.height * hint.fpsrate / hint.fpsscale;
+    float pixelrate =
+        (float)hint.width * hint.height * hint.fpsrate / hint.fpsscale;
     if(pixelrate > 1400.0f * 720.0f * 30.0f) {
-        //    CLog::Log(LOGINFO, "CDVDFactoryCodec - High video resolution
-        //    detected %dx%d, trying half resolution decoding ", hint.width,
-        //    hint.height);
+        //    CLog::Log(LOGINFO, "CDVDFactoryCodec - High video
+        //    resolution detected %dx%d, trying half resolution
+        //    decoding ", hint.width, hint.height);
         options.m_keys.push_back(CDVDCodecOption("lowres", "1"));
     }
 #endif
@@ -126,17 +138,21 @@ CDVDVideoCodec *CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint, CProces
     ;
 }
 
-CDVDAudioCodec *CDVDFactoryCodec::CreateAudioCodec(CDVDStreamInfo &hint, CProcessInfo &processInfo,
-                                                   bool allowpassthrough, bool allowdtshddecode) {
+CDVDAudioCodec *CDVDFactoryCodec::CreateAudioCodec(CDVDStreamInfo &hint,
+                                                   CProcessInfo &processInfo,
+                                                   bool allowpassthrough,
+                                                   bool allowdtshddecode) {
     CDVDAudioCodec *pCodec = nullptr;
     CDVDCodecOptions options;
 
     if(!allowdtshddecode)
         options.m_keys.push_back(CDVDCodecOption("allowdtshddecode", "0"));
 
-    // we don't use passthrough if "sync playback to display" is enabled
+    // we don't use passthrough if "sync playback to display" is
+    // enabled
     if(allowpassthrough) {
-        pCodec = OpenCodec(new CDVDAudioCodecPassthrough(processInfo), hint, options);
+        pCodec = OpenCodec(new CDVDAudioCodecPassthrough(processInfo), hint,
+                           options);
         if(pCodec)
             return pCodec;
     }

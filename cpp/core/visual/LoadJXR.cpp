@@ -18,7 +18,8 @@ static tjs_uint32 GetStride(const tjs_uint32 width, const tjs_uint32 bitCount) {
     return stride;
 }
 
-bool TVPAcceptSaveAsJXR(void *formatdata, const ttstr &type, class iTJSDispatch2 **dic) {
+bool TVPAcceptSaveAsJXR(void *formatdata, const ttstr &type,
+                        class iTJSDispatch2 **dic) {
     bool result = false;
     if(type.StartsWith(TJS_W("jxr")))
         result = true;
@@ -27,37 +28,47 @@ bool TVPAcceptSaveAsJXR(void *formatdata, const ttstr &type, class iTJSDispatch2
     if(result && dic) {
         // quality 1 - 255
         // alphaQuality 1 - 255
-        // subsampling : select 0 : 4:0:0, 1 : 4:2:0, 2 : 4:2:2, 3 : 4:4:4
-        // alpha : bool
+        // subsampling : select 0 : 4:0:0, 1 : 4:2:0, 2 : 4:2:2, 3 :
+        // 4:4:4 alpha : bool
         /*
         %[
-        "quality" => %["type" => "range", "min" => 1, "max" => 255, "desc" => "1
-        is lossless, 2 - 255 lossy : 2 is high quality, 255 is low quality",
-        "default"=>1 ] "alphaQuality" => %["type" => "range", "min" => 1, "max"
-        => 255, "desc" => "1 is lossless, 2 - 255 lossy : 2 is high quality, 255
-        is low quality", "default"=>1 ] "subsampling" => %["type" => "select",
-        "items" =>
-        ["4:0:0","4:2:0","4:2:2","4:4:4"], "desc"=>"subsampling", "default"=>1 ]
-        "alpha" => %["type" => "boolean", "default"=>1]
+        "quality" => %["type" => "range", "min" => 1, "max" => 255,
+        "desc" => "1 is lossless, 2 - 255 lossy : 2 is high quality,
+        255 is low quality", "default"=>1 ] "alphaQuality" => %["type"
+        => "range", "min" => 1, "max"
+        => 255, "desc" => "1 is lossless, 2 - 255 lossy : 2 is high
+        quality, 255 is low quality", "default"=>1 ] "subsampling" =>
+        %["type" => "select", "items" =>
+        ["4:0:0","4:2:0","4:2:2","4:4:4"], "desc"=>"subsampling",
+        "default"=>1 ] "alpha" => %["type" => "boolean", "default"=>1]
         ]
         */
         tTJSVariant result;
-        TVPExecuteExpression(TJS_W("(const)%[") TJS_W("\"quality\"=>(const)%[\"type\"=>"
-                                                      "\"range\",\"min\"=>1,\"max\"=>255,"
-                                                      "\"desc\"=>\"1 is lossless, 2 - 255 lossy "
-                                                      ": 2 is high quality, 255 "
-                                                      "is low quality\",\"default\"=>1],")
-                                 TJS_W("\"alphaQuality\"=>(const)%[\"type\"=>\"range\",\"min\"=>1,"
-                                       "\"max\"=>255,\"desc\"=>\"1 is lossless, 2 - 255 lossy : 2 "
-                                       "is high quality, 255 is low quality\",\"default\"=>1],")
-                                     TJS_W("\"subsampling\"=>(const)%[\"type\"=>\"select\","
-                                           "\"items\"=>(const)[\"4:0:0\",\"4:2:0\",\"4:2:2\","
-                                           "\"4:4:"
-                                           "4\"],\"desc\"=>\"subsampling\",\"default\"=>1],")
-                                         TJS_W("\"alpha\"=>(const)%[\"type\"=>\"boolean\","
-                                               "\"desc\"=>"
-                                               "\"alpha channel\",\"default\"=>true]") TJS_W("]"),
-                             nullptr, &result);
+        TVPExecuteExpression(
+            TJS_W("(const)%[") TJS_W("\"quality\"=>(const)%[\"type\"=>"
+                                     "\"range\",\"min\"=>1,\"max\"=>255,"
+                                     "\"desc\"=>\"1 is lossless, 2 - 255 lossy "
+                                     ": 2 is high quality, 255 "
+                                     "is low quality\",\"default\"=>1],")
+                TJS_W("\"alphaQuality\"=>(const)%[\"type\"=>"
+                      "\"range\",\"min\"=>1,"
+                      "\"max\"=>255,\"desc\"=>\"1 is lossless, 2 - "
+                      "255 lossy : 2 "
+                      "is high quality, 255 is low "
+                      "quality\",\"default\"=>1],")
+                    TJS_W("\"subsampling\"=>(const)%[\"type\"=>"
+                          "\"select\","
+                          "\"items\"=>(const)[\"4:0:0\",\"4:2:0\","
+                          "\"4:2:2\","
+                          "\"4:4:"
+                          "4\"],\"desc\"=>\"subsampling\","
+                          "\"default\"=>1],")
+                        TJS_W("\"alpha\"=>(const)%[\"type\"=>"
+                              "\"boolean\","
+                              "\"desc\"=>"
+                              "\"alpha channel\",\"default\"=>true]")
+                            TJS_W("]"),
+            nullptr, &result);
         if(result.Type() == tvtObject) {
             *dic = result.AsObject();
         }
@@ -80,9 +91,12 @@ bool TVPAcceptSaveAsJXR(void *formatdata, const ttstr &type, class iTJSDispatch2
 #pragma comment(lib, "comsuppw.lib")
 #endif
 
-void TVPLoadJXR(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback,
-                tTVPGraphicScanLineCallback scanlinecallback, tTVPMetaInfoPushCallback metainfopushcallback,
-                tTJSBinaryStream *src, tjs_int keyidx, tTVPGraphicLoadMode mode) {
+void TVPLoadJXR(void *formatdata, void *callbackdata,
+                tTVPGraphicSizeCallback sizecallback,
+                tTVPGraphicScanLineCallback scanlinecallback,
+                tTVPMetaInfoPushCallback metainfopushcallback,
+                tTJSBinaryStream *src, tjs_int keyidx,
+                tTVPGraphicLoadMode mode) {
     CoInitialize(nullptr);
     {
         tTVPIStreamAdapter *s = new tTVPIStreamAdapter(src);
@@ -104,7 +118,8 @@ void TVPLoadJXR(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback si
                 hr = frame->GetSize(&width, &height);
                 const UINT stride = GetStride(width, 32);
 #ifdef _DEBUG
-                std::vector<tjs_uint8> buff(stride * height * sizeof(tjs_uint8));
+                std::vector<tjs_uint8> buff(stride * height *
+                                            sizeof(tjs_uint8));
 #else
                 std::vector<tjs_uint8> buff;
                 buff.reserve(stride * height * sizeof(tjs_uint8));
@@ -116,11 +131,14 @@ void TVPLoadJXR(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback si
                     CComPtr<IWICImagingFactory> wicFactory;
                     hr = wicFactory.CoCreateInstance(CLSID_WICImagingFactory);
                     wicFactory->CreateFormatConverter(&converter);
-                    converter->Initialize(frame, GUID_WICPixelFormat32bppBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f,
-                                          WICBitmapPaletteTypeCustom);
-                    hr = converter->CopyPixels(&rect, stride, stride * height, (BYTE *)&buff[0]);
+                    converter->Initialize(frame, GUID_WICPixelFormat32bppBGRA,
+                                          WICBitmapDitherTypeNone, nullptr,
+                                          0.0f, WICBitmapPaletteTypeCustom);
+                    hr = converter->CopyPixels(&rect, stride, stride * height,
+                                               (BYTE *)&buff[0]);
                 } else {
-                    hr = frame->CopyPixels(&rect, stride, stride * height, (BYTE *)&buff[0]);
+                    hr = frame->CopyPixels(&rect, stride, stride * height,
+                                           (BYTE *)&buff[0]);
                 }
                 int offset = 0;
                 for(UINT i = 0; i < height; i++) {
@@ -138,7 +156,8 @@ void TVPLoadJXR(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback si
     CoUninitialize();
 }
 
-void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst, const class iTVPBaseBitmap *image, const ttstr &mode,
+void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst,
+                  const class iTVPBaseBitmap *image, const ttstr &mode,
                   class iTJSDispatch2 *meta) {
     CoInitialize(nullptr);
     {
@@ -157,7 +176,8 @@ void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst, const class iTVPBaseB
             WICPixelFormatGUID format = GUID_WICPixelFormat32bppBGRA;
             if(SUCCEEDED(hr) && meta) {
                 PROPBAG2 option = { 0 };
-                option.pstrName = L"UseCodecOptions"; // 詳細なオプションを指定する
+                option.pstrName =
+                    L"UseCodecOptions"; // 詳細なオプションを指定する
                 _variant_t varValue(true);
                 hr = property->Write(1, &option, &varValue);
 
@@ -165,12 +185,17 @@ void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst, const class iTVPBaseB
                 struct MetaDictionaryEnumCallback : public tTJSDispatch {
                     IPropertyBag2 *prop_;
                     WICPixelFormatGUID *format_;
-                    MetaDictionaryEnumCallback(IPropertyBag2 *prop, WICPixelFormatGUID *format) :
-                        prop_(prop), format_(format) {}
-                    tjs_error TJS_INTF_METHOD FuncCall(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                       tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
-                                                       iTJSDispatch2 *objthis) { // called from
-                                                                                 // tTJSCustomObject::EnumMembers
+                    MetaDictionaryEnumCallback(IPropertyBag2 *prop,
+                                               WICPixelFormatGUID *format) :
+                        prop_(prop),
+                        format_(format) {}
+                    tjs_error
+                    FuncCall(tjs_uint32 flag, const tjs_char *membername,
+                             tjs_uint32 *hint, tTJSVariant *result,
+                             tjs_int numparams, tTJSVariant **param,
+                             iTJSDispatch2
+                                 *objthis) { // called from
+                                             // tTJSCustomObject::EnumMembers
                         if(numparams < 3)
                             return TJS_E_BADPARAMCOUNT;
                         tjs_uint32 flags = (tjs_int)*param[1];
@@ -188,8 +213,10 @@ void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst, const class iTVPBaseB
                             v = v < 1 ? 1 : v > 255 ? 255 : v;
                             UCHAR q = (UCHAR)v;
                             PROPBAG2 option = { 0 };
-                            option.pstrName = L"Quality"; //  1 : lossless mode, 2 - 255 :
-                                                          //  値が小さい方が高画質
+                            option.pstrName =
+                                L"Quality"; //  1 : lossless mode, 2 -
+                                            //  255 :
+                                            //  値が小さい方が高画質
                             _variant_t varValue(q);
                             hr = prop_->Write(1, &option, &varValue);
                             if(q == 1) {
@@ -210,12 +237,15 @@ void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst, const class iTVPBaseB
                                 _variant_t varValue(VARIANT_FALSE);
                                 hr = prop_->Write(1, &option, &varValue);
                             }
-                            option.pstrName = L"AlphaQuality"; //  1 : lossless mode, 2 - 255
-                                                               //  : 値が小さい方が高画質
+                            option.pstrName =
+                                L"AlphaQuality"; //  1 : lossless
+                                                 //  mode, 2 - 255 :
+                                                 //  値が小さい方が高画質
                             _variant_t varValue(q);
                             hr = prop_->Write(1, &option, &varValue);
                         } else if(value == TJS_W("subsampling")) {
-                            // 0 : 4:0:0, 1 : 4:2:0, 2 : 4:2:2, 3 : 4:4:4
+                            // 0 : 4:0:0, 1 : 4:2:0, 2 : 4:2:2, 3 :
+                            // 4:4:4
                             tjs_int64 v = param[2]->AsInteger();
                             v = v < 0 ? 0 : v > 3 ? 3 : v;
                             UCHAR q = (UCHAR)v;
@@ -237,7 +267,9 @@ void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst, const class iTVPBaseB
                         return TJS_S_OK;
                     }
                 } callback(property, &format);
-                meta->EnumMembers(TJS_IGNOREPROP, &tTJSVariantClosure(&callback, nullptr), meta);
+                meta->EnumMembers(TJS_IGNOREPROP,
+                                  &tTJSVariantClosure(&callback, nullptr),
+                                  meta);
             }
 
             if(SUCCEEDED(hr))
@@ -273,7 +305,8 @@ void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst, const class iTVPBaseB
     CoUninitialize();
 }
 
-void TVPLoadHeaderJXR(void *formatdata, tTJSBinaryStream *src, iTJSDispatch2 **dic) {
+void TVPLoadHeaderJXR(void *formatdata, tTJSBinaryStream *src,
+                      iTJSDispatch2 **dic) {
     CoInitialize(nullptr);
     {
         tTVPIStreamAdapter *s = new tTVPIStreamAdapter(src);
@@ -305,119 +338,193 @@ void TVPLoadHeaderJXR(void *formatdata, tTJSBinaryStream *src, iTJSDispatch2 **d
                 if(SUCCEEDED(hr)) {
                     *dic = TJSCreateDictionaryObject();
                     tTJSVariant val((tjs_int64)width);
-                    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("width"), 0, &val, (*dic));
+                    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("width"), 0, &val,
+                                    (*dic));
                     val = tTJSVariant((tjs_int64)height);
-                    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("height"), 0, &val, (*dic));
+                    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("height"), 0, &val,
+                                    (*dic));
                     val = tTJSVariant(dpiX);
-                    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("dpi x"), 0, &val, (*dic));
+                    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("dpi x"), 0, &val,
+                                    (*dic));
                     val = tTJSVariant(dpiY);
-                    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("dpi y"), 0, &val, (*dic));
-                    if(IsEqualGUID(pixelFormat, GUID_WICPixelFormatBlackWhite)) {
+                    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("dpi y"), 0, &val,
+                                    (*dic));
+                    if(IsEqualGUID(pixelFormat,
+                                   GUID_WICPixelFormatBlackWhite)) {
                         val = tTJSVariant(TJS_W("BlackWhite"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat8bppGray)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat8bppGray)) {
                         val = tTJSVariant(TJS_W("8bppGray"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat16bppBGR555)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat16bppBGR555)) {
                         val = tTJSVariant(TJS_W("16bppBGR555"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat16bppGray)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat16bppGray)) {
                         val = tTJSVariant(TJS_W("16bppGray"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat24bppBGR)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat24bppBGR)) {
                         val = tTJSVariant(TJS_W("24bppBGR"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat24bppRGB)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat24bppRGB)) {
                         val = tTJSVariant(TJS_W("24bppRGB"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat32bppBGR)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat32bppBGR)) {
                         val = tTJSVariant(TJS_W("32bppBGR"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat32bppBGRA)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat32bppBGRA)) {
                         val = tTJSVariant(TJS_W("32bppBGRA"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat48bppRGBFixedPoint)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat48bppRGBFixedPoint)) {
                         val = tTJSVariant(TJS_W("48bppRGBFixedPoint"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat16bppGrayFixedPoint)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat16bppGrayFixedPoint)) {
                         val = tTJSVariant(TJS_W("16bppGrayFixedPoint"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat32bppBGR101010)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat32bppBGR101010)) {
                         val = tTJSVariant(TJS_W("32bppBGR101010"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat48bppRGB)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat48bppRGB)) {
                         val = tTJSVariant(TJS_W("48bppRGB"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat64bppRGBA)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat64bppRGBA)) {
                         val = tTJSVariant(TJS_W("64bppRGBA"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat96bppRGBFixedPoint)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat96bppRGBFixedPoint)) {
                         val = tTJSVariant(TJS_W("96bppRGBFixedPoint"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat96bppRGBFixedPoint)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat96bppRGBFixedPoint)) {
                         val = tTJSVariant(TJS_W("96bppRGBFixedPoint"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat128bppRGBFloat)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat128bppRGBFloat)) {
                         val = tTJSVariant(TJS_W("128bppRGBFloat"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat32bppCMYK)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat32bppCMYK)) {
                         val = tTJSVariant(TJS_W("32bppCMYK"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat64bppRGBAFixedPoint)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat64bppRGBAFixedPoint)) {
                         val = tTJSVariant(TJS_W("64bppRGBAFixedPoint"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat128bppRGBAFixedPoint)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat128bppRGBAFixedPoint)) {
                         val = tTJSVariant(TJS_W("128bppRGBAFixedPoint"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat64bppCMYK)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat64bppCMYK)) {
                         val = tTJSVariant(TJS_W("64bppCMYK"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat24bpp3Channels)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat24bpp3Channels)) {
                         val = tTJSVariant(TJS_W("24bpp3Channels"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat32bpp4Channels)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat32bpp4Channels)) {
                         val = tTJSVariant(TJS_W("32bpp4Channels"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat40bpp5Channels)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat40bpp5Channels)) {
                         val = tTJSVariant(TJS_W("40bpp5Channels"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat48bpp6Channels)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat48bpp6Channels)) {
                         val = tTJSVariant(TJS_W("48bpp6Channels"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat56bpp7Channels)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat56bpp7Channels)) {
                         val = tTJSVariant(TJS_W("56bpp7Channels"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat64bpp8Channels)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat64bpp8Channels)) {
                         val = tTJSVariant(TJS_W("64bpp8Channels"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat48bpp3Channels)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat48bpp3Channels)) {
                         val = tTJSVariant(TJS_W("48bpp3Channels"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat64bpp4Channels)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat64bpp4Channels)) {
                         val = tTJSVariant(TJS_W("64bpp4Channels"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat80bpp5Channels)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat80bpp5Channels)) {
                         val = tTJSVariant(TJS_W("80bpp5Channels"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat96bpp6Channels)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat96bpp6Channels)) {
                         val = tTJSVariant(TJS_W("96bpp6Channels"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat112bpp7Channels)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat112bpp7Channels)) {
                         val = tTJSVariant(TJS_W("112bpp7Channels"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat128bpp8Channels)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat128bpp8Channels)) {
                         val = tTJSVariant(TJS_W("128bpp8Channels"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat40bppCMYKAlpha)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat40bppCMYKAlpha)) {
                         val = tTJSVariant(TJS_W("40bppCMYKAlpha"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat80bppCMYKAlpha)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat80bppCMYKAlpha)) {
                         val = tTJSVariant(TJS_W("80bppCMYKAlpha"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat32bpp3ChannelsAlpha)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat32bpp3ChannelsAlpha)) {
                         val = tTJSVariant(TJS_W("32bpp3ChannelsAlpha"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat64bpp7ChannelsAlpha)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat64bpp7ChannelsAlpha)) {
                         val = tTJSVariant(TJS_W("64bpp7ChannelsAlpha"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat72bpp8ChannelsAlpha)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat72bpp8ChannelsAlpha)) {
                         val = tTJSVariant(TJS_W("72bpp8ChannelsAlpha"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat64bpp3ChannelsAlpha)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat64bpp3ChannelsAlpha)) {
                         val = tTJSVariant(TJS_W("64bpp3ChannelsAlpha"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat80bpp4ChannelsAlpha)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat80bpp4ChannelsAlpha)) {
                         val = tTJSVariant(TJS_W("80bpp4ChannelsAlpha"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat96bpp5ChannelsAlpha)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat96bpp5ChannelsAlpha)) {
                         val = tTJSVariant(TJS_W("96bpp5ChannelsAlpha"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat112bpp6ChannelsAlpha)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat112bpp6ChannelsAlpha)) {
                         val = tTJSVariant(TJS_W("112bpp6ChannelsAlpha"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat128bpp7ChannelsAlpha)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat128bpp7ChannelsAlpha)) {
                         val = tTJSVariant(TJS_W("128bpp7ChannelsAlpha"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat144bpp8ChannelsAlpha)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat144bpp8ChannelsAlpha)) {
                         val = tTJSVariant(TJS_W("144bpp8ChannelsAlpha"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat64bppRGBAHalf)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat64bppRGBAHalf)) {
                         val = tTJSVariant(TJS_W("64bppRGBAHalf"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat48bppRGBHalf)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat48bppRGBHalf)) {
                         val = tTJSVariant(TJS_W("48bppRGBHalf"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat32bppRGBE)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat32bppRGBE)) {
                         val = tTJSVariant(TJS_W("32bppRGBE"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat16bppGrayHalf)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat16bppGrayHalf)) {
                         val = tTJSVariant(TJS_W("16bppGrayHalf"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat32bppGrayFixedPoint)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat32bppGrayFixedPoint)) {
                         val = tTJSVariant(TJS_W("32bppGrayFixedPoint"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat64bppRGBFixedPoint)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat64bppRGBFixedPoint)) {
                         val = tTJSVariant(TJS_W("64bppRGBFixedPoint"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat128bppRGBFixedPoint)) {
+                    } else if(IsEqualGUID(
+                                  pixelFormat,
+                                  GUID_WICPixelFormat128bppRGBFixedPoint)) {
                         val = tTJSVariant(TJS_W("128bppRGBFixedPoint"));
-                    } else if(IsEqualGUID(pixelFormat, GUID_WICPixelFormat64bppRGBHalf)) {
+                    } else if(IsEqualGUID(pixelFormat,
+                                          GUID_WICPixelFormat64bppRGBHalf)) {
                         val = tTJSVariant(TJS_W("64bppRGBHalf"));
                     } else {
                         val = tTJSVariant(TJS_W("unknown"));
                     }
-                    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("pixelformat"), 0, &val, (*dic));
+                    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("pixelformat"), 0,
+                                    &val, (*dic));
                 }
                 break;
             }
@@ -484,17 +591,22 @@ static ERR JXR_get_pos(struct WMPStream *pWS, size_t *poffPos) {
     return WMP_errSuccess;
 }
 
-#define SAFE_CALL(func)                                                                                                \
-    if(Failed(err = (func))) {                                                                                         \
-        TVPThrowExceptionMessage(TJS_W("JPEG XR read error/%1"), (tjs_int)err);                                        \
+#define SAFE_CALL(func)                                                        \
+    if(Failed(err = (func))) {                                                 \
+        TVPThrowExceptionMessage(TJS_W("JPEG XR read error/%1"),               \
+                                 (tjs_int)err);                                \
     }
 //---------------------------------------------------------------------------
-void TVPLoadJXR(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback,
-                tTVPGraphicScanLineCallback scanlinecallback, tTVPMetaInfoPushCallback metainfopushcallback,
-                tTJSBinaryStream *src, tjs_int keyidx, tTVPGraphicLoadMode mode) {
+void TVPLoadJXR(void *formatdata, void *callbackdata,
+                tTVPGraphicSizeCallback sizecallback,
+                tTVPGraphicScanLineCallback scanlinecallback,
+                tTVPMetaInfoPushCallback metainfopushcallback,
+                tTJSBinaryStream *src, tjs_int keyidx,
+                tTVPGraphicLoadMode mode) {
     if(glmNormal != mode) {
         // not supprted yet.
-        TVPThrowExceptionMessage(TJS_W("JPEG XR read error/%1"), TJS_W("not supprted yet."));
+        TVPThrowExceptionMessage(TJS_W("JPEG XR read error/%1"),
+                                 TJS_W("not supprted yet."));
     }
 
     // PKFactory* pFactory = nullptr;
@@ -505,7 +617,8 @@ void TVPLoadJXR(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback si
     try {
         ERR err;
         // SAFE_CALL( PKCreateFactory(&pFactory, PK_SDK_VERSION) );
-        // SAFE_CALL( PKCreateCodecFactory(&pCodecFactory, WMP_SDK_VERSION) );
+        // SAFE_CALL( PKCreateCodecFactory(&pCodecFactory,
+        // WMP_SDK_VERSION) );
         // SAFE_CALL(pCodecFactory->CreateDecoderFromFile("test.jxr",
         // &pDecoder));
 
@@ -557,9 +670,11 @@ void TVPLoadJXR(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback si
         int height = 0;
         pDecoder->GetSize(pDecoder, &width, &height);
         if(width == 0 || height == 0) {
-            TVPThrowExceptionMessage(TJS_W("JPEG XR read error/%1"), TJS_W("width or height is zero."));
+            TVPThrowExceptionMessage(TJS_W("JPEG XR read error/%1"),
+                                     TJS_W("width or height is zero."));
         }
-        sizecallback(callbackdata, width, height, pDecoder->WMP.wmiSCP.uAlphaMode ? gpfRGBA : gpfRGB);
+        sizecallback(callbackdata, width, height,
+                     pDecoder->WMP.wmiSCP.uAlphaMode ? gpfRGBA : gpfRGB);
         const tjs_uint32 stride = GetStride((tjs_uint32)width, (tjs_uint32)32);
         PKRect rect = { 0, 0, width, height };
 #ifdef _DEBUG
@@ -590,14 +705,18 @@ void TVPLoadJXR(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback si
                     scanlinecallback(callbackdata, -1);
                 }
             } else {
-                TVPThrowExceptionMessage(TJS_W("JPEG XR read error/%1"), TJS_W("Not supported this file format yet."));
+                TVPThrowExceptionMessage(
+                    TJS_W("JPEG XR read error/%1"),
+                    TJS_W("Not supported this file format yet."));
             }
             /*
             Converter はどうもおかしいので使わない。
-            SAFE_CALL( pCodecFactory->CreateFormatConverter(&pConverter) );
-            SAFE_CALL( pConverter->Initialize(pConverter, pDecoder, nullptr,
-            GUID_PKPixelFormat32bppPBGRA) ); pConverter->Copy( pConverter,
-            &rect, (U8*)&buff[0], width*sizeof(int));
+            SAFE_CALL(
+            pCodecFactory->CreateFormatConverter(&pConverter) );
+            SAFE_CALL( pConverter->Initialize(pConverter, pDecoder,
+            nullptr, GUID_PKPixelFormat32bppPBGRA) );
+            pConverter->Copy( pConverter, &rect, (U8*)&buff[0],
+            width*sizeof(int));
             */
         } else {
             // アルファチャンネルが入っている時メモリリークしている(jxrlib直した)
@@ -628,17 +747,25 @@ void TVPLoadJXR(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback si
 
 // Y, U, V, YHP, UHP, VHP
 static int DPK_QPS_420[12][6] = { // for 8 bit only
-    { 66, 65, 70, 72, 72, 77 }, { 59, 58, 63, 64, 63, 68 }, { 52, 51, 57, 56, 56, 61 }, { 48, 48, 54, 51, 50, 55 },
-    { 43, 44, 48, 46, 46, 49 }, { 37, 37, 42, 38, 38, 43 }, { 26, 28, 31, 27, 28, 31 }, { 16, 17, 22, 16, 17, 21 },
-    { 10, 11, 13, 10, 10, 13 }, { 5, 5, 6, 5, 5, 6 },       { 2, 2, 3, 2, 2, 2 }
+    { 66, 65, 70, 72, 72, 77 }, { 59, 58, 63, 64, 63, 68 },
+    { 52, 51, 57, 56, 56, 61 }, { 48, 48, 54, 51, 50, 55 },
+    { 43, 44, 48, 46, 46, 49 }, { 37, 37, 42, 38, 38, 43 },
+    { 26, 28, 31, 27, 28, 31 }, { 16, 17, 22, 16, 17, 21 },
+    { 10, 11, 13, 10, 10, 13 }, { 5, 5, 6, 5, 5, 6 },
+    { 2, 2, 3, 2, 2, 2 }
 };
-static int DPK_QPS_8[12][6] = { { 67, 79, 86, 72, 90, 98 }, { 59, 74, 80, 64, 83, 89 }, { 53, 68, 75, 57, 76, 83 },
-                                { 49, 64, 71, 53, 70, 77 }, { 45, 60, 67, 48, 67, 74 }, { 40, 56, 62, 42, 59, 66 },
-                                { 33, 49, 55, 35, 51, 58 }, { 27, 44, 49, 28, 45, 50 }, { 20, 36, 42, 20, 38, 44 },
-                                { 13, 27, 34, 13, 28, 34 }, { 7, 17, 21, 8, 17, 21 }, // Photoshop 100%
-                                { 2, 5, 6, 2, 5, 6 } };
+static int DPK_QPS_8[12][6] = {
+    { 67, 79, 86, 72, 90, 98 }, { 59, 74, 80, 64, 83, 89 },
+    { 53, 68, 75, 57, 76, 83 }, { 49, 64, 71, 53, 70, 77 },
+    { 45, 60, 67, 48, 67, 74 }, { 40, 56, 62, 42, 59, 66 },
+    { 33, 49, 55, 35, 51, 58 }, { 27, 44, 49, 28, 45, 50 },
+    { 20, 36, 42, 20, 38, 44 }, { 13, 27, 34, 13, 28, 34 },
+    { 7, 17, 21, 8, 17, 21 }, // Photoshop 100%
+    { 2, 5, 6, 2, 5, 6 }
+};
 // TODO : 以下の処理ではうまく書き込めていない。どうも設定が不味い様子
-void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst, const class iTVPBaseBitmap *image, const ttstr &mode,
+void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst,
+                  const class iTVPBaseBitmap *image, const ttstr &mode,
                   class iTJSDispatch2 *meta) {
     PKImageEncode *pEncoder = nullptr;
     WMPStream *pStream = nullptr;
@@ -686,12 +813,17 @@ void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst, const class iTVPBaseB
         wmiSCP.uiDefaultQPIndexAlpha = 1;
 
         U32 uTileY = 1 * MB_HEIGHT_PIXEL;
-        wmiSCP.cNumOfSliceMinus1H = (U32)height < (uTileY >> 1) ? 0 : (height + (uTileY >> 1)) / uTileY - 1;
+        wmiSCP.cNumOfSliceMinus1H = (U32)height < (uTileY >> 1)
+            ? 0
+            : (height + (uTileY >> 1)) / uTileY - 1;
         U32 uTileX = 1 * MB_HEIGHT_PIXEL;
-        wmiSCP.cNumOfSliceMinus1V = (U32)width < (uTileX >> 1) ? 0 : (width + (uTileX >> 1)) / uTileX - 1;
+        wmiSCP.cNumOfSliceMinus1V = (U32)width < (uTileX >> 1)
+            ? 0
+            : (width + (uTileX >> 1)) / uTileX - 1;
 
         // attach stream to encoder
-        SAFE_CALL(pEncoder->Initialize(pEncoder, pStream, &wmiSCP, sizeof(wmiSCP)));
+        SAFE_CALL(
+            pEncoder->Initialize(pEncoder, pStream, &wmiSCP, sizeof(wmiSCP)));
 
         /*
         float quality = 0.99f;
@@ -701,30 +833,36 @@ void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst, const class iTVPBaseB
     qf = 10.f * quality - (float) qi;
         int* pQPs = (pEncoder->WMP.wmiSCP.cfColorFormat == YUV_420 ||
     pEncoder->WMP.wmiSCP.cfColorFormat == YUV_422) ? DPK_QPS_420[qi] :
-    DPK_QPS_8[qi]; pEncoder->WMP.wmiSCP.uiDefaultQPIndex = (U8) (0.5f + (float)
-    pQPs[0] * (1.f - qf) + (float) (pQPs + 6)[0] * qf);
-        pEncoder->WMP.wmiSCP.uiDefaultQPIndexU = (U8) (0.5f + (float) pQPs[1] *
-    (1.f
-    - qf) + (float) (pQPs + 6)[1] * qf); pEncoder->WMP.wmiSCP.uiDefaultQPIndexV
-    = (U8) (0.5f + (float) pQPs[2] * (1.f - qf) + (float) (pQPs + 6)[2] * qf);
-        pEncoder->WMP.wmiSCP.uiDefaultQPIndexYHP = (U8) (0.5f + (float) pQPs[3]
+    DPK_QPS_8[qi]; pEncoder->WMP.wmiSCP.uiDefaultQPIndex = (U8) (0.5f
+    + (float) pQPs[0] * (1.f - qf) + (float) (pQPs + 6)[0] * qf);
+        pEncoder->WMP.wmiSCP.uiDefaultQPIndexU = (U8) (0.5f + (float)
+    pQPs[1] * (1.f
+    - qf) + (float) (pQPs + 6)[1] * qf);
+    pEncoder->WMP.wmiSCP.uiDefaultQPIndexV = (U8) (0.5f + (float)
+    pQPs[2] * (1.f - qf) + (float) (pQPs + 6)[2] * qf);
+        pEncoder->WMP.wmiSCP.uiDefaultQPIndexYHP = (U8) (0.5f +
+    (float) pQPs[3]
     * (1.f - qf) + (float) (pQPs + 6)[3] * qf);
-        pEncoder->WMP.wmiSCP.uiDefaultQPIndexUHP = (U8) (0.5f + (float) pQPs[4]
+        pEncoder->WMP.wmiSCP.uiDefaultQPIndexUHP = (U8) (0.5f +
+    (float) pQPs[4]
     * (1.f - qf) + (float) (pQPs + 6)[4] * qf);
-        pEncoder->WMP.wmiSCP.uiDefaultQPIndexVHP = (U8) (0.5f + (float) pQPs[5]
+        pEncoder->WMP.wmiSCP.uiDefaultQPIndexVHP = (U8) (0.5f +
+    (float) pQPs[5]
     * (1.f - qf) + (float) (pQPs + 6)[5] * qf);
         */
 
         pEncoder->WMP.wmiSCP.uiDefaultQPIndex = 1;
         if(pEncoder->WMP.wmiSCP.uAlphaMode == 2)
-            pEncoder->WMP.wmiSCP_Alpha.uiDefaultQPIndex = wmiSCP.uiDefaultQPIndexAlpha;
+            pEncoder->WMP.wmiSCP_Alpha.uiDefaultQPIndex =
+                wmiSCP.uiDefaultQPIndexAlpha;
 
         pEncoder->WMP.wmiSCP.olOverlap = OL_ONE;
 
         // 以下でアルファの設定か
         // pEncoder->WMP.wmiI_Alpha;
         // pEncoder->WMP.wmiSCP_Alpha;
-        // pEncoder->SetPixelFormat(pEncoder, GUID_PKPixelFormat32bppBGRA);
+        // pEncoder->SetPixelFormat(pEncoder,
+        // GUID_PKPixelFormat32bppBGRA);
         pEncoder->SetPixelFormat(pEncoder, GUID_PKPixelFormat32bppRGB);
         pEncoder->SetSize(pEncoder, image->GetWidth(), image->GetHeight());
         // Float rX = 98.0, rY = 98.0;
@@ -752,7 +890,8 @@ void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst, const class iTVPBaseB
         throw;
     }
 }
-void TVPLoadHeaderJXR(void *formatdata, tTJSBinaryStream *src, iTJSDispatch2 **dic) {
+void TVPLoadHeaderJXR(void *formatdata, tTJSBinaryStream *src,
+                      iTJSDispatch2 **dic) {
     PKImageDecode *pDecoder = nullptr;
     WMPStream *pStream = nullptr;
     try {
@@ -811,7 +950,8 @@ void TVPLoadHeaderJXR(void *formatdata, tTJSBinaryStream *src, iTJSDispatch2 **d
         (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("width"), 0, &val, (*dic));
         val = tTJSVariant(height);
         (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("height"), 0, &val, (*dic));
-        val = tTJSVariant((tjs_int64)(pDecoder->WMP.wmiSCP.uAlphaMode ? 32 : 24));
+        val =
+            tTJSVariant((tjs_int64)(pDecoder->WMP.wmiSCP.uAlphaMode ? 32 : 24));
         (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("bpp"), 0, &val, (*dic));
 
         if(pDecoder)

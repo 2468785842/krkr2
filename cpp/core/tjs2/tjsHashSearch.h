@@ -27,8 +27,9 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // tTJSHashFunc : Hash function object
     //---------------------------------------------------------------------------
-    // the hash function used here is similar to one which used in perl 5.8,
-    // see also http://burtleburtle.net/bob/hash/doobs.html (One-at-a-Time Hash)
+    // the hash function used here is similar to one which used in
+    // perl 5.8, see also http://burtleburtle.net/bob/hash/doobs.html
+    // (One-at-a-Time Hash)
     template <typename T>
     class tTJSHashFunc {
     public:
@@ -53,7 +54,8 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     template <>
-    class tTJSHashFunc<ttstr> // a specialized template of tTJSHashFunc for ttstr
+    class tTJSHashFunc<ttstr> // a specialized template of
+                              // tTJSHashFunc for ttstr
     {
     public:
         static tjs_uint32 Make(const ttstr &val) {
@@ -78,8 +80,8 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     template <>
-    class tTJSHashFunc<tjs_char *> // a specialized template of tTJSHashFunc for
-                                   // tjs_char
+    class tTJSHashFunc<tjs_char *> // a specialized template of
+                                   // tTJSHashFunc for tjs_char
     {
     public:
         static tjs_uint32 Make(const tjs_char *str) {
@@ -103,8 +105,8 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     template <>
-    class tTJSHashFunc<tjs_nchar *> // a specialized template of tTJSHashFunc for
-                                    // tjs_nchar
+    class tTJSHashFunc<tjs_nchar *> // a specialized template of
+                                    // tTJSHashFunc for tjs_nchar
     {
     public:
         static tjs_uint32 Make(const tjs_nchar *str) {
@@ -129,9 +131,11 @@ namespace TJS {
     // tTJSHashTable : a simple implementation of Chain Hash algorithm
     //---------------------------------------------------------------------------
     /*
-            Not that ValueT must implement both "operator =" and a copy constructor.
+            Not that ValueT must implement both "operator =" and a
+       copy constructor.
     */
-    template <typename KeyT, typename ValueT, typename HashFuncT = tTJSHashFunc<KeyT>,
+    template <typename KeyT, typename ValueT,
+              typename HashFuncT = tTJSHashFunc<KeyT>,
               tjs_int HashSize = TJS_HS_DEFAULT_HASH_SIZE>
     class tTJSHashTable {
     private:
@@ -196,9 +200,13 @@ namespace TJS {
                     elm = elm->NPrev;
             }
 
-            bool operator==(const tIterator &ref) const { return elm == ref.elm; }
+            bool operator==(const tIterator &ref) const {
+                return elm == ref.elm;
+            }
 
-            bool operator!=(const tIterator &ref) const { return elm != ref.elm; }
+            bool operator!=(const tIterator &ref) const {
+                return elm != ref.elm;
+            }
 
             KeyT &GetKey() { return *(KeyT *)elm->Key; }
 
@@ -207,7 +215,9 @@ namespace TJS {
             bool IsNull() const { return elm == nullptr; }
         };
 
-        static tjs_uint32 MakeHash(const KeyT &key) { return HashFuncT::Make(key); }
+        static tjs_uint32 MakeHash(const KeyT &key) {
+            return HashFuncT::Make(key);
+        }
 
         tTJSHashTable() { InternalInit(); }
 
@@ -224,7 +234,8 @@ namespace TJS {
             AddWithHash(key, HashFuncT::Make(key), value);
         }
 
-        void AddWithHash(const KeyT &key, tjs_uint32 hash, const ValueT &value) {
+        void AddWithHash(const KeyT &key, tjs_uint32 hash,
+                         const ValueT &value) {
             // add Key ( hash ) and Value
 #ifdef TJS_HS_DEBUG_CHAIN
             hash = 0;
@@ -235,7 +246,8 @@ namespace TJS {
                 if(hash == elm->Hash) {
                     // same ?
                     if(key == *(KeyT *)elm->Key) {
-                        // do copying instead of inserting if these are same
+                        // do copying instead of inserting if these
+                        // are same
                         CheckUpdateElementOrder(elm);
                         *(ValueT *)elm->Value = value;
                         return;
@@ -259,7 +271,8 @@ namespace TJS {
             if(hash == lv1->Hash) {
                 // same?
                 if(key == *(KeyT *)lv1->Key) {
-                    // do copying instead of inserting if these are same
+                    // do copying instead of inserting if these are
+                    // same
                     CheckUpdateElementOrder(lv1);
                     *(ValueT *)lv1->Value = value;
                     return;
@@ -282,7 +295,8 @@ namespace TJS {
         ValueT *Find(const KeyT &key) const {
             // find key
             // return   nullptr  if not found
-            const element *elm = InternalFindWithHash(key, HashFuncT::Make(key));
+            const element *elm =
+                InternalFindWithHash(key, HashFuncT::Make(key));
             if(!elm)
                 return nullptr;
             return (ValueT *)elm->Value;
@@ -306,7 +320,8 @@ namespace TJS {
             return (ValueT *)elm->Value;
         }
 
-        bool FindWithHash(const KeyT &key, tjs_uint32 hash, const KeyT *&keyout, ValueT *&value) const {
+        bool FindWithHash(const KeyT &key, tjs_uint32 hash, const KeyT *&keyout,
+                          ValueT *&value) const {
             // find key
             // return   false  if not found
 #ifdef TJS_HS_DEBUG_CHAIN
@@ -323,17 +338,20 @@ namespace TJS {
 
         ValueT *FindAndTouch(const KeyT &key) {
             // find key and move it first if found
-            const element *elm = InternalFindWithHash(key, HashFuncT::Make(key));
+            const element *elm =
+                InternalFindWithHash(key, HashFuncT::Make(key));
             if(!elm)
                 return nullptr;
             CheckUpdateElementOrder((element *)elm);
             return (ValueT *)elm->Value;
         }
 
-        bool FindAndTouch(const KeyT &key, const KeyT *&keyout, ValueT *&value) {
+        bool FindAndTouch(const KeyT &key, const KeyT *&keyout,
+                          ValueT *&value) {
             // find key ( hash )
             // return   false  if not found
-            return FindAndTouchWithHash(key, HashFuncT::Make(key), keyout, value);
+            return FindAndTouchWithHash(key, HashFuncT::Make(key), keyout,
+                                        value);
         }
 
         ValueT *FindAndTouchWithHash(const KeyT &key, tjs_uint32 hash) {
@@ -348,7 +366,8 @@ namespace TJS {
             return (ValueT *)elm->Value;
         }
 
-        bool FindAndTouchWithHash(const KeyT &key, tjs_uint32 hash, const KeyT *&keyout, ValueT *&value) {
+        bool FindAndTouchWithHash(const KeyT &key, tjs_uint32 hash,
+                                  const KeyT *&keyout, ValueT *&value) {
             // find key
             // return   false  if not found
             const element *elm = InternalFindWithHash(key, hash);
@@ -461,7 +480,8 @@ namespace TJS {
                 delete elm;
         }
 
-        const element *InternalFindWithHash(const KeyT &key, tjs_uint32 hash) const {
+        const element *InternalFindWithHash(const KeyT &key,
+                                            tjs_uint32 hash) const {
             // find key ( hash )
 #ifdef TJS_HS_DEBUG_CHAIN
             hash = 0;
@@ -533,7 +553,8 @@ namespace TJS {
             }
         }
 
-        static void Construct(element &elm, const KeyT &key, const ValueT &value) {
+        static void Construct(element &elm, const KeyT &key,
+                              const ValueT &value) {
             ::new(&elm.Key) KeyT(key);
             ::new(&elm.Value) ValueT(value);
             elm.Flags |= TJS_HS_HASH_USING;
@@ -549,9 +570,11 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // tTJSHashCache : cache algorithm via tTJSHashTable
     //---------------------------------------------------------------------------
-    template <typename KeyT, typename ValueT, typename HashFuncT = tTJSHashFunc<KeyT>,
+    template <typename KeyT, typename ValueT,
+              typename HashFuncT = tTJSHashFunc<KeyT>,
               tjs_int HashSize = TJS_HS_DEFAULT_HASH_SIZE>
-    class tTJSHashCache : public tTJSHashTable<KeyT, ValueT, HashFuncT, HashSize> {
+    class tTJSHashCache
+        : public tTJSHashTable<KeyT, ValueT, HashFuncT, HashSize> {
         typedef tTJSHashTable<KeyT, ValueT, HashFuncT, HashSize> inherited;
 
         tjs_uint MaxCount;
@@ -566,7 +589,8 @@ namespace TJS {
             }
         }
 
-        void AddWithHash(const KeyT &key, tjs_uint32 hash, const ValueT &value) {
+        void AddWithHash(const KeyT &key, tjs_uint32 hash,
+                         const ValueT &value) {
             inherited::AddWithHash(key, hash, value);
             if(this->GetCount() > MaxCount) {
                 this->ChopLast(this->GetCount() - MaxCount);

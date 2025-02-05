@@ -36,7 +36,8 @@ public:
 
     virtual float GetPan() = 0;
 
-    virtual void AppendBuffer(const void *buf, unsigned int len /*, int tag = 0*/) = 0;
+    virtual void AppendBuffer(const void *buf,
+                              unsigned int len /*, int tag = 0*/) = 0;
 
     virtual bool IsBufferValid() = 0;
 

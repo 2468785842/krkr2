@@ -12,8 +12,8 @@ struct DemuxPacket {
     int iSize; // data size
     int iStreamId; // integer representing the stream index
     int64_t demuxerId; // id of the demuxer that created the packet
-    int iGroupId; // the group this data belongs to, used to group data from
-                  // different streams together
+    int iGroupId; // the group this data belongs to, used to group
+                  // data from different streams together
 
     double pts; // pts in DVD_TIME_BASE
     double dts; // dts in DVD_TIME_BASE

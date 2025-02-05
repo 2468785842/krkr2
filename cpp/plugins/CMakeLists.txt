@@ -52,8 +52,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH} ${KRKR2PLU
 target_link_libraries(${PROJECT_NAME} PUBLIC krkr2core)
 
 add_subdirectory(psdfile)
+add_subdirectory(psbfile)
 add_subdirectory(layerex_draw)
-target_link_libraries(${PROJECT_NAME} PUBLIC psdfile layerExDraw)
+target_link_libraries(${PROJECT_NAME} PUBLIC psdfile psbfile layerExDraw)
 
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt-header-only)

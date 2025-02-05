@@ -34,6 +34,7 @@ extern tTVPCommandOptionList *TVPGetPluginCommandDesc(const wchar_t *name);
 
 extern tTVPCommandOptionList *TVPGetEngineCommandDesc();
 
-void TVPMargeCommandDesc(tTVPCommandOptionList &dest, const tTVPCommandOptionList &src);
+void TVPMargeCommandDesc(tTVPCommandOptionList &dest,
+                         const tTVPCommandOptionList &src);
 
 #endif // __READ_OPTION_DESC_H__

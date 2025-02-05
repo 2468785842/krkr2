@@ -27,9 +27,11 @@ namespace TJS {
         int FileIndex; //!< ファイル名インデックス
         int CodeOffset; //!< VM コードオフセット
 
-        ScopeKey() : ClassIndex(-1), FuncIndex(-1), FileIndex(-1), CodeOffset(-1) {}
+        ScopeKey() :
+            ClassIndex(-1), FuncIndex(-1), FileIndex(-1), CodeOffset(-1) {}
         ScopeKey(int classidx, int func, int file, int codeoffset) :
-            ClassIndex(classidx), FuncIndex(func), FileIndex(file), CodeOffset(codeoffset) {}
+            ClassIndex(classidx), FuncIndex(func), FileIndex(file),
+            CodeOffset(codeoffset) {}
         void Set(int classidx, int func, int file, int codeoffset) {
             ClassIndex = classidx;
             FuncIndex = func;
@@ -38,11 +40,13 @@ namespace TJS {
         }
 
         bool operator==(const ScopeKey &rhs) const {
-            return (ClassIndex == rhs.ClassIndex && FuncIndex == rhs.FuncIndex && FileIndex == rhs.FileIndex &&
+            return (ClassIndex == rhs.ClassIndex &&
+                    FuncIndex == rhs.FuncIndex && FileIndex == rhs.FileIndex &&
                     CodeOffset == rhs.CodeOffset);
         }
         bool operator!=(const ScopeKey &rhs) const {
-            return (ClassIndex != rhs.ClassIndex || FuncIndex != rhs.FuncIndex || FileIndex != rhs.FileIndex ||
+            return (ClassIndex != rhs.ClassIndex ||
+                    FuncIndex != rhs.FuncIndex || FileIndex != rhs.FileIndex ||
                     CodeOffset != rhs.CodeOffset);
         }
         bool operator<(const ScopeKey &rhs) const {
@@ -69,7 +73,8 @@ namespace TJS {
 //---------------------------------------------------------------------------
 // object hash map flags
 #define TJS_OHMF_EXIST 1 // The object is in object hash map
-#define TJS_OHMF_INVALIDATED 2 // The object had been invalidated  // currently not used
+#define TJS_OHMF_INVALIDATED                                                   \
+    2 // The object had been invalidated  // currently not used
 #define TJS_OHMF_DELETING 4 // The object is now being deleted
 #define TJS_OHMF_SET (~0)
 #define TJS_OHMF_UNSET (0)
@@ -94,7 +99,8 @@ namespace TJS {
 
     extern void TJSObjectHashSetType(void *object, const ttstr &type);
 
-    extern void TJSSetObjectHashFlag(void *object, tjs_uint32 flags_to_change, tjs_uint32 bits);
+    extern void TJSSetObjectHashFlag(void *object, tjs_uint32 flags_to_change,
+                                     tjs_uint32 bits);
 
     extern void TJSReportAllUnfreedObjects(iTJSConsoleOutput *output);
 
@@ -104,13 +110,18 @@ namespace TJS {
 
     extern void TJSWriteAllUnfreedObjectsToLog();
 
-    extern void TJSWarnIfObjectIsDeleting(iTJSConsoleOutput *output, void *object);
+    extern void TJSWarnIfObjectIsDeleting(iTJSConsoleOutput *output,
+                                          void *object);
 
     extern void TJSReplayObjectHashMapLog();
 
-    static inline bool TJSObjectHashMapEnabled() { return TJSObjectHashMap || TJSObjectHashMapLog; }
+    static inline bool TJSObjectHashMapEnabled() {
+        return TJSObjectHashMap || TJSObjectHashMapLog;
+    }
 
-    extern inline bool TJSObjectTypeInfoEnabled() { return 0 != TJSObjectHashMap; }
+    extern inline bool TJSObjectTypeInfoEnabled() {
+        return 0 != TJSObjectHashMap;
+    }
 
     extern inline bool TJSObjectFlagEnabled() { return 0 != TJSObjectHashMap; }
 
@@ -134,11 +145,13 @@ namespace TJS {
 
     extern void TJSStackTracerPush(tTJSInterCodeContext *context, bool in_try);
 
-    extern void TJSStackTracerSetCodePointer(const tjs_int32 *codebase, tjs_int32 *const *codeptr);
+    extern void TJSStackTracerSetCodePointer(const tjs_int32 *codebase,
+                                             tjs_int32 *const *codeptr);
 
     extern void TJSStackTracerPop();
 
-    extern ttstr TJSGetStackTraceString(tjs_int limit = 0, const tjs_char *delimiter = nullptr);
+    extern ttstr TJSGetStackTraceString(tjs_int limit = 0,
+                                        const tjs_char *delimiter = nullptr);
 
     static inline bool TJSStackTracerEnabled() { return 0 != TJSStackTracer; }
     //---------------------------------------------------------------------------

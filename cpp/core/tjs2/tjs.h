@@ -52,10 +52,10 @@ namespace TJS {
     // global options
     //---------------------------------------------------------------------------
     extern bool TJSEvalOperatorIsOnGlobal;
-    // Post-! operator (evaluate expression) is to be executed on "this" context
-    // since TJS2 2.4.1.
-    // Turn this switch true makes post-! operator running on global context,
-    // like TJS2 before 2.4.1.
+    // Post-! operator (evaluate expression) is to be executed on
+    // "this" context since TJS2 2.4.1. Turn this switch true makes
+    // post-! operator running on global context, like TJS2
+    // before 2.4.1.
     extern bool TJSWarnOnNonGlobalEvalOperator;
     // Output warning against non-local post-! operator.
     // (For checking where the post-! operators are used)
@@ -65,13 +65,13 @@ namespace TJS {
     // Do not use this mode unless you want to debug the program.
     extern bool TJSWarnOnExecutionOnDeletingObject;
     // Output warning against running code on context of
-    // deleting-in-progress object. This is available only the Debug mode is
-    // enabled.
+    // deleting-in-progress object. This is available only the Debug
+    // mode is enabled.
     extern bool TJSUnaryAsteriskIgnoresPropAccess;
-    // Unary '*' operator means accessing property object directly without
-    // normal property access, if this options is set true.
-    // This is replaced with '&' operator since TJS2 2.4.15. Turn true for
-    // gaining old compatibility.
+    // Unary '*' operator means accessing property object directly
+    // without normal property access, if this options is set true.
+    // This is replaced with '&' operator since TJS2 2.4.15. Turn true
+    // for gaining old compatibility.
 
     //---------------------------------------------------------------------------
     // tTJS class - "tTJS" TJS API Class
@@ -123,7 +123,9 @@ namespace TJS {
 
         iTJSDispatch2 *GetGlobalNoAddRef() const;
 
-        tTJSVariantArrayStack *GetVariantArrayStack() { return VariantArrayStack; }
+        tTJSVariantArrayStack *GetVariantArrayStack() {
+            return VariantArrayStack;
+        }
 
     private:
         void AddScriptBlock(tTJSScriptBlock *block);
@@ -139,43 +141,57 @@ namespace TJS {
 
         void OutputExceptionToConsole(const tjs_char *msg) const;
 
-        void OutputToConsoleWithCentering(const tjs_char *msg, tjs_uint width) const;
+        void OutputToConsoleWithCentering(const tjs_char *msg,
+                                          tjs_uint width) const;
 
-        void OutputToConsoleSeparator(const tjs_char *text, tjs_uint count) const;
+        void OutputToConsoleSeparator(const tjs_char *text,
+                                      tjs_uint count) const;
 
         void Dump(tjs_uint width = 80) const; // dumps all existing script block
 
-        void ExecScript(const tjs_char *script, tTJSVariant *result = nullptr, iTJSDispatch2 *context = nullptr,
+        void ExecScript(const tjs_char *script, tTJSVariant *result = nullptr,
+                        iTJSDispatch2 *context = nullptr,
                         const tjs_char *name = nullptr, tjs_int lineofs = 0);
 
-        void ExecScript(const ttstr &script, tTJSVariant *result = nullptr, iTJSDispatch2 *context = nullptr,
+        void ExecScript(const ttstr &script, tTJSVariant *result = nullptr,
+                        iTJSDispatch2 *context = nullptr,
                         const ttstr *name = nullptr, tjs_int lineofs = 0);
 
-        void EvalExpression(const tjs_char *expression, tTJSVariant *result, iTJSDispatch2 *context = nullptr,
-                            const tjs_char *name = nullptr, tjs_int lineofs = 0);
+        void EvalExpression(const tjs_char *expression, tTJSVariant *result,
+                            iTJSDispatch2 *context = nullptr,
+                            const tjs_char *name = nullptr,
+                            tjs_int lineofs = 0);
 
-        void EvalExpression(const ttstr &expression, tTJSVariant *result, iTJSDispatch2 *context = nullptr,
+        void EvalExpression(const ttstr &expression, tTJSVariant *result,
+                            iTJSDispatch2 *context = nullptr,
                             const ttstr *name = nullptr, tjs_int lineofs = 0);
 
-        void SetPPValue(const tjs_char *name, const tjs_int32 value);
+        void SetPPValue(const tjs_char *name, tjs_int32 value);
 
         tjs_int32 GetPPValue(const tjs_char *name);
 
         void DoGarbageCollection();
 
         // for Bytecode
-        void LoadByteCode(const tjs_uint8 *buff, size_t len, tTJSVariant *result = nullptr,
-                          iTJSDispatch2 *context = nullptr, const tjs_char *name = nullptr);
+        void LoadByteCode(const tjs_uint8 *buff, size_t len,
+                          tTJSVariant *result = nullptr,
+                          iTJSDispatch2 *context = nullptr,
+                          const tjs_char *name = nullptr);
 
-        bool LoadByteCode(class tTJSBinaryStream *stream, tTJSVariant *result = nullptr,
-                          iTJSDispatch2 *context = nullptr, const tjs_char *name = nullptr);
+        bool LoadByteCode(class tTJSBinaryStream *stream,
+                          tTJSVariant *result = nullptr,
+                          iTJSDispatch2 *context = nullptr,
+                          const tjs_char *name = nullptr);
 
         // for Binary Dictionay Array
-        static bool LoadBinaryDictionayArray(class tTJSBinaryStream *stream, tTJSVariant *result);
+        static bool LoadBinaryDictionayArray(class tTJSBinaryStream *stream,
+                                             tTJSVariant *result);
 
-        void CompileScript(const tjs_char *script, class tTJSBinaryStream *output, bool isresultneeded = false,
-                           bool outputdebug = false, bool isexpression = false, const tjs_char *name = nullptr,
-                           tjs_int lineofs = 0);
+        void CompileScript(const tjs_char *script,
+                           class tTJSBinaryStream *output,
+                           bool isresultneeded = false,
+                           bool outputdebug = false, bool isexpression = false,
+                           const tjs_char *name = nullptr, tjs_int lineofs = 0);
     };
     //---------------------------------------------------------------------------
 
@@ -187,27 +203,31 @@ namespace TJS {
 
     class iTJSTextReadStream {
     public:
-        virtual tjs_uint TJS_INTF_METHOD Read(tTJSString &targ, tjs_uint size) = 0;
+        virtual tjs_uint Read(tTJSString &targ, tjs_uint size) = 0;
 
-        virtual void TJS_INTF_METHOD Destruct() = 0; // must delete itself
+        virtual void Destruct() = 0; // must delete itself
     };
 
     //---------------------------------------------------------------------------
     class iTJSTextWriteStream {
     public:
-        virtual void TJS_INTF_METHOD Write(const tTJSString &targ) = 0;
+        virtual void Write(const tTJSString &targ) = 0;
 
-        virtual void TJS_INTF_METHOD Destruct() = 0; // must delete itself
+        virtual void Destruct() = 0; // must delete itself
     };
 
     //---------------------------------------------------------------------------
-    extern iTJSTextReadStream *(*TJSCreateTextStreamForRead)(const tTJSString &name, const tTJSString &modestr);
+    extern iTJSTextReadStream *(*TJSCreateTextStreamForRead)(
+        const tTJSString &name, const tTJSString &modestr);
 
-    extern iTJSTextWriteStream *(*TJSCreateTextStreamForWrite)(const tTJSString &name, const tTJSString &modestr);
+    extern iTJSTextWriteStream *(*TJSCreateTextStreamForWrite)(
+        const tTJSString &name, const tTJSString &modestr);
 
-    extern class tTJSBinaryStream *(*TJSCreateBinaryStreamForRead)(const tTJSString &name, const tTJSString &modestr);
+    extern class tTJSBinaryStream *(*TJSCreateBinaryStreamForRead)(
+        const tTJSString &name, const tTJSString &modestr);
 
-    extern class tTJSBinaryStream *(*TJSCreateBinaryStreamForWrite)(const tTJSString &name, const tTJSString &modestr);
+    extern class tTJSBinaryStream *(*TJSCreateBinaryStreamForWrite)(
+        const tTJSString &name, const tTJSString &modestr);
 //---------------------------------------------------------------------------
 
 /*]*/
@@ -239,26 +259,26 @@ namespace TJS {
     private:
     public:
         //-- must implement
-        virtual tjs_uint64 TJS_INTF_METHOD Seek(tjs_int64 offset, tjs_int whence) = 0;
+        virtual tjs_uint64 Seek(tjs_int64 offset, tjs_int whence) = 0;
         /* if error, position is not changed */
 
         //-- optionally to implement
-        virtual tjs_uint TJS_INTF_METHOD Read(void *buffer, tjs_uint read_size) = 0;
+        virtual tjs_uint Read(void *buffer, tjs_uint read_size) = 0;
 
         /* returns actually read size */
 
-        virtual tjs_uint TJS_INTF_METHOD Write(const void *buffer, tjs_uint write_size) = 0;
+        virtual tjs_uint Write(const void *buffer, tjs_uint write_size) = 0;
 
         /* returns actually written size */
 
-        virtual void TJS_INTF_METHOD SetEndOfStorage();
+        virtual void SetEndOfStorage();
         // the default behavior is raising a exception
         /* if error, raises exception */
 
         //-- should re-implement for higher performance
-        virtual tjs_uint64 TJS_INTF_METHOD GetSize() = 0;
+        virtual tjs_uint64 GetSize() = 0;
 
-        virtual ~tTJSBinaryStream() { ; }
+        virtual ~tTJSBinaryStream() = default;
 
         tjs_uint64 GetPosition();
 

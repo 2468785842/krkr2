@@ -19,7 +19,8 @@
 /**
  * int16→float32変換
  */
-static void PCMConvertLoopInt16ToFloat32_c(void *dest, const void *src, size_t numsamples) {
+static void PCMConvertLoopInt16ToFloat32_c(void *dest, const void *src,
+                                           size_t numsamples) {
     float *d = static_cast<float *>(dest);
     const tjs_int16 *s = static_cast<const tjs_int16 *>(src);
     const tjs_int16 *s_lim = s + numsamples;
@@ -36,7 +37,8 @@ static void PCMConvertLoopInt16ToFloat32_c(void *dest, const void *src, size_t n
 /**
  * float32→int16変換
  */
-static void PCMConvertLoopFloat32ToInt16_c(void *dest, const void *src, size_t numsamples) {
+static void PCMConvertLoopFloat32ToInt16_c(void *dest, const void *src,
+                                           size_t numsamples) {
     tjs_uint16 *d = static_cast<tjs_uint16 *>(dest);
     const float *s = static_cast<const float *>(src);
     const float *s_lim = s + numsamples;
@@ -53,8 +55,12 @@ static void PCMConvertLoopFloat32ToInt16_c(void *dest, const void *src, size_t n
 }
 //---------------------------------------------------------------------------
 
-void (*PCMConvertLoopInt16ToFloat32)(void *dest, const void *src, size_t numsamples) = PCMConvertLoopInt16ToFloat32_c;
+void (*PCMConvertLoopInt16ToFloat32)(void *dest, const void *src,
+                                     size_t numsamples) =
+    PCMConvertLoopInt16ToFloat32_c;
 
-void (*PCMConvertLoopFloat32ToInt16)(void *dest, const void *src, size_t numsamples) = PCMConvertLoopFloat32ToInt16_c;
+void (*PCMConvertLoopFloat32ToInt16)(void *dest, const void *src,
+                                     size_t numsamples) =
+    PCMConvertLoopFloat32ToInt16_c;
 
 //---------------------------------------------------------------------------

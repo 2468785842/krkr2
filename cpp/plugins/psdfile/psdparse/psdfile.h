@@ -24,12 +24,17 @@ namespace psd {
         // ファイルロードエントリ
         bool load(const char *filename);
 
-        // 画像データ取得インタフェース(バッファピッチが０の場合はfull fillされます)
-        // 合成済み画像(PSDに保持されている場合のみ)
-        bool getMergedImage(void *buf, const ColorFormat &format, int bufPitchByte);
+        // 画像データ取得インタフェース(バッファピッチが０の場合はfull
+        // fillされます) 合成済み画像(PSDに保持されている場合のみ)
+        bool getMergedImage(void *buf, const ColorFormat &format,
+                            int bufPitchByte);
         // レイヤ画像
-        bool getLayerImage(LayerInfo &layer, void *buf, const ColorFormat &format, int bufPitchByte, ImageMode mode);
-        bool getLayerImageById(int layerId, void *buf, const ColorFormat &format, int bufPitchByte, ImageMode mode);
+        bool getLayerImage(LayerInfo &layer, void *buf,
+                           const ColorFormat &format, int bufPitchByte,
+                           ImageMode mode);
+        bool getLayerImageById(int layerId, void *buf,
+                               const ColorFormat &format, int bufPitchByte,
+                               ImageMode mode);
 
     private:
         // loadFileで使用するメモリマップドファイル

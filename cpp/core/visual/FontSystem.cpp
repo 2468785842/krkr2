@@ -36,7 +36,9 @@ bool FontSystem::FontExists(const ttstr &name) {
     return t != nullptr;
 }
 
-FontSystem::FontSystem() : FontNamesInit(false), DefaultLOGFONTCreated(false) { ConstructDefaultFont(); }
+FontSystem::FontSystem() : FontNamesInit(false), DefaultLOGFONTCreated(false) {
+    ConstructDefaultFont();
+}
 
 void FontSystem::ConstructDefaultFont() {
     if(!DefaultLOGFONTCreated) {
@@ -62,7 +64,8 @@ ttstr FontSystem::GetBeingFont(ttstr fonts) {
     }
 
     static bool force_default_font =
-        IndividualConfigManager::GetInstance()->GetValue<bool>("force_default_font", false);
+        IndividualConfigManager::GetInstance()->GetValue<bool>(
+            "force_default_font", false);
     if(!force_default_font) {
         bool prev_empty_name = false;
         while(fonts != TJS_W("")) {
@@ -76,10 +79,11 @@ ttstr FontSystem::GetBeingFont(ttstr fonts) {
                 fonts = TJS_W("");
             }
 
-            // no existing check if previously specified font candidate is empty
-            // eg. ",Fontname"
+            // no existing check if previously specified font
+            // candidate is empty eg. ",Fontname"
 
-            if(fontname != TJS_W("") && (prev_empty_name || FontExists(fontname))) {
+            if(fontname != TJS_W("") &&
+               (prev_empty_name || FontExists(fontname))) {
                 if(vfont && fontname.c_str()[0] != TJS_W('@')) {
                     return TJS_W("@") + fontname;
                 } else {

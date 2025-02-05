@@ -28,7 +28,13 @@ public:
     double error;
     double rr; // resample ratio
     unsigned int errortime;
-    enum AESyncState { SYNC_OFF, SYNC_INSYNC, SYNC_START, SYNC_MUTE, SYNC_ADJUST };
+    enum AESyncState {
+        SYNC_OFF,
+        SYNC_INSYNC,
+        SYNC_START,
+        SYNC_MUTE,
+        SYNC_ADJUST
+    };
     AESyncState state;
 };
 
@@ -58,7 +64,8 @@ public:
      * @param pts timestamp
      * @return The number of frames consumed
      */
-    virtual unsigned int AddData(const uint8_t *const *data, unsigned int offset, unsigned int frames,
+    virtual unsigned int AddData(const uint8_t *const *data,
+                                 unsigned int offset, unsigned int frames,
                                  double pts = 0.0) = 0;
 
     /**
@@ -145,8 +152,8 @@ public:
     //  virtual float GetReplayGain() {}
 
     /**
-     * Sets the stream's replay gain factor, this is used by formats such as MP3
-     * that have attenuation information in their streams
+     * Sets the stream's replay gain factor, this is used by formats
+     * such as MP3 that have attenuation information in their streams
      * @param factor The replay gain factor
      */
     //  virtual void SetReplayGain(float factor) {}
@@ -170,24 +177,27 @@ public:
      * @param audio_service_type
      */
     //  virtual void SetFFmpegInfo(int profile, enum AVMatrixEncoding
-    //  matrix_encoding, enum AVAudioServiceType audio_service_type) {}
+    //  matrix_encoding, enum AVAudioServiceType audio_service_type)
+    //  {}
 
     /**
-     * Returns the size of one audio frame in bytes (channelCount * resolution)
+     * Returns the size of one audio frame in bytes (channelCount *
+     * resolution)
      * @return The size in bytes of one frame
      */
     //  virtual const unsigned int GetFrameSize() const = 0;
 
     /**
-     * Returns the number of channels the stream is configured to accept
+     * Returns the number of channels the stream is configured to
+     * accept
      * @return The channel count
      */
     //  virtual const unsigned int GetChannelCount() const = 0;
 
     /**
-     * Returns the stream's sample rate, if the stream is using a dynamic sample
-     * rate, this value will NOT reflect any changes made by calls to
-     * SetResampleRatio()
+     * Returns the stream's sample rate, if the stream is using a
+     * dynamic sample rate, this value will NOT reflect any changes
+     * made by calls to SetResampleRatio()
      * @return The stream's sample rate (eg, 48000)
      */
     //  virtual const unsigned int GetSampleRate() const = 0;
@@ -200,16 +210,18 @@ public:
 
     /**
      * Return the resample ratio
-     * @note This will return an undefined value if the stream is not resampling
-     * @return the current resample ratio or undefined if the stream is not
+     * @note This will return an undefined value if the stream is not
      * resampling
+     * @return the current resample ratio or undefined if the stream
+     * is not resampling
      */
     //  virtual double GetResampleRatio() = 0;
 
     /**
      * Sets the resample ratio
-     * @note This function may return false if the stream is not resampling, if
-     * you wish to use this be sure to set the AESTREAM_FORCE_RESAMPLE option
+     * @note This function may return false if the stream is not
+     * resampling, if you wish to use this be sure to set the
+     * AESTREAM_FORCE_RESAMPLE option
      * @param ratio the new sample rate ratio, calculated by
      * ((double)desiredRate / (double)GetSampleRate())
      */
@@ -221,14 +233,15 @@ public:
     virtual void SetResampleMode(int mode) {}
 
     /**
-     * Registers the audio callback to call with each block of data, this is
-     * used by Audio Visualizations
-     * @warning Currently the callbacks require stereo float data in blocks of
-     * 512 samples, any deviation from this may crash XBMC, or cause junk to be
-     * rendered
+     * Registers the audio callback to call with each block of data,
+     * this is used by Audio Visualizations
+     * @warning Currently the callbacks require stereo float data in
+     * blocks of 512 samples, any deviation from this may crash XBMC,
+     * or cause junk to be rendered
      * @param pCallback The callback
      */
-    //  virtual void RegisterAudioCallback(IAudioCallback* pCallback) = 0;
+    //  virtual void RegisterAudioCallback(IAudioCallback* pCallback)
+    //  = 0;
 
     /**
      * Unregisters the current audio callback
@@ -237,13 +250,16 @@ public:
 
     /**
      * Fade the volume level over the specified time
-     * @param from The volume level to fade from (0.0f-1.0f) - See notes
+     * @param from The volume level to fade from (0.0f-1.0f) - See
+     * notes
      * @param target The volume level to fade to (0.0f-1.0f)
-     * @param time The amount of time in milliseconds for the fade to occur
-     * @note The from parameter does not set the streams volume, it is only used
-     * to calculate the fade time properly
+     * @param time The amount of time in milliseconds for the fade to
+     * occur
+     * @note The from parameter does not set the streams volume, it is
+     * only used to calculate the fade time properly
      */
-    //  virtual void FadeVolume(float from, float target, unsigned int time) {}
+    //  virtual void FadeVolume(float from, float target, unsigned int
+    //  time) {}
     //  /*
     //  FIXME: once all the engines have these new methods */
 

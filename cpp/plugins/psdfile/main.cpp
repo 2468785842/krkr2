@@ -56,9 +56,9 @@ public:
     // iTVPStorageMedia Intefaces
     // -----------------------------------
 
-    virtual void TJS_INTF_METHOD AddRef() { refCount++; };
+    virtual void AddRef() { refCount++; };
 
-    virtual void TJS_INTF_METHOD Release() {
+    virtual void Release() {
         if(refCount == 1) {
             delete this;
         } else {
@@ -67,23 +67,23 @@ public:
     };
 
     // returns media name like "file", "http" etc.
-    virtual void TJS_INTF_METHOD GetName(ttstr &name) { name = BASENAME; }
+    virtual void GetName(ttstr &name) { name = BASENAME; }
 
-    //	virtual ttstr TJS_INTF_METHOD IsCaseSensitive() = 0;
+    //	virtual ttstr IsCaseSensitive() = 0;
     // returns whether this media is case sensitive or not
 
     // normalize domain name according with the media's rule
-    virtual void TJS_INTF_METHOD NormalizeDomainName(ttstr &name) {
+    virtual void NormalizeDomainName(ttstr &name) {
         // nothing to do
     }
 
     // normalize path name according with the media's rule
-    virtual void TJS_INTF_METHOD NormalizePathName(ttstr &name) {
+    virtual void NormalizePathName(ttstr &name) {
         // nothing to do
     }
 
     // check file existence
-    virtual bool TJS_INTF_METHOD CheckExistentStorage(const ttstr &name) {
+    virtual bool CheckExistentStorage(const ttstr &name) {
         ttstr fname;
         PSD *psd = getPSD(name, fname);
         if(psd) {
@@ -96,7 +96,7 @@ public:
     // open a storage and return a iTJSBinaryStream instance.
     // name does not contain in-archive storage name but
     // is normalized.
-    virtual tTJSBinaryStream *TJS_INTF_METHOD Open(const ttstr &name, tjs_uint32 flags) {
+    virtual tTJSBinaryStream *Open(const ttstr &name, tjs_uint32 flags) {
         if(flags == TJS_BS_READ) { // 読み込みのみ
             ttstr fname;
             PSD *psd = getPSD(name, fname);
@@ -104,7 +104,8 @@ public:
                 IStream *stream = psd->openLayerImage(fname);
                 if(stream) {
 
-                    tTJSBinaryStream *ret = TVPCreateBinaryStreamAdapter(stream);
+                    tTJSBinaryStream *ret =
+                        TVPCreateBinaryStreamAdapter(stream);
                     stream->Release();
                     return ret;
                 }
@@ -115,7 +116,7 @@ public:
     }
 
     // list files at given place
-    virtual void TJS_INTF_METHOD GetListAt(const ttstr &name, iTVPStorageLister *lister) {
+    virtual void GetListAt(const ttstr &name, iTVPStorageLister *lister) {
         ttstr fname;
         PSD *psd = getPSD(name, fname);
         if(psd) {
@@ -124,15 +125,16 @@ public:
     }
 
     // basically the same as above,
-    // check wether given name is easily accessible from local OS filesystem.
-    // if true, returns local OS native name. otherwise returns an empty string.
-    virtual void TJS_INTF_METHOD GetLocallyAccessibleName(ttstr &name) { name = ""; }
+    // check wether given name is easily accessible from local OS
+    // filesystem. if true, returns local OS native name. otherwise
+    // returns an empty string.
+    virtual void GetLocallyAccessibleName(ttstr &name) { name = ""; }
 
 public:
     // -----------------------------------
     // tTVPCompactEventCallbackIntf
     // -----------------------------------
-    virtual void TJS_INTF_METHOD OnCompact(tjs_int level) {
+    virtual void OnCompact(tjs_int level) {
         if(level > TVP_COMPACT_LEVEL_MINIMIZE) {
             clearCache();
         }
@@ -162,7 +164,9 @@ protected:
         PSD *psd = 0;
 
         // 直近のキャッシュが合致する場合はそれを返す
-        if(cache.Type() == tvtObject && (psd = ncbInstanceAdaptor<PSD>::GetNativeInstance(cache.AsObjectNoAddRef())) &&
+        if(cache.Type() == tvtObject &&
+           (psd = ncbInstanceAdaptor<PSD>::GetNativeInstance(
+                cache.AsObjectNoAddRef())) &&
            psd->dname == dname) {
             return psd;
         }
@@ -177,7 +181,8 @@ protected:
 
         // 自分でopenしてそのままキャッシュとして持つ
         TVPExecuteExpression(TJS_W("new PSD()"), &cache);
-        psd = ncbInstanceAdaptor<PSD>::GetNativeInstance(cache.AsObjectNoAddRef());
+        psd = ncbInstanceAdaptor<PSD>::GetNativeInstance(
+            cache.AsObjectNoAddRef());
         if(psd) {
             if(psd->load(dname.c_str())) {
                 return psd;

@@ -25,7 +25,8 @@
 #pragma option push -b
 #endif
 enum tTVPTransType {
-    ttSimple, // transition using only one(self) layer ( eg. simple fading )
+    ttSimple, // transition using only one(self) layer ( eg. simple
+              // fading )
     ttExchange // transition using two layer ( eg. cross fading )
 };
 #ifdef __BORLANDC__
@@ -49,22 +50,22 @@ enum tTVPTransUpdateType { tutDivisibleFade, tutDivisible, tutGiveUpdate };
         tutDivisibleFade, tutDivisible and tutGiveUpdate.
 
         tutDivisibleFade
-                used when the transition processing is region-divisible and
-                the transition updates entire area of the layer.
-                update area is always given by iTVPTransHandler::Process caller.
-                handler must use only given area of the source bitmap on each
-                callbacking.
+                used when the transition processing is
+   region-divisible and the transition updates entire area of the
+   layer. update area is always given by iTVPTransHandler::Process
+   caller. handler must use only given area of the source bitmap on
+   each callbacking.
 
         tutDivisible
-                same as tutDivisibleFade, except for its usage of source area.
-                handler can use any area of the source bitmap.
-                this will somewhat slower than tutDivisibleFade.
+                same as tutDivisibleFade, except for its usage of
+   source area. handler can use any area of the source bitmap. this
+   will somewhat slower than tutDivisibleFade.
 
         tutGiveUpdate
-                used when the transition processing is not region-divisible or
-                the transition updates only some small regions rather than
-   entire area. update area is given by callee of iTVPTransHandler::Process, via
-   iTVPLayerUpdater interface.
+                used when the transition processing is not
+   region-divisible or the transition updates only some small regions
+   rather than entire area. update area is given by callee of
+   iTVPTransHandler::Process, via iTVPLayerUpdater interface.
 */
 //---------------------------------------------------------------------------
 
@@ -75,23 +76,23 @@ enum tTVPTransUpdateType { tutDivisibleFade, tutDivisible, tutGiveUpdate };
 class iTVPTexture2D;
 class iTVPScanLineProvider {
 public:
-    virtual tjs_error TJS_INTF_METHOD AddRef() = 0;
-    virtual tjs_error TJS_INTF_METHOD Release() = 0;
+    virtual tjs_error AddRef() = 0;
+    virtual tjs_error Release() = 0;
     // call "Release" when done with this object
 
-    virtual tjs_error TJS_INTF_METHOD GetWidth(/*out*/ tjs_int *width) = 0;
+    virtual tjs_error GetWidth(/*out*/ tjs_int *width) = 0;
     // return image width
-    virtual tjs_error TJS_INTF_METHOD GetHeight(/*out*/ tjs_int *height) = 0;
+    virtual tjs_error GetHeight(/*out*/ tjs_int *height) = 0;
     // return image height
 #if 0
-	virtual tjs_error TJS_INTF_METHOD GetPixelFormat(/*out*/tjs_int *bpp) = 0;
+	virtual tjs_error GetPixelFormat(/*out*/tjs_int *bpp) = 0;
 		// return image bit depth
-	virtual tjs_error TJS_INTF_METHOD GetPitchBytes(/*out*/tjs_int *pitch) = 0;
+	virtual tjs_error GetPitchBytes(/*out*/tjs_int *pitch) = 0;
 		// return image bitmap data width in bytes ( offset to next down line )
-	virtual tjs_error TJS_INTF_METHOD GetScanLine(/*in*/tjs_int line,
+	virtual tjs_error GetScanLine(/*in*/tjs_int line,
 			/*out*/const void ** scanline) = 0;
 		// return image pixel scan line pointer
-	virtual tjs_error TJS_INTF_METHOD GetScanLineForWrite(/*in*/tjs_int line,
+	virtual tjs_error GetScanLineForWrite(/*in*/tjs_int line,
 			/*out*/void ** scanline) = 0;
 		// return image pixel scan line pointer for writing
 #endif
@@ -106,26 +107,28 @@ public:
 // provides option set
 class iTVPSimpleOptionProvider {
 public:
-    virtual tjs_error TJS_INTF_METHOD AddRef() = 0;
-    virtual tjs_error TJS_INTF_METHOD Release() = 0;
+    virtual tjs_error AddRef() = 0;
+    virtual tjs_error Release() = 0;
     // call this when done with this object
 
-    virtual tjs_error TJS_INTF_METHOD GetAsNumber(
+    virtual tjs_error GetAsNumber(
         /*in*/ const tjs_char *name, /*out*/ tjs_int64 *value) = 0;
     // retrieve option as a number.
-    virtual tjs_error TJS_INTF_METHOD GetAsString(
-        /*in*/ const tjs_char *name, /*out*/ const tjs_char **out) = 0;
+    virtual tjs_error GetAsString(
+        /*in*/ const tjs_char *name,
+        /*out*/ const tjs_char **out) = 0;
     // retrieve option as a string.
-    // note that you must use the returned string as an one time string
-    // pointer; you cannot hold its pointer and/or use it later.
+    // note that you must use the returned string as an one time
+    // string pointer; you cannot hold its pointer and/or use it
+    // later.
 
-    virtual tjs_error TJS_INTF_METHOD GetValue(
+    virtual tjs_error GetValue(
         /*in*/ const tjs_char *name, /*out*/ tTJSVariant *dest) = 0;
     // retrieve option as a tTJSVariant.
 
-    virtual tjs_error TJS_INTF_METHOD Reserved2() = 0;
+    virtual tjs_error Reserved2() = 0;
 
-    virtual tjs_error TJS_INTF_METHOD GetDispatchObject(iTJSDispatch2 **dsp) = 0;
+    virtual tjs_error GetDispatchObject(iTJSDispatch2 **dsp) = 0;
     // retrieve internal dispatch object ( if exists )
 };
 //---------------------------------------------------------------------------
@@ -136,7 +139,7 @@ public:
 // image loader
 class iTVPSimpleImageProvider {
 public:
-    virtual tjs_error TJS_INTF_METHOD LoadImage(
+    virtual tjs_error LoadImage(
         /*in*/ const tjs_char *name, /*in*/ tjs_int bpp,
         /*in*/ tjs_uint32 key,
         /*in*/ tjs_uint w,
@@ -147,9 +150,9 @@ public:
     // 32bpp.
     // key is a color key. pass 0x02ffffff for not to apply color key.
     // you must release "scpro" when you done with it.
-    // w and h are desired size of the image. if the actual size is smaller
-    // than these, the image is to be tiled. give 0, 0 to obtain original
-    // sized image.
+    // w and h are desired size of the image. if the actual size is
+    // smaller than these, the image is to be tiled. give 0, 0 to
+    // obtain original sized image.
 };
 //---------------------------------------------------------------------------
 
@@ -159,7 +162,8 @@ public:
 // layer update region notification interface
 class iTVPLayerUpdater {
 public:
-    virtual tjs_error TJS_INTF_METHOD UpdateRect(tjs_int left, tjs_int top, tjs_int right, tjs_int bottom);
+    virtual tjs_error UpdateRect(tjs_int left, tjs_int top, tjs_int right,
+                                 tjs_int bottom);
     // notify that the layer image had been changed.
 };
 //---------------------------------------------------------------------------
@@ -187,9 +191,10 @@ struct tTVPDivisibleData {
     /*const*/ tjs_int Src2Left; // source 2 image rectangle's left
     /*const*/ tjs_int Src2Top; // source 2 image rectangle's top
 };
-/* note that "Src2" will be nullptr when transition type is ttSimple. */
-/* Src1Left, Src1Top, Src2Left, Src2Top are not used when the transition is
-        tutDivisible. */
+/* note that "Src2" will be nullptr when transition type is ttSimple.
+ */
+/* Src1Left, Src1Top, Src2Left, Src2Top are not used when the
+   transition is tutDivisible. */
 
 #ifdef _WIN32
 #pragma pack(pop)
@@ -200,10 +205,10 @@ struct tTVPDivisibleData {
 //---------------------------------------------------------------------------
 class iTVPBaseTransHandler {
 public:
-    virtual tjs_error TJS_INTF_METHOD AddRef() = 0;
-    virtual tjs_error TJS_INTF_METHOD Release() = 0;
+    virtual tjs_error AddRef() = 0;
+    virtual tjs_error Release() = 0;
 
-    virtual tjs_error TJS_INTF_METHOD SetOption(
+    virtual tjs_error SetOption(
         /*in*/ iTVPSimpleOptionProvider *options // option provider
         ) = 0;
     // Set option for current processing transition
@@ -215,35 +220,35 @@ public:
 //---------------------------------------------------------------------------
 class iTVPDivisibleTransHandler : public iTVPBaseTransHandler {
 public:
-    virtual tjs_error TJS_INTF_METHOD StartProcess(
+    virtual tjs_error StartProcess(
         /*in*/ tjs_uint64 tick) = 0;
     // called before one processing time unit.
     // expected return values are:
     // TJS_S_TRUE: continue processing
     // TJS_S_FALSE: break processing
 
-    virtual tjs_error TJS_INTF_METHOD EndProcess() = 0;
+    virtual tjs_error EndProcess() = 0;
     // called after one processing time unit.
     // expected return values are:
     // TJS_S_TRUE: continue processing
     // TJS_S_FALSE: break processing
 
-    virtual tjs_error TJS_INTF_METHOD Process(
+    virtual tjs_error Process(
         /*in,out*/ tTVPDivisibleData *data) = 0;
-    // called during StartProcess and EndProcess per an update rectangle.
-    // the handler processes given rectangle and put result image to
-    // "Dest"( in tTVPDivisibleData ).
-    // given "Dest" is a internal image buffer, but callee can change
-    // the "Dest" pointer to Src1 or Src2. Also DestLeft and DestTop can
-    // be changed to point destination image part.
+    // called during StartProcess and EndProcess per an update
+    // rectangle. the handler processes given rectangle and put result
+    // image to "Dest"( in tTVPDivisibleData ). given "Dest" is a
+    // internal image buffer, but callee can change the "Dest" pointer
+    // to Src1 or Src2. Also DestLeft and DestTop can be changed to
+    // point destination image part.
 
-    virtual tjs_error TJS_INTF_METHOD MakeFinalImage(
+    virtual tjs_error MakeFinalImage(
         /*in,out*/ iTVPScanLineProvider **dest, // destination
         /*in*/ iTVPScanLineProvider *src1, // source 1
         /*in*/ iTVPScanLineProvider *src2 // source 2
         ) = 0;
-    // will be called after StartProcess/EndProcess returns TJS_S_FALSE.
-    // this function does not called in some occasions.
+    // will be called after StartProcess/EndProcess returns
+    // TJS_S_FALSE. this function does not called in some occasions.
     // fill "dest" to make a final image.
     // dest can be set to either src1 or src2.
 };
@@ -254,7 +259,7 @@ public:
 //---------------------------------------------------------------------------
 class iTVPGiveUpdateTransHandler : public iTVPBaseTransHandler {
 public:
-    virtual tjs_error TJS_INTF_METHOD Process(
+    virtual tjs_error Process(
         /*in*/ tjs_uint64 tick, // tick count provided by the system in ms
         /*in*/ iTVPLayerUpdater *updater, // layer updater object
         /*in*/ iTVPScanLineProvider *dest, // destination
@@ -262,8 +267,9 @@ public:
         /*in*/ iTVPScanLineProvider *src2 // source 2
         ) = 0;
     // process the transition.
-    // callee must call updater->UpdateLayerRect when changing the layer image.
-    // updater->UpdateLayerRect can be called more than once.
+    // callee must call updater->UpdateLayerRect when changing the
+    // layer image. updater->UpdateLayerRect can be called more than
+    // once.
 };
 //---------------------------------------------------------------------------
 
@@ -274,14 +280,14 @@ public:
 class iTVPTransHandlerProvider {
 public:
     virtual ~iTVPTransHandlerProvider() {} // add by ZeaS
-    virtual tjs_error TJS_INTF_METHOD AddRef() = 0;
-    virtual tjs_error TJS_INTF_METHOD Release() = 0;
+    virtual tjs_error AddRef() = 0;
+    virtual tjs_error Release() = 0;
 
-    virtual tjs_error TJS_INTF_METHOD GetName(
+    virtual tjs_error GetName(
         /*out*/ const tjs_char **name) = 0;
     // return this transition name
 
-    virtual tjs_error TJS_INTF_METHOD StartTransition(
+    virtual tjs_error StartTransition(
         /*in*/ iTVPSimpleOptionProvider *options, // option provider
         /*in*/ iTVPSimpleImageProvider *imagepro, // image provider
         /*in*/ tTVPLayerType layertype, // destination layer type

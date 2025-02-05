@@ -5,7 +5,8 @@ using namespace cocos2d;
 
 TVPConsoleWindow::TVPConsoleWindow() {}
 
-TVPConsoleWindow *TVPConsoleWindow::create(int fontSize, cocos2d::Node *parent) {
+TVPConsoleWindow *TVPConsoleWindow::create(int fontSize,
+                                           cocos2d::Node *parent) {
     auto *ret = new TVPConsoleWindow;
     ret->init();
     ret->setAnchorPoint(Vec2::ZERO);
@@ -31,7 +32,8 @@ void TVPConsoleWindow::setFontSize(float size) {
     _maxQueueSize = getContentSize().height / size + 2;
 }
 
-void TVPConsoleWindow::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags) {
+void TVPConsoleWindow::visit(Renderer *renderer, const Mat4 &parentTransform,
+                             uint32_t parentFlags) {
     if(!_queuedLines.empty()) {
         float height = 0;
         std::vector<cocos2d::Label *> _queuedLabels;
@@ -40,7 +42,8 @@ void TVPConsoleWindow::visit(Renderer *renderer, const Mat4 &parentTransform, ui
             if(_unusedLabels.empty()) {
                 Size dim(getContentSize());
                 dim.height = 0;
-                label = cocos2d::Label::createWithTTF("", "DroidSansFallback.ttf", _fontSize, dim);
+                label = cocos2d::Label::createWithTTF(
+                    "", "DroidSansFallback.ttf", _fontSize, dim);
                 label->setAnchorPoint(Vec2::ZERO);
                 addChild(label);
             } else {
@@ -49,7 +52,8 @@ void TVPConsoleWindow::visit(Renderer *renderer, const Mat4 &parentTransform, ui
                 label->setVisible(true);
             }
             label->setColor(line.second);
-            ttstr t = line.first.length() > 200 ? line.first.SubString(0, 200) : line.first;
+            ttstr t = line.first.length() > 200 ? line.first.SubString(0, 200)
+                                                : line.first;
             label->setString(t.AsStdString());
             label->setPosition(0, height);
             height += label->getContentSize().height;

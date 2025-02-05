@@ -17,7 +17,8 @@
 #include "TVPTimer.h"
 
 //---------------------------------------------------------------------------
-// Sound Buffer Timer Dispatcher ( for fading or commiting defered settings )
+// Sound Buffer Timer Dispatcher ( for fading or commiting defered
+// settings )
 //---------------------------------------------------------------------------
 static class TVPTimer *TVPSoundBufferTimer = nullptr;
 
@@ -28,7 +29,8 @@ class tTVPSoundBufferTimerDispatcher {
 public:
     void Handler() {
         std::vector<tTJSNI_SoundBuffer *>::iterator i;
-        for(i = TVPSoundBufferVector.begin(); i != TVPSoundBufferVector.end(); i++) {
+        for(i = TVPSoundBufferVector.begin(); i != TVPSoundBufferVector.end();
+            i++) {
             (*i)->TimerBeatHandler();
         }
         TVPWaveSoundBufferCommitSettings();
@@ -41,8 +43,9 @@ void TVPAddSoundBuffer(tTJSNI_SoundBuffer *buf) {
         // first buffer
         TVPSoundBufferTimer = new TVPTimer(); // Create Timer Object
         TVPSoundBufferTimer->SetInterval(TVP_SB_BEAT_INTERVAL);
-        TVPSoundBufferTimer->SetOnTimerHandler(&TVPSoundBufferTimerDispatcher,
-                                               &tTVPSoundBufferTimerDispatcher::Handler);
+        TVPSoundBufferTimer->SetOnTimerHandler(
+            &TVPSoundBufferTimerDispatcher,
+            &tTVPSoundBufferTimerDispatcher::Handler);
     }
 
     TVPSoundBufferVector.push_back(buf);
@@ -52,7 +55,8 @@ void TVPAddSoundBuffer(tTJSNI_SoundBuffer *buf) {
 void TVPRemoveSoundBuffer(tTJSNI_SoundBuffer *buf) {
     if(TVPSoundBufferVector.size() != 0) {
         std::vector<tTJSNI_SoundBuffer *>::iterator i;
-        i = std::find(TVPSoundBufferVector.begin(), TVPSoundBufferVector.end(), buf);
+        i = std::find(TVPSoundBufferVector.begin(), TVPSoundBufferVector.end(),
+                      buf);
         if(i != TVPSoundBufferVector.end()) {
             TVPSoundBufferVector.erase(i);
         }
@@ -71,8 +75,8 @@ void TVPRemoveSoundBuffer(tTJSNI_SoundBuffer *buf) {
 tTJSNI_SoundBuffer::tTJSNI_SoundBuffer() {}
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_SoundBuffer::Construct(tjs_int numparams, tTJSVariant **param,
-                                                        iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_SoundBuffer::Construct(tjs_int numparams, tTJSVariant **param,
+                                        iTJSDispatch2 *tjs_obj) {
     tjs_error hr = inherited::Construct(numparams, param, tjs_obj);
     if(TJS_FAILED(hr))
         return hr;
@@ -83,7 +87,7 @@ tjs_error TJS_INTF_METHOD tTJSNI_SoundBuffer::Construct(tjs_int numparams, tTJSV
 }
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_SoundBuffer::Invalidate() {
+void tTJSNI_SoundBuffer::Invalidate() {
     TVPRemoveSoundBuffer(this);
 
     inherited::Invalidate();

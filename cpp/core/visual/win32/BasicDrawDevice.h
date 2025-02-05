@@ -25,7 +25,8 @@ class tTVPBasicDrawDevice : public tTVPDrawDevice {
 
     //	UINT	CurrentMonitor;
     void *TextureBuffer; //!< テクスチャのサーフェースへのメモリポインタ
-                         // 	long	TexturePitch; //!< テクスチャのピッチ
+                         // 	long	TexturePitch; //!<
+                         // テクスチャのピッチ
 
     tjs_uint TextureWidth; //!< テクスチャの横幅
     tjs_uint TextureHeight; //!< テクスチャの縦幅
@@ -72,38 +73,43 @@ public:
     } DrawerType = dtDrawDib,
       PreferredDrawerType = dtDrawDib;
     tDrawerType GetDrawerType() const { return DrawerType; }
-    void SetPreferredDrawerType(tDrawerType type) { PreferredDrawerType = type; }
+    void SetPreferredDrawerType(tDrawerType type) {
+        PreferredDrawerType = type;
+    }
     tDrawerType GetPreferredDrawerType() const { return PreferredDrawerType; }
 
 public:
     //	void EnsureDevice();
 
     //---- LayerManager の管理関連
-    virtual void TJS_INTF_METHOD AddLayerManager(iTVPLayerManager *manager);
+    virtual void AddLayerManager(iTVPLayerManager *manager);
 
     //---- 描画位置・サイズ関連
-    //	virtual void TJS_INTF_METHOD SetTargetWindow(HWND wnd, bool is_main);
-    virtual void TJS_INTF_METHOD SetDestRectangle(const tTVPRect &rect);
-    virtual void TJS_INTF_METHOD NotifyLayerResize(iTVPLayerManager *manager);
+    //	virtual void SetTargetWindow(HWND wnd, bool
+    // is_main);
+    virtual void SetDestRectangle(const tTVPRect &rect);
+    virtual void NotifyLayerResize(iTVPLayerManager *manager);
 
     //---- 再描画関連
-    virtual void TJS_INTF_METHOD Show();
-    //	virtual bool TJS_INTF_METHOD WaitForVBlank( tjs_int* in_vblank, tjs_int*
+    virtual void Show();
+    //	virtual bool WaitForVBlank( tjs_int*
+    // in_vblank, tjs_int*
     // delayed );
 
     //---- LayerManager からの画像受け渡し関連
-    virtual void TJS_INTF_METHOD StartBitmapCompletion(iTVPLayerManager *manager);
-    virtual void TJS_INTF_METHOD NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y,
-                                                       tTVPBaseTexture *bmp, const tTVPRect &cliprect,
-                                                       tTVPLayerType type, tjs_int opacity);
-    virtual void TJS_INTF_METHOD EndBitmapCompletion(iTVPLayerManager *manager);
+    virtual void StartBitmapCompletion(iTVPLayerManager *manager);
+    virtual void NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x,
+                                       tjs_int y, tTVPBaseTexture *bmp,
+                                       const tTVPRect &cliprect,
+                                       tTVPLayerType type, tjs_int opacity);
+    virtual void EndBitmapCompletion(iTVPLayerManager *manager);
 
     //---- デバッグ支援
-    virtual void TJS_INTF_METHOD SetShowUpdateRect(bool b);
+    virtual void SetShowUpdateRect(bool b);
 #if 0
 //---- フルスクリーン
-	virtual bool TJS_INTF_METHOD SwitchToFullScreen( HWND window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color, bool changeresolution );
-	virtual void TJS_INTF_METHOD RevertFromFullScreen( HWND window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color );
+	virtual bool SwitchToFullScreen( HWND window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color, bool changeresolution );
+	virtual void RevertFromFullScreen( HWND window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color );
 #endif
 };
 //---------------------------------------------------------------------------
@@ -119,8 +125,9 @@ class tTJSNI_BasicDrawDevice : public tTJSNativeInstance {
 public:
     tTJSNI_BasicDrawDevice();
     ~tTJSNI_BasicDrawDevice();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
-    void TJS_INTF_METHOD Invalidate();
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
+    void Invalidate();
 
 public:
     tTVPBasicDrawDevice *GetDevice() const { return Device; }

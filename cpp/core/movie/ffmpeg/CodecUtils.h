@@ -22,15 +22,18 @@ public:
 
     static DVDVideoPicture *ConvertToNV12Picture(DVDVideoPicture *pSrc);
 
-    static DVDVideoPicture *ConvertToYUV422PackedPicture(DVDVideoPicture *pSrc, ERenderFormat format);
+    static DVDVideoPicture *ConvertToYUV422PackedPicture(DVDVideoPicture *pSrc,
+                                                         ERenderFormat format);
 
     static bool CopyNV12Picture(YV12Image *pImage, DVDVideoPicture *pSrc);
 
-    static bool CopyYUV422PackedPicture(YV12Image *pImage, DVDVideoPicture *pSrc);
+    static bool CopyYUV422PackedPicture(YV12Image *pImage,
+                                        DVDVideoPicture *pSrc);
 
     static bool IsVP3CompatibleWidth(int width);
 
-    static double NormalizeFrameduration(double frameduration, bool *match = nullptr);
+    static double NormalizeFrameduration(double frameduration,
+                                         bool *match = nullptr);
 
     static ERenderFormat EFormatFromPixfmt(int fmt);
 

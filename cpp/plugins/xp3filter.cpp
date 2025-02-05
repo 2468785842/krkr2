@@ -13,9 +13,10 @@
 
 #define NCB_MODULE_NAME TJS_W("xp3filter.dll")
 
-tjs_error TJS_INTF_METHOD CBinaryAccessor::OperationByNum(
+tjs_error CBinaryAccessor::OperationByNum(
     /* operation with member by index number */ tjs_uint32 flag,
-    /* calling flag */ tjs_int num, /* index number */ tTJSVariant *result,
+    /* calling flag */ tjs_int num,
+    /* index number */ tTJSVariant *result,
     /* result ( can be nullptr ) */ const tTJSVariant *param,
     /* parameters */ iTJSDispatch2 *objthis /* object as "this" */) {
     num += m_curPos;
@@ -78,17 +79,19 @@ tjs_error TJS_INTF_METHOD CBinaryAccessor::OperationByNum(
     return TJS_S_OK;
 }
 
-tjs_error TJS_INTF_METHOD CBinaryAccessor::Operation(
+tjs_error CBinaryAccessor::Operation(
     /* operation with member */ tjs_uint32 flag,
     /* calling flag */ const tjs_char *membername,
-    /* member name ( nullptr for a default member ) */ tjs_uint32 *hint,
+    /* member name ( nullptr for a default member ) */
+    tjs_uint32 *hint,
     /* hint for the member name (in/out) */ tTJSVariant *result,
     /* result ( can be nullptr ) */ const tTJSVariant *param,
     /* parameters */ iTJSDispatch2 *objthis /* object as "this" */) {
     if(membername) {
         static const ttstr str_ptr(TJS_W("ptr"));
         if(hint) {
-            static const tjs_uint32 hash_ptr = tTJSHashFunc<tjs_char *>::Make(str_ptr.c_str());
+            static const tjs_uint32 hash_ptr =
+                tTJSHashFunc<tjs_char *>::Make(str_ptr.c_str());
             if(!*hint)
                 *hint = tTJSHashFunc<tjs_char *>::Make(membername);
             if(*hint != hash_ptr)
@@ -117,29 +120,35 @@ tjs_error TJS_INTF_METHOD CBinaryAccessor::Operation(
     return TJS_S_OK;
 }
 
-tjs_error TJS_INTF_METHOD CBinaryAccessor::IsValid(
-    /* get validation, returns TJS_S_TRUE (valid) or TJS_S_FALSE (invalid) */
-    tjs_uint32 flag, /* calling flag */ const tjs_char *membername,
-    /* member name ( nullptr for a default member ) */ tjs_uint32 *hint,
+tjs_error CBinaryAccessor::IsValid(
+    /* get validation, returns TJS_S_TRUE (valid) or TJS_S_FALSE
+       (invalid) */
+    tjs_uint32 flag,
+    /* calling flag */ const tjs_char *membername,
+    /* member name ( nullptr for a default member ) */
+    tjs_uint32 *hint,
     /* hint for the member name (in/out) */
     iTJSDispatch2 *objthis /* object as "this" */) {
     return m_buff ? TJS_S_TRUE : TJS_S_FALSE;
 }
 
-tjs_error TJS_INTF_METHOD CBinaryAccessor::Invalidate(
+tjs_error CBinaryAccessor::Invalidate(
     /* invalidation */ tjs_uint32 flag,
     /* calling flag */ const tjs_char *membername,
-    /* member name ( nullptr for a default member ) */ tjs_uint32 *hint,
+    /* member name ( nullptr for a default member ) */
+    tjs_uint32 *hint,
     /* hint for the member name (in/out) */
     iTJSDispatch2 *objthis /* object as "this" */) {
     m_buff = nullptr;
     return TJS_S_OK;
 }
 
-tjs_error TJS_INTF_METHOD CBinaryAccessor::GetCount(
+tjs_error CBinaryAccessor::GetCount(
     /* get member count */ tjs_int *result,
-    /* variable that receives the result */ const tjs_char *membername,
-    /* member name ( nullptr for a default member ) */ tjs_uint32 *hint,
+    /* variable that receives the result */
+    const tjs_char *membername,
+    /* member name ( nullptr for a default member ) */
+    tjs_uint32 *hint,
     /* hint for the member name (in/out) */
     iTJSDispatch2 *objthis /* object as "this" */) {
     if(membername)
@@ -148,9 +157,10 @@ tjs_error TJS_INTF_METHOD CBinaryAccessor::GetCount(
     return TJS_S_OK;
 }
 
-tjs_error TJS_INTF_METHOD CBinaryAccessor::PropSetByNum(
+tjs_error CBinaryAccessor::PropSetByNum(
     /* property set by index number */ tjs_uint32 flag,
-    /* calling flag */ tjs_int num, /* index number */ const tTJSVariant *param,
+    /* calling flag */ tjs_int num,
+    /* index number */ const tTJSVariant *param,
     /* parameters */ iTJSDispatch2 *objthis /* object as "this" */) {
     num += m_curPos;
     if(num < 0 || num >= m_length)
@@ -159,10 +169,11 @@ tjs_error TJS_INTF_METHOD CBinaryAccessor::PropSetByNum(
     return TJS_S_OK;
 }
 
-tjs_error TJS_INTF_METHOD CBinaryAccessor::PropSet(
+tjs_error CBinaryAccessor::PropSet(
     /* property set */ tjs_uint32 flag,
     /* calling flag */ const tjs_char *membername,
-    /* member name ( nullptr for a default member ) */ tjs_uint32 *hint,
+    /* member name ( nullptr for a default member ) */
+    tjs_uint32 *hint,
     /* hint for the member name (in/out) */ const tTJSVariant *param,
     /* parameters */ iTJSDispatch2 *objthis /* object as "this" */) {
     if(!membername)
@@ -174,9 +185,10 @@ tjs_error TJS_INTF_METHOD CBinaryAccessor::PropSet(
     return TJS_E_NOTIMPL;
 }
 
-tjs_error TJS_INTF_METHOD CBinaryAccessor::PropGetByNum(
+tjs_error CBinaryAccessor::PropGetByNum(
     /* property get by index number */ tjs_uint32 flag,
-    /* calling flag */ tjs_int num, /* index number */ tTJSVariant *result,
+    /* calling flag */ tjs_int num,
+    /* index number */ tTJSVariant *result,
     /* result */ iTJSDispatch2 *objthis /* object as "this" */) {
     num += m_curPos;
     if(num < 0 || num >= m_length)
@@ -185,10 +197,11 @@ tjs_error TJS_INTF_METHOD CBinaryAccessor::PropGetByNum(
     return TJS_S_OK;
 }
 
-tjs_error TJS_INTF_METHOD CBinaryAccessor::PropGet(
+tjs_error CBinaryAccessor::PropGet(
     /* property get */ tjs_uint32 flag,
     /* calling flag */ const tjs_char *membername,
-    /* member name ( nullptr for a default member ) */ tjs_uint32 *hint,
+    /* member name ( nullptr for a default member ) */
+    tjs_uint32 *hint,
     /* hint for the member name (in/out) */ tTJSVariant *result,
     /* result */ iTJSDispatch2 *objthis /* object as "this" */) {
     if(!membername)
@@ -203,10 +216,11 @@ tjs_error TJS_INTF_METHOD CBinaryAccessor::PropGet(
     return TJS_S_OK;
 }
 
-tjs_error TJS_INTF_METHOD CBinaryAccessor::FuncCall(
+tjs_error CBinaryAccessor::FuncCall(
     /* function invocation */ tjs_uint32 flag,
     /* calling flag */ const tjs_char *membername,
-    /* member name ( nullptr for a default member ) */ tjs_uint32 *hint,
+    /* member name ( nullptr for a default member ) */
+    tjs_uint32 *hint,
     /* hint for the member name (in/out) */ tTJSVariant *result,
     /* result */ tjs_int numparams,
     /* number of parameters */ tTJSVariant **param,
@@ -315,20 +329,23 @@ public:
             TJSRemoveObjectHashRecord(this);
     }
 
-    tjs_error TJS_INTF_METHOD IsInstanceOf(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                           const tjs_char *classname, iTJSDispatch2 *objthis) {
+    tjs_error IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
+                           tjs_uint32 *hint, const tjs_char *classname,
+                           iTJSDispatch2 *objthis) {
         if(membername == nullptr) {
             if(!TJS_strcmp(classname, TJS_W("Function")))
                 return TJS_S_TRUE;
         }
 
-        return inherited::IsInstanceOf(flag, membername, hint, classname, objthis);
+        return inherited::IsInstanceOf(flag, membername, hint, classname,
+                                       objthis);
     }
-    tjs_error TJS_INTF_METHOD FuncCall(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                       tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
-                                       iTJSDispatch2 *objthis) {
+    tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
+                       tjs_uint32 *hint, tTJSVariant *result, tjs_int numparams,
+                       tTJSVariant **param, iTJSDispatch2 *objthis) {
         if(membername)
-            return inherited::FuncCall(flag, membername, hint, result, numparams, param, objthis);
+            return inherited::FuncCall(flag, membername, hint, result,
+                                       numparams, param, objthis);
         if(!objthis)
             return TJS_E_NATIVECLASSCRASH;
 
@@ -349,12 +366,14 @@ class XP3ContentFilterRegister : public XP3FilterRegister {
     typedef XP3FilterRegister inherited;
 
 public:
-    XP3ContentFilterRegister(XP3FilterDecoder *decoder) : XP3FilterRegister(decoder) {}
-    tjs_error TJS_INTF_METHOD FuncCall(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                       tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
-                                       iTJSDispatch2 *objthis) {
+    XP3ContentFilterRegister(XP3FilterDecoder *decoder) :
+        XP3FilterRegister(decoder) {}
+    tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
+                       tjs_uint32 *hint, tTJSVariant *result, tjs_int numparams,
+                       tTJSVariant **param, iTJSDispatch2 *objthis) {
         if(membername)
-            return inherited::FuncCall(flag, membername, hint, result, numparams, param, objthis);
+            return inherited::FuncCall(flag, membername, hint, result,
+                                       numparams, param, objthis);
         if(!objthis)
             return TJS_E_NATIVECLASSCRASH;
 
@@ -376,18 +395,23 @@ static XP3FilterDecoder *AddXP3Decoder() {
     tTJSVariant val;
     iTJSDispatch2 *dsp;
     iTJSDispatch2 *global = decoder->ScriptEngine->GetGlobalNoAddRef();
-#define REGISTER_OBJECT(classname, instance)                                                                           \
-    dsp = (instance);                                                                                                  \
-    val = tTJSVariant(dsp /*, dsp*/);                                                                                  \
-    dsp->Release();                                                                                                    \
-    global->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, TJS_W(#classname), nullptr, &val, global);
+#define REGISTER_OBJECT(classname, instance)                                   \
+    dsp = (instance);                                                          \
+    val = tTJSVariant(dsp /*, dsp*/);                                          \
+    dsp->Release();                                                            \
+    global->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, TJS_W(#classname),      \
+                    nullptr, &val, global);
     REGISTER_OBJECT(Debug, TVPCreateNativeClass_Debug());
     REGISTER_OBJECT(System, TVPCreateNativeClass_System());
     tTJSNativeClass *cls = TVPCreateNativeClass_Storages();
-    TJSNativeClassRegisterNCM(cls, TJS_W("setXP3ArchiveExtractionFilter"), new XP3FilterRegister(decoder),
-                              cls->GetClassName().c_str(), nitMethod, TJS_STATICMEMBER);
-    TJSNativeClassRegisterNCM(cls, TJS_W("setXP3ArchiveContentFilter"), new XP3ContentFilterRegister(decoder),
-                              cls->GetClassName().c_str(), nitMethod, TJS_STATICMEMBER);
+    TJSNativeClassRegisterNCM(cls, TJS_W("setXP3ArchiveExtractionFilter"),
+                              new XP3FilterRegister(decoder),
+                              cls->GetClassName().c_str(), nitMethod,
+                              TJS_STATICMEMBER);
+    TJSNativeClassRegisterNCM(cls, TJS_W("setXP3ArchiveContentFilter"),
+                              new XP3ContentFilterRegister(decoder),
+                              cls->GetClassName().c_str(), nitMethod,
+                              TJS_STATICMEMBER);
     REGISTER_OBJECT(Storages, cls);
 
     decoder->ScriptEngine->ExecScript(sXP3FilterScript);
@@ -396,7 +420,8 @@ static XP3FilterDecoder *AddXP3Decoder() {
 }
 
 static std::map<std::thread::id, XP3FilterDecoder *> _thread_decoders;
-#if 1 || (defined(_MSC_VER) /*&& _MSC_VER <= 1800*/) || defined(CC_TARGET_OS_IPHONE)
+#if 1 || (defined(_MSC_VER) /*&& _MSC_VER <= 1800*/) ||                        \
+    defined(CC_TARGET_OS_IPHONE)
 static std::mutex _decoders_mtx;
 static std::vector<XP3FilterDecoder *> _cached_decoders;
 static XP3FilterDecoder *FetchXP3Decoder() {
@@ -436,7 +461,9 @@ static XP3FilterDecoder *FetchXP3Decoder() {
     return ret.get();
 }
 #endif
-tjs_int TVPXP3ArchiveContentFilterWrapper(const ttstr &filepath, const ttstr &archivename, tjs_uint64 filesize,
+tjs_int TVPXP3ArchiveContentFilterWrapper(const ttstr &filepath,
+                                          const ttstr &archivename,
+                                          tjs_uint64 filesize,
                                           tTJSVariant *ctx) {
     if(!_ManagedFilterInited)
         return 0;
@@ -449,7 +476,9 @@ tjs_int TVPXP3ArchiveContentFilterWrapper(const ttstr &filepath, const ttstr &ar
     tTJSVariant FileSize((tjs_int64)filesize);
     tTJSVariant *vars[] = { &FilePath, &ArcName, &FileSize };
     tTJSVariant result;
-    decoder->ManagedFilter.FuncCall(0, nullptr, nullptr, &result, sizeof(vars) / sizeof(vars[0]), vars, nullptr);
+    decoder->ManagedFilter.FuncCall(0, nullptr, nullptr, &result,
+                                    sizeof(vars) / sizeof(vars[0]), vars,
+                                    nullptr);
     tjs_int ret = 0;
     if(result.Type() == tvtObject) {
         iTJSDispatch2 *arr = result.AsObjectNoAddRef();
@@ -461,26 +490,34 @@ tjs_int TVPXP3ArchiveContentFilterWrapper(const ttstr &filepath, const ttstr &ar
 }
 
 void TVP_tTVPXP3ArchiveExtractionFilter_CONVENTION
-TVPXP3ArchiveExtractionFilterWrapper(tTVPXP3ExtractionFilterInfo *info, tTJSVariant *ctx) {
+TVPXP3ArchiveExtractionFilterWrapper(tTVPXP3ExtractionFilterInfo *info,
+                                     tTJSVariant *ctx) {
     if(info->SizeOfSelf != sizeof(tTVPXP3ExtractionFilterInfo))
-        TVPThrowExceptionMessage(TJS_W("Incompatible tTVPXP3ExtractionFilterInfo size"));
+        TVPThrowExceptionMessage(
+            TJS_W("Incompatible tTVPXP3ExtractionFilterInfo size"));
     XP3FilterDecoder *decoder = FetchXP3Decoder();
     if(decoder->ManagedDecoder.Object) {
         tTJSVariant FileHash = (tjs_int64)info->FileHash;
         tTJSVariant Offset = (tjs_int64)info->Offset;
-        CBinaryAccessor *buf = new CBinaryAccessor((unsigned char *)info->Buffer, info->BufferSize);
+        CBinaryAccessor *buf = new CBinaryAccessor(
+            (unsigned char *)info->Buffer, info->BufferSize);
         tTJSVariant Buffer(buf);
         buf->Release();
         tTJSVariant BufferSize((tjs_int64)info->BufferSize);
         tTJSVariant FileName(info->FileName);
-        tTJSVariant *vars[] = { &FileHash, &Offset, &Buffer, &BufferSize, &FileName, ctx };
+        tTJSVariant *vars[] = { &FileHash,   &Offset,   &Buffer,
+                                &BufferSize, &FileName, ctx };
 #if defined(WIN32) && defined(CHECK_CXDEC)
-        unsigned char *pBackup = new unsigned char[info->BufferSize], *pBuffer = (unsigned char *)info->Buffer;
+        unsigned char *pBackup = new unsigned char[info->BufferSize],
+                      *pBuffer = (unsigned char *)info->Buffer;
         memcpy(pBackup, info->Buffer, info->BufferSize);
 #endif
-        decoder->ManagedDecoder.FuncCall(0, nullptr, nullptr, nullptr, sizeof(vars) / sizeof(vars[0]), vars, nullptr);
+        decoder->ManagedDecoder.FuncCall(0, nullptr, nullptr, nullptr,
+                                         sizeof(vars) / sizeof(vars[0]), vars,
+                                         nullptr);
 #if defined(WIN32) && defined(CHECK_CXDEC)
-        cxdec_decode(&dec_callback, info->FileHash, info->Offset, pBackup, info->BufferSize);
+        cxdec_decode(&dec_callback, info->FileHash, info->Offset, pBackup,
+                     info->BufferSize);
         for(int i = 0; i < info->BufferSize; ++i) {
             if(pBackup[i] != pBuffer[i]) {
                 assert(false);

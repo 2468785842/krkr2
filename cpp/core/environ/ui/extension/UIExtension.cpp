@@ -44,10 +44,14 @@ void XKPageView::adjust(float offset) {
     float xOrY;
     const Size &size = getViewSize();
     if(_direction == ScrollView::Direction::HORIZONTAL) {
-        vec = Vec2((size.width - pageSize.width) / 2 - current_index * pageSize.width, 0);
+        vec = Vec2((size.width - pageSize.width) / 2 -
+                       current_index * pageSize.width,
+                   0);
         xOrY = pageSize.width;
     } else {
-        vec = Vec2(0, (size.height - pageSize.height) / 2 - current_index * pageSize.height);
+        vec = Vec2(0,
+                   (size.height - pageSize.height) / 2 -
+                       current_index * pageSize.height);
         xOrY = pageSize.height;
     }
 
@@ -70,9 +74,13 @@ void XKPageView::adjust(float offset) {
     }
 
     if(_direction == ScrollView::Direction::HORIZONTAL) {
-        vec = Vec2((size.width - pageSize.width) / 2 - current_index * pageSize.width, 0);
+        vec = Vec2((size.width - pageSize.width) / 2 -
+                       current_index * pageSize.width,
+                   0);
     } else {
-        vec = Vec2(0, (size.height - pageSize.height) / 2 - current_index * pageSize.height);
+        vec = Vec2(0,
+                   (size.height - pageSize.height) / 2 -
+                       current_index * pageSize.height);
     }
 
     this->setContentOffsetInDuration(vec, 0.15f);
@@ -92,7 +100,8 @@ void XKPageView::setContentOffsetInDuration(Vec2 offset, float dt) {
 
 void XKPageView::performedAnimatedScroll(float dt) {
     if(_dragging) {
-        this->unschedule(CC_SCHEDULE_SELECTOR(XKPageView::performedAnimatedScroll));
+        this->unschedule(
+            CC_SCHEDULE_SELECTOR(XKPageView::performedAnimatedScroll));
         return;
     }
 
@@ -103,11 +112,17 @@ void XKPageView::performedAnimatedScroll(float dt) {
 
 void XKPageView::addPage(Node *node) {
     if(_direction == ScrollView::Direction::HORIZONTAL) {
-        node->setPosition(Point(pageCount * pageSize.width + node->getPositionX(), node->getPositionY()));
-        this->setContentSize(Size((pageCount + 1) * pageSize.width, pageSize.height));
+        node->setPosition(
+            Point(pageCount * pageSize.width + node->getPositionX(),
+                  node->getPositionY()));
+        this->setContentSize(
+            Size((pageCount + 1) * pageSize.width, pageSize.height));
     } else {
-        node->setPosition(Point(node->getPositionX(), pageCount * pageSize.height + node->getPositionY()));
-        this->setContentSize(Size(pageSize.width, (pageCount + 1) * pageSize.height));
+        node->setPosition(
+            Point(node->getPositionX(),
+                  pageCount * pageSize.height + node->getPositionY()));
+        this->setContentSize(
+            Size(pageSize.width, (pageCount + 1) * pageSize.height));
     }
     node->setTag(pageCount + XKPAGEVIEW_TAG);
     _container->addChild(node);
@@ -127,12 +142,17 @@ void XKPageView::setTouchEnabled(bool enabled) {
 
     if(enabled) {
         _touchListener = EventListenerTouchOneByOne::create();
-        _touchListener->onTouchBegan = CC_CALLBACK_2(XKPageView::onTouchBegan, this);
-        _touchListener->onTouchMoved = CC_CALLBACK_2(XKPageView::onTouchMoved, this);
-        _touchListener->onTouchEnded = CC_CALLBACK_2(XKPageView::onTouchEnded, this);
-        _touchListener->onTouchCancelled = CC_CALLBACK_2(ScrollView::onTouchCancelled, this);
+        _touchListener->onTouchBegan =
+            CC_CALLBACK_2(XKPageView::onTouchBegan, this);
+        _touchListener->onTouchMoved =
+            CC_CALLBACK_2(XKPageView::onTouchMoved, this);
+        _touchListener->onTouchEnded =
+            CC_CALLBACK_2(XKPageView::onTouchEnded, this);
+        _touchListener->onTouchCancelled =
+            CC_CALLBACK_2(ScrollView::onTouchCancelled, this);
 
-        _eventDispatcher->addEventListenerWithSceneGraphPriority(_touchListener, this);
+        _eventDispatcher->addEventListenerWithSceneGraphPriority(_touchListener,
+                                                                 this);
     } else {
         _dragging = false;
         _touchMoved = false;
@@ -147,8 +167,8 @@ bool XKPageView::onTouchBegan(Touch *touch, Event *unusedEvent) {
 
     Rect frame = getViewRect();
 
-    // dispatcher does not know about clipping. reject touches outside visible
-    // bounds.
+    // dispatcher does not know about clipping. reject touches outside
+    // visible bounds.
     Vec2 nsp = convertToNodeSpace(touch->getLocation());
     Rect bb;
     bb.size = _contentSize;
@@ -204,9 +224,13 @@ void XKPageView::setCurPageIndex(ssize_t idx) {
     Vec2 vec;
     const Size &size = getViewSize();
     if(_direction == ScrollView::Direction::HORIZONTAL) {
-        vec = Vec2((size.width - pageSize.width) / 2 - current_index * pageSize.width, 0);
+        vec = Vec2((size.width - pageSize.width) / 2 -
+                       current_index * pageSize.width,
+                   0);
     } else {
-        vec = Vec2(0, (size.height - pageSize.height) / 2 - current_index * pageSize.height);
+        vec = Vec2(0,
+                   (size.height - pageSize.height) / 2 -
+                       current_index * pageSize.height);
     }
 
     this->setContentOffset(vec);
@@ -214,7 +238,8 @@ void XKPageView::setCurPageIndex(ssize_t idx) {
 
 class WidgetNodeReader : public cocostudio::NodeReader {
 public:
-    virtual cocos2d::Node *createNodeWithFlatBuffers(const flatbuffers::Table *nodeOptions) {
+    virtual cocos2d::Node *
+    createNodeWithFlatBuffers(const flatbuffers::Table *nodeOptions) {
         Widget *node = Widget::create();
 
         setPropsWithFlatBuffers(node, nodeOptions);
@@ -230,5 +255,6 @@ public:
 
 void TVPInitUIExtension() {
     CSLoader::getInstance();
-    static cocos2d::ObjectFactory::TInfo __Type("NodeReader", WidgetNodeReader::createInstance);
+    static cocos2d::ObjectFactory::TInfo __Type(
+        "NodeReader", WidgetNodeReader::createInstance);
 }

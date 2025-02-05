@@ -134,12 +134,16 @@ namespace TJS {
     //---------------------------------------------------------------------------
     class tTJSArraySortCompare_NormalAscending {
     public:
-        bool operator()(const tTJSVariant &lhs, const tTJSVariant &rhs) const { return (lhs < rhs).operator bool(); }
+        bool operator()(const tTJSVariant &lhs, const tTJSVariant &rhs) const {
+            return (lhs < rhs).operator bool();
+        }
     };
 
     class tTJSArraySortCompare_NormalDescending {
     public:
-        bool operator()(const tTJSVariant &lhs, const tTJSVariant &rhs) const { return (lhs > rhs).operator bool(); }
+        bool operator()(const tTJSVariant &lhs, const tTJSVariant &rhs) const {
+            return (lhs > rhs).operator bool();
+        }
     };
 
     class tTJSArraySortCompare_NumericAscending {
@@ -190,16 +194,20 @@ namespace TJS {
         tTJSVariantClosure Closure;
 
     public:
-        tTJSArraySortCompare_Functional(const tTJSVariantClosure &clo) : Closure(clo) {}
+        tTJSArraySortCompare_Functional(const tTJSVariantClosure &clo) :
+            Closure(clo) {}
 
         bool operator()(const tTJSVariant &lhs, const tTJSVariant &rhs) const {
             tTJSVariant result;
 
             tjs_error hr;
-            tTJSVariant *param[] = { const_cast<tTJSVariant *>(&lhs), // note that doing cast to non-const pointer
+            tTJSVariant *param[] = { const_cast<tTJSVariant *>(
+                                         &lhs), // note that doing cast to
+                                                // non-const pointer
                                      const_cast<tTJSVariant *>(&rhs) };
 
-            hr = Closure.FuncCall(0, nullptr, nullptr, &result, 2, param, nullptr);
+            hr = Closure.FuncCall(0, nullptr, nullptr, &result, 2, param,
+                                  nullptr);
 
             if(TJS_FAILED(hr))
                 TJSThrowFrom_tjs_error(hr);
@@ -220,9 +228,10 @@ namespace TJS {
         TJS_BEGIN_NATIVE_MEMBERS(/* TJS class name */ Array)
 
         //---------------------------------------------------------------------------
-        TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(/* var. name */ _this,
-                                          /* var. type */ tTJSArrayNI,
-                                          /* TJS class name */ Array) {
+        TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(
+            /* var. name */ _this,
+            /* var. type */ tTJSArrayNI,
+            /* TJS class name */ Array) {
             return TJS_S_OK;
         }
         TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ Array)
@@ -354,7 +363,8 @@ namespace TJS {
                     tjs_uint8 header[tTJSBinarySerializer::HEADER_LENGTH];
                     stream->Read(header, tTJSBinarySerializer::HEADER_LENGTH);
                     if(tTJSBinarySerializer::IsBinary(header)) {
-                        tTJSBinarySerializer binload((tTJSArrayObject *)objthis);
+                        tTJSBinarySerializer binload(
+                            (tTJSArrayObject *)objthis);
                         tTJSVariant *var = binload.Read(stream);
                         if(var) {
                             if(result)
@@ -389,7 +399,8 @@ namespace TJS {
             ttstr mode;
             if(numparams >= 2 && param[1]->Type() != tvtVoid)
                 mode = *param[1];
-            iTJSTextWriteStream *stream = TJSCreateTextStreamForWrite(name, mode);
+            iTJSTextWriteStream *stream =
+                TJSCreateTextStreamForWrite(name, mode);
             try {
                 tTJSArrayNI::tArrayItemIterator i = ni->Items.begin();
 #ifdef TJS_TEXT_OUT_CRLF
@@ -400,7 +411,8 @@ namespace TJS {
 
                 while(i != ni->Items.end()) {
                     tTJSVariantType type = i->Type();
-                    if(type == tvtString || type == tvtInteger || type == tvtReal) {
+                    if(type == tvtString || type == tvtInteger ||
+                       type == tvtReal) {
                         stream->Write(*i);
                     }
                     stream->Write(cr);
@@ -420,7 +432,8 @@ namespace TJS {
         TJS_END_NATIVE_METHOD_DECL(/* func.name */ save)
         //----------------------------------------------------------------------
         TJS_BEGIN_NATIVE_METHOD_DECL(/* func. name */ saveStruct) {
-            // saves the array into a file, that can be interpret as an expression.
+            // saves the array into a file, that can be interpret as
+            // an expression.
 
             TJS_GET_NATIVE_INSTANCE(/* var. name */ ni,
                                     /* var. type */ tTJSArrayNI);
@@ -434,9 +447,11 @@ namespace TJS {
                 mode = *param[1];
 
             if(TJS_strchr(mode.c_str(), TJS_W('b')) != nullptr) {
-                tTJSBinaryStream *stream = TJSCreateBinaryStreamForWrite(name, mode);
+                tTJSBinaryStream *stream =
+                    TJSCreateBinaryStreamForWrite(name, mode);
                 try {
-                    stream->Write(tTJSBinarySerializer::HEADER, tTJSBinarySerializer::HEADER_LENGTH);
+                    stream->Write(tTJSBinarySerializer::HEADER,
+                                  tTJSBinarySerializer::HEADER_LENGTH);
                     std::vector<iTJSDispatch2 *> stack;
                     stack.push_back(objthis);
                     ni->SaveStructuredBinary(stack, *stream);
@@ -446,7 +461,8 @@ namespace TJS {
                 }
                 delete stream;
             } else {
-                iTJSTextWriteStream *stream = TJSCreateTextStreamForWrite(name, mode);
+                iTJSTextWriteStream *stream =
+                    TJSCreateTextStreamForWrite(name, mode);
                 try {
                     std::vector<iTJSDispatch2 *> stack;
                     stack.push_back(objthis);
@@ -468,7 +484,8 @@ namespace TJS {
         TJS_BEGIN_NATIVE_METHOD_DECL(/* func.name */ split) {
             // split string with given delimiters.
 
-            // arguments are : <pattern/delimiter>, <string>, [<reserved>],
+            // arguments are : <pattern/delimiter>, <string>,
+            // [<reserved>],
             // [<whether ignore empty element>]
 
             TJS_GET_NATIVE_INSTANCE(/* var. name */ ni,
@@ -489,8 +506,9 @@ namespace TJS {
                 tTJSNI_RegExp *re = nullptr;
                 tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
                 if(clo.Object) {
-                    if(TJS_SUCCEEDED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_RegExp::ClassID,
-                                                                       (iTJSNativeInstance **)&re))) {
+                    if(TJS_SUCCEEDED(clo.Object->NativeInstanceSupport(
+                           TJS_NIS_GETINSTANCE, tTJSNC_RegExp::ClassID,
+                           (iTJSNativeInstance **)&re))) {
                         // param[0] is regexp
                         iTJSDispatch2 *array = objthis;
                         re->Split(&array, string, purgeempty);
@@ -514,7 +532,8 @@ namespace TJS {
                 if(TJS_strchr(delim, *s) != nullptr) {
                     // delimiter found
                     if(!purgeempty || (purgeempty && (s - sstart) != 0)) {
-                        ni->Items.push_back(tTJSString(sstart, (int)(s - sstart)));
+                        ni->Items.push_back(
+                            tTJSString(sstart, (int)(s - sstart)));
                     }
                     s++;
                     sstart = s;
@@ -577,16 +596,17 @@ namespace TJS {
         TJS_BEGIN_NATIVE_METHOD_DECL(/* func.name */ sort) {
             // sort array items.
 
-            // arguments are : [<sort order/comparison function>], [<whether to do
-            // stable sort>]
+            // arguments are : [<sort order/comparison function>],
+            // [<whether to do stable sort>]
 
             // sort order is one of:
             // '+' (default)   :  Normal ascending  (comparison by
             // tTJSVariant::operator < )
             // '-'             :  Normal descending (comparison by
-            // tTJSVariant::operator < ) '0'             :  Numeric value ascending
-            // '9'             :  Numeric value descending 'a'             :  String
-            // ascending 'z'             : String descending
+            // tTJSVariant::operator < ) '0'             :  Numeric
+            // value ascending '9'             :  Numeric value
+            // descending 'a'             :  String ascending 'z' :
+            // String descending
 
             TJS_GET_NATIVE_INSTANCE(/* var. name */ ni,
                                     /* var. type */ tTJSArrayNI);
@@ -630,45 +650,66 @@ namespace TJS {
             switch(method) {
                 case TJS_N('+'):
                     if(do_stable_sort)
-                        std::stable_sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_NormalAscending());
+                        std::stable_sort(
+                            ni->Items.begin(), ni->Items.end(),
+                            tTJSArraySortCompare_NormalAscending());
                     else
-                        std::sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_NormalAscending());
+                        std::sort(ni->Items.begin(), ni->Items.end(),
+                                  tTJSArraySortCompare_NormalAscending());
                     break;
                 case TJS_N('-'):
                     if(do_stable_sort)
-                        std::stable_sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_NormalDescending());
+                        std::stable_sort(
+                            ni->Items.begin(), ni->Items.end(),
+                            tTJSArraySortCompare_NormalDescending());
                     else
-                        std::sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_NormalDescending());
+                        std::sort(ni->Items.begin(), ni->Items.end(),
+                                  tTJSArraySortCompare_NormalDescending());
                     break;
                 case TJS_N('0'):
                     if(do_stable_sort)
-                        std::stable_sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_NumericAscending());
+                        std::stable_sort(
+                            ni->Items.begin(), ni->Items.end(),
+                            tTJSArraySortCompare_NumericAscending());
                     else
-                        std::sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_NumericAscending());
+                        std::sort(ni->Items.begin(), ni->Items.end(),
+                                  tTJSArraySortCompare_NumericAscending());
                     break;
                 case TJS_N('9'):
                     if(do_stable_sort)
-                        std::stable_sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_NumericDescending());
+                        std::stable_sort(
+                            ni->Items.begin(), ni->Items.end(),
+                            tTJSArraySortCompare_NumericDescending());
                     else
-                        std::sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_NumericDescending());
+                        std::sort(ni->Items.begin(), ni->Items.end(),
+                                  tTJSArraySortCompare_NumericDescending());
                     break;
                 case TJS_N('a'):
                     if(do_stable_sort)
-                        std::stable_sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_StringAscending());
+                        std::stable_sort(
+                            ni->Items.begin(), ni->Items.end(),
+                            tTJSArraySortCompare_StringAscending());
                     else
-                        std::sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_StringAscending());
+                        std::sort(ni->Items.begin(), ni->Items.end(),
+                                  tTJSArraySortCompare_StringAscending());
                     break;
                 case TJS_N('z'):
                     if(do_stable_sort)
-                        std::stable_sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_StringDescending());
+                        std::stable_sort(
+                            ni->Items.begin(), ni->Items.end(),
+                            tTJSArraySortCompare_StringDescending());
                     else
-                        std::sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_StringDescending());
+                        std::sort(ni->Items.begin(), ni->Items.end(),
+                                  tTJSArraySortCompare_StringDescending());
                     break;
                 case 0:
                     if(do_stable_sort)
-                        std::stable_sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_Functional(closure));
+                        std::stable_sort(
+                            ni->Items.begin(), ni->Items.end(),
+                            tTJSArraySortCompare_Functional(closure));
                     else
-                        std::sort(ni->Items.begin(), ni->Items.end(), tTJSArraySortCompare_Functional(closure));
+                        std::sort(ni->Items.begin(), ni->Items.end(),
+                                  tTJSArraySortCompare_Functional(closure));
                     break;
             }
 
@@ -758,7 +799,8 @@ namespace TJS {
         TJS_END_NATIVE_METHOD_DECL(/* func.name */ erase)
         //----------------------------------------------------------------------
         TJS_BEGIN_NATIVE_METHOD_DECL(/* func.name */ remove) {
-            // remove specified item from the array wchich appears first or all
+            // remove specified item from the array wchich appears
+            // first or all
 
             TJS_GET_NATIVE_INSTANCE(/* var. name */ ni,
                                     /* var. type */ tTJSArrayNI);
@@ -774,7 +816,8 @@ namespace TJS {
 
             tTJSVariant &val = *param[0];
 
-            tjs_int count = ((tTJSArrayObject *)objthis)->Remove(ni, val, eraseall);
+            tjs_int count =
+                ((tTJSArrayObject *)objthis)->Remove(ni, val, eraseall);
 
             if(result)
                 *result = count;
@@ -824,7 +867,8 @@ namespace TJS {
             TJS_GET_NATIVE_INSTANCE(/* var. name */ ni,
                                     /* var. type */ tTJSArrayNI);
 
-            ((tTJSArrayObject *)objthis)->Insert(ni, param, numparams, (tjs_int)ni->Items.size());
+            ((tTJSArrayObject *)objthis)
+                ->Insert(ni, param, numparams, (tjs_int)ni->Items.size());
 
             if(result)
                 *result = (tTVInteger)(ni->Items.size());
@@ -845,7 +889,8 @@ namespace TJS {
             } else {
                 if(result)
                     *result = ni->Items[ni->Items.size() - 1];
-                ((tTJSArrayObject *)objthis)->Erase(ni, (tjs_int)(ni->Items.size() - 1));
+                ((tTJSArrayObject *)objthis)
+                    ->Erase(ni, (tjs_int)(ni->Items.size() - 1));
             }
 
             return TJS_S_OK;
@@ -888,7 +933,8 @@ namespace TJS {
         //----------------------------------------------------------------------
         TJS_BEGIN_NATIVE_METHOD_DECL(/* func.name */ find) {
             // find item in the array,
-            // return an index which points the item that appears first.
+            // return an index which points the item that appears
+            // first.
 
             TJS_GET_NATIVE_INSTANCE(/* var. name */ ni,
                                     /* var. type */ tTJSArrayNI);
@@ -939,8 +985,9 @@ namespace TJS {
         //----------------------------------------------------------------------
 
         //----------------------------------------------------------------------
-        TJS_BEGIN_NATIVE_PROP_DECL(count){ TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
-            /* var. name */ ni, /* var. type */ tTJSArrayNI);
+        TJS_BEGIN_NATIVE_PROP_DECL(count){
+            TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+                /* var. name */ ni, /* var. type */ tTJSArrayNI);
         if(result)
             *result = (tTVInteger)(ni->Items.size());
         return TJS_S_OK;
@@ -948,7 +995,8 @@ namespace TJS {
     TJS_END_NATIVE_PROP_GETTER
 
     TJS_BEGIN_NATIVE_PROP_SETTER {
-        TJS_GET_NATIVE_INSTANCE(/* var. name */ ni, /* var. type */ tTJSArrayNI);
+        TJS_GET_NATIVE_INSTANCE(/* var. name */ ni,
+                                /* var. type */ tTJSArrayNI);
         ni->Items.resize((tjs_uint)(tTVInteger)*param);
         return TJS_S_OK;
     }
@@ -957,8 +1005,9 @@ namespace TJS {
 TJS_END_NATIVE_PROP_DECL(count)
 //----------------------------------------------------------------------
 // same as count
-TJS_BEGIN_NATIVE_PROP_DECL(length){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/* var. name */ ni, /* var. type */ tTJSArrayNI);
+TJS_BEGIN_NATIVE_PROP_DECL(length){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/* var. name */ ni,
+                            /* var. type */ tTJSArrayNI);
 if(result)
     *result = (tTVInteger)(ni->Items.size());
 return TJS_S_OK;
@@ -966,7 +1015,8 @@ return TJS_S_OK;
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/* var. name */ ni, /* var. type */ tTJSArrayNI);
+    TJS_GET_NATIVE_INSTANCE(/* var. name */ ni,
+                            /* var. type */ tTJSArrayNI);
     ni->Items.resize((tjs_uint)(tTVInteger)*param);
     return TJS_S_OK;
 }
@@ -988,7 +1038,9 @@ tTJSNativeInstance *tTJSArrayClass::CreateNativeInstance() {
 }
 
 //---------------------------------------------------------------------------
-iTJSDispatch2 *tTJSArrayClass::CreateBaseTJSObject() { return new tTJSArrayObject(); }
+iTJSDispatch2 *tTJSArrayClass::CreateBaseTJSObject() {
+    return new tTJSArrayObject();
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -999,7 +1051,8 @@ tTJSArrayNI::tTJSArrayNI() {
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayNI::Construct(tjs_int numparams, tTJSVariant **params, iTJSDispatch2 *tjsobj) {
+tjs_error tTJSArrayNI::Construct(tjs_int numparams, tTJSVariant **params,
+                                 iTJSDispatch2 *tjsobj) {
     // called by TJS constructor
     if(numparams != 0)
         return TJS_E_BADPARAMCOUNT;
@@ -1012,7 +1065,9 @@ void tTJSArrayNI::Assign(iTJSDispatch2 *dsp) {
 
     // determin dsp's object type
     tTJSArrayNI *arrayni = nullptr;
-    if(TJS_SUCCEEDED(dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array, (iTJSNativeInstance **)&arrayni))) {
+    if(TJS_SUCCEEDED(
+           dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array,
+                                      (iTJSNativeInstance **)&arrayni))) {
         // copy from array
         Items.clear();
 
@@ -1028,10 +1083,10 @@ void tTJSArrayNI::Assign(iTJSDispatch2 *dsp) {
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayNI::tDictionaryEnumCallback::FuncCall(tjs_uint32 flag, const tjs_char *membername,
-                                                                         tjs_uint32 *hint, tTJSVariant *result,
-                                                                         tjs_int numparams, tTJSVariant **param,
-                                                                         iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayNI::tDictionaryEnumCallback::FuncCall(
+    tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
+    tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
+    iTJSDispatch2 *objthis) {
     // called from tTJSCustomObject::EnumMembers
 
     if(numparams < 3)
@@ -1056,7 +1111,8 @@ tjs_error TJS_INTF_METHOD tTJSArrayNI::tDictionaryEnumCallback::FuncCall(tjs_uin
 }
 
 //---------------------------------------------------------------------------
-void tTJSArrayNI::SaveStructuredData(std::vector<iTJSDispatch2 *> &stack, iTJSTextWriteStream &stream,
+void tTJSArrayNI::SaveStructuredData(std::vector<iTJSDispatch2 *> &stack,
+                                     iTJSTextWriteStream &stream,
                                      const ttstr &indentstr) {
 #ifdef TJS_TEXT_OUT_CRLF
     stream.Write(TJS_W("(const) [\r\n"));
@@ -1074,7 +1130,8 @@ void tTJSArrayNI::SaveStructuredData(std::vector<iTJSDispatch2 *> &stack, iTJSTe
         if(type == tvtObject) {
             // object
             tTJSVariantClosure clo = i->AsObjectClosureNoAddRef();
-            SaveStructuredDataForObject(clo.SelectObjectNoAddRef(), stack, stream, indentstr2);
+            SaveStructuredDataForObject(clo.SelectObjectNoAddRef(), stack,
+                                        stream, indentstr2);
         } else {
             stream.Write(TJSVariantToExpressionString(*i));
         }
@@ -1098,8 +1155,9 @@ void tTJSArrayNI::SaveStructuredData(std::vector<iTJSDispatch2 *> &stack, iTJSTe
 }
 
 //---------------------------------------------------------------------------
-void tTJSArrayNI::SaveStructuredDataForObject(iTJSDispatch2 *dsp, std::vector<iTJSDispatch2 *> &stack,
-                                              iTJSTextWriteStream &stream, const ttstr &indentstr) {
+void tTJSArrayNI::SaveStructuredDataForObject(
+    iTJSDispatch2 *dsp, std::vector<iTJSDispatch2 *> &stack,
+    iTJSTextWriteStream &stream, const ttstr &indentstr) {
     // check object recursion
     std::vector<iTJSDispatch2 *>::iterator i;
     for(i = stack.begin(); i != stack.end(); i++) {
@@ -1114,15 +1172,17 @@ void tTJSArrayNI::SaveStructuredDataForObject(iTJSDispatch2 *dsp, std::vector<iT
     tTJSDictionaryNI *dicni = nullptr;
     tTJSArrayNI *arrayni = nullptr;
     if(dsp &&
-       TJS_SUCCEEDED(
-           dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, TJSGetDictionaryClassID(), (iTJSNativeInstance **)&dicni))) {
+       TJS_SUCCEEDED(dsp->NativeInstanceSupport(
+           TJS_NIS_GETINSTANCE, TJSGetDictionaryClassID(),
+           (iTJSNativeInstance **)&dicni))) {
         // dictionary
         stack.push_back(dsp);
         dicni->SaveStructuredData(stack, stream, indentstr);
         stack.pop_back();
     } else if(dsp &&
-              TJS_SUCCEEDED(
-                  dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array, (iTJSNativeInstance **)&arrayni))) {
+              TJS_SUCCEEDED(dsp->NativeInstanceSupport(
+                  TJS_NIS_GETINSTANCE, ClassID_Array,
+                  (iTJSNativeInstance **)&arrayni))) {
         // array
         stack.push_back(dsp);
         arrayni->SaveStructuredData(stack, stream, indentstr);
@@ -1140,7 +1200,8 @@ void tTJSArrayNI::SaveStructuredDataForObject(iTJSDispatch2 *dsp, std::vector<iT
 }
 
 //---------------------------------------------------------------------------
-void tTJSArrayNI::SaveStructuredBinary(std::vector<iTJSDispatch2 *> &stack, tTJSBinaryStream &stream) {
+void tTJSArrayNI::SaveStructuredBinary(std::vector<iTJSDispatch2 *> &stack,
+                                       tTJSBinaryStream &stream) {
     tjs_uint count = (tjs_uint)Items.size();
     tTJSBinarySerializer::PutStartArray(&stream, count);
 
@@ -1150,7 +1211,8 @@ void tTJSArrayNI::SaveStructuredBinary(std::vector<iTJSDispatch2 *> &stack, tTJS
         if(type == tvtObject) {
             // object
             tTJSVariantClosure clo = i->AsObjectClosureNoAddRef();
-            SaveStructuredBinaryForObject(clo.SelectObjectNoAddRef(), stack, stream);
+            SaveStructuredBinaryForObject(clo.SelectObjectNoAddRef(), stack,
+                                          stream);
         } else {
             tTJSBinarySerializer::PutVariant(&stream, *i);
         }
@@ -1158,8 +1220,9 @@ void tTJSArrayNI::SaveStructuredBinary(std::vector<iTJSDispatch2 *> &stack, tTJS
 }
 
 //---------------------------------------------------------------------------
-void tTJSArrayNI::SaveStructuredBinaryForObject(iTJSDispatch2 *dsp, std::vector<iTJSDispatch2 *> &stack,
-                                                tTJSBinaryStream &stream) {
+void tTJSArrayNI::SaveStructuredBinaryForObject(
+    iTJSDispatch2 *dsp, std::vector<iTJSDispatch2 *> &stack,
+    tTJSBinaryStream &stream) {
     // check object recursion
     std::vector<iTJSDispatch2 *>::iterator i;
     for(i = stack.begin(); i != stack.end(); i++) {
@@ -1174,15 +1237,17 @@ void tTJSArrayNI::SaveStructuredBinaryForObject(iTJSDispatch2 *dsp, std::vector<
     tTJSDictionaryNI *dicni = nullptr;
     tTJSArrayNI *arrayni = nullptr;
     if(dsp &&
-       TJS_SUCCEEDED(
-           dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, TJSGetDictionaryClassID(), (iTJSNativeInstance **)&dicni))) {
+       TJS_SUCCEEDED(dsp->NativeInstanceSupport(
+           TJS_NIS_GETINSTANCE, TJSGetDictionaryClassID(),
+           (iTJSNativeInstance **)&dicni))) {
         // dictionary
         stack.push_back(dsp);
         dicni->SaveStructuredBinary(stack, stream);
         stack.pop_back();
     } else if(dsp &&
-              TJS_SUCCEEDED(
-                  dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array, (iTJSNativeInstance **)&arrayni))) {
+              TJS_SUCCEEDED(dsp->NativeInstanceSupport(
+                  TJS_NIS_GETINSTANCE, ClassID_Array,
+                  (iTJSNativeInstance **)&arrayni))) {
         // array
         stack.push_back(dsp);
         arrayni->SaveStructuredBinary(stack, stream);
@@ -1197,10 +1262,13 @@ void tTJSArrayNI::SaveStructuredBinaryForObject(iTJSDispatch2 *dsp, std::vector<
 }
 
 //---------------------------------------------------------------------------
-void tTJSArrayNI::AssignStructure(iTJSDispatch2 *dsp, std::vector<iTJSDispatch2 *> &stack) {
+void tTJSArrayNI::AssignStructure(iTJSDispatch2 *dsp,
+                                  std::vector<iTJSDispatch2 *> &stack) {
     // assign structured data from dsp
     tTJSArrayNI *arrayni = nullptr;
-    if(TJS_SUCCEEDED(dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array, (iTJSNativeInstance **)&arrayni))) {
+    if(TJS_SUCCEEDED(
+           dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array,
+                                      (iTJSNativeInstance **)&arrayni))) {
         // copy from array
         stack.push_back(dsp);
         try {
@@ -1218,8 +1286,9 @@ void tTJSArrayNI::AssignStructure(iTJSDispatch2 *dsp, std::vector<iTJSDispatch2 
                     tTJSArrayNI *arrayni = nullptr;
 
                     if(dsp &&
-                       TJS_SUCCEEDED(dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, TJSGetDictionaryClassID(),
-                                                                (iTJSNativeInstance **)&dicni))) {
+                       TJS_SUCCEEDED(dsp->NativeInstanceSupport(
+                           TJS_NIS_GETINSTANCE, TJSGetDictionaryClassID(),
+                           (iTJSNativeInstance **)&dicni))) {
                         // dictionary
                         bool objrec = false;
                         std::vector<iTJSDispatch2 *>::iterator i;
@@ -1231,20 +1300,24 @@ void tTJSArrayNI::AssignStructure(iTJSDispatch2 *dsp, std::vector<iTJSDispatch2 
                             }
                         }
                         if(objrec) {
-                            Items.push_back(tTJSVariant((iTJSDispatch2 *)nullptr)); // becomes nullptr
+                            Items.push_back(tTJSVariant(
+                                (iTJSDispatch2 *)nullptr)); // becomes nullptr
                         } else {
                             iTJSDispatch2 *newobj = TJSCreateDictionaryObject();
                             Items.push_back(tTJSVariant(newobj, newobj));
                             newobj->Release();
                             tTJSDictionaryNI *newni = nullptr;
                             if(TJS_SUCCEEDED(newobj->NativeInstanceSupport(
-                                   TJS_NIS_GETINSTANCE, TJSGetDictionaryClassID(), (iTJSNativeInstance **)&newni))) {
+                                   TJS_NIS_GETINSTANCE,
+                                   TJSGetDictionaryClassID(),
+                                   (iTJSNativeInstance **)&newni))) {
                                 newni->AssignStructure(dsp, stack);
                             }
                         }
                     } else if(dsp &&
-                              TJS_SUCCEEDED(dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, TJSGetArrayClassID(),
-                                                                       (iTJSNativeInstance **)&arrayni))) {
+                              TJS_SUCCEEDED(dsp->NativeInstanceSupport(
+                                  TJS_NIS_GETINSTANCE, TJSGetArrayClassID(),
+                                  (iTJSNativeInstance **)&arrayni))) {
                         // array
                         bool objrec = false;
                         std::vector<iTJSDispatch2 *>::iterator i;
@@ -1256,14 +1329,16 @@ void tTJSArrayNI::AssignStructure(iTJSDispatch2 *dsp, std::vector<iTJSDispatch2 
                             }
                         }
                         if(objrec) {
-                            Items.push_back(tTJSVariant((iTJSDispatch2 *)nullptr)); // becomes nullptr
+                            Items.push_back(tTJSVariant(
+                                (iTJSDispatch2 *)nullptr)); // becomes nullptr
                         } else {
                             iTJSDispatch2 *newobj = TJSCreateArrayObject();
                             Items.push_back(tTJSVariant(newobj, newobj));
                             newobj->Release();
                             tTJSArrayNI *newni = nullptr;
-                            if(TJS_SUCCEEDED(newobj->NativeInstanceSupport(TJS_NIS_GETINSTANCE, TJSGetArrayClassID(),
-                                                                           (iTJSNativeInstance **)&newni))) {
+                            if(TJS_SUCCEEDED(newobj->NativeInstanceSupport(
+                                   TJS_NIS_GETINSTANCE, TJSGetArrayClassID(),
+                                   (iTJSNativeInstance **)&newni))) {
                                 newni->AssignStructure(dsp, stack);
                             }
                         }
@@ -1290,24 +1365,29 @@ void tTJSArrayNI::AssignStructure(iTJSDispatch2 *dsp, std::vector<iTJSDispatch2 
 //---------------------------------------------------------------------------
 // tTJSArrayObject
 //---------------------------------------------------------------------------
-tTJSArrayObject::tTJSArrayObject() : tTJSCustomObject(TJS_ARRAY_BASE_HASH_BITS) { CallFinalize = false; }
+tTJSArrayObject::tTJSArrayObject() :
+    tTJSCustomObject(TJS_ARRAY_BASE_HASH_BITS) {
+    CallFinalize = false;
+}
 
 //---------------------------------------------------------------------------
 tTJSArrayObject::~tTJSArrayObject() {}
 //---------------------------------------------------------------------------
 
-#define ARRAY_GET_NI                                                                                                   \
-    tTJSArrayNI *ni;                                                                                                   \
-    if(TJS_FAILED(objthis->NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array, (iTJSNativeInstance **)&ni)))     \
+#define ARRAY_GET_NI                                                           \
+    tTJSArrayNI *ni;                                                           \
+    if(TJS_FAILED(objthis->NativeInstanceSupport(                              \
+           TJS_NIS_GETINSTANCE, ClassID_Array, (iTJSNativeInstance **)&ni)))   \
         return TJS_E_NATIVECLASSCRASH;
 static tTJSVariant VoidValue;
-#define ARRAY_GET_VAL                                                                                                  \
-    tjs_int membercount = (tjs_int)(ni->Items.size());                                                                 \
-    if(num < 0)                                                                                                        \
-        num = membercount + num;                                                                                       \
-    if((flag & TJS_MEMBERMUSTEXIST) && (num < 0 || membercount <= num))                                                \
-        return TJS_E_MEMBERNOTFOUND;                                                                                   \
-    tTJSVariant val((membercount <= num || num < 0) ? VoidValue : ni->Items[num]);
+#define ARRAY_GET_VAL                                                          \
+    tjs_int membercount = (tjs_int)(ni->Items.size());                         \
+    if(num < 0)                                                                \
+        num = membercount + num;                                               \
+    if((flag & TJS_MEMBERMUSTEXIST) && (num < 0 || membercount <= num))        \
+        return TJS_E_MEMBERNOTFOUND;                                           \
+    tTJSVariant val((membercount <= num || num < 0) ? VoidValue                \
+                                                    : ni->Items[num]);
 
 // Do not take reference of the element (because the element *might*
 // disappear in function call, property handler etc.) So here must be
@@ -1315,7 +1395,8 @@ static tTJSVariant VoidValue;
 //---------------------------------------------------------------------------
 void tTJSArrayObject::Finalize() {
     tTJSArrayNI *ni;
-    if(TJS_FAILED(NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array, (iTJSNativeInstance **)&ni)))
+    if(TJS_FAILED(NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array,
+                                        (iTJSNativeInstance **)&ni)))
         TJS_eTJSError(TJSNativeClassCrash);
     Clear(ni);
 
@@ -1365,11 +1446,13 @@ void tTJSArrayObject::Add(tTJSArrayNI *ni, const tTJSVariant &val) {
 }
 
 //---------------------------------------------------------------------------
-tjs_int tTJSArrayObject::Remove(tTJSArrayNI *ni, const tTJSVariant &ref, bool removeall) {
+tjs_int tTJSArrayObject::Remove(tTJSArrayNI *ni, const tTJSVariant &ref,
+                                bool removeall) {
     tjs_int count = 0;
     std::vector<tjs_int> todelete;
     tjs_int num = 0;
-    for(tTJSArrayNI::tArrayItemIterator i = ni->Items.begin(); i != ni->Items.end(); i++) {
+    for(tTJSArrayNI::tArrayItemIterator i = ni->Items.begin();
+        i != ni->Items.end(); i++) {
         if(ref.DiscernCompare(*i)) {
             count++;
             todelete.push_back(num);
@@ -1382,10 +1465,12 @@ tjs_int tTJSArrayObject::Remove(tTJSArrayNI *ni, const tTJSVariant &ref, bool re
     std::vector<iTJSDispatch2 *> vector;
     try {
         // list objects up
-        for(std::vector<tjs_int>::iterator i = todelete.begin(); i != todelete.end(); i++) {
+        for(std::vector<tjs_int>::iterator i = todelete.begin();
+            i != todelete.end(); i++) {
             if(ni->Items[*i].Type() == tvtObject) {
                 CheckObjectClosureRemove(ni->Items[*i]);
-                tTJSVariantClosure clo = ni->Items[*i].AsObjectClosureNoAddRef();
+                tTJSVariantClosure clo =
+                    ni->Items[*i].AsObjectClosureNoAddRef();
                 clo.AddRef();
                 if(clo.Object)
                     vector.push_back(clo.Object);
@@ -1431,7 +1516,8 @@ void tTJSArrayObject::Erase(tTJSArrayNI *ni, tjs_int num) {
 }
 
 //---------------------------------------------------------------------------
-void tTJSArrayObject::Insert(tTJSArrayNI *ni, const tTJSVariant &val, tjs_int num) {
+void tTJSArrayObject::Insert(tTJSArrayNI *ni, const tTJSVariant &val,
+                             tjs_int num) {
     if(num < 0)
         num += (tjs_int)ni->Items.size();
     if(num < 0)
@@ -1445,7 +1531,8 @@ void tTJSArrayObject::Insert(tTJSArrayNI *ni, const tTJSVariant &val, tjs_int nu
 }
 
 //---------------------------------------------------------------------------
-void tTJSArrayObject::Insert(tTJSArrayNI *ni, tTJSVariant *const *val, tjs_int numvals, tjs_int num) {
+void tTJSArrayObject::Insert(tTJSArrayNI *ni, tTJSVariant *const *val,
+                             tjs_int numvals, tjs_int num) {
     if(num < 0)
         num += (tjs_int)ni->Items.size();
     if(num < 0)
@@ -1464,20 +1551,23 @@ void tTJSArrayObject::Insert(tTJSArrayNI *ni, tTJSVariant *const *val, tjs_int n
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::FuncCall(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                    tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
-                                                    iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::FuncCall(tjs_uint32 flag, const tjs_char *membername,
+                                    tjs_uint32 *hint, tTJSVariant *result,
+                                    tjs_int numparams, tTJSVariant **param,
+                                    iTJSDispatch2 *objthis) {
     tjs_int idx;
     if(membername && IsNumber(membername, idx))
         return FuncCallByNum(flag, idx, result, numparams, param, objthis);
 
-    return inherited::FuncCall(flag, membername, hint, result, numparams, param, objthis);
+    return inherited::FuncCall(flag, membername, hint, result, numparams, param,
+                               objthis);
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::FuncCallByNum(tjs_uint32 flag, tjs_int num, tTJSVariant *result,
-                                                         tjs_int numparams, tTJSVariant **param,
-                                                         iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::FuncCallByNum(tjs_uint32 flag, tjs_int num,
+                                         tTJSVariant *result, tjs_int numparams,
+                                         tTJSVariant **param,
+                                         iTJSDispatch2 *objthis) {
     if(!GetValidity())
         return TJS_E_INVALIDOBJECT;
 
@@ -1487,8 +1577,9 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::FuncCallByNum(tjs_uint32 flag, tjs_in
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::PropGet(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                   tTJSVariant *result, iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::PropGet(tjs_uint32 flag, const tjs_char *membername,
+                                   tjs_uint32 *hint, tTJSVariant *result,
+                                   iTJSDispatch2 *objthis) {
     tjs_int idx;
     if(membername && IsNumber(membername, idx))
         return PropGetByNum(flag, idx, result, objthis);
@@ -1496,8 +1587,9 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::PropGet(tjs_uint32 flag, const tjs_ch
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::PropGetByNum(tjs_uint32 flag, tjs_int num, tTJSVariant *result,
-                                                        iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::PropGetByNum(tjs_uint32 flag, tjs_int num,
+                                        tTJSVariant *result,
+                                        iTJSDispatch2 *objthis) {
     if(!GetValidity())
         return TJS_E_INVALIDOBJECT;
 
@@ -1507,8 +1599,9 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::PropGetByNum(tjs_uint32 flag, tjs_int
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::PropSet(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                   const tTJSVariant *param, iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::PropSet(tjs_uint32 flag, const tjs_char *membername,
+                                   tjs_uint32 *hint, const tTJSVariant *param,
+                                   iTJSDispatch2 *objthis) {
     tjs_int idx;
     if(membername && IsNumber(membername, idx))
         return PropSetByNum(flag, idx, param, objthis);
@@ -1516,8 +1609,9 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::PropSet(tjs_uint32 flag, const tjs_ch
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::PropSetByNum(tjs_uint32 flag, tjs_int num, const tTJSVariant *param,
-                                                        iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::PropSetByNum(tjs_uint32 flag, tjs_int num,
+                                        const tTJSVariant *param,
+                                        iTJSDispatch2 *objthis) {
     if(!GetValidity())
         return TJS_E_INVALIDOBJECT;
 
@@ -1545,8 +1639,10 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::PropSetByNum(tjs_uint32 flag, tjs_int
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::PropSetByVS(tjs_uint32 flag, tTJSVariantString *membername,
-                                                       const tTJSVariant *param, iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::PropSetByVS(tjs_uint32 flag,
+                                       tTJSVariantString *membername,
+                                       const tTJSVariant *param,
+                                       iTJSDispatch2 *objthis) {
     tjs_int idx;
     if(membername && IsNumber((const tjs_char *)(*membername), idx))
         return PropSetByNum(flag, idx, param, objthis);
@@ -1554,8 +1650,10 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::PropSetByVS(tjs_uint32 flag, tTJSVari
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::DeleteMember(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                        iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::DeleteMember(tjs_uint32 flag,
+                                        const tjs_char *membername,
+                                        tjs_uint32 *hint,
+                                        iTJSDispatch2 *objthis) {
     tjs_int idx;
     if(membername && IsNumber(membername, idx))
         return DeleteMemberByNum(flag, idx, objthis);
@@ -1563,7 +1661,8 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::DeleteMember(tjs_uint32 flag, const t
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::DeleteMemberByNum(tjs_uint32 flag, tjs_int num, iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::DeleteMemberByNum(tjs_uint32 flag, tjs_int num,
+                                             iTJSDispatch2 *objthis) {
     if(!GetValidity())
         return TJS_E_INVALIDOBJECT;
 
@@ -1579,8 +1678,10 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::DeleteMemberByNum(tjs_uint32 flag, tj
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::Invalidate(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                      iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::Invalidate(tjs_uint32 flag,
+                                      const tjs_char *membername,
+                                      tjs_uint32 *hint,
+                                      iTJSDispatch2 *objthis) {
     tjs_int idx;
     if(membername && IsNumber(membername, idx))
         return InvalidateByNum(flag, idx, objthis);
@@ -1588,7 +1689,8 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::Invalidate(tjs_uint32 flag, const tjs
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::InvalidateByNum(tjs_uint32 flag, tjs_int num, iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::InvalidateByNum(tjs_uint32 flag, tjs_int num,
+                                           iTJSDispatch2 *objthis) {
     if(!GetValidity())
         return TJS_E_INVALIDOBJECT;
 
@@ -1598,8 +1700,8 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::InvalidateByNum(tjs_uint32 flag, tjs_
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::IsValid(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                   iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::IsValid(tjs_uint32 flag, const tjs_char *membername,
+                                   tjs_uint32 *hint, iTJSDispatch2 *objthis) {
     tjs_int idx;
     if(membername && IsNumber(membername, idx))
         return IsValidByNum(flag, idx, objthis);
@@ -1607,7 +1709,8 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::IsValid(tjs_uint32 flag, const tjs_ch
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::IsValidByNum(tjs_uint32 flag, tjs_int num, iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::IsValidByNum(tjs_uint32 flag, tjs_int num,
+                                        iTJSDispatch2 *objthis) {
     if(!GetValidity())
         return TJS_E_INVALIDOBJECT;
 
@@ -1617,19 +1720,24 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::IsValidByNum(tjs_uint32 flag, tjs_int
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::CreateNew(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                     iTJSDispatch2 **result, tjs_int numparams, tTJSVariant **param,
-                                                     iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::CreateNew(tjs_uint32 flag,
+                                     const tjs_char *membername,
+                                     tjs_uint32 *hint, iTJSDispatch2 **result,
+                                     tjs_int numparams, tTJSVariant **param,
+                                     iTJSDispatch2 *objthis) {
     tjs_int idx;
     if(membername && IsNumber(membername, idx))
         return CreateNewByNum(flag, idx, result, numparams, param, objthis);
-    return inherited::CreateNew(flag, membername, hint, result, numparams, param, objthis);
+    return inherited::CreateNew(flag, membername, hint, result, numparams,
+                                param, objthis);
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::CreateNewByNum(tjs_uint32 flag, tjs_int num, iTJSDispatch2 **result,
-                                                          tjs_int numparams, tTJSVariant **param,
-                                                          iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::CreateNewByNum(tjs_uint32 flag, tjs_int num,
+                                          iTJSDispatch2 **result,
+                                          tjs_int numparams,
+                                          tTJSVariant **param,
+                                          iTJSDispatch2 *objthis) {
     if(!GetValidity())
         return TJS_E_INVALIDOBJECT;
 
@@ -1639,8 +1747,11 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::CreateNewByNum(tjs_uint32 flag, tjs_i
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::IsInstanceOf(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                        const tjs_char *classname, iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::IsInstanceOf(tjs_uint32 flag,
+                                        const tjs_char *membername,
+                                        tjs_uint32 *hint,
+                                        const tjs_char *classname,
+                                        iTJSDispatch2 *objthis) {
     tjs_int idx;
     if(membername && IsNumber(membername, idx))
         return IsInstanceOfByNum(flag, idx, classname, objthis);
@@ -1648,8 +1759,9 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::IsInstanceOf(tjs_uint32 flag, const t
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::IsInstanceOfByNum(tjs_uint32 flag, tjs_int num, const tjs_char *classname,
-                                                             iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::IsInstanceOfByNum(tjs_uint32 flag, tjs_int num,
+                                             const tjs_char *classname,
+                                             iTJSDispatch2 *objthis) {
     if(!GetValidity())
         return TJS_E_INVALIDOBJECT;
 
@@ -1659,9 +1771,11 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::IsInstanceOfByNum(tjs_uint32 flag, tj
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::Operation(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                     tTJSVariant *result, const tTJSVariant *param,
-                                                     iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::Operation(tjs_uint32 flag,
+                                     const tjs_char *membername,
+                                     tjs_uint32 *hint, tTJSVariant *result,
+                                     const tTJSVariant *param,
+                                     iTJSDispatch2 *objthis) {
     tjs_int idx;
     if(membername && IsNumber(membername, idx))
         return OperationByNum(flag, idx, result, param, objthis);
@@ -1669,8 +1783,10 @@ tjs_error TJS_INTF_METHOD tTJSArrayObject::Operation(tjs_uint32 flag, const tjs_
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSArrayObject::OperationByNum(tjs_uint32 flag, tjs_int num, tTJSVariant *result,
-                                                          const tTJSVariant *param, iTJSDispatch2 *objthis) {
+tjs_error tTJSArrayObject::OperationByNum(tjs_uint32 flag, tjs_int num,
+                                          tTJSVariant *result,
+                                          const tTJSVariant *param,
+                                          iTJSDispatch2 *objthis) {
     if(!GetValidity())
         return TJS_E_INVALIDOBJECT;
 
@@ -1721,7 +1837,9 @@ iTJSDispatch2 *TJSCreateArrayObject(iTJSDispatch2 **classout) {
         *classout = arrayclass.Obj, arrayclass.Obj->AddRef();
 
     tTJSArrayObject *arrayobj;
-    (arrayclass.Obj)->CreateNew(0, nullptr, nullptr, (iTJSDispatch2 **)&arrayobj, 0, nullptr, arrayclass.Obj);
+    (arrayclass.Obj)
+        ->CreateNew(0, nullptr, nullptr, (iTJSDispatch2 **)&arrayobj, 0,
+                    nullptr, arrayclass.Obj);
     return arrayobj;
 }
 //---------------------------------------------------------------------------
@@ -1732,17 +1850,20 @@ iTJSDispatch2 *TJSCreateArrayObject(iTJSDispatch2 **classout) {
 tjs_int TJSGetArrayElementCount(iTJSDispatch2 *dsp) {
     // returns array element count
     tTJSArrayNI *ni;
-    if(TJS_FAILED(dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array, (iTJSNativeInstance **)&ni)))
+    if(TJS_FAILED(dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array,
+                                             (iTJSNativeInstance **)&ni)))
         TJS_eTJSError(TJSSpecifyArray);
     return (tjs_int)ni->Items.size();
 }
 
 //---------------------------------------------------------------------------
-tjs_int TJSCopyArrayElementTo(iTJSDispatch2 *dsp, tTJSVariant *dest, tjs_uint start, tjs_int count) {
+tjs_int TJSCopyArrayElementTo(iTJSDispatch2 *dsp, tTJSVariant *dest,
+                              tjs_uint start, tjs_int count) {
     // copy array elements to specified variant array.
     // returns copied element count.
     tTJSArrayNI *ni;
-    if(TJS_FAILED(dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array, (iTJSNativeInstance **)&ni)))
+    if(TJS_FAILED(dsp->NativeInstanceSupport(TJS_NIS_GETINSTANCE, ClassID_Array,
+                                             (iTJSNativeInstance **)&ni)))
         TJS_eTJSError(TJSSpecifyArray);
 
     if(count < 0)

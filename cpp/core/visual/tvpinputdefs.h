@@ -49,7 +49,8 @@ enum tTVPImeMode {
 #define TVP_SS_REPEAT 0x80
 
 inline bool TVPIsAnyMouseButtonPressedInShiftStateFlags(tjs_uint32 state) {
-    return (state & (TVP_SS_LEFT | TVP_SS_RIGHT | TVP_SS_MIDDLE | TVP_SS_DOUBLE)) != 0;
+    return (state &
+            (TVP_SS_LEFT | TVP_SS_RIGHT | TVP_SS_MIDDLE | TVP_SS_DOUBLE)) != 0;
 }
 
 //---------------------------------------------------------------------------
@@ -71,7 +72,7 @@ inline bool TVPIsAnyMouseButtonPressedInShiftStateFlags(tjs_uint32 state) {
 #define VK_PAD8 0x1C7
 #define VK_PAD9 0x1C8
 #define VK_PAD10 0x1C9
-#define VK_PADANY                                                                                                      \
+#define VK_PADANY                                                              \
     0x1DF // returns whether any one of pad buttons are pressed,
           // in System.getKeyState
 #define VK_PAD_LAST 0x1DF // last PAD related key code

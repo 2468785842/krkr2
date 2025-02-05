@@ -78,13 +78,13 @@ static void TVPInitExportFuncs()
 //---------------------------------------------------------------------------
 struct tTVPFunctionExporter : iTVPFunctionExporter
 {
-    bool TJS_INTF_METHOD QueryFunctions(const tjs_char **name, void **function,
+    bool QueryFunctions(const tjs_char **name, void **function,
         tjs_uint count);
-    bool TJS_INTF_METHOD QueryFunctionsByNarrowString(const char **name,
+    bool QueryFunctionsByNarrowString(const char **name,
         void **function, tjs_uint count);
 } static TVPFunctionExporter;
 //---------------------------------------------------------------------------
-bool TJS_INTF_METHOD tTVPFunctionExporter::QueryFunctions(const tjs_char **name, void **function,
+bool tTVPFunctionExporter::QueryFunctions(const tjs_char **name, void **function,
         tjs_uint count)
 {
     // retrieve function table by given name table.
@@ -103,7 +103,7 @@ bool TJS_INTF_METHOD tTVPFunctionExporter::QueryFunctions(const tjs_char **name,
     return ret;
 }
 //---------------------------------------------------------------------------
-bool TJS_INTF_METHOD tTVPFunctionExporter::QueryFunctionsByNarrowString(
+bool tTVPFunctionExporter::QueryFunctionsByNarrowString(
     const char **name, void **function, tjs_uint count)
 {
     // retrieve function table by given name table.
@@ -495,7 +495,8 @@ struct tTVPFoundPlugin {
 
 static tjs_int TVPAutoLoadPluginCount = 0;
 
-static void TVPSearchPluginsAt(std::vector<tTVPFoundPlugin> &list, std::string folder) {
+static void TVPSearchPluginsAt(std::vector<tTVPFoundPlugin> &list,
+                               std::string folder) {
     TVPListDir(folder, [&](const std::string &filename, int mask) {
         if(mask & S_IFREG) {
             if(!strcasecmp(filename.c_str() + filename.length() - 4, ".tpm")) {
@@ -532,14 +533,15 @@ void TVPLoadInternalPlugins();
 
 void tvpLoadPlugins() {
     TVPLoadInternalPlugins();
-    // This function searches plugins which have an extension of ".tpm"
-    // in the default path:
+    // This function searches plugins which have an extension of
+    // ".tpm" in the default path:
     //    1. a folder which holds kirikiri executable
     //    2. "plugin" folder of it
     // Plugin load order is to be decided using its name;
     // aaa.tpm is to be loaded before aab.tpm (sorted by ASCII order)
 
-    // search plugins from path: (exepath), (exepath)\system, (exepath)\plugin
+    // search plugins from path: (exepath), (exepath)\system,
+    // (exepath)\plugin
     std::vector<tTVPFoundPlugin> list;
 
     std::string exepath = ExtractFileDir(TVPNativeProjectDir.AsStdString());
@@ -554,7 +556,8 @@ void tvpLoadPlugins() {
     // load each plugin
     TVPAutoLoadPluginCount = (tjs_int)list.size();
     for(auto &i : list) {
-        TVPAddImportantLog(ttstr(TJS_W("(info) Loading ")) + ttstr(i.Name.c_str()));
+        TVPAddImportantLog(ttstr(TJS_W("(info) Loading ")) +
+                           ttstr(i.Name.c_str()));
         TVPLoadPlugin((i.Path + "/" + i.Name).c_str());
     }
 }
@@ -620,9 +623,11 @@ ITSSWaveDecoder * TVPSearchAvailTSSWaveDecoder(const ttstr & storage, const ttst
 #endif
 //---------------------------------------------------------------------------
 #ifdef TVP_SUPPORT_OLD_WAVEUNPACKER
-IWaveUnpacker *TVPSearchAvailWaveUnpacker(const ttstr &storage, IStream **stream) {
+IWaveUnpacker *TVPSearchAvailWaveUnpacker(const ttstr &storage,
+                                          IStream **stream) {
     tTVPPluginVectorType::iterator i;
-    for(i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end(); i++) {
+    for(i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end();
+        i++) {
         if((*i)->CreateWaveUnpacker)
             break;
     }
@@ -647,11 +652,14 @@ IWaveUnpacker *TVPSearchAvailWaveUnpacker(const ttstr &storage, IStream **stream
 
     try {
 
-        for(i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end(); i++) {
+        for(i = TVPPluginVector.Vector.begin();
+            i != TVPPluginVector.Vector.end(); i++) {
             if((*i)->CreateWaveUnpacker) {
-                // call CreateWaveUnpacker to retrieve decoder instance
+                // call CreateWaveUnpacker to retrieve decoder
+                // instance
                 IWaveUnpacker *out;
-                HRESULT hr = (*i)->CreateWaveUnpacker(istream, size, ansiname.c_str(), &out);
+                HRESULT hr = (*i)->CreateWaveUnpacker(istream, size,
+                                                      ansiname.c_str(), &out);
                 if(SUCCEEDED(hr)) {
                     *stream = istream;
                     return out;
@@ -669,9 +677,11 @@ IWaveUnpacker *TVPSearchAvailWaveUnpacker(const ttstr &storage, IStream **stream
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 #ifdef TVP_SUPPORT_KPI
-void *TVPSearchAvailKMPWaveDecoder(const ttstr &storage, KMPMODULE **module, SOUNDINFO *info) {
+void *TVPSearchAvailKMPWaveDecoder(const ttstr &storage, KMPMODULE **module,
+                                   SOUNDINFO *info) {
     tTVPPluginVectorType::iterator i;
-    for(i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end(); i++) {
+    for(i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end();
+        i++) {
         if((*i)->KMPModule)
             break;
     }
@@ -694,7 +704,8 @@ void *TVPSearchAvailKMPWaveDecoder(const ttstr &storage, KMPMODULE **module, SOU
 
     AnsiString ext = TVPExtractStorageExt(storage).AsAnsiString();
 
-    for(i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end(); i++) {
+    for(i = TVPPluginVector.Vector.begin(); i != TVPPluginVector.Vector.end();
+        i++) {
         if((*i)->KMPModule) {
             // search over available extensions
             const char **module_ext = (*i)->KMPModule->ppszSupportExts;
@@ -725,27 +736,32 @@ void *TVPSearchAvailKMPWaveDecoder(const ttstr &storage, KMPMODULE **module, SOU
 //---------------------------------------------------------------------------
 #include <zlib.h>
 
-int ZLIB_uncompress(unsigned char *dest, unsigned long *destlen, const unsigned char *source, unsigned long sourcelen) {
+int ZLIB_uncompress(unsigned char *dest, unsigned long *destlen,
+                    const unsigned char *source, unsigned long sourcelen) {
     return uncompress(dest, destlen, source, sourcelen);
 }
 
 //---------------------------------------------------------------------------
-int ZLIB_compress(unsigned char *dest, unsigned long *destlen, const unsigned char *source, unsigned long sourcelen) {
+int ZLIB_compress(unsigned char *dest, unsigned long *destlen,
+                  const unsigned char *source, unsigned long sourcelen) {
     return compress(dest, destlen, source, sourcelen);
 }
 
 //---------------------------------------------------------------------------
-int ZLIB_compress2(unsigned char *dest, unsigned long *destlen, const unsigned char *source, unsigned long sourcelen,
+int ZLIB_compress2(unsigned char *dest, unsigned long *destlen,
+                   const unsigned char *source, unsigned long sourcelen,
                    int level) {
     return compress2(dest, destlen, source, sourcelen, level);
 }
 //---------------------------------------------------------------------------
 #include "md5.h"
 
-static char TVP_assert_md5_state_t_size[(sizeof(TVP_md5_state_t) >= sizeof(md5_state_t))];
+static char TVP_assert_md5_state_t_size[(sizeof(TVP_md5_state_t) >=
+                                         sizeof(md5_state_t))];
 
-// if this errors, sizeof(TVP_md5_state_t) is not equal to sizeof(md5_state_t).
-// sizeof(TVP_md5_state_t) must be equal to sizeof(md5_state_t).
+// if this errors, sizeof(TVP_md5_state_t) is not equal to
+// sizeof(md5_state_t). sizeof(TVP_md5_state_t) must be equal to
+// sizeof(md5_state_t).
 //---------------------------------------------------------------------------
 void TVP_md5_init(TVP_md5_state_t *pms) { md5_init((md5_state_t *)pms); }
 
@@ -755,7 +771,9 @@ void TVP_md5_append(TVP_md5_state_t *pms, const tjs_uint8 *data, int nbytes) {
 }
 
 //---------------------------------------------------------------------------
-void TVP_md5_finish(TVP_md5_state_t *pms, tjs_uint8 *digest) { md5_finish((md5_state_t *)pms, digest); }
+void TVP_md5_finish(TVP_md5_state_t *pms, tjs_uint8 *digest) {
+    md5_finish((md5_state_t *)pms, digest);
+}
 
 #if 0
 //---------------------------------------------------------------------------
@@ -809,7 +827,8 @@ bool TVPRemoveGlobalObject(const tjs_char *name) {
 }
 
 //---------------------------------------------------------------------------
-void TVPDoTryBlock(tTVPTryBlockFunction tryblock, tTVPCatchBlockFunction catchblock,
+void TVPDoTryBlock(tTVPTryBlockFunction tryblock,
+                   tTVPCatchBlockFunction catchblock,
                    tTVPFinallyBlockFunction finallyblock, void *data) {
     try {
         tryblock(data);
@@ -920,8 +939,9 @@ tTJSNativeClass *TVPCreateNativeClass_Plugins() {
 
         return TJS_S_OK;
     }
-    TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/ cls,
-                                            /*func. name*/ link)
+    TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(
+        /*object to register*/ cls,
+        /*func. name*/ link)
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ unlink) {
         if(numparams < 1)
@@ -936,8 +956,9 @@ tTJSNativeClass *TVPCreateNativeClass_Plugins() {
 
         return TJS_S_OK;
     }
-    TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(/*object to register*/ cls,
-                                            /*func. name*/ unlink)
+    TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(
+        /*object to register*/ cls,
+        /*func. name*/ unlink)
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(getList) {
         iTJSDispatch2 *array = TJSCreateArrayObject();

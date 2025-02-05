@@ -1,7 +1,8 @@
 /*
 
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2009 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2009 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 
@@ -56,7 +57,8 @@ static inline void convert_func_c(tjs_uint32 *dest, tjs_int len) {
     }
 }
 template <typename functor>
-static inline void convert_func_c(tjs_uint32 *dest, tjs_int len, const functor &func) {
+static inline void convert_func_c(tjs_uint32 *dest, tjs_int len,
+                                  const functor &func) {
     for(int i = 0; i < len; i++) {
         dest[i] = func(dest[i]);
     }
@@ -64,14 +66,16 @@ static inline void convert_func_c(tjs_uint32 *dest, tjs_int len, const functor &
 
 // ブレンドしつつコピー
 template <typename functor>
-static inline void copy_func_c(tjs_uint32 *__restrict dest, const tjs_uint32 *__restrict src, tjs_int len) {
+static inline void copy_func_c(tjs_uint32 *__restrict dest,
+                               const tjs_uint32 *__restrict src, tjs_int len) {
     functor func;
     for(int i = 0; i < len; i++) {
         dest[i] = func(dest[i], src[i]);
     }
 }
 template <typename functor>
-static inline void blend_func_c(tjs_uint32 *__restrict dest, const tjs_uint32 *__restrict src, tjs_int len,
+static inline void blend_func_c(tjs_uint32 *__restrict dest,
+                                const tjs_uint32 *__restrict src, tjs_int len,
                                 const functor &func) {
     for(int i = 0; i < len; i++) {
         dest[i] = func(dest[i], src[i]);
@@ -79,7 +83,8 @@ static inline void blend_func_c(tjs_uint32 *__restrict dest, const tjs_uint32 *_
 }
 // 8bit版
 template <typename functor>
-static inline void blend_func_c(tjs_uint8 *__restrict dest, const tjs_uint8 *__restrict src, tjs_int len,
+static inline void blend_func_c(tjs_uint8 *__restrict dest,
+                                const tjs_uint8 *__restrict src, tjs_int len,
                                 const functor &func) {
     for(int i = 0; i < len; i++) {
         dest[i] = func(dest[i], src[i]);
@@ -87,7 +92,8 @@ static inline void blend_func_c(tjs_uint8 *__restrict dest, const tjs_uint8 *__r
 }
 // src と dest が重複している可能性のあるもの
 template <typename functor>
-static inline void overlap_blend_func_c(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len, const functor &func) {
+static inline void overlap_blend_func_c(tjs_uint32 *dest, const tjs_uint32 *src,
+                                        tjs_int len, const functor &func) {
     const tjs_uint32 *src_end = src + len;
     if(dest > src && dest < src_end) {
         // backward オーバーラップするので後ろからコピー
@@ -102,30 +108,36 @@ static inline void overlap_blend_func_c(tjs_uint32 *dest, const tjs_uint32 *src,
     }
 }
 template <typename functor>
-static void overlap_copy_func_c(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
+static void overlap_copy_func_c(tjs_uint32 *dest, const tjs_uint32 *src,
+                                tjs_int len) {
     functor func;
     overlap_blend_func_c<functor>(dest, src, len, func);
 }
 // dest = src1 * src2 となっているもの
 template <typename functor>
-static inline void sd_blend_func_c(tjs_uint32 *__restrict dest, const tjs_uint32 *__restrict src1,
-                                   const tjs_uint32 *__restrict src2, tjs_int len, const functor &func) {
+static inline void sd_blend_func_c(tjs_uint32 *__restrict dest,
+                                   const tjs_uint32 *__restrict src1,
+                                   const tjs_uint32 *__restrict src2,
+                                   tjs_int len, const functor &func) {
     for(int i = 0; i < len; i++) {
         dest[i] = func(src1[i], src2[i]);
     }
 }
 // 主に文字描画時にアルファ値と色を使って描画を行う
 template <typename functor>
-static inline void apply_color_map_o_func_c(tjs_uint32 *__restrict dest, const tjs_uint8 *__restrict src, tjs_int len,
-                                            tjs_uint32 color, tjs_int opa) {
+static inline void apply_color_map_o_func_c(tjs_uint32 *__restrict dest,
+                                            const tjs_uint8 *__restrict src,
+                                            tjs_int len, tjs_uint32 color,
+                                            tjs_int opa) {
     functor func(color, opa);
     for(int i = 0; i < len; i++) {
         dest[i] = func(dest[i], src[i]);
     }
 }
 template <typename functor>
-static inline void apply_color_map_func_c(tjs_uint32 *__restrict dest, const tjs_uint8 *__restrict src, tjs_int len,
-                                          tjs_uint32 color) {
+static inline void apply_color_map_func_c(tjs_uint32 *__restrict dest,
+                                          const tjs_uint8 *__restrict src,
+                                          tjs_int len, tjs_uint32 color) {
     functor func(color);
     for(int i = 0; i < len; i++) {
         dest[i] = func(dest[i], src[i]);
@@ -133,106 +145,130 @@ static inline void apply_color_map_func_c(tjs_uint32 *__restrict dest, const tjs
 }
 
 template <typename functor>
-static inline void alpha_convert_func_c(tjs_uint32 *__restrict dest, const tjs_uint8 *__restrict src, tjs_int len) {
+static inline void alpha_convert_func_c(tjs_uint32 *__restrict dest,
+                                        const tjs_uint8 *__restrict src,
+                                        tjs_int len) {
     functor func;
     for(int i = 0; i < len; i++) {
         dest[i] = func(dest[i], src[i]);
     }
 }
 template <typename functor>
-static inline void alpha_convert_func_c(tjs_uint32 *__restrict dest, const tjs_uint8 *__restrict src, tjs_int len,
-                                        const functor &func) {
+static inline void alpha_convert_func_c(tjs_uint32 *__restrict dest,
+                                        const tjs_uint8 *__restrict src,
+                                        tjs_int len, const functor &func) {
     for(int i = 0; i < len; i++) {
         dest[i] = func(dest[i], src[i]);
     }
 }
 
-#define DEFINE_CONVERT_FUNCTION(FUNC)                                                                                  \
-    static void TVP_##FUNC(tjs_uint32 *dest, tjs_int len) { convert_func_c<FUNC##_functor>(dest, len); }
-#define DEFINE_CONVERT_BLEND_FUNCTION(FUNC)                                                                            \
-    static void TVP_##FUNC(tjs_uint32 *dest, tjs_int len, tjs_int opa) {                                               \
-        FUNC##_functor func(opa);                                                                                      \
-        convert_func_c<FUNC##_functor>(dest, len, func);                                                               \
+#define DEFINE_CONVERT_FUNCTION(FUNC)                                          \
+    static void TVP_##FUNC(tjs_uint32 *dest, tjs_int len) {                    \
+        convert_func_c<FUNC##_functor>(dest, len);                             \
     }
-#define DEFINE_ALPHA_COPY_FUNCTION(FUNC)                                                                               \
-    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len) {                                      \
-        alpha_convert_func_c<FUNC##_functor>(dest, src, len);                                                          \
+#define DEFINE_CONVERT_BLEND_FUNCTION(FUNC)                                    \
+    static void TVP_##FUNC(tjs_uint32 *dest, tjs_int len, tjs_int opa) {       \
+        FUNC##_functor func(opa);                                              \
+        convert_func_c<FUNC##_functor>(dest, len, func);                       \
     }
-#define DEFINE_ALPHA_BLEND_FUNCTION(FUNC)                                                                              \
-    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_int opa) {                         \
-        FUNC##_functor func(opa);                                                                                      \
-        alpha_convert_func_c(dest, src, len, func);                                                                    \
+#define DEFINE_ALPHA_COPY_FUNCTION(FUNC)                                       \
+    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint8 *src,             \
+                           tjs_int len) {                                      \
+        alpha_convert_func_c<FUNC##_functor>(dest, src, len);                  \
     }
-
-#define DEFINE_BLEND_FUNCTION_VARIATION(FUNC)                                                                          \
-    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {                                     \
-        copy_func_c<FUNC##_functor>(dest, src, len);                                                                   \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_HDA(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {                               \
-        copy_func_c<FUNC##_HDA_functor>(dest, src, len);                                                               \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_o(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len, tjs_int opa) {                    \
-        FUNC##_o_functor func(opa);                                                                                    \
-        blend_func_c(dest, src, len, func);                                                                            \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_HDA_o(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len, tjs_int opa) {                \
-        FUNC##_HDA_o_functor func(opa);                                                                                \
-        blend_func_c(dest, src, len, func);                                                                            \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_d(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {                                 \
-        copy_func_c<FUNC##_d_functor>(dest, src, len);                                                                 \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_a(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {                                 \
-        copy_func_c<FUNC##_a_functor>(dest, src, len);                                                                 \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_do(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len, tjs_int opa) {                   \
-        FUNC##_do_functor func(opa);                                                                                   \
-        blend_func_c(dest, src, len, func);                                                                            \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_ao(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len, tjs_int opa) {                   \
-        FUNC##_ao_functor func(opa);                                                                                   \
-        blend_func_c(dest, src, len, func);                                                                            \
+#define DEFINE_ALPHA_BLEND_FUNCTION(FUNC)                                      \
+    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint8 *src,             \
+                           tjs_int len, tjs_int opa) {                         \
+        FUNC##_functor func(opa);                                              \
+        alpha_convert_func_c(dest, src, len, func);                            \
     }
 
-#define DEFINE_BLEND_FUNCTION_MIN_VARIATION(FUNC)                                                                      \
-    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {                                     \
-        copy_func_c<FUNC##_functor>(dest, src, len);                                                                   \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_HDA(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {                               \
-        copy_func_c<FUNC##_HDA_functor>(dest, src, len);                                                               \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_o(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len, tjs_int opa) {                    \
-        FUNC##_o_functor func(opa);                                                                                    \
-        blend_func_c(dest, src, len, func);                                                                            \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_HDA_o(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len, tjs_int opa) {                \
-        FUNC##_HDA_o_functor func(opa);                                                                                \
-        blend_func_c(dest, src, len, func);                                                                            \
+#define DEFINE_BLEND_FUNCTION_VARIATION(FUNC)                                  \
+    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint32 *src,            \
+                           tjs_int len) {                                      \
+        copy_func_c<FUNC##_functor>(dest, src, len);                           \
+    }                                                                          \
+    static void TVP_##FUNC##_HDA(tjs_uint32 *dest, const tjs_uint32 *src,      \
+                                 tjs_int len) {                                \
+        copy_func_c<FUNC##_HDA_functor>(dest, src, len);                       \
+    }                                                                          \
+    static void TVP_##FUNC##_o(tjs_uint32 *dest, const tjs_uint32 *src,        \
+                               tjs_int len, tjs_int opa) {                     \
+        FUNC##_o_functor func(opa);                                            \
+        blend_func_c(dest, src, len, func);                                    \
+    }                                                                          \
+    static void TVP_##FUNC##_HDA_o(tjs_uint32 *dest, const tjs_uint32 *src,    \
+                                   tjs_int len, tjs_int opa) {                 \
+        FUNC##_HDA_o_functor func(opa);                                        \
+        blend_func_c(dest, src, len, func);                                    \
+    }                                                                          \
+    static void TVP_##FUNC##_d(tjs_uint32 *dest, const tjs_uint32 *src,        \
+                               tjs_int len) {                                  \
+        copy_func_c<FUNC##_d_functor>(dest, src, len);                         \
+    }                                                                          \
+    static void TVP_##FUNC##_a(tjs_uint32 *dest, const tjs_uint32 *src,        \
+                               tjs_int len) {                                  \
+        copy_func_c<FUNC##_a_functor>(dest, src, len);                         \
+    }                                                                          \
+    static void TVP_##FUNC##_do(tjs_uint32 *dest, const tjs_uint32 *src,       \
+                                tjs_int len, tjs_int opa) {                    \
+        FUNC##_do_functor func(opa);                                           \
+        blend_func_c(dest, src, len, func);                                    \
+    }                                                                          \
+    static void TVP_##FUNC##_ao(tjs_uint32 *dest, const tjs_uint32 *src,       \
+                                tjs_int len, tjs_int opa) {                    \
+        FUNC##_ao_functor func(opa);                                           \
+        blend_func_c(dest, src, len, func);                                    \
     }
 
-#define DEFINE_SD_BLEND_FUNCTION(FUNC)                                                                                 \
-    static void TVP_##FUNC##_SD(tjs_uint32 *dest, const tjs_uint32 *src1, const tjs_uint32 *src2, tjs_int len,         \
-                                tjs_int opa) {                                                                         \
-        FUNC##_functor func(opa);                                                                                      \
-        sd_blend_func_c(dest, src1, src2, len, func);                                                                  \
+#define DEFINE_BLEND_FUNCTION_MIN_VARIATION(FUNC)                              \
+    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint32 *src,            \
+                           tjs_int len) {                                      \
+        copy_func_c<FUNC##_functor>(dest, src, len);                           \
+    }                                                                          \
+    static void TVP_##FUNC##_HDA(tjs_uint32 *dest, const tjs_uint32 *src,      \
+                                 tjs_int len) {                                \
+        copy_func_c<FUNC##_HDA_functor>(dest, src, len);                       \
+    }                                                                          \
+    static void TVP_##FUNC##_o(tjs_uint32 *dest, const tjs_uint32 *src,        \
+                               tjs_int len, tjs_int opa) {                     \
+        FUNC##_o_functor func(opa);                                            \
+        blend_func_c(dest, src, len, func);                                    \
+    }                                                                          \
+    static void TVP_##FUNC##_HDA_o(tjs_uint32 *dest, const tjs_uint32 *src,    \
+                                   tjs_int len, tjs_int opa) {                 \
+        FUNC##_HDA_o_functor func(opa);                                        \
+        blend_func_c(dest, src, len, func);                                    \
     }
-#define DEFINE_OVERLAP_COPY(FUNC)                                                                                      \
-    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {                                     \
-        overlap_copy_func_c<FUNC##_functor>(dest, src, len);                                                           \
+
+#define DEFINE_SD_BLEND_FUNCTION(FUNC)                                         \
+    static void TVP_##FUNC##_SD(tjs_uint32 *dest, const tjs_uint32 *src1,      \
+                                const tjs_uint32 *src2, tjs_int len,           \
+                                tjs_int opa) {                                 \
+        FUNC##_functor func(opa);                                              \
+        sd_blend_func_c(dest, src1, src2, len, func);                          \
     }
-#define DEFINE_COPY_FUNCTION(FUNC)                                                                                     \
-    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {                                     \
-        copy_func_c<FUNC##_functor>(dest, src, len);                                                                   \
+#define DEFINE_OVERLAP_COPY(FUNC)                                              \
+    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint32 *src,            \
+                           tjs_int len) {                                      \
+        overlap_copy_func_c<FUNC##_functor>(dest, src, len);                   \
     }
-#define DEFINE_BLEND_FUNCTION(FUNC)                                                                                    \
-    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len, tjs_int opa) {                        \
-        FUNC##_functor func(opa);                                                                                      \
-        blend_func_c(dest, src, len, func);                                                                            \
+#define DEFINE_COPY_FUNCTION(FUNC)                                             \
+    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint32 *src,            \
+                           tjs_int len) {                                      \
+        copy_func_c<FUNC##_functor>(dest, src, len);                           \
     }
-#define DEFINE_BLEND8_FUNCTION(FUNC)                                                                                   \
-    static void TVP_##FUNC(tjs_uint8 *dest, const tjs_uint8 *src, tjs_int len, tjs_int opa) {                          \
-        FUNC##_functor func(opa);                                                                                      \
-        blend_func_c(dest, src, len, func);                                                                            \
+#define DEFINE_BLEND_FUNCTION(FUNC)                                            \
+    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint32 *src,            \
+                           tjs_int len, tjs_int opa) {                         \
+        FUNC##_functor func(opa);                                              \
+        blend_func_c(dest, src, len, func);                                    \
+    }
+#define DEFINE_BLEND8_FUNCTION(FUNC)                                           \
+    static void TVP_##FUNC(tjs_uint8 *dest, const tjs_uint8 *src, tjs_int len, \
+                           tjs_int opa) {                                      \
+        FUNC##_functor func(opa);                                              \
+        blend_func_c(dest, src, len, func);                                    \
     }
 // 以下2つはダミー
 struct premulalpha_blend_d_functor {
@@ -246,43 +282,56 @@ struct premulalpha_blend_do_functor {
 // TVPAdditiveAlphaBlend_d_c
 // TVPAdditiveAlphaBlend_do_c
 
-#define DEFINE_COLOR_COPY(FUNC)                                                                                        \
-    static void TVP_##FUNC(tjs_uint32 *dest, tjs_int len, tjs_uint32 value) {                                          \
-        FUNC##_functor func(value);                                                                                    \
-        const_color_copy(dest, len, func);                                                                             \
+#define DEFINE_COLOR_COPY(FUNC)                                                \
+    static void TVP_##FUNC(tjs_uint32 *dest, tjs_int len, tjs_uint32 value) {  \
+        FUNC##_functor func(value);                                            \
+        const_color_copy(dest, len, func);                                     \
     }
 
-#define DEFINE_COLOR_BLEND(FUNC)                                                                                       \
-    static void TVP_##FUNC(tjs_uint32 *dest, tjs_int len, tjs_uint32 value, tjs_int opa) {                             \
-        FUNC##_functor func(opa, value);                                                                               \
-        const_color_copy(dest, len, func);                                                                             \
+#define DEFINE_COLOR_BLEND(FUNC)                                               \
+    static void TVP_##FUNC(tjs_uint32 *dest, tjs_int len, tjs_uint32 value,    \
+                           tjs_int opa) {                                      \
+        FUNC##_functor func(opa, value);                                       \
+        const_color_copy(dest, len, func);                                     \
     }
 
-#define DEFINE_APPLY_FUNCTION_VARIATION(FUNC)                                                                          \
-    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color) {                    \
-        apply_color_map_func_c<FUNC##_functor>(dest, src, len, color);                                                 \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_HDA(tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color) {              \
-        apply_color_map_func_c<FUNC##_HDA_functor>(dest, src, len, color);                                             \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_o(tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color, tjs_int opa) {   \
-        apply_color_map_o_func_c<FUNC##_o_functor>(dest, src, len, color, opa);                                        \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_HDA_o(tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color,              \
-                                   tjs_int opa) {                                                                      \
-        apply_color_map_o_func_c<FUNC##_HDA_o_functor>(dest, src, len, color, opa);                                    \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_d(tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color) {                \
-        apply_color_map_func_c<FUNC##_d_functor>(dest, src, len, color);                                               \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_a(tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color) {                \
-        apply_color_map_func_c<FUNC##_a_functor>(dest, src, len, color);                                               \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_do(tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color, tjs_int opa) {  \
-        apply_color_map_o_func_c<FUNC##_do_functor>(dest, src, len, color, opa);                                       \
-    }                                                                                                                  \
-    static void TVP_##FUNC##_ao(tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color, tjs_int opa) {  \
-        apply_color_map_o_func_c<FUNC##_ao_functor>(dest, src, len, color, opa);                                       \
+#define DEFINE_APPLY_FUNCTION_VARIATION(FUNC)                                  \
+    static void TVP_##FUNC(tjs_uint32 *dest, const tjs_uint8 *src,             \
+                           tjs_int len, tjs_uint32 color) {                    \
+        apply_color_map_func_c<FUNC##_functor>(dest, src, len, color);         \
+    }                                                                          \
+    static void TVP_##FUNC##_HDA(tjs_uint32 *dest, const tjs_uint8 *src,       \
+                                 tjs_int len, tjs_uint32 color) {              \
+        apply_color_map_func_c<FUNC##_HDA_functor>(dest, src, len, color);     \
+    }                                                                          \
+    static void TVP_##FUNC##_o(tjs_uint32 *dest, const tjs_uint8 *src,         \
+                               tjs_int len, tjs_uint32 color, tjs_int opa) {   \
+        apply_color_map_o_func_c<FUNC##_o_functor>(dest, src, len, color,      \
+                                                   opa);                       \
+    }                                                                          \
+    static void TVP_##FUNC##_HDA_o(tjs_uint32 *dest, const tjs_uint8 *src,     \
+                                   tjs_int len, tjs_uint32 color,              \
+                                   tjs_int opa) {                              \
+        apply_color_map_o_func_c<FUNC##_HDA_o_functor>(dest, src, len, color,  \
+                                                       opa);                   \
+    }                                                                          \
+    static void TVP_##FUNC##_d(tjs_uint32 *dest, const tjs_uint8 *src,         \
+                               tjs_int len, tjs_uint32 color) {                \
+        apply_color_map_func_c<FUNC##_d_functor>(dest, src, len, color);       \
+    }                                                                          \
+    static void TVP_##FUNC##_a(tjs_uint32 *dest, const tjs_uint8 *src,         \
+                               tjs_int len, tjs_uint32 color) {                \
+        apply_color_map_func_c<FUNC##_a_functor>(dest, src, len, color);       \
+    }                                                                          \
+    static void TVP_##FUNC##_do(tjs_uint32 *dest, const tjs_uint8 *src,        \
+                                tjs_int len, tjs_uint32 color, tjs_int opa) {  \
+        apply_color_map_o_func_c<FUNC##_do_functor>(dest, src, len, color,     \
+                                                    opa);                      \
+    }                                                                          \
+    static void TVP_##FUNC##_ao(tjs_uint32 *dest, const tjs_uint8 *src,        \
+                                tjs_int len, tjs_uint32 color, tjs_int opa) {  \
+        apply_color_map_o_func_c<FUNC##_ao_functor>(dest, src, len, color,     \
+                                                    opa);                      \
     }
 
 DEFINE_CONVERT_BLEND_FUNCTION(remove_const_opacity);
@@ -347,11 +396,13 @@ DEFINE_BLEND_FUNCTION_MIN_VARIATION(ps_diff_blend);
 DEFINE_BLEND_FUNCTION_MIN_VARIATION(ps_diff5_blend);
 DEFINE_BLEND_FUNCTION_MIN_VARIATION(ps_exclusion_blend);
 
-static void TVP_make_alpha_from_key(tjs_uint32 *dest, tjs_int len, tjs_uint32 key) {
+static void TVP_make_alpha_from_key(tjs_uint32 *dest, tjs_int len,
+                                    tjs_uint32 key) {
     make_alpha_from_key_functor func(key);
     convert_func_c(dest, len, func);
 }
-static void TVP_alpha_color_mat(tjs_uint32 *dest, tjs_uint32 color, tjs_int len) {
+static void TVP_alpha_color_mat(tjs_uint32 *dest, tjs_uint32 color,
+                                tjs_int len) {
     alpha_color_mat_functor func(color);
     convert_func_c(dest, len, func);
 }
@@ -363,8 +414,10 @@ DEFINE_CONVERT_FUNCTION(do_gray_scale);
 /* simple blur for character data */
 /* shuld be more optimized */
 template <typename functor>
-static inline void ch_blur_copy_func(tjs_uint8 *dest, tjs_int destpitch, tjs_int destwidth, tjs_int destheight,
-                                     const tjs_uint8 *src, tjs_int srcpitch, tjs_int srcwidth, tjs_int srcheight,
+static inline void ch_blur_copy_func(tjs_uint8 *dest, tjs_int destpitch,
+                                     tjs_int destwidth, tjs_int destheight,
+                                     const tjs_uint8 *src, tjs_int srcpitch,
+                                     tjs_int srcwidth, tjs_int srcheight,
                                      tjs_int blurwidth, tjs_int blurlevel) {
     /* clear destination */
     memset(dest, 0, destpitch * destheight);
@@ -395,22 +448,29 @@ static inline void ch_blur_copy_func(tjs_uint8 *dest, tjs_int destpitch, tjs_int
                 len >>= 8;
                 functor func(len);
                 for(tjs_int sy = 0; sy < srcheight; sy++) {
-                    blend_func_c(dest + (y + sy + blurwidth) * destpitch + x + blurwidth, src + sy * srcpitch, srcwidth,
-                                 func);
+                    blend_func_c(dest + (y + sy + blurwidth) * destpitch + x +
+                                     blurwidth,
+                                 src + sy * srcpitch, srcwidth, func);
                 }
             }
         }
     }
 }
-void TVP_ch_blur_copy65(tjs_uint8 *dest, tjs_int destpitch, tjs_int destwidth, tjs_int destheight, const tjs_uint8 *src,
-                        tjs_int srcpitch, tjs_int srcwidth, tjs_int srcheight, tjs_int blurwidth, tjs_int blurlevel) {
-    ch_blur_copy_func<ch_blur_add_mul_copy65_functor>(dest, destpitch, destwidth, destheight, src, srcpitch, srcwidth,
-                                                      srcheight, blurwidth, blurlevel);
+void TVP_ch_blur_copy65(tjs_uint8 *dest, tjs_int destpitch, tjs_int destwidth,
+                        tjs_int destheight, const tjs_uint8 *src,
+                        tjs_int srcpitch, tjs_int srcwidth, tjs_int srcheight,
+                        tjs_int blurwidth, tjs_int blurlevel) {
+    ch_blur_copy_func<ch_blur_add_mul_copy65_functor>(
+        dest, destpitch, destwidth, destheight, src, srcpitch, srcwidth,
+        srcheight, blurwidth, blurlevel);
 }
-void TVP_ch_blur_copy(tjs_uint8 *dest, tjs_int destpitch, tjs_int destwidth, tjs_int destheight, const tjs_uint8 *src,
-                      tjs_int srcpitch, tjs_int srcwidth, tjs_int srcheight, tjs_int blurwidth, tjs_int blurlevel) {
-    ch_blur_copy_func<ch_blur_add_mul_copy_functor>(dest, destpitch, destwidth, destheight, src, srcpitch, srcwidth,
-                                                    srcheight, blurwidth, blurlevel);
+void TVP_ch_blur_copy(tjs_uint8 *dest, tjs_int destpitch, tjs_int destwidth,
+                      tjs_int destheight, const tjs_uint8 *src,
+                      tjs_int srcpitch, tjs_int srcwidth, tjs_int srcheight,
+                      tjs_int blurwidth, tjs_int blurlevel) {
+    ch_blur_copy_func<ch_blur_add_mul_copy_functor>(
+        dest, destpitch, destwidth, destheight, src, srcpitch, srcwidth,
+        srcheight, blurwidth, blurlevel);
 }
 void TVP_reverse32(tjs_uint32 *pixels, tjs_int len) {
     tjs_uint32 *pixels2 = pixels + len - 1;
@@ -461,56 +521,69 @@ void TVP_swap_line8(tjs_uint8 *line1, tjs_uint8 *line2, tjs_int len) {
 }
 /* --------------------------------------------------------------------
   Table initialize function
--------------------------------------------------------------------- */
+--------------------------------------------------------------------
+*/
 static void TVPPsInitTable() {
     int s, d;
     for(s = 0; s < 256; s++) {
         for(d = 0; d < 256; d++) {
             ps_soft_light_table::TABLE[s][d] = (s >= 128)
                 ? (((unsigned char)(pow(d / 255.0, 128.0 / s) * 255.0)))
-                : (((unsigned char)(pow(d / 255.0, (1.0 - s / 255.0) / 0.5) * 255.0)));
-            ps_color_dodge_table::TABLE[s][d] = ((255 - s) <= d) ? (0xff) : ((d * 255) / (255 - s));
-            ps_color_burn_table::TABLE[s][d] = (s <= (255 - d)) ? (0x00) : (255 - ((255 - d) * 255) / s);
+                : (((unsigned char)(pow(d / 255.0, (1.0 - s / 255.0) / 0.5) *
+                                    255.0)));
+            ps_color_dodge_table::TABLE[s][d] =
+                ((255 - s) <= d) ? (0xff) : ((d * 255) / (255 - s));
+            ps_color_burn_table::TABLE[s][d] =
+                (s <= (255 - d)) ? (0x00) : (255 - ((255 - d) * 255) / s);
 #ifdef TVPPS_USE_OVERLAY_TABLE
-            ps_overlay_table::TABLE[s][d] =
-                (d < 128) ? ((s * d * 2) / 255) : (((s + d) * 2) - ((s * d * 2) / 255) - 255);
+            ps_overlay_table::TABLE[s][d] = (d < 128)
+                ? ((s * d * 2) / 255)
+                : (((s + d) * 2) - ((s * d * 2) / 255) - 255);
 #endif
         }
     }
 }
 
-#define SET_BLEND_FUNCTIONS(DEST_FUNC, FUNC)                                                                           \
-    TVP##DEST_FUNC = TVP_##FUNC;                                                                                       \
-    TVP##DEST_FUNC##_HDA = TVP_##FUNC##_HDA;                                                                           \
-    TVP##DEST_FUNC##_o = TVP_##FUNC##_o;                                                                               \
-    TVP##DEST_FUNC##_HDA_o = TVP_##FUNC##_HDA_o;                                                                       \
-    TVP##DEST_FUNC##_d = TVP_##FUNC##_d;                                                                               \
-    TVP##DEST_FUNC##_a = TVP_##FUNC##_a;                                                                               \
-    TVP##DEST_FUNC##_do = TVP_##FUNC##_do;                                                                             \
+#define SET_BLEND_FUNCTIONS(DEST_FUNC, FUNC)                                   \
+    TVP##DEST_FUNC = TVP_##FUNC;                                               \
+    TVP##DEST_FUNC##_HDA = TVP_##FUNC##_HDA;                                   \
+    TVP##DEST_FUNC##_o = TVP_##FUNC##_o;                                       \
+    TVP##DEST_FUNC##_HDA_o = TVP_##FUNC##_HDA_o;                               \
+    TVP##DEST_FUNC##_d = TVP_##FUNC##_d;                                       \
+    TVP##DEST_FUNC##_a = TVP_##FUNC##_a;                                       \
+    TVP##DEST_FUNC##_do = TVP_##FUNC##_do;                                     \
     TVP##DEST_FUNC##_ao = TVP_##FUNC##_ao;
 
-#define SET_BLEND_MID_FUNCTIONS(DEST_FUNC, FUNC)                                                                       \
-    TVP##DEST_FUNC = TVP_##FUNC;                                                                                       \
-    TVP##DEST_FUNC##_HDA = TVP_##FUNC##_HDA;                                                                           \
-    TVP##DEST_FUNC##_o = TVP_##FUNC##_o;                                                                               \
-    TVP##DEST_FUNC##_HDA_o = TVP_##FUNC##_HDA_o;                                                                       \
-    TVP##DEST_FUNC##_d = TVP_##FUNC##_d;                                                                               \
+#define SET_BLEND_MID_FUNCTIONS(DEST_FUNC, FUNC)                               \
+    TVP##DEST_FUNC = TVP_##FUNC;                                               \
+    TVP##DEST_FUNC##_HDA = TVP_##FUNC##_HDA;                                   \
+    TVP##DEST_FUNC##_o = TVP_##FUNC##_o;                                       \
+    TVP##DEST_FUNC##_HDA_o = TVP_##FUNC##_HDA_o;                               \
+    TVP##DEST_FUNC##_d = TVP_##FUNC##_d;                                       \
     TVP##DEST_FUNC##_do = TVP_##FUNC##_do;
 
-#define SET_BLEND_MIN_FUNCTIONS(DEST_FUNC, FUNC)                                                                       \
-    TVP##DEST_FUNC = TVP_##FUNC;                                                                                       \
-    TVP##DEST_FUNC##_HDA = TVP_##FUNC##_HDA;                                                                           \
-    TVP##DEST_FUNC##_o = TVP_##FUNC##_o;                                                                               \
+#define SET_BLEND_MIN_FUNCTIONS(DEST_FUNC, FUNC)                               \
+    TVP##DEST_FUNC = TVP_##FUNC;                                               \
+    TVP##DEST_FUNC##_HDA = TVP_##FUNC##_HDA;                                   \
+    TVP##DEST_FUNC##_o = TVP_##FUNC##_o;                                       \
     TVP##DEST_FUNC##_HDA_o = TVP_##FUNC##_HDA_o;
 
 // dummy
-static void (*TVPAdditiveAlphaBlend_d)(tjs_uint32 *, const tjs_uint32 *, tjs_int);
-static void (*TVPAdditiveAlphaBlend_do)(tjs_uint32 *, const tjs_uint32 *, tjs_int, tjs_int);
+static void (*TVPAdditiveAlphaBlend_d)(tjs_uint32 *, const tjs_uint32 *,
+                                       tjs_int);
+static void (*TVPAdditiveAlphaBlend_do)(tjs_uint32 *, const tjs_uint32 *,
+                                        tjs_int, tjs_int);
 
-extern void TVP_ch_blur_add_mul_copy65_sse2_c(tjs_uint8 *dest, const tjs_uint8 *src, tjs_int len, tjs_int opa);
-extern void TVP_ch_blur_add_mul_copy_sse2_c(tjs_uint8 *dest, const tjs_uint8 *src, tjs_int len, tjs_int opa);
-extern void TVP_ch_blur_mul_copy65_sse2_c(tjs_uint8 *dest, const tjs_uint8 *src, tjs_int len, tjs_int opa);
-extern void TVP_ch_blur_mul_copy_sse2_c(tjs_uint8 *dest, const tjs_uint8 *src, tjs_int len, tjs_int opa);
+extern void TVP_ch_blur_add_mul_copy65_sse2_c(tjs_uint8 *dest,
+                                              const tjs_uint8 *src, tjs_int len,
+                                              tjs_int opa);
+extern void TVP_ch_blur_add_mul_copy_sse2_c(tjs_uint8 *dest,
+                                            const tjs_uint8 *src, tjs_int len,
+                                            tjs_int opa);
+extern void TVP_ch_blur_mul_copy65_sse2_c(tjs_uint8 *dest, const tjs_uint8 *src,
+                                          tjs_int len, tjs_int opa);
+extern void TVP_ch_blur_mul_copy_sse2_c(tjs_uint8 *dest, const tjs_uint8 *src,
+                                        tjs_int len, tjs_int opa);
 /**
  * GL初期化。関数ポインタを設定する
  */

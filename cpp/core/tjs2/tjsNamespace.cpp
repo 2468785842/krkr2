@@ -43,7 +43,8 @@ namespace TJS {
         }
     }
     //---------------------------------------------------------------------------
-    void tTJSLocalSymbolList::SetWriteAddr(tjs_int *StartWriteAddr, tjs_int *CountWriteAddr) {
+    void tTJSLocalSymbolList::SetWriteAddr(tjs_int *StartWriteAddr,
+                                           tjs_int *CountWriteAddr) {
         this->StartWriteAddr = StartWriteAddr;
         this->CountWriteAddr = CountWriteAddr;
     }

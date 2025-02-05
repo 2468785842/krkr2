@@ -20,7 +20,9 @@ class tRisaPhaseVocoderDSP;
 //---------------------------------------------------------------------------
 // tTJSNI_PhaseVocoder
 //---------------------------------------------------------------------------
-class tTJSNI_PhaseVocoder : public tTJSNativeInstance, public iTVPBasicWaveFilter, public tTVPSampleAndLabelSource {
+class tTJSNI_PhaseVocoder : public tTJSNativeInstance,
+                            public iTVPBasicWaveFilter,
+                            public tTVPSampleAndLabelSource {
     typedef tTJSNativeInstance inherited;
 
 public:
@@ -28,9 +30,10 @@ public:
 
     ~tTJSNI_PhaseVocoder();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
 
-    void TJS_INTF_METHOD Invalidate();
+    void Invalidate();
 
 private:
     int Window; // window size
@@ -67,7 +70,8 @@ private:
     tTVPSampleAndLabelSource *Source; // source filter
 
     tRisaPhaseVocoderDSP *PhaseVocoder; // Phase Vocoder DSP instance
-    char *FormatConvertBuffer; // buffer for converting PCM formats internally
+    char *FormatConvertBuffer; // buffer for converting PCM formats
+                               // internally
     size_t FormatConvertBufferSize;
 
     tTVPWaveFormat InputFormat;
@@ -76,10 +80,12 @@ private:
     tTVPWaveSegmentQueue InputSegments;
     tTVPWaveSegmentQueue OutputSegments;
 
-    void Fill(float *dest, tjs_uint samples, tjs_uint &written, tTVPWaveSegmentQueue &segments);
+    void Fill(float *dest, tjs_uint samples, tjs_uint &written,
+              tTVPWaveSegmentQueue &segments);
 
-    void Decode(void *dest, tjs_uint samples, tjs_uint &written,
-                tTVPWaveSegmentQueue &segments); // from tTVPSampleAndLabelSource
+    void
+    Decode(void *dest, tjs_uint samples, tjs_uint &written,
+           tTVPWaveSegmentQueue &segments); // from tTVPSampleAndLabelSource
 
     const tTVPWaveFormat &GetFormat() const { return OutputFormat; }
     // from tTVPSampleAndLabelSource

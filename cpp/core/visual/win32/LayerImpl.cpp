@@ -21,9 +21,10 @@
 tjs_uint32 TVPToActualColor(tjs_uint32 color) {
     if(color & 0xff000000) {
         color = ColorToRGB(color); // system color to RGB
-        // convert byte order to 0xRRGGBB since ColorToRGB's return value is in
-        // a format of 0xBBGGRR.
-        return ((color & 0xff) << 16) + (color & 0xff00) + ((color & 0xff0000) >> 16);
+        // convert byte order to 0xRRGGBB since ColorToRGB's return
+        // value is in a format of 0xBBGGRR.
+        return ((color & 0xff) << 16) + (color & 0xff00) +
+            ((color & 0xff0000) >> 16);
     } else {
         return color;
     }
@@ -42,11 +43,12 @@ tTJSNI_Layer::tTJSNI_Layer() {}
 //---------------------------------------------------------------------------
 tTJSNI_Layer::~tTJSNI_Layer() {}
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_Layer::Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_Layer::Construct(tjs_int numparams, tTJSVariant **param,
+                                  iTJSDispatch2 *tjs_obj) {
     return tTJSNI_BaseLayer::Construct(numparams, param, tjs_obj);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_Layer::Invalidate() { tTJSNI_BaseLayer::Invalidate(); }
+void tTJSNI_Layer::Invalidate() { tTJSNI_BaseLayer::Invalidate(); }
 //---------------------------------------------------------------------------
 #if 0
 #pragma pack(push, 1)
@@ -164,7 +166,9 @@ HRGN tTJSNI_Layer::CreateMaskRgn(tjs_uint threshold)
 //---------------------------------------------------------------------------
 // tTJSNC_Layer::CreateNativeInstance : returns proper instance object
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_Layer::CreateNativeInstance() { return new tTJSNI_Layer(); }
+tTJSNativeInstance *tTJSNC_Layer::CreateNativeInstance() {
+    return new tTJSNI_Layer();
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -174,13 +178,16 @@ tTJSNativeClass *TVPCreateNativeClass_Layer() { return new tTJSNC_Layer(); }
 //---------------------------------------------------------------------------
 
 // utility functions for custom plugins
-tTJSNI_Layer *tTJSNI_Layer::FromVariant(const tTJSVariant &var) { return FromObject(var.AsObjectNoAddRef()); }
+tTJSNI_Layer *tTJSNI_Layer::FromVariant(const tTJSVariant &var) {
+    return FromObject(var.AsObjectNoAddRef());
+}
 
 tTJSNI_Layer *tTJSNI_Layer::FromObject(iTJSDispatch2 *obj) {
     tTJSNI_Layer *lay = nullptr;
     if(obj) {
-        if(TJS_FAILED(
-               obj->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Layer::ClassID, (iTJSNativeInstance **)&lay)))
+        if(TJS_FAILED(obj->NativeInstanceSupport(TJS_NIS_GETINSTANCE,
+                                                 tTJSNC_Layer::ClassID,
+                                                 (iTJSNativeInstance **)&lay)))
             TVPThrowExceptionMessage(TVPSpecifyLayer);
     }
     return lay;

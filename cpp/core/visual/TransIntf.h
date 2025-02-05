@@ -27,20 +27,20 @@ public:
     tTVPSimpleOptionProvider(tTJSVariantClosure object);
     ~tTVPSimpleOptionProvider();
 
-    tjs_error TJS_INTF_METHOD AddRef();
-    tjs_error TJS_INTF_METHOD Release();
+    tjs_error AddRef();
+    tjs_error Release();
 
-    tjs_error TJS_INTF_METHOD GetAsNumber(
+    tjs_error GetAsNumber(
         /*in*/ const tjs_char *name, /*out*/ tjs_int64 *value);
-    tjs_error TJS_INTF_METHOD GetAsString(
+    tjs_error GetAsString(
         /*in*/ const tjs_char *name, /*out*/ const tjs_char **out);
 
-    tjs_error TJS_INTF_METHOD GetValue(
+    tjs_error GetValue(
         /*in*/ const tjs_char *name, /*out*/ tTJSVariant *dest);
 
-    tjs_error TJS_INTF_METHOD Reserved2() { return TJS_E_NOTIMPL; }
+    tjs_error Reserved2() { return TJS_E_NOTIMPL; }
 
-    tjs_error TJS_INTF_METHOD GetDispatchObject(iTJSDispatch2 **dsp);
+    tjs_error GetDispatchObject(iTJSDispatch2 **dsp);
 };
 //---------------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ public:
 //---------------------------------------------------------------------------
 class tTVPSimpleImageProvider : public iTVPSimpleImageProvider {
 public:
-    tjs_error TJS_INTF_METHOD LoadImage(
+    tjs_error LoadImage(
         /*in*/ const tjs_char *name, /*in*/ tjs_int bpp,
         /*in*/ tjs_uint32 key,
         /*in*/ tjs_uint w,
@@ -67,7 +67,8 @@ TJS_EXP_FUNC_DEF(iTVPScanLineProvider *, TVPSLPLoadImage, (const ttstr &name, tj
 #endif
 
 //---------------------------------------------------------------------------
-// iTVPScanLineProvider implementation for image provider ( holds tTVPBaseBitmap
+// iTVPScanLineProvider implementation for image provider ( holds
+// tTVPBaseBitmap
 // )
 //---------------------------------------------------------------------------
 // provides layer scanline
@@ -82,17 +83,17 @@ public:
 
     void Attach(iTVPBaseBitmap *bmp); // attach bitmap
 
-    tjs_error TJS_INTF_METHOD AddRef();
-    tjs_error TJS_INTF_METHOD Release();
+    tjs_error AddRef();
+    tjs_error Release();
 
-    tjs_error TJS_INTF_METHOD GetWidth(/*in*/ tjs_int *width);
-    tjs_error TJS_INTF_METHOD GetHeight(/*in*/ tjs_int *height);
+    tjs_error GetWidth(/*in*/ tjs_int *width);
+    tjs_error GetHeight(/*in*/ tjs_int *height);
 #if 0
-	tjs_error TJS_INTF_METHOD GetPixelFormat(/*out*/tjs_int *bpp);
-	tjs_error TJS_INTF_METHOD GetPitchBytes(/*out*/tjs_int *pitch);
-	tjs_error TJS_INTF_METHOD GetScanLine(/*in*/tjs_int line,
+	tjs_error GetPixelFormat(/*out*/tjs_int *bpp);
+	tjs_error GetPitchBytes(/*out*/tjs_int *pitch);
+	tjs_error GetScanLine(/*in*/tjs_int line,
 			/*out*/const void ** scanline);
-	tjs_error TJS_INTF_METHOD GetScanLineForWrite(/*in*/tjs_int line,
+	tjs_error GetScanLineForWrite(/*in*/tjs_int line,
 			/*out*/void ** scanline);
 #endif
     virtual iTVPTexture2D *GetTexture() override;
@@ -103,8 +104,10 @@ public:
 //---------------------------------------------------------------------------
 // handler management functions
 //---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(void, TVPAddTransHandlerProvider, (iTVPTransHandlerProvider * pro));
-TJS_EXP_FUNC_DEF(void, TVPRemoveTransHandlerProvider, (iTVPTransHandlerProvider * pro));
+TJS_EXP_FUNC_DEF(void, TVPAddTransHandlerProvider,
+                 (iTVPTransHandlerProvider * pro));
+TJS_EXP_FUNC_DEF(void, TVPRemoveTransHandlerProvider,
+                 (iTVPTransHandlerProvider * pro));
 iTVPTransHandlerProvider *TVPFindTransHandlerProvider(const ttstr &name);
 //---------------------------------------------------------------------------
 
@@ -125,14 +128,14 @@ public:
     virtual ~tTVPCrossFadeTransHandlerProvider();
     ;
 
-    tjs_error TJS_INTF_METHOD AddRef();
+    tjs_error AddRef();
 
-    tjs_error TJS_INTF_METHOD Release();
+    tjs_error Release();
 
-    tjs_error TJS_INTF_METHOD GetName(
+    tjs_error GetName(
         /*out*/ const tjs_char **name);
 
-    tjs_error TJS_INTF_METHOD StartTransition(
+    tjs_error StartTransition(
         /*in*/ iTVPSimpleOptionProvider *options, // option provider
         /*in*/ iTVPSimpleImageProvider *imagepro, // image provider
         /*in*/ tTVPLayerType layertype, // destination layer type

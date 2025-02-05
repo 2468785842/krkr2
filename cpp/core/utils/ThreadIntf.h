@@ -17,7 +17,15 @@
 //---------------------------------------------------------------------------
 // tTVPThreadPriority
 //---------------------------------------------------------------------------
-enum tTVPThreadPriority { ttpIdle, ttpLowest, ttpLower, ttpNormal, ttpHigher, ttpHighest, ttpTimeCritical };
+enum tTVPThreadPriority {
+    ttpIdle,
+    ttpLowest,
+    ttpLower,
+    ttpNormal,
+    ttpHigher,
+    ttpHighest,
+    ttpTimeCritical
+};
 //---------------------------------------------------------------------------
 
 #include "ThreadImpl.h"
@@ -31,6 +39,7 @@ TJS_EXP_FUNC_DEF(tjs_int, TVPGetProcessorNum, ());
 
 TJS_EXP_FUNC_DEF(tjs_int, TVPGetThreadNum, ());
 
-TJS_EXP_FUNC_DEF(void, TVPExecThreadTask, (int numThreads, TVP_THREAD_TASK_FUNC func));
+TJS_EXP_FUNC_DEF(void, TVPExecThreadTask,
+                 (int numThreads, TVP_THREAD_TASK_FUNC func));
 
 #endif

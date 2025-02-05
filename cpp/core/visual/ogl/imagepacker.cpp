@@ -9,42 +9,52 @@ namespace ImagePacker {
 
     bool area(rect_xywhf *a, rect_xywhf *b) { return a->area() > b->area(); }
 
-    bool perimeter(rect_xywhf *a, rect_xywhf *b) { return a->perimeter() > b->perimeter(); }
+    bool perimeter(rect_xywhf *a, rect_xywhf *b) {
+        return a->perimeter() > b->perimeter();
+    }
 
-    bool max_side(rect_xywhf *a, rect_xywhf *b) { return std::max(a->w, a->h) > std::max(b->w, b->h); }
+    bool max_side(rect_xywhf *a, rect_xywhf *b) {
+        return std::max(a->w, a->h) > std::max(b->w, b->h);
+    }
 
     bool max_width(rect_xywhf *a, rect_xywhf *b) { return a->w > b->w; }
 
     bool max_height(rect_xywhf *a, rect_xywhf *b) { return a->h > b->h; }
 
-    // just add another comparing function name to cmpf to perform another packing
-    // attempt more functions == slower but probably more efficient cases covered
-    // and hence less area wasted
+    // just add another comparing function name to cmpf to perform
+    // another packing attempt more functions == slower but probably
+    // more efficient cases covered and hence less area wasted
 
-    static bool (*cmpf[])(rect_xywhf *, rect_xywhf *) = { area, perimeter, max_side, max_width, max_height };
+    static bool (*cmpf[])(rect_xywhf *, rect_xywhf *) = { area, perimeter,
+                                                          max_side, max_width,
+                                                          max_height };
 
-    // if you find the algorithm running too slow you may double this factor to
-    // increase speed but also decrease efficiency 1 == most efficient, slowest
-    // efficiency may be still satisfying at 64 or even 256 with nice speedup
+    // if you find the algorithm running too slow you may double this
+    // factor to increase speed but also decrease efficiency 1 == most
+    // efficient, slowest efficiency may be still satisfying at 64 or
+    // even 256 with nice speedup
 
     int discard_step = 128;
 
     /*
 
-    For every sorting function, algorithm will perform packing attempts beginning
-    with a bin with width and height equal to max_side, and decreasing its
-    dimensions if it finds out that rectangles did actually fit, increasing
-    otherwise. Although, it's doing that in sort of binary search manner, so for
-    every comparing function it will perform at most log2(max_side) packing attempts
-    looking for the smallest possible bin size. discard_step = 128 means that the
-    algorithm will break of the searching loop if the rectangles fit but "it may be
-    possible to fit them in a bin smaller by 128" the bigger the value, the sooner
-    the algorithm will finish but the rectangles will be packed less tightly. use
+    For every sorting function, algorithm will perform packing
+    attempts beginning with a bin with width and height equal to
+    max_side, and decreasing its dimensions if it finds out that
+    rectangles did actually fit, increasing otherwise. Although, it's
+    doing that in sort of binary search manner, so for every comparing
+    function it will perform at most log2(max_side) packing attempts
+    looking for the smallest possible bin size. discard_step = 128
+    means that the algorithm will break of the searching loop if the
+    rectangles fit but "it may be possible to fit them in a bin
+    smaller by 128" the bigger the value, the sooner the algorithm
+    will finish but the rectangles will be packed less tightly. use
     discard_step = 1 for maximum tightness.
 
-    the algorithm was based on http://www.blackpawn.com/texts/lightmaps/default.html
-    the algorithm reuses the node tree so it doesn't reallocate them between
-    searching attempts
+    the algorithm was based on
+    http://www.blackpawn.com/texts/lightmaps/default.html the
+    algorithm reuses the node tree so it doesn't reallocate them
+    between searching attempts
 
     */
 
@@ -138,10 +148,12 @@ namespace ImagePacker {
         }
     };
 
-    rect_wh _rect2D(rect_xywhf *const *v, int n, int max_s, vector<rect_xywhf *> &succ, vector<rect_xywhf *> &unsucc) {
+    rect_wh _rect2D(rect_xywhf *const *v, int n, int max_s,
+                    vector<rect_xywhf *> &succ, vector<rect_xywhf *> &unsucc) {
         node root;
 
-        const int funcs = (sizeof(cmpf) / sizeof(bool (*)(rect_xywhf *, rect_xywhf *)));
+        const int funcs =
+            (sizeof(cmpf) / sizeof(bool (*)(rect_xywhf *, rect_xywhf *)));
 
         rect_xywhf **order[funcs];
 
@@ -152,7 +164,8 @@ namespace ImagePacker {
         }
 
         rect_wh min_bin = rect_wh(max_s, max_s);
-        int min_func = -1, best_func = 0, best_area = 0, _area = 0, step, fit, i;
+        int min_func = -1, best_func = 0, best_area = 0, _area = 0, step, fit,
+            i;
 
         bool fail = false;
 
@@ -187,7 +200,8 @@ namespace ImagePacker {
                 if(fit == -1 && step <= discard_step)
                     break;
 
-                root.reset(rect_wh(root.rc.w() + fit * step, root.rc.h() + fit * step));
+                root.reset(rect_wh(root.rc.w() + fit * step,
+                                   root.rc.h() + fit * step));
 
                 step /= 2;
                 if(!step)
@@ -258,7 +272,8 @@ namespace ImagePacker {
             bins.push_back(bin());
             b = &bins[bins.size() - 1];
 
-            b->size = _rect2D(&((*p[0])[0]), p[0]->size(), max_s, b->rects, *p[1]);
+            b->size =
+                _rect2D(&((*p[0])[0]), p[0]->size(), max_s, b->rects, *p[1]);
             b->rects.shrink_to_fit();
             p[0]->clear();
 
@@ -305,7 +320,8 @@ namespace ImagePacker {
         b(rc.b);
         r(rc.r);
     }
-    rect_xywh::rect_xywh(int x, int y, int w, int h) : x(x), y(y), rect_wh(w, h) {}
+    rect_xywh::rect_xywh(int x, int y, int w, int h) :
+        x(x), y(y), rect_wh(w, h) {}
 
     rect_xywh::operator rect_ltrb() {
         rect_ltrb rr(x, y, 0, 0);
@@ -326,8 +342,10 @@ namespace ImagePacker {
 
     int rect_wh::perimeter() { return 2 * w + 2 * h; }
 
-    rect_xywhf::rect_xywhf(const rect_ltrb &rr) : rect_xywh(rr) /*, flipped(false)*/ {}
-    rect_xywhf::rect_xywhf(int x, int y, int width, int height) : rect_xywh(x, y, width, height) /*, flipped(false)*/ {}
+    rect_xywhf::rect_xywhf(const rect_ltrb &rr) :
+        rect_xywh(rr) /*, flipped(false)*/ {}
+    rect_xywhf::rect_xywhf(int x, int y, int width, int height) :
+        rect_xywh(x, y, width, height) /*, flipped(false)*/ {}
     rect_xywhf::rect_xywhf() /*: flipped(false)*/ {}
 
     // void rect_xywhf::flip() {

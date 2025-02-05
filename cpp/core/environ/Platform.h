@@ -16,14 +16,18 @@ void TVPGetMemoryInfo(TVPMemoryInfo &m);
 tjs_int TVPGetSystemFreeMemory(); // in MB
 tjs_int TVPGetSelfUsedMemory(); // in MB
 
-extern "C" int TVPShowSimpleMessageBox(const char *text, const char *caption, unsigned int nButton,
+extern "C" int TVPShowSimpleMessageBox(const char *text, const char *caption,
+                                       unsigned int nButton,
                                        const char **btnText); // C-style
 
-int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption, const std::vector<ttstr> &vecButtons);
+int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
+                            const std::vector<ttstr> &vecButtons);
 int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption);
 int TVPShowSimpleMessageBoxYesNo(const ttstr &text, const ttstr &caption);
 
-int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption, const ttstr &prompt, const std::vector<ttstr> &vecButtons);
+int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,
+                          const ttstr &prompt,
+                          const std::vector<ttstr> &vecButtons);
 
 std::vector<std::string> TVPGetDriverPath();
 std::vector<std::string> TVPGetAppStoragePath();

@@ -115,11 +115,13 @@ class iTVPTexture {
 public:
     int RefCount;
     int Flags, TexWidth, TexHeight, ActualWidth, ActualHeight;
-    iTVPTexture(unsigned int w, unsigned int h, unsigned int aw, unsigned int ah);
+    iTVPTexture(unsigned int w, unsigned int h, unsigned int aw,
+                unsigned int ah);
     void AddRef();
     virtual void Release() = 0;
     // virtual tGLTexture* GetTexture() = 0;
-    virtual void Update(const void *pixel, eTextureFormat format, unsigned int pitch, int x, int y, int w, int h) = 0;
+    virtual void Update(const void *pixel, eTextureFormat format,
+                        unsigned int pitch, int x, int y, int w, int h) = 0;
     virtual unsigned long GetPoint(int x, int y) = 0;
     virtual bool SetPoint(int x, int y, unsigned long clr) = 0;
     virtual bool IsStatic() = 0;
@@ -152,7 +154,8 @@ public:
     static bool CompileShader(tGLShader shader, const std::string &src);
     static tGLShader CreateVertProgram(const std::string &vert_source);
     static tGLShader CreateFragProgram(const std::string &frag_source);
-    static tGLShader CombineProgram(tGLShader vert_shader, tGLShader frag_shader);
+    static tGLShader CombineProgram(tGLShader vert_shader,
+                                    tGLShader frag_shader);
 
 public:
     virtual void apply() const {}
@@ -186,7 +189,8 @@ public:
     virtual int getTexCoordAttr(int idx) const;
 
     void init(int opa /*0~255*/, unsigned long clr);
-    void setBlendFuncSeparate(int func, int srcRGB, int dstRGB, int srcAlpha, int dstAlpha);
+    void setBlendFuncSeparate(int func, int srcRGB, int dstRGB, int srcAlpha,
+                              int dstAlpha);
     void enableBlendColorAsOpa(bool bEnableBlendOpa = false);
     bool isBlendEnabled();
 
@@ -233,11 +237,12 @@ public:
     static tTVPStandardShader *ConstColorAlphaBlend_a;
 };
 
-// void TVPTextureToBitmap(iTVPTexture2D* src, void *dst, unsigned int w,
-// unsigned int h);
+// void TVPTextureToBitmap(iTVPTexture2D* src, void *dst, unsigned int
+// w, unsigned int h);
 
 struct tTVPGLGammaAdjustData;
-void TVPTextureAdjustGamma(iTVPTexture *src, eTextureProgram method, const texRect &rc,
+void TVPTextureAdjustGamma(iTVPTexture *src, eTextureProgram method,
+                           const texRect &rc,
                            const tTVPGLGammaAdjustData &data);
 
 void TVPClearScreen();

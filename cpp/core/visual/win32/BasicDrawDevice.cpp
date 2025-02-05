@@ -25,7 +25,8 @@ static tjs_int TVPBasicDrawDeviceOptionsGeneration = 0;
 bool TVPZoomInterpolation = true;
 //---------------------------------------------------------------------------
 static void TVPInitBasicDrawDeviceOptions() {
-    if(TVPBasicDrawDeviceOptionsGeneration == TVPGetCommandLineArgumentGeneration())
+    if(TVPBasicDrawDeviceOptionsGeneration ==
+       TVPGetCommandLineArgumentGeneration())
         return;
     TVPBasicDrawDeviceOptionsGeneration = TVPGetCommandLineArgumentGeneration();
 
@@ -77,7 +78,8 @@ void tTVPBasicDrawDevice::DestroyTexture() {
 void tTVPBasicDrawDevice::InvalidateAll() {
     // レイヤ演算結果をすべてリクエストする
     // サーフェースが lost した際に内容を再構築する目的で用いる
-    RequestInvalidation(tTVPRect(0, 0, DestRect.get_width(), DestRect.get_height()));
+    RequestInvalidation(
+        tTVPRect(0, 0, DestRect.get_width(), DestRect.get_height()));
 }
 #if 0
 //---------------------------------------------------------------------------
@@ -471,10 +473,11 @@ void tTVPBasicDrawDevice::ErrorToLog( HRESULT hr ) {
 }
 #endif
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPBasicDrawDevice::AddLayerManager(iTVPLayerManager *manager) {
+void tTVPBasicDrawDevice::AddLayerManager(iTVPLayerManager *manager) {
     if(inherited::Managers.size() > 0) {
         // "Basic" デバイスでは２つ以上のLayer Managerを登録できない
-        TVPThrowExceptionMessage(TVPBasicDrawDeviceDoesNotSupporteLayerManagerMoreThanOne);
+        TVPThrowExceptionMessage(
+            TVPBasicDrawDeviceDoesNotSupporteLayerManagerMoreThanOne);
     }
     inherited::AddLayerManager(manager);
 
@@ -482,7 +485,7 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::AddLayerManager(iTVPLayerManager *mana
 }
 //---------------------------------------------------------------------------
 #if 0
-void TJS_INTF_METHOD tTVPBasicDrawDevice::SetTargetWindow(HWND wnd, bool is_main)
+void tTVPBasicDrawDevice::SetTargetWindow(HWND wnd, bool is_main)
 {
 	TVPInitBasicDrawDeviceOptions();
 	DestroyD3DDevice();
@@ -491,7 +494,7 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::SetTargetWindow(HWND wnd, bool is_main
 }
 #endif
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPBasicDrawDevice::SetDestRectangle(const tTVPRect &rect) {
+void tTVPBasicDrawDevice::SetDestRectangle(const tTVPRect &rect) {
 #if 0
 	BackBufferDirty = true;
 	// 位置だけの変更の場合かどうかをチェックする
@@ -523,7 +526,7 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::SetDestRectangle(const tTVPRect &rect)
 #endif
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPBasicDrawDevice::NotifyLayerResize(iTVPLayerManager *manager) {
+void tTVPBasicDrawDevice::NotifyLayerResize(iTVPLayerManager *manager) {
     inherited::NotifyLayerResize(manager);
 
     BackBufferDirty = true;
@@ -532,7 +535,7 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::NotifyLayerResize(iTVPLayerManager *ma
     //	CreateTexture();
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPBasicDrawDevice::Show() {
+void tTVPBasicDrawDevice::Show() {
     if(Window) {
         iWindowLayer *form = Window->GetForm();
         if(form && !Managers.empty()) {
@@ -576,7 +579,7 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::Show() {
 }
 //---------------------------------------------------------------------------
 #if 0
-bool TJS_INTF_METHOD tTVPBasicDrawDevice::WaitForVBlank( tjs_int* in_vblank, tjs_int* delayed )
+bool tTVPBasicDrawDevice::WaitForVBlank( tjs_int* in_vblank, tjs_int* delayed )
 {
 	if( Direct3DDevice == nullptr ) return false;
 
@@ -615,7 +618,7 @@ bool TJS_INTF_METHOD tTVPBasicDrawDevice::WaitForVBlank( tjs_int* in_vblank, tjs
 }
 #endif
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPBasicDrawDevice::StartBitmapCompletion(iTVPLayerManager *manager) {
+void tTVPBasicDrawDevice::StartBitmapCompletion(iTVPLayerManager *manager) {
 #if 0
 	EnsureDevice();
 
@@ -644,12 +647,11 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::StartBitmapCompletion(iTVPLayerManager
 #endif
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPBasicDrawDevice::NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y,
-                                                                tTVPBaseTexture *bmp, const tTVPRect &cliprect,
-                                                                tTVPLayerType type, tjs_int opacity) {
-    // bits, bitmapinfo で表されるビットマップの cliprect の領域を、x, y に描画
-    // する。
-    // opacity と type は無視するしかないので無視する
+void tTVPBasicDrawDevice::NotifyBitmapCompleted(
+    iTVPLayerManager *manager, tjs_int x, tjs_int y, tTVPBaseTexture *bmp,
+    const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity) {
+    // bits, bitmapinfo で表されるビットマップの cliprect の領域を、x,
+    // y に描画 する。 opacity と type は無視するしかないので無視する
     tjs_int w, h;
     GetSrcSize(w, h);
 #if 0
@@ -696,7 +698,7 @@ void TJS_INTF_METHOD tTVPBasicDrawDevice::NotifyBitmapCompleted(iTVPLayerManager
 #endif
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPBasicDrawDevice::EndBitmapCompletion(iTVPLayerManager *manager) {
+void tTVPBasicDrawDevice::EndBitmapCompletion(iTVPLayerManager *manager) {
     if(!TargetWindow)
         return;
 #if 0
@@ -820,10 +822,10 @@ got_error:
 #endif
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPBasicDrawDevice::SetShowUpdateRect(bool b) { DrawUpdateRectangle = b; }
+void tTVPBasicDrawDevice::SetShowUpdateRect(bool b) { DrawUpdateRectangle = b; }
 #if 0
 //---------------------------------------------------------------------------
-bool TJS_INTF_METHOD tTVPBasicDrawDevice::SwitchToFullScreen( HWND window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color, bool changeresolution )
+bool tTVPBasicDrawDevice::SwitchToFullScreen( HWND window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color, bool changeresolution )
 {
 	// フルスクリーン化の処理はなにも行わない、互換性のためにウィンドウを全画面化するのみで処理する
 	// Direct3D9 でフルスクリーン化するとフォーカスを失うとデバイスをロストするので、そのたびにリセットor作り直しが必要になる。
@@ -835,7 +837,7 @@ bool TJS_INTF_METHOD tTVPBasicDrawDevice::SwitchToFullScreen( HWND window, tjs_u
 	return true;
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPBasicDrawDevice::RevertFromFullScreen( HWND window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color )
+void tTVPBasicDrawDevice::RevertFromFullScreen( HWND window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color )
 {
 	BackBufferDirty = true;
 	ShouldShow = true;
@@ -857,7 +859,8 @@ tTJSNC_BasicDrawDevice::tTJSNC_BasicDrawDevice() :
             // constructor/methods
             //----------------------------------------------------------------------
             TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(
-                /*var.name*/ _this, /*var.type*/ tTJSNI_BasicDrawDevice,
+                /*var.name*/ _this,
+                /*var.type*/ tTJSNI_BasicDrawDevice,
                 /*TJS class name*/ BasicDrawDevice){ return TJS_S_OK;
 }
 TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ BasicDrawDevice)
@@ -878,9 +881,9 @@ TJS_END_NATIVE_METHOD_DECL(/*func. name*/ recreate)
 //----------------------------------------------------------------------
 // properties
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(interface){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_BasicDrawDevice);
+TJS_BEGIN_NATIVE_PROP_DECL(interface){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_BasicDrawDevice);
 *result = reinterpret_cast<tjs_int64>(_this->GetDevice());
 return TJS_S_OK;
 }
@@ -890,13 +893,15 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(interface)
 //----------------------------------------------------------------------
-#define TVP_REGISTER_PTDD_ENUM(name)                                                                                   \
-    TJS_BEGIN_NATIVE_PROP_DECL(name){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = (tjs_int64)tTVPBasicDrawDevice::name;    \
-    return TJS_S_OK;                                                                                                   \
-    }                                                                                                                  \
-    TJS_END_NATIVE_PROP_GETTER                                                                                         \
-    TJS_DENY_NATIVE_PROP_SETTER                                                                                        \
-    }                                                                                                                  \
+#define TVP_REGISTER_PTDD_ENUM(name)                                           \
+    TJS_BEGIN_NATIVE_PROP_DECL(name){                                          \
+        TJS_BEGIN_NATIVE_PROP_GETTER{ *result = (tjs_int64)                    \
+                                          tTVPBasicDrawDevice::name;           \
+    return TJS_S_OK;                                                           \
+    }                                                                          \
+    TJS_END_NATIVE_PROP_GETTER                                                 \
+    TJS_DENY_NATIVE_PROP_SETTER                                                \
+    }                                                                          \
     TJS_END_NATIVE_PROP_DECL(name)
 // compatible for old kirikiri2
 TVP_REGISTER_PTDD_ENUM(dtNone)
@@ -905,9 +910,9 @@ TVP_REGISTER_PTDD_ENUM(dtDBGDI)
 TVP_REGISTER_PTDD_ENUM(dtDBDD)
 TVP_REGISTER_PTDD_ENUM(dtDBD3D)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(preferredDrawer){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_BasicDrawDevice);
+TJS_BEGIN_NATIVE_PROP_DECL(preferredDrawer){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_BasicDrawDevice);
 *result = (tjs_int64)(_this->GetDevice()->GetPreferredDrawerType());
 return TJS_S_OK;
 }
@@ -916,16 +921,17 @@ TJS_END_NATIVE_PROP_GETTER
 TJS_BEGIN_NATIVE_PROP_SETTER {
     TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
                             /*var. type*/ tTJSNI_BasicDrawDevice);
-    _this->GetDevice()->SetPreferredDrawerType((tTVPBasicDrawDevice::tDrawerType)(tjs_int)*param);
+    _this->GetDevice()->SetPreferredDrawerType(
+        (tTVPBasicDrawDevice::tDrawerType)(tjs_int)*param);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(preferredDrawer)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(drawer){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_BasicDrawDevice);
+TJS_BEGIN_NATIVE_PROP_DECL(drawer){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_BasicDrawDevice);
 *result = (tjs_int64)(_this->GetDevice()->GetDrawerType());
 return TJS_S_OK;
 }
@@ -938,23 +944,28 @@ TJS_END_NATIVE_PROP_DECL(drawer)
 TJS_END_NATIVE_MEMBERS
 }
 //---------------------------------------------------------------------------
-iTJSNativeInstance *tTJSNC_BasicDrawDevice::CreateNativeInstance() { return new tTJSNI_BasicDrawDevice(); }
+iTJSNativeInstance *tTJSNC_BasicDrawDevice::CreateNativeInstance() {
+    return new tTJSNI_BasicDrawDevice();
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-tTJSNI_BasicDrawDevice::tTJSNI_BasicDrawDevice() { Device = new tTVPBasicDrawDevice(); }
+tTJSNI_BasicDrawDevice::tTJSNI_BasicDrawDevice() {
+    Device = new tTVPBasicDrawDevice();
+}
 //---------------------------------------------------------------------------
 tTJSNI_BasicDrawDevice::~tTJSNI_BasicDrawDevice() {
     if(Device)
         Device->Destruct(), Device = nullptr;
 }
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_BasicDrawDevice::Construct(tjs_int numparams, tTJSVariant **param,
-                                                            iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_BasicDrawDevice::Construct(tjs_int numparams,
+                                            tTJSVariant **param,
+                                            iTJSDispatch2 *tjs_obj) {
     return TJS_S_OK;
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_BasicDrawDevice::Invalidate() {
+void tTJSNI_BasicDrawDevice::Invalidate() {
     if(Device)
         Device->Destruct(), Device = nullptr;
 }

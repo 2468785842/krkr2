@@ -18,19 +18,25 @@
 
 #define TJS_SCRIPT_CACHE_MAX 64
 
-// currently this object holds only anonymous, single-context expression.
+// currently this object holds only anonymous, single-context
+// expression.
 
 namespace TJS {
     //---------------------------------------------------------------------------
     // tTJSScriptCache - a class to cache script blocks
     //---------------------------------------------------------------------------
-    tTJSScriptCache::tTJSScriptCache(tTJS *owner) : Cache(TJS_SCRIPT_CACHE_MAX) { Owner = owner; }
+    tTJSScriptCache::tTJSScriptCache(tTJS *owner) :
+        Cache(TJS_SCRIPT_CACHE_MAX) {
+        Owner = owner;
+    }
 
     //---------------------------------------------------------------------------
-    tTJSScriptCache::~tTJSScriptCache() {}
+    tTJSScriptCache::~tTJSScriptCache() = default;
 
     //---------------------------------------------------------------------------
-    void tTJSScriptCache::ExecScript(const tjs_char *script, tTJSVariant *result, iTJSDispatch2 *context,
+    void tTJSScriptCache::ExecScript(const tjs_char *script,
+                                     tTJSVariant *result,
+                                     iTJSDispatch2 *context,
                                      const tjs_char *name, tjs_int lineofs) {
         // currently this does nothing with normal script blocks.
         tTJSScriptBlock *blk = new tTJSScriptBlock(Owner);
@@ -48,8 +54,9 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJSScriptCache::ExecScript(const ttstr &script, tTJSVariant *result, iTJSDispatch2 *context,
-                                     const ttstr *name, tjs_int lineofs) {
+    void tTJSScriptCache::ExecScript(const ttstr &script, tTJSVariant *result,
+                                     iTJSDispatch2 *context, const ttstr *name,
+                                     tjs_int lineofs) {
         tTJSScriptBlock *blk = new tTJSScriptBlock(Owner);
 
         try {
@@ -65,8 +72,11 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJSScriptCache::EvalExpression(const tjs_char *expression, tTJSVariant *result, iTJSDispatch2 *context,
-                                         const tjs_char *name, tjs_int lineofs) {
+    void tTJSScriptCache::EvalExpression(const tjs_char *expression,
+                                         tTJSVariant *result,
+                                         iTJSDispatch2 *context,
+                                         const tjs_char *name,
+                                         tjs_int lineofs) {
         // currently this works only with anonymous script blocks.
         if(name) {
             tTJSScriptBlock *blk = new tTJSScriptBlock(Owner);
@@ -122,11 +132,14 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJSScriptCache::EvalExpression(const ttstr &expression, tTJSVariant *result, iTJSDispatch2 *context,
+    void tTJSScriptCache::EvalExpression(const ttstr &expression,
+                                         tTJSVariant *result,
+                                         iTJSDispatch2 *context,
                                          const ttstr *name, tjs_int lineofs) {
         // currently this works only with anonymous script blocks.
 
-        // note that this function is basically the same as function above.
+        // note that this function is basically the same as function
+        // above.
 
         if(name && !name->IsEmpty()) {
             tTJSScriptBlock *blk = new tTJSScriptBlock(Owner);
@@ -179,32 +192,23 @@ namespace TJS {
         }
 
         blk->Release();
-        return;
     }
 
     //---------------------------------------------------------------------------
     // for Bytecode
-    void tTJSScriptCache::LoadByteCode(const tjs_uint8 *buff, size_t len, tTJSVariant *result, iTJSDispatch2 *context,
+    void tTJSScriptCache::LoadByteCode(const tjs_uint8 *buff, size_t len,
+                                       tTJSVariant *result,
+                                       iTJSDispatch2 *context,
                                        const tjs_char *name) {
-        tTJSByteCodeLoader *loader = new tTJSByteCodeLoader();
-        tTJSScriptBlock *blk = nullptr;
-        try {
-            blk = loader->ReadByteCode(Owner, name, buff, len);
-            if(blk != nullptr) {
-                // blk->Dump();
-                blk->ExecuteTopLevel(result, context);
-            } else {
-                TJS_eTJSScriptError(TJSByteCodeBroken, blk, 0);
-            }
-        } catch(...) {
-            if(blk)
-                blk->Release();
-            delete loader;
-            throw;
+        auto loader = std::make_unique<tTJSByteCodeLoader>();
+        std::unique_ptr<tTJSScriptBlock, std::function<void(tTJSScriptBlock *)>>
+            blk{ loader->ReadByteCode(Owner, name, buff, len),
+                 [](auto *ptr) { ptr->Release(); } };
+        if(blk != nullptr) {
+            blk->ExecuteTopLevel(result, context);
+            return;
         }
-        if(blk)
-            blk->Release();
-        delete loader;
+        TJS_eTJSScriptError(TJSByteCodeBroken, blk.get(), 0);
     }
     //---------------------------------------------------------------------------
 } // namespace TJS

@@ -43,7 +43,8 @@ public:
     CVideoPlayerVideo(CDVDClock *pClock
                       //	, CDVDOverlayContainer* pOverlayContainer
                       ,
-                      CDVDMessageQueue &parent, CRenderManager &renderManager, CProcessInfo &processInfo);
+                      CDVDMessageQueue &parent, CRenderManager &renderManager,
+                      CProcessInfo &processInfo);
 
     virtual ~CVideoPlayerVideo();
 
@@ -61,7 +62,9 @@ public:
 
     bool IsInited() const { return m_messageQueue.IsInited(); }
 
-    void SendMessage(CDVDMsg *pMsg, int priority = 0) { m_messageQueue.Put(pMsg, priority); }
+    void SendMessage(CDVDMsg *pMsg, int priority = 0) {
+        m_messageQueue.Put(pMsg, priority);
+    }
 
     void FlushMessages() { m_messageQueue.Flush(); }
 
@@ -69,7 +72,8 @@ public:
 
     bool IsSubtitleEnabled() { return m_bRenderSubs; }
 
-    //	void EnableFullscreen(bool bEnable) { m_bAllowFullscreen = bEnable; }
+    //	void EnableFullscreen(bool bEnable) { m_bAllowFullscreen =
+    // bEnable; }
     double GetSubtitleDelay() { return m_iSubtitleDelay; }
 
     void SetSubtitleDelay(double delay) { m_iSubtitleDelay = delay; }
@@ -80,8 +84,8 @@ public:
 
     double GetCurrentPts();
 
-    double GetOutputDelay(); /* returns the expected delay, from that a packet
-                                is put in queue */
+    double GetOutputDelay(); /* returns the expected delay, from that
+                                a packet is put in queue */
     int GetDecoderFreeSpace() { return 0; }
 
     std::string GetPlayerInfo();
@@ -101,7 +105,8 @@ protected:
 
     virtual void Process();
 
-    bool ProcessDecoderOutput(int &decoderState, double &frametime, double &pts);
+    bool ProcessDecoderOutput(int &decoderState, double &frametime,
+                              double &pts);
 
     int OutputPicture(const DVDVideoPicture *src, double pts);
 
@@ -121,17 +126,18 @@ protected:
     int m_iDroppedRequest;
 
     double m_fFrameRate = 25; // framerate of the video currently playing
-    //	bool m_bCalcFrameRate;     //if we should calculate the framerate from
-    // the timestamps 	double m_fStableFrameRate; //place to store calculated
-    // framerates 	int m_iFrameRateCount;     //how many calculated
-    // framerates we stored in m_fStableFrameRate
-    bool m_bAllowDrop; // we can't drop frames until we've calculated the
-                       // framerate
-    //	int m_iFrameRateErr;       //how many frames we couldn't calculate the
-    // framerate, we give up after a while 	int m_iFrameRateLength;    //how
-    // many seconds we should measure the framerate this is increased
-    // exponentially from
-    // CVideoPlayerVideo::CalcFrameRate()
+    //	bool m_bCalcFrameRate;     //if we should calculate the
+    // framerate from
+    // the timestamps 	double m_fStableFrameRate; //place to store
+    // calculated framerates 	int m_iFrameRateCount;     //how many
+    // calculated framerates we stored in m_fStableFrameRate
+    bool m_bAllowDrop; // we can't drop frames until we've calculated
+                       // the framerate
+    //	int m_iFrameRateErr;       //how many frames we couldn't
+    // calculate the
+    // framerate, we give up after a while 	int m_iFrameRateLength;
+    // //how many seconds we should measure the framerate this is
+    // increased exponentially from CVideoPlayerVideo::CalcFrameRate()
 
     bool m_bFpsInvalid; // needed to ignore fps (e.g. dvd stills)
                         //	bool m_bAllowFullscreen;

@@ -14,12 +14,15 @@ NS_KRMOVIE_BEGIN
 
 #define TRUEHD_BUF_SIZE 61440
 
-CDVDAudioCodecPassthrough::CDVDAudioCodecPassthrough(CProcessInfo &processInfo) :
-    CDVDAudioCodec(processInfo), m_buffer(nullptr), m_bufferSize(0), m_trueHDoffset(0) {}
+CDVDAudioCodecPassthrough::CDVDAudioCodecPassthrough(
+    CProcessInfo &processInfo) :
+    CDVDAudioCodec(processInfo),
+    m_buffer(nullptr), m_bufferSize(0), m_trueHDoffset(0) {}
 
 CDVDAudioCodecPassthrough::~CDVDAudioCodecPassthrough() { Dispose(); }
 
-bool CDVDAudioCodecPassthrough::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options) {
+bool CDVDAudioCodecPassthrough::Open(CDVDStreamInfo &hints,
+                                     CDVDCodecOptions &options) {
     AEAudioFormat format;
     format.m_dataFormat = AE_FMT_RAW;
     format.m_sampleRate = hints.samplerate;
@@ -60,7 +63,8 @@ bool CDVDAudioCodecPassthrough::Open(CDVDStreamInfo &hints, CDVDCodecOptions &op
         format.m_streamInfo.m_type = CAEStreamInfo::STREAM_TYPE_DTSHD_CORE;
         ret = CAEFactory::SupportsRaw(format);
 
-        // only get the dts core from the parser if we don't support dtsHD
+        // only get the dts core from the parser if we don't support
+        // dtsHD
         m_parser.SetCoreOnly(true);
 
         m_processInfo.SetAudioDecoderName("PT_DTS");
@@ -83,15 +87,18 @@ void CDVDAudioCodecPassthrough::Dispose() {
     m_bufferSize = 0;
 }
 
-int CDVDAudioCodecPassthrough::Decode(uint8_t *pData, int iSize, double dts, double pts) {
+int CDVDAudioCodecPassthrough::Decode(uint8_t *pData, int iSize, double dts,
+                                      double pts) {
     int used = 0;
     int skip = 0;
     if(m_backlogSize) {
         m_dataSize = m_bufferSize;
-        unsigned int consumed = m_parser.AddData(m_backlogBuffer, m_backlogSize, &m_buffer, &m_dataSize);
+        unsigned int consumed = m_parser.AddData(m_backlogBuffer, m_backlogSize,
+                                                 &m_buffer, &m_dataSize);
         m_bufferSize = std::max(m_bufferSize, m_dataSize);
         if(consumed != m_backlogSize) {
-            memmove(m_backlogBuffer, m_backlogBuffer + consumed, m_backlogSize - consumed);
+            memmove(m_backlogBuffer, m_backlogBuffer + consumed,
+                    m_backlogSize - consumed);
         }
         m_backlogSize -= consumed;
     }
@@ -213,5 +220,7 @@ void CDVDAudioCodecPassthrough::Reset() {
     m_parser.Reset();
 }
 
-int CDVDAudioCodecPassthrough::GetBufferSize() { return (int)m_parser.GetBufferSize(); }
+int CDVDAudioCodecPassthrough::GetBufferSize() {
+    return (int)m_parser.GetBufferSize();
+}
 NS_KRMOVIE_END

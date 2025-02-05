@@ -19,7 +19,8 @@
 
 namespace TJS {
     /**
-     * TJS2 バイトコード書き出しで Variant 型を分離し、固有型で保持するためのクラス
+     * TJS2 バイトコード書き出しで Variant
+     * 型を分離し、固有型で保持するためのクラス
      */
     class tjsConstArrayData {
     private:
@@ -82,7 +83,8 @@ namespace TJS {
          */
         int PutDouble(double b);
 
-        static inline void Add8ByteToVector(std::vector<tjs_uint8> *array, tjs_int64 value) {
+        static inline void Add8ByteToVector(std::vector<tjs_uint8> *array,
+                                            tjs_int64 value) {
             array->push_back((tjs_uint8)((value >> 0) & 0xff));
             array->push_back((tjs_uint8)((value >> 8) & 0xff));
             array->push_back((tjs_uint8)((value >> 16) & 0xff));
@@ -93,14 +95,16 @@ namespace TJS {
             array->push_back((tjs_uint8)((value >> 56) & 0xff));
         }
 
-        static inline void Add4ByteToVector(std::vector<tjs_uint8> *array, int value) {
+        static inline void Add4ByteToVector(std::vector<tjs_uint8> *array,
+                                            int value) {
             array->push_back((tjs_uint8)((value >> 0) & 0xff));
             array->push_back((tjs_uint8)((value >> 8) & 0xff));
             array->push_back((tjs_uint8)((value >> 16) & 0xff));
             array->push_back((tjs_uint8)((value >> 24) & 0xff));
         }
 
-        static inline void Add2ByteToVector(std::vector<tjs_uint8> *array, tjs_int16 value) {
+        static inline void Add2ByteToVector(std::vector<tjs_uint8> *array,
+                                            tjs_int16 value) {
             array->push_back((tjs_uint8)((value >> 0) & 0xff));
             array->push_back((tjs_uint8)((value >> 8) & 0xff));
         }

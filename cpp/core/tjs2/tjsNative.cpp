@@ -54,7 +54,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // tTJSNativeClassMethod
     //---------------------------------------------------------------------------
-    tTJSNativeClassMethod::tTJSNativeClassMethod(tTJSNativeClassMethodCallback processfunc) {
+    tTJSNativeClassMethod::tTJSNativeClassMethod(
+        tTJSNativeClassMethodCallback processfunc) {
         Process = processfunc;
         if(TJSObjectHashMapEnabled())
             TJSAddObjectHashRecord(this);
@@ -67,23 +68,29 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSNativeClassMethod::IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
-                                                                  tjs_uint32 *hint, const tjs_char *classname,
-                                                                  iTJSDispatch2 *objthis) {
+    tjs_error tTJSNativeClassMethod::IsInstanceOf(tjs_uint32 flag,
+                                                  const tjs_char *membername,
+                                                  tjs_uint32 *hint,
+                                                  const tjs_char *classname,
+                                                  iTJSDispatch2 *objthis) {
         if(membername == nullptr) {
             if(!TJS_strcmp(classname, TJS_W("Function")))
                 return TJS_S_TRUE;
         }
 
-        return inherited::IsInstanceOf(flag, membername, hint, classname, objthis);
+        return inherited::IsInstanceOf(flag, membername, hint, classname,
+                                       objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSNativeClassMethod::FuncCall(tjs_uint32 flag, const tjs_char *membername,
-                                                              tjs_uint32 *hint, tTJSVariant *result, tjs_int numparams,
-                                                              tTJSVariant **param, iTJSDispatch2 *objthis) {
+    tjs_error
+    tTJSNativeClassMethod::FuncCall(tjs_uint32 flag, const tjs_char *membername,
+                                    tjs_uint32 *hint, tTJSVariant *result,
+                                    tjs_int numparams, tTJSVariant **param,
+                                    iTJSDispatch2 *objthis) {
         if(membername)
-            return inherited::FuncCall(flag, membername, hint, result, numparams, param, objthis);
+            return inherited::FuncCall(flag, membername, hint, result,
+                                       numparams, param, objthis);
         if(!objthis)
             return TJS_E_NATIVECLASSCRASH;
 
@@ -99,7 +106,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSNativeClassMethod *TJSCreateNativeClassMethod(tTJSNativeClassMethodCallback callback) {
+    tTJSNativeClassMethod *
+    TJSCreateNativeClassMethod(tTJSNativeClassMethodCallback callback) {
         return new tTJSNativeClassMethod(callback);
     }
     //---------------------------------------------------------------------------
@@ -107,12 +115,13 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // tTJSNativeClassConstructor
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSNativeClassConstructor::FuncCall(tjs_uint32 flag, const tjs_char *membername,
-                                                                   tjs_uint32 *hint, tTJSVariant *result,
-                                                                   tjs_int numparams, tTJSVariant **param,
-                                                                   iTJSDispatch2 *objthis) {
+    tjs_error tTJSNativeClassConstructor::FuncCall(
+        tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
+        tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
+        iTJSDispatch2 *objthis) {
         if(membername)
-            return tTJSDispatch::FuncCall(flag, membername, hint, result, numparams, param, objthis);
+            return tTJSDispatch::FuncCall(flag, membername, hint, result,
+                                          numparams, param, objthis);
         if(result)
             result->Clear();
         tjs_error er;
@@ -125,7 +134,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSNativeClassMethod *TJSCreateNativeClassConstructor(tTJSNativeClassMethodCallback callback) {
+    tTJSNativeClassMethod *
+    TJSCreateNativeClassConstructor(tTJSNativeClassMethodCallback callback) {
         return new tTJSNativeClassConstructor(callback);
     }
     //---------------------------------------------------------------------------
@@ -133,8 +143,9 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // tTJSNativeClassProperty
     //---------------------------------------------------------------------------
-    tTJSNativeClassProperty::tTJSNativeClassProperty(tTJSNativeClassPropertyGetCallback get,
-                                                     tTJSNativeClassPropertySetCallback set) {
+    tTJSNativeClassProperty::tTJSNativeClassProperty(
+        tTJSNativeClassPropertyGetCallback get,
+        tTJSNativeClassPropertySetCallback set) {
         Get = get;
         Set = set;
         if(TJSObjectHashMapEnabled())
@@ -148,21 +159,26 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSNativeClassProperty::IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
-                                                                    tjs_uint32 *hint, const tjs_char *classname,
-                                                                    iTJSDispatch2 *objthis) {
+    tjs_error tTJSNativeClassProperty::IsInstanceOf(tjs_uint32 flag,
+                                                    const tjs_char *membername,
+                                                    tjs_uint32 *hint,
+                                                    const tjs_char *classname,
+                                                    iTJSDispatch2 *objthis) {
         if(membername == nullptr) {
             if(!TJS_strcmp(classname, TJS_W("Property")))
                 return TJS_S_TRUE;
         }
 
-        return inherited::IsInstanceOf(flag, membername, hint, classname, objthis);
+        return inherited::IsInstanceOf(flag, membername, hint, classname,
+                                       objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSNativeClassProperty::PropGet(tjs_uint32 flag, const tjs_char *membername,
-                                                               tjs_uint32 *hint, tTJSVariant *result,
-                                                               iTJSDispatch2 *objthis) {
+    tjs_error tTJSNativeClassProperty::PropGet(tjs_uint32 flag,
+                                               const tjs_char *membername,
+                                               tjs_uint32 *hint,
+                                               tTJSVariant *result,
+                                               iTJSDispatch2 *objthis) {
         if(membername)
             return inherited::PropGet(flag, membername, hint, result, objthis);
         if(!objthis)
@@ -182,9 +198,11 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSNativeClassProperty::PropSet(tjs_uint32 flag, const tjs_char *membername,
-                                                               tjs_uint32 *hint, const tTJSVariant *param,
-                                                               iTJSDispatch2 *objthis) {
+    tjs_error tTJSNativeClassProperty::PropSet(tjs_uint32 flag,
+                                               const tjs_char *membername,
+                                               tjs_uint32 *hint,
+                                               const tTJSVariant *param,
+                                               iTJSDispatch2 *objthis) {
         if(membername)
             return inherited::PropSet(flag, membername, hint, param, objthis);
         if(!objthis)
@@ -204,8 +222,9 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSNativeClassProperty *TJSCreateNativeClassProperty(tTJSNativeClassPropertyGetCallback get,
-                                                          tTJSNativeClassPropertySetCallback set) {
+    tTJSNativeClassProperty *
+    TJSCreateNativeClassProperty(tTJSNativeClassPropertyGetCallback get,
+                                 tTJSNativeClassPropertySetCallback set) {
         return new tTJSNativeClassProperty(get, set);
     }
     //---------------------------------------------------------------------------
@@ -218,15 +237,18 @@ namespace TJS {
         ClassName = TJSMapGlobalStringMap(name);
 
         if(TJSObjectHashMapEnabled())
-            TJSObjectHashSetType(this, ttstr(TJS_W("(native class) ")) + ClassName);
+            TJSObjectHashSetType(this,
+                                 ttstr(TJS_W("(native class) ")) + ClassName);
     }
 
     //---------------------------------------------------------------------------
     tTJSNativeClass::~tTJSNativeClass() {}
 
     //---------------------------------------------------------------------------
-    void tTJSNativeClass::RegisterNCM(const tjs_char *name, iTJSDispatch2 *dsp, const tjs_char *classname,
-                                      tTJSNativeInstanceType type, tjs_uint32 flags) {
+    void tTJSNativeClass::RegisterNCM(const tjs_char *name, iTJSDispatch2 *dsp,
+                                      const tjs_char *classname,
+                                      tTJSNativeInstanceType type,
+                                      tjs_uint32 flags) {
         // map name via Global String Map
         ttstr tname = TJSMapGlobalStringMap(ttstr(name));
 
@@ -234,15 +256,20 @@ namespace TJS {
         if(TJSObjectHashMapEnabled()) {
             switch(type) {
                 case nitMethod:
-                    TJSObjectHashSetType(dsp, ttstr(TJS_W("(native function) ")) + classname + TJS_W(".") + name);
+                    TJSObjectHashSetType(dsp,
+                                         ttstr(TJS_W("(native function) ")) +
+                                             classname + TJS_W(".") + name);
                     break;
                 case nitProperty:
-                    TJSObjectHashSetType(dsp, ttstr(TJS_W("(native property) ")) + classname + TJS_W(".") + name);
+                    TJSObjectHashSetType(dsp,
+                                         ttstr(TJS_W("(native property) ")) +
+                                             classname + TJS_W(".") + name);
                     break;
                     /*
                     case nitClass:
                         The information is not set here
-                        (is to be set in tTJSNativeClass::tTJSNativeClass)
+                        (is to be set in
+                    tTJSNativeClass::tTJSNativeClass)
                     */
                 default:
                     break;
@@ -252,9 +279,11 @@ namespace TJS {
         // add to this
         tTJSVariant val;
         val = dsp;
-        if(PropSetByVS((TJS_MEMBERENSURE | TJS_IGNOREPROP) | flags, tname.AsVariantStringNoAddRef(), &val, this) ==
-           TJS_E_NOTIMPL)
-            PropSet((TJS_MEMBERENSURE | TJS_IGNOREPROP) | flags, tname.c_str(), nullptr, &val, this);
+        if(PropSetByVS((TJS_MEMBERENSURE | TJS_IGNOREPROP) | flags,
+                       tname.AsVariantStringNoAddRef(), &val,
+                       this) == TJS_E_NOTIMPL)
+            PropSet((TJS_MEMBERENSURE | TJS_IGNOREPROP) | flags, tname.c_str(),
+                    nullptr, &val, this);
 
         // release dsp
         dsp->Release();
@@ -273,22 +302,27 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSNativeClass::FuncCall(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                        tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
-                                                        iTJSDispatch2 *objthis) {
+    tjs_error tTJSNativeClass::FuncCall(tjs_uint32 flag,
+                                        const tjs_char *membername,
+                                        tjs_uint32 *hint, tTJSVariant *result,
+                                        tjs_int numparams, tTJSVariant **param,
+                                        iTJSDispatch2 *objthis) {
         if(!GetValidity())
             return TJS_E_INVALIDOBJECT;
 
         if(membername) {
-            tjs_error hr = tTJSCustomObject::FuncCall(flag, membername, hint, result, numparams, param, objthis);
+            tjs_error hr = tTJSCustomObject::FuncCall(
+                flag, membername, hint, result, numparams, param, objthis);
             if(hr == TJS_E_MEMBERNOTFOUND && SuperClass != nullptr) {
-                hr = SuperClass->FuncCall(flag, membername, hint, result, numparams, param, objthis);
+                hr = SuperClass->FuncCall(flag, membername, hint, result,
+                                          numparams, param, objthis);
             }
             return hr;
         }
 
         tTJSVariant name(ClassName);
-        objthis->ClassInstanceInfo(TJS_CII_ADD, 0, &name); // add class name
+        objthis->ClassInstanceInfo(TJS_CII_ADD, 0,
+                                   &name); // add class name
 
         // create base native object
         iTJSNativeInstance *nativeptr = CreateNativeInstance();
@@ -303,23 +337,28 @@ namespace TJS {
         class tCallback : public tTJSDispatch {
         public:
             iTJSDispatch2 *Dest; // destination object
-            tjs_error TJS_INTF_METHOD FuncCall(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                               tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
-                                               iTJSDispatch2 *objthis) {
-                // *param[0] = name   *param[1] = flags   *param[2] = value
+            tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
+                               tjs_uint32 *hint, tTJSVariant *result,
+                               tjs_int numparams, tTJSVariant **param,
+                               iTJSDispatch2 *objthis) {
+                // *param[0] = name   *param[1] = flags   *param[2] =
+                // value
                 tjs_uint32 flags = (tjs_int)*param[1];
                 if(!(flags & TJS_STATICMEMBER)) {
                     tTJSVariant val = *param[2];
                     if(val.Type() == tvtObject) {
-                        // change object's objthis if the object's objthis is
-                        // nullptr
+                        // change object's objthis if the object's
+                        // objthis is nullptr
                         if(val.AsObjectThisNoAddRef() == nullptr)
                             val.ChangeClosureObjThis(Dest);
                     }
 
-                    if(Dest->PropSetByVS(TJS_MEMBERENSURE | TJS_IGNOREPROP | flags, param[0]->AsStringNoAddRef(), &val,
+                    if(Dest->PropSetByVS(TJS_MEMBERENSURE | TJS_IGNOREPROP |
+                                             flags,
+                                         param[0]->AsStringNoAddRef(), &val,
                                          Dest) == TJS_E_NOTIMPL)
-                        Dest->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP | flags, param[0]->GetString(), nullptr, &val,
+                        Dest->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP | flags,
+                                      param[0]->GetString(), nullptr, &val,
                                       Dest);
                 }
                 if(result)
@@ -339,13 +378,17 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSNativeClass::CreateNew(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                         iTJSDispatch2 **result, tjs_int numparams, tTJSVariant **param,
-                                                         iTJSDispatch2 *objthis) {
+    tjs_error tTJSNativeClass::CreateNew(tjs_uint32 flag,
+                                         const tjs_char *membername,
+                                         tjs_uint32 *hint,
+                                         iTJSDispatch2 **result,
+                                         tjs_int numparams, tTJSVariant **param,
+                                         iTJSDispatch2 *objthis) {
         // CreateNew
         iTJSDispatch2 *superinst = nullptr;
         if(SuperClass != nullptr && membername == nullptr) {
-            tjs_error hr = SuperClass->CreateNew(flag, membername, hint, &superinst, numparams, param, objthis);
+            tjs_error hr = SuperClass->CreateNew(
+                flag, membername, hint, &superinst, numparams, param, objthis);
             if(TJS_FAILED(hr)) {
                 superinst = nullptr;
             }
@@ -357,7 +400,8 @@ namespace TJS {
         try {
             // set object type for debugging
             if(TJSObjectHashMapEnabled())
-                TJSObjectHashSetType(dsp, TJS_W("instance of class ") + ClassName);
+                TJSObjectHashSetType(dsp,
+                                     TJS_W("instance of class ") + ClassName);
 
             // instance initialization
             hr = FuncCall(0, nullptr, nullptr, nullptr, 0, nullptr,
@@ -373,7 +417,8 @@ namespace TJS {
                 superinst = nullptr;
             }
 
-            hr = FuncCall(0, ClassName.c_str(), ClassName.GetHint(), nullptr, numparams, param, dsp);
+            hr = FuncCall(0, ClassName.c_str(), ClassName.GetHint(), nullptr,
+                          numparams, param, dsp);
             // call the constructor
             if(hr == TJS_E_MEMBERNOTFOUND)
                 hr = TJS_S_OK;
@@ -394,9 +439,11 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSNativeClass::IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
-                                                            tjs_uint32 *hint, const tjs_char *classname,
-                                                            iTJSDispatch2 *objthis) {
+    tjs_error tTJSNativeClass::IsInstanceOf(tjs_uint32 flag,
+                                            const tjs_char *membername,
+                                            tjs_uint32 *hint,
+                                            const tjs_char *classname,
+                                            iTJSDispatch2 *objthis) {
         if(membername == nullptr) {
             if(!TJS_strcmp(classname, TJS_W("Class")))
                 return TJS_S_TRUE;
@@ -404,7 +451,8 @@ namespace TJS {
                 return TJS_S_TRUE;
         }
 
-        return inherited::IsInstanceOf(flag, membername, hint, classname, objthis);
+        return inherited::IsInstanceOf(flag, membername, hint, classname,
+                                       objthis);
     }
     //---------------------------------------------------------------------------
 
@@ -415,7 +463,8 @@ namespace TJS {
         if(TJSObjectHashMapEnabled()) {
             TJSAddObjectHashRecord(this);
             if(name)
-                TJSObjectHashSetType(this, ttstr(TJS_W("(native function) ")) + name);
+                TJSObjectHashSetType(this,
+                                     ttstr(TJS_W("(native function) ")) + name);
         }
     }
 
@@ -426,25 +475,31 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSNativeFunction::FuncCall(tjs_uint32 flag, const tjs_char *membername,
-                                                           tjs_uint32 *hint, tTJSVariant *result, tjs_int numparams,
-                                                           tTJSVariant **param, iTJSDispatch2 *objthis) {
+    tjs_error
+    tTJSNativeFunction::FuncCall(tjs_uint32 flag, const tjs_char *membername,
+                                 tjs_uint32 *hint, tTJSVariant *result,
+                                 tjs_int numparams, tTJSVariant **param,
+                                 iTJSDispatch2 *objthis) {
         if(membername) {
-            return inherited::FuncCall(flag, membername, hint, result, numparams, param, objthis);
+            return inherited::FuncCall(flag, membername, hint, result,
+                                       numparams, param, objthis);
         }
         return Process(result, numparams, param, objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSNativeFunction::IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
-                                                               tjs_uint32 *hint, const tjs_char *classname,
-                                                               iTJSDispatch2 *objthis) {
+    tjs_error tTJSNativeFunction::IsInstanceOf(tjs_uint32 flag,
+                                               const tjs_char *membername,
+                                               tjs_uint32 *hint,
+                                               const tjs_char *classname,
+                                               iTJSDispatch2 *objthis) {
         if(membername == nullptr) {
             if(!TJS_strcmp(classname, TJS_W("Function")))
                 return TJS_S_TRUE;
         }
 
-        return inherited::IsInstanceOf(flag, membername, hint, classname, objthis);
+        return inherited::IsInstanceOf(flag, membername, hint, classname,
+                                       objthis);
     }
     //---------------------------------------------------------------------------
 } // namespace TJS

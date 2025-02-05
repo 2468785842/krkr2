@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -32,7 +33,8 @@ static uint32_t TVPMIDIDelayTick = 0;
 //---------------------------------------------------------------------------
 static void TVPInitMIDIOut() {
     if(!TVPMIDIOutHandle)
-        midiOutOpen(&TVPMIDIOutHandle, (UINT)MIDI_MAPPER, nullptr, 0, CALLBACK_NULL);
+        midiOutOpen(&TVPMIDIOutHandle, (UINT)MIDI_MAPPER, nullptr, 0,
+                    CALLBACK_NULL);
 }
 //---------------------------------------------------------------------------
 static void TVPUninitMIDIOut() {
@@ -40,7 +42,8 @@ static void TVPUninitMIDIOut() {
         midiOutClose(TVPMIDIOutHandle), TVPMIDIOutHandle = nullptr;
 }
 //---------------------------------------------------------------------------
-static tTVPAtExit TVPUninitMIDIOutAtExit(TVP_ATEXIT_PRI_RELEASE, TVPUninitMIDIOut);
+static tTVPAtExit TVPUninitMIDIOutAtExit(TVP_ATEXIT_PRI_RELEASE,
+                                         TVPUninitMIDIOut);
 //---------------------------------------------------------------------------
 static void TVPCheckMIDIDelay() {
     if(!TVPMIDIDelayAlive)
@@ -177,7 +180,8 @@ void TVPMIDIOutData(const tjs_uint8 *data, int len) {
                             break;
                     }
                     if(j == len)
-                        TVPThrowExceptionMessage(TVPMalformedMIDIMessage); // EOX not found
+                        TVPThrowExceptionMessage(
+                            TVPMalformedMIDIMessage); // EOX not found
                     tjs_uint8 *sex = new tjs_uint8[count];
                     memcpy(sex, data + i - 1, count);
                     TVPMIDIOut(sex, count);
@@ -227,7 +231,8 @@ public:
 
                 std::vector<tTJSNI_MIDISoundBuffer *>::iterator i;
 
-                for(i = TVPMIDIBuffers.begin(); i != TVPMIDIBuffers.end(); i++) {
+                for(i = TVPMIDIBuffers.begin(); i != TVPMIDIBuffers.end();
+                    i++) {
                     if(!(*i)->OnTimer())
                         sleepcount++;
                 }
@@ -236,7 +241,8 @@ public:
             if(sleepcount == buffercount)
                 Suspend(); // all buffers are sleeping
 
-            Sleep(5); // but 10ms is sufficient to play MIDIs I think ...
+            Sleep(5); // but 10ms is sufficient to play MIDIs I think
+                      // ...
         }
     }
 
@@ -247,7 +253,8 @@ static void TVPDeleteMIDIThread() {
         delete TVPMIDIThread, TVPMIDIThread = nullptr;
 }
 //---------------------------------------------------------------------------
-static tTVPAtExit TVPDeleteMIDIThreadAtExit(TVP_ATEXIT_PRI_SHUTDOWN, TVPDeleteMIDIThread);
+static tTVPAtExit TVPDeleteMIDIThreadAtExit(TVP_ATEXIT_PRI_SHUTDOWN,
+                                            TVPDeleteMIDIThread);
 //---------------------------------------------------------------------------
 static void TVPAddMIDIBuffer(tTJSNI_MIDISoundBuffer *buf) {
     tTJSCriticalSectionHolder holder(TVPMIDIOutCS);
@@ -330,7 +337,8 @@ class tTVPSMFTrack {
     tTJSNI_MIDISoundBuffer *Owner;
 
 public:
-    tTVPSMFTrack(tTJSNI_MIDISoundBuffer *owner, tTJSBinaryStream *instream, tjs_int n);
+    tTVPSMFTrack(tTJSNI_MIDISoundBuffer *owner, tTJSBinaryStream *instream,
+                 tjs_int n);
 
     ~tTVPSMFTrack();
 
@@ -341,7 +349,8 @@ public:
     const tjs_int64 &GetCount() const { return Count; }
 };
 //---------------------------------------------------------------------------
-tTVPSMFTrack::tTVPSMFTrack(tTJSNI_MIDISoundBuffer *owner, tTJSBinaryStream *instream, tjs_int n) {
+tTVPSMFTrack::tTVPSMFTrack(tTJSNI_MIDISoundBuffer *owner,
+                           tTJSBinaryStream *instream, tjs_int n) {
     TrackSize = n;
     Data = new tjs_uint8[n];
     try {
@@ -368,12 +377,14 @@ void tTVPSMFTrack::ProcessEvent() {
     // process one track event
 
     // some reset message data
-    static tjs_uint8 sysex_gsreset[] = { 0xf0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7f, 0x00, 0x41, 0xf7 };
+    static tjs_uint8 sysex_gsreset[] = { 0xf0, 0x41, 0x10, 0x42, 0x12, 0x40,
+                                         0x00, 0x7f, 0x00, 0x41, 0xf7 };
     static tjs_uint8 sysex_modeset[] = {
         0xf0, 0x41, 0x10, 0x42, 0x12, 0x00, 0x00, 0x7f
     }; // followed by initialize data
     static tjs_uint8 sysex_gmon[] = { 0xf0, 0x7e, 0x7f, 0x09, 0x01, 0xf7 };
-    static tjs_uint8 sysex_xgon[] = { 0xf0, 0x43, 0x10, 0x4c, 0x00, 0x00, 0x7e, 0x00, 0xf7 };
+    static tjs_uint8 sysex_xgon[] = { 0xf0, 0x43, 0x10, 0x4c, 0x00,
+                                      0x00, 0x7e, 0x00, 0xf7 };
 
     // check playing status
     if(Ended)
@@ -398,15 +409,18 @@ void tTVPSMFTrack::ProcessEvent() {
                 if(!Owner->UsingChannel[ev & 0x0f]) {
                     // first chance to set volume
                     TVPMIDIOut((tjs_uint8)(0xb0 + (ev & 0x0f)), 0x07,
-                               (tjs_uint8)(Owner->Volumes[ev & 0x0f] * Owner->BufferVolume / 127));
+                               (tjs_uint8)(Owner->Volumes[ev & 0x0f] *
+                                           Owner->BufferVolume / 127));
                 }
                 Owner->UsingChannel[ev & 0x0f] = true; // note on
                 if(*Position < 128) {
                     // check "on" notes
                     if(Position[1] != 0)
-                        Owner->UsingNote[ev & 0x0f][*Position / 32] |= (tjs_uint32)1 << (*Position % 32);
+                        Owner->UsingNote[ev & 0x0f][*Position / 32] |=
+                            (tjs_uint32)1 << (*Position % 32);
                     else
-                        Owner->UsingNote[ev & 0x0f][*Position / 32] &= ~((tjs_uint32)1 << (*Position % 32));
+                        Owner->UsingNote[ev & 0x0f][*Position / 32] &=
+                            ~((tjs_uint32)1 << (*Position % 32));
                 }
                 b1 = *(Position++);
                 b2 = *(Position++);
@@ -414,7 +428,8 @@ void tTVPSMFTrack::ProcessEvent() {
 
             case 0x8:
                 if(*Position < 128)
-                    Owner->UsingNote[ev & 0x0f][*Position / 32] &= ~((tjs_uint32)1 << (*Position % 32));
+                    Owner->UsingNote[ev & 0x0f][*Position / 32] &=
+                        ~((tjs_uint32)1 << (*Position % 32));
                 // no "break" here
             case 0xa:
             case 0xe:
@@ -454,7 +469,8 @@ void tTVPSMFTrack::ProcessEvent() {
         if(svflag) {
             // re-send volume
             TVPMIDIOut((tjs_uint8)(0xb0 + (ev & 0x0f)), 0x07,
-                       (tjs_uint8)(Owner->Volumes[ev & 0x0f] * Owner->BufferVolume / 127));
+                       (tjs_uint8)(Owner->Volumes[ev & 0x0f] *
+                                   Owner->BufferVolume / 127));
         }
     } else {
         int cmd = ev & 0xf;
@@ -467,8 +483,10 @@ void tTVPSMFTrack::ProcessEvent() {
 
             TVPMIDIOut(data, dlen + 1);
 
-            if((dlen >= 10 && !memcmp(data, sysex_gsreset, 11)) || (dlen >= 7 && !memcmp(data, sysex_modeset, 8)) ||
-               (dlen >= 5 && !memcmp(data, sysex_gmon, 6)) || (dlen >= 8 && !memcmp(data, sysex_xgon, 9))) {
+            if((dlen >= 10 && !memcmp(data, sysex_gsreset, 11)) ||
+               (dlen >= 7 && !memcmp(data, sysex_modeset, 8)) ||
+               (dlen >= 5 && !memcmp(data, sysex_gmon, 6)) ||
+               (dlen >= 8 && !memcmp(data, sysex_xgon, 9))) {
                 // these are MIDI module reset messages;
                 // clear volume information
 
@@ -482,7 +500,9 @@ void tTVPSMFTrack::ProcessEvent() {
 
                     Owner->UsingChannel[i] = true;
 
-                    TVPMIDIOut((tjs_uint8)(0xb0 + i), 0x07, (tjs_uint8)(Owner->Volumes[i] * Owner->BufferVolume / 127));
+                    TVPMIDIOut((tjs_uint8)(0xb0 + i), 0x07,
+                               (tjs_uint8)(Owner->Volumes[i] *
+                                           Owner->BufferVolume / 127));
                 }
             }
 
@@ -564,15 +584,17 @@ tTJSNI_MIDISoundBuffer::tTJSNI_MIDISoundBuffer() {
     UtilWindow = nullptr;
     for(tjs_int i = 0; i < 16; i++) {
         UsingChannel[i] = false;
-        UsingNote[i][0] = UsingNote[i][1] = UsingNote[i][2] = UsingNote[i][3] = 0;
+        UsingNote[i][0] = UsingNote[i][1] = UsingNote[i][2] = UsingNote[i][3] =
+            0;
         Volumes[i] = 100;
     }
 #endif
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_MIDISoundBuffer::Construct(tjs_int numparams, tTJSVariant **param,
-                                                            iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_MIDISoundBuffer::Construct(tjs_int numparams,
+                                            tTJSVariant **param,
+                                            iTJSDispatch2 *tjs_obj) {
     tjs_error hr = inherited::Construct(numparams, param, tjs_obj);
     if(TJS_FAILED(hr))
         return hr;
@@ -591,7 +613,7 @@ tjs_error TJS_INTF_METHOD tTJSNI_MIDISoundBuffer::Construct(tjs_int numparams, t
 }
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_MIDISoundBuffer::Invalidate() {
+void tTJSNI_MIDISoundBuffer::Invalidate() {
     inherited::Invalidate();
 #ifdef TVP_ENABLE_MIDI
 
@@ -612,7 +634,8 @@ void TJS_INTF_METHOD tTJSNI_MIDISoundBuffer::Invalidate() {
 #ifdef TVP_ENABLE_MIDI
 //---------------------------------------------------------------------------
 void tTJSNI_MIDISoundBuffer::WndProc(Messages::TMessage &Msg) {
-    // called by OS, caused by posting of status message from playing thread.
+    // called by OS, caused by posting of status message from playing
+    // thread.
     if(Msg.Msg == WM_USER + 1) {
         SetStatusAsync((tTVPSoundStatus)Msg.LParam);
         return;
@@ -627,7 +650,8 @@ void tTJSNI_MIDISoundBuffer::AllNoteOff() {
 
     for(i = 0; i < 16; i++) {
         if(UsingChannel[i]) {
-            TVPMIDIOut((tjs_uint8)(0xb0 + i), 0x7B, 0x00); // All Note Off
+            TVPMIDIOut((tjs_uint8)(0xb0 + i), 0x7B,
+                       0x00); // All Note Off
             TVPMIDIOut((tjs_uint8)(0xb0 + i), 0x40, 0x00); // Sus. Off
         }
     }
@@ -637,7 +661,8 @@ void tTJSNI_MIDISoundBuffer::AllNoteOff() {
             int j;
             for(j = 0; j < 128; j++) {
                 if(UsingNote[i][j / 32] & (1 << (j % 32))) {
-                    TVPMIDIOut((tjs_uint8)(0x90 + i), (tjs_uint8)j, (tjs_uint8)0x00);
+                    TVPMIDIOut((tjs_uint8)(0x90 + i), (tjs_uint8)j,
+                               (tjs_uint8)0x00);
                 }
             }
         }
@@ -666,7 +691,8 @@ bool tTJSNI_MIDISoundBuffer::OnTimer() {
         __int64 least_tick = -1;
         bool do_tick = false;
         std::vector<tTVPSMFTrack *>::iterator least;
-        for(std::vector<tTVPSMFTrack *>::iterator i = Tracks.begin(); i != Tracks.end(); i++) {
+        for(std::vector<tTVPSMFTrack *>::iterator i = Tracks.begin();
+            i != Tracks.end(); i++) {
             if(!(*i)->GetEnded()) {
                 p++;
                 __int64 tt = (*i)->GetCount();
@@ -715,7 +741,8 @@ bool tTJSNI_MIDISoundBuffer::OnTimer() {
 
         for(i = 0; i < 16; i++) {
             if(UsingChannel[i]) {
-                TVPMIDIOut((tjs_uint8)(0xb0 + i), 0x07, (tjs_uint8)(Volumes[i] * BufferVolume / 127));
+                TVPMIDIOut((tjs_uint8)(0xb0 + i), 0x07,
+                           (tjs_uint8)(Volumes[i] * BufferVolume / 127));
             }
         }
     }
@@ -757,7 +784,8 @@ void tTJSNI_MIDISoundBuffer::Open(const ttstr &name) {
 
         format = TVPGetSMFInt16(pb);
         if(format != 0 && format != 1)
-            TVPThrowExceptionMessage(TVPInvalidSMF, TJS_W("Format must be 0 or 1"));
+            TVPThrowExceptionMessage(TVPInvalidSMF,
+                                     TJS_W("Format must be 0 or 1"));
 
         // clear tracks
         {
@@ -782,7 +810,8 @@ void tTJSNI_MIDISoundBuffer::Open(const ttstr &name) {
         for(tjs_int i = 0; i < trackcount; i++) {
             stream->ReadBuffer(buf, 8);
             if(memcmp(buf, "MTrk", 4))
-                TVPThrowExceptionMessage(TVPInvalidSMF, TJS_W("MTrk not found"));
+                TVPThrowExceptionMessage(TVPInvalidSMF,
+                                         TJS_W("MTrk not found"));
             pb = buf + 4;
             tjs_uint32 len = TVPGetSMFInt32(pb);
             tTVPSMFTrack *trk = new tTVPSMFTrack(this, stream.Get(), len);
@@ -795,7 +824,8 @@ void tTJSNI_MIDISoundBuffer::Open(const ttstr &name) {
 
         for(tjs_int i = 0; i < 16; i++) {
             //			UsingChannel[i] = false;
-            UsingNote[i][0] = UsingNote[i][1] = UsingNote[i][2] = UsingNote[i][3] = 0;
+            UsingNote[i][0] = UsingNote[i][1] = UsingNote[i][2] =
+                UsingNote[i][3] = 0;
             Volumes[i] = 100;
         }
     } catch(...) {
@@ -849,7 +879,8 @@ bool tTJSNI_MIDISoundBuffer::StartPlay() {
 
     for(i = 0; i < 16; i++) {
         UsingChannel[i] = false;
-        UsingNote[i][0] = UsingNote[i][1] = UsingNote[i][2] = UsingNote[i][3] = 0;
+        UsingNote[i][0] = UsingNote[i][1] = UsingNote[i][2] = UsingNote[i][3] =
+            0;
         Volumes[i] = 100;
     }
 
@@ -880,7 +911,8 @@ void tTJSNI_MIDISoundBuffer::SetBufferVolume(tjs_int nv) {
 
             for(i = 0; i < 16; i++) {
                 if(UsingChannel[i]) {
-                    TVPMIDIOut((tjs_uint8)(0xb0 + i), 0x07, (tjs_uint8)(Volumes[i] * BufferVolume / 127));
+                    TVPMIDIOut((tjs_uint8)(0xb0 + i), 0x07,
+                               (tjs_uint8)(Volumes[i] * BufferVolume / 127));
                 }
             }
         }
@@ -932,7 +964,9 @@ void tTJSNI_MIDISoundBuffer::SetVolume2(tjs_int v) {
 //---------------------------------------------------------------------------
 // tTJSNC_MIDISoundBuffer
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_MIDISoundBuffer::CreateNativeInstance() { return new tTJSNI_MIDISoundBuffer(); }
+tTJSNativeInstance *tTJSNC_MIDISoundBuffer::CreateNativeInstance() {
+    return new tTJSNI_MIDISoundBuffer();
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------

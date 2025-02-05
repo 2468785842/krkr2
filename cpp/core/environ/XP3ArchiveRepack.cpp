@@ -1,9 +1,9 @@
 #include "XP3ArchiveRepack.h"
 #include <functional>
-#include <p7zip/CPP/7zip/Archive/7z/7zOut.h>
-#include <p7zip/CPP/7zip/Common/StreamObjects.h>
+#include <7zip/Archive/7z/7zOut.h>
+#include <7zip/Common/StreamObjects.h>
 extern "C" {
-#include <p7zip/C/7zCrc.h>
+#include <7zCrc.h>
 }
 #include "TextStream.h"
 #include "StorageImpl.h"
@@ -29,12 +29,16 @@ using namespace NArchive::N7z;
 #define S_INTERRUPT ((HRESULT)0x114705)
 
 void TVPSetXP3FilterScript(ttstr content);
-void TVPSavePVRv3(void *formatdata, tTJSBinaryStream *dst, const iTVPBaseBitmap *image, const ttstr &mode,
+void TVPSavePVRv3(void *formatdata, tTJSBinaryStream *dst,
+                  const iTVPBaseBitmap *image, const ttstr &mode,
                   iTJSDispatch2 *meta);
 
 class tTVPXP3ArchiveEx : public tTVPXP3Archive {
 public:
-    tTVPXP3ArchiveEx(const ttstr &name, tTJSBinaryStream *st) : tTVPXP3Archive(name, 0) { Init(st, -1, false); }
+    tTVPXP3ArchiveEx(const ttstr &name, tTJSBinaryStream *st) :
+        tTVPXP3Archive(name, 0) {
+        Init(st, -1, false);
+    }
 
     uint64_t TotalSize = 0;
 };
@@ -44,7 +48,9 @@ class OutStreamFor7z : public IOutStream {
     unsigned int RefCount = 1;
 
 public:
-    OutStreamFor7z(const std::string &path) { fp = open(path.c_str(), O_RDWR | O_CREAT, 0666); }
+    OutStreamFor7z(const std::string &path) {
+        fp = open(path.c_str(), O_RDWR | O_CREAT, 0666);
+    }
     ~OutStreamFor7z() { close(fp); }
 
     ULONG AddRef() noexcept override { return ++RefCount; }
@@ -64,11 +70,13 @@ public:
         return E_NOTIMPL;
     }
 
-    HRESULT Write(const void *data, UInt32 size, UInt32 *processedSize) noexcept override {
+    HRESULT Write(const void *data, UInt32 size,
+                  UInt32 *processedSize) noexcept override {
         *processedSize = write(fp, data, size);
         return S_OK;
     }
-    HRESULT Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) noexcept override {
+    HRESULT Seek(Int64 offset, UInt32 seekOrigin,
+                 UInt64 *newPosition) noexcept override {
         int64_t pos = lseek64(fp, offset, seekOrigin);
         if(newPosition)
             *newPosition = pos;
@@ -98,11 +106,13 @@ public:
         return E_NOTIMPL;
     }
 
-    HRESULT Write(const void *data, UInt32 size, UInt32 *processedSize) noexcept override {
+    HRESULT Write(const void *data, UInt32 size,
+                  UInt32 *processedSize) noexcept override {
         *processedSize = tTVPMemoryStream::Write(data, size);
         return S_OK;
     }
-    HRESULT Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) noexcept override {
+    HRESULT Seek(Int64 offset, UInt32 seekOrigin,
+                 UInt64 *newPosition) noexcept override {
         *newPosition = tTVPMemoryStream::Seek(offset, seekOrigin);
         return S_OK;
     }
@@ -137,7 +147,8 @@ public:
         return E_NOTIMPL;
     }
 
-    HRESULT Read(void *data, UInt32 size, UInt32 *processedSize) noexcept override {
+    HRESULT Read(void *data, UInt32 size,
+                 UInt32 *processedSize) noexcept override {
         *processedSize = fp->Read(data, size);
         return S_OK;
     }
@@ -153,11 +164,14 @@ public:
     void DoConv();
     uint64_t AddTask(const std::string &src);
     void SetXP3Filter(const std::string &xp3filter);
-    void SetCallback(const std::function<void(int, uint64_t, const std::string &)> &onNewFile,
-                     const std::function<void(int, uint64_t, const std::string &)> &onNewArchive,
-                     const std::function<void(uint64_t, uint64_t, uint64_t)> &onProgress,
-                     const std::function<void(int, const std::string &)> &onError,
-                     const std::function<void()> &onEnded) {
+    void SetCallback(
+        const std::function<void(int, uint64_t, const std::string &)>
+            &onNewFile,
+        const std::function<void(int, uint64_t, const std::string &)>
+            &onNewArchive,
+        const std::function<void(uint64_t, uint64_t, uint64_t)> &onProgress,
+        const std::function<void(int, const std::string &)> &onError,
+        const std::function<void()> &onEnded) {
         OnNewFile = onNewFile;
         OnNewArchive = onNewArchive;
         OnProgress = onProgress;
@@ -174,9 +188,12 @@ private:
     HRESULT AddTo7zArchive(tTJSBinaryStream *s, const ttstr &_naem);
 
     // ICompressProgressInfo
-    HRESULT SetRatioInfo(const UInt64 *inSize, const UInt64 *outSize) noexcept override;
+    HRESULT SetRatioInfo(const UInt64 *inSize,
+                         const UInt64 *outSize) noexcept override;
     // IUnknown
-    HRESULT QueryInterface(REFIID riid, void **ppvObject) noexcept override { return E_NOTIMPL; }
+    HRESULT QueryInterface(REFIID riid, void **ppvObject) noexcept override {
+        return E_NOTIMPL;
+    }
     ULONG AddRef() noexcept override { return 0; }
     ULONG Release() noexcept override { return 0; }
 
@@ -198,43 +215,53 @@ private:
     std::function<void()> OnEnded;
 };
 
-XP3ArchiveRepackAsync::XP3ArchiveRepackAsync() : _impl(new XP3ArchiveRepackAsyncImpl()) {
+XP3ArchiveRepackAsync::XP3ArchiveRepackAsync() :
+    _impl(new XP3ArchiveRepackAsyncImpl()) {
     TVPDetectCPU();
     //	TVPGL_ASM_Init();
 }
 
 XP3ArchiveRepackAsync::~XP3ArchiveRepackAsync() { delete _impl; }
 
-uint64_t XP3ArchiveRepackAsync::AddTask(const std::string &src) { return _impl->AddTask(src); }
+uint64_t XP3ArchiveRepackAsync::AddTask(const std::string &src) {
+    return _impl->AddTask(src);
+}
 
 void XP3ArchiveRepackAsync::Start() { _impl->Start(); }
 
 void XP3ArchiveRepackAsync::Stop() { _impl->Stop(); }
 
-void XP3ArchiveRepackAsync::SetXP3Filter(const std::string &xp3filter) { _impl->SetXP3Filter(xp3filter); }
+void XP3ArchiveRepackAsync::SetXP3Filter(const std::string &xp3filter) {
+    _impl->SetXP3Filter(xp3filter);
+}
 
-void XP3ArchiveRepackAsync::SetCallback(const std::function<void(int, uint64_t, const std::string &)> &onNewFile,
-                                        const std::function<void(int, uint64_t, const std::string &)> &onNewArchive,
-                                        const std::function<void(uint64_t, uint64_t, uint64_t)> &onProgress,
-                                        const std::function<void(int, const std::string &)> &onError,
-                                        const std::function<void()> &onEnded) {
+void XP3ArchiveRepackAsync::SetCallback(
+    const std::function<void(int, uint64_t, const std::string &)> &onNewFile,
+    const std::function<void(int, uint64_t, const std::string &)> &onNewArchive,
+    const std::function<void(uint64_t, uint64_t, uint64_t)> &onProgress,
+    const std::function<void(int, const std::string &)> &onError,
+    const std::function<void()> &onEnded) {
     _impl->SetCallback(onNewFile, onNewArchive, onProgress, onError, onEnded);
 }
 
-void XP3ArchiveRepackAsync::SetOption(const std::string &name, bool v) { _impl->SetOption(name, v); }
+void XP3ArchiveRepackAsync::SetOption(const std::string &name, bool v) {
+    _impl->SetOption(name, v);
+}
 
 XP3ArchiveRepackAsyncImpl::XP3ArchiveRepackAsyncImpl() {
     if(!g_CrcTable[1])
         CrcGenerateTable();
-    CreateCoder(nCodecMethod, true, CoderCompress);
-    CreateCoder(nCodecMethodCopy, true, CoderCopy);
+    CreateCoder_Id(nCodecMethod, true, CoderCompress);
+    CreateCoder_Id(nCodecMethodCopy, true, CoderCopy);
 
     CMyComPtr<ICompressWriteCoderProperties> writeCoderProperties;
     CMyComPtr<ICompressSetCoderProperties> setCoderProperties;
-    CoderCompress.Coder->QueryInterface(IID_ICompressWriteCoderProperties,
-                                        reinterpret_cast<void **>(&writeCoderProperties));
-    CoderCompress.Coder->QueryInterface(IID_ICompressSetCoderProperties,
-                                        reinterpret_cast<void **>(&setCoderProperties));
+    CoderCompress.Coder->QueryInterface(
+        IID_ICompressWriteCoderProperties,
+        reinterpret_cast<void **>(&writeCoderProperties));
+    CoderCompress.Coder->QueryInterface(
+        IID_ICompressSetCoderProperties,
+        reinterpret_cast<void **>(&setCoderProperties));
 
     if(setCoderProperties) {
         const int nProp = 1;
@@ -264,7 +291,8 @@ XP3ArchiveRepackAsyncImpl::~XP3ArchiveRepackAsyncImpl() {
     Clear();
 }
 
-uint64_t XP3ArchiveRepackAsyncImpl::AddTask(const std::string &src /*, const std::string &dst*/) {
+uint64_t XP3ArchiveRepackAsyncImpl::AddTask(
+    const std::string &src /*, const std::string &dst*/) {
     ttstr path(src);
     tTVPLocalFileStream *str = new tTVPLocalFileStream(path, path, TJS_BS_READ);
     tTVPXP3ArchiveEx *xp3arc = new tTVPXP3ArchiveEx(path, str);
@@ -302,7 +330,8 @@ void XP3ArchiveRepackAsyncImpl::Clear() {
 
 void XP3ArchiveRepackAsyncImpl::Start() {
     if(!Thread) {
-        Thread = new std::thread(std::bind(&XP3ArchiveRepackAsyncImpl::DoConv, this));
+        Thread = new std::thread(
+            std::bind(&XP3ArchiveRepackAsyncImpl::DoConv, this));
     }
 }
 
@@ -339,7 +368,9 @@ static bool CheckIsImage(tTJSBinaryStream *s) {
     return false;
 }
 
-HRESULT XP3ArchiveRepackAsyncImpl::AddTo7zArchive(tTJSBinaryStream *s, const ttstr &_name) {
+HRESULT
+XP3ArchiveRepackAsyncImpl::AddTo7zArchive(tTJSBinaryStream *s,
+                                          const ttstr &_name) {
     CFileItem file;
     CFileItem2 file2;
     SequentialInStreamFor7z str(s);
@@ -381,11 +412,13 @@ HRESULT XP3ArchiveRepackAsyncImpl::AddTo7zArchive(tTJSBinaryStream *s, const tts
     if(compressable) {
         UInt64 expectedSize = origSize * 4 / 5;
         OutStreamMemory tmp;
-        if((ret = CoderCompress.Coder->Code(&str, &tmp, &inSizeForReduce, &newSize, this)) != S_OK)
+        if((ret = CoderCompress.Coder->Code(&str, &tmp, &inSizeForReduce,
+                                            &newSize, this)) != S_OK)
             return ret;
         if(tmp.GetSize() < expectedSize) {
             UInt32 writed;
-            if((ret = strout->Write(tmp.GetInternalBuffer(), tmp.GetSize(), &writed)) != S_OK) {
+            if((ret = strout->Write(tmp.GetInternalBuffer(), tmp.GetSize(),
+                                    &writed)) != S_OK) {
                 return ret;
             }
             if(writed != tmp.GetSize())
@@ -409,7 +442,8 @@ HRESULT XP3ArchiveRepackAsyncImpl::AddTo7zArchive(tTJSBinaryStream *s, const tts
     }
     // direct copy
     newSize = origSize;
-    if((ret = CoderCopy.Coder->Code(&str, strout, &inSizeForReduce, &newSize, this)) != S_OK) {
+    if((ret = CoderCopy.Coder->Code(&str, strout, &inSizeForReduce, &newSize,
+                                    this)) != S_OK) {
         return ret;
     }
     newDatabase.PackSizes.Add(s->GetSize());
@@ -428,7 +462,8 @@ HRESULT XP3ArchiveRepackAsyncImpl::AddTo7zArchive(tTJSBinaryStream *s, const tts
 }
 
 HRESULT
-XP3ArchiveRepackAsyncImpl::SetRatioInfo(const UInt64 *inSize, const UInt64 *outSize) noexcept {
+XP3ArchiveRepackAsyncImpl::SetRatioInfo(const UInt64 *inSize,
+                                        const UInt64 *outSize) noexcept {
     if(OnProgress) {
         OnProgress(nTotalSize + *inSize, nArcSize + *inSize, *inSize);
     }
@@ -452,7 +487,7 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
 
         COutArchive archive;
 
-        if(archive.Create(strout, false) != S_OK) {
+        if(archive.Create_and_WriteStartPrefix(strout) != S_OK) {
             if(OnError)
                 OnError(-1, "Fail to create output archive.");
             break;
@@ -461,16 +496,19 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
 
         nArcSize = 0;
 
-        // filter image files <idx, mask_img_idx>, img_mask = -1 means no mask
-        // available or normal file
+        // filter image files <idx, mask_img_idx>, img_mask = -1 means
+        // no mask available or normal file
         std::map<tjs_uint, tjs_uint> imglist;
         std::vector<tjs_uint> filelist; // normal files
         {
-            std::unordered_multimap<ttstr, const tTVPXP3Archive::tArchiveItem *, ttstr_hasher> allFileName;
+            std::unordered_multimap<ttstr, const tTVPXP3Archive::tArchiveItem *,
+                                    ttstr_hasher>
+                allFileName;
             std::vector<tjs_uint> allfilelist;
             std::set<tjs_uint> masklist;
             for(tjs_uint idx = 0; idx < xp3arc->ItemVector.size(); ++idx) {
-                const tTVPXP3Archive::tArchiveItem &item = xp3arc->ItemVector[idx];
+                const tTVPXP3Archive::tArchiveItem &item =
+                    xp3arc->ItemVector[idx];
                 if(!item.OrgSize) {
                     // add empty files first
                     CFileItem file;
@@ -481,7 +519,8 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
                     newDatabase.AddFile(file, file2, name);
                     continue;
                 }
-                if(item.Name.length() > 256 && item.Name.StartsWith(TJS_W("$$$")))
+                if(item.Name.length() > 256 &&
+                   item.Name.StartsWith(TJS_W("$$$")))
                     continue;
                 ttstr name = TVPChopStorageExt(item.Name);
                 allFileName.emplace(name, &item);
@@ -489,7 +528,8 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
             }
             if(OptionMergeMaskImg)
                 for(tjs_uint idx : allfilelist) {
-                    const tTVPXP3Archive::tArchiveItem &item = xp3arc->ItemVector[idx];
+                    const tTVPXP3Archive::tArchiveItem &item =
+                        xp3arc->ItemVector[idx];
                     ttstr name = TVPChopStorageExt(item.Name);
                     tjs_int pos = name.length() - 2;
                     if(pos > 0 && name.SubString(pos, 2) == TJS_W("_m")) {
@@ -499,18 +539,22 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
                         for(auto it = itpair.first; it != itpair.second; ++it) {
                             ++count;
                         }
-                        if(count == 1) { // assume that one mask associate to one image
-                            const tTVPXP3Archive::tArchiveItem *imgItem = itpair.first->second;
+                        if(count == 1) { // assume that one mask
+                                         // associate to one image
+                            const tTVPXP3Archive::tArchiveItem *imgItem =
+                                itpair.first->second;
                             allFileName.erase(itpair.first);
                             allFileName.erase(name);
-                            imglist.emplace(imgItem - &xp3arc->ItemVector.front(), idx);
+                            imglist.emplace(
+                                imgItem - &xp3arc->ItemVector.front(), idx);
                             masklist.emplace(idx);
                             continue;
                         }
                     }
                 }
             for(tjs_uint idx : allfilelist) {
-                if(imglist.find(idx) != imglist.end() || masklist.find(idx) != masklist.end())
+                if(imglist.find(idx) != imglist.end() ||
+                   masklist.find(idx) != masklist.end())
                     continue;
                 filelist.push_back(idx);
             }
@@ -518,17 +562,23 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
 
         // merge image with mask
         // actual TVPLoadGraphicRouter
-        static tTVPGraphicHandlerType *handler = TVPGetGraphicLoadHandler(TJS_W(".png"));
+        static tTVPGraphicHandlerType *handler =
+            TVPGetGraphicLoadHandler(TJS_W(".png"));
         for(const auto &it : imglist) {
             if(bStopRequired)
                 break;
-            const tTVPXP3Archive::tArchiveItem &imgItem = xp3arc->ItemVector[it.first];
-            const tTVPXP3Archive::tArchiveItem &maskItem = xp3arc->ItemVector[it.second];
+            const tTVPXP3Archive::tArchiveItem &imgItem =
+                xp3arc->ItemVector[it.first];
+            const tTVPXP3Archive::tArchiveItem &maskItem =
+                xp3arc->ItemVector[it.second];
             std::unique_ptr<tTJSBinaryStream> strImg(
-                xp3arc->CreateStreamByIndex(&imgItem - &xp3arc->ItemVector.front()));
+                xp3arc->CreateStreamByIndex(&imgItem -
+                                            &xp3arc->ItemVector.front()));
             std::unique_ptr<tTJSBinaryStream> strMask(
-                xp3arc->CreateStreamByIndex(&maskItem - &xp3arc->ItemVector.front()));
-            bool isImage = CheckIsImage(strImg.get()) && CheckIsImage(strMask.get());
+                xp3arc->CreateStreamByIndex(&maskItem -
+                                            &xp3arc->ItemVector.front()));
+            bool isImage =
+                CheckIsImage(strImg.get()) && CheckIsImage(strMask.get());
             if(isImage) {
                 // skip 8-bit image
                 iTJSDispatch2 *dic = nullptr;
@@ -562,13 +612,15 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
             } data;
 
             if(OnNewFile) {
-                OnNewFile(it.first, imgItem.OrgSize, imgItem.Name.AsStdString());
+                OnNewFile(it.first, imgItem.OrgSize,
+                          imgItem.Name.AsStdString());
             }
 
             // main part
             handler->Load(
                 handler->FormatData, &data,
-                [](void *callbackdata, tjs_uint w, tjs_uint h, tTVPGraphicPixelFormat fmt) -> int {
+                [](void *callbackdata, tjs_uint w, tjs_uint h,
+                   tTVPGraphicPixelFormat fmt) -> int {
                     BmpInfoWithMask *data = (BmpInfoWithMask *)callbackdata;
                     if(!data->bmp) {
                         data->bmp = new tTVPBitmap(w, h, 32);
@@ -576,7 +628,8 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
                     return data->bmp->GetPitch();
                 },
                 [](void *callbackdata, tjs_int y) -> void * {
-                    BmpInfoWithMask *data = static_cast<BmpInfoWithMask *>(callbackdata);
+                    BmpInfoWithMask *data =
+                        static_cast<BmpInfoWithMask *>(callbackdata);
                     if(y >= 0) {
                         return data->bmp->GetScanLine(y);
                     }
@@ -591,9 +644,11 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
             // mask part
             handler->Load(
                 handler->FormatData, &data,
-                [](void *callbackdata, tjs_uint w, tjs_uint h, tTVPGraphicPixelFormat fmt) -> int {
+                [](void *callbackdata, tjs_uint w, tjs_uint h,
+                   tTVPGraphicPixelFormat fmt) -> int {
                     BmpInfoWithMask *data = (BmpInfoWithMask *)callbackdata;
-                    if(data->bmp->GetWidth() != w || data->bmp->GetHeight() != h)
+                    if(data->bmp->GetWidth() != w ||
+                       data->bmp->GetHeight() != h)
                         TVPThrowExceptionMessage(TVPMaskSizeMismatch);
                     if(!data->bmpForMask) {
                         data->bmpForMask = new tTVPBitmap(w, h, 8);
@@ -613,7 +668,8 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
                 strMask.get(), TVP_clNone, glmGrayscale);
 
             for(tjs_uint y = 0; y < data.bmp->GetHeight(); ++y) {
-                TVPBindMaskToMain((tjs_uint32 *)data.bmp->GetScanLine(y), (tjs_uint8 *)data.bmpForMask->GetScanLine(y),
+                TVPBindMaskToMain((tjs_uint32 *)data.bmp->GetScanLine(y),
+                                  (tjs_uint8 *)data.bmpForMask->GetScanLine(y),
                                   data.bmp->GetWidth());
             }
             delete data.bmpForMask;
@@ -623,14 +679,17 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
                 meta.SetValue(it.first.c_str(), it.second);
             }
             tTVPMemoryStream memstr;
-            auto *bmp = new tTVPBaseBitmap(data.bmp->GetWidth(), data.bmp->GetHeight());
+            auto *bmp =
+                new tTVPBaseBitmap(data.bmp->GetWidth(), data.bmp->GetHeight());
             bmp->AssignBitmap(data.bmp);
 
             if(OptionUsingETC2) {
-                TVPSavePVRv3(nullptr, &memstr, bmp, TJS_W("ETC2_RGBA"), meta.GetDispatch());
+                TVPSavePVRv3(nullptr, &memstr, bmp, TJS_W("ETC2_RGBA"),
+                             meta.GetDispatch());
             } else {
                 // convert to tlg5 for better performance
-                TVPSaveAsTLG(nullptr, &memstr, bmp, TJS_W("tlg5"), meta.GetDispatch());
+                TVPSaveAsTLG(nullptr, &memstr, bmp, TJS_W("tlg5"),
+                             meta.GetDispatch());
             }
             delete bmp;
             memstr.SetPosition(0);
@@ -654,10 +713,12 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
 
             if(bStopRequired)
                 break;
-            std::unique_ptr<tTJSBinaryStream> s(xp3arc->CreateStreamByIndex(idx));
+            std::unique_ptr<tTJSBinaryStream> s(
+                xp3arc->CreateStreamByIndex(idx));
 
             if(OnNewFile)
-                OnNewFile(&item - &xp3arc->ItemVector.front(), item.OrgSize, item.Name.AsStdString());
+                OnNewFile(&item - &xp3arc->ItemVector.front(), item.OrgSize,
+                          item.Name.AsStdString());
 
             if(OptionUsingETC2 && item.OrgSize > 8192) {
                 // convert image > 8k
@@ -677,7 +738,8 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
                     // main part
                     handler->Load(
                         handler->FormatData, &data,
-                        [](void *callbackdata, tjs_uint w, tjs_uint h, tTVPGraphicPixelFormat fmt) -> int {
+                        [](void *callbackdata, tjs_uint w, tjs_uint h,
+                           tTVPGraphicPixelFormat fmt) -> int {
                             BmpInfo *data = (BmpInfo *)callbackdata;
                             if(!data->bmp) {
                                 data->bmp = new tTVPBitmap(w, h, 32);
@@ -692,7 +754,8 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
                             }
                             return nullptr;
                         },
-                        [](void *callbackdata, const ttstr &name, const ttstr &value) {
+                        [](void *callbackdata, const ttstr &name,
+                           const ttstr &value) {
                             BmpInfo *data = (BmpInfo *)callbackdata;
                             data->metainfo.emplace(name, value);
                         },
@@ -704,14 +767,17 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
                     }
                 }
                 if(isImage) {
-                    tTVPBaseBitmap *bmp = new tTVPBaseBitmap(data.bmp->GetWidth(), data.bmp->GetHeight());
+                    tTVPBaseBitmap *bmp = new tTVPBaseBitmap(
+                        data.bmp->GetWidth(), data.bmp->GetHeight());
                     bmp->AssignBitmap(data.bmp);
                     s.reset(new tTVPMemoryStream);
                     ncbDictionaryAccessor meta;
                     for(const auto &it : data.metainfo) {
                         meta.SetValue(it.first.c_str(), it.second);
                     }
-                    TVPSavePVRv3(nullptr, s.get(), bmp, data.fmt == gpfRGB ? TJS_W("ETC2_RGB") : TJS_W("ETC2_RGBA"),
+                    TVPSavePVRv3(nullptr, s.get(), bmp,
+                                 data.fmt == gpfRGB ? TJS_W("ETC2_RGB")
+                                                    : TJS_W("ETC2_RGBA"),
                                  meta.GetDispatch());
                     delete bmp;
                     s->SetPosition(0);

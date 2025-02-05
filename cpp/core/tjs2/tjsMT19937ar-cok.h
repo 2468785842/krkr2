@@ -40,15 +40,21 @@ namespace TJS {
         void next_state();
 
     public:
-        unsigned long int32(); /* generates a random number on [0,0xffffffff]-interval */
-        long int31(); /* generates a random number on [0,0x7fffffff]-interval */
-        double real1(); /* generates a random number on [0,1]-real-interval */
-        double real2(); /* generates a random number on [0,1)-real-interval */
-        double real3(); /* generates a random number on (0,1)-real-interval */
-        double res53(); /* generates a random number on [0,1) with 53-bit resolution*/
+        unsigned long int32(); /* generates a random number on
+                                  [0,0xffffffff]-interval */
+        long int31(); /* generates a random number on
+                         [0,0x7fffffff]-interval */
+        double real1(); /* generates a random number on
+                           [0,1]-real-interval */
+        double real2(); /* generates a random number on
+                           [0,1)-real-interval */
+        double real3(); /* generates a random number on
+                           (0,1)-real-interval */
+        double res53(); /* generates a random number on [0,1) with
+                           53-bit resolution*/
 
-        double rand_double(); /* generates a random number on [0,1) with IEEE
-                                     64-bit double precision */
+        double rand_double(); /* generates a random number on [0,1)
+                                 with IEEE 64-bit double precision */
 
         const tTJSMersenneTwisterData &GetData() const { return *this; }
 

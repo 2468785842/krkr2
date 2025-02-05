@@ -52,7 +52,8 @@ class CAEStreamAL : public IAEStream {
     Timer _timer;
 
     int InitResample(AEAudioFormat &audioFormat) {
-        uint64_t layout = GetLayoutByChannels(audioFormat.m_channelLayout.Count());
+        uint64_t layout =
+            GetLayoutByChannels(audioFormat.m_channelLayout.Count());
         AVSampleFormat srcFormat;
         switch(audioFormat.m_dataFormat) {
             case AE_FMT_U8:
@@ -117,16 +118,19 @@ class CAEStreamAL : public IAEStream {
                 bitsPerSample = 16;
                 break;
         }
-        swr_ctx = swr_alloc_set_opts(nullptr, layout, swr_tgtFormat, audioFormat.m_sampleRate, layout, srcFormat,
-                                     audioFormat.m_sampleRate, 0, nullptr);
-        tgt_frameSize = av_get_bytes_per_sample(swr_tgtFormat) * m_format.m_channelLayout.Count();
+        swr_ctx = swr_alloc_set_opts(
+            nullptr, layout, swr_tgtFormat, audioFormat.m_sampleRate, layout,
+            srcFormat, audioFormat.m_sampleRate, 0, nullptr);
+        tgt_frameSize = av_get_bytes_per_sample(swr_tgtFormat) *
+            m_format.m_channelLayout.Count();
         int result = swr_init(swr_ctx);
         assert(swr_ctx && result >= 0);
         return bitsPerSample;
     }
 
 public:
-    CAEStreamAL(AEAudioFormat &audioFormat, unsigned int options, IAEClockCallback *clock) {
+    CAEStreamAL(AEAudioFormat &audioFormat, unsigned int options,
+                IAEClockCallback *clock) {
         m_format = audioFormat;
         m_cbClock = clock;
         tTVPWaveFormat format;
@@ -170,7 +174,8 @@ public:
         _cond.notify_all();
     }
 
-    virtual unsigned int AddData(const uint8_t *const *data, unsigned int offset, unsigned int frames,
+    virtual unsigned int AddData(const uint8_t *const *data,
+                                 unsigned int offset, unsigned int frames,
                                  double pts) override {
         _timer.Set(1000);
         while(/*m_impl &&*/ !m_impl->IsBufferValid()) {
@@ -192,23 +197,27 @@ public:
 #endif
 
         if(swr_ctx) {
-            uint32_t srcoff = offset * (m_format.m_frameSize / src_buffer_count);
+            uint32_t srcoff =
+                offset * (m_format.m_frameSize / src_buffer_count);
             const uint8_t *in[8];
             for(unsigned int i = 0; i < src_buffer_count; ++i) {
                 in[i] = data[i] + srcoff;
             }
             int out_count = frames + 256;
-            int out_size =
-                av_samples_get_buffer_size(nullptr, m_format.m_channelLayout.Count(), out_count, swr_tgtFormat, 0);
+            int out_size = av_samples_get_buffer_size(
+                nullptr, m_format.m_channelLayout.Count(), out_count,
+                swr_tgtFormat, 0);
             av_fast_malloc(&audio_buf, &audio_buf_size, out_size);
             int len2 = swr_convert(swr_ctx, &audio_buf, out_count, in, frames);
             if(len2 == out_count) {
-                av_log(nullptr, AV_LOG_WARNING, "audio buffer is probably too small\n");
+                av_log(nullptr, AV_LOG_WARNING,
+                       "audio buffer is probably too small\n");
                 swr_init(swr_ctx);
             }
             m_impl->AppendBuffer(audio_buf, len2 * tgt_frameSize);
         } else {
-            m_impl->AppendBuffer(data[0] + offset * m_format.m_frameSize, frames * m_format.m_frameSize);
+            m_impl->AppendBuffer(data[0] + offset * m_format.m_frameSize,
+                                 frames * m_format.m_frameSize);
         }
 
         if(!m_impl->IsPlaying()) { // out of buffer
@@ -217,7 +226,9 @@ public:
         return frames;
     }
 
-    virtual double GetDelay() override { return (double)m_impl->GetLatencySeconds(); }
+    virtual double GetDelay() override {
+        return (double)m_impl->GetLatencySeconds();
+    }
 
     virtual CAESyncInfo GetSyncInfo() override {
         CAESyncInfo info; // TODO
@@ -295,7 +306,9 @@ bool CAEFactory::SupportsRaw(AEAudioFormat &format) {
     return true;
 }
 
-IAEStream *CAEFactory::MakeStream(AEAudioFormat &audioFormat, unsigned int options, IAEClockCallback *clock) {
+IAEStream *CAEFactory::MakeStream(AEAudioFormat &audioFormat,
+                                  unsigned int options,
+                                  IAEClockCallback *clock) {
     //   if(AE)
     //     return AE->MakeStream(audioFormat, options, clock);
     return new CAEStreamAL(audioFormat, options, clock);

@@ -15,7 +15,8 @@ void DemuxPacket::Free(DemuxPacket *pPacket) {
                 TJSAlignedDealloc(pPacket->pData);
             delete pPacket;
         } catch(...) {
-            //			CLog::Log(LOGERROR, "%s - Exception thrown while
+            //			CLog::Log(LOGERROR, "%s - Exception thrown
+            // while
             // freeing packet", __FUNCTION__);
         }
     }
@@ -33,14 +34,16 @@ DemuxPacket *DemuxPacket::Allocate(int iDataSize /*= 0*/) {
             // need to allocate a few bytes more.
             // From avcodec.h (ffmpeg)
             /**
-             * Required number of additionally allocated bytes at the end of the
-             * input bitstream for decoding. this is mainly needed because some
-             * optimized bitstream readers read 32 or 64 bit at once and could
-             * read over the end<br> Note, if the first 23 bits of the
-             * additional bytes are not 0 then damaged MPEG bitstreams could
-             * cause overread and segfault
+             * Required number of additionally allocated bytes at the
+             * end of the input bitstream for decoding. this is mainly
+             * needed because some optimized bitstream readers read 32
+             * or 64 bit at once and could read over the end<br> Note,
+             * if the first 23 bits of the additional bytes are not 0
+             * then damaged MPEG bitstreams could cause overread and
+             * segfault
              */
-            pPacket->pData = (uint8_t *)TJSAlignedAlloc(iDataSize + FF_INPUT_BUFFER_PADDING_SIZE, 4);
+            pPacket->pData = (uint8_t *)TJSAlignedAlloc(
+                iDataSize + FF_INPUT_BUFFER_PADDING_SIZE, 4);
             if(!pPacket->pData) {
                 Free(pPacket);
                 return nullptr;

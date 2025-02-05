@@ -29,7 +29,9 @@ public:
 
     void Discontinuity(double clock, double absolute);
 
-    void Discontinuity(double clock = 0LL) { Discontinuity(clock, GetAbsoluteClock()); }
+    void Discontinuity(double clock = 0LL) {
+        Discontinuity(clock, GetAbsoluteClock());
+    }
 
     void Reset() { m_bReset = true; }
 
@@ -39,8 +41,8 @@ public:
 
     double GetSpeedAdjust();
 
-    double GetClockSpeed(); /**< get the current speed of the clock relative
-                               normal system time */
+    double GetClockSpeed(); /**< get the current speed of the clock
+                               relative normal system time */
 
     /* tells clock at what framerate video is, to  *
      * allow it to adjust speed for a better match */
@@ -52,7 +54,8 @@ public:
 
     double GetFrequency() { return (double)m_systemFrequency; }
 
-    bool GetClockInfo(int &MissedVblanks, double &ClockSpeed, double &RefreshRate) const;
+    bool GetClockInfo(int &MissedVblanks, double &ClockSpeed,
+                      double &RefreshRate) const;
 
     void SetVsyncAdjust(double adjustment);
 

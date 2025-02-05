@@ -1,8 +1,9 @@
 #include "VideoCodec.h"
 
 NS_KRMOVIE_BEGIN
-bool CDVDVideoCodec::IsSettingVisible(const std::string &condition, const std::string &value, const CSetting *setting,
-                                      void *data) {
+bool CDVDVideoCodec::IsSettingVisible(const std::string &condition,
+                                      const std::string &value,
+                                      const CSetting *setting, void *data) {
     if(setting == nullptr || value.empty())
         return false;
 #if 0
@@ -34,17 +35,20 @@ bool CDVDVideoCodec::IsSettingVisible(const std::string &condition, const std::s
           return false; // this will also hide nvidia settings on intel hardware
         }
 #endif
-    // if we don't know the hardware we are running on e.g. amd oss vdpau
-    // or fglrx with xvba-driver we show everything
+    // if we don't know the hardware we are running on e.g. amd oss
+    // vdpau or fglrx with xvba-driver we show everything
     return true;
 }
 
-bool CDVDVideoCodec::IsCodecDisabled(const std::map<AVCodecID, std::string> &map, AVCodecID id) {
+bool CDVDVideoCodec::IsCodecDisabled(
+    const std::map<AVCodecID, std::string> &map, AVCodecID id) {
     auto codec = map.find(id);
     if(codec != map.end()) {
         return false;
-        //     return (!CSettings::GetInstance().GetBool(codec->second) ||
-        //             !CDVDVideoCodec::IsSettingVisible("unused", "unused",
+        //     return
+        //     (!CSettings::GetInstance().GetBool(codec->second) ||
+        //             !CDVDVideoCodec::IsSettingVisible("unused",
+        //             "unused",
         //                                               CSettings::GetInstance().GetSetting(codec->second),
         //                                               nullptr));
     }

@@ -46,7 +46,8 @@ public:
     void Release();
 
     const tTVPPrerenderedCharacterItem *Find(tjs_char ch); // serch character
-    void Retrieve(const tTVPPrerenderedCharacterItem *item, tjs_uint8 *buffer, tjs_int bufferpitch);
+    void Retrieve(const tTVPPrerenderedCharacterItem *item, tjs_uint8 *buffer,
+                  tjs_int bufferpitch);
 };
 
 #endif // __TVP_PRERENDERED_FONT_H__

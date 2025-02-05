@@ -376,10 +376,10 @@ ttstr TVPStartupScriptName(TJS_W("startup.tjs"));
 // Garbage Collection stuff
 //---------------------------------------------------------------------------
 class tTVPTJSGCCallback : public tTVPCompactEventCallbackIntf {
-    void TJS_INTF_METHOD OnCompact(tjs_int level) override {
+    void OnCompact(tjs_int level) override {
         // OnCompact method from tTVPCompactEventCallbackIntf
-        // called when the application is idle, deactivated, minimized, or
-        // etc...
+        // called when the application is idle, deactivated,
+        // minimized, or etc...
         if(TVPScriptEngine) {
             if(level >= TVP_COMPACT_LEVEL_IDLE) {
                 TVPScriptEngine->DoGarbageCollection();
@@ -477,15 +477,18 @@ void TVPInitScriptEngine() {
         auto dsp = instance;
         tTJSVariant val(dsp /*, dsp */);
         dsp->Release();
-        global->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, classname, nullptr, &val, global);
+        global->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, classname, nullptr,
+                        &val, global);
     };
 
     /* classes */
     registerObject(TJS_W("Debug"), TVPCreateNativeClass_Debug());
     registerObject(TJS_W("Font"), TVPCreateNativeClass_Font());
     registerObject(TJS_W("Layer"), TVPCreateNativeClass_Layer());
-    registerObject(TJS_W("CDDASoundBuffer"), TVPCreateNativeClass_CDDASoundBuffer());
-    registerObject(TJS_W("MIDISoundBuffer"), TVPCreateNativeClass_MIDISoundBuffer());
+    registerObject(TJS_W("CDDASoundBuffer"),
+                   TVPCreateNativeClass_CDDASoundBuffer());
+    registerObject(TJS_W("MIDISoundBuffer"),
+                   TVPCreateNativeClass_MIDISoundBuffer());
     registerObject(TJS_W("Timer"), TVPCreateNativeClass_Timer());
     registerObject(TJS_W("AsyncTrigger"), TVPCreateNativeClass_AsyncTrigger());
     registerObject(TJS_W("System"), TVPCreateNativeClass_System());
@@ -498,32 +501,36 @@ void TVPInitScriptEngine() {
                    TVPCreateNativeClass_Scripts()); // declared in this file
     registerObject(TJS_W("Rect"), TVPCreateNativeClass_Rect());
     registerObject(TJS_W("Bitmap"), TVPCreateNativeClass_Bitmap());
-    registerObject(TJS_W("ImageFunction"), TVPCreateNativeClass_ImageFunction());
-    registerObject(TJS_W("BitmapLayerTreeOwner"), TVPCreateNativeClass_BitmapLayerTreeOwner());
+    registerObject(TJS_W("ImageFunction"),
+                   TVPCreateNativeClass_ImageFunction());
+    registerObject(TJS_W("BitmapLayerTreeOwner"),
+                   TVPCreateNativeClass_BitmapLayerTreeOwner());
 
     /* KAG special support */
     registerObject(TJS_W("KAGParser"), TVPCreateNativeClass_KAGParser());
 
     /* WaveSoundBuffer and its filters */
     iTJSDispatch2 *waveclass = nullptr;
-    registerObject(TJS_W("WaveSoundBuffer"), (waveclass = TVPCreateNativeClass_WaveSoundBuffer()));
+    registerObject(TJS_W("WaveSoundBuffer"),
+                   (waveclass = TVPCreateNativeClass_WaveSoundBuffer()));
     dsp = new tTJSNC_PhaseVocoder();
     val = tTJSVariant(dsp);
     dsp->Release();
-    waveclass->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP | TJS_STATICMEMBER, TJS_W("PhaseVocoder"), nullptr, &val,
-                       waveclass);
+    waveclass->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP | TJS_STATICMEMBER,
+                       TJS_W("PhaseVocoder"), nullptr, &val, waveclass);
 
     /* Window and its drawdevices */
     iTJSDispatch2 *windowclass = nullptr;
-    registerObject(TJS_W("Window"), (windowclass = TVPCreateNativeClass_Window()));
+    registerObject(TJS_W("Window"),
+                   (windowclass = TVPCreateNativeClass_Window()));
     dsp = new tTJSNC_BasicDrawDevice();
     val = tTJSVariant(dsp);
     dsp->Release();
-    windowclass->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP | TJS_STATICMEMBER, TJS_W("BasicDrawDevice"), nullptr, &val,
-                         windowclass);
+    windowclass->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP | TJS_STATICMEMBER,
+                         TJS_W("BasicDrawDevice"), nullptr, &val, windowclass);
 
-    windowclass->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP | TJS_STATICMEMBER, TJS_W("PassThroughDrawDevice"), nullptr,
-                         &val,
+    windowclass->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP | TJS_STATICMEMBER,
+                         TJS_W("PassThroughDrawDevice"), nullptr, &val,
                          windowclass); // compatible for old version kr2
 
     CreateShortCutKeyCodeTable();
@@ -531,7 +538,8 @@ void TVPInitScriptEngine() {
     auto *gWindowMenuProperty = new WindowMenuProperty();
     val = tTJSVariant(gWindowMenuProperty);
     gWindowMenuProperty->Release();
-    windowclass->PropSet(TJS_MEMBERENSURE, TJS_W("menu"), nullptr, &val, windowclass);
+    windowclass->PropSet(TJS_MEMBERENSURE, TJS_W("menu"), nullptr, &val,
+                         windowclass);
     registerObject(TJS_W("MenuItem"), TVPCreateNativeClass_MenuItem());
 
     // Add Extension Classes
@@ -555,8 +563,8 @@ void TVPUninitScriptEngine() {
     // TVPScriptEngine->Shutdown();
     TVPScriptEngine->Release();
     /*
-        Objects, theirs lives are contolled by reference counter, may not be all
-        freed here in some occations.
+        Objects, theirs lives are contolled by reference counter, may
+       not be all freed here in some occations.
     */
     TVPScriptEngine = nullptr;
 }
@@ -600,7 +608,8 @@ void TVPExecuteScript(const ttstr &content, tTJSVariant *result) {
 }
 
 //---------------------------------------------------------------------------
-void TVPExecuteScript(const ttstr &content, const ttstr &name, tjs_int lineofs, tTJSVariant *result) {
+void TVPExecuteScript(const ttstr &content, const ttstr &name, tjs_int lineofs,
+                      tTJSVariant *result) {
     if(TVPScriptEngine)
         TVPScriptEngine->ExecScript(content, result, nullptr, &name, lineofs);
     else
@@ -608,7 +617,8 @@ void TVPExecuteScript(const ttstr &content, const ttstr &name, tjs_int lineofs, 
 }
 
 //---------------------------------------------------------------------------
-void TVPExecuteScript(const ttstr &content, iTJSDispatch2 *context, tTJSVariant *result) {
+void TVPExecuteScript(const ttstr &content, iTJSDispatch2 *context,
+                      tTJSVariant *result) {
     if(TVPScriptEngine)
         TVPScriptEngine->ExecScript(content, result, context);
     else
@@ -616,8 +626,8 @@ void TVPExecuteScript(const ttstr &content, iTJSDispatch2 *context, tTJSVariant 
 }
 
 //---------------------------------------------------------------------------
-void TVPExecuteScript(const ttstr &content, const ttstr &name, tjs_int lineofs, iTJSDispatch2 *context,
-                      tTJSVariant *result) {
+void TVPExecuteScript(const ttstr &content, const ttstr &name, tjs_int lineofs,
+                      iTJSDispatch2 *context, tTJSVariant *result) {
     if(TVPScriptEngine)
         TVPScriptEngine->ExecScript(content, result, context, &name, lineofs);
     else
@@ -628,18 +638,23 @@ void TVPExecuteScript(const ttstr &content, const ttstr &name, tjs_int lineofs, 
 //---------------------------------------------------------------------------
 // TVPExecuteExpression
 //---------------------------------------------------------------------------
-void TVPExecuteExpression(const ttstr &content, tTJSVariant *result) { TVPExecuteExpression(content, nullptr, result); }
+void TVPExecuteExpression(const ttstr &content, tTJSVariant *result) {
+    TVPExecuteExpression(content, nullptr, result);
+}
 
 //---------------------------------------------------------------------------
-void TVPExecuteExpression(const ttstr &content, const ttstr &name, tjs_int lineofs, tTJSVariant *result) {
+void TVPExecuteExpression(const ttstr &content, const ttstr &name,
+                          tjs_int lineofs, tTJSVariant *result) {
     TVPExecuteExpression(content, name, lineofs, nullptr, result);
 }
 
 //---------------------------------------------------------------------------
-void TVPExecuteExpression(const ttstr &content, iTJSDispatch2 *context, tTJSVariant *result) {
+void TVPExecuteExpression(const ttstr &content, iTJSDispatch2 *context,
+                          tTJSVariant *result) {
     if(TVPScriptEngine) {
         iTJSConsoleOutput *output = TVPScriptEngine->GetConsoleOutput();
-        TVPScriptEngine->SetConsoleOutput(nullptr); // once set TJS console to nullptr
+        TVPScriptEngine->SetConsoleOutput(
+            nullptr); // once set TJS console to nullptr
         try {
             TVPScriptEngine->EvalExpression(content, result, context);
         } catch(...) {
@@ -653,13 +668,16 @@ void TVPExecuteExpression(const ttstr &content, iTJSDispatch2 *context, tTJSVari
 }
 
 //---------------------------------------------------------------------------
-void TVPExecuteExpression(const ttstr &content, const ttstr &name, tjs_int lineofs, iTJSDispatch2 *context,
+void TVPExecuteExpression(const ttstr &content, const ttstr &name,
+                          tjs_int lineofs, iTJSDispatch2 *context,
                           tTJSVariant *result) {
     if(TVPScriptEngine) {
         iTJSConsoleOutput *output = TVPScriptEngine->GetConsoleOutput();
-        TVPScriptEngine->SetConsoleOutput(nullptr); // once set TJS console to nullptr
+        TVPScriptEngine->SetConsoleOutput(
+            nullptr); // once set TJS console to nullptr
         try {
-            TVPScriptEngine->EvalExpression(content, result, context, &name, lineofs);
+            TVPScriptEngine->EvalExpression(content, result, context, &name,
+                                            lineofs);
         } catch(...) {
             TVPScriptEngine->SetConsoleOutput(output);
             throw;
@@ -674,7 +692,8 @@ void TVPExecuteExpression(const ttstr &content, const ttstr &name, tjs_int lineo
 //---------------------------------------------------------------------------
 // TVPExecuteBytecode
 //---------------------------------------------------------------------------
-void TVPExecuteBytecode(const tjs_uint8 *content, size_t len, iTJSDispatch2 *context, tTJSVariant *result,
+void TVPExecuteBytecode(const tjs_uint8 *content, size_t len,
+                        iTJSDispatch2 *context, tTJSVariant *result,
                         const tjs_char *name) {
     if(!TVPScriptEngine)
         TVPThrowInternalError;
@@ -684,12 +703,16 @@ void TVPExecuteBytecode(const tjs_uint8 *content, size_t len, iTJSDispatch2 *con
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TVPExecuteStorage(const ttstr &name, tTJSVariant *result, bool isexpression, const tjs_char *modestr) {
+void TVPExecuteStorage(const ttstr &name, tTJSVariant *result,
+                       bool isexpression, const tjs_char *modestr) {
     TVPExecuteStorage(name, nullptr, result, isexpression, modestr);
 }
-
+#include <filesystem>
+#include <fstream>
+#include <tjsByteCodeLoader.h>
 //---------------------------------------------------------------------------
-void TVPExecuteStorage(const ttstr &name, iTJSDispatch2 *context, tTJSVariant *result, bool isexpression,
+void TVPExecuteStorage(const ttstr &name, iTJSDispatch2 *context,
+                       tTJSVariant *result, bool isexpression,
                        const tjs_char *modestr) {
     // execute storage which contains script
     if(!TVPScriptEngine)
@@ -698,44 +721,100 @@ void TVPExecuteStorage(const ttstr &name, iTJSDispatch2 *context, tTJSVariant *r
     { // for bytecode
         ttstr place(TVPSearchPlacedPath(name));
         ttstr shortname(TVPExtractStorageName(place));
-        tTJSBinaryStream *stream = TVPCreateBinaryStreamForRead(place, modestr);
+        std::unique_ptr<tTJSBinaryStream> stream{ TVPCreateBinaryStreamForRead(
+            place, modestr) };
         if(stream) {
-            bool isbytecode = false;
-            try {
-                isbytecode = TVPScriptEngine->LoadByteCode(stream, result, context, shortname.c_str());
-            } catch(...) {
-                delete stream;
-                throw;
-            }
-            delete stream;
-            if(isbytecode)
+            bool isbytecode = TVPScriptEngine->LoadByteCode(
+                stream.get(), result, context, shortname.c_str());
+
+            if(isbytecode) {
+                // save extract binary file for debug!
+                //                auto loader =
+                //                std::make_unique<tTJSByteCodeLoader>(); auto
+                //                *buff =
+                //                    new tjs_uint8[static_cast<unsigned
+                //                    int>(stream->GetSize())];
+                //                stream->Read(buff,
+                //                static_cast<tjs_uint>(stream->GetSize()));
+                //
+                //                std::unique_ptr<tTJSScriptBlock,
+                //                                std::function<void(tTJSScriptBlock
+                //                                *)>>
+                //                    blk{ loader->ReadByteCode(TVPScriptEngine,
+                //                    name.c_str(),
+                //                                              buff,
+                //                                              stream->GetSize()),
+                //                         [](auto *ptr) { ptr->Release(); } };
+                //                delete[] buff;
+                //                if(!blk)
+                //                    return;
+                //                auto tmpPlace = place.AsStdString();
+                //                tmpPlace.replace(tmpPlace.find(".xp3>"),
+                //                std::strlen(".xp3>"),
+                //                                 "_xp3/");
+                //                std::filesystem::path absoluteScriptPath{
+                //                tmpPlace.substr(
+                //                    std::strlen("file://.")) };
+                //                std::filesystem::create_directories(
+                //                    absoluteScriptPath.parent_path());
+                //                auto memoryStream =
+                //                std::make_unique<tTVPMemoryStream>();
+                //                blk->Dump(memoryStream.get());
+                //
+                //                std::vector<char16_t>
+                //                buffer(memoryStream->GetSize() /
+                //                                             sizeof(char16_t));
+                //
+                //                memoryStream->Seek(0, TJS_BS_SEEK_SET);
+                //                memoryStream->Read(buffer.data(),
+                //                memoryStream->GetSize()); FILE *f =
+                //                fopen(absoluteScriptPath.c_str(), "wb");
+                //                // 写入 UTF-16 LE BOM 小端
+                //                char16_t bom = 0xFEFF;
+                //                fwrite(&bom, sizeof(char16_t), 1, f);
+                //
+                //                fwrite(buffer.data(), sizeof(char16_t),
+                //                buffer.size(), f); fclose(f);
+                // end
                 return;
+            }
         }
     }
 
     ttstr place(TVPSearchPlacedPath(name));
     ttstr shortname(TVPExtractStorageName(place));
-
-    iTJSTextReadStream *stream = TVPCreateTextStreamForRead(place, modestr);
+    std::unique_ptr<iTJSTextReadStream> stream{ TVPCreateTextStreamForRead(
+        place, modestr) };
     ttstr buffer;
-    try {
-        stream->Read(buffer, 0);
-    } catch(...) {
-        stream->Destruct();
-        throw;
-    }
-    stream->Destruct();
+    stream->Read(buffer, 0);
+
+    // save extract script file for debug!
+    //    auto tmpPlace = place.AsStdString();
+    //    auto i = tmpPlace.find(".xp3>");
+    //    if(i > -1) {
+    //        tmpPlace.replace(i, std::strlen(".xp3>"), "_xp3/");
+    //        std::filesystem::path absoluteScriptPath{ tmpPlace.substr(
+    //            std::strlen("file://.")) };
+    //        std::filesystem::create_directories(absoluteScriptPath.parent_path());
+    //        std::ofstream of{ absoluteScriptPath };
+    //        of << buffer.AsStdString() << std::endl;
+    //        of.close();
+    //    }
+    // end
 
     if(TVPScriptEngine) {
+
         if(!isexpression)
             TVPScriptEngine->ExecScript(buffer, result, context, &shortname);
         else
-            TVPScriptEngine->EvalExpression(buffer, result, context, &shortname);
+            TVPScriptEngine->EvalExpression(buffer, result, context,
+                                            &shortname);
     }
 }
 
 //---------------------------------------------------------------------------
-void TVPCompileStorage(const ttstr &name, bool isrequestresult, bool outputdebug, bool isexpression,
+void TVPCompileStorage(const ttstr &name, bool isrequestresult,
+                       bool outputdebug, bool isexpression,
                        const ttstr &outputpath) {
     // execute storage which contains script
     if(!TVPScriptEngine)
@@ -757,8 +836,9 @@ void TVPCompileStorage(const ttstr &name, bool isrequestresult, bool outputdebug
     tTJSBinaryStream *outputstream = TVPCreateStream(outputpath, TJS_BS_WRITE);
     if(TVPScriptEngine) {
         try {
-            TVPScriptEngine->CompileScript(buffer.c_str(), outputstream, isrequestresult, outputdebug, isexpression,
-                                           name.c_str(), 0);
+            TVPScriptEngine->CompileScript(buffer.c_str(), outputstream,
+                                           isrequestresult, outputdebug,
+                                           isexpression, name.c_str(), 0);
         } catch(...) {
             delete outputstream;
             throw;
@@ -782,7 +862,8 @@ void TVPCreateMessageMapFile(const ttstr &filename) {
 
     script += TJS_W("}");
 
-    iTJSTextWriteStream *stream = TVPCreateTextStreamForWrite(filename, TJS_W(""));
+    iTJSTextWriteStream *stream =
+        TVPCreateTextStreamForWrite(filename, TJS_W(""));
     try {
         stream->Write(script);
     } catch(...) {
@@ -850,13 +931,17 @@ void TVPExecuteStartupScript() {
     }
 
     if(!strPatchError.IsEmpty()) {
-        ttstr msg = LocaleConfigManager::GetInstance()->GetText("startup_patch_fail");
+        ttstr msg =
+            LocaleConfigManager::GetInstance()->GetText("startup_patch_fail");
         msg += "\n";
         msg += strPatchError;
         std::vector<ttstr> btns;
-        btns.emplace_back(LocaleConfigManager::GetInstance()->GetText("msgbox_ok"));
-        btns.emplace_back(LocaleConfigManager::GetInstance()->GetText("browse_patch_lib"));
-        if(TVPShowSimpleMessageBox(msg, TVPGetPackageVersionString(), btns) == 1) {
+        btns.emplace_back(
+            LocaleConfigManager::GetInstance()->GetText("msgbox_ok"));
+        btns.emplace_back(
+            LocaleConfigManager::GetInstance()->GetText("browse_patch_lib"));
+        if(TVPShowSimpleMessageBox(msg, TVPGetPackageVersionString(), btns) ==
+           1) {
             TVPOpenPatchLibUrl();
         }
     }
@@ -881,7 +966,8 @@ void TVPExecuteStartupScript() {
         }
         if(TVPStartupSuccess) {
         } else {
-            // try direct execute initialize.tjs to compatible for some patch
+            // try direct execute initialize.tjs to compatible for
+            // some patch
             TVPExecuteStorage(TJS_W("System/Initialize.tjs"));
             TVPStartupSuccess = true;
         }
@@ -913,7 +999,8 @@ static bool TJSGetSystem_exceptionHandler_Object(tTJSVariantClosure &dest) {
     tTJSVariantClosure clo;
 
     tjs_error er;
-    er = global->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("System"), nullptr, &val, global);
+    er = global->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("System"), nullptr, &val,
+                         global);
     if(TJS_FAILED(er))
         return false;
 
@@ -925,7 +1012,8 @@ static bool TJSGetSystem_exceptionHandler_Object(tTJSVariantClosure &dest) {
     if(clo.Object == nullptr)
         return false;
 
-    clo.PropGet(TJS_MEMBERMUSTEXIST, TJS_W("exceptionHandler"), nullptr, &val2, nullptr);
+    clo.PropGet(TJS_MEMBERMUSTEXIST, TJS_W("exceptionHandler"), nullptr, &val2,
+                nullptr);
 
     if(val2.Type() != tvtObject)
         return false;
@@ -954,7 +1042,8 @@ bool TVPProcessUnhandledException(eTJSScriptException &e) {
 
         // get System.exceptionHandler
         if(!TJSGetSystem_exceptionHandler_Object(clo))
-            return false; // System.exceptionHandler cannot be retrieved
+            return false; // System.exceptionHandler cannot be
+                          // retrieved
 
         // execute clo
         tTJSVariant obj(e.GetValue());
@@ -995,7 +1084,8 @@ bool TVPProcessUnhandledException(eTJSScriptError &e) {
 
         // get System.exceptionHandler
         if(!TJSGetSystem_exceptionHandler_Object(clo))
-            return false; // System.exceptionHandler cannot be retrieved
+            return false; // System.exceptionHandler cannot be
+                          // retrieved
 
         // execute clo
         tTJSVariant obj;
@@ -1039,7 +1129,8 @@ bool TVPProcessUnhandledException(eTJS &e) {
 
         // get System.exceptionHandler
         if(!TJSGetSystem_exceptionHandler_Object(clo))
-            return false; // System.exceptionHandler cannot be retrieved
+            return false; // System.exceptionHandler cannot be
+                          // retrieved
 
         // execute clo
         tTJSVariant obj;
@@ -1087,8 +1178,8 @@ void TVPBeforeProcessUnhandledException() { TVPDumpHWException(); }
 //---------------------------------------------------------------------------
 /*
         These functions display the error location, reason, etc.
-        And disable the script event dispatching to avoid massive occurrence of
-        errors.
+        And disable the script event dispatching to avoid massive
+   occurrence of errors.
 */
 extern ttstr TVPGetErrorDialogTitle();
 
@@ -1098,11 +1189,13 @@ void TVPShowScriptException(eTJS &e) {
     TVPOnError();
 
     if(!TVPSystemUninitCalled) {
-        ttstr errstr = (ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e.GetMessage());
-        TVPAddLog(ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e.GetMessage());
+        ttstr errstr =
+            (ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e.GetMessage());
+        TVPAddLog(ttstr(TVPScriptExceptionRaised) + TJS_W("\n") +
+                  e.GetMessage());
         TVPShowSimpleMessageBox(errstr, TVPGetErrorDialogTitle());
-        // Application->MessageDlg( errstr.AsStdString(), std::wstring(),
-        // mtError, mbOK );
+        // Application->MessageDlg( errstr.AsStdString(),
+        // std::wstring(), mtError, mbOK );
         TVPTerminateSync(1);
     }
 }
@@ -1113,8 +1206,10 @@ void TVPShowScriptException(eTJSScriptError &e) {
     TVPOnError();
 
     if(!TVPSystemUninitCalled) {
-        ttstr errstr = (ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e.GetMessage());
-        TVPAddLog(ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e.GetMessage());
+        ttstr errstr =
+            (ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e.GetMessage());
+        TVPAddLog(ttstr(TVPScriptExceptionRaised) + TJS_W("\n") +
+                  e.GetMessage());
         if(e.GetTrace().GetLen() != 0)
             TVPAddLog(ttstr(TJS_W("trace : ")) + e.GetTrace());
         TVPShowSimpleMessageBox(errstr, TVPGetErrorDialogTitle());
@@ -1134,16 +1229,19 @@ void TVPShowScriptException(eTJSScriptError &e) {
                 }
                 TVPGetLocalName(path);
                 std::wstring scriptPath(path.AsStdString());
-                tjs_int lineno =
-                    1 + e.GetBlockNoAddRef()->SrcPosToLine(e.GetPosition()) - e.GetBlockNoAddRef()->GetLineOffset();
+                tjs_int lineno = 1 +
+                    e.GetBlockNoAddRef()->SrcPosToLine(e.GetPosition()) -
+                    e.GetBlockNoAddRef()->GetLineOffset();
 
 #if defined(WIN32) && defined(_DEBUG) && !defined(ENABLE_DEBUGGER)
                 // デバッガ実行されている時、Visual Studio
                 // で行ジャンプする時の指定をデバッグ出力に出して、break
                 // で停止する
                 if(::IsDebuggerPresent()) {
-                    std::wstring debuglile(std::wstring(L"2>") + path.AsStdString() + L"(" + std::to_wstring(lineno) +
-                                           L"): error :" + errstr.AsStdString());
+                    std::wstring debuglile(
+                        std::wstring(L"2>") + path.AsStdString() + L"(" +
+                        std::to_wstring(lineno) + L"): error :" +
+                        errstr.AsStdString());
                     ::OutputDebugString(debuglile.c_str());
                     // ここで
                     // breakで停止した時、直前の出力行をダブルクリックすれば、例外箇所のスクリプトをVisual
@@ -1151,7 +1249,8 @@ void TVPShowScriptException(eTJSScriptError &e) {
                     ::DebugBreak();
                 }
 #endif
-                scriptPath = std::wstring(L"\"") + scriptPath + std::wstring(L"\"");
+                scriptPath =
+                    std::wstring(L"\"") + scriptPath + std::wstring(L"\"");
                 tTJSVariant val;
                 if(TVPGetCommandLine(TJS_W("-exceptionexe"), &val)) {
                     ttstr exepath(val);
@@ -1161,14 +1260,16 @@ void TVPShowScriptException(eTJSScriptError &e) {
                         ttstr arg(val);
                         if(!exepath.IsEmpty() && !arg.IsEmpty()) {
                             std::wstring str(arg.AsStdString());
-                            str =
-                                ApplicationSpecialPath::ReplaceStringAll(str, std::wstring(L"%filepath%"), scriptPath);
-                            str = ApplicationSpecialPath::ReplaceStringAll(str, std::wstring(L"%line%"),
-                                                                           std::to_wstring(lineno));
+                            str = ApplicationSpecialPath::ReplaceStringAll(
+                                str, std::wstring(L"%filepath%"), scriptPath);
+                            str = ApplicationSpecialPath::ReplaceStringAll(
+                                str, std::wstring(L"%line%"),
+                                std::to_wstring(lineno));
                             // exepath = exepath + ttstr(str);
                             //_wsystem( exepath.c_str() );
                             arg = ttstr(str);
-                            TVPAddLog(ttstr(TJS_W("(execute) ")) + exepath + ttstr(TJS_W(" ")) + arg);
+                            TVPAddLog(ttstr(TJS_W("(execute) ")) + exepath +
+                                      ttstr(TJS_W(" ")) + arg);
                             TVPShellExecute(exepath, arg);
                         }
                     }
@@ -1202,12 +1303,13 @@ void TVPInitializeStartupScript() {
 tjs_uint32 tTJSNC_Scripts::ClassID = -1;
 
 tTJSNC_Scripts::tTJSNC_Scripts() :
-    inherited(TJS_W("Scripts")){ // registration of native members
+    inherited(TJS_W("Scripts")){
+        // registration of native members
 
-                                 TJS_BEGIN_NATIVE_MEMBERS(Scripts) TJS_DECL_EMPTY_FINALIZE_METHOD
-                                     //----------------------------------------------------------------------
-                                     TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(
-                                         /*TJS class name*/ Scripts){ return TJS_S_OK;
+        TJS_BEGIN_NATIVE_MEMBERS(Scripts) TJS_DECL_EMPTY_FINALIZE_METHOD
+            //----------------------------------------------------------------------
+            TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(
+                /*TJS class name*/ Scripts){ return TJS_S_OK;
 }
 TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ Scripts)
 //----------------------------------------------------------------------
@@ -1226,7 +1328,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ execStorage) {
     if(numparams >= 2 && param[1]->Type() != tvtVoid)
         modestr = *param[1];
 
-    iTJSDispatch2 *context = numparams >= 3 && param[2]->Type() != tvtVoid ? param[2]->AsObjectNoAddRef() : nullptr;
+    iTJSDispatch2 *context = numparams >= 3 && param[2]->Type() != tvtVoid
+        ? param[2]->AsObjectNoAddRef()
+        : nullptr;
 
     TVPExecuteStorage(name, context, result, false, modestr.c_str());
 
@@ -1245,7 +1349,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ evalStorage) {
     if(numparams >= 2 && param[1]->Type() != tvtVoid)
         modestr = *param[1];
 
-    iTJSDispatch2 *context = numparams >= 3 && param[2]->Type() != tvtVoid ? param[2]->AsObjectNoAddRef() : nullptr;
+    iTJSDispatch2 *context = numparams >= 3 && param[2]->Type() != tvtVoid
+        ? param[2]->AsObjectNoAddRef()
+        : nullptr;
 
     TVPExecuteStorage(name, context, result, true, modestr.c_str());
 
@@ -1253,7 +1359,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ evalStorage) {
 }
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ evalStorage)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ compileStorage) // bytecode
+TJS_BEGIN_NATIVE_METHOD_DECL(
+    /*func. name*/ compileStorage) // bytecode
 {
     if(numparams < 2)
         return TJS_E_BADPARAMCOUNT;
@@ -1295,7 +1402,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ exec) {
     if(numparams >= 3 && param[2]->Type() != tvtVoid)
         lineofs = *param[2];
 
-    iTJSDispatch2 *context = numparams >= 4 && param[3]->Type() != tvtVoid ? param[3]->AsObjectNoAddRef() : nullptr;
+    iTJSDispatch2 *context = numparams >= 4 && param[3]->Type() != tvtVoid
+        ? param[3]->AsObjectNoAddRef()
+        : nullptr;
 
     if(TVPScriptEngine)
         TVPScriptEngine->ExecScript(content, result, context, &name, lineofs);
@@ -1320,10 +1429,13 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ eval) {
     if(numparams >= 3 && param[2]->Type() != tvtVoid)
         lineofs = *param[2];
 
-    iTJSDispatch2 *context = numparams >= 4 && param[3]->Type() != tvtVoid ? param[3]->AsObjectNoAddRef() : nullptr;
+    iTJSDispatch2 *context = numparams >= 4 && param[3]->Type() != tvtVoid
+        ? param[3]->AsObjectNoAddRef()
+        : nullptr;
 
     if(TVPScriptEngine)
-        TVPScriptEngine->EvalExpression(content, result, context, &name, lineofs);
+        TVPScriptEngine->EvalExpression(content, result, context, &name,
+                                        lineofs);
     else
         TVPThrowInternalError;
 
@@ -1365,7 +1477,8 @@ TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ dumpStringHeap)
 #endif
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/
-                             setCallMissing) /* UNDOCUMENTED: subject to change
+                             setCallMissing) /* UNDOCUMENTED: subject
+                                              * to change
                                               */
 {
     // set to call "missing" method
@@ -1382,11 +1495,13 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/
     return TJS_S_OK;
 }
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/
-                                  setCallMissing) /* UNDOCUMENTED: subject to
-                                                     change */
+                                  setCallMissing) /* UNDOCUMENTED:
+                                                     subject to change
+                                                   */
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/
-                             getClassNames) /* UNDOCUMENTED: subject to change
+                             getClassNames) /* UNDOCUMENTED: subject
+                                             * to change
                                              */
 {
     // get class name as an array, last (most end) class first.
@@ -1421,10 +1536,12 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/
     return TJS_S_OK;
 }
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/
-                                  getClassNames) /* UNDOCUMENTED: subject to
-                                                    change */
+                                  getClassNames) /* UNDOCUMENTED:
+                                                    subject to change
+                                                  */
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(textEncoding){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetDefaultReadEncoding();
+TJS_BEGIN_NATIVE_PROP_DECL(textEncoding){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetDefaultReadEncoding();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER

@@ -22,10 +22,11 @@ android {
             cmake {
                 targets 'krkr2'
                 cppFlags '-fsigned-char'
+                arguments '-DANDROID_STL=c++_shared'
             }
         }
         versionCode Integer.parseInt(new Date().format('yyyyMMddHH'))
-        versionName '1.4.0'
+        versionName '1.5.0'
     }
 
     externalNativeBuild {
@@ -79,6 +80,10 @@ android {
 
     }
 
+    buildFeatures {
+        prefab true
+    }
+
     kotlinOptions {
         jvmTarget = "17"
     }
@@ -114,6 +119,8 @@ dependencies {
     //implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':sdl')
     implementation project(':cocos2dx')
+
+    implementation 'com.google.oboe:oboe:1.9.3'
 
     //noinspection GradleDependency
     implementation 'com.google.android.material:material:1.12.0'

@@ -88,8 +88,8 @@ void CAEChannelInfo::ResolveChannels(const CAEChannelInfo &rhs) {
             newInfo += m_channels[i];
     }
 
-    /* we need to ensure we end up with rear or side channels for downmix to
-     * work
+    /* we need to ensure we end up with rear or side channels for
+     * downmix to work
      */
     if(srcHasSL && !dstHasSL && dstHasRL && !newInfo.HasChannel(AE_CH_BL))
         newInfo += AE_CH_BL;
@@ -129,7 +129,8 @@ CAEChannelInfo &CAEChannelInfo::operator=(const CAEChannelInfo &rhs) {
 
     /* clone the information */
     m_channelCount = rhs.m_channelCount;
-    memcpy(m_channels, rhs.m_channels, sizeof(enum AEChannel) * rhs.m_channelCount);
+    memcpy(m_channels, rhs.m_channels,
+           sizeof(enum AEChannel) * rhs.m_channelCount);
 
     return *this;
 }
@@ -144,8 +145,8 @@ CAEChannelInfo &CAEChannelInfo::operator=(const enum AEChannel *rhs) {
         ++m_channelCount;
     }
 
-    /* the last entry should be nullptr, if not we were passed a non nullptr
-     * terminated list */
+    /* the last entry should be nullptr, if not we were passed a non
+     * nullptr terminated list */
     assert(rhs[m_channelCount] == AE_CH_NULL);
 
     return *this;
@@ -163,9 +164,12 @@ CAEChannelInfo &CAEChannelInfo::operator=(const enum AEStdChLayout rhs) {
         { AE_CH_FL, AE_CH_FR, AE_CH_BL, AE_CH_BR, AE_CH_NULL },
         { AE_CH_FL, AE_CH_FR, AE_CH_BL, AE_CH_BR, AE_CH_LFE, AE_CH_NULL },
         { AE_CH_FL, AE_CH_FR, AE_CH_FC, AE_CH_BL, AE_CH_BR, AE_CH_NULL },
-        { AE_CH_FL, AE_CH_FR, AE_CH_FC, AE_CH_LFE, AE_CH_BL, AE_CH_BR, AE_CH_NULL },
-        { AE_CH_FL, AE_CH_FR, AE_CH_FC, AE_CH_BL, AE_CH_BR, AE_CH_SL, AE_CH_SR, AE_CH_NULL },
-        { AE_CH_FL, AE_CH_FR, AE_CH_FC, AE_CH_LFE, AE_CH_BL, AE_CH_BR, AE_CH_SL, AE_CH_SR, AE_CH_NULL }
+        { AE_CH_FL, AE_CH_FR, AE_CH_FC, AE_CH_LFE, AE_CH_BL, AE_CH_BR,
+          AE_CH_NULL },
+        { AE_CH_FL, AE_CH_FR, AE_CH_FC, AE_CH_BL, AE_CH_BR, AE_CH_SL, AE_CH_SR,
+          AE_CH_NULL },
+        { AE_CH_FL, AE_CH_FR, AE_CH_FC, AE_CH_LFE, AE_CH_BL, AE_CH_BR, AE_CH_SL,
+          AE_CH_SR, AE_CH_NULL }
     };
 
     *this = layouts[rhs];
@@ -185,7 +189,9 @@ bool CAEChannelInfo::operator==(const CAEChannelInfo &rhs) const {
     return true;
 }
 
-bool CAEChannelInfo::operator!=(const CAEChannelInfo &rhs) const { return !(*this == rhs); }
+bool CAEChannelInfo::operator!=(const CAEChannelInfo &rhs) const {
+    return !(*this == rhs);
+}
 
 CAEChannelInfo &CAEChannelInfo::operator+=(const enum AEChannel &rhs) {
     assert(m_channelCount < AE_CH_MAX);
@@ -235,18 +241,23 @@ const char *CAEChannelInfo::GetChName(const enum AEChannel ch) {
     assert(ch >= 0 && ch < AE_CH_MAX);
 
     static const char *channels[AE_CH_MAX] = {
-        "RAW", "FL", "FR", "FC", "LFE", "BL", "BR", "FLOC", "FROC", "BC", "SL", "SR", "TFL", "TFR", "TFC", "TC", "TBL",
-        "TBR", "TBC", "BLOC", "BROC",
+        "RAW", "FL", "FR", "FC", "LFE", "BL", "BR", "FLOC", "FROC", "BC", "SL",
+        "SR", "TFL", "TFR", "TFC", "TC", "TBL", "TBR", "TBC", "BLOC", "BROC",
 
         /* p16v devices */
-        "UNKNOWN1", "UNKNOWN2", "UNKNOWN3", "UNKNOWN4", "UNKNOWN5", "UNKNOWN6", "UNKNOWN7", "UNKNOWN8", "UNKNOWN9",
-        "UNKNOWN10", "UNKNOWN11", "UNKNOWN12", "UNKNOWN13", "UNKNOWN14", "UNKNOWN15", "UNKNOWN16", "UNKNOWN17",
-        "UNKNOWN18", "UNKNOWN19", "UNKNOWN20", "UNKNOWN21", "UNKNOWN22", "UNKNOWN23", "UNKNOWN24", "UNKNOWN25",
-        "UNKNOWN26", "UNKNOWN27", "UNKNOWN28", "UNKNOWN29", "UNKNOWN30", "UNKNOWN31", "UNKNOWN32", "UNKNOWN33",
-        "UNKNOWN34", "UNKNOWN35", "UNKNOWN36", "UNKNOWN37", "UNKNOWN38", "UNKNOWN39", "UNKNOWN40", "UNKNOWN41",
-        "UNKNOWN42", "UNKNOWN43", "UNKNOWN44", "UNKNOWN45", "UNKNOWN46", "UNKNOWN47", "UNKNOWN48", "UNKNOWN49",
-        "UNKNOWN50", "UNKNOWN51", "UNKNOWN52", "UNKNOWN53", "UNKNOWN54", "UNKNOWN55", "UNKNOWN56", "UNKNOWN57",
-        "UNKNOWN58", "UNKNOWN59", "UNKNOWN60", "UNKNOWN61", "UNKNOWN62", "UNKNOWN63", "UNKNOWN64"
+        "UNKNOWN1", "UNKNOWN2", "UNKNOWN3", "UNKNOWN4", "UNKNOWN5", "UNKNOWN6",
+        "UNKNOWN7", "UNKNOWN8", "UNKNOWN9", "UNKNOWN10", "UNKNOWN11",
+        "UNKNOWN12", "UNKNOWN13", "UNKNOWN14", "UNKNOWN15", "UNKNOWN16",
+        "UNKNOWN17", "UNKNOWN18", "UNKNOWN19", "UNKNOWN20", "UNKNOWN21",
+        "UNKNOWN22", "UNKNOWN23", "UNKNOWN24", "UNKNOWN25", "UNKNOWN26",
+        "UNKNOWN27", "UNKNOWN28", "UNKNOWN29", "UNKNOWN30", "UNKNOWN31",
+        "UNKNOWN32", "UNKNOWN33", "UNKNOWN34", "UNKNOWN35", "UNKNOWN36",
+        "UNKNOWN37", "UNKNOWN38", "UNKNOWN39", "UNKNOWN40", "UNKNOWN41",
+        "UNKNOWN42", "UNKNOWN43", "UNKNOWN44", "UNKNOWN45", "UNKNOWN46",
+        "UNKNOWN47", "UNKNOWN48", "UNKNOWN49", "UNKNOWN50", "UNKNOWN51",
+        "UNKNOWN52", "UNKNOWN53", "UNKNOWN54", "UNKNOWN55", "UNKNOWN56",
+        "UNKNOWN57", "UNKNOWN58", "UNKNOWN59", "UNKNOWN60", "UNKNOWN61",
+        "UNKNOWN62", "UNKNOWN63", "UNKNOWN64"
     };
 
     return channels[ch];
@@ -267,7 +278,8 @@ bool CAEChannelInfo::ContainsChannels(const CAEChannelInfo &rhs) const {
     return true;
 }
 
-void CAEChannelInfo::ReplaceChannel(const enum AEChannel from, const enum AEChannel to) {
+void CAEChannelInfo::ReplaceChannel(const enum AEChannel from,
+                                    const enum AEChannel to) {
     for(unsigned int i = 0; i < m_channelCount; ++i) {
         if(m_channels[i] == from) {
             m_channels[i] = to;
@@ -276,18 +288,20 @@ void CAEChannelInfo::ReplaceChannel(const enum AEChannel from, const enum AEChan
     }
 }
 
-int CAEChannelInfo::BestMatch(const std::vector<CAEChannelInfo> &dsts, int *score) const {
+int CAEChannelInfo::BestMatch(const std::vector<CAEChannelInfo> &dsts,
+                              int *score) const {
     CAEChannelInfo availableDstChannels;
     for(unsigned int i = 0; i < dsts.size(); i++)
         availableDstChannels.AddMissingChannels(dsts[i]);
 
-    /* if we have channels not existing in any destination layout but that
-     * are remappable (e.g. RC => RL+RR), do those remaps */
+    /* if we have channels not existing in any destination layout but
+     * that are remappable (e.g. RC => RL+RR), do those remaps */
     CAEChannelInfo src(*this);
     src.ResolveChannels(availableDstChannels);
 
     bool remapped = (src != *this);
-    /* good enough approximation (does not account for added channels) */
+    /* good enough approximation (does not account for added channels)
+     */
     int dropped = std::max((int)src.Count() - (int)Count(), 0);
 
     int bestScore = std::numeric_limits<int>::min();
@@ -303,7 +317,8 @@ int CAEChannelInfo::BestMatch(const std::vector<CAEChannelInfo> &dsts, int *scor
         int missingChannels = src.Count() - okChannels;
         int extraChannels = dst.Count() - okChannels;
 
-        int curScore = 0 - (missingChannels + dropped) * 1000 - extraChannels * 10 - (remapped ? 1 : 0);
+        int curScore = 0 - (missingChannels + dropped) * 1000 -
+            extraChannels * 10 - (remapped ? 1 : 0);
 
         if(curScore > bestScore) {
             bestScore = curScore;

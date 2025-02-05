@@ -21,12 +21,15 @@ public:
 /**
  * CDVDMsgGeneralSynchronize --- GENERAL_SYNCRONIZR
  */
-CDVDMsgGeneralSynchronize::CDVDMsgGeneralSynchronize(unsigned int timeout, unsigned int sources) :
-    CDVDMsg(GENERAL_SYNCHRONIZE), m_p(new CDVDMsgGeneralSynchronizePriv(timeout, sources)) {}
+CDVDMsgGeneralSynchronize::CDVDMsgGeneralSynchronize(unsigned int timeout,
+                                                     unsigned int sources) :
+    CDVDMsg(GENERAL_SYNCHRONIZE),
+    m_p(new CDVDMsgGeneralSynchronizePriv(timeout, sources)) {}
 
 CDVDMsgGeneralSynchronize::~CDVDMsgGeneralSynchronize() { delete m_p; }
 
-bool CDVDMsgGeneralSynchronize::Wait(unsigned int milliseconds, unsigned int source) {
+bool CDVDMsgGeneralSynchronize::Wait(unsigned int milliseconds,
+                                     unsigned int source) {
     CSingleLock lock(m_p->section);
 
     Timer timeout(milliseconds);
@@ -38,14 +41,18 @@ bool CDVDMsgGeneralSynchronize::Wait(unsigned int milliseconds, unsigned int sou
     m_p->condition.notify_all();
 
     while(m_p->reached != m_p->sources) {
-        milliseconds = std::min(m_p->timeout.MillisLeft(), timeout.MillisLeft());
+        milliseconds =
+            std::min(m_p->timeout.MillisLeft(), timeout.MillisLeft());
         if(!milliseconds)
             milliseconds = 1;
-        if(m_p->condition.wait_for(lock, std::chrono::milliseconds(milliseconds)) != std::cv_status::timeout)
+        if(m_p->condition.wait_for(lock,
+                                   std::chrono::milliseconds(milliseconds)) !=
+           std::cv_status::timeout)
             continue;
 
         if(m_p->timeout.IsTimePast()) {
-            //	CLog::Log(LOGDEBUG, "CDVDMsgGeneralSynchronize - global
+            //	CLog::Log(LOGDEBUG, "CDVDMsgGeneralSynchronize -
+            // global
             // timeout");
             return true; // global timeout, we are done
         }
@@ -56,7 +63,8 @@ bool CDVDMsgGeneralSynchronize::Wait(unsigned int milliseconds, unsigned int sou
     return true;
 }
 
-void CDVDMsgGeneralSynchronize::Wait(std::atomic<bool> &abort, unsigned int source) {
+void CDVDMsgGeneralSynchronize::Wait(std::atomic<bool> &abort,
+                                     unsigned int source) {
     while(!Wait(100, source) && !abort)
         ;
 }
@@ -74,7 +82,8 @@ long CDVDMsgGeneralSynchronize::Release() {
 /**
  * CDVDMsgDemuxerPacket --- DEMUXER_PACKET
  */
-CDVDMsgDemuxerPacket::CDVDMsgDemuxerPacket(DemuxPacket *packet, bool drop) : CDVDMsg(DEMUXER_PACKET) {
+CDVDMsgDemuxerPacket::CDVDMsgDemuxerPacket(DemuxPacket *packet, bool drop) :
+    CDVDMsg(DEMUXER_PACKET) {
     m_packet = packet;
     m_drop = drop;
 }

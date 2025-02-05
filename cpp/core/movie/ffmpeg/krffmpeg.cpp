@@ -49,7 +49,8 @@ void TVPInitLibAVCodec() {
     if(!FFInitilalized) {
         /* register all codecs, demux and protocols */
         if(av_lockmgr_register(lockmgr)) {
-            TVPThrowExceptionMessage(TJS_W("Could not initialize lock manager!"));
+            TVPThrowExceptionMessage(
+                TJS_W("Could not initialize lock manager!"));
         }
         avcodec_register_all();
         av_register_all();
@@ -60,36 +61,45 @@ void TVPInitLibAVCodec() {
     }
 }
 
-void GetVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin, IStream *stream, const tjs_char *streamname,
-                           const tjs_char *type, uint64_t size, iTVPVideoOverlay **out) {
+void GetVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin, IStream *stream,
+                           const tjs_char *streamname, const tjs_char *type,
+                           uint64_t size, iTVPVideoOverlay **out) {
     *out = new KRMovie::MoviePlayerOverlay;
 
     if(*out)
-        static_cast<KRMovie::MoviePlayerOverlay *>(*out)->BuildGraph(callbackwin, stream, streamname, type, size);
+        static_cast<KRMovie::MoviePlayerOverlay *>(*out)->BuildGraph(
+            callbackwin, stream, streamname, type, size);
 }
 
-void GetVideoLayerObject(tTJSNI_VideoOverlay *callbackwin, IStream *stream, const tjs_char *streamname,
-                         const tjs_char *type, uint64_t size, iTVPVideoOverlay **out) {
+void GetVideoLayerObject(tTJSNI_VideoOverlay *callbackwin, IStream *stream,
+                         const tjs_char *streamname, const tjs_char *type,
+                         uint64_t size, iTVPVideoOverlay **out) {
     *out = new KRMovie::MoviePlayerLayer;
 
     if(*out)
-        static_cast<KRMovie::MoviePlayerLayer *>(*out)->BuildGraph(callbackwin, stream, streamname, type, size);
+        static_cast<KRMovie::MoviePlayerLayer *>(*out)->BuildGraph(
+            callbackwin, stream, streamname, type, size);
 }
 
-void GetMixingVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin, IStream *stream, const tjs_char *streamname,
-                                 const tjs_char *type, uint64_t size, iTVPVideoOverlay **out) {
+void GetMixingVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin,
+                                 IStream *stream, const tjs_char *streamname,
+                                 const tjs_char *type, uint64_t size,
+                                 iTVPVideoOverlay **out) {
     *out = new KRMovie::MoviePlayerOverlay;
 
     if(*out)
-        static_cast<KRMovie::MoviePlayerOverlay *>(*out)->BuildGraph(callbackwin, stream, streamname, type, size);
+        static_cast<KRMovie::MoviePlayerOverlay *>(*out)->BuildGraph(
+            callbackwin, stream, streamname, type, size);
 }
 
-void GetMFVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin, IStream *stream, const tjs_char *streamname,
-                             const tjs_char *type, uint64_t size, iTVPVideoOverlay **out) {
+void GetMFVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin, IStream *stream,
+                             const tjs_char *streamname, const tjs_char *type,
+                             uint64_t size, iTVPVideoOverlay **out) {
     *out = new KRMovie::MoviePlayerOverlay;
 
     if(*out)
-        static_cast<KRMovie::MoviePlayerOverlay *>(*out)->BuildGraph(callbackwin, stream, streamname, type, size);
+        static_cast<KRMovie::MoviePlayerOverlay *>(*out)->BuildGraph(
+            callbackwin, stream, streamname, type, size);
 }
 
 static int AVReadFunc(void *opaque, uint8_t *buf, int buf_size) {
@@ -115,13 +125,15 @@ bool TVPCheckIsVideoFile(const char *uri) {
         delete stream;
         return false;
     }
-    AVIOContext *pIOCtx = avio_alloc_context((unsigned char *)av_malloc(bufSize + AVPROBE_PADDING_SIZE),
-                                             bufSize, // internal Buffer and its size
-                                             false, // bWriteable (1=true,0=false)
-                                             stream, // user data ; will be passed to our callback functions
-                                             AVReadFunc,
-                                             nullptr, // Write callback function (not used in this example)
-                                             AVSeekFunc);
+    AVIOContext *pIOCtx = avio_alloc_context(
+        (unsigned char *)av_malloc(bufSize + AVPROBE_PADDING_SIZE),
+        bufSize, // internal Buffer and its size
+        false, // bWriteable (1=true,0=false)
+        stream, // user data ; will be passed to our callback
+                // functions
+        AVReadFunc,
+        nullptr, // Write callback function (not used in this example)
+        AVSeekFunc);
     if(!pIOCtx) {
         return false;
     }
@@ -135,7 +147,8 @@ bool TVPCheckIsVideoFile(const char *uri) {
         ic->pb = pIOCtx;
         if(avformat_open_input(&ic, "", fmt, nullptr) == 0) {
             if(avformat_find_stream_info(ic, nullptr) == 0) {
-                int vid = av_find_best_stream(ic, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+                int vid = av_find_best_stream(ic, AVMEDIA_TYPE_VIDEO, -1, -1,
+                                              nullptr, 0);
                 if(vid >= 0)
                     ret = true;
             }

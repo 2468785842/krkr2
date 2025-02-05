@@ -67,7 +67,8 @@ class tTVPKeyRepeatEmulator {
             ___|                        |_| |_| |_| |____
                <------------------------------------->
                key pressed                           key released
-            -----------------------------------------------------------> time
+            ----------------------------------------------------------->
+       time
 
     */
 
@@ -85,7 +86,8 @@ public:
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// tTVPDirectInputDevice : A base class for managing DirectInput device
+// tTVPDirectInputDevice : A base class for managing DirectInput
+// device
 //---------------------------------------------------------------------------
 struct IDirectInputDevice2;
 class tTVPDirectInputDevice {
@@ -104,7 +106,8 @@ public:
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// tTVPWheelDirectInputDevice : DirectInput device manager for mouse wheel
+// tTVPWheelDirectInputDevice : DirectInput device manager for mouse
+// wheel
 //---------------------------------------------------------------------------
 class tTVPWheelDirectInputDevice : public tTVPDirectInputDevice {
 public:
@@ -136,7 +139,8 @@ public:
     ~tTVPPadDirectInputDevice();
 
 private:
-    static bool CALLBACK EnumJoySticksCallback(LPCDIDEVICEINSTANCE lpddi, void *pvRef);
+    static bool CALLBACK EnumJoySticksCallback(LPCDIDEVICEINSTANCE lpddi,
+                                               void *pvRef);
 
 private:
     void Update(tjs_uint32 newstate);

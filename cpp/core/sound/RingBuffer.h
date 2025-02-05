@@ -57,8 +57,9 @@ public:
     size_t GetFreeSize() { return Size - DataSize; }
 
     //! @brief	バッファから読み込むためのポインタを得る
-    //! @param	readsize 読み込みたいデータ数 ( 1 以上の整数; 0 を渡さないこと )
-    //! @param	p1		ブロック1の先頭へのポインタを格納するための変数
+    //! @param	readsize 読み込みたいデータ数 ( 1 以上の整数; 0
+    //! を渡さないこと )
+    //! @param	p1 ブロック1の先頭へのポインタを格納するための変数
     //! @param	p1size	p1の表すブロックのサイズ
     //! @param	p2
     //! ブロック2の先頭へのポインタを格納するための変数(NULLがあり得る)
@@ -73,8 +74,8 @@ public:
     //!			などのチェックはいっさい行わない。事前に GetDataSize
     //!を調べ、読み込みたい
     //!			サイズが実際にバッファにあるかどうかをチェックすること。
-    void GetReadPointer(size_t readsize, const T *&p1, size_t &p1size, const T *&p2, size_t &p2size,
-                        ptrdiff_t offset = 0) {
+    void GetReadPointer(size_t readsize, const T *&p1, size_t &p1size,
+                        const T *&p2, size_t &p2size, ptrdiff_t offset = 0) {
         size_t pos = ReadPos + offset;
         while(pos >= Size)
             pos -= Size;
@@ -131,16 +132,18 @@ public:
     }
 
     //! @brief	バッファに書き込むためのポインタを得る
-    //! @param	writesize 書き込みたいデータ数 ( 1 以上の整数; 0 を渡さないこと
+    //! @param	writesize 書き込みたいデータ数 ( 1 以上の整数; 0
+    //! を渡さないこと
     //! )
-    //! @param	p1		ブロック1の先頭へのポインタを格納するための変数
+    //! @param	p1 ブロック1の先頭へのポインタを格納するための変数
     //! @param	p1size	p1の表すブロックのサイズ
     //! @param	p2
     //! ブロック2の先頭へのポインタを格納するための変数(NULLがあり得る)
     //! @param	p2size	p2の表すブロックのサイズ(0があり得る)
     //! @param	offset	WritePos に加算されるオフセット
     //! @note	GetReadPointerの説明も参照のこと
-    void GetWritePointer(size_t writesize, T *&p1, size_t &p1size, T *&p2, size_t &p2size, ptrdiff_t offset = 0) {
+    void GetWritePointer(size_t writesize, T *&p1, size_t &p1size, T *&p2,
+                         size_t &p2size, ptrdiff_t offset = 0) {
         size_t pos = WritePos + offset;
         while(pos >= Size)
             pos -= Size;
@@ -173,7 +176,8 @@ public:
         DataSize += advance;
     }
 
-    //! @brief	書き込みポインタを進め、バッファがあふれたら先頭を捨てる
+    //! @brief
+    //! 書き込みポインタを進め、バッファがあふれたら先頭を捨てる
     //! @param	advance		進める要素数
     //! @note	AdvanceWritePos
     //! と異なり、バッファがあふれたら、データの先頭を捨てる。

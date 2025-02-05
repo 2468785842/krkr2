@@ -96,7 +96,9 @@ void TVPSetSystemEventDisabledState(bool en) {
 }
 
 //---------------------------------------------------------------------------
-bool TVPGetSystemEventDisabledState() { return !TVPSystemControl->GetEventEnabled(); }
+bool TVPGetSystemEventDisabledState() {
+    return !TVPSystemControl->GetEventEnabled();
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -132,7 +134,8 @@ public:
 
 //---------------------------------------------------------------------------
 tTVPContinuousHandlerCallLimitThread::tTVPContinuousHandlerCallLimitThread() :
-    tTVPThread(true), EventQueue(this, &tTVPContinuousHandlerCallLimitThread::WndProc) {
+    tTVPThread(true),
+    EventQueue(this, &tTVPContinuousHandlerCallLimitThread::WndProc) {
     NextEventTick = 0;
     Interval = (1 << TVP_SUBMILLI_FRAC_BITS) * 1000 / 60; // default 60Hz
     Enabled = false;
@@ -162,17 +165,23 @@ void tTVPContinuousHandlerCallLimitThread::Execute() {
 
             if(Enabled) {
                 if(NextEventTick <= curtick) {
-                    TVPProcessContinuousHandlerEventFlag = true; // set flag to process event on next idle
-                    EventQueue.PostEvent(NativeEvent(TVP_EV_CONTINUE_LIMIT_THREAD));
+                    TVPProcessContinuousHandlerEventFlag =
+                        true; // set flag to process event on next
+                              // idle
+                    EventQueue.PostEvent(
+                        NativeEvent(TVP_EV_CONTINUE_LIMIT_THREAD));
                     while(NextEventTick <= curtick)
                         NextEventTick += Interval;
                 }
                 tjs_uint64 sleeptime_64 = NextEventTick - curtick;
-                sleeptime = (tjs_uint32)(sleeptime_64 >> TVP_SUBMILLI_FRAC_BITS) +
-                    ((sleeptime_64 & ((1 << TVP_SUBMILLI_FRAC_BITS) - 1)) ? 1 : 0);
+                sleeptime =
+                    (tjs_uint32)(sleeptime_64 >> TVP_SUBMILLI_FRAC_BITS) +
+                    ((sleeptime_64 & ((1 << TVP_SUBMILLI_FRAC_BITS) - 1)) ? 1
+                                                                          : 0);
                 // add 1 if fraction exists
             } else {
-                sleeptime = 10000; // how long to sleep when disabled does not matter
+                sleeptime = 10000; // how long to sleep when disabled
+                                   // does not matter
             }
 
         } // end-of-thread-protected
@@ -216,22 +225,25 @@ void TVPBeginContinuousEvent() {
     {
         if(TVPContinousHandlerLimitFrequency == 0) {
             // no limit
-            // this notifies continuous calling of TVPDeliverAllEvents.
+            // this notifies continuous calling of
+            // TVPDeliverAllEvents.
             if(TVPSystemControl)
                 TVPSystemControl->BeginContinuousEvent();
         } else {
             // has limit
             if(!TVPContinuousHandlerCallLimitThread)
-                TVPContinuousHandlerCallLimitThread = new tTVPContinuousHandlerCallLimitThread();
-            TVPContinuousHandlerCallLimitThread->SetInterval((1 << TVP_SUBMILLI_FRAC_BITS) * 1000 /
-                                                             TVPContinousHandlerLimitFrequency);
+                TVPContinuousHandlerCallLimitThread =
+                    new tTVPContinuousHandlerCallLimitThread();
+            TVPContinuousHandlerCallLimitThread->SetInterval(
+                (1 << TVP_SUBMILLI_FRAC_BITS) * 1000 /
+                TVPContinousHandlerLimitFrequency);
             TVPContinuousHandlerCallLimitThread->SetEnabled(true);
         }
     }
 
     // TVPEnsureVSyncTimingThread();
-    // if we wait vsync, the continuous handler will be executed at the every
-    // timing of vsync.
+    // if we wait vsync, the continuous handler will be executed at
+    // the every timing of vsync.
 }
 
 //---------------------------------------------------------------------------
@@ -249,9 +261,12 @@ void TVPEndContinuousEvent() {
 //---------------------------------------------------------------------------
 static void TVPReleaseContinuousHandlerCallLimitThread() {
     if(TVPContinuousHandlerCallLimitThread)
-        delete TVPContinuousHandlerCallLimitThread, TVPContinuousHandlerCallLimitThread = nullptr;
+        delete TVPContinuousHandlerCallLimitThread,
+            TVPContinuousHandlerCallLimitThread = nullptr;
 }
 
 // to release TVPContinuousHandlerCallLimitThread at exit
-static tTVPAtExit TVPTimerThreadUninitAtExit(TVP_ATEXIT_PRI_SHUTDOWN, TVPReleaseContinuousHandlerCallLimitThread);
+static tTVPAtExit
+    TVPTimerThreadUninitAtExit(TVP_ATEXIT_PRI_SHUTDOWN,
+                               TVPReleaseContinuousHandlerCallLimitThread);
 //---------------------------------------------------------------------------

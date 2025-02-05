@@ -21,37 +21,49 @@ void NI_LayerExBase::init(iTJSDispatch2 *layerobj) {
     // プロパティ取得
     tTJSVariant var;
 
-    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP, TJS_W("imageLeft"), nullptr, &var, layerobj))) {
+    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP, TJS_W("imageLeft"), nullptr,
+                                    &var, layerobj))) {
         TVPThrowExceptionMessage(TJS_W("invoking of Layer.imageLeft failed."));
     } else {
         _leftProp = var;
     }
-    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP, TJS_W("imageTop"), nullptr, &var, layerobj))) {
+    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP, TJS_W("imageTop"), nullptr,
+                                    &var, layerobj))) {
         TVPThrowExceptionMessage(TJS_W("invoking of Layer.imageTop failed."));
     } else {
         _topProp = var;
     }
-    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP, TJS_W("imageWidth"), nullptr, &var, layerobj))) {
+    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP, TJS_W("imageWidth"),
+                                    nullptr, &var, layerobj))) {
         TVPThrowExceptionMessage(TJS_W("invoking of Layer.imageWidth failed."));
     } else {
         _widthProp = var;
     }
-    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP, TJS_W("imageHeight"), nullptr, &var, layerobj))) {
-        TVPThrowExceptionMessage(TJS_W("invoking of Layer.imageHeight failed."));
+    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP, TJS_W("imageHeight"),
+                                    nullptr, &var, layerobj))) {
+        TVPThrowExceptionMessage(
+            TJS_W("invoking of Layer.imageHeight failed."));
     } else {
         _heightProp = var;
     }
-    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP, TJS_W("mainImageBufferForWrite"), nullptr, &var, layerobj))) {
-        TVPThrowExceptionMessage(TJS_W("invoking of Layer.mainImageBufferForWrite failed."));
+    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP,
+                                    TJS_W("mainImageBufferForWrite"), nullptr,
+                                    &var, layerobj))) {
+        TVPThrowExceptionMessage(
+            TJS_W("invoking of Layer.mainImageBufferForWrite failed."));
     } else {
         _bufferProp = var;
     }
-    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP, TJS_W("mainImageBufferPitch"), nullptr, &var, layerobj))) {
-        TVPThrowExceptionMessage(TJS_W("invoking of Layer.mainImageBufferPitch failed."));
+    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP,
+                                    TJS_W("mainImageBufferPitch"), nullptr,
+                                    &var, layerobj))) {
+        TVPThrowExceptionMessage(
+            TJS_W("invoking of Layer.mainImageBufferPitch failed."));
     } else {
         _pitchProp = var;
     }
-    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP, TJS_W("update"), nullptr, &var, layerobj))) {
+    if(TJS_FAILED(layerobj->PropGet(TJS_IGNOREPROP, TJS_W("update"), nullptr,
+                                    &var, layerobj))) {
         TVPThrowExceptionMessage(TJS_W("invoking of Layer.update failed."));
     } else {
         _updateProp = var;
@@ -75,10 +87,12 @@ void NI_LayerExBase::unInit() {
         _updateProp->Release();
 }
 
-tTVPAtExit _NI_LayerExBase_unInit(TVP_ATEXIT_PRI_PREPARE, NI_LayerExBase::unInit);
+tTVPAtExit _NI_LayerExBase_unInit(TVP_ATEXIT_PRI_PREPARE,
+                                  NI_LayerExBase::unInit);
 
 /// プロパティから int 値を取得する
-static tjs_int64 getPropValue(iTJSDispatch2 *dispatch, iTJSDispatch2 *layerobj) {
+static tjs_int64 getPropValue(iTJSDispatch2 *dispatch,
+                              iTJSDispatch2 *layerobj) {
     tTJSVariant var;
     if(TJS_FAILED(dispatch->PropGet(0, nullptr, nullptr, &var, layerobj))) {
         TVPThrowExceptionMessage(TJS_W("can't get int value from property."));
@@ -110,10 +124,12 @@ void NI_LayerExBase::redraw(iTJSDispatch2 *layerobj) {
 
 NI_LayerExBase *NI_LayerExBase::getNative(iTJSDispatch2 *objthis, bool create) {
     NI_LayerExBase *_this = nullptr;
-    if(TJS_FAILED(objthis->NativeInstanceSupport(TJS_NIS_GETINSTANCE, classId, (iTJSNativeInstance **)&_this)) &&
+    if(TJS_FAILED(objthis->NativeInstanceSupport(
+           TJS_NIS_GETINSTANCE, classId, (iTJSNativeInstance **)&_this)) &&
        create) {
         _this = new NI_LayerExBase();
-        if(TJS_FAILED(objthis->NativeInstanceSupport(TJS_NIS_REGISTER, classId, (iTJSNativeInstance **)&_this))) {
+        if(TJS_FAILED(objthis->NativeInstanceSupport(
+               TJS_NIS_REGISTER, classId, (iTJSNativeInstance **)&_this))) {
             delete _this;
             _this = nullptr;
         }

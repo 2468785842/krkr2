@@ -25,17 +25,21 @@ extern "C"
 #define FIX_2_562915447 ((int)20995) /* FIX(2.562915447) */
 #define FIX_3_072711026 ((int)25172) /* FIX(3.072711026) */
 
-static void AlphaMovie_mjpeg_IDCT_neon(int16_t *quantptr, int16_t *inptr, uint8_t *outptr, int outpitch) {
+static void AlphaMovie_mjpeg_IDCT_neon(int16_t *quantptr, int16_t *inptr,
+                                       uint8_t *outptr, int outpitch) {
     int workspace[DCTSIZE2]; /* buffers data between passes */
     int *wsptr = workspace;
     int tmp0, tmp1, tmp2, tmp3;
     int tmp10, tmp11, tmp12, tmp13;
     int z1, z2, z3, ctr;
     for(ctr = DCTSIZE; ctr > 0; ctr--) {
-        if(inptr[DCTSIZE * 1] == 0 && inptr[DCTSIZE * 2] == 0 && inptr[DCTSIZE * 3] == 0 && inptr[DCTSIZE * 4] == 0 &&
-           inptr[DCTSIZE * 5] == 0 && inptr[DCTSIZE * 6] == 0 && inptr[DCTSIZE * 7] == 0) {
+        if(inptr[DCTSIZE * 1] == 0 && inptr[DCTSIZE * 2] == 0 &&
+           inptr[DCTSIZE * 3] == 0 && inptr[DCTSIZE * 4] == 0 &&
+           inptr[DCTSIZE * 5] == 0 && inptr[DCTSIZE * 6] == 0 &&
+           inptr[DCTSIZE * 7] == 0) {
             /* AC terms all zero */
-            int dcval = DEQUANTIZE(inptr[DCTSIZE * 0], quantptr[DCTSIZE * 0]) << PASS1_BITS;
+            int dcval = DEQUANTIZE(inptr[DCTSIZE * 0], quantptr[DCTSIZE * 0])
+                << PASS1_BITS;
 
             wsptr[DCTSIZE * 0] = dcval;
             wsptr[DCTSIZE * 1] = dcval;
@@ -75,7 +79,8 @@ static void AlphaMovie_mjpeg_IDCT_neon(int16_t *quantptr, int16_t *inptr, uint8_
         tmp12 = tmp1 - tmp3;
 
         /* Odd part per figure 8; the matrix is unitary and hence its
-         * transpose is its inverse.  i0..i3 are y7,y5,y3,y1 respectively.
+         * transpose is its inverse.  i0..i3 are y7,y5,y3,y1
+         * respectively.
          */
 
         tmp0 = DEQUANTIZE(inptr[DCTSIZE * 7], quantptr[DCTSIZE * 7]);
@@ -106,14 +111,22 @@ static void AlphaMovie_mjpeg_IDCT_neon(int16_t *quantptr, int16_t *inptr, uint8_
 
         /* Final output stage: inputs are tmp10..tmp13, tmp0..tmp3 */
 
-        wsptr[DCTSIZE * 0] = (int)RIGHT_SHIFT(tmp10 + tmp3, CONST_BITS - PASS1_BITS);
-        wsptr[DCTSIZE * 7] = (int)RIGHT_SHIFT(tmp10 - tmp3, CONST_BITS - PASS1_BITS);
-        wsptr[DCTSIZE * 1] = (int)RIGHT_SHIFT(tmp11 + tmp2, CONST_BITS - PASS1_BITS);
-        wsptr[DCTSIZE * 6] = (int)RIGHT_SHIFT(tmp11 - tmp2, CONST_BITS - PASS1_BITS);
-        wsptr[DCTSIZE * 2] = (int)RIGHT_SHIFT(tmp12 + tmp1, CONST_BITS - PASS1_BITS);
-        wsptr[DCTSIZE * 5] = (int)RIGHT_SHIFT(tmp12 - tmp1, CONST_BITS - PASS1_BITS);
-        wsptr[DCTSIZE * 3] = (int)RIGHT_SHIFT(tmp13 + tmp0, CONST_BITS - PASS1_BITS);
-        wsptr[DCTSIZE * 4] = (int)RIGHT_SHIFT(tmp13 - tmp0, CONST_BITS - PASS1_BITS);
+        wsptr[DCTSIZE * 0] =
+            (int)RIGHT_SHIFT(tmp10 + tmp3, CONST_BITS - PASS1_BITS);
+        wsptr[DCTSIZE * 7] =
+            (int)RIGHT_SHIFT(tmp10 - tmp3, CONST_BITS - PASS1_BITS);
+        wsptr[DCTSIZE * 1] =
+            (int)RIGHT_SHIFT(tmp11 + tmp2, CONST_BITS - PASS1_BITS);
+        wsptr[DCTSIZE * 6] =
+            (int)RIGHT_SHIFT(tmp11 - tmp2, CONST_BITS - PASS1_BITS);
+        wsptr[DCTSIZE * 2] =
+            (int)RIGHT_SHIFT(tmp12 + tmp1, CONST_BITS - PASS1_BITS);
+        wsptr[DCTSIZE * 5] =
+            (int)RIGHT_SHIFT(tmp12 - tmp1, CONST_BITS - PASS1_BITS);
+        wsptr[DCTSIZE * 3] =
+            (int)RIGHT_SHIFT(tmp13 + tmp0, CONST_BITS - PASS1_BITS);
+        wsptr[DCTSIZE * 4] =
+            (int)RIGHT_SHIFT(tmp13 - tmp0, CONST_BITS - PASS1_BITS);
 
         inptr++; /* advance pointers to next column */
         quantptr++;
@@ -125,11 +138,14 @@ static void AlphaMovie_mjpeg_IDCT_neon(int16_t *quantptr, int16_t *inptr, uint8_
      */
     wsptr = workspace;
     for(ctr = 0; ctr < DCTSIZE; ctr++, outptr += outpitch) {
-        if(wsptr[1] == 0 && wsptr[2] == 0 && wsptr[3] == 0 && wsptr[4] == 0 && wsptr[5] == 0 && wsptr[6] == 0 &&
-           wsptr[7] == 0) {
+        if(wsptr[1] == 0 && wsptr[2] == 0 && wsptr[3] == 0 && wsptr[4] == 0 &&
+           wsptr[5] == 0 && wsptr[6] == 0 && wsptr[7] == 0) {
             /* AC terms all zero */
-#define RANGE_MASK (255 * 4 + 3) /* 2 bits wider than legal samples */
-            tjs_uint8 dcval = range_limit(DESCALE((int)wsptr[0], PASS1_BITS + 3) + 128);
+#define RANGE_MASK                                                             \
+    (255 * 4 + 3) /* 2 bits wider than legal samples                           \
+                   */
+            tjs_uint8 dcval =
+                range_limit(DESCALE((int)wsptr[0], PASS1_BITS + 3) + 128);
             outptr[0] = dcval;
             outptr[1] = dcval;
             outptr[2] = dcval;
@@ -167,7 +183,8 @@ static void AlphaMovie_mjpeg_IDCT_neon(int16_t *quantptr, int16_t *inptr, uint8_
         tmp12 = tmp1 - tmp3;
 
         /* Odd part per figure 8; the matrix is unitary and hence its
-         * transpose is its inverse.  i0..i3 are y7,y5,y3,y1 respectively.
+         * transpose is its inverse.  i0..i3 are y7,y5,y3,y1
+         * respectively.
          */
 
         tmp0 = (int32_t)wsptr[7];
@@ -198,14 +215,22 @@ static void AlphaMovie_mjpeg_IDCT_neon(int16_t *quantptr, int16_t *inptr, uint8_
 
         /* Final output stage: inputs are tmp10..tmp13, tmp0..tmp3 */
 
-        outptr[0] = range_limit((int)RIGHT_SHIFT(tmp10 + tmp3, CONST_BITS + PASS1_BITS + 3) + 128);
-        outptr[7] = range_limit((int)RIGHT_SHIFT(tmp10 - tmp3, CONST_BITS + PASS1_BITS + 3) + 128);
-        outptr[1] = range_limit((int)RIGHT_SHIFT(tmp11 + tmp2, CONST_BITS + PASS1_BITS + 3) + 128);
-        outptr[6] = range_limit((int)RIGHT_SHIFT(tmp11 - tmp2, CONST_BITS + PASS1_BITS + 3) + 128);
-        outptr[2] = range_limit((int)RIGHT_SHIFT(tmp12 + tmp1, CONST_BITS + PASS1_BITS + 3) + 128);
-        outptr[5] = range_limit((int)RIGHT_SHIFT(tmp12 - tmp1, CONST_BITS + PASS1_BITS + 3) + 128);
-        outptr[3] = range_limit((int)RIGHT_SHIFT(tmp13 + tmp0, CONST_BITS + PASS1_BITS + 3) + 128);
-        outptr[4] = range_limit((int)RIGHT_SHIFT(tmp13 - tmp0, CONST_BITS + PASS1_BITS + 3) + 128);
+        outptr[0] = range_limit(
+            (int)RIGHT_SHIFT(tmp10 + tmp3, CONST_BITS + PASS1_BITS + 3) + 128);
+        outptr[7] = range_limit(
+            (int)RIGHT_SHIFT(tmp10 - tmp3, CONST_BITS + PASS1_BITS + 3) + 128);
+        outptr[1] = range_limit(
+            (int)RIGHT_SHIFT(tmp11 + tmp2, CONST_BITS + PASS1_BITS + 3) + 128);
+        outptr[6] = range_limit(
+            (int)RIGHT_SHIFT(tmp11 - tmp2, CONST_BITS + PASS1_BITS + 3) + 128);
+        outptr[2] = range_limit(
+            (int)RIGHT_SHIFT(tmp12 + tmp1, CONST_BITS + PASS1_BITS + 3) + 128);
+        outptr[5] = range_limit(
+            (int)RIGHT_SHIFT(tmp12 - tmp1, CONST_BITS + PASS1_BITS + 3) + 128);
+        outptr[3] = range_limit(
+            (int)RIGHT_SHIFT(tmp13 + tmp0, CONST_BITS + PASS1_BITS + 3) + 128);
+        outptr[4] = range_limit(
+            (int)RIGHT_SHIFT(tmp13 - tmp0, CONST_BITS + PASS1_BITS + 3) + 128);
 
         wsptr += DCTSIZE; /* advance pointer to next row */
     }

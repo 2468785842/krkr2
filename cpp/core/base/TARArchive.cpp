@@ -57,36 +57,47 @@ public:
             tjs_uint64 archiveSize = _instr->GetSize();
             TAR_HEADER tar_header;
             // check first header
-            if(_instr->Read(&tar_header, sizeof(tar_header)) != sizeof(tar_header)) {
+            if(_instr->Read(&tar_header, sizeof(tar_header)) !=
+               sizeof(tar_header)) {
                 // delete _instr;
                 return false;
             }
-            unsigned int checksum = parseOctNum(tar_header.dbuf.chksum, sizeof(tar_header.dbuf.chksum));
-            if(checksum != tar_header.compsum() && (int)checksum != tar_header.compsum_oldtar()) {
+            unsigned int checksum = parseOctNum(tar_header.dbuf.chksum,
+                                                sizeof(tar_header.dbuf.chksum));
+            if(checksum != tar_header.compsum() &&
+               (int)checksum != tar_header.compsum_oldtar()) {
                 // delete _instr;
                 return false;
             }
             _instr->SetPosition(0);
             while(_instr->GetPosition() <= archiveSize - sizeof(tar_header)) {
-                if(_instr->Read(&tar_header, sizeof(tar_header)) != sizeof(tar_header))
+                if(_instr->Read(&tar_header, sizeof(tar_header)) !=
+                   sizeof(tar_header))
                     break;
-                tjs_uint64 original_size = parseOctNum(tar_header.dbuf.size, sizeof(tar_header.dbuf.size));
+                tjs_uint64 original_size = parseOctNum(
+                    tar_header.dbuf.size, sizeof(tar_header.dbuf.size));
                 std::vector<char> filename;
-                if(tar_header.dbuf.typeflag == LONGLINK) { // tar_header.dbuf.name == "././@LongLink"
-                    unsigned int readsize = (original_size + (TBLOCK - 1)) & ~(TBLOCK - 1);
+                if(tar_header.dbuf.typeflag ==
+                   LONGLINK) { // tar_header.dbuf.name ==
+                               // "././@LongLink"
+                    unsigned int readsize =
+                        (original_size + (TBLOCK - 1)) & ~(TBLOCK - 1);
                     filename.resize(readsize + 1); // TODO:size lost
                     if(_instr->Read(&filename[0], readsize) != readsize)
                         break;
                     filename[readsize] = 0;
-                    if(_instr->Read(&tar_header, sizeof(tar_header)) != sizeof(tar_header))
+                    if(_instr->Read(&tar_header, sizeof(tar_header)) !=
+                       sizeof(tar_header))
                         break;
-                    original_size = parseOctNum(tar_header.dbuf.size, sizeof(tar_header.dbuf.size));
+                    original_size = parseOctNum(tar_header.dbuf.size,
+                                                sizeof(tar_header.dbuf.size));
                 }
                 if(tar_header.dbuf.typeflag != REGTYPE)
                     continue; // only accept regular file
                 if(filename.empty()) {
                     filename.resize(101);
-                    memcpy(&filename[0], tar_header.dbuf.name, sizeof(tar_header.dbuf.name));
+                    memcpy(&filename[0], tar_header.dbuf.name,
+                           sizeof(tar_header.dbuf.name));
                     filename[100] = 0;
                 }
                 EntryInfo item;
@@ -96,12 +107,15 @@ public:
                 item.size = original_size;
                 item.offset = _instr->GetPosition();
                 filelist.emplace_back(item);
-                tjs_uint64 readsize = (original_size + (TBLOCK - 1)) & ~(TBLOCK - 1);
+                tjs_uint64 readsize =
+                    (original_size + (TBLOCK - 1)) & ~(TBLOCK - 1);
                 _instr->SetPosition(item.offset + readsize);
             }
             if(normalizeFileName) {
                 std::sort(filelist.begin(), filelist.end(),
-                          [](const EntryInfo &a, const EntryInfo &b) { return a.filename < b.filename; });
+                          [](const EntryInfo &a, const EntryInfo &b) {
+                              return a.filename < b.filename;
+                          });
             }
             TVPReleaseCachedArchiveHandle(this, _instr);
             return true;
@@ -121,7 +135,8 @@ tTJSBinaryStream *TARArchive::CreateStreamByIndex(tjs_uint idx) {
     return new TArchiveStream(this, info.offset, info.size);
 }
 
-tTVPArchive *TVPOpenTARArchive(const ttstr &name, tTJSBinaryStream *st, bool normalizeFileName) {
+tTVPArchive *TVPOpenTARArchive(const ttstr &name, tTJSBinaryStream *st,
+                               bool normalizeFileName) {
     TARArchive *arc = new TARArchive(name);
     if(!arc->init(st, normalizeFileName)) {
         delete arc;

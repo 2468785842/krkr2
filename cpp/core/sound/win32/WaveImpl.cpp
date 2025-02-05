@@ -64,7 +64,11 @@ static tjs_int TVPPriamrySBFrequency = 44100;
 static tjs_int TVPPrimarySBBits = 16;
 static tTVPSoundGlobalFocusMode TVPSoundGlobalFocusModeByOption = sgfmNeverMute;
 static tjs_int TVPSoundGlobalFocusMuteVolume = 0;
-static enum tTVPForceConvertMode { fcmNone, fcm16bit, fcm16bitMono } TVPForceConvertMode = fcm16bit;
+static enum tTVPForceConvertMode {
+    fcmNone,
+    fcm16bit,
+    fcm16bitMono
+} TVPForceConvertMode = fcm16bit;
 static tjs_int TVPPrimarySBCreateTryLevel = -1;
 static bool TVPExpandToQuad = false;
 static tjs_int TVPL1BufferLength = 1000; // in ms
@@ -319,8 +323,10 @@ public:
     void GetFormat(tTVPWaveFormat &format) {
         long samplespersec, channels, bitspersample;
 
-        if(FAILED(Unpacker->GetWaveFormat(&samplespersec, &channels, &bitspersample))) {
-            TVPThrowExceptionMessage(TVPPluginError, TJS_W("IWaveUnpacker::GetWaveFormat failed."));
+        if(FAILED(Unpacker->GetWaveFormat(&samplespersec, &channels,
+                                          &bitspersample))) {
+            TVPThrowExceptionMessage(
+                TVPPluginError, TJS_W("IWaveUnpacker::GetWaveFormat failed."));
         }
         SampleSize = channels * (format.BytesPerSample = bitspersample / 8);
         format.SamplesPerSec = samplespersec;
@@ -422,8 +428,11 @@ public:
         while(bufsize) {
             if(RenderBufferRemain) {
                 // previous decoded samples are in RenderBuffer
-                tjs_uint remain = bufsize < RenderBufferRemain ? bufsize : RenderBufferRemain;
-                memcpy(buffer + rendered, RenderBuffer + (Info.dwUnitRender - RenderBufferRemain), remain);
+                tjs_uint remain =
+                    bufsize < RenderBufferRemain ? bufsize : RenderBufferRemain;
+                memcpy(buffer + rendered,
+                       RenderBuffer + (Info.dwUnitRender - RenderBufferRemain),
+                       remain);
                 bufsize -= remain;
                 RenderBufferRemain -= remain;
                 rendered += remain;
@@ -431,7 +440,8 @@ public:
                 // directly decode to destination buffer
                 if(Ended)
                     break;
-                DWORD one_rend = Module->Render(Handle, buffer + rendered, Info.dwUnitRender);
+                DWORD one_rend = Module->Render(Handle, buffer + rendered,
+                                                Info.dwUnitRender);
                 bufsize -= one_rend;
                 rendered += one_rend;
                 if(one_rend < Info.dwUnitRender) {
@@ -442,7 +452,8 @@ public:
                 // render to RenderBuffer
                 if(Ended)
                     break;
-                DWORD one_rend = Module->Render(Handle, RenderBuffer, Info.dwUnitRender);
+                DWORD one_rend =
+                    Module->Render(Handle, RenderBuffer, Info.dwUnitRender);
                 // copy to destination buffer
                 tjs_uint copy_bytes = one_rend < bufsize ? one_rend : bufsize;
                 memcpy(buffer + rendered, RenderBuffer, copy_bytes);
@@ -510,7 +521,8 @@ static void TVPInitLogTable() {
     tjs_int i;
     TVPLogTable[0] = -10000;
     for(i = 1; i <= 100; i++) {
-        TVPLogTable[i] = static_cast<tjs_int>(log10((double)i / 100.0) * TVPVolumeLogFactor);
+        TVPLogTable[i] =
+            static_cast<tjs_int>(log10((double)i / 100.0) * TVPVolumeLogFactor);
     }
 }
 //---------------------------------------------------------------------------
@@ -684,8 +696,9 @@ static ttstr TVPGetSoundBufferFormatString(const tTVPWaveFormat &wfx) {
     debuglog += TJS_W("LE");
     debuglog += TJS_W(", ");
 
-    debuglog += TJS_W("frequency = ") + ttstr((tjs_int)wfx.SamplesPerSec) + TJS_W("Hz, ") + TJS_W("bits = ") +
-        ttstr((tjs_int)wfx.BitsPerSample) + TJS_W("bits, ") + TJS_W("channels = ") + ttstr((tjs_int)wfx.Channels);
+    debuglog += TJS_W("frequency = ") + ttstr((tjs_int)wfx.SamplesPerSec) +
+        TJS_W("Hz, ") + TJS_W("bits = ") + ttstr((tjs_int)wfx.BitsPerSample) +
+        TJS_W("bits, ") + TJS_W("channels = ") + ttstr((tjs_int)wfx.Channels);
 
     return debuglog;
 }
@@ -1326,31 +1339,31 @@ static void TVPConvertWaveFormatToDestinationFormat(void *dest, const void *src,
 
     struct type_24bit { tjs_uint8 data[3]; };
 
-#define PROCESS_BY_SAMPLESIZE                                                                                          \
-    if(df->Format.wBitsPerSample == 8) {                                                                               \
-        typedef tjs_int8 type;                                                                                         \
-        PROCESS;                                                                                                       \
-    } else if(df->Format.wBitsPerSample == 16) {                                                                       \
-        typedef tjs_int16 type;                                                                                        \
-        PROCESS;                                                                                                       \
-    } else if(df->Format.wBitsPerSample == 24) {                                                                       \
-        typedef type_24bit type;                                                                                       \
-        PROCESS;                                                                                                       \
-    } else if(df->Format.wBitsPerSample == 32) {                                                                       \
-        typedef tjs_int32 type;                                                                                        \
-        PROCESS;                                                                                                       \
+#define PROCESS_BY_SAMPLESIZE                                                  \
+    if(df->Format.wBitsPerSample == 8) {                                       \
+        typedef tjs_int8 type;                                                 \
+        PROCESS;                                                               \
+    } else if(df->Format.wBitsPerSample == 16) {                               \
+        typedef tjs_int16 type;                                                \
+        PROCESS;                                                               \
+    } else if(df->Format.wBitsPerSample == 24) {                               \
+        typedef type_24bit type;                                               \
+        PROCESS;                                                               \
+    } else if(df->Format.wBitsPerSample == 32) {                               \
+        typedef tjs_int32 type;                                                \
+        PROCESS;                                                               \
     } \
 
     if(df->Format.nChannels == 4 && sf->Channels == 1)
     {
         // expand mono to quadphone
-#define PROCESS                                                                                                        \
-    type *ps = (type *)dest + (count - 1);                                                                             \
-    type *pd = (type *)dest + (count - 1) * 4;                                                                         \
-    for(tjs_int i = 0; i < count; i++) {                                                                               \
-        pd[0] = pd[1] = pd[2] = pd[3] = ps[0];                                                                         \
-        pd -= 4;                                                                                                       \
-        ps -= 1;                                                                                                       \
+#define PROCESS                                                                \
+    type *ps = (type *)dest + (count - 1);                                     \
+    type *pd = (type *)dest + (count - 1) * 4;                                 \
+    for(tjs_int i = 0; i < count; i++) {                                       \
+        pd[0] = pd[1] = pd[2] = pd[3] = ps[0];                                 \
+        pd -= 4;                                                               \
+        ps -= 1;                                                               \
     }
 
         PROCESS_BY_SAMPLESIZE
@@ -1361,14 +1374,14 @@ static void TVPConvertWaveFormatToDestinationFormat(void *dest, const void *src,
     if(df->Format.nChannels == 4 && sf->Channels == 2)
     {
         // expand stereo to quadphone
-#define PROCESS                                                                                                        \
-    type *ps = (type *)dest + (count - 1) * 2;                                                                         \
-    type *pd = (type *)dest + (count - 1) * 4;                                                                         \
-    for(tjs_int i = 0; i < count; i++) {                                                                               \
-        pd[0] = pd[2] = ps[0];                                                                                         \
-        pd[1] = pd[3] = ps[1];                                                                                         \
-        pd -= 4;                                                                                                       \
-        ps -= 2;                                                                                                       \
+#define PROCESS                                                                \
+    type *ps = (type *)dest + (count - 1) * 2;                                 \
+    type *pd = (type *)dest + (count - 1) * 4;                                 \
+    for(tjs_int i = 0; i < count; i++) {                                       \
+        pd[0] = pd[2] = ps[0];                                                 \
+        pd[1] = pd[3] = ps[1];                                                 \
+        pd -= 4;                                                               \
+        ps -= 2;                                                               \
     }
 
         PROCESS_BY_SAMPLESIZE
@@ -1384,18 +1397,18 @@ static void TVPConvertWaveFormatToDestinationFormat(void *dest, const void *src,
         // is to be reordered as :
         // FL FR FC LF BL BR (which WAVEFORMATEXTENSIBLE expects)
 
-#define PROCESS                                                                                                        \
-    type *op = (type *)dest;                                                                                           \
-    for(tjs_int i = 0; i < count; i++) {                                                                               \
-        type fc = op[1];                                                                                               \
-        type bl = op[3];                                                                                               \
-        type br = op[4];                                                                                               \
-        op[1] = op[2];                                                                                                 \
-        op[2] = fc;                                                                                                    \
-        op[3] = op[5];                                                                                                 \
-        op[4] = bl;                                                                                                    \
-        op[5] = br;                                                                                                    \
-        op += 6;                                                                                                       \
+#define PROCESS                                                                \
+    type *op = (type *)dest;                                                   \
+    for(tjs_int i = 0; i < count; i++) {                                       \
+        type fc = op[1];                                                       \
+        type bl = op[3];                                                       \
+        type br = op[4];                                                       \
+        op[1] = op[2];                                                         \
+        op[2] = fc;                                                            \
+        op[3] = op[5];                                                         \
+        op[4] = bl;                                                            \
+        op[5] = br;                                                            \
+        op += 6;                                                               \
     }
 
         PROCESS_BY_SAMPLESIZE
@@ -1421,7 +1434,8 @@ static void TVPMakeSilentWaveBytes(void *dest, tjs_int bytes, const tTVPWaveForm
 #endif
 
 //---------------------------------------------------------------------------
-static void TVPMakeSilentWave(void *dest, tjs_int count, const tTVPWaveFormat *format) {
+static void TVPMakeSilentWave(void *dest, tjs_int count,
+                              const tTVPWaveFormat *format) {
     tjs_int bytes = count * format->Channels * format->BytesPerSample;
     memset(dest, 0x00, bytes);
     // TVPMakeSilentWaveBytes(dest, bytes, format);
@@ -1432,8 +1446,8 @@ static void TVPMakeSilentWave(void *dest, tjs_int count, const tTVPWaveFormat *f
 // Buffer management
 //---------------------------------------------------------------------------
 std::vector<tTJSNI_WaveSoundBuffer *> &TVPWaveSoundBufferVector =
-    *(new std::vector<tTJSNI_WaveSoundBuffer *>); // to avoid release order in
-                                                  // shutdown
+    *(new std::vector<tTJSNI_WaveSoundBuffer *>); // to avoid release
+                                                  // order in shutdown
 tTJSCriticalSection TVPWaveSoundBufferVectorCS;
 
 //---------------------------------------------------------------------------
@@ -1441,14 +1455,15 @@ tTJSCriticalSection TVPWaveSoundBufferVectorCS;
 //---------------------------------------------------------------------------
 /*
         The system has one playing thread.
-        The playing thread fills each sound buffer's L1 (DirectSound) buffer,
-   and also manages timing for label events. The technique used in this
-   algorithm is similar to Timer claass implementation.
+        The playing thread fills each sound buffer's L1 (DirectSound)
+   buffer, and also manages timing for label events. The technique
+   used in this algorithm is similar to Timer claass implementation.
 */
 class tTVPWaveSoundBufferThread : public tTVPThread {
     tTVPThreadEvent Event;
 
-    // HWND UtilWindow; // utility window to notify the pending events occur
+    // HWND UtilWindow; // utility window to notify the pending events
+    // occur
     bool PendingLabelEventExists;
     bool WndProcToBeCalled;
     DWORD NextLabelEventTick;
@@ -1487,7 +1502,8 @@ void TVPUnlockSoundMixer() {
 
 //---------------------------------------------------------------------------
 tTVPWaveSoundBufferThread::tTVPWaveSoundBufferThread() :
-    tTVPThread(true), EventQueue(this, &tTVPWaveSoundBufferThread::UtilWndProc) {
+    tTVPThread(true),
+    EventQueue(this, &tTVPWaveSoundBufferThread::UtilWndProc) {
     EventQueue.Allocate();
     PendingLabelEventExists = false;
     NextLabelEventTick = 0;
@@ -1508,13 +1524,14 @@ tTVPWaveSoundBufferThread::~tTVPWaveSoundBufferThread() {
 }
 
 //---------------------------------------------------------------------------
-// void __fastcall tTVPWaveSoundBufferThread::UtilWndProc(Messages::TMessage
-// &Msg)
+// void __fastcall
+// tTVPWaveSoundBufferThread::UtilWndProc(Messages::TMessage &Msg)
 void tTVPWaveSoundBufferThread::UtilWndProc(NativeEvent &ev) {
     // Window procedure of UtilWindow
     if(ev.Message == TVP_EV_WAVE_SND_BUF_THREAD && !GetTerminated()) {
         // pending events occur
-        tTJSCriticalSectionHolder holder(TVPWaveSoundBufferVectorCS); // protect the object
+        tTJSCriticalSectionHolder holder(
+            TVPWaveSoundBufferVectorCS); // protect the object
 
         WndProcToBeCalled = false;
 
@@ -1523,11 +1540,13 @@ void tTVPWaveSoundBufferThread::UtilWndProc(NativeEvent &ev) {
         int nearest_next = TVP_TIMEOFS_INVALID_VALUE;
 
         std::vector<tTJSNI_WaveSoundBuffer *>::iterator i;
-        for(i = TVPWaveSoundBufferVector.begin(); i != TVPWaveSoundBufferVector.end(); i++) {
+        for(i = TVPWaveSoundBufferVector.begin();
+            i != TVPWaveSoundBufferVector.end(); i++) {
             int next = (*i)->FireLabelEventsAndGetNearestLabelEventStep(tick);
             // fire label events and get nearest label event step
             if(next != TVP_TIMEOFS_INVALID_VALUE) {
-                if(nearest_next == TVP_TIMEOFS_INVALID_VALUE || nearest_next > next)
+                if(nearest_next == TVP_TIMEOFS_INVALID_VALUE ||
+                   nearest_next > next)
                     nearest_next = next;
             }
         }
@@ -1571,17 +1590,23 @@ void tTVPWaveSoundBufferThread::Execute() {
         { // thread-protected
             tTJSCriticalSectionHolder holder(TVPWaveSoundBufferVectorCS);
 
-            if(TVPPrimaryBufferPlayingByProgram != TVPPrimarySoundBufferPlaying) {
+            if(TVPPrimaryBufferPlayingByProgram !=
+               TVPPrimarySoundBufferPlaying) {
                 TVPPrimarySoundBufferPlaying = TVPPrimaryBufferPlayingByProgram;
                 std::vector<tTJSNI_WaveSoundBuffer *>::iterator i;
-                for(i = TVPWaveSoundBufferVector.begin(); i != TVPWaveSoundBufferVector.end(); i++) {
+                for(i = TVPWaveSoundBufferVector.begin();
+                    i != TVPWaveSoundBufferVector.end(); i++) {
                     if((*i)->ThreadCallbackEnabled)
-                        (*i)->SetBufferPaused(!TVPPrimaryBufferPlayingByProgram); // for
-                                                                                  // preventing
-                                                                                  // buffer runs
-                                                                                  // out on iOS'
-                                                                                  // OpenAL
-                                                                                  // implement
+                        (*i)->SetBufferPaused(
+                            !TVPPrimaryBufferPlayingByProgram); // for
+                                                                // preventing
+                                                                // buffer
+                                                                // runs
+                                                                // out
+                                                                // on
+                                                                // iOS'
+                                                                // OpenAL
+                                                                // implement
                 }
             }
 
@@ -1589,13 +1614,16 @@ void tTVPWaveSoundBufferThread::Execute() {
             if(PendingLabelEventExists) {
                 if(!WndProcToBeCalled) {
                     WndProcToBeCalled = true;
-                    EventQueue.PostEvent(NativeEvent(TVP_EV_WAVE_SND_BUF_THREAD));
+                    EventQueue.PostEvent(
+                        NativeEvent(TVP_EV_WAVE_SND_BUF_THREAD));
                 }
             }
 
-            if(TVPPrimarySoundBufferPlaying && time - LastFilledTick >= TVP_WSB_THREAD_SLEEP_TIME) {
+            if(TVPPrimarySoundBufferPlaying &&
+               time - LastFilledTick >= TVP_WSB_THREAD_SLEEP_TIME) {
                 std::vector<tTJSNI_WaveSoundBuffer *>::iterator i;
-                for(i = TVPWaveSoundBufferVector.begin(); i != TVPWaveSoundBufferVector.end(); i++) {
+                for(i = TVPWaveSoundBufferVector.begin();
+                    i != TVPWaveSoundBufferVector.end(); i++) {
                     if((*i)->ThreadCallbackEnabled)
                         (*i)->FillBuffer(); // fill sound buffer
                 }
@@ -1610,7 +1638,8 @@ void tTVPWaveSoundBufferThread::Execute() {
         if(time < TVP_WSB_THREAD_SLEEP_TIME) {
             tjs_int sleep_time = TVP_WSB_THREAD_SLEEP_TIME - time;
             if(PendingLabelEventExists) {
-                tjs_int step_to_next = (tjs_int32)NextLabelEventTick - (tjs_int32)time2;
+                tjs_int step_to_next =
+                    (tjs_int32)NextLabelEventTick - (tjs_int32)time2;
                 if(step_to_next < sleep_time)
                     sleep_time = step_to_next;
                 if(sleep_time < 1)
@@ -1658,7 +1687,8 @@ static void TVPReleaseSoundBuffers(bool disableevent = true) {
     // release all secondary buffers.
     tTJSCriticalSectionHolder holder(TVPWaveSoundBufferVectorCS);
     std::vector<tTJSNI_WaveSoundBuffer *>::iterator i;
-    for(i = TVPWaveSoundBufferVector.begin(); i != TVPWaveSoundBufferVector.end(); i++) {
+    for(i = TVPWaveSoundBufferVector.begin();
+        i != TVPWaveSoundBufferVector.end(); i++) {
         (*i)->FreeDirectSoundBuffer(disableevent);
     }
 }
@@ -1671,7 +1701,9 @@ static void TVPShutdownWaveSoundBuffers() {
     TVPReleaseSoundBuffers();
 }
 
-static tTVPAtExit TVPShutdownWaveSoundBuffersAtExit(TVP_ATEXIT_PRI_PREPARE, TVPShutdownWaveSoundBuffers);
+static tTVPAtExit
+    TVPShutdownWaveSoundBuffersAtExit(TVP_ATEXIT_PRI_PREPARE,
+                                      TVPShutdownWaveSoundBuffers);
 
 //---------------------------------------------------------------------------
 static void TVPEnsureWaveSoundBufferWorking() {
@@ -1699,7 +1731,8 @@ static void TVPRemoveWaveSoundBuffer(tTJSNI_WaveSoundBuffer *buffer) {
     {
         tTJSCriticalSectionHolder holder(TVPWaveSoundBufferVectorCS);
         std::vector<tTJSNI_WaveSoundBuffer *>::iterator i;
-        i = std::find(TVPWaveSoundBufferVector.begin(), TVPWaveSoundBufferVector.end(), buffer);
+        i = std::find(TVPWaveSoundBufferVector.begin(),
+                      TVPWaveSoundBufferVector.end(), buffer);
         if(i != TVPWaveSoundBufferVector.end())
             TVPWaveSoundBufferVector.erase(i);
         bufferempty = TVPWaveSoundBufferVector.size() == 0;
@@ -1722,7 +1755,8 @@ void TVPResetVolumeToAllSoundBuffer() {
     // call each SoundBuffer's SetVolumeToSoundBuffer
     tTJSCriticalSectionHolder holder(TVPWaveSoundBufferVectorCS);
     std::vector<tTJSNI_WaveSoundBuffer *>::iterator i;
-    for(i = TVPWaveSoundBufferVector.begin(); i != TVPWaveSoundBufferVector.end(); i++) {
+    for(i = TVPWaveSoundBufferVector.begin();
+        i != TVPWaveSoundBufferVector.end(); i++) {
         (*i)->SetVolumeToSoundBuffer();
     }
 }
@@ -1770,7 +1804,9 @@ public:
 };
 
 //---------------------------------------------------------------------------
-tTVPWaveSoundBufferDecodeThread::tTVPWaveSoundBufferDecodeThread(tTJSNI_WaveSoundBuffer *owner) : tTVPThread(true) {
+tTVPWaveSoundBufferDecodeThread::tTVPWaveSoundBufferDecodeThread(
+    tTJSNI_WaveSoundBuffer *owner) :
+    tTVPThread(true) {
     TVPInitSoundOptions();
 
     Owner = owner;
@@ -1814,7 +1850,8 @@ void tTVPWaveSoundBufferDecodeThread::Execute() {
                     // buffer is full; sleep longer
                     DWORD elapsed = et - st;
                     if(elapsed < TVP_WSB_DECODE_THREAD_SLEEP_TIME) {
-                        Event.WaitFor(TVP_WSB_DECODE_THREAD_SLEEP_TIME - elapsed);
+                        Event.WaitFor(TVP_WSB_DECODE_THREAD_SLEEP_TIME -
+                                      elapsed);
                     }
                 } else {
                     // buffer is not full; sleep shorter
@@ -1856,7 +1893,8 @@ void tTVPWaveSoundBufferDecodeThread::Continue() {
 // tTJSNI_WaveSoundBuffer
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_WaveSoundBuffer::GlobalVolume = 100000;
-tTVPSoundGlobalFocusMode tTJSNI_WaveSoundBuffer::GlobalFocusMode = sgfmNeverMute;
+tTVPSoundGlobalFocusMode tTJSNI_WaveSoundBuffer::GlobalFocusMode =
+    sgfmNeverMute;
 
 //---------------------------------------------------------------------------
 tTJSNI_WaveSoundBuffer::tTJSNI_WaveSoundBuffer() {
@@ -1915,8 +1953,9 @@ tTJSNI_WaveSoundBuffer::tTJSNI_WaveSoundBuffer() {
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_WaveSoundBuffer::Construct(tjs_int numparams, tTJSVariant **param,
-                                                            iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_WaveSoundBuffer::Construct(tjs_int numparams,
+                                            tTJSVariant **param,
+                                            iTJSDispatch2 *tjs_obj) {
     tjs_error hr = inherited::Construct(numparams, param, tjs_obj);
     if(TJS_FAILED(hr))
         return hr;
@@ -1925,7 +1964,7 @@ tjs_error TJS_INTF_METHOD tTJSNI_WaveSoundBuffer::Construct(tjs_int numparams, t
 }
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_WaveSoundBuffer::Invalidate() {
+void tTJSNI_WaveSoundBuffer::Invalidate() {
     inherited::Invalidate();
 
     Clear();
@@ -1941,9 +1980,11 @@ void TJS_INTF_METHOD tTJSNI_WaveSoundBuffer::Invalidate() {
 //---------------------------------------------------------------------------
 void tTJSNI_WaveSoundBuffer::ThrowSoundBufferException(const ttstr &reason) {
 
-    TVPThrowExceptionMessage(TVPCannotCreateDSSecondaryBuffer, reason,
-                             ttstr{ fmt::sprintf("frequency=%d/channels=%d/bits=%d", InputFormat.SamplesPerSec,
-                                                 InputFormat.Channels, InputFormat.BitsPerSample) });
+    TVPThrowExceptionMessage(
+        TVPCannotCreateDSSecondaryBuffer, reason,
+        ttstr{ fmt::sprintf("frequency=%d/channels=%d/bits=%d",
+                            InputFormat.SamplesPerSec, InputFormat.Channels,
+                            InputFormat.BitsPerSample) });
 }
 
 //---------------------------------------------------------------------------
@@ -1954,9 +1995,12 @@ void tTJSNI_WaveSoundBuffer::TryCreateSoundBuffer(bool use3d) {
 
     // compute buffer bytes
     AccessUnitSamples = InputFormat.SamplesPerSec / TVP_WSB_ACCESS_FREQ;
-    AccessUnitBytes = AccessUnitSamples * InputFormat.Channels * InputFormat.BytesPerSample;
+    AccessUnitBytes =
+        AccessUnitSamples * InputFormat.Channels * InputFormat.BytesPerSample;
 
-    L1BufferUnits = TVPAL_BUFFER_COUNT /*TVPL1BufferLength / (1000 / TVP_WSB_ACCESS_FREQ)*/;
+    L1BufferUnits = TVPAL_BUFFER_COUNT /*TVPL1BufferLength / (1000 /
+                                          TVP_WSB_ACCESS_FREQ)*/
+        ;
     if(L1BufferUnits <= 1)
         L1BufferUnits = 2;
     if(L1BufferSegmentQueues)
@@ -1982,13 +2026,15 @@ void tTJSNI_WaveSoundBuffer::TryCreateSoundBuffer(bool use3d) {
         L2BufferUnits = 2;
 
     if(L2BufferDecodedSamplesInUnit)
-        delete[] L2BufferDecodedSamplesInUnit, L2BufferDecodedSamplesInUnit = nullptr;
+        delete[] L2BufferDecodedSamplesInUnit,
+            L2BufferDecodedSamplesInUnit = nullptr;
     if(L2BufferSegmentQueues)
         delete[] L2BufferSegmentQueues, L2BufferSegmentQueues = nullptr;
     L2BufferDecodedSamplesInUnit = new tjs_int[L2BufferUnits];
     L2BufferSegmentQueues = new tTVPWaveSegmentQueue[L2BufferUnits];
 
-    L2AccessUnitBytes = AccessUnitSamples * InputFormat.BytesPerSample * InputFormat.Channels;
+    L2AccessUnitBytes =
+        AccessUnitSamples * InputFormat.BytesPerSample * InputFormat.Channels;
     Level2BufferSize = L2AccessUnitBytes * L2BufferUnits;
     if(Level2Buffer)
         delete[] Level2Buffer, Level2Buffer = nullptr;
@@ -2073,10 +2119,12 @@ void tTJSNI_WaveSoundBuffer::CreateSoundBuffer() {
     TVPInitDirectSound(); // ensure DirectSound object
 
     bool format_is_not_identical = TVPAlwaysRecreateSoundBuffer ||
-        C_InputFormat.SamplesPerSec != InputFormat.SamplesPerSec || C_InputFormat.Channels != InputFormat.Channels ||
+        C_InputFormat.SamplesPerSec != InputFormat.SamplesPerSec ||
+        C_InputFormat.Channels != InputFormat.Channels ||
         C_InputFormat.BitsPerSample != InputFormat.BitsPerSample ||
         C_InputFormat.BytesPerSample != InputFormat.BytesPerSample ||
-        C_InputFormat.SpeakerConfig != InputFormat.SpeakerConfig || C_InputFormat.IsFloat != InputFormat.IsFloat;
+        C_InputFormat.SpeakerConfig != InputFormat.SpeakerConfig ||
+        C_InputFormat.IsFloat != InputFormat.IsFloat;
 
     if(format_is_not_identical) {
         try {
@@ -2084,7 +2132,10 @@ void tTJSNI_WaveSoundBuffer::CreateSoundBuffer() {
             bool failed;
             bool firstfailed = false;
             ttstr firstformat;
-            bool use3d = (InputFormat.Channels >= 3 || InputFormat.SpeakerConfig != 0) ? false : TVPDirectSoundUse3D;
+            bool use3d =
+                (InputFormat.Channels >= 3 || InputFormat.SpeakerConfig != 0)
+                ? false
+                : TVPDirectSoundUse3D;
             // currently DirectSound3D cannot handle multiple speaker
             // configuration other than stereo.
             int forcemode = 0;
@@ -2095,8 +2146,8 @@ void tTJSNI_WaveSoundBuffer::CreateSoundBuffer() {
                 goto try16bits_mono;
 
             failed = false;
-            // TVPWaveFormatToWAVEFORMATEXTENSIBLE(&InputFormat, &Format,
-            // use3d);
+            // TVPWaveFormatToWAVEFORMATEXTENSIBLE(&InputFormat,
+            // &Format, use3d);
             try {
                 TryCreateSoundBuffer(use3d);
             } catch(eTJSError &e) {
@@ -2106,8 +2157,8 @@ void tTJSNI_WaveSoundBuffer::CreateSoundBuffer() {
 
             if(failed || !SoundBuffer) {
                 failed = false;
-                // TVPWaveFormatToWAVEFORMATEXTENSIBLE2(&InputFormat, &Format,
-                // use3d);
+                // TVPWaveFormatToWAVEFORMATEXTENSIBLE2(&InputFormat,
+                // &Format, use3d);
                 try {
                     TryCreateSoundBuffer(use3d);
                 } catch(eTJSError &e) {
@@ -2228,7 +2279,8 @@ void tTJSNI_WaveSoundBuffer::DestroySoundBuffer() {
     if(L1BufferDecodeSamplePos)
         delete[] L1BufferDecodeSamplePos, L1BufferDecodeSamplePos = nullptr;
     if(L2BufferDecodedSamplesInUnit)
-        delete[] L2BufferDecodedSamplesInUnit, L2BufferDecodedSamplesInUnit = nullptr;
+        delete[] L2BufferDecodedSamplesInUnit,
+            L2BufferDecodedSamplesInUnit = nullptr;
     if(L2BufferSegmentQueues)
         delete[] L2BufferSegmentQueues, L2BufferSegmentQueues = nullptr;
     if(Level2Buffer)
@@ -2283,7 +2335,8 @@ void tTJSNI_WaveSoundBuffer::ResetSoundBuffer() {
 
 //---------------------------------------------------------------------------
 void tTJSNI_WaveSoundBuffer::ResetSamplePositions() {
-    // reset L1BufferSegmentQueues and L2BufferSegmentQueues, and labels
+    // reset L1BufferSegmentQueues and L2BufferSegmentQueues, and
+    // labels
     if(L1BufferSegmentQueues) {
         for(int i = 0; i < L1BufferUnits; i++)
             L1BufferSegmentQueues[i].Clear();
@@ -2322,7 +2375,8 @@ void tTJSNI_WaveSoundBuffer::Clear() {
 }
 
 //---------------------------------------------------------------------------
-tjs_uint tTJSNI_WaveSoundBuffer::Decode(void *buffer, tjs_uint bufsamplelen, tTVPWaveSegmentQueue &segments) {
+tjs_uint tTJSNI_WaveSoundBuffer::Decode(void *buffer, tjs_uint bufsamplelen,
+                                        tTVPWaveSegmentQueue &segments) {
     // decode one buffer unit
     tjs_uint w = 0;
 
@@ -2338,10 +2392,12 @@ tjs_uint tTJSNI_WaveSoundBuffer::Decode(void *buffer, tjs_uint bufsamplelen, tTV
 }
 
 //---------------------------------------------------------------------------
-bool tTJSNI_WaveSoundBuffer::FillL2Buffer(bool firstwrite, bool fromdecodethread) {
+bool tTJSNI_WaveSoundBuffer::FillL2Buffer(bool firstwrite,
+                                          bool fromdecodethread) {
     if(!fromdecodethread && Thread->GetRunning())
         Thread->SetPriority(ttpHighest);
-    // make decoder thread priority high, before entering critical section
+    // make decoder thread priority high, before entering critical
+    // section
 
     tTJSCriticalSectionHolder holder(L2BufferCS);
 
@@ -2366,8 +2422,8 @@ bool tTJSNI_WaveSoundBuffer::FillL2Buffer(bool firstwrite, bool fromdecodethread
                 retflag = true;
         }
         if(!retflag)
-            UpdateFilterChain(); // if the buffer is not full, update filter
-                                 // internal state
+            UpdateFilterChain(); // if the buffer is not full, update
+                                 // filter internal state
         if(Thread->GetRunning())
             Thread->SetPriority(ttpbefore);
         if(retflag)
@@ -2379,8 +2435,9 @@ bool tTJSNI_WaveSoundBuffer::FillL2Buffer(bool firstwrite, bool fromdecodethread
         L2BufferDecodedSamplesInUnit[L2BufferWritePos] = 0;
     } else {
         L2BufferSegmentQueues[L2BufferWritePos].Clear();
-        tjs_uint decoded = Decode(L2BufferWritePos * L2AccessUnitBytes + Level2Buffer, AccessUnitSamples,
-                                  L2BufferSegmentQueues[L2BufferWritePos]);
+        tjs_uint decoded =
+            Decode(L2BufferWritePos * L2AccessUnitBytes + Level2Buffer,
+                   AccessUnitSamples, L2BufferSegmentQueues[L2BufferWritePos]);
 
         if(decoded < (tjs_uint)AccessUnitSamples)
             L2BufferEnded = true;
@@ -2421,20 +2478,22 @@ void tTJSNI_WaveSoundBuffer::PrepareToReadL2Buffer(bool firstread) {
 }
 
 //---------------------------------------------------------------------------
-tjs_uint tTJSNI_WaveSoundBuffer::ReadL2Buffer(void *buffer, tTVPWaveSegmentQueue &segments) {
+tjs_uint tTJSNI_WaveSoundBuffer::ReadL2Buffer(void *buffer,
+                                              tTVPWaveSegmentQueue &segments) {
     // This routine is protected by BufferCS, not L2BufferCS, while
     // this routine reads L2 buffer.
-    // But It's ok because this function will never read currently writing L2
-    // buffer. L2 buffer having at least one rendered unit is
-    // guaranteed at this point.
+    // But It's ok because this function will never read currently
+    // writing L2 buffer. L2 buffer having at least one rendered unit
+    // is guaranteed at this point.
 
     tjs_uint decoded = L2BufferDecodedSamplesInUnit[L2BufferReadPos];
 
     segments = L2BufferSegmentQueues[L2BufferReadPos];
     if(decoded) {
-        SoundBuffer->AppendBuffer(L2BufferReadPos * L2AccessUnitBytes + Level2Buffer,
-                                  decoded * InputFormat.BytesPerSample *
-                                      InputFormat.Channels /*, SoundBufferWritePos*/);
+        SoundBuffer->AppendBuffer(
+            L2BufferReadPos * L2AccessUnitBytes + Level2Buffer,
+            decoded * InputFormat.BytesPerSample *
+                InputFormat.Channels /*, SoundBufferWritePos*/);
         if(buffer) { // for VisBuffer
             memcpy(buffer, L2BufferReadPos * L2AccessUnitBytes + Level2Buffer,
                    decoded * InputFormat.BytesPerSample * InputFormat.Channels);
@@ -2447,7 +2506,9 @@ tjs_uint tTJSNI_WaveSoundBuffer::ReadL2Buffer(void *buffer, tTVPWaveSegmentQueue
 #endif
     if(buffer && decoded < (tjs_uint)AccessUnitSamples) {
         // fill rest with silence
-        TVPMakeSilentWave((tjs_uint8 *)buffer + decoded * InputFormat.Channels * InputFormat.BytesPerSample,
+        TVPMakeSilentWave((tjs_uint8 *)buffer +
+                              decoded * InputFormat.Channels *
+                                  InputFormat.BytesPerSample,
                           AccessUnitSamples - decoded, &InputFormat);
     }
 
@@ -2464,7 +2525,8 @@ tjs_uint tTJSNI_WaveSoundBuffer::ReadL2Buffer(void *buffer, tTVPWaveSegmentQueue
 }
 
 //---------------------------------------------------------------------------
-void tTJSNI_WaveSoundBuffer::FillDSBuffer(tjs_int writepos, tTVPWaveSegmentQueue &segments) {
+void tTJSNI_WaveSoundBuffer::FillDSBuffer(tjs_int writepos,
+                                          tTVPWaveSegmentQueue &segments) {
 #if 0
     BYTE *p1, *p2;
     DWORD b1, b2;
@@ -2472,7 +2534,8 @@ void tTJSNI_WaveSoundBuffer::FillDSBuffer(tjs_int writepos, tTVPWaveSegmentQueue
     segments.Clear();
 
     if(SoundBuffer->IsBufferValid()) {
-        tjs_uint decoded = ReadL2Buffer(UseVisBuffer ? VisBuffer + writepos : nullptr, segments);
+        tjs_uint decoded = ReadL2Buffer(
+            UseVisBuffer ? VisBuffer + writepos : nullptr, segments);
     }
 #if 0
     HRESULT hr;
@@ -2677,12 +2740,15 @@ const std::deque<tTVPWaveLabel> &labels = segment->GetLabels();
 if(labels.size() != 0) {
     // add DecodePos offset to each item->Offset
     // and insert into LabelEventQueue
-    for(std::deque<tTVPWaveLabel>::const_iterator i = labels.begin(); i != labels.end(); i++) {
-        LabelEventQueue.emplace_back(i->Position, i->Name, static_cast<tjs_int>(i->Offset + DecodePos));
+    for(std::deque<tTVPWaveLabel>::const_iterator i = labels.begin();
+        i != labels.end(); i++) {
+        LabelEventQueue.emplace_back(
+            i->Position, i->Name, static_cast<tjs_int>(i->Offset + DecodePos));
     }
 
     // sort
-    std::sort(LabelEventQueue.begin(), LabelEventQueue.end(), tTVPWaveLabel::tSortByOffsetFuncObj());
+    std::sort(LabelEventQueue.begin(), LabelEventQueue.end(),
+              tTVPWaveLabel::tSortByOffsetFuncObj());
 
     // re-schedule label events
     TVPReschedulePendingLabelEvent(GetNearestEventStep());
@@ -2698,8 +2764,8 @@ return false;
 //---------------------------------------------------------------------------
 void tTJSNI_WaveSoundBuffer::ResetLastCheckedDecodePos(DWORD pp) {
     // set LastCheckedDecodePos and  LastCheckedTick
-    // we shoud reset these values because the clock sources are usually
-    // not identical.
+    // we shoud reset these values because the clock sources are
+    // usually not identical.
     tTJSCriticalSectionHolder holder(BufferCS);
 #if 0
     if(pp == (DWORD)-1)
@@ -2739,18 +2805,21 @@ void tTJSNI_WaveSoundBuffer::ResetLastCheckedDecodePos(DWORD pp) {
 }
 
 //---------------------------------------------------------------------------
-tjs_int tTJSNI_WaveSoundBuffer::FireLabelEventsAndGetNearestLabelEventStep(tjs_int64 tick) {
-    // fire events, event.EventTick <= tick, and return relative time to
-    // next nearest event (return TVP_TIMEOFS_INVALID_VALUE for no events).
+tjs_int tTJSNI_WaveSoundBuffer::FireLabelEventsAndGetNearestLabelEventStep(
+    tjs_int64 tick) {
+    // fire events, event.EventTick <= tick, and return relative time
+    // to next nearest event (return TVP_TIMEOFS_INVALID_VALUE for no
+    // events).
 
     // the vector LabelEventQueue must be sorted by the position.
     tTJSCriticalSectionHolder holder(BufferCS);
 
     if(!BufferPlaying)
-        return TVP_TIMEOFS_INVALID_VALUE; // buffer is not currently playing
+        return TVP_TIMEOFS_INVALID_VALUE; // buffer is not currently
+                                          // playing
     if(!DSBufferPlaying)
-        return TVP_TIMEOFS_INVALID_VALUE; // direct sound buffer is not
-                                          // currently playing
+        return TVP_TIMEOFS_INVALID_VALUE; // direct sound buffer is
+                                          // not currently playing
 
     if(LabelEventQueue.size() == 0)
         return TVP_TIMEOFS_INVALID_VALUE; // no more events
@@ -2759,7 +2828,8 @@ tjs_int tTJSNI_WaveSoundBuffer::FireLabelEventsAndGetNearestLabelEventStep(tjs_i
     // at this point, LastCheckedDecodePos must not be -1
     if(LastCheckedDecodePos == -1)
         ResetLastCheckedDecodePos();
-    tjs_int64 decodepos = (tick - LastCheckedTick) * Frequency / 1000 + LastCheckedDecodePos;
+    tjs_int64 decodepos =
+        (tick - LastCheckedTick) * Frequency / 1000 + LastCheckedDecodePos;
 
     while(true) {
         if(LabelEventQueue.size() == 0)
@@ -2776,7 +2846,8 @@ tjs_int tTJSNI_WaveSoundBuffer::FireLabelEventsAndGetNearestLabelEventStep(tjs_i
     if(LabelEventQueue.size() == 0)
         return TVP_TIMEOFS_INVALID_VALUE; // no more events
 
-    return (tjs_int)((LabelEventQueue[0].Offset - (tjs_int32)decodepos) * 1000 / Frequency);
+    return (tjs_int)((LabelEventQueue[0].Offset - (tjs_int32)decodepos) * 1000 /
+                     Frequency);
 }
 
 //---------------------------------------------------------------------------
@@ -2792,9 +2863,12 @@ tjs_int tTJSNI_WaveSoundBuffer::GetNearestEventStep() {
     // at this point, LastCheckedDecodePos must not be -1
     if(LastCheckedDecodePos == -1)
         ResetLastCheckedDecodePos();
-    tjs_int64 decodepos = (TVPGetTickCount() - LastCheckedTick) * Frequency / 1000 + LastCheckedDecodePos;
+    tjs_int64 decodepos =
+        (TVPGetTickCount() - LastCheckedTick) * Frequency / 1000 +
+        LastCheckedDecodePos;
 
-    return (tjs_int)((LabelEventQueue[0].Offset - (tjs_int32)decodepos) * 1000 / Frequency);
+    return (tjs_int)((LabelEventQueue[0].Offset - (tjs_int32)decodepos) * 1000 /
+                     Frequency);
 }
 
 //---------------------------------------------------------------------------
@@ -2803,7 +2877,8 @@ void tTJSNI_WaveSoundBuffer::FlushAllLabelEvents() {
     // flush all undelivered events.
     tTJSCriticalSectionHolder holder(BufferCS);
 
-    for(std::vector<tTVPWaveLabel>::iterator i = LabelEventQueue.begin(); i != LabelEventQueue.end(); i++)
+    for(std::vector<tTVPWaveLabel>::iterator i = LabelEventQueue.begin();
+        i != LabelEventQueue.end(); i++)
         InvokeLabelEvent(i->Name);
 
     LabelEventQueue.clear();
@@ -2854,7 +2929,8 @@ void tTJSNI_WaveSoundBuffer::StartPlay() {
     } // end of thread protected block
 
     // ensure thread
-    TVPEnsureWaveSoundBufferWorking(); // wake the playing thread up again
+    TVPEnsureWaveSoundBufferWorking(); // wake the playing thread up
+                                       // again
     ThreadCallbackEnabled = true;
     Thread->Continue();
 }
@@ -2887,7 +2963,8 @@ void tTJSNI_WaveSoundBuffer::Play() {
 
     StopPlay();
 
-    TVPEnsurePrimaryBufferPlay(); // let primary buffer to start running
+    TVPEnsurePrimaryBufferPlay(); // let primary buffer to start
+                                  // running
 
     if(Thread->GetRunning()) {
         Thread->SetPriority(TVPDecodeThreadHighPriority);
@@ -2959,7 +3036,8 @@ void tTJSNI_WaveSoundBuffer::TimerBeatHandler() {
 //---------------------------------------------------------------------------
 void tTJSNI_WaveSoundBuffer::Open(const ttstr &storagename) {
     // open a storage and prepare to play
-    TVPEnsurePrimaryBufferPlay(); // let primary buffer to start running
+    TVPEnsurePrimaryBufferPlay(); // let primary buffer to start
+                                  // running
 
     Clear();
 
@@ -2988,7 +3066,8 @@ void tTJSNI_WaveSoundBuffer::Open(const ttstr &storagename) {
         tTVPStreamHolder slistream(sliname);
         char *buffer;
         tjs_uint size;
-        buffer = new char[(size = static_cast<tjs_uint>(slistream->GetSize())) + 1];
+        buffer =
+            new char[(size = static_cast<tjs_uint>(slistream->GetSize())) + 1];
         try {
             slistream->ReadBuffer(buffer, size);
             buffer[size] = 0;
@@ -3091,15 +3170,19 @@ void tTJSNI_WaveSoundBuffer::SetVolumeToSoundBuffer() {
     if(SoundBuffer) {
         tjs_int v;
         tjs_int mutevol = 100000;
-        if(TVPSoundGlobalFocusModeByOption >= sgfmMuteOnDeactivate && TVPSoundGlobalFocusMuteVolume == 0) {
+        if(TVPSoundGlobalFocusModeByOption >= sgfmMuteOnDeactivate &&
+           TVPSoundGlobalFocusMuteVolume == 0) {
             // no mute needed here;
             // muting will be processed in DirectSound framework.
             ;
         } else {
             // mute mode is choosen from GlobalFocusMode or
-            // TVPSoundGlobalFocusModeByOption which is more restrictive.
+            // TVPSoundGlobalFocusModeByOption which is more
+            // restrictive.
             tTVPSoundGlobalFocusMode mode =
-                GlobalFocusMode > TVPSoundGlobalFocusModeByOption ? GlobalFocusMode : TVPSoundGlobalFocusModeByOption;
+                GlobalFocusMode > TVPSoundGlobalFocusModeByOption
+                ? GlobalFocusMode
+                : TVPSoundGlobalFocusModeByOption;
 #if 0 // useless on mobile device
             switch(mode)
             {
@@ -3122,11 +3205,13 @@ void tTJSNI_WaveSoundBuffer::SetVolumeToSoundBuffer() {
         v = (Volume / 10) * (Volume2 / 10) / 1000;
         v = (v / 10) * (GlobalVolume / 10) / 1000;
         v = (v / 10) * (mutevol / 10) / 1000;
-        SoundBuffer->SetVolume(/*TVPVolumeToDSAttenuate*/ (v / 100000.0f));
+        SoundBuffer->SetVolume(
+            /*TVPVolumeToDSAttenuate*/ (v / 100000.0f));
 
         if(BufferCanControlPan) {
             // set pan
-            SoundBuffer->SetPan(/*TVPPanToDSAttenuate*/ (Pan / 100000.0f));
+            SoundBuffer->SetPan(
+                /*TVPPanToDSAttenuate*/ (Pan / 100000.0f));
         }
     }
 }
@@ -3291,7 +3376,9 @@ void tTJSNI_WaveSoundBuffer::DeallocateVisBuffer() {
 }
 
 //---------------------------------------------------------------------------
-void tTJSNI_WaveSoundBuffer::CopyVisBuffer(tjs_int16 *dest, const tjs_uint8 *src, tjs_int numsamples,
+void tTJSNI_WaveSoundBuffer::CopyVisBuffer(tjs_int16 *dest,
+                                           const tjs_uint8 *src,
+                                           tjs_int numsamples,
                                            tjs_int channels) {
 #if 0
     bool isfloat = Format.Format.wFormatTag == WAVE_FORMAT_IEEE_FLOAT ||
@@ -3299,16 +3386,22 @@ void tTJSNI_WaveSoundBuffer::CopyVisBuffer(tjs_int16 *dest, const tjs_uint8 *src
             !memcmp(&Format.SubFormat, &TVP_GUID_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT, 16));
 #endif
     if(channels == 1) {
-        TVPConvertPCMTo16bits(dest, (const void *)src, InputFormat.Channels, InputFormat.BytesPerSample,
-                              InputFormat.BitsPerSample, InputFormat.IsFloat, numsamples, true);
+        TVPConvertPCMTo16bits(dest, (const void *)src, InputFormat.Channels,
+                              InputFormat.BytesPerSample,
+                              InputFormat.BitsPerSample, InputFormat.IsFloat,
+                              numsamples, true);
     } else if(channels == InputFormat.Channels) {
-        TVPConvertPCMTo16bits(dest, (const void *)src, InputFormat.Channels, InputFormat.BytesPerSample,
-                              InputFormat.BitsPerSample, InputFormat.IsFloat, numsamples, false);
+        TVPConvertPCMTo16bits(dest, (const void *)src, InputFormat.Channels,
+                              InputFormat.BytesPerSample,
+                              InputFormat.BitsPerSample, InputFormat.IsFloat,
+                              numsamples, false);
     }
 }
 
 //---------------------------------------------------------------------------
-tjs_int tTJSNI_WaveSoundBuffer::GetVisBuffer(tjs_int16 *dest, tjs_int numsamples, tjs_int channels,
+tjs_int tTJSNI_WaveSoundBuffer::GetVisBuffer(tjs_int16 *dest,
+                                             tjs_int numsamples,
+                                             tjs_int channels,
                                              tjs_int aheadsamples) {
     // read visualization buffer samples
     if(!UseVisBuffer)
@@ -3327,18 +3420,20 @@ tjs_int tTJSNI_WaveSoundBuffer::GetVisBuffer(tjs_int16 *dest, tjs_int numsamples
 
     // retrieve current playing position
 
-    tjs_int buffersamples = BufferBytes / (InputFormat.Channels * InputFormat.BytesPerSample);
+    tjs_int buffersamples =
+        BufferBytes / (InputFormat.Channels * InputFormat.BytesPerSample);
     int offset;
     // DWORD wp, pp;
     {
         tTJSCriticalSectionHolder holder(BufferCS);
         // the critical section protects only here;
-        // the rest is not important code (does anyone care about that the
-        // retrieved visualization becomes wrong a little ?)
+        // the rest is not important code (does anyone care about that
+        // the retrieved visualization becomes wrong a little ?)
         offset = SoundBuffer->GetCurrentPlaySamples() + aheadsamples;
         int rblock = offset / AccessUnitSamples;
         offset %= buffersamples;
-        if(L1BufferSegmentQueues[rblock % L1BufferUnits].GetFilteredLength() == 0)
+        if(L1BufferSegmentQueues[rblock % L1BufferUnits].GetFilteredLength() ==
+           0)
             return 0;
 #if 0
         if(FAILED(SoundBuffer->GetCurrentPosition(&pp, &wp))) return 0;
@@ -3362,8 +3457,11 @@ tjs_int tTJSNI_WaveSoundBuffer::GetVisBuffer(tjs_int16 *dest, tjs_int numsamples
             tjs_int bufrest = buffersamples - offset;
             tjs_int copysamples = (bufrest > numsamples ? numsamples : bufrest);
 
-            CopyVisBuffer(dest, VisBuffer + offset * InputFormat.Channels * InputFormat.BytesPerSample, copysamples,
-                          channels);
+            CopyVisBuffer(dest,
+                          VisBuffer +
+                              offset * InputFormat.Channels *
+                                  InputFormat.BytesPerSample,
+                          copysamples, channels);
 
             numsamples -= copysamples;
             writtensamples += copysamples;
@@ -3383,7 +3481,9 @@ tjs_int tTJSNI_WaveSoundBuffer::GetVisBuffer(tjs_int16 *dest, tjs_int numsamples
 //---------------------------------------------------------------------------
 // tTJSNC_WaveSoundBuffer
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_WaveSoundBuffer::CreateNativeInstance() { return new tTJSNI_WaveSoundBuffer(); }
+tTJSNativeInstance *tTJSNC_WaveSoundBuffer::CreateNativeInstance() {
+    return new tTJSNI_WaveSoundBuffer();
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -3397,7 +3497,8 @@ tTJSNativeClass *TVPCreateNativeClass_WaveSoundBuffer() {
     //----------------------------------------------------------------------
     // methods
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ freeDirectSound) /* static */
+    TJS_BEGIN_NATIVE_METHOD_DECL(
+        /*func. name*/ freeDirectSound) /* static */
     {
         // release directsound
         TVPReleaseDirectSound();
@@ -3434,9 +3535,9 @@ tTJSNativeClass *TVPCreateNativeClass_WaveSoundBuffer() {
     //----------------------------------------------------------------------
     // properties
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(useVisBuffer){
-        TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                              /*var. type*/ tTJSNI_WaveSoundBuffer);
+    TJS_BEGIN_NATIVE_PROP_DECL(useVisBuffer){ TJS_BEGIN_NATIVE_PROP_GETTER{
+        TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                                /*var. type*/ tTJSNI_WaveSoundBuffer);
 
     *result = _this->GetUseVisBuffer();
     return TJS_S_OK;

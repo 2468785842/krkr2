@@ -40,14 +40,15 @@ class tTJSNI_VideoOverlay : public tTJSNI_BaseVideoOverlay {
 
     //	HWND OwnerWindow;
 
-    // HWND UtilWindow; // window which receives messages from video overlay
-    // object
+    // HWND UtilWindow; // window which receives messages from video
+    // overlay object
     NativeEventQueue<tTJSNI_VideoOverlay> EventQueue;
 
     tTVPLocalTempStorageHolder *LocalTempStorageHolder;
     class tTJSNI_BaseLayer *Layer1;
     class tTJSNI_BaseLayer *Layer2;
-    tTVPVideoOverlayMode Mode; //!< Modeの動的な変更は出来ない。open前にセットしておくこと
+    tTVPVideoOverlayMode
+        Mode; //!< Modeの動的な変更は出来ない。open前にセットしておくこと
     bool Loop;
 
     class tTVPBaseTexture *Bitmap[2]; //!< Layer描画用バッファ用Bitmap
@@ -65,8 +66,9 @@ class tTJSNI_VideoOverlay : public tTJSNI_BaseVideoOverlay {
 
 public:
     tTJSNI_VideoOverlay();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
-    void TJS_INTF_METHOD Invalidate();
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
+    void Invalidate();
 
 public:
     void Open(const ttstr &name);

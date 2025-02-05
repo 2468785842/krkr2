@@ -5,19 +5,27 @@
 
 class tTJSNI_BaseLayer;
 class iTVPTexture2D;
-class DebugViewLayerForm : public cocos2d::Node, public cocos2d::extension::TableViewDataSource {
+class DebugViewLayerForm : public cocos2d::Node,
+                           public cocos2d::extension::TableViewDataSource {
 public:
     static DebugViewLayerForm *create();
 
     virtual bool init() override;
 
 private:
-    virtual cocos2d::Size tableCellSizeForIndex(cocos2d::extension::TableView *table, ssize_t idx) override;
-    virtual cocos2d::extension::TableViewCell *tableCellAtIndex(cocos2d::extension::TableView *table,
-                                                                ssize_t idx) override;
-    virtual ssize_t numberOfCellsInTableView(cocos2d::extension::TableView *table) override { return _layers.size(); }
+    virtual cocos2d::Size
+    tableCellSizeForIndex(cocos2d::extension::TableView *table,
+                          ssize_t idx) override;
+    virtual cocos2d::extension::TableViewCell *
+    tableCellAtIndex(cocos2d::extension::TableView *table,
+                     ssize_t idx) override;
+    virtual ssize_t
+    numberOfCellsInTableView(cocos2d::extension::TableView *table) override {
+        return _layers.size();
+    }
     void onExitCallback();
-    uint64_t addToLayerVec(int indent, const std::string &prefix, tTJSNI_BaseLayer *lay);
+    uint64_t addToLayerVec(int indent, const std::string &prefix,
+                           tTJSNI_BaseLayer *lay);
 
     class DebugViewLayerCell;
     struct LayerInfo {

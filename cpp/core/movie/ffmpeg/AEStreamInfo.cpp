@@ -11,25 +11,31 @@ NS_KRMOVIE_BEGIN
 #define DTS_SFREQ_COUNT 16
 #define MAX_EAC3_BLOCKS 6
 
-static const uint16_t AC3Bitrates[] = { 32,  40,  48,  56,  64,  80,  96,  112, 128, 160,
-                                        192, 224, 256, 320, 384, 448, 512, 576, 640 };
+static const uint16_t AC3Bitrates[] = { 32,  40,  48,  56,  64,  80,  96,
+                                        112, 128, 160, 192, 224, 256, 320,
+                                        384, 448, 512, 576, 640 };
 static const uint16_t AC3FSCod[] = { 48000, 44100, 32000, 0 };
 static const uint8_t AC3BlkCod[] = { 1, 2, 3, 6 };
 static const uint8_t AC3Channels[] = { 2, 1, 2, 3, 3, 4, 4, 5 };
-static const uint8_t DTSChannels[] = { 1, 2, 2, 2, 2, 3, 3, 4, 4, 5, 6, 6, 6, 7, 8, 8 };
+static const uint8_t DTSChannels[] = { 1, 2, 2, 2, 2, 3, 3, 4,
+                                       4, 5, 6, 6, 6, 7, 8, 8 };
 static const uint8_t THDChanMap[] = { 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 1, 1 };
 
-static const uint32_t DTSSampleRates[DTS_SFREQ_COUNT] = { 0,     8000,  16000,  32000, 64000, 128000, 11025, 22050,
-                                                          44100, 88200, 176400, 12000, 24000, 48000,  96000, 192000 };
+static const uint32_t DTSSampleRates[DTS_SFREQ_COUNT] = {
+    0,     8000,  16000,  32000, 64000, 128000, 11025, 22050,
+    44100, 88200, 176400, 12000, 24000, 48000,  96000, 192000
+};
 
 CAEStreamParser::CAEStreamParser() :
-    m_bufferSize(0), m_skipBytes(0), m_coreOnly(false), m_needBytes(0), m_syncFunc(&CAEStreamParser::DetectType),
-    m_hasSync(false), m_coreSize(0), m_dtsBlocks(0), m_fsize(0), m_fsizeMain(0), m_substreams(0) {
+    m_bufferSize(0), m_skipBytes(0), m_coreOnly(false), m_needBytes(0),
+    m_syncFunc(&CAEStreamParser::DetectType), m_hasSync(false), m_coreSize(0),
+    m_dtsBlocks(0), m_fsize(0), m_fsizeMain(0), m_substreams(0) {
     av_crc_init(m_crcTrueHD, 0, 16, 0x2D, sizeof(m_crcTrueHD));
 }
 
 CAEStreamInfo::CAEStreamInfo() :
-    m_type(STREAM_TYPE_NULL), m_dataIsLE(true), m_dtsPeriod(0), m_repeat(0), m_ac3FrameSize(0) {}
+    m_type(STREAM_TYPE_NULL), m_dataIsLE(true), m_dtsPeriod(0), m_repeat(0),
+    m_ac3FrameSize(0) {}
 
 double CAEStreamInfo::GetDuration() {
     double duration = 0;
@@ -42,7 +48,8 @@ double CAEStreamInfo::GetDuration() {
             break;
         case STREAM_TYPE_TRUEHD:
             int rate;
-            if(m_sampleRate == 48000 || m_sampleRate == 96000 || m_sampleRate == 192000)
+            if(m_sampleRate == 48000 || m_sampleRate == 96000 ||
+               m_sampleRate == 192000)
                 rate = 192000;
             else
                 rate = 176400;
@@ -60,8 +67,8 @@ double CAEStreamInfo::GetDuration() {
             duration = 2048.0 / m_sampleRate;
             break;
         default:
-            //      CLog::Log(LOGERROR, "CAEStreamInfo::GetDuration - invalid stream
-            //      type");
+            //      CLog::Log(LOGERROR, "CAEStreamInfo::GetDuration -
+            //      invalid stream type");
             break;
     }
     return duration * 1000;
@@ -86,7 +93,8 @@ void CAEStreamParser::Reset() {
     m_hasSync = false;
 }
 
-int CAEStreamParser::AddData(uint8_t *data, unsigned int size, uint8_t **buffer /* = nullptr */,
+int CAEStreamParser::AddData(uint8_t *data, unsigned int size,
+                             uint8_t **buffer /* = nullptr */,
                              unsigned int *bufferSize /* = 0 */) {
     if(size == 0) {
         if(bufferSize)
@@ -144,7 +152,8 @@ int CAEStreamParser::AddData(uint8_t *data, unsigned int size, uint8_t **buffer 
                 m_info.m_type = CAEStreamInfo::STREAM_TYPE_NULL;
                 m_info.m_repeat = 1;
 
-                /* if the buffer is full, or the offset < the buffer size */
+                /* if the buffer is full, or the offset < the buffer
+                 * size */
                 if(m_bufferSize == sizeof(m_buffer) || offset < m_bufferSize) {
                     m_bufferSize -= offset;
                     room += offset;
@@ -179,7 +188,8 @@ int CAEStreamParser::AddData(uint8_t *data, unsigned int size, uint8_t **buffer 
 void CAEStreamParser::GetPacket(uint8_t **buffer, unsigned int *bufferSize) {
     /* if the caller wants the packet */
     if(buffer) {
-        /* if it is dtsHD and we only want the core, just fetch that */
+        /* if it is dtsHD and we only want the core, just fetch that
+         */
         unsigned int size = m_fsize;
         if(m_info.m_type == CAEStreamInfo::STREAM_TYPE_DTSHD_CORE)
             size = m_coreSize;
@@ -206,11 +216,12 @@ void CAEStreamParser::GetPacket(uint8_t **buffer, unsigned int *bufferSize) {
 /* SYNC FUNCTIONS */
 
 /*
-  This function looks for sync words across the types in paralell, and only does
-  an exhaustive test if it finds a syncword. Once sync has been established, the
-  relevent sync function sets m_syncFunc to itself. This function will only be
-  called again if total sync is lost, which allows is to switch stream types on
-  the fly much like a real reicever does.
+  This function looks for sync words across the types in paralell, and
+  only does an exhaustive test if it finds a syncword. Once sync has
+  been established, the relevent sync function sets m_syncFunc to
+  itself. This function will only be called again if total sync is
+  lost, which allows is to switch stream types on the fly much like a
+  real reicever does.
 */
 unsigned int CAEStreamParser::DetectType(uint8_t *data, unsigned int size) {
     unsigned int skipped = 0;
@@ -218,9 +229,10 @@ unsigned int CAEStreamParser::DetectType(uint8_t *data, unsigned int size) {
 
     while(size > 8) {
         /* if it could be DTS */
-        unsigned int header = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-        if(header == DTS_PREAMBLE_14LE || header == DTS_PREAMBLE_14BE || header == DTS_PREAMBLE_16LE ||
-           header == DTS_PREAMBLE_16BE) {
+        unsigned int header =
+            data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
+        if(header == DTS_PREAMBLE_14LE || header == DTS_PREAMBLE_14BE ||
+           header == DTS_PREAMBLE_16LE || header == DTS_PREAMBLE_16BE) {
             unsigned int skip = SyncDTS(data, size);
             if(m_hasSync || m_needBytes)
                 return skipped + skip;
@@ -238,7 +250,8 @@ unsigned int CAEStreamParser::DetectType(uint8_t *data, unsigned int size) {
         }
 
         /* if it could be TrueHD */
-        if(data[4] == 0xf8 && data[5] == 0x72 && data[6] == 0x6f && data[7] == 0xba) {
+        if(data[4] == 0xf8 && data[5] == 0x72 && data[6] == 0x6f &&
+           data[7] == 0xba) {
             unsigned int skip = SyncTrueHD(data, size);
             if(m_hasSync)
                 return skipped + skip;
@@ -303,7 +316,8 @@ unsigned int CAEStreamParser::SyncAC3(uint8_t *data, unsigned int size) {
                     framesize = bitRate * 2;
                     break;
                 case 1:
-                    framesize = (320 * bitRate / 147 + (frmsizecod & 1 ? 1 : 0));
+                    framesize =
+                        (320 * bitRate / 147 + (frmsizecod & 1 ? 1 : 0));
                     break;
                 case 2:
                     framesize = bitRate * 4;
@@ -319,19 +333,21 @@ unsigned int CAEStreamParser::SyncAC3(uint8_t *data, unsigned int size) {
                 m_fsizeMain = m_fsize;
                 m_fsize = 0;
                 return 0;
-            } else if(m_info.m_type == CAEStreamInfo::STREAM_TYPE_AC3 && skip == 0)
+            } else if(m_info.m_type == CAEStreamInfo::STREAM_TYPE_AC3 &&
+                      skip == 0)
                 return 0;
 
             unsigned int crc_size;
-            /* if we have enough data, validate the entire packet, else try to
-             * validate crc2 (5/8 of the packet) */
+            /* if we have enough data, validate the entire packet,
+             * else try to validate crc2 (5/8 of the packet) */
             if(framesize <= size - skip)
                 crc_size = framesize - 1;
             else
                 crc_size = (framesize >> 1) + (framesize >> 3) - 1;
 
             if(crc_size <= size - skip)
-                if(av_crc(av_crc_get_table(AV_CRC_16_ANSI), 0, &data[2], crc_size * 2))
+                if(av_crc(av_crc_get_table(AV_CRC_16_ANSI), 0, &data[2],
+                          crc_size * 2))
                     continue;
 
             /* if we get here, we can sync */
@@ -342,8 +358,8 @@ unsigned int CAEStreamParser::SyncAC3(uint8_t *data, unsigned int size) {
             m_info.m_ac3FrameSize = m_fsize;
             m_info.m_repeat = 1;
 
-            //     CLog::Log(LOGINFO, "CAEStreamParser::SyncAC3 - AC3 stream
-            //     detected
+            //     CLog::Log(LOGINFO, "CAEStreamParser::SyncAC3 - AC3
+            //     stream detected
             //     (%d channels, %dHz)", m_info.m_channels,
             //     m_info.m_sampleRate);
             return skip;
@@ -381,7 +397,8 @@ unsigned int CAEStreamParser::SyncAC3(uint8_t *data, unsigned int size) {
 
             m_info.m_repeat = MAX_EAC3_BLOCKS / blocks;
 
-            if(m_info.m_type == CAEStreamInfo::STREAM_TYPE_EAC3 && m_hasSync && skip == 0)
+            if(m_info.m_type == CAEStreamInfo::STREAM_TYPE_EAC3 && m_hasSync &&
+               skip == 0)
                 return 0;
 
             // if we get here, we can sync
@@ -392,15 +409,18 @@ unsigned int CAEStreamParser::SyncAC3(uint8_t *data, unsigned int size) {
             m_info.m_ac3FrameSize = m_fsize;
             m_fsizeMain = 0;
 
-            //    CLog::Log(LOGINFO, "CAEStreamParser::SyncAC3 - E-AC3 stream
-            //    detected
-            //    (%d channels, %dHz)", m_info.m_channels, m_info.m_sampleRate);
+            //    CLog::Log(LOGINFO, "CAEStreamParser::SyncAC3 - E-AC3
+            //    stream detected
+            //    (%d channels, %dHz)", m_info.m_channels,
+            //    m_info.m_sampleRate);
             return skip;
         }
     }
 
-    // if we get here, the entire packet is invalid and we have lost sync
-    //  CLog::Log(LOGINFO, "CAEStreamParser::SyncAC3 - AC3 sync lost");
+    // if we get here, the entire packet is invalid and we have lost
+    // sync
+    //  CLog::Log(LOGINFO, "CAEStreamParser::SyncAC3 - AC3 sync
+    //  lost");
     m_hasSync = false;
     m_fsizeMain = 0;
     return skip;
@@ -415,7 +435,8 @@ unsigned int CAEStreamParser::SyncDTS(uint8_t *data, unsigned int size) {
 
     unsigned int skip = 0;
     for(; size - skip > 13; ++skip, ++data) {
-        unsigned int header = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
+        unsigned int header =
+            data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
         unsigned int hd_sync = 0;
         bool match = true;
         unsigned int dtsBlocks;
@@ -431,8 +452,11 @@ unsigned int CAEStreamParser::SyncDTS(uint8_t *data, unsigned int size) {
                     match = false;
                     break;
                 }
-                dtsBlocks = (((data[5] & 0x7) << 4) | ((data[6] & 0x3C) >> 2)) + 1;
-                m_fsize = (((((data[6] & 0x3) << 8) | data[7]) << 4) | ((data[8] & 0x3C) >> 2)) + 1;
+                dtsBlocks =
+                    (((data[5] & 0x7) << 4) | ((data[6] & 0x3C) >> 2)) + 1;
+                m_fsize = (((((data[6] & 0x3) << 8) | data[7]) << 4) |
+                           ((data[8] & 0x3C) >> 2)) +
+                    1;
                 amode = ((data[8] & 0x3) << 4) | ((data[9] & 0xF0) >> 4);
                 sfreq = data[9] & 0xF;
                 lfe = (data[12] & 0x18) >> 3;
@@ -446,8 +470,11 @@ unsigned int CAEStreamParser::SyncDTS(uint8_t *data, unsigned int size) {
                     match = false;
                     break;
                 }
-                dtsBlocks = (((data[4] & 0x7) << 4) | ((data[7] & 0x3C) >> 2)) + 1;
-                m_fsize = (((((data[7] & 0x3) << 8) | data[6]) << 4) | ((data[9] & 0x3C) >> 2)) + 1;
+                dtsBlocks =
+                    (((data[4] & 0x7) << 4) | ((data[7] & 0x3C) >> 2)) + 1;
+                m_fsize = (((((data[7] & 0x3) << 8) | data[6]) << 4) |
+                           ((data[9] & 0x3C) >> 2)) +
+                    1;
                 amode = ((data[9] & 0x3) << 4) | ((data[8] & 0xF0) >> 4);
                 sfreq = data[8] & 0xF;
                 lfe = (data[13] & 0x18) >> 3;
@@ -457,8 +484,11 @@ unsigned int CAEStreamParser::SyncDTS(uint8_t *data, unsigned int size) {
 
                 /* 16bit BE */
             case DTS_PREAMBLE_16BE:
-                dtsBlocks = (((data[4] & 0x1) << 7) | ((data[5] & 0xFC) >> 2)) + 1;
-                m_fsize = (((((data[5] & 0x3) << 8) | data[6]) << 4) | ((data[7] & 0xF0) >> 4)) + 1;
+                dtsBlocks =
+                    (((data[4] & 0x1) << 7) | ((data[5] & 0xFC) >> 2)) + 1;
+                m_fsize = (((((data[5] & 0x3) << 8) | data[6]) << 4) |
+                           ((data[7] & 0xF0) >> 4)) +
+                    1;
                 amode = ((data[7] & 0x0F) << 2) | ((data[8] & 0xC0) >> 6);
                 sfreq = (data[8] & 0x3C) >> 2;
                 lfe = (data[10] >> 1) & 0x3;
@@ -468,8 +498,11 @@ unsigned int CAEStreamParser::SyncDTS(uint8_t *data, unsigned int size) {
 
                 /* 16bit LE */
             case DTS_PREAMBLE_16LE:
-                dtsBlocks = (((data[5] & 0x1) << 7) | ((data[4] & 0xFC) >> 2)) + 1;
-                m_fsize = (((((data[4] & 0x3) << 8) | data[7]) << 4) | ((data[6] & 0xF0) >> 4)) + 1;
+                dtsBlocks =
+                    (((data[5] & 0x1) << 7) | ((data[4] & 0xFC) >> 2)) + 1;
+                m_fsize = (((((data[4] & 0x3) << 8) | data[7]) << 4) |
+                           ((data[6] & 0xF0) >> 4)) +
+                    1;
                 amode = ((data[6] & 0x0F) << 2) | ((data[9] & 0xC0) >> 6);
                 sfreq = (data[9] & 0x3C) >> 2;
                 lfe = (data[11] >> 1) & 0x3;
@@ -524,16 +557,20 @@ unsigned int CAEStreamParser::SyncDTS(uint8_t *data, unsigned int size) {
         }
 
         /* look for DTS-HD */
-        hd_sync = (data[m_fsize] << 24) | (data[m_fsize + 1] << 16) | (data[m_fsize + 2] << 8) | data[m_fsize + 3];
+        hd_sync = (data[m_fsize] << 24) | (data[m_fsize + 1] << 16) |
+            (data[m_fsize + 2] << 8) | data[m_fsize + 3];
         if(hd_sync == DTS_PREAMBLE_HD) {
             int hd_size;
             bool blownup = (data[m_fsize + 5] & 0x20) != 0;
             if(blownup)
-                hd_size = (((data[m_fsize + 6] & 0x01) << 19) | (data[m_fsize + 7] << 11) | (data[m_fsize + 8] << 3) |
-                           ((data[m_fsize + 9] & 0xe0) >> 5)) +
+                hd_size =
+                    (((data[m_fsize + 6] & 0x01) << 19) |
+                     (data[m_fsize + 7] << 11) | (data[m_fsize + 8] << 3) |
+                     ((data[m_fsize + 9] & 0xe0) >> 5)) +
                     1;
             else
-                hd_size = (((data[m_fsize + 6] & 0x1f) << 11) | (data[m_fsize + 7] << 3) |
+                hd_size = (((data[m_fsize + 6] & 0x1f) << 11) |
+                           (data[m_fsize + 7] << 3) |
                            ((data[m_fsize + 8] & 0xe0) >> 5)) +
                     1;
 
@@ -548,8 +585,8 @@ unsigned int CAEStreamParser::SyncDTS(uint8_t *data, unsigned int size) {
         }
 
         unsigned int sampleRate = DTSSampleRates[sfreq];
-        if(!m_hasSync || skip || dataType != m_info.m_type || sampleRate != m_info.m_sampleRate ||
-           dtsBlocks != m_dtsBlocks) {
+        if(!m_hasSync || skip || dataType != m_info.m_type ||
+           sampleRate != m_info.m_sampleRate || dtsBlocks != m_dtsBlocks) {
             m_hasSync = true;
             m_info.m_type = dataType;
             m_info.m_sampleRate = sampleRate;
@@ -561,9 +598,11 @@ unsigned int CAEStreamParser::SyncDTS(uint8_t *data, unsigned int size) {
             if(dataType == CAEStreamInfo::STREAM_TYPE_DTSHD) {
                 m_info.m_channels += 2; /* FIXME: this needs to be read out, not
                                            sure how to do that yet */
-                m_info.m_dtsPeriod = (192000 * (8 >> 1)) * (m_dtsBlocks << 5) / m_info.m_sampleRate;
+                m_info.m_dtsPeriod = (192000 * (8 >> 1)) * (m_dtsBlocks << 5) /
+                    m_info.m_sampleRate;
             } else {
-                m_info.m_dtsPeriod = (m_info.m_sampleRate * (2 >> 1)) * (m_dtsBlocks << 5) / m_info.m_sampleRate;
+                m_info.m_dtsPeriod = (m_info.m_sampleRate * (2 >> 1)) *
+                    (m_dtsBlocks << 5) / m_info.m_sampleRate;
             }
 
             std::string type;
@@ -579,19 +618,21 @@ unsigned int CAEStreamParser::SyncDTS(uint8_t *data, unsigned int size) {
                     break;
             }
 
-            //       CLog::Log(LOGINFO, "CAEStreamParser::SyncDTS - %s stream
-            //       detected
+            //       CLog::Log(LOGINFO, "CAEStreamParser::SyncDTS - %s
+            //       stream detected
             //       (%d channels, %dHz, %dbit %s, period: %u)",
             //                 type.c_str(), m_info.m_channels,
-            //                 m_info.m_sampleRate, bits, m_info.m_dataIsLE ?
-            //                 "LE" : "BE", m_info.m_dtsPeriod);
+            //                 m_info.m_sampleRate, bits,
+            //                 m_info.m_dataIsLE ? "LE" : "BE",
+            //                 m_info.m_dtsPeriod);
         }
 
         return skip;
     }
 
     /* lost sync */
-    //  CLog::Log(LOGINFO, "CAEStreamParser::SyncDTS - DTS sync lost");
+    //  CLog::Log(LOGINFO, "CAEStreamParser::SyncDTS - DTS sync
+    //  lost");
     m_hasSync = false;
     return skip;
 }
@@ -609,13 +650,15 @@ unsigned int CAEStreamParser::SyncTrueHD(uint8_t *data, unsigned int size) {
 
     /* if MLP */
     for(; left; ++skip, ++data, --left) {
-        /* if we dont have sync and there is less the 8 bytes, then break out */
+        /* if we dont have sync and there is less the 8 bytes, then
+         * break out */
         if(!m_hasSync && left < 8)
             return size;
 
         /* if its a major audio unit */
         uint16_t length = ((data[0] & 0x0F) << 8 | data[1]) << 1;
-        uint32_t syncword = ((((data[4] << 8 | data[5]) << 8) | data[6]) << 8) | data[7];
+        uint32_t syncword =
+            ((((data[4] << 8 | data[5]) << 8) | data[6]) << 8) | data[7];
         if(syncword == 0xf8726fba) {
             /* we need 32 bytes to sync on a master audio unit */
             if(left < 32)
@@ -637,13 +680,16 @@ unsigned int CAEStreamParser::SyncTrueHD(uint8_t *data, unsigned int size) {
                 return skip;
 
             /* verify the crc of the audio unit */
-            uint16_t crc = av_crc(m_crcTrueHD, 0, data + 4, major_sync_size - 4);
-            crc ^= (data[4 + major_sync_size - 3] << 8) | data[4 + major_sync_size - 4];
-            if(((data[4 + major_sync_size - 1] << 8) | data[4 + major_sync_size - 2]) != crc)
+            uint16_t crc =
+                av_crc(m_crcTrueHD, 0, data + 4, major_sync_size - 4);
+            crc ^= (data[4 + major_sync_size - 3] << 8) |
+                data[4 + major_sync_size - 4];
+            if(((data[4 + major_sync_size - 1] << 8) |
+                data[4 + major_sync_size - 2]) != crc)
                 continue;
 
-            /* get the sample rate and substreams, we have a valid master audio
-             * unit
+            /* get the sample rate and substreams, we have a valid
+             * master audio unit
              */
             m_info.m_sampleRate = (rate & 0x8 ? 44100 : 48000) << (rate & 0x7);
             m_substreams = (data[20] & 0xF0) >> 4;
@@ -655,9 +701,9 @@ unsigned int CAEStreamParser::SyncTrueHD(uint8_t *data, unsigned int size) {
             m_info.m_channels = CAEStreamParser::GetTrueHDChannels(channel_map);
 
             //       if (!m_hasSync)
-            //         CLog::Log(LOGINFO, "CAEStreamParser::SyncTrueHD - TrueHD
-            //         stream detected (%d channels, %dHz)", m_info.m_channels,
-            //         m_info.m_sampleRate);
+            //         CLog::Log(LOGINFO, "CAEStreamParser::SyncTrueHD
+            //         - TrueHD stream detected (%d channels, %dHz)",
+            //         m_info.m_channels, m_info.m_sampleRate);
 
             m_hasSync = true;
             m_fsize = length;
@@ -666,13 +712,13 @@ unsigned int CAEStreamParser::SyncTrueHD(uint8_t *data, unsigned int size) {
             m_info.m_repeat = 1;
             return skip;
         } else {
-            /* we cant sink to a subframe until we have the information from a
-             * master audio unit */
+            /* we cant sink to a subframe until we have the
+             * information from a master audio unit */
             if(!m_hasSync)
                 continue;
 
-            /* if there is not enough data left to verify the packet, just
-             * return the skip amount */
+            /* if there is not enough data left to verify the packet,
+             * just return the skip amount */
             if(left < (unsigned int)m_substreams * 4)
                 return skip;
 
@@ -692,8 +738,8 @@ unsigned int CAEStreamParser::SyncTrueHD(uint8_t *data, unsigned int size) {
             if((((check >> 4) ^ check) & 0xF) != 0xF) {
                 /* lost sync */
                 m_hasSync = false;
-                //      CLog::Log(LOGINFO, "CAEStreamParser::SyncTrueHD - Sync
-                //      Lost");
+                //      CLog::Log(LOGINFO,
+                //      "CAEStreamParser::SyncTrueHD - Sync Lost");
                 continue;
             } else {
                 m_fsize = length;

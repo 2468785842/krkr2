@@ -178,7 +178,8 @@ namespace psd {
             return size;
         }
         virtual bool eoi() { return cur == range.end(); }
-        virtual void getUnicodeString(std::wstring &str, bool convToNative = true) {
+        virtual void getUnicodeString(std::wstring &str,
+                                      bool convToNative = true) {
             int size = getInt32(true);
             str.clear();
             for(int i = 0; i < size; i++) {
@@ -209,13 +210,17 @@ namespace psd {
 
     template <typename Iterator>
     struct HeaderParser : qi::grammar<Iterator> {
-        HeaderParser(Header &data) : HeaderParser::base_type(start), data(data) {
-            start = (qi::lit("8BPS") >> qi::big_word >> repos::qi::advance(6) >> qi::big_word >> qi::big_dword >>
-                     qi::big_dword >> qi::big_word >> qi::big_word)[phx::bind(&HeaderParser::setHeader, this, qi::_1,
-                                                                              qi::_2, qi::_3, qi::_4, qi::_5, qi::_6)];
+        HeaderParser(Header &data) :
+            HeaderParser::base_type(start), data(data) {
+            start = (qi::lit("8BPS") >> qi::big_word >> repos::qi::advance(6) >>
+                     qi::big_word >> qi::big_dword >> qi::big_dword >>
+                     qi::big_word >> qi::big_word)[phx::bind(
+                &HeaderParser::setHeader, this, qi::_1, qi::_2, qi::_3, qi::_4,
+                qi::_5, qi::_6)];
         }
 
-        void setHeader(int version, int channels, int height, int width, int depth, int mode) {
+        void setHeader(int version, int channels, int height, int width,
+                       int depth, int mode) {
             data.version = version;
             data.channels = channels;
             data.height = height;
@@ -236,7 +241,8 @@ namespace psd {
 
         typedef boost::iterator_range<Iterator> irange;
 
-        ImageResourceParser(Data &data) : ImageResourceParser::base_type(start), data(data) {
+        ImageResourceParser(Data &data) :
+            ImageResourceParser::base_type(start), data(data) {
             // カッコ内で式が使えないadvance用に事前にパディング等を計算しておくための一時変数
             int paddedSize = 0;
 
@@ -246,10 +252,15 @@ namespace psd {
                  qi::big_word >> // resource ID
                  qi::byte_[qi::_a = qi::_1] >> // name size
                  spirit::repeat(qi::_a)[qi::char_] >> // name
-                 spirit::repeat((qi::_a + 1) % 2)[qi::byte_] >> // パディング読み飛ばし
-                 qi::big_dword[qi::_a = qi::_1][phx::ref(paddedSize) = (qi::_a + 1) / 2 * 2] >> // サイズ
-                 qi::raw[repos::qi::advance(phx::ref(paddedSize))] // データ(パディング含む)
-                 )[phx::bind(&ImageResourceParser::addImageResource, this, qi::_1, qi::_3, qi::_5, qi::_6)];
+                 spirit::repeat((qi::_a + 1) %
+                                2)[qi::byte_] >> // パディング読み飛ばし
+                 qi::big_dword[qi::_a = qi::_1]
+                              [phx::ref(paddedSize) =
+                                   (qi::_a + 1) / 2 * 2] >> // サイズ
+                 qi::raw[repos::qi::advance(
+                     phx::ref(paddedSize))] // データ(パディング含む)
+                 )[phx::bind(&ImageResourceParser::addImageResource, this,
+                             qi::_1, qi::_3, qi::_5, qi::_6)];
             start = *anImageResource;
         }
         qi::rule<Iterator, qi::locals<boost::uint32_t>> anImageResource;
@@ -257,12 +268,14 @@ namespace psd {
         Data &data;
 
         // イメージリソースを一つ追加する
-        void addImageResource(uint16_t id, std::vector<char> &name, int size, irange range) {
+        void addImageResource(uint16_t id, std::vector<char> &name, int size,
+                              irange range) {
             std::string strname;
             if(name.size() > 0) {
                 strname.assign(&name[0], name.size());
             }
-            ImageResourceInfo info(id, strname, size, new IteratorData<Iterator>(range));
+            ImageResourceInfo info(id, strname, size,
+                                   new IteratorData<Iterator>(range));
             data.imageResourceList.push_back(info);
         }
     };
@@ -275,19 +288,25 @@ namespace psd {
 
         typedef boost::iterator_range<Iterator> irange;
 
-        LayerMaskParser(LayerMask &data, int size) : LayerMaskParser::base_type(start), data(data) {
-            start = (qi::big_dword >> qi::big_dword >> qi::big_dword >> qi::big_dword >> qi::byte_ >> qi::byte_ >>
-                     qi::byte_)[phx::bind(&LayerMaskParser::setLayerMask, this, qi::_1, qi::_2, qi::_3, qi::_4, qi::_5,
-                                          qi::_6)];
+        LayerMaskParser(LayerMask &data, int size) :
+            LayerMaskParser::base_type(start), data(data) {
+            start = (qi::big_dword >> qi::big_dword >> qi::big_dword >>
+                     qi::big_dword >> qi::byte_ >> qi::byte_ >>
+                     qi::byte_)[phx::bind(&LayerMaskParser::setLayerMask, this,
+                                          qi::_1, qi::_2, qi::_3, qi::_4,
+                                          qi::_5, qi::_6)];
 
             if(size > 20) {
-                start = (start.copy() >> qi::byte_ >> qi::byte_ >> qi::big_dword >> qi::big_dword >> qi::big_dword >>
-                         qi::big_dword)[phx::bind(&LayerMaskParser::setLayerMaskExtra, this, qi::_1, qi::_2, qi::_3,
-                                                  qi::_4, qi::_5, qi::_6)];
+                start =
+                    (start.copy() >> qi::byte_ >> qi::byte_ >> qi::big_dword >>
+                     qi::big_dword >> qi::big_dword >> qi::big_dword)[phx::bind(
+                        &LayerMaskParser::setLayerMaskExtra, this, qi::_1,
+                        qi::_2, qi::_3, qi::_4, qi::_5, qi::_6)];
             }
         }
 
-        void setLayerMask(int top, int left, int bottom, int right, int defaultColor, int flags) {
+        void setLayerMask(int top, int left, int bottom, int right,
+                          int defaultColor, int flags) {
             data.top = top;
             data.left = left;
             data.bottom = bottom;
@@ -296,7 +315,8 @@ namespace psd {
             data.flags = flags;
         }
 
-        void setLayerMaskExtra(int realFlags, int realUserMaskBackground, int enclosingTop, int enclosingLeft,
+        void setLayerMaskExtra(int realFlags, int realUserMaskBackground,
+                               int enclosingTop, int enclosingLeft,
                                int enclosingBottom, int enclosingRight) {
             data.realFlags = realFlags;
             data.realUserMaskBackground = realUserMaskBackground;
@@ -315,11 +335,12 @@ namespace psd {
      */
     template <typename Iterator>
     struct LayerBlendingRangeParser : qi::grammar<Iterator> {
-        LayerBlendingRangeParser(LayerBlendingRange &data) : LayerBlendingRangeParser::base_type(start), data(data) {
-            channel = (qi::big_dword >>
-                       qi::big_dword)[phx::bind(&LayerBlendingRangeParser::addChannel, this, qi::_1, qi::_2)];
-            start = (qi::big_dword >> qi::big_dword >>
-                     *channel)[phx::bind(&LayerBlendingRangeParser::setgrayBlend, this, qi::_1, qi::_2)];
+        LayerBlendingRangeParser(LayerBlendingRange &data) :
+            LayerBlendingRangeParser::base_type(start), data(data) {
+            channel = (qi::big_dword >> qi::big_dword)[phx::bind(
+                &LayerBlendingRangeParser::addChannel, this, qi::_1, qi::_2)];
+            start = (qi::big_dword >> qi::big_dword >> *channel)[phx::bind(
+                &LayerBlendingRangeParser::setgrayBlend, this, qi::_1, qi::_2)];
         }
         void addChannel(int source, int dest) {
             LayerBlendingChannel ch = { source, dest };
@@ -342,27 +363,38 @@ namespace psd {
 
         typedef boost::iterator_range<Iterator> irange;
 
-        LayerExtraDataParser(LayerExtraData &data) : LayerExtraDataParser::base_type(start), data(data) {
+        LayerExtraDataParser(LayerExtraData &data) :
+            LayerExtraDataParser::base_type(start), data(data) {
 
-            layerMask = (qi::big_dword[qi::_a = qi::_1] >> qi::raw[repos::qi::advance(qi::_a)])[phx::bind(
+            layerMask = (qi::big_dword[qi::_a = qi::_1] >>
+                         qi::raw[repos::qi::advance(qi::_a)])[phx::bind(
                 &LayerExtraDataParser::setLayerMask, this, qi::_1, qi::_2)];
 
-            layerBlendingRange = (qi::big_dword[qi::_a = qi::_1] >> qi::raw[repos::qi::advance(qi::_a)])[phx::bind(
-                &LayerExtraDataParser::setLayerBlendingRange, this, qi::_1, qi::_2)];
+            layerBlendingRange =
+                (qi::big_dword[qi::_a = qi::_1] >>
+                 qi::raw[repos::qi::advance(qi::_a)])[phx::bind(
+                    &LayerExtraDataParser::setLayerBlendingRange, this, qi::_1,
+                    qi::_2)];
 
             layerName =
                 (qi::byte_[qi::_a = qi::_1] >> // name size
-                 spirit::repeat(qi::_a)[qi::char_][phx::bind(&LayerExtraDataParser::setLayerName, this, qi::_1)] >>
-                 spirit::repeat((4 - (qi::_a + 1) & 3) & 3)[qi::byte_] // padding
+                 spirit::repeat(qi::_a)[qi::char_][phx::bind(
+                     &LayerExtraDataParser::setLayerName, this, qi::_1)] >>
+                 spirit::repeat((4 - (qi::_a + 1) & 3) &
+                                3)[qi::byte_] // padding
                 );
 
             // 追加レイヤ情報
-            additional = ((qi::lit("8BIM")[qi::_a = 0] | qi::lit("8B64")[qi::_a = 1]) >> qi::big_dword >> // key
-                          qi::big_dword[qi::_b = qi::_1] >> // data length
-                          qi::raw[repos::qi::advance(qi::_b)] // data
-                          )[phx::bind(&LayerExtraDataParser::addAdditional, this, qi::_a, qi::_1, qi::_2, qi::_3)];
+            additional =
+                ((qi::lit("8BIM")[qi::_a = 0] | qi::lit("8B64")[qi::_a = 1]) >>
+                 qi::big_dword >> // key
+                 qi::big_dword[qi::_b = qi::_1] >> // data length
+                 qi::raw[repos::qi::advance(qi::_b)] // data
+                 )[phx::bind(&LayerExtraDataParser::addAdditional, this, qi::_a,
+                             qi::_1, qi::_2, qi::_3)];
 
-            start = (layerMask >> layerBlendingRange >> layerName >> *additional);
+            start =
+                (layerMask >> layerBlendingRange >> layerName >> *additional);
         }
         qi::rule<Iterator, qi::locals<boost::uint32_t>> layerMask;
         qi::rule<Iterator, qi::locals<boost::uint32_t>> layerBlendingRange;
@@ -374,8 +406,10 @@ namespace psd {
             if(size > 0) {
                 LayerMaskParser<Iterator> parser(data.layerMask, size);
                 bool r = qi::parse(range.begin(), range.end(), parser);
-                data.layerMask.width = data.layerMask.right - data.layerMask.left;
-                data.layerMask.height = data.layerMask.bottom - data.layerMask.top;
+                data.layerMask.width =
+                    data.layerMask.right - data.layerMask.left;
+                data.layerMask.height =
+                    data.layerMask.bottom - data.layerMask.top;
             } else {
                 std::memset(&data.layerMask, 0, sizeof(LayerMask));
             }
@@ -383,10 +417,12 @@ namespace psd {
 
         void setLayerBlendingRange(int size, irange range) {
             if(size > 0) {
-                LayerBlendingRangeParser<Iterator> parser(data.layerBlendingRange);
+                LayerBlendingRangeParser<Iterator> parser(
+                    data.layerBlendingRange);
                 bool r = qi::parse(range.begin(), range.end(), parser);
             } else {
-                std::memset(&data.layerBlendingRange, 0, sizeof(LayerBlendingRange));
+                std::memset(&data.layerBlendingRange, 0,
+                            sizeof(LayerBlendingRange));
             }
         }
 
@@ -397,7 +433,8 @@ namespace psd {
         }
 
         void addAdditional(int sigType, int key, int size, irange range) {
-            data.additionalLayers.push_back(AdditionalLayerInfo(sigType, key, size, new IteratorData<Iterator>(range)));
+            data.additionalLayers.push_back(AdditionalLayerInfo(
+                sigType, key, size, new IteratorData<Iterator>(range)));
         }
 
         LayerExtraData &data;
@@ -411,24 +448,29 @@ namespace psd {
 
         typedef boost::iterator_range<Iterator> irange;
 
-        LayerInfoParser(Data &data) : LayerInfoParser::base_type(start), data(data) {
+        LayerInfoParser(Data &data) :
+            LayerInfoParser::base_type(start), data(data) {
 
             // チャンネル情報
             channelInfo = (qi::big_word >> // id
                            qi::big_dword // length
-                           )[phx::bind(&LayerInfoParser::addChannel, this, qi::_1, qi::_2)];
+                           )[phx::bind(&LayerInfoParser::addChannel, this,
+                                       qi::_1, qi::_2)];
 
             // エクストラデータ用処理
-            extraData =
-                (qi::big_dword[qi::_a = qi::_1] >> // extra data size
-                 qi::raw[repos::qi::advance(qi::_a)])[phx::bind(&LayerInfoParser::setExtraData, this, qi::_1, qi::_2)];
+            extraData = (qi::big_dword[qi::_a = qi::_1] >> // extra data size
+                         qi::raw[repos::qi::advance(qi::_a)])[phx::bind(
+                &LayerInfoParser::setExtraData, this, qi::_1, qi::_2)];
 
             // レイヤ情報
-            layerRecord = (qi::eps[phx::bind(&LayerInfoParser::addLayer, this)] >> qi::big_dword >> // top
+            layerRecord = (qi::eps[phx::bind(&LayerInfoParser::addLayer,
+                                             this)] >>
+                           qi::big_dword >> // top
                            qi::big_dword >> // left
                            qi::big_dword >> // bottom
                            qi::big_dword // right
-                           )[phx::bind(&LayerInfoParser::setLayerSize, this, qi::_1, qi::_2, qi::_3, qi::_4)] >>
+                           )[phx::bind(&LayerInfoParser::setLayerSize, this,
+                                       qi::_1, qi::_2, qi::_3, qi::_4)] >>
                 qi::big_word[qi::_a = qi::_1] >> // channel nums
                 spirit::repeat(qi::_a)[channelInfo] >> // channel information
                 qi::lit("8BIM") >> // signature
@@ -436,12 +478,16 @@ namespace psd {
                  qi::byte_ >> // opacity
                  qi::byte_ >> // clipping
                  qi::byte_ // flag
-                 )[phx::bind(&LayerInfoParser::setLayerData, this, qi::_1, qi::_2, qi::_3, qi::_4)] >>
+                 )[phx::bind(&LayerInfoParser::setLayerData, this, qi::_1,
+                             qi::_2, qi::_3, qi::_4)] >>
                 qi::byte_ >> // filler(zero)
                 extraData;
             // パース開始部
-            start = (qi::big_word[phx::bind(&LayerInfoParser::setLayerCount, this, qi::_1)] >> layerRecords >>
-                     qi::raw[*qi::byte_][phx::bind(&LayerInfoParser::setChannelImageData, this, qi::_1)]);
+            start = (qi::big_word[phx::bind(&LayerInfoParser::setLayerCount,
+                                            this, qi::_1)] >>
+                     layerRecords >>
+                     qi::raw[*qi::byte_][phx::bind(
+                         &LayerInfoParser::setChannelImageData, this, qi::_1)]);
         }
 
         // レイヤ数指定
@@ -454,14 +500,17 @@ namespace psd {
             }
         }
 
-        void addChannel(int16_t id, int length) { data.layerList.back().channels.push_back(ChannelInfo(id, length)); }
+        void addChannel(int16_t id, int length) {
+            data.layerList.back().channels.push_back(ChannelInfo(id, length));
+        }
 
         void addLayer() { data.layerList.push_back(LayerInfo()); }
 
         // チャンネルイメージデータの場所を記録
         void setExtraData(int size, irange range) {
             if(size > 0) {
-                LayerExtraDataParser<Iterator> parser(data.layerList.back().extraData);
+                LayerExtraDataParser<Iterator> parser(
+                    data.layerList.back().extraData);
                 bool r = qi::parse(range.begin(), range.end(), parser);
             }
         }
@@ -478,7 +527,8 @@ namespace psd {
         }
 
         // レイヤのその他のデータを設定
-        void setLayerData(int blendModeKey, int opacity, int clipping, int flag) {
+        void setLayerData(int blendModeKey, int opacity, int clipping,
+                          int flag) {
             LayerInfo &info = data.layerList.back();
             info.blendModeKey = blendModeKey;
             info.blendMode = blendKeyToMode(blendModeKey);
@@ -488,7 +538,9 @@ namespace psd {
         }
 
         // チャンネルイメージデータの場所を記録
-        void setChannelImageData(irange range) { data.channelImageData = new IteratorData<Iterator>(range); }
+        void setChannelImageData(irange range) {
+            data.channelImageData = new IteratorData<Iterator>(range);
+        }
 
         qi::rule<Iterator> channelInfo;
         qi::rule<Iterator, qi::locals<boost::uint32_t>> extraData;
@@ -502,14 +554,17 @@ namespace psd {
     // Global layer mask info parser
     template <typename Iterator>
     struct GlobalLayerMaskInfoParser : qi::grammar<Iterator> {
-        GlobalLayerMaskInfoParser(GlobalLayerMaskInfo &data) : GlobalLayerMaskInfoParser::base_type(start), data(data) {
-            start = (qi::big_word >> qi::big_word >> qi::big_word >> qi::big_word >> qi::big_word >> qi::big_word >>
-                     qi::byte_ >> *qi::byte_)[phx::bind(&GlobalLayerMaskInfoParser::setLayerMaskInfo, this, qi::_1,
-                                                        qi::_2, qi::_3, qi::_4, qi::_5, qi::_6, qi::_7)];
+        GlobalLayerMaskInfoParser(GlobalLayerMaskInfo &data) :
+            GlobalLayerMaskInfoParser::base_type(start), data(data) {
+            start = (qi::big_word >> qi::big_word >> qi::big_word >>
+                     qi::big_word >> qi::big_word >> qi::big_word >>
+                     qi::byte_ >> *qi::byte_)[phx::bind(
+                &GlobalLayerMaskInfoParser::setLayerMaskInfo, this, qi::_1,
+                qi::_2, qi::_3, qi::_4, qi::_5, qi::_6, qi::_7)];
         }
 
-        void setLayerMaskInfo(int overlayColorSpace, int color1, int color2, int color3, int color4, int opacity,
-                              int kind) {
+        void setLayerMaskInfo(int overlayColorSpace, int color1, int color2,
+                              int color3, int color4, int opacity, int kind) {
             data.overlayColorSpace = overlayColorSpace;
             data.color1 = color1;
             data.color2 = color2;
@@ -531,17 +586,22 @@ namespace psd {
 
         typedef boost::iterator_range<Iterator> irange;
 
-        LayerAndMaskParser(Data &data) : LayerAndMaskParser::base_type(start), data(data) {
+        LayerAndMaskParser(Data &data) :
+            LayerAndMaskParser::base_type(start), data(data) {
 
             layerInfo = (qi::big_dword[qi::_a = qi::_1] >> // size
                          qi::raw[repos::qi::advance(qi::_a)] // data
-                         )[phx::bind(&LayerAndMaskParser::setLayerInfo, this, qi::_1, qi::_2)];
+                         )[phx::bind(&LayerAndMaskParser::setLayerInfo, this,
+                                     qi::_1, qi::_2)];
 
-            globalLayerMaskInfo = (qi::big_dword[qi::_a = qi::_1] >> // size
-                                   qi::raw[repos::qi::advance(qi::_a)] // data
-                                   )[phx::bind(&LayerAndMaskParser::setGlobalLayerMaskInfo, this, qi::_1, qi::_2)];
+            globalLayerMaskInfo =
+                (qi::big_dword[qi::_a = qi::_1] >> // size
+                 qi::raw[repos::qi::advance(qi::_a)] // data
+                 )[phx::bind(&LayerAndMaskParser::setGlobalLayerMaskInfo, this,
+                             qi::_1, qi::_2)];
 
-            layerInfo2 = qi::lit("8BIM") >> (qi::lit("Lr16") | qi::lit("Lr32")) >> // TODO Txt2, Patt, Pat2
+            layerInfo2 = qi::lit("8BIM") >>
+                (qi::lit("Lr16") | qi::lit("Lr32")) >> // TODO Txt2, Patt, Pat2
                 layerInfo;
 
             start = layerInfo >> // レイヤ情報
@@ -563,7 +623,8 @@ namespace psd {
 
         void setGlobalLayerMaskInfo(int size, irange range) {
             if(size > 0) {
-                GlobalLayerMaskInfoParser<Iterator> parser(data.globalLayerMaskInfo);
+                GlobalLayerMaskInfoParser<Iterator> parser(
+                    data.globalLayerMaskInfo);
                 bool r = qi::parse(range.begin(), range.end(), parser);
             }
         }
@@ -579,27 +640,33 @@ namespace psd {
 
         typedef boost::iterator_range<Iterator> irange;
 
-        Parser(Data &data) : Parser::base_type(start), data(data), headerParser(data.header) {
+        Parser(Data &data) :
+            Parser::base_type(start), data(data), headerParser(data.header) {
 
             // カラーモード情報
-            colorMode = (qi::big_dword[qi::_a = qi::_1] >> // size
-                         qi::raw[repos::qi::advance(qi::_a)] // data
-                         )[phx::bind(&Parser::setColorModeData, this, qi::_1, qi::_2)];
+            colorMode =
+                (qi::big_dword[qi::_a = qi::_1] >> // size
+                 qi::raw[repos::qi::advance(qi::_a)] // data
+                 )[phx::bind(&Parser::setColorModeData, this, qi::_1, qi::_2)];
 
             // イメージリソース処理
-            imageResource = (qi::big_dword[qi::_a = qi::_1] >> // size
-                             qi::raw[repos::qi::advance(qi::_a)] // data
-                             )[phx::bind(&Parser::setImageResource, this, qi::_1, qi::_2)];
+            imageResource =
+                (qi::big_dword[qi::_a = qi::_1] >> // size
+                 qi::raw[repos::qi::advance(qi::_a)] // data
+                 )[phx::bind(&Parser::setImageResource, this, qi::_1, qi::_2)];
 
             // レイヤとマスク
-            layerAndMask = (qi::big_dword[qi::_a = qi::_1] >> // size
-                            qi::raw[repos::qi::advance(qi::_a)] // data
-                            )[phx::bind(&Parser::setLayerAndMask, this, qi::_1, qi::_2)];
+            layerAndMask =
+                (qi::big_dword[qi::_a = qi::_1] >> // size
+                 qi::raw[repos::qi::advance(qi::_a)] // data
+                 )[phx::bind(&Parser::setLayerAndMask, this, qi::_1, qi::_2)];
 
             // 画像データ
-            imageData = qi::raw[+qi::byte_][phx::bind(&Parser::setImageData, this, qi::_1)];
+            imageData = qi::raw[+qi::byte_]
+                               [phx::bind(&Parser::setImageData, this, qi::_1)];
 
-            start = headerParser >> colorMode >> imageResource >> layerAndMask >> -imageData >> qi::eoi;
+            start = headerParser >> colorMode >> imageResource >>
+                layerAndMask >> -imageData >> qi::eoi;
         }
 
         HeaderParser<Iterator> headerParser;
@@ -642,7 +709,9 @@ namespace psd {
         }
 
         // 合成済み画像データの先頭位置を登録
-        void setImageData(irange range) { data.imageData = new IteratorData<Iterator>(range); }
+        void setImageData(irange range) {
+            data.imageData = new IteratorData<Iterator>(range);
+        }
 
         Data &data;
     };

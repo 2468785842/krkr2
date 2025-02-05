@@ -36,9 +36,10 @@ class tTJSNI_BaseSoundBuffer : public tTJSNativeInstance {
 public:
     tTJSNI_BaseSoundBuffer();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
 
-    void TJS_INTF_METHOD Invalidate();
+    void Invalidate();
 
 protected:
     iTJSDispatch2 *Owner; // owner object
@@ -46,8 +47,8 @@ protected:
     tTVPSoundStatus Status; // status
 
     // volume functions ( implement this in child classes )
-    // tTJSNI_BaseSoundBuffer/tTJSNI_SoundBuffer manage this when fading the
-    // volume.
+    // tTJSNI_BaseSoundBuffer/tTJSNI_SoundBuffer manage this when
+    // fading the volume.
     virtual void SetVolume(tjs_int i) = 0;
 
     virtual tjs_int GetVolume() const = 0;
@@ -68,7 +69,8 @@ public:
 public:
     tTJSVariantClosure GetActionOwnerNoAddRef() const { return ActionOwner; }
 
-    //-- fading stuff -----------------------------------------------------
+    //-- fading stuff
+    //-----------------------------------------------------
 protected:
     virtual void TimerBeatHandler();
     // call this in tTJSNI_SoundBuffer periodically.

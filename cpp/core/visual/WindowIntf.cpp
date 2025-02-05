@@ -136,10 +136,12 @@ tTJSNI_BaseWindow::tTJSNI_BaseWindow() {
 }
 //---------------------------------------------------------------------------
 tTJSNI_BaseWindow::~tTJSNI_BaseWindow() {
-    TVPUnregisterWindowToList(static_cast<tTJSNI_Window *>(this)); // making sure...
+    TVPUnregisterWindowToList(
+        static_cast<tTJSNI_Window *>(this)); // making sure...
 }
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_BaseWindow::Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_BaseWindow::Construct(tjs_int numparams, tTJSVariant **param,
+                                       iTJSDispatch2 *tjs_obj) {
     Owner = tjs_obj; // no addref
     TVPRegisterWindowToList(static_cast<tTJSNI_Window *>(this));
 
@@ -149,8 +151,10 @@ tjs_error TJS_INTF_METHOD tTJSNI_BaseWindow::Construct(tjs_int numparams, tTJSVa
         iTJSDispatch2 *newobj = nullptr;
         try {
             cls = new tTJSNC_BasicDrawDevice();
-            if(TJS_FAILED(cls->CreateNew(0, nullptr, nullptr, &newobj, 0, nullptr, cls)))
-                TVPThrowExceptionMessage(TVPInternalError, TJS_W("tTJSNI_Window::Construct"));
+            if(TJS_FAILED(cls->CreateNew(0, nullptr, nullptr, &newobj, 0,
+                                         nullptr, cls)))
+                TVPThrowExceptionMessage(TVPInternalError,
+                                         TJS_W("tTJSNI_Window::Construct"));
             SetDrawDeviceObject(tTJSVariant(newobj, newobj));
         } catch(...) {
             if(cls)
@@ -168,7 +172,7 @@ tjs_error TJS_INTF_METHOD tTJSNI_BaseWindow::Construct(tjs_int numparams, tTJSVa
     return TJS_S_OK;
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_BaseWindow::Invalidate() {
+void tTJSNI_BaseWindow::Invalidate() {
     // remove from list
     TVPUnregisterWindowToList(static_cast<tTJSNI_Window *>(this));
 
@@ -191,7 +195,8 @@ void TJS_INTF_METHOD tTJSNI_BaseWindow::Invalidate() {
         tObjectListSafeLockHolder<tTJSNI_BaseVideoOverlay> holder(VideoOverlay);
         tjs_int count = VideoOverlay.GetSafeLockedObjectCount();
         for(tjs_int i = 0; i < count; i++) {
-            tTJSNI_BaseVideoOverlay *item = VideoOverlay.GetSafeLockedObjectAt(i);
+            tTJSNI_BaseVideoOverlay *item =
+                VideoOverlay.GetSafeLockedObjectAt(i);
             if(!item)
                 continue;
 
@@ -231,23 +236,27 @@ void TJS_INTF_METHOD tTJSNI_BaseWindow::Invalidate() {
     inherited::Invalidate();
 
     /* NOTE: at this point, Owner is still non-nullptr.
-       Caller must ensure that the Owner being nullptr at the end of the
-       invalidate chain. */
+       Caller must ensure that the Owner being nullptr at the end of
+       the invalidate chain. */
 }
 //---------------------------------------------------------------------------
-bool tTJSNI_BaseWindow::IsMainWindow() const { return TVPMainWindow == static_cast<const tTJSNI_Window *>(this); }
+bool tTJSNI_BaseWindow::IsMainWindow() const {
+    return TVPMainWindow == static_cast<const tTJSNI_Window *>(this);
+}
 //---------------------------------------------------------------------------
 void tTJSNI_BaseWindow::FireOnActivate(bool activate_or_deactivate) {
     // fire Window.onActivate or Window.onDeactivate event
-    TVPPostInputEvent(new tTVPOnWindowActivateEvent(this, activate_or_deactivate),
-                      TVP_EPT_REMOVE_POST // to discard redundant events
+    TVPPostInputEvent(
+        new tTVPOnWindowActivateEvent(this, activate_or_deactivate),
+        TVP_EPT_REMOVE_POST // to discard redundant events
     );
 }
 //---------------------------------------------------------------------------
 void tTJSNI_BaseWindow::SetDrawDeviceObject(const tTJSVariant &val) {
     // invalidate existing draw device
     if(DrawDeviceObject.Type() == tvtObject)
-        DrawDeviceObject.AsObjectClosureNoAddRef().Invalidate(0, nullptr, nullptr, DrawDeviceObject.AsObjectNoAddRef());
+        DrawDeviceObject.AsObjectClosureNoAddRef().Invalidate(
+            0, nullptr, nullptr, DrawDeviceObject.AsObjectNoAddRef());
 
     // assign new device
     DrawDeviceObject = val;
@@ -257,9 +266,11 @@ void tTJSNI_BaseWindow::SetDrawDeviceObject(const tTJSVariant &val) {
     if(DrawDeviceObject.Type() == tvtObject) {
         tTJSVariantClosure clo = DrawDeviceObject.AsObjectClosureNoAddRef();
         tTJSVariant iface_v;
-        if(TJS_FAILED(clo.PropGet(0, TJS_W("interface"), nullptr, &iface_v, nullptr)))
+        if(TJS_FAILED(
+               clo.PropGet(0, TJS_W("interface"), nullptr, &iface_v, nullptr)))
             TVPThrowExceptionMessage(TVPCannotRetriveInterfaceFromDrawDevice);
-        DrawDevice = reinterpret_cast<iTVPDrawDevice *>((tjs_intptr_t)(tjs_int64)iface_v);
+        DrawDevice = reinterpret_cast<iTVPDrawDevice *>(
+            (tjs_intptr_t)(tjs_int64)iface_v);
         DrawDevice->SetWindowInterface(const_cast<tTJSNI_BaseWindow *>(this));
         ResetDrawDevice();
     }
@@ -308,7 +319,8 @@ void tTJSNI_BaseWindow::OnDoubleClick(tjs_int x, tjs_int y) {
         DrawDevice->OnDoubleClick(x, y);
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::OnMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb, tjs_uint32 flags) {
+void tTJSNI_BaseWindow::OnMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb,
+                                    tjs_uint32 flags) {
     if(!CanDeliverEvents())
         return;
     if(Owner) {
@@ -320,7 +332,8 @@ void tTJSNI_BaseWindow::OnMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb, tj
         DrawDevice->OnMouseDown(x, y, mb, flags);
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::OnMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb, tjs_uint32 flags) {
+void tTJSNI_BaseWindow::OnMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb,
+                                  tjs_uint32 flags) {
     if(!CanDeliverEvents())
         return;
     if(Owner) {
@@ -347,7 +360,8 @@ void tTJSNI_BaseWindow::OnMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) {
         DrawDevice->OnMouseMove(x, y, flags);
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::OnTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) {
+void tTJSNI_BaseWindow::OnTouchDown(tjs_real x, tjs_real y, tjs_real cx,
+                                    tjs_real cy, tjs_uint32 id) {
     if(!CanDeliverEvents())
         return;
     if(Owner) {
@@ -359,7 +373,8 @@ void tTJSNI_BaseWindow::OnTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs_rea
         DrawDevice->OnTouchDown(x, y, cx, cy, id);
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) {
+void tTJSNI_BaseWindow::OnTouchUp(tjs_real x, tjs_real y, tjs_real cx,
+                                  tjs_real cy, tjs_uint32 id) {
     if(!CanDeliverEvents())
         return;
     if(Owner) {
@@ -371,7 +386,8 @@ void tTJSNI_BaseWindow::OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real 
         DrawDevice->OnTouchUp(x, y, cx, cy, id);
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::OnTouchMove(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) {
+void tTJSNI_BaseWindow::OnTouchMove(tjs_real x, tjs_real y, tjs_real cx,
+                                    tjs_real cy, tjs_uint32 id) {
     if(!CanDeliverEvents())
         return;
     if(Owner) {
@@ -383,7 +399,8 @@ void tTJSNI_BaseWindow::OnTouchMove(tjs_real x, tjs_real y, tjs_real cx, tjs_rea
         DrawDevice->OnTouchMove(x, y, cx, cy, id);
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::OnTouchScaling(tjs_real startdist, tjs_real curdist, tjs_real cx, tjs_real cy, tjs_int flag) {
+void tTJSNI_BaseWindow::OnTouchScaling(tjs_real startdist, tjs_real curdist,
+                                       tjs_real cx, tjs_real cy, tjs_int flag) {
     if(!CanDeliverEvents())
         return;
     if(Owner) {
@@ -395,7 +412,8 @@ void tTJSNI_BaseWindow::OnTouchScaling(tjs_real startdist, tjs_real curdist, tjs
         DrawDevice->OnTouchScaling(startdist, curdist, cx, cy, flag);
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::OnTouchRotate(tjs_real startangle, tjs_real curangle, tjs_real dist, tjs_real cx, tjs_real cy,
+void tTJSNI_BaseWindow::OnTouchRotate(tjs_real startangle, tjs_real curangle,
+                                      tjs_real dist, tjs_real cx, tjs_real cy,
                                       tjs_int flag) {
     if(!CanDeliverEvents())
         return;
@@ -500,7 +518,8 @@ void tTJSNI_BaseWindow::OnFileDrop(const tTJSVariant &array) {
     }
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::OnMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x, tjs_int y) {
+void tTJSNI_BaseWindow::OnMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x,
+                                     tjs_int y) {
     if(!CanDeliverEvents())
         return;
     if(Owner) {
@@ -530,13 +549,15 @@ void tTJSNI_BaseWindow::OnActivate(bool activate_or_deactivate) {
         if(Owner) {
             static ttstr a_eventname(TJS_W("onActivate"));
             static ttstr d_eventname(TJS_W("onDeactivate"));
-            TVPPostEvent(Owner, Owner, activate_or_deactivate ? a_eventname : d_eventname, 0, TVP_EPT_IMMEDIATE, 0,
-                         nullptr);
+            TVPPostEvent(Owner, Owner,
+                         activate_or_deactivate ? a_eventname : d_eventname, 0,
+                         TVP_EPT_IMMEDIATE, 0, nullptr);
         }
     }
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::OnHintChange(const ttstr &text, tjs_int x, tjs_int y, bool isshow) {
+void tTJSNI_BaseWindow::OnHintChange(const ttstr &text, tjs_int x, tjs_int y,
+                                     bool isshow) {
     if(!CanDeliverEvents())
         return;
     if(Owner) {
@@ -546,29 +567,34 @@ void tTJSNI_BaseWindow::OnHintChange(const ttstr &text, tjs_int x, tjs_int y, bo
     }
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::OnDisplayRotate(tjs_int orientation, tjs_int rotate, tjs_int bpp, tjs_int hresolution,
+void tTJSNI_BaseWindow::OnDisplayRotate(tjs_int orientation, tjs_int rotate,
+                                        tjs_int bpp, tjs_int hresolution,
                                         tjs_int vresolution) {
     if(!CanDeliverEvents())
         return;
     if(Owner) {
-        tTJSVariant arg[5] = { orientation, rotate, bpp, hresolution, vresolution };
+        tTJSVariant arg[5] = { orientation, rotate, bpp, hresolution,
+                               vresolution };
         static ttstr eventname(TJS_W("onDisplayRotate"));
         TVPPostEvent(Owner, Owner, eventname, 0, TVP_EPT_IMMEDIATE, 5, arg);
     }
     if(DrawDevice)
-        DrawDevice->OnDisplayRotate(orientation, rotate, bpp, hresolution, vresolution);
+        DrawDevice->OnDisplayRotate(orientation, rotate, bpp, hresolution,
+                                    vresolution);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_BaseWindow::ClearInputEvents() { TVPCancelInputEvents(this); }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::PostReleaseCaptureEvent() { TVPPostInputEvent(new tTVPOnReleaseCaptureInputEvent(this)); }
+void tTJSNI_BaseWindow::PostReleaseCaptureEvent() {
+    TVPPostInputEvent(new tTVPOnReleaseCaptureInputEvent(this));
+}
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_BaseWindow::RegisterLayerManager(iTVPLayerManager *manager) {
+void tTJSNI_BaseWindow::RegisterLayerManager(iTVPLayerManager *manager) {
     if(DrawDevice)
         DrawDevice->AddLayerManager(manager);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_BaseWindow::UnregisterLayerManager(iTVPLayerManager *manager) {
+void tTJSNI_BaseWindow::UnregisterLayerManager(iTVPLayerManager *manager) {
     if(DrawDevice)
         DrawDevice->RemoveLayerManager(manager);
 }
@@ -578,7 +604,8 @@ void tTJSNI_BaseWindow::NotifyWindowExposureToLayer(const tTVPRect &cliprect) {
         DrawDevice->RequestInvalidation(cliprect);
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::NotifyUpdateRegionFixed(const tTVPComplexRect &updaterects) {
+void tTJSNI_BaseWindow::NotifyUpdateRegionFixed(
+    const tTVPComplexRect &updaterects) {
     // is called by layer manager
     BeginUpdate(updaterects);
 }
@@ -601,7 +628,9 @@ void tTJSNI_BaseWindow::DeliverDrawDeviceShow() {
         DrawDevice->Show();
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::BeginUpdate(const tTVPComplexRect &rects) { WindowUpdating = true; }
+void tTJSNI_BaseWindow::BeginUpdate(const tTVPComplexRect &rects) {
+    WindowUpdating = true;
+}
 //---------------------------------------------------------------------------
 void tTJSNI_BaseWindow::EndUpdate() { WindowUpdating = false; }
 //---------------------------------------------------------------------------
@@ -622,23 +651,29 @@ void tTJSNI_BaseWindow::SetShowUpdateRect(bool b) {
         DrawDevice->SetShowUpdateRect(b);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_BaseWindow::RequestUpdate() {
+void tTJSNI_BaseWindow::RequestUpdate() {
     // is called from primary layer
 
     // post update event to self
     TVPPostWindowUpdate((tTJSNI_Window *)this);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_BaseWindow::NotifySrcResize() {
+void tTJSNI_BaseWindow::NotifySrcResize() {
     // is called from primary layer
     if(WindowUpdating)
         TVPThrowExceptionMessage(TVPInvalidMethodInUpdating);
 }
 
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::RegisterVideoOverlayObject(tTJSNI_BaseVideoOverlay *ovl) { VideoOverlay.Add(ovl); }
+void tTJSNI_BaseWindow::RegisterVideoOverlayObject(
+    tTJSNI_BaseVideoOverlay *ovl) {
+    VideoOverlay.Add(ovl);
+}
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::UnregisterVideoOverlayObject(tTJSNI_BaseVideoOverlay *ovl) { VideoOverlay.Remove(ovl); }
+void tTJSNI_BaseWindow::UnregisterVideoOverlayObject(
+    tTJSNI_BaseVideoOverlay *ovl) {
+    VideoOverlay.Remove(ovl);
+}
 //---------------------------------------------------------------------------
 
 //---- methods
@@ -647,7 +682,8 @@ void tTJSNI_BaseWindow::UnregisterVideoOverlayObject(tTJSNI_BaseVideoOverlay *ov
 void tTJSNI_BaseWindow::Add(tTJSVariantClosure clo) {
     if(ObjectVectorLocked)
         return;
-    if(ObjectVector.end() == std::find(ObjectVector.begin(), ObjectVector.end(), clo)) {
+    if(ObjectVector.end() ==
+       std::find(ObjectVector.begin(), ObjectVector.end(), clo)) {
         ObjectVector.push_back(clo);
         clo.AddRef();
     }
@@ -807,7 +843,8 @@ tTJSNC_Window::tTJSNC_Window() : tTJSNativeClass(TJS_W("Window")) {
     }
     TJS_END_NATIVE_METHOD_DECL(/*func. name*/ setMaxSize)
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setPos) // not setPosition
+    TJS_BEGIN_NATIVE_METHOD_DECL(
+        /*func. name*/ setPos) // not setPosition
     {
         TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
                                 /*var. type*/ tTJSNI_Window);
@@ -1149,7 +1186,8 @@ tTJSNC_Window::tTJSNC_Window() : tTJSNativeClass(TJS_W("Window")) {
                 // this event does not call "action" method
                 TVP_ACTION_INVOKE_BEGIN(1, "onCloseQuery", objthis);
                 TVP_ACTION_INVOKE_MEMBER("canClose");
-                TVP_ACTION_INVOKE_END(tTJSVariantClosure(objthis, objthis));
+                TVP_ACTION_INVOKE_END(tTJSVariantClosure(objthis,
+           objthis));
         */
         _this->OnCloseQueryCalled(0 != (tjs_int)*param[0]);
 
@@ -1208,15 +1246,17 @@ tTJSNC_Window::tTJSNC_Window() : tTJSNativeClass(TJS_W("Window")) {
     //----------------------------------------------------------------------
 
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(visible){ TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
-        /*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_BEGIN_NATIVE_PROP_DECL(visible){
+        TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+            /*var. name*/ _this, /*var. type*/ tTJSNI_Window);
     *result = _this->GetVisible();
     return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetVisible(*param);
     return TJS_S_OK;
 }
@@ -1224,8 +1264,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(visible)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(caption){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(caption){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 ttstr res;
 _this->GetCaption(res);
 *result = res;
@@ -1234,7 +1275,8 @@ return TJS_S_OK;
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetCaption(*param);
     return TJS_S_OK;
 }
@@ -1242,15 +1284,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(caption)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(width){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(width){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetWidth();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetWidth(*param);
     return TJS_S_OK;
 }
@@ -1258,15 +1302,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(width)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(height){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(height){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetHeight();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetHeight(*param);
     return TJS_S_OK;
 }
@@ -1274,15 +1320,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(height)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(minWidth){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(minWidth){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetMinWidth();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetMinWidth(*param);
     return TJS_S_OK;
 }
@@ -1290,15 +1338,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(minWidth)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(minHeight){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(minHeight){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetMinHeight();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetMinHeight(*param);
     return TJS_S_OK;
 }
@@ -1306,15 +1356,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(minHeight)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(maxWidth){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(maxWidth){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetMaxWidth();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetMaxWidth(*param);
     return TJS_S_OK;
 }
@@ -1322,15 +1374,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(maxWidth)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(maxHeight){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(maxHeight){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetMaxHeight();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetMaxHeight(*param);
     return TJS_S_OK;
 }
@@ -1338,15 +1392,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(maxHeight)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(left){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(left){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetLeft();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetLeft(*param);
     return TJS_S_OK;
 }
@@ -1354,15 +1410,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(left)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(top){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(top){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetTop();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetTop(*param);
     return TJS_S_OK;
 }
@@ -1370,15 +1428,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(top)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(focusable){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(focusable){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = (tjs_int)_this->GetFocusable();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetFocusable(0 != (tjs_int)*param);
     return TJS_S_OK;
 }
@@ -1387,15 +1447,17 @@ TJS_END_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(focusable)
 //----------------------------------------------------------------------
 #ifdef USE_OBSOLETE_FUNCTIONS
-TJS_BEGIN_NATIVE_PROP_DECL(layerLeft){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(layerLeft){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetLayerLeft();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetLayerLeft(*param);
     return TJS_S_OK;
 }
@@ -1403,15 +1465,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(layerLeft)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(layerTop){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(layerTop){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetLayerTop();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetLayerTop(*param);
     return TJS_S_OK;
 }
@@ -1419,15 +1483,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(layerTop)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(innerSunken){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(innerSunken){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetInnerSunken();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetInnerSunken(param->operator bool());
     return TJS_S_OK;
 }
@@ -1436,15 +1502,17 @@ TJS_END_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(innerSunken)
 #endif
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(innerWidth){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(innerWidth){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetInnerWidth();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetInnerWidth(*param);
     return TJS_S_OK;
 }
@@ -1452,15 +1520,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(innerWidth)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(innerHeight){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(innerHeight){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetInnerHeight();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetInnerHeight(*param);
     return TJS_S_OK;
 }
@@ -1468,15 +1538,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(innerHeight)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(zoomNumer){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(zoomNumer){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetZoomNumer();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetZoomNumer(*param);
     return TJS_S_OK;
 }
@@ -1484,15 +1556,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(zoomNumer)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(zoomDenom){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(zoomDenom){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetZoomDenom();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetZoomDenom(*param);
     return TJS_S_OK;
 }
@@ -1500,15 +1574,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(zoomDenom)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(borderStyle){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(borderStyle){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = (tjs_int)_this->GetBorderStyle();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetBorderStyle((tTVPBorderStyle)(tjs_int)*param);
     return TJS_S_OK;
 }
@@ -1516,15 +1592,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(borderStyle)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(stayOnTop){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(stayOnTop){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetStayOnTop();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetStayOnTop(param->operator bool());
     return TJS_S_OK;
 }
@@ -1533,15 +1611,17 @@ TJS_END_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(stayOnTop)
 //----------------------------------------------------------------------
 #ifdef USE_OBSOLETE_FUNCTIONS
-TJS_BEGIN_NATIVE_PROP_DECL(showScrollBars){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(showScrollBars){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetShowScrollBars();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetShowScrollBars(param->operator bool());
     return TJS_S_OK;
 }
@@ -1550,15 +1630,17 @@ TJS_END_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(showScrollBars)
 #endif
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(useMouseKey){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(useMouseKey){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetUseMouseKey();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetUseMouseKey(param->operator bool());
     return TJS_S_OK;
 }
@@ -1566,15 +1648,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(useMouseKey)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(trapKey){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(trapKey){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetTrapKey();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetTrapKey(param->operator bool());
     return TJS_S_OK;
 }
@@ -1583,14 +1667,17 @@ TJS_END_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(trapKey)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(imeMode) // not defaultImeMode
-{ TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+{ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = (tjs_int)_this->GetDefaultImeMode();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetDefaultImeMode((tTVPImeMode)(tjs_int)*param);
     return TJS_S_OK;
 }
@@ -1598,15 +1685,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(imeMode)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(mouseCursorState){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(mouseCursorState){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = (tjs_int)_this->GetMouseCursorState();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetMouseCursorState((tTVPMouseCursorState)(tjs_int)*param);
     return TJS_S_OK;
 }
@@ -1614,15 +1703,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(mouseCursorState)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(fullScreen){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(fullScreen){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetFullScreen();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetFullScreen(0 != (tjs_int)*param);
     return TJS_S_OK;
 }
@@ -1631,7 +1722,8 @@ TJS_END_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(fullScreen)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(mainWindow) /* static */
-{ TJS_BEGIN_NATIVE_PROP_GETTER{ if(TVPMainWindow){ iTJSDispatch2 *dsp = TVPMainWindow->GetOwnerNoAddRef();
+{ TJS_BEGIN_NATIVE_PROP_GETTER{
+    if(TVPMainWindow){ iTJSDispatch2 *dsp = TVPMainWindow->GetOwnerNoAddRef();
 *result = tTJSVariant(dsp, dsp);
 }
 else {
@@ -1645,8 +1737,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(mainWindow)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(focusedLayer){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(focusedLayer){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 tTJSNI_BaseLayer *lay = _this->GetDrawDevice()->GetFocusedLayer();
 if(lay && lay->GetOwnerNoAddRef())
     *result = tTJSVariant(lay->GetOwnerNoAddRef(), lay->GetOwnerNoAddRef());
@@ -1657,15 +1750,17 @@ return TJS_S_OK;
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 
     tTJSNI_BaseLayer *to = nullptr;
 
     if(param->Type() != tvtVoid) {
         tTJSVariantClosure clo = param->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Layer::ClassID,
-                                                            (iTJSNativeInstance **)&to)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Layer::ClassID,
+                   (iTJSNativeInstance **)&to)))
                 TVPThrowExceptionMessage(TVPSpecifyLayer);
         }
     }
@@ -1678,8 +1773,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(focusedLayer)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(primaryLayer){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(primaryLayer){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 tTJSNI_BaseLayer *pri = _this->GetDrawDevice()->GetPrimaryLayer();
 if(!pri)
     TVPThrowExceptionMessage(TVPWindowHasNoLayer);
@@ -1696,15 +1792,17 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(primaryLayer)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(waitVSync){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+TJS_BEGIN_NATIVE_PROP_DECL(waitVSync){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
 *result = _this->GetWaitVSync() ? 1 : 0;
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Window);
     _this->SetWaitVSync(((tjs_int)*param) ? true : false);
     return TJS_S_OK;
 }
@@ -1713,7 +1811,9 @@ TJS_END_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(waitVSync)
 //---------------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(layerTreeOwnerInterface){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Window);
+    TJS_BEGIN_NATIVE_PROP_GETTER{
+        TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                                /*var. type*/ tTJSNI_Window);
 *result = reinterpret_cast<tjs_int64>(static_cast<iTVPLayerTreeOwner *>(_this));
 return TJS_S_OK;
 }

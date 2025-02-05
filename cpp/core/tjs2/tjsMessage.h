@@ -24,7 +24,8 @@ namespace TJS {
 
     class tTJSMessageHolder;
 
-    extern void TJSRegisterMessageMap(const tjs_char *name, tTJSMessageHolder *holder);
+    extern void TJSRegisterMessageMap(const tjs_char *name,
+                                      tTJSMessageHolder *holder);
 
     extern void TJSUnregisterMessageMap(const tjs_char *name);
 
@@ -45,7 +46,8 @@ namespace TJS {
         tjs_char *AssignedMessage;
 
     public:
-        tTJSMessageHolder(const tjs_char *name, const tjs_char *defmsg, bool regist = true) {
+        tTJSMessageHolder(const tjs_char *name, const tjs_char *defmsg,
+                          bool regist = true) {
             /* "name" and "defmsg" must point static area */
             AssignedMessage = nullptr;
             Name = nullptr;
@@ -72,7 +74,9 @@ namespace TJS {
             TJS_strcpy(AssignedMessage, msg);
         }
 
-        operator const tjs_char *() { return AssignedMessage ? AssignedMessage : DefaultMessage; }
+        operator const tjs_char *() {
+            return AssignedMessage ? AssignedMessage : DefaultMessage;
+        }
         /* this function may called after destruction */
     };
     //---------------------------------------------------------------------------

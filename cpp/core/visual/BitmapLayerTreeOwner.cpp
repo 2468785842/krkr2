@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------
 /**
  * 描画先を Bitmap とする Layer Tree Owner
- * レイヤーに描かれて、合成された内容は、このクラスの保持する Bitmap に描かれる
- * 設定のために呼びれたメソッドもイベントとして通知される
+ * レイヤーに描かれて、合成された内容は、このクラスの保持する Bitmap
+ * に描かれる 設定のために呼びれたメソッドもイベントとして通知される
  */
 //---------------------------------------------------------------------------
 //!@file レイヤーツリーオーナー
@@ -19,23 +19,26 @@
 
 #include <assert.h>
 
-tTJSNI_BitmapLayerTreeOwner::tTJSNI_BitmapLayerTreeOwner() : Owner(nullptr), BitmapObject(nullptr), BitmapNI(nullptr) {}
+tTJSNI_BitmapLayerTreeOwner::tTJSNI_BitmapLayerTreeOwner() :
+    Owner(nullptr), BitmapObject(nullptr), BitmapNI(nullptr) {}
 tTJSNI_BitmapLayerTreeOwner::~tTJSNI_BitmapLayerTreeOwner() {}
 
 // tTJSNativeInstance
-tjs_error TJS_INTF_METHOD tTJSNI_BitmapLayerTreeOwner::Construct(tjs_int numparams, tTJSVariant **param,
-                                                                 iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_BitmapLayerTreeOwner::Construct(tjs_int numparams,
+                                                 tTJSVariant **param,
+                                                 iTJSDispatch2 *tjs_obj) {
 
     Owner = tjs_obj; // no addref
 
     BitmapObject = GetBitmapObjectNoAddRef();
-    if(TJS_FAILED(BitmapObject->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                      (iTJSNativeInstance **)&BitmapNI)))
+    if(TJS_FAILED(BitmapObject->NativeInstanceSupport(
+           TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+           (iTJSNativeInstance **)&BitmapNI)))
         return TJS_E_INVALIDPARAM;
 
     return TJS_S_OK;
 }
-void TJS_INTF_METHOD tTJSNI_BitmapLayerTreeOwner::Invalidate() {
+void tTJSNI_BitmapLayerTreeOwner::Invalidate() {
     // invalidate bitmap object
     BitmapNI = nullptr;
     if(BitmapObject) {
@@ -54,11 +57,12 @@ iTJSDispatch2 *tTJSNI_BitmapLayerTreeOwner::GetBitmapObjectNoAddRef() {
 }
 
 // tTVPLayerTreeOwner
-void TJS_INTF_METHOD tTJSNI_BitmapLayerTreeOwner::StartBitmapCompletion(iTVPLayerManager *manager) {}
-void TJS_INTF_METHOD tTJSNI_BitmapLayerTreeOwner::NotifyBitmapCompleted(class iTVPLayerManager *manager, tjs_int x,
-                                                                        tjs_int y, tTVPBaseTexture *bitmapinfo,
-                                                                        const tTVPRect &cliprect, tTVPLayerType type,
-                                                                        tjs_int opacity) {
+void tTJSNI_BitmapLayerTreeOwner::StartBitmapCompletion(
+    iTVPLayerManager *manager) {}
+void tTJSNI_BitmapLayerTreeOwner::NotifyBitmapCompleted(
+    class iTVPLayerManager *manager, tjs_int x, tjs_int y,
+    tTVPBaseTexture *bitmapinfo, const tTVPRect &cliprect, tTVPLayerType type,
+    tjs_int opacity) {
     assert(BitmapNI);
 
     tjs_int w, h;
@@ -69,8 +73,10 @@ void TJS_INTF_METHOD tTJSNI_BitmapLayerTreeOwner::NotifyBitmapCompleted(class iT
     tjs_uint8 *dstbits = (tjs_uint8 *)BitmapNI->GetPixelBufferForWrite();
     tjs_int dstpitch = BitmapNI->GetPixelBufferPitch();
     // cliprect がはみ出していいないことを確認
-    if(!(x < 0 || y < 0 || x + cliprect.get_width() > w || y + cliprect.get_height() > h) &&
-       !(cliprect.left < 0 || cliprect.top < 0 || cliprect.right > bitmapinfo->GetWidth() ||
+    if(!(x < 0 || y < 0 || x + cliprect.get_width() > w ||
+         y + cliprect.get_height() > h) &&
+       !(cliprect.left < 0 || cliprect.top < 0 ||
+         cliprect.right > bitmapinfo->GetWidth() ||
          cliprect.bottom > bitmapinfo->GetHeight())) {
         // bitmapinfo で表された cliprect の領域を x,y にコピーする
         long src_y = cliprect.top;
@@ -100,7 +106,8 @@ void TJS_INTF_METHOD tTJSNI_BitmapLayerTreeOwner::NotifyBitmapCompleted(class iT
         }
     }
 }
-void TJS_INTF_METHOD tTJSNI_BitmapLayerTreeOwner::EndBitmapCompletion(iTVPLayerManager *manager) {}
+void tTJSNI_BitmapLayerTreeOwner::EndBitmapCompletion(
+    iTVPLayerManager *manager) {}
 
 void tTJSNI_BitmapLayerTreeOwner::OnSetMouseCursor(tjs_int cursor) {
     if(Owner) {
@@ -132,7 +139,8 @@ void tTJSNI_BitmapLayerTreeOwner::OnReleaseMouseCapture() {
         TVPPostEvent(Owner, Owner, eventname, 0, TVP_EPT_IMMEDIATE, 0, nullptr);
     }
 }
-void tTJSNI_BitmapLayerTreeOwner::OnSetHintText(iTJSDispatch2 *sender, const ttstr &hint) {
+void tTJSNI_BitmapLayerTreeOwner::OnSetHintText(iTJSDispatch2 *sender,
+                                                const ttstr &hint) {
     if(Owner) {
         tTJSVariant clo(sender, sender);
         tTJSVariant arg[2] = { clo, hint };
@@ -143,7 +151,8 @@ void tTJSNI_BitmapLayerTreeOwner::OnSetHintText(iTJSDispatch2 *sender, const tts
 
 void tTJSNI_BitmapLayerTreeOwner::OnResizeLayer(tjs_int w, tjs_int h) {
     if(BitmapNI) {
-        BitmapNI->SetSize(w, h); // サイズ変更に応じて、内部のBitmapもサイズ変更する
+        BitmapNI->SetSize(
+            w, h); // サイズ変更に応じて、内部のBitmapもサイズ変更する
     }
     if(Owner) {
         tTJSVariant arg[2] = { w, h };
@@ -158,7 +167,8 @@ void tTJSNI_BitmapLayerTreeOwner::OnChangeLayerImage() {
     }
 }
 
-void tTJSNI_BitmapLayerTreeOwner::OnSetAttentionPoint(tTJSNI_BaseLayer *layer, tjs_int x, tjs_int y) {
+void tTJSNI_BitmapLayerTreeOwner::OnSetAttentionPoint(tTJSNI_BaseLayer *layer,
+                                                      tjs_int x, tjs_int y) {
     if(Owner) {
         iTJSDispatch2 *owner = GetOwnerNoAddRef();
         tTJSVariant clo(owner, owner);
@@ -199,18 +209,21 @@ tTJSNC_BitmapLayerTreeOwner::tTJSNC_BitmapLayerTreeOwner() :
         TJS_DECL_EMPTY_FINALIZE_METHOD
             //----------------------------------------------------------------------
             TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(
-                /*var.name*/ _this, /*var.type*/ tTJSNI_BitmapLayerTreeOwner,
+                /*var.name*/ _this,
+                /*var.type*/ tTJSNI_BitmapLayerTreeOwner,
                 /*TJS class name*/ BitmapLayerTreeOwner){ return TJS_S_OK;
 }
-TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ BitmapLayerTreeOwner)
+TJS_END_NATIVE_CONSTRUCTOR_DECL(
+    /*TJS class name*/ BitmapLayerTreeOwner)
 //----------------------------------------------------------------------
 
 //-- methods
 
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireClick) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 2)
         return TJS_E_BADPARAMCOUNT;
     _this->FireClick(*param[0], *param[1]);
@@ -219,8 +232,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireClick) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireClick)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireDoubleClick) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 2)
         return TJS_E_BADPARAMCOUNT;
     _this->FireDoubleClick(*param[0], *param[1]);
@@ -229,142 +243,170 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireDoubleClick) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireDoubleClick)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireMouseDown) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 4)
         return TJS_E_BADPARAMCOUNT;
-    _this->FireMouseDown(*param[0], *param[1], (tTVPMouseButton)(tjs_int)*param[2], (tjs_uint32)(tjs_int64)*param[3]);
+    _this->FireMouseDown(*param[0], *param[1],
+                         (tTVPMouseButton)(tjs_int)*param[2],
+                         (tjs_uint32)(tjs_int64)*param[3]);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireMouseDown)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireMouseUp) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 4)
         return TJS_E_BADPARAMCOUNT;
-    _this->FireMouseUp(*param[0], *param[1], (tTVPMouseButton)(tjs_int)*param[2], (tjs_uint32)(tjs_int64)*param[3]);
+    _this->FireMouseUp(*param[0], *param[1],
+                       (tTVPMouseButton)(tjs_int)*param[2],
+                       (tjs_uint32)(tjs_int64)*param[3]);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireMouseUp)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireMouseMove) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 3)
         return TJS_E_BADPARAMCOUNT;
-    _this->FireMouseMove(*param[0], *param[1], (tjs_uint32)(tjs_int64)*param[3]);
+    _this->FireMouseMove(*param[0], *param[1],
+                         (tjs_uint32)(tjs_int64)*param[3]);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireMouseMove)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireMouseWheel) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 4)
         return TJS_E_BADPARAMCOUNT;
-    _this->FireMouseWheel((tjs_uint32)(tjs_int64)*param[0], *param[1], *param[2], *param[3]);
+    _this->FireMouseWheel((tjs_uint32)(tjs_int64)*param[0], *param[1],
+                          *param[2], *param[3]);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireMouseWheel)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireReleaseCapture) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     _this->FireReleaseCapture();
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireReleaseCapture)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireMouseOutOfWindow) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     _this->FireMouseOutOfWindow();
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireMouseOutOfWindow)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireTouchDown) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 5)
         return TJS_E_BADPARAMCOUNT;
-    _this->FireTouchDown(*param[0], *param[1], *param[2], *param[3], (tjs_uint32)(tjs_int64)*param[4]);
+    _this->FireTouchDown(*param[0], *param[1], *param[2], *param[3],
+                         (tjs_uint32)(tjs_int64)*param[4]);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireTouchDown)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireTouchUp) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 5)
         return TJS_E_BADPARAMCOUNT;
-    _this->FireTouchUp(*param[0], *param[1], *param[2], *param[3], (tjs_uint32)(tjs_int64)*param[4]);
+    _this->FireTouchUp(*param[0], *param[1], *param[2], *param[3],
+                       (tjs_uint32)(tjs_int64)*param[4]);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireTouchUp)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireTouchMove) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 5)
         return TJS_E_BADPARAMCOUNT;
-    _this->FireTouchMove(*param[0], *param[1], *param[2], *param[3], (tjs_uint32)(tjs_int64)*param[4]);
+    _this->FireTouchMove(*param[0], *param[1], *param[2], *param[3],
+                         (tjs_uint32)(tjs_int64)*param[4]);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireTouchMove)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireTouchScaling) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 5)
         return TJS_E_BADPARAMCOUNT;
-    _this->FireTouchScaling(*param[0], *param[1], *param[2], *param[3], *param[4]);
+    _this->FireTouchScaling(*param[0], *param[1], *param[2], *param[3],
+                            *param[4]);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireTouchScaling)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireTouchRotate) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 6)
         return TJS_E_BADPARAMCOUNT;
-    _this->FireTouchRotate(*param[0], *param[1], *param[2], *param[3], *param[4], *param[5]);
+    _this->FireTouchRotate(*param[0], *param[1], *param[2], *param[3],
+                           *param[4], *param[5]);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireTouchRotate)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireMultiTouch) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     _this->FireMultiTouch();
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireMultiTouch)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireKeyDown) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 2)
         return TJS_E_BADPARAMCOUNT;
-    _this->FireKeyDown((tjs_uint32)(tjs_int64)*param[0], (tjs_uint32)(tjs_int64)*param[1]);
+    _this->FireKeyDown((tjs_uint32)(tjs_int64)*param[0],
+                       (tjs_uint32)(tjs_int64)*param[1]);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireKeyDown)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireKeyUp) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 2)
         return TJS_E_BADPARAMCOUNT;
-    _this->FireKeyUp((tjs_uint32)(tjs_int64)*param[0], (tjs_uint32)(tjs_int64)*param[1]);
+    _this->FireKeyUp((tjs_uint32)(tjs_int64)*param[0],
+                     (tjs_uint32)(tjs_int64)*param[1]);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireKeyUp)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireKeyPress) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
     _this->FireKeyPress((tjs_char)(tjs_int)*param[0]);
@@ -373,18 +415,21 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireKeyPress) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireKeyPress)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireDisplayRotate) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     if(numparams < 5)
         return TJS_E_BADPARAMCOUNT;
-    _this->FireDisplayRotate(*param[0], *param[1], *param[2], *param[3], *param[4]);
+    _this->FireDisplayRotate(*param[0], *param[1], *param[2], *param[3],
+                             *param[4]);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireDisplayRotate)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fireRecheckInputState) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
     _this->FireRecheckInputState();
     return TJS_S_OK;
 }
@@ -476,8 +521,9 @@ TJS_END_NATIVE_METHOD_DECL(/*func. name*/ onResetImeMode)
 
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(width){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
 *result = (tjs_int64)_this->GetWidth();
 return TJS_S_OK;
 }
@@ -488,8 +534,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(width)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(height){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
 *result = (tjs_int64)_this->GetHeight();
 return TJS_S_OK;
 }
@@ -500,10 +547,12 @@ TJS_DENY_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(height)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(bitmap){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
 if(_this->GetBitmapObjectNoAddRef())
-    *result = tTJSVariant(_this->GetBitmapObjectNoAddRef(), _this->GetBitmapObjectNoAddRef());
+    *result = tTJSVariant(_this->GetBitmapObjectNoAddRef(),
+                          _this->GetBitmapObjectNoAddRef());
 else
     *result = tTJSVariant((iTJSDispatch2 *)nullptr);
 return TJS_S_OK;
@@ -515,8 +564,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(bitmap)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(layerTreeOwnerInterface){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
 *result = reinterpret_cast<tjs_int64>(static_cast<iTVPLayerTreeOwner *>(_this));
 return TJS_S_OK;
 }
@@ -527,8 +577,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(layerTreeOwnerInterface)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(focusedLayer){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
 tTJSNI_BaseLayer *lay = _this->GetFocusedLayer();
 if(lay && lay->GetOwnerNoAddRef())
     *result = tTJSVariant(lay->GetOwnerNoAddRef(), lay->GetOwnerNoAddRef());
@@ -539,16 +590,18 @@ return TJS_S_OK;
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
 
     tTJSNI_BaseLayer *to = nullptr;
 
     if(param->Type() != tvtVoid) {
         tTJSVariantClosure clo = param->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Layer::ClassID,
-                                                            (iTJSNativeInstance **)&to)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Layer::ClassID,
+                   (iTJSNativeInstance **)&to)))
                 TVPThrowExceptionMessage(TVPSpecifyLayer);
         }
     }
@@ -562,8 +615,9 @@ TJS_END_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(focusedLayer)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(primaryLayer){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_BitmapLayerTreeOwner);
 tTJSNI_BaseLayer *pri = _this->GetPrimaryLayer();
 if(!pri)
     TVPThrowExceptionMessage(TJS_W("Not have primary layer"));
@@ -585,7 +639,11 @@ TJS_END_NATIVE_MEMBERS
 }
 
 //----------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_BitmapLayerTreeOwner::CreateNativeInstance() { return new tTJSNI_BitmapLayerTreeOwner(); }
+tTJSNativeInstance *tTJSNC_BitmapLayerTreeOwner::CreateNativeInstance() {
+    return new tTJSNI_BitmapLayerTreeOwner();
+}
 //----------------------------------------------------------------------
-tTJSNativeClass *TVPCreateNativeClass_BitmapLayerTreeOwner() { return new tTJSNC_BitmapLayerTreeOwner(); }
+tTJSNativeClass *TVPCreateNativeClass_BitmapLayerTreeOwner() {
+    return new tTJSNC_BitmapLayerTreeOwner();
+}
 //----------------------------------------------------------------------

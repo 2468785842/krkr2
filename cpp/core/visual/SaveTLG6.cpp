@@ -18,15 +18,23 @@
 #include "TickCount.h"
 
 static const tjs_char *const LAYER_BLEND_MODES[] = {
-    TJS_W("opaque"),   TJS_W("alpha"),     TJS_W("add"),      TJS_W("sub"),
-    TJS_W("mul"),      TJS_W("dodge"),     TJS_W("darken"),   TJS_W("lighten"),
-    TJS_W("screen"),   TJS_W("addalpha"),  TJS_W("psnormal"), TJS_W("psadd"),
-    TJS_W("pssub"),    TJS_W("psmul"),     TJS_W("psscreen"), TJS_W("psoverlay"),
-    TJS_W("pshlight"), TJS_W("psslight"),  TJS_W("psdodge"),  TJS_W("psdodge5"),
-    TJS_W("psburn"),   TJS_W("pslighten"), TJS_W("psdarken"), TJS_W("psdiff"),
-    TJS_W("psdiff5"),  TJS_W("psexcl"),    TJS_W("opaque"),   nullptr
+    TJS_W("opaque"),   TJS_W("alpha"),
+    TJS_W("add"),      TJS_W("sub"),
+    TJS_W("mul"),      TJS_W("dodge"),
+    TJS_W("darken"),   TJS_W("lighten"),
+    TJS_W("screen"),   TJS_W("addalpha"),
+    TJS_W("psnormal"), TJS_W("psadd"),
+    TJS_W("pssub"),    TJS_W("psmul"),
+    TJS_W("psscreen"), TJS_W("psoverlay"),
+    TJS_W("pshlight"), TJS_W("psslight"),
+    TJS_W("psdodge"),  TJS_W("psdodge5"),
+    TJS_W("psburn"),   TJS_W("pslighten"),
+    TJS_W("psdarken"), TJS_W("psdiff"),
+    TJS_W("psdiff5"),  TJS_W("psexcl"),
+    TJS_W("opaque"),   nullptr
 };
-bool TVPAcceptSaveAsTLG(void *formatdata, const ttstr &type, class iTJSDispatch2 **dic) {
+bool TVPAcceptSaveAsTLG(void *formatdata, const ttstr &type,
+                        class iTJSDispatch2 **dic) {
     bool result = false;
     if(type.StartsWith(TJS_W("tlg")))
         result = true;
@@ -37,41 +45,53 @@ bool TVPAcceptSaveAsTLG(void *formatdata, const ttstr &type, class iTJSDispatch2
     else if(type == TJS_W(".tlg6"))
         result = true;
     if(result && dic) {
-        // mode : select text : opaque, alpha, add, sub, mul, dodge, darken,
-        // lighten, screen, addalpha
-        //        psnormal, psadd, pssub, psmul, psscreen, psoverlay, pshlight,
-        //        psslight, psdodge psdodge5, psburn, pslighten, psdarken,
-        //        psdiff, psdiff5, psexcl, opaque
+        // mode : select text : opaque, alpha, add, sub, mul, dodge,
+        // darken, lighten, screen, addalpha
+        //        psnormal, psadd, pssub, psmul, psscreen, psoverlay,
+        //        pshlight, psslight, psdodge psdodge5, psburn,
+        //        pslighten, psdarken, psdiff, psdiff5, psexcl, opaque
         // offs_x : integer
         // offs_y : integer
         // offs_unit : select text : pixel
         tTJSVariant result;
-        TVPExecuteExpression(TJS_W("(const)%[") TJS_W("\"mode\"=>(const)%[\"type\"=>\"select "
-                                                      "text\",\"items\"=>")
-                                 TJS_W("(const)[\"opaque\", \"alpha\", \"add\", \"sub\", \"mul\", "
-                                       "\"dodge\", \"darken\", \"lighten\", \"screen\", "
-                                       "\"addalpha\",") TJS_W("\"psnormal\", \"psadd\", \"pssub\", \"psmul\", "
-                                                              "\"psscreen\", "
-                                                              "\"psoverlay\", \"pshlight\", \"psslight\", "
-                                                              "\"psdodge\",") TJS_W("\"psdodge5\", \"psburn\", "
-                                                                                    "\"pslighten\", \"psdarken\", "
-                                                                                    "\"psdiff\", \"psdiff5\", "
-                                                                                    "\"psexcl\", \"opaque\"],")
-                                     TJS_W("\"desc\"=>\"blending "
-                                           "mode\",\"default\"=>\"alpha\"],")
+        TVPExecuteExpression(
+            TJS_W("(const)%[") TJS_W("\"mode\"=>(const)%[\"type\"=>\"select "
+                                     "text\",\"items\"=>")
+                TJS_W("(const)[\"opaque\", "
+                      "\"alpha\", \"add\", "
+                      "\"sub\", \"mul\", "
+                      "\"dodge\", \"darken\", "
+                      "\"lighten\", "
+                      "\"screen\", "
+                      "\"addalpha\",")
+                    TJS_W("\"psnormal\", \"psadd\", \"pssub\", \"psmul\", "
+                          "\"psscreen\", "
+                          "\"psoverlay\", \"pshlight\", \"psslight\", "
+                          "\"psdodge\",") TJS_W("\"psdodge5\", \"psburn\", "
+                                                "\"pslighten\", "
+                                                "\"psdarken\", "
+                                                "\"psdiff\", \"psdiff5\", "
+                                                "\"psexcl\", \"opaque\"],")
+                        TJS_W("\"desc\"=>\"blending "
+                              "mode\",\"default\"=>\"alpha\"],")
 
-                                         TJS_W("\"offs_x\"=>(const)%[\"type\"=>\"integer\","
-                                               "\"desc\"=>\"offset x\",\"default\"=>0],")
-                                             TJS_W("\"offs_y\"=>(const)%[\"type\"=>"
-                                                   "\"integer\","
-                                                   "\"desc\"=>\"offset y\",\"default\"=>0],")
-                                                 TJS_W("\"offs_unit\"=>(const)%[\"type\"=>"
-                                                       "\"select "
-                                                       "text\",\"items\"=>(const)[\"pixel\"]"
-                                                       ",\"desc\"="
-                                                       ">\"offset "
-                                                       "unit\",\"default\"=>\"pixel\"]") TJS_W("]"),
-                             nullptr, &result);
+                            TJS_W("\"offs_x\"=>(const)%[\"type\"=>"
+                                  "\"integer\","
+                                  "\"desc\"=>\"offset x\",\"default\"=>0],")
+                                TJS_W("\"offs_y\"=>(const)%[\"type\"=>"
+                                      "\"integer\","
+                                      "\"desc\"=>\"offset "
+                                      "y\",\"default\"=>0],")
+                                    TJS_W("\"offs_unit\"=>(const)%["
+                                          "\"type\"=>"
+                                          "\"select "
+                                          "text\",\"items\"=>(const)["
+                                          "\"pixel\"]"
+                                          ",\"desc\"="
+                                          ">\"offset "
+                                          "unit\",\"default\"=>\"pixel\"]")
+                                        TJS_W("]"),
+            nullptr, &result);
         if(result.Type() == tvtObject) {
             *dic = result.AsObject();
         }
@@ -84,7 +104,8 @@ bool TVPAcceptSaveAsTLG(void *formatdata, const ttstr &type, class iTJSDispatch2
 
 // golomb bit length table is compressed, so we need to
 // decompress it.
-extern "C" char TVPTLG6GolombBitLengthTable[TVP_TLG6_GOLOMB_N_COUNT * 2 * 128][TVP_TLG6_GOLOMB_N_COUNT];
+extern "C" char TVPTLG6GolombBitLengthTable[TVP_TLG6_GOLOMB_N_COUNT * 2 * 128]
+                                           [TVP_TLG6_GOLOMB_N_COUNT];
 extern "C" short int TVPTLG6GolombCompressed[TVP_TLG6_GOLOMB_N_COUNT][9];
 
 // TLG6.0 bitstream output implementation
@@ -98,7 +119,8 @@ class TLG6BitStream {
 
 public:
     TLG6BitStream(tTJSBinaryStream *outstream) :
-        OutStream(outstream), BufferBitPos(0), BufferBytePos(0), Buffer(nullptr), BufferCapacity(0) {}
+        OutStream(outstream), BufferBitPos(0), BufferBytePos(0),
+        Buffer(nullptr), BufferCapacity(0) {}
 
     ~TLG6BitStream() { Flush(); }
 
@@ -227,8 +249,9 @@ public:
     }
 
     static int GetNonzeroSignedBitLength(int v) {
-        // Get bit (minimum) length where v is to be encoded as a non-zero
-        // signed value. v must not be zero. abs(v) must be less than 257.
+        // Get bit (minimum) length where v is to be encoded as a
+        // non-zero signed value. v must not be zero. abs(v) must be
+        // less than 257.
         if(v == 0)
             return 0;
         if(v < 0)
@@ -280,7 +303,8 @@ public:
 
         TLG6 圧縮アルゴリズム(概要)
 
-        TLG6 は吉里吉里２で用いられる画像圧縮フォーマットです。グレースケール、
+        TLG6
+   は吉里吉里２で用いられる画像圧縮フォーマットです。グレースケール、
         24bitビットマップ、8bitアルファチャンネル付き24bitビットマップに対応し
         ています。デザインのコンセプトは「高圧縮率であること」「画像展開において
         十分に高速な実装ができること」です。
@@ -297,7 +321,8 @@ public:
         1.   MED または 平均法 による輝度予測
 
                 TLG6 は MED (Median Edge Detector)
-   あるいは平均法による輝度予測を行 い、予測値と実際の値の誤差を記録します。
+   あるいは平均法による輝度予測を行
+   い、予測値と実際の値の誤差を記録します。
 
                 MED
    は、予測対象とするピクセル位置(下図x位置)に対し、左隣のピクセル
@@ -318,8 +343,9 @@ public:
                 の縦方向のエッジでは上のピクセルを、横方向のエッジでは左のピクセルを
                 参照して予測を行うようになるため、効率のよい予測が可能です。
 
-                平均法では、a と b の輝度の平均から予測対象のピクセルの輝度 x
-   を予 測します。以下の式を用います。
+                平均法では、a と b
+   の輝度の平均から予測対象のピクセルの輝度 x を予
+   測します。以下の式を用います。
 
                         x = (a + b + 1) >> 1
 
@@ -363,13 +389,9 @@ public:
                 す。フィルタ番号と MED/平均法の別は LZSS
    法により圧縮され、出力され ます。
 
-                0          B        G        R              (フィルタ無し)
-                1          B-G      G        R-G
-                2          B        G-B      R-B-G
-                3          B-R-G    G-R      R
-                4          B-R      G-B-R    R-B-R-G
-                5          B-R      G-B-R    R
-                6          B-G      G        R
+                0          B        G        R (フィルタ無し) 1 B-G G
+   R-G 2          B        G-B      R-B-G 3          B-R-G    G-R R 4
+   B-R      G-B-R    R-B-R-G 5          B-R      G-B-R    R 6 B-G G R
                 7          B        G-B      R
                 8          B        G        R-G
                 9          B-G-R-B  G-R-B    R-B
@@ -391,8 +413,8 @@ public:
                 ト配列中には基本的に
 
                 1 非ゼロの連続数(ラン・レングス)のガンマ符号
-                2 非ゼロの値のゴロム・ライス符号 (連続数分 繰り返される)
-                3 ゼロの連続数(ラン・レングス)のガンマ符号
+                2 非ゼロの値のゴロム・ライス符号 (連続数分
+   繰り返される) 3 ゼロの連続数(ラン・レングス)のガンマ符号
 
                 が複数回現れることになります。
 
@@ -441,12 +463,14 @@ public:
    kビットで表現できた場合は、ただ単に 1 を出力します。そのあと、 m
    を下位ビットから k ビット分出力します。
 
-                たとえば e が 66 で k が 5 の場合は以下のようになります。
+                たとえば e が 66 で k が 5
+   の場合は以下のようになります。
 
                 m は m = ((e >= 0) ? 2*e : -2*e-1) - 1 の式により 131
-   となります。 予測したビット数 5 で表現できる値の最大値は 31 ですので、131
-   である m は k ビットで表現できないということになります。ですので、m >> k
-                である 4 個の 0 を出力します。
+   となります。 予測したビット数 5 で表現できる値の最大値は 31
+   ですので、131 である m は k
+   ビットで表現できないということになります。ですので、m >> k である 4
+   個の 0 を出力します。
 
                 0000
 
@@ -484,8 +508,8 @@ public:
                         k = table[a][n]; // テーブルから k を参照
                         m = ((e >= 0) ? 2*e : -2*e-1) - 1;
                         e を m と k で符号化;
-                        a += m >> 1; // e の絶対値の合計 (ただし m >>1 で代用)
-                        if(--n < 0) a >>= 1, n = 3;
+                        a += m >> 1; // e の絶対値の合計 (ただし m >>1
+   で代用) if(--n < 0) a >>= 1, n = 3;
                 }
 
                 4 回ごとに a が半減され n
@@ -681,17 +705,17 @@ public:
     }
 };
 //---------------------------------------------------------------------------
-#define DO_FILTER                                                                                                      \
-    len -= 4;                                                                                                          \
-    for(d = 0; d < len; d += 4) {                                                                                      \
-        FILTER_FUNC(0);                                                                                                \
-        FILTER_FUNC(1);                                                                                                \
-        FILTER_FUNC(2);                                                                                                \
-        FILTER_FUNC(3);                                                                                                \
-    }                                                                                                                  \
-    len += 4;                                                                                                          \
-    for(; d < len; d++) {                                                                                              \
-        FILTER_FUNC(0);                                                                                                \
+#define DO_FILTER                                                              \
+    len -= 4;                                                                  \
+    for(d = 0; d < len; d += 4) {                                              \
+        FILTER_FUNC(0);                                                        \
+        FILTER_FUNC(1);                                                        \
+        FILTER_FUNC(2);                                                        \
+        FILTER_FUNC(3);                                                        \
+    }                                                                          \
+    len += 4;                                                                  \
+    for(; d < len; d++) {                                                      \
+        FILTER_FUNC(0);                                                        \
     }
 
 void ApplyColorFilter(char *bufb, char *bufg, char *bufr, int len, int code) {
@@ -763,8 +787,8 @@ void ApplyColorFilter(char *bufb, char *bufg, char *bufr, int len, int code) {
             break;
         case 15:
 #undef FILTER_FUNC
-#define FILTER_FUNC(n)                                                                                                 \
-    t = bufb[d + n] << 1;                                                                                              \
+#define FILTER_FUNC(n)                                                         \
+    t = bufb[d + n] << 1;                                                      \
     bufr[d + n] -= t, bufg[d + n] -= t;
             DO_FILTER
             break;
@@ -818,8 +842,8 @@ void ApplyColorFilter(char *bufb, char *bufg, char *bufr, int len, int code) {
             break;
         case 27:
 #undef FILTER_FUNC
-#define FILTER_FUNC(n)                                                                                                 \
-    t = bufr[d + n] >> 1;                                                                                              \
+#define FILTER_FUNC(n)                                                         \
+    t = bufr[d + n] >> 1;                                                      \
     bufg[d + n] -= t, bufb[d + n] -= t;
             DO_FILTER
             break;
@@ -829,15 +853,15 @@ void ApplyColorFilter(char *bufb, char *bufg, char *bufr, int len, int code) {
             break;
         case 29:
 #undef FILTER_FUNC
-#define FILTER_FUNC(n)                                                                                                 \
-    t = bufg[d + n] >> 1;                                                                                              \
+#define FILTER_FUNC(n)                                                         \
+    t = bufg[d + n] >> 1;                                                      \
     bufr[d + n] -= t, bufb[d + n] -= t;
             DO_FILTER
             break;
         case 30:
 #undef FILTER_FUNC
-#define FILTER_FUNC(n)                                                                                                 \
-    t = bufb[d + n] >> 1;                                                                                              \
+#define FILTER_FUNC(n)                                                         \
+    t = bufb[d + n] >> 1;                                                      \
     bufr[d + n] -= t, bufg[d + n] -= t;
             DO_FILTER
             break;
@@ -855,8 +879,8 @@ void ApplyColorFilter(char *bufb, char *bufg, char *bufr, int len, int code) {
             break;
         case 34:
 #undef FILTER_FUNC
-#define FILTER_FUNC(n)                                                                                                 \
-    t = bufr[d + n] << 1;                                                                                              \
+#define FILTER_FUNC(n)                                                         \
+    t = bufr[d + n] << 1;                                                      \
     bufg[d + n] -= t, bufb[d + n] -= t;
             DO_FILTER
             break;
@@ -893,7 +917,8 @@ int DetectColorFilter(char *b, char *g, char *r, int size, int &outsize) {
     char rbuf[H_BLOCK_SIZE * W_BLOCK_SIZE];
     TryCompressGolomb bc, gc, rc;
 
-    for(int code = 0; code < FILTER_TRY_COUNT; code++) // 17..27 are currently not used
+    for(int code = 0; code < FILTER_TRY_COUNT;
+        code++) // 17..27 are currently not used
     {
         // copy bbuf, gbuf, rbuf into b, g, r.
         memcpy(bbuf, b, sizeof(char) * size);
@@ -1056,15 +1081,18 @@ void SaveTLG6(tTJSBinaryStream *stream, const iTVPBaseBitmap *bmp, bool is24) {
                 for(int p = 0; p < 2; p++) {
                     int dbofs = (p + 1) * (H_BLOCK_SIZE * W_BLOCK_SIZE);
 
-                    // do med(when p=0) or take average of upper and left
-                    // pixel(p=1)
+                    // do med(when p=0) or take average of upper and
+                    // left pixel(p=1)
                     for(int c = 0; c < colors; c++) {
                         int wp = 0;
                         for(int yy = y; yy < ylim; yy++) {
-                            const unsigned char *sl = x * stride + c + (const unsigned char *)bmp->GetScanLine(yy);
+                            const unsigned char *sl = x * stride + c +
+                                (const unsigned char *)bmp->GetScanLine(yy);
                             const unsigned char *usl;
                             if(yy >= 1)
-                                usl = x * stride + c + (const unsigned char *)bmp->GetScanLine(yy - 1);
+                                usl = x * stride + c +
+                                    (const unsigned char *)bmp->GetScanLine(yy -
+                                                                            1);
                             else
                                 usl = nullptr;
                             for(int xx = x; xx < xlim; xx++) {
@@ -1077,7 +1105,8 @@ void SaveTLG6(tTJSBinaryStream *stream, const iTVPBaseBitmap *bmp, bool is24) {
                                 //								py
                                 //= 0;
                                 if(p == 0) {
-                                    unsigned char pc = (xx > 0 && usl) ? usl[-stride] : 0;
+                                    unsigned char pc =
+                                        (xx > 0 && usl) ? usl[-stride] : 0;
                                     unsigned char min_a_b = pa > pb ? pb : pa;
                                     unsigned char max_a_b = pa < pb ? pb : pa;
 
@@ -1102,9 +1131,10 @@ void SaveTLG6(tTJSBinaryStream *stream, const iTVPBaseBitmap *bmp, bool is24) {
                     }
 
                     // reordering
-                    // Transfer the data into block_buf (block buffer).
-                    // Even lines are stored forward (left to right),
-                    // Odd lines are stored backward (right to left).
+                    // Transfer the data into block_buf (block
+                    // buffer). Even lines are stored forward (left to
+                    // right), Odd lines are stored backward (right to
+                    // left).
 
                     wp = 0;
                     tjs_uint32 reorderstart = TVPGetRoughTickCount32();
@@ -1114,7 +1144,8 @@ void SaveTLG6(tTJSBinaryStream *stream, const iTVPBaseBitmap *bmp, bool is24) {
                             ofs = (yy - y) * bw;
                         else
                             ofs = (ylim - yy - 1) * bw;
-                        bool dir; // false for forward, true for backward
+                        bool dir; // false for forward, true for
+                                  // backward
                         if(!((ylim - y) & 1)) {
                             // vertical line count per block is even
                             dir = ((yy & 1) ^ (xp & 1)) ? true : false;
@@ -1152,9 +1183,10 @@ void SaveTLG6(tTJSBinaryStream *stream, const iTVPBaseBitmap *bmp, bool is24) {
                     int size = 0;
                     int ft_;
                     if(colors >= 3)
-                        ft_ = DetectColorFilter(reinterpret_cast<char *>(buf[0] + dbofs),
-                                                reinterpret_cast<char *>(buf[1] + dbofs),
-                                                reinterpret_cast<char *>(buf[2] + dbofs), wp, size);
+                        ft_ = DetectColorFilter(
+                            reinterpret_cast<char *>(buf[0] + dbofs),
+                            reinterpret_cast<char *>(buf[1] + dbofs),
+                            reinterpret_cast<char *>(buf[2] + dbofs), wp, size);
                     else
                         ft_ = 0;
 
@@ -1168,7 +1200,8 @@ void SaveTLG6(tTJSBinaryStream *stream, const iTVPBaseBitmap *bmp, bool is24) {
                     }
                 }
 
-                // Apply most efficient color filter / prediction method
+                // Apply most efficient color filter / prediction
+                // method
                 wp = 0;
                 int dbofs = (minp + 1) * (H_BLOCK_SIZE * W_BLOCK_SIZE);
                 for(int yy = y; yy < ylim; yy++) {
@@ -1179,7 +1212,8 @@ void SaveTLG6(tTJSBinaryStream *stream, const iTVPBaseBitmap *bmp, bool is24) {
                     }
                 }
 
-                ApplyColorFilter(block_buf[0] + gwp, block_buf[1] + gwp, block_buf[2] + gwp, wp, ft);
+                ApplyColorFilter(block_buf[0] + gwp, block_buf[1] + gwp,
+                                 block_buf[2] + gwp, wp, ft);
 
                 filtertypes[fc++] = (ft << 1) + minp;
                 //				ftfreq[ft]++;
@@ -1201,8 +1235,9 @@ void SaveTLG6(tTJSBinaryStream *stream, const iTVPBaseBitmap *bmp, bool is24) {
                 // entropy coding method;
                 // 00 means Golomb method,
                 // 01 means Gamma method (implemented but not used),
-                // 10 means modified LZSS method (not yet implemented),
-                // 11 means raw (uncompressed) data (not yet implemented).
+                // 10 means modified LZSS method (not yet
+                // implemented), 11 means raw (uncompressed) data (not
+                // yet implemented).
                 if(max_bit_length < bitlength)
                     max_bit_length = bitlength;
                 bitlength |= (method << 30);
@@ -1232,7 +1267,8 @@ void SaveTLG6(tTJSBinaryStream *stream, const iTVPBaseBitmap *bmp, bool is24) {
         }
 
         // copy memory stream to output stream
-        out->WriteBuffer(memstream->GetInternalBuffer(), (tjs_uint)memstream->GetSize());
+        out->WriteBuffer(memstream->GetInternalBuffer(),
+                         (tjs_uint)memstream->GetSize());
     } catch(...) {
         for(int i = 0; i < MAX_COLOR_COMPONENTS; i++) {
             if(buf[i])
@@ -1263,18 +1299,22 @@ void SaveTLG6(tTJSBinaryStream *stream, const iTVPBaseBitmap *bmp, bool is24) {
 #endif
 }
 //---------------------------------------------------------------------------
-extern void SaveTLG5(tTJSBinaryStream *stream, const iTVPBaseBitmap *image, bool is24);
+extern void SaveTLG5(tTJSBinaryStream *stream, const iTVPBaseBitmap *image,
+                     bool is24);
 //---------------------------------------------------------------------------
-void TVPSaveAsTLG(void *formatdata, tTJSBinaryStream *dst, const iTVPBaseBitmap *image, const ttstr &mode,
+void TVPSaveAsTLG(void *formatdata, tTJSBinaryStream *dst,
+                  const iTVPBaseBitmap *image, const ttstr &mode,
                   iTJSDispatch2 *meta) {
     std::vector<std::string> tags;
     if(meta) {
         struct MetaDictionaryEnumCallback : public tTJSDispatch {
             std::vector<std::string> &Tags;
-            MetaDictionaryEnumCallback(std::vector<std::string> &tags) : Tags(tags) {}
-            tjs_error TJS_INTF_METHOD FuncCall(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                               tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
-                                               iTJSDispatch2 *objthis) {
+            MetaDictionaryEnumCallback(std::vector<std::string> &tags) :
+                Tags(tags) {}
+            tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
+                               tjs_uint32 *hint, tTJSVariant *result,
+                               tjs_int numparams, tTJSVariant **param,
+                               iTJSDispatch2 *objthis) {
                 // called from tTJSCustomObject::EnumMembers
                 if(numparams < 3)
                     return TJS_E_BADPARAMCOUNT;
@@ -1334,8 +1374,8 @@ void TVPSaveAsTLG(void *formatdata, tTJSBinaryStream *dst, const iTVPBaseBitmap 
             tjs_uint pos_save = (tjs_uint)stream->GetPosition();
             stream->SetPosition(rawlenpos);
             tjs_uint size = pos_save - rawlenpos - 4;
-            unsigned char bin[4]; // buffer for writing 32bit integer as little
-                                  // endian format
+            unsigned char bin[4]; // buffer for writing 32bit integer
+                                  // as little endian format
             bin[0] = size & 0xff;
             bin[1] = (size >> 8) & 0xff;
             bin[2] = (size >> 16) & 0xff;
@@ -1353,7 +1393,8 @@ void TVPSaveAsTLG(void *formatdata, tTJSBinaryStream *dst, const iTVPBaseBitmap 
                 if(name.empty())
                     continue;
                 std::string value = tags[i + 1];
-                tag << name.length() << ":" << name << "=" << value.length() << ":" << value << ",";
+                tag << name.length() << ":" << name << "=" << value.length()
+                    << ":" << value << ",";
             }
 
             // write chunk size

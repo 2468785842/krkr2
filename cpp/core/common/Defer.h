@@ -14,7 +14,8 @@ namespace clover {
     template <typename Fun>
     class ScopeGuard {
     public:
-        explicit ScopeGuard(Fun &&f) : _fun(std::forward<Fun>(f)), _active(true) {}
+        explicit ScopeGuard(Fun &&f) :
+            _fun(std::forward<Fun>(f)), _active(true) {}
 
         ~ScopeGuard() {
             if(_active)
@@ -29,7 +30,10 @@ namespace clover {
 
         ScopeGuard &operator=(const ScopeGuard &) = delete;
 
-        ScopeGuard(ScopeGuard &&rhs) noexcept : _fun(std::move(rhs._fun)), _active(rhs._active) { rhs.dismiss(); }
+        ScopeGuard(ScopeGuard &&rhs) noexcept :
+            _fun(std::move(rhs._fun)), _active(rhs._active) {
+            rhs.dismiss();
+        }
 
     private:
         Fun _fun;
@@ -47,5 +51,7 @@ namespace clover {
 } // namespace clover
 
 // Helper macro
-#define DEFER auto SCOPE_GUARD_CONCATENATE(ext_exitBlock_, __LINE__) = clover::detail::ScopeGuardOnExit() + [&]()
+#define DEFER                                                                  \
+    auto SCOPE_GUARD_CONCATENATE(ext_exitBlock_, __LINE__) =                   \
+        clover::detail::ScopeGuardOnExit() + [&]()
 #endif // KRKR2_DEFER_H

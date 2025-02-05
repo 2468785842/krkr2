@@ -1,6 +1,7 @@
 //
 // Created by lidong on 2025/1/5.
-// more: https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders
+// more:
+// https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders
 //
 
 #ifndef KRKR2_GDIP_CXX_H
@@ -33,11 +34,17 @@ public:
 
     PointFClass(float x, float y) : PointF{ x, y } {}
 
-    [[nodiscard]] bool Equals(const PointFClass &p) { return p.X == this->X && p.Y == this->Y; }
+    [[nodiscard]] bool Equals(const PointFClass &p) {
+        return p.X == this->X && p.Y == this->Y;
+    }
 
-    PointFClass operator-(const PointF &point) { return PointFClass{ this->X - point.X, this->Y - point.Y }; }
+    PointFClass operator-(const PointF &point) {
+        return PointFClass{ this->X - point.X, this->Y - point.Y };
+    }
 
-    PointFClass operator+(const PointF &point) { return PointFClass{ this->X + point.X, this->Y + point.Y }; }
+    PointFClass operator+(const PointF &point) {
+        return PointFClass{ this->X + point.X, this->Y + point.Y };
+    }
 
     PointFClass *operator+=(const PointF &point) {
         this->X = this->X + point.X;
@@ -72,7 +79,8 @@ public:
     RectFClass(float x, float y, float w, float h) : RectF{ x, y, w, h } {}
 
     [[nodiscard]] bool Equals(const RectFClass &p) const {
-        return p.X == this->X && p.Y == this->Y && p.Width == this->Width && p.Height == this->Height;
+        return p.X == this->X && p.Y == this->Y && p.Width == this->Width &&
+            p.Height == this->Height;
     }
 
     [[nodiscard]] float GetLeft() const { return this->X; }
@@ -84,11 +92,15 @@ public:
     [[nodiscard]] float GetBottom() const { return this->Y + this->Height; }
 
     [[nodiscard]] bool IntersectsWith(const RectFClass &rect) const {
-        return this->GetRight() > rect.GetLeft() && this->GetLeft() < rect.GetRight() &&
-            this->GetBottom() > rect.GetTop() && this->GetTop() < rect.GetBottom();
+        return this->GetRight() > rect.GetLeft() &&
+            this->GetLeft() < rect.GetRight() &&
+            this->GetBottom() > rect.GetTop() &&
+            this->GetTop() < rect.GetBottom();
     }
 
-    [[nodiscard]] bool IsEmptyArea() const { return this->Width <= 0 || this->Height <= 0; }
+    [[nodiscard]] bool IsEmptyArea() const {
+        return this->Width <= 0 || this->Height <= 0;
+    }
 
     void Offset(const PointFClass &point) { this->Offset(point.X, point.Y); }
 
@@ -129,7 +141,9 @@ public:
         return true;
     }
 
-    void GetLocation(PointF *point) const { *point = PointF{ this->X, this->Y }; }
+    void GetLocation(PointF *point) const {
+        *point = PointF{ this->X, this->Y };
+    }
 
     void GetBounds(RectFClass *rfc) const { *rfc = *this; }
 
@@ -158,22 +172,33 @@ public:
         this->_gpStatus = GdipCreateMatrix3(&rect, &point, &_gpMatrix);
     }
 
-    MatrixClass(float m11, float m12, float m21, float m22, float dx, float dy) {
-        this->_gpStatus = GdipCreateMatrix2(m11, m12, m21, m22, dx, dy, &_gpMatrix);
+    MatrixClass(float m11, float m12, float m21, float m22, float dx,
+                float dy) {
+        this->_gpStatus =
+            GdipCreateMatrix2(m11, m12, m21, m22, dx, dy, &_gpMatrix);
     }
 
-    [[nodiscard]] float OffsetX() const { return static_cast<float>(_gpMatrix->x0); }
+    [[nodiscard]] float OffsetX() const {
+        return static_cast<float>(_gpMatrix->x0);
+    }
 
-    [[nodiscard]] float OffsetY() const { return static_cast<float>(_gpMatrix->y0); }
+    [[nodiscard]] float OffsetY() const {
+        return static_cast<float>(_gpMatrix->y0);
+    }
 
     [[nodiscard]] bool Equals(MatrixClass *matrix) const {
-        return this->_gpMatrix->xx == matrix->_gpMatrix->xx && this->_gpMatrix->yx == matrix->_gpMatrix->yx &&
-            this->_gpMatrix->xy == matrix->_gpMatrix->xy && this->_gpMatrix->yy == matrix->_gpMatrix->yy &&
-            this->_gpMatrix->x0 == matrix->_gpMatrix->x0 && this->_gpMatrix->y0 == matrix->_gpMatrix->y0;
+        return this->_gpMatrix->xx == matrix->_gpMatrix->xx &&
+            this->_gpMatrix->yx == matrix->_gpMatrix->yx &&
+            this->_gpMatrix->xy == matrix->_gpMatrix->xy &&
+            this->_gpMatrix->yy == matrix->_gpMatrix->yy &&
+            this->_gpMatrix->x0 == matrix->_gpMatrix->x0 &&
+            this->_gpMatrix->y0 == matrix->_gpMatrix->y0;
     }
 
-    GpStatus SetElements(float m11, float m12, float m21, float m22, float dx, float dy) {
-        this->_gpStatus = GdipSetMatrixElements(this->_gpMatrix, m11, m12, m21, m22, dx, dy);
+    GpStatus SetElements(float m11, float m12, float m21, float m22, float dx,
+                         float dy) {
+        this->_gpStatus =
+            GdipSetMatrixElements(this->_gpMatrix, m11, m12, m21, m22, dx, dy);
         return this->_gpStatus;
     }
 
@@ -196,8 +221,10 @@ public:
         return r;
     }
 
-    GpStatus Multiply(MatrixClass *matrix, MatrixOrder order = MatrixOrderPrepend) {
-        this->_gpStatus = GdipMultiplyMatrix(this->_gpMatrix, matrix->_gpMatrix, order);
+    GpStatus Multiply(MatrixClass *matrix,
+                      MatrixOrder order = MatrixOrderPrepend) {
+        this->_gpStatus =
+            GdipMultiplyMatrix(this->_gpMatrix, matrix->_gpMatrix, order);
         return this->_gpStatus;
     }
 
@@ -224,11 +251,13 @@ public:
     }
 
     GpStatus Translate(float offsetX, float offsetY, MatrixOrder order) {
-        this->_gpStatus = GdipTranslateMatrix(this->_gpMatrix, offsetX, offsetY, order);
+        this->_gpStatus =
+            GdipTranslateMatrix(this->_gpMatrix, offsetX, offsetY, order);
         return this->_gpStatus;
     }
 
-    GpStatus RotateAt(float angle, const PointFClass &center, MatrixOrder order) {
+    GpStatus RotateAt(float angle, const PointFClass &center,
+                      MatrixOrder order) {
         this->Translate(-center.X, -center.Y, order);
         this->Rotate(angle, order);
         this->Translate(center.X, center.Y, order);
@@ -236,21 +265,26 @@ public:
     }
 
     GpStatus Scale(float scaleX, float scaleY, MatrixOrder order) {
-        this->_gpStatus = GdipScaleMatrix(this->_gpMatrix, scaleX, scaleY, order);
+        this->_gpStatus =
+            GdipScaleMatrix(this->_gpMatrix, scaleX, scaleY, order);
         return this->_gpStatus;
     }
 
     GpStatus Shear(float shearX, float shearY, MatrixOrder order) {
-        this->_gpStatus = GdipShearMatrix(this->_gpMatrix, shearX, shearY, order);
+        this->_gpStatus =
+            GdipShearMatrix(this->_gpMatrix, shearX, shearY, order);
         return this->_gpStatus;
     }
 
     GpStatus TransformPoints(PointFClass *pts, int count) {
-        this->_gpStatus = GdipTransformMatrixPoints(this->_gpMatrix, pts, count);
+        this->_gpStatus =
+            GdipTransformMatrixPoints(this->_gpMatrix, pts, count);
         return this->_gpStatus;
     }
 
-    [[nodiscard]] explicit operator GpMatrix *() const { return this->_gpMatrix; }
+    [[nodiscard]] explicit operator GpMatrix *() const {
+        return this->_gpMatrix;
+    }
 
     ~MatrixClass() { GdipDeleteMatrix(_gpMatrix); }
 
@@ -263,7 +297,8 @@ class ImageClass {
 public:
     ImageClass(GpImage *gpImage) { this->_gpImage = gpImage; }
 
-    static ImageClass *FromFile(const WCHAR *filename, bool useEmbeddedColorManagement) {
+    static ImageClass *FromFile(const WCHAR *filename,
+                                bool useEmbeddedColorManagement) {
         return new ImageClass{ filename, useEmbeddedColorManagement };
     }
 
@@ -354,9 +389,9 @@ public:
 
     // android mkstemp无法正常使用
     //    void AddMemoryFont(const void *memory, size_t length) {
-    //        this->status = GdipPrivateAddMemoryFont(this->_gpFC, memory,
-    //        static_cast<int>(length)); g_assert(status == Ok && "add memory
-    //        font failed");
+    //        this->status = GdipPrivateAddMemoryFont(this->_gpFC,
+    //        memory, static_cast<int>(length)); g_assert(status == Ok
+    //        && "add memory font failed");
     //    }
 
     [[nodiscard]] GpFontCollection *getFontCollection() { return this->_gpFC; }
@@ -398,60 +433,100 @@ typedef enum { ANSI_CHARSET = 0, DEFAULT_CHARSET = 1 } Charset;
 /*
  * encoder param guids
  */
-static const GUID GdipEncoderScanMethod = {
-    0x3A4E2661, 0x3109, 0x4E56, { 0x85, 0x36, 0x42, 0xC1, 0x56, 0xE7, 0xDC, 0xFA }
-};
+static const GUID GdipEncoderScanMethod = { 0x3A4E2661,
+                                            0x3109,
+                                            0x4E56,
+                                            { 0x85, 0x36, 0x42, 0xC1, 0x56,
+                                              0xE7, 0xDC, 0xFA } };
 
-static const GUID GdipEncoderVersion = {
-    0x24D18C76, 0x814A, 0x41A4, { 0xBF, 0x53, 0x1C, 0x21, 0x9C, 0xCC, 0xF7, 0x97 }
-};
+static const GUID GdipEncoderVersion = { 0x24D18C76,
+                                         0x814A,
+                                         0x41A4,
+                                         { 0xBF, 0x53, 0x1C, 0x21, 0x9C, 0xCC,
+                                           0xF7, 0x97 } };
 
-static const GUID GdipEncoderRenderMethod = {
-    0x6D42C53A, 0x229A, 0x4825, { 0x8B, 0xB7, 0x5C, 0x99, 0xE2, 0xB9, 0xA8, 0xB8 }
-};
+static const GUID GdipEncoderRenderMethod = { 0x6D42C53A,
+                                              0x229A,
+                                              0x4825,
+                                              { 0x8B, 0xB7, 0x5C, 0x99, 0xE2,
+                                                0xB9, 0xA8, 0xB8 } };
 
-static const GUID GdipEncoderCompression = {
-    0x0E09D739DU, 0x0CCD4U, 0x44EEU, { 0x8E, 0x0BA, 0x3F, 0x0BF, 0x8B, 0x0E4, 0x0FC, 0x58 }
-};
+static const GUID GdipEncoderCompression = { 0x0E09D739DU,
+                                             0x0CCD4U,
+                                             0x44EEU,
+                                             { 0x8E, 0x0BA, 0x3F, 0x0BF, 0x8B,
+                                               0x0E4, 0x0FC, 0x58 } };
 
-static const GUID GdipEncoderColorDepth = {
-    0x66087055U, 0x0AD66U, 0x4C7CU, { 0x9A, 0x18, 0x38, 0x0A2, 0x31, 0x0B, 0x83, 0x37 }
-};
+static const GUID GdipEncoderColorDepth = { 0x66087055U,
+                                            0x0AD66U,
+                                            0x4C7CU,
+                                            { 0x9A, 0x18, 0x38, 0x0A2, 0x31,
+                                              0x0B, 0x83, 0x37 } };
 
-static const GUID GdipEncoderSaveFlag = {
-    0x292266FCU, 0x0AC40U, 0x47BFU, { 0x8C, 0x0FC, 0x0A8, 0x5B, 0x89, 0x0A6, 0x55, 0x0DE }
-};
+static const GUID GdipEncoderSaveFlag = { 0x292266FCU,
+                                          0x0AC40U,
+                                          0x47BFU,
+                                          { 0x8C, 0x0FC, 0x0A8, 0x5B, 0x89,
+                                            0x0A6, 0x55, 0x0DE } };
 
-static const GUID GdipEncoderSaveAsCMYK = {
-    0x0A219BBC9U, 0x0A9DU, 0x4005U, { 0x0A3, 0x0EE, 0x3A, 0x42, 0x1B, 0x8B, 0x0B0, 0x6C }
-};
+static const GUID GdipEncoderSaveAsCMYK = { 0x0A219BBC9U,
+                                            0x0A9DU,
+                                            0x4005U,
+                                            { 0x0A3, 0x0EE, 0x3A, 0x42, 0x1B,
+                                              0x8B, 0x0B0, 0x6C } };
 
-static const GUID GdipEncoderImageItems = {
-    0x63875E13U, 0x1F1DU, 0x45ABU, { 0x91, 0x95, 0x0A2, 0x9B, 0x60, 0x66, 0x0A6, 0x50 }
-};
+static const GUID GdipEncoderImageItems = { 0x63875E13U,
+                                            0x1F1DU,
+                                            0x45ABU,
+                                            { 0x91, 0x95, 0x0A2, 0x9B, 0x60,
+                                              0x66, 0x0A6, 0x50 } };
 
-static const GUID GdipEncoderTransformation = {
-    0x8D0EB2D1U, 0x0A58EU, 0x4EA8U, { 0x0AA, 0x14, 0x10, 0x80, 0x74, 0x0B7, 0x0B6, 0x0F9 }
-};
-static const GUID GdipEncoderQuality = {
-    0x1D5BE4B5U, 0x0FA4AU, 0x452DU, { 0x9C, 0x0DD, 0x5D, 0x0B3, 0x51, 0x5, 0x0E7, 0x0EB }
-};
+static const GUID GdipEncoderTransformation = { 0x8D0EB2D1U,
+                                                0x0A58EU,
+                                                0x4EA8U,
+                                                { 0x0AA, 0x14, 0x10, 0x80, 0x74,
+                                                  0x0B7, 0x0B6, 0x0F9 } };
+static const GUID GdipEncoderQuality = { 0x1D5BE4B5U,
+                                         0x0FA4AU,
+                                         0x452DU,
+                                         { 0x9C, 0x0DD, 0x5D, 0x0B3, 0x51, 0x5,
+                                           0x0E7, 0x0EB } };
 
-static const GUID GdipEncoderLuminanceTable = {
-    0x0EDB33BCEU, 0x266U, 0x4A77U, { 0x0B9, 0x4, 0x27, 0x21, 0x60, 0x99, 0x0E7, 0x17 }
-};
+static const GUID GdipEncoderLuminanceTable = { 0x0EDB33BCEU,
+                                                0x266U,
+                                                0x4A77U,
+                                                { 0x0B9, 0x4, 0x27, 0x21, 0x60,
+                                                  0x99, 0x0E7, 0x17 } };
 
-static const GUID GdipEncoderChrominanceTable = {
-    0x0F2E455DCU, 0x9B3U, 0x4316U, { 0x82, 0x60, 0x67, 0x6A, 0x0DA, 0x32, 0x48, 0x1C }
-};
+static const GUID GdipEncoderChrominanceTable = { 0x0F2E455DCU,
+                                                  0x9B3U,
+                                                  0x4316U,
+                                                  { 0x82, 0x60, 0x67, 0x6A,
+                                                    0x0DA, 0x32, 0x48, 0x1C } };
 
-static const CLSID bmpEncoderClsid = { 0x557cf400, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-static const CLSID tifEncoderClsid = { 0x557cf405, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-static const CLSID gifEncoderClsid = { 0x557cf402, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-static const CLSID pngEncoderClsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-static const CLSID jpegEncoderClsid = { 0x557cf401, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-static const CLSID icoEncoderClsid = { 0x557cf407, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-static const CLSID wmfEncoderClsid = { 0x557cf404, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-static const CLSID emfEncoderClsid = { 0x557cf403, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+static const CLSID bmpEncoderClsid = {
+    0x557cf400, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e }
+};
+static const CLSID tifEncoderClsid = {
+    0x557cf405, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e }
+};
+static const CLSID gifEncoderClsid = {
+    0x557cf402, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e }
+};
+static const CLSID pngEncoderClsid = {
+    0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e }
+};
+static const CLSID jpegEncoderClsid = {
+    0x557cf401, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e }
+};
+static const CLSID icoEncoderClsid = {
+    0x557cf407, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e }
+};
+static const CLSID wmfEncoderClsid = {
+    0x557cf404, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e }
+};
+static const CLSID emfEncoderClsid = {
+    0x557cf403, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e }
+};
 
 #endif // KRKR2_GDIP_CXX_H

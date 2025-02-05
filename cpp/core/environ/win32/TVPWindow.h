@@ -332,8 +332,10 @@ public:
     virtual void GetCursorPos(tjs_int &x, tjs_int &y) = 0;
     virtual void SetCursorPos(tjs_int x, tjs_int y) = 0;
     virtual void SetHintText(const ttstr &text) = 0;
-    virtual void SetAttentionPoint(tjs_int left, tjs_int top, const struct tTVPFont *font) = 0;
-    virtual void ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right, tjs_int &bottom) = 0;
+    virtual void SetAttentionPoint(tjs_int left, tjs_int top,
+                                   const struct tTVPFont *font) = 0;
+    virtual void ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right,
+                               tjs_int &bottom) = 0;
     virtual void BringToFront() = 0;
     virtual void ShowWindowAsModal() = 0;
     virtual bool GetVisible() = 0;
@@ -360,7 +362,8 @@ public:
     virtual void OnCloseQueryCalled(bool b) = 0;
     virtual void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) = 0;
     virtual void OnKeyUp(tjs_uint16 vk, int shift) = 0;
-    virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate, bool convertkey) = 0;
+    virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate,
+                            bool convertkey) = 0;
     virtual tTVPImeMode GetDefaultImeMode() const = 0;
     virtual void SetImeMode(tTVPImeMode mode) = 0;
     virtual void ResetImeMode() = 0;
@@ -380,7 +383,8 @@ public:
     tjs_int GetZoomDenom() const { return ZoomDenom; }
 
     // dummy function
-    void RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void *proc, const void *userdata) {}
+    void RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void *proc,
+                                       const void *userdata) {}
     void SetLeft(tjs_int) {}
     void SetTop(tjs_int) {}
     void SetMinWidth(tjs_int) {}
@@ -410,8 +414,12 @@ public:
     void SetTrapKey(bool b) {}
     bool GetTrapKey() const { return false; }
     void RemoveMaskRegion() {}
-    void SetMouseCursorState(tTVPMouseCursorState mcs) { MouseCursorState = mcs; }
-    tTVPMouseCursorState GetMouseCursorState() const { return MouseCursorState; }
+    void SetMouseCursorState(tTVPMouseCursorState mcs) {
+        MouseCursorState = mcs;
+    }
+    tTVPMouseCursorState GetMouseCursorState() const {
+        return MouseCursorState;
+    }
     void HideMouseCursor() {}
     void SetFocusable(bool b) {}
     bool GetFocusable() const { return true; }
@@ -432,9 +440,13 @@ public:
         ofsx = 0;
         ofsy = 0;
     }
-    void SetTouchScaleThreshold(double threshold) { TouchScaleThreshold = threshold; }
+    void SetTouchScaleThreshold(double threshold) {
+        TouchScaleThreshold = threshold;
+    }
     double GetTouchScaleThreshold() { return TouchScaleThreshold; }
-    void SetTouchRotateThreshold(double threshold) { TouchRotateThreshold = threshold; }
+    void SetTouchRotateThreshold(double threshold) {
+        TouchRotateThreshold = threshold;
+    }
     double GetTouchRotateThreshold() { return TouchRotateThreshold; }
     tjs_real GetTouchPointStartX(tjs_int index) const { return 0; }
     tjs_real GetTouchPointStartY(tjs_int index) const { return 0; }
@@ -442,7 +454,9 @@ public:
     tjs_real GetTouchPointY(tjs_int index) const { return 0; }
     tjs_int GetTouchPointID(tjs_int index) const { return 0; }
     tjs_int GetTouchPointCount() const { return 0; }
-    bool GetTouchVelocity(tjs_int id, float &x, float &y, float &speed) const { return false; }
+    bool GetTouchVelocity(tjs_int id, float &x, float &y, float &speed) const {
+        return false;
+    }
     void ResetDrawDevice() {}
     void SendCloseMessage() {}
     void BeginMove() {}

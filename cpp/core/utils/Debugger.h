@@ -40,10 +40,13 @@ enum tTJSDBGEvent {
     DBGEV_GER_STEP, //!< ger -> gee ステップ
     DBGEV_GER_TRACE, //!< ger -> gee トレース
     DBGEV_GER_RETURN, //!< ger -> gee リターン
-    DBGEV_GER_BREAKPOINT_START, //!< ger -> gee ブレークポイント情報送信開始
+    DBGEV_GER_BREAKPOINT_START, //!< ger -> gee
+                                //!< ブレークポイント情報送信開始
     DBGEV_GER_BREAKPOINT, //!< ger -> gee ブレークポイント情報
-    DBGEV_GER_BREAKPOINT_END, //!< ger -> gee ブレークポイント情報送信終了
-    DBGEV_GER_EXCEPTION_FLG, //!< ger -> gee 例外発生時に停止するかどうか
+    DBGEV_GER_BREAKPOINT_END, //!< ger -> gee
+                              //!< ブレークポイント情報送信終了
+    DBGEV_GER_EXCEPTION_FLG, //!< ger -> gee
+                             //!< 例外発生時に停止するかどうか
 };
 
 struct BreakpointLine {
@@ -64,7 +67,8 @@ struct BreakpointLine {
     void SetBreakPoint(int lineno) {
         iterator i = Lines.find(lineno);
         if(i == Lines.end()) {
-            std::pair<iterator, bool> ret = Lines.insert(BreakpointLine::lines::value_type(lineno, lineno));
+            std::pair<iterator, bool> ret =
+                Lines.insert(BreakpointLine::lines::value_type(lineno, lineno));
             assert(ret.second);
         }
     }
@@ -82,7 +86,8 @@ struct Breakpoints {
     void SetBreakPoint(const std::wstring &filename, int lineno) {
         iterator i = BreakPoint.find(filename);
         if(i == BreakPoint.end()) {
-            std::pair<iterator, bool> ret = BreakPoint.insert(breakpoints::value_type(filename, BreakpointLine()));
+            std::pair<iterator, bool> ret = BreakPoint.insert(
+                breakpoints::value_type(filename, BreakpointLine()));
             assert(ret.second);
             i = ret.first;
         }
@@ -105,7 +110,8 @@ struct Breakpoints {
         return false;
     }
 
-    const BreakpointLine *GetBreakPointLines(const std::wstring &filename) const {
+    const BreakpointLine *
+    GetBreakPointLines(const std::wstring &filename) const {
         const_iterator i = BreakPoint.find(filename);
         if(i != BreakPoint.end()) {
             return &(i->second);

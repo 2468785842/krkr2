@@ -34,9 +34,10 @@ TJS_EXP_FUNC_DEF(bool, TVPClipboardGetText, (ttstr & text));
 //---------------------------------------------------------------------------
 class tTJSNI_BaseClipboard : public tTJSNativeInstance {
 public:
-    virtual tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *dsp);
+    virtual tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                                iTJSDispatch2 *dsp);
 
-    virtual void TJS_INTF_METHOD Invalidate();
+    virtual void Invalidate();
 };
 //---------------------------------------------------------------------------
 

@@ -44,8 +44,9 @@ public:
         RefCount = 1;
         Data = nullptr;
     }
-    tTVPCharacterData(const tjs_uint8 *indata, tjs_int inpitch, tjs_int originx, tjs_int originy, tjs_uint blackboxw,
-                      tjs_uint blackboxh, const tGlyphMetrics &metrics, bool fullcolor = false);
+    tTVPCharacterData(const tjs_uint8 *indata, tjs_int inpitch, tjs_int originx,
+                      tjs_int originy, tjs_uint blackboxw, tjs_uint blackboxh,
+                      const tGlyphMetrics &metrics, bool fullcolor = false);
     tTVPCharacterData(const tTVPCharacterData &ref);
     ~tTVPCharacterData();
 
@@ -95,8 +96,10 @@ struct tTVPFontAndCharacterData {
     bool Blured;
     bool Hinting;
     bool operator==(const tTVPFontAndCharacterData &rhs) const {
-        return Character == rhs.Character && Font == rhs.Font && Antialiased == rhs.Antialiased &&
-            BlurLevel == rhs.BlurLevel && BlurWidth == rhs.BlurWidth && Blured == rhs.Blured && Hinting == rhs.Hinting;
+        return Character == rhs.Character && Font == rhs.Font &&
+            Antialiased == rhs.Antialiased && BlurLevel == rhs.BlurLevel &&
+            BlurWidth == rhs.BlurWidth && Blured == rhs.Blured &&
+            Hinting == rhs.Hinting;
     }
 };
 //---------------------------------------------------------------------------

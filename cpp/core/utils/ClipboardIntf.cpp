@@ -13,12 +13,14 @@
 #include "ClipboardIntf.h"
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_BaseClipboard::Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *dsp) {
+tjs_error tTJSNI_BaseClipboard::Construct(tjs_int numparams,
+                                          tTJSVariant **param,
+                                          iTJSDispatch2 *dsp) {
     return TJS_S_OK;
 }
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_BaseClipboard::Invalidate() {}
+void tTJSNI_BaseClipboard::Invalidate() {}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -26,13 +28,14 @@ tjs_uint32 tTJSNC_Clipboard::ClassID = -1;
 
 //---------------------------------------------------------------------------
 tTJSNC_Clipboard::tTJSNC_Clipboard() :
-    inherited(TJS_W("Clipboard")){ // registration of native members
+    inherited(TJS_W("Clipboard")){
+        // registration of native members
 
-                                   TJS_BEGIN_NATIVE_MEMBERS(Clipboard) // constructor
-                                   TJS_DECL_EMPTY_FINALIZE_METHOD
-                                       //----------------------------------------------------------------------
-                                       TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(
-                                           /*TJS class name*/ Clipboard){ return TJS_S_OK;
+        TJS_BEGIN_NATIVE_MEMBERS(Clipboard) // constructor
+        TJS_DECL_EMPTY_FINALIZE_METHOD
+            //----------------------------------------------------------------------
+            TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(
+                /*TJS class name*/ Clipboard){ return TJS_S_OK;
 }
 TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ Clipboard)
 //----------------------------------------------------------------------

@@ -23,7 +23,8 @@
 
 #include <cassert>
 
-static int utf8_mbtowc(/*conv_t conv,*/ tjs_char *pwc, const unsigned char *s, int n) {
+static int utf8_mbtowc(/*conv_t conv,*/ tjs_char *pwc, const unsigned char *s,
+                       int n) {
     unsigned char c = s[0];
 
     if(c < 0x80) {
@@ -41,15 +42,18 @@ static int utf8_mbtowc(/*conv_t conv,*/ tjs_char *pwc, const unsigned char *s, i
     } else if(c < 0xf0) {
         if(n < 3)
             return -1;
-        if(!((s[1] ^ 0x80) < 0x40 && (s[2] ^ 0x80) < 0x40 && (c >= 0xe1 || s[1] >= 0xa0)))
+        if(!((s[1] ^ 0x80) < 0x40 && (s[2] ^ 0x80) < 0x40 &&
+             (c >= 0xe1 || s[1] >= 0xa0)))
             return -1;
-        *pwc = ((tjs_char)(c & 0x0f) << 12) | ((tjs_char)(s[1] ^ 0x80) << 6) | (tjs_char)(s[2] ^ 0x80);
+        *pwc = ((tjs_char)(c & 0x0f) << 12) | ((tjs_char)(s[1] ^ 0x80) << 6) |
+            (tjs_char)(s[2] ^ 0x80);
         return 3;
     } else
         return -1;
 }
 
-static int utf8_wctomb(/*conv_t conv,*/ unsigned char *r, tjs_char wc, int n) /* n == 0 is acceptable */
+static int utf8_wctomb(/*conv_t conv,*/ unsigned char *r, tjs_char wc,
+                       int n) /* n == 0 is acceptable */
 {
     int count;
     if(wc < 0x80)
@@ -70,9 +74,9 @@ static int utf8_wctomb(/*conv_t conv,*/ unsigned char *r, tjs_char wc, int n) /*
         return -2;
     switch(count) { /* note: code falls through cases! */
             // 	case 6: r[5] = 0x80 | (wc & 0x3f); wc = wc >> 6; wc |=
-            // 0x4000000; 	case 5: r[4] = 0x80 | (wc & 0x3f); wc = wc >> 6; wc |=
-            // 0x200000; 	case 4: r[3] = 0x80 | (wc & 0x3f); wc = wc >> 6; wc |=
-            // 0x10000;
+            // 0x4000000; 	case 5: r[4] = 0x80 | (wc & 0x3f); wc = wc
+            // >> 6; wc |= 0x200000; 	case 4: r[3] = 0x80 | (wc &
+            // 0x3f); wc = wc >> 6; wc |= 0x10000;
         case 3:
             r[2] = 0x80 | (wc & 0x3f);
             wc = wc >> 6;
@@ -171,7 +175,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
     tjs_char *TJS_tTVInt_to_str(tjs_int64 value, tjs_char *string) {
         if(value == TJS_UI64_VAL(0x8000000000000000)) {
-            // this is a special number which we must avoid normal conversion
+            // this is a special number which we must avoid normal
+            // conversion
             TJS_strcpy(string, TJS_W("-9223372036854775808"));
             return string;
         }
@@ -199,7 +204,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_int TJS_strnicmp(const tjs_char *s1, const tjs_char *s2, size_t maxlen) {
+    tjs_int TJS_strnicmp(const tjs_char *s1, const tjs_char *s2,
+                         size_t maxlen) {
         while(maxlen--) {
             if(*s1 == TJS_W('\0'))
                 return (*s2 == TJS_W('\0')) ? 0 : -1;
@@ -477,11 +483,11 @@ namespace TJS {
     // native debugger break point
     //---------------------------------------------------------------------------
     void TJSNativeDebuggerBreak() {
-        // This function is to be called mostly when the "debugger" TJS statement is
-        // executed.
-        // Step you debbuger back to the the caller, and continue debugging.
-        // Do not use "debugger" statement unless you run the program under the
-        // native debugger, or the program may cause an unhandled debugger
+        // This function is to be called mostly when the "debugger"
+        // TJS statement is executed. Step you debbuger back to the
+        // the caller, and continue debugging. Do not use "debugger"
+        // statement unless you run the program under the native
+        // debugger, or the program may cause an unhandled debugger
         // breakpoint exception.
 
 #if defined(__WIN32__)
@@ -489,7 +495,8 @@ namespace TJS {
 #ifdef __BORLANDC__
         __emit__(0xcc); // int 3 (Raise debugger breakpoint exception)
 #else
-        _asm _emit 0xcc; // int 3 (Raise debugger breakpoint exception)
+        _asm _emit 0xcc; // int 3 (Raise debugger breakpoint
+                         // exception)
 #endif
 #else
         __debugbreak();
@@ -530,7 +537,8 @@ namespace TJS {
         }
 
 #if defined(_M_X64)
-        _MM_SET_EXCEPTION_MASK(_MM_MASK_INVALID | _MM_MASK_DIV_ZERO | _MM_MASK_DENORM | _MM_MASK_OVERFLOW |
+        _MM_SET_EXCEPTION_MASK(_MM_MASK_INVALID | _MM_MASK_DIV_ZERO |
+                               _MM_MASK_DENORM | _MM_MASK_OVERFLOW |
                                _MM_MASK_UNDERFLOW | _MM_MASK_INEXACT);
 #else
         //	_fpreset();
@@ -565,7 +573,8 @@ namespace TJS {
         return ((int)(*first - *last));
     }
 
-    tjs_char *TJS_strncpy(tjs_char *dest, const tjs_char *source, size_t count) {
+    tjs_char *TJS_strncpy(tjs_char *dest, const tjs_char *source,
+                          size_t count) {
         tjs_char *start = dest;
 
         while(count && (*dest++ = *source++)) /* copy string */
@@ -669,22 +678,23 @@ namespace TJS {
         int fracExp = 0; /* Exponent that derives from the fractional
                           * part.  Under normal circumstatnces, it is
                           * the negative of the number of digits in F.
-                          * However, if I is very long, the last digits
-                          * of I get dropped (otherwise a long I with a
-                          * large negative exponent could cause an
-                          * unnecessary overflow on I alone).  In this
-                          * case, fracExp is incremented one for each
-                          * dropped digit. */
+                          * However, if I is very long, the last
+                          * digits of I get dropped (otherwise a long
+                          * I with a large negative exponent could
+                          * cause an unnecessary overflow on I alone).
+                          * In this case, fracExp is incremented one
+                          * for each dropped digit. */
         int mantSize; /* Number of digits in mantissa. */
         int decPt; /* Number of mantissa digits BEFORE decimal
                     * point. */
-        const tjs_char *pExp; /* Temporarily holds location of exponent
-                               * in string. */
+        const tjs_char *pExp; /* Temporarily holds location of
+                               * exponent in string. */
         static const int maxExponent = 511;
-        static const double powersOf10[] = { /* Table giving binary powers of 10.  Entry */
-                                             10., /* is 10^2^i.  Used to convert decimal */
-                                             100., /* exponents into floating-point numbers. */
-                                             1.0e4, 1.0e8, 1.0e16, 1.0e32, 1.0e64, 1.0e128, 1.0e256
+        static const double powersOf10[] = {
+            /* Table giving binary powers of 10.  Entry */
+            10., /* is 10^2^i.  Used to convert decimal */
+            100., /* exponents into floating-point numbers. */
+            1.0e4, 1.0e8, 1.0e16, 1.0e32, 1.0e64, 1.0e128, 1.0e256
         };
         /*
          * Strip off leading blanks and check for a sign.
@@ -705,8 +715,8 @@ namespace TJS {
         }
 
         /*
-         * Count the number of digits in the mantissa (including the decimal
-         * point), and also locate the decimal point.
+         * Count the number of digits in the mantissa (including the
+         * decimal point), and also locate the decimal point.
          */
 
         decPt = -1;
@@ -722,10 +732,11 @@ namespace TJS {
         }
 
         /*
-         * Now suck up the digits in the mantissa.  Use two integers to
-         * collect 9 digits each (this is faster than using floating-point).
-         * If the mantissa has more than 18 digits, ignore the extras, since
-         * they can't affect the value anyway.
+         * Now suck up the digits in the mantissa.  Use two integers
+         * to collect 9 digits each (this is faster than using
+         * floating-point). If the mantissa has more than 18 digits,
+         * ignore the extras, since they can't affect the value
+         * anyway.
          */
 
         pExp = p;
@@ -802,10 +813,10 @@ namespace TJS {
         }
 
         /*
-         * Generate a floating-point number that represents the exponent.
-         * Do this by processing the exponent one bit at a time to combine
-         * many powers of 2 of 10. Then combine the exponent with the
-         * fraction.
+         * Generate a floating-point number that represents the
+         * exponent. Do this by processing the exponent one bit at a
+         * time to combine many powers of 2 of 10. Then combine the
+         * exponent with the fraction.
          */
 
         if(exp < 0) {
@@ -844,9 +855,12 @@ namespace TJS {
     // FIXME: 效率低下
     // FIXME: 效率低下
     // FIXME: 效率低下
-    size_t TJS_strftime(tjs_char *wstring, size_t maxsize, const tjs_char *wformat, const tm *timeptr) {
+    size_t TJS_strftime(tjs_char *wstring, size_t maxsize,
+                        const tjs_char *wformat, const tm *timeptr) {
         char timebuf[128];
-        size_t r = strftime(timebuf, maxsize, ttstr{ wformat }.AsNarrowStdString().c_str(), timeptr);
+        size_t r =
+            strftime(timebuf, maxsize,
+                     ttstr{ wformat }.AsNarrowStdString().c_str(), timeptr);
         ttstr r_timebuf{ timebuf };
         auto w_r_timebuf = r_timebuf.c_wstr();
         size_t len = (w_r_timebuf.length() + 1) * sizeof(wchar_t);

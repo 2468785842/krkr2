@@ -12,7 +12,8 @@
 
 //---------------------------------------------------------------------------
 tTVPVSyncTimingThread::tTVPVSyncTimingThread(tTJSNI_Window *owner) :
-    tTVPThread(true), EventQueue(this, &tTVPVSyncTimingThread::Proc), OwnerWindow(owner) {
+    tTVPThread(true), EventQueue(this, &tTVPVSyncTimingThread::Proc),
+    OwnerWindow(owner) {
     SleepTime = 1;
     LastVBlankTick = 0;
     VSyncInterval = 16; // 約60FPS
@@ -59,7 +60,8 @@ void tTVPVSyncTimingThread::Execute() {
             // sleep_time は通常 10ms より長いので、
             // ここに来るってのは異常。
             // よほどシステムが重たい状態になってると考えられる。
-            // そこで立て続けに イベントをポストするわけにはいかないので
+            // そこで立て続けに
+            // イベントをポストするわけにはいかないので
             // 適当な時間(本当に適当) 眠る。
             ::Sleep(5);
         }
@@ -100,7 +102,8 @@ void tTVPVSyncTimingThread::Proc(NativeEvent &ev) {
         LastVBlankTick = timeGetTime(); // これが次に眠る時間の起算点になる
     } else {
         tTJSCriticalSectionHolder holder(CS);
-        LastVBlankTick += VSyncInterval; // これが次に眠る時間の起算点になる(おおざっぱ)
+        LastVBlankTick +=
+            VSyncInterval; // これが次に眠る時間の起算点になる(おおざっぱ)
         if((long)(timeGetTime() - (LastVBlankTick + SleepTime)) <= 0) {
             // 眠った後、次に起きようとする時間がすでに過去なので眠れません
             LastVBlankTick = timeGetTime(); // 強制的に今の時刻にします
@@ -122,7 +125,8 @@ void tTVPVSyncTimingThread::Proc(NativeEvent &ev) {
         // 1. vblank 前だった
         // 2. vblank 後だった
         // どっちかは分からないが
-        // SleepTime を増やす。ただしこれが VSyncInterval を超えるはずはない。
+        // SleepTime を増やす。ただしこれが VSyncInterval
+        // を超えるはずはない。
         tTJSCriticalSectionHolder holder(CS);
         SleepTime++;
         if(SleepTime > VSyncInterval)
@@ -134,7 +138,8 @@ void tTVPVSyncTimingThread::Proc(NativeEvent &ev) {
 
     // ContinuousHandler を呼ぶ
     // これは十分な時間をとれるよう、vsync 待ちの直後に呼ばれる
-    TVPProcessContinuousHandlerEventFlag = true; // set flag to invoke continuous handler on next idle
+    TVPProcessContinuousHandlerEventFlag =
+        true; // set flag to invoke continuous handler on next idle
 }
 //---------------------------------------------------------------------------
 
@@ -154,7 +159,8 @@ void tTVPVSyncTimingThread::MeasureVSyncInterval() {
     else
         vsync_interval = 0;
 
-    TVPAddLog(TVPFormatMessage(TVPRoughVsyncIntervalReadFromApi, ttstr((int)vsync_interval)));
+    TVPAddLog(TVPFormatMessage(TVPRoughVsyncIntervalReadFromApi,
+                               ttstr((int)vsync_interval)));
 
     // vsync 周期は適切っぽい？
     if(vsync_interval < 6 || vsync_interval > 66) {

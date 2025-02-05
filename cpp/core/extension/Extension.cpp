@@ -6,7 +6,8 @@
 // TVPAddClassHandler related
 //---------------------------------------------------------------------------
 struct tTVPAtClassInstallInfo {
-    tTVPAtClassInstallInfo(const tjs_char *name, iTJSDispatch2 *(*handler)(iTJSDispatch2 *),
+    tTVPAtClassInstallInfo(const tjs_char *name,
+                           iTJSDispatch2 *(*handler)(iTJSDispatch2 *),
                            const tjs_char *dependences) {
         Name = name, Handler = handler;
         if(dependences) {
@@ -34,7 +35,9 @@ struct tTVPAtClassInstallInfo {
 static std::vector<tTVPAtClassInstallInfo> *TVPAtClassInstallInfos = nullptr;
 static bool TVPAtInstallClass = false;
 //---------------------------------------------------------------------------
-void TVPAddClassHandler(const tjs_char *name, iTJSDispatch2 *(*handler)(iTJSDispatch2 *), const tjs_char *dependences) {
+void TVPAddClassHandler(const tjs_char *name,
+                        iTJSDispatch2 *(*handler)(iTJSDispatch2 *),
+                        const tjs_char *dependences) {
     if(TVPAtInstallClass)
         return;
 
@@ -52,11 +55,13 @@ void TVPCauseAtInstallExtensionClass(iTJSDispatch2 *global) {
         iTJSDispatch2 *dsp;
         tTJSVariant val;
         std::vector<tTVPAtClassInstallInfo>::iterator i;
-        for(i = TVPAtClassInstallInfos->begin(); i != TVPAtClassInstallInfos->end(); i++) {
+        for(i = TVPAtClassInstallInfos->begin();
+            i != TVPAtClassInstallInfos->end(); i++) {
             dsp = i->Handler(global);
             val = tTJSVariant(dsp /*, dsp*/);
             dsp->Release();
-            global->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, i->Name, nullptr, &val, global);
+            global->PropSet(TJS_MEMBERENSURE | TJS_IGNOREPROP, i->Name, nullptr,
+                            &val, global);
         }
         delete TVPAtClassInstallInfos;
         TVPAtClassInstallInfos = nullptr;

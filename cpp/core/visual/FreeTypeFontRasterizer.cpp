@@ -14,12 +14,14 @@ extern void TVPUninitializeFreeFont();
 extern FontSystem *TVPFontSystem;
 extern const ttstr &TVPGetDefaultFontName();
 void FreeTypeFontRasterizer::ApplyFallbackFace() {
-    if(!FaceFallback && Face && Face->GetFontName() != TVPGetDefaultFontName()) {
+    if(!FaceFallback && Face &&
+       Face->GetFontName() != TVPGetDefaultFontName()) {
         FaceFallback = new tFreeTypeFace(TVPGetDefaultFontName(), 0);
     }
     if(!FaceFallback)
         return;
-    FaceFallback->SetHeight(CurrentFont.Height < 0 ? -CurrentFont.Height : CurrentFont.Height);
+    FaceFallback->SetHeight(CurrentFont.Height < 0 ? -CurrentFont.Height
+                                                   : CurrentFont.Height);
     if(CurrentFont.Flags & TVP_TF_ITALIC) {
         FaceFallback->SetOption(TVP_TF_ITALIC);
     } else {
@@ -42,7 +44,10 @@ void FreeTypeFontRasterizer::ApplyFallbackFace() {
     }
 }
 
-FreeTypeFontRasterizer::FreeTypeFontRasterizer() : RefCount(0), Face(nullptr), LastBitmap(nullptr) { AddRef(); }
+FreeTypeFontRasterizer::FreeTypeFontRasterizer() :
+    RefCount(0), Face(nullptr), LastBitmap(nullptr) {
+    AddRef();
+}
 FreeTypeFontRasterizer::~FreeTypeFontRasterizer() {
     if(Face)
         delete Face;
@@ -70,7 +75,8 @@ void FreeTypeFontRasterizer::Release() {
     }
 }
 //---------------------------------------------------------------------------
-void FreeTypeFontRasterizer::ApplyFont(class tTVPNativeBaseBitmap *bmp, bool force) {
+void FreeTypeFontRasterizer::ApplyFont(class tTVPNativeBaseBitmap *bmp,
+                                       bool force) {
     if(bmp != LastBitmap || force) {
         ApplyFont(bmp->GetFont());
         LastBitmap = bmp;
@@ -126,7 +132,8 @@ void FreeTypeFontRasterizer::ApplyFont(const tTVPFont &font) {
     LastBitmap = nullptr;
 }
 //---------------------------------------------------------------------------
-void FreeTypeFontRasterizer::GetTextExtent(tjs_char ch, tjs_int &w, tjs_int &h) {
+void FreeTypeFontRasterizer::GetTextExtent(tjs_char ch, tjs_int &w,
+                                           tjs_int &h) {
     if(Face) {
         tGlyphMetrics metrics;
         if(Face->GetGlyphSizeFromCharcode(ch, metrics)) {
@@ -145,12 +152,15 @@ tjs_int FreeTypeFontRasterizer::GetAscentHeight() {
     return 0;
 }
 static bool isUnicodeSpace(char16_t ch) {
-    return (ch >= 0x0009 && ch <= 0x000D) || ch == 0x0020 || ch == 0x0085 || ch == 0x00A0 || ch == 0x1680 ||
-        (ch >= 0x2000 && ch <= 0x200A) || ch == 0x2028 || ch == 0x2029 || ch == 0x202F || ch == 0x205F || ch == 0x3000;
+    return (ch >= 0x0009 && ch <= 0x000D) || ch == 0x0020 || ch == 0x0085 ||
+        ch == 0x00A0 || ch == 0x1680 || (ch >= 0x2000 && ch <= 0x200A) ||
+        ch == 0x2028 || ch == 0x2029 || ch == 0x202F || ch == 0x205F ||
+        ch == 0x3000;
 }
 //---------------------------------------------------------------------------
-tTVPCharacterData *FreeTypeFontRasterizer::GetBitmap(const tTVPFontAndCharacterData &font, tjs_int aofsx,
-                                                     tjs_int aofsy) {
+tTVPCharacterData *
+FreeTypeFontRasterizer::GetBitmap(const tTVPFontAndCharacterData &font,
+                                  tjs_int aofsx, tjs_int aofsy) {
     if(font.Antialiased) {
         Face->ClearOption(TVP_FACE_OPTIONS_NO_ANTIALIASING);
     } else {
@@ -208,7 +218,8 @@ tTVPCharacterData *FreeTypeFontRasterizer::GetBitmap(const tTVPFontAndCharacterD
     return data;
 }
 //---------------------------------------------------------------------------
-void FreeTypeFontRasterizer::GetGlyphDrawRect(const ttstr &text, tTVPRect &area) {
+void FreeTypeFontRasterizer::GetGlyphDrawRect(const ttstr &text,
+                                              tTVPRect &area) {
     // アンチエイリアスとヒンティングは有効にする
     Face->ClearOption(TVP_FACE_OPTIONS_NO_ANTIALIASING);
     Face->ClearOption(TVP_FACE_OPTIONS_NO_HINTING);
@@ -223,9 +234,11 @@ void FreeTypeFontRasterizer::GetGlyphDrawRect(const ttstr &text, tTVPRect &area)
         tTVPRect rt(0, 0, 0, 0);
         bool result = Face->GetGlyphRectFromCharcode(rt, ch, ax, ay);
         if(result == false)
-            result = Face->GetGlyphRectFromCharcode(rt, Face->GetDefaultChar(), ax, ay);
+            result = Face->GetGlyphRectFromCharcode(rt, Face->GetDefaultChar(),
+                                                    ax, ay);
         if(result == false)
-            result = Face->GetGlyphRectFromCharcode(rt, Face->GetFirstChar(), ax, ay);
+            result = Face->GetGlyphRectFromCharcode(rt, Face->GetFirstChar(),
+                                                    ax, ay);
         if(result) {
             rt.add_offsets(offsetx, offsety);
             if(i != 0) {

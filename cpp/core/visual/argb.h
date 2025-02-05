@@ -90,7 +90,9 @@ struct tTVPARGB {
         a /= n;
     }
 
-    void operator=(tjs_uint32 v) { a = v >> 24, r = (v >> 16) & 0xff, g = (v >> 8) & 0xff, b = v & 0xff; }
+    void operator=(tjs_uint32 v) {
+        a = v >> 24, r = (v >> 16) & 0xff, g = (v >> 8) & 0xff, b = v & 0xff;
+    }
 
     operator tjs_uint32() const { return b + (g << 8) + (r << 16) + (a << 24); }
 };
@@ -119,8 +121,8 @@ template <>
 void tTVPARGB<tjs_uint32>::average(tjs_int n);
 
 //---------------------------------------------------------------------------
-// a structure delivered from tTVPARGB, using Additive-Alpha expression
-// for tjs_uint32 (packed ARGB) input/output.
+// a structure delivered from tTVPARGB, using Additive-Alpha
+// expression for tjs_uint32 (packed ARGB) input/output.
 template <typename base_type>
 struct tTVPARGB_AA : public tTVPARGB<base_type> {
     void operator+=(const tTVPARGB_AA &rhs) {
@@ -137,8 +139,8 @@ struct tTVPARGB_AA : public tTVPARGB<base_type> {
         this->a -= rhs.a;
     }
 
-    // Four methods, which convert itself from/to tjs_uint32 (packed ARGB),
-    // are overrided.
+    // Four methods, which convert itself from/to tjs_uint32 (packed
+    // ARGB), are overrided.
 
     void operator+=(tjs_uint32 v) {
         tjs_int aadj;
@@ -168,7 +170,8 @@ struct tTVPARGB_AA : public tTVPARGB<base_type> {
 
     operator tjs_uint32() const {
         tjs_uint8 *t = TVPDivTable + (this->a << 8);
-        return t[this->b] + (t[this->g] << 8) + (t[this->r] << 16) + (this->a << 24);
+        return t[this->b] + (t[this->g] << 8) + (t[this->r] << 16) +
+            (this->a << 24);
     }
 };
 

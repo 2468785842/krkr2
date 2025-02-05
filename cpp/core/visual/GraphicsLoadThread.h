@@ -58,7 +58,8 @@ public:
     /**
      * 読込みを読込みスレッドに要求する(キューへ入れる)
      */
-    void PushLoadQueue(iTJSDispatch2 *owner, tTJSNI_Bitmap *bmp, const ttstr &nname);
+    void PushLoadQueue(iTJSDispatch2 *owner, tTJSNI_Bitmap *bmp,
+                       const ttstr &nname);
 
     /**
      * 読込みスレッド実体
@@ -98,7 +99,8 @@ public:
      * 読込み前にエラーが発生した場合やキャッシュ上に画像があった場合は要求は行われず
      * 即座に終了し、onLoaded イベントを発生させる。
      */
-    void LoadRequest(iTJSDispatch2 *owner, tTJSNI_Bitmap *bmp, const ttstr &name);
+    void LoadRequest(iTJSDispatch2 *owner, tTJSNI_Bitmap *bmp,
+                     const ttstr &name);
 };
 
 #endif // __GRAPHICS_LOAD_THREAD_H__

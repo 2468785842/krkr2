@@ -70,20 +70,24 @@ public:
 
 // -----------------------------------------------------------------
 
-static void addMember(iTJSDispatch2 *dispatch, const tjs_char *name, iTJSDispatch2 *member) {
+static void addMember(iTJSDispatch2 *dispatch, const tjs_char *name,
+                      iTJSDispatch2 *member) {
     tTJSVariant var(member);
     member->Release();
-    dispatch->PropSet(TJS_MEMBERENSURE, // メンバがなかった場合には作成するようにするフラグ
-                      name, // メンバ名 ( かならず TJS_W( ) で囲む )
-                      nullptr, // ヒント ( 本来はメンバ名のハッシュ値だが、nullptr でもよい )
-                      &var, // 登録する値
-                      dispatch // コンテキスト
+    dispatch->PropSet(
+        TJS_MEMBERENSURE, // メンバがなかった場合には作成するようにするフラグ
+        name, // メンバ名 ( かならず TJS_W( ) で囲む )
+        nullptr, // ヒント ( 本来はメンバ名のハッシュ値だが、nullptr
+                 // でもよい )
+        &var, // 登録する値
+        dispatch // コンテキスト
     );
 }
 
 static iTJSDispatch2 *getMember(iTJSDispatch2 *dispatch, const tjs_char *name) {
     tTJSVariant val;
-    if(TJS_FAILED(dispatch->PropGet(TJS_IGNOREPROP, name, nullptr, &val, dispatch))) {
+    if(TJS_FAILED(
+           dispatch->PropGet(TJS_IGNOREPROP, name, nullptr, &val, dispatch))) {
         ttstr msg = TJS_W("can't get member:");
         msg += name;
         TVPThrowExceptionMessage(msg.c_str());
@@ -92,7 +96,8 @@ static iTJSDispatch2 *getMember(iTJSDispatch2 *dispatch, const tjs_char *name) {
 }
 
 static bool isValidMember(iTJSDispatch2 *dispatch, const tjs_char *name) {
-    return dispatch->IsValid(TJS_IGNOREPROP, name, nullptr, dispatch) == TJS_S_TRUE;
+    return dispatch->IsValid(TJS_IGNOREPROP, name, nullptr, dispatch) ==
+        TJS_S_TRUE;
 }
 
 static void delMember(iTJSDispatch2 *dispatch, const tjs_char *name) {
@@ -214,7 +219,8 @@ public:
      * @param param
      * @param tjs_obj this オブジェクト
      */
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj) {
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj) {
         if(numparams > 0) {
             target = param[0]->AsObject();
             if(numparams > 1) {
@@ -240,7 +246,7 @@ public:
     /**
      * TJS invalidate
      */
-    void TJS_INTF_METHOD Invalidate() {
+    void Invalidate() {
         clear();
         if(target) {
             target->Release();
@@ -273,7 +279,8 @@ public:
             delete[] buff;
             delete pStream;
         } else {
-            iTJSTextReadStream *pStream = TVPCreateTextStreamForRead(filename, TJS_W(""));
+            iTJSTextReadStream *pStream =
+                TVPCreateTextStreamForRead(filename, TJS_W(""));
             pStream->Read(text, 0);
             delete pStream;
         }
@@ -329,10 +336,11 @@ public:
     }
 };
 
-static iTJSNativeInstance *TJS_INTF_METHOD Create_NI_CSVParser() { return new NI_CSVParser(); }
+static iTJSNativeInstance *Create_NI_CSVParser() { return new NI_CSVParser(); }
 
 static iTJSDispatch2 *Create_NC_CSVParser() {
-    tTJSNativeClassForPlugin *classobj = TJSCreateNativeClassForPlugin(TJS_W("CSVParser"), Create_NI_CSVParser);
+    tTJSNativeClassForPlugin *classobj =
+        TJSCreateNativeClassForPlugin(TJS_W("CSVParser"), Create_NI_CSVParser);
 
     TJS_BEGIN_NATIVE_MEMBERS(/*TJS class name*/ CSVParser)
 
@@ -361,7 +369,8 @@ static iTJSDispatch2 *Create_NC_CSVParser() {
                                 /*var. type*/ NI_CSVParser);
         if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
-        _this->initStorage(param[0]->AsStringNoAddRef(), numparams > 1 && (tjs_int)*param[1] != 0);
+        _this->initStorage(param[0]->AsStringNoAddRef(),
+                           numparams > 1 && (tjs_int)*param[1] != 0);
         return TJS_S_OK;
     }
     TJS_END_NATIVE_METHOD_DECL(/*func. name*/ initStorage)
@@ -389,15 +398,17 @@ static iTJSDispatch2 *Create_NC_CSVParser() {
         TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
                                 /*var. type*/ NI_CSVParser);
         if(numparams > 0) {
-            _this->initStorage(param[0]->AsStringNoAddRef(), numparams > 1 && (tjs_int)*param[1] != 0);
+            _this->initStorage(param[0]->AsStringNoAddRef(),
+                               numparams > 1 && (tjs_int)*param[1] != 0);
         }
         _this->parse(objthis);
         return TJS_S_OK;
     }
     TJS_END_NATIVE_METHOD_DECL(/*func. name*/ parseStorage)
 
-    TJS_BEGIN_NATIVE_PROP_DECL(currentLineNumber){ TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
-        /*var. name*/ _this, /*var. type*/ NI_CSVParser);
+    TJS_BEGIN_NATIVE_PROP_DECL(currentLineNumber){
+        TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+            /*var. name*/ _this, /*var. type*/ NI_CSVParser);
     *result = _this->getLineNumber();
     return TJS_S_OK;
 }

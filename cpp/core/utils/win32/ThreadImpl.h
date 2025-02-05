@@ -53,8 +53,9 @@ public:
     // void Suspend();
     void Resume();
 
-    // 	HANDLE GetHandle() const { return Handle; } 	/* win32 specific */
-    // 	DWORD GetThreadId() const { return ThreadId; }  /* win32 specific */
+    // 	HANDLE GetHandle() const { return Handle; } 	/* win32 specific
+    // */ 	DWORD GetThreadId() const { return ThreadId; }  /* win32
+    // specific */
 };
 //---------------------------------------------------------------------------
 

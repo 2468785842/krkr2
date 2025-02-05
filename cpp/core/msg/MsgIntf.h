@@ -33,17 +33,22 @@
 //---------------------------------------------------------------------------
 // Utility Functions
 //---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(ttstr, TVPFormatMessage, (const tjs_char *msg, const ttstr &p1));
+TJS_EXP_FUNC_DEF(ttstr, TVPFormatMessage,
+                 (const tjs_char *msg, const ttstr &p1));
 
-TJS_EXP_FUNC_DEF(ttstr, TVPFormatMessage, (const tjs_char *msg, const ttstr &p1, const ttstr &p2));
+TJS_EXP_FUNC_DEF(ttstr, TVPFormatMessage,
+                 (const tjs_char *msg, const ttstr &p1, const ttstr &p2));
 
 TJS_EXP_FUNC_DEF(void, TVPThrowExceptionMessage, (const tjs_char *msg));
 
-TJS_EXP_FUNC_DEF(void, TVPThrowExceptionMessage, (const tjs_char *msg, const ttstr &p1, tjs_int num));
+TJS_EXP_FUNC_DEF(void, TVPThrowExceptionMessage,
+                 (const tjs_char *msg, const ttstr &p1, tjs_int num));
 
-TJS_EXP_FUNC_DEF(void, TVPThrowExceptionMessage, (const tjs_char *msg, const ttstr &p1));
+TJS_EXP_FUNC_DEF(void, TVPThrowExceptionMessage,
+                 (const tjs_char *msg, const ttstr &p1));
 
-TJS_EXP_FUNC_DEF(void, TVPThrowExceptionMessage, (const tjs_char *msg, const ttstr &p1, const ttstr &p2));
+TJS_EXP_FUNC_DEF(void, TVPThrowExceptionMessage,
+                 (const tjs_char *msg, const ttstr &p1, const ttstr &p2));
 
 TJS_EXP_FUNC_DEF(ttstr, TVPGetAboutString, ());
 
@@ -51,7 +56,8 @@ TJS_EXP_FUNC_DEF(ttstr, TVPGetVersionInformation, ());
 
 TJS_EXP_FUNC_DEF(ttstr, TVPGetVersionString, ());
 
-#define TVPThrowInternalError TVPThrowExceptionMessage(TVPInternalError, __FILE__, __LINE__)
+#define TVPThrowInternalError                                                  \
+    TVPThrowExceptionMessage(TVPInternalError, __FILE__, __LINE__)
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -69,9 +75,12 @@ extern void TVPGetVersion();
         fill these four version field.
 */
 //---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(void, TVPGetSystemVersion, (tjs_int & major, tjs_int &minor, tjs_int &release, tjs_int &build));
+TJS_EXP_FUNC_DEF(void, TVPGetSystemVersion,
+                 (tjs_int & major, tjs_int &minor, tjs_int &release,
+                  tjs_int &build));
 
-TJS_EXP_FUNC_DEF(void, TVPGetTJSVersion, (tjs_int & major, tjs_int &minor, tjs_int &release));
+TJS_EXP_FUNC_DEF(void, TVPGetTJSVersion,
+                 (tjs_int & major, tjs_int &minor, tjs_int &release));
 //---------------------------------------------------------------------------
 
 #endif

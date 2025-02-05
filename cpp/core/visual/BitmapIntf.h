@@ -17,8 +17,9 @@ protected:
 public:
     tTJSNI_Bitmap();
     virtual ~tTJSNI_Bitmap();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
-    void TJS_INTF_METHOD Invalidate();
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
+    void Invalidate();
 
 public:
     tTVPBaseBitmap *GetBitmap() { return Bitmap; }
@@ -34,11 +35,13 @@ public:
 
     iTJSDispatch2 *Load(const ttstr &name, tjs_uint32 colorkey);
     void LoadAsync(const ttstr &name);
-    void Save(const ttstr &name, const ttstr &type, iTJSDispatch2 *meta = nullptr);
+    void Save(const ttstr &name, const ttstr &type,
+              iTJSDispatch2 *meta = nullptr);
 
     void SetSize(tjs_uint width, tjs_uint height, bool keepimage = true);
     // for async load
-    // @param bits : tTVPBitmapBitsAlloc::Alloc‚ÅŠm•Û‚µ‚½‚à‚Ì‚ðŽg—p‚·‚é‚±‚Æ
+    // @param bits :
+    // tTVPBitmapBitsAlloc::Alloc‚ÅŠm•Û‚µ‚½‚à‚Ì‚ðŽg—p‚·‚é‚±‚Æ
     void SetSizeAndImageBuffer(tTVPBitmap *bmp);
 
     void SetWidth(tjs_uint width);

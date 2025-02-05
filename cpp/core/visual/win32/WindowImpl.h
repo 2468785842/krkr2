@@ -32,11 +32,12 @@
 // typedef bool * tTVPWindowMessageReceiver
 //	(void *userdata, tTVPWindowMessage *Message);
 //
-//#define TVP_WM_DETACH (WM_USER+106)  // before re-generating the window
-//#define TVP_WM_ATTACH (WM_USER+107)  // after re-generating the window
-//#define TVP_WM_FULLSCREEN_CHANGING (WM_USER+108)  // before full-screen or
-// window changing #define TVP_WM_FULLSCREEN_CHANGED  (WM_USER+109)  // after
-// full-screen or window changing
+//#define TVP_WM_DETACH (WM_USER+106)  // before re-generating the
+// window #define TVP_WM_ATTACH (WM_USER+107)  // after re-generating
+// the window #define TVP_WM_FULLSCREEN_CHANGING (WM_USER+108)  //
+// before full-screen or
+// window changing #define TVP_WM_FULLSCREEN_CHANGED  (WM_USER+109) //
+// after full-screen or window changing
 
 /*]*/
 //---------------------------------------------------------------------------
@@ -44,9 +45,8 @@
 //---------------------------------------------------------------------------
 /*
 struct tTVP_devicemodeA {
-        // copy of DEVMODE, to avoid windows platform SDK version mismatch
-#pragma pack(push, 1)
-        BYTE   dmDeviceName[CCHDEVICENAME];
+        // copy of DEVMODE, to avoid windows platform SDK version
+mismatch #pragma pack(push, 1) BYTE   dmDeviceName[CCHDEVICENAME];
         WORD dmSpecVersion;
         WORD dmDriverVersion;
         WORD dmSize;
@@ -229,12 +229,14 @@ class tTJSNI_Window : public tTJSNI_BaseWindow {
 
 public:
     tTJSNI_Window();
-    tjs_error Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
     void Invalidate();
     bool CloseFlag;
 
 public:
-    bool CanDeliverEvents() const; // tTJSNI_BaseWindow::CanDeliverEvents override
+    bool
+    CanDeliverEvents() const; // tTJSNI_BaseWindow::CanDeliverEvents override
 
 public:
     TTVPWindowForm *GetForm() const override { return Form; }
@@ -266,7 +268,8 @@ public:
     void SetCursorPos(tjs_int x, tjs_int y) override;
     void WindowReleaseCapture() override;
     void SetHintText(iTJSDispatch2 *sender, const ttstr &text) override;
-    void SetAttentionPoint(tTJSNI_BaseLayer *layer, tjs_int l, tjs_int t) override;
+    void SetAttentionPoint(tTJSNI_BaseLayer *layer, tjs_int l,
+                           tjs_int t) override;
     void DisableAttentionPoint() override;
     void SetImeMode(tTVPImeMode mode) override;
     void SetDefaultImeMode(tTVPImeMode mode);
@@ -290,11 +293,13 @@ public:
     void DetachVideoOverlay();
 
     //-- interface to plugin
-    void ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right, tjs_int &bottom);
+    void ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right,
+                       tjs_int &bottom);
 #if 0
 	HWND GetWindowHandleForPlugin();
 #endif
-    void RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void *proc, const void *userdata);
+    void RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void *proc,
+                                       const void *userdata);
 
     //-- methods
     void Close();
@@ -421,7 +426,8 @@ public:
 
     bool WaitForVBlank(tjs_int *in_vblank, tjs_int *delayed);
 
-    void OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) override;
+    void OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
+                   tjs_uint32 id) override;
 
 public: // for iTVPLayerTreeOwner
         // LayerManager -> LTO
@@ -433,21 +439,25 @@ public: // for iTVPLayerTreeOwner
     */
 
     void StartBitmapCompletion(iTVPLayerManager *manager) override;
-    void NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y, tTVPBaseTexture *bmp,
-                               const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity) override;
+    void NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y,
+                               tTVPBaseTexture *bmp, const tTVPRect &cliprect,
+                               tTVPLayerType type, tjs_int opacity) override;
     void EndBitmapCompletion(iTVPLayerManager *manager) override;
 
     void SetMouseCursor(iTVPLayerManager *manager, tjs_int cursor) override;
-    void GetCursorPos(iTVPLayerManager *manager, tjs_int &x, tjs_int &y) override;
+    void GetCursorPos(iTVPLayerManager *manager, tjs_int &x,
+                      tjs_int &y) override;
     void SetCursorPos(iTVPLayerManager *manager, tjs_int x, tjs_int y) override;
     void ReleaseMouseCapture(iTVPLayerManager *manager) override;
 
-    void SetHint(iTVPLayerManager *manager, iTJSDispatch2 *sender, const ttstr &hint) override;
+    void SetHint(iTVPLayerManager *manager, iTJSDispatch2 *sender,
+                 const ttstr &hint) override;
 
     void NotifyLayerResize(iTVPLayerManager *manager) override;
     void NotifyLayerImageChange(iTVPLayerManager *manager) override;
 
-    void SetAttentionPoint(iTVPLayerManager *manager, tTJSNI_BaseLayer *layer, tjs_int x, tjs_int y) override;
+    void SetAttentionPoint(iTVPLayerManager *manager, tTJSNI_BaseLayer *layer,
+                           tjs_int x, tjs_int y) override;
     void DisableAttentionPoint(iTVPLayerManager *manager) override;
 
     void SetImeMode(iTVPLayerManager *manager,

@@ -51,7 +51,8 @@ void TVPFireOnApplicationActivateEvent(bool activate_or_deactivate) {
 
     try {
         tjs_error er;
-        er = global->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("System"), nullptr, &val, global);
+        er = global->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("System"), nullptr,
+                             &val, global);
         if(TJS_FAILED(er))
             return;
 
@@ -63,16 +64,20 @@ void TVPFireOnApplicationActivateEvent(bool activate_or_deactivate) {
         if(clo.Object == nullptr)
             return;
 
-        clo.PropGet(TJS_MEMBERMUSTEXIST, activate_or_deactivate ? TJS_W("onActivate") : TJS_W("onDeactivate"), nullptr,
-                    &val2, nullptr);
+        clo.PropGet(TJS_MEMBERMUSTEXIST,
+                    activate_or_deactivate ? TJS_W("onActivate")
+                                           : TJS_W("onDeactivate"),
+                    nullptr, &val2, nullptr);
 
         if(val2.Type() != tvtObject)
             return;
 
         func = val2.AsObjectClosureNoAddRef();
     } catch(const eTJS &e) {
-        // the system should not throw exceptions during retrieving the function
-        TVPAddLog(TVPFormatMessage(TVPErrorInRetrievingSystemOnActivateOnDeactivate, e.GetMessage()));
+        // the system should not throw exceptions during retrieving
+        // the function
+        TVPAddLog(TVPFormatMessage(
+            TVPErrorInRetrievingSystemOnActivateOnDeactivate, e.GetMessage()));
         return;
     }
 
@@ -92,7 +97,10 @@ tTJSNC_System::tTJSNC_System() : inherited(TJS_W("System")) {
     TJS_BEGIN_NATIVE_MEMBERS(System)
     TJS_DECL_EMPTY_FINALIZE_METHOD
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(/*TJS class name*/ System) { return TJS_S_OK; }
+    TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(
+        /*TJS class name*/ System) {
+        return TJS_S_OK;
+    }
     TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ System)
     //----------------------------------------------------------------------
 
@@ -135,11 +143,13 @@ tTJSNC_System::tTJSNC_System() : inherited(TJS_W("System")) {
 
         ttstr caption = *param[0], prompt = *param[1];
         // this shows a dialog box which let user to input a string.
-        // return false if the user selects "cancel", otherwise return true.
-        // implement in each platform.
+        // return false if the user selects "cancel", otherwise return
+        // true. implement in each platform.
         std::vector<ttstr> btns;
-        btns.emplace_back(LocaleConfigManager::GetInstance()->GetText("msgbox_ok"));
-        btns.emplace_back(LocaleConfigManager::GetInstance()->GetText("cancel"));
+        btns.emplace_back(
+            LocaleConfigManager::GetInstance()->GetText("msgbox_ok"));
+        btns.emplace_back(
+            LocaleConfigManager::GetInstance()->GetText("cancel"));
         int ret = TVPShowSimpleInputBox(value, caption, prompt, btns);
         bool b = ret == 0; // the left button clicked
 
@@ -154,7 +164,8 @@ tTJSNC_System::tTJSNC_System() : inherited(TJS_W("System")) {
     }
     TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ inputString)
     //---------------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ addContinuousHandler) {
+    TJS_BEGIN_NATIVE_METHOD_DECL(
+        /*func. name*/ addContinuousHandler) {
         // add function to continus handler list
 
         if(numparams < 1)
@@ -166,9 +177,11 @@ tTJSNC_System::tTJSNC_System() : inherited(TJS_W("System")) {
 
         return TJS_S_OK;
     }
-    TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ addContinuousHandler)
+    TJS_END_NATIVE_STATIC_METHOD_DECL(
+        /*func. name*/ addContinuousHandler)
     //---------------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ removeContinuousHandler) {
+    TJS_BEGIN_NATIVE_METHOD_DECL(
+        /*func. name*/ removeContinuousHandler) {
         // remove function from continuous handler list
 
         if(numparams < 1)
@@ -180,7 +193,8 @@ tTJSNC_System::tTJSNC_System() : inherited(TJS_W("System")) {
 
         return TJS_S_OK;
     }
-    TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ removeContinuousHandler)
+    TJS_END_NATIVE_STATIC_METHOD_DECL(
+        /*func. name*/ removeContinuousHandler)
     //---------------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ toActualColor) {
         // convert color codes to 0xRRGGBB format.
@@ -204,7 +218,8 @@ tTJSNC_System::tTJSNC_System() : inherited(TJS_W("System")) {
 
         return TJS_S_OK;
     }
-    TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ clearGraphicCache)
+    TJS_END_NATIVE_STATIC_METHOD_DECL(
+        /*func. name*/ clearGraphicCache)
     //---------------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ touchImages) {
         // try to cache graphics
@@ -218,7 +233,8 @@ tTJSNC_System::tTJSNC_System() : inherited(TJS_W("System")) {
         tjs_int count = 0;
         while(true) {
             tTJSVariant val;
-            if(TJS_FAILED(array.Object->PropGetByNum(0, count, &val, array.ObjThis)))
+            if(TJS_FAILED(
+                   array.Object->PropGetByNum(0, count, &val, array.ObjThis)))
                 break;
             if(val.Type() == tvtVoid)
                 break;
@@ -242,7 +258,8 @@ tTJSNC_System::tTJSNC_System() : inherited(TJS_W("System")) {
     //---------------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ createUUID) {
         // create UUID
-        // return UUID string in form of "43abda37-c597-4646-a279-c27a1373af90"
+        // return UUID string in form of
+        // "43abda37-c597-4646-a279-c27a1373af90"
 
         tjs_uint8 uuid[16];
 
@@ -254,10 +271,12 @@ tTJSNC_System::tTJSNC_System() : inherited(TJS_W("System")) {
         uuid[6] &= 0x0f;
         uuid[6] |= 0x40; // override version
 
-        ttstr buf{ fmt::format("{:02x}{:02x}{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}-{"
-                               ":02x}{:02x}-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}",
-                               uuid[0], uuid[1], uuid[2], uuid[3], uuid[4], uuid[5], uuid[6], uuid[7], uuid[8], uuid[9],
-                               uuid[10], uuid[11], uuid[12], uuid[13], uuid[14], uuid[15]) };
+        ttstr buf{ fmt::format(
+            "{:02x}{:02x}{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}-{"
+            ":02x}{:02x}-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}",
+            uuid[0], uuid[1], uuid[2], uuid[3], uuid[4], uuid[5], uuid[6],
+            uuid[7], uuid[8], uuid[9], uuid[10], uuid[11], uuid[12], uuid[13],
+            uuid[14], uuid[15]) };
 
         if(result)
             *result = tTJSVariant(buf);
@@ -302,7 +321,8 @@ tTJSNC_System::tTJSNC_System() : inherited(TJS_W("System")) {
     //--properties
 
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(versionString){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetVersionString();
+    TJS_BEGIN_NATIVE_PROP_DECL(versionString){
+        TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetVersionString();
     return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -311,7 +331,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(versionString)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(versionInformation){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetVersionInformation();
+TJS_BEGIN_NATIVE_PROP_DECL(versionInformation){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetVersionInformation();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -320,7 +341,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(versionInformation)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(eventDisabled){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetSystemEventDisabledState();
+TJS_BEGIN_NATIVE_PROP_DECL(eventDisabled){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetSystemEventDisabledState();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -347,7 +369,8 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(graphicCacheLimit)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(platformName){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetPlatformName();
+TJS_BEGIN_NATIVE_PROP_DECL(platformName){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetPlatformName();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -356,7 +379,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(platformName)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(osName){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetOSName();
+TJS_BEGIN_NATIVE_PROP_DECL(osName){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetOSName();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -365,7 +389,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(osName)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(exitOnWindowClose){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPTerminateOnWindowClose;
+TJS_BEGIN_NATIVE_PROP_DECL(exitOnWindowClose){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPTerminateOnWindowClose;
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -378,7 +403,8 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(exitOnWindowClose)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(drawThreadNum){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPDrawThreadNum;
+TJS_BEGIN_NATIVE_PROP_DECL(drawThreadNum){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPDrawThreadNum;
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -391,7 +417,8 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(drawThreadNum)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(processorNum){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetProcessorNum();
+TJS_BEGIN_NATIVE_PROP_DECL(processorNum){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetProcessorNum();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -414,7 +441,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(exeBits)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(osBits){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetOSBits();
+TJS_BEGIN_NATIVE_PROP_DECL(osBits){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPGetOSBits();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER

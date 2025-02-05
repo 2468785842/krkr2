@@ -37,10 +37,12 @@ private:
     bool Backuped; // whether "Object" is backuped to "BackupedObject"
 
     void InternalAssign(const tVoidObjectList &ref) {
-        // this internal function does not free the array previously allocated.
-        // only "Objects" ( not "BackupedObjects" ) is copied.
+        // this internal function does not free the array previously
+        // allocated. only "Objects" ( not "BackupedObjects" ) is
+        // copied.
         if(ref.Count) {
-            // Objects = (void **)TJS_malloc(ref.Count * sizeof(void *) );
+            // Objects = (void **)TJS_malloc(ref.Count * sizeof(void
+            // *) );
             Objects = new ObjT *[ref.Count];
             memcpy(Objects, ref.Objects, ref.Count * sizeof(ObjT *));
         } else {
@@ -52,7 +54,8 @@ private:
     void Backup() {
         // backup current "Objects" to "BackupedObjects"
         if(Count) {
-            // BackupedObjects = (void**)TJS_malloc(Count * sizeof(void *) );
+            // BackupedObjects = (void**)TJS_malloc(Count *
+            // sizeof(void *) );
             BackupedObjects = new ObjT *[Count];
             memcpy(BackupedObjects, Objects, Count * sizeof(ObjT *));
         } else {
@@ -144,7 +147,8 @@ public:
 
     tjs_int GetActualCount() {
         // this does Compact() before returning current Count,
-        // ensuring returned count is actual object count in the array.
+        // ensuring returned count is actual object count in the
+        // array.
         Compact();
         return Count;
     }
@@ -168,7 +172,8 @@ public:
                 }
                 delete[] Objects;
                 Objects = tmp;
-                // Objects = (void**)TJS_realloc(Objects, Capacity * sizeof(void
+                // Objects = (void**)TJS_realloc(Objects, Capacity *
+                // sizeof(void
                 // *));
             } else if(Objects)
                 delete[] Objects, Objects = nullptr;
@@ -194,7 +199,8 @@ public:
         Count = (tjs_int)(d - Objects);
         Capacity = Count;
         if(Count) {
-            // Objects = (void**)TJS_realloc(Objects, Count * sizeof(void *));
+            // Objects = (void**)TJS_realloc(Objects, Count *
+            // sizeof(void *));
             ObjT **tmp = new ObjT *[Count];
             memcpy(tmp, Objects, Count * sizeof(ObjT *));
             delete[] Objects;
@@ -261,7 +267,8 @@ public:
         }
         if(Backuped && object) {
             // remove also from BackupedObjects
-            ObjT **s = BackupedObjects, **slim = BackupedObjects + BackupedCount;
+            ObjT **s = BackupedObjects,
+                 **slim = BackupedObjects + BackupedCount;
             while(s < slim) {
                 if(*s == object) {
                     *s = nullptr;
@@ -280,7 +287,8 @@ public:
         Objects[index] = nullptr;
         if(Backuped && object) {
             // remove also from BackupedObjects
-            ObjT **s = BackupedObjects, **slim = BackupedObjects + BackupedCount;
+            ObjT **s = BackupedObjects,
+                 **slim = BackupedObjects + BackupedCount;
             while(s < slim) {
                 if(*s == object) {
                     *s = nullptr;
@@ -314,9 +322,13 @@ public:
 
     void SafeUnlock() { List.SafeUnlock(); }
 
-    tjs_int GetSafeLockedObjectCount() const { return List.GetSafeLockedObjectCount(); }
+    tjs_int GetSafeLockedObjectCount() const {
+        return List.GetSafeLockedObjectCount();
+    }
 
-    ObjT *GetSafeLockedObjectAt(tjs_int index) const { return List.GetSafeLockedObjectAt(index); }
+    ObjT *GetSafeLockedObjectAt(tjs_int index) const {
+        return List.GetSafeLockedObjectAt(index);
+    }
 
     tjs_int GetCount() const { return List.GetCount(); }
 
@@ -348,7 +360,9 @@ private:
     tVoidObjectList<ObjT> &List;
 
 public:
-    tVoidObjectListSafeLockHolder(tVoidObjectList<ObjT> &list) : List(list) { List.SafeLock(); }
+    tVoidObjectListSafeLockHolder(tVoidObjectList<ObjT> &list) : List(list) {
+        List.SafeLock();
+    }
 
     ~tVoidObjectListSafeLockHolder() { List.SafeUnlock(); }
 };
@@ -360,7 +374,9 @@ private:
     tObjectList<ObjT> &List;
 
 public:
-    tObjectListSafeLockHolder(tObjectList<ObjT> &list) : List(list) { List.SafeLock(); }
+    tObjectListSafeLockHolder(tObjectList<ObjT> &list) : List(list) {
+        List.SafeLock();
+    }
 
     ~tObjectListSafeLockHolder() { List.SafeUnlock(); }
 };

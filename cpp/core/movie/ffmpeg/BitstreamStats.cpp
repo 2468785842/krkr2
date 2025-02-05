@@ -19,7 +19,9 @@ BitstreamStats::BitstreamStats(unsigned int nEstimatedBitrate) {
 
 BitstreamStats::~BitstreamStats() {}
 
-void BitstreamStats::AddSampleBytes(unsigned int nBytes) { AddSampleBits(nBytes * 8); }
+void BitstreamStats::AddSampleBytes(unsigned int nBytes) {
+    AddSampleBits(nBytes * 8);
+}
 
 void BitstreamStats::AddSampleBits(unsigned int nBits) {
     m_nBitCount += nBits;

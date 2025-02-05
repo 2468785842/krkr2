@@ -59,17 +59,22 @@ void TVPGetMemoryInfo(TVPMemoryInfo &m) {
 // 	return 0;
 // }
 
-void *dlopen(const char *filename, int flag) { return (void *)LoadLibraryA(filename); }
+void *dlopen(const char *filename, int flag) {
+    return (void *)LoadLibraryA(filename);
+}
 
-void *dlsym(void *handle, const char *funcname) { return (void *)GetProcAddress((HMODULE)handle, funcname); }
+void *dlsym(void *handle, const char *funcname) {
+    return (void *)GetProcAddress((HMODULE)handle, funcname);
+}
 
 extern "C" int usleep(unsigned long us) {
     Sleep(us / 1000);
     return 0;
 }
 
-// extern "C" __declspec(dllimport) int __cdecl __wgetmainargs(int * _Argc,
-// wchar_t *** _Argv, wchar_t *** _Env, int _DoWildCard, void * _StartInfo);
+// extern "C" __declspec(dllimport) int __cdecl __wgetmainargs(int *
+// _Argc, wchar_t *** _Argv, wchar_t *** _Env, int _DoWildCard, void *
+// _StartInfo);
 std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 std::string TVPGetDefaultFileDir() {
     wchar_t buf[MAX_PATH];
@@ -84,34 +89,40 @@ std::string TVPGetDefaultFileDir() {
 }
 
 int TVPCheckArchive(const ttstr &localname);
-void TVPCheckAndSendDumps(const std::string &dumpdir, const std::string &packageName, const std::string &versionStr);
+void TVPCheckAndSendDumps(const std::string &dumpdir,
+                          const std::string &packageName,
+                          const std::string &versionStr);
 bool TVPCheckStartupArg() {
     int argc;
     wchar_t **argv = CommandLineToArgvW(GetCommandLineW(), &argc);
     //	__wgetmainargs(&argc, &argv, &env, 0, &info);
-    TVPCheckAndSendDumps(TVPGetDefaultFileDir() + "/dumps", "win32-test", "test");
+    TVPCheckAndSendDumps(TVPGetDefaultFileDir() + "/dumps", "win32-test",
+                         "test");
     if(argc > 1) {
         if(TVPCheckExistentLocalFile(argv[1])) {
             if(TVPCheckArchive(argv[1]) == 1) {
-                TVPMainScene::GetInstance()->startupFrom(converter.to_bytes(argv[1]));
+                TVPMainScene::GetInstance()->startupFrom(
+                    converter.to_bytes(argv[1]));
                 return true;
             }
             return false;
         }
         bool bootable = false;
-        TVPListDir(converter.to_bytes(argv[1]), [&](const std::string &_name, int mask) {
-            if(mask & (S_IFREG)) {
-                std::string name(_name);
-                std::transform(name.begin(), name.end(), name.begin(), [](int c) -> int {
-                    if(c <= 'Z' && c >= 'A')
-                        return c - ('A' - 'a');
-                    return c;
-                });
-                if(name == "startup.tjs") {
-                    bootable = true;
-                }
-            }
-        });
+        TVPListDir(converter.to_bytes(argv[1]),
+                   [&](const std::string &_name, int mask) {
+                       if(mask & (S_IFREG)) {
+                           std::string name(_name);
+                           std::transform(name.begin(), name.end(),
+                                          name.begin(), [](int c) -> int {
+                                              if(c <= 'Z' && c >= 'A')
+                                                  return c - ('A' - 'a');
+                                              return c;
+                                          });
+                           if(name == "startup.tjs") {
+                               bootable = true;
+                           }
+                       }
+                   });
         for(int i = 2; i < argc; ++i) {
             std::wstring str = argv[i];
             size_t pos = str.find(L'=');
@@ -123,22 +134,26 @@ bool TVPCheckStartupArg() {
             }
         }
         if(bootable) {
-            TVPMainScene::GetInstance()->startupFrom(converter.to_bytes(argv[1]));
+            TVPMainScene::GetInstance()->startupFrom(
+                converter.to_bytes(argv[1]));
             return true;
         }
     }
     return false;
 }
 
-int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption, const std::vector<ttstr> &vecButtons) {
+int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
+                            const std::vector<ttstr> &vecButtons) {
     // there has no implement under android
     switch(vecButtons.size()) {
         case 1:
-            MessageBoxW(0, text.c_str(), caption.c_str(), /*MB_OK*/ 0);
+            MessageBoxW(0, text.c_str(), caption.c_str(),
+                        /*MB_OK*/ 0);
             return 0;
             break;
         case 2:
-            switch(MessageBoxW(0, text.c_str(), caption.c_str(), /*MB_YESNO*/ 4)) {
+            switch(MessageBoxW(0, text.c_str(), caption.c_str(),
+                               /*MB_YESNO*/ 4)) {
                 case 6:
                     return 0;
                 default:
@@ -149,7 +164,9 @@ int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption, const std::
     return -1;
 }
 
-extern "C" int TVPShowSimpleMessageBox(const char *pszText, const char *pszTitle, unsigned int nButton,
+extern "C" int TVPShowSimpleMessageBox(const char *pszText,
+                                       const char *pszTitle,
+                                       unsigned int nButton,
                                        const char **btnText) {
     std::vector<ttstr> vecButtons;
     for(unsigned int i = 0; i < nButton; ++i) {
@@ -239,7 +256,8 @@ bool TVPCreateFolders(const ttstr &folder) {
     return _TVPCreateFolders(ttstr(p, i + 1));
 }
 
-bool TVPWriteDataToFile(const ttstr &filepath, const void *data, unsigned int len) {
+bool TVPWriteDataToFile(const ttstr &filepath, const void *data,
+                        unsigned int len) {
     FILE *handle = _wfopen(filepath.c_str(), L"wb");
     if(handle) {
         bool ret = fwrite(data, 1, len, handle) == len;
@@ -255,7 +273,8 @@ std::string TVPGetCurrentLanguage() {
     char code[10] = { 0 };
     char country[10] = { 0 };
     GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, code, sizeof(code));
-    GetLocaleInfoA(locale_id, LOCALE_SISO3166CTRYNAME, country, sizeof(country));
+    GetLocaleInfoA(locale_id, LOCALE_SISO3166CTRYNAME, country,
+                   sizeof(country));
     std::string ret = code;
     if(country[0]) {
         for(int i = 0; i < sizeof(country) && country[i]; ++i) {
@@ -287,10 +306,13 @@ void TVPExitApplication(int code) {
 
 // const std::string &TVPGetInternalPreferencePath() {
 // 	static std::string
-// ret(cocos2d::FileUtils::getInstance()->getWritablePath()); 	return ret;
+// ret(cocos2d::FileUtils::getInstance()->getWritablePath()); 	return
+// ret;
 // }
 
-bool TVPDeleteFile(const std::string &filename) { return _wunlink(ttstr(filename).c_str()) == 0; }
+bool TVPDeleteFile(const std::string &filename) {
+    return _wunlink(ttstr(filename).c_str()) == 0;
+}
 
 bool TVPRenameFile(const std::string &from, const std::string &to) {
 #ifdef WIN32

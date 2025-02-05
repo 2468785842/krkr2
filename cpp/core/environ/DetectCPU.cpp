@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -18,8 +19,8 @@
 #include "Exception.h"
 
 /*
-        Note: CPU clock measuring routine is in EmergencyExit.cpp, reusing
-        hot-key watching thread.
+        Note: CPU clock measuring routine is in EmergencyExit.cpp,
+   reusing hot-key watching thread.
 */
 
 //---------------------------------------------------------------------------
@@ -49,7 +50,7 @@ static void TVPGetCPUTypeForOne() {
     // 	{
     // 		__try
     // 		{
-    // 			__emit__(0x0f, 0x57, 0xc0); // xorps xmm0, xmm0   (SSE)
+    // 			__emit__(0x0f, 0x57, 0xc0); // xorps xmm0, xmm0 (SSE)
     // 		}
     // 		__except(EXCEPTION_EXECUTE_HANDLER)
     // 		{
@@ -107,21 +108,23 @@ static ttstr TVPDumpCPUInfo(tjs_int cpu_num) {
     //
     // #undef TVP_DUMP_CPU
 
-    //	features += TJS_W("(") + ttstr((const tjs_nchar *)TVPCPUVendor) +
+    //	features += TJS_W("(") + ttstr((const tjs_nchar
+    //*)TVPCPUVendor) +
     // TJS_W(")");
 
     // 	if(TVPCPUName[0]!=0)
-    // 		features += TJS_W(" [") + ttstr((const tjs_nchar *)TVPCPUName) +
-    // TJS_W("]");
+    // 		features += TJS_W(" [") + ttstr((const tjs_nchar
+    // *)TVPCPUName) + TJS_W("]");
 
-    // 	features += TJS_W("  CPUID(1)/EAX=") + TJSInt32ToHex(TVPCPUID1_EAX);
-    // 	features += TJS_W(" CPUID(1)/EBX=") + TJSInt32ToHex(TVPCPUID1_EBX);
+    // 	features += TJS_W("  CPUID(1)/EAX=") +
+    // TJSInt32ToHex(TVPCPUID1_EAX); 	features += TJS_W("
+    // CPUID(1)/EBX=") + TJSInt32ToHex(TVPCPUID1_EBX);
 
     TVPAddImportantLog(features);
 
     // 	if(((TVPCPUID1_EAX >> 8) & 0x0f) <= 4)
-    // 		throw Exception("CPU check failure: CPU family 4 or lesser is
-    // not supported\r\n"+ 		features.AsAnsiString());
+    // 		throw Exception("CPU check failure: CPU family 4 or lesser
+    // is not supported\r\n"+ 		features.AsAnsiString());
 
     return features;
 }
@@ -154,10 +157,11 @@ void TVPDetectCPU() {
         return;
     TVPCPUChecked = true;
 
-    // if(SDL_HasSSE2()) TVPCPUFeatures |= TVP_CPU_HAS_SSE2 | TVP_CPU_HAS_EMMX;
-    // if(SDL_HasSSE())  TVPCPUFeatures |= TVP_CPU_HAS_SSE;
-    // if(SDL_HasMMX())  TVPCPUFeatures |= TVP_CPU_HAS_MMX;
-    // if(SDL_HasSSE2()) TVPCPUFeatures |= TVP_CPU_HAS_SSE2;
+    // if(SDL_HasSSE2()) TVPCPUFeatures |= TVP_CPU_HAS_SSE2 |
+    // TVP_CPU_HAS_EMMX; if(SDL_HasSSE())  TVPCPUFeatures |=
+    // TVP_CPU_HAS_SSE; if(SDL_HasMMX())  TVPCPUFeatures |=
+    // TVP_CPU_HAS_MMX; if(SDL_HasSSE2()) TVPCPUFeatures |=
+    // TVP_CPU_HAS_SSE2;
 #if defined(__ANDROID__) || defined(WIN32)
     // if (android_getCpuFamily() == ANDROID_CPU_FAMILY_ARM) {
     TVPCPUFeatures |= TVP_CPU_FAMILY_ARM; // must be arm
@@ -198,17 +202,17 @@ void TVPDetectCPU() {
     // 		if(pam & (1<<cpu))
     // 		{
     // 			tTVPCPUCheckThread * thread = new
-    // tTVPCPUCheckThread(1<<cpu); 			thread->WaitEnd(); 			bool
-    // succeeded = thread->GetSucceeded(); 			delete thread;
-    // if(!succeeded) throw Exception("CPU check failure");
+    // tTVPCPUCheckThread(1<<cpu); 			thread->WaitEnd();
+    // bool succeeded = thread->GetSucceeded(); 			delete
+    // thread; if(!succeeded) throw Exception("CPU check failure");
     // cpuinfo += TVPDumpCPUInfo(cpu) + TJS_W("\r\n");
     //
     // 			// mask features
     // 			if(first)
     // 			{
     // 				features =  (TVPCPUFeatures &
-    // TVP_CPU_FEATURE_MASK); 				TVPCPUType = TVPCPUFeatures;
-    // first = false;
+    // TVP_CPU_FEATURE_MASK); 				TVPCPUType =
+    // TVPCPUFeatures; first = false;
     // 			}
     // 			else
     // 			{
@@ -229,10 +233,11 @@ void TVPDetectCPU() {
     TVPDisableCPU(TVP_CPU_HAS_NEON, TJS_W("-cpuneon"));
 
     // 	if(TVPCPUType == 0)
-    // 		throw Exception("CPU check failure: Not supported CPU\r\n" +
-    // 		cpuinfo.AsAnsiString());
+    // 		throw Exception("CPU check failure: Not supported CPU\r\n"
+    // + 		cpuinfo.AsAnsiString());
     //
-    // 	TVPAddImportantLog(TJS_W("(info) finally detected CPU features : ") +
+    // 	TVPAddImportantLog(TJS_W("(info) finally detected CPU features
+    // : ") +
     //     	TVPDumpCPUFeatures(TVPCPUType));
 }
 //---------------------------------------------------------------------------

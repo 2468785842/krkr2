@@ -56,12 +56,14 @@ namespace TJS {
 #define TJS_SUCCEEDED(x) (!TJS_FAILED(x))
 
     static inline bool TJSIsObjectValid(tjs_error hr) {
-        // checks object validity by returning value of iTJSDispatch2::IsValid
+        // checks object validity by returning value of
+        // iTJSDispatch2::IsValid
 
         if(hr == TJS_S_TRUE)
             return true; // mostly expected value for valid object
         if(hr == TJS_E_NOTIMPL)
-            return true; // also valid for object which does not implement IsValid
+            return true; // also valid for object which does not
+                         // implement IsValid
 
         return false; // otherwise the object is not valid
     }

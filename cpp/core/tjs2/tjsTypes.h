@@ -6,7 +6,7 @@
         See details of license at "license.txt"
 */
 /*---------------------------------------------------------------------------*/
-/* "TJS2" type definitions                                                   */
+/* "TJS2" type definitions */
 /*---------------------------------------------------------------------------*/
 
 #ifndef __TJSTYPES_H__
@@ -15,12 +15,15 @@
 #include <stdint.h>
 #include <stddef.h> // ptrdiff_t
 
-/* Functions that needs to be exported ( for non-class-member functions ) */
-/* This should only be applyed for function declaration in headers ( not body )
+/* Functions that needs to be exported ( for non-class-member
+ * functions ) */
+/* This should only be applyed for function declaration in headers (
+ * not body )
  */
 #define TJS_EXP_FUNC_DEF(rettype, name, arg) extern rettype name arg
 
-/* Functions that needs to be exported ( for class-member functions ) */
+/* Functions that needs to be exported ( for class-member functions )
+ */
 #define TJS_METHOD_DEF(rettype, name, arg) rettype name arg
 #define TJS_CONST_METHOD_DEF(rettype, name, arg) rettype name arg const
 #define TJS_STATIC_METHOD_DEF(rettype, name, arg) static rettype name arg
@@ -58,9 +61,9 @@ typedef double tjs_real;
 #define TJS_HOST_IS_BIG_ENDIAN 0
 #define TJS_HOST_IS_LITTLE_ENDIAN 1
 
-#ifndef TJS_INTF_METHOD
-#define TJS_INTF_METHOD
-/* TJS_INTF_METHOD is "cdecl" (by default)
+#ifndef
+#define
+/* is "cdecl" (by default)
         since TJS2 2.4.14 (kirikir2 2.25 beta 1) */
 #endif
 
@@ -127,7 +130,6 @@ typedef uintptr_t tjs_uintptr_t;
 #define TJS_HOST_IS_LITTLE_ENDIAN 1
 #endif
 
-#define TJS_INTF_METHOD
 #define TJS_USERENTRY
 
 #endif /* end of defined(_WIN32) && !defined(__GNUC__) */
@@ -143,8 +145,8 @@ typedef size_t tjs_size;
 typedef ptrdiff_t tjs_offset;
 
 /* IEEE double manipulation support
- (TJS requires IEEE double(64-bit float) native support on machine or C++
- compiler) */
+ (TJS requires IEEE double(64-bit float) native support on machine or
+ C++ compiler) */
 
 /*
 
@@ -173,31 +175,36 @@ s = sign,  negative if this is 1, otherwise positive.
 #define TJS_IEEE_D_SIGNIFICAND_MSB_MASK (TJS_UI64_VAL(0x0008000000000000))
 
 #define TJS_IEEE_D_GET_SIGN(x) (0 != (x & TJS_IEEE_D_SIGN_MASK))
-#define TJS_IEEE_D_GET_EXP(x)                                                                                          \
-    ((tjs_int)(((x & TJS_IEEE_D_EXP_MASK) >> TJS_IEEE_D_SIGNIFICAND_BITS) - TJS_IEEE_D_EXP_BIAS))
+#define TJS_IEEE_D_GET_EXP(x)                                                  \
+    ((tjs_int)(((x & TJS_IEEE_D_EXP_MASK) >> TJS_IEEE_D_SIGNIFICAND_BITS) -    \
+               TJS_IEEE_D_EXP_BIAS))
 #define TJS_IEEE_D_GET_SIGNIFICAND(x) (x & TJS_IEEE_D_SIGNIFICAND_MASK)
 
 /* component composition */
-#define TJS_IEEE_D_MAKE_SIGN(x) ((x) ? TJS_UI64_VAL(0x8000000000000000) : TJS_UI64_VAL(0))
+#define TJS_IEEE_D_MAKE_SIGN(x)                                                \
+    ((x) ? TJS_UI64_VAL(0x8000000000000000) : TJS_UI64_VAL(0))
 #define TJS_IEEE_D_MAKE_EXP(x) ((tjs_uint64)(x + TJS_IEEE_D_EXP_BIAS) << 52)
 #define TJS_IEEE_D_MAKE_SIGNIFICAND(x) ((tjs_uint64)(x))
 
 /* special expression */
 /* (quiet) NaN */
-#define TJS_IEEE_D_P_NaN (tjs_uint64)(TJS_IEEE_D_EXP_MASK | TJS_IEEE_D_SIGNIFICAND_MSB_MASK)
+#define TJS_IEEE_D_P_NaN                                                       \
+    (tjs_uint64)(TJS_IEEE_D_EXP_MASK | TJS_IEEE_D_SIGNIFICAND_MSB_MASK)
 #define TJS_IEEE_D_N_NaN (tjs_uint64)(TJS_IEEE_D_SIGN_MASK | TJS_IEEE_D_P_NaN)
 /* infinite */
 #define TJS_IEEE_D_P_INF (tjs_uint64)(TJS_IEEE_D_EXP_MASK)
 #define TJS_IEEE_D_N_INF (tjs_uint64)(TJS_IEEE_D_SIGN_MASK | TJS_IEEE_D_P_INF)
 
 /* special expression check */
-#define TJS_IEEE_D_IS_NaN(x)                                                                                           \
-    ((TJS_IEEE_D_EXP_MASK & (x)) == TJS_IEEE_D_EXP_MASK) &&                                                            \
-        (((x)&TJS_IEEE_D_SIGNIFICAND_MSB_MASK) ||                                                                      \
-         (!((x)&TJS_IEEE_D_SIGNIFICAND_MSB_MASK) &&                                                                    \
-          ((x) & (TJS_IEEE_D_SIGNIFICAND_MASK ^ TJS_IEEE_D_SIGNIFICAND_MSB_MASK))))
-#define TJS_IEEE_D_IS_INF(x)                                                                                           \
-    (((TJS_IEEE_D_EXP_MASK & (x)) == TJS_IEEE_D_EXP_MASK) && (!((x)&TJS_IEEE_D_SIGNIFICAND_MASK)))
+#define TJS_IEEE_D_IS_NaN(x)                                                   \
+    ((TJS_IEEE_D_EXP_MASK & (x)) == TJS_IEEE_D_EXP_MASK) &&                    \
+        (((x)&TJS_IEEE_D_SIGNIFICAND_MSB_MASK) ||                              \
+         (!((x)&TJS_IEEE_D_SIGNIFICAND_MSB_MASK) &&                            \
+          ((x) &                                                               \
+           (TJS_IEEE_D_SIGNIFICAND_MASK ^ TJS_IEEE_D_SIGNIFICAND_MSB_MASK))))
+#define TJS_IEEE_D_IS_INF(x)                                                   \
+    (((TJS_IEEE_D_EXP_MASK & (x)) == TJS_IEEE_D_EXP_MASK) &&                   \
+     (!((x)&TJS_IEEE_D_SIGNIFICAND_MASK)))
 
 /*]*/
 

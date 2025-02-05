@@ -28,7 +28,9 @@ namespace TJSPP {
         return n;
     }
 
-    void parser::error(const std::string &msg) { spdlog::get("tjs2")->critical(msg); }
+    void parser::error(const std::string &msg) {
+        spdlog::get("tjs2")->critical(msg);
+    }
     //---------------------------------------------------------------------------
     // TJS_iswspace
     static bool inline TJS_iswspace(tjs_char ch) {
@@ -68,8 +70,8 @@ namespace TJSPP {
     // tTJSPPExprParser
     //---------------------------------------------------------------------------
     tTJSPPExprParser::tTJSPPExprParser(tTJS *tjs, const tjs_char *script) {
-        // script pointed by "script" argument will be released by this class
-        // via delete[]
+        // script pointed by "script" argument will be released by
+        // this class via delete[]
         TJS = tjs;
         Script = script;
     }
@@ -210,7 +212,9 @@ namespace TJSPP {
         }
 
         const tjs_char *st = Current;
-        while((TJS_iswalpha(*Current) || TJS_iswdigit(*Current) || *Current == TJS_W('_')) && *Current)
+        while((TJS_iswalpha(*Current) || TJS_iswdigit(*Current) ||
+               *Current == TJS_W('_')) &&
+              *Current)
             Current++;
 
         ttstr str(st, (int)(Current - st));
@@ -222,5 +226,7 @@ namespace TJSPP {
     }
 
     //---------------------------------------------------------------------------
-    const tjs_char *tTJSPPExprParser::GetString(tjs_int idx) const { return IDs[idx].c_str(); }
+    const tjs_char *tTJSPPExprParser::GetString(tjs_int idx) const {
+        return IDs[idx].c_str();
+    }
 } // namespace TJSPP

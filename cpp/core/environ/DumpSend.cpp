@@ -13,7 +13,8 @@
 #include <iomanip>
 #include <condition_variable>
 
-static void ClearDumps(const std::string &dumpdir, std::vector<std::string> &allDumps) {
+static void ClearDumps(const std::string &dumpdir,
+                       std::vector<std::string> &allDumps) {
     for(const std::string &path : allDumps) {
         remove((dumpdir + "/" + path).c_str());
     }
@@ -23,18 +24,22 @@ static void ClearDumps(const std::string &dumpdir, std::vector<std::string> &all
 static std::map<std::string, tTVPMemoryStream *> _inmemFiles;
 
 struct zlib_inmem_func64 : public zlib_filefunc64_def {
-    static voidpf ZCALLBACK fopen64_file_func(voidpf opaque, const void *filename, int mode) {
+    static voidpf ZCALLBACK fopen64_file_func(voidpf opaque,
+                                              const void *filename, int mode) {
         tTVPMemoryStream *str = new tTVPMemoryStream;
         _inmemFiles[(const char *)filename] = str;
         return str;
     }
 
-    static u_int32_t ZCALLBACK fread_file_func(voidpf opaque, voidpf stream, void *buf, u_int32_t size) {
+    static u_int32_t ZCALLBACK fread_file_func(voidpf opaque, voidpf stream,
+                                               void *buf, u_int32_t size) {
         tTVPMemoryStream *str = (tTVPMemoryStream *)stream;
         return str->Read(buf, size);
     }
 
-    static u_int32_t ZCALLBACK fwrite_file_func(voidpf opaque, voidpf stream, const void *buf, u_int32_t size) {
+    static u_int32_t ZCALLBACK fwrite_file_func(voidpf opaque, voidpf stream,
+                                                const void *buf,
+                                                u_int32_t size) {
         tTVPMemoryStream *str = (tTVPMemoryStream *)stream;
         return str->Write(buf, size);
     }
@@ -44,7 +49,8 @@ struct zlib_inmem_func64 : public zlib_filefunc64_def {
         return str->GetPosition();
     }
 
-    static long ZCALLBACK fseek64_file_func(voidpf opaque, voidpf stream, uint64_t offset, int origin) {
+    static long ZCALLBACK fseek64_file_func(voidpf opaque, voidpf stream,
+                                            uint64_t offset, int origin) {
         int fseek_origin = TJS_BS_SEEK_SET;
         switch(origin) {
             case ZLIB_FILEFUNC_SEEK_CUR:
@@ -64,9 +70,13 @@ struct zlib_inmem_func64 : public zlib_filefunc64_def {
         return 0;
     }
 
-    static int ZCALLBACK fclose_file_func(voidpf opaque, voidpf stream) { return 0; }
+    static int ZCALLBACK fclose_file_func(voidpf opaque, voidpf stream) {
+        return 0;
+    }
 
-    static int ZCALLBACK ferror_file_func(voidpf opaque, voidpf stream) { return 0; }
+    static int ZCALLBACK ferror_file_func(voidpf opaque, voidpf stream) {
+        return 0;
+    }
 
     zlib_inmem_func64() {
         zopen64_file = fopen64_file_func;
@@ -124,8 +134,8 @@ uint32_t convert_to_dos_date(const struct tm *time) {
 }
 
 #define FLAG_UTF8 (1 << 11)
-static void SendDumps(std::string dumpdir, std::vector<std::string> allDumps, std::string packageName,
-                      std::string versionStr) {
+static void SendDumps(std::string dumpdir, std::vector<std::string> allDumps,
+                      std::string packageName, std::string versionStr) {
     std::mutex _mutex;
     std::condition_variable _cond;
     for(const std::string &filename : allDumps) {
@@ -158,12 +168,15 @@ static void SendDumps(std::string dumpdir, std::vector<std::string> allDumps, st
             crcFile = crc32(crcFile, (const Bytef *)&buf[0], buf.size());
             // ¥Õ¥¡¥¤¥ë¤Î×·¼Ó
             // UTF8¤Ç¸ñ¼{¤¹¤ë
-            zipFile zf = zipOpen2_64((const void *)filename.c_str(), 0, nullptr, GetZlibIOFunc());
+            zipFile zf = zipOpen2_64((const void *)filename.c_str(), 0, nullptr,
+                                     GetZlibIOFunc());
             if(zf == nullptr) {
                 break;
             }
-            if(zipOpenNewFileInZip4(zf, filename.c_str(), &zi, nullptr, 0, nullptr, 0, nullptr /* comment*/, Z_DEFLATED,
-                                    9, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, crcFile, 0,
+            if(zipOpenNewFileInZip4(zf, filename.c_str(), &zi, nullptr, 0,
+                                    nullptr, 0, nullptr /* comment*/,
+                                    Z_DEFLATED, 9, 0, -MAX_WBITS, DEF_MEM_LEVEL,
+                                    Z_DEFAULT_STRATEGY, nullptr, crcFile, 0,
                                     FLAG_UTF8) != ZIP_OK) {
                 zipClose(zf, nullptr);
                 break;
@@ -172,7 +185,8 @@ static void SendDumps(std::string dumpdir, std::vector<std::string> allDumps, st
             zipCloseFileInZip(zf);
             zipClose(zf, nullptr);
 
-            cocos2d::network::HttpRequest *pRequest = new cocos2d::network::HttpRequest();
+            cocos2d::network::HttpRequest *pRequest =
+                new cocos2d::network::HttpRequest();
             std::string strUrl =
 #ifdef _DEBUG
                 "http://127.0.0.1:7777/upload_dump.php"
@@ -188,13 +202,18 @@ static void SendDumps(std::string dumpdir, std::vector<std::string> allDumps, st
             postData << "&time=" << _t;
             tTVPMemoryStream *bs = _inmemFiles.begin()->second;
             char *base64str;
-            cocos2d::base64Encode((const unsigned char *)bs->GetInternalBuffer(), bs->GetSize(), &base64str);
+            cocos2d::base64Encode(
+                (const unsigned char *)bs->GetInternalBuffer(), bs->GetSize(),
+                &base64str);
             postData << "&data=" << url_encode(base64str);
             free(base64str);
             std::string postStr = postData.str();
             pRequest->setRequestData(postStr.c_str(), postStr.length());
-            pRequest->setResponseCallback([&](cocos2d::network::HttpClient *client,
-                                              cocos2d::network::HttpResponse *response) { _cond.notify_one(); });
+            pRequest->setResponseCallback(
+                [&](cocos2d::network::HttpClient *client,
+                    cocos2d::network::HttpResponse *response) {
+                    _cond.notify_one();
+                });
             pRequest->setTag("POST");
             std::unique_lock<std::mutex> lk(_mutex);
             cocos2d::network::HttpClient::getInstance()->send(pRequest);
@@ -210,7 +229,9 @@ static void SendDumps(std::string dumpdir, std::vector<std::string> allDumps, st
     // allDumps.clear();
 }
 
-void TVPCheckAndSendDumps(const std::string &dumpdir, const std::string &packageName, const std::string &versionStr) {
+void TVPCheckAndSendDumps(const std::string &dumpdir,
+                          const std::string &packageName,
+                          const std::string &versionStr) {
     std::vector<std::string> allDumps;
     TVPListDir(dumpdir, [&](const std::string &name, int mask) {
         if(mask & (S_IFREG | S_IFDIR)) {
@@ -222,13 +243,16 @@ void TVPCheckAndSendDumps(const std::string &dumpdir, const std::string &package
         }
     });
     if(!allDumps.empty()) {
-        std::string title = LocaleConfigManager::GetInstance()->GetText("crash_report");
-        std::string msgfmt = LocaleConfigManager::GetInstance()->GetText("crash_report_msg");
+        std::string title =
+            LocaleConfigManager::GetInstance()->GetText("crash_report");
+        std::string msgfmt =
+            LocaleConfigManager::GetInstance()->GetText("crash_report_msg");
         char buf[256];
         sprintf(buf, msgfmt.c_str(), allDumps.size());
         if(TVPShowSimpleMessageBoxYesNo(buf, title) == 0) {
             static std::thread dumpthread;
-            dumpthread = std::thread(std::bind(SendDumps, dumpdir, allDumps, packageName, versionStr));
+            dumpthread = std::thread(std::bind(SendDumps, dumpdir, allDumps,
+                                               packageName, versionStr));
         } else {
             ClearDumps(dumpdir, allDumps);
         }

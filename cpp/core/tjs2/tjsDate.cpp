@@ -17,10 +17,10 @@
 
 /*
 note:
-        To ensure portability, TJS uses time_t as a date/time representation.
-        if compiler's time_t holds only 32bits, it will cause the year 2038
-problem. The author assumes that it is a compiler dependented problem, so any
-remedies are not given here.
+        To ensure portability, TJS uses time_t as a date/time
+representation. if compiler's time_t holds only 32bits, it will cause
+the year 2038 problem. The author assumes that it is a compiler
+dependented problem, so any remedies are not given here.
 */
 
 namespace TJS {
@@ -43,14 +43,17 @@ namespace TJS {
     tjs_uint32 tTJSNC_Date::ClassID = (tjs_uint32)-1;
 
     tTJSNC_Date::tTJSNC_Date() :
-        tTJSNativeClass(TJS_W("Date")){ // class constructor
+        tTJSNativeClass(TJS_W("Date")){
+            // class constructor
 
-                                        TJS_BEGIN_NATIVE_MEMBERS(
-                                            /*TJS class name*/ Date) TJS_DECL_EMPTY_FINALIZE_METHOD
-                                            //----------------------------------------------------------------------
-                                            TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(
-                                                /*var. name*/ _this, /*var. type*/ tTJSNI_Date,
-                                                /*TJS class name*/ Date){ if(numparams == 0){ time_t curtime;
+            TJS_BEGIN_NATIVE_MEMBERS(
+                /*TJS class name*/
+                Date) TJS_DECL_EMPTY_FINALIZE_METHOD
+                //----------------------------------------------------------------------
+                TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(
+                    /*var. name*/ _this, /*var. type*/ tTJSNI_Date,
+                    /*TJS class name*/ Date){
+                    if(numparams == 0){ time_t curtime;
     _this->DateTime = time(&curtime); // GMT current date/time
 } // namespace TJS
 else if(numparams >= 1) {
@@ -90,7 +93,8 @@ return TJS_S_OK;
 TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ Date)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setYear) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
@@ -108,7 +112,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setYear) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ setYear)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setMonth) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
@@ -126,7 +131,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setMonth) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ setMonth)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setDate) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
@@ -144,7 +150,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setDate) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ setDate)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setHours) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
@@ -162,7 +169,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setHours) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ setHours)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setMinutes) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
@@ -180,7 +188,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setMinutes) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ setMinutes)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setSeconds) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
@@ -198,7 +207,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setSeconds) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ setSeconds)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setTime) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
@@ -210,7 +220,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ setTime) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ setTime)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getDate) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     tm *t = localtime(&_this->DateTime);
 
@@ -222,7 +233,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getDate) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ getDate)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getDay) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     tm *t = localtime(&_this->DateTime);
 
@@ -234,7 +246,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getDay) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ getDay)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getHours) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     tm *t = localtime(&_this->DateTime);
 
@@ -246,7 +259,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getHours) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ getHours)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getMinutes) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     tm *t = localtime(&_this->DateTime);
 
@@ -258,7 +272,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getMinutes) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ getMinutes)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getMonth) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     tm *t = localtime(&_this->DateTime);
 
@@ -270,7 +285,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getMonth) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ getMonth)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getSeconds) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     tm *t = localtime(&_this->DateTime);
 
@@ -282,7 +298,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getSeconds) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ getSeconds)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getTime) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     if(result)
         result->CopyRef(tTJSVariant((tjs_int64)(_this->DateTime) * 1000L));
@@ -291,7 +308,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getTime) {
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ getTime)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getTimezoneOffset) // static
+TJS_BEGIN_NATIVE_METHOD_DECL(
+    /*func. name*/ getTimezoneOffset) // static
 {
     if(result)
         result->CopyRef(tTJSVariant((tjs_int)(TJS_timezone / 60)));
@@ -301,7 +319,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getTimezoneOffset) // static
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ getTimezoneOffset)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getYear) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     tm *t = localtime(&_this->DateTime);
 
@@ -313,7 +332,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getYear) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ getYear)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ parse) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Date);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_Date);
 
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
@@ -328,7 +348,9 @@ TJS_END_NATIVE_MEMBERS
 }
 
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_Date::CreateNativeInstance() { return new tTJSNI_Date(); }
+tTJSNativeInstance *tTJSNC_Date::CreateNativeInstance() {
+    return new tTJSNI_Date();
+}
 //---------------------------------------------------------------------------
 } // namespace TJS
 

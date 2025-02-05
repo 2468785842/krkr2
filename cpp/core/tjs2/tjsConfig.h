@@ -26,11 +26,11 @@ namespace TJS {
     /*
             many settings can be changed here.
 
-            tjsCommHead.h includes most common headers that will be needed to
-            compile the entire TJS program.
+            tjsCommHead.h includes most common headers that will be
+       needed to compile the entire TJS program.
 
-            configuration about Critical Section for multithreading support is there
-       in tjsUtils.cpp/h.
+            configuration about Critical Section for multithreading
+       support is there in tjsUtils.cpp/h.
     */
 
     // TODO: autoconf integration
@@ -39,15 +39,20 @@ namespace TJS {
 
     TJS_EXP_FUNC_DEF(tjs_int, TJS_atoi, (const tjs_char *s));
 
-    TJS_EXP_FUNC_DEF(tjs_char *, TJS_int_to_str, (tjs_int value, tjs_char *string));
+    TJS_EXP_FUNC_DEF(tjs_char *, TJS_int_to_str,
+                     (tjs_int value, tjs_char *string));
 
-    TJS_EXP_FUNC_DEF(tjs_char *, TJS_tTVInt_to_str, (tjs_int64 value, tjs_char *string));
+    TJS_EXP_FUNC_DEF(tjs_char *, TJS_tTVInt_to_str,
+                     (tjs_int64 value, tjs_char *string));
 
-    TJS_EXP_FUNC_DEF(tjs_int, TJS_strnicmp, (const tjs_char *s1, const tjs_char *s2, size_t maxlen));
+    TJS_EXP_FUNC_DEF(tjs_int, TJS_strnicmp,
+                     (const tjs_char *s1, const tjs_char *s2, size_t maxlen));
 
-    TJS_EXP_FUNC_DEF(tjs_int, TJS_stricmp, (const tjs_char *s1, const tjs_char *s2));
+    TJS_EXP_FUNC_DEF(tjs_int, TJS_stricmp,
+                     (const tjs_char *s1, const tjs_char *s2));
 
-    TJS_EXP_FUNC_DEF(void, TJS_strcpy_maxlen, (tjs_char * d, const tjs_char *s, size_t len));
+    TJS_EXP_FUNC_DEF(void, TJS_strcpy_maxlen,
+                     (tjs_char * d, const tjs_char *s, size_t len));
 
     TJS_EXP_FUNC_DEF(void, TJS_strcpy, (tjs_char * d, const tjs_char *s));
 
@@ -77,7 +82,8 @@ namespace TJS {
 #define TJS_nstrlen strlen
 #define TJS_nstrstr strstr
 
-    size_t TJS_strftime(tjs_char *wstring, size_t maxsize, const tjs_char *wformat, const tm *timeptr);
+    size_t TJS_strftime(tjs_char *wstring, size_t maxsize,
+                        const tjs_char *wformat, const tm *timeptr);
 
 #define TJS_octetcpy memcpy
 #define TJS_octetcmp memcmp
@@ -99,7 +105,8 @@ namespace TJS {
 #define TJS_timezone timezone
 #endif
 
-#define TJS_narrowtowidelen(X) TJS_mbstowcs(nullptr, (X), 0) // narrow->wide (if) converted length
+#define TJS_narrowtowidelen(X)                                                 \
+    TJS_mbstowcs(nullptr, (X), 0) // narrow->wide (if) converted length
 #define TJS_narrowtowide TJS_mbstowcs
 
 #ifdef TJS_DEBUG_TRACE
@@ -126,7 +133,9 @@ namespace TJS {
         tjs_uint start;
 
     public:
-        tTJSTimeProfiler(tjs_uint &tv) : timevar(tv) { start = TJSGetTickCount(); }
+        tTJSTimeProfiler(tjs_uint &tv) : timevar(tv) {
+            start = TJSGetTickCount();
+        }
 
         ~tTJSTimeProfiler() { timevar += TJSGetTickCount() - start; }
     };
@@ -140,7 +149,8 @@ namespace TJS {
         const std::string funcname;
 
     public:
-        tTJSFuncTrace(const tjs_char *p) : funcname(boost::locale::conv::utf_to_utf<char>(p)) {
+        tTJSFuncTrace(const tjs_char *p) :
+            funcname(boost::locale::conv::utf_to_utf<char>(p)) {
             spdlog::debug("enter: {}", funcname);
         }
 
@@ -149,8 +159,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
 
     //---------------------------------------------------------------------------
-    // tTJSNarrowStringHolder : converts wide -> narrow, and holds it until be
-    // destroyed
+    // tTJSNarrowStringHolder : converts wide -> narrow, and holds it
+    // until be destroyed
     //---------------------------------------------------------------------------
     struct tTJSNarrowStringHolder {
         bool Allocated;

@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -40,7 +41,8 @@ void TVPInitCDDAVolumeControlType() {
         else if(str == TJS_W("direct"))
             TVPCDDAVolumeControlType = cvctDirect;
         else
-            TVPThrowExceptionMessage(TVPCommandLineParamIgnoredAndDefaultUsed, TJS_W("-cdvol"), str);
+            TVPThrowExceptionMessage(TVPCommandLineParamIgnoredAndDefaultUsed,
+                                     TJS_W("-cdvol"), str);
     }
 
     TVPCDDAVolumeControlTypeInit = true;
@@ -60,7 +62,8 @@ static void TVPGetMixerControls() {
         return;
 
     tjs_int i;
-    tjs_int nummixers = mixerGetNumDevs(); // count of mixers implemented in system
+    tjs_int nummixers =
+        mixerGetNumDevs(); // count of mixers implemented in system
     for(i = 0; i < nummixers; i++) // for each mixer
     {
         HMIXER hmx;
@@ -68,19 +71,23 @@ static void TVPGetMixerControls() {
             continue;
 
         MIXERCAPS mxcaps;
-        if(MMSYSERR_NOERROR != mixerGetDevCaps((UINT)hmx, &mxcaps, sizeof(mxcaps))) {
+        if(MMSYSERR_NOERROR !=
+           mixerGetDevCaps((UINT)hmx, &mxcaps, sizeof(mxcaps))) {
             mixerClose(hmx);
             continue;
         }
 
         tjs_int j;
-        for(j = 0; j < (tjs_int)mxcaps.cDestinations; j++) // for each destination
+        for(j = 0; j < (tjs_int)mxcaps.cDestinations;
+            j++) // for each destination
         {
             MIXERLINE mxl;
             mxl.cbStruct = sizeof(mxl);
             mxl.dwDestination = j;
 
-            if(MMSYSERR_NOERROR != mixerGetLineInfo((HMIXEROBJ)hmx, &mxl, MIXER_GETLINEINFOF_DESTINATION))
+            if(MMSYSERR_NOERROR !=
+               mixerGetLineInfo((HMIXEROBJ)hmx, &mxl,
+                                MIXER_GETLINEINFOF_DESTINATION))
                 continue;
 
             tjs_int numcon = mxl.cConnections;
@@ -91,7 +98,9 @@ static void TVPGetMixerControls() {
                 mxl.dwDestination = j;
                 mxl.dwSource = k;
 
-                if(MMSYSERR_NOERROR != mixerGetLineInfo((HMIXEROBJ)hmx, &mxl, MIXER_GETLINEINFOF_SOURCE))
+                if(MMSYSERR_NOERROR !=
+                   mixerGetLineInfo((HMIXEROBJ)hmx, &mxl,
+                                    MIXER_GETLINEINFOF_SOURCE))
                     continue;
 
                 if(mxl.fdwLine & MIXERLINE_LINEF_SOURCE) {
@@ -101,7 +110,9 @@ static void TVPGetMixerControls() {
                     mxl.cbStruct = sizeof(mxl);
                     mxl.dwLineID = mxl.dwLineID;
 
-                    if(MMSYSERR_NOERROR != mixerGetLineInfo((HMIXEROBJ)hmx, &mxl, MIXER_GETLINEINFOF_LINEID))
+                    if(MMSYSERR_NOERROR !=
+                       mixerGetLineInfo((HMIXEROBJ)hmx, &mxl,
+                                        MIXER_GETLINEINFOF_LINEID))
                         continue;
 
                     if(mxl.cControls == 0) {
@@ -119,7 +130,9 @@ static void TVPGetMixerControls() {
                     mxlc.cbmxctrl = sizeof(MIXERCONTROL);
                     mxlc.pamxctrl = pmxc;
 
-                    if(MMSYSERR_NOERROR != mixerGetLineControls((HMIXEROBJ)hmx, &mxlc, MIXER_GETLINECONTROLSF_ALL)) {
+                    if(MMSYSERR_NOERROR !=
+                       mixerGetLineControls((HMIXEROBJ)hmx, &mxlc,
+                                            MIXER_GETLINECONTROLSF_ALL)) {
                         delete[] pmxc;
                         continue;
                     }
@@ -127,24 +140,30 @@ static void TVPGetMixerControls() {
                     tjs_int l;
                     for(l = 0; l < (int)mxlc.cControls; l++) // for all controls
                     {
-                        if(pmxc[l].dwControlType == MIXERCONTROL_CONTROLTYPE_VOLUME &&
-                           (componenttype == MIXERLINE_COMPONENTTYPE_SRC_COMPACTDISC ||
-                            (pmxc[l].szShortName[0] == 'C' && pmxc[l].szShortName[1] == 'D'))) {
+                        if(pmxc[l].dwControlType ==
+                               MIXERCONTROL_CONTROLTYPE_VOLUME &&
+                           (componenttype ==
+                                MIXERLINE_COMPONENTTYPE_SRC_COMPACTDISC ||
+                            (pmxc[l].szShortName[0] == 'C' &&
+                             pmxc[l].szShortName[1] == 'D'))) {
                             // the control is a volume fader, and
                             // 1. its component type is COMPACTDISC
                             // 2. or its name starts with "CD"
 
                             TVPMixerIDs[TVPNumMixerControls] = i;
 
-                            MIXERCONTROLDETAILS *pmxcd = TVPMixerControlDetails + TVPNumMixerControls;
+                            MIXERCONTROLDETAILS *pmxcd =
+                                TVPMixerControlDetails + TVPNumMixerControls;
 
                             ZeroMemory(pmxcd, sizeof(MIXERCONTROLDETAILS));
                             pmxcd->cbStruct = sizeof(MIXERCONTROLDETAILS);
                             pmxcd->dwControlID = pmxc[l].dwControlID;
                             pmxcd->cChannels = 1;
                             pmxcd->cMultipleItems = pmxc[l].cMultipleItems;
-                            pmxcd->cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
-                            pmxcd->paDetails = TVPOriginalVolumes + TVPNumMixerControls;
+                            pmxcd->cbDetails =
+                                sizeof(MIXERCONTROLDETAILS_UNSIGNED);
+                            pmxcd->paDetails =
+                                TVPOriginalVolumes + TVPNumMixerControls;
 
                             TVPMixerControls[TVPNumMixerControls] = pmxc[l];
 
@@ -185,13 +204,15 @@ void TVPRestoreCDVolume() {
     for(i = 0; i < TVPNumMixerControls; i++) {
         HMIXER hmx;
         if(MMSYSERR_NOERROR == mixerOpen(&hmx, TVPMixerIDs[i], 0, 0, 0)) {
-            mixerSetControlDetails((HMIXEROBJ)hmx, TVPMixerControlDetails + i, 0L);
+            mixerSetControlDetails((HMIXEROBJ)hmx, TVPMixerControlDetails + i,
+                                   0L);
             mixerClose(hmx);
         }
     }
 }
 //---------------------------------------------------------------------------
-static tTVPAtExit TVPRestoreCDVolumeAtExit(TVP_ATEXIT_PRI_RELEASE, TVPRestoreCDVolume);
+static tTVPAtExit TVPRestoreCDVolumeAtExit(TVP_ATEXIT_PRI_RELEASE,
+                                           TVPRestoreCDVolume);
 //---------------------------------------------------------------------------
 static void TVPSetCDVolume(int v) {
     if(!TVPMixerInit)
@@ -230,7 +251,9 @@ ttstr TVPGetMCIErrorString(MCIERROR err) {
     mciGetErrorString(err, msg, sizeof(msg));
     return ttstr(msg);
 }
-void TVPThrowMCIErrorString(MCIERROR err) { TVPThrowExceptionMessage(TVPMCIError, TVPGetMCIErrorString(err)); }
+void TVPThrowMCIErrorString(MCIERROR err) {
+    TVPThrowExceptionMessage(TVPMCIError, TVPGetMCIErrorString(err));
+}
 //---------------------------------------------------------------------------
 #endif // ENABLE_CDDA
 
@@ -250,8 +273,9 @@ tTJSNI_CDDASoundBuffer::tTJSNI_CDDASoundBuffer() {
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_CDDASoundBuffer::Construct(tjs_int numparams, tTJSVariant **param,
-                                                            iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_CDDASoundBuffer::Construct(tjs_int numparams,
+                                            tTJSVariant **param,
+                                            iTJSDispatch2 *tjs_obj) {
     tjs_error hr = inherited::Construct(numparams, param, tjs_obj);
     if(TJS_FAILED(hr))
         return hr;
@@ -260,7 +284,7 @@ tjs_error TJS_INTF_METHOD tTJSNI_CDDASoundBuffer::Construct(tjs_int numparams, t
 }
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_CDDASoundBuffer::Invalidate() {
+void tTJSNI_CDDASoundBuffer::Invalidate() {
     inherited::Invalidate();
 
 #ifdef ENABLE_CDDA
@@ -320,7 +344,9 @@ void tTJSNI_CDDASoundBuffer::Open(const ttstr &storage) {
         if(reg) {
             try {
                 // read value of "Default Drive"
-                if(sizeof(defdrive) != reg->ReadBinaryData("Default Drive", (void *)(&defdrive), sizeof(defdrive))) {
+                if(sizeof(defdrive) !=
+                   reg->ReadBinaryData("Default Drive", (void *)(&defdrive),
+                                       sizeof(defdrive))) {
                     defdrive = 0;
                 }
             } catch(...) {
@@ -385,7 +411,8 @@ void tTJSNI_CDDASoundBuffer::Open(const ttstr &storage) {
 
         MCIERROR err;
         err = mciSendCommand(0, MCI_OPEN,
-                             MCI_WAIT | MCI_OPEN_TYPE_ID | MCI_OPEN_TYPE | MCI_OPEN_ELEMENT | MCI_OPEN_SHAREABLE,
+                             MCI_WAIT | MCI_OPEN_TYPE_ID | MCI_OPEN_TYPE |
+                                 MCI_OPEN_ELEMENT | MCI_OPEN_SHAREABLE,
                              (uint32_t)&openparams);
 
         if(err == 0) {
@@ -399,24 +426,30 @@ void tTJSNI_CDDASoundBuffer::Open(const ttstr &storage) {
             setparams.dwTimeFormat = MCI_FORMAT_TMSF;
             setparams.dwAudio = 0;
 
-            err = mciSendCommand(DeviceID, MCI_SET, MCI_WAIT | MCI_SET_TIME_FORMAT, (uint32_t)&setparams);
+            err = mciSendCommand(DeviceID, MCI_SET,
+                                 MCI_WAIT | MCI_SET_TIME_FORMAT,
+                                 (uint32_t)&setparams);
 
             if(err) {
                 MCI_GENERIC_PARMS params;
                 ZeroMemory(&params, sizeof(params));
-                mciSendCommand(DeviceID, MCI_CLOSE, MCI_WAIT, (uint32_t)&params);
+                mciSendCommand(DeviceID, MCI_CLOSE, MCI_WAIT,
+                               (uint32_t)&params);
             } else {
                 // get maximum number of tracks
                 MCI_STATUS_PARMS statusparams;
                 ZeroMemory(&statusparams, sizeof(statusparams));
                 statusparams.dwItem = MCI_STATUS_NUMBER_OF_TRACKS;
                 MCIERROR err;
-                err = mciSendCommand(DeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_WAIT, (uint32_t)&statusparams);
+                err = mciSendCommand(DeviceID, MCI_STATUS,
+                                     MCI_STATUS_ITEM | MCI_WAIT,
+                                     (uint32_t)&statusparams);
 
                 if(err) {
                     MCI_GENERIC_PARMS params;
                     ZeroMemory(&params, sizeof(params));
-                    mciSendCommand(DeviceID, MCI_CLOSE, MCI_WAIT, (uint32_t)&params);
+                    mciSendCommand(DeviceID, MCI_CLOSE, MCI_WAIT,
+                                   (uint32_t)&params);
                 }
 
                 MaxTrackNum = (tjs_int)statusparams.dwReturn;
@@ -472,7 +505,8 @@ MCIERROR tTJSNI_CDDASoundBuffer::StopPlay() {
         MCI_GENERIC_PARMS genparams;
         genparams.dwCallback = 0;
         MCIERROR err;
-        err = mciSendCommand(DeviceID, MCI_STOP, MCI_WAIT, (uint32_t)&genparams);
+        err =
+            mciSendCommand(DeviceID, MCI_STOP, MCI_WAIT, (uint32_t)&genparams);
         return err;
     }
     return 0;
@@ -510,7 +544,8 @@ void tTJSNI_CDDASoundBuffer::TimerBeatHandler() {
             MCI_STATUS_PARMS statusparams;
             ZeroMemory(&statusparams, sizeof(MCI_STATUS_PARMS));
             statusparams.dwItem = MCI_STATUS_MODE;
-            if(!mciSendCommand(DeviceID, MCI_STATUS, MCI_WAIT | MCI_STATUS_ITEM, (uint32_t)&statusparams)) {
+            if(!mciSendCommand(DeviceID, MCI_STATUS, MCI_WAIT | MCI_STATUS_ITEM,
+                               (uint32_t)&statusparams)) {
                 if(statusparams.dwReturn == MCI_MODE_STOP) {
                     if(Looping)
                         StartPlay();
@@ -532,7 +567,8 @@ bool tTJSNI_CDDASoundBuffer::ReadOrgVolumeData() {
 
     char key[256];
     sprintf(key,
-            "System\\CurrentControlSet\\Control\\MediaResources\\mci\\cdaudio\\un"
+            "System\\CurrentControlSet\\Control\\MediaResources\\mci"
+            "\\cdaudio\\un"
             "it %d",
             Drive);
 
@@ -545,7 +581,9 @@ bool tTJSNI_CDDASoundBuffer::ReadOrgVolumeData() {
     }
 
     // read current volume data
-    if(sizeof(OrgVolumeData) != reg->ReadBinaryData("Volume Settings", (void *)&OrgVolumeData, sizeof(OrgVolumeData))) {
+    if(sizeof(OrgVolumeData) !=
+       reg->ReadBinaryData("Volume Settings", (void *)&OrgVolumeData,
+                           sizeof(OrgVolumeData))) {
         reg->CloseKey();
         delete reg;
         // generate orgvolumedata
@@ -568,7 +606,8 @@ void tTJSNI_CDDASoundBuffer::WriteVolumeRegistry(tjs_int vol) {
 
     char key[256];
     sprintf(key,
-            "System\\CurrentControlSet\\Control\\MediaResources\\mci\\cdaudio\\un"
+            "System\\CurrentControlSet\\Control\\MediaResources\\mci"
+            "\\cdaudio\\un"
             "it %d",
             Drive);
 
@@ -640,8 +679,8 @@ void tTJSNI_CDDASoundBuffer::_SetVolume(tjs_int v) {
     if(!BeforeOpenMedia())
         return; // no need to direct access
 
-    // open MCI device to update CD-ROM's volume register and immediately
-    // close it .
+    // open MCI device to update CD-ROM's volume register and
+    // immediately close it .
 
     char elmname[30];
     strcpy(elmname, DriveLetter);
@@ -654,17 +693,19 @@ void tTJSNI_CDDASoundBuffer::_SetVolume(tjs_int v) {
     params.lpstrElementName = elmname;
     params.lpstrAlias = alias;
 
-    MCIERROR err = mciSendCommand(0, MCI_OPEN,
-                                  MCI_WAIT | MCI_OPEN_SHAREABLE | MCI_OPEN_ELEMENT | MCI_OPEN_ALIAS | MCI_OPEN_TYPE_ID |
-                                      MCI_OPEN_TYPE,
-                                  (uint32_t)&params);
+    MCIERROR err =
+        mciSendCommand(0, MCI_OPEN,
+                       MCI_WAIT | MCI_OPEN_SHAREABLE | MCI_OPEN_ELEMENT |
+                           MCI_OPEN_ALIAS | MCI_OPEN_TYPE_ID | MCI_OPEN_TYPE,
+                       (uint32_t)&params);
 
     if(err == 0) {
         MCI_GENERIC_PARMS genparams;
         ZeroMemory(&genparams, sizeof(genparams));
         genparams.dwCallback = 0;
 
-        mciSendCommand(params.wDeviceID, MCI_CLOSE, MCI_WAIT, (uint32_t)&genparams);
+        mciSendCommand(params.wDeviceID, MCI_CLOSE, MCI_WAIT,
+                       (uint32_t)&genparams);
     }
 
     AfterOpenMedia();
@@ -700,11 +741,15 @@ void tTJSNI_CDDASoundBuffer::SetVolume2(tjs_int v) {
 //---------------------------------------------------------------------------
 // tTJSNC_CDDASoundBuffer
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_CDDASoundBuffer::CreateNativeInstance() { return new tTJSNI_CDDASoundBuffer(); }
+tTJSNativeInstance *tTJSNC_CDDASoundBuffer::CreateNativeInstance() {
+    return new tTJSNI_CDDASoundBuffer();
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 // TVPCreateNativeClass_CDDASoundBuffer
 //---------------------------------------------------------------------------
-tTJSNativeClass *TVPCreateNativeClass_CDDASoundBuffer() { return new tTJSNC_CDDASoundBuffer(); }
+tTJSNativeClass *TVPCreateNativeClass_CDDASoundBuffer() {
+    return new tTJSNC_CDDASoundBuffer();
+}
 //---------------------------------------------------------------------------

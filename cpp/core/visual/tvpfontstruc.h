@@ -20,12 +20,14 @@
 struct tTVPFont {
     tjs_int Height; // height of text
     tjs_uint32 Flags;
-    tjs_int Angle; // rotation angle ( in tenths of degrees ) 0 .. 1800 .. 3600
+    tjs_int Angle; // rotation angle ( in tenths of degrees ) 0 ..
+                   // 1800 .. 3600
 
     ttstr Face; // font name
 
     bool operator==(const tTVPFont &rhs) const {
-        return Height == rhs.Height && Flags == rhs.Flags && Angle == rhs.Angle && Face == rhs.Face;
+        return Height == rhs.Height && Flags == rhs.Flags &&
+            Angle == rhs.Angle && Face == rhs.Face;
     }
     bool operator!=(const tTVPFont &rhs) const { return !(operator==(rhs)); }
 };

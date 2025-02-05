@@ -411,7 +411,7 @@ public class KR2Activity extends Cocos2dxActivity implements ActivityCompat.OnRe
         return lang;
     }
 
-    StorageManager mStorageManager = null;
+//    StorageManager mStorageManager = null;
 
     public String[] getStoragePath() {
 //        List<String> storagePaths = new ArrayList<>();

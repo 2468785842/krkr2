@@ -29,8 +29,12 @@
 #define FIFOTYPE '6' /* FIFO special */
 #define CONTTYPE '7' /* Continguous file */
 #define LONGLINK 'L' /* Long name Link by tantan*/
-#define PAX_ENTRTY 'x' /* PAX header block for file entry : added by claybird 2011.11.29 */
-#define PAX_GLOBAL 'g' /* PAX global extended header : added by claybird 2011.11.29 */
+#define PAX_ENTRTY                                                             \
+    'x' /* PAX header block for file entry : added by claybird                 \
+           2011.11.29 */
+#define PAX_GLOBAL                                                             \
+    'g' /* PAX global extended header : added by claybird 2011.11.29           \
+         */
 
 #define MULTYPE 'M' /* Added by GNUtar, not POSIX */
 #define VOLTYPE 'V' /* Added by GNUtar, not POSIX */
@@ -107,7 +111,8 @@ typedef union hblock {
         unsigned int sum = 0;
         int i;
         for(i = 0; i < TBLOCK; i++) {
-            sum += (signed char)dummy[i]; // different way to compute like old unix
+            sum +=
+                (signed char)dummy[i]; // different way to compute like old unix
         }
         /* calc without checksum field */
         for(i = 0; i < sizeof(dbuf.chksum); i++) {

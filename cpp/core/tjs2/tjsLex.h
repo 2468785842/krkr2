@@ -17,12 +17,11 @@
 #include <deque>
 
 extern bool tjsEnableDicFuncQuickHack;
-// Defining this enables quick-hack, avoiding the dictionary/array parser
-// memory overflow.
-// This is done with replacing %[ ... ] to function { return %[ ... ]; }()
-// and replacing [ ... ] to function { return [ ... ]; }().
-// These replacing is applied for expression which starts with "%[" or "[",
-// may cause some sideeffects....
+// Defining this enables quick-hack, avoiding the dictionary/array
+// parser memory overflow. This is done with replacing %[ ... ] to
+// function { return %[ ... ]; }() and replacing [ ... ] to function {
+// return [ ... ]; }(). These replacing is applied for expression
+// which starts with "%[" or "[", may cause some sideeffects....
 
 namespace TJS {
     //---------------------------------------------------------------------------
@@ -49,7 +48,8 @@ namespace TJS {
 
     class tTJSLexicalAnalyzer {
     public:
-        tTJSLexicalAnalyzer(tTJSScriptBlock *block, const tjs_char *script, bool exprmode, bool resneeded);
+        tTJSLexicalAnalyzer(tTJSScriptBlock *block, const tjs_char *script,
+                            bool exprmode, bool resneeded);
 
         ~tTJSLexicalAnalyzer();
 
@@ -81,7 +81,11 @@ namespace TJS {
         bool RegularExpression;
         bool BareWord;
 
-        enum tEmbeddableExpressionState { evsStart, evsNextIsStringLiteral, evsNextIsExpression };
+        enum tEmbeddableExpressionState {
+            evsStart,
+            evsNextIsStringLiteral,
+            evsNextIsExpression
+        };
 
         struct tEmbeddableExpressionData {
             tEmbeddableExpressionState State;
@@ -116,7 +120,9 @@ namespace TJS {
     public:
         const tTJSVariant &GetValue(tjs_int idx) const { return *Values[idx]; }
 
-        const tjs_char *GetString(tjs_int idx) const { return Values[idx]->GetString(); }
+        const tjs_char *GetString(tjs_int idx) const {
+            return Values[idx]->GetString();
+        }
 
         void Free();
 

@@ -60,7 +60,7 @@ namespace TJS {
     public:
         tjs_int CompileErrorCount;
 
-        tTJS *GetTJS() { return Owner; }
+        tTJS *GetTJS() const { return Owner; }
 
         void AddRef();
         void Release();
@@ -68,11 +68,17 @@ namespace TJS {
         void Add(tTJSInterCodeContext *cntx);
         void Remove(tTJSInterCodeContext *cntx);
 
-        tjs_uint GetContextCount() const { return (tjs_uint)InterCodeContextList.size(); }
-        tjs_uint GetTotalVMCodeSize() const; // returns in VM word size ( 1 word = 32bit )
+        tjs_uint GetContextCount() const {
+            return (tjs_uint)InterCodeContextList.size();
+        }
+        tjs_uint GetTotalVMCodeSize()
+            const; // returns in VM word size ( 1 word = 32bit )
         tjs_uint GetTotalVMDataSize() const; // returns in tTJSVariant count
 
-        bool IsReusable() const { return GetContextCount() == 1 && TopLevelContext != nullptr && !UsingPreProcessor; }
+        bool IsReusable() const {
+            return GetContextCount() == 1 && TopLevelContext != nullptr &&
+                !UsingPreProcessor;
+        }
 
         const tjs_char *GetLine(tjs_int line, tjs_int *linelength) const;
         tjs_int SrcPosToLine(tjs_int pos) const;
@@ -100,6 +106,9 @@ namespace TJS {
         void NotifyUsingPreProcessor() { UsingPreProcessor = true; }
 
         void Dump() const;
+        void Dump(tTJSBinaryStream *stream) const;
+
+        void ExportByteCode(bool outputdebug, class tTJSBinaryStream *output);
 
     private:
         static void ConsoleOutput(const tjs_char *msg, void *data);
@@ -118,19 +127,22 @@ namespace TJS {
             output[2] = ((tjs_uint8)((value >> 16) & 0xff));
             output[3] = ((tjs_uint8)((value >> 24) & 0xff));
         }
-        void ExportByteCode(bool outputdebug, class tTJSBinaryStream *output);
 
     public:
-        static void (*GetConsoleOutput())(const tjs_char *msg, void *data) { return ConsoleOutput; }
+        static void (*GetConsoleOutput())(const tjs_char *msg, void *data) {
+            return ConsoleOutput;
+        }
 
-        void SetText(tTJSVariant *result, const tjs_char *text, iTJSDispatch2 *context, bool isexpression);
+        void SetText(tTJSVariant *result, const tjs_char *text,
+                     iTJSDispatch2 *context, bool isexpression);
 
         void ExecuteTopLevelScript(tTJSVariant *result, iTJSDispatch2 *context);
 
         // for Bytecode
         tTJSScriptBlock(tTJS *owner, const tjs_char *name, tjs_int lineoffset);
 
-        void SetObjects(tTJSInterCodeContext *toplevel, std::vector<tTJSInterCodeContext *> &objs, int count) {
+        void SetObjects(tTJSInterCodeContext *toplevel,
+                        std::vector<tTJSInterCodeContext *> &objs, int count) {
             TopLevelContext = toplevel;
             for(int i = 0; i < count; i++) {
                 Add(objs[i]);
@@ -144,7 +156,8 @@ namespace TJS {
 
         int GetCodeIndex(const tTJSInterCodeContext *ctx) const;
 
-        void Compile(const tjs_char *text, bool isexpression, bool isresultneeded, bool outputdebug,
+        void Compile(const tjs_char *text, bool isexpression,
+                     bool isresultneeded, bool outputdebug,
                      tTJSBinaryStream *output);
         void TranslateCodeAddress(tjs_int32 *code, const tjs_int32 codeSize);
     };

@@ -18,15 +18,21 @@ using namespace cocos2d::ui;
 
 NodeMap::NodeMap() : FileName(nullptr) {}
 
-NodeMap::NodeMap(const char *filename, cocos2d::Node *node) : FileName(filename) { initFromNode(node); }
+NodeMap::NodeMap(const char *filename, cocos2d::Node *node) :
+    FileName(filename) {
+    initFromNode(node);
+}
 
 template <>
-cocos2d::Node *NodeMap::findController<cocos2d::Node>(const std::string &name, bool notice) const {
+cocos2d::Node *NodeMap::findController<cocos2d::Node>(const std::string &name,
+                                                      bool notice) const {
     auto it = this->find(name);
     if(it != this->end())
         return it->second;
     if(notice) {
-        TVPShowSimpleMessageBox(fmt::format("Node {} not exist in {}", name, FileName), "Fail to load ui");
+        TVPShowSimpleMessageBox(
+            fmt::format("Node {} not exist in {}", name, FileName),
+            "Fail to load ui");
     }
     return nullptr;
 }
@@ -42,7 +48,9 @@ void NodeMap::initFromNode(cocos2d::Node *node) {
 }
 
 void NodeMap::onLoadError(const std::string &name) const {
-    TVPShowSimpleMessageBox(fmt::format("Node {} wrong controller type in {}", name, FileName), "Fail to load ui");
+    TVPShowSimpleMessageBox(
+        fmt::format("Node {} wrong controller type in {}", name, FileName),
+        "Fail to load ui");
 }
 
 Node *CSBReader::Load(const char *filename) {
@@ -55,7 +63,8 @@ Node *CSBReader::Load(const char *filename) {
             operator[](name) = node;
         int nAction = node->getNumberOfRunningActions();
         if(nAction == 1) {
-            auto *action = dynamic_cast<cocostudio::timeline::ActionTimeline *>(node->getActionByTag(node->getTag()));
+            auto *action = dynamic_cast<cocostudio::timeline::ActionTimeline *>(
+                node->getActionByTag(node->getTag()));
             if(action && action->IsAnimationInfoExists("autoplay")) {
                 action->play("autoplay", true);
             }
@@ -71,7 +80,8 @@ iTVPBaseForm::~iTVPBaseForm() {}
 
 void iTVPBaseForm::Show() {}
 
-bool iTVPBaseForm::initFromFile(const char *navibar, const char *body, const char *bottombar, cocos2d::Node *parent) {
+bool iTVPBaseForm::initFromFile(const char *navibar, const char *body,
+                                const char *bottombar, cocos2d::Node *parent) {
     bool ret = cocos2d::Node::init();
     // NaviBar.Title = nullptr;
     NaviBar.Left = nullptr;
@@ -88,8 +98,10 @@ bool iTVPBaseForm::initFromFile(const char *navibar, const char *body, const cha
         // (NaviBar.Title)
         // { 			NaviBar.Title->setEnabled(false); // normally
         // 		}
-        NaviBar.Left = dynamic_cast<Button *>(reader.findController("left", false));
-        NaviBar.Right = dynamic_cast<Widget *>(reader.findController("right", false));
+        NaviBar.Left =
+            dynamic_cast<Button *>(reader.findController("left", false));
+        NaviBar.Right =
+            dynamic_cast<Widget *>(reader.findController("right", false));
         bindHeaderController(reader);
     }
 
@@ -154,13 +166,16 @@ void iTVPBaseForm::rearrangeLayout() {
         RootNode->setScale(scale);
         ui::Helper::doLayout(RootNode);
         if(BottomBar.Root)
-            RootNode->setPosition(Vec2(0, BottomBar.Root->getContentSize().height * scale));
+            RootNode->setPosition(
+                Vec2(0, BottomBar.Root->getContentSize().height * scale));
     }
 }
 
-void iTVPBaseForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event) {
+void iTVPBaseForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
+                                cocos2d::Event *event) {
     if(keyCode == cocos2d::EventKeyboard::KeyCode::KEY_BACK) {
-        TVPMainScene::GetInstance()->popUIForm(this, TVPMainScene::eLeaveAniLeaveFromLeft);
+        TVPMainScene::GetInstance()->popUIForm(
+            this, TVPMainScene::eLeaveAniLeaveFromLeft);
     }
 }
 

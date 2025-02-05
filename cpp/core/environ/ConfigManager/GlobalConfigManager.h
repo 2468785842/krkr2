@@ -28,7 +28,8 @@ public:
     void SetValueFloat(const std::string &name, float val);
     void SetValue(const std::string &name, const std::string &val);
 
-    std::vector<std::pair<std::string, std::string>> &GetCustomArgumentsForModify() {
+    std::vector<std::pair<std::string, std::string>> &
+    GetCustomArgumentsForModify() {
         ConfigUpdated = true;
         return CustomArguments;
     }
@@ -36,19 +37,26 @@ public:
     const std::map<int, int> &GetKeyMap() { return KeyMap; }
     void SetKeyMap(int k, int v /* 0 means remove */);
 
-    const std::vector<std::pair<std::string, std::string>> &GetCustomArguments() const { return CustomArguments; }
+    const std::vector<std::pair<std::string, std::string>> &
+    GetCustomArguments() const {
+        return CustomArguments;
+    }
 
     std::vector<std::string> GetCustomArgumentsForPush();
 };
 
 template <>
-bool iSysConfigManager::GetValue<bool>(const std::string &name, const bool &defVal);
+bool iSysConfigManager::GetValue<bool>(const std::string &name,
+                                       const bool &defVal);
 template <>
-int iSysConfigManager::GetValue<int>(const std::string &name, const int &defVal);
+int iSysConfigManager::GetValue<int>(const std::string &name,
+                                     const int &defVal);
 template <>
-float iSysConfigManager::GetValue<float>(const std::string &name, const float &defVal);
+float iSysConfigManager::GetValue<float>(const std::string &name,
+                                         const float &defVal);
 template <>
-std::string iSysConfigManager::GetValue<std::string>(const std::string &name, const std::string &defVal);
+std::string iSysConfigManager::GetValue<std::string>(const std::string &name,
+                                                     const std::string &defVal);
 
 class GlobalConfigManager : public iSysConfigManager {
 

@@ -26,7 +26,8 @@ SlideCompressor::SlideCompressor() {
 //---------------------------------------------------------------------------
 SlideCompressor::~SlideCompressor() {}
 //---------------------------------------------------------------------------
-int SlideCompressor::GetMatch(const unsigned char *cur, int curlen, int &pos, int s) {
+int SlideCompressor::GetMatch(const unsigned char *cur, int curlen, int &pos,
+                              int s) {
     // get match length
     if(curlen < 3)
         return 0;
@@ -101,7 +102,8 @@ void SlideCompressor::DeleteMap(int p) {
     Chains[p].Next = -1;
 }
 //---------------------------------------------------------------------------
-void SlideCompressor::Encode(const unsigned char *in, long inlen, unsigned char *out, long &outlen) {
+void SlideCompressor::Encode(const unsigned char *in, long inlen,
+                             unsigned char *out, long &outlen) {
     unsigned char code[40], codeptr, mask;
 
     if(inlen == 0)
@@ -208,7 +210,8 @@ static void WriteInt32(long num, tTJSBinaryStream *out) {
     out->WriteBuffer(buf, 4);
 }
 //---------------------------------------------------------------------------
-static void Compress(const iTVPBaseBitmap *bmp, tTJSBinaryStream *out, bool is24 = false) {
+static void Compress(const iTVPBaseBitmap *bmp, tTJSBinaryStream *out,
+                     bool is24 = false) {
     // compress 'bmp' to 'out'.
     // bmp will be modified (destroyed).
     int colors;
@@ -250,7 +253,8 @@ static void Compress(const iTVPBaseBitmap *bmp, tTJSBinaryStream *out, bool is24
         compressor = new SlideCompressor();
         for(int i = 0; i < colors; i++) {
             cmpinbuf[i] = new unsigned char[bmp->GetWidth() * BLOCK_HEIGHT];
-            cmpoutbuf[i] = new unsigned char[bmp->GetWidth() * BLOCK_HEIGHT * 9 / 4];
+            cmpoutbuf[i] =
+                new unsigned char[bmp->GetWidth() * BLOCK_HEIGHT * 9 / 4];
             written[i] = 0;
         }
         blocksizes = new int[blockcount];
@@ -264,7 +268,8 @@ static void Compress(const iTVPBaseBitmap *bmp, tTJSBinaryStream *out, bool is24
 
         //
         int block = 0;
-        for(int blk_y = 0; blk_y < (int)bmp->GetHeight(); blk_y += BLOCK_HEIGHT, block++) {
+        for(int blk_y = 0; blk_y < (int)bmp->GetHeight();
+            blk_y += BLOCK_HEIGHT, block++) {
             int ylim = blk_y + BLOCK_HEIGHT;
             if(ylim > (int)bmp->GetHeight())
                 ylim = bmp->GetHeight();
@@ -384,5 +389,8 @@ static void Compress(const iTVPBaseBitmap *bmp, tTJSBinaryStream *out, bool is24
         delete[] blocksizes;
 }
 //---------------------------------------------------------------------------
-void SaveTLG5(tTJSBinaryStream *stream, const iTVPBaseBitmap *image, bool is24) { Compress(image, stream, is24); }
+void SaveTLG5(tTJSBinaryStream *stream, const iTVPBaseBitmap *image,
+              bool is24) {
+    Compress(image, stream, is24);
+}
 //---------------------------------------------------------------------------

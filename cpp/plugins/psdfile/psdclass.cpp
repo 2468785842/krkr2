@@ -105,7 +105,8 @@ PSD::~PSD() {
 /**
  * インスタンス生成ファクトリ
  */
-tjs_error PSD::factory(PSD **result, tjs_int numparams, tTJSVariant **params, iTJSDispatch2 *objthis) {
+tjs_error PSD::factory(PSD **result, tjs_int numparams, tTJSVariant **params,
+                       iTJSDispatch2 *objthis) {
     *result = new PSD(objthis);
     return TJS_S_OK;
 }
@@ -245,8 +246,10 @@ tTJSVariant PSD::getLayerInfo(int no) {
         SETPROP(dict, lay, clipping);
         dict.SetValue(TJS_W("layer_id"), lay.layerId);
         dict.SetValue(TJS_W("obsolete"), lay.isObsolete());
-        dict.SetValue(TJS_W("transparency_protected"), lay.isTransparencyProtected());
-        dict.SetValue(TJS_W("pixel_data_irrelevant"), lay.isPixelDataIrrelevant());
+        dict.SetValue(TJS_W("transparency_protected"),
+                      lay.isTransparencyProtected());
+        dict.SetValue(TJS_W("pixel_data_irrelevant"),
+                      lay.isPixelDataIrrelevant());
 
         // レイヤーカンプ
         if(!lay.layerComps.empty()) {
@@ -260,7 +263,8 @@ tTJSVariant PSD::getLayerInfo(int no) {
                         tmp.SetValue(TJS_W("offset_x"), comp.offsetX);
                         tmp.SetValue(TJS_W("offset_y"), comp.offsetY);
                         tmp.SetValue(TJS_W("enable"), comp.isEnabled);
-                        compDict.SetValue((tjs_int32)comp.id, tmp.GetDispatch());
+                        compDict.SetValue((tjs_int32)comp.id,
+                                          tmp.GetDispatch());
                     }
                 }
                 dict.SetValue(TJS_W("layer_comp"), compDict.GetDispatch());
@@ -268,22 +272,25 @@ tTJSVariant PSD::getLayerInfo(int no) {
         }
 
         // SETPROP(dict, lay, adjustment_valid); //
-        // 調整レイヤーかどうか？レイヤタイプで判別可能 SETPROP(dict, lay,
-        // fill_opacity); SETPROP(dict, lay, layer_name_id); SETPROP(dict, lay,
-        // layer_version); SETPROP(dict, lay, blend_clipped); SETPROP(dict, lay,
-        // blend_interior); SETPROP(dict, lay, knockout); SETPROP(dict, lay,
+        // 調整レイヤーかどうか？レイヤタイプで判別可能 SETPROP(dict,
+        // lay, fill_opacity); SETPROP(dict, lay, layer_name_id);
+        // SETPROP(dict, lay, layer_version); SETPROP(dict, lay,
+        // blend_clipped); SETPROP(dict, lay, blend_interior);
+        // SETPROP(dict, lay, knockout); SETPROP(dict, lay,
         // transparency); // lspf(protection)のもの SETPROP(dict, lay,
-        // composite); SETPROP(dict, lay, position_respectively); SETPROP(dict,
-        // lay, sheet_color); SETPROP(dict, lay, reference_point_x); //
+        // composite); SETPROP(dict, lay, position_respectively);
+        // SETPROP(dict, lay, sheet_color); SETPROP(dict, lay,
+        // reference_point_x); //
         // 塗りつぶしレイヤ（パターン）のオフセット SETPROP(dict, lay,
-        // reference_point_y); // 塗りつぶしレイヤ（パターン）のオフセット
-        // SETPROP(dict, lay, transparency_shapes_layer);
-        // SETPROP(dict, lay, layer_mask_hides_effects);
-        // SETPROP(dict, lay, vector_mask_hides_effects);
-        // SETPROP(dict, lay, divider_type);
-        // SETPROP(dict, lay, divider_blend_mode);
+        // reference_point_y); //
+        // 塗りつぶしレイヤ（パターン）のオフセット SETPROP(dict, lay,
+        // transparency_shapes_layer); SETPROP(dict, lay,
+        // layer_mask_hides_effects); SETPROP(dict, lay,
+        // vector_mask_hides_effects); SETPROP(dict, lay,
+        // divider_type); SETPROP(dict, lay, divider_blend_mode);
 
-        // group layer はスクリプト側では layer_id 参照で引くようにする
+        // group layer はスクリプト側では layer_id
+        // 参照で引くようにする
         if(lay.parent != nullptr)
             dict.SetValue(TJS_W("group_layer_id"), lay.parent->layerId);
 
@@ -300,7 +307,8 @@ tTJSVariant PSD::getLayerInfo(int no) {
  * @param imageMode イメージモード
  */
 void PSD::_getLayerData(tTJSVariant layer, int no, psd::ImageMode imageMode) {
-    if(!layer.AsObjectNoAddRef()->IsInstanceOf(0, 0, 0, TJS_W("Layer"), nullptr)) {
+    if(!layer.AsObjectNoAddRef()->IsInstanceOf(0, 0, 0, TJS_W("Layer"),
+                                               nullptr)) {
         TVPThrowExceptionMessage(TJS_W("not layer"));
     }
     checkLayerNo(no);
@@ -309,7 +317,8 @@ void PSD::_getLayerData(tTJSVariant layer, int no, psd::ImageMode imageMode) {
     psd::LayerMask &mask = lay.extraData.layerMask;
 
     if(lay.layerType != psd::LAYER_TYPE_NORMAL &&
-       !(lay.layerType == psd::LAYER_TYPE_FOLDER && imageMode == psd::IMAGE_MODE_MASK)) {
+       !(lay.layerType == psd::LAYER_TYPE_FOLDER &&
+         imageMode == psd::IMAGE_MODE_MASK)) {
         TVPThrowExceptionMessage(TJS_W("invalid layer type"));
     }
 
@@ -362,9 +371,10 @@ void PSD::_getLayerData(tTJSVariant layer, int no, psd::ImageMode imageMode) {
         obj.SetValue(TJS_W("defaultMaskColor"), mask.defaultColor);
 
     // 画像データのコピー
-    unsigned char *buffer =
-        (unsigned char *)obj.GetValue(TJS_W("mainImageBufferForWrite"), ncbTypedefs::Tag<tjs_intptr_t>());
-    int pitch = obj.GetValue(TJS_W("mainImageBufferPitch"), ncbTypedefs::Tag<tjs_int>());
+    unsigned char *buffer = (unsigned char *)obj.GetValue(
+        TJS_W("mainImageBufferForWrite"), ncbTypedefs::Tag<tjs_intptr_t>());
+    int pitch = obj.GetValue(TJS_W("mainImageBufferPitch"),
+                             ncbTypedefs::Tag<tjs_int>());
     if(dummyMask) {
         buffer[0] = buffer[1] = buffer[2] = mask.defaultColor;
         buffer[3] = 255;
@@ -378,27 +388,33 @@ void PSD::_getLayerData(tTJSVariant layer, int no, psd::ImageMode imageMode) {
  * @param layer 読み出し先レイヤ
  * @param no レイヤ番号
  */
-void PSD::getLayerData(tTJSVariant layer, int no) { _getLayerData(layer, no, psd::IMAGE_MODE_MASKEDIMAGE); }
+void PSD::getLayerData(tTJSVariant layer, int no) {
+    _getLayerData(layer, no, psd::IMAGE_MODE_MASKEDIMAGE);
+}
 
 /**
  * レイヤデータの読み出し(生イメージ)
  * @param layer 読み出し先レイヤ
  * @param no レイヤ番号
  */
-void PSD::getLayerDataRaw(tTJSVariant layer, int no) { _getLayerData(layer, no, psd::IMAGE_MODE_IMAGE); }
+void PSD::getLayerDataRaw(tTJSVariant layer, int no) {
+    _getLayerData(layer, no, psd::IMAGE_MODE_IMAGE);
+}
 
 /**
  * レイヤデータの読み出し(マスクのみ)
  * @param layer 読み出し先レイヤ
  * @param no レイヤ番号
  */
-void PSD::getLayerDataMask(tTJSVariant layer, int no) { _getLayerData(layer, no, psd::IMAGE_MODE_MASK); }
+void PSD::getLayerDataMask(tTJSVariant layer, int no) {
+    _getLayerData(layer, no, psd::IMAGE_MODE_MASK);
+}
 
 /**
  * スライスデータの読み出し
- * @return スライス情報辞書 %[ top, left, bottom, right, slices:[ %[ id,
- * group_id, left, top, bottom, right ], ... ] ] スライス情報がない場合は void
- * を返す
+ * @return スライス情報辞書 %[ top, left, bottom, right, slices:[ %[
+ * id, group_id, left, top, bottom, right ], ... ] ]
+ * スライス情報がない場合は void を返す
  */
 tTJSVariant PSD::getSlices() {
     if(!isLoaded)
@@ -428,17 +444,27 @@ tTJSVariant PSD::getSlices() {
                         tmp.SetValue(TJS_W("right"), item.right);
                         tmp.SetValue(TJS_W("bottom"), item.bottom);
                         tmp.SetValue(TJS_W("color"),
-                                     ((item.colorA << 24) | (item.colorR << 16) | (item.colorG << 8) | item.colorB));
-                        tmp.SetValue(TJS_W("cell_text_is_html"), item.isCellTextHtml);
-                        tmp.SetValue(TJS_W("horizontal_alignment"), item.horizontalAlign);
-                        tmp.SetValue(TJS_W("vertical_alignment"), item.verticalAlign);
-                        tmp.SetValue(TJS_W("associated_layer_id"), item.associatedLayerId);
+                                     ((item.colorA << 24) |
+                                      (item.colorR << 16) | (item.colorG << 8) |
+                                      item.colorB));
+                        tmp.SetValue(TJS_W("cell_text_is_html"),
+                                     item.isCellTextHtml);
+                        tmp.SetValue(TJS_W("horizontal_alignment"),
+                                     item.horizontalAlign);
+                        tmp.SetValue(TJS_W("vertical_alignment"),
+                                     item.verticalAlign);
+                        tmp.SetValue(TJS_W("associated_layer_id"),
+                                     item.associatedLayerId);
                         tmp.SetValue(TJS_W("name"), ttstr(item.name.c_str()));
                         tmp.SetValue(TJS_W("url"), ttstr(item.url.c_str()));
-                        tmp.SetValue(TJS_W("target"), ttstr(item.target.c_str()));
-                        tmp.SetValue(TJS_W("message"), ttstr(item.message.c_str()));
-                        tmp.SetValue(TJS_W("alt_tag"), ttstr(item.altTag.c_str()));
-                        tmp.SetValue(TJS_W("cell_text"), ttstr(item.cellText.c_str()));
+                        tmp.SetValue(TJS_W("target"),
+                                     ttstr(item.target.c_str()));
+                        tmp.SetValue(TJS_W("message"),
+                                     ttstr(item.message.c_str()));
+                        tmp.SetValue(TJS_W("alt_tag"),
+                                     ttstr(item.altTag.c_str()));
+                        tmp.SetValue(TJS_W("cell_text"),
+                                     ttstr(item.cellText.c_str()));
                         arr.SetValue((tjs_int32)i, tmp.GetDispatch());
                     }
                 }
@@ -452,8 +478,8 @@ tTJSVariant PSD::getSlices() {
 
 /**
  * ガイドデータの読み出し
- * @return ガイド情報辞書 %[ vertical:[ x1, x2, ... ], horizontal:[ y1, y2, ...
- * ] ] ガイド情報がない場合は void を返す
+ * @return ガイド情報辞書 %[ vertical:[ x1, x2, ... ], horizontal:[
+ * y1, y2, ... ] ] ガイド情報がない場合は void を返す
  */
 tTJSVariant PSD::getGuides() {
     if(!isLoaded)
@@ -489,7 +515,8 @@ tTJSVariant PSD::getGuides() {
  * @return 取得に成功したら true
  */
 bool PSD::getBlend(tTJSVariant layer) {
-    if(!layer.AsObjectNoAddRef()->IsInstanceOf(0, 0, 0, TJS_W("Layer"), nullptr)) {
+    if(!layer.AsObjectNoAddRef()->IsInstanceOf(0, 0, 0, TJS_W("Layer"),
+                                               nullptr)) {
         TVPThrowExceptionMessage(TJS_W("not layer"));
     }
 
@@ -506,9 +533,10 @@ bool PSD::getBlend(tTJSVariant layer) {
         obj.SetValue(TJS_W("imageHeight"), get_height());
 
         // 画像データのコピー
-        unsigned char *buffer =
-            (unsigned char *)obj.GetValue(TJS_W("mainImageBufferForWrite"), ncbTypedefs::Tag<tjs_intptr_t>());
-        int pitch = obj.GetValue(TJS_W("mainImageBufferPitch"), ncbTypedefs::Tag<tjs_int>());
+        unsigned char *buffer = (unsigned char *)obj.GetValue(
+            TJS_W("mainImageBufferForWrite"), ncbTypedefs::Tag<tjs_intptr_t>());
+        int pitch = obj.GetValue(TJS_W("mainImageBufferPitch"),
+                                 ncbTypedefs::Tag<tjs_int>());
         getMergedImage(buffer, psd::BGRA_LE, pitch);
 
         return true;
@@ -536,11 +564,15 @@ tTJSVariant PSD::getLayerComp() {
                     if(tmp.IsValid()) {
                         psd::LayerComp &comp = layerComps[i];
                         tmp.SetValue(TJS_W("id"), comp.id);
-                        tmp.SetValue(TJS_W("record_visibility"), comp.isRecordVisibility);
-                        tmp.SetValue(TJS_W("record_position"), comp.isRecordPosition);
-                        tmp.SetValue(TJS_W("record_appearance"), comp.isRecordAppearance);
+                        tmp.SetValue(TJS_W("record_visibility"),
+                                     comp.isRecordVisibility);
+                        tmp.SetValue(TJS_W("record_position"),
+                                     comp.isRecordPosition);
+                        tmp.SetValue(TJS_W("record_appearance"),
+                                     comp.isRecordAppearance);
                         tmp.SetValue(TJS_W("name"), ttstr(comp.name.c_str()));
-                        tmp.SetValue(TJS_W("comment"), ttstr(comp.comment.c_str()));
+                        tmp.SetValue(TJS_W("comment"),
+                                     ttstr(comp.comment.c_str()));
                         arr.SetValue((tjs_int32)i, tmp.GetDispatch());
                     }
                 }
@@ -618,7 +650,8 @@ bool PSD::CheckExistentStorage(const ttstr &filename, int *layerIdxRet) {
 
         // 拡張子を除去して判定
         const tjs_char *q;
-        if(!(q = TJS_strchr(p, '/')) && ((q = TJS_strchr(p, '.')) && (TJS_strcmp(q, BMPEXT) == 0))) {
+        if(!(q = TJS_strchr(p, '/')) &&
+           ((q = TJS_strchr(p, '.')) && (TJS_strcmp(q, BMPEXT) == 0))) {
             ttstr name = ttstr(p, q - p);
             q = name.c_str();
             if(checkAllNum(q)) { // 文字混入禁止
@@ -716,7 +749,8 @@ IStream *PSD::openLayerImage(const ttstr &name) {
         if(layerIdx < (int)layerList.size()) {
             psd::LayerInfo &lay = layerList[layerIdx];
 
-            if(lay.layerType != psd::LAYER_TYPE_NORMAL || lay.width <= 0 || lay.height <= 0) {
+            if(lay.layerType != psd::LAYER_TYPE_NORMAL || lay.width <= 0 ||
+               lay.height <= 0) {
                 return nullptr;
             }
             int width = lay.width;
@@ -752,7 +786,8 @@ IStream *PSD::openLayerImage(const ttstr &name) {
                 bih.biClrUsed = 0;
                 bih.biClrImportant = 0;
                 memcpy(handle + hsize, &bih, sizeof bih);
-                getLayerImage(lay, handle + isize + pitch * (height - 1), psd::BGRA_LE, -pitch,
+                getLayerImage(lay, handle + isize + pitch * (height - 1),
+                              psd::BGRA_LE, -pitch,
                               psd::IMAGE_MODE_MASKEDIMAGE);
 
                 return pStream;
@@ -768,11 +803,13 @@ NCB_REGISTER_CLASS(PSD) {
     Factory(&ClassT::factory);
 
     Variant(TJS_W("color_mode_bitmap"), (tjs_int64)psd::COLOR_MODE_BITMAP);
-    Variant(TJS_W("color_mode_grayscale"), (tjs_int64)psd::COLOR_MODE_GRAYSCALE);
+    Variant(TJS_W("color_mode_grayscale"),
+            (tjs_int64)psd::COLOR_MODE_GRAYSCALE);
     Variant(TJS_W("color_mode_indexed"), (tjs_int64)psd::COLOR_MODE_INDEXED);
     Variant(TJS_W("color_mode_rgb"), (tjs_int64)psd::COLOR_MODE_RGB);
     Variant(TJS_W("color_mode_cmyk"), (tjs_int64)psd::COLOR_MODE_CMYK);
-    Variant(TJS_W("color_mode_multichannel"), (tjs_int64)psd::COLOR_MODE_MULTICHANNEL);
+    Variant(TJS_W("color_mode_multichannel"),
+            (tjs_int64)psd::COLOR_MODE_MULTICHANNEL);
     Variant(TJS_W("color_mode_duotone"), (tjs_int64)psd::COLOR_MODE_DUOTONE);
     Variant(TJS_W("color_mode_lab"), (tjs_int64)psd::COLOR_MODE_LAB);
 
@@ -780,30 +817,46 @@ NCB_REGISTER_CLASS(PSD) {
     Variant(TJS_W("blend_mode_dissolve"), (tjs_int64)psd::BLEND_MODE_DISSOLVE);
     Variant(TJS_W("blend_mode_darken"), (tjs_int64)psd::BLEND_MODE_DARKEN);
     Variant(TJS_W("blend_mode_multiply"), (tjs_int64)psd::BLEND_MODE_MULTIPLY);
-    Variant(TJS_W("blend_mode_color_burn"), (tjs_int64)psd::BLEND_MODE_COLOR_BURN);
-    Variant(TJS_W("blend_mode_linear_burn"), (tjs_int64)psd::BLEND_MODE_LINEAR_BURN);
+    Variant(TJS_W("blend_mode_color_burn"),
+            (tjs_int64)psd::BLEND_MODE_COLOR_BURN);
+    Variant(TJS_W("blend_mode_linear_burn"),
+            (tjs_int64)psd::BLEND_MODE_LINEAR_BURN);
     Variant(TJS_W("blend_mode_lighten"), (tjs_int64)psd::BLEND_MODE_LIGHTEN);
     Variant(TJS_W("blend_mode_screen"), (tjs_int64)psd::BLEND_MODE_SCREEN);
-    Variant(TJS_W("blend_mode_color_dodge"), (tjs_int64)psd::BLEND_MODE_COLOR_DODGE);
-    Variant(TJS_W("blend_mode_linear_dodge"), (tjs_int64)psd::BLEND_MODE_LINEAR_DODGE);
+    Variant(TJS_W("blend_mode_color_dodge"),
+            (tjs_int64)psd::BLEND_MODE_COLOR_DODGE);
+    Variant(TJS_W("blend_mode_linear_dodge"),
+            (tjs_int64)psd::BLEND_MODE_LINEAR_DODGE);
     Variant(TJS_W("blend_mode_overlay"), (tjs_int64)psd::BLEND_MODE_OVERLAY);
-    Variant(TJS_W("blend_mode_soft_light"), (tjs_int64)psd::BLEND_MODE_SOFT_LIGHT);
-    Variant(TJS_W("blend_mode_hard_light"), (tjs_int64)psd::BLEND_MODE_HARD_LIGHT);
-    Variant(TJS_W("blend_mode_vivid_light"), (tjs_int64)psd::BLEND_MODE_VIVID_LIGHT);
-    Variant(TJS_W("blend_mode_linear_light"), (tjs_int64)psd::BLEND_MODE_LINEAR_LIGHT);
-    Variant(TJS_W("blend_mode_pin_light"), (tjs_int64)psd::BLEND_MODE_PIN_LIGHT);
+    Variant(TJS_W("blend_mode_soft_light"),
+            (tjs_int64)psd::BLEND_MODE_SOFT_LIGHT);
+    Variant(TJS_W("blend_mode_hard_light"),
+            (tjs_int64)psd::BLEND_MODE_HARD_LIGHT);
+    Variant(TJS_W("blend_mode_vivid_light"),
+            (tjs_int64)psd::BLEND_MODE_VIVID_LIGHT);
+    Variant(TJS_W("blend_mode_linear_light"),
+            (tjs_int64)psd::BLEND_MODE_LINEAR_LIGHT);
+    Variant(TJS_W("blend_mode_pin_light"),
+            (tjs_int64)psd::BLEND_MODE_PIN_LIGHT);
     Variant(TJS_W("blend_mode_hard_mix"), (tjs_int64)psd::BLEND_MODE_HARD_MIX);
-    Variant(TJS_W("blend_mode_difference"), (tjs_int64)psd::BLEND_MODE_DIFFERENCE);
-    Variant(TJS_W("blend_mode_exclusion"), (tjs_int64)psd::BLEND_MODE_EXCLUSION);
+    Variant(TJS_W("blend_mode_difference"),
+            (tjs_int64)psd::BLEND_MODE_DIFFERENCE);
+    Variant(TJS_W("blend_mode_exclusion"),
+            (tjs_int64)psd::BLEND_MODE_EXCLUSION);
     Variant(TJS_W("blend_mode_hue"), (tjs_int64)psd::BLEND_MODE_HUE);
-    Variant(TJS_W("blend_mode_saturation"), (tjs_int64)psd::BLEND_MODE_SATURATION);
+    Variant(TJS_W("blend_mode_saturation"),
+            (tjs_int64)psd::BLEND_MODE_SATURATION);
     Variant(TJS_W("blend_mode_color"), (tjs_int64)psd::BLEND_MODE_COLOR);
-    Variant(TJS_W("blend_mode_luminosity"), (tjs_int64)psd::BLEND_MODE_LUMINOSITY);
-    Variant(TJS_W("blend_mode_pass_through"), (tjs_int64)psd::BLEND_MODE_PASS_THROUGH);
+    Variant(TJS_W("blend_mode_luminosity"),
+            (tjs_int64)psd::BLEND_MODE_LUMINOSITY);
+    Variant(TJS_W("blend_mode_pass_through"),
+            (tjs_int64)psd::BLEND_MODE_PASS_THROUGH);
 
     // NOTE libpsd 非互換モード
-    Variant(TJS_W("blend_mode_darker_color"), (tjs_int64)psd::BLEND_MODE_DARKER_COLOR);
-    Variant(TJS_W("blend_mode_lighter_color"), (tjs_int64)psd::BLEND_MODE_LIGHTER_COLOR);
+    Variant(TJS_W("blend_mode_darker_color"),
+            (tjs_int64)psd::BLEND_MODE_DARKER_COLOR);
+    Variant(TJS_W("blend_mode_lighter_color"),
+            (tjs_int64)psd::BLEND_MODE_LIGHTER_COLOR);
     Variant(TJS_W("blend_mode_subtract"), (tjs_int64)psd::BLEND_MODE_SUBTRACT);
     Variant(TJS_W("blend_mode_divide"), (tjs_int64)psd::BLEND_MODE_DIVIDE);
 

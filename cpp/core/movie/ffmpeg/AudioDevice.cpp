@@ -18,9 +18,10 @@ CDVDAudio::CDVDAudio(CDVDClock *clock) : m_pClock(clock) {
     m_iBitsPerSample = 0;
     m_sampeRate = 0;
     m_bPaused = true;
-    m_playingPts = DVD_NOPTS_VALUE; // silence coverity uninitialized warning,
-                                    // is set elsewhere
-    m_timeOfPts = 0.0; // silence coverity uninitialized warning, is set elsewhere
+    m_playingPts = DVD_NOPTS_VALUE; // silence coverity uninitialized
+                                    // warning, is set elsewhere
+    m_timeOfPts = 0.0; // silence coverity uninitialized warning, is
+                       // set elsewhere
     m_syncError = 0.0;
     m_syncErrorTime = 0;
 }
@@ -31,17 +32,20 @@ CDVDAudio::~CDVDAudio() {
         CAEFactory::FreeStream(m_pAudioStream);
 }
 
-bool CDVDAudio::Create(const DVDAudioFrame &audioframe, AVCodecID codec, bool needresampler) {
+bool CDVDAudio::Create(const DVDAudioFrame &audioframe, AVCodecID codec,
+                       bool needresampler) {
     //   CLog::Log(LOGNOTICE,
-    //     "Creating audio stream (codec id: %i, channels: %i, sample rate: %i,
-    //     %s)", codec, audioframe.format.m_channelLayout.Count(),
+    //     "Creating audio stream (codec id: %i, channels: %i, sample
+    //     rate: %i, %s)", codec,
+    //     audioframe.format.m_channelLayout.Count(),
     //     audioframe.format.m_sampleRate,
     //     audioframe.passthrough ? "pass-through" : "no pass-through"
     //   );
 
     // if passthrough isset do something else
     std::lock_guard<std::recursive_mutex> lock(m_critSection);
-    unsigned int options = needresampler && !audioframe.passthrough ? AESTREAM_FORCE_RESAMPLE : 0;
+    unsigned int options =
+        needresampler && !audioframe.passthrough ? AESTREAM_FORCE_RESAMPLE : 0;
     options |= AESTREAM_PAUSED;
 
     AEAudioFormat format = audioframe.format;
@@ -109,16 +113,18 @@ unsigned int CDVDAudio::AddPackets(const DVDAudioFrame &audioframe) {
     unsigned int frames = audioframe.nb_frames;
     unsigned int offset = 0;
     do {
-        double pts = (offset == 0) ? audioframe.pts / DVD_TIME_BASE * 1000 : 0.0;
-        unsigned int copied = m_pAudioStream->AddData(audioframe.data, offset, frames, pts);
+        double pts =
+            (offset == 0) ? audioframe.pts / DVD_TIME_BASE * 1000 : 0.0;
+        unsigned int copied =
+            m_pAudioStream->AddData(audioframe.data, offset, frames, pts);
         offset += copied;
         frames -= copied;
         if(frames <= 0)
             break;
 
         if(copied == 0 && timeout < m_pClock->GetAbsoluteClock()) {
-            //    CLog::Log(LOGERROR, "CDVDAudio::AddPacketsRenderer - timeout
-            //    adding data to renderer");
+            //    CLog::Log(LOGERROR, "CDVDAudio::AddPacketsRenderer -
+            //    timeout adding data to renderer");
             break;
         }
 
@@ -150,7 +156,8 @@ void CDVDAudio::Drain() {
 // {
 //   CSingleLock lock (m_critSection);
 //   if (m_pAudioStream)
-//     m_pAudioStream->SetAmplification(powf(10.0f, (float)drc / 2000.0f));
+//     m_pAudioStream->SetAmplification(powf(10.0f, (float)drc /
+//     2000.0f));
 //}
 
 // float CDVDAudio::GetCurrentAttenuation()
@@ -193,7 +200,8 @@ void CDVDAudio::Flush() {
     std::lock_guard<std::recursive_mutex> lock(m_critSection);
     if(m_pAudioStream) {
         m_pAudioStream->Flush();
-        //   CLog::Log(LOGDEBUG,"CDVDAudio::Flush - flush audio stream");
+        //   CLog::Log(LOGDEBUG,"CDVDAudio::Flush - flush audio
+        //   stream");
     }
     m_playingPts = DVD_NOPTS_VALUE;
     m_syncError = 0.0;
@@ -209,7 +217,8 @@ bool CDVDAudio::IsValidFormat(const DVDAudioFrame &audioframe) {
     if(audioframe.passthrough != m_bPassthrough)
         return false;
 
-    if(m_sampeRate != audioframe.format.m_sampleRate || m_iBitsPerSample != audioframe.bits_per_sample ||
+    if(m_sampeRate != audioframe.format.m_sampleRate ||
+       m_iBitsPerSample != audioframe.bits_per_sample ||
        m_channelLayout != audioframe.format.m_channelLayout)
         return false;
 
@@ -256,7 +265,9 @@ double CDVDAudio::GetPlayingPts() {
 
 double CDVDAudio::GetSyncError() { return m_syncError; }
 
-void CDVDAudio::SetSyncErrorCorrection(double correction) { m_syncError += correction; }
+void CDVDAudio::SetSyncErrorCorrection(double correction) {
+    m_syncError += correction;
+}
 
 double CDVDAudio::GetResampleRatio() { return m_resampleRatio; }
 
@@ -269,7 +280,8 @@ void CDVDAudio::SetResampleMode(int mode) {
 
 double CDVDAudio::GetClock() {
     if(m_pClock)
-        return (m_pClock->GetClock() + m_pClock->GetVsyncAdjust()) / DVD_TIME_BASE * 1000;
+        return (m_pClock->GetClock() + m_pClock->GetVsyncAdjust()) /
+            DVD_TIME_BASE * 1000;
     else
         return 0.0;
 }

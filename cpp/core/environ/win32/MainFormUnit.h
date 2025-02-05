@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -82,7 +83,8 @@ private: // ユーザー宣言
 public: // ユーザー宣言
     __fastcall TTVPMainForm(TComponent *Owner);
 
-    static TShortCut GetHotKeyFromOption(TShortCut def, const tjs_char *optname);
+    static TShortCut GetHotKeyFromOption(TShortCut def,
+                                         const tjs_char *optname);
     static void SetHotKey(TMenuItem *item, const tjs_char *optname);
 
     bool CanHideAnyWindow();
@@ -117,7 +119,9 @@ public: // ユーザー宣言
     bool GetApplicationStayOnTop() const { return ApplicationStayOnTop; }
 
     bool GetApplicationActivating() const { return ApplicationActivating; }
-    bool GetApplicationNotMinimizing() const { return ApplicationNotMinimizing; }
+    bool GetApplicationNotMinimizing() const {
+        return ApplicationNotMinimizing;
+    }
 
 protected:
     BEGIN_MESSAGE_MAP
@@ -162,8 +166,10 @@ public:
     __fastcall tTVPProfileHolder(const AnsiString &fn) : TMemIniFile(fn){};
     __fastcall ~tTVPProfileHolder(){};
 
-    void __fastcall WriteStrings(const AnsiString &section, const AnsiString &ident, TStrings *strings);
-    void __fastcall ReadStrings(const AnsiString &section, const AnsiString &ident, TStrings *strings);
+    void __fastcall WriteStrings(const AnsiString &section,
+                                 const AnsiString &ident, TStrings *strings);
+    void __fastcall ReadStrings(const AnsiString &section,
+                                const AnsiString &ident, TStrings *strings);
 };
 extern void TVPWriteEnvironProfile();
 extern void TVPEnvironProfileAddRef();

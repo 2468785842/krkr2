@@ -6,14 +6,17 @@
 
 tTJSNI_ImageFunction::tTJSNI_ImageFunction() {}
 
-tjs_error TJS_INTF_METHOD tTJSNI_ImageFunction::Construct(tjs_int numparams, tTJSVariant **param,
-                                                          iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_ImageFunction::Construct(tjs_int numparams,
+                                          tTJSVariant **param,
+                                          iTJSDispatch2 *tjs_obj) {
     return TJS_S_OK;
 }
 
-void TJS_INTF_METHOD tTJSNI_ImageFunction::Invalidate() {}
+void tTJSNI_ImageFunction::Invalidate() {}
 
-tTVPBBBltMethod tTJSNC_ImageFunction::GetBltMethodFromOperationMode(tTVPBlendOperationMode mode, tTVPDrawFace face) {
+tTVPBBBltMethod
+tTJSNC_ImageFunction::GetBltMethodFromOperationMode(tTVPBlendOperationMode mode,
+                                                    tTVPDrawFace face) {
     tTVPBBBltMethod met = bmAlphaOnAlpha;
     switch(mode) {
         case omPsNormal:
@@ -126,8 +129,10 @@ tTVPBBBltMethod tTJSNC_ImageFunction::GetBltMethodFromOperationMode(tTVPBlendOpe
     }
     return met;
 }
-bool tTJSNC_ImageFunction::ClipDestPointAndSrcRect(tjs_int &dx, tjs_int &dy, tTVPRect &srcrectout,
-                                                   const tTVPRect &srcrect, const tTVPRect &clipRect) {
+bool tTJSNC_ImageFunction::ClipDestPointAndSrcRect(tjs_int &dx, tjs_int &dy,
+                                                   tTVPRect &srcrectout,
+                                                   const tTVPRect &srcrect,
+                                                   const tTVPRect &clipRect) {
     // clip (dx, dy) <- srcrect	with current clipping rectangle
     srcrectout = srcrect;
     tjs_int dr = dx + srcrect.right - srcrect.left;
@@ -190,15 +195,17 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateAffine) {
     tTJSNI_Bitmap *dst = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&dst)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&dst)))
             return TJS_E_INVALIDPARAM;
     }
     tTJSNI_Bitmap *src = nullptr;
     clo = param[1]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&src)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&src)))
             return TJS_E_INVALIDPARAM;
     }
     if((!dst) || (!src))
@@ -210,8 +217,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateAffine) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[8]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             srcRect = rect->Get();
         }
@@ -220,8 +228,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateAffine) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[9]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             clipRect = rect->Get();
         }
@@ -267,7 +276,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateAffine) {
         mat.tx = *param[6];
         mat.ty = *param[7];
         updated =
-            dst->GetBitmap()->AffineBlt(clipRect, src->GetBitmap(), srcRect, mat, met, opa, &updaterect, hda, type);
+            dst->GetBitmap()->AffineBlt(clipRect, src->GetBitmap(), srcRect,
+                                        mat, met, opa, &updaterect, hda, type);
     } else {
         // points mode
         tTVPPointD points[3];
@@ -277,13 +287,15 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateAffine) {
         points[1].y = *param[5];
         points[2].x = *param[6];
         points[2].y = *param[7];
-        updated =
-            dst->GetBitmap()->AffineBlt(clipRect, src->GetBitmap(), srcRect, points, met, opa, &updaterect, hda, type);
+        updated = dst->GetBitmap()->AffineBlt(clipRect, src->GetBitmap(),
+                                              srcRect, points, met, opa,
+                                              &updaterect, hda, type);
     }
     if(result) {
         if(updated) {
             iTJSDispatch2 *ret =
-                TVPCreateRectObject(updaterect.left, updaterect.top, updaterect.right, updaterect.bottom);
+                TVPCreateRectObject(updaterect.left, updaterect.top,
+                                    updaterect.right, updaterect.bottom);
             *result = tTJSVariant(ret, ret);
             ret->Release();
         } else {
@@ -304,15 +316,17 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateRect) {
     tTJSNI_Bitmap *dst = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&dst)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&dst)))
             return TJS_E_INVALIDPARAM;
     }
     tTJSNI_Bitmap *src = nullptr;
     clo = param[3]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&src)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&src)))
             return TJS_E_INVALIDPARAM;
     }
     if((!dst) || (!src))
@@ -324,8 +338,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateRect) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[4]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             srcRect = rect->Get();
         }
@@ -334,8 +349,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateRect) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[5]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             clipRect = rect->Get();
         }
@@ -369,13 +385,15 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateRect) {
     bool updated = false;
     if(ClipDestPointAndSrcRect(dleft, dtop, rect, srcRect, clipRect)) {
         tTVPBBBltMethod met = GetBltMethodFromOperationMode(mode, face);
-        updated = dst->GetBitmap()->Blt(dleft, dtop, src->GetBitmap(), rect, met, opa, hda);
+        updated = dst->GetBitmap()->Blt(dleft, dtop, src->GetBitmap(), rect,
+                                        met, opa, hda);
     }
     if(result) {
         if(updated) {
             tTVPRect ur = rect;
             ur.set_offsets(dleft, dtop);
-            iTJSDispatch2 *ret = TVPCreateRectObject(ur.left, ur.top, ur.right, ur.bottom);
+            iTJSDispatch2 *ret =
+                TVPCreateRectObject(ur.left, ur.top, ur.right, ur.bottom);
             *result = tTJSVariant(ret, ret);
             ret->Release();
         } else {
@@ -398,15 +416,17 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateStretch) {
     tTJSNI_Bitmap *dst = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&dst)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&dst)))
             return TJS_E_INVALIDPARAM;
     }
     tTJSNI_Bitmap *src = nullptr;
     clo = param[1]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&src)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&src)))
             return TJS_E_INVALIDPARAM;
     }
     if((!dst) || (!src))
@@ -420,8 +440,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateStretch) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[2]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             dstRect = rect->Get();
         }
@@ -430,8 +451,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateStretch) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[3]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             srcRect = rect->Get();
         }
@@ -440,8 +462,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateStretch) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[4]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             clipRect = rect->Get();
         }
@@ -488,11 +511,13 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ operateStretch) {
     if(TVPIntersectRect(&ur, ur, clipRect)) {
         tTVPBBBltMethod met = GetBltMethodFromOperationMode(mode, face);
         updated =
-            dst->GetBitmap()->StretchBlt(clipRect, dstRect, src->GetBitmap(), srcRect, met, opa, hda, type, typeopt);
+            dst->GetBitmap()->StretchBlt(clipRect, dstRect, src->GetBitmap(),
+                                         srcRect, met, opa, hda, type, typeopt);
     }
     if(result) {
         if(updated) {
-            iTJSDispatch2 *ret = TVPCreateRectObject(ur.left, ur.top, ur.right, ur.bottom);
+            iTJSDispatch2 *ret =
+                TVPCreateRectObject(ur.left, ur.top, ur.right, ur.bottom);
             *result = tTJSVariant(ret, ret);
             ret->Release();
         } else {
@@ -511,8 +536,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ flipLR) {
     tTJSNI_Bitmap *dst = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&dst)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&dst)))
             return TJS_E_INVALIDPARAM;
     }
     if(!dst)
@@ -523,15 +549,17 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ flipLR) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[1]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             dstRect = rect->Get();
         }
     }
     dst->GetBitmap()->LRFlip(dstRect);
     if(result) {
-        iTJSDispatch2 *ret = TVPCreateRectObject(dstRect.left, dstRect.top, dstRect.right, dstRect.bottom);
+        iTJSDispatch2 *ret = TVPCreateRectObject(dstRect.left, dstRect.top,
+                                                 dstRect.right, dstRect.bottom);
         *result = tTJSVariant(ret, ret);
         ret->Release();
     }
@@ -548,8 +576,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ flipUD) {
     tTJSNI_Bitmap *dst = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&dst)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&dst)))
             return TJS_E_INVALIDPARAM;
     }
     if(!dst)
@@ -560,15 +589,17 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ flipUD) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[1]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             dstRect = rect->Get();
         }
     }
     dst->GetBitmap()->UDFlip(dstRect);
     if(result) {
-        iTJSDispatch2 *ret = TVPCreateRectObject(dstRect.left, dstRect.top, dstRect.right, dstRect.bottom);
+        iTJSDispatch2 *ret = TVPCreateRectObject(dstRect.left, dstRect.top,
+                                                 dstRect.right, dstRect.bottom);
         *result = tTJSVariant(ret, ret);
         ret->Release();
     }
@@ -578,9 +609,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ flipUD) {
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ flipUD)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ adjustGamma) {
-    // bmp, rgamma=1.0, rfloor=0, rceil=255, ggamma=1.0, gfloor=0, gceil=255,
-    // bgamma=1.0, bfloor=0, bceil=255, cliprect=nullptr, isaddalpha=false
-    // cliprect=nullptr, isaddalpha=false
+    // bmp, rgamma=1.0, rfloor=0, rceil=255, ggamma=1.0, gfloor=0,
+    // gceil=255, bgamma=1.0, bfloor=0, bceil=255, cliprect=nullptr,
+    // isaddalpha=false cliprect=nullptr, isaddalpha=false
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
     if(numparams == 1)
@@ -589,8 +620,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ adjustGamma) {
     tTJSNI_Bitmap *dst = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&dst)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&dst)))
             return TJS_E_INVALIDPARAM;
     }
     if(!dst)
@@ -623,8 +655,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ adjustGamma) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[10]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             clipRect = rect->Get();
         }
@@ -639,7 +672,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ adjustGamma) {
         dst->GetBitmap()->AdjustGamma(clipRect, data);
     }
     if(result) {
-        iTJSDispatch2 *ret = TVPCreateRectObject(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
+        iTJSDispatch2 *ret = TVPCreateRectObject(
+            clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
         *result = tTJSVariant(ret, ret);
         ret->Release();
     }
@@ -655,8 +689,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ doBoxBlur) {
     tTJSNI_Bitmap *dst = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&dst)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&dst)))
             return TJS_E_INVALIDPARAM;
     }
     if(!dst)
@@ -676,8 +711,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ doBoxBlur) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[3]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             clipRect = rect->Get();
         }
@@ -688,13 +724,16 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ doBoxBlur) {
 
     bool updated = false;
     if(isalpha == false)
-        updated = dst->GetBitmap()->DoBoxBlur(clipRect, tTVPRect(-xblur, -yblur, xblur, yblur));
+        updated = dst->GetBitmap()->DoBoxBlur(
+            clipRect, tTVPRect(-xblur, -yblur, xblur, yblur));
     else
-        updated = dst->GetBitmap()->DoBoxBlurForAlpha(clipRect, tTVPRect(-xblur, -yblur, xblur, yblur));
+        updated = dst->GetBitmap()->DoBoxBlurForAlpha(
+            clipRect, tTVPRect(-xblur, -yblur, xblur, yblur));
 
     if(result) {
         if(updated) {
-            iTJSDispatch2 *ret = TVPCreateRectObject(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
+            iTJSDispatch2 *ret = TVPCreateRectObject(
+                clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
             *result = tTJSVariant(ret, ret);
             ret->Release();
         } else {
@@ -712,8 +751,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ doGrayScale) {
     tTJSNI_Bitmap *dst = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&dst)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&dst)))
             return TJS_E_INVALIDPARAM;
     }
     if(!dst)
@@ -724,8 +764,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ doGrayScale) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[1]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             clipRect = rect->Get();
         }
@@ -733,7 +774,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ doGrayScale) {
 
     dst->GetBitmap()->DoGrayScale(clipRect);
     if(result) {
-        iTJSDispatch2 *ret = TVPCreateRectObject(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
+        iTJSDispatch2 *ret = TVPCreateRectObject(
+            clipRect.left, clipRect.top, clipRect.right, clipRect.bottom);
         *result = tTJSVariant(ret, ret);
         ret->Release();
     }
@@ -750,8 +792,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fillRect) {
     tTJSNI_Bitmap *dst = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&dst)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&dst)))
             return TJS_E_INVALIDPARAM;
     }
     if(!dst)
@@ -764,8 +807,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fillRect) {
         tTJSNI_Rect *rectni = nullptr;
         clo = param[2]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rectni)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rectni)))
                 return TJS_E_INVALIDPARAM;
             rect = rectni->Get();
         }
@@ -780,8 +824,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fillRect) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[4]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             clipRect = rect->Get();
         }
@@ -791,7 +836,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fillRect) {
     tTVPRect destrect;
     if(TVPIntersectRect(&destrect, rect, clipRect)) {
         if(isalpha) {
-            color = (color & 0xff000000) + (TVPToActualColor(color & 0xffffff) & 0xffffff);
+            color = (color & 0xff000000) +
+                (TVPToActualColor(color & 0xffffff) & 0xffffff);
             updated = dst->GetBitmap()->Fill(destrect, color);
         } else {
             color = TVPToActualColor(color);
@@ -800,7 +846,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fillRect) {
     }
     if(result) {
         if(updated) {
-            iTJSDispatch2 *ret = TVPCreateRectObject(destrect.left, destrect.top, destrect.right, destrect.bottom);
+            iTJSDispatch2 *ret = TVPCreateRectObject(
+                destrect.left, destrect.top, destrect.right, destrect.bottom);
             *result = tTJSVariant(ret, ret);
             ret->Release();
         } else {
@@ -812,15 +859,17 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ fillRect) {
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ fillRect)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ colorRect) {
-    // bmp, value, opa=255, rect=nullptr, face=dfAlpha, cliprect=nullptr
+    // bmp, value, opa=255, rect=nullptr, face=dfAlpha,
+    // cliprect=nullptr
     if(numparams < 2)
         return TJS_E_BADPARAMCOUNT;
 
     tTJSNI_Bitmap *dst = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&dst)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&dst)))
             return TJS_E_INVALIDPARAM;
     }
     if(!dst)
@@ -837,8 +886,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ colorRect) {
         tTJSNI_Rect *rectni = nullptr;
         clo = param[3]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rectni)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rectni)))
                 return TJS_E_INVALIDPARAM;
             rect = rectni->Get();
         }
@@ -848,7 +898,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ colorRect) {
     if(numparams >= 5 && param[4]->Type() != tvtVoid)
         face = (tTVPDrawFace)(tjs_int)(*param[4]);
 
-    if(face != dfAlpha && face != dfAddAlpha && face != dfOpaque && face != dfMask)
+    if(face != dfAlpha && face != dfAddAlpha && face != dfOpaque &&
+       face != dfMask)
         face = dfAlpha;
 
     tTVPRect clipRect(0, 0, dst->GetWidth(), dst->GetHeight());
@@ -856,8 +907,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ colorRect) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[5]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             clipRect = rect->Get();
         }
@@ -869,22 +921,25 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ colorRect) {
             case dfAlpha:
                 if(opa > 0) {
                     color = TVPToActualColor(color);
-                    updated = dst->GetBitmap()->FillColorOnAlpha(destrect, color, opa);
+                    updated = dst->GetBitmap()->FillColorOnAlpha(destrect,
+                                                                 color, opa);
                 } else {
-                    updated = dst->GetBitmap()->RemoveConstOpacity(destrect, -opa);
+                    updated =
+                        dst->GetBitmap()->RemoveConstOpacity(destrect, -opa);
                 }
                 break;
             case dfAddAlpha:
                 if(opa >= 0) {
                     color = TVPToActualColor(color);
-                    updated = dst->GetBitmap()->FillColorOnAddAlpha(destrect, color, opa);
+                    updated = dst->GetBitmap()->FillColorOnAddAlpha(destrect,
+                                                                    color, opa);
                 }
                 break;
             case dfOpaque:
                 color = TVPToActualColor(color);
                 updated = dst->GetBitmap()->FillColor(destrect, color, opa);
-                // note that tTVPBaseBitmap::FillColor always holds destination
-                // alpha
+                // note that tTVPBaseBitmap::FillColor always holds
+                // destination alpha
                 break;
             case dfMask:
                 updated = dst->GetBitmap()->FillMask(destrect, color & 0xff);
@@ -897,7 +952,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ colorRect) {
 
     if(result) {
         if(updated) {
-            iTJSDispatch2 *ret = TVPCreateRectObject(destrect.left, destrect.top, destrect.right, destrect.bottom);
+            iTJSDispatch2 *ret = TVPCreateRectObject(
+                destrect.left, destrect.top, destrect.right, destrect.bottom);
             *result = tTJSVariant(ret, ret);
             ret->Release();
         } else {
@@ -910,16 +966,17 @@ TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ colorRect)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ drawText) {
     // bmp, font, x, y, text, color, opa=255, aa=true, face=dfAlpha,
-    // shadowlevel=0, shadowcolor=0x000000, shadowwidth=0, shadowofsx=0,
-    // shadowofsy=0, hda=false, clipRect=nullptr
+    // shadowlevel=0, shadowcolor=0x000000, shadowwidth=0,
+    // shadowofsx=0, shadowofsy=0, hda=false, clipRect=nullptr
     if(numparams < 6)
         return TJS_E_BADPARAMCOUNT;
 
     tTJSNI_Bitmap *dst = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&dst)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&dst)))
             return TJS_E_INVALIDPARAM;
     }
     if(!dst)
@@ -928,8 +985,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ drawText) {
     tTJSNI_Font *font = nullptr;
     clo = param[1]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Font::ClassID,
-                                                        (iTJSNativeInstance **)&font)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Font::ClassID,
+               (iTJSNativeInstance **)&font)))
             return TJS_E_INVALIDPARAM;
     }
     if(!font)
@@ -939,24 +997,42 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ drawText) {
     tjs_int y = *param[3];
     ttstr text = *param[4];
     tjs_uint32 color = static_cast<tjs_uint32>((tjs_int64)*param[5]);
-    tjs_int opa = (numparams >= 7 && param[6]->Type() != tvtVoid) ? (tjs_int)*param[6] : (tjs_int)255;
-    bool aa = (numparams >= 8 && param[7]->Type() != tvtVoid) ? param[7]->operator bool() : true;
-    tTVPDrawFace face = (numparams >= 9 && param[8]->Type() != tvtVoid) ? (tTVPDrawFace)(tjs_int)(*param[8]) : dfAlpha;
-    tjs_int shadowlevel = (numparams >= 10 && param[9]->Type() != tvtVoid) ? (tjs_int)*param[9] : 0;
-    tjs_uint32 shadowcolor =
-        (numparams >= 11 && param[10]->Type() != tvtVoid) ? static_cast<tjs_uint32>((tjs_int64)*param[10]) : 0;
-    tjs_int shadowwidth = (numparams >= 12 && param[11]->Type() != tvtVoid) ? (tjs_int)*param[11] : 0;
-    tjs_int shadowofsx = (numparams >= 13 && param[12]->Type() != tvtVoid) ? (tjs_int)*param[12] : 0;
-    tjs_int shadowofsy = (numparams >= 14 && param[13]->Type() != tvtVoid) ? (tjs_int)*param[13] : 0;
-    bool hda = (numparams >= 15 && param[14]->Type() != tvtVoid) ? param[14]->operator bool() : false;
+    tjs_int opa = (numparams >= 7 && param[6]->Type() != tvtVoid)
+        ? (tjs_int)*param[6]
+        : (tjs_int)255;
+    bool aa = (numparams >= 8 && param[7]->Type() != tvtVoid)
+        ? param[7]->operator bool()
+        : true;
+    tTVPDrawFace face = (numparams >= 9 && param[8]->Type() != tvtVoid)
+        ? (tTVPDrawFace)(tjs_int)(*param[8])
+        : dfAlpha;
+    tjs_int shadowlevel = (numparams >= 10 && param[9]->Type() != tvtVoid)
+        ? (tjs_int)*param[9]
+        : 0;
+    tjs_uint32 shadowcolor = (numparams >= 11 && param[10]->Type() != tvtVoid)
+        ? static_cast<tjs_uint32>((tjs_int64)*param[10])
+        : 0;
+    tjs_int shadowwidth = (numparams >= 12 && param[11]->Type() != tvtVoid)
+        ? (tjs_int)*param[11]
+        : 0;
+    tjs_int shadowofsx = (numparams >= 13 && param[12]->Type() != tvtVoid)
+        ? (tjs_int)*param[12]
+        : 0;
+    tjs_int shadowofsy = (numparams >= 14 && param[13]->Type() != tvtVoid)
+        ? (tjs_int)*param[13]
+        : 0;
+    bool hda = (numparams >= 15 && param[14]->Type() != tvtVoid)
+        ? param[14]->operator bool()
+        : false;
 
     tTVPRect clipRect(0, 0, dst->GetWidth(), dst->GetHeight());
     if(numparams >= 16 && param[15]->Type() == tvtObject) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[15]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             clipRect = rect->Get();
         }
@@ -982,13 +1058,15 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ drawText) {
     color = TVPToActualColor(color);
     tTVPComplexRect r;
     dst->GetBitmap()->SetFont(font->GetFont());
-    dst->GetBitmap()->DrawText(clipRect, x, y, text, color, met, opa, hda, aa, shadowlevel, shadowcolor, shadowwidth,
+    dst->GetBitmap()->DrawText(clipRect, x, y, text, color, met, opa, hda, aa,
+                               shadowlevel, shadowcolor, shadowwidth,
                                shadowofsx, shadowofsy, &r);
 
     if(result) {
         if(r.GetCount()) {
             const tTVPRect &ur = r.GetBound();
-            iTJSDispatch2 *ret = TVPCreateRectObject(ur.left, ur.top, ur.right, ur.bottom);
+            iTJSDispatch2 *ret =
+                TVPCreateRectObject(ur.left, ur.top, ur.right, ur.bottom);
             *result = tTJSVariant(ret, ret);
             ret->Release();
         } else {
@@ -1000,17 +1078,18 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ drawText) {
 TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ drawText)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ drawGlyph) {
-    // bmp, x, y, glyph, color, opa=255, aa=true, face=dfAlpha, shadowlevel=0,
-    // shadowcolor=0x000000, shadowwidth=0, shadowofsx=0, shadowofsy=0,
-    // hda=false, clipRect=nullptr
+    // bmp, x, y, glyph, color, opa=255, aa=true, face=dfAlpha,
+    // shadowlevel=0, shadowcolor=0x000000, shadowwidth=0,
+    // shadowofsx=0, shadowofsy=0, hda=false, clipRect=nullptr
     if(numparams < 5)
         return TJS_E_BADPARAMCOUNT;
 
     tTJSNI_Bitmap *dst = nullptr;
     tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
     if(clo.Object) {
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
-                                                        (iTJSNativeInstance **)&dst)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_Bitmap::ClassID,
+               (iTJSNativeInstance **)&dst)))
             return TJS_E_INVALIDPARAM;
     }
     if(!dst)
@@ -1020,24 +1099,42 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ drawGlyph) {
     tjs_int y = *param[2];
     iTJSDispatch2 *glyph = param[3]->AsObjectNoAddRef();
     tjs_uint32 color = static_cast<tjs_uint32>((tjs_int64)*param[4]);
-    tjs_int opa = (numparams >= 6 && param[5]->Type() != tvtVoid) ? (tjs_int)*param[5] : (tjs_int)255;
-    bool aa = (numparams >= 7 && param[6]->Type() != tvtVoid) ? param[6]->operator bool() : true;
-    tTVPDrawFace face = (numparams >= 8 && param[7]->Type() != tvtVoid) ? (tTVPDrawFace)(tjs_int)(*param[7]) : dfAlpha;
-    tjs_int shadowlevel = (numparams >= 9 && param[8]->Type() != tvtVoid) ? (tjs_int)*param[8] : 0;
-    tjs_uint32 shadowcolor =
-        (numparams >= 10 && param[9]->Type() != tvtVoid) ? static_cast<tjs_uint32>((tjs_int64)*param[9]) : 0;
-    tjs_int shadowwidth = (numparams >= 11 && param[10]->Type() != tvtVoid) ? (tjs_int)*param[10] : 0;
-    tjs_int shadowofsx = (numparams >= 12 && param[11]->Type() != tvtVoid) ? (tjs_int)*param[11] : 0;
-    tjs_int shadowofsy = (numparams >= 13 && param[12]->Type() != tvtVoid) ? (tjs_int)*param[12] : 0;
-    bool hda = (numparams >= 14 && param[13]->Type() != tvtVoid) ? param[13]->operator bool() : false;
+    tjs_int opa = (numparams >= 6 && param[5]->Type() != tvtVoid)
+        ? (tjs_int)*param[5]
+        : (tjs_int)255;
+    bool aa = (numparams >= 7 && param[6]->Type() != tvtVoid)
+        ? param[6]->operator bool()
+        : true;
+    tTVPDrawFace face = (numparams >= 8 && param[7]->Type() != tvtVoid)
+        ? (tTVPDrawFace)(tjs_int)(*param[7])
+        : dfAlpha;
+    tjs_int shadowlevel = (numparams >= 9 && param[8]->Type() != tvtVoid)
+        ? (tjs_int)*param[8]
+        : 0;
+    tjs_uint32 shadowcolor = (numparams >= 10 && param[9]->Type() != tvtVoid)
+        ? static_cast<tjs_uint32>((tjs_int64)*param[9])
+        : 0;
+    tjs_int shadowwidth = (numparams >= 11 && param[10]->Type() != tvtVoid)
+        ? (tjs_int)*param[10]
+        : 0;
+    tjs_int shadowofsx = (numparams >= 12 && param[11]->Type() != tvtVoid)
+        ? (tjs_int)*param[11]
+        : 0;
+    tjs_int shadowofsy = (numparams >= 13 && param[12]->Type() != tvtVoid)
+        ? (tjs_int)*param[12]
+        : 0;
+    bool hda = (numparams >= 14 && param[13]->Type() != tvtVoid)
+        ? param[13]->operator bool()
+        : false;
 
     tTVPRect clipRect(0, 0, dst->GetWidth(), dst->GetHeight());
     if(numparams >= 15 && param[14]->Type() == tvtObject) {
         tTJSNI_Rect *rect = nullptr;
         clo = param[14]->AsObjectClosureNoAddRef();
         if(clo.Object) {
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
-                                                            (iTJSNativeInstance **)&rect)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Rect::ClassID,
+                   (iTJSNativeInstance **)&rect)))
                 return TJS_E_INVALIDPARAM;
             clipRect = rect->Get();
         }
@@ -1062,13 +1159,15 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ drawGlyph) {
     }
     color = TVPToActualColor(color);
     tTVPComplexRect r;
-    dst->GetBitmap()->DrawGlyph(glyph, clipRect, x, y, color, met, opa, hda, aa, shadowlevel, shadowcolor, shadowwidth,
+    dst->GetBitmap()->DrawGlyph(glyph, clipRect, x, y, color, met, opa, hda, aa,
+                                shadowlevel, shadowcolor, shadowwidth,
                                 shadowofsx, shadowofsy, &r);
 
     if(result) {
         if(r.GetCount()) {
             const tTVPRect &ur = r.GetBound();
-            iTJSDispatch2 *ret = TVPCreateRectObject(ur.left, ur.top, ur.right, ur.bottom);
+            iTJSDispatch2 *ret =
+                TVPCreateRectObject(ur.left, ur.top, ur.right, ur.bottom);
             *result = tTJSVariant(ret, ret);
             ret->Release();
         } else {
@@ -1082,7 +1181,9 @@ TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ drawGlyph)
 TJS_END_NATIVE_MEMBERS
 }
 
-tTJSNativeInstance *tTJSNC_ImageFunction::CreateNativeInstance() { return new tTJSNI_ImageFunction(); }
+tTJSNativeInstance *tTJSNC_ImageFunction::CreateNativeInstance() {
+    return new tTJSNI_ImageFunction();
+}
 tTJSNativeClass *TVPCreateNativeClass_ImageFunction() {
     tTJSNativeClass *cls = new tTJSNC_ImageFunction();
     return cls;

@@ -58,8 +58,9 @@ public:
 
     virtual ttstr GetName(tjs_uint idx) = 0;
     // returned name must be already normalized using
-    // NormalizeInArchiveStorageName and the index must be sorted by its name,
-    // using ttstr::operator < . this is needed by fast directory search.
+    // NormalizeInArchiveStorageName and the index must be sorted by
+    // its name, using ttstr::operator < . this is needed by fast
+    // directory search.
 
     virtual tTJSBinaryStream *CreateStreamByIndex(tjs_uint idx) = 0;
 
@@ -106,47 +107,48 @@ class tTJSBinaryStream;
 class iTVPStorageLister // callback class for GetListAt
 {
 public:
-    virtual void TJS_INTF_METHOD Add(const ttstr &file) = 0;
+    virtual void Add(const ttstr &file) = 0;
 };
 
 //---------------------------------------------------------------------------
 class iTVPStorageMedia {
 public:
     virtual ~iTVPStorageMedia() {} // add by ZeaS
-    virtual void TJS_INTF_METHOD AddRef() = 0;
+    virtual void AddRef() = 0;
 
-    virtual void TJS_INTF_METHOD Release() = 0;
+    virtual void Release() = 0;
 
-    virtual void TJS_INTF_METHOD GetName(ttstr &name) = 0;
+    virtual void GetName(ttstr &name) = 0;
     // returns media name like "file", "http" etc.
 
-    //	virtual bool TJS_INTF_METHOD IsCaseSensitive() = 0;
+    //	virtual bool IsCaseSensitive() = 0;
     // returns whether this media is case sensitive or not
 
-    virtual void TJS_INTF_METHOD NormalizeDomainName(ttstr &name) = 0;
+    virtual void NormalizeDomainName(ttstr &name) = 0;
     // normalize domain name according with the media's rule
 
-    virtual void TJS_INTF_METHOD NormalizePathName(ttstr &name) = 0;
+    virtual void NormalizePathName(ttstr &name) = 0;
     // normalize path name according with the media's rule
 
     // "name" below is normalized but does not contain media, eg.
     // not "media://domain/path" but "domain/path"
 
-    virtual bool TJS_INTF_METHOD CheckExistentStorage(const ttstr &name) = 0;
+    virtual bool CheckExistentStorage(const ttstr &name) = 0;
     // check file existence
 
-    virtual tTJSBinaryStream *TJS_INTF_METHOD Open(const ttstr &name, tjs_uint32 flags) = 0;
+    virtual tTJSBinaryStream *Open(const ttstr &name, tjs_uint32 flags) = 0;
     // open a storage and return a tTJSBinaryStream instance.
     // name does not contain in-archive storage name but
     // is normalized.
 
-    virtual void TJS_INTF_METHOD GetListAt(const ttstr &name, iTVPStorageLister *lister) = 0;
+    virtual void GetListAt(const ttstr &name, iTVPStorageLister *lister) = 0;
     // list files at given place
 
-    virtual void TJS_INTF_METHOD GetLocallyAccessibleName(ttstr &name) = 0;
+    virtual void GetLocallyAccessibleName(ttstr &name) = 0;
     // basically the same as above,
-    // check wether given name is easily accessible from local OS filesystem.
-    // if true, returns local OS native name. otherwise returns an empty string.
+    // check wether given name is easily accessible from local OS
+    // filesystem. if true, returns local OS native name. otherwise
+    // returns an empty string.
 };
 //---------------------------------------------------------------------------
 /*]*/
@@ -158,22 +160,25 @@ extern tTVPArchive *TVPOpenArchive(const ttstr &name, bool normalizeFileName);
 // open archive and return tTVPArchive instance.
 
 TJS_EXP_FUNC_DEF(ttstr, TVPGetTemporaryName, ());
-// retrieve file name to store temporary data ( must be unique, local name )
+// retrieve file name to store temporary data ( must be unique, local
+// name )
 
 TJS_EXP_FUNC_DEF(ttstr, TVPGetAppPath, ());
 // retrieve program path, in normalized storage name
 
 void TVPPreNormalizeStorageName(ttstr &name);
-// called by TVPNormalizeStorageName before it process the storage name.
-// user may pass the OS's native filename to the TVP storage system,
-// so that this function must convert it to the TVP storage name rules.
+// called by TVPNormalizeStorageName before it process the storage
+// name. user may pass the OS's native filename to the TVP storage
+// system, so that this function must convert it to the TVP storage
+// name rules.
 
 iTVPStorageMedia *TVPCreateFileMedia();
 // create basic default "file:" storage media
 /*
 extern void TVPPreNormalizeStorageName(ttstr &name);
 
-extern tTJSBinaryStream * TVPOpenStream(const ttstr & name, tjs_uint32 flags);
+extern tTJSBinaryStream * TVPOpenStream(const ttstr & name, tjs_uint32
+flags);
         // open a storage and return a tTJSBinaryStream instance.
         // name does not contain in-archive storage name but
         // is normalized.
@@ -181,7 +186,8 @@ extern tTJSBinaryStream * TVPOpenStream(const ttstr & name, tjs_uint32 flags);
 extern bool TVPCheckExistentStorage(const ttstr &name);
         // check file existence
 
-extern void TVPGetStorageListAt(const ttstr &name, std::vector<ttstr> & list);
+extern void TVPGetStorageListAt(const ttstr &name, std::vector<ttstr>
+& list);
 
 extern ttstr TVPGetMediaCurrent(const ttstr & name);
 extern void TVPSetMediaCurrent(const ttstr & name, const ttstr & dir);
@@ -192,8 +198,8 @@ extern ttstr TVPGetNativeName(const ttstr &name);
 extern ttstr TVPGetLocallyAccessibleName(const ttstr &name);
         // check wether given name is easily accessible from local OS
 filesystem.
-        // if true, returns local OS native name. otherwise returns an empty
-string.
+        // if true, returns local OS native name. otherwise returns an
+empty string.
 
 */
 extern bool TVPRemoveFile(const ttstr &name);
@@ -218,15 +224,18 @@ TJS_EXP_FUNC_DEF(void, TVPRegisterStorageMedia, (iTVPStorageMedia * media));
 TJS_EXP_FUNC_DEF(void, TVPUnregisterStorageMedia, (iTVPStorageMedia * media));
 // remove storage media
 
-extern tTJSBinaryStream *TVPCreateStream(const ttstr &name, tjs_uint32 flags = 0);
+extern tTJSBinaryStream *TVPCreateStream(const ttstr &name,
+                                         tjs_uint32 flags = 0);
 // open "name" and return tTJSBinaryStream instance.
-// name will be local storage, network storage, in-archive storage, etc...
+// name will be local storage, network storage, in-archive storage,
+// etc...
 
 TJS_EXP_FUNC_DEF(bool, TVPIsExistentStorageNoSearch, (const ttstr &name));
 // if "name" is exists, return true. otherwise return false.
 // this does not search any auto search path.
 
-TJS_EXP_FUNC_DEF(bool, TVPIsExistentStorageNoSearchNoNormalize, (const ttstr &name));
+TJS_EXP_FUNC_DEF(bool, TVPIsExistentStorageNoSearchNoNormalize,
+                 (const ttstr &name));
 
 TJS_EXP_FUNC_DEF(ttstr, TVPNormalizeStorageName, (const ttstr &name));
 
@@ -262,8 +271,8 @@ TJS_EXP_FUNC_DEF(ttstr, TVPGetPlacedPath, (const ttstr &name));
 // search path and return the path which the "name" is placed.
 
 extern ttstr TVPSearchPlacedPath(const ttstr &name);
-// the same as TVPGetPlacedPath, except for rising exception when the storage
-// is not found.
+// the same as TVPGetPlacedPath, except for rising exception when the
+// storage is not found.
 
 TJS_EXP_FUNC_DEF(bool, TVPIsExistentStorage, (const ttstr &name));
 // if "name" is exists, return true. otherwise return false.
@@ -303,9 +312,9 @@ protected:
 
     tTVPStorageMedia() : refCount(1) {}
 
-    virtual void TJS_INTF_METHOD AddRef() override { refCount++; }
+    virtual void AddRef() override { refCount++; }
 
-    virtual void TJS_INTF_METHOD Release() override {
+    virtual void Release() override {
         if(refCount == 1) {
             delete this;
         } else {
@@ -313,11 +322,11 @@ protected:
         }
     }
 
-    virtual void TJS_INTF_METHOD NormalizeDomainName(ttstr &name) override {}
+    virtual void NormalizeDomainName(ttstr &name) override {}
 
-    virtual void TJS_INTF_METHOD NormalizePathName(ttstr &name) override {}
+    virtual void NormalizePathName(ttstr &name) override {}
 
-    virtual void TJS_INTF_METHOD GetLocallyAccessibleName(ttstr &name) override {}
+    virtual void GetLocallyAccessibleName(ttstr &name) override {}
 };
 
 class TArchiveStream : public tTJSBinaryStream {
@@ -331,7 +340,7 @@ public:
 
     virtual ~TArchiveStream();
 
-    virtual tjs_uint64 TJS_INTF_METHOD Seek(tjs_int64 offset, tjs_int whence) {
+    virtual tjs_uint64 Seek(tjs_int64 offset, tjs_int whence) {
         switch(whence) {
             case TJS_BS_SEEK_SET:
                 CurrentPos = offset;
@@ -353,7 +362,7 @@ public:
         return CurrentPos;
     }
 
-    virtual tjs_uint TJS_INTF_METHOD Read(void *buffer, tjs_uint read_size) {
+    virtual tjs_uint Read(void *buffer, tjs_uint read_size) {
         if(CurrentPos + read_size >= (tjs_int64)DataLength) {
             read_size = (tjs_uint)(DataLength - CurrentPos);
         }
@@ -365,9 +374,11 @@ public:
         return read_size;
     }
 
-    virtual tjs_uint TJS_INTF_METHOD Write(const void *buffer, tjs_uint write_size) { return 0; }
+    virtual tjs_uint Write(const void *buffer, tjs_uint write_size) {
+        return 0;
+    }
 
-    virtual tjs_uint64 TJS_INTF_METHOD GetSize() { return DataLength; }
+    virtual tjs_uint64 GetSize() { return DataLength; }
 };
 
 #endif

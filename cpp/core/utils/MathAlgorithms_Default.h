@@ -29,7 +29,8 @@
  *					(各チャンネルごとの数;
  *実際に処理されるサンプル 数の総計はlen*numchになる)
  */
-void DeinterleaveApplyingWindow(float *dest[], const float *src, float *win, int numch, size_t destofs, size_t len);
+void DeinterleaveApplyingWindow(float *dest[], const float *src, float *win,
+                                int numch, size_t destofs, size_t len);
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -44,7 +45,8 @@ void DeinterleaveApplyingWindow(float *dest[], const float *src, float *win, int
  *					(各チャンネルごとの数;
  *実際に処理されるサンプル 数の総計はlen*numchになる)
  */
-void InterleaveOverlappingWindow(float *dest, const float *const *src, float *win, int numch, size_t srcofs,
+void InterleaveOverlappingWindow(float *dest, const float *const *src,
+                                 float *win, int numch, size_t srcofs,
                                  size_t len);
 //---------------------------------------------------------------------------
 

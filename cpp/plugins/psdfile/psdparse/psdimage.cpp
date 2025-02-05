@@ -13,7 +13,8 @@
 // #define ENABLE_BMP_OUTPUT
 #ifdef ENABLE_BMP_OUTPUT
 namespace psd {
-    extern bool saveBmp(void *buffer, int width, int height, int size, const char *filename);
+    extern bool saveBmp(void *buffer, int width, int height, int size,
+                        const char *filename);
 }
 #endif
 
@@ -28,15 +29,19 @@ namespace psd {
 
     // コンポーネントカラーを32bitRGBAにパックする
     template <typename T>
-    inline uint32_t rgbaCompoToRgba32(const ColorFormat &fmt, T r, T g, T b, T a) {
+    inline uint32_t rgbaCompoToRgba32(const ColorFormat &fmt, T r, T g, T b,
+                                      T a) {
         // 値はBigEndian
 #ifdef BOOST_LITTLE_ENDIAN
-        return (uint32_t)(((a & 0xff) << fmt.aShift) | ((r & 0xff) << fmt.rShift) | ((g & 0xff) << fmt.gShift) |
-                          ((b & 0xff) << fmt.bShift));
+        return (
+            uint32_t)(((a & 0xff) << fmt.aShift) | ((r & 0xff) << fmt.rShift) |
+                      ((g & 0xff) << fmt.gShift) | ((b & 0xff) << fmt.bShift));
 #else
         int cmpShift = (sizeof(T) - sizeof(uint8_t)) * 8;
-        return (uint32_t)(((a >> cmpShift) << fmt.aShift) | ((r >> cmpShift) << fmt.rShift) |
-                          ((g >> cmpShift) << fmt.gShift) | ((b >> cmpShift) << fmt.bShift));
+        return (uint32_t)(((a >> cmpShift) << fmt.aShift) |
+                          ((r >> cmpShift) << fmt.rShift) |
+                          ((g >> cmpShift) << fmt.gShift) |
+                          ((b >> cmpShift) << fmt.bShift));
 
 #endif
     }
@@ -50,8 +55,9 @@ namespace psd {
     // コンポーネントカラーを32bitRGBAにパックする
     //   32bit コンポーネントは浮動小数点なので特殊化で対応
     template <>
-    inline uint32_t rgbaCompoToRgba32<uint32_t>(const ColorFormat &fmt, uint32_t _r, uint32_t _g, uint32_t _b,
-                                                uint32_t _a) {
+    inline uint32_t rgbaCompoToRgba32<uint32_t>(const ColorFormat &fmt,
+                                                uint32_t _r, uint32_t _g,
+                                                uint32_t _b, uint32_t _a) {
         pun32 r, g, b, a;
 #ifdef BOOST_LITTLE_ENDIAN
         r.i = byteSwap32(_r);
@@ -64,14 +70,18 @@ namespace psd {
         b.i = _b;
         a.i = _a;
 #endif
-        return (uint32_t)(((uint32_t)(a.f * 255) << fmt.aShift) | ((uint32_t)(r.f * 255) << fmt.rShift) |
-                          ((uint32_t)(g.f * 255) << fmt.gShift) | ((uint32_t)(b.f * 255) << fmt.bShift));
+        return (uint32_t)(((uint32_t)(a.f * 255) << fmt.aShift) |
+                          ((uint32_t)(r.f * 255) << fmt.rShift) |
+                          ((uint32_t)(g.f * 255) << fmt.gShift) |
+                          ((uint32_t)(b.f * 255) << fmt.bShift));
     }
 
     // コンポーネントカラーを32bitRGBAにパックする(Aチャネル不透明)
     //   32bit コンポーネントは浮動小数点なので特殊化で対応
     template <>
-    inline uint32_t rgbaCompoToRgba32<uint32_t>(const ColorFormat &fmt, uint32_t r, uint32_t g, uint32_t b) {
+    inline uint32_t rgbaCompoToRgba32<uint32_t>(const ColorFormat &fmt,
+                                                uint32_t r, uint32_t g,
+                                                uint32_t b) {
         return rgbaCompoToRgba32<uint32_t>(fmt, r, g, b, OPAQ_INT_BE);
     }
 
@@ -80,12 +90,13 @@ namespace psd {
     inline uint32_t grayToRgba32(const ColorFormat &fmt, T g, T a) {
 #ifdef BOOST_LITTLE_ENDIAN
         uint8_t _g = g & 0xff;
-        return (uint32_t)((a << fmt.aShift) | (_g << fmt.rShift) | (_g << fmt.gShift) | (_g << fmt.bShift));
+        return (uint32_t)((a << fmt.aShift) | (_g << fmt.rShift) |
+                          (_g << fmt.gShift) | (_g << fmt.bShift));
 #else
         int cmpShift = (sizeof(T) - sizeof(uint8_t)) * 8;
         uint8_t _g = (g >> cmpShift) & 0xff;
-        return (uint32_t)(((a >> cmpShift) << fmt.aShift) | (_g << fmt.rShift) | (_g << fmt.gShift) |
-                          (_g << fmt.bShift));
+        return (uint32_t)(((a >> cmpShift) << fmt.aShift) | (_g << fmt.rShift) |
+                          (_g << fmt.gShift) | (_g << fmt.bShift));
 #endif
     }
 
@@ -98,7 +109,8 @@ namespace psd {
     // グレーを32bitRGBAにパックする
     //   32bit コンポーネントは浮動小数点なので特殊化で対応
     template <>
-    inline uint32_t grayToRgba32<uint32_t>(const ColorFormat &fmt, uint32_t _g, uint32_t _a) {
+    inline uint32_t grayToRgba32<uint32_t>(const ColorFormat &fmt, uint32_t _g,
+                                           uint32_t _a) {
         pun32 g, a;
 #ifdef BOOST_LITTLE_ENDIAN
         g.i = byteSwap32(_g);
@@ -108,7 +120,8 @@ namespace psd {
         a.i = _a;
 #endif
         uint32_t gInt = (uint32_t)(g.f * 255);
-        return (uint32_t)(((uint32_t)(a.f * 255) << fmt.aShift) | (gInt << fmt.rShift) | (gInt << fmt.gShift) |
+        return (uint32_t)(((uint32_t)(a.f * 255) << fmt.aShift) |
+                          (gInt << fmt.rShift) | (gInt << fmt.gShift) |
                           (gInt << fmt.bShift));
     }
 
@@ -121,7 +134,8 @@ namespace psd {
 
     // CMYKを32bitRGBAにパックする
     template <typename T>
-    inline uint32_t cmykCompoToRgba32(const ColorFormat &fmt, T _c, T _m, T _y, T _k, T _a) {
+    inline uint32_t cmykCompoToRgba32(const ColorFormat &fmt, T _c, T _m, T _y,
+                                      T _k, T _a) {
 #ifdef BOOST_LITTLE_ENDIAN
         uint8_t c = 255 - _c & 0xff;
         uint8_t m = 255 - _m & 0xff;
@@ -146,7 +160,8 @@ namespace psd {
 
     // CMYKを32bitRGBAにパックする(Aチャネル不透明)
     template <typename T>
-    inline uint32_t cmykCompoToRgba32(const ColorFormat &fmt, T c, T m, T y, T k) {
+    inline uint32_t cmykCompoToRgba32(const ColorFormat &fmt, T c, T m, T y,
+                                      T k) {
         return cmykCompoToRgba32<T>(fmt, c, m, y, k, (T)(-1));
     }
 
@@ -154,8 +169,10 @@ namespace psd {
     // CMYKを32bitRGBAにパックする
     //   32bit コンポーネントは浮動小数点なので特殊化で対応
     template <>
-    inline uint32_t cmykCompoToRgba32<uint32_t>(const ColorFormat &fmt, uint32_t _c, uint32_t _m, uint32_t _y,
-                                                uint32_t _k, uint32_t _a) {
+    inline uint32_t cmykCompoToRgba32<uint32_t>(const ColorFormat &fmt,
+                                                uint32_t _c, uint32_t _m,
+                                                uint32_t _y, uint32_t _k,
+                                                uint32_t _a) {
         pun32 c, m, y, k, a;
 #ifdef BOOST_LITTLE_ENDIAN
         c.i = byteSwap32(_c);
@@ -180,8 +197,9 @@ namespace psd {
     // CMYKを32bitRGBAにパックする(Aチャネル不透明)
     //   32bit コンポーネントは浮動小数点なので特殊化で対応
     template <>
-    inline uint32_t cmykCompoToRgba32<uint32_t>(const ColorFormat &fmt, uint32_t c, uint32_t m, uint32_t y,
-                                                uint32_t k) {
+    inline uint32_t cmykCompoToRgba32<uint32_t>(const ColorFormat &fmt,
+                                                uint32_t c, uint32_t m,
+                                                uint32_t y, uint32_t k) {
         return cmykCompoToRgba32<uint32_t>(fmt, c, m, y, k, OPAQ_INT_BE);
     }
 
@@ -190,8 +208,8 @@ namespace psd {
     // --------------------------------------------------------------------------
 
     // 1bit bitmap を統合し pitch byte 単位で merged にフィルする
-    void mergeChannelsBitmap(void *merged, int width, int height, uint8_t *src, const ColorFormat &format,
-                             int bufPitchByte) {
+    void mergeChannelsBitmap(void *merged, int width, int height, uint8_t *src,
+                             const ColorFormat &format, int bufPitchByte) {
         int pitchPixel = std::abs(bufPitchByte) / 4;
         int linePixel = std::min(width, pitchPixel);
 
@@ -223,8 +241,10 @@ namespace psd {
 
     // グレイチャネルを統合し pitch byte 単位で merged にフィルする
     template <typename T>
-    void mergeChannelsGray(void *merged, int width, int height, std::vector<int> &ids,
-                           std::vector<uint8_t *> &decodedChannels, const ColorFormat &format, int bufPitchByte) {
+    void mergeChannelsGray(void *merged, int width, int height,
+                           std::vector<int> &ids,
+                           std::vector<uint8_t *> &decodedChannels,
+                           const ColorFormat &format, int bufPitchByte) {
         T *chA = 0, *chG = 0;
         for(uint32_t i = 0; i < ids.size(); i++) {
             switch(ids[i]) {
@@ -243,7 +263,8 @@ namespace psd {
         int linePixel = std::min(width, pitchPixel);
         if(chA) {
             for(int y = 0; y < height; y++) {
-                uint32_t *pix = (uint32_t *)((uint8_t *)merged + bufPitchByte * y);
+                uint32_t *pix =
+                    (uint32_t *)((uint8_t *)merged + bufPitchByte * y);
                 T *g = chG + width * y;
                 T *a = chA + width * y;
                 for(int x = 0; x < linePixel; x++) {
@@ -252,7 +273,8 @@ namespace psd {
             }
         } else {
             for(int y = 0; y < height; y++) {
-                uint32_t *pix = (uint32_t *)((uint8_t *)merged + bufPitchByte * y);
+                uint32_t *pix =
+                    (uint32_t *)((uint8_t *)merged + bufPitchByte * y);
                 T *g = chG + width * y;
                 for(int x = 0; x < linePixel; x++) {
                     *pix++ = grayToRgba32<T>(format, *g++);
@@ -261,9 +283,11 @@ namespace psd {
         }
     }
 
-    // インデックスカラーを統合し pitch byte 単位で merged にフィルする
-    void mergeChannelsIndex(void *merged, int width, int height, uint8_t *src, ColorTable &table,
-                            const ColorFormat &format, int bufPitchByte) {
+    // インデックスカラーを統合し pitch byte 単位で merged
+    // にフィルする
+    void mergeChannelsIndex(void *merged, int width, int height, uint8_t *src,
+                            ColorTable &table, const ColorFormat &format,
+                            int bufPitchByte) {
         int pitchPixel = std::abs(bufPitchByte) / 4;
         int linePixel = std::min(width, pitchPixel);
 
@@ -279,8 +303,10 @@ namespace psd {
 
     // RGBチャネルを統合し pitch byte 単位で merged にフィルする
     template <typename T>
-    void mergeChannelsRgb(void *merged, int width, int height, std::vector<int> &ids,
-                          std::vector<uint8_t *> &decodedChannels, const ColorFormat &format, int bufPitchByte) {
+    void mergeChannelsRgb(void *merged, int width, int height,
+                          std::vector<int> &ids,
+                          std::vector<uint8_t *> &decodedChannels,
+                          const ColorFormat &format, int bufPitchByte) {
         T *chR = 0, *chG = 0, *chB = 0, *chA = 0;
         for(uint32_t i = 0; i < ids.size(); i++) {
             switch(ids[i]) {
@@ -305,18 +331,21 @@ namespace psd {
         int linePixel = std::min(width, pitchPixel);
         if(chA) {
             for(int y = 0; y < height; y++) {
-                uint32_t *pix = (uint32_t *)((uint8_t *)merged + bufPitchByte * y);
+                uint32_t *pix =
+                    (uint32_t *)((uint8_t *)merged + bufPitchByte * y);
                 T *a = chA + width * y;
                 T *r = chR + width * y;
                 T *g = chG + width * y;
                 T *b = chB + width * y;
                 for(int x = 0; x < linePixel; x++) {
-                    *pix++ = rgbaCompoToRgba32<T>(format, *r++, *g++, *b++, *a++);
+                    *pix++ =
+                        rgbaCompoToRgba32<T>(format, *r++, *g++, *b++, *a++);
                 }
             }
         } else {
             for(int y = 0; y < height; y++) {
-                uint32_t *pix = (uint32_t *)((uint8_t *)merged + bufPitchByte * y);
+                uint32_t *pix =
+                    (uint32_t *)((uint8_t *)merged + bufPitchByte * y);
                 T *r = chR + width * y;
                 T *g = chG + width * y;
                 T *b = chB + width * y;
@@ -329,8 +358,10 @@ namespace psd {
 
     // CMYKチャネルを統合し pitch byte 単位で merged にフィルする
     template <typename T>
-    void mergeChannelsCmyk(void *merged, int width, int height, std::vector<int> &ids,
-                           std::vector<uint8_t *> &decodedChannels, const ColorFormat &format, int bufPitchByte) {
+    void mergeChannelsCmyk(void *merged, int width, int height,
+                           std::vector<int> &ids,
+                           std::vector<uint8_t *> &decodedChannels,
+                           const ColorFormat &format, int bufPitchByte) {
         T *chC = 0, *chM = 0, *chY = 0, *chK = 0, *chA = 0;
         for(uint32_t i = 0; i < ids.size(); i++) {
             switch(ids[i]) {
@@ -358,25 +389,29 @@ namespace psd {
         int linePixel = std::min(width, pitchPixel);
         if(chA) {
             for(int y = 0; y < height; y++) {
-                uint32_t *pix = (uint32_t *)((uint8_t *)merged + bufPitchByte * y);
+                uint32_t *pix =
+                    (uint32_t *)((uint8_t *)merged + bufPitchByte * y);
                 T *ap = chA + width * y;
                 T *cp = chC + width * y;
                 T *mp = chM + width * y;
                 T *yp = chY + width * y;
                 T *kp = chK + width * y;
                 for(int x = 0; x < linePixel; x++) {
-                    *pix++ = cmykCompoToRgba32<T>(format, *cp++, *mp++, *yp++, *kp++, *ap++);
+                    *pix++ = cmykCompoToRgba32<T>(format, *cp++, *mp++, *yp++,
+                                                  *kp++, *ap++);
                 }
             }
         } else {
             for(int y = 0; y < height; y++) {
-                uint32_t *pix = (uint32_t *)((uint8_t *)merged + bufPitchByte * y);
+                uint32_t *pix =
+                    (uint32_t *)((uint8_t *)merged + bufPitchByte * y);
                 T *cp = chC + width * y;
                 T *mp = chM + width * y;
                 T *yp = chY + width * y;
                 T *kp = chK + width * y;
                 for(int x = 0; x < linePixel; x++) {
-                    *pix++ = cmykCompoToRgba32<T>(format, *cp++, *mp++, *yp++, *kp++);
+                    *pix++ = cmykCompoToRgba32<T>(format, *cp++, *mp++, *yp++,
+                                                  *kp++);
                 }
             }
         }
@@ -384,7 +419,8 @@ namespace psd {
 
     // アルファチャネルにマスクチャネルをマージ
     template <typename T>
-    void mergeMaskToAlpha(uint8_t *aCh, int al, int at, int ar, int ab, uint8_t *mCh, int ml, int mt, int mr, int mb,
+    void mergeMaskToAlpha(uint8_t *aCh, int al, int at, int ar, int ab,
+                          uint8_t *mCh, int ml, int mt, int mr, int mb,
                           uint8_t defaultColor) {
         int aw = ar - al;
         int ah = ab - at;
@@ -494,7 +530,8 @@ namespace psd {
                     rectangle &r = rect[y][x];
                     if(r.valid()) {
                         for(int l = 0; l < r.h; l++) {
-                            uint8_t *out = aCh + (r.t + l) * aPitch + r.l * sizeof(T);
+                            uint8_t *out =
+                                aCh + (r.t + l) * aPitch + r.l * sizeof(T);
                             memset(out, 0x0, r.w * sizeof(T));
                         }
                     }
@@ -508,7 +545,8 @@ namespace psd {
     // --------------------------------------------------------------------------
 
     // RLE圧縮(PackBits)を展開する
-    inline uint32_t decodePackBits(uint8_t *dst, uint8_t *src, int height, int channels = 1, int targetCh = 0,
+    inline uint32_t decodePackBits(uint8_t *dst, uint8_t *src, int height,
+                                   int channels = 1, int targetCh = 0,
                                    int lineDataOffset = 0) {
         uint32_t headerSize = sizeof(int16_t) * height * channels;
         int16_t *lineBytesBE = (int16_t *)src + height * targetCh;
@@ -548,7 +586,8 @@ namespace psd {
 
 #ifdef USE_ZLIB
     // prediction なしのunzip展開
-    bool decodeZipWithoutPrediction(void *dst, int dstSize, void *src, int srcSize) {
+    bool decodeZipWithoutPrediction(void *dst, int dstSize, void *src,
+                                    int srcSize) {
         z_stream zs;
         memset(&zs, 0, sizeof(z_stream));
         zs.zalloc = Z_NULL;
@@ -578,7 +617,8 @@ namespace psd {
     }
 
     // prediction つき zip
-    bool decodeZipWithPrediction(void *dst, int dstSize, void *src, int srcSize, int width, int height, int depth) {
+    bool decodeZipWithPrediction(void *dst, int dstSize, void *src, int srcSize,
+                                 int width, int height, int depth) {
         void *buf = 0;
         if(depth == 8 || depth == 16) {
             buf = dst;
@@ -611,8 +651,9 @@ namespace psd {
             uint8_t *ptrData = (uint8_t *)buf;
             for(int i = 0; i < height; i++) {
 #ifdef BOOST_LITTLE_ENDIAN
-                // 後のチャンネルマージ時に big endian として取り扱うので
-                // ここではバイトスワップせずに be のままバイト単位の計算を行う
+                // 後のチャンネルマージ時に big endian
+                // として取り扱うので ここではバイトスワップせずに be
+                // のままバイト単位の計算を行う
                 uint8_t *ptr = ptrData + i * width * 2;
                 for(int x = 0; x < (width - 1) * 2; x += 2) {
                     ptr[x + 2] += ptr[x + 0] + (ptr[x + 3] + ptr[x + 1]) / 256;
@@ -667,7 +708,8 @@ namespace psd {
     // 画像取得
     // --------------------------------------------------------------------------
     // レイヤー画像を取得
-    bool PSDFile::getLayerImageById(int layerId, void *buf, const ColorFormat &format, int bufPitchByte,
+    bool PSDFile::getLayerImageById(int layerId, void *buf,
+                                    const ColorFormat &format, int bufPitchByte,
                                     ImageMode mode) {
         LayerInfo *layer = getLayerById(layerId);
         if(layer) {
@@ -678,7 +720,8 @@ namespace psd {
     }
 
     // レイヤー画像を取得
-    bool PSDFile::getLayerImage(LayerInfo &layer, void *buf, const ColorFormat &format, int bufPitchByte,
+    bool PSDFile::getLayerImage(LayerInfo &layer, void *buf,
+                                const ColorFormat &format, int bufPitchByte,
                                 ImageMode mode) {
         psd::LayerMask &mask = layer.extraData.layerMask;
 
@@ -724,9 +767,12 @@ namespace psd {
         std::vector<uint8_t *> decodedChannels; // (channels);
         std::vector<int> channelIds; // (channels);
 
-        dprint("layer: %s (%d ch)\n", layer.extraData.layerName.c_str(), channels);
-        dprint(" image: (%d x %d) %d pixels, %d bytes/ch\n", imageWidth, imageHeight, imagePixels, imageChannelBytes);
-        dprint(" mask:  (%d x %d) %d pixels, %d bytes/ch\n", maskWidth, maskHeight, maskPixels, maskChannelBytes);
+        dprint("layer: %s (%d ch)\n", layer.extraData.layerName.c_str(),
+               channels);
+        dprint(" image: (%d x %d) %d pixels, %d bytes/ch\n", imageWidth,
+               imageHeight, imagePixels, imageChannelBytes);
+        dprint(" mask:  (%d x %d) %d pixels, %d bytes/ch\n", maskWidth,
+               maskHeight, maskPixels, maskChannelBytes);
 
         int alphaChannelIndex = -1;
         int maskChannelIndex = -1;
@@ -745,7 +791,8 @@ namespace psd {
             // ソースチャネルバッファの準備
             channel.imageData->init();
             int compressionId = channel.imageData->getInt16();
-            int dataLength = channel.length - 2; // 2: 頭についてる compress id 分減らす
+            int dataLength =
+                channel.length - 2; // 2: 頭についてる compress id 分減らす
             if(compressionId != 0) {
                 // 圧縮の場合は一時ソースバッファにコピーしておく
                 if(dataLength > tmpSourceBufferSize) {
@@ -757,7 +804,8 @@ namespace psd {
             }
 
             // 展開先チャネルバッファ&チャネルidのセット
-            int bufSize = channel.isMaskChannel() ? maskChannelBytes : imageChannelBytes;
+            int bufSize =
+                channel.isMaskChannel() ? maskChannelBytes : imageChannelBytes;
             uint8_t *decodedChannel = new uint8_t[bufSize];
             uint8_t channelId = channel.id;
 
@@ -774,15 +822,17 @@ namespace psd {
                     break;
                 case 2: // zip (w/o prediction)
 #ifdef USE_ZLIB
-                    decodeZipWithoutPrediction(decodedChannel, bufSize, tmpSourceBuffer, dataLength);
+                    decodeZipWithoutPrediction(decodedChannel, bufSize,
+                                               tmpSourceBuffer, dataLength);
 #else
                     memset(decodedChannel, 0xff, bufSize);
 #endif
                     break;
                 case 3: // zip (w/ prediction)
 #ifdef USE_ZLIB
-                    decodeZipWithPrediction(decodedChannel, bufSize, tmpSourceBuffer, dataLength, width, height,
-                                            header.depth);
+                    decodeZipWithPrediction(decodedChannel, bufSize,
+                                            tmpSourceBuffer, dataLength, width,
+                                            height, header.depth);
 #else
                     memset(decodedChannel, 0xff, bufSize);
 #endif
@@ -832,19 +882,25 @@ namespace psd {
                     uint8_t *alphaChannel = decodedChannels[alphaChannelIndex];
                     switch(header.depth) {
                         case 8:
-                            mergeMaskToAlpha<uint8_t>(alphaChannel, layer.left, layer.top, layer.right, layer.bottom,
-                                                      maskChannel, mask.left, mask.top, mask.right, mask.bottom,
-                                                      mask.defaultColor);
+                            mergeMaskToAlpha<uint8_t>(
+                                alphaChannel, layer.left, layer.top,
+                                layer.right, layer.bottom, maskChannel,
+                                mask.left, mask.top, mask.right, mask.bottom,
+                                mask.defaultColor);
                             break;
                         case 16:
-                            mergeMaskToAlpha<uint16_t>(alphaChannel, layer.left, layer.top, layer.right, layer.bottom,
-                                                       maskChannel, mask.left, mask.top, mask.right, mask.bottom,
-                                                       mask.defaultColor);
+                            mergeMaskToAlpha<uint16_t>(
+                                alphaChannel, layer.left, layer.top,
+                                layer.right, layer.bottom, maskChannel,
+                                mask.left, mask.top, mask.right, mask.bottom,
+                                mask.defaultColor);
                             break;
                         case 32:
-                            mergeMaskToAlpha<uint32_t>(alphaChannel, layer.left, layer.top, layer.right, layer.bottom,
-                                                       maskChannel, mask.left, mask.top, mask.right, mask.bottom,
-                                                       mask.defaultColor);
+                            mergeMaskToAlpha<uint32_t>(
+                                alphaChannel, layer.left, layer.top,
+                                layer.right, layer.bottom, maskChannel,
+                                mask.left, mask.top, mask.right, mask.bottom,
+                                mask.defaultColor);
                             break;
                         default:
                             break;
@@ -865,21 +921,25 @@ namespace psd {
         // チャネルデータをピクセルデータにマージ
         switch(colorMode) {
             case COLOR_MODE_BITMAP:
-                mergeChannelsBitmap(buf, imageWidth, imageHeight, decodedChannels[0], format, bufPitchByte);
+                mergeChannelsBitmap(buf, imageWidth, imageHeight,
+                                    decodedChannels[0], format, bufPitchByte);
                 break;
             case COLOR_MODE_GRAYSCALE:
                 switch(header.depth) {
                     case 8:
-                        mergeChannelsGray<uint8_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                   bufPitchByte);
+                        mergeChannelsGray<uint8_t>(buf, imageWidth, imageHeight,
+                                                   channelIds, decodedChannels,
+                                                   format, bufPitchByte);
                         break;
                     case 16:
-                        mergeChannelsGray<uint16_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                    bufPitchByte);
+                        mergeChannelsGray<uint16_t>(
+                            buf, imageWidth, imageHeight, channelIds,
+                            decodedChannels, format, bufPitchByte);
                         break;
                     case 32:
-                        mergeChannelsGray<uint32_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                    bufPitchByte);
+                        mergeChannelsGray<uint32_t>(
+                            buf, imageWidth, imageHeight, channelIds,
+                            decodedChannels, format, bufPitchByte);
                         break;
                     default:
                         break;
@@ -888,37 +948,45 @@ namespace psd {
             case COLOR_MODE_RGB:
                 switch(header.depth) {
                     case 8:
-                        mergeChannelsRgb<uint8_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                  bufPitchByte);
+                        mergeChannelsRgb<uint8_t>(buf, imageWidth, imageHeight,
+                                                  channelIds, decodedChannels,
+                                                  format, bufPitchByte);
                         break;
                     case 16:
-                        mergeChannelsRgb<uint16_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                   bufPitchByte);
+                        mergeChannelsRgb<uint16_t>(buf, imageWidth, imageHeight,
+                                                   channelIds, decodedChannels,
+                                                   format, bufPitchByte);
                         break;
                     case 32:
-                        mergeChannelsRgb<uint32_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                   bufPitchByte);
+                        mergeChannelsRgb<uint32_t>(buf, imageWidth, imageHeight,
+                                                   channelIds, decodedChannels,
+                                                   format, bufPitchByte);
                         break;
                     default:
                         break;
                 }
                 break;
             case COLOR_MODE_INDEXED:
-                mergeChannelsIndex(buf, imageWidth, imageHeight, decodedChannels[0], colorTable, format, bufPitchByte);
+                mergeChannelsIndex(buf, imageWidth, imageHeight,
+                                   decodedChannels[0], colorTable, format,
+                                   bufPitchByte);
                 break;
             case COLOR_MODE_CMYK:
                 switch(header.depth) {
                     case 8:
-                        mergeChannelsCmyk<uint8_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                   bufPitchByte);
+                        mergeChannelsCmyk<uint8_t>(buf, imageWidth, imageHeight,
+                                                   channelIds, decodedChannels,
+                                                   format, bufPitchByte);
                         break;
                     case 16:
-                        mergeChannelsCmyk<uint16_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                    bufPitchByte);
+                        mergeChannelsCmyk<uint16_t>(
+                            buf, imageWidth, imageHeight, channelIds,
+                            decodedChannels, format, bufPitchByte);
                         break;
                     case 32:
-                        mergeChannelsCmyk<uint32_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                    bufPitchByte);
+                        mergeChannelsCmyk<uint32_t>(
+                            buf, imageWidth, imageHeight, channelIds,
+                            decodedChannels, format, bufPitchByte);
                         break;
                     default:
                         break;
@@ -946,7 +1014,8 @@ namespace psd {
         return true;
     }
 
-    bool PSDFile::getMergedImage(void *buf, const ColorFormat &format, int bufPitchByte) {
+    bool PSDFile::getMergedImage(void *buf, const ColorFormat &format,
+                                 int bufPitchByte) {
         int imageWidth = header.width;
         int imageHeight = header.height;
         int imagePixels = imageWidth * imageHeight;
@@ -1004,14 +1073,17 @@ namespace psd {
                 uint32_t nextOffset = 0;
                 for(int i = 0; i < channels; i++) {
                     nextOffset +=
-                        decodePackBits(decodedChannels[i], tmpSourceBuffer, imageHeight, channels, i, nextOffset);
+                        decodePackBits(decodedChannels[i], tmpSourceBuffer,
+                                       imageHeight, channels, i, nextOffset);
                 }
             } break;
             case 2: // zip (w/o prediction)
             {
                 for(int i = 0; i < channels; i++) {
 #ifdef USE_ZLIB
-                    decodeZipWithoutPrediction(decodedChannels[i], imageChannelBytes, tmpSourceBuffer, dataLength);
+                    decodeZipWithoutPrediction(decodedChannels[i],
+                                               imageChannelBytes,
+                                               tmpSourceBuffer, dataLength);
 #else
                     memset(decodedChannel, 0xff, bufSize);
 #endif
@@ -1021,8 +1093,9 @@ namespace psd {
             {
                 for(int i = 0; i < channels; i++) {
 #ifdef USE_ZLIB
-                    decodeZipWithPrediction(decodedChannels[i], imageChannelBytes, tmpSourceBuffer, dataLength,
-                                            imageWidth, imageHeight, header.depth);
+                    decodeZipWithPrediction(
+                        decodedChannels[i], imageChannelBytes, tmpSourceBuffer,
+                        dataLength, imageWidth, imageHeight, header.depth);
 #else
                     memset(decodedChannel, 0xff, bufSize);
 #endif
@@ -1038,21 +1111,25 @@ namespace psd {
 
         switch(header.mode) {
             case COLOR_MODE_BITMAP:
-                mergeChannelsBitmap(buf, imageWidth, imageHeight, decodedChannels[0], format, bufPitchByte);
+                mergeChannelsBitmap(buf, imageWidth, imageHeight,
+                                    decodedChannels[0], format, bufPitchByte);
                 break;
             case COLOR_MODE_GRAYSCALE:
                 switch(header.depth) {
                     case 8:
-                        mergeChannelsGray<uint8_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                   bufPitchByte);
+                        mergeChannelsGray<uint8_t>(buf, imageWidth, imageHeight,
+                                                   channelIds, decodedChannels,
+                                                   format, bufPitchByte);
                         break;
                     case 16:
-                        mergeChannelsGray<uint16_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                    bufPitchByte);
+                        mergeChannelsGray<uint16_t>(
+                            buf, imageWidth, imageHeight, channelIds,
+                            decodedChannels, format, bufPitchByte);
                         break;
                     case 32:
-                        mergeChannelsGray<uint32_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                    bufPitchByte);
+                        mergeChannelsGray<uint32_t>(
+                            buf, imageWidth, imageHeight, channelIds,
+                            decodedChannels, format, bufPitchByte);
                         break;
                     default:
                         break;
@@ -1064,37 +1141,45 @@ namespace psd {
                 }
                 switch(header.depth) {
                     case 8:
-                        mergeChannelsRgb<uint8_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                  bufPitchByte);
+                        mergeChannelsRgb<uint8_t>(buf, imageWidth, imageHeight,
+                                                  channelIds, decodedChannels,
+                                                  format, bufPitchByte);
                         break;
                     case 16:
-                        mergeChannelsRgb<uint16_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                   bufPitchByte);
+                        mergeChannelsRgb<uint16_t>(buf, imageWidth, imageHeight,
+                                                   channelIds, decodedChannels,
+                                                   format, bufPitchByte);
                         break;
                     case 32:
-                        mergeChannelsRgb<uint32_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                   bufPitchByte);
+                        mergeChannelsRgb<uint32_t>(buf, imageWidth, imageHeight,
+                                                   channelIds, decodedChannels,
+                                                   format, bufPitchByte);
                         break;
                     default:
                         break;
                 }
                 break;
             case COLOR_MODE_INDEXED:
-                mergeChannelsIndex(buf, imageWidth, imageHeight, decodedChannels[0], colorTable, format, bufPitchByte);
+                mergeChannelsIndex(buf, imageWidth, imageHeight,
+                                   decodedChannels[0], colorTable, format,
+                                   bufPitchByte);
                 break;
             case COLOR_MODE_CMYK:
                 switch(header.depth) {
                     case 8:
-                        mergeChannelsCmyk<uint8_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                   bufPitchByte);
+                        mergeChannelsCmyk<uint8_t>(buf, imageWidth, imageHeight,
+                                                   channelIds, decodedChannels,
+                                                   format, bufPitchByte);
                         break;
                     case 16:
-                        mergeChannelsCmyk<uint16_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                    bufPitchByte);
+                        mergeChannelsCmyk<uint16_t>(
+                            buf, imageWidth, imageHeight, channelIds,
+                            decodedChannels, format, bufPitchByte);
                         break;
                     case 32:
-                        mergeChannelsCmyk<uint32_t>(buf, imageWidth, imageHeight, channelIds, decodedChannels, format,
-                                                    bufPitchByte);
+                        mergeChannelsCmyk<uint32_t>(
+                            buf, imageWidth, imageHeight, channelIds,
+                            decodedChannels, format, bufPitchByte);
                         break;
                     default:
                         break;

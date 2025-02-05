@@ -197,7 +197,8 @@ namespace psd {
         ColorTable() : transparencyIndex(-1), validCount(0) {}
 
         std::vector<ColorRgba> colors; // 参照側の便宜上常にフルサイズ(256)保証
-        int16_t transparencyIndex; // 透明色インデックス(当該エントリはa=0x0セット済)
+        int16_t
+            transparencyIndex; // 透明色インデックス(当該エントリはa=0x0セット済)
         int16_t validCount; // 有効なエントリ数
     };
 
@@ -276,8 +277,10 @@ namespace psd {
 
     // イメージリソース情報
     struct ImageResourceInfo {
-        ImageResourceInfo(uint16_t id, std::string &name, int size, IteratorBase *data) :
-            id(id), name(name), size(size), data(data){};
+        ImageResourceInfo(uint16_t id, std::string &name, int size,
+                          IteratorBase *data) :
+            id(id),
+            name(name), size(size), data(data){};
 
         ~ImageResourceInfo() { delete data; }
 
@@ -343,8 +346,10 @@ namespace psd {
 
     // 追加レイヤ情報
     struct AdditionalLayerInfo {
-        AdditionalLayerInfo(int sigType, int key, int size, IteratorBase *data) :
-            sigType(sigType), key(key), size(size), data(data) {}
+        AdditionalLayerInfo(int sigType, int key, int size,
+                            IteratorBase *data) :
+            sigType(sigType),
+            key(key), size(size), data(data) {}
 
         ~AdditionalLayerInfo() { delete data; }
 
@@ -379,7 +384,8 @@ namespace psd {
 
     // チャンネル情報
     struct ChannelInfo {
-        ChannelInfo(int id, int length) : id(id), length(length), imageData(0){};
+        ChannelInfo(int id, int length) :
+            id(id), length(length), imageData(0){};
 
         ~ChannelInfo() { delete imageData; }
 
@@ -434,7 +440,8 @@ namespace psd {
         std::wstring layerNameUnicode;
         // int layerNameId;
         // int foreignEffectId;
-        // BlendMode folderBlendMode; // blendMode 上書きにしている。問題あれば分離
+        // BlendMode folderBlendMode; // blendMode
+        // 上書きにしている。問題あれば分離
 
         // レイヤーカンプ情報
         std::map<int, LayerCompInfo> layerComps;
@@ -460,7 +467,9 @@ namespace psd {
     class Data {
     public:
         // コンストラクタ
-        Data() : colorModeSize(0), colorModeIterator(0), mergedAlpha(false), channelImageData(0), imageData(0) {}
+        Data() :
+            colorModeSize(0), colorModeIterator(0), mergedAlpha(false),
+            channelImageData(0), imageData(0) {}
 
         // デストラクタ
         virtual ~Data() { clearData(); }

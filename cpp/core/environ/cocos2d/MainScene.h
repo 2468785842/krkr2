@@ -21,7 +21,8 @@ public:
     static TVPMainScene *GetInstance();
     static TVPMainScene *CreateInstance();
 
-    static void setMaskLayTouchBegain(const std::function<bool(cocos2d::Touch *, cocos2d::Event *)> &func);
+    static void setMaskLayTouchBegain(
+        const std::function<bool(cocos2d::Touch *, cocos2d::Event *)> &func);
 
     enum eEnterAni {
         eEnterAniNone,
@@ -29,7 +30,8 @@ public:
         eEnterFromBottom,
     };
 
-    void pushUIForm(cocos2d::Node *node, eEnterAni ani = eEnterAniOverFromRight);
+    void pushUIForm(cocos2d::Node *node,
+                    eEnterAni ani = eEnterAniOverFromRight);
 
     enum eLeaveAni {
         eLeaveAniNone,
@@ -63,8 +65,10 @@ public:
     static float convertCursorScale(float cfgScale /*0 ~ 1*/);
 
 private:
-    void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event);
-    void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event);
+    void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
+                      cocos2d::Event *event);
+    void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode,
+                       cocos2d::Event *event);
 
     bool onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event);
     void onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *event);

@@ -23,7 +23,8 @@ namespace psd {
                 if(item.origin == 1) {
                     item.associatedLayerId = res.data->getInt32();
                 } else {
-                    item.associatedLayerId = -1; // 多分０でいいはずだけどドキュメントないので…
+                    item.associatedLayerId =
+                        -1; // 多分０でいいはずだけどドキュメントないので…
                 }
                 res.data->getUnicodeString(item.name);
                 item.type = res.data->getInt32();
@@ -48,7 +49,8 @@ namespace psd {
 
             // additional descriptor resource
             Descriptor dsc;
-            if(!res.data->eoi() && 16 == res.data->getInt32() && dsc.load(res.data)) {
+            if(!res.data->eoi() && 16 == res.data->getInt32() &&
+               dsc.load(res.data)) {
                 dsc.dump();
                 // TODO
                 // 上で読み取ったものと同じものがそのままDescriptorで入っている？
@@ -120,11 +122,15 @@ namespace psd {
                                 LayerComp lc;
                                 lc.id = compId->val;
 
-                                DescriptorInteger *capturedInfo = comp->item("capturedInfo");
+                                DescriptorInteger *capturedInfo =
+                                    comp->item("capturedInfo");
                                 if(capturedInfo) {
-                                    lc.isRecordVisibility = ((capturedInfo->val & (1 << 0)) != 0);
-                                    lc.isRecordPosition = ((capturedInfo->val & (1 << 1)) != 0);
-                                    lc.isRecordAppearance = ((capturedInfo->val & (1 << 2)) != 0);
+                                    lc.isRecordVisibility =
+                                        ((capturedInfo->val & (1 << 0)) != 0);
+                                    lc.isRecordPosition =
+                                        ((capturedInfo->val & (1 << 1)) != 0);
+                                    lc.isRecordAppearance =
+                                        ((capturedInfo->val & (1 << 2)) != 0);
                                 } else {
                                     lc.isRecordVisibility = false;
                                     lc.isRecordPosition = false;
@@ -136,7 +142,8 @@ namespace psd {
                                     lc.name = name->val;
                                 }
 
-                                DescriptorString *comment = comp->item("comment");
+                                DescriptorString *comment =
+                                    comp->item("comment");
                                 if(comment) {
                                     lc.comment = comment->val;
                                 }

@@ -4,11 +4,11 @@
 //---------------------------------------------------------------------------
 
 /*
-        We must separate this module because sucking MS library has a lack of
-        compiler portability.
+        We must separate this module because sucking MS library has a
+   lack of compiler portability.
 
-        This requires DirectX7 or later or Windows Media Player 6.4 or later for
-        playbacking MPEG streams.
+        This requires DirectX7 or later or Windows Media Player 6.4 or
+   later for playbacking MPEG streams.
 
         Modified by T.Imoto <http://www.kaede-software.com>
 */

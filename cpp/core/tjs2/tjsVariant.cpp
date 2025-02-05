@@ -29,7 +29,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSVariantOctet::tTJSVariantOctet(const tjs_uint8 *data1, tjs_uint len1, const tjs_uint8 *data2, tjs_uint len2) {
+    tTJSVariantOctet::tTJSVariantOctet(const tjs_uint8 *data1, tjs_uint len1,
+                                       const tjs_uint8 *data2, tjs_uint len2) {
         RefCount = 1;
         Length = len1 + len2;
         Data = new tjs_uint8[Length];
@@ -40,7 +41,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSVariantOctet::tTJSVariantOctet(const tTJSVariantOctet *o1, const tTJSVariantOctet *o2) {
+    tTJSVariantOctet::tTJSVariantOctet(const tTJSVariantOctet *o1,
+                                       const tTJSVariantOctet *o2) {
         RefCount = 1;
         Length = (o1 ? o1->Length : 0) + (o2 ? o2->Length : 0);
         Data = new tjs_uint8[Length];
@@ -62,7 +64,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSVariantOctet *TJSAllocVariantOctet(const tjs_uint8 *data, tjs_uint length) {
+    tTJSVariantOctet *TJSAllocVariantOctet(const tjs_uint8 *data,
+                                           tjs_uint length) {
         if(!data)
             return nullptr;
         if(length == 0)
@@ -71,7 +74,9 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSVariantOctet *TJSAllocVariantOctet(const tjs_uint8 *data1, tjs_uint len1, const tjs_uint8 *data2,
+    tTJSVariantOctet *TJSAllocVariantOctet(const tjs_uint8 *data1,
+                                           tjs_uint len1,
+                                           const tjs_uint8 *data2,
                                            tjs_uint len2) {
         if(!data1)
             len1 = 0;
@@ -84,7 +89,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSVariantOctet *TJSAllocVariantOctet(const tTJSVariantOctet *o1, const tTJSVariantOctet *o2) {
+    tTJSVariantOctet *TJSAllocVariantOctet(const tTJSVariantOctet *o1,
+                                           const tTJSVariantOctet *o2) {
         if(!o1 && !o2)
             return nullptr;
         return new tTJSVariantOctet(o1, o2);
@@ -113,7 +119,8 @@ namespace TJS {
         tjs_int stringlen = oct->GetLength() * 3 - 1;
         tTJSVariantString *str = TJSAllocVariantStringBuffer(stringlen);
 
-        tjs_char *buf = const_cast<tjs_char *>(str->operator const tjs_char *());
+        tjs_char *buf =
+            const_cast<tjs_char *>(str->operator const tjs_char *());
         static const tjs_char hex[] = TJS_W("0123456789ABCDEF");
         const tjs_uint8 *data = oct->GetData();
         tjs_uint n = oct->GetLength();
@@ -136,7 +143,8 @@ namespace TJS {
     tTJSVariantClosure_S TJSNullVariantClosure = { nullptr, nullptr };
 
     //---------------------------------------------------------------------------
-    void TJSThrowVariantConvertError(const tTJSVariant &from, tTJSVariantType to) {
+    void TJSThrowVariantConvertError(const tTJSVariant &from,
+                                     tTJSVariantType to) {
         if(to == tvtObject) {
             ttstr msg(TJSVariantConvertErrorToObject);
 
@@ -155,12 +163,15 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void TJSThrowVariantConvertError(const tTJSVariant &from, tTJSVariantType to1, tTJSVariantType to2) {
+    void TJSThrowVariantConvertError(const tTJSVariant &from,
+                                     tTJSVariantType to1, tTJSVariantType to2) {
         ttstr msg(TJSVariantConvertError);
 
         msg.Replace(TJS_W("%1"), TJSVariantToReadableString(from));
 
-        msg.Replace(TJS_W("%2"), TJSVariantTypeToTypeString(to1) + ttstr(TJS_W("/")) + TJSVariantTypeToTypeString(to2));
+        msg.Replace(TJS_W("%2"),
+                    TJSVariantTypeToTypeString(to1) + ttstr(TJS_W("/")) +
+                        TJSVariantTypeToTypeString(to2));
 
         TJS_eTJSVariantError(msg);
     }
@@ -175,8 +186,10 @@ namespace TJS {
     //---------------------------------------------------------------------------
     tTJSVariantString *TJSObjectToString(const tTJSVariantClosure &dsp) {
         if(TJSObjectTypeInfoEnabled()) {
-            // retrieve object type information from debugging facility
-            ttstr ret{ fmt::format("(object {}", static_cast<void *>(dsp.Object)) };
+            // retrieve object type information from debugging
+            // facility
+            ttstr ret{ fmt::format("(object {}",
+                                   static_cast<void *>(dsp.Object)) };
             ttstr type = TJSGetObjectTypeInfo(dsp.Object);
             if(!type.IsEmpty())
                 ret += TJS_W("[") + type + TJS_W("]");
@@ -190,7 +203,8 @@ namespace TJS {
             return str;
         } else {
             ttstr tmp{};
-            tmp.printf("(object %p:%p)", static_cast<void *>(dsp.Object), static_cast<void *>(dsp.ObjThis));
+            tmp.printf("(object %p:%p)", static_cast<void *>(dsp.Object),
+                       static_cast<void *>(dsp.ObjThis));
             return TJSAllocVariantString(tmp.c_str());
         }
     }
@@ -230,7 +244,8 @@ namespace TJS {
             return v;
         // FIXME:
         TJSSetFPUE();
-        return TJSAllocVariantString(ttstr{ fmt::format("{:.15g}", r) }.c_str());
+        return TJSAllocVariantString(
+            ttstr{ fmt::format("{:.15g}", r) }.c_str());
     }
 
     //---------------------------------------------------------------------------
@@ -268,8 +283,8 @@ namespace TJS {
 
         *(p++) = TJS_W('p');
         // TJS_sprintf(p, TJS_W("%d"), exp);
-        // TJS_snprintf(p, (sizeof(tmp)-(p-tmp))/sizeof(tjs_char), TJS_W("%d"),
-        // exp);
+        // TJS_snprintf(p, (sizeof(tmp)-(p-tmp))/sizeof(tjs_char),
+        // TJS_W("%d"), exp);
         ttstr t2{ fmt::format("{}", exp) };
         for(tjs_int i = 0; t2[i] != 0 && p != (tmp + 128); i++) {
             *(p++) = t2[i];
@@ -395,7 +410,8 @@ namespace TJS {
                 break;
 
             case tvtObject: {
-                tTJSVariantString *string = TJSObjectToString(*(tTJSVariantClosure *)&Object);
+                tTJSVariantString *string =
+                    TJSObjectToString(*(tTJSVariantClosure *)&Object);
                 ReleaseObject();
                 String = string;
                 vt = tvtString;
@@ -457,7 +473,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJSVariant::CopyRef(const tTJSVariant &ref) // from reference to tTJSVariant
+    void tTJSVariant::CopyRef(
+        const tTJSVariant &ref) // from reference to tTJSVariant
     {
         switch(ref.vt) {
             case tvtVoid:
@@ -468,11 +485,13 @@ namespace TJS {
                 if(this != &ref) {
                     /*
                         note:
-                        ReleaseContent makes the object variables nullptr during clear,
-                        thus makes the resulting object also nullptr when the ref and
-                       this are exactly the same object. This does not affect string nor
-                       octet because the ReleaseContent does *not* make the pointer
-                       nullptr during clear when the variant type is string or octet.
+                        ReleaseContent makes the object variables
+                       nullptr during clear, thus makes the resulting
+                       object also nullptr when the ref and this are
+                       exactly the same object. This does not affect
+                       string nor octet because the ReleaseContent
+                       does *not* make the pointer nullptr during
+                       clear when the variant type is string or octet.
                     */
                     ((tTJSVariantClosure &)ref.Object).AddRef();
                     ReleaseContent();
@@ -514,7 +533,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSVariant &tTJSVariant::SetObject(iTJSDispatch2 *object, iTJSDispatch2 *objthis) {
+    tTJSVariant &tTJSVariant::SetObject(iTJSDispatch2 *object,
+                                        iTJSDispatch2 *objthis) {
         if(object)
             object->AddRef();
         if(objthis)
@@ -527,7 +547,8 @@ namespace TJS {
     }
     //---------------------------------------------------------------------------
 
-    tTJSVariant &tTJSVariant::operator=(tTJSVariantClosure ref) // from Object Closure
+    tTJSVariant &
+    tTJSVariant::operator=(tTJSVariantClosure ref) // from Object Closure
     {
         ReleaseContent();
         vt = tvtObject;
@@ -551,7 +572,8 @@ namespace TJS {
 #endif
 
     //---------------------------------------------------------------------------
-    tTJSVariant &tTJSVariant::operator=(tTJSVariantString *ref) // from tTJSVariantString
+    tTJSVariant &
+    tTJSVariant::operator=(tTJSVariantString *ref) // from tTJSVariantString
     {
         if(ref)
             ref->AddRef();
@@ -562,7 +584,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSVariant &tTJSVariant::operator=(tTJSVariantOctet *ref) // from tTJSVariantOctet
+    tTJSVariant &
+    tTJSVariant::operator=(tTJSVariantOctet *ref) // from tTJSVariantOctet
     {
         if(ref)
             ref->AddRef();
@@ -573,7 +596,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSVariant &tTJSVariant::operator=(const tTJSString &ref) // from tTJSString
+    tTJSVariant &
+    tTJSVariant::operator=(const tTJSString &ref) // from tTJSString
     {
         ReleaseContent();
         vt = tvtString;
@@ -593,7 +617,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSVariant &tTJSVariant::operator=(const tjs_nchar *ref) // from narrow string
+    tTJSVariant &
+    tTJSVariant::operator=(const tjs_nchar *ref) // from narrow string
     {
         ReleaseContent();
         vt = tvtString;
@@ -650,7 +675,8 @@ namespace TJS {
                     s1 = String;
                     s2 = val2.String;
                     if(s1 == s2)
-                        return true; // both empty string or the same pointer
+                        return true; // both empty string or the same
+                                     // pointer
                     if(!s1 && s2)
                         return false;
                     if(s1 && !s2)
@@ -662,14 +688,17 @@ namespace TJS {
 
                 if(vt == tvtOctet) {
                     if(Octet == val2.Octet)
-                        return true; // both empty octet or the same pointer
+                        return true; // both empty octet or the same
+                                     // pointer
                     if(!Octet && val2.Octet)
                         return false;
                     if(Octet && !val2.Octet)
                         return false;
                     if(Octet->GetLength() != val2.Octet->GetLength())
                         return false;
-                    return !TJS_octetcmp(Octet->GetData(), val2.Octet->GetData(), Octet->GetLength());
+                    return !TJS_octetcmp(Octet->GetData(),
+                                         val2.Octet->GetData(),
+                                         Octet->GetLength());
                 }
 
                 if(vt == tvtObject) {
@@ -762,7 +791,8 @@ namespace TJS {
             // compare to NaN is always false
             if(TJS_FC_IS_INF(c1) || TJS_FC_IS_INF(c2)) {
                 return c1 == c2;
-                // +inf == +inf : true , -inf == -inf : true, otherwise : false
+                // +inf == +inf : true , -inf == -inf : true,
+                // otherwise : false
             }
             return r1 == r2;
         } catch(eTJSVariantError & /*e*/) {
@@ -777,7 +807,8 @@ namespace TJS {
         if(vt == val2.vt) {
             switch(vt) {
                 case tvtObject:
-                    return Object.Object == val2.Object.Object && Object.ObjThis == val2.Object.ObjThis;
+                    return Object.Object == val2.Object.Object &&
+                        Object.ObjThis == val2.Object.ObjThis;
                 case tvtString:
                     return NormalCompare(val2);
                 case tvtOctet:
@@ -795,7 +826,8 @@ namespace TJS {
                     // compare to NaN is always false
                     if(TJS_FC_IS_INF(c1) || TJS_FC_IS_INF(c2)) {
                         return c1 == c2;
-                        // +inf == +inf : true , -inf == -inf : true, otherwise : false
+                        // +inf == +inf : true , -inf == -inf : true,
+                        // otherwise : false
                     }
                     return Real == val2.Real;
                 }
@@ -1097,7 +1129,8 @@ namespace TJS {
                 if(String && String->GetRefCount() != 0) {
                     // sever dependency
                     tTJSVariantString *orgstr = String;
-                    String = TJSAllocVariantString(String->operator const tjs_char *());
+                    String = TJSAllocVariantString(
+                        String->operator const tjs_char *());
                     orgstr->Release();
                 }
 
@@ -1174,8 +1207,8 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     tjs_int tTJSVariant::QueryPersistSize() const {
-        // return the size, in bytes, of storage needed to store current state.
-        // this state cannot walk across platforms.
+        // return the size, in bytes, of storage needed to store
+        // current state. this state cannot walk across platforms.
 
         switch(vt) {
             case tvtVoid:
@@ -1186,7 +1219,8 @@ namespace TJS {
 
             case tvtString:
                 if(String)
-                    return sizeof(tTJSVariantString *) + 1 + String->QueryPersistSize();
+                    return sizeof(tTJSVariantString *) + 1 +
+                        String->QueryPersistSize();
                 return sizeof(tTJSVariantString *) + 1;
 
             case tvtInteger:
@@ -1197,7 +1231,8 @@ namespace TJS {
 
             case tvtOctet:
                 if(Octet)
-                    return sizeof(tTJSVariantOctet *) + 1 + Octet->QueryPersistSize();
+                    return sizeof(tTJSVariantOctet *) + 1 +
+                        Octet->QueryPersistSize();
                 return sizeof(tTJSVariantOctet *) + 1;
         }
 

@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -20,7 +21,7 @@
 //---------------------------------------------------------------------------
 // tTJSNI_Pad : Pad Class C++ Native Instance
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD
+tjs_error
 tTJSNI_Pad::Construct(tjs_int numparams, tTJSVariant **param,
     iTJSDispatch2 * dsp)
 {
@@ -37,7 +38,7 @@ tTJSNI_Pad::Construct(tjs_int numparams, tTJSVariant **param,
     return S_OK;
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD
+void
 tTJSNI_Pad::Invalidate()
 {
     if(Form) delete Form, Form = nullptr;

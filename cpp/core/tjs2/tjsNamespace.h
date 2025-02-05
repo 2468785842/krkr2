@@ -49,7 +49,8 @@ namespace TJS {
 
         tjs_int GetCount() const { return (tjs_int)List.size(); }
 
-        // this count includes variable holder that is marked as un-used
+        // this count includes variable holder that is marked as
+        // un-used
         tjs_int GetLocalCountStart() const { return LocalCountStart; }
 
         tjs_int *GetStartWriteAddr() const { return StartWriteAddr; }

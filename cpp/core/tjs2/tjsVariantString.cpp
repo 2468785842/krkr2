@@ -20,13 +20,19 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // throwing error functions
     //---------------------------------------------------------------------------
-    void TJSThrowStringDeallocError() { TJS_eTJSVariantError(TJSStringDeallocError); }
+    void TJSThrowStringDeallocError() {
+        TJS_eTJSVariantError(TJSStringDeallocError);
+    }
 
     //---------------------------------------------------------------------------
-    void TJSThrowStringAllocError() { TJS_eTJSVariantError(TJSStringAllocError); }
+    void TJSThrowStringAllocError() {
+        TJS_eTJSVariantError(TJSStringAllocError);
+    }
 
     //---------------------------------------------------------------------------
-    void TJSThrowNarrowToWideConversionError() { TJS_eTJSVariantError(TJSNarrowToWideConversionError); }
+    void TJSThrowNarrowToWideConversionError() {
+        TJS_eTJSVariantError(TJSNarrowToWideConversionError);
+    }
 
     //---------------------------------------------------------------------------
     tjs_int TJSGetShorterStrLen(const tjs_char *str, ssize_t max) {
@@ -45,14 +51,17 @@ namespace TJS {
 // base memory allocation functions for long string
 //---------------------------------------------------------------------------
 #define TJSVS_ALLOC_INC_SIZE_S 16
-// additional space for long string heap under TJSVS_ALLOC_DOUBLE_LIMIT
+// additional space for long string heap under
+// TJSVS_ALLOC_DOUBLE_LIMIT
 #define TJSVS_ALLOC_INC_SIZE_L 4000000
 // additional space for long string heap over TJSVS_ALLOC_DOUBLE_LIMIT
 #define TJSVS_ALLOC_DOUBLE_LIMIT 4000000
     // switching value of double-sizing or incremental-sizing
     //---------------------------------------------------------------------------
     /*static inline*/ tjs_char *TJSVS_malloc(tjs_uint len) {
-        char *ret = (char *)malloc((len = (len + TJSVS_ALLOC_INC_SIZE_S)) * sizeof(tjs_char) + sizeof(size_t));
+        char *ret = (char *)malloc((len = (len + TJSVS_ALLOC_INC_SIZE_S)) *
+                                       sizeof(tjs_char) +
+                                   sizeof(size_t));
         if(!ret)
             TJSThrowStringAllocError();
         *(size_t *)ret = len; // embed size
@@ -69,7 +78,8 @@ namespace TJS {
             return buf; // still adequate
 
         //	char *ret = (char*)realloc(ptr,
-        //		(len = (len + TJSVS_ALLOC_INC_SIZE))*sizeof(tjs_char) +
+        //		(len = (len + TJSVS_ALLOC_INC_SIZE))*sizeof(tjs_char)
+        //+
         // sizeof(size_t));
         if(len < TJSVS_ALLOC_DOUBLE_LIMIT)
             len = len * 2;
@@ -121,7 +131,8 @@ namespace TJS {
         // re-allocate TJSFreeCellList
 
         delete[] TJSStringHeapFreeCellList;
-        TJSStringHeapFreeCellList = new tTJSVariantString *[TJSStringHeapList->size() * HEAP_CAPACITY_INC];
+        TJSStringHeapFreeCellList = new tTJSVariantString
+            *[TJSStringHeapList->size() * HEAP_CAPACITY_INC];
 
         // prepare free list
         for(tjs_int i = HEAP_CAPACITY_INC - 1; i >= 0; i--)
@@ -157,7 +168,8 @@ namespace TJS {
             }
 #else
             std::vector<tTJSVariantString *>::reverse_iterator c;
-            for(c = TJSStringHeapList->rbegin(); c != TJSStringHeapList->rend(); c++) {
+            for(c = TJSStringHeapList->rbegin(); c != TJSStringHeapList->rend();
+                c++) {
                 tTJSVariantString *h = *c;
                 for(tjs_int i = 0; i < HEAP_CAPACITY_INC; i++) {
                     if(h[i].HeapFlag & HEAP_FLAG_USING) {
@@ -186,13 +198,16 @@ namespace TJS {
             return;
         if(!TJSStringHeapList->empty()) {
             std::vector<tTJSVariantString *>::iterator c;
-            for(c = TJSStringHeapList->end() - 1; c >= TJSStringHeapList->begin(); c--) {
+            for(c = TJSStringHeapList->end() - 1;
+                c >= TJSStringHeapList->begin(); c--) {
                 tTJSVariantString *h = *c;
                 for(tjs_int i = 0; i < HEAP_CAPACITY_INC; i++) {
                     if(h[i].HeapFlag & HEAP_FLAG_USING) {
                         // using cell
                         char buf[1024];
-                        TJS_nsprintf(buf, "%p:%ls", h + i, h[i].LongString ? h[i].LongString : h[i].ShortString);
+                        TJS_nsprintf(buf, "%p:%ls", h + i,
+                                     h[i].LongString ? h[i].LongString
+                                                     : h[i].ShortString);
                         OutputDebugString(buf);
                     }
                 }
@@ -204,8 +219,10 @@ namespace TJS {
 #endif
 
     //---------------------------------------------------------------------------
-    static int TJS_USERENTRY TJSStringHeapSortFunction(const void *a, const void *b) {
-        return (int)(*(const tTJSVariantString **)b - *(const tTJSVariantString **)a);
+    static int TJS_USERENTRY TJSStringHeapSortFunction(const void *a,
+                                                       const void *b) {
+        return (int)(*(const tTJSVariantString **)b -
+                     *(const tTJSVariantString **)a);
     }
 
     //---------------------------------------------------------------------------
@@ -216,7 +233,8 @@ namespace TJS {
             return;
         if(!TJSStringHeapList->empty()) {
             std::vector<tTJSVariantString *>::iterator c;
-            for(c = TJSStringHeapList->end() - 1; c >= TJSStringHeapList->begin(); c--) {
+            for(c = TJSStringHeapList->end() - 1;
+                c >= TJSStringHeapList->begin(); c--) {
                 tTJSVariantString *h = *c;
                 for(tjs_int i = 0; i < HEAP_CAPACITY_INC; i++) {
                     if(h[i].HeapFlag & HEAP_FLAG_USING) {
@@ -226,7 +244,8 @@ namespace TJS {
                             OutputDebugString("empty string cell found");
                         }
                         if(TJS_strlen(ptr) != h[i].GetLength()) {
-                            OutputDebugString("invalid string length cell found");
+                            OutputDebugString(
+                                "invalid string length cell found");
                         }
                     }
                 }
@@ -253,14 +272,16 @@ namespace TJS {
             tjs_int count;
             if(TJSStringHeapFreeCellListPointer > TJS_SORT_STR_CELL_MAX) {
                 // too large; sort last TJS_SORT_STR_CELL_MAX items
-                start = TJSStringHeapFreeCellList + TJSStringHeapFreeCellListPointer - TJS_SORT_STR_CELL_MAX;
+                start = TJSStringHeapFreeCellList +
+                    TJSStringHeapFreeCellListPointer - TJS_SORT_STR_CELL_MAX;
                 count = TJS_SORT_STR_CELL_MAX;
             } else {
                 start = TJSStringHeapFreeCellList;
                 count = TJSStringHeapFreeCellListPointer;
             }
 
-            qsort(start, count, sizeof(tTJSVariantString *), TJSStringHeapSortFunction);
+            qsort(start, count, sizeof(tTJSVariantString *),
+                  TJSStringHeapSortFunction);
 #endif
 
             // delete all-freed heap block
@@ -269,7 +290,8 @@ namespace TJS {
             tjs_int free_block_count = 0;
 
             if(TJSStringHeapList) {
-                if(TJSStringHeapLastCheckedFreeBlock >= TJSStringHeapList->size())
+                if(TJSStringHeapLastCheckedFreeBlock >=
+                   TJSStringHeapList->size())
                     TJSStringHeapLastCheckedFreeBlock = 0;
                 tjs_uint block_ind = TJSStringHeapLastCheckedFreeBlock;
                 tjs_int count = 0;
@@ -295,20 +317,23 @@ namespace TJS {
                         block_ind = 0;
                     count++;
 
-                } while(count < TJS_CHECK_FREE_BLOCK_MAX && block_ind != TJSStringHeapLastCheckedFreeBlock);
+                } while(count < TJS_CHECK_FREE_BLOCK_MAX &&
+                        block_ind != TJSStringHeapLastCheckedFreeBlock);
 
                 TJSStringHeapLastCheckedFreeBlock = block_ind;
             }
 
             // - delete all marked cell from TJSStringHeapFreeCellList
             if(free_block_count) {
-                tTJSVariantString **newlist =
-                    new tTJSVariantString *[(TJSStringHeapList->size() - free_block_count) * HEAP_CAPACITY_INC];
+                tTJSVariantString **newlist = new tTJSVariantString
+                    *[(TJSStringHeapList->size() - free_block_count) *
+                      HEAP_CAPACITY_INC];
 
                 tjs_uint wp = 0;
                 tjs_uint rp;
                 for(rp = 0; rp < TJSStringHeapFreeCellListPointer; rp++) {
-                    if(TJSStringHeapFreeCellList[rp]->HeapFlag != HEAP_FLAG_DELETE)
+                    if(TJSStringHeapFreeCellList[rp]->HeapFlag !=
+                       HEAP_FLAG_DELETE)
                         newlist[wp++] = TJSStringHeapFreeCellList[rp];
                 }
 
@@ -321,7 +346,8 @@ namespace TJS {
             // - delete all marked block
             if(free_block_count) {
                 std::vector<tTJSVariantString *>::iterator i;
-                for(i = TJSStringHeapList->begin(); i != TJSStringHeapList->end();) {
+                for(i = TJSStringHeapList->begin();
+                    i != TJSStringHeapList->end();) {
                     if((*i)[0].HeapFlag == HEAP_FLAG_DELETE) {
                         // to be deleted
                         delete[](*i);
@@ -351,7 +377,8 @@ namespace TJS {
             if(TJSStringHeapFreeCellListPointer == 0)
                 TJSAddStringHeapBlock();
 
-            tTJSVariantString *ret = TJSStringHeapFreeCellList[--TJSStringHeapFreeCellListPointer];
+            tTJSVariantString *ret =
+                TJSStringHeapFreeCellList[--TJSStringHeapFreeCellListPointer];
 #endif
 
             ret->RefCount = 0;
@@ -414,8 +441,8 @@ namespace TJS {
     void tTJSVariantString::Release() {
         /*
                 if(!this) return;
-                        // this is not a REAL remedy, but enough to buster careless
-           misses...
+                        // this is not a REAL remedy, but enough to
+           buster careless misses...
                         // (nullptr->Release() problem)
         */
 
@@ -495,7 +522,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // other allocation functions
     //---------------------------------------------------------------------------
-    tTJSVariantString *TJSAllocVariantString(const tjs_char *ref1, const tjs_char *ref2) {
+    tTJSVariantString *TJSAllocVariantString(const tjs_char *ref1,
+                                             const tjs_char *ref2) {
         if(!ref1 && !ref2)
             return nullptr;
 
@@ -579,8 +607,8 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     tTJSVariantString *TJSAllocVariantStringBuffer(tjs_uint len) {
-        /* note that you must call FixLength if you allocate larger than the
-        actual string size */
+        /* note that you must call FixLength if you allocate larger
+        than the actual string size */
 
         tTJSVariantString *ret = TJSAllocStringHeap();
         ret->AllocBuffer(len);
@@ -588,7 +616,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSVariantString *TJSAppendVariantString(tTJSVariantString *str, const tjs_char *app) {
+    tTJSVariantString *TJSAppendVariantString(tTJSVariantString *str,
+                                              const tjs_char *app) {
         if(!app)
             return str;
         if(!str) {
@@ -600,7 +629,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSVariantString *TJSAppendVariantString(tTJSVariantString *str, const tTJSVariantString *app) {
+    tTJSVariantString *TJSAppendVariantString(tTJSVariantString *str,
+                                              const tTJSVariantString *app) {
         if(!app)
             return str;
         if(!str) {
@@ -614,12 +644,15 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     class tTVPVariantStringHolder {
-        // this class keeps one Variant String from program start to program end,
-        // to ensure heap system are alive during program's lifetime.
+        // this class keeps one Variant String from program start to
+        // program end, to ensure heap system are alive during
+        // program's lifetime.
         tTJSVariantString *String;
 
     public:
-        tTVPVariantStringHolder() { String = TJSAllocVariantString(TJS_W("This is a dummy.")); }
+        tTVPVariantStringHolder() {
+            String = TJSAllocVariantString(TJS_W("This is a dummy."));
+        }
 
         ~tTVPVariantStringHolder() { String->Release(); }
     } static TVPVariantStringHolder;
@@ -628,38 +661,40 @@ namespace TJS {
 //---------------------------------------------------------------------------
 #define TJS_VS_FS_OUT_INC_SIZE 32
 
-    tTJSVariantString *TJSFormatString(const tjs_char *format, tjs_uint numparams, tTJSVariant **params) {
+    tTJSVariantString *TJSFormatString(const tjs_char *format,
+                                       tjs_uint numparams,
+                                       tTJSVariant **params) {
         // TODO: more reliable implementation
 
         // format the string with the format illustrated as "format"
-        // this is similar to C sprintf format, but this support only following:
-        // % [flags] [width] [.prec] type_char
-        // flags : '-'|'+'|' '|'#'
-        // width : n|'0'n|*|
-        // .prec : '.0'|'.n'|'.*'
+        // this is similar to C sprintf format, but this support only
+        // following: % [flags] [width] [.prec] type_char flags :
+        // '-'|'+'|' '|'#' width : n|'0'n|*| .prec : '.0'|'.n'|'.*'
         // type_char : [diouxXfegEGcs]
         // [diouxX] as an integer
         // [fegEG] as a real
         // [cs] as a string
-        // and, this is safe for output buffer memory or inadequate parameters.
+        // and, this is safe for output buffer memory or inadequate
+        // parameters.
 
         const tjs_char *f = format;
         if(!f)
             return nullptr;
 
         TJSSetFPUE();
-        tTJSVariantString *ret = TJSAllocVariantStringBuffer(TJS_VS_FS_OUT_INC_SIZE);
+        tTJSVariantString *ret =
+            TJSAllocVariantStringBuffer(TJS_VS_FS_OUT_INC_SIZE);
         tjs_uint allocsize = TJS_VS_FS_OUT_INC_SIZE;
         tjs_char *o = const_cast<tjs_char *>(ret->operator const tjs_char *());
         tjs_uint s = 0;
 
         tjs_uint in = 0;
 
-#define check_alloc                                                                                                    \
-    if(s >= allocsize) {                                                                                               \
-        ret->AppendBuffer(TJS_VS_FS_OUT_INC_SIZE);                                                                     \
-        o = const_cast<tjs_char *>(ret->operator const tjs_char *());                                                  \
-        allocsize += TJS_VS_FS_OUT_INC_SIZE;                                                                           \
+#define check_alloc                                                            \
+    if(s >= allocsize) {                                                       \
+        ret->AppendBuffer(TJS_VS_FS_OUT_INC_SIZE);                             \
+        o = const_cast<tjs_char *>(ret->operator const tjs_char *());          \
+        allocsize += TJS_VS_FS_OUT_INC_SIZE;                                   \
     }
 
         for(; *f;) {
@@ -669,7 +704,8 @@ namespace TJS {
                 continue;
             }
 
-            // following are only format-checking, actual processing is in sprintf.
+            // following are only format-checking, actual processing
+            // is in sprintf.
 
             tjs_char flag = 0;
             tjs_uint width = 0;
@@ -798,8 +834,11 @@ namespace TJS {
                         if(s + width > allocsize) {
                             try {
                                 tjs_uint inc_size;
-                                ret->AppendBuffer(inc_size = s + width - allocsize + TJS_VS_FS_OUT_INC_SIZE);
-                                o = const_cast<tjs_char *>(ret->operator const tjs_char *());
+                                ret->AppendBuffer(inc_size = s + width -
+                                                      allocsize +
+                                                      TJS_VS_FS_OUT_INC_SIZE);
+                                o = const_cast<tjs_char *>(
+                                    ret->operator const tjs_char *());
                                 allocsize += inc_size;
                             } catch(...) {
                                 str->Release();
@@ -866,8 +905,10 @@ namespace TJS {
                             TJS_eTJSVariantError(TJSBadParamCount);
                         tTVInteger integer = (params[in++])->AsInteger();
                         // FIXME:
-                        buf = { fmt::sprintf(ttstr{ fmt }.AsNarrowStdString(), integer) };
-                    } else if((!width_ind && prec_ind) || (width_ind && !prec_ind)) {
+                        buf = { fmt::sprintf(ttstr{ fmt }.AsNarrowStdString(),
+                                             integer) };
+                    } else if((!width_ind && prec_ind) ||
+                              (width_ind && !prec_ind)) {
                         if(in >= numparams)
                             TJS_eTJSVariantError(TJSBadParamCount);
                         ind[0] = static_cast<int>((params[in++])->AsInteger());
@@ -879,7 +920,8 @@ namespace TJS {
                             TJS_eTJSVariantError(TJSBadParamCount);
                         tTVInteger integer = (params[in++])->AsInteger();
                         // FIXME:
-                        buf = { fmt::sprintf(ttstr{ fmt }.AsNarrowStdString(), ind[0], integer) };
+                        buf = { fmt::sprintf(ttstr{ fmt }.AsNarrowStdString(),
+                                             ind[0], integer) };
                     } else {
                         if(in >= numparams)
                             TJS_eTJSVariantError(TJSBadParamCount);
@@ -893,14 +935,17 @@ namespace TJS {
                             TJS_eTJSVariantError(TJSBadParamCount);
                         tTVInteger integer = (params[in++])->AsInteger();
                         // FIXME:
-                        buf = { fmt::sprintf(ttstr{ fmt }.AsNarrowStdString(), ind[0], ind[1], integer) };
+                        buf = { fmt::sprintf(ttstr{ fmt }.AsNarrowStdString(),
+                                             ind[0], ind[1], integer) };
                     }
 
                     tjs_uint size = buf.length();
                     tjs_uint inc_size;
                     if(s + size > allocsize) {
-                        ret->AppendBuffer(inc_size = s + size - allocsize + TJS_VS_FS_OUT_INC_SIZE);
-                        o = const_cast<tjs_char *>(ret->operator const tjs_char *());
+                        ret->AppendBuffer(inc_size = s + size - allocsize +
+                                              TJS_VS_FS_OUT_INC_SIZE);
+                        o = const_cast<tjs_char *>(
+                            ret->operator const tjs_char *());
                         allocsize += inc_size;
                     }
                     TJS_strcpy(o + s, buf.c_str());
@@ -936,9 +981,11 @@ namespace TJS {
                             TJS_eTJSVariantError(TJSBadParamCount);
                         tTVReal real = (params[in++])->AsReal();
                         // FIXME:
-                        buf = { fmt::sprintf(ttstr{ fmt }.AsNarrowStdString(), real) };
+                        buf = { fmt::sprintf(ttstr{ fmt }.AsNarrowStdString(),
+                                             real) };
 
-                    } else if((!width_ind && prec_ind) || (width_ind && !prec_ind)) {
+                    } else if((!width_ind && prec_ind) ||
+                              (width_ind && !prec_ind)) {
                         if(in >= numparams)
                             TJS_eTJSVariantError(TJSBadParamCount);
                         ind[0] = static_cast<int>((params[in++])->AsInteger());
@@ -950,7 +997,8 @@ namespace TJS {
                             TJS_eTJSVariantError(TJSBadParamCount);
                         tTVReal real = (params[in++])->AsReal();
                         // FIXME:
-                        buf = { fmt::sprintf(ttstr{ fmt }.AsNarrowStdString(), ind[0], real) };
+                        buf = { fmt::sprintf(ttstr{ fmt }.AsNarrowStdString(),
+                                             ind[0], real) };
                     } else {
                         if(in >= numparams)
                             TJS_eTJSVariantError(TJSBadParamCount);
@@ -964,14 +1012,17 @@ namespace TJS {
                             TJS_eTJSVariantError(TJSBadParamCount);
                         tTVReal real = (params[in++])->AsReal();
                         // FIXME:
-                        buf = { fmt::sprintf(ttstr{ fmt }.AsNarrowStdString(), ind[0], ind[1], real) };
+                        buf = { fmt::sprintf(ttstr{ fmt }.AsNarrowStdString(),
+                                             ind[0], ind[1], real) };
                     }
 
                     tjs_uint size = buf.length();
                     tjs_uint inc_size;
                     if(s + size > allocsize) {
-                        ret->AppendBuffer(inc_size = s + size - allocsize + TJS_VS_FS_OUT_INC_SIZE);
-                        o = const_cast<tjs_char *>(ret->operator const tjs_char *());
+                        ret->AppendBuffer(inc_size = s + size - allocsize +
+                                              TJS_VS_FS_OUT_INC_SIZE);
+                        o = const_cast<tjs_char *>(
+                            ret->operator const tjs_char *());
                         allocsize += inc_size;
                     }
                     TJS_strcpy(o + s, buf.c_str());

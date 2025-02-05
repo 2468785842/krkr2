@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TJS2 Script Engine
-        Copyright (C) 2000-2005	 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2005	 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -40,7 +41,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJSNI_RandomGenerator::Randomize(tTJSVariant **param, tjs_int numparams) {
+    void tTJSNI_RandomGenerator::Randomize(tTJSVariant **param,
+                                           tjs_int numparams) {
         if(numparams == 0) {
             // parametor not given
             if(TJSGetRandomBits128) {
@@ -50,7 +52,8 @@ namespace TJS {
                 TJSGetRandomBits128(buf);
                 TJSGetRandomBits128(buf + 16);
                 for(tjs_int i = 0; i < 32; i++)
-                    tmp[i] = buf[i] + (buf[i] << 8) + (buf[1] << 16) + (buf[i] << 24);
+                    tmp[i] = buf[i] + (buf[i] << 8) + (buf[1] << 16) +
+                        (buf[i] << 24);
 
                 if(Generator)
                     delete Generator, Generator = nullptr;
@@ -67,7 +70,8 @@ namespace TJS {
                 tTJSMersenneTwisterData *data = nullptr;
                 try {
                     // may be a reconstructible information
-                    tTJSVariantClosure clo = param[0]->AsObjectClosureNoAddRef();
+                    tTJSVariantClosure clo =
+                        param[0]->AsObjectClosureNoAddRef();
                     if(!clo.Object)
                         TJS_eTJSError(TJSNullAccess);
 
@@ -77,7 +81,9 @@ namespace TJS {
                     data = new tTJSMersenneTwisterData;
 
                     // get state array
-                    TJS_THROW_IF_ERROR(clo.PropGet(TJS_MEMBERMUSTEXIST, TJS_W("state"), nullptr, &val, nullptr));
+                    TJS_THROW_IF_ERROR(clo.PropGet(TJS_MEMBERMUSTEXIST,
+                                                   TJS_W("state"), nullptr,
+                                                   &val, nullptr));
 
                     state = val;
                     if(state.GetLen() != TJS_MT_N * 8)
@@ -92,7 +98,8 @@ namespace TJS {
                         for(tjs_int j = 0; j < 8; j++) {
                             tmp = TJSHexNum(p[j]);
                             if(tmp == -1)
-                                TJS_eTJSError(TJSNotReconstructiveRandomizeData);
+                                TJS_eTJSError(
+                                    TJSNotReconstructiveRandomizeData);
                             else
                                 n <<= 4, n += tmp;
                         }
@@ -102,10 +109,14 @@ namespace TJS {
                     }
 
                     // get other members
-                    TJS_THROW_IF_ERROR(clo.PropGet(TJS_MEMBERMUSTEXIST, TJS_W("left"), nullptr, &val, nullptr));
+                    TJS_THROW_IF_ERROR(clo.PropGet(TJS_MEMBERMUSTEXIST,
+                                                   TJS_W("left"), nullptr, &val,
+                                                   nullptr));
                     data->left = (tjs_int)val;
 
-                    TJS_THROW_IF_ERROR(clo.PropGet(TJS_MEMBERMUSTEXIST, TJS_W("next"), nullptr, &val, nullptr));
+                    TJS_THROW_IF_ERROR(clo.PropGet(TJS_MEMBERMUSTEXIST,
+                                                   TJS_W("next"), nullptr, &val,
+                                                   nullptr));
                     data->next = (tjs_int)val + data->state;
 
                     if(Generator)
@@ -131,8 +142,9 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     iTJSDispatch2 *tTJSNI_RandomGenerator::Serialize() {
-        // create dictionary object which has reconstructible information
-        // which can be passed into constructor or randomize method.
+        // create dictionary object which has reconstructible
+        // information which can be passed into constructor or
+        // randomize method.
         if(!Generator)
             return nullptr;
 
@@ -234,12 +246,14 @@ namespace TJS {
             // class constructor
 
             TJS_BEGIN_NATIVE_MEMBERS(
-                /*TJS class name*/ RandomGenerator) TJS_DECL_EMPTY_FINALIZE_METHOD
+                /*TJS class name*/
+                RandomGenerator) TJS_DECL_EMPTY_FINALIZE_METHOD
                 //----------------------------------------------------------------------
                 TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(
                     /*var. name*/ _this, /*var. type*/
                     tTJSNI_RandomGenerator,
-                    /*TJS class name*/ RandomGenerator){ _this->Randomize(param, numparams);
+                    /*TJS class name*/ RandomGenerator){
+                    _this->Randomize(param, numparams);
 
     return TJS_S_OK;
 } // namespace TJS
@@ -274,7 +288,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ random32) {
     TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/
                             tTJSNI_RandomGenerator);
 
-    // returns 32-bit precision integer value x, x is in 0 <= x <= 4294967295
+    // returns 32-bit precision integer value x, x is in 0 <= x <=
+    // 4294967295
 
     if(result)
         *result = (tjs_int64)_this->Random32();
@@ -336,7 +351,9 @@ TJS_END_NATIVE_MEMBERS
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_RandomGenerator::CreateNativeInstance() { return new tTJSNI_RandomGenerator(); }
+tTJSNativeInstance *tTJSNC_RandomGenerator::CreateNativeInstance() {
+    return new tTJSNI_RandomGenerator();
+}
 //---------------------------------------------------------------------------
 } // namespace TJS
 

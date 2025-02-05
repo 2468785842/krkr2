@@ -4,10 +4,12 @@
 #include "MsgIntf.h"
 
 BitmapInfomation::BitmapInfomation(tjs_uint width, tjs_uint height, int bpp) {
-    BitmapInfoSize = sizeof(TVPBITMAPINFOHEADER) + ((bpp == 8) ? sizeof(TVPRGBQUAD) * 256 : 0);
+    BitmapInfoSize = sizeof(TVPBITMAPINFOHEADER) +
+        ((bpp == 8) ? sizeof(TVPRGBQUAD) * 256 : 0);
     BitmapInfo = (TVPBITMAPINFO *)malloc(BitmapInfoSize);
     if(!BitmapInfo)
-        TVPThrowExceptionMessage(TVPCannotAllocateBitmapBits, TJS_W("allocating BITMAPINFOHEADER"),
+        TVPThrowExceptionMessage(TVPCannotAllocateBitmapBits,
+                                 TJS_W("allocating BITMAPINFOHEADER"),
                                  ttstr((tjs_int)BitmapInfoSize));
 
     tjs_int PitchBytes;
@@ -16,10 +18,12 @@ BitmapInfomation::BitmapInfomation(tjs_uint width, tjs_uint height, int bpp) {
     // original size because the horizontal pitch of the bitmap
     // is aligned to a paragraph (16bytes)
     if(bpp == 8) {
-        bitmap_width = (((bitmap_width - 1) / 16) + 1) * 16; // align to a paragraph
+        bitmap_width =
+            (((bitmap_width - 1) / 16) + 1) * 16; // align to a paragraph
         PitchBytes = (((bitmap_width - 1) >> 2) + 1) << 2;
     } else {
-        bitmap_width = (((bitmap_width - 1) / 4) + 1) * 4; // align to a paragraph
+        bitmap_width =
+            (((bitmap_width - 1) / 4) + 1) * 4; // align to a paragraph
         PitchBytes = bitmap_width * 4;
     }
     BitmapInfo->bmiHeader.biSize = sizeof(BitmapInfo->bmiHeader);
@@ -36,7 +40,8 @@ BitmapInfomation::BitmapInfomation(tjs_uint width, tjs_uint height, int bpp) {
 
     // create grayscale palette
     if(bpp == 8) {
-        TVPRGBQUAD *pal = (TVPRGBQUAD *)((tjs_uint8 *)BitmapInfo + sizeof(TVPBITMAPINFOHEADER));
+        TVPRGBQUAD *pal = (TVPRGBQUAD *)((tjs_uint8 *)BitmapInfo +
+                                         sizeof(TVPBITMAPINFOHEADER));
         for(tjs_int i = 0; i < 256; i++) {
             pal[i].rgbBlue = pal[i].rgbGreen = pal[i].rgbRed = (tjs_uint8)i;
             pal[i].rgbReserved = 0;

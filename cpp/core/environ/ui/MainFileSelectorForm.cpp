@@ -20,7 +20,6 @@
 #include "StorageImpl.h"
 #include "TipsHelpForm.h"
 #include "XP3RepackForm.h"
-#include "cocos2d/CustomFileUtils.h"
 
 using namespace cocos2d;
 using namespace cocos2d::ui;
@@ -37,13 +36,17 @@ bool TVPIsFirstLaunch = false;
 std::deque<std::string> _HistoryPath;
 
 static void _AskExit() {
-    if(TVPShowSimpleMessageBoxYesNo(LocaleConfigManager::GetInstance()->GetText("sure_to_exit"), "Kirikiroid2") == 0)
+    if(TVPShowSimpleMessageBoxYesNo(
+           LocaleConfigManager::GetInstance()->GetText("sure_to_exit"),
+           "Kirikiroid2") == 0)
         TVPExitApplication(0);
 }
 
 bool TVPCheckIsVideoFile(const char *uri);
 
-static std::string _GetHistoryXMLPath() { return TVPGetInternalPreferencePath() + FileName_RecentPathListXML; }
+static std::string _GetHistoryXMLPath() {
+    return TVPGetInternalPreferencePath() + FileName_RecentPathListXML;
+}
 
 static void _LoadHistory() {
     std::string xmlpath = _GetHistoryXMLPath();
@@ -51,8 +54,9 @@ static void _LoadHistory() {
     if(!doc.LoadFile(xmlpath.c_str())) {
         tinyxml2::XMLElement *rootElement = doc.RootElement();
         if(rootElement) {
-            for(tinyxml2::XMLElement *item = rootElement->FirstChildElement("Item"); item;
-                item = item->NextSiblingElement("Item")) {
+            for(tinyxml2::XMLElement *item =
+                    rootElement->FirstChildElement("Item");
+                item; item = item->NextSiblingElement("Item")) {
                 const char *path = item->Attribute("Path");
                 if(path) {
                     _HistoryPath.emplace_back(path);
@@ -107,11 +111,12 @@ static bool _CheckGameFolder(const std::string &path) {
             return;
         if(mask & S_IFREG) {
             std::string lowername = name;
-            std::transform(lowername.begin(), lowername.end(), lowername.begin(), [](int c) -> int {
-                if(c <= 'Z' && c >= 'A')
-                    return c - ('A' - 'a');
-                return c;
-            });
+            std::transform(lowername.begin(), lowername.end(),
+                           lowername.begin(), [](int c) -> int {
+                               if(c <= 'Z' && c >= 'A')
+                                   return c - ('A' - 'a');
+                               return c;
+                           });
             size_t pos = lowername.rfind('.');
             if(pos == lowername.npos)
                 return;
@@ -148,7 +153,8 @@ void TVPMainFileSelectorForm::bindBodyController(const NodeMap &allNodes) {
     TVPBaseFileSelectorForm::bindBodyController(allNodes);
 
     if(NaviBar.Right) {
-        NaviBar.Right->addClickEventListener([this](auto &&PH1) { showMenu(std::forward<decltype(PH1)>(PH1)); });
+        NaviBar.Right->addClickEventListener(
+            [this](auto &&PH1) { showMenu(std::forward<decltype(PH1)>(PH1)); });
     }
 }
 
@@ -164,7 +170,9 @@ void TVPMainFileSelectorForm::show() {
     std::string lastpath;
     if(!_HistoryPath.empty())
         lastpath = _HistoryPath.front();
-    while(first || (lastpath.size() > RootPathLen && !FileUtils::getInstance()->isDirectoryExist(lastpath))) {
+    while(first ||
+          (lastpath.size() > RootPathLen &&
+           !FileUtils::getInstance()->isDirectoryExist(lastpath))) {
         first = false;
         std::pair<std::string, std::string> split_path = PathSplit(lastpath);
         if(split_path.second.empty()) {
@@ -207,30 +215,11 @@ void TVPMainFileSelectorForm::onCellClicked(int idx) {
         TVPMainScene::GetInstance()->addChild(player,
                                               10); // pushUIForm(player);
         player->PlayFile(info.FullPath.c_str());
-    } else if(archiveType && FileUtils::getInstance()->getFileExtension(info.NameForCompare) == ".skin") {
-        // maybe skin
-        if(TVPSkinManager::Check(info.FullPath)) {
-            std::vector<ttstr> btns;
-            btns.emplace_back("Direct Use");
-            btns.emplace_back("Install");
-            btns.emplace_back("Cancel");
-            switch(TVPShowSimpleMessageBox("Install or direct use it ? (restart needed)", "Skin found", btns)) {
-                case 0: // direct use
-                    TVPSkinManager::Use(info.FullPath);
-                    TVPShowSimpleMessageBox("Active after restart.", "Skin");
-                    break;
-                case 1: // install
-                    TVPSkinManager::InstallAndUse(info.FullPath);
-                    TVPShowSimpleMessageBox("Active after restart.", "Skin");
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 }
 
-void TVPMainFileSelectorForm::getShortCutDirList(std::vector<std::string> &pathlist) {
+void TVPMainFileSelectorForm::getShortCutDirList(
+    std::vector<std::string> &pathlist) {
     if(!_lastpath.empty()) {
         pathlist.emplace_back(_lastpath);
     }
@@ -253,17 +242,20 @@ void TVPMainFileSelectorForm::initFromFile() {
 
         Node *root = reader.Load("ui/MainFileSelector.csb");
         _fileList = reader.findController("fileList");
-        _historyList = dynamic_cast<ListView *>(reader.findController("recentList"));
+        _historyList =
+            dynamic_cast<ListView *>(reader.findController("recentList"));
         // TODO new node
         _fileOperateMenuNode = _historyList;
-        LocaleConfigManager::GetInstance()->initText(dynamic_cast<Text *>(reader.findController("recentTitle", false)));
+        LocaleConfigManager::GetInstance()->initText(
+            dynamic_cast<Text *>(reader.findController("recentTitle", false)));
         addChild(root);
         Size sceneSize = TVPMainScene::GetInstance()->getUINodeSize();
         setContentSize(sceneSize);
         root->setContentSize(sceneSize);
         ui::Helper::doLayout(root);
     }
-    inherit::initFromFile(FileName_NaviBar, FileName_Body, nullptr /*FileName_BottomBar*/, _fileList);
+    inherit::initFromFile(FileName_NaviBar, FileName_Body,
+                          nullptr /*FileName_BottomBar*/, _fileList);
 }
 
 // std::string _getLastPathFilePath() {
@@ -272,8 +264,10 @@ void TVPMainFileSelectorForm::initFromFile() {
 
 void TVPMainFileSelectorForm::startup(const std::string &path) {
     if(TVPIsFirstLaunch) {
-        TVPTipsHelpForm::show()->setOnExitCallback(
-            [this, path]() { scheduleOnce([this, path](float) { doStartup(path); }, 0, "startup"); });
+        TVPTipsHelpForm::show()->setOnExitCallback([this, path]() {
+            scheduleOnce([this, path](float) { doStartup(path); }, 0,
+                         "startup");
+        });
     } else {
         doStartup(path);
     }
@@ -281,7 +275,8 @@ void TVPMainFileSelectorForm::startup(const std::string &path) {
 
 void TVPMainFileSelectorForm::doStartup(const std::string &path) {
     if(TVPMainScene::GetInstance()->startupFrom(path)) {
-        if(GlobalConfigManager::GetInstance()->GetValue<bool>("remember_last_path", true)) {
+        if(GlobalConfigManager::GetInstance()->GetValue<bool>(
+               "remember_last_path", true)) {
             _AddHistory(path);
         }
     }
@@ -327,7 +322,8 @@ void TVPMainFileSelectorForm::showMenu(Ref *) {
         sizeNewLocalPref = newLocalPref->getContentSize();
         sizeLocalPref = localPref->getContentSize();
 
-        _menuList = static_cast<ui::ListView *>(reader.findController("menulist"));
+        _menuList =
+            static_cast<ui::ListView *>(reader.findController("menulist"));
 
         // captions
         LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();
@@ -343,36 +339,47 @@ void TVPMainFileSelectorForm::showMenu(Ref *) {
 
         // button events
         reader.findWidget("btnRotate")->addClickEventListener([](Ref *) {
-            TVPMainScene::GetInstance()->pushUIForm(TVPGlobalPreferenceForm::create());
+            TVPMainScene::GetInstance()->pushUIForm(
+                TVPGlobalPreferenceForm::create());
         });
         reader.findWidget("btnGlobalPref")->addClickEventListener([](Ref *) {
-            TVPMainScene::GetInstance()->pushUIForm(TVPGlobalPreferenceForm::create());
+            TVPMainScene::GetInstance()->pushUIForm(
+                TVPGlobalPreferenceForm::create());
         });
-        reader.findWidget("btnNewLocalPref")->addClickEventListener([this](Ref *) {
-            if(IndividualConfigManager::GetInstance()->CreatePreferenceAt(CurrentPath)) {
-                TVPMainScene::GetInstance()->pushUIForm(IndividualPreferenceForm::create());
-                hideMenu(nullptr);
-            }
-        });
+        reader.findWidget("btnNewLocalPref")
+            ->addClickEventListener([this](Ref *) {
+                if(IndividualConfigManager::GetInstance()->CreatePreferenceAt(
+                       CurrentPath)) {
+                    TVPMainScene::GetInstance()->pushUIForm(
+                        IndividualPreferenceForm::create());
+                    hideMenu(nullptr);
+                }
+            });
         reader.findWidget("btnLocalPref")->addClickEventListener([this](Ref *) {
             onShowPreferenceConfigAt(CurrentPath);
         });
-        reader.findWidget("btnHelp")->addClickEventListener([this](Ref *) { TVPTipsHelpForm::show(); });
+        reader.findWidget("btnHelp")->addClickEventListener(
+            [this](Ref *) { TVPTipsHelpForm::show(); });
         bool showSimpleAbout = false;
         if(showSimpleAbout) {
             reader.findWidget("btnAbout")->addClickEventListener([](Ref *) {
                 std::string versionText = "Version ";
                 versionText += TVPGetPackageVersionString();
 
-                std::string btnText = LocaleConfigManager::GetInstance()->GetText("ok");
+                std::string btnText =
+                    LocaleConfigManager::GetInstance()->GetText("ok");
                 const char *pszBtnText = btnText.c_str();
-                std::string strCaption = LocaleConfigManager::GetInstance()->GetText("menu_about");
+                std::string strCaption =
+                    LocaleConfigManager::GetInstance()->GetText("menu_about");
                 const char *caption = strCaption.c_str();
-                TVPShowSimpleMessageBox(versionText.c_str(), caption, 1, &pszBtnText);
+                TVPShowSimpleMessageBox(versionText.c_str(), caption, 1,
+                                        &pszBtnText);
             });
             reader.findWidget("btnExit")->addClickEventListener([](Ref *) {
-                if(TVPShowSimpleMessageBoxYesNo(LocaleConfigManager::GetInstance()->GetText("sure_to_exit"),
-                                                "XP3Player") == 0)
+                if(TVPShowSimpleMessageBoxYesNo(
+                       LocaleConfigManager::GetInstance()->GetText(
+                           "sure_to_exit"),
+                       "XP3Player") == 0)
                     TVPExitApplication(0);
             });
         } else {
@@ -380,34 +387,50 @@ void TVPMainFileSelectorForm::showMenu(Ref *) {
                 std::string versionText = "Version ";
                 versionText += TVPGetPackageVersionString();
                 versionText += "\n";
-                versionText += LocaleConfigManager::GetInstance()->GetText("about_content");
+                versionText += LocaleConfigManager::GetInstance()->GetText(
+                    "about_content");
 
                 const char *pszBtnText[] = {
                     LocaleConfigManager::GetInstance()->GetText("ok").c_str(),
-                    LocaleConfigManager::GetInstance()->GetText("browse_patch_lib").c_str(),
-                    LocaleConfigManager::GetInstance()->GetText("device_info").c_str(),
+                    LocaleConfigManager::GetInstance()
+                        ->GetText("browse_patch_lib")
+                        .c_str(),
+                    LocaleConfigManager::GetInstance()
+                        ->GetText("device_info")
+                        .c_str(),
                 };
 
-                std::string strCaption = LocaleConfigManager::GetInstance()->GetText("menu_about");
-                int n = TVPShowSimpleMessageBox(versionText.c_str(), strCaption.c_str(),
-                                                sizeof(pszBtnText) / sizeof(pszBtnText[0]), pszBtnText);
+                std::string strCaption =
+                    LocaleConfigManager::GetInstance()->GetText("menu_about");
+                int n = TVPShowSimpleMessageBox(
+                    versionText.c_str(), strCaption.c_str(),
+                    sizeof(pszBtnText) / sizeof(pszBtnText[0]), pszBtnText);
 
                 switch(n) {
                     case 1:
                         TVPOpenPatchLibUrl();
                         break;
                     case 2:
-                        cocos2d::Director::getInstance()->getScheduler()->performFunctionInCocosThread([] {
-                            std::string text = TVPGetOpenGLInfo();
-                            const char *pOK = LocaleConfigManager::GetInstance()->GetText("ok").c_str();
-                            TVPShowSimpleMessageBox(text.c_str(),
-                                                    LocaleConfigManager::GetInstance()->GetText("device_info").c_str(),
-                                                    1, &pOK);
-                        });
+                        cocos2d::Director::getInstance()
+                            ->getScheduler()
+                            ->performFunctionInCocosThread([] {
+                                std::string text = TVPGetOpenGLInfo();
+                                const char *pOK =
+                                    LocaleConfigManager::GetInstance()
+                                        ->GetText("ok")
+                                        .c_str();
+                                TVPShowSimpleMessageBox(
+                                    text.c_str(),
+                                    LocaleConfigManager::GetInstance()
+                                        ->GetText("device_info")
+                                        .c_str(),
+                                    1, &pOK);
+                            });
                         break;
                 }
             });
-            reader.findWidget("btnExit")->addClickEventListener([](Ref *) { _AskExit(); });
+            reader.findWidget("btnExit")->addClickEventListener(
+                [](Ref *) { _AskExit(); });
         }
         // TODO
         //		reader.findWidget("btnRepack")->addClickEventListener([this](Ref*)
@@ -424,7 +447,8 @@ void TVPMainFileSelectorForm::showMenu(Ref *) {
                 newname += TJS_W("/");
                 newname += name;
                 if(!TVPCreateFolders(newname)) {
-                    TVPShowSimpleMessageBox(TJS_W("Fail to create folder."), TJS_W("Error"));
+                    TVPShowSimpleMessageBox(TJS_W("Fail to create folder."),
+                                            TJS_W("Error"));
                 } else {
                     ListDir(CurrentPath);
                 }
@@ -452,7 +476,8 @@ void TVPMainFileSelectorForm::showMenu(Ref *) {
         _mask->stopAllActions();
         _mask->runAction(FadeTo::create(UI_ACTION_DUR, 128));
         _menu->stopAllActions();
-        _menu->runAction(EaseQuadraticActionOut::create(MoveTo::create(UI_ACTION_DUR, Vec2(uiSize.width - w, pos.y))));
+        _menu->runAction(EaseQuadraticActionOut::create(
+            MoveTo::create(UI_ACTION_DUR, Vec2(uiSize.width - w, pos.y))));
         _touchHideMenu->setTouchEnabled(true);
     }
 }
@@ -463,8 +488,8 @@ void TVPMainFileSelectorForm::hideMenu(cocos2d::Ref *) {
     _mask->stopAllActions();
     _mask->runAction(FadeOut::create(UI_ACTION_DUR));
     _menu->stopAllActions();
-    _menu->runAction(EaseQuadraticActionOut::create(
-        MoveTo::create(UI_ACTION_DUR, Vec2(getContentSize().width, _menu->getPositionY()))));
+    _menu->runAction(EaseQuadraticActionOut::create(MoveTo::create(
+        UI_ACTION_DUR, Vec2(getContentSize().width, _menu->getPositionY()))));
     _touchHideMenu->setTouchEnabled(false);
 }
 
@@ -492,9 +517,11 @@ bool TVPMainFileSelectorForm::isMenuShrinked() {
     return true;
 }
 
-void TVPMainFileSelectorForm::onShowPreferenceConfigAt(const std::string &path) {
+void TVPMainFileSelectorForm::onShowPreferenceConfigAt(
+    const std::string &path) {
     if(IndividualConfigManager::GetInstance()->UsePreferenceAt(path)) {
-        TVPMainScene::GetInstance()->pushUIForm(IndividualPreferenceForm::create());
+        TVPMainScene::GetInstance()->pushUIForm(
+            IndividualPreferenceForm::create());
     }
 }
 
@@ -511,18 +538,26 @@ void TVPMainFileSelectorForm::ListHistory() {
     for(auto it = _HistoryPath.begin(); it != _HistoryPath.end();) {
         const std::string &fullpath = *it;
         HistoryCell *cell;
-        if(TVPCheckExistentLocalFile(fullpath) || TVPCheckExistentLocalFolder(fullpath)) {
-            std::pair<std::string, std::string> split_path = PathSplit(fullpath);
+        if(TVPCheckExistentLocalFile(fullpath) ||
+           TVPCheckExistentLocalFolder(fullpath)) {
+            std::pair<std::string, std::string> split_path =
+                PathSplit(fullpath);
             std::string lastname = split_path.second;
             std::string path = split_path.first;
             split_path = PathSplit(path);
-            cell = HistoryCell::create(fullpath, split_path.first + "/", split_path.second, "/" + lastname);
+            cell = HistoryCell::create(fullpath, split_path.first + "/",
+                                       split_path.second, "/" + lastname);
             Widget::ccWidgetClickCallback funcConf;
             if(TVPCheckExistentLocalFile(path + "/Kirikiroid2Preference.xml"))
-                funcConf = [this, path](Ref *) { onShowPreferenceConfigAt(path); };
-            cell->initFunction([this, cell](auto &&PH1) { RemoveHistoryCell(std::forward<decltype(PH1)>(PH1), cell); },
-                               [this, path](Ref *) { ListDir(path); }, funcConf,
-                               [this, fullpath](Ref *) { startup(fullpath); });
+                funcConf = [this, path](Ref *) {
+                    onShowPreferenceConfigAt(path);
+                };
+            cell->initFunction(
+                [this, cell](auto &&PH1) {
+                    RemoveHistoryCell(std::forward<decltype(PH1)>(PH1), cell);
+                },
+                [this, path](Ref *) { ListDir(path); }, funcConf,
+                [this, fullpath](Ref *) { startup(fullpath); });
             Size cellsize = cell->getContentSize();
             cellsize.width = _historyList->getContentSize().width;
             cell->setContentSize(cellsize);
@@ -539,10 +574,12 @@ void TVPMainFileSelectorForm::ListHistory() {
     _historyList->pushBackCustomItem(nullcell);
 }
 
-void TVPMainFileSelectorForm::RemoveHistoryCell(cocos2d::Ref *btn, HistoryCell *cell) {
+void TVPMainFileSelectorForm::RemoveHistoryCell(cocos2d::Ref *btn,
+                                                HistoryCell *cell) {
     static_cast<Widget *>(btn)->setEnabled(false);
     cell->runAction(Sequence::createWithTwoActions(
-        EaseQuadraticActionOut::create(MoveBy::create(0.25, Vec2(-cell->getContentSize().width, 0))),
+        EaseQuadraticActionOut::create(
+            MoveBy::create(0.25, Vec2(-cell->getContentSize().width, 0))),
         CallFuncN::create([this](Node *p) {
             auto *cell = static_cast<HistoryCell *>(p);
             ssize_t idx = _historyList->getIndex(cell);
@@ -554,7 +591,8 @@ void TVPMainFileSelectorForm::RemoveHistoryCell(cocos2d::Ref *btn, HistoryCell *
     _SaveHistory();
 }
 
-void TVPMainFileSelectorForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event) {
+void TVPMainFileSelectorForm::onKeyPressed(
+    cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event) {
     if(keyCode == cocos2d::EventKeyboard::KeyCode::KEY_BACK) {
         if(isMenuShowed()) {
             hideMenu(nullptr);
@@ -570,17 +608,23 @@ void TVPMainFileSelectorForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCo
     }
 }
 
-void TVPMainFileSelectorForm::HistoryCell::initInfo(const std::string &fullpath, const std::string &prefix,
-                                                    const std::string &pathname, const std::string &filename) {
+void TVPMainFileSelectorForm::HistoryCell::initInfo(
+    const std::string &fullpath, const std::string &prefix,
+    const std::string &pathname, const std::string &filename) {
     _fullpath = fullpath;
 
     CSBReader reader;
     _root = reader.Load("ui/RecentListItem.csb");
-    _scrollview = static_cast<cocos2d::ui::ScrollView *>(reader.findController("scrollview"));
-    _btn_delete = static_cast<cocos2d::ui::Widget *>(reader.findController("btn_delete"));
-    _btn_jump = static_cast<cocos2d::ui::Widget *>(reader.findController("btn_jump"));
-    _btn_conf = static_cast<cocos2d::ui::Widget *>(reader.findController("btn_conf"));
-    _btn_play = static_cast<cocos2d::ui::Widget *>(reader.findController("btn_play"));
+    _scrollview = static_cast<cocos2d::ui::ScrollView *>(
+        reader.findController("scrollview"));
+    _btn_delete =
+        static_cast<cocos2d::ui::Widget *>(reader.findController("btn_delete"));
+    _btn_jump =
+        static_cast<cocos2d::ui::Widget *>(reader.findController("btn_jump"));
+    _btn_conf =
+        static_cast<cocos2d::ui::Widget *>(reader.findController("btn_conf"));
+    _btn_play =
+        static_cast<cocos2d::ui::Widget *>(reader.findController("btn_play"));
     _prefix = static_cast<cocos2d::ui::Text *>(reader.findController("prefix"));
     _path = static_cast<cocos2d::ui::Text *>(reader.findController("path"));
     _file = static_cast<cocos2d::ui::Text *>(reader.findController("file"));
@@ -628,10 +672,10 @@ void TVPMainFileSelectorForm::HistoryCell::rearrangeLayout() {
     container->setPosition(offsetx, 0);
 }
 
-void TVPMainFileSelectorForm::HistoryCell::initFunction(const ccWidgetClickCallback &funcDel,
-                                                        const ccWidgetClickCallback &funcJump,
-                                                        const ccWidgetClickCallback &funcConf,
-                                                        const ccWidgetClickCallback &funcPlay) {
+void TVPMainFileSelectorForm::HistoryCell::initFunction(
+    const ccWidgetClickCallback &funcDel, const ccWidgetClickCallback &funcJump,
+    const ccWidgetClickCallback &funcConf,
+    const ccWidgetClickCallback &funcPlay) {
     _btn_delete->addClickEventListener(funcDel);
     _btn_play->addClickEventListener(funcPlay);
     if(funcConf)

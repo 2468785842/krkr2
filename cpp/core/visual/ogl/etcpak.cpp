@@ -10,7 +10,8 @@
 #include "ThreadIntf.h"
 #include "tvpgl.h"
 
-#define _bswap(x) ((x & 0xFF) << 24) | ((x & 0xFF00) << 8) | ((x & 0xFF0000) >> 8) | (x >> 24)
+#define _bswap(x)                                                              \
+    ((x & 0xFF) << 24) | ((x & 0xFF00) << 8) | ((x & 0xFF0000) >> 8) | (x >> 24)
 namespace std {
     float _fma_(float x, float y, float z) { return fmaf(x, y, z); }
 } // namespace std
@@ -30,9 +31,9 @@ namespace ETCPacker {
 
     typedef unsigned int uint;
 
-    // takes as input a value, returns the value clamped to the interval [0,255].
-    // NO WARRANTY --- SEE STATEMENT IN TOP OF FILE (C) Ericsson AB 2013. All Rights
-    // Reserved.
+    // takes as input a value, returns the value clamped to the
+    // interval [0,255]. NO WARRANTY --- SEE STATEMENT IN TOP OF FILE
+    // (C) Ericsson AB 2013. All Rights Reserved.
     static int clamp(int val) {
         if(val < 0)
             val = 0;
@@ -42,50 +43,73 @@ namespace ETCPacker {
     }
     static int alphaTableInitialized = 0;
     static int alphaTable[256][8];
-    static int alphaBase[16][4] = {
-        { -15, -9, -6, -3 }, { -13, -10, -7, -3 }, { -13, -8, -5, -2 }, { -13, -6, -4, -2 },
-        { -12, -8, -6, -3 }, { -11, -9, -7, -3 },  { -11, -8, -7, -4 }, { -11, -8, -5, -3 },
-        { -10, -8, -6, -2 }, { -10, -8, -5, -2 },  { -10, -8, -4, -2 }, { -10, -7, -5, -2 },
-        { -10, -7, -4, -3 }, { -10, -3, -2, -1 },  { -9, -8, -6, -4 },  { -9, -7, -5, -3 }
-    };
+    static int alphaBase[16][4] = { { -15, -9, -6, -3 }, { -13, -10, -7, -3 },
+                                    { -13, -8, -5, -2 }, { -13, -6, -4, -2 },
+                                    { -12, -8, -6, -3 }, { -11, -9, -7, -3 },
+                                    { -11, -8, -7, -4 }, { -11, -8, -5, -3 },
+                                    { -10, -8, -6, -2 }, { -10, -8, -5, -2 },
+                                    { -10, -8, -4, -2 }, { -10, -7, -5, -2 },
+                                    { -10, -7, -4, -3 }, { -10, -3, -2, -1 },
+                                    { -9, -8, -6, -4 },  { -9, -7, -5, -3 } };
 
-    // Table for fast implementationi of clamping to the interval [0,255]
+    // Table for fast implementationi of clamping to the interval
+    // [0,255]
     static const int clamp_table[768] = {
-        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   2,   3,   4,   5,   6,   7,   8,
-        9,   10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,
-        31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51,  52,
-        53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,  65,  66,  67,  68,  69,  70,  71,  72,  73,  74,
-        75,  76,  77,  78,  79,  80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,  91,  92,  93,  94,  95,  96,
-        97,  98,  99,  100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118,
-        119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140,
-        141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162,
-        163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184,
-        185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206,
-        207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228,
-        229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250,
-        251, 252, 253, 254, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,
+        11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,
+        25,  26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,
+        39,  40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51,  52,
+        53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,  65,  66,
+        67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,  78,  79,  80,
+        81,  82,  83,  84,  85,  86,  87,  88,  89,  90,  91,  92,  93,  94,
+        95,  96,  97,  98,  99,  100, 101, 102, 103, 104, 105, 106, 107, 108,
+        109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122,
+        123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136,
+        137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150,
+        151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164,
+        165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178,
+        179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192,
+        193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206,
+        207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220,
+        221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234,
+        235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248,
+        249, 250, 251, 252, 253, 254, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255
     };
 
     static void setupAlphaTable() {
@@ -105,16 +129,17 @@ namespace ETCPacker {
             }
         }
 
-        // beyond the first 16 values, the rest of the table is implicit.. so
-        // calculate that!
+        // beyond the first 16 values, the rest of the table is
+        // implicit.. so calculate that!
         for(int i = 0; i < 256; i++) {
-            // fill remaining slots in table with multiples of the first ones.
+            // fill remaining slots in table with multiples of the
+            // first ones.
             int mul = i / 16;
             int old = 16 + i % 16;
             for(int j = 0; j < 8; j++) {
                 alphaTable[i][j] = alphaTable[old][j] * mul;
-                // note: we don't do clamping here, though we could, because we'll
-                // be clamped afterwards anyway.
+                // note: we don't do clamping here, though we could,
+                // because we'll be clamped afterwards anyway.
             }
         }
     }
@@ -126,9 +151,9 @@ namespace ETCPacker {
         return ((1 << frompos) & input) << (topos - frompos);
     }
 
-    // Compresses the alpha part of a GL_COMPRESSED_RGBA8_ETC2_EAC block.
-    // NO WARRANTY --- SEE STATEMENT IN TOP OF FILE (C) Ericsson AB 2013. All Rights
-    // Reserved.
+    // Compresses the alpha part of a GL_COMPRESSED_RGBA8_ETC2_EAC
+    // block. NO WARRANTY --- SEE STATEMENT IN TOP OF FILE (C)
+    // Ericsson AB 2013. All Rights Reserved.
     void compressBlockAlphaFast(uint8 *data, uint8 *returnData) {
         int alphasum = 0;
         int maxdist = -2;
@@ -136,7 +161,9 @@ namespace ETCPacker {
         for(int x = 0; x < 16; x++) {
             alphasum += data[x];
         }
-        int alpha = (int)(((float)alphasum) / 16.0f + 0.5f); // average pixel value, used as guess for base value.
+        int alpha = (int)(((float)alphasum) / 16.0f +
+                          0.5f); // average pixel value, used as guess
+                                 // for base value.
         for(int x = 0; x < 16; x++) {
             if(abs(alpha - data[x]) > maxdist)
                 maxdist = abs(alpha - data[x]); // maximum distance from average
@@ -147,8 +174,10 @@ namespace ETCPacker {
             returnData[0] = alpha;
             return;
         }
-        int approxPos = (maxdist * 255) / 160 - 4; // experimentally derived formula for calculating approximate table
-                                                   // position given a max distance from average
+        int approxPos =
+            (maxdist * 255) / 160 - 4; // experimentally derived formula for
+                                       // calculating approximate table position
+                                       // given a max distance from average
         if(approxPos > 255)
             approxPos = 255;
         int startTable = approxPos - 15; // first table to be tested
@@ -161,13 +190,13 @@ namespace ETCPacker {
         int bestalpha = 128;
         int prevalpha = alpha;
 
-        // main loop: determine best base alpha value and offset table to use for
-        // compression try some different alpha tables.
+        // main loop: determine best base alpha value and offset table
+        // to use for compression try some different alpha tables.
         for(int table = startTable; table < endTable && bestsum > 0; table++) {
             int tablealpha = prevalpha;
             int tablebestsum = 1000000000;
-            // test some different alpha values, trying to find the best one for the
-            // given table.
+            // test some different alpha values, trying to find the
+            // best one for the given table.
             for(int alphascale = 16; alphascale > 0; alphascale /= 4) {
                 int startalpha;
                 int endalpha;
@@ -178,24 +207,32 @@ namespace ETCPacker {
                     startalpha = clamp(tablealpha - alphascale * 2);
                     endalpha = clamp(tablealpha + alphascale * 2);
                 }
-                for(alpha = startalpha; alpha <= endalpha; alpha += alphascale) {
+                for(alpha = startalpha; alpha <= endalpha;
+                    alpha += alphascale) {
                     int sum = 0;
                     int val, diff, bestdiff = 10000000, index;
                     for(int x = 0; x < 16; x++) {
                         //	for (int y = 0; y < 4; y++)
                         {
-                            // compute best offset here, add square difference to
-                            // sum..
+                            // compute best offset here, add square
+                            // difference to sum..
                             val = data[x];
                             bestdiff = 1000000000;
-                            // the values are always ordered from small to large,
-                            // with the first 4 being negative and the last 4
-                            // positive search is therefore made in the order
-                            // 0-1-2-3 or 7-6-5-4, stopping when error increases
-                            // compared to the previous entry tested.
+                            // the values are always ordered from
+                            // small to large, with the first 4 being
+                            // negative and the last 4 positive search
+                            // is therefore made in the order 0-1-2-3
+                            // or 7-6-5-4, stopping when error
+                            // increases compared to the previous
+                            // entry tested.
                             if(val > alpha) {
                                 for(index = 7; index > 3; index--) {
-                                    diff = clamp_table[alpha + (int)(alphaTable[table][index]) + 255] - val;
+                                    diff =
+                                        clamp_table[alpha +
+                                                    (int)(alphaTable[table]
+                                                                    [index]) +
+                                                    255] -
+                                        val;
                                     diff *= diff;
                                     if(diff <= bestdiff) {
                                         bestdiff = diff;
@@ -204,7 +241,12 @@ namespace ETCPacker {
                                 }
                             } else {
                                 for(index = 0; index < 4; index++) {
-                                    diff = clamp_table[alpha + (int)(alphaTable[table][index]) + 255] - val;
+                                    diff =
+                                        clamp_table[alpha +
+                                                    (int)(alphaTable[table]
+                                                                    [index]) +
+                                                    255] -
+                                        val;
                                     diff *= diff;
                                     if(diff < bestdiff) {
                                         bestdiff = diff;
@@ -213,16 +255,18 @@ namespace ETCPacker {
                                 }
                             }
 
-                            // best diff here is bestdiff, add it to sum!
+                            // best diff here is bestdiff, add it to
+                            // sum!
                             sum += bestdiff;
-                            // if the sum here is worse than previously best
-                            // already, there's no use in continuing the count..
-                            // note that tablebestsum could be used for more precise
-                            // estimation, but the speedup gained here is deemed
-                            // more important.
+                            // if the sum here is worse than
+                            // previously best already, there's no use
+                            // in continuing the count.. note that
+                            // tablebestsum could be used for more
+                            // precise estimation, but the speedup
+                            // gained here is deemed more important.
                             if(sum > bestsum) {
-                                x = 9999; // just to make it large and get out of
-                                          // the x<4 loop
+                                x = 9999; // just to make it large and
+                                          // get out of the x<4 loop
                                 break;
                             }
                         }
@@ -245,7 +289,8 @@ namespace ETCPacker {
         alpha = bestalpha;
 
         //"good" alpha value and table are known!
-        // store them, then loop through the pixels again and print indices.
+        // store them, then loop through the pixels again and print
+        // indices.
 
         returnData[0] = alpha;
         returnData[1] = besttable;
@@ -260,18 +305,23 @@ namespace ETCPacker {
                 // find correct index
                 int besterror = 1000000;
                 int bestindex = 99;
-                for(int index = 0; index < 8; index++) // no clever ordering this time, as this loop is only
-                                                       // run once per block anyway
+                for(int index = 0; index < 8;
+                    index++) // no clever ordering this time, as this
+                             // loop is only run once per block anyway
                 {
-                    int error = (clamp(alpha + (int)(alphaTable[besttable][index])) - data[x]) *
-                        (clamp(alpha + (int)(alphaTable[besttable][index])) - data[x]);
+                    int error =
+                        (clamp(alpha + (int)(alphaTable[besttable][index])) -
+                         data[x]) *
+                        (clamp(alpha + (int)(alphaTable[besttable][index])) -
+                         data[x]);
                     if(error < besterror) {
                         besterror = error;
                         bestindex = index;
                     }
                 }
                 // best table index has been determined.
-                // pack 3-bit index into compressed data, one bit at a time
+                // pack 3-bit index into compressed data, one bit at a
+                // time
                 for(int numbit = 0; numbit < 3; numbit++) {
                     returnData[byte] |= getbit(bestindex, 2 - numbit, 7 - bit);
 
@@ -355,7 +405,9 @@ namespace ETCPacker {
         Vector2(T v) : x(v), y(v) {}
         Vector2(T _x, T _y) : x(_x), y(_y) {}
 
-        bool operator==(const Vector2<T> &rhs) const { return x == rhs.x && y == rhs.y; }
+        bool operator==(const Vector2<T> &rhs) const {
+            return x == rhs.x && y == rhs.y;
+        }
         bool operator!=(const Vector2<T> &rhs) const { return !(*this == rhs); }
 
         Vector2<T> &operator+=(const Vector2<T> &rhs) {
@@ -415,7 +467,9 @@ namespace ETCPacker {
             z = std::min(T(1), std::max(T(0), z));
         }
 
-        bool operator==(const Vector3<T> &rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
+        bool operator==(const Vector3<T> &rhs) const {
+            return x == rhs.x && y == rhs.y && z == rhs.z;
+        }
         bool operator!=(const Vector2<T> &rhs) const { return !(*this == rhs); }
 
         T &operator[](uint idx) {
@@ -487,7 +541,9 @@ namespace ETCPacker {
     typedef Vector3<uint8> v3b;
 
     static inline v3b v3f_to_v3b(const v3f &v) {
-        return v3b(uint8(std::min(1.f, v.x) * 255), uint8(std::min(1.f, v.y) * 255), uint8(std::min(1.f, v.z) * 255));
+        return v3b(uint8(std::min(1.f, v.x) * 255),
+                   uint8(std::min(1.f, v.y) * 255),
+                   uint8(std::min(1.f, v.z) * 255));
     }
 
     template <class T>
@@ -514,7 +570,9 @@ namespace ETCPacker {
 
     template <class T>
     Vector3<T> pow(const Vector3<T> &base, float exponent) {
-        return Vector3<T>(std::pow(base.x, exponent), std::pow(base.y, exponent), std::pow(base.z, exponent));
+        return Vector3<T>(std::pow(base.x, exponent),
+                          std::pow(base.y, exponent),
+                          std::pow(base.z, exponent));
     }
 
     template <class T>
@@ -573,35 +631,48 @@ namespace ETCPacker {
         uint offset;
     };
 
-    const int32 g_table[8][4] = { { 2, 8, -2, -8 },       { 5, 17, -5, -17 },    { 9, 29, -9, -29 },
-                                  { 13, 42, -13, -42 },   { 18, 60, -18, -60 },  { 24, 80, -24, -80 },
-                                  { 33, 106, -33, -106 }, { 47, 183, -47, -183 } };
-
-    const int64 g_table256[8][4] = {
-        { 2 * 256, 8 * 256, -2 * 256, -8 * 256 },       { 5 * 256, 17 * 256, -5 * 256, -17 * 256 },
-        { 9 * 256, 29 * 256, -9 * 256, -29 * 256 },     { 13 * 256, 42 * 256, -13 * 256, -42 * 256 },
-        { 18 * 256, 60 * 256, -18 * 256, -60 * 256 },   { 24 * 256, 80 * 256, -24 * 256, -80 * 256 },
-        { 33 * 256, 106 * 256, -33 * 256, -106 * 256 }, { 47 * 256, 183 * 256, -47 * 256, -183 * 256 }
+    const int32 g_table[8][4] = {
+        { 2, 8, -2, -8 },       { 5, 17, -5, -17 },    { 9, 29, -9, -29 },
+        { 13, 42, -13, -42 },   { 18, 60, -18, -60 },  { 24, 80, -24, -80 },
+        { 33, 106, -33, -106 }, { 47, 183, -47, -183 }
     };
 
-    const uint32 g_id[4][16] = { { 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-                                 { 3, 3, 2, 2, 3, 3, 2, 2, 3, 3, 2, 2, 3, 3, 2, 2 },
-                                 { 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4 },
-                                 { 7, 7, 6, 6, 7, 7, 6, 6, 7, 7, 6, 6, 7, 7, 6, 6 } };
+    const int64 g_table256[8][4] = {
+        { 2 * 256, 8 * 256, -2 * 256, -8 * 256 },
+        { 5 * 256, 17 * 256, -5 * 256, -17 * 256 },
+        { 9 * 256, 29 * 256, -9 * 256, -29 * 256 },
+        { 13 * 256, 42 * 256, -13 * 256, -42 * 256 },
+        { 18 * 256, 60 * 256, -18 * 256, -60 * 256 },
+        { 24 * 256, 80 * 256, -24 * 256, -80 * 256 },
+        { 33 * 256, 106 * 256, -33 * 256, -106 * 256 },
+        { 47 * 256, 183 * 256, -47 * 256, -183 * 256 }
+    };
 
-    const uint32 g_avg2[16] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
-                                0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
+    const uint32 g_id[4][16] = {
+        { 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 3, 3, 2, 2, 3, 3, 2, 2, 3, 3, 2, 2, 3, 3, 2, 2 },
+        { 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4 },
+        { 7, 7, 6, 6, 7, 7, 6, 6, 7, 7, 6, 6, 7, 7, 6, 6 }
+    };
 
-    const uint32 g_flags[64] = { 0x80800402, 0x80800402, 0x80800402, 0x80800402, 0x80800402, 0x80800402, 0x80800402,
-                                 0x8080E002, 0x80800402, 0x80800402, 0x8080E002, 0x8080E002, 0x80800402, 0x8080E002,
-                                 0x8080E002, 0x8080E002, 0x80000402, 0x80000402, 0x80000402, 0x80000402, 0x80000402,
-                                 0x80000402, 0x80000402, 0x8000E002, 0x80000402, 0x80000402, 0x8000E002, 0x8000E002,
-                                 0x80000402, 0x8000E002, 0x8000E002, 0x8000E002, 0x00800402, 0x00800402, 0x00800402,
-                                 0x00800402, 0x00800402, 0x00800402, 0x00800402, 0x0080E002, 0x00800402, 0x00800402,
-                                 0x0080E002, 0x0080E002, 0x00800402, 0x0080E002, 0x0080E002, 0x0080E002, 0x00000402,
-                                 0x00000402, 0x00000402, 0x00000402, 0x00000402, 0x00000402, 0x00000402, 0x0000E002,
-                                 0x00000402, 0x00000402, 0x0000E002, 0x0000E002, 0x00000402, 0x0000E002, 0x0000E002,
-                                 0x0000E002 };
+    const uint32 g_avg2[16] = {
+        0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+        0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF
+    };
+
+    const uint32 g_flags[64] = {
+        0x80800402, 0x80800402, 0x80800402, 0x80800402, 0x80800402, 0x80800402,
+        0x80800402, 0x8080E002, 0x80800402, 0x80800402, 0x8080E002, 0x8080E002,
+        0x80800402, 0x8080E002, 0x8080E002, 0x8080E002, 0x80000402, 0x80000402,
+        0x80000402, 0x80000402, 0x80000402, 0x80000402, 0x80000402, 0x8000E002,
+        0x80000402, 0x80000402, 0x8000E002, 0x8000E002, 0x80000402, 0x8000E002,
+        0x8000E002, 0x8000E002, 0x00800402, 0x00800402, 0x00800402, 0x00800402,
+        0x00800402, 0x00800402, 0x00800402, 0x0080E002, 0x00800402, 0x00800402,
+        0x0080E002, 0x0080E002, 0x00800402, 0x0080E002, 0x0080E002, 0x0080E002,
+        0x00000402, 0x00000402, 0x00000402, 0x00000402, 0x00000402, 0x00000402,
+        0x00000402, 0x0000E002, 0x00000402, 0x00000402, 0x0000E002, 0x0000E002,
+        0x00000402, 0x0000E002, 0x0000E002, 0x0000E002
+    };
 
     template <class T>
     static size_t GetLeastError(const T *err, size_t num) {
@@ -615,12 +686,14 @@ namespace ETCPacker {
     }
 
     static uint64 FixByteOrder(uint64 d) {
-        return ((d & 0x00000000FFFFFFFF)) | ((d & 0xFF00000000000000) >> 24) | ((d & 0x000000FF00000000) << 24) |
-            ((d & 0x00FF000000000000) >> 8) | ((d & 0x0000FF0000000000) << 8);
+        return ((d & 0x00000000FFFFFFFF)) | ((d & 0xFF00000000000000) >> 24) |
+            ((d & 0x000000FF00000000) << 24) | ((d & 0x00FF000000000000) >> 8) |
+            ((d & 0x0000FF0000000000) << 8);
     }
 
     template <class T, class S>
-    static uint64 EncodeSelectors(uint64 d, const T terr[2][8], const S tsel[16][8], const uint32 *id) {
+    static uint64 EncodeSelectors(uint64 d, const T terr[2][8],
+                                  const S tsel[16][8], const uint32 *id) {
         size_t tidx[2];
         tidx[0] = GetLeastError(terr[0], 8);
         tidx[1] = GetLeastError(terr[1], 8);
@@ -659,14 +732,18 @@ namespace ETCPacker {
                 }
             }
 
-            a[0] =
-                v4i{ uint16((r[2] + r[3] + 4) / 8), uint16((g[2] + g[3] + 4) / 8), uint16((b[2] + b[3] + 4) / 8), 0 };
-            a[1] =
-                v4i{ uint16((r[0] + r[1] + 4) / 8), uint16((g[0] + g[1] + 4) / 8), uint16((b[0] + b[1] + 4) / 8), 0 };
-            a[2] =
-                v4i{ uint16((r[1] + r[3] + 4) / 8), uint16((g[1] + g[3] + 4) / 8), uint16((b[1] + b[3] + 4) / 8), 0 };
-            a[3] =
-                v4i{ uint16((r[0] + r[2] + 4) / 8), uint16((g[0] + g[2] + 4) / 8), uint16((b[0] + b[2] + 4) / 8), 0 };
+            a[0] = v4i{ uint16((r[2] + r[3] + 4) / 8),
+                        uint16((g[2] + g[3] + 4) / 8),
+                        uint16((b[2] + b[3] + 4) / 8), 0 };
+            a[1] = v4i{ uint16((r[0] + r[1] + 4) / 8),
+                        uint16((g[0] + g[1] + 4) / 8),
+                        uint16((b[0] + b[1] + 4) / 8), 0 };
+            a[2] = v4i{ uint16((r[1] + r[3] + 4) / 8),
+                        uint16((g[1] + g[3] + 4) / 8),
+                        uint16((b[1] + b[3] + 4) / 8), 0 };
+            a[3] = v4i{ uint16((r[0] + r[2] + 4) / 8),
+                        uint16((g[0] + g[2] + 4) / 8),
+                        uint16((b[0] + b[2] + 4) / 8), 0 };
         }
 
         void CalcErrorBlock(const uint8 *data, uint err[4][4]) {
@@ -699,8 +776,8 @@ namespace ETCPacker {
         }
 
         uint CalcError(const uint block[4], const v4i &average) {
-            uint err = 0x3FFFFFFF; // Big value to prevent negative values, but small
-                                   // enough to prevent overflow
+            uint err = 0x3FFFFFFF; // Big value to prevent negative values,
+                                   // but small enough to prevent overflow
             err -= block[0] * 2 * average[2];
             err -= block[1] * 2 * average[1];
             err -= block[2] * 2 * average[0];
@@ -747,7 +824,9 @@ namespace ETCPacker {
             } else {
                 for(int i = 0; i < 3; i++) {
                     d |= uint64(a[base + 1][i] & 0xF8) << (i * 8);
-                    int32 c = ((a[base + 0][i] & 0xF8) - (a[base + 1][i] & 0xF8)) >> 3;
+                    int32 c =
+                        ((a[base + 0][i] & 0xF8) - (a[base + 1][i] & 0xF8)) >>
+                        3;
                     c &= ~0xFFFFFFF8;
                     d |= ((uint64)c) << (i * 8);
                 }
@@ -763,7 +842,8 @@ namespace ETCPacker {
                 }
                 ptr += 4;
             }
-            return 0x02000000 | (uint(src[0] & 0xF8) << 16) | (uint(src[1] & 0xF8) << 8) | (uint(src[2] & 0xF8));
+            return 0x02000000 | (uint(src[0] & 0xF8) << 16) |
+                (uint(src[1] & 0xF8) << 8) | (uint(src[2] & 0xF8));
         }
 
         void PrepareAverages(v4i a[8], const uint8 *src, uint err[4]) {
@@ -779,7 +859,8 @@ namespace ETCPacker {
             }
         }
 
-        void FindBestFit(uint64 terr[2][8], uint16 tsel[16][8], v4i a[8], const uint32 *id, const uint8 *data) {
+        void FindBestFit(uint64 terr[2][8], uint16 tsel[16][8], v4i a[8],
+                         const uint32 *id, const uint8 *data) {
             for(size_t i = 0; i < 16; i++) {
                 uint16 *sel = tsel[i];
                 uint bid = id[i];
@@ -814,12 +895,14 @@ namespace ETCPacker {
         }
 
         uint8_t convert6(float f) {
-            int i = (std::min(std::max(static_cast<int>(f), 0), 1023) - 15) >> 1;
+            int i =
+                (std::min(std::max(static_cast<int>(f), 0), 1023) - 15) >> 1;
             return (i + 11 - ((i + 11) >> 7) - ((i + 4) >> 7)) >> 3;
         }
 
         uint8_t convert7(float f) {
-            int i = (std::min(std::max(static_cast<int>(f), 0), 1023) - 15) >> 1;
+            int i =
+                (std::min(std::max(static_cast<int>(f), 0), 1023) - 15) >> 1;
             return (i + 9 - ((i + 9) >> 8) - ((i + 6) >> 8)) >> 2;
         }
 
@@ -857,7 +940,8 @@ namespace ETCPacker {
                 difBxz += difB * scaling[i / 4];
             }
 
-            const float scale = -4.0f / ((255 * 255 * 8.0f + 85 * 85 * 8.0f) * 16.0f);
+            const float scale =
+                -4.0f / ((255 * 255 * 8.0f + 85 * 85 * 8.0f) * 16.0f);
 
             float aR = difRxz * scale;
             float aG = difGxz * scale;
@@ -871,8 +955,8 @@ namespace ETCPacker {
             float dG = g * (4.0f / 16.0f);
             float dB = b * (4.0f / 16.0f);
 
-            // calculating the three colors RGBO, RGBH, and RGBV.  RGB = df - af * x -
-            // bf
+            // calculating the three colors RGBO, RGBH, and RGBV.  RGB
+            // = df - af * x - bf
             // * y;
             float cofR = std::fma(aR, 255.0f, std::fma(bR, 255.0f, dR));
             float cofG = std::fma(aG, 255.0f, std::fma(bG, 255.0f, dG));
@@ -949,23 +1033,27 @@ namespace ETCPacker {
             uint32 rgbh = chB | (chG << 6) | (chR << 13);
             uint32 hi = rgbv | ((rgbh & 0x1FFF) << 19);
             uint32 lo = (chR & 0x1) | 0x2 | ((chR << 1) & 0x7C);
-            lo |= ((coB & 0x07) << 7) | ((coB & 0x18) << 8) | ((coB & 0x20) << 11);
+            lo |= ((coB & 0x07) << 7) | ((coB & 0x18) << 8) |
+                ((coB & 0x20) << 11);
             lo |= ((coG & 0x3F) << 17) | ((coG & 0x40) << 18);
             lo |= coR << 25;
 
-            const auto idx = (coR & 0x20) | ((coG & 0x20) >> 1) | ((coB & 0x1E) >> 1);
+            const auto idx =
+                (coR & 0x20) | ((coG & 0x20) >> 1) | ((coB & 0x1E) >> 1);
 
             lo |= g_flags[idx];
 
             uint64 result = static_cast<uint32>(_bswap(lo));
-            result |= static_cast<uint64>(static_cast<uint32>(_bswap(hi))) << 32;
+            result |= static_cast<uint64>(static_cast<uint32>(_bswap(hi)))
+                << 32;
 
             return std::make_pair(result, error);
         }
 
         template <class T, class S>
-        uint64 EncodeSelectors(uint64 d, const T terr[2][8], const S tsel[16][8], const uint32 *id, const uint64 value,
-                               const uint64 error) {
+        uint64 EncodeSelectors(uint64 d, const T terr[2][8],
+                               const S tsel[16][8], const uint32 *id,
+                               const uint64 value, const uint64 error) {
             size_t tidx[2];
             tidx[0] = GetLeastError(terr[0], 8);
             tidx[1] = GetLeastError(terr[1], 8);
@@ -1024,10 +1112,13 @@ namespace ETCPacker {
         return EncodeSelectors(d, terr, tsel, id, result.first, result.second);
     }
 
-    inline int NumberOfMipLevels(const v2i &size) { return (int)floor(log2(std::max(size.x, size.y))) + 1; }
+    inline int NumberOfMipLevels(const v2i &size) {
+        return (int)floor(log2(std::max(size.x, size.y))) + 1;
+    }
 
     Bitmap::Bitmap(const v2i &size) :
-        m_data(new uint32[size.x * size.y]), m_block(nullptr), m_lines(1), m_linesLeft(size.y / 4), m_size(size)
+        m_data(new uint32[size.x * size.y]), m_block(nullptr), m_lines(1),
+        m_linesLeft(size.y / 4), m_size(size)
     //	, m_sema(0)
     {}
 
@@ -1036,8 +1127,11 @@ namespace ETCPacker {
     //	, m_sema(0)
     {}
 
-    Bitmap::Bitmap(const v2i &size, const void *pixelData, int pitch, uint lines) :
-        m_data(nullptr), m_block((uint32 *)pixelData), m_lines(lines), m_linesLeft(size.y / 4), m_size(size)
+    Bitmap::Bitmap(const v2i &size, const void *pixelData, int pitch,
+                   uint lines) :
+        m_data(nullptr),
+        m_block((uint32 *)pixelData), m_lines(lines), m_linesLeft(size.y / 4),
+        m_size(size)
     //	, m_sema(0)
     {}
 
@@ -1060,7 +1154,8 @@ namespace ETCPacker {
         ~BitmapDownsampled();
     };
 
-    BitmapDownsampled::BitmapDownsampled(const Bitmap &bmp, uint lines) : Bitmap(bmp, lines) {
+    BitmapDownsampled::BitmapDownsampled(const Bitmap &bmp, uint lines) :
+        Bitmap(bmp, lines) {
         m_size.x = std::max(1, bmp.Size().x / 2);
         m_size.y = std::max(1, bmp.Size().y / 2);
 
@@ -1089,48 +1184,57 @@ namespace ETCPacker {
             }
         } else {
             m_linesLeft = h / 4;
-            m_load = std::async(std::launch::async, [this, &bmp, w, h]() mutable {
-                auto ptr = m_data;
-                auto src1 = bmp.Data();
-                auto src2 = src1 + bmp.Size().x;
-                uint lines = 0;
-                for(int i = 0; i < h / 4; i++) {
-                    for(int j = 0; j < 4; j++) {
-                        for(int k = 0; k < m_size.x; k++) {
-                            int r = ((*src1 & 0x000000FF) + (*(src1 + 1) & 0x000000FF) + (*src2 & 0x000000FF) +
-                                     (*(src2 + 1) & 0x000000FF)) /
-                                4;
-                            int g = (((*src1 & 0x0000FF00) + (*(src1 + 1) & 0x0000FF00) + (*src2 & 0x0000FF00) +
-                                      (*(src2 + 1) & 0x0000FF00)) /
-                                     4) &
-                                0x0000FF00;
-                            int b = (((*src1 & 0x00FF0000) + (*(src1 + 1) & 0x00FF0000) + (*src2 & 0x00FF0000) +
-                                      (*(src2 + 1) & 0x00FF0000)) /
-                                     4) &
-                                0x00FF0000;
-                            int a = (((((*src1 & 0xFF000000) >> 8) + ((*(src1 + 1) & 0xFF000000) >> 8) +
-                                       ((*src2 & 0xFF000000) >> 8) + ((*(src2 + 1) & 0xFF000000) >> 8)) /
-                                      4) &
-                                     0x00FF0000)
-                                << 8;
-                            *ptr++ = r | g | b | a;
-                            src1 += 2;
-                            src2 += 2;
+            m_load =
+                std::async(std::launch::async, [this, &bmp, w, h]() mutable {
+                    auto ptr = m_data;
+                    auto src1 = bmp.Data();
+                    auto src2 = src1 + bmp.Size().x;
+                    uint lines = 0;
+                    for(int i = 0; i < h / 4; i++) {
+                        for(int j = 0; j < 4; j++) {
+                            for(int k = 0; k < m_size.x; k++) {
+                                int r = ((*src1 & 0x000000FF) +
+                                         (*(src1 + 1) & 0x000000FF) +
+                                         (*src2 & 0x000000FF) +
+                                         (*(src2 + 1) & 0x000000FF)) /
+                                    4;
+                                int g = (((*src1 & 0x0000FF00) +
+                                          (*(src1 + 1) & 0x0000FF00) +
+                                          (*src2 & 0x0000FF00) +
+                                          (*(src2 + 1) & 0x0000FF00)) /
+                                         4) &
+                                    0x0000FF00;
+                                int b = (((*src1 & 0x00FF0000) +
+                                          (*(src1 + 1) & 0x00FF0000) +
+                                          (*src2 & 0x00FF0000) +
+                                          (*(src2 + 1) & 0x00FF0000)) /
+                                         4) &
+                                    0x00FF0000;
+                                int a = (((((*src1 & 0xFF000000) >> 8) +
+                                           ((*(src1 + 1) & 0xFF000000) >> 8) +
+                                           ((*src2 & 0xFF000000) >> 8) +
+                                           ((*(src2 + 1) & 0xFF000000) >> 8)) /
+                                          4) &
+                                         0x00FF0000)
+                                    << 8;
+                                *ptr++ = r | g | b | a;
+                                src1 += 2;
+                                src2 += 2;
+                            }
+                            src1 += m_size.x * 2;
+                            src2 += m_size.x * 2;
                         }
-                        src1 += m_size.x * 2;
-                        src2 += m_size.x * 2;
+                        lines++;
+                        if(lines >= m_lines) {
+                            lines = 0;
+                            //	m_sema.unlock();
+                        }
                     }
-                    lines++;
-                    if(lines >= m_lines) {
-                        lines = 0;
+
+                    if(lines != 0) {
                         //	m_sema.unlock();
                     }
-                }
-
-                if(lines != 0) {
-                    //	m_sema.unlock();
-                }
-            });
+                });
         }
     }
 
@@ -1170,13 +1274,18 @@ namespace ETCPacker {
                 tmp = quant[ptr[0] + ((3 * ep2[1] + 5 * ep2[0]) >> 4)];
                 ep1[0] = ptr[0] - tmp;
                 ptr[0] = tmp;
-                tmp = quant[ptr[4] + ((7 * ep1[0] + 3 * ep2[2] + 5 * ep2[1] + ep2[0]) >> 4)];
+                tmp = quant[ptr[4] +
+                            ((7 * ep1[0] + 3 * ep2[2] + 5 * ep2[1] + ep2[0]) >>
+                             4)];
                 ep1[1] = ptr[4] - tmp;
                 ptr[4] = tmp;
-                tmp = quant[ptr[8] + ((7 * ep1[1] + 3 * ep2[3] + 5 * ep2[2] + ep2[1]) >> 4)];
+                tmp = quant[ptr[8] +
+                            ((7 * ep1[1] + 3 * ep2[3] + 5 * ep2[2] + ep2[1]) >>
+                             4)];
                 ep1[2] = ptr[8] - tmp;
                 ptr[8] = tmp;
-                tmp = quant[ptr[12] + ((7 * ep1[2] + 5 * ep2[3] + ep2[2]) >> 4)];
+                tmp =
+                    quant[ptr[12] + ((7 * ep1[2] + 5 * ep2[3] + ep2[2]) >> 4)];
                 ep1[3] = ptr[12] - tmp;
                 ptr[12] = tmp;
                 ptr += 16;
@@ -1208,7 +1317,8 @@ namespace ETCPacker {
         return len;
     }
 
-    static uint8 *OpenForWriting(/*const char* fn,*/ size_t len, const v2i &size,
+    static uint8 *OpenForWriting(/*const char* fn,*/ size_t len,
+                                 const v2i &size,
                                  /*FILE** f,*/ int levels) {
         auto ret = new uint8[len];
         auto dst = (uint32 *)ret;
@@ -1311,9 +1421,13 @@ namespace ETCPacker {
             return Etc2Mode::none;
         }
 
-        inline int32 expand6(uint32 value) { return (value << 2) | (value >> 4); }
+        inline int32 expand6(uint32 value) {
+            return (value << 2) | (value >> 4);
+        }
 
-        inline int32 expand7(uint32 value) { return (value << 1) | (value >> 6); }
+        inline int32 expand7(uint32 value) {
+            return (value << 1) | (value >> 6);
+        }
 
         void DecodePlanar(uint64 block, uint32 **l) {
             const auto bv = expand6((block >> (0 + 32)) & 0x3F);
@@ -1338,9 +1452,12 @@ namespace ETCPacker {
 
             for(auto j = 0; j < 4; j++) {
                 for(auto i = 0; i < 4; i++) {
-                    uint32 r = clampu8((i * (rh - ro) + j * (rv - ro) + 4 * ro + 2) >> 2);
-                    uint32 g = clampu8((i * (gh - go) + j * (gv - go) + 4 * go + 2) >> 2);
-                    uint32 b = clampu8((i * (bh - bo) + j * (bv - bo) + 4 * bo + 2) >> 2);
+                    uint32 r = clampu8(
+                        (i * (rh - ro) + j * (rv - ro) + 4 * ro + 2) >> 2);
+                    uint32 g = clampu8(
+                        (i * (gh - go) + j * (gv - go) + 4 * go + 2) >> 2);
+                    uint32 b = clampu8(
+                        (i * (bh - bo) + j * (bv - bo) + 4 * bo + 2) >> 2);
 
                     *l[j]++ = r | (g << 8) | (b << 16) | 0xFF000000;
                 }
@@ -1350,7 +1467,8 @@ namespace ETCPacker {
     } // namespace
 
     static void DecodeBlock(uint64 d, uint32 **l) {
-        d = ((d & 0xFF000000FF000000) >> 24) | ((d & 0x000000FF000000FF) << 24) | ((d & 0x00FF000000FF0000) >> 8) |
+        d = ((d & 0xFF000000FF000000) >> 24) |
+            ((d & 0x000000FF000000FF) << 24) | ((d & 0x00FF000000FF0000) >> 8) |
             ((d & 0x0000FF000000FF00) << 8);
 
         BlockColor c;
@@ -1375,43 +1493,55 @@ namespace ETCPacker {
             for(int i = 0; i < 4; i++) {
                 ra = clampu8(
                     c.r1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 32))) >> (o + 32)) | ((d & (1ll << (o + 48))) >> (o + 47))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 32))) >> (o + 32)) |
+                                    ((d & (1ll << (o + 48))) >> (o + 47))]);
                 ga = clampu8(
                     c.g1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 32))) >> (o + 32)) | ((d & (1ll << (o + 48))) >> (o + 47))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 32))) >> (o + 32)) |
+                                    ((d & (1ll << (o + 48))) >> (o + 47))]);
                 ba = clampu8(
                     c.b1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 32))) >> (o + 32)) | ((d & (1ll << (o + 48))) >> (o + 47))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 32))) >> (o + 32)) |
+                                    ((d & (1ll << (o + 48))) >> (o + 47))]);
 
                 rb = clampu8(
                     c.r1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 33))) >> (o + 33)) | ((d & (1ll << (o + 49))) >> (o + 48))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 33))) >> (o + 33)) |
+                                    ((d & (1ll << (o + 49))) >> (o + 48))]);
                 gb = clampu8(
                     c.g1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 33))) >> (o + 33)) | ((d & (1ll << (o + 49))) >> (o + 48))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 33))) >> (o + 33)) |
+                                    ((d & (1ll << (o + 49))) >> (o + 48))]);
                 bb = clampu8(
                     c.b1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 33))) >> (o + 33)) | ((d & (1ll << (o + 49))) >> (o + 48))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 33))) >> (o + 33)) |
+                                    ((d & (1ll << (o + 49))) >> (o + 48))]);
 
                 rc = clampu8(
                     c.r2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 34))) >> (o + 34)) | ((d & (1ll << (o + 50))) >> (o + 49))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 34))) >> (o + 34)) |
+                                    ((d & (1ll << (o + 50))) >> (o + 49))]);
                 gc = clampu8(
                     c.g2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 34))) >> (o + 34)) | ((d & (1ll << (o + 50))) >> (o + 49))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 34))) >> (o + 34)) |
+                                    ((d & (1ll << (o + 50))) >> (o + 49))]);
                 bc = clampu8(
                     c.b2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 34))) >> (o + 34)) | ((d & (1ll << (o + 50))) >> (o + 49))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 34))) >> (o + 34)) |
+                                    ((d & (1ll << (o + 50))) >> (o + 49))]);
 
                 rd = clampu8(
                     c.r2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 35))) >> (o + 35)) | ((d & (1ll << (o + 51))) >> (o + 50))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 35))) >> (o + 35)) |
+                                    ((d & (1ll << (o + 51))) >> (o + 50))]);
                 gd = clampu8(
                     c.g2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 35))) >> (o + 35)) | ((d & (1ll << (o + 51))) >> (o + 50))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 35))) >> (o + 35)) |
+                                    ((d & (1ll << (o + 51))) >> (o + 50))]);
                 bd = clampu8(
                     c.b2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 35))) >> (o + 35)) | ((d & (1ll << (o + 51))) >> (o + 50))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 35))) >> (o + 35)) |
+                                    ((d & (1ll << (o + 51))) >> (o + 50))]);
 
                 *l[0]++ = ra | (ga << 8) | (ba << 16) | 0xFF000000;
                 *l[1]++ = rb | (gb << 8) | (bb << 16) | 0xFF000000;
@@ -1425,43 +1555,55 @@ namespace ETCPacker {
             for(int i = 0; i < 2; i++) {
                 ra = clampu8(
                     c.r1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 32))) >> (o + 32)) | ((d & (1ll << (o + 48))) >> (o + 47))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 32))) >> (o + 32)) |
+                                    ((d & (1ll << (o + 48))) >> (o + 47))]);
                 ga = clampu8(
                     c.g1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 32))) >> (o + 32)) | ((d & (1ll << (o + 48))) >> (o + 47))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 32))) >> (o + 32)) |
+                                    ((d & (1ll << (o + 48))) >> (o + 47))]);
                 ba = clampu8(
                     c.b1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 32))) >> (o + 32)) | ((d & (1ll << (o + 48))) >> (o + 47))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 32))) >> (o + 32)) |
+                                    ((d & (1ll << (o + 48))) >> (o + 47))]);
 
                 rb = clampu8(
                     c.r1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 33))) >> (o + 33)) | ((d & (1ll << (o + 49))) >> (o + 48))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 33))) >> (o + 33)) |
+                                    ((d & (1ll << (o + 49))) >> (o + 48))]);
                 gb = clampu8(
                     c.g1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 33))) >> (o + 33)) | ((d & (1ll << (o + 49))) >> (o + 48))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 33))) >> (o + 33)) |
+                                    ((d & (1ll << (o + 49))) >> (o + 48))]);
                 bb = clampu8(
                     c.b1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 33))) >> (o + 33)) | ((d & (1ll << (o + 49))) >> (o + 48))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 33))) >> (o + 33)) |
+                                    ((d & (1ll << (o + 49))) >> (o + 48))]);
 
                 rc = clampu8(
                     c.r1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 34))) >> (o + 34)) | ((d & (1ll << (o + 50))) >> (o + 49))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 34))) >> (o + 34)) |
+                                    ((d & (1ll << (o + 50))) >> (o + 49))]);
                 gc = clampu8(
                     c.g1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 34))) >> (o + 34)) | ((d & (1ll << (o + 50))) >> (o + 49))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 34))) >> (o + 34)) |
+                                    ((d & (1ll << (o + 50))) >> (o + 49))]);
                 bc = clampu8(
                     c.b1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 34))) >> (o + 34)) | ((d & (1ll << (o + 50))) >> (o + 49))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 34))) >> (o + 34)) |
+                                    ((d & (1ll << (o + 50))) >> (o + 49))]);
 
                 rd = clampu8(
                     c.r1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 35))) >> (o + 35)) | ((d & (1ll << (o + 51))) >> (o + 50))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 35))) >> (o + 35)) |
+                                    ((d & (1ll << (o + 51))) >> (o + 50))]);
                 gd = clampu8(
                     c.g1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 35))) >> (o + 35)) | ((d & (1ll << (o + 51))) >> (o + 50))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 35))) >> (o + 35)) |
+                                    ((d & (1ll << (o + 51))) >> (o + 50))]);
                 bd = clampu8(
                     c.b1 +
-                    g_table[tcw[0]][((d & (1ll << (o + 35))) >> (o + 35)) | ((d & (1ll << (o + 51))) >> (o + 50))]);
+                    g_table[tcw[0]][((d & (1ll << (o + 35))) >> (o + 35)) |
+                                    ((d & (1ll << (o + 51))) >> (o + 50))]);
 
                 *l[0]++ = ra | (ga << 8) | (ba << 16) | 0xFF000000;
                 *l[1]++ = rb | (gb << 8) | (bb << 16) | 0xFF000000;
@@ -1473,43 +1615,55 @@ namespace ETCPacker {
             for(int i = 0; i < 2; i++) {
                 ra = clampu8(
                     c.r2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 32))) >> (o + 32)) | ((d & (1ll << (o + 48))) >> (o + 47))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 32))) >> (o + 32)) |
+                                    ((d & (1ll << (o + 48))) >> (o + 47))]);
                 ga = clampu8(
                     c.g2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 32))) >> (o + 32)) | ((d & (1ll << (o + 48))) >> (o + 47))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 32))) >> (o + 32)) |
+                                    ((d & (1ll << (o + 48))) >> (o + 47))]);
                 ba = clampu8(
                     c.b2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 32))) >> (o + 32)) | ((d & (1ll << (o + 48))) >> (o + 47))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 32))) >> (o + 32)) |
+                                    ((d & (1ll << (o + 48))) >> (o + 47))]);
 
                 rb = clampu8(
                     c.r2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 33))) >> (o + 33)) | ((d & (1ll << (o + 49))) >> (o + 48))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 33))) >> (o + 33)) |
+                                    ((d & (1ll << (o + 49))) >> (o + 48))]);
                 gb = clampu8(
                     c.g2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 33))) >> (o + 33)) | ((d & (1ll << (o + 49))) >> (o + 48))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 33))) >> (o + 33)) |
+                                    ((d & (1ll << (o + 49))) >> (o + 48))]);
                 bb = clampu8(
                     c.b2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 33))) >> (o + 33)) | ((d & (1ll << (o + 49))) >> (o + 48))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 33))) >> (o + 33)) |
+                                    ((d & (1ll << (o + 49))) >> (o + 48))]);
 
                 rc = clampu8(
                     c.r2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 34))) >> (o + 34)) | ((d & (1ll << (o + 50))) >> (o + 49))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 34))) >> (o + 34)) |
+                                    ((d & (1ll << (o + 50))) >> (o + 49))]);
                 gc = clampu8(
                     c.g2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 34))) >> (o + 34)) | ((d & (1ll << (o + 50))) >> (o + 49))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 34))) >> (o + 34)) |
+                                    ((d & (1ll << (o + 50))) >> (o + 49))]);
                 bc = clampu8(
                     c.b2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 34))) >> (o + 34)) | ((d & (1ll << (o + 50))) >> (o + 49))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 34))) >> (o + 34)) |
+                                    ((d & (1ll << (o + 50))) >> (o + 49))]);
 
                 rd = clampu8(
                     c.r2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 35))) >> (o + 35)) | ((d & (1ll << (o + 51))) >> (o + 50))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 35))) >> (o + 35)) |
+                                    ((d & (1ll << (o + 51))) >> (o + 50))]);
                 gd = clampu8(
                     c.g2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 35))) >> (o + 35)) | ((d & (1ll << (o + 51))) >> (o + 50))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 35))) >> (o + 35)) |
+                                    ((d & (1ll << (o + 51))) >> (o + 50))]);
                 bd = clampu8(
                     c.b2 +
-                    g_table[tcw[1]][((d & (1ll << (o + 35))) >> (o + 35)) | ((d & (1ll << (o + 51))) >> (o + 50))]);
+                    g_table[tcw[1]][((d & (1ll << (o + 35))) >> (o + 35)) |
+                                    ((d & (1ll << (o + 51))) >> (o + 50))]);
 
                 *l[0]++ = ra | (ga << 8) | (ba << 16) | 0xFF000000;
                 *l[1]++ = rb | (gb << 8) | (bb << 16) | 0xFF000000;
@@ -1549,7 +1703,8 @@ namespace ETCPacker {
         l[3] += 16;
     }
 
-    void decode(const void *data, void *pixel, int pitch, int h, int blkw, int blkh) {
+    void decode(const void *data, void *pixel, int pitch, int h, int blkw,
+                int blkh) {
         int dpitch = pitch;
         uint32 *ret = (uint32 *)pixel;
         uint32 *l[4];
@@ -1584,7 +1739,8 @@ namespace ETCPacker {
         }
     }
 
-    void decodeWithAlpha(const void *data, void *pixel, int pitch, int h, int blkw, int blkh) {
+    void decodeWithAlpha(const void *data, void *pixel, int pitch, int h,
+                         int blkw, int blkh) {
         setupAlphaTable();
         int dpitch = pitch;
         uint32 *ret = (uint32 *)pixel;
@@ -1634,7 +1790,8 @@ namespace ETCPacker {
         }
     }
 
-    void *convert(const void *_pixel, int w, int h, int pitch, bool etc2, size_t &datalen) {
+    void *convert(const void *_pixel, int w, int h, int pitch, bool etc2,
+                  size_t &datalen) {
         tjs_uint32 *pixel = (tjs_uint32 *)TJSAlignedAlloc(pitch * h, 4);
         TVPReverseRGB(pixel, (const tjs_uint32 *)_pixel, pitch * h / 4);
         int blkw = w / 4, blkh = h / 4;
@@ -1662,7 +1819,8 @@ namespace ETCPacker {
             dst += dpitch;
         }
         if(edgew) {
-            uint8 *sline = ((uint8 *)pixel) + blkw * 16, *dline = data + blkw * 8;
+            uint8 *sline = ((uint8 *)pixel) + blkw * 16,
+                  *dline = data + blkw * 8;
             for(int blky = 0; blky < blkh; ++blky) {
                 uint32 buf[4 * 4] = { 0 };
                 uint8 *line = sline;
@@ -1678,7 +1836,8 @@ namespace ETCPacker {
             }
         }
         if(edgeh) {
-            uint8 *sline = ((uint8 *)pixel) + blkh * pitch * 4, *dline = data + blkh * dpitch;
+            uint8 *sline = ((uint8 *)pixel) + blkh * pitch * 4,
+                  *dline = data + blkh * dpitch;
             for(int blkx = 0; blkx < blkw; ++blkx) {
                 uint32 buf[4 * 4] = { 0 };
                 uint8 *line = sline;
@@ -1708,7 +1867,8 @@ namespace ETCPacker {
         return data;
     }
 
-    void *convertWithAlpha(const void *_pixel, int w, int h, int pitch, size_t &datalen) {
+    void *convertWithAlpha(const void *_pixel, int w, int h, int pitch,
+                           size_t &datalen) {
         setupAlphaTable();
         tjs_uint32 *pixel = (tjs_uint32 *)TJSAlignedAlloc(pitch * h, 4);
         TVPReverseRGB(pixel, (const tjs_uint32 *)_pixel, pitch * h / 4);
@@ -1741,7 +1901,8 @@ namespace ETCPacker {
             dst += dpitch;
         }
         if(edgew) {
-            uint8 *sline = ((uint8 *)pixel) + blkw * 16, *dline = data + blkw * 16;
+            uint8 *sline = ((uint8 *)pixel) + blkw * 16,
+                  *dline = data + blkw * 16;
             for(int blky = 0; blky < blkh; ++blky) {
                 uint8 abuf[4 * 4] = { 0 };
                 uint32 buf[4 * 4] = { 0 };
@@ -1760,7 +1921,8 @@ namespace ETCPacker {
             }
         }
         if(edgeh) {
-            uint8 *sline = ((uint8 *)pixel) + blkh * pitch * 4, *dline = data + blkh * dpitch;
+            uint8 *sline = ((uint8 *)pixel) + blkh * pitch * 4,
+                  *dline = data + blkh * dpitch;
             for(int blkx = 0; blkx < blkw; ++blkx) {
                 uint8 abuf[4 * 4] = { 0 };
                 uint32 buf[4 * 4] = { 0 };

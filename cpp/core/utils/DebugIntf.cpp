@@ -72,7 +72,8 @@ static void TVPDestroyLogObjects() {
 }
 
 //---------------------------------------------------------------------------
-tTVPAtExit TVPDestroyLogObjectsAtExit(TVP_ATEXIT_PRI_CLEANUP, TVPDestroyLogObjects);
+tTVPAtExit TVPDestroyLogObjectsAtExit(TVP_ATEXIT_PRI_CLEANUP,
+                                      TVPDestroyLogObjects);
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -91,7 +92,8 @@ static std::vector<tTJSVariantClosure> TVPLoggingHandlerVector;
 static void TVPCleanupLoggingHandlerVector() {
     // eliminate empty
     std::vector<tTJSVariantClosure>::iterator i;
-    for(i = TVPLoggingHandlerVector.begin(); i != TVPLoggingHandlerVector.end(); i++) {
+    for(i = TVPLoggingHandlerVector.begin(); i != TVPLoggingHandlerVector.end();
+        i++) {
         if(!i->Object) {
             i->Release();
             i = TVPLoggingHandlerVector.erase(i);
@@ -104,13 +106,16 @@ static void TVPCleanupLoggingHandlerVector() {
 static void TVPDestroyLoggingHandlerVector() {
     TVPSetOnLog(nullptr);
     std::vector<tTJSVariantClosure>::iterator i;
-    for(i = TVPLoggingHandlerVector.begin(); i != TVPLoggingHandlerVector.end(); i++) {
+    for(i = TVPLoggingHandlerVector.begin(); i != TVPLoggingHandlerVector.end();
+        i++) {
         i->Release();
     }
     TVPLoggingHandlerVector.clear();
 }
 
-static tTVPAtExit TVPDestroyLoggingHandlerAtExit(TVP_ATEXIT_PRI_PREPARE, TVPDestroyLoggingHandlerVector);
+static tTVPAtExit
+    TVPDestroyLoggingHandlerAtExit(TVP_ATEXIT_PRI_PREPARE,
+                                   TVPDestroyLoggingHandlerVector);
 //---------------------------------------------------------------------------
 static bool TVPInDeliverLoggingEvent = false;
 
@@ -127,7 +132,8 @@ static void _TVPDeliverLoggingEvent(const ttstr &line) // internal
                     if(i.Object) {
                         tjs_error er;
                         try {
-                            er = i.FuncCall(0, nullptr, nullptr, nullptr, 1, pvline, nullptr);
+                            er = i.FuncCall(0, nullptr, nullptr, nullptr, 1,
+                                            pvline, nullptr);
                         } catch(...) {
                             // failed
                             i.Release();
@@ -165,7 +171,8 @@ static void _TVPDeliverLoggingEvent(const ttstr &line) // internal
 //---------------------------------------------------------------------------
 static void TVPAddLoggingHandler(tTJSVariantClosure clo) {
     std::vector<tTJSVariantClosure>::iterator i;
-    i = std::find(TVPLoggingHandlerVector.begin(), TVPLoggingHandlerVector.end(), clo);
+    i = std::find(TVPLoggingHandlerVector.begin(),
+                  TVPLoggingHandlerVector.end(), clo);
     if(i == TVPLoggingHandlerVector.end()) {
         clo.AddRef();
         TVPLoggingHandlerVector.push_back(clo);
@@ -176,7 +183,8 @@ static void TVPAddLoggingHandler(tTJSVariantClosure clo) {
 //---------------------------------------------------------------------------
 static void TVPRemoveLoggingHandler(tTJSVariantClosure clo) {
     std::vector<tTJSVariantClosure>::iterator i;
-    i = std::find(TVPLoggingHandlerVector.begin(), TVPLoggingHandlerVector.end(), clo);
+    i = std::find(TVPLoggingHandlerVector.begin(),
+                  TVPLoggingHandlerVector.end(), clo);
     if(i != TVPLoggingHandlerVector.end()) {
         i->Release();
         i->Object = i->ObjThis = nullptr;
@@ -274,7 +282,8 @@ void tTVPLogStreamHolder::Open(const tjs_nchar *mode) {
             struct_tm = localtime(&timer);
             TJS_strftime(timebuf, 79, TJS_W("%#c"), struct_tm);
 
-            Log(ttstr(TJS_W("Logging to ")) + ttstr(filename) + TJS_W(" started on ") + timebuf);
+            Log(ttstr(TJS_W("Logging to ")) + ttstr(filename) +
+                TJS_W(" started on ") + timebuf);
         }
     } catch(...) {
         OpenFailed = true;
@@ -358,7 +367,8 @@ void TVPAddLog(const ttstr &line, bool appendtoimportant) {
 
     if(appendtoimportant) {
 #ifdef TJS_TEXT_OUT_CRLF
-        *TVPImportantLogs += ttstr(timebuf) + TJS_W(" ! ") + line + TJS_W("\r\n");
+        *TVPImportantLogs +=
+            ttstr(timebuf) + TJS_W(" ! ") + line + TJS_W("\r\n");
 #else
         *TVPImportantLogs += ttstr(timebuf) + TJS_W(" ! ") + line + TJS_W("\n");
 #endif
@@ -402,7 +412,8 @@ ttstr TVPGetImportantLog() {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// TVPGetLastLog : get last n lines of the log ( each line is spearated with
+// TVPGetLastLog : get last n lines of the log ( each line is
+// spearated with
 // '\n'/'\r\n' )
 //---------------------------------------------------------------------------
 ttstr TVPGetLastLog(tjs_uint n) {
@@ -472,11 +483,13 @@ void TVPStartLogToFile(bool clear) {
     TVPLogStreamHolder.Log(*TVPImportantLogs);
 
 #ifdef TJS_TEXT_OUT_CRLF
-    ttstr separator(TJS_W("\r\n") TJS_W("--------------------------------------------------"
-                                        "----------------------------\r\n"));
+    ttstr separator(
+        TJS_W("\r\n") TJS_W("--------------------------------------------------"
+                            "----------------------------\r\n"));
 #else
-    ttstr separator(TJS_W("\n") TJS_W("------------------------------------------"
-                                      "------------------------------------\n"));
+    ttstr separator(TJS_W("\n")
+                        TJS_W("------------------------------------------"
+                              "------------------------------------\n"));
 #endif
 
     TVPLogStreamHolder.Log(separator);
@@ -511,7 +524,8 @@ void TVPSetLogLocation(const ttstr &loc) {
         TVPLogLocation.Clear();
     } else {
         TVPNativeLogLocation = native;
-        if(TVPNativeLogLocation[TVPNativeLogLocation.length() - 1] != TJS_W('/'))
+        if(TVPNativeLogLocation[TVPNativeLogLocation.length() - 1] !=
+           TJS_W('/'))
             TVPNativeLogLocation += TJS_W("/");
     }
 
@@ -551,7 +565,10 @@ tTJSNC_Debug::tTJSNC_Debug() : tTJSNativeClass(TJS_W("Debug")) {
     TJS_BEGIN_NATIVE_MEMBERS(Debug)
     TJS_DECL_EMPTY_FINALIZE_METHOD
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(/*TJS class name*/ Debug) { return TJS_S_OK; }
+    TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(
+        /*TJS class name*/ Debug) {
+        return TJS_S_OK;
+    }
     TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ Debug)
     //----------------------------------------------------------------------
 
@@ -631,9 +648,11 @@ tTJSNC_Debug::tTJSNC_Debug() : tTJSNativeClass(TJS_W("Debug")) {
 
         return TJS_S_OK;
     }
-    TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ addLoggingHandler)
+    TJS_END_NATIVE_STATIC_METHOD_DECL(
+        /*func. name*/ addLoggingHandler)
     //---------------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ removeLoggingHandler) {
+    TJS_BEGIN_NATIVE_METHOD_DECL(
+        /*func. name*/ removeLoggingHandler) {
         // remove function from logging handler list
 
         if(numparams < 1)
@@ -645,7 +664,8 @@ tTJSNC_Debug::tTJSNC_Debug() : tTJSNativeClass(TJS_W("Debug")) {
 
         return TJS_S_OK;
     }
-    TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ removeLoggingHandler)
+    TJS_END_NATIVE_STATIC_METHOD_DECL(
+        /*func. name*/ removeLoggingHandler)
     //---------------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ getLastLog) {
         tjs_uint lines = TVPLogMaxLines + 100;
@@ -664,7 +684,8 @@ tTJSNC_Debug::tTJSNC_Debug() : tTJSNativeClass(TJS_W("Debug")) {
     //-- properies
 
     //----------------------------------------------------------------------
-    TJS_BEGIN_NATIVE_PROP_DECL(logLocation){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPLogLocation;
+    TJS_BEGIN_NATIVE_PROP_DECL(logLocation){
+        TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPLogLocation;
     return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -677,7 +698,8 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(logLocation)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(logToFileOnError){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPAutoLogToFileOnError;
+TJS_BEGIN_NATIVE_PROP_DECL(logToFileOnError){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPAutoLogToFileOnError;
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -690,7 +712,8 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(logToFileOnError)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(clearLogFileOnError){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPAutoClearLogOnError;
+TJS_BEGIN_NATIVE_PROP_DECL(clearLogFileOnError){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = TVPAutoClearLogOnError;
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -775,10 +798,14 @@ void TVPTJS2EndDump() {
 //---------------------------------------------------------------------------
 // console interface retrieving functions
 //---------------------------------------------------------------------------
-iTJSConsoleOutput *TVPGetTJS2ConsoleOutputGateway() { return &TVPTJS2ConsoleOutputGateway; }
+iTJSConsoleOutput *TVPGetTJS2ConsoleOutputGateway() {
+    return &TVPTJS2ConsoleOutputGateway;
+}
 
 //---------------------------------------------------------------------------
-iTJSConsoleOutput *TVPGetTJS2DumpOutputGateway() { return &TVPTJS2DumpOutputGateway; }
+iTJSConsoleOutput *TVPGetTJS2DumpOutputGateway() {
+    return &TVPTJS2DumpOutputGateway;
+}
 //---------------------------------------------------------------------------
 
 /*

@@ -40,7 +40,9 @@ struct tTVPLocalFileInfo {
     time_t CreationTime;
 };
 
-void TVPGetLocalFileListAt(const ttstr &name, const std::function<void(const ttstr &, tTVPLocalFileInfo *)> &cb);
+void TVPGetLocalFileListAt(
+    const ttstr &name,
+    const std::function<void(const ttstr &, tTVPLocalFileInfo *)> &cb);
 
 //---------------------------------------------------------------------------
 // tTVPLocalFileStream
@@ -53,19 +55,20 @@ private:
     ttstr FileName;
 
 public:
-    tTVPLocalFileStream(const ttstr &origname, const ttstr &localname, tjs_uint32 flag);
+    tTVPLocalFileStream(const ttstr &origname, const ttstr &localname,
+                        tjs_uint32 flag);
 
-    ~tTVPLocalFileStream();
+    ~tTVPLocalFileStream() override;
 
-    tjs_uint64 TJS_INTF_METHOD Seek(tjs_int64 offset, tjs_int whence);
+    tjs_uint64 Seek(tjs_int64 offset, tjs_int whence) override;
 
-    tjs_uint TJS_INTF_METHOD Read(void *buffer, tjs_uint read_size);
+    tjs_uint Read(void *buffer, tjs_uint read_size) override;
 
-    tjs_uint TJS_INTF_METHOD Write(const void *buffer, tjs_uint write_size);
+    tjs_uint Write(const void *buffer, tjs_uint write_size);
 
-    void TJS_INTF_METHOD SetEndOfStorage();
+    void SetEndOfStorage();
 
-    tjs_uint64 TJS_INTF_METHOD GetSize();
+    tjs_uint64 GetSize();
 
     int GetHandle() const { return Handle; }
 };
@@ -79,7 +82,8 @@ TJS_EXP_FUNC_DEF(bool, TVPCheckExistentLocalFile, (const ttstr &name));
 /* name must be an OS's NATIVE file name */
 
 TJS_EXP_FUNC_DEF(bool, TVPCreateFolders, (const ttstr &folder));
-/* make folders recursively, like mkdir -p. folder must be OS NATIVE folder name
+/* make folders recursively, like mkdir -p. folder must be OS NATIVE
+ * folder name
  */
 //---------------------------------------------------------------------------
 
@@ -121,7 +125,8 @@ struct IStream;
 //---------------------------------------------------------------------------
 // IStream creator
 //---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(IStream *, TVPCreateIStream, (const ttstr &name, tjs_uint32 flags));
+TJS_EXP_FUNC_DEF(IStream *, TVPCreateIStream,
+                 (const ttstr &name, tjs_uint32 flags));
 
 TJS_EXP_FUNC_DEF(IStream *, TVPCreateIStream, (tTJSBinaryStream *));
 //---------------------------------------------------------------------------
@@ -148,31 +153,32 @@ public:
 
     ~tTVPBinaryStreamAdapter();
 
-    tjs_uint64 TJS_INTF_METHOD Seek(tjs_int64 offset, tjs_int whence);
+    tjs_uint64 Seek(tjs_int64 offset, tjs_int whence);
 
-    tjs_uint TJS_INTF_METHOD Read(void *buffer, tjs_uint read_size);
+    tjs_uint Read(void *buffer, tjs_uint read_size);
 
-    tjs_uint TJS_INTF_METHOD Write(const void *buffer, tjs_uint write_size);
+    tjs_uint Write(const void *buffer, tjs_uint write_size);
 
-    tjs_uint64 TJS_INTF_METHOD GetSize();
+    tjs_uint64 GetSize();
 
-    void TJS_INTF_METHOD SetEndOfStorage();
+    void SetEndOfStorage();
 };
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 // tTVPBinaryStreamAdapter creator
 //---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(tTJSBinaryStream *, TVPCreateBinaryStreamAdapter, (IStream * refstream));
+TJS_EXP_FUNC_DEF(tTJSBinaryStream *, TVPCreateBinaryStreamAdapter,
+                 (IStream * refstream));
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 // tTVPPluginHolder
 //---------------------------------------------------------------------------
 /*
-        tTVPPluginHolder holds plug-in. if the plug-in is not a local storage,
-        plug-in is to be extracted to temporary directory and be held until
-        the program done using it.
+        tTVPPluginHolder holds plug-in. if the plug-in is not a local
+   storage, plug-in is to be extracted to temporary directory and be
+   held until the program done using it.
 */
 class tTVPPluginHolder {
 private:
@@ -188,8 +194,10 @@ public:
 };
 //---------------------------------------------------------------------------
 
-void TVPListDir(const std::string &folder, std::function<void(const std::string &, int)> cb);
+void TVPListDir(const std::string &folder,
+                std::function<void(const std::string &, int)> cb);
 
-bool TVPSaveStreamToFile(tTJSBinaryStream *st, tjs_uint64 offset, tjs_uint64 size, ttstr outpath);
+bool TVPSaveStreamToFile(tTJSBinaryStream *st, tjs_uint64 offset,
+                         tjs_uint64 size, ttstr outpath);
 
 #endif

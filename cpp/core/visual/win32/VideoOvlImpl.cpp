@@ -27,46 +27,63 @@
 #include "Application.h"
 #include "combase.h"
 
-extern void GetVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin, struct IStream *stream, const tjs_char *streamname,
-                                  const tjs_char *type, uint64_t size, class iTVPVideoOverlay **out);
+extern void GetVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin,
+                                  struct IStream *stream,
+                                  const tjs_char *streamname,
+                                  const tjs_char *type, uint64_t size,
+                                  class iTVPVideoOverlay **out);
 
-extern void GetVideoLayerObject(tTJSNI_VideoOverlay *callbackwin, struct IStream *stream, const tjs_char *streamname,
-                                const tjs_char *type, uint64_t size, class iTVPVideoOverlay **out);
+extern void GetVideoLayerObject(tTJSNI_VideoOverlay *callbackwin,
+                                struct IStream *stream,
+                                const tjs_char *streamname,
+                                const tjs_char *type, uint64_t size,
+                                class iTVPVideoOverlay **out);
 
-extern void GetMixingVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin, struct IStream *stream,
-                                        const tjs_char *streamname, const tjs_char *type, uint64_t size,
+extern void GetMixingVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin,
+                                        struct IStream *stream,
+                                        const tjs_char *streamname,
+                                        const tjs_char *type, uint64_t size,
                                         class iTVPVideoOverlay **out);
 
-extern void GetMFVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin, struct IStream *stream,
-                                    const tjs_char *streamname, const tjs_char *type, uint64_t size,
+extern void GetMFVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin,
+                                    struct IStream *stream,
+                                    const tjs_char *streamname,
+                                    const tjs_char *type, uint64_t size,
                                     class iTVPVideoOverlay **out);
 
 //---------------------------------------------------------------------------
 static std::vector<tTJSNI_VideoOverlay *> TVPVideoOverlayVector;
 //---------------------------------------------------------------------------
-static void TVPAddVideOverlay(tTJSNI_VideoOverlay *ovl) { TVPVideoOverlayVector.push_back(ovl); }
+static void TVPAddVideOverlay(tTJSNI_VideoOverlay *ovl) {
+    TVPVideoOverlayVector.push_back(ovl);
+}
 //---------------------------------------------------------------------------
 static void TVPRemoveVideoOverlay(tTJSNI_VideoOverlay *ovl) {
     std::vector<tTJSNI_VideoOverlay *>::iterator i;
-    i = std::find(TVPVideoOverlayVector.begin(), TVPVideoOverlayVector.end(), ovl);
+    i = std::find(TVPVideoOverlayVector.begin(), TVPVideoOverlayVector.end(),
+                  ovl);
     if(i != TVPVideoOverlayVector.end())
         TVPVideoOverlayVector.erase(i);
 }
 //---------------------------------------------------------------------------
 static void TVPShutdownVideoOverlay() {
-    // shutdown all overlay object and release krmovie.dll / krflash.dll
+    // shutdown all overlay object and release krmovie.dll /
+    // krflash.dll
     std::vector<tTJSNI_VideoOverlay *>::iterator i;
-    for(i = TVPVideoOverlayVector.begin(); i != TVPVideoOverlayVector.end(); i++) {
+    for(i = TVPVideoOverlayVector.begin(); i != TVPVideoOverlayVector.end();
+        i++) {
         (*i)->Shutdown();
     }
 }
-static tTVPAtExit TVPShutdownVideoOverlayAtExit(TVP_ATEXIT_PRI_PREPARE, TVPShutdownVideoOverlay);
+static tTVPAtExit TVPShutdownVideoOverlayAtExit(TVP_ATEXIT_PRI_PREPARE,
+                                                TVPShutdownVideoOverlay);
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 // tTJSNI_VideoOverlay
 //---------------------------------------------------------------------------
-tTJSNI_VideoOverlay::tTJSNI_VideoOverlay() : EventQueue(this, &tTJSNI_VideoOverlay::WndProc) {
+tTJSNI_VideoOverlay::tTJSNI_VideoOverlay() :
+    EventQueue(this, &tTJSNI_VideoOverlay::WndProc) {
     VideoOverlay = nullptr;
     Rect.left = 0;
     Rect.top = 0;
@@ -92,8 +109,8 @@ tTJSNI_VideoOverlay::tTJSNI_VideoOverlay() : EventQueue(this, &tTJSNI_VideoOverl
     BmpBits[0] = BmpBits[1] = nullptr;
 }
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_VideoOverlay::Construct(tjs_int numparams, tTJSVariant **param,
-                                                         iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_VideoOverlay::Construct(tjs_int numparams, tTJSVariant **param,
+                                         iTJSDispatch2 *tjs_obj) {
     tjs_error hr = inherited::Construct(numparams, param, tjs_obj);
     if(TJS_FAILED(hr))
         return hr;
@@ -101,7 +118,7 @@ tjs_error TJS_INTF_METHOD tTJSNI_VideoOverlay::Construct(tjs_int numparams, tTJS
     return TJS_S_OK;
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_VideoOverlay::Invalidate() {
+void tTJSNI_VideoOverlay::Invalidate() {
     inherited::Invalidate();
 
     Close();
@@ -159,7 +176,8 @@ void tTJSNI_VideoOverlay::Open(const ttstr &_name) {
 
     // create video overlay object
     try {
-        if(CachedOverlay && CachedOverlayMode == Mode && CachedPlayingFile == _name) {
+        if(CachedOverlay && CachedOverlayMode == Mode &&
+           CachedPlayingFile == _name) {
             VideoOverlay = CachedOverlay;
             CachedOverlay = nullptr;
             VideoOverlay->Rewind();
@@ -169,14 +187,21 @@ void tTJSNI_VideoOverlay::Open(const ttstr &_name) {
                 CachedOverlay = nullptr;
             }
             if(Mode == vomLayer)
-                GetVideoLayerObject(EventQueue.GetOwner(), istream, name.c_str(), ext.c_str(), size, &VideoOverlay);
+                GetVideoLayerObject(EventQueue.GetOwner(), istream,
+                                    name.c_str(), ext.c_str(), size,
+                                    &VideoOverlay);
             else if(Mode == vomMixer)
-                GetMixingVideoOverlayObject(EventQueue.GetOwner(), istream, name.c_str(), ext.c_str(), size,
+                GetMixingVideoOverlayObject(EventQueue.GetOwner(), istream,
+                                            name.c_str(), ext.c_str(), size,
                                             &VideoOverlay);
             else if(Mode == vomMFEVR)
-                GetMFVideoOverlayObject(EventQueue.GetOwner(), istream, name.c_str(), ext.c_str(), size, &VideoOverlay);
+                GetMFVideoOverlayObject(EventQueue.GetOwner(), istream,
+                                        name.c_str(), ext.c_str(), size,
+                                        &VideoOverlay);
             else
-                GetVideoOverlayObject(EventQueue.GetOwner(), istream, name.c_str(), ext.c_str(), size, &VideoOverlay);
+                GetVideoOverlayObject(EventQueue.GetOwner(), istream,
+                                      name.c_str(), ext.c_str(), size,
+                                      &VideoOverlay);
         }
         if((Mode == vomOverlay) || (Mode == vomMixer) || (Mode == vomMFEVR)) {
             ResetOverlayParams();
@@ -186,7 +211,8 @@ void tTJSNI_VideoOverlay::Open(const ttstr &_name) {
             VideoOverlay->GetVideoSize(&width, &height);
 
             if(width <= 0 || height <= 0)
-                TVPThrowExceptionMessage(TVPErrorInKrMovieDLL, (const tjs_char *)TVPInvalidVideoSize);
+                TVPThrowExceptionMessage(TVPErrorInKrMovieDLL,
+                                         (const tjs_char *)TVPInvalidVideoSize);
 
             size = width * height * 4;
             if(Bitmap[0] != nullptr)
@@ -249,7 +275,8 @@ void tTJSNI_VideoOverlay::Close() {
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::Shutdown() {
     // shutdown the system
-    // this functions closes the overlay object, but must not fire any events.
+    // this functions closes the overlay object, but must not fire any
+    // events.
     bool c = CanDeliverEvents;
     ClearWndProcMessages();
     SetStatus(ssUnload);
@@ -351,11 +378,12 @@ void tTJSNI_VideoOverlay::SetRectangleToVideoOverlay() {
         tjs_int t = Rect.top;
         tjs_int r = Rect.right;
         tjs_int b = Rect.bottom;
-        TVPAddLog(TJS_W("Video zoom: (") + ttstr(l) + TJS_W(",") + ttstr(t) + TJS_W(")-(") + ttstr(r) + TJS_W(",") +
-                  ttstr(b) + TJS_W(") ->"));
+        TVPAddLog(TJS_W("Video zoom: (") + ttstr(l) + TJS_W(",") + ttstr(t) +
+                  TJS_W(")-(") + ttstr(r) + TJS_W(",") + ttstr(b) +
+                  TJS_W(") ->"));
         Window->ZoomRectangle(l, t, r, b);
-        TVPAddLog(TJS_W("(") + ttstr(l) + TJS_W(",") + ttstr(t) + TJS_W(")-(") + ttstr(r) + TJS_W(",") + ttstr(b) +
-                  TJS_W(")"));
+        TVPAddLog(TJS_W("(") + ttstr(l) + TJS_W(",") + ttstr(t) + TJS_W(")-(") +
+                  ttstr(r) + TJS_W(",") + ttstr(b) + TJS_W(")"));
         //	RECT rect = {l + ofsx, t + ofsy, r + ofsx, b + ofsy};
         VideoOverlay->SetRect(l + ofsx, t + ofsy, r + ofsx, b + ofsy);
     }
@@ -447,7 +475,8 @@ void tTJSNI_VideoOverlay::ResetOverlayParams() {
     // retrieve new window information from owner window and
     // set video owner window / message drain window.
     // also sets rectangle and visible state.
-    if(VideoOverlay && Window && (Mode == vomOverlay || Mode == vomMixer || Mode == vomMFEVR)) {
+    if(VideoOverlay && Window &&
+       (Mode == vomOverlay || Mode == vomMixer || Mode == vomMFEVR)) {
         //		OwnerWindow = Window->GetWindowHandle();
         VideoOverlay->SetWindow(Window);
 
@@ -462,7 +491,8 @@ void tTJSNI_VideoOverlay::ResetOverlayParams() {
 }
 //---------------------------------------------------------------------------
 void tTJSNI_VideoOverlay::DetachVideoOverlay() {
-    if(VideoOverlay && Window && (Mode == vomOverlay || Mode == vomMixer || Mode == vomMFEVR)) {
+    if(VideoOverlay && Window &&
+       (Mode == vomOverlay || Mode == vomMixer || Mode == vomMFEVR)) {
         VideoOverlay->SetWindow(nullptr);
         VideoOverlay->SetMessageDrainWindow(EventQueue.GetOwner());
         // once set to util window
@@ -473,11 +503,13 @@ void tTJSNI_VideoOverlay::SetRectOffset(tjs_int ofsx, tjs_int ofsy) {
     if(VideoOverlay) {
         // 		RECT r = {Rect.left + ofsx, Rect.top + ofsy,
         // 			Rect.right + ofsx, Rect.bottom + ofsy};
-        VideoOverlay->SetRect(Rect.left + ofsx, Rect.top + ofsy, Rect.right + ofsx, Rect.bottom + ofsy);
+        VideoOverlay->SetRect(Rect.left + ofsx, Rect.top + ofsy,
+                              Rect.right + ofsx, Rect.bottom + ofsy);
     }
 }
 //---------------------------------------------------------------------------
-// void __fastcall tTJSNI_VideoOverlay::WndProc(Messages::TMessage &Msg)
+// void __fastcall tTJSNI_VideoOverlay::WndProc(Messages::TMessage
+// &Msg)
 void tTJSNI_VideoOverlay::WndProc(NativeEvent &ev) {
     // EventQueue's message procedure
     if(VideoOverlay) {
@@ -498,35 +530,49 @@ void tTJSNI_VideoOverlay::WndProc(NativeEvent &ev) {
                             if(Status == ssPlay) {
                                 if(Loop) {
                                     Rewind();
-                                    FirePeriodEvent(perLoop); // fire period event by loop rewind
+                                    FirePeriodEvent(
+                                        perLoop); // fire period event
+                                                  // by loop rewind
                                 } else {
-                                    // Graph manager seems not to complete playing
-                                    // at this point (rewinding the movie at the event
-                                    // handler called asynchronously from SetStatusAsync
-                                    // makes continuing playing, but the graph seems to
+                                    // Graph manager seems not to
+                                    // complete playing at this point
+                                    // (rewinding the movie at the
+                                    // event handler called
+                                    // asynchronously from
+                                    // SetStatusAsync makes continuing
+                                    // playing, but the graph seems to
                                     // be unstable).
-                                    // We manually stop the manager anyway.
+                                    // We manually stop the manager
+                                    // anyway.
                                     VideoOverlay->Stop();
-                                    SetStatusAsync(ssStop); // All data has been rendered
+                                    SetStatusAsync(ssStop); // All data has been
+                                                            // rendered
                                 }
                             }
                             break;
                         case EC_UPDATE:
                             if(Mode == vomLayer && Status == ssPlay) {
                                 int curFrame = (int)ev.LParam;
-                                if(Layer1 == nullptr && Layer2 == nullptr) // nothing to do.
+                                if(Layer1 == nullptr &&
+                                   Layer2 == nullptr) // nothing to do.
                                     return;
 
                                 // 2フレーム以上差があるときはGetFrame()
                                 // を現在のフレームとする
                                 int frame = GetFrame();
-                                if((frame + 1) < curFrame || (frame - 1) > curFrame)
+                                if((frame + 1) < curFrame ||
+                                   (frame - 1) > curFrame)
                                     curFrame = frame;
 
-                                if((!IsPrepare) && (SegLoopEndFrame > 0) && (frame >= SegLoopEndFrame)) {
-                                    SetFrame(SegLoopStartFrame > 0 ? SegLoopStartFrame : 0);
-                                    FirePeriodEvent(perSegLoop); // fire period event by
-                                                                 // segment loop rewind
+                                if((!IsPrepare) && (SegLoopEndFrame > 0) &&
+                                   (frame >= SegLoopEndFrame)) {
+                                    SetFrame(SegLoopStartFrame > 0
+                                                 ? SegLoopStartFrame
+                                                 : 0);
+                                    FirePeriodEvent(perSegLoop); // fire period
+                                                                 // event by
+                                                                 // segment loop
+                                                                 // rewind
                                     return; // Updateを行わない
                                 }
 
@@ -539,18 +585,23 @@ void tTJSNI_VideoOverlay::WndProc(NativeEvent &ev) {
 
                                 // Check layer image size
                                 if(l1 != nullptr) {
-                                    if((long)l1->GetImageWidth() != width || (long)l1->GetImageHeight() != height)
+                                    if((long)l1->GetImageWidth() != width ||
+                                       (long)l1->GetImageHeight() != height)
                                         l1->SetImageSize(width, height);
-                                    if((long)l1->GetWidth() != width || (long)l1->GetHeight() != height)
+                                    if((long)l1->GetWidth() != width ||
+                                       (long)l1->GetHeight() != height)
                                         l1->SetSize(width, height);
                                 }
                                 if(l2 != nullptr) {
-                                    if((long)l2->GetImageWidth() != width || (long)l2->GetImageHeight() != height)
+                                    if((long)l2->GetImageWidth() != width ||
+                                       (long)l2->GetImageHeight() != height)
                                         l2->SetImageSize(width, height);
-                                    if((long)l2->GetWidth() != width || (long)l2->GetHeight() != height)
+                                    if((long)l2->GetWidth() != width ||
+                                       (long)l2->GetHeight() != height)
                                         l2->SetSize(width, height);
                                 }
-                                tTVPBaseTexture *buff = VideoOverlay->GetFrontBuffer();
+                                tTVPBaseTexture *buff =
+                                    VideoOverlay->GetFrontBuffer();
                                 if(buff == Bitmap[0]) {
                                     if(l1)
                                         l1->AssignMainImage(Bitmap[0]);
@@ -572,32 +623,45 @@ void tTJSNI_VideoOverlay::WndProc(NativeEvent &ev) {
                                 // ! Prepare mode ?
                                 if(!IsPrepare) {
                                     // Send period event ?
-                                    if(EventFrame >= 0 && !IsEventPast && curFrame >= EventFrame) {
+                                    if(EventFrame >= 0 && !IsEventPast &&
+                                       curFrame >= EventFrame) {
                                         EventFrame = -1;
-                                        FirePeriodEvent(perPeriod); // fire period event by
-                                                                    // setPeriodEvent()
+                                        FirePeriodEvent(
+                                            perPeriod); // fire period
+                                                        // event by
+                                                        // setPeriodEvent()
                                     }
                                 } else { // Prepare mode
-                                    FirePeriodEvent(perPrepare); // fire period event by prepare()
+                                    FirePeriodEvent(perPrepare); // fire period
+                                                                 // event by
+                                                                 // prepare()
                                     Pause();
                                     Rewind();
                                     IsPrepare = false;
                                 }
                             } else if(Mode == vomMixer && Status == ssPlay) {
                                 int frame = GetFrame();
-                                if((!IsPrepare) && (SegLoopEndFrame > 0) && (frame >= SegLoopEndFrame)) {
-                                    SetFrame(SegLoopStartFrame > 0 ? SegLoopStartFrame : 0);
-                                    FirePeriodEvent(perSegLoop); // fire period event by
-                                                                 // segment loop rewind
+                                if((!IsPrepare) && (SegLoopEndFrame > 0) &&
+                                   (frame >= SegLoopEndFrame)) {
+                                    SetFrame(SegLoopStartFrame > 0
+                                                 ? SegLoopStartFrame
+                                                 : 0);
+                                    FirePeriodEvent(perSegLoop); // fire period
+                                                                 // event by
+                                                                 // segment loop
+                                                                 // rewind
                                     return;
                                 }
                                 VideoOverlay->PresentVideoImage();
                                 FireFrameUpdateEvent(frame);
                                 // Send period event ?
-                                if(EventFrame >= 0 && !IsEventPast && frame >= EventFrame) {
+                                if(EventFrame >= 0 && !IsEventPast &&
+                                   frame >= EventFrame) {
                                     EventFrame = -1;
-                                    FirePeriodEvent(perPeriod); // fire period event by
-                                                                // setPeriodEvent()
+                                    FirePeriodEvent(
+                                        perPeriod); // fire period
+                                                    // event by
+                                                    // setPeriodEvent()
                                 }
                             }
                             break;
@@ -611,7 +675,8 @@ void tTJSNI_VideoOverlay::WndProc(NativeEvent &ev) {
             case WM_CALLBACKCMD: {
                 // wparam : command
                 // lparam : argument
-                FireCallbackCommand((tjs_char *)ev.WParam, (tjs_char *)ev.LParam);
+                FireCallbackCommand((tjs_char *)ev.WParam,
+                                    (tjs_char *)ev.LParam);
                 return;
             }
             case WM_STATE_CHANGE: {
@@ -632,10 +697,12 @@ void tTJSNI_VideoOverlay::WndProc(NativeEvent &ev) {
                         if(Status == ssPlay) {
                             if(Loop) {
                                 VideoOverlay->Play();
-                                FirePeriodEvent(perLoop); // fire period event by loop rewind
+                                FirePeriodEvent(perLoop); // fire period event
+                                                          // by loop rewind
                             } else {
                                 VideoOverlay->Stop();
-                                SetStatusAsync(ssStop); // All data has been rendered
+                                SetStatusAsync(ssStop); // All data has been
+                                                        // rendered
                             }
                         }
                         break;
@@ -1099,13 +1166,18 @@ bool tTJSNI_VideoOverlay::GetVideoSize(tjs_int &w, tjs_int &h) const {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// tTJSNC_VideoOverlay::CreateNativeInstance : returns proper instance object
+// tTJSNC_VideoOverlay::CreateNativeInstance : returns proper instance
+// object
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_VideoOverlay::CreateNativeInstance() { return new tTJSNI_VideoOverlay(); }
+tTJSNativeInstance *tTJSNC_VideoOverlay::CreateNativeInstance() {
+    return new tTJSNI_VideoOverlay();
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 // TVPCreateNativeClass_VideoOverlay
 //---------------------------------------------------------------------------
-tTJSNativeClass *TVPCreateNativeClass_VideoOverlay() { return new tTJSNC_VideoOverlay(); }
+tTJSNativeClass *TVPCreateNativeClass_VideoOverlay() {
+    return new tTJSNC_VideoOverlay();
+}
 //---------------------------------------------------------------------------

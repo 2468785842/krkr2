@@ -9,7 +9,8 @@ public:
 
     virtual ~IAudioCallback(){};
 
-    virtual void OnInitialize(int iChannels, int iSamplesPerSec, int iBitsPerSample) = 0;
+    virtual void OnInitialize(int iChannels, int iSamplesPerSec,
+                              int iBitsPerSample) = 0;
 
     virtual void OnAudioData(const float *pAudioData, int iAudioDataLength) = 0;
 };

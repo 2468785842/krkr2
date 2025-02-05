@@ -56,7 +56,8 @@ public:
 
 private:
     void Clear();
-    static unsigned long IoFunc(FT_Stream stream, unsigned long offset, unsigned char *buffer, unsigned long count);
+    static unsigned long IoFunc(FT_Stream stream, unsigned long offset,
+                                unsigned char *buffer, unsigned long count);
     static void CloseFunc(FT_Stream stream);
 
     bool OpenFaceByIndex(int index);

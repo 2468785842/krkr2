@@ -43,8 +43,9 @@ enum AEQuality {
     AE_QUALITY_HIGH = 50, /* Best sound processing quality */
 
     /* Optional quality levels */
-    AE_QUALITY_REALLYHIGH = 100, /* Uncompromised optional quality level,
-                           usually with unmeasurable and unnoticeable improvement */
+    AE_QUALITY_REALLYHIGH =
+        100, /* Uncompromised optional quality level,
+       usually with unmeasurable and unnoticeable improvement */
     AE_QUALITY_GPU = 101, /* GPU acceleration */
 };
 
@@ -60,15 +61,16 @@ protected:
     virtual ~IAE() {}
 
     /**
-     * Returns true when it should be possible to initialize this engine, if it
-     * returns false CAEFactory can possibly fall back to a different one
+     * Returns true when it should be possible to initialize this
+     * engine, if it returns false CAEFactory can possibly fall back
+     * to a different one
      */
     virtual bool CanInit() { return true; }
 
     /**
-     * Initializes the AudioEngine, called by CFactory when it is time to
-     * initialize the audio engine. Do not call this directly, CApplication will
-     * call this when it is ready
+     * Initializes the AudioEngine, called by CFactory when it is time
+     * to initialize the audio engine. Do not call this directly,
+     * CApplication will call this when it is ready
      */
     virtual bool Initialize() = 0;
 
@@ -80,8 +82,8 @@ public:
 
     /**
      * Suspends output and de-initializes sink
-     * Used to avoid conflicts with external players or to reduce power
-     * consumption
+     * Used to avoid conflicts with external players or to reduce
+     * power consumption
      * @return True if successful
      */
     virtual bool Suspend() = 0;
@@ -96,7 +98,8 @@ public:
     /**
      * Get the current Suspend() state
      * Used by players to determine if audio is being processed
-     * Default is true so players drop audio or pause if engine unloaded
+     * Default is true so players drop audio or pause if engine
+     * unloaded
      * @return True if processing suspended
      */
     virtual bool IsSuspended() { return true; }
@@ -133,18 +136,22 @@ public:
 
     /**
      * Sets the sound mode
-     * @param mode One of AE_SOUND_OFF, AE_SOUND_IDLE or AE_SOUND_ALWAYS
+     * @param mode One of AE_SOUND_OFF, AE_SOUND_IDLE or
+     * AE_SOUND_ALWAYS
      */
     virtual void SetSoundMode(const int mode) = 0;
 
     /**
-     * Creates and returns a new IAEStream in the format specified, this
-     * function should never fail
+     * Creates and returns a new IAEStream in the format specified,
+     * this function should never fail
      * @param audioFormat
-     * @param options A bit field of stream options (see: enum AEStreamOptions)
-     * @return a new IAEStream that will accept data in the requested format
+     * @param options A bit field of stream options (see: enum
+     * AEStreamOptions)
+     * @return a new IAEStream that will accept data in the requested
+     * format
      */
-    virtual IAEStream *MakeStream(AEAudioFormat &audioFormat, unsigned int options = 0,
+    virtual IAEStream *MakeStream(AEAudioFormat &audioFormat,
+                                  unsigned int options = 0,
                                   IAEClockCallback *clock = nullptr) = 0;
 
     /**
@@ -158,7 +165,8 @@ public:
     /**
      * Creates a new IAESound that is ready to play the specified file
      * @param file The WAV file to load, this supports XBMC's VFS
-     * @return A new IAESound if the file could be loaded, otherwise nullptr
+     * @return A new IAESound if the file could be loaded, otherwise
+     * nullptr
      */
     virtual IAESound *MakeSound(const std::string &file) = 0;
 
@@ -169,9 +177,9 @@ public:
     virtual void FreeSound(IAESound *sound) = 0;
 
     /**
-     * Callback by CApplication for Garbage Collection. This method is called by
-     * CApplication every 500ms and can be used to clean up and free no-longer
-     * used resources.
+     * Callback by CApplication for Garbage Collection. This method is
+     * called by CApplication every 500ms and can be used to clean up
+     * and free no-longer used resources.
      */
     virtual void GarbageCollect() = 0;
 
@@ -180,41 +188,45 @@ public:
      * @param devices The device list to append supported devices to
      * @param passthrough True if only passthrough devices are wanted
      */
-    virtual void EnumerateOutputDevices(AEDeviceList &devices, bool passthrough) = 0;
+    virtual void EnumerateOutputDevices(AEDeviceList &devices,
+                                        bool passthrough) = 0;
 
     /**
      * Returns the default audio device
-     * @param passthrough True if the default passthrough device is wanted
+     * @param passthrough True if the default passthrough device is
+     * wanted
      * @return the default audio device
      */
     virtual std::string GetDefaultDevice(bool passthrough) { return "default"; }
 
     /**
-     * Returns true if the AudioEngine supports AE_FMT_RAW streams for use with
-     * formats such as IEC61937
+     * Returns true if the AudioEngine supports AE_FMT_RAW streams for
+     * use with formats such as IEC61937
      * @see CAEPackIEC61937::CAEPackIEC61937()
      * @returns true if the AudioEngine is capable of RAW output
      */
     virtual bool SupportsRaw(AEAudioFormat &format) { return false; }
 
     /**
-     * Returns true if the AudioEngine supports drain mode which is not
-     * streaming silence when idle
+     * Returns true if the AudioEngine supports drain mode which is
+     * not streaming silence when idle
      * @returns true if the AudioEngine is capable of drain mode
      */
     virtual bool SupportsSilenceTimeout() { return false; }
 
     /**
-     * Returns true if the AudioEngine is currently configured for stereo audio
-     * @returns true if the AudioEngine is currently configured for stereo audio
+     * Returns true if the AudioEngine is currently configured for
+     * stereo audio
+     * @returns true if the AudioEngine is currently configured for
+     * stereo audio
      */
     virtual bool HasStereoAudioChannelCount() { return false; }
 
     /**
-     * Returns true if the AudioEngine is currently configured for HD audio
-     * (more than 5.1)
-     * @returns true if the AudioEngine is currently configured for HD audio
-     * (more than 5.1)
+     * Returns true if the AudioEngine is currently configured for HD
+     * audio (more than 5.1)
+     * @returns true if the AudioEngine is currently configured for HD
+     * audio (more than 5.1)
      */
     virtual bool HasHDAudioChannelCount() { return true; }
 
@@ -224,7 +236,8 @@ public:
 
     /**
      * Returns true if AudioEngine supports specified quality level
-     * @return true if specified quality level is supported, otherwise false
+     * @return true if specified quality level is supported, otherwise
+     * false
      */
     virtual bool SupportsQualityLevel(enum AEQuality level) { return false; }
 
@@ -232,7 +245,9 @@ public:
      * AE decides whether this settings should be displayed
      * @return true if AudioEngine wants to display this setting
      */
-    virtual bool IsSettingVisible(const std::string &settingId) { return false; }
+    virtual bool IsSettingVisible(const std::string &settingId) {
+        return false;
+    }
 
     /**
      * Instruct AE to keep configuration for a specified time
@@ -253,10 +268,13 @@ public:
     /**
      * Get the current sink data format
      *
-     * @param Current sink data format. For more details see AEAudioFormat.
+     * @param Current sink data format. For more details see
+     * AEAudioFormat.
      * @return Returns true on success, else false.
      */
-    virtual bool GetCurrentSinkFormat(AEAudioFormat &SinkFormat) { return false; }
+    virtual bool GetCurrentSinkFormat(AEAudioFormat &SinkFormat) {
+        return false;
+    }
 };
 
 NS_KRMOVIE_END

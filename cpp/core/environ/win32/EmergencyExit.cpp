@@ -44,14 +44,15 @@ public:
 #ifdef TJS_64BIT_OS
         // get pam
         ULONGLONG pam = 1; // process affinity mask
-        HANDLE hp = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
+        HANDLE hp = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE,
+                                GetCurrentProcessId());
         if(hp) {
             ULONGLONG sam = 1;
             GetProcessAffinityMask(hp, (PDWORD_PTR)&pam, (PDWORD_PTR)&sam);
             CloseHandle(hp);
 
-            // set tam to run only upon one processor (for proper working with
-            // rdtsc)
+            // set tam to run only upon one processor (for proper
+            // working with rdtsc)
             ULONGLONG tam = pam;
             tjs_int bit;
             for(bit = 0; bit <= 31; bit++) {
@@ -68,14 +69,15 @@ public:
 #else
         // get pam
         DWORD pam = 1; // process affinity mask
-        HANDLE hp = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
+        HANDLE hp = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE,
+                                GetCurrentProcessId());
         if(hp) {
             DWORD sam = 1;
             GetProcessAffinityMask(hp, &pam, &sam);
             CloseHandle(hp);
 
-            // set tam to run only upon one processor (for proper working with
-            // rdtsc)
+            // set tam to run only upon one processor (for proper
+            // working with rdtsc)
             DWORD tam = pam;
             tjs_int bit;
             for(bit = 0; bit <= 31; bit++) {
@@ -111,7 +113,8 @@ void tTVPEmergencyExitThread::Execute() {
     tjs_uint64 prevtsc = TVPGetTSC();
 
     while(!GetTerminated()) {
-        bool status = (GetAsyncKeyState(VK_CONTROL) & 0x8000) && (GetAsyncKeyState(VK_MENU) & 0x8000) &&
+        bool status = (GetAsyncKeyState(VK_CONTROL) & 0x8000) &&
+            (GetAsyncKeyState(VK_MENU) & 0x8000) &&
             (GetAsyncKeyState(VK_F12) & 0x8000);
 
         DWORD curtime = GetTickCount();
@@ -122,7 +125,8 @@ void tTVPEmergencyExitThread::Execute() {
         if(TVPCPUClockAccuracy == ccaNotSet) {
             if(curtime - prevtime > 200) {
                 if(prevtsc != curtsc && prevtsc && curtsc) {
-                    TVPCPUClock = (double)((curtsc - prevtsc) / 100) / (double)(curtime - prevtime) * 0.1f;
+                    TVPCPUClock = (double)((curtsc - prevtsc) / 100) /
+                        (double)(curtime - prevtime) * 0.1f;
                     TVPCPUClockAccuracy = ccaRough;
                 }
 
@@ -132,7 +136,8 @@ void tTVPEmergencyExitThread::Execute() {
         } else if(TVPCPUClockAccuracy == ccaRough) {
             if(curtime - prevtime > 20000) {
                 if(prevtsc != curtsc && prevtsc && curtsc) {
-                    TVPCPUClock = (double)((curtsc - prevtsc) / 10000) / (double)(curtime - prevtime) * 10.0f;
+                    TVPCPUClock = (double)((curtsc - prevtsc) / 10000) /
+                        (double)(curtime - prevtime) * 10.0f;
                     TVPCPUClockAccuracy = ccaAccurate;
                 }
 
@@ -168,15 +173,17 @@ void tTVPEmergencyExitThread::Execute() {
         else
             Event.WaitFor(500);
 #ifdef TJS_SUPPORT_VCL
-        if(TVPSystemControlAlive && Application != nullptr && Application->GetHandle() != nullptr) {
+        if(TVPSystemControlAlive && Application != nullptr &&
+           Application->GetHandle() != nullptr) {
             PostMessage(Application->GetHandle(), TVP_EV_KEEP_ALIVE, 0, 0);
             // Send wakeup message to the main window.
-            // VCL sometimes waits message that never come (so hangs up).
-            // This message will wake the VCL up.
+            // VCL sometimes waits message that never come (so hangs
+            // up). This message will wake the VCL up.
         }
 #endif
     }
 }
 //---------------------------------------------------------------------------
-static std::auto_ptr<tTVPEmergencyExitThread> TVPEmergencyExitThread(new tTVPEmergencyExitThread);
+static std::auto_ptr<tTVPEmergencyExitThread>
+    TVPEmergencyExitThread(new tTVPEmergencyExitThread);
 //---------------------------------------------------------------------------

@@ -2,10 +2,10 @@
  *      Copyright (C) 2005-2013 Team XBMC
  *      http://xbmc.org
  *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
+ *  This Program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2, or (at
+ * your option) any later version.
  *
  *  This Program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,8 +21,8 @@
 #pragma once
 
 #ifdef __GNUC__
-// under gcc, inline will only take place if optimizations are applied (-O).
-// this will force inline even whith optimizations.
+// under gcc, inline will only take place if optimizations are applied
+// (-O). this will force inline even whith optimizations.
 #define XBMC_FORCE_INLINE __attribute__((always_inline))
 #else
 #define XBMC_FORCE_INLINE
@@ -131,7 +131,8 @@ public:
         return false;
     };
 
-    inline const this_type &operator-=(const CPointGen<T> &point) XBMC_FORCE_INLINE {
+    inline const this_type &
+    operator-=(const CPointGen<T> &point) XBMC_FORCE_INLINE {
         x1 -= point.x;
         y1 -= point.y;
         x2 -= point.x;
@@ -139,7 +140,8 @@ public:
         return *this;
     };
 
-    inline const this_type &operator+=(const CPointGen<T> &point) XBMC_FORCE_INLINE {
+    inline const this_type &
+    operator+=(const CPointGen<T> &point) XBMC_FORCE_INLINE {
         x1 += point.x;
         y1 += point.y;
         x2 += point.x;
@@ -169,11 +171,17 @@ public:
         return *this;
     };
 
-    inline bool IsEmpty() const XBMC_FORCE_INLINE { return (x2 - x1) * (y2 - y1) == 0; };
+    inline bool IsEmpty() const XBMC_FORCE_INLINE {
+        return (x2 - x1) * (y2 - y1) == 0;
+    };
 
-    inline CPointGen<T> P1() const XBMC_FORCE_INLINE { return CPointGen<T>(x1, y1); }
+    inline CPointGen<T> P1() const XBMC_FORCE_INLINE {
+        return CPointGen<T>(x1, y1);
+    }
 
-    inline CPointGen<T> P2() const XBMC_FORCE_INLINE { return CPointGen<T>(x2, y2); }
+    inline CPointGen<T> P2() const XBMC_FORCE_INLINE {
+        return CPointGen<T>(x2, y2);
+    }
 
     inline T Width() const XBMC_FORCE_INLINE { return x2 - x1; };
 
@@ -199,12 +207,14 @@ public:
                 newRectaglesList.push_back(add);
 
             // add rect left intersection if not empty
-            add = this_type(x1, intersection.y1, intersection.x1, intersection.y2);
+            add = this_type(x1, intersection.y1, intersection.x1,
+                            intersection.y2);
             if(!add.IsEmpty())
                 newRectaglesList.push_back(add);
 
             // add rect right intersection if not empty
-            add = this_type(intersection.x2, intersection.y1, x2, intersection.y2);
+            add = this_type(intersection.x2, intersection.y1, x2,
+                            intersection.y2);
             if(!add.IsEmpty())
                 newRectaglesList.push_back(add);
         } else {
@@ -214,22 +224,28 @@ public:
         return newRectaglesList;
     }
 
-    std::vector<this_type> SubtractRects(std::vector<this_type> intersectionList) {
+    std::vector<this_type>
+    SubtractRects(std::vector<this_type> intersectionList) {
         std::vector<this_type> fragmentsList;
         fragmentsList.push_back(*this);
 
-        for(typename std::vector<this_type>::iterator splitter = intersectionList.begin();
+        for(typename std::vector<this_type>::iterator splitter =
+                intersectionList.begin();
             splitter != intersectionList.end(); ++splitter) {
             typename std::vector<this_type> toAddList;
 
-            for(typename std::vector<this_type>::iterator fragment = fragmentsList.begin();
+            for(typename std::vector<this_type>::iterator fragment =
+                    fragmentsList.begin();
                 fragment != fragmentsList.end(); ++fragment) {
-                std::vector<this_type> newFragmentsList = fragment->SubtractRect(*splitter);
-                toAddList.insert(toAddList.end(), newFragmentsList.begin(), newFragmentsList.end());
+                std::vector<this_type> newFragmentsList =
+                    fragment->SubtractRect(*splitter);
+                toAddList.insert(toAddList.end(), newFragmentsList.begin(),
+                                 newFragmentsList.end());
             }
 
             fragmentsList.clear();
-            fragmentsList.insert(fragmentsList.end(), toAddList.begin(), toAddList.end());
+            fragmentsList.insert(fragmentsList.end(), toAddList.begin(),
+                                 toAddList.end());
         }
 
         return fragmentsList;
@@ -250,7 +266,9 @@ public:
     T x1, y1, x2, y2;
 
 private:
-    inline static T clamp_range(T x, T l, T h) XBMC_FORCE_INLINE { return (x > h) ? h : ((x < l) ? l : x); }
+    inline static T clamp_range(T x, T l, T h) XBMC_FORCE_INLINE {
+        return (x > h) ? h : ((x < l) ? l : x);
+    }
 };
 
 typedef CPointGen<float> CPoint;

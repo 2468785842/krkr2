@@ -27,7 +27,9 @@ namespace TJS {
 
         ~tTJSMessageMapper() { ; }
 
-        void Register(const tjs_char *name, tTJSMessageHolder *holder) { Hash.Add(ttstr(name), holder); }
+        void Register(const tjs_char *name, tTJSMessageHolder *holder) {
+            Hash.Add(ttstr(name), holder);
+        }
 
         void Unregister(const tjs_char *name) { Hash.Delete(ttstr(name)); }
 
@@ -98,7 +100,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void TJSRegisterMessageMap(const tjs_char *name, tTJSMessageHolder *holder) {
+    void TJSRegisterMessageMap(const tjs_char *name,
+                               tTJSMessageHolder *holder) {
         if(TJSMessageMapper)
             TJSMessageMapper->Register(name, holder);
     }

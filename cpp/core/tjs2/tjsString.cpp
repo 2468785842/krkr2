@@ -18,18 +18,20 @@
 namespace TJS {
 
     //---------------------------------------------------------------------------
-    tTJSString::tTJSString(const tTJSVariant &val) : tTJSString_S{ val.AsString() } {}
+    tTJSString::tTJSString(const tTJSVariant &val) :
+        tTJSString_S{ val.AsString() } {}
 
     //---------------------------------------------------------------------------
     tTJSString::tTJSString(tjs_int n) : tTJSString_S{ TJSIntegerToString(n) } {}
 
     //---------------------------------------------------------------------------
-    tTJSString::tTJSString(tjs_int64 n) : tTJSString_S{ TJSIntegerToString(n) } {}
+    tTJSString::tTJSString(tjs_int64 n) :
+        tTJSString_S{ TJSIntegerToString(n) } {}
 
     //---------------------------------------------------------------------------
     tjs_int tTJSString::GetNarrowStrLen() const {
-        // note that this function will return -1 when there are invalid chars in
-        // string.
+        // note that this function will return -1 when there are
+        // invalid chars in string.
         if(!Ptr)
             return 0;
         return (tjs_int)TJS_wcstombs(nullptr, c_str(), 0);
@@ -37,7 +39,8 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     void tTJSString::ToNarrowStr(tjs_nchar *dest, tjs_int destmaxlen) const {
-        // dest must be an array of char, its size must be at least destmaxlen+1
+        // dest must be an array of char, its size must be at least
+        // destmaxlen+1
         dest[TJS_wcstombs(dest, c_str(), destmaxlen)] = 0;
     }
 
@@ -46,7 +49,8 @@ namespace TJS {
         // severs sharing of the string instance
         // and returns independent internal buffer
 
-        tTJSVariantString *newstr = TJSAllocVariantString(Ptr->operator const tjs_char *());
+        tTJSVariantString *newstr =
+            TJSAllocVariantString(Ptr->operator const tjs_char *());
 
         Ptr->Release();
         Ptr = newstr;
@@ -58,7 +62,8 @@ namespace TJS {
     tjs_int64 tTJSString::AsInteger() const { return Ptr->ToInteger(); }
 
     //---------------------------------------------------------------------------
-    void tTJSString::Replace(const tTJSString &from, const tTJSString &to, bool forall) {
+    void tTJSString::Replace(const tTJSString &from, const tTJSString &to,
+                             bool forall) {
         // replaces the string partial "from", to "to".
         // all "from" are replaced when "forall" is true.
         if(IsEmpty())
@@ -204,17 +209,20 @@ namespace TJS {
                     continue;
                 default:
                     if(hexflag) {
-                        if((*p >= TJS_W('a') && *p <= TJS_W('f')) || (*p >= TJS_W('A') && *p <= TJS_W('F')) ||
+                        if((*p >= TJS_W('a') && *p <= TJS_W('f')) ||
+                           (*p >= TJS_W('A') && *p <= TJS_W('F')) ||
                            (*p >= TJS_W('0') && *p <= TJS_W('9'))) {
                             hexflag = true;
-                            ret += { fmt::format("\\x{:02x}", static_cast<int>(*p)) };
+                            ret += { fmt::format("\\x{:02x}",
+                                                 static_cast<int>(*p)) };
                             continue;
                         }
                     }
 
                     if(*p < 0x20) {
                         hexflag = true;
-                        ret += { fmt::format("\\x{:02x}", static_cast<int>(*p)) };
+                        ret +=
+                            { fmt::format("\\x{:02x}", static_cast<int>(*p)) };
                     } else {
                         ret += *p;
                         hexflag = false;
@@ -249,7 +257,8 @@ namespace TJS {
         return false;
     }
 
-    TJS::tTJSString tTJSString::SubString(unsigned int pos, unsigned int len) const {
+    TJS::tTJSString tTJSString::SubString(unsigned int pos,
+                                          unsigned int len) const {
         if(Ptr == nullptr || len == 0 || pos >= Ptr->GetLength())
             return {};
         if(pos == 0 && len >= Ptr->GetLength())
@@ -271,11 +280,13 @@ namespace TJS {
         return _str;
     }
 
-    int tTJSString::IndexOf(const tTJSString &str, unsigned int pos /*= 0*/) const {
+    int tTJSString::IndexOf(const tTJSString &str,
+                            unsigned int pos /*= 0*/) const {
         if(!Ptr || !str.Ptr)
             return -1;
         //    if(str.length() == 0 || pos >= length()) return -1;
-        const tjs_char *p = TJS_strstr(Ptr->operator const tjs_char *() + pos, str.Ptr->operator const tjs_char *());
+        const tjs_char *p = TJS_strstr(Ptr->operator const tjs_char *() + pos,
+                                       str.Ptr->operator const tjs_char *());
         if(p == nullptr)
             return -1;
         return p - Ptr->operator const tjs_char *();
@@ -306,8 +317,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
     tTJSString TJSInt32ToHex(tjs_uint32 num, int zeropad) {
         // convert given number to HEX string.
-        // zeros are padded when the output string's length is smaller than
-        // "zeropad". "zeropad" cannot be larger than 8.
+        // zeros are padded when the output string's length is smaller
+        // than "zeropad". "zeropad" cannot be larger than 8.
         if(zeropad > 8)
             zeropad = 8;
 

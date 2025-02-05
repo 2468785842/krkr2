@@ -30,7 +30,8 @@
 // matherr and matherrl function
 //---------------------------------------------------------------------------
 // these functions invalidate the mathmarical error
-// (other exceptions, like divide-by-zero error, are not to be caught here)
+// (other exceptions, like divide-by-zero error, are not to be caught
+// here)
 #if defined(__WIN32__) && !defined(__GNUC__)
 #ifndef TJS_NO_MASK_MATHERR
 int _USERENTRY _matherr(struct _exception *e) { return 1; }
@@ -72,7 +73,8 @@ namespace TJS {
         }
     };
 
-    tjs_uint32 tTJSXorshift::seeds[4] = { 123456789, 362436069, 521288629, 88675123 };
+    tjs_uint32 tTJSXorshift::seeds[4] = { 123456789, 362436069, 521288629,
+                                          88675123 };
 
     //---------------------------------------------------------------------------
     // tTJSNC_Math : TJS Native Class : Math
@@ -86,10 +88,9 @@ namespace TJS {
         tTJSXorshift::init((tjs_uint32)time_num);
 
         /*
-            TJS2 cannot promise that the sequence of generated random numbers are
-            unique.
-            since Math.RandomGenerator provides Mersenne Twister high-quality random
-            generator.
+            TJS2 cannot promise that the sequence of generated random
+           numbers are unique. since Math.RandomGenerator provides
+           Mersenne Twister high-quality random generator.
         */
 
         TJSSetFPUE();
@@ -97,7 +98,10 @@ namespace TJS {
         TJS_BEGIN_NATIVE_MEMBERS(/*TJS class name*/ Math)
         TJS_DECL_EMPTY_FINALIZE_METHOD
         //----------------------------------------------------------------------
-        TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(/*TJS class name*/ Math) { return TJS_S_OK; }
+        TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL_NO_INSTANCE(
+            /*TJS class name*/ Math) {
+            return TJS_S_OK;
+        }
         TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ Math)
         //----------------------------------------------------------------------
         TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ abs) {
@@ -247,7 +251,8 @@ namespace TJS {
                     } else if(*ui64 == 0) {
                         // v is positive-zero
                         // check r is negative
-                        if(TJS_IEEE_D_GET_SIGN(*(tjs_uint64 *)(&r))) // true if negative
+                        if(TJS_IEEE_D_GET_SIGN(
+                               *(tjs_uint64 *)(&r))) // true if negative
                         {
                             // r is negative and v is positive-zero
                             r = v;
@@ -280,9 +285,11 @@ namespace TJS {
                         return TJS_S_OK;
                     } else if(*ui64 == (0 | TJS_IEEE_D_SIGN_MASK)) {
                         // v is nagative-zero
-                        // note that 0|TJS_IEEE_D_SIGN_MASK is a presentation value
-                        // of nagative-zero. check r is positive
-                        if(!TJS_IEEE_D_GET_SIGN(*(tjs_uint64 *)(&r))) // false if positive
+                        // note that 0|TJS_IEEE_D_SIGN_MASK is a
+                        // presentation value of nagative-zero. check
+                        // r is positive
+                        if(!TJS_IEEE_D_GET_SIGN(
+                               *(tjs_uint64 *)(&r))) // false if positive
                         {
                             // v is negative-zero and r is positive
                             r = v;
@@ -372,7 +379,8 @@ namespace TJS {
         }
         TJS_END_NATIVE_STATIC_METHOD_DECL(/*func. name*/ tan)
         //----------------------------------------------------------------------
-        TJS_BEGIN_NATIVE_PROP_DECL(E){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = M_E;
+        TJS_BEGIN_NATIVE_PROP_DECL(E){
+            TJS_BEGIN_NATIVE_PROP_GETTER{ *result = M_E;
         return TJS_S_OK;
     }
     TJS_END_NATIVE_PROP_GETTER
@@ -381,7 +389,8 @@ namespace TJS {
 } // namespace TJS
 TJS_END_NATIVE_STATIC_PROP_DECL(E)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(LOG2E){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = M_LOG2E;
+TJS_BEGIN_NATIVE_PROP_DECL(LOG2E){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = M_LOG2E;
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -390,7 +399,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(LOG2E)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(LOG10E){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = M_LOG10E;
+TJS_BEGIN_NATIVE_PROP_DECL(LOG10E){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = M_LOG10E;
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -399,7 +409,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(LOG10E)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(LN10){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = M_LN10;
+TJS_BEGIN_NATIVE_PROP_DECL(LN10){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = M_LN10;
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -426,7 +437,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(PI)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(SQRT1_2){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = (M_SQRT2 / 2);
+TJS_BEGIN_NATIVE_PROP_DECL(SQRT1_2){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = (M_SQRT2 / 2);
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
@@ -435,7 +447,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_STATIC_PROP_DECL(SQRT1_2)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(SQRT2){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = M_SQRT2;
+TJS_BEGIN_NATIVE_PROP_DECL(SQRT2){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = M_SQRT2;
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER

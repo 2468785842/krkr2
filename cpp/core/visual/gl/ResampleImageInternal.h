@@ -14,28 +14,37 @@
 
 struct tTVPImageCopyFuncBase {
     virtual ~tTVPImageCopyFuncBase() {}
-    virtual void operator()(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) const = 0;
+    virtual void operator()(tjs_uint32 *dest, const tjs_uint32 *src,
+                            tjs_int len) const = 0;
 };
 struct tTVPBlendImageFunc : public tTVPImageCopyFuncBase {
     tjs_int opa_;
-    void (*blend_func_)(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len, tjs_int opa);
+    void (*blend_func_)(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len,
+                        tjs_int opa);
 
     tTVPBlendImageFunc(tjs_int opa,
-                       void (*blend_func)(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len, tjs_int opa)) :
+                       void (*blend_func)(tjs_uint32 *dest,
+                                          const tjs_uint32 *src, tjs_int len,
+                                          tjs_int opa)) :
         opa_(opa),
         blend_func_(blend_func) {}
 
-    virtual void operator()(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) const {
+    virtual void operator()(tjs_uint32 *dest, const tjs_uint32 *src,
+                            tjs_int len) const {
         blend_func_(dest, src, len, opa_);
     }
 };
 struct tTVPCopyImageFunc : public tTVPImageCopyFuncBase {
     void (*copy_func_)(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len);
 
-    tTVPCopyImageFunc(void (*copy_func)(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len)) :
+    tTVPCopyImageFunc(void (*copy_func)(tjs_uint32 *dest, const tjs_uint32 *src,
+                                        tjs_int len)) :
         copy_func_(copy_func) {}
 
-    virtual void operator()(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) const { copy_func_(dest, src, len); }
+    virtual void operator()(tjs_uint32 *dest, const tjs_uint32 *src,
+                            tjs_int len) const {
+        copy_func_(dest, src, len);
+    }
 };
 /**
  * ブレンドパラメータ
@@ -49,14 +58,18 @@ struct tTVPBlendParameter {
     /** 転送先アルファ保持有無 */
     bool hda_;
     /** 不透明度を考慮してブレンドする */
-    void (*blend_func)(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len, tjs_int opa);
+    void (*blend_func)(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len,
+                       tjs_int opa);
     /** コピーする(ソースやデスティネーションのアルファが考慮される場合もあり)
      */
     void (*copy_func)(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len);
 
-    tTVPBlendParameter() : method_(bmCopy), opa_(255), hda_(false), blend_func(nullptr), copy_func(nullptr) {}
+    tTVPBlendParameter() :
+        method_(bmCopy), opa_(255), hda_(false), blend_func(nullptr),
+        copy_func(nullptr) {}
     tTVPBlendParameter(tTVPBBBltMethod method, tjs_int opa, bool hda) :
-        method_(method), opa_(opa), hda_(hda), blend_func(nullptr), copy_func(nullptr) {}
+        method_(method), opa_(opa), hda_(hda), blend_func(nullptr),
+        copy_func(nullptr) {}
 
     /**
      * パラメータを元に関数ポインタを決定する
@@ -86,7 +99,8 @@ struct tTVPResampleClipping {
  * 面積平均パラメータ用
  */
 template <typename TVector>
-void TVPCalculateAxisAreaAvg(int srcstart, int srcend, int srclength, int dstlength, std::vector<int> &start,
+void TVPCalculateAxisAreaAvg(int srcstart, int srcend, int srclength,
+                             int dstlength, std::vector<int> &start,
                              std::vector<int> &length, TVector &weight) {
     start.clear();
     start.reserve(dstlength);
@@ -105,7 +119,8 @@ void TVPCalculateAxisAreaAvg(int srcstart, int srcend, int srclength, int dstlen
             len++;
         } else { // 境界をまたいだ
             int d = (delta + dstlength) - srctarget;
-            weight.push_back((float)(dstlength - d) / (float)dstlength); // 前の領域
+            weight.push_back((float)(dstlength - d) /
+                             (float)dstlength); // 前の領域
             length.push_back(len + 1);
 
             start.push_back(x);

@@ -21,37 +21,50 @@ tTVPPrerenderedFont::tTVPPrerenderedFont(const ttstr &storage)
     try {
         FileLength = stream->GetSize();
         if(FileLength == 0) {
-            TVPThrowExceptionMessage(TVPPrerenderedFontMappingFailed, (const tjs_char *)TVPFileSizeIsZero);
+            TVPThrowExceptionMessage(TVPPrerenderedFontMappingFailed,
+                                     (const tjs_char *)TVPFileSizeIsZero);
         }
         Image = new tjs_uint8[(tjs_uint)FileLength];
         if(Image == nullptr) {
-            TVPThrowExceptionMessage(TVPPrerenderedFontMappingFailed, (const tjs_char *)TVPMemoryAllocationError);
+            TVPThrowExceptionMessage(
+                TVPPrerenderedFontMappingFailed,
+                (const tjs_char *)TVPMemoryAllocationError);
         }
-        tjs_uint readsize = stream->Read(const_cast<tjs_uint8 *>(Image), (tjs_uint)FileLength);
+        tjs_uint readsize =
+            stream->Read(const_cast<tjs_uint8 *>(Image), (tjs_uint)FileLength);
         if(readsize != FileLength) {
-            TVPThrowExceptionMessage(TVPPrerenderedFontMappingFailed, (const tjs_char *)TVPFileReadError);
+            TVPThrowExceptionMessage(TVPPrerenderedFontMappingFailed,
+                                     (const tjs_char *)TVPFileReadError);
         }
         delete stream;
         stream = nullptr;
 
         // check header
         if(memcmp("TVP pre-rendered font\x1a", Image, 22)) {
-            TVPThrowExceptionMessage(TVPPrerenderedFontMappingFailed, (const tjs_char *)TVPInvalidPrerenderedFontFile);
+            TVPThrowExceptionMessage(
+                TVPPrerenderedFontMappingFailed,
+                (const tjs_char *)TVPInvalidPrerenderedFontFile);
         }
 
         if(Image[23] != 2) {
-            TVPThrowExceptionMessage(TVPPrerenderedFontMappingFailed, (const tjs_char *)TVPNot16BitUnicodeFontFile);
+            TVPThrowExceptionMessage(
+                TVPPrerenderedFontMappingFailed,
+                (const tjs_char *)TVPNot16BitUnicodeFontFile);
         }
 
         Version = Image[22];
         if(Version != 0 && Version != 1) {
-            TVPThrowExceptionMessage(TVPPrerenderedFontMappingFailed, (const tjs_char *)TVPInvalidHeaderVersion);
+            TVPThrowExceptionMessage(TVPPrerenderedFontMappingFailed,
+                                     (const tjs_char *)TVPInvalidHeaderVersion);
         }
 
         // read index offset
         IndexCount = *(const tjs_uint32 *)(Image + 24);
         ChIndex = (const tjs_char *)(Image + *(const tjs_uint32 *)(Image + 28));
-        Index = (const tTVPPrerenderedCharacterItem *)(Image + *(const tjs_uint32 *)(Image + 32));
+        Index =
+            (const tTVPPrerenderedCharacterItem *)(Image +
+                                                   *(const tjs_uint32 *)(Image +
+                                                                         32));
     } catch(...) {
         if(stream)
             delete stream;
@@ -99,7 +112,8 @@ const tTVPPrerenderedCharacterItem *tTVPPrerenderedFont::Find(tjs_char ch) {
     }
 }
 //---------------------------------------------------------------------------
-void tTVPPrerenderedFont::Retrieve(const tTVPPrerenderedCharacterItem *item, tjs_uint8 *buffer, tjs_int bufferpitch) {
+void tTVPPrerenderedFont::Retrieve(const tTVPPrerenderedCharacterItem *item,
+                                   tjs_uint8 *buffer, tjs_int bufferpitch) {
     // retrieve font data and store to buffer
     // bufferpitch must be larger then or equal to item->Width
     if(item->Width == 0 || item->Height == 0)

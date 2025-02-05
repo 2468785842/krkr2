@@ -10,11 +10,15 @@ namespace tinyxml2 {
 class iTVPPreferenceInfo;
 struct tPreferenceScreen {
     tPreferenceScreen() {}
-    tPreferenceScreen(const std::string &title, const std::initializer_list<iTVPPreferenceInfo *> &elem) :
-        Title(title), Preferences(elem) {}
+    tPreferenceScreen(const std::string &title,
+                      const std::initializer_list<iTVPPreferenceInfo *> &elem) :
+        Title(title),
+        Preferences(elem) {}
     ~tPreferenceScreen() { clear(); }
     void clear();
-    void init(const std::initializer_list<iTVPPreferenceInfo *> &elem) { Preferences = elem; }
+    void init(const std::initializer_list<iTVPPreferenceInfo *> &elem) {
+        Preferences = elem;
+    }
     std::string Title; // as tid
     std::vector<iTVPPreferenceInfo *> Preferences;
 };
@@ -28,7 +32,8 @@ public:
     virtual tPreferenceScreen *GetSubScreenInfo() { return nullptr; }
 
     iTVPPreferenceInfo() {}
-    iTVPPreferenceInfo(const std::string &cap, const std::string &key) : Caption(cap), Key(key) {}
+    iTVPPreferenceInfo(const std::string &cap, const std::string &key) :
+        Caption(cap), Key(key) {}
     virtual ~iTVPPreferenceInfo() {}
 
     std::string Caption;
@@ -38,16 +43,17 @@ public:
 template <typename T>
 struct tTVPPreferenceInfo : public iTVPPreferenceInfo {
 public:
-    tTVPPreferenceInfo(const std::string &cap, const std::string &key, const T &defval) :
-        iTVPPreferenceInfo(cap, key), DefaultValue(defval) {}
+    tTVPPreferenceInfo(const std::string &cap, const std::string &key,
+                       const T &defval) :
+        iTVPPreferenceInfo(cap, key),
+        DefaultValue(defval) {}
 
     T DefaultValue;
-    // 	iTVPPreferenceInfo(const std::string &cap, const std::string &key, const
-    // std::string &defval)
-    // 		: Caption(cap), Key(key), DefaultValue(defval),
-    // SubPrefScreen(nullptr) {} 	iTVPPreferenceInfo(const std::string
-    // &cap,
-    // tPreferenceScreen* subscr = nullptr, bool hidden = false) : Caption(cap),
+    // 	iTVPPreferenceInfo(const std::string &cap, const std::string
+    // &key, const std::string &defval) 		: Caption(cap), Key(key),
+    // DefaultValue(defval), SubPrefScreen(nullptr) {}
+    // iTVPPreferenceInfo(const std::string &cap, tPreferenceScreen*
+    // subscr = nullptr, bool hidden = false) : Caption(cap),
     // SubPrefScreen(subscr) {} 	~iTVPPreferenceInfo() { if
     // (SubPrefScreen) delete SubPrefScreen;
     // 	}
@@ -92,7 +98,8 @@ public:
 };
 
 template <typename T> // factory function
-T *CreatePreferenceItem(int idx, const cocos2d::Size &size, const std::string &title,
+T *CreatePreferenceItem(int idx, const cocos2d::Size &size,
+                        const std::string &title,
                         const std::function<void(T *)> &initer) {
     T *ret = new T;
     ret->autorelease();
@@ -102,7 +109,8 @@ T *CreatePreferenceItem(int idx, const cocos2d::Size &size, const std::string &t
 }
 
 template <typename T>
-T *CreatePreferenceItem(int idx, const cocos2d::Size &size, const std::string &title) {
+T *CreatePreferenceItem(int idx, const cocos2d::Size &size,
+                        const std::string &title) {
     T *ret = new T;
     ret->autorelease();
     ret->initFromInfo(idx, size, title);
@@ -147,7 +155,8 @@ protected:
 
 class tPreferenceItemSelectListInfo {
 public:
-    virtual const std::vector<std::pair<std::string, std::string>> &getListInfo() = 0;
+    virtual const std::vector<std::pair<std::string, std::string>> &
+    getListInfo() = 0;
 };
 
 class tPreferenceItemSelectList : public tPreferenceItem<std::string> {
@@ -188,7 +197,8 @@ protected:
     std::string highlightTid;
 };
 
-class tPreferenceItemKeyValPair : public tPreferenceItem<std::pair<std::string, std::string>> {
+class tPreferenceItemKeyValPair
+    : public tPreferenceItem<std::pair<std::string, std::string>> {
 public:
     tPreferenceItemKeyValPair();
 
@@ -208,21 +218,25 @@ protected:
 
 class TVPCustomPreferenceForm : public iTVPBaseForm {
 public:
-    static TVPCustomPreferenceForm *
-    create(const std::string &tid_title, int count,
-           const std::function<std::pair<std::string, std::string>(int)> &getter,
-           const std::function<void(int, const std::pair<std::string, std::string> &)> &setter);
+    static TVPCustomPreferenceForm *create(
+        const std::string &tid_title, int count,
+        const std::function<std::pair<std::string, std::string>(int)> &getter,
+        const std::function<
+            void(int, const std::pair<std::string, std::string> &)> &setter);
 
 protected:
-    void initFromInfo(const std::string &tid_title, int count,
-                      const std::function<std::pair<std::string, std::string>(int)> &getter,
-                      const std::function<void(int, const std::pair<std::string, std::string> &)> &setter);
+    void initFromInfo(
+        const std::string &tid_title, int count,
+        const std::function<std::pair<std::string, std::string>(int)> &getter,
+        const std::function<
+            void(int, const std::pair<std::string, std::string> &)> &setter);
 
     virtual void bindBodyController(const NodeMap &allNodes) override;
     virtual void bindHeaderController(const NodeMap &allNodes) override;
 
     std::function<std::pair<std::string, std::string>(int)> _getter;
-    std::function<void(int, const std::pair<std::string, std::string> &)> _setter;
+    std::function<void(int, const std::pair<std::string, std::string> &)>
+        _setter;
     cocos2d::ui::ListView *_listview;
     cocos2d::ui::Button *_title;
 };
@@ -262,8 +276,10 @@ class tPreferenceItemTextSlider : public iPreferenceItemSlider {
     typedef iPreferenceItemSlider inherit;
 
 public:
-    tPreferenceItemTextSlider(float r, const std::function<std::string(float)> &f) :
-        iPreferenceItemSlider(r), _strScaleConv(f) {}
+    tPreferenceItemTextSlider(float r,
+                              const std::function<std::string(float)> &f) :
+        iPreferenceItemSlider(r),
+        _strScaleConv(f) {}
 
 protected:
     virtual void initController(const NodeMap &allNodes) override;

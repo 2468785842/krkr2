@@ -32,7 +32,9 @@ static const std::string str_long_press("long_press");
 static float convertDistanceFromPointToInch(const Vec2 &dis) {
     auto glview = cocos2d::Director::getInstance()->getOpenGLView();
     int dpi = cocos2d::Device::getDPI();
-    float distance = Vec2(dis.x * glview->getScaleX() / dpi, dis.y * glview->getScaleY() / dpi).getLength();
+    float distance = Vec2(dis.x * glview->getScaleX() / dpi,
+                          dis.y * glview->getScaleY() / dpi)
+                         .getLength();
     return distance;
 }
 
@@ -44,7 +46,8 @@ static bool IsPathExist(const std::string &path) {
     return true;
 }
 
-std::pair<std::string, std::string> TVPBaseFileSelectorForm::PathSplit(const std::string &path) {
+std::pair<std::string, std::string>
+TVPBaseFileSelectorForm::PathSplit(const std::string &path) {
     std::filesystem::path p{ path };
 
     // 获取父路径和文件名
@@ -63,20 +66,25 @@ TVPBaseFileSelectorForm::TVPBaseFileSelectorForm() : FileList(nullptr) {
     }
 }
 
-TVPBaseFileSelectorForm::~TVPBaseFileSelectorForm() { CC_SAFE_RELEASE_NULL(CellTemplateForSize); }
+TVPBaseFileSelectorForm::~TVPBaseFileSelectorForm() {
+    CC_SAFE_RELEASE_NULL(CellTemplateForSize);
+}
 
 void TVPBaseFileSelectorForm::bindHeaderController(const NodeMap &allNodes) {
     _title = dynamic_cast<Button *>(allNodes.findController("title"));
     if(_title) {
         _title->setEnabled(true);
-        _title->addClickEventListener(std::bind(&TVPBaseFileSelectorForm::onTitleClicked, this, std::placeholders::_1));
+        _title->addClickEventListener(
+            std::bind(&TVPBaseFileSelectorForm::onTitleClicked, this,
+                      std::placeholders::_1));
     }
 }
 
 void TVPBaseFileSelectorForm::bindBodyController(const NodeMap &allNodes) {
     Node *TableNode = allNodes.findController("table");
     auto size = TableNode->getContentSize();
-    CCASSERT(size.width > 0 && size.height > 0, "TableNode content size is invalid");
+    CCASSERT(size.width > 0 && size.height > 0,
+             "TableNode content size is invalid");
     FileList = TableView::create(this, TableNode->getContentSize());
     FileList->setVerticalFillOrder(TableView::VerticalFillOrder::TOP_DOWN);
     FileList->setAnchorPoint(Vec2::ZERO);
@@ -100,7 +108,8 @@ void TVPBaseFileSelectorForm::bindBodyController(const NodeMap &allNodes) {
 
     if(NaviBar.Left) {
         NaviBar.Left->addClickEventListener(
-            std::bind(&TVPBaseFileSelectorForm::onBackClicked, this, std::placeholders::_1));
+            std::bind(&TVPBaseFileSelectorForm::onBackClicked, this,
+                      std::placeholders::_1));
     }
 }
 
@@ -115,7 +124,9 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
 #if CC_PLATFORM_WIN32 == CC_TARGET_PLATFORM
         // for better screenshot
         _title->setTitleFontName("SIMHEI.ttf");
-        if(!split_path.second.empty() && (split_path.second.back() == '/' || split_path.second.back() == '\\')) {
+        if(!split_path.second.empty() &&
+           (split_path.second.back() == '/' ||
+            split_path.second.back() == '\\')) {
             split_path.second.pop_back();
         }
 #endif
@@ -126,7 +137,8 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
         if(dispSize.width > realSize.width) {
             const std::string suffix("...");
             _title->setTitleText(suffix);
-            float suffixlen = _title->getTitleRenderer()->getContentSize().width * 1.5;
+            float suffixlen =
+                _title->getTitleRenderer()->getContentSize().width * 1.5;
             float ratio = (realSize.width - suffixlen) / dispSize.width;
             ttstr path = split_path.second;
             int charCutCount = path.length() * ratio - suffix.size() + 1;
@@ -154,8 +166,9 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
             info.NameForDisplay = name;
             info.NameForCompare = name;
             info.IsDir = mask & S_IFDIR;
-            std::transform(info.NameForCompare.begin(), info.NameForCompare.end(), info.NameForCompare.begin(),
-                           [](int c) -> int {
+            std::transform(info.NameForCompare.begin(),
+                           info.NameForCompare.end(),
+                           info.NameForCompare.begin(), [](int c) -> int {
                                if(c <= 'Z' && c >= 'A')
                                    return c - ('A' - 'a');
                                return c;
@@ -200,16 +213,26 @@ void TVPBaseFileSelectorForm::onCellLongPress(int idx) {
         if(!_fileOperateMenu) {
             CSBReader reader;
             _fileOperateMenu = reader.Load("ui/FileManageMenu.csb");
-            LocaleConfigManager::GetInstance()->initText(reader.findController<Text>("title"));
-            LocaleConfigManager::GetInstance()->initText(reader.findController<Text>("titleUnselect"));
-            LocaleConfigManager::GetInstance()->initText(reader.findController<Text>("titleView", false));
-            LocaleConfigManager::GetInstance()->initText(reader.findController<Text>("titleCopy"));
-            LocaleConfigManager::GetInstance()->initText(reader.findController<Text>("titleCut"));
-            LocaleConfigManager::GetInstance()->initText(reader.findController<Text>("titlePaste"));
-            LocaleConfigManager::GetInstance()->initText(reader.findController<Text>("titleUnpack"));
-            LocaleConfigManager::GetInstance()->initText(reader.findController<Text>("titleDelete"));
-            LocaleConfigManager::GetInstance()->initText(reader.findController<Text>("titleSendTo"));
-            LocaleConfigManager::GetInstance()->initText(reader.findController<Text>("titleRename"));
+            LocaleConfigManager::GetInstance()->initText(
+                reader.findController<Text>("title"));
+            LocaleConfigManager::GetInstance()->initText(
+                reader.findController<Text>("titleUnselect"));
+            LocaleConfigManager::GetInstance()->initText(
+                reader.findController<Text>("titleView", false));
+            LocaleConfigManager::GetInstance()->initText(
+                reader.findController<Text>("titleCopy"));
+            LocaleConfigManager::GetInstance()->initText(
+                reader.findController<Text>("titleCut"));
+            LocaleConfigManager::GetInstance()->initText(
+                reader.findController<Text>("titlePaste"));
+            LocaleConfigManager::GetInstance()->initText(
+                reader.findController<Text>("titleUnpack"));
+            LocaleConfigManager::GetInstance()->initText(
+                reader.findController<Text>("titleDelete"));
+            LocaleConfigManager::GetInstance()->initText(
+                reader.findController<Text>("titleSendTo"));
+            LocaleConfigManager::GetInstance()->initText(
+                reader.findController<Text>("titleRename"));
             _fileOperateMenulist = reader.findController<ListView>("list");
             _fileOperateCell_unselect = reader.findWidget("unselect");
             _fileOperateCell_view = reader.findWidget("view", false);
@@ -224,44 +247,54 @@ void TVPBaseFileSelectorForm::onCellLongPress(int idx) {
             ;
             if((btn = reader.findWidget("btnUnselect"))) {
                 btn->addClickEventListener(
-                    std::bind(&TVPBaseFileSelectorForm::onUnselectClicked, this, std::placeholders::_1));
+                    std::bind(&TVPBaseFileSelectorForm::onUnselectClicked, this,
+                              std::placeholders::_1));
             }
             if((btn = reader.findWidget("btnView", false))) {
                 btn->addClickEventListener(
-                    std::bind(&TVPBaseFileSelectorForm::onViewClicked, this, std::placeholders::_1));
+                    std::bind(&TVPBaseFileSelectorForm::onViewClicked, this,
+                              std::placeholders::_1));
             }
             if((btn = reader.findWidget("btnCopy"))) {
                 btn->addClickEventListener(
-                    std::bind(&TVPBaseFileSelectorForm::onCopyClicked, this, std::placeholders::_1));
+                    std::bind(&TVPBaseFileSelectorForm::onCopyClicked, this,
+                              std::placeholders::_1));
             }
             if((btn = reader.findWidget("btnCut"))) {
                 btn->addClickEventListener(
-                    std::bind(&TVPBaseFileSelectorForm::onCutClicked, this, std::placeholders::_1));
+                    std::bind(&TVPBaseFileSelectorForm::onCutClicked, this,
+                              std::placeholders::_1));
             }
             if((btn = reader.findWidget("btnPaste"))) {
                 btn->addClickEventListener(
-                    std::bind(&TVPBaseFileSelectorForm::onPasteClicked, this, std::placeholders::_1));
+                    std::bind(&TVPBaseFileSelectorForm::onPasteClicked, this,
+                              std::placeholders::_1));
             }
             if((btn = reader.findWidget("btnUnpack", false))) {
                 btn->addClickEventListener(
-                    std::bind(&TVPBaseFileSelectorForm::onUnpackClicked, this, std::placeholders::_1));
+                    std::bind(&TVPBaseFileSelectorForm::onUnpackClicked, this,
+                              std::placeholders::_1));
             }
             if((btn = reader.findWidget("btnDelete"))) {
                 btn->addClickEventListener(
-                    std::bind(&TVPBaseFileSelectorForm::onDeleteClicked, this, std::placeholders::_1));
+                    std::bind(&TVPBaseFileSelectorForm::onDeleteClicked, this,
+                              std::placeholders::_1));
             }
             if((btn = reader.findWidget("btnSendTo"))) {
                 btn->addClickEventListener(
-                    std::bind(&TVPBaseFileSelectorForm::onSendToClicked, this, std::placeholders::_1));
+                    std::bind(&TVPBaseFileSelectorForm::onSendToClicked, this,
+                              std::placeholders::_1));
             }
             if((btn = reader.findWidget("btnRename"))) {
                 btn->addClickEventListener(
-                    std::bind(&TVPBaseFileSelectorForm::onBtnRenameClicked, this, std::placeholders::_1));
+                    std::bind(&TVPBaseFileSelectorForm::onBtnRenameClicked,
+                              this, std::placeholders::_1));
             }
             _fileOperateMenulist->removeAllChildrenWithCleanup(false);
             float scale = 1.5;
             _fileOperateMenu->setScale(1 / scale);
-            _fileOperateMenu->setContentSize(_fileOperateMenuNode->getContentSize() * scale);
+            _fileOperateMenu->setContentSize(
+                _fileOperateMenuNode->getContentSize() * scale);
             _fileOperateMenu->setPosition(_fileOperateMenuNode->getPosition());
             _fileOperateMenuNode->getParent()->addChild(_fileOperateMenu);
             ui::Helper::doLayout(_fileOperateMenu);
@@ -285,9 +318,10 @@ void TVPBaseFileSelectorForm::onCellLongPress(int idx) {
         localeMgr->GetText("delete").c_str(),
         localeMgr->GetText("cancel").c_str(),
     };
-    int n = TVPShowSimpleMessageBox(localeMgr->GetText("file_operate_menu_text").c_str(),
-                                    localeMgr->GetText("file_operate_menu_title").c_str(),
-                                    sizeof(btnTitles) / sizeof(btnTitles[0]), btnTitles);
+    int n = TVPShowSimpleMessageBox(
+        localeMgr->GetText("file_operate_menu_text").c_str(),
+        localeMgr->GetText("file_operate_menu_title").c_str(),
+        sizeof(btnTitles) / sizeof(btnTitles[0]), btnTitles);
     const FileInfo &info = CurrentDirList[idx];
     switch(n) {
         case 0:
@@ -300,7 +334,8 @@ void TVPBaseFileSelectorForm::onCellLongPress(int idx) {
     }
 }
 
-void TVPBaseFileSelectorForm::getShortCutDirList(std::vector<std::string> &pathlist) {
+void TVPBaseFileSelectorForm::getShortCutDirList(
+    std::vector<std::string> &pathlist) {
     std::vector<std::string> paths = TVPGetDriverPath();
     for(const std::string &path : paths) {
         pathlist.emplace_back(path);
@@ -322,11 +357,13 @@ void TVPBaseFileSelectorForm::onTitleClicked(cocos2d::Ref *owner) {
     std::vector<Button *> buttons;
     auto func = [this](cocos2d::Ref *node) {
         ListDir(dynamic_cast<Button *>(node)->getCallbackName());
-        TVPMainScene::GetInstance()->popUIForm(nullptr, TVPMainScene::eLeaveToBottom);
+        TVPMainScene::GetInstance()->popUIForm(nullptr,
+                                               TVPMainScene::eLeaveToBottom);
     };
     for(const std::string &path : paths) {
         CSBReader reader;
-        auto *cell = dynamic_cast<Widget *>(reader.Load("ui/ListItem.csb")->getChildByName("item"));
+        auto *cell = dynamic_cast<Widget *>(
+            reader.Load("ui/ListItem.csb")->getChildByName("item"));
         Button *item = dynamic_cast<Button *>(reader.findController("item"));
         item->setCallbackName(path);
         item->setTitleText(path);
@@ -350,43 +387,53 @@ void TVPBaseFileSelectorForm::onTitleClicked(cocos2d::Ref *owner) {
     }
 }
 
-void TVPBaseFileSelectorForm::onBackClicked(cocos2d::Ref *owner) { ListDir(ParentPath); }
+void TVPBaseFileSelectorForm::onBackClicked(cocos2d::Ref *owner) {
+    ListDir(ParentPath);
+}
 
 TVPBaseFileSelectorForm::FileItemCellImpl *
-TVPBaseFileSelectorForm::FetchCell(FileItemCellImpl *CellModel, cocos2d::extension::TableView *table, ssize_t idx) {
+TVPBaseFileSelectorForm::FetchCell(FileItemCellImpl *CellModel,
+                                   cocos2d::extension::TableView *table,
+                                   ssize_t idx) {
     if(!CellModel) {
-        CellModel = FileItemCellImpl::create(FileName_Cell, table->getViewSize().width);
+        CellModel =
+            FileItemCellImpl::create(FileName_Cell, table->getViewSize().width);
         CellModel->setAnchorPoint(Vec2::ZERO);
-        CellModel->setEventFunc([this](Widget::TouchEventType ev, Widget *sender, Touch *touch) {
-            Vec2 touchPoint = touch->getLocation();
-            switch(ev) {
-                case Widget::TouchEventType::BEGAN:
-                    FileList->onTouchBegan(touch, nullptr);
-                    break;
-                case Widget::TouchEventType::MOVED:
-                    FileList->onTouchMoved(touch, nullptr);
-                    if(sender->isHighlighted() &&
-                       convertDistanceFromPointToInch(sender->getTouchBeganPosition() - touchPoint) > MOVE_INCH) {
-                        sender->setHighlighted(false);
-                    }
-                    break;
+        CellModel->setEventFunc(
+            [this](Widget::TouchEventType ev, Widget *sender, Touch *touch) {
+                Vec2 touchPoint = touch->getLocation();
+                switch(ev) {
+                    case Widget::TouchEventType::BEGAN:
+                        FileList->onTouchBegan(touch, nullptr);
+                        break;
+                    case Widget::TouchEventType::MOVED:
+                        FileList->onTouchMoved(touch, nullptr);
+                        if(sender->isHighlighted() &&
+                           convertDistanceFromPointToInch(
+                               sender->getTouchBeganPosition() - touchPoint) >
+                               MOVE_INCH) {
+                            sender->setHighlighted(false);
+                        }
+                        break;
 
-                case Widget::TouchEventType::CANCELED:
-                    FileList->onTouchCancelled(touch, nullptr);
-                    break;
-                case Widget::TouchEventType::ENDED:
-                    FileList->onTouchEnded(touch, nullptr);
-                    break;
-            }
-        });
+                    case Widget::TouchEventType::CANCELED:
+                        FileList->onTouchCancelled(touch, nullptr);
+                        break;
+                    case Widget::TouchEventType::ENDED:
+                        FileList->onTouchEnded(touch, nullptr);
+                        break;
+                }
+            });
         CellModel->retain();
     }
     bool selected = _selectedFileIndex.find(idx) != _selectedFileIndex.end();
-    CellModel->setInfo(idx, CurrentDirList[idx], selected, !_selectedFileIndex.empty());
+    CellModel->setInfo(idx, CurrentDirList[idx], selected,
+                       !_selectedFileIndex.empty());
     return CellModel;
 }
 
-TableViewCell *TVPBaseFileSelectorForm::tableCellAtIndex(TableView *table, ssize_t idx) {
+TableViewCell *TVPBaseFileSelectorForm::tableCellAtIndex(TableView *table,
+                                                         ssize_t idx) {
     TableViewCell *pCell = table->dequeueCell();
     FileItemCell *cell = nullptr;
     if(pCell) {
@@ -408,7 +455,8 @@ ssize_t TVPBaseFileSelectorForm::numberOfCellsInTableView(TableView *table) {
     return CurrentDirList.empty() ? 0 : CurrentDirList.size() + 1;
 }
 
-Size TVPBaseFileSelectorForm::tableCellSizeForIndex(TableView *table, ssize_t idx) {
+Size TVPBaseFileSelectorForm::tableCellSizeForIndex(TableView *table,
+                                                    ssize_t idx) {
     if((size_t)idx >= CurrentDirList.size()) {
         return Size(table->getContentSize().width, 200);
     }
@@ -417,7 +465,8 @@ Size TVPBaseFileSelectorForm::tableCellSizeForIndex(TableView *table, ssize_t id
         if(!CellTemplateForSize) {
             CellTemplateForSize = FetchCell(nullptr, table, idx);
         } else {
-            CellTemplateForSize->setInfo(idx, CurrentDirList[idx], false, false);
+            CellTemplateForSize->setInfo(idx, CurrentDirList[idx], false,
+                                         false);
         }
         info.CellSize = CellTemplateForSize->getContentSize();
     }
@@ -430,7 +479,9 @@ void TVPBaseFileSelectorForm::rearrangeLayout() {
         FileList->setViewSize(FileList->getParent()->getContentSize());
 }
 
-void TVPBaseFileSelectorForm::onUnselectClicked(cocos2d::Ref *owner) { clearFileMenu(); }
+void TVPBaseFileSelectorForm::onUnselectClicked(cocos2d::Ref *owner) {
+    clearFileMenu();
+}
 
 void TVPBaseFileSelectorForm::onViewClicked(cocos2d::Ref *owner) {}
 
@@ -458,13 +509,16 @@ void TVPBaseFileSelectorForm::onPasteClicked(cocos2d::Ref *owner) {
         std::string target = CurrentPath + "/" + split_path.second;
         if(IsPathExist(target)) {
             LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();
-            if(TVPShowSimpleMessageBoxYesNo(target, localeMgr->GetText("ensure_to_override_file")) != 0) {
+            if(TVPShowSimpleMessageBoxYesNo(
+                   target, localeMgr->GetText("ensure_to_override_file")) !=
+               0) {
                 continue;
             }
         }
         if(!func(path, target)) {
             LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();
-            TVPShowSimpleMessageBox(target, localeMgr->GetText("file_operate_failed"));
+            TVPShowSimpleMessageBox(target,
+                                    localeMgr->GetText("file_operate_failed"));
             break;
         }
     }
@@ -492,9 +546,12 @@ void TVPBaseFileSelectorForm::onUnpackClicked(cocos2d::Ref *owner) {
             ArcPath = path;
             ArcUnpacker.SetCallback(
                 std::bind(&UnpackArchive::OnEnded, this),
-                std::bind(&UnpackArchive::OnError, this, std::placeholders::_1, std::placeholders::_2),
-                std::bind(&UnpackArchive::OnProgress, this, std::placeholders::_1, std::placeholders::_2),
-                std::bind(&UnpackArchive::OnNewFile, this, std::placeholders::_1, std::placeholders::_2,
+                std::bind(&UnpackArchive::OnError, this, std::placeholders::_1,
+                          std::placeholders::_2),
+                std::bind(&UnpackArchive::OnProgress, this,
+                          std::placeholders::_1, std::placeholders::_2),
+                std::bind(&UnpackArchive::OnNewFile, this,
+                          std::placeholders::_1, std::placeholders::_2,
                           std::placeholders::_3),
                 std::bind(&UnpackArchive::OnPassword, this));
             if(ArcUnpacker.Prepare(path, outpath, &TotalSize) <= 0) {
@@ -502,9 +559,13 @@ void TVPBaseFileSelectorForm::onUnpackClicked(cocos2d::Ref *owner) {
             }
             if(TotalSize > 1024 * 1024) {
                 ProgressForm = TVPSimpleProgressForm::create();
-                TVPMainScene::GetInstance()->pushUIForm(ProgressForm, TVPMainScene::eEnterAniNone);
-                std::vector<std::pair<std::string, std::function<void(cocos2d::Ref *)>>> vecButtons;
-                vecButtons.emplace_back("Stop", [this](Ref *) { ArcUnpacker.Stop(); });
+                TVPMainScene::GetInstance()->pushUIForm(
+                    ProgressForm, TVPMainScene::eEnterAniNone);
+                std::vector<
+                    std::pair<std::string, std::function<void(cocos2d::Ref *)>>>
+                    vecButtons;
+                vecButtons.emplace_back("Stop",
+                                        [this](Ref *) { ArcUnpacker.Stop(); });
                 ProgressForm->initButtons(vecButtons);
                 ProgressForm->setTitle("Unpacking...");
                 ProgressForm->setPercentOnly(0);
@@ -518,7 +579,8 @@ void TVPBaseFileSelectorForm::onUnpackClicked(cocos2d::Ref *owner) {
 
         virtual ~UnpackArchive() {
             if(ProgressForm) {
-                TVPMainScene::GetInstance()->popUIForm(ProgressForm, TVPMainScene::eLeaveAniNone);
+                TVPMainScene::GetInstance()->popUIForm(
+                    ProgressForm, TVPMainScene::eLeaveAniNone);
                 ProgressForm = nullptr;
             }
         }
@@ -530,21 +592,26 @@ void TVPBaseFileSelectorForm::onUnpackClicked(cocos2d::Ref *owner) {
 
     private:
         void OnEnded() {
-            Director::getInstance()->getScheduler()->performFunctionInCocosThread([this] {
-                if(FuncOnEnded)
-                    FuncOnEnded();
-                delete this;
-            });
+            Director::getInstance()
+                ->getScheduler()
+                ->performFunctionInCocosThread([this] {
+                    if(FuncOnEnded)
+                        FuncOnEnded();
+                    delete this;
+                });
         }
 
         void OnError(int err, const char *msg) {
-            Director::getInstance()->getScheduler()->performFunctionInCocosThread([this, err, msg] {
-                char buf[64];
-                sprintf(buf, "Error %d\n", err);
-                ttstr strmsg(buf);
-                strmsg += msg;
-                TVPShowSimpleMessageBox(strmsg, TJS_W("Fail to unpack archive"));
-            });
+            Director::getInstance()
+                ->getScheduler()
+                ->performFunctionInCocosThread([this, err, msg] {
+                    char buf[64];
+                    sprintf(buf, "Error %d\n", err);
+                    ttstr strmsg(buf);
+                    strmsg += msg;
+                    TVPShowSimpleMessageBox(strmsg,
+                                            TJS_W("Fail to unpack archive"));
+                });
         }
 
         void OnProgress(tjs_uint64 total_size, tjs_uint64 file_size) {
@@ -555,22 +622,26 @@ void TVPBaseFileSelectorForm::onUnpackClicked(cocos2d::Ref *owner) {
                 return;
             }
             LastUpdate = tick;
-            Director::getInstance()->getScheduler()->performFunctionInCocosThread([this, total_size, file_size] {
-                ProgressForm->setPercentOnly((float)total_size / TotalSize);
-                ProgressForm->setPercentOnly2((float)file_size / CurrentFileSize);
-                char buf[64];
-                int sizeMB = static_cast<int>(total_size / (1024 * 1024)),
-                    totalMB = static_cast<int>(TotalSize / (1024 * 1024));
-                sprintf(buf, "%d / %dMB", sizeMB, totalMB);
-                ProgressForm->setPercentText(buf);
-                sizeMB = static_cast<int>(file_size / (1024 * 1024));
-                totalMB = static_cast<int>(CurrentFileSize / (1024 * 1024));
-                sprintf(buf, "%d / %dMB", sizeMB, totalMB);
-                ProgressForm->setPercentText2(buf);
-            });
+            Director::getInstance()
+                ->getScheduler()
+                ->performFunctionInCocosThread([this, total_size, file_size] {
+                    ProgressForm->setPercentOnly((float)total_size / TotalSize);
+                    ProgressForm->setPercentOnly2((float)file_size /
+                                                  CurrentFileSize);
+                    char buf[64];
+                    int sizeMB = static_cast<int>(total_size / (1024 * 1024)),
+                        totalMB = static_cast<int>(TotalSize / (1024 * 1024));
+                    sprintf(buf, "%d / %dMB", sizeMB, totalMB);
+                    ProgressForm->setPercentText(buf);
+                    sizeMB = static_cast<int>(file_size / (1024 * 1024));
+                    totalMB = static_cast<int>(CurrentFileSize / (1024 * 1024));
+                    sprintf(buf, "%d / %dMB", sizeMB, totalMB);
+                    ProgressForm->setPercentText2(buf);
+                });
         }
 
-        void OnNewFile(int idx, const std::string &utf8name, tjs_uint64 file_size) {
+        void OnNewFile(int idx, const std::string &utf8name,
+                       tjs_uint64 file_size) {
             if(!ProgressForm)
                 return;
             tjs_uint32 tick = TVPGetRoughTickCount32();
@@ -580,8 +651,10 @@ void TVPBaseFileSelectorForm::onUnpackClicked(cocos2d::Ref *owner) {
             LastUpdate = tick;
             CurrentFileSize = file_size;
             std::string filename(utf8name);
-            Director::getInstance()->getScheduler()->performFunctionInCocosThread(
-                [this, filename] { ProgressForm->setContent(filename); });
+            Director::getInstance()
+                ->getScheduler()
+                ->performFunctionInCocosThread(
+                    [this, filename] { ProgressForm->setContent(filename); });
         }
 
         bool _onPassword() {
@@ -590,7 +663,9 @@ void TVPBaseFileSelectorForm::onUnpackClicked(cocos2d::Ref *owner) {
             btns.emplace_back(localeMgr->GetText("ok"));
             btns.emplace_back(localeMgr->GetText("cancel"));
             ttstr text(ArcPath);
-            if(TVPShowSimpleInputBox(text, localeMgr->GetText("please_input_password"), "", btns) == 0) {
+            if(TVPShowSimpleInputBox(
+                   text, localeMgr->GetText("please_input_password"), "",
+                   btns) == 0) {
                 PasswordBuffer = text.AsStdString();
                 return true;
             } else {
@@ -607,10 +682,12 @@ void TVPBaseFileSelectorForm::onUnpackClicked(cocos2d::Ref *owner) {
                 std::mutex mtx;
                 std::condition_variable cond;
                 std::unique_lock<std::mutex> lk(mtx);
-                Director::getInstance()->getScheduler()->performFunctionInCocosThread([&]() {
-                    _onPassword();
-                    cond.notify_all();
-                });
+                Director::getInstance()
+                    ->getScheduler()
+                    ->performFunctionInCocosThread([&]() {
+                        _onPassword();
+                        cond.notify_all();
+                    });
                 cond.wait(lk);
             }
             return PasswordBuffer;
@@ -633,7 +710,8 @@ void TVPBaseFileSelectorForm::onUnpackClicked(cocos2d::Ref *owner) {
     tTVPArchive *arc = TVPOpenArchive(info.FullPath, false);
     if(!arc) {
         LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();
-        TVPShowSimpleMessageBox(info.FullPath, localeMgr->GetText("fail_to_open_archive"));
+        TVPShowSimpleMessageBox(info.FullPath,
+                                localeMgr->GetText("fail_to_open_archive"));
         return;
     }
 
@@ -663,11 +741,13 @@ void TVPBaseFileSelectorForm::onDeleteClicked(cocos2d::Ref *owner) {
         snprintf(tmp, 64, content.c_str(), _selectedFileIndex.size());
         content = tmp;
     }
-    if(TVPShowSimpleMessageBoxYesNo(content, localeMgr->GetText("ensure_to_delete_file")) == 0) {
+    if(TVPShowSimpleMessageBoxYesNo(
+           content, localeMgr->GetText("ensure_to_delete_file")) == 0) {
         for(int idx : _selectedFileIndex) {
             TVPDeleteFile(CurrentDirList[idx].FullPath);
         }
-        scheduleOnce([this](float) { ListDir(CurrentPath); }, 0, "refresh_path");
+        scheduleOnce([this](float) { ListDir(CurrentPath); }, 0,
+                     "refresh_path");
     }
 }
 
@@ -701,7 +781,8 @@ void TVPBaseFileSelectorForm::onBtnRenameClicked(cocos2d::Ref *owner) {
 
 void TVPBaseFileSelectorForm::updateFileMenu() {
     ReloadTableViewAndKeepPos(FileList);
-    if(_selectedFileIndex.empty() && _clipboardForFileManager.empty()) { // close menu
+    if(_selectedFileIndex.empty() &&
+       _clipboardForFileManager.empty()) { // close menu
         if(_fileOperateMenu->isVisible()) {
             _fileOperateMenu->setVisible(false);
             //	_fileOperateMenu->setAnchorPoint(Vec2(0, 0));
@@ -715,7 +796,8 @@ void TVPBaseFileSelectorForm::updateFileMenu() {
     }
     if(_selectedFileIndex.size() == 1) {
         if(_fileOperateCell_view)
-            _fileOperateMenulist->pushBackCustomItem(_fileOperateCell_view.get());
+            _fileOperateMenulist->pushBackCustomItem(
+                _fileOperateCell_view.get());
         _fileOperateMenulist->pushBackCustomItem(_fileOperateCell_unpack.get());
         _fileOperateMenulist->pushBackCustomItem(_fileOperateCell_rename.get());
 #if CC_PLATFORM_IOS == CC_TARGET_PLATFORM // TODO implement other platform
@@ -753,22 +835,26 @@ bool TVPBaseFileSelectorForm::FileInfo::operator<(const FileInfo &rhs) const {
     return NameForCompare < rhs.NameForCompare;
 }
 
-TVPListForm *TVPListForm::create(const std::vector<cocos2d::ui::Widget *> &cells) {
+TVPListForm *
+TVPListForm::create(const std::vector<cocos2d::ui::Widget *> &cells) {
     TVPListForm *ret = new TVPListForm;
     ret->initFromInfo(cells);
     ret->autorelease();
     return ret;
 }
 
-void TVPListForm::initFromInfo(const std::vector<cocos2d::ui::Widget *> &cells) {
+void TVPListForm::initFromInfo(
+    const std::vector<cocos2d::ui::Widget *> &cells) {
     init();
     float scale = TVPMainScene::GetInstance()->getUIScale();
-    cocos2d::Size sceneSize = TVPMainScene::GetInstance()->getUINodeSize() / scale;
+    cocos2d::Size sceneSize =
+        TVPMainScene::GetInstance()->getUINodeSize() / scale;
     setScale(scale);
     setContentSize(sceneSize);
     CSBReader reader;
     _root = reader.Load("ui/ListView.csb");
-    ListView *listview = dynamic_cast<ListView *>(reader.findController("list"));
+    ListView *listview =
+        dynamic_cast<ListView *>(reader.findController("list"));
     float height = 10;
     for(Widget *cell : cells) {
         height += cell->getContentSize().height;
@@ -800,15 +886,18 @@ void TVPListForm::initFromInfo(const std::vector<cocos2d::ui::Widget *> &cells) 
 
 void TVPListForm::show() {
     TVPMainScene::setMaskLayTouchBegain(
-        std::bind(&TVPListForm::onMaskTouchBegan, this, std::placeholders::_1, std::placeholders::_2));
-    TVPMainScene::GetInstance()->pushUIForm(this, TVPMainScene::eEnterFromBottom);
+        std::bind(&TVPListForm::onMaskTouchBegan, this, std::placeholders::_1,
+                  std::placeholders::_2));
+    TVPMainScene::GetInstance()->pushUIForm(this,
+                                            TVPMainScene::eEnterFromBottom);
 }
 
 bool TVPListForm::onMaskTouchBegan(cocos2d::Touch *t, cocos2d::Event *) {
     Rect rc;
     rc.size = getContentSize();
     if(rc.containsPoint(convertTouchToNodeSpace(t))) {
-        TVPMainScene::GetInstance()->popUIForm(this, TVPMainScene::eLeaveToBottom);
+        TVPMainScene::GetInstance()->popUIForm(this,
+                                               TVPMainScene::eLeaveToBottom);
         return true;
     }
     return false;
@@ -823,15 +912,17 @@ int TVPDrawSceneOnce(int interval);
 
 void TVPProcessInputEvents();
 
-std::string TVPShowFileSelector(const std::string &title, const std::string &initfilename, std::string initdir,
-                                bool issave) {
+std::string TVPShowFileSelector(const std::string &title,
+                                const std::string &initfilename,
+                                std::string initdir, bool issave) {
     if(initdir.empty()) {
         ttstr dir = TVPGetAppPath();
         TVPGetLocalName(dir);
         initdir = dir.AsStdString();
     }
     std::string _fileSelectorResult;
-    TVPFileSelectorForm *_fileSelector = TVPFileSelectorForm::create(initfilename, initdir, issave);
+    TVPFileSelectorForm *_fileSelector =
+        TVPFileSelectorForm::create(initfilename, initdir, issave);
     _fileSelector->setOnClose([&](const std::string &result) {
         _fileSelectorResult = result;
         _fileSelector = nullptr;
@@ -852,15 +943,18 @@ const char *const FileName_NaviBar = "ui/NaviBar.csb";
 const char *const FileName_Body = "ui/TableView.csb";
 const char *const FileName_BottomBar = "ui/BottomBarTextInput.csb";
 
-TVPFileSelectorForm *TVPFileSelectorForm::create(const std::string &initfilename, const std::string &initdir,
-                                                 bool issave) {
+TVPFileSelectorForm *
+TVPFileSelectorForm::create(const std::string &initfilename,
+                            const std::string &initdir, bool issave) {
     TVPFileSelectorForm *ret = new TVPFileSelectorForm;
     ret->autorelease();
     ret->initFromPath(initfilename, initdir, issave);
     return ret;
 }
 
-void TVPFileSelectorForm::initFromPath(const std::string &initfilename, const std::string &initdir, bool issave) {
+void TVPFileSelectorForm::initFromPath(const std::string &initfilename,
+                                       const std::string &initdir,
+                                       bool issave) {
     _isSaveMode = issave;
     initFromFile(FileName_NaviBar, FileName_Body, FileName_BottomBar);
     _input->setString(initfilename);
@@ -882,13 +976,15 @@ void TVPFileSelectorForm::bindFooterController(const NodeMap &allNodes) {
             bool fileExist = FileUtils::getInstance()->isFileExist(_result);
             if(_isSaveMode) {
                 if(fileExist) {
-                    LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();
-                    TVPMessageBoxForm::showYesNo(localeMgr->GetText("ensure_to_override_file"), _result,
-                                                 [this](int result) {
-                                                     if(result == 0) { // yes
-                                                         close();
-                                                     }
-                                                 });
+                    LocaleConfigManager *localeMgr =
+                        LocaleConfigManager::GetInstance();
+                    TVPMessageBoxForm::showYesNo(
+                        localeMgr->GetText("ensure_to_override_file"), _result,
+                        [this](int result) {
+                            if(result == 0) { // yes
+                                close();
+                            }
+                        });
                 } else {
                     close();
                 }
@@ -920,7 +1016,8 @@ void TVPFileSelectorForm::close() {
     TVPMainScene::GetInstance()->popUIForm(this);
 }
 
-void TVPBaseFileSelectorForm::FileItemCellImpl::initFromFile(const char *filename, float width) {
+void TVPBaseFileSelectorForm::FileItemCellImpl::initFromFile(
+    const char *filename, float width) {
     CSBReader reader;
     _root = reader.Load(filename);
     addChild(_root);
@@ -934,7 +1031,8 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::initFromFile(const char *filenam
     FileNameNode = static_cast<Text *>(reader.findController(str_filename));
     if(DirIcon && FileNameNode) {
         CellTextAreaSize = DirIcon->getContentSize();
-        CellTextAreaSize.width = OrigCellModelSize.width - CellTextAreaSize.width;
+        CellTextAreaSize.width =
+            OrigCellModelSize.width - CellTextAreaSize.width;
         CellTextAreaSize.height = 0;
         OrigCellTextSize = FileNameNode->getContentSize();
 #if CC_PLATFORM_WIN32 == CC_TARGET_PLATFORM
@@ -942,45 +1040,52 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::initFromFile(const char *filenam
 #endif
     }
     static const std::string str_highlight("highlight");
-    Widget *HighLight = static_cast<Widget *>(reader.findController(str_highlight));
+    Widget *HighLight =
+        static_cast<Widget *>(reader.findController(str_highlight));
     if(HighLight) {
-        HighLight->addClickEventListener(std::bind(&FileItemCellImpl::onClicked, this, std::placeholders::_1));
-        HighLight->addTouchEventListener([this](Ref *p, Widget::TouchEventType ev) {
-            Widget *sender = static_cast<Widget *>(p);
-            switch(ev) {
-                case Widget::TouchEventType::BEGAN:
-                    sender->scheduleOnce(
-                        [this, sender](float) {
-                            if(sender->isHighlighted()) {
-                                sender->scheduleOnce(
-                                    [this, sender](float) {
-                                        _owner->onLongPress();
-                                        sender->setHighlighted(false);
-                                        //	sender->interceptTouchEvent(TouchEventType::CANCELED,
-                                        // sender, touch);
-                                    },
-                                    0, "delay_call");
-                            }
-                        },
-                        1.0f, str_long_press);
-                    break;
-                case Widget::TouchEventType::CANCELED:
-                    sender->unschedule(str_long_press);
-                    break;
-            }
-        });
+        HighLight->addClickEventListener(std::bind(
+            &FileItemCellImpl::onClicked, this, std::placeholders::_1));
+        HighLight->addTouchEventListener(
+            [this](Ref *p, Widget::TouchEventType ev) {
+                Widget *sender = static_cast<Widget *>(p);
+                switch(ev) {
+                    case Widget::TouchEventType::BEGAN:
+                        sender->scheduleOnce(
+                            [this, sender](float) {
+                                if(sender->isHighlighted()) {
+                                    sender->scheduleOnce(
+                                        [this, sender](float) {
+                                            _owner->onLongPress();
+                                            sender->setHighlighted(false);
+                                            //	sender->interceptTouchEvent(TouchEventType::CANCELED,
+                                            // sender, touch);
+                                        },
+                                        0, "delay_call");
+                                }
+                            },
+                            1.0f, str_long_press);
+                        break;
+                    case Widget::TouchEventType::CANCELED:
+                        sender->unschedule(str_long_press);
+                        break;
+                }
+            });
     }
     BgOdd = reader.findController("bg_odd", false);
     BgEven = reader.findController("bg_even", false);
 }
 
-void TVPBaseFileSelectorForm::FileItemCellImpl::setInfo(int idx, const FileInfo &info, bool selected, bool showSelect) {
+void TVPBaseFileSelectorForm::FileItemCellImpl::setInfo(int idx,
+                                                        const FileInfo &info,
+                                                        bool selected,
+                                                        bool showSelect) {
     if(FileNameNode) {
         FileNameNode->ignoreContentAdaptWithSize(true);
         FileNameNode->setTextAreaSize(CellTextAreaSize);
         FileNameNode->setString(info.NameForDisplay);
         Size size(OrigCellModelSize);
-        size.height += FileNameNode->getContentSize().height - OrigCellTextSize.height;
+        size.height +=
+            FileNameNode->getContentSize().height - OrigCellTextSize.height;
         _root->setContentSize(size);
         setContentSize(size);
         FileNameNode->ignoreContentAdaptWithSize(false);

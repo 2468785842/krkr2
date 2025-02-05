@@ -15,11 +15,11 @@
 #include <mutex>
 
 /*
-        Global String Map is a large string hash table, to share the string
-        which is already 'known' by the hash table, using TJS2 string heap
-        management mechanism. This will dramatically decrease string heap
-        size which is used for constant strings (member names, string literals,
-        etc ...).
+        Global String Map is a large string hash table, to share the
+   string which is already 'known' by the hash table, using TJS2
+   string heap management mechanism. This will dramatically decrease
+   string heap size which is used for constant strings (member names,
+   string literals, etc ...).
 */
 
 #define TJS_GLOBAL_STRING_MAP_SIZE 5000
@@ -35,7 +35,8 @@ namespace TJS {
     struct tTJSEmptyClass {};
 
     class tTJSGlobalStringMap {
-        tTJSHashCache<tTJSString, tTJSEmptyClass, tTJSHashFunc<ttstr>, 1024> Hash;
+        tTJSHashCache<tTJSString, tTJSEmptyClass, tTJSHashFunc<ttstr>, 1024>
+            Hash;
 
         tjs_int RefCount;
 

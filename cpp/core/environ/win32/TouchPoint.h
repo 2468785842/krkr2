@@ -9,8 +9,10 @@ class TouchHandler {
 public:
     static const int START_EVENT = 0x01 << 0;
 
-    virtual void OnTouchScaling(double startdist, double currentdist, double cx, double cy, int flag) = 0;
-    virtual void OnTouchRotate(double startangle, double currentangle, double distance, double cx, double cy,
+    virtual void OnTouchScaling(double startdist, double currentdist, double cx,
+                                double cy, int flag) = 0;
+    virtual void OnTouchRotate(double startangle, double currentangle,
+                               double distance, double cx, double cy,
                                int flag) = 0;
     virtual void OnMultiTouch() = 0;
 };
@@ -54,7 +56,8 @@ private:
     }
     int FindEntry(tjs_uint32 id) {
         for(int i = 0; i < count_; i++) {
-            if((touch_points_[i].flag & TouchPoint::USE_POINT) && (touch_points_[i].id == id)) {
+            if((touch_points_[i].flag & TouchPoint::USE_POINT) &&
+               (touch_points_[i].id == id)) {
                 return i;
             }
         }
@@ -62,13 +65,16 @@ private:
     }
     int FindOtherEntry(tjs_uint32 id) {
         for(int i = 0; i < count_; i++) {
-            if((touch_points_[i].flag & TouchPoint::USE_POINT) && (touch_points_[i].id != id)) {
+            if((touch_points_[i].flag & TouchPoint::USE_POINT) &&
+               (touch_points_[i].id != id)) {
                 return i;
             }
         }
         return -1;
     }
-    void ClearIndex(int index) { memset(&touch_points_[index], 0, sizeof(TouchPoint)); }
+    void ClearIndex(int index) {
+        memset(&touch_points_[index], 0, sizeof(TouchPoint));
+    }
     void GrowPoints() {
         int count = count_ * 2;
         TouchPoint *points = new TouchPoint[count];
@@ -93,7 +99,8 @@ public:
         touch_points_ = nullptr;
     }
 
-    void TouchDown(double x, double y, double cx, double cy, tjs_uint32 id, tjs_uint32 tick) {
+    void TouchDown(double x, double y, double cx, double cy, tjs_uint32 id,
+                   tjs_uint32 tick) {
         int idx = FindEmptyEntry();
         touch_points_[idx].sx = touch_points_[idx].x = x;
         touch_points_[idx].sy = touch_points_[idx].y = y;
@@ -105,7 +112,8 @@ public:
             handler_->OnMultiTouch();
         }
     }
-    void TouchMove(double x, double y, double cx, double cy, tjs_uint32 id, tjs_uint32 tick) {
+    void TouchMove(double x, double y, double cx, double cy, tjs_uint32 id,
+                   tjs_uint32 tick) {
         int num_of_points = CountUsePoint();
         // 2点タッチのみ反応
         if(num_of_points == 2) {
@@ -127,12 +135,16 @@ public:
                 double cy = (target.y + y) * 0.5;
 
                 double distance = std::abs(currentdistance - startdistance);
-                bool scale_started = (self.flag & TouchPoint::START_SCALING) != 0;
+                bool scale_started =
+                    (self.flag & TouchPoint::START_SCALING) != 0;
                 if(scale_started || (distance > scale_threshold_)) {
                     if((target.flag & TouchPoint::START_SCALING) == 0) {
-                        int flag = (scale_started == false) ? TouchHandler::START_EVENT : 0;
+                        int flag = (scale_started == false)
+                            ? TouchHandler::START_EVENT
+                            : 0;
                         self.flag |= TouchPoint::START_SCALING;
-                        handler_->OnTouchScaling(startdistance, currentdistance, cx, cy, flag);
+                        handler_->OnTouchScaling(startdistance, currentdistance,
+                                                 cx, cy, flag);
                     }
                 }
                 dx = self.sx - x;
@@ -144,9 +156,12 @@ public:
                 bool rotate_started = (self.flag & TouchPoint::START_ROT) != 0;
                 if(rotate_started || (dist > rotate_threshold_)) {
                     if((target.flag & TouchPoint::START_ROT) == 0) {
-                        int flag = (rotate_started == false) ? TouchHandler::START_EVENT : 0;
+                        int flag = (rotate_started == false)
+                            ? TouchHandler::START_EVENT
+                            : 0;
                         self.flag |= TouchPoint::START_ROT;
-                        handler_->OnTouchRotate(startangle, curentangle, currentdistance, cx, cy, flag);
+                        handler_->OnTouchRotate(startangle, curentangle,
+                                                currentdistance, cx, cy, flag);
                     }
                 }
             }
@@ -162,7 +177,8 @@ public:
             handler_->OnMultiTouch();
         }
     }
-    void TouchUp(double x, double y, double cx, double cy, tjs_uint32 id, tjs_uint32 tick) {
+    void TouchUp(double x, double y, double cx, double cy, tjs_uint32 id,
+                 tjs_uint32 tick) {
         int num_of_points = CountUsePoint();
         if(num_of_points >= 2) {
             handler_->OnMultiTouch();

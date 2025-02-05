@@ -42,9 +42,9 @@ public:
     float GetVideoDAR();
     //	virtual EINTERLACEMETHOD GetFallbackDeintMethod();
     //	virtual void SetSwDeinterlacingMethods();
-    //	void UpdateDeinterlacingMethods(std::list<EINTERLACEMETHOD> &methods);
-    //	bool Supports(EINTERLACEMETHOD method);
-    //	void SetDeinterlacingMethodDefault(EINTERLACEMETHOD method);
+    //	void UpdateDeinterlacingMethods(std::list<EINTERLACEMETHOD>
+    //&methods); 	bool Supports(EINTERLACEMETHOD method); 	void
+    // SetDeinterlacingMethodDefault(EINTERLACEMETHOD method);
     //	EINTERLACEMETHOD GetDeinterlacingMethodDefault();
 
     // player audio info

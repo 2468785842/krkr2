@@ -38,7 +38,8 @@ struct tTVPTimerImpl {
     void FireNext();
 };
 
-static tTVPTimerImpl _timer_v1[256], _timer_v2[64], _timer_v3[64], _timer_v4[64], _timer_v5[64];
+static tTVPTimerImpl _timer_v1[256], _timer_v2[64], _timer_v3[64],
+    _timer_v4[64], _timer_v5[64];
 
 static struct t_timer_idx {
     union {
@@ -157,7 +158,8 @@ void TVPTimer::ProgressAllTimer() {
                 tTVPTimerImpl *next = p->Next;
                 p->Next = nullptr;
                 int idx = p->Index >> (8 + 6 + 6);
-                p->Index &= 255 | (63 << 8) | (63 << (8 + 6)) | (63 << (8 + 6 + 6));
+                p->Index &=
+                    255 | (63 << 8) | (63 << (8 + 6)) | (63 << (8 + 6 + 6));
                 _timer_v4[idx].Add(p);
                 p = next;
             }

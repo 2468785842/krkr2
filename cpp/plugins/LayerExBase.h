@@ -38,7 +38,8 @@ public:
      * @param layerobj レイヤオブジェクト
      * @return ネイティブオブジェクト
      */
-    static NI_LayerExBase *getNative(iTJSDispatch2 *objthis, bool create = true);
+    static NI_LayerExBase *getNative(iTJSDispatch2 *objthis,
+                                     bool create = true);
 
     /**
      * 再描画要請

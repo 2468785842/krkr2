@@ -22,8 +22,9 @@
 #include <assert.h>
 #include <math.h>
 /*
-        PassThroughDrawDevice クラスには、Window.PassThroughDrawDevice として
-        アクセスできる。通常、Window クラスを生成すると、その drawDevice プロパ
+        PassThroughDrawDevice クラスには、Window.PassThroughDrawDevice
+   として アクセスできる。通常、Window クラスを生成すると、その
+   drawDevice プロパ
         ティには自動的にこのクラスのインスタンスが設定されるので、(ほかのDrawDevice
         を使わない限りは) 特に意識する必要はない。
 
@@ -32,24 +33,25 @@
         recreate()
                 Drawer (内部で使用している描画方式)
    を切り替える。preferredDrawer プロパティ が dtNone
-   以外であればそれに従うが、必ず指定された drawer が使用される保証はない。
+   以外であればそれに従うが、必ず指定された drawer
+   が使用される保証はない。
 
         preferredDrawer
-                使用したい drawer を表すプロパティ。以下のいずれかの値をとる。
+                使用したい drawer
+   を表すプロパティ。以下のいずれかの値をとる。
                 値を設定することも可能。new 直後の値は
    コマンドラインオプションの dbstyle で 設定した値になる。
                 drawerがこの値になる保証はない (たとえば dtDBD3D
-   を指定していても何らかの 原因で Direct3D の初期化に失敗した場合は DirectDraw
-   が使用される可能性がある)。
+   を指定していても何らかの 原因で Direct3D の初期化に失敗した場合は
+   DirectDraw が使用される可能性がある)。
                 ウィンドウ作成直後、最初にプライマリレイヤを作成するよりも前にこのプロパティを
-                設定する事により、recreate() をわざわざ実行しなくても指定の
-   drawer を使用 させることができる。 Window.PassThroughDrawDevice.dtNone
-   指定しない Window.PassThroughDrawDevice.dtDrawDib
-   拡大縮小が必要な場合はGDI、 そうでなければDBなし
-                Window.PassThroughDrawDevice.dtDBGDI		GDIによるDB
-                Window.PassThroughDrawDevice.dtDBDD
-   DirectDrawによるDB Window.PassThroughDrawDevice.dtDBD3D
-   Direct3DによるDB
+                設定する事により、recreate()
+   をわざわざ実行しなくても指定の drawer を使用 させることができる。
+   Window.PassThroughDrawDevice.dtNone 指定しない
+   Window.PassThroughDrawDevice.dtDrawDib 拡大縮小が必要な場合はGDI、
+   そうでなければDBなし Window.PassThroughDrawDevice.dtDBGDI
+   GDIによるDB Window.PassThroughDrawDevice.dtDBDD DirectDrawによるDB
+   Window.PassThroughDrawDevice.dtDBD3D Direct3DによるDB
 
         drawer
                 現在使用されている drawer
@@ -67,7 +69,8 @@
 //---------------------------------------------------------------------------
 static tjs_int TVPPassThroughOptionsGeneration = 0;
 static bool TVPZoomInterpolation = true;
-static tTVPPassThroughDrawDevice::tDrawerType TVPPreferredDrawType = tTVPPassThroughDrawDevice::dtNone;
+static tTVPPassThroughDrawDevice::tDrawerType TVPPreferredDrawType =
+    tTVPPassThroughDrawDevice::dtNone;
 //---------------------------------------------------------------------------
 static void TVPInitPassThroughOptions() {
     if(TVPPassThroughOptionsGeneration == TVPGetCommandLineArgumentGeneration())
@@ -128,7 +131,8 @@ public:
         w = SrcWidth;
         h = SrcHeight;
     }
-    virtual bool SetDestSizeAndNotifyLayerResize(tjs_int width, tjs_int height, tjs_int w, tjs_int h) {
+    virtual bool SetDestSizeAndNotifyLayerResize(tjs_int width, tjs_int height,
+                                                 tjs_int w, tjs_int h) {
         if(!SetDestSize(width, height))
             return false;
         if(!NotifyLayerResize(w, h))
@@ -156,7 +160,8 @@ public:
 
 class tTVPDrawer_Software : public tTVPDrawer {
 public:
-    tTVPDrawer_Software(tTVPPassThroughDrawDevice *device) : tTVPDrawer(device) {}
+    tTVPDrawer_Software(tTVPPassThroughDrawDevice *device) :
+        tTVPDrawer(device) {}
 
     virtual ttstr GetName() { return TJS_W("Software rendering"); }
 
@@ -171,9 +176,11 @@ public:
         if(!_bmp)
             return;
 
-        tTVPRect rcdst(DestLeft, DestTop, DestLeft + DestWidth, DestTop + DestHeight);
+        tTVPRect rcdst(DestLeft, DestTop, DestLeft + DestWidth,
+                       DestTop + DestHeight);
         tTVPRect rcsrc(0, 0, SrcWidth, SrcHeight);
-        // TVPGetRenderManager()->DrawScreen(rcdst, _bmp->GetTexture(), rcsrc);
+        // TVPGetRenderManager()->DrawScreen(rcdst,
+        // _bmp->GetTexture(), rcsrc);
         //        SDL_DestroyTexture(texture);
         //        SDL_FreeSurface(surface);
     }
@@ -234,18 +241,22 @@ void tTVPPassThroughDrawDevice::CreateDrawer(tDrawerType type) {
 
         if(Drawer) {
             if(!Drawer->SetDestPos(DestRect.left, DestRect.top)) {
-                TVPAddImportantLog(TJS_W("Passthrough: Failed to set destination "
-                                         "position to draw device drawer"));
+                TVPAddImportantLog(
+                    TJS_W("Passthrough: Failed to set destination "
+                          "position to draw device drawer"));
                 delete Drawer, Drawer = nullptr;
             }
         }
 
         if(Drawer) {
             GetSrcSize(SrcWidth, SrcHeight);
-            if(!Drawer->SetDestSizeAndNotifyLayerResize(DestRect.get_width(), DestRect.get_height(), SrcWidth,
-                                                        SrcHeight)) {
-                TVPAddImportantLog(TJS_W("Passthrough: Failed to set destination size and source "
-                                         "layer size to draw device drawer"));
+            if(!Drawer->SetDestSizeAndNotifyLayerResize(DestRect.get_width(),
+                                                        DestRect.get_height(),
+                                                        SrcWidth, SrcHeight)) {
+                TVPAddImportantLog(
+                    TJS_W("Passthrough: Failed to set destination "
+                          "size and source "
+                          "layer size to draw device drawer"));
                 delete Drawer, Drawer = nullptr;
             }
         }
@@ -255,19 +266,23 @@ void tTVPPassThroughDrawDevice::CreateDrawer(tDrawerType type) {
         else
             DrawerType = dtNone;
 
-        RequestInvalidation(tTVPRect(0, 0, DestRect.get_width(), DestRect.get_height()));
+        RequestInvalidation(
+            tTVPRect(0, 0, DestRect.get_width(), DestRect.get_height()));
     } catch(const eTJS &e) {
-        TVPAddImportantLog(TJS_W("Passthrough: Failed to create drawer: ") + e.GetMessage());
+        TVPAddImportantLog(TJS_W("Passthrough: Failed to create drawer: ") +
+                           e.GetMessage());
         DestroyDrawer();
     } catch(...) {
-        TVPAddImportantLog(TJS_W("Passthrough: Failed to create drawer: unknown reason"));
+        TVPAddImportantLog(
+            TJS_W("Passthrough: Failed to create drawer: unknown reason"));
         DestroyDrawer();
     }
 }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void tTVPPassThroughDrawDevice::CreateDrawer(bool zoom_required, bool should_benchmark) {
+void tTVPPassThroughDrawDevice::CreateDrawer(bool zoom_required,
+                                             bool should_benchmark) {
     // only create once under android
     CreateDrawer(dtDrawDib);
     return;
@@ -327,9 +342,10 @@ void tTVPPassThroughDrawDevice::EnsureDrawer() {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPPassThroughDrawDevice::AddLayerManager(iTVPLayerManager *manager) {
+void tTVPPassThroughDrawDevice::AddLayerManager(iTVPLayerManager *manager) {
     if(inherited::Managers.size() > 0) {
-        // "Pass Through" デバイスでは２つ以上のLayer Managerを登録できない
+        // "Pass Through" デバイスでは２つ以上のLayer
+        // Managerを登録できない
         TVPThrowExceptionMessage(TJS_W("\"passthrough\" device does not "
                                        "support layer manager more than 1"));
         // TODO: i18n
@@ -341,7 +357,7 @@ void TJS_INTF_METHOD tTVPPassThroughDrawDevice::AddLayerManager(iTVPLayerManager
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPPassThroughDrawDevice::SetTargetWindow(int wnd, bool is_main) {
+void tTVPPassThroughDrawDevice::SetTargetWindow(int wnd, bool is_main) {
     TVPInitPassThroughOptions();
     DestroyDrawer();
     // TargetWindow = wnd;
@@ -350,9 +366,10 @@ void TJS_INTF_METHOD tTVPPassThroughDrawDevice::SetTargetWindow(int wnd, bool is
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPPassThroughDrawDevice::SetDestRectangle(const tTVPRect &rect) {
+void tTVPPassThroughDrawDevice::SetDestRectangle(const tTVPRect &rect) {
     // 位置だけの変更の場合かどうかをチェックする
-    if(rect.get_width() == DestRect.get_width() && rect.get_height() == DestRect.get_height()) {
+    if(rect.get_width() == DestRect.get_width() &&
+       rect.get_height() == DestRect.get_height()) {
         // 位置だけの変更だ
         if(Drawer)
             Drawer->SetDestPos(rect.left, rect.top);
@@ -364,21 +381,22 @@ void TJS_INTF_METHOD tTVPPassThroughDrawDevice::SetDestRectangle(const tTVPRect 
         EnsureDrawer();
         if(Drawer) {
             if(!Drawer->SetDestSize(rect.get_width(), rect.get_height()))
-                DestroyDrawer(); // エラーが起こったのでその drawer を破棄する
+                DestroyDrawer(); // エラーが起こったのでその drawer
+                                 // を破棄する
         }
     }
 }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPPassThroughDrawDevice::NotifyLayerResize(iTVPLayerManager *manager) {
+void tTVPPassThroughDrawDevice::NotifyLayerResize(iTVPLayerManager *manager) {
     inherited::NotifyLayerResize(manager);
     SrcSizeChanged = true;
 }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPPassThroughDrawDevice::Show() {
+void tTVPPassThroughDrawDevice::Show() {
     if(Drawer) {
         // TVPDrawCursor();
         Drawer->Show();
@@ -387,7 +405,8 @@ void TJS_INTF_METHOD tTVPPassThroughDrawDevice::Show() {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPPassThroughDrawDevice::StartBitmapCompletion(iTVPLayerManager *manager) {
+void tTVPPassThroughDrawDevice::StartBitmapCompletion(
+    iTVPLayerManager *manager) {
     EnsureDrawer();
 
     // この中で DestroyDrawer が呼ばれる可能性に注意すること
@@ -416,12 +435,11 @@ void TJS_INTF_METHOD tTVPPassThroughDrawDevice::StartBitmapCompletion(iTVPLayerM
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPPassThroughDrawDevice::NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y,
-                                                                      tTVPBaseTexture *bmp, const tTVPRect &cliprect,
-                                                                      tTVPLayerType type, tjs_int opacity) {
-    // bits, bitmapinfo で表されるビットマップの cliprect の領域を、x, y に描画
-    // する。
-    // opacity と type は無視するしかないので無視する
+void tTVPPassThroughDrawDevice::NotifyBitmapCompleted(
+    iTVPLayerManager *manager, tjs_int x, tjs_int y, tTVPBaseTexture *bmp,
+    const tTVPRect &cliprect, tTVPLayerType type, tjs_int opacity) {
+    // bits, bitmapinfo で表されるビットマップの cliprect の領域を、x,
+    // y に描画 する。 opacity と type は無視するしかないので無視する
     // 	if(Drawer)
     // 	{
     // 		TVPInitPassThroughOptions();
@@ -431,24 +449,25 @@ void TJS_INTF_METHOD tTVPPassThroughDrawDevice::NotifyBitmapCompleted(iTVPLayerM
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPPassThroughDrawDevice::EndBitmapCompletion(iTVPLayerManager *manager) {
+void tTVPPassThroughDrawDevice::EndBitmapCompletion(iTVPLayerManager *manager) {
     //     TVPCopyTexture(
     //         nullptr, texRect(DestRect.left, DestRect.bottom,
     //         DestRect.get_width(), -DestRect.get_height()),
-    //         manager->GetDrawBuffer()->GetTexture(), texRect(0, 0, SrcWidth,
-    //         SrcHeight)
+    //         manager->GetDrawBuffer()->GetTexture(), texRect(0, 0,
+    //         SrcWidth, SrcHeight)
     //         );
     if(Drawer) {
         //         tTVPBaseTexture *bmp = manager->GetDrawBuffer();
-        //         tTVPRect rc(0, 0, bmp->GetWidth(), bmp->GetHeight());
-        //         Drawer->NotifyBitmapCompleted(0, 0, bmp, rc);
+        //         tTVPRect rc(0, 0, bmp->GetWidth(),
+        //         bmp->GetHeight()); Drawer->NotifyBitmapCompleted(0,
+        //         0, bmp, rc);
         Drawer->EndBitmapCompletion(manager->GetDrawBuffer());
     }
 }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPPassThroughDrawDevice::SetShowUpdateRect(bool b) {
+void tTVPPassThroughDrawDevice::SetShowUpdateRect(bool b) {
     if(Drawer)
         Drawer->SetShowUpdateRect(b);
 }
@@ -461,26 +480,31 @@ void tTVPPassThroughDrawDevice::Clear() {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// tTJSNC_PassThroughDrawDevice : PassThroughDrawDevice TJS native class
+// tTJSNC_PassThroughDrawDevice : PassThroughDrawDevice TJS native
+// class
 //---------------------------------------------------------------------------
 tjs_uint32 tTJSNC_PassThroughDrawDevice::ClassID = (tjs_uint32)-1;
 tTJSNC_PassThroughDrawDevice::tTJSNC_PassThroughDrawDevice() :
     tTJSNativeClass(TJS_W("PassThroughDrawDevice")){
         // register native methods/properties
 
-        TJS_BEGIN_NATIVE_MEMBERS(PassThroughDrawDevice) TJS_DECL_EMPTY_FINALIZE_METHOD
+        TJS_BEGIN_NATIVE_MEMBERS(
+            PassThroughDrawDevice) TJS_DECL_EMPTY_FINALIZE_METHOD
             //----------------------------------------------------------------------
             // constructor/methods
             //----------------------------------------------------------------------
             TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(
-                /*var.name*/ _this, /*var.type*/ tTJSNI_PassThroughDrawDevice,
+                /*var.name*/ _this,
+                /*var.type*/ tTJSNI_PassThroughDrawDevice,
                 /*TJS class name*/ PassThroughDrawDevice){ return TJS_S_OK;
 }
-TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ PassThroughDrawDevice)
+TJS_END_NATIVE_CONSTRUCTOR_DECL(
+    /*TJS class name*/ PassThroughDrawDevice)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ recreate) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_PassThroughDrawDevice);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_PassThroughDrawDevice);
     _this->GetDevice()->SetToRecreateDrawer();
     _this->GetDevice()->EnsureDrawer();
     return TJS_S_OK;
@@ -488,11 +512,13 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ recreate) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ recreate)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ lockTouchSize) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_PassThroughDrawDevice);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_PassThroughDrawDevice);
     if(numparams < 2)
         return TJS_E_BADPARAMCOUNT;
-    _this->GetDevice()->SetLockedSize(param[0]->operator tjs_int(), param[1]->operator tjs_int());
+    _this->GetDevice()->SetLockedSize(param[0]->operator tjs_int(),
+                                      param[1]->operator tjs_int());
     if(result)
         result->Clear();
     return TJS_S_OK;
@@ -504,8 +530,9 @@ TJS_END_NATIVE_METHOD_DECL(/*func. name*/ lockTouchSize)
 // properties
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(interface){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_PassThroughDrawDevice);
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_PassThroughDrawDevice);
 *result = reinterpret_cast<tjs_int64>(_this->GetDevice());
 return TJS_S_OK;
 }
@@ -515,14 +542,15 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(interface)
 //----------------------------------------------------------------------
-#define TVP_REGISTER_PTDD_ENUM(name)                                                                                   \
-    TJS_BEGIN_NATIVE_PROP_DECL(name){                                                                                  \
-        TJS_BEGIN_NATIVE_PROP_GETTER{ *result = (tjs_int64)tTVPPassThroughDrawDevice::name;                            \
-    return TJS_S_OK;                                                                                                   \
-    }                                                                                                                  \
-    TJS_END_NATIVE_PROP_GETTER                                                                                         \
-    TJS_DENY_NATIVE_PROP_SETTER                                                                                        \
-    }                                                                                                                  \
+#define TVP_REGISTER_PTDD_ENUM(name)                                           \
+    TJS_BEGIN_NATIVE_PROP_DECL(name){                                          \
+        TJS_BEGIN_NATIVE_PROP_GETTER{ *result = (tjs_int64)                    \
+                                          tTVPPassThroughDrawDevice::name;     \
+    return TJS_S_OK;                                                           \
+    }                                                                          \
+    TJS_END_NATIVE_PROP_GETTER                                                 \
+    TJS_DENY_NATIVE_PROP_SETTER                                                \
+    }                                                                          \
     TJS_END_NATIVE_PROP_DECL(name)
 
 TVP_REGISTER_PTDD_ENUM(dtNone)
@@ -532,17 +560,20 @@ TVP_REGISTER_PTDD_ENUM(dtDBDD)
 TVP_REGISTER_PTDD_ENUM(dtDBD3D)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(preferredDrawer){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_PassThroughDrawDevice);
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_PassThroughDrawDevice);
 *result = (tjs_int64)(_this->GetDevice()->GetPreferredDrawerType());
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                            /*var. type*/ tTJSNI_PassThroughDrawDevice);
-    _this->GetDevice()->SetPreferredDrawerType((tTVPPassThroughDrawDevice::tDrawerType)(tjs_int)*param);
+    TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_PassThroughDrawDevice);
+    _this->GetDevice()->SetPreferredDrawerType(
+        (tTVPPassThroughDrawDevice::tDrawerType)(tjs_int)*param);
     return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_SETTER
@@ -550,8 +581,9 @@ TJS_END_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(preferredDrawer)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(drawer){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_PassThroughDrawDevice);
+    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(
+        /*var. name*/ _this,
+        /*var. type*/ tTJSNI_PassThroughDrawDevice);
 *result = (tjs_int64)(_this->GetDevice()->GetDrawerType());
 return TJS_S_OK;
 }
@@ -564,23 +596,28 @@ TJS_END_NATIVE_PROP_DECL(drawer)
 TJS_END_NATIVE_MEMBERS
 }
 //---------------------------------------------------------------------------
-iTJSNativeInstance *tTJSNC_PassThroughDrawDevice::CreateNativeInstance() { return new tTJSNI_PassThroughDrawDevice(); }
+iTJSNativeInstance *tTJSNC_PassThroughDrawDevice::CreateNativeInstance() {
+    return new tTJSNI_PassThroughDrawDevice();
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-tTJSNI_PassThroughDrawDevice::tTJSNI_PassThroughDrawDevice() { Device = new tTVPPassThroughDrawDevice(); }
+tTJSNI_PassThroughDrawDevice::tTJSNI_PassThroughDrawDevice() {
+    Device = new tTVPPassThroughDrawDevice();
+}
 //---------------------------------------------------------------------------
 tTJSNI_PassThroughDrawDevice::~tTJSNI_PassThroughDrawDevice() {
     if(Device)
         Device->Destruct(), Device = nullptr;
 }
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_PassThroughDrawDevice::Construct(tjs_int numparams, tTJSVariant **param,
-                                                                  iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_PassThroughDrawDevice::Construct(tjs_int numparams,
+                                                  tTJSVariant **param,
+                                                  iTJSDispatch2 *tjs_obj) {
     return TJS_S_OK;
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_PassThroughDrawDevice::Invalidate() {
+void tTJSNI_PassThroughDrawDevice::Invalidate() {
     if(Device)
         Device->Destruct(), Device = nullptr;
 }

@@ -148,7 +148,8 @@ public:
      */
     /*
     bool SetConversionStatus( int conversion, int sentence ) {
-            return 0!=::ImmSetConversionStatus( hImc_, conversion, sentence );
+            return 0!=::ImmSetConversionStatus( hImc_, conversion,
+    sentence );
     }
     */
     /**
@@ -157,14 +158,16 @@ public:
   を指定すると、IMEは無効になります。IMEを使用した入力はできませんし、ユーザの操作でもIMEを有効にすることはできません。
   : Disable ModeClose
   を指定すると、IMEは無効になります。imDisableと異なり、ユーザの操作でIMEを有効にすることができます。
-  : Close ModeOpen を指定すると、IMEは有効になります。 : Open ModeDontCare
+  : Close ModeOpen を指定すると、IMEは有効になります。 : Open
+  ModeDontCare
   を指定すると、IMEの有効/無効の状態は、前の状態を引き継ぎます。ユーザの操作によってIMEを有効にしたり無効にしたりすることができます。日本語入力においては、半角/全角文字をユーザに自由に入力させる場合の一般的なモードです。
   ModeSAlpha
-  を指定すると、IMEは有効になり、半角アルファベット入力モードになります。 :
-  IME_CMODE_ALPHANUMERIC ModeAlpha
-  を指定すると、IMEは有効になり、全角アルファベット入力モードになります。 :
-  IME_CMODE_FULLSHAPE ModeHira
-  を指定すると、IMEは有効になり、ひらがな入力モードになります。 ModeSKata
+  を指定すると、IMEは有効になり、半角アルファベット入力モードになります。
+  : IME_CMODE_ALPHANUMERIC ModeAlpha
+  を指定すると、IMEは有効になり、全角アルファベット入力モードになります。
+  : IME_CMODE_FULLSHAPE ModeHira
+  を指定すると、IMEは有効になり、ひらがな入力モードになります。
+  ModeSKata
   を指定すると、IMEは有効になり、半角カタカナ入力モードになります。 :
   IME_CMODE_KATAKANA ModeKata
   を指定すると、IMEは有効になり、全角カタカナ入力モードになります。 :
@@ -197,27 +200,36 @@ public:
                 break;
             case ModeSAlpha:
                 ::ImmSetOpenStatus(hImc, TRUE);
-                ::ImmSetConversionStatus(hImc, IME_CMODE_ALPHANUMERIC, sentence);
+                ::ImmSetConversionStatus(hImc, IME_CMODE_ALPHANUMERIC,
+                                         sentence);
                 break;
             case ModeAlpha:
                 ::ImmSetOpenStatus(hImc, TRUE);
-                ::ImmSetConversionStatus(hImc, IME_CMODE_ALPHANUMERIC | IME_CMODE_FULLSHAPE, sentence);
+                ::ImmSetConversionStatus(
+                    hImc, IME_CMODE_ALPHANUMERIC | IME_CMODE_FULLSHAPE,
+                    sentence);
                 break;
             case ModeHira:
                 ::ImmSetOpenStatus(hImc, TRUE);
-                ::ImmSetConversionStatus(hImc, IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE, sentence);
+                ::ImmSetConversionStatus(
+                    hImc, IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE, sentence);
                 break;
             case ModeSKata:
                 ::ImmSetOpenStatus(hImc, TRUE);
-                ::ImmSetConversionStatus(hImc, IME_CMODE_NATIVE | IME_CMODE_KATAKANA, sentence);
+                ::ImmSetConversionStatus(
+                    hImc, IME_CMODE_NATIVE | IME_CMODE_KATAKANA, sentence);
                 break;
             case ModeKata:
                 ::ImmSetOpenStatus(hImc, TRUE);
-                ::ImmSetConversionStatus(hImc, IME_CMODE_NATIVE | IME_CMODE_KATAKANA | IME_CMODE_FULLSHAPE, sentence);
+                ::ImmSetConversionStatus(hImc,
+                                         IME_CMODE_NATIVE | IME_CMODE_KATAKANA |
+                                             IME_CMODE_FULLSHAPE,
+                                         sentence);
                 break;
             case ModeChinese:
                 ::ImmSetOpenStatus(hImc, TRUE);
-                ::ImmSetConversionStatus(hImc, IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE, sentence);
+                ::ImmSetConversionStatus(
+                    hImc, IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE, sentence);
                 break;
             case ModeSHanguel:
                 ::ImmSetOpenStatus(hImc, TRUE);
@@ -225,7 +237,8 @@ public:
                 break;
             case ModeHanguel:
                 ::ImmSetOpenStatus(hImc, TRUE);
-                ::ImmSetConversionStatus(hImc, IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE, sentence);
+                ::ImmSetConversionStatus(
+                    hImc, IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE, sentence);
                 break;
         }
         ::ImmReleaseContext(hWnd_, hImc);

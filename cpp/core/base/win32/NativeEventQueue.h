@@ -13,7 +13,8 @@ public:
     intptr_t LParam;
 
     //	NativeEvent(){}
-    NativeEvent(int mes) : /*Result(0), HWnd(nullptr),*/ Message(mes), WParam(0), LParam(0) {}
+    NativeEvent(int mes) :
+        /*Result(0), HWnd(nullptr),*/ Message(mes), WParam(0), LParam(0) {}
 };
 
 #if 0
@@ -34,12 +35,15 @@ public:
 };
 #endif
 
-class NativeEventQueueImplement /* : public NativeEventQueueIntarface*/ {
+class NativeEventQueueImplement /* : public
+                                   NativeEventQueueIntarface*/
+{
     //	HWND window_handle_;
     //	WNDCLASSEX	wc_;
 
     int CreateUtilWindow();
-    //	static LRESULT WINAPI WndProc( HWND hWnd, UINT msg, WPARAM wParam,
+    //	static LRESULT WINAPI WndProc( HWND hWnd, UINT msg, WPARAM
+    // wParam,
     // LPARAM lParam );
 
 public:
@@ -69,7 +73,8 @@ class NativeEventQueue : public NativeEventQueueImplement {
     T *owner_;
 
 public:
-    NativeEventQueue(T *owner, void (T::*Handler)(NativeEvent &)) : owner_(owner), handler_(Handler) {}
+    NativeEventQueue(T *owner, void (T::*Handler)(NativeEvent &)) :
+        owner_(owner), handler_(Handler) {}
 
     void Dispatch(NativeEvent &ev) { (owner_->*handler_)(ev); }
 

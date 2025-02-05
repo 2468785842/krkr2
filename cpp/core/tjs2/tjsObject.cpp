@@ -23,7 +23,8 @@ namespace TJS {
     // utility functions
     //---------------------------------------------------------------------------
     //---------------------------------------------------------------------------
-    void TJSDoVariantOperation(tjs_int op, tTJSVariant &target, const tTJSVariant *param) {
+    void TJSDoVariantOperation(tjs_int op, tTJSVariant &target,
+                               const tTJSVariant *param) {
         switch(op) {
             case TJS_OP_BAND:
                 target.operator&=(*param);
@@ -98,7 +99,7 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_uint TJS_INTF_METHOD tTJSDispatch::AddRef() {
+    tjs_uint tTJSDispatch::AddRef() {
 #ifdef TVP_IN_PLUGIN_STUB // TVP plug-in support
         TVPPluginGlobalRefCount++;
 #endif
@@ -106,11 +107,12 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_uint TJS_INTF_METHOD tTJSDispatch::Release() {
+    tjs_uint tTJSDispatch::Release() {
 #ifdef TVP_IN_PLUGIN_STUB // TVP plug-in support
         TVPPluginGlobalRefCount--;
 #endif
-        if(RefCount == 1) // avoid to call "BeforeDestruction" with RefCount == 0
+        if(RefCount ==
+           1) // avoid to call "BeforeDestruction" with RefCount == 0
         {
             // object destruction
             if(!BeforeDestructionCalled) {
@@ -128,87 +130,102 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSDispatch::FuncCallByNum(tjs_uint32 flag, tjs_int num, tTJSVariant *result,
-                                                          tjs_int numparams, tTJSVariant **param,
-                                                          iTJSDispatch2 *objthis) {
+    tjs_error tTJSDispatch::FuncCallByNum(tjs_uint32 flag, tjs_int num,
+                                          tTJSVariant *result,
+                                          tjs_int numparams,
+                                          tTJSVariant **param,
+                                          iTJSDispatch2 *objthis) {
         tjs_char buf[34];
         TJS_int_to_str(num, buf);
         return FuncCall(flag, buf, nullptr, result, numparams, param, objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSDispatch::PropGetByNum(tjs_uint32 flag, tjs_int num, tTJSVariant *result,
-                                                         iTJSDispatch2 *objthis) {
+    tjs_error tTJSDispatch::PropGetByNum(tjs_uint32 flag, tjs_int num,
+                                         tTJSVariant *result,
+                                         iTJSDispatch2 *objthis) {
         tjs_char buf[34];
         TJS_int_to_str(num, buf);
         return PropGet(flag, buf, nullptr, result, objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSDispatch::PropSetByNum(tjs_uint32 flag, tjs_int num, const tTJSVariant *param,
-                                                         iTJSDispatch2 *objthis) {
+    tjs_error tTJSDispatch::PropSetByNum(tjs_uint32 flag, tjs_int num,
+                                         const tTJSVariant *param,
+                                         iTJSDispatch2 *objthis) {
         tjs_char buf[34];
         TJS_int_to_str(num, buf);
         return PropSet(flag, buf, nullptr, param, objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSDispatch::GetCountByNum(tjs_int *result, tjs_int num, iTJSDispatch2 *objthis) {
+    tjs_error tTJSDispatch::GetCountByNum(tjs_int *result, tjs_int num,
+                                          iTJSDispatch2 *objthis) {
         tjs_char buf[34];
         TJS_int_to_str(num, buf);
         return GetCount(result, buf, nullptr, objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSDispatch::DeleteMemberByNum(tjs_uint32 flag, tjs_int num, iTJSDispatch2 *objthis) {
+    tjs_error tTJSDispatch::DeleteMemberByNum(tjs_uint32 flag, tjs_int num,
+                                              iTJSDispatch2 *objthis) {
         tjs_char buf[34];
         TJS_int_to_str(num, buf);
         return DeleteMember(flag, buf, nullptr, objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSDispatch::InvalidateByNum(tjs_uint32 flag, tjs_int num, iTJSDispatch2 *objthis) {
+    tjs_error tTJSDispatch::InvalidateByNum(tjs_uint32 flag, tjs_int num,
+                                            iTJSDispatch2 *objthis) {
         tjs_char buf[34];
         TJS_int_to_str(num, buf);
         return Invalidate(flag, buf, nullptr, objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSDispatch::IsValidByNum(tjs_uint32 flag, tjs_int num, iTJSDispatch2 *objthis) {
+    tjs_error tTJSDispatch::IsValidByNum(tjs_uint32 flag, tjs_int num,
+                                         iTJSDispatch2 *objthis) {
         tjs_char buf[34];
         TJS_int_to_str(num, buf);
         return IsValid(flag, buf, nullptr, objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSDispatch::CreateNewByNum(tjs_uint32 flag, tjs_int num, iTJSDispatch2 **result,
-                                                           tjs_int numparams, tTJSVariant **param,
-                                                           iTJSDispatch2 *objthis) {
+    tjs_error tTJSDispatch::CreateNewByNum(tjs_uint32 flag, tjs_int num,
+                                           iTJSDispatch2 **result,
+                                           tjs_int numparams,
+                                           tTJSVariant **param,
+                                           iTJSDispatch2 *objthis) {
         tjs_char buf[34];
         TJS_int_to_str(num, buf);
         return CreateNew(flag, buf, nullptr, result, numparams, param, objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSDispatch::IsInstanceOfByNum(tjs_uint32 flag, tjs_int num, const tjs_char *classname,
-                                                              iTJSDispatch2 *objthis) {
+    tjs_error tTJSDispatch::IsInstanceOfByNum(tjs_uint32 flag, tjs_int num,
+                                              const tjs_char *classname,
+                                              iTJSDispatch2 *objthis) {
         tjs_char buf[34];
         TJS_int_to_str(num, buf);
         return IsInstanceOf(flag, buf, nullptr, classname, objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSDispatch::OperationByNum(tjs_uint32 flag, tjs_int num, tTJSVariant *result,
-                                                           const tTJSVariant *param, iTJSDispatch2 *objthis) {
+    tjs_error tTJSDispatch::OperationByNum(tjs_uint32 flag, tjs_int num,
+                                           tTJSVariant *result,
+                                           const tTJSVariant *param,
+                                           iTJSDispatch2 *objthis) {
         tjs_char buf[34];
         TJS_int_to_str(num, buf);
         return Operation(flag, buf, nullptr, result, param, objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSDispatch::Operation(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                      tTJSVariant *result, const tTJSVariant *param,
-                                                      iTJSDispatch2 *objthis) {
+    tjs_error tTJSDispatch::Operation(tjs_uint32 flag,
+                                      const tjs_char *membername,
+                                      tjs_uint32 *hint, tTJSVariant *result,
+                                      const tTJSVariant *param,
+                                      iTJSDispatch2 *objthis) {
         tjs_uint32 op = flag & TJS_OP_MASK;
 
         if(op != TJS_OP_INC && op != TJS_OP_DEC && param == nullptr)
@@ -245,10 +262,12 @@ namespace TJS {
         tTJSVariant &Value;
 
     public:
-        tTJSSimpleGetSetProperty(tTJSVariant &value) : tTJSDispatch(), Value(value){};
+        tTJSSimpleGetSetProperty(tTJSVariant &value) :
+            tTJSDispatch(), Value(value){};
 
-        tjs_error TJS_INTF_METHOD PropGet(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                          tTJSVariant *result, iTJSDispatch2 *objthis) {
+        tjs_error PropGet(tjs_uint32 flag, const tjs_char *membername,
+                          tjs_uint32 *hint, tTJSVariant *result,
+                          iTJSDispatch2 *objthis) {
             if(membername)
                 return TJS_E_MEMBERNOTFOUND;
             if(result)
@@ -256,16 +275,18 @@ namespace TJS {
             return TJS_S_OK;
         }
 
-        tjs_error TJS_INTF_METHOD PropSet(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                          const tTJSVariant *param, iTJSDispatch2 *objthis) {
+        tjs_error PropSet(tjs_uint32 flag, const tjs_char *membername,
+                          tjs_uint32 *hint, const tTJSVariant *param,
+                          iTJSDispatch2 *objthis) {
             if(membername)
                 return TJS_E_MEMBERNOTFOUND;
             Value = *param;
             return TJS_S_OK;
         }
 
-        tjs_error TJS_INTF_METHOD PropSetByVS(tjs_uint32 flag, tTJSVariantString *membername, const tTJSVariant *param,
-                                              iTJSDispatch2 *objthis) {
+        tjs_error PropSetByVS(tjs_uint32 flag, tTJSVariantString *membername,
+                              const tTJSVariant *param,
+                              iTJSDispatch2 *objthis) {
             if(membername)
                 return TJS_E_MEMBERNOTFOUND;
             Value = *param;
@@ -321,7 +342,8 @@ namespace TJS {
         CallMissing = false;
         ProsessingMissing = false;
         if(FinalizeName.IsEmpty()) {
-            // first time; initialize 'finalize' name and 'missing' name
+            // first time; initialize 'finalize' name and 'missing'
+            // name
             static ttstr _finalize = TJSMapGlobalStringMap(TJS_W("finalize"));
             static ttstr _missing = TJSMapGlobalStringMap(TJS_W("missing"));
             FinalizeName = _finalize;
@@ -367,7 +389,8 @@ namespace TJS {
     void tTJSCustomObject::Finalize() {
         // call this object's "finalize"
         if(CallFinalize) {
-            FuncCall(0, finalize_name.c_str(), finalize_name.GetHint(), nullptr, 0, nullptr, this);
+            FuncCall(0, finalize_name.c_str(), finalize_name.GetHint(), nullptr,
+                     0, nullptr, this);
         }
 
         for(tjs_int i = TJS_MAX_NATIVE_CLASS - 1; i >= 0; i--) {
@@ -387,7 +410,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    bool tTJSCustomObject::CallGetMissing(const tjs_char *name, tTJSVariant &result) {
+    bool tTJSCustomObject::CallGetMissing(const tjs_char *name,
+                                          tTJSVariant &result) {
         // call 'missing' method for PopGet
         if(ProsessingMissing)
             return false;
@@ -403,7 +427,9 @@ namespace TJS {
                 args[2] = prop;
                 tTJSVariant *pargs[3] = { args + 0, args + 1, args + 2 };
                 tTJSVariant funcresult;
-                tjs_error er = FuncCall(0, missing_name.c_str(), missing_name.GetHint(), &funcresult, 3, pargs, this);
+                tjs_error er =
+                    FuncCall(0, missing_name.c_str(), missing_name.GetHint(),
+                             &funcresult, 3, pargs, this);
                 if(TJS_FAILED(er)) {
                     res = false;
                 } else {
@@ -424,7 +450,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    bool tTJSCustomObject::CallSetMissing(const tjs_char *name, const tTJSVariant &value) {
+    bool tTJSCustomObject::CallSetMissing(const tjs_char *name,
+                                          const tTJSVariant &value) {
         // call 'missing' method for PopSet
         if(ProsessingMissing)
             return false;
@@ -440,7 +467,9 @@ namespace TJS {
                 args[2] = prop;
                 tTJSVariant *pargs[3] = { args + 0, args + 1, args + 2 };
                 tTJSVariant funcresult;
-                tjs_error er = FuncCall(0, missing_name.c_str(), missing_name.GetHint(), &funcresult, 3, pargs, this);
+                tjs_error er =
+                    FuncCall(0, missing_name.c_str(), missing_name.GetHint(),
+                             &funcresult, 3, pargs, this);
                 if(TJS_FAILED(er)) {
                     res = false;
                 } else {
@@ -460,9 +489,11 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSCustomObject::tTJSSymbolData *tTJSCustomObject::Add(const tjs_char *name, tjs_uint32 *hint) {
+    tTJSCustomObject::tTJSSymbolData *
+    tTJSCustomObject::Add(const tjs_char *name, tjs_uint32 *hint) {
         // add a data element named "name".
-        // return existing element if the element named "name" is already alive.
+        // return existing element if the element named "name" is
+        // already alive.
 
         if(name == nullptr) {
             return nullptr;
@@ -477,7 +508,8 @@ namespace TJS {
 
         tjs_uint32 hash;
         if(hint && *hint)
-            hash = *hint; // hint must be hash because of previous calling of "Find"
+            hash = *hint; // hint must be hash because of previous
+                          // calling of "Find"
         else
             hash = tTJSHashFunc<tjs_char *>::Make(name);
 
@@ -513,7 +545,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSCustomObject::tTJSSymbolData *tTJSCustomObject::Add(tTJSVariantString *name) {
+    tTJSCustomObject::tTJSSymbolData *
+    tTJSCustomObject::Add(tTJSVariantString *name) {
         // tTJSVariantString version of above
 
         if(name == nullptr) {
@@ -529,8 +562,8 @@ namespace TJS {
 
         tjs_uint32 hash;
         if(*(name->GetHint()))
-            hash = *(name->GetHint()); // hint must be hash because of previous
-                                       // calling of "Find"
+            hash = *(name->GetHint()); // hint must be hash because of
+                                       // previous calling of "Find"
         else
             hash = tTJSHashFunc<tjs_char *>::Make((const tjs_char *)(*name));
 
@@ -566,14 +599,16 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSCustomObject::tTJSSymbolData *tTJSCustomObject::AddTo(tTJSVariantString *name, tTJSSymbolData *newdata,
-                                                              tjs_int newhashmask) {
+    tTJSCustomObject::tTJSSymbolData *
+    tTJSCustomObject::AddTo(tTJSVariantString *name, tTJSSymbolData *newdata,
+                            tjs_int newhashmask) {
         // similar to Add, except for adding member to new hash space.
         if(name == nullptr) {
             return nullptr;
         }
 
-        // at this point, the member must not exist in destination hash space
+        // at this point, the member must not exist in destination
+        // hash space
 
         tjs_uint32 hash;
         hash = tTJSHashFunc<tjs_char *>::Make((const tjs_char *)(*name));
@@ -659,11 +694,15 @@ namespace TJS {
                     tTJSSymbolData *nextd = d->Next;
                     if(d->SymFlags & TJS_SYMBOL_USING) {
                         //					d->ReShare();
-                        tTJSSymbolData *data = AddTo(d->Name, newsymbols, newhashmask);
+                        tTJSSymbolData *data =
+                            AddTo(d->Name, newsymbols, newhashmask);
                         if(data) {
-                            GetValue(data).CopyRef(*(tTJSVariant *)(&(d->Value)));
-                            data->SymFlags &= ~(TJS_SYMBOL_HIDDEN | TJS_SYMBOL_STATIC);
-                            data->SymFlags |= d->SymFlags & (TJS_SYMBOL_HIDDEN | TJS_SYMBOL_STATIC);
+                            GetValue(data).CopyRef(
+                                *(tTJSVariant *)(&(d->Value)));
+                            data->SymFlags &=
+                                ~(TJS_SYMBOL_HIDDEN | TJS_SYMBOL_STATIC);
+                            data->SymFlags |= d->SymFlags &
+                                (TJS_SYMBOL_HIDDEN | TJS_SYMBOL_STATIC);
                             CheckObjectClosureAdd(GetValue(data));
                         }
                     }
@@ -672,11 +711,14 @@ namespace TJS {
 
                 if(lv1->SymFlags & TJS_SYMBOL_USING) {
                     //				lv1->ReShare();
-                    tTJSSymbolData *data = AddTo(lv1->Name, newsymbols, newhashmask);
+                    tTJSSymbolData *data =
+                        AddTo(lv1->Name, newsymbols, newhashmask);
                     if(data) {
                         GetValue(data).CopyRef(*(tTJSVariant *)(&(lv1->Value)));
-                        data->SymFlags &= ~(TJS_SYMBOL_HIDDEN | TJS_SYMBOL_STATIC);
-                        data->SymFlags |= lv1->SymFlags & (TJS_SYMBOL_HIDDEN | TJS_SYMBOL_STATIC);
+                        data->SymFlags &=
+                            ~(TJS_SYMBOL_HIDDEN | TJS_SYMBOL_STATIC);
+                        data->SymFlags |= lv1->SymFlags &
+                            (TJS_SYMBOL_HIDDEN | TJS_SYMBOL_STATIC);
                         CheckObjectClosureAdd(GetValue(data));
                     }
                 }
@@ -714,7 +756,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    bool tTJSCustomObject::DeleteByName(const tjs_char *name, tjs_uint32 *hint) {
+    bool tTJSCustomObject::DeleteByName(const tjs_char *name,
+                                        tjs_uint32 *hint) {
         // TODO: utilize hint
         // find an element named "name" and deletes it
         tjs_uint32 hash = tTJSHashFunc<tjs_char *>::Make(name);
@@ -773,9 +816,13 @@ namespace TJS {
                 while(d) {
                     tTJSSymbolData *nextd = d->Next;
                     if(d->SymFlags & TJS_SYMBOL_USING) {
-                        if(((tTJSVariant *)(&(d->Value)))->Type() == tvtObject) {
-                            CheckObjectClosureRemove(*(tTJSVariant *)(&(d->Value)));
-                            tTJSVariantClosure clo = ((tTJSVariant *)(&(d->Value)))->AsObjectClosureNoAddRef();
+                        if(((tTJSVariant *)(&(d->Value)))->Type() ==
+                           tvtObject) {
+                            CheckObjectClosureRemove(
+                                *(tTJSVariant *)(&(d->Value)));
+                            tTJSVariantClosure clo =
+                                ((tTJSVariant *)(&(d->Value)))
+                                    ->AsObjectClosureNoAddRef();
                             clo.AddRef();
                             if(clo.Object)
                                 vector.push_back(clo.Object);
@@ -789,8 +836,11 @@ namespace TJS {
 
                 if(lv1->SymFlags & TJS_SYMBOL_USING) {
                     if(((tTJSVariant *)(&(lv1->Value)))->Type() == tvtObject) {
-                        CheckObjectClosureRemove(*(tTJSVariant *)(&(lv1->Value)));
-                        tTJSVariantClosure clo = ((tTJSVariant *)(&(lv1->Value)))->AsObjectClosureNoAddRef();
+                        CheckObjectClosureRemove(
+                            *(tTJSVariant *)(&(lv1->Value)));
+                        tTJSVariantClosure clo =
+                            ((tTJSVariant *)(&(lv1->Value)))
+                                ->AsObjectClosureNoAddRef();
                         clo.AddRef();
                         if(clo.Object)
                             vector.push_back(clo.Object);
@@ -857,9 +907,13 @@ namespace TJS {
                 while(d) {
                     tTJSSymbolData *nextd = d->Next;
                     if(d->SymFlags & TJS_SYMBOL_USING) {
-                        if(((tTJSVariant *)(&(d->Value)))->Type() == tvtObject) {
-                            CheckObjectClosureRemove(*(tTJSVariant *)(&(d->Value)));
-                            tTJSVariantClosure clo = ((tTJSVariant *)(&(d->Value)))->AsObjectClosureNoAddRef();
+                        if(((tTJSVariant *)(&(d->Value)))->Type() ==
+                           tvtObject) {
+                            CheckObjectClosureRemove(
+                                *(tTJSVariant *)(&(d->Value)));
+                            tTJSVariantClosure clo =
+                                ((tTJSVariant *)(&(d->Value)))
+                                    ->AsObjectClosureNoAddRef();
                             clo.AddRef();
                             if(clo.Object)
                                 dsps[num_dsps++] = clo.Object;
@@ -873,8 +927,11 @@ namespace TJS {
 
                 if(lv1->SymFlags & TJS_SYMBOL_USING) {
                     if(((tTJSVariant *)(&(lv1->Value)))->Type() == tvtObject) {
-                        CheckObjectClosureRemove(*(tTJSVariant *)(&(lv1->Value)));
-                        tTJSVariantClosure clo = ((tTJSVariant *)(&(lv1->Value)))->AsObjectClosureNoAddRef();
+                        CheckObjectClosureRemove(
+                            *(tTJSVariant *)(&(lv1->Value)));
+                        tTJSVariantClosure clo =
+                            ((tTJSVariant *)(&(lv1->Value)))
+                                ->AsObjectClosureNoAddRef();
                         clo.AddRef();
                         if(clo.Object)
                             dsps[num_dsps++] = clo.Object;
@@ -923,9 +980,10 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSCustomObject::tTJSSymbolData *tTJSCustomObject::Find(const tjs_char *name, tjs_uint32 *hint) {
-        // searche an element named "name" and return its "SymbolData".
-        // return nullptr if the element is not found.
+    tTJSCustomObject::tTJSSymbolData *
+    tTJSCustomObject::Find(const tjs_char *name, tjs_uint32 *hint) {
+        // searche an element named "name" and return its
+        // "SymbolData". return nullptr if the element is not found.
 
         if(!name)
             return nullptr;
@@ -973,7 +1031,8 @@ namespace TJS {
         tTJSSymbolData *lv1 = Symbols + (hash & HashMask);
 
         if(!(lv1->SymFlags & TJS_SYMBOL_USING) && lv1->Next == nullptr)
-            return nullptr; // lv1 is unused and does not have any chains
+            return nullptr; // lv1 is unused and does not have any
+                            // chains
 
         // search over the chain
         tjs_int cnt = 0;
@@ -1003,9 +1062,9 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    bool tTJSCustomObject::CallEnumCallbackForData(tjs_uint32 flags, tTJSVariant **params, tTJSVariantClosure &callback,
-                                                   iTJSDispatch2 *objthis,
-                                                   const tTJSCustomObject::tTJSSymbolData *data) {
+    bool tTJSCustomObject::CallEnumCallbackForData(
+        tjs_uint32 flags, tTJSVariant **params, tTJSVariantClosure &callback,
+        iTJSDispatch2 *objthis, const tTJSCustomObject::tTJSSymbolData *data) {
         tjs_uint32 newflags = 0;
         if(data->SymFlags & TJS_SYMBOL_HIDDEN)
             newflags |= TJS_HIDDENMEMBER;
@@ -1017,22 +1076,27 @@ namespace TJS {
 
         if(!(flags & TJS_ENUM_NO_VALUE)) {
             // get value
-            if(TJS_FAILED(TJSDefaultPropGet(flags, *(tTJSVariant *)(&(data->Value)), params[2], objthis)))
+            if(TJS_FAILED(TJSDefaultPropGet(flags,
+                                            *(tTJSVariant *)(&(data->Value)),
+                                            params[2], objthis)))
                 return false;
         }
 
         tTJSVariant res;
-        if(TJS_FAILED(
-               callback.FuncCall(0, nullptr, nullptr, &res, (flags & TJS_ENUM_NO_VALUE) ? 2 : 3, params, nullptr)))
+        if(TJS_FAILED(callback.FuncCall(0, nullptr, nullptr, &res,
+                                        (flags & TJS_ENUM_NO_VALUE) ? 2 : 3,
+                                        params, nullptr)))
             return false;
         return 0 != (tjs_int)(res);
     }
 
     //---------------------------------------------------------------------------
-    void tTJSCustomObject::InternalEnumMembers(tjs_uint32 flags, tTJSVariantClosure *callback, iTJSDispatch2 *objthis) {
+    void tTJSCustomObject::InternalEnumMembers(tjs_uint32 flags,
+                                               tTJSVariantClosure *callback,
+                                               iTJSDispatch2 *objthis) {
         // enumlate members by calling callback.
-        // note that member changes(delete or insert) through this function is not
-        // guaranteed.
+        // note that member changes(delete or insert) through this
+        // function is not guaranteed.
         if(!callback)
             return;
 
@@ -1049,21 +1113,24 @@ namespace TJS {
                 const tTJSSymbolData *nextd = d->Next;
 
                 if(d->SymFlags & TJS_SYMBOL_USING) {
-                    if(!CallEnumCallbackForData(flags, params, *callback, objthis, d))
+                    if(!CallEnumCallbackForData(flags, params, *callback,
+                                                objthis, d))
                         return;
                 }
                 d = nextd;
             }
 
             if(lv1->SymFlags & TJS_SYMBOL_USING) {
-                if(!CallEnumCallbackForData(flags, params, *callback, objthis, lv1))
+                if(!CallEnumCallbackForData(flags, params, *callback, objthis,
+                                            lv1))
                     return;
             }
         }
     }
 
     //---------------------------------------------------------------------------
-    tjs_int tTJSCustomObject::GetValueInteger(const tjs_char *name, tjs_uint32 *hint) {
+    tjs_int tTJSCustomObject::GetValueInteger(const tjs_char *name,
+                                              tjs_uint32 *hint) {
         tTJSSymbolData *data = Find(name, hint);
         if(!data)
             return -1;
@@ -1071,14 +1138,18 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJSTryFuncCallViaPropGet(tTJSVariantClosure tvclosure, tjs_uint32 flag, tTJSVariant *result,
-                                       tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis) {
+    tjs_error TJSTryFuncCallViaPropGet(tTJSVariantClosure tvclosure,
+                                       tjs_uint32 flag, tTJSVariant *result,
+                                       tjs_int numparams, tTJSVariant **param,
+                                       iTJSDispatch2 *objthis) {
         // retry using PropGet
         tTJSVariant tmp;
         tvclosure.AddRef();
         tjs_error er;
         try {
-            er = tvclosure.Object->PropGet(0, nullptr, nullptr, &tmp, TJS_SELECT_OBJTHIS(tvclosure, objthis));
+            er = tvclosure.Object->PropGet(
+                0, nullptr, nullptr, &tmp,
+                TJS_SELECT_OBJTHIS(tvclosure, objthis));
         } catch(...) {
             tvclosure.Release();
             throw;
@@ -1087,15 +1158,17 @@ namespace TJS {
 
         if(TJS_SUCCEEDED(er)) {
             tvclosure = tmp.AsObjectClosure();
-            er = tvclosure.Object->FuncCall(flag, nullptr, nullptr, result, numparams, param,
-                                            TJS_SELECT_OBJTHIS(tvclosure, objthis));
+            er = tvclosure.Object->FuncCall(
+                flag, nullptr, nullptr, result, numparams, param,
+                TJS_SELECT_OBJTHIS(tvclosure, objthis));
             tvclosure.Release();
         }
         return er;
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJSDefaultFuncCall(tjs_uint32 flag, tTJSVariant &targ, tTJSVariant *result, tjs_int numparams,
+    tjs_error TJSDefaultFuncCall(tjs_uint32 flag, tTJSVariant &targ,
+                                 tTJSVariant *result, tjs_int numparams,
                                  tTJSVariant **param, iTJSDispatch2 *objthis) {
         if(targ.Type() == tvtObject) {
             tjs_error er = TJS_E_INVALIDTYPE;
@@ -1103,11 +1176,13 @@ namespace TJS {
             try {
                 if(tvclosure.Object) {
                     // bypass
-                    er = tvclosure.Object->FuncCall(flag, nullptr, nullptr, result, numparams, param,
-                                                    TJS_SELECT_OBJTHIS(tvclosure, objthis));
+                    er = tvclosure.Object->FuncCall(
+                        flag, nullptr, nullptr, result, numparams, param,
+                        TJS_SELECT_OBJTHIS(tvclosure, objthis));
                     if(er == TJS_E_INVALIDTYPE) {
                         // retry using PropGet
-                        er = TJSTryFuncCallViaPropGet(tvclosure, flag, result, numparams, param, objthis);
+                        er = TJSTryFuncCallViaPropGet(
+                            tvclosure, flag, result, numparams, param, objthis);
                     }
                 }
             } catch(...) {
@@ -1122,9 +1197,11 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::FuncCall(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                         tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
-                                                         iTJSDispatch2 *objthis) {
+    tjs_error tTJSCustomObject::FuncCall(tjs_uint32 flag,
+                                         const tjs_char *membername,
+                                         tjs_uint32 *hint, tTJSVariant *result,
+                                         tjs_int numparams, tTJSVariant **param,
+                                         iTJSDispatch2 *objthis) {
         if(!GetValidity())
             return TJS_E_INVALIDOBJECT;
 
@@ -1141,24 +1218,27 @@ namespace TJS {
                 // call 'missing' method
                 tTJSVariant value_func;
                 if(CallGetMissing(membername, value_func))
-                    return TJSDefaultFuncCall(flag, value_func, result, numparams, param, objthis);
+                    return TJSDefaultFuncCall(flag, value_func, result,
+                                              numparams, param, objthis);
             }
 
             return TJS_E_MEMBERNOTFOUND; // member not found
         }
 
-        return TJSDefaultFuncCall(flag, GetValue(data), result, numparams, param, objthis);
+        return TJSDefaultFuncCall(flag, GetValue(data), result, numparams,
+                                  param, objthis);
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJSDefaultPropGet(tjs_uint32 flag, tTJSVariant &targ, tTJSVariant *result, iTJSDispatch2 *objthis) {
+    tjs_error TJSDefaultPropGet(tjs_uint32 flag, tTJSVariant &targ,
+                                tTJSVariant *result, iTJSDispatch2 *objthis) {
         if(!(flag & TJS_IGNOREPROP)) {
             // if TJS_IGNOREPROP is not specified
 
-            // if member's type is tvtObject, call the object's PropGet with
-            // "member=nullptr"
-            //  ( default member invocation ). if it is succeeded, return its return
-            //  value.
+            // if member's type is tvtObject, call the object's
+            // PropGet with "member=nullptr"
+            //  ( default member invocation ). if it is succeeded,
+            //  return its return value.
             // if the PropGet's return value is TJS_E_ACCESSDENYED,
             // return as an error, otherwise return the member itself.
             if(targ.Type() == tvtObject) {
@@ -1166,8 +1246,9 @@ namespace TJS {
                 tjs_error hr = TJS_E_NOTIMPL;
                 try {
                     if(tvclosure.Object) {
-                        hr = tvclosure.Object->PropGet(0, nullptr, nullptr, result,
-                                                       TJS_SELECT_OBJTHIS(tvclosure, objthis));
+                        hr = tvclosure.Object->PropGet(
+                            0, nullptr, nullptr, result,
+                            TJS_SELECT_OBJTHIS(tvclosure, objthis));
                     }
                 } catch(...) {
                     tvclosure.Release();
@@ -1176,7 +1257,8 @@ namespace TJS {
                 tvclosure.Release();
                 if(TJS_SUCCEEDED(hr))
                     return hr;
-                if(hr != TJS_E_NOTIMPL && hr != TJS_E_INVALIDTYPE && hr != TJS_E_INVALIDOBJECT)
+                if(hr != TJS_E_NOTIMPL && hr != TJS_E_INVALIDTYPE &&
+                   hr != TJS_E_INVALIDOBJECT)
                     return hr;
             }
         }
@@ -1191,8 +1273,10 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::PropGet(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                        tTJSVariant *result, iTJSDispatch2 *objthis) {
+    tjs_error tTJSCustomObject::PropGet(tjs_uint32 flag,
+                                        const tjs_char *membername,
+                                        tjs_uint32 *hint, tTJSVariant *result,
+                                        iTJSDispatch2 *objthis) {
         if(RebuildHashMagic != TJSGlobalRebuildHashMagic) {
             RebuildHash();
         }
@@ -1201,8 +1285,8 @@ namespace TJS {
             return TJS_E_INVALIDOBJECT;
 
         if(membername == nullptr) {
-            // this object itself has no information on PropGet with membername ==
-            // nullptr
+            // this object itself has no information on PropGet with
+            // membername == nullptr
             return TJS_E_INVALIDTYPE;
         }
 
@@ -1228,7 +1312,9 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJSDefaultPropSet(tjs_uint32 flag, tTJSVariant &targ, const tTJSVariant *param, iTJSDispatch2 *objthis) {
+    tjs_error TJSDefaultPropSet(tjs_uint32 flag, tTJSVariant &targ,
+                                const tTJSVariant *param,
+                                iTJSDispatch2 *objthis) {
         if(!(flag & TJS_IGNOREPROP)) {
             if(targ.Type() == tvtObject) {
                 // roughly the same as TJSDefaultPropGet
@@ -1236,8 +1322,9 @@ namespace TJS {
                 tjs_error hr = TJS_E_NOTIMPL;
                 try {
                     if(tvclosure.Object) {
-                        hr = tvclosure.Object->PropSet(0, nullptr, nullptr, param,
-                                                       TJS_SELECT_OBJTHIS(tvclosure, objthis));
+                        hr = tvclosure.Object->PropSet(
+                            0, nullptr, nullptr, param,
+                            TJS_SELECT_OBJTHIS(tvclosure, objthis));
                     }
                 } catch(...) {
                     tvclosure.Release();
@@ -1246,7 +1333,8 @@ namespace TJS {
                 tvclosure.Release();
                 if(TJS_SUCCEEDED(hr))
                     return hr;
-                if(hr != TJS_E_NOTIMPL && hr != TJS_E_INVALIDTYPE && hr != TJS_E_INVALIDOBJECT)
+                if(hr != TJS_E_NOTIMPL && hr != TJS_E_INVALIDTYPE &&
+                   hr != TJS_E_INVALIDOBJECT)
                     return hr;
             }
         }
@@ -1261,8 +1349,11 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::PropSet(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                        const tTJSVariant *param, iTJSDispatch2 *objthis) {
+    tjs_error tTJSCustomObject::PropSet(tjs_uint32 flag,
+                                        const tjs_char *membername,
+                                        tjs_uint32 *hint,
+                                        const tTJSVariant *param,
+                                        iTJSDispatch2 *objthis) {
         if(!GetValidity())
             return TJS_E_INVALIDOBJECT;
 
@@ -1283,7 +1374,8 @@ namespace TJS {
 
         if(flag & TJS_MEMBERENSURE)
             data = Add(membername,
-                       hint); // create a member when TJS_MEMBERENSURE is specified
+                       hint); // create a member when TJS_MEMBERENSURE
+                              // is specified
         else
             data = Find(membername, hint);
 
@@ -1304,13 +1396,16 @@ namespace TJS {
 
         if(!(flag & TJS_IGNOREPROP)) {
             if(GetValue(data).Type() == tvtObject) {
-                tTJSVariantClosure tvclosure = GetValue(data).AsObjectClosureNoAddRef();
+                tTJSVariantClosure tvclosure =
+                    GetValue(data).AsObjectClosureNoAddRef();
                 if(tvclosure.Object) {
-                    tjs_error hr =
-                        tvclosure.Object->PropSet(0, nullptr, nullptr, param, TJS_SELECT_OBJTHIS(tvclosure, objthis));
+                    tjs_error hr = tvclosure.Object->PropSet(
+                        0, nullptr, nullptr, param,
+                        TJS_SELECT_OBJTHIS(tvclosure, objthis));
                     if(TJS_SUCCEEDED(hr))
                         return hr;
-                    if(hr != TJS_E_NOTIMPL && hr != TJS_E_INVALIDTYPE && hr != TJS_E_INVALIDOBJECT)
+                    if(hr != TJS_E_NOTIMPL && hr != TJS_E_INVALIDTYPE &&
+                       hr != TJS_E_INVALIDOBJECT)
                         return hr;
                 }
                 data = Find(membername, hint);
@@ -1333,8 +1428,10 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::GetCount(tjs_int *result, const tjs_char *membername, tjs_uint32 *hint,
-                                                         iTJSDispatch2 *objthis) {
+    tjs_error tTJSCustomObject::GetCount(tjs_int *result,
+                                         const tjs_char *membername,
+                                         tjs_uint32 *hint,
+                                         iTJSDispatch2 *objthis) {
         if(!GetValidity())
             return TJS_E_INVALIDOBJECT;
 
@@ -1347,8 +1444,10 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::PropSetByVS(tjs_uint32 flag, tTJSVariantString *membername,
-                                                            const tTJSVariant *param, iTJSDispatch2 *objthis) {
+    tjs_error tTJSCustomObject::PropSetByVS(tjs_uint32 flag,
+                                            tTJSVariantString *membername,
+                                            const tTJSVariant *param,
+                                            iTJSDispatch2 *objthis) {
         if(!GetValidity())
             return TJS_E_INVALIDOBJECT;
 
@@ -1368,7 +1467,8 @@ namespace TJS {
         }
 
         if(flag & TJS_MEMBERENSURE)
-            data = Add(membername); // create a member when TJS_MEMBERENSURE is specified
+            data = Add(membername); // create a member when
+                                    // TJS_MEMBERENSURE is specified
         else
             data = Find((const tjs_char *)(*membername), membername->GetHint());
 
@@ -1389,16 +1489,20 @@ namespace TJS {
 
         if(!(flag & TJS_IGNOREPROP)) {
             if(GetValue(data).Type() == tvtObject) {
-                tTJSVariantClosure tvclosure = GetValue(data).AsObjectClosureNoAddRef();
+                tTJSVariantClosure tvclosure =
+                    GetValue(data).AsObjectClosureNoAddRef();
                 if(tvclosure.Object) {
-                    tjs_error hr =
-                        tvclosure.Object->PropSet(0, nullptr, nullptr, param, TJS_SELECT_OBJTHIS(tvclosure, objthis));
+                    tjs_error hr = tvclosure.Object->PropSet(
+                        0, nullptr, nullptr, param,
+                        TJS_SELECT_OBJTHIS(tvclosure, objthis));
                     if(TJS_SUCCEEDED(hr))
                         return hr;
-                    if(hr != TJS_E_NOTIMPL && hr != TJS_E_INVALIDTYPE && hr != TJS_E_INVALIDOBJECT)
+                    if(hr != TJS_E_NOTIMPL && hr != TJS_E_INVALIDTYPE &&
+                       hr != TJS_E_INVALIDOBJECT)
                         return hr;
                 }
-                data = Find((const tjs_char *)(*membername), membername->GetHint());
+                data = Find((const tjs_char *)(*membername),
+                            membername->GetHint());
             }
         }
 
@@ -1418,8 +1522,9 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::EnumMembers(tjs_uint32 flag, tTJSVariantClosure *callback,
-                                                            iTJSDispatch2 *objthis) {
+    tjs_error tTJSCustomObject::EnumMembers(tjs_uint32 flag,
+                                            tTJSVariantClosure *callback,
+                                            iTJSDispatch2 *objthis) {
         if(!GetValidity())
             return TJS_E_INVALIDOBJECT;
 
@@ -1429,8 +1534,10 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::DeleteMember(tjs_uint32 flag, const tjs_char *membername,
-                                                             tjs_uint32 *hint, iTJSDispatch2 *objthis) {
+    tjs_error tTJSCustomObject::DeleteMember(tjs_uint32 flag,
+                                             const tjs_char *membername,
+                                             tjs_uint32 *hint,
+                                             iTJSDispatch2 *objthis) {
         if(!GetValidity())
             return TJS_E_INVALIDOBJECT;
 
@@ -1445,13 +1552,16 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJSDefaultInvalidate(tjs_uint32 flag, tTJSVariant &targ, iTJSDispatch2 *objthis) {
+    tjs_error TJSDefaultInvalidate(tjs_uint32 flag, tTJSVariant &targ,
+                                   iTJSDispatch2 *objthis) {
 
         if(targ.Type() == tvtObject) {
             tTJSVariantClosure tvclosure = targ.AsObjectClosureNoAddRef();
             if(tvclosure.Object) {
                 // bypass
-                return tvclosure.Object->Invalidate(flag, nullptr, nullptr, TJS_SELECT_OBJTHIS(tvclosure, objthis));
+                return tvclosure.Object->Invalidate(
+                    flag, nullptr, nullptr,
+                    TJS_SELECT_OBJTHIS(tvclosure, objthis));
             }
         }
 
@@ -1459,8 +1569,10 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::Invalidate(tjs_uint32 flag, const tjs_char *membername,
-                                                           tjs_uint32 *hint, iTJSDispatch2 *objthis) {
+    tjs_error tTJSCustomObject::Invalidate(tjs_uint32 flag,
+                                           const tjs_char *membername,
+                                           tjs_uint32 *hint,
+                                           iTJSDispatch2 *objthis) {
         if(!GetValidity())
             return TJS_E_INVALIDOBJECT;
 
@@ -1489,12 +1601,15 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJSDefaultIsValid(tjs_uint32 flag, tTJSVariant &targ, iTJSDispatch2 *objthis) {
+    tjs_error TJSDefaultIsValid(tjs_uint32 flag, tTJSVariant &targ,
+                                iTJSDispatch2 *objthis) {
         if(targ.Type() == tvtObject) {
             tTJSVariantClosure tvclosure = targ.AsObjectClosureNoAddRef();
             if(tvclosure.Object) {
                 // bypass
-                return tvclosure.Object->IsValid(flag, nullptr, nullptr, TJS_SELECT_OBJTHIS(tvclosure, objthis));
+                return tvclosure.Object->IsValid(
+                    flag, nullptr, nullptr,
+                    TJS_SELECT_OBJTHIS(tvclosure, objthis));
             }
         }
 
@@ -1503,8 +1618,10 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::IsValid(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                        iTJSDispatch2 *objthis) {
+    tjs_error tTJSCustomObject::IsValid(tjs_uint32 flag,
+                                        const tjs_char *membername,
+                                        tjs_uint32 *hint,
+                                        iTJSDispatch2 *objthis) {
         if(membername == nullptr) {
             if(IsInvalidated)
                 return TJS_S_FALSE;
@@ -1529,14 +1646,16 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJSDefaultCreateNew(tjs_uint32 flag, tTJSVariant &targ, iTJSDispatch2 **result, tjs_int numparams,
+    tjs_error TJSDefaultCreateNew(tjs_uint32 flag, tTJSVariant &targ,
+                                  iTJSDispatch2 **result, tjs_int numparams,
                                   tTJSVariant **param, iTJSDispatch2 *objthis) {
         if(targ.Type() == tvtObject) {
             tTJSVariantClosure tvclosure = targ.AsObjectClosureNoAddRef();
             if(tvclosure.Object) {
                 // bypass
-                return tvclosure.Object->CreateNew(flag, nullptr, nullptr, result, numparams, param,
-                                                   TJS_SELECT_OBJTHIS(tvclosure, objthis));
+                return tvclosure.Object->CreateNew(
+                    flag, nullptr, nullptr, result, numparams, param,
+                    TJS_SELECT_OBJTHIS(tvclosure, objthis));
             }
         }
 
@@ -1544,15 +1663,17 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::CreateNew(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                          iTJSDispatch2 **result, tjs_int numparams,
-                                                          tTJSVariant **param, iTJSDispatch2 *objthis) {
+    tjs_error
+    tTJSCustomObject::CreateNew(tjs_uint32 flag, const tjs_char *membername,
+                                tjs_uint32 *hint, iTJSDispatch2 **result,
+                                tjs_int numparams, tTJSVariant **param,
+                                iTJSDispatch2 *objthis) {
         if(!GetValidity())
             return TJS_E_INVALIDOBJECT;
 
         if(membername == nullptr) {
-            // as an action of the default member, this object cannot create an
-            // object because this object is not a class
+            // as an action of the default member, this object cannot
+            // create an object because this object is not a class
             return TJS_E_INVALIDTYPE;
         }
 
@@ -1563,20 +1684,22 @@ namespace TJS {
                 // call 'missing' method
                 tTJSVariant value;
                 if(CallGetMissing(membername, value))
-                    return TJSDefaultCreateNew(flag, value, result, numparams, param, objthis);
+                    return TJSDefaultCreateNew(flag, value, result, numparams,
+                                               param, objthis);
             }
         }
 
         if(!data)
             return TJS_E_MEMBERNOTFOUND; // not found
 
-        return TJSDefaultCreateNew(flag, GetValue(data), result, numparams, param, objthis);
+        return TJSDefaultCreateNew(flag, GetValue(data), result, numparams,
+                                   param, objthis);
     }
     //---------------------------------------------------------------------------
     /*
-    tjs_error TJS_INTF_METHOD
-    tTJSCustomObject::GetSuperClass(tjs_uint32 flag, iTJSDispatch2 **result,
-                    iTJSDispatch2 *objthis)
+    tjs_error
+    tTJSCustomObject::GetSuperClass(tjs_uint32 flag, iTJSDispatch2
+    **result, iTJSDispatch2 *objthis)
     {
             // TODO: GetSuperClass's reason for being
             if(!GetValidity())
@@ -1586,7 +1709,9 @@ namespace TJS {
     }
     */
     //---------------------------------------------------------------------------
-    tjs_error TJSDefaultIsInstanceOf(tjs_uint32 flag, tTJSVariant &targ, const tjs_char *name, iTJSDispatch2 *objthis) {
+    tjs_error TJSDefaultIsInstanceOf(tjs_uint32 flag, tTJSVariant &targ,
+                                     const tjs_char *name,
+                                     iTJSDispatch2 *objthis) {
         tTJSVariantType vt;
         vt = targ.Type();
         if(vt == tvtVoid) {
@@ -1598,7 +1723,8 @@ namespace TJS {
 
         switch(vt) {
             case tvtVoid:
-                return TJS_S_FALSE; // returns always false about tvtVoid
+                return TJS_S_FALSE; // returns always false about
+                                    // tvtVoid
             case tvtInteger:
             case tvtReal:
                 if(!TJS_strcmp(name, TJS_W("Number")))
@@ -1614,11 +1740,13 @@ namespace TJS {
                 return TJS_S_FALSE;
             case tvtObject:
                 if(vt == tvtObject) {
-                    tTJSVariantClosure tvclosure = targ.AsObjectClosureNoAddRef();
+                    tTJSVariantClosure tvclosure =
+                        targ.AsObjectClosureNoAddRef();
                     if(tvclosure.Object) {
                         // bypass
-                        return tvclosure.Object->IsInstanceOf(flag, nullptr, nullptr, name,
-                                                              TJS_SELECT_OBJTHIS(tvclosure, objthis));
+                        return tvclosure.Object->IsInstanceOf(
+                            flag, nullptr, nullptr, name,
+                            TJS_SELECT_OBJTHIS(tvclosure, objthis));
                     }
                     return TJS_S_FALSE;
                 }
@@ -1628,9 +1756,11 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
-                                                             tjs_uint32 *hint, const tjs_char *classname,
-                                                             iTJSDispatch2 *objthis) {
+    tjs_error tTJSCustomObject::IsInstanceOf(tjs_uint32 flag,
+                                             const tjs_char *membername,
+                                             tjs_uint32 *hint,
+                                             const tjs_char *classname,
+                                             iTJSDispatch2 *objthis) {
         if(!GetValidity())
             return TJS_E_INVALIDOBJECT;
 
@@ -1657,7 +1787,8 @@ namespace TJS {
                 // call 'missing' method
                 tTJSVariant value;
                 if(CallGetMissing(membername, value))
-                    return TJSDefaultIsInstanceOf(flag, value, classname, objthis);
+                    return TJSDefaultIsInstanceOf(flag, value, classname,
+                                                  objthis);
             }
         }
 
@@ -1668,7 +1799,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJSDefaultOperation(tjs_uint32 flag, tTJSVariant &targ, tTJSVariant *result, const tTJSVariant *param,
+    tjs_error TJSDefaultOperation(tjs_uint32 flag, tTJSVariant &targ,
+                                  tTJSVariant *result, const tTJSVariant *param,
                                   iTJSDispatch2 *objthis) {
         tjs_uint32 op = flag & TJS_OP_MASK;
 
@@ -1679,8 +1811,8 @@ namespace TJS {
             return TJS_E_INVALIDPARAM;
 
         if(targ.Type() == tvtObject) {
-            // the member may be a property handler if the member's type is
-            // "tvtObject" so here try to access the object.
+            // the member may be a property handler if the member's
+            // type is "tvtObject" so here try to access the object.
             tjs_error hr;
 
             tTJSVariantClosure tvclosure;
@@ -1693,7 +1825,8 @@ namespace TJS {
                 if(TJS_SUCCEEDED(hr)) {
                     TJSDoVariantOperation(op, tmp, param);
 
-                    hr = tvclosure.Object->PropSet(0, nullptr, nullptr, &tmp, ot);
+                    hr = tvclosure.Object->PropSet(0, nullptr, nullptr, &tmp,
+                                                   ot);
                     if(TJS_FAILED(hr))
                         return hr;
 
@@ -1701,11 +1834,13 @@ namespace TJS {
                         result->CopyRef(tmp);
 
                     return TJS_S_OK;
-                } else if(hr != TJS_E_NOTIMPL && hr != TJS_E_INVALIDTYPE && hr != TJS_E_INVALIDOBJECT) {
+                } else if(hr != TJS_E_NOTIMPL && hr != TJS_E_INVALIDTYPE &&
+                          hr != TJS_E_INVALIDOBJECT) {
                     return hr;
                 }
 
-                // normal operation is proceeded if "PropGet" is failed.
+                // normal operation is proceeded if "PropGet" is
+                // failed.
             }
         }
 
@@ -1718,9 +1853,11 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::Operation(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint,
-                                                          tTJSVariant *result, const tTJSVariant *param,
-                                                          iTJSDispatch2 *objthis) {
+    tjs_error tTJSCustomObject::Operation(tjs_uint32 flag,
+                                          const tjs_char *membername,
+                                          tjs_uint32 *hint, tTJSVariant *result,
+                                          const tTJSVariant *param,
+                                          iTJSDispatch2 *objthis) {
         if(!GetValidity())
             return TJS_E_INVALIDOBJECT;
 
@@ -1744,7 +1881,8 @@ namespace TJS {
         if(!data) {
             if(CallMissing) {
                 // call default operation
-                return inherited::Operation(flag, membername, hint, result, param, objthis);
+                return inherited::Operation(flag, membername, hint, result,
+                                            param, objthis);
             }
         }
 
@@ -1764,7 +1902,8 @@ namespace TJS {
                 if(TJS_SUCCEEDED(hr)) {
                     TJSDoVariantOperation(op, tmp, param);
 
-                    hr = tvclosure.Object->PropSet(0, nullptr, nullptr, &tmp, ot);
+                    hr = tvclosure.Object->PropSet(0, nullptr, nullptr, &tmp,
+                                                   ot);
                     if(TJS_FAILED(hr))
                         return hr;
 
@@ -1772,7 +1911,8 @@ namespace TJS {
                         result->CopyRef(tmp);
 
                     return TJS_S_OK;
-                } else if(hr != TJS_E_NOTIMPL && hr != TJS_E_INVALIDTYPE && hr != TJS_E_INVALIDOBJECT) {
+                } else if(hr != TJS_E_NOTIMPL && hr != TJS_E_INVALIDTYPE &&
+                          hr != TJS_E_INVALIDOBJECT) {
                     return hr;
                 }
             }
@@ -1796,8 +1936,9 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::NativeInstanceSupport(tjs_uint32 flag, tjs_int32 classid,
-                                                                      iTJSNativeInstance **pointer) {
+    tjs_error
+    tTJSCustomObject::NativeInstanceSupport(tjs_uint32 flag, tjs_int32 classid,
+                                            iTJSNativeInstance **pointer) {
         if(flag == TJS_NIS_GETINSTANCE) {
             // search "classid"
             for(tjs_int i = 0; i < TJS_MAX_NATIVE_CLASS; i++) {
@@ -1826,13 +1967,15 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_error TJS_INTF_METHOD tTJSCustomObject::ClassInstanceInfo(tjs_uint32 flag, tjs_uint num, tTJSVariant *value) {
+    tjs_error tTJSCustomObject::ClassInstanceInfo(tjs_uint32 flag, tjs_uint num,
+                                                  tTJSVariant *value) {
         switch(flag) {
             case TJS_CII_ADD: {
                 // add value
                 ttstr name = value->AsStringNoAddRef();
                 if(TJSObjectHashMapEnabled() && ClassNames.size() == 0)
-                    TJSObjectHashSetType(this, TJS_W("instance of class ") + name);
+                    TJSObjectHashSetType(this,
+                                         TJS_W("instance of class ") + name);
                 // First class name is used for the object classname
                 // because the order of the class name
                 // registration is from descendant to ancestor.
@@ -1871,7 +2014,8 @@ namespace TJS {
     // TJSCreateCustomObject
     //---------------------------------------------------------------------------
     iTJSDispatch2 *TJSCreateCustomObject() {
-        // utility function; returns newly created empty tTJSCustomObject
+        // utility function; returns newly created empty
+        // tTJSCustomObject
         return new tTJSCustomObject();
     }
     //---------------------------------------------------------------------------

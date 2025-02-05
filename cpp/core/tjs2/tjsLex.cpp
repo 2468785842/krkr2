@@ -22,7 +22,8 @@
 
 namespace TJS {
 
-    tjs_nchar tjsEnableDicFuncQuickHack_mark[] = " - 0 <- Put '1' to enable dicfunc quick-hack - ";
+    tjs_nchar tjsEnableDicFuncQuickHack_mark[] =
+        " - 0 <- Put '1' to enable dicfunc quick-hack - ";
     bool tjsEnableDicFuncQuickHack = tjsEnableDicFuncQuickHack_mark[3] != '0';
     //----- dicfunc quick-hack
 
@@ -185,8 +186,8 @@ namespace TJS {
             tjs_int level = 0;
             for(;;) {
                 if((*ptr)[0] == TJS_W('/') && (*ptr)[1] == TJS_W('*')) {
-                    // note: we cannot avoid comment processing when the
-                    // nested comment is in string literals.
+                    // note: we cannot avoid comment processing when
+                    // the nested comment is in string literals.
                     level++;
                 }
                 if((*ptr)[0] == TJS_W('*') && (*ptr)[1] == TJS_W('/')) {
@@ -243,10 +244,16 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // TJSParseString
     //---------------------------------------------------------------------------
-    enum tTJSInternalParseStringResult { psrNone, psrDelimiter, psrAmpersand, psrDollar };
+    enum tTJSInternalParseStringResult {
+        psrNone,
+        psrDelimiter,
+        psrAmpersand,
+        psrDollar
+    };
 
-    static tTJSInternalParseStringResult TJSInternalParseString(tTJSVariant &val, const tjs_char **ptr, tjs_char delim,
-                                                                bool embexpmode) {
+    static tTJSInternalParseStringResult
+    TJSInternalParseString(tTJSVariant &val, const tjs_char **ptr,
+                           tjs_char delim, bool embexpmode) {
         // delim1 must be '\'' or '"'
         // delim2 must be '&' or '\0'
 
@@ -261,16 +268,17 @@ namespace TJS {
                     break;
                 if(*(*ptr) == TJS_W('x') || *(*ptr) == TJS_W('X')) {
                     // hex
-                    // starts with a "\x", be parsed while characters are
-                    // recognized as hex-characters, but limited of size of
-                    // tjs_char. on Windows, \xXXXXX will be parsed to UNICODE 16bit
-                    // characters.
+                    // starts with a "\x", be parsed while characters
+                    // are recognized as hex-characters, but limited
+                    // of size of tjs_char. on Windows, \xXXXXX will
+                    // be parsed to UNICODE 16bit characters.
                     if(!TJSNext(ptr))
                         break;
                     tjs_int num;
                     tjs_int code = 0;
                     tjs_int count = 0;
-                    while((num = TJSHexNum(*(*ptr))) != -1 && count < (sizeof(tjs_char) * 2)) {
+                    while((num = TJSHexNum(*(*ptr))) != -1 &&
+                          count < (sizeof(tjs_char) * 2)) {
                         code *= 16;
                         code += num;
                         count++;
@@ -364,14 +372,16 @@ namespace TJS {
 
         TJSNext(ptr);
 
-        return TJSInternalParseString(val, ptr, delimiter, false) == psrDelimiter;
+        return TJSInternalParseString(val, ptr, delimiter, false) ==
+            psrDelimiter;
     }
     //---------------------------------------------------------------------------
 
     //---------------------------------------------------------------------------
     // TJSParseNumber
     //---------------------------------------------------------------------------
-    static tTJSString TJSExtractNumber(tjs_int (*validdigits)(tjs_char ch), const tjs_char *expmark,
+    static tTJSString TJSExtractNumber(tjs_int (*validdigits)(tjs_char ch),
+                                       const tjs_char *expmark,
                                        const tjs_char **ptr, bool &isreal) {
         tTJSString tmp;
 
@@ -387,7 +397,8 @@ namespace TJS {
                 tmp += **ptr;
                 if(!TJSNext(ptr))
                     break;
-            } else if((**ptr == expmark[0] || **ptr == expmark[1]) && !exp_found) {
+            } else if((**ptr == expmark[0] || **ptr == expmark[1]) &&
+                      !exp_found) {
                 exp_found = true;
                 tmp += **ptr;
                 if(!TJSNext(ptr))
@@ -421,15 +432,17 @@ namespace TJS {
         return tmp;
     }
 
-    static bool TJSParseNonDecimalReal(tTJSVariant &val, const tjs_char **ptr, tjs_int (*validdigits)(tjs_char ch),
+    static bool TJSParseNonDecimalReal(tTJSVariant &val, const tjs_char **ptr,
+                                       tjs_int (*validdigits)(tjs_char ch),
                                        tjs_int basebits) {
-        // parse non-decimal(hexiadecimal, octal or binary) floating-point number.
-        // this routine heavily depends on IEEE double floating-point number
-        // expression.
+        // parse non-decimal(hexiadecimal, octal or binary)
+        // floating-point number. this routine heavily depends on IEEE
+        // double floating-point number expression.
 
         tjs_uint64 main = TJS_UI64_VAL(0); // significand
         tjs_int exp = 0; // 2^n exponental
-        tjs_int numsignif = 0; // significand bit count (including leading left-most '1') in "main"
+        tjs_int numsignif = 0; // significand bit count (including
+                               // leading left-most '1') in "main"
         bool pointpassed = false;
 
         // scan input
@@ -518,7 +531,8 @@ namespace TJS {
             return true;
         }
 
-        main &= ((TJS_UI64_VAL(1) << TJS_IEEE_D_SIGNIFICAND_BITS) - TJS_UI64_VAL(1));
+        main &= ((TJS_UI64_VAL(1) << TJS_IEEE_D_SIGNIFICAND_BITS) -
+                 TJS_UI64_VAL(1));
 
         if(exp < TJS_IEEE_D_EXP_MIN) {
             // denormal
@@ -538,12 +552,15 @@ namespace TJS {
 
         // compose IEEE double
         tjs_real d;
-        *(tjs_uint64 *)&d = TJS_IEEE_D_MAKE_SIGN(0) | TJS_IEEE_D_MAKE_EXP(exp) | TJS_IEEE_D_MAKE_SIGNIFICAND(main);
+        *(tjs_uint64 *)&d = TJS_IEEE_D_MAKE_SIGN(0) | TJS_IEEE_D_MAKE_EXP(exp) |
+            TJS_IEEE_D_MAKE_SIGNIFICAND(main);
         val = d;
         return true;
     }
 
-    static bool TJSParseNonDecimalInteger(tTJSVariant &val, const tjs_char **ptr, tjs_int (*validdigits)(tjs_char ch),
+    static bool TJSParseNonDecimalInteger(tTJSVariant &val,
+                                          const tjs_char **ptr,
+                                          tjs_int (*validdigits)(tjs_char ch),
                                           tjs_int basebits) {
         tjs_int64 v = 0;
         while(true) {
@@ -556,7 +573,8 @@ namespace TJS {
         return true;
     }
 
-    static bool TJSParseNonDecimalNumber(tTJSVariant &val, const tjs_char **ptr, tjs_int (*validdigits)(tjs_char ch),
+    static bool TJSParseNonDecimalNumber(tTJSVariant &val, const tjs_char **ptr,
+                                         tjs_int (*validdigits)(tjs_char ch),
                                          tjs_int base) {
         bool isreal = false;
         tTJSString tmp(TJSExtractNumber(validdigits, TJS_W("Pp"), ptr, isreal));
@@ -806,11 +824,12 @@ namespace TJS {
         // parse a regular expression pointed by 'ptr'.
         // this is essencially the same as string parsing, except for
         // not to decode escaped characters by '\\'.
-        // the regexp must be terminated by the delimiter '/', not succeeded by
+        // the regexp must be terminated by the delimiter '/', not
+        // succeeded by
         // '\\'.
 
-        // this returns an internal representation: '//flag/pattern' that can be
-        // parsed by RegExp._compile
+        // this returns an internal representation: '//flag/pattern'
+        // that can be parsed by RegExp._compile
 
         //	if(!TJSNext((*ptr))) TJS_eTJSError(TJSStringParseError);
 
@@ -890,12 +909,15 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    static void TJSRegisterReservedWordsHash(const tjs_char *word, tjs_int num) {
+    static void TJSRegisterReservedWordsHash(const tjs_char *word,
+                                             tjs_int num) {
         tTJSVariant val(num);
-        TJSReservedWordHash->PropSet(TJS_MEMBERENSURE, word, nullptr, &val, TJSReservedWordHash);
+        TJSReservedWordHash->PropSet(TJS_MEMBERENSURE, word, nullptr, &val,
+                                     TJSReservedWordHash);
     }
 //---------------------------------------------------------------------------
-#define TJS_REG_RES_WORD(word, value) TJSRegisterReservedWordsHash(TJS_W(word), value)
+#define TJS_REG_RES_WORD(word, value)                                          \
+    TJSRegisterReservedWordsHash(TJS_W(word), value)
 
     static void TJSInitReservedWordsHashTable() {
         if(TJSReservedWordHashInit)
@@ -940,7 +962,8 @@ namespace TJS {
         TJS_REG_RES_WORD("public", parser::token_kind_type::T_PUBLIC);
         TJS_REG_RES_WORD("return", parser::token_kind_type::T_RETURN);
         TJS_REG_RES_WORD("real", parser::token_kind_type::T_REAL);
-        TJS_REG_RES_WORD("synchronized", parser::token_kind_type::T_SYNCHRONIZED);
+        TJS_REG_RES_WORD("synchronized",
+                         parser::token_kind_type::T_SYNCHRONIZED);
         TJS_REG_RES_WORD("switch", parser::token_kind_type::T_SWITCH);
         TJS_REG_RES_WORD("static", parser::token_kind_type::T_STATIC);
         TJS_REG_RES_WORD("setter", parser::token_kind_type::T_SETTER);
@@ -967,8 +990,9 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // tTJSLexicalAnalyzer
     //---------------------------------------------------------------------------
-    tTJSLexicalAnalyzer::tTJSLexicalAnalyzer(tTJSScriptBlock *block, const tjs_char *script, bool exprmode,
-                                             bool resneeded) {
+    tTJSLexicalAnalyzer::tTJSLexicalAnalyzer(tTJSScriptBlock *block,
+                                             const tjs_char *script,
+                                             bool exprmode, bool resneeded) {
         // resneeded is valid only if exprmode is true
 
         TJSInitReservedWordsHashTable();
@@ -995,7 +1019,9 @@ namespace TJS {
         if(tjsEnableDicFuncQuickHack) //----- dicfunc quick-hack
         {
             DicFunc = false;
-            if(ExprMode && (Script[0] == TJS_W('[') || (Script[0] == TJS_W('%') && Script[1] == TJS_W('[')))) {
+            if(ExprMode &&
+               (Script[0] == TJS_W('[') ||
+                (Script[0] == TJS_W('%') && Script[1] == TJS_W('[')))) {
                 DicFunc = true;
             }
         }
@@ -1022,13 +1048,15 @@ namespace TJS {
             if(*Current == TJS_W('/')) {
                 switch(TJSSkipComment(&Current)) {
                     case scrEnded:
-                        TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                        TJS_eTJSCompileError(TJSPPError, Block,
+                                             (tjs_int)(Current - Script));
                         break;
                     case scrContinue:
                         break;
                     case scrNotComment:
                         if(!TJSNext(&Current))
-                            TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                            TJS_eTJSCompileError(TJSPPError, Block,
+                                                 (tjs_int)(Current - Script));
                         break;
                 }
             } else if(*Current == TJS_W('@')) {
@@ -1060,10 +1088,12 @@ namespace TJS {
                 if(skipp) {
                     // skip parenthesises
                     if(!TJSSkipSpace(&Current))
-                        TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                        TJS_eTJSCompileError(TJSPPError, Block,
+                                             (tjs_int)(Current - Script));
 
                     if(*Current != TJS_W('('))
-                        TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                        TJS_eTJSCompileError(TJSPPError, Block,
+                                             (tjs_int)(Current - Script));
 
                     TJSNext(&Current);
                     tjs_int plevel = 0;
@@ -1075,14 +1105,17 @@ namespace TJS {
                         TJSNext(&Current);
                     }
                     if(!*Current)
-                        TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                        TJS_eTJSCompileError(TJSPPError, Block,
+                                             (tjs_int)(Current - Script));
                     TJSNext(&Current);
                     if(!*Current)
-                        TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                        TJS_eTJSCompileError(TJSPPError, Block,
+                                             (tjs_int)(Current - Script));
                 }
             } else {
                 if(!TJSNext(&Current))
-                    TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                    TJS_eTJSCompileError(TJSPPError, Block,
+                                         (tjs_int)(Current - Script));
             }
         }
     }
@@ -1100,10 +1133,12 @@ namespace TJS {
             Block->NotifyUsingPreProcessor();
             Current += 3;
             if(!TJSSkipSpace(&Current))
-                TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                TJS_eTJSCompileError(TJSPPError, Block,
+                                     (tjs_int)(Current - Script));
 
             if(*Current != TJS_W('('))
-                TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                TJS_eTJSCompileError(TJSPPError, Block,
+                                     (tjs_int)(Current - Script));
 
             TJSNext(&Current);
             const tjs_char *st = Current;
@@ -1120,9 +1155,11 @@ namespace TJS {
             TJSNext(&Current);
 
             try {
-                ParsePPExpression(st, (tjs_int)(ed - st)); // evaluate exp
+                ParsePPExpression(st,
+                                  (tjs_int)(ed - st)); // evaluate exp
             } catch(...) {
-                TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                TJS_eTJSCompileError(TJSPPError, Block,
+                                     (tjs_int)(Current - Script));
             }
 
             TJSSkipSpace(&Current);
@@ -1138,10 +1175,12 @@ namespace TJS {
             Block->NotifyUsingPreProcessor();
             Current += 2;
             if(!TJSSkipSpace(&Current))
-                TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                TJS_eTJSCompileError(TJSPPError, Block,
+                                     (tjs_int)(Current - Script));
 
             if(*Current != TJS_W('('))
-                TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                TJS_eTJSCompileError(TJSPPError, Block,
+                                     (tjs_int)(Current - Script));
 
             TJSNext(&Current);
             const tjs_char *st = Current;
@@ -1162,7 +1201,8 @@ namespace TJS {
             try {
                 ret = ParsePPExpression(st, (tjs_int)(ed - st)); // evaluate exp
             } catch(...) {
-                TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                TJS_eTJSCompileError(TJSPPError, Block,
+                                     (tjs_int)(Current - Script));
             }
 
             if(!ret)
@@ -1180,7 +1220,8 @@ namespace TJS {
             Current += 5;
             IfLevel--;
             if(IfLevel < 0)
-                TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                TJS_eTJSCompileError(TJSPPError, Block,
+                                     (tjs_int)(Current - Script));
 
             TJSSkipSpace(&Current);
             if(!*Current)
@@ -1192,24 +1233,24 @@ namespace TJS {
         return scrNotComment;
     }
 //---------------------------------------------------------------------------
-#define TJS_MATCH_W(word, code)                                                                                        \
-    if(TJSStringMatch(&Current, TJS_W(word), true))                                                                    \
+#define TJS_MATCH_W(word, code)                                                \
+    if(TJSStringMatch(&Current, TJS_W(word), true))                            \
     return (code)
-#define TJS_MATCH_S(word, code)                                                                                        \
-    if(TJSStringMatch(&Current, TJS_W(word), false))                                                                   \
+#define TJS_MATCH_S(word, code)                                                \
+    if(TJSStringMatch(&Current, TJS_W(word), false))                           \
     return (code)
-#define TJS_MATCH_W_V(word, code, val)                                                                                 \
-    if(TJSStringMatch(&Current, TJS_W(word), true)) {                                                                  \
-        n = PutValue(val);                                                                                             \
-        return (code);                                                                                                 \
+#define TJS_MATCH_W_V(word, code, val)                                         \
+    if(TJSStringMatch(&Current, TJS_W(word), true)) {                          \
+        n = PutValue(val);                                                     \
+        return (code);                                                         \
     }
-#define TJS_MATCH_S_V(word, code, val)                                                                                 \
-    if(TJSStringMatch(&Current, TJS_W(word), false)) {                                                                 \
-        n = PutValue(val);                                                                                             \
-        return (code);                                                                                                 \
+#define TJS_MATCH_S_V(word, code, val)                                         \
+    if(TJSStringMatch(&Current, TJS_W(word), false)) {                         \
+        n = PutValue(val);                                                     \
+        return (code);                                                         \
     }
-#define TJS_1CHAR(code)                                                                                                \
-    TJSNext(&Current);                                                                                                 \
+#define TJS_1CHAR(code)                                                        \
+    TJSNext(&Current);                                                         \
     return (code)
 
     tjs_int tTJSLexicalAnalyzer::GetToken(tjs_int &n) {
@@ -1219,7 +1260,8 @@ namespace TJS {
             return 0;
 
         if(RegularExpression) {
-            // the next token was marked as a regular expression by the parser
+            // the next token was marked as a regular expression by
+            // the parser
             RegularExpression = false;
 
             Current = Script + PrevPos; // draws position of the first '/' back
@@ -1235,7 +1277,8 @@ namespace TJS {
 
     re_match:
 
-        PrevPos = (tjs_int)(Current - Script); // remember current position as "PrevPos"
+        PrevPos = (tjs_int)(Current - Script); // remember current position
+                                               // as "PrevPos"
 
         switch(*Current) {
             case TJS_W('>'):
@@ -1395,8 +1438,8 @@ namespace TJS {
                 }
 
             case TJS_W('@'):
-                // embeddable expression in string (such as @"this can be embeddable
-                // like &variable;")
+                // embeddable expression in string (such as @"this can
+                // be embeddable like &variable;")
                 {
                     const tjs_char *org = Current;
                     if(!TJSNext(&Current))
@@ -1445,7 +1488,8 @@ namespace TJS {
                     tTJSVariant v;
                     bool r = TJSParseNumber(v, &Current);
                     if(!r)
-                        TJS_eTJSCompileError(TJSNumberError, Block, (tjs_int)(Current - Script));
+                        TJS_eTJSCompileError(TJSNumberError, Block,
+                                             (tjs_int)(Current - Script));
                     n = PutValue(v);
                     return parser::token_kind_type::T_CONSTVAL;
                 }
@@ -1459,7 +1503,8 @@ namespace TJS {
 
         const tjs_char *ptr = Current;
         tjs_int nch = 0;
-        while(TJS_iswdigit(*ptr) || TJS_iswalpha(*ptr) || *ptr == TJS_W('_') || *ptr > 0x0100 || *ptr == TJS_SKIP_CODE)
+        while(TJS_iswdigit(*ptr) || TJS_iswalpha(*ptr) || *ptr == TJS_W('_') ||
+              *ptr > 0x0100 || *ptr == TJS_SKIP_CODE)
             ptr++, nch++;
 
         if(nch == 0) {
@@ -1490,7 +1535,8 @@ namespace TJS {
         if(BareWord)
             retnum = -1;
         else
-            retnum = TJSReservedWordHash->GetValueInteger(str.c_str(), str.GetHint());
+            retnum = TJSReservedWordHash->GetValueInteger(str.c_str(),
+                                                          str.GetHint());
 
         BareWord = false;
 
@@ -1530,9 +1576,10 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_int32 tTJSLexicalAnalyzer::ParsePPExpression(const tjs_char *start, tjs_int n) {
-        // parses a conditional compile experssion starting with "start",
-        // character count "n".
+    tjs_int32 tTJSLexicalAnalyzer::ParsePPExpression(const tjs_char *start,
+                                                     tjs_int n) {
+        // parses a conditional compile experssion starting with
+        // "start", character count "n".
         auto *buf = new tjs_char[n + 1];
         tjs_char *p;
         const tjs_char *lim = start + n;
@@ -1566,7 +1613,8 @@ namespace TJS {
 
         // pre-process
 
-        // proceeds newline code unification, conditional compile control.
+        // proceeds newline code unification, conditional compile
+        // control.
 
         /* unify new line codes */
         TJS_D((TJS_W("unifying new line codes ...\n")))
@@ -1606,7 +1654,9 @@ namespace TJS {
     }
     */
     //---------------------------------------------------------------------------
-    tjs_int tTJSLexicalAnalyzer::GetCurrentPosition() { return (tjs_int)(Current - Script); }
+    tjs_int tTJSLexicalAnalyzer::GetCurrentPosition() {
+        return (tjs_int)(Current - Script);
+    }
 
     //---------------------------------------------------------------------------
     tjs_int tTJSLexicalAnalyzer::GetNext(tjs_int &value) {
@@ -1627,8 +1677,8 @@ namespace TJS {
             if(ExprMode && ResultNeeded) {
                 value = 0;
                 return parser::token_kind_type::T_RETURN;
-                // return parser::token_kind_type::T_RETURN first if 'expression'
-                // mode (and ResultNeeded is specified)
+                // return parser::token_kind_type::T_RETURN first if
+                // 'expression' mode (and ResultNeeded is specified)
             }
         }
 
@@ -1650,41 +1700,60 @@ namespace TJS {
                     TJSSkipSpace(&Current);
                     n = GetToken(value);
 
-                    if(tjsEnableDicFuncQuickHack) //----- dicfunc quick-hack
+                    if(tjsEnableDicFuncQuickHack) //----- dicfunc
+                                                  // quick-hack
                     {
                         if(DicFunc) {
                             if(n == parser::token_kind_type::T_PERCENT) {
                                 // push "function { return %"
-                                RetValDeque.emplace_back(parser::token_kind_type::T_FUNCTION, 0);
-                                RetValDeque.emplace_back(parser::token_kind_type::T_LBRACE, 0);
-                                RetValDeque.emplace_back(parser::token_kind_type::T_RETURN, 0);
-                                RetValDeque.emplace_back(parser::token_kind_type::T_PERCENT, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_FUNCTION, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_LBRACE, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_RETURN, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_PERCENT, 0);
                                 n = -1;
-                            } else if(n == parser::token_kind_type::T_LBRACKET &&
-                                      PrevToken != parser::token_kind_type::T_PERCENT) {
+                            } else if(n ==
+                                          parser::token_kind_type::T_LBRACKET &&
+                                      PrevToken !=
+                                          parser::token_kind_type::T_PERCENT) {
                                 // push "function { return ["
-                                RetValDeque.emplace_back(parser::token_kind_type::T_FUNCTION, 0);
-                                RetValDeque.emplace_back(parser::token_kind_type::T_LBRACE, 0);
-                                RetValDeque.emplace_back(parser::token_kind_type::T_RETURN, 0);
-                                RetValDeque.emplace_back(parser::token_kind_type::T_LBRACKET, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_FUNCTION, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_LBRACE, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_RETURN, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_LBRACKET, 0);
                                 n = -1;
-                            } else if(n == parser::token_kind_type::T_RBRACKET) {
+                            } else if(n ==
+                                      parser::token_kind_type::T_RBRACKET) {
                                 // push "] ; }( )"
-                                RetValDeque.emplace_back(parser::token_kind_type::T_RBRACKET, 0);
-                                RetValDeque.emplace_back(parser::token_kind_type::T_SEMICOLON, 0);
-                                RetValDeque.emplace_back(parser::token_kind_type::T_RBRACE, 0);
-                                RetValDeque.emplace_back(parser::token_kind_type::T_LPARENTHESIS, 0);
-                                RetValDeque.emplace_back(parser::token_kind_type::T_RPARENTHESIS, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_RBRACKET, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_SEMICOLON, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_RBRACE, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_LPARENTHESIS, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_RPARENTHESIS, 0);
                                 n = -1;
                             }
                         }
                     }
                 } else {
                     // embeddable expression mode
-                    tEmbeddableExpressionData &data = EmbeddableExpressionDataStack.back();
+                    tEmbeddableExpressionData &data =
+                        EmbeddableExpressionDataStack.back();
                     switch(data.State) {
                         case evsStart:
-                            RetValDeque.emplace_back(parser::token_kind_type::T_LPARENTHESIS, 0);
+                            RetValDeque.emplace_back(
+                                parser::token_kind_type::T_LPARENTHESIS, 0);
                             n = -1;
                             data.State = evsNextIsStringLiteral;
                             break;
@@ -1692,40 +1761,55 @@ namespace TJS {
                         case evsNextIsStringLiteral: {
                             tTJSVariant v;
                             tTJSInternalParseStringResult res =
-                                // TJSInternalParseString(v, &Current, data.Delimiter,
-                                // TJS_W('&'));
-                                TJSInternalParseString(v, &Current, data.Delimiter, true);
+                                // TJSInternalParseString(v, &Current,
+                                // data.Delimiter, TJS_W('&'));
+                                TJSInternalParseString(v, &Current,
+                                                       data.Delimiter, true);
                             if(res == psrDelimiter) {
                                 // embeddable expression mode ended
                                 ttstr str(v);
                                 if(!str.IsEmpty()) {
                                     if(data.NeedPlus)
-                                        RetValDeque.emplace_back(parser::token_kind_type::T_PLUS, 0);
+                                        RetValDeque.emplace_back(
+                                            parser::token_kind_type::T_PLUS, 0);
                                 }
                                 if(!str.IsEmpty() || !data.NeedPlus)
-                                    RetValDeque.emplace_back(parser::token_kind_type::T_CONSTVAL, PutValue(v));
-                                RetValDeque.emplace_back(parser::token_kind_type::T_RPARENTHESIS, 0);
+                                    RetValDeque.emplace_back(
+                                        parser::token_kind_type::T_CONSTVAL,
+                                        PutValue(v));
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_RPARENTHESIS, 0);
                                 EmbeddableExpressionDataStack.pop_back();
                                 n = -1;
                                 break;
                             } else {
-                                // *Current is next to ampersand mark or '${'
+                                // *Current is next to ampersand mark
+                                // or '${'
                                 ttstr str(v);
                                 if(!str.IsEmpty()) {
                                     if(data.NeedPlus)
-                                        RetValDeque.emplace_back(parser::token_kind_type::T_PLUS, 0);
-                                    RetValDeque.emplace_back(parser::token_kind_type::T_CONSTVAL, PutValue(v));
+                                        RetValDeque.emplace_back(
+                                            parser::token_kind_type::T_PLUS, 0);
+                                    RetValDeque.emplace_back(
+                                        parser::token_kind_type::T_CONSTVAL,
+                                        PutValue(v));
                                     data.NeedPlus = true;
                                 }
                                 if(data.NeedPlus)
-                                    RetValDeque.emplace_back(parser::token_kind_type::T_PLUS, 0);
-                                RetValDeque.emplace_back(parser::token_kind_type::T_STRING, 0);
-                                RetValDeque.emplace_back(parser::token_kind_type::T_LPARENTHESIS, 0);
+                                    RetValDeque.emplace_back(
+                                        parser::token_kind_type::T_PLUS, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_STRING, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_LPARENTHESIS, 0);
                                 data.State = evsNextIsExpression;
                                 if(res == psrAmpersand)
-                                    data.WaitingToken = parser::token_kind_type::T_SEMICOLON;
+                                    data.WaitingToken =
+                                        parser::token_kind_type::T_SEMICOLON;
                                 else if(res == psrDollar)
-                                    data.WaitingToken = parser::token_kind_type::T_RBRACE, NestLevel++;
+                                    data.WaitingToken =
+                                        parser::token_kind_type::T_RBRACE,
+                                    NestLevel++;
                                 n = -1;
                                 break;
                             }
@@ -1735,9 +1819,11 @@ namespace TJS {
                             TJSSkipSpace(&Current);
                             n = GetToken(value);
 
-                            if(n == data.WaitingToken && NestLevel == data.WaitingNestLevel) {
+                            if(n == data.WaitingToken &&
+                               NestLevel == data.WaitingNestLevel) {
                                 // end of embeddable expression mode
-                                RetValDeque.emplace_back(parser::token_kind_type::T_RPARENTHESIS, 0);
+                                RetValDeque.emplace_back(
+                                    parser::token_kind_type::T_RPARENTHESIS, 0);
                                 data.NeedPlus = true;
                                 data.State = evsNextIsStringLiteral;
                                 n = -1;
@@ -1750,7 +1836,8 @@ namespace TJS {
 
                 if(n == 0) {
                     if(IfLevel != 0)
-                        TJS_eTJSCompileError(TJSPPError, Block, (tjs_int)(Current - Script));
+                        TJS_eTJSCompileError(TJSPPError, Block,
+                                             (tjs_int)(Current - Script));
                 }
             } catch(eTJSCompileError &e) {
                 _yyerror(e.GetMessage().c_str(), Block);
@@ -1779,7 +1866,8 @@ namespace TJS {
                 if(BlockBrace)
                 {
                         if(n == parser::token_kind_type::T_LBRACE) n =
-           parser::token_kind_type::T_BLOCK_LBRACE; BlockBrace = false;
+           parser::token_kind_type::T_BLOCK_LBRACE; BlockBrace =
+           false;
                 }
         */
         PrevToken = n;
@@ -1789,8 +1877,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
     void tTJSLexicalAnalyzer::SetStartOfRegExp() {
         // notifies that a regular expression ( regexp ) 's
-        // first '/' ( that indicates the start of the regexp ) had been detected.
-        // this will be called by the parser.
+        // first '/' ( that indicates the start of the regexp ) had
+        // been detected. this will be called by the parser.
 
         RegularExpression = true;
     }

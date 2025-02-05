@@ -23,9 +23,10 @@ class tTJSNI_SoundBuffer : public tTJSNI_BaseSoundBuffer {
 public:
     tTJSNI_SoundBuffer();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
 
-    void TJS_INTF_METHOD Invalidate();
+    void Invalidate();
 
 public:
 protected:

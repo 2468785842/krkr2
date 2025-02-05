@@ -1,73 +1,38 @@
 cmake_minimum_required(VERSION 3.28)
 project(krkr2core)
 
+add_subdirectory(base)
+add_subdirectory(environ)
+add_subdirectory(movie)
+add_subdirectory(msg)
+add_subdirectory(sound)
+add_subdirectory(visual)
 add_subdirectory(tjs2)
 add_subdirectory(utils)
 
-file(GLOB KRKR2CORE_SOURCES
-    ${KRKR2CORE_PATH}/visual/*.cpp
-    ${KRKR2CORE_PATH}/base/*.cpp
-    ${KRKR2CORE_PATH}/base/win32/*.cpp
-    ${KRKR2CORE_PATH}/environ/*.cpp
-    ${KRKR2CORE_PATH}/environ/ConfigManager/*.cpp
-    ${KRKR2CORE_PATH}/environ/android/*.cpp
-    ${KRKR2CORE_PATH}/environ/cocos2d/*.cpp
-    ${KRKR2CORE_PATH}/environ/linux/*.cpp
-    ${KRKR2CORE_PATH}/environ/ui/*.cpp
-    ${KRKR2CORE_PATH}/environ/ui/extension/*.cpp
-    ${KRKR2CORE_PATH}/environ/win32/SystemControl.cpp
-    ${KRKR2CORE_PATH}/extension/*.cpp
-    ${KRKR2CORE_PATH}/movie/*.cpp
-    ${KRKR2CORE_PATH}/movie/*/*.cpp
-    ${KRKR2CORE_PATH}/msg/*.cpp
-    ${KRKR2CORE_PATH}/msg/win32/MsgImpl.cpp
-    ${KRKR2CORE_PATH}/msg/win32/OptionsDesc.cpp
-    ${KRKR2CORE_PATH}/sound/*.cpp
-    ${KRKR2CORE_PATH}/sound/win32/*.cpp
-    ${KRKR2CORE_PATH}/visual/gl/*.cpp
-    ${KRKR2CORE_PATH}/visual/ogl/*.cpp
-    ${KRKR2CORE_PATH}/visual/win32/*.cpp
-)
-
-list(REMOVE_ITEM KRKR2CORE_SOURCES
-    ${KRKR2CORE_PATH}/visual/Resampler.cpp
-    ${KRKR2CORE_PATH}/base/win32/FuncStubs.cpp
-    ${KRKR2CORE_PATH}/base/win32/SusieArchive.cpp
-    ${KRKR2CORE_PATH}/environ/MainFormUnit.cpp
-    ${KRKR2CORE_PATH}/sound/xmmlib.cpp
-    ${KRKR2CORE_PATH}/sound/WaveFormatConverter_SSE.cpp
-    ${KRKR2CORE_PATH}/visual/win32/GDIFontRasterizer.cpp
-    ${KRKR2CORE_PATH}/visual/win32/NativeFreeTypeFace.cpp
-    ${KRKR2CORE_PATH}/visual/win32/TVPSysFont.cpp
-    ${KRKR2CORE_PATH}/visual/win32/VSyncTimingThread.cpp
-)
-
 # Create the static library
 add_library(${PROJECT_NAME} STATIC
+    ${BASE_SOURCE_FILES}
     ${UTILS_SOURCE_FILES}
-    ${KRKR2CORE_PATH}/environ/android/AndroidUtils.cpp
-    ${KRKR2CORE_SOURCES}
+    ${ENVIRON_SOURCE_FILES}
+    ${KRKR2CORE_PATH}/extension/Extension.cpp
+    ${MOVIE_SOURCE_FILES}
+    ${MSG_SOURCE_FILES}
+    ${SOUND_SOURCE_FILES}
+    ${VISUAL_SOURCE_FILES}
 )
 
 # Common include directories
 target_include_directories(${PROJECT_NAME} PUBLIC
+    ${BASE_HEADERS_DIR}
     ${UTILS_HEADERS_DIR}
-    ${KRKR2CORE_PATH}/
-    ${KRKR2CORE_PATH}/base
-    ${KRKR2CORE_PATH}/base/win32
-    ${KRKR2CORE_PATH}/environ
-    ${KRKR2CORE_PATH}/environ/win32
-    ${KRKR2CORE_PATH}/environ/android
-    ${KRKR2CORE_PATH}/environ/sdl
-    ${KRKR2CORE_PATH}/msg
-    ${KRKR2CORE_PATH}/msg/win32
+    ${ENVIRON_HEADERS_DIR}
     ${KRKR2CORE_PATH}/extension
-    ${KRKR2CORE_PATH}/sound
-    ${KRKR2CORE_PATH}/sound/win32
-    ${KRKR2CORE_PATH}/visual
-    ${KRKR2CORE_PATH}/visual/ARM
-    ${KRKR2CORE_PATH}/visual/win32
-    ${KRKR2CORE_PATH}/visual/RenderScript/rs
+    ${MOVIE_HEADERS_DIR}
+    ${MSG_HEADERS_DIR}
+    ${SOUND_HEADERS_DIR}
+    ${VISUAL_HEADERS_DIR}
+    ${KRKR2CORE_PATH}/
     ${KRKR2CORE_PATH}/../plugins
 )
 
@@ -75,8 +40,6 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     -DTJS_TEXT_OUT_CRLF
     -D__STDC_CONSTANT_MACROS
     -DUSE_UNICODE_FSTRING
-    -D_7ZIP_ST
-    -DWINAPI=
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 minizip)
@@ -103,9 +66,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 find_package(unofficial-breakpad CONFIG REQUIRED)
 
 # oboe
-find_library(oboe_LIBPATH oboe REQUIRED)
-add_library(oboe::oboe STATIC IMPORTED)
-set_target_properties(oboe::oboe PROPERTIES IMPORTED_LOCATION ${oboe_LIBPATH})
+if(DEFINED ANDROID)
+    find_package (oboe CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC oboe::oboe)
+endif()
 
 # JXR library
 find_package(JXR REQUIRED)
@@ -117,7 +81,7 @@ find_package(libjpeg-turbo CONFIG REQUIRED)
 find_package(oniguruma CONFIG REQUIRED)
 find_package(libbpg CONFIG REQUIRED)
 find_package(unrar CONFIG REQUIRED)
-find_package(p7zip CONFIG REQUIRED)
+find_package(7zip CONFIG REQUIRED)
 find_package(Opus CONFIG REQUIRED)
 find_package(Ogg CONFIG REQUIRED)
 find_package(Vorbis CONFIG REQUIRED)
@@ -156,7 +120,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Vorbis::vorbisfile
     Vorbis::vorbisenc
     OpusFile::opusfile
-    oboe::oboe
     OpenAL::OpenAL
 
     # image
@@ -166,7 +129,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     opencv_core
 
     # archive
-    p7zip::p7zip
+    7zip::7zip
     unrar::unrar
     lz4::lz4
     LibArchive::LibArchive

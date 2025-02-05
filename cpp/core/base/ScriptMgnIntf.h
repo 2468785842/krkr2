@@ -31,41 +31,51 @@ extern tTJS *TVPGetScriptEngine();
 
 TJS_EXP_FUNC_DEF(iTJSDispatch2 *, TVPGetScriptDispatch, ());
 
-TJS_EXP_FUNC_DEF(void, TVPExecuteScript, (const ttstr &content, tTJSVariant *result = nullptr));
-
-TJS_EXP_FUNC_DEF(void, TVPExecuteScript, (const ttstr &content, iTJSDispatch2 *context, tTJSVariant *result = nullptr));
-
-TJS_EXP_FUNC_DEF(void, TVPExecuteExpression, (const ttstr &content, tTJSVariant *result = nullptr));
-
-TJS_EXP_FUNC_DEF(void, TVPExecuteExpression,
-                 (const ttstr &content, iTJSDispatch2 *context, tTJSVariant *result = nullptr));
+TJS_EXP_FUNC_DEF(void, TVPExecuteScript,
+                 (const ttstr &content, tTJSVariant *result = nullptr));
 
 TJS_EXP_FUNC_DEF(void, TVPExecuteScript,
-                 (const ttstr &content, const ttstr &name, tjs_int lineofs, tTJSVariant *result = nullptr));
-
-TJS_EXP_FUNC_DEF(void, TVPExecuteScript,
-                 (const ttstr &content, const ttstr &name, tjs_int lineofs, iTJSDispatch2 *context,
+                 (const ttstr &content, iTJSDispatch2 *context,
                   tTJSVariant *result = nullptr));
 
 TJS_EXP_FUNC_DEF(void, TVPExecuteExpression,
-                 (const ttstr &content, const ttstr &name, tjs_int lineofs, tTJSVariant *result = nullptr));
+                 (const ttstr &content, tTJSVariant *result = nullptr));
 
 TJS_EXP_FUNC_DEF(void, TVPExecuteExpression,
-                 (const ttstr &content, const ttstr &name, tjs_int lineofs, iTJSDispatch2 *context,
+                 (const ttstr &content, iTJSDispatch2 *context,
                   tTJSVariant *result = nullptr));
+
+TJS_EXP_FUNC_DEF(void, TVPExecuteScript,
+                 (const ttstr &content, const ttstr &name, tjs_int lineofs,
+                  tTJSVariant *result = nullptr));
+
+TJS_EXP_FUNC_DEF(void, TVPExecuteScript,
+                 (const ttstr &content, const ttstr &name, tjs_int lineofs,
+                  iTJSDispatch2 *context, tTJSVariant *result = nullptr));
+
+TJS_EXP_FUNC_DEF(void, TVPExecuteExpression,
+                 (const ttstr &content, const ttstr &name, tjs_int lineofs,
+                  tTJSVariant *result = nullptr));
+
+TJS_EXP_FUNC_DEF(void, TVPExecuteExpression,
+                 (const ttstr &content, const ttstr &name, tjs_int lineofs,
+                  iTJSDispatch2 *context, tTJSVariant *result = nullptr));
 
 TJS_EXP_FUNC_DEF(void, TVPExecuteStorage,
-                 (const ttstr &name, tTJSVariant *result = nullptr, bool isexpression = false,
+                 (const ttstr &name, tTJSVariant *result = nullptr,
+                  bool isexpression = false,
                   const tjs_char *modestr = nullptr));
 
 TJS_EXP_FUNC_DEF(void, TVPExecuteStorage,
-                 (const ttstr &name, iTJSDispatch2 *context, tTJSVariant *result = nullptr, bool isexpression = false,
+                 (const ttstr &name, iTJSDispatch2 *context,
+                  tTJSVariant *result = nullptr, bool isexpression = false,
                   const tjs_char *modestr = nullptr));
 
 TJS_EXP_FUNC_DEF(void, TVPDumpScriptEngine, ());
 
 TJS_EXP_FUNC_DEF(void, TVPExecuteBytecode,
-                 (const tjs_uint8 *content, size_t len, iTJSDispatch2 *context, tTJSVariant *result = nullptr,
+                 (const tjs_uint8 *content, size_t len, iTJSDispatch2 *context,
+                  tTJSVariant *result = nullptr,
                   const tjs_char *name = nullptr));
 
 extern void TVPExecuteStartupScript();
@@ -83,7 +93,8 @@ extern void TVPShowScriptException(eTJSScriptError &e);
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// TVPBeforeProcessUnhandledException (implementation in each platform)
+// TVPBeforeProcessUnhandledException (implementation in each
+// platform)
 //---------------------------------------------------------------------------
 extern void TVPBeforeProcessUnhandledException();
 //---------------------------------------------------------------------------
@@ -110,41 +121,41 @@ extern bool TVPCheckProcessLog();
 //---------------------------------------------------------------------------
 // unhandled exception handler related macros
 //---------------------------------------------------------------------------
-#define TVP_CATCH_AND_SHOW_SCRIPT_EXCEPTION(origin)                                                                    \
-    catch(eTJSScriptException & e) {                                                                                   \
-        TVPBeforeProcessUnhandledException();                                                                          \
-        e.AddTrace(ttstr(origin));                                                                                     \
-        if(!TVPProcessUnhandledException(e))                                                                           \
-            TVPShowScriptException(e);                                                                                 \
-    }                                                                                                                  \
-    catch(eTJSScriptError & e) {                                                                                       \
-        TVPBeforeProcessUnhandledException();                                                                          \
-        e.AddTrace(ttstr(origin));                                                                                     \
-        if(!TVPProcessUnhandledException(e))                                                                           \
-            TVPShowScriptException(e);                                                                                 \
-    }                                                                                                                  \
-    catch(eTJS & e) {                                                                                                  \
-        TVPBeforeProcessUnhandledException();                                                                          \
-        if(!TVPProcessUnhandledException(e))                                                                           \
-            TVPShowScriptException(e);                                                                                 \
-    }                                                                                                                  \
-    catch(...) {                                                                                                       \
-        TVPBeforeProcessUnhandledException();                                                                          \
-        throw;                                                                                                         \
+#define TVP_CATCH_AND_SHOW_SCRIPT_EXCEPTION(origin)                            \
+    catch(eTJSScriptException & e) {                                           \
+        TVPBeforeProcessUnhandledException();                                  \
+        e.AddTrace(ttstr(origin));                                             \
+        if(!TVPProcessUnhandledException(e))                                   \
+            TVPShowScriptException(e);                                         \
+    }                                                                          \
+    catch(eTJSScriptError & e) {                                               \
+        TVPBeforeProcessUnhandledException();                                  \
+        e.AddTrace(ttstr(origin));                                             \
+        if(!TVPProcessUnhandledException(e))                                   \
+            TVPShowScriptException(e);                                         \
+    }                                                                          \
+    catch(eTJS & e) {                                                          \
+        TVPBeforeProcessUnhandledException();                                  \
+        if(!TVPProcessUnhandledException(e))                                   \
+            TVPShowScriptException(e);                                         \
+    }                                                                          \
+    catch(...) {                                                               \
+        TVPBeforeProcessUnhandledException();                                  \
+        throw;                                                                 \
     }
-#define TVP_CATCH_AND_SHOW_SCRIPT_EXCEPTION_FORCE_SHOW_EXCEPTION(origin)                                               \
-    catch(eTJSScriptError & e) {                                                                                       \
-        TVPBeforeProcessUnhandledException();                                                                          \
-        e.AddTrace(ttstr(origin));                                                                                     \
-        TVPShowScriptException(e);                                                                                     \
-    }                                                                                                                  \
-    catch(eTJS & e) {                                                                                                  \
-        TVPBeforeProcessUnhandledException();                                                                          \
-        TVPShowScriptException(e);                                                                                     \
-    }                                                                                                                  \
-    catch(...) {                                                                                                       \
-        TVPBeforeProcessUnhandledException();                                                                          \
-        throw;                                                                                                         \
+#define TVP_CATCH_AND_SHOW_SCRIPT_EXCEPTION_FORCE_SHOW_EXCEPTION(origin)       \
+    catch(eTJSScriptError & e) {                                               \
+        TVPBeforeProcessUnhandledException();                                  \
+        e.AddTrace(ttstr(origin));                                             \
+        TVPShowScriptException(e);                                             \
+    }                                                                          \
+    catch(eTJS & e) {                                                          \
+        TVPBeforeProcessUnhandledException();                                  \
+        TVPShowScriptException(e);                                             \
+    }                                                                          \
+    catch(...) {                                                               \
+        TVPBeforeProcessUnhandledException();                                  \
+        throw;                                                                 \
     }
 //---------------------------------------------------------------------------
 

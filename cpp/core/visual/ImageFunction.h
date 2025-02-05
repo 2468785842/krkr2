@@ -13,8 +13,9 @@ class tTJSNI_ImageFunction : public tTJSNativeInstance {
 
 public:
     tTJSNI_ImageFunction();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
-    void TJS_INTF_METHOD Invalidate();
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
+    void Invalidate();
 };
 
 class tTJSNC_ImageFunction : public tTJSNativeClass {
@@ -27,8 +28,12 @@ public:
 protected:
     tTJSNativeInstance *CreateNativeInstance();
 
-    static tTVPBBBltMethod GetBltMethodFromOperationMode(tTVPBlendOperationMode mode, tTVPDrawFace face);
-    static bool ClipDestPointAndSrcRect(tjs_int &dx, tjs_int &dy, tTVPRect &srcrectout, const tTVPRect &srcrect,
+    static tTVPBBBltMethod
+    GetBltMethodFromOperationMode(tTVPBlendOperationMode mode,
+                                  tTVPDrawFace face);
+    static bool ClipDestPointAndSrcRect(tjs_int &dx, tjs_int &dy,
+                                        tTVPRect &srcrectout,
+                                        const tTVPRect &srcrect,
                                         const tTVPRect &clipRect);
 };
 

@@ -59,7 +59,8 @@ namespace psd {
                 item = new DescriptorAlias();
                 break;
             case 'tdta':
-                // undocumented なうえ、サイズ情報もなくスキップできないので
+                // undocumented
+                // なうえ、サイズ情報もなくスキップできないので
                 // これが出てきたらこれ以上はパースできない
                 // item = new DescriptorRawData(data);
                 break;

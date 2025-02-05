@@ -4,21 +4,23 @@
 #include <algorithm>
 
 extern "C" {
-#include <p7zip/C/7z.h>
-#include <p7zip/C/7zFile.h>
-#include <p7zip/C/7zCrc.h>
+#include <7zip/C/7z.h>
+#include <7zip/C/7zFile.h>
+#include <7zip/C/7zCrc.h>
 }
 
 #include "StorageImpl.h"
 
-static ISzAlloc allocImp = { [](void *p, size_t size) -> void * { return malloc(size); },
-                             [](void *p, void *addr) { free(addr); } };
+static ISzAlloc allocImp = { [](ISzAllocPtr p, size_t size) -> void * {
+                                return malloc(size);
+                            },
+                             [](ISzAllocPtr p, void *addr) { free(addr); } };
 
 class SevenZipStreamWrap {
 public:
     CSzArEx db;
     tTJSBinaryStream *_stream;
-    CLookToRead lookStream;
+    CLookToRead2 lookStream;
     struct CSeekInStream : public ISeekInStream {
         SevenZipStreamWrap *Host;
     } archiveStream;
@@ -26,13 +28,15 @@ public:
 public:
     SevenZipStreamWrap(tTJSBinaryStream *st) : _stream(st) {
         archiveStream.Host = this;
-        archiveStream.Read = [](void *p, void *buf, size_t *size) -> SRes {
+        archiveStream.Read = [](ISeekInStreamPtr p, void *buf,
+                                size_t *size) -> SRes {
             return ((CSeekInStream *)p)->Host->StreamRead(buf, size);
         };
-        archiveStream.Seek = [](void *p, Int64 *pos, ESzSeek origin) -> SRes {
+        archiveStream.Seek = [](ISeekInStreamPtr p, Int64 *pos,
+                                ESzSeek origin) -> SRes {
             return ((CSeekInStream *)p)->Host->StreamSeek(pos, origin);
         };
-        LookToRead_CreateVTable(&lookStream, false);
+        LookToRead2_CreateVTable(&lookStream, false);
         lookStream.realStream = &archiveStream;
         SzArEx_Init(&db);
         if(!g_CrcTable[1])
@@ -74,7 +78,8 @@ class SevenZipArchive : public tTVPArchive, public SevenZipStreamWrap {
     std::vector<std::pair<ttstr, tjs_uint>> filelist;
 
 public:
-    SevenZipArchive(const ttstr &name, tTJSBinaryStream *st) : tTVPArchive(name), SevenZipStreamWrap(st) {}
+    SevenZipArchive(const ttstr &name, tTJSBinaryStream *st) :
+        tTVPArchive(name), SevenZipStreamWrap(st) {}
 
     virtual ~SevenZipArchive() {}
 
@@ -97,13 +102,15 @@ public:
         CSzData sd;
         const Byte *data = p->CodersData + p->FoCodersOffsets[folderIndex];
         sd.Data = data;
-        sd.Size = p->FoCodersOffsets[folderIndex + 1] - p->FoCodersOffsets[folderIndex];
+        sd.Size = p->FoCodersOffsets[folderIndex + 1] -
+            p->FoCodersOffsets[folderIndex];
 
         if(SzGetNextFolderItem(&folder, &sd) != SZ_OK)
             return nullptr;
         if(folder.NumCoders == 1) {
             UInt64 startPos = db.dataPos;
-            const UInt64 *packPositions = p->PackPositions + p->FoStartPackStreamIndex[folderIndex];
+            const UInt64 *packPositions =
+                p->PackPositions + p->FoStartPackStreamIndex[folderIndex];
             UInt64 offset = packPositions[0];
             UInt64 inSize = packPositions[1] - offset;
 #define k_Copy 0
@@ -116,7 +123,8 @@ public:
         Byte *outBuffer = nullptr;
         size_t outBufferSize;
         size_t offset, outSizeProcessed;
-        SRes res = SzArEx_Extract(&db, &lookStream.s, fileIndex, &blockIndex, &outBuffer, &outBufferSize, &offset,
+        SRes res = SzArEx_Extract(&db, &lookStream.vt, fileIndex, &blockIndex,
+                                  &outBuffer, &outBufferSize, &offset,
                                   &outSizeProcessed, &allocImp, &allocImp);
         tTVPMemoryStream *mem;
         if(offset == 0 && fileSize <= outBufferSize) {
@@ -131,7 +139,7 @@ public:
     }
 
     bool Open(bool normalizeFileName) {
-        SRes res = SzArEx_Open(&db, &lookStream.s, &allocImp, &allocImp);
+        SRes res = SzArEx_Open(&db, &lookStream.vt, &allocImp, &allocImp);
         if(res != SZ_OK) {
             _stream = nullptr;
             return false;
@@ -144,7 +152,8 @@ public:
                 continue;
             size_t len = SzArEx_GetFileNameUtf16(&db, i, nullptr);
             ttstr filename;
-            SzArEx_GetFileNameUtf16(&db, i, (UInt16 *)filename.AllocBuffer(len));
+            SzArEx_GetFileNameUtf16(&db, i,
+                                    (UInt16 *)filename.AllocBuffer(len));
             filename.FixLen();
             if(normalizeFileName)
                 NormalizeInArchiveStorageName(filename);
@@ -152,7 +161,8 @@ public:
         }
         if(normalizeFileName) {
             std::sort(filelist.begin(), filelist.end(),
-                      [](const std::pair<ttstr, tjs_uint> &a, const std::pair<ttstr, tjs_uint> &b) {
+                      [](const std::pair<ttstr, tjs_uint> &a,
+                         const std::pair<ttstr, tjs_uint> &b) {
                           return a.first < b.first;
                       });
         }
@@ -160,7 +170,8 @@ public:
     }
 };
 
-tTVPArchive *TVPOpen7ZArchive(const ttstr &name, tTJSBinaryStream *st, bool normalizeFileName) {
+tTVPArchive *TVPOpen7ZArchive(const ttstr &name, tTJSBinaryStream *st,
+                              bool normalizeFileName) {
     tjs_uint64 pos = st->GetPosition();
     bool checkZIP = st->ReadI16LE() == 0x7A37; // '7z'
     st->SetPosition(pos);

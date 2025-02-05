@@ -20,17 +20,17 @@
 
 /*
         TLG5:
-                Lossless graphics compression method designed for very fast
-   decoding speed.
+                Lossless graphics compression method designed for very
+   fast decoding speed.
 
         TLG6:
-                Lossless/near-lossless graphics compression method which is
-   designed for high compression ratio and faster decoding. Decoding speed is
-                somewhat slower than TLG5 because the algorithm is much more
-   complex than TLG5. Though, the decoding speed (using SSE enabled code) is
-                about 20 times faster than JPEG2000 lossless mode (using JasPer
-                library) while the compression ratio can beat or compete with
-   it. Summary of compression algorithm is described in
+                Lossless/near-lossless graphics compression method
+   which is designed for high compression ratio and faster decoding.
+   Decoding speed is somewhat slower than TLG5 because the algorithm
+   is much more complex than TLG5. Though, the decoding speed (using
+   SSE enabled code) is about 20 times faster than JPEG2000 lossless
+   mode (using JasPer library) while the compression ratio can beat or
+   compete with it. Summary of compression algorithm is described in
                 environ/win32/krdevui/tpc/tlg6/TLG6Saver.cpp
                 (in Japanese).
 */
@@ -38,12 +38,16 @@
 //---------------------------------------------------------------------------
 // TLG5 loading handler
 //---------------------------------------------------------------------------
-void TVPLoadTLG5(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback,
-                 tTVPGraphicScanLineCallback scanlinecallback, tTJSBinaryStream *src, tjs_int keyidx,
+void TVPLoadTLG5(void *formatdata, void *callbackdata,
+                 tTVPGraphicSizeCallback sizecallback,
+                 tTVPGraphicScanLineCallback scanlinecallback,
+                 tTJSBinaryStream *src, tjs_int keyidx,
                  tTVPGraphicLoadMode mode) {
     // load TLG v5.0 lossless compressed graphic
     if(mode != glmNormal)
-        TVPThrowExceptionMessage(TVPTLGLoadError, (const tjs_char *)TVPTlgUnsupportedUniversalTransitionRule);
+        TVPThrowExceptionMessage(
+            TVPTLGLoadError,
+            (const tjs_char *)TVPTlgUnsupportedUniversalTransitionRule);
 
     unsigned char mark[12];
     tjs_int width, height, colors, blockheight;
@@ -54,7 +58,8 @@ void TVPLoadTLG5(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
     blockheight = src->ReadI32LE();
 
     if(colors != 3 && colors != 4)
-        TVPThrowExceptionMessage(TVPTLGLoadError, (const tjs_char *)TVPUnsupportedColorType);
+        TVPThrowExceptionMessage(TVPTLGLoadError,
+                                 (const tjs_char *)TVPUnsupportedColorType);
 
     int blockcount = (int)((height - 1) / blockheight) + 1;
 
@@ -77,7 +82,8 @@ void TVPLoadTLG5(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
 
         inbuf = (tjs_uint8 *)TJSAlignedAlloc(blockheight * width + 10 + 16, 4);
         for(tjs_int i = 0; i < colors; i++)
-            outbuf[i] = (tjs_uint8 *)TJSAlignedAlloc(blockheight * width + 10 + 16, 4);
+            outbuf[i] =
+                (tjs_uint8 *)TJSAlignedAlloc(blockheight * width + 10 + 16, 4);
 
         tjs_uint8 *prevline = nullptr;
         for(tjs_int y_blk = 0; y_blk < height; y_blk += blockheight) {
@@ -104,19 +110,22 @@ void TVPLoadTLG5(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
             for(tjs_int c = 0; c < colors; c++)
                 outbufp[c] = outbuf[c];
             for(tjs_int y = y_blk; y < y_lim; y++) {
-                tjs_uint8 *current = (tjs_uint8 *)scanlinecallback(callbackdata, y);
+                tjs_uint8 *current =
+                    (tjs_uint8 *)scanlinecallback(callbackdata, y);
                 tjs_uint8 *current_org = current;
                 if(prevline) {
                     // not first line
                     switch(colors) {
                         case 3:
-                            TVPTLG5ComposeColors3To4(current, prevline, outbufp, width);
+                            TVPTLG5ComposeColors3To4(current, prevline, outbufp,
+                                                     width);
                             outbufp[0] += width;
                             outbufp[1] += width;
                             outbufp[2] += width;
                             break;
                         case 4:
-                            TVPTLG5ComposeColors4To4(current, prevline, outbufp, width);
+                            TVPTLG5ComposeColors4To4(current, prevline, outbufp,
+                                                     width);
                             outbufp[0] += width;
                             outbufp[1] += width;
                             outbufp[2] += width;
@@ -127,7 +136,8 @@ void TVPLoadTLG5(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
                     // first line
                     switch(colors) {
                         case 3:
-                            for(tjs_int pr = 0, pg = 0, pb = 0, x = 0; x < width; x++) {
+                            for(tjs_int pr = 0, pg = 0, pb = 0, x = 0;
+                                x < width; x++) {
                                 tjs_int r = outbufp[0][x];
                                 tjs_int g = outbufp[1][x];
                                 tjs_int b = outbufp[2][x];
@@ -143,7 +153,8 @@ void TVPLoadTLG5(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
                             outbufp[2] += width;
                             break;
                         case 4:
-                            for(tjs_int pr = 0, pg = 0, pb = 0, pa = 0, x = 0; x < width; x++) {
+                            for(tjs_int pr = 0, pg = 0, pb = 0, pa = 0, x = 0;
+                                x < width; x++) {
                                 tjs_int r = outbufp[0][x];
                                 tjs_int g = outbufp[1][x];
                                 tjs_int b = outbufp[2][x];
@@ -190,8 +201,10 @@ void TVPLoadTLG5(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
 //---------------------------------------------------------------------------
 // TLG6 loading handler
 //---------------------------------------------------------------------------
-void TVPLoadTLG6(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback,
-                 tTVPGraphicScanLineCallback scanlinecallback, tTJSBinaryStream *src, tjs_int keyidx, bool palettized) {
+void TVPLoadTLG6(void *formatdata, void *callbackdata,
+                 tTVPGraphicSizeCallback sizecallback,
+                 tTVPGraphicScanLineCallback scanlinecallback,
+                 tTJSBinaryStream *src, tjs_int keyidx, bool palettized) {
     // load TLG v6.0 lossless/near-lossless compressed graphic
 #if 0
 	if(palettized)
@@ -204,16 +217,23 @@ void TVPLoadTLG6(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
     tjs_int colors = buf[0]; // color component count
 
     if(colors != 1 && colors != 4 && colors != 3)
-        TVPThrowExceptionMessage(TVPTLGLoadError, ttstr(TVPUnsupportedColorCount) + ttstr((int)colors));
+        TVPThrowExceptionMessage(TVPTLGLoadError,
+                                 ttstr(TVPUnsupportedColorCount) +
+                                     ttstr((int)colors));
 
     if(buf[1] != 0) // data flag
-        TVPThrowExceptionMessage(TVPTLGLoadError, (const tjs_char *)TVPDataFlagMustBeZero);
+        TVPThrowExceptionMessage(TVPTLGLoadError,
+                                 (const tjs_char *)TVPDataFlagMustBeZero);
 
     if(buf[2] != 0) // color type  (currently always zero)
-        TVPThrowExceptionMessage(TVPTLGLoadError, ttstr(TVPUnsupportedColorTypeColon) + ttstr((int)buf[1]));
+        TVPThrowExceptionMessage(TVPTLGLoadError,
+                                 ttstr(TVPUnsupportedColorTypeColon) +
+                                     ttstr((int)buf[1]));
 
     if(buf[3] != 0) // external golomb table (currently always zero)
-        TVPThrowExceptionMessage(TVPTLGLoadError, (const tjs_char *)TVPUnsupportedExternalGolombBitLengthTable);
+        TVPThrowExceptionMessage(
+            TVPTLGLoadError,
+            (const tjs_char *)TVPUnsupportedExternalGolombBitLengthTable);
 
     tjs_int width, height;
 
@@ -245,8 +265,10 @@ void TVPLoadTLG6(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
     try {
         // allocate memories
         bit_pool = (tjs_uint8 *)TJSAlignedAlloc(max_bit_length / 8 + 5, 4);
-        pixelbuf = (tjs_uint32 *)TJSAlignedAlloc(sizeof(tjs_uint32) * width * TVP_TLG6_H_BLOCK_SIZE + 1, 4);
-        filter_types = (tjs_uint8 *)TJSAlignedAlloc(x_block_count * y_block_count + 16, 4);
+        pixelbuf = (tjs_uint32 *)TJSAlignedAlloc(
+            sizeof(tjs_uint32) * width * TVP_TLG6_H_BLOCK_SIZE + 1, 4);
+        filter_types =
+            (tjs_uint8 *)TJSAlignedAlloc(x_block_count * y_block_count + 16, 4);
         zeroline = (tjs_uint32 *)TJSAlignedAlloc(width * sizeof(tjs_uint32), 4);
         LZSS_text = (tjs_uint8 *)TJSAlignedAlloc(4096 + 32, 4) + 16;
 
@@ -264,13 +286,15 @@ void TVPLoadTLG6(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
         }
 
         // read chroma filter types.
-        // chroma filter types are compressed via LZSS as used by TLG5.
+        // chroma filter types are compressed via LZSS as used by
+        // TLG5.
         {
             tjs_int inbuf_size = src->ReadI32LE();
             tjs_uint8 *inbuf = (tjs_uint8 *)TJSAlignedAlloc(inbuf_size + 16, 4);
             try {
                 src->ReadBuffer(inbuf, inbuf_size);
-                TVPTLG5DecompressSlide(filter_types, inbuf, inbuf_size, LZSS_text, 0);
+                TVPTLG5DecompressSlide(filter_types, inbuf, inbuf_size,
+                                       LZSS_text, 0);
             } catch(...) {
                 TJSAlignedDealloc(inbuf);
                 throw;
@@ -310,22 +334,29 @@ void TVPLoadTLG6(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
                 // 00 means Golomb method,
                 // 01 means Gamma method (not yet suppoted),
                 // 10 means modified LZSS method (not yet supported),
-                // 11 means raw (uncompressed) data (not yet supported).
+                // 11 means raw (uncompressed) data (not yet
+                // supported).
 
                 switch(method) {
                     case 0:
                         if(c == 0 && colors != 1)
-                            TVPTLG6DecodeGolombValuesForFirst((tjs_int8 *)pixelbuf, pixel_count, bit_pool);
+                            TVPTLG6DecodeGolombValuesForFirst(
+                                (tjs_int8 *)pixelbuf, pixel_count, bit_pool);
                         else
-                            TVPTLG6DecodeGolombValues((tjs_int8 *)pixelbuf + c, pixel_count, bit_pool);
+                            TVPTLG6DecodeGolombValues((tjs_int8 *)pixelbuf + c,
+                                                      pixel_count, bit_pool);
                         break;
                     default:
-                        TVPThrowExceptionMessage(TVPTLGLoadError, (const tjs_char *)TVPUnsupportedEntropyCodingMethod);
+                        TVPThrowExceptionMessage(
+                            TVPTLGLoadError,
+                            (const tjs_char *)
+                                TVPUnsupportedEntropyCodingMethod);
                 }
             }
 
             // for each line
-            unsigned char *ft = filter_types + (y / TVP_TLG6_H_BLOCK_SIZE) * x_block_count;
+            unsigned char *ft =
+                filter_types + (y / TVP_TLG6_H_BLOCK_SIZE) * x_block_count;
             int skipbytes = (ylim - y) * TVP_TLG6_W_BLOCK_SIZE;
 
             for(int yy = y; yy < ylim; yy++) {
@@ -334,8 +365,10 @@ void TVPLoadTLG6(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
                     curline = (tjs_uint32 *)scanlinecallback(callbackdata, yy);
                 else {
                     if(!tmpline[0]) {
-                        tmpline[0] = (tjs_uint32 *)TJSAlignedAlloc(sizeof(tjs_uint32) * width, 4);
-                        tmpline[1] = (tjs_uint32 *)TJSAlignedAlloc(sizeof(tjs_uint32) * width, 4);
+                        tmpline[0] = (tjs_uint32 *)TJSAlignedAlloc(
+                            sizeof(tjs_uint32) * width, 4);
+                        tmpline[1] = (tjs_uint32 *)TJSAlignedAlloc(
+                            sizeof(tjs_uint32) * width, 4);
                     }
                     curline = tmpline[yy & 1];
                     grayline = (tjs_uint8 *)scanlinecallback(callbackdata, yy);
@@ -344,9 +377,14 @@ void TVPLoadTLG6(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
                 int dir = (yy & 1) ^ 1;
                 int oddskip = ((ylim - yy - 1) - (yy - y));
                 if(main_count) {
-                    int start = ((width < TVP_TLG6_W_BLOCK_SIZE) ? width : TVP_TLG6_W_BLOCK_SIZE) * (yy - y);
-                    TVPTLG6DecodeLine(prevline, curline, width, main_count, ft, skipbytes, pixelbuf + start,
-                                      colors == 3 ? 0xff000000 : 0, oddskip, dir);
+                    int start = ((width < TVP_TLG6_W_BLOCK_SIZE)
+                                     ? width
+                                     : TVP_TLG6_W_BLOCK_SIZE) *
+                        (yy - y);
+                    TVPTLG6DecodeLine(prevline, curline, width, main_count, ft,
+                                      skipbytes, pixelbuf + start,
+                                      colors == 3 ? 0xff000000 : 0, oddskip,
+                                      dir);
                 }
 
                 if(main_count != x_block_count) {
@@ -354,8 +392,10 @@ void TVPLoadTLG6(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
                     if(ww > TVP_TLG6_W_BLOCK_SIZE)
                         ww = TVP_TLG6_W_BLOCK_SIZE;
                     int start = ww * (yy - y);
-                    TVPTLG6DecodeLineGeneric(prevline, curline, width, main_count, x_block_count, ft, skipbytes,
-                                             pixelbuf + start, colors == 3 ? 0xff000000 : 0, oddskip, dir);
+                    TVPTLG6DecodeLineGeneric(
+                        prevline, curline, width, main_count, x_block_count, ft,
+                        skipbytes, pixelbuf + start,
+                        colors == 3 ? 0xff000000 : 0, oddskip, dir);
                 }
 
                 prevline = curline;
@@ -403,9 +443,11 @@ void TVPLoadTLG6(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback s
 //---------------------------------------------------------------------------
 // TLG loading handler
 //---------------------------------------------------------------------------
-static void TVPInternalLoadTLG(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback,
+static void TVPInternalLoadTLG(void *formatdata, void *callbackdata,
+                               tTVPGraphicSizeCallback sizecallback,
                                tTVPGraphicScanLineCallback scanlinecallback,
-                               tTVPMetaInfoPushCallback metainfopushcallback, tTJSBinaryStream *src, tjs_int keyidx,
+                               tTVPMetaInfoPushCallback metainfopushcallback,
+                               tTJSBinaryStream *src, tjs_int keyidx,
                                tTVPGraphicLoadMode mode) {
     // read header
     unsigned char mark[12];
@@ -413,18 +455,24 @@ static void TVPInternalLoadTLG(void *formatdata, void *callbackdata, tTVPGraphic
 
     // check for TLG raw data
     if(!memcmp("TLG5.0\x00raw\x1a\x00", mark, 11)) {
-        TVPLoadTLG5(formatdata, callbackdata, sizecallback, scanlinecallback, src, keyidx, mode);
+        TVPLoadTLG5(formatdata, callbackdata, sizecallback, scanlinecallback,
+                    src, keyidx, mode);
     } else if(!memcmp("TLG6.0\x00raw\x1a\x00", mark, 11)) {
-        TVPLoadTLG6(formatdata, callbackdata, sizecallback, scanlinecallback, src, keyidx, mode != glmNormal);
+        TVPLoadTLG6(formatdata, callbackdata, sizecallback, scanlinecallback,
+                    src, keyidx, mode != glmNormal);
     } else {
-        TVPThrowExceptionMessage(TVPTLGLoadError, (const tjs_char *)TVPInvalidTlgHeaderOrVersion);
+        TVPThrowExceptionMessage(
+            TVPTLGLoadError, (const tjs_char *)TVPInvalidTlgHeaderOrVersion);
     }
 }
 //---------------------------------------------------------------------------
 
-void TVPLoadTLG(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback,
-                tTVPGraphicScanLineCallback scanlinecallback, tTVPMetaInfoPushCallback metainfopushcallback,
-                tTJSBinaryStream *src, tjs_int keyidx, tTVPGraphicLoadMode mode) {
+void TVPLoadTLG(void *formatdata, void *callbackdata,
+                tTVPGraphicSizeCallback sizecallback,
+                tTVPGraphicScanLineCallback scanlinecallback,
+                tTVPMetaInfoPushCallback metainfopushcallback,
+                tTJSBinaryStream *src, tjs_int keyidx,
+                tTVPGraphicLoadMode mode) {
     // read header
     unsigned char mark[12];
     src->ReadBuffer(mark, 11);
@@ -443,7 +491,8 @@ void TVPLoadTLG(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback si
         tjs_uint rawlen = src->ReadI32LE();
 
         // try to load TLG raw data
-        TVPInternalLoadTLG(formatdata, callbackdata, sizecallback, scanlinecallback, metainfopushcallback, src, keyidx,
+        TVPInternalLoadTLG(formatdata, callbackdata, sizecallback,
+                           scanlinecallback, metainfopushcallback, src, keyidx,
                            mode);
 
         // seek to meta info data point
@@ -474,35 +523,44 @@ void TVPLoadTLG(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback si
                                 namelen = namelen * 10 + *tagp - '0', tagp++;
                             if(*tagp != ':')
                                 TVPThrowExceptionMessage(
-                                    TVPTLGLoadError, (const tjs_char *)TVPTlgMalformedTagMissionColonAfterNameLength);
+                                    TVPTLGLoadError,
+                                    (const tjs_char *)
+                                        TVPTlgMalformedTagMissionColonAfterNameLength);
                             tagp++;
                             name = new char[namelen + 1];
                             memcpy(name, tagp, namelen);
                             name[namelen] = '\0';
                             tagp += namelen;
                             if(*tagp != '=')
-                                TVPThrowExceptionMessage(TVPTLGLoadError,
-                                                         (const tjs_char *)TVPTlgMalformedTagMissionEqualsAfterName);
+                                TVPThrowExceptionMessage(
+                                    TVPTLGLoadError,
+                                    (const tjs_char *)
+                                        TVPTlgMalformedTagMissionEqualsAfterName);
                             tagp++;
                             tjs_uint valuelen = 0;
                             while(*tagp >= '0' && *tagp <= '9')
                                 valuelen = valuelen * 10 + *tagp - '0', tagp++;
                             if(*tagp != ':')
                                 TVPThrowExceptionMessage(
-                                    TVPTLGLoadError, (const tjs_char *)TVPTlgMalformedTagMissionColonAfterVaueLength);
+                                    TVPTLGLoadError,
+                                    (const tjs_char *)
+                                        TVPTlgMalformedTagMissionColonAfterVaueLength);
                             tagp++;
                             value = new char[valuelen + 1];
                             memcpy(value, tagp, valuelen);
                             value[valuelen] = '\0';
                             tagp += valuelen;
                             if(*tagp != ',')
-                                TVPThrowExceptionMessage(TVPTLGLoadError,
-                                                         (const tjs_char *)TVPTlgMalformedTagMissionCommaAfterTag);
+                                TVPThrowExceptionMessage(
+                                    TVPTLGLoadError,
+                                    (const tjs_char *)
+                                        TVPTlgMalformedTagMissionCommaAfterTag);
                             tagp++;
 
-                            // insert into name-value pairs ... TODO: utf-8
-                            // decode
-                            metainfopushcallback(callbackdata, ttstr(name), ttstr(value));
+                            // insert into name-value pairs ... TODO:
+                            // utf-8 decode
+                            metainfopushcallback(callbackdata, ttstr(name),
+                                                 ttstr(value));
 
                             delete[] name, name = nullptr;
                             delete[] value, value = nullptr;
@@ -534,12 +592,14 @@ void TVPLoadTLG(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback si
         src->Seek(0, TJS_BS_SEEK_SET); // rewind
 
         // try to load TLG raw data
-        TVPInternalLoadTLG(formatdata, callbackdata, sizecallback, scanlinecallback, metainfopushcallback, src, keyidx,
+        TVPInternalLoadTLG(formatdata, callbackdata, sizecallback,
+                           scanlinecallback, metainfopushcallback, src, keyidx,
                            mode);
     }
 }
 //---------------------------------------------------------------------------
-void TVPLoadHeaderTLG(void *formatdata, tTJSBinaryStream *src, iTJSDispatch2 **dic) {
+void TVPLoadHeaderTLG(void *formatdata, tTJSBinaryStream *src,
+                      iTJSDispatch2 **dic) {
     if(dic == nullptr)
         return;
 
@@ -566,7 +626,9 @@ void TVPLoadHeaderTLG(void *formatdata, tTJSBinaryStream *src, iTJSDispatch2 **d
             width = src->ReadI32LE();
             height = src->ReadI32LE();
         } else {
-            TVPThrowExceptionMessage(TVPTLGLoadError, (const tjs_char *)TVPInvalidTlgHeaderOrVersion);
+            TVPThrowExceptionMessage(
+                TVPTLGLoadError,
+                (const tjs_char *)TVPInvalidTlgHeaderOrVersion);
         }
     } else if(!memcmp("TLG5.0\x00raw\x1a\x00", mark, 11)) {
         src->ReadBuffer(mark, 1);
@@ -579,7 +641,8 @@ void TVPLoadHeaderTLG(void *formatdata, tTJSBinaryStream *src, iTJSDispatch2 **d
         width = src->ReadI32LE();
         height = src->ReadI32LE();
     } else {
-        TVPThrowExceptionMessage(TVPTLGLoadError, (const tjs_char *)TVPInvalidTlgHeaderOrVersion);
+        TVPThrowExceptionMessage(
+            TVPTLGLoadError, (const tjs_char *)TVPInvalidTlgHeaderOrVersion);
     }
     tjs_int bpp = colors * 8;
     *dic = TJSCreateDictionaryObject();

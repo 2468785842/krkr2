@@ -43,7 +43,9 @@ namespace TJS {
 
     void tTJSCriticalSection::unlock() { _impl->unlock(); }
 
-    tTJSCriticalSection::tTJSCriticalSection() { _impl = new tTJSCriticalSectionImpl; }
+    tTJSCriticalSection::tTJSCriticalSection() {
+        _impl = new tTJSCriticalSectionImpl;
+    }
 
     tTJSCriticalSection::~tTJSCriticalSection() { delete _impl; }
 
@@ -106,7 +108,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tTJSString TJSVariantToReadableString(const tTJSVariant &val, tjs_int maxlen) {
+    tTJSString TJSVariantToReadableString(const tTJSVariant &val,
+                                          tjs_int maxlen) {
         // convert given variant to human-readable string
         // ( eg. "(string)\"this is a\\nstring\"" )
 
@@ -140,7 +143,8 @@ namespace TJS {
             case tvtOctet: {
                 // TODO: octet conversion
                 tTJSString str(TJS_W("(octet)<% "));
-                tTJSVariantString *s = TJSOctetToListString(val.AsOctetNoAddRef());
+                tTJSVariantString *s =
+                    TJSOctetToListString(val.AsOctetNoAddRef());
                 try {
                     str += s;
                 } catch(...) {
@@ -169,8 +173,9 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     tTJSString TJSVariantToExpressionString(const tTJSVariant &val) {
-        // convert given variant to string which can be interpret as an expression.
-        // this function does not convert objects ( returns empty string )
+        // convert given variant to string which can be interpret as
+        // an expression. this function does not convert objects (
+        // returns empty string )
 
         tTJSVariantType type = val.Type();
 
@@ -193,7 +198,8 @@ namespace TJS {
                 }
                 if(s)
                     s->Release();
-                return str + TJS_W(" /") TJS_W("* ") + ttstr(val) + TJS_W(" *") TJS_W("/");
+                return str + TJS_W(" /") TJS_W("* ") + ttstr(val) +
+                    TJS_W(" *") TJS_W("/");
             }
             case tvtString: {
                 tTJSString str(TJS_W("\""));
@@ -203,7 +209,8 @@ namespace TJS {
             }
             case tvtOctet: {
                 tTJSString str(TJS_W("<% "));
-                tTJSVariantString *s = TJSOctetToListString(val.AsOctetNoAddRef());
+                tTJSVariantString *s =
+                    TJSOctetToListString(val.AsOctetNoAddRef());
                 try {
                     str += s;
                 } catch(...) {
@@ -227,8 +234,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // TJSAlignedAlloc : aligned memory allocator
     //---------------------------------------------------------------------------
-    // template classes to determine an integer type which have the same size as
-    // void *.
+    // template classes to determine an integer type which have the
+    // same size as void *.
     struct tTJSPointerSizeEnum {
         enum tTJSPointerSize { size = sizeof(void *) };
     };
@@ -244,16 +251,18 @@ namespace TJS {
     struct tTJSPointerSizedIntegerBase<4> {
         typedef tjs_uint32 type;
     };
-    struct tTJSPointerSizedInteger : public tTJSPointerSizedIntegerBase<tTJSPointerSizeEnum::size> {};
+    struct tTJSPointerSizedInteger
+        : public tTJSPointerSizedIntegerBase<tTJSPointerSizeEnum::size> {};
 
     //---------------------------------------------------------------------------
     void *TJSAlignedAlloc(tjs_uint bytes, tjs_uint align_bits) {
-        // aligned memory allocation is to be used to gain performance on some
-        // processors.
+        // aligned memory allocation is to be used to gain performance
+        // on some processors.
         tjs_int align = 1 << align_bits;
         void *ptr = (void *)(new tjs_uint8[bytes + align + sizeof(void *)]);
         void *org_ptr = ptr;
-        tTJSPointerSizedInteger::type *iptr = reinterpret_cast<tTJSPointerSizedInteger::type *>(&ptr);
+        tTJSPointerSizedInteger::type *iptr =
+            reinterpret_cast<tTJSPointerSizedInteger::type *>(&ptr);
         *iptr += align + sizeof(void *);
         *iptr &= ~(tTJSPointerSizedInteger::type)(align - 1);
         (reinterpret_cast<void **>(ptr))[-1] = org_ptr;
@@ -261,7 +270,9 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void TJSAlignedDealloc(void *ptr) { delete[](tjs_uint8 *)((reinterpret_cast<void **>(ptr))[-1]); }
+    void TJSAlignedDealloc(void *ptr) {
+        delete[](tjs_uint8 *)((reinterpret_cast<void **>(ptr))[-1]);
+    }
     //---------------------------------------------------------------------------
 
     //---------------------------------------------------------------------------

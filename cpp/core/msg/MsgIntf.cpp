@@ -16,8 +16,10 @@
 //---------------------------------------------------------------------------
 
 #define TVP_MSG_DECL(name, msg) tTJSMessageHolder name(TJS_W(#name), msg);
-#define TVP_MSG_DECL_CONST(name, msg) tTJSMessageHolder name(TJS_W(#name), msg, false);
-#define TVP_MSG_DECL_NULL(name) tTJSMessageHolder name(TJS_W(#name), nullptr, false);
+#define TVP_MSG_DECL_CONST(name, msg)                                          \
+    tTJSMessageHolder name(TJS_W(#name), msg, false);
+#define TVP_MSG_DECL_NULL(name)                                                \
+    tTJSMessageHolder name(TJS_W(#name), nullptr, false);
 
 #include "MsgIntf.h"
 #include "DebugIntf.h"
@@ -29,8 +31,8 @@
 /*
         these functions do :
         replace each %%, %1, %2 into %, p1, p2.
-        %1 must appear only once in the message string, otherwise internal
-        buffer will overflow. ( %2 must also so )
+        %1 must appear only once in the message string, otherwise
+   internal buffer will overflow. ( %2 must also so )
 */
 ttstr TVPFormatMessage(const tjs_char *msg, const ttstr &p1) {
     tjs_char *p;
@@ -64,7 +66,8 @@ ttstr TVPFormatMessage(const tjs_char *msg, const ttstr &p1) {
 
 ttstr TVPFormatMessage(const tjs_char *msg, const ttstr &p1, const ttstr &p2) {
     tjs_char *p;
-    tjs_char *buf = new tjs_char[TJS_strlen(msg) + p1.GetLen() + p2.GetLen() + 1];
+    tjs_char *buf =
+        new tjs_char[TJS_strlen(msg) + p1.GetLen() + p2.GetLen() + 1];
     p = buf;
     for(; *msg; msg++, p++) {
         if(*msg == TJS_W('%')) {
@@ -105,13 +108,17 @@ ttstr TVPFormatMessage(const tjs_char *msg, const ttstr &p1, const ttstr &p2) {
 //---------------------------------------------------------------------------
 void TVPThrowExceptionMessage(const tjs_char *msg) { throw eTJSError(msg); }
 
-void TVPThrowExceptionMessage(const tjs_char *msg, const ttstr &p1, tjs_int num) {
+void TVPThrowExceptionMessage(const tjs_char *msg, const ttstr &p1,
+                              tjs_int num) {
     throw eTJSError(TVPFormatMessage(msg, p1, ttstr(num)));
 }
 
-void TVPThrowExceptionMessage(const tjs_char *msg, const ttstr &p1) { throw eTJSError(TVPFormatMessage(msg, p1)); }
+void TVPThrowExceptionMessage(const tjs_char *msg, const ttstr &p1) {
+    throw eTJSError(TVPFormatMessage(msg, p1));
+}
 
-void TVPThrowExceptionMessage(const tjs_char *msg, const ttstr &p1, const ttstr &p2) {
+void TVPThrowExceptionMessage(const tjs_char *msg, const ttstr &p1,
+                              const ttstr &p2) {
     throw eTJSError(TVPFormatMessage(msg, p1, p2));
 }
 //---------------------------------------------------------------------------
@@ -139,30 +146,39 @@ extern ttstr TVPReadAboutStringFromResource();
 
 ttstr TVPGetAboutString() {
     TVPGetVersion();
-    ttstr verstr{ fmt::format("{}.{}.{}.{}", TVPVersionMajor, TVPVersionMinor, TVPVersionRelease, TVPVersionBuild) };
+    ttstr verstr{ fmt::format("{}.{}.{}.{}", TVPVersionMajor, TVPVersionMinor,
+                              TVPVersionRelease, TVPVersionBuild) };
 
-    ttstr tjsverstr{ fmt::format("{}.{}.{}", TJSVersionMajor, TJSVersionMinor, TJSVersionRelease) };
+    ttstr tjsverstr{ fmt::format("{}.{}.{}", TJSVersionMajor, TJSVersionMinor,
+                                 TJSVersionRelease) };
 
-    return TVPFormatMessage(TVPReadAboutStringFromResource().c_str(), verstr, tjsverstr) + TVPGetImportantLog();
+    return TVPFormatMessage(TVPReadAboutStringFromResource().c_str(), verstr,
+                            tjsverstr) +
+        TVPGetImportantLog();
 }
 
 //---------------------------------------------------------------------------
 ttstr TVPGetVersionInformation() {
     TVPGetVersion();
-    ttstr verstr{ fmt::format("{}.{}.{}.{}", TVPVersionMajor, TVPVersionMinor, TVPVersionRelease, TVPVersionBuild) };
+    ttstr verstr{ fmt::format("{}.{}.{}.{}", TVPVersionMajor, TVPVersionMinor,
+                              TVPVersionRelease, TVPVersionBuild) };
 
-    ttstr tjsverstr{ fmt::format("{}.{}.{}", TJSVersionMajor, TJSVersionMinor, TJSVersionRelease) };
+    ttstr tjsverstr{ fmt::format("{}.{}.{}", TJSVersionMajor, TJSVersionMinor,
+                                 TJSVersionRelease) };
 
     ttstr version = TVPFormatMessage(TVPVersionInformation, verstr, tjsverstr);
-    ttstr str = ApplicationSpecialPath::ReplaceStringAll(version.AsStdString(), TJS_W("%DATE%"), ttstr(TVPCompileDate));
-    str = ApplicationSpecialPath::ReplaceStringAll(str, TJS_W("%TIME%"), ttstr(TVPCompileTime));
+    ttstr str = ApplicationSpecialPath::ReplaceStringAll(
+        version.AsStdString(), TJS_W("%DATE%"), ttstr(TVPCompileDate));
+    str = ApplicationSpecialPath::ReplaceStringAll(str, TJS_W("%TIME%"),
+                                                   ttstr(TVPCompileTime));
     return str;
 }
 
 //---------------------------------------------------------------------------
 ttstr TVPGetVersionString() {
     TVPGetVersion();
-    ttstr verstr{ fmt::format("{}.{}.{}.{}", TVPVersionMajor, TVPVersionMinor, TVPVersionRelease, TVPVersionBuild) };
+    ttstr verstr{ fmt::format("{}.{}.{}.{}", TVPVersionMajor, TVPVersionMinor,
+                              TVPVersionRelease, TVPVersionBuild) };
     return verstr;
 }
 //---------------------------------------------------------------------------
@@ -170,7 +186,8 @@ ttstr TVPGetVersionString() {
 //---------------------------------------------------------------------------
 // Versoin retriving
 //---------------------------------------------------------------------------
-void TVPGetSystemVersion(tjs_int &major, tjs_int &minor, tjs_int &release, tjs_int &build) {
+void TVPGetSystemVersion(tjs_int &major, tjs_int &minor, tjs_int &release,
+                         tjs_int &build) {
     TVPGetVersion();
     major = TVPVersionMajor;
     minor = TVPVersionMinor;

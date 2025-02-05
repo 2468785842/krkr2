@@ -40,7 +40,8 @@ class iTVPSoundBuffer;
 
 #define TVP_WSB_ACCESS_FREQ (8) // wave sound buffer access frequency (hz)
 
-#define TVP_TIMEOFS_INVALID_VALUE ((tjs_int)(-2147483648LL)) // invalid value for 32bit time offset
+#define TVP_TIMEOFS_INVALID_VALUE                                              \
+    ((tjs_int)(-2147483648LL)) // invalid value for 32bit time offset
 
 //---------------------------------------------------------------------------
 
@@ -77,11 +78,13 @@ class tTJSNI_WaveSoundBuffer : public tTJSNI_BaseWaveSoundBuffer {
 public:
     tTJSNI_WaveSoundBuffer();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
 
-    void TJS_INTF_METHOD Invalidate();
+    void Invalidate();
 
-    //-- buffer management ------------------------------------------------
+    //-- buffer management
+    //------------------------------------------------
 private:
     iTVPSoundBuffer *SoundBuffer;
 #if 0
@@ -128,7 +131,8 @@ public:
         CanDeliverEvents = b;
     }
 
-    //-- playing stuff ----------------------------------------------------
+    //-- playing stuff
+    //----------------------------------------------------
 private:
     tTJSCriticalSection BufferCS;
     tTJSCriticalSection L2BufferCS;
@@ -146,7 +150,8 @@ public:
 
 private:
     bool BufferPlaying; // whether this sound buffer is playing
-    bool DSBufferPlaying; // whether the DS buffer is 'actually' playing
+    bool DSBufferPlaying; // whether the DS buffer is 'actually'
+                          // playing
     bool Paused;
 
     bool UseVisBuffer;
@@ -167,14 +172,16 @@ private:
     tTVPWaveSegmentQueue *L2BufferSegmentQueues;
 
     tjs_int64 DecodePos; // decoded samples from directsound buffer play
-    tjs_int64 LastCheckedDecodePos; // last sured position (-1 for not checked) and
+    tjs_int64 LastCheckedDecodePos; // last sured position (-1 for not
+                                    // checked) and
     tjs_uint64 LastCheckedTick; // last sured tick time
 
     bool Looping;
 
     void Clear();
 
-    tjs_uint Decode(void *buffer, tjs_uint bufsamplelen, tTVPWaveSegmentQueue &segments);
+    tjs_uint Decode(void *buffer, tjs_uint bufsamplelen,
+                    tTVPWaveSegmentQueue &segments);
 
 public:
     bool FillL2Buffer(bool firstwrite, bool fromdecodethread);
@@ -248,7 +255,8 @@ public:
 
     tjs_uint64 GetTotalTime();
 
-    //-- volume/pan/3D position/freq stuff -------------------------------------
+    //-- volume/pan/3D position/freq stuff
+    //-------------------------------------
 private:
     tjs_int Volume;
     tjs_int Volume2;
@@ -283,7 +291,9 @@ public:
 
     static void SetGlobalFocusMode(tTVPSoundGlobalFocusMode b);
 
-    static tTVPSoundGlobalFocusMode GetGlobalFocusMode() { return GlobalFocusMode; }
+    static tTVPSoundGlobalFocusMode GetGlobalFocusMode() {
+        return GlobalFocusMode;
+    }
 
 private:
     void Set3DPositionToBuffer();
@@ -311,7 +321,8 @@ public:
 
     void SetFrequency(tjs_int freq);
 
-    //-- visualization stuff ----------------------------------------------
+    //-- visualization stuff
+    //----------------------------------------------
 public:
     void SetUseVisBuffer(bool b);
 
@@ -321,10 +332,12 @@ protected:
     void ResetVisBuffer(); // reset or recreate visualication buffer
     void DeallocateVisBuffer();
 
-    void CopyVisBuffer(tjs_int16 *dest, const tjs_uint8 *src, tjs_int numsamples, tjs_int channels);
+    void CopyVisBuffer(tjs_int16 *dest, const tjs_uint8 *src,
+                       tjs_int numsamples, tjs_int channels);
 
 public:
-    tjs_int GetVisBuffer(tjs_int16 *dest, tjs_int numsamples, tjs_int channels, tjs_int aheadsamples);
+    tjs_int GetVisBuffer(tjs_int16 *dest, tjs_int numsamples, tjs_int channels,
+                         tjs_int aheadsamples);
 };
 //---------------------------------------------------------------------------
 

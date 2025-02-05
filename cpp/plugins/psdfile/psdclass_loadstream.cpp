@@ -7,7 +7,8 @@
 /**
  * Stream 用の Iterator
  */
-class PSDIterator : public std::iterator<std::random_access_iterator_tag, const unsigned char> {
+class PSDIterator : public std::iterator<std::random_access_iterator_tag,
+                                         const unsigned char> {
 public:
     typedef size_t diff_t;
 
@@ -110,7 +111,9 @@ public:
     }
 
     // 差分
-    diff_t operator-(const PSDIterator &b) const { return (diff_t)(_pos - b._pos); }
+    diff_t operator-(const PSDIterator &b) const {
+        return (diff_t)(_pos - b._pos);
+    }
 
     // イテレータの一致判定
     bool operator==(const PSDIterator &o) const { return o._pos == _pos; }
@@ -130,13 +133,21 @@ private:
 
 namespace psd {
 
-    inline void copyToBuffer(uint8_t *buffer, PSDIterator &cur, int size) { cur.copyToBuffer(buffer, size); }
+    inline void copyToBuffer(uint8_t *buffer, PSDIterator &cur, int size) {
+        cur.copyToBuffer(buffer, size);
+    }
 
-    inline void getShortLE(uint8_t *buffer, PSDIterator &cur) { cur.copyToBuffer(buffer, 2); }
+    inline void getShortLE(uint8_t *buffer, PSDIterator &cur) {
+        cur.copyToBuffer(buffer, 2);
+    }
 
-    inline void getLongLE(uint8_t *buffer, PSDIterator &cur) { cur.copyToBuffer(buffer, 4); }
+    inline void getLongLE(uint8_t *buffer, PSDIterator &cur) {
+        cur.copyToBuffer(buffer, 4);
+    }
 
-    inline void getLongLongLE(uint8_t *buffer, PSDIterator &cur) { cur.copyToBuffer(buffer, 8); }
+    inline void getLongLongLE(uint8_t *buffer, PSDIterator &cur) {
+        cur.copyToBuffer(buffer, 8);
+    }
 } // namespace psd
 
 bool PSD::loadStream(const ttstr &filename) {

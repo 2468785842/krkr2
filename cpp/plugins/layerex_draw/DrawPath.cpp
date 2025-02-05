@@ -23,7 +23,8 @@ void DrawPath::closeFigure() { GdipClosePathFigure(this->path); }
  * @param startAngle 時計方向円弧開始位置
  * @param sweepAngle 描画角度
  */
-void DrawPath::drawArc(REAL x, REAL y, REAL width, REAL height, REAL startAngle, REAL sweepAngle) {
+void DrawPath::drawArc(REAL x, REAL y, REAL width, REAL height, REAL startAngle,
+                       REAL sweepAngle) {
     GdipAddPathArc(path, x, y, width, height, startAngle, sweepAngle);
 }
 
@@ -39,7 +40,8 @@ void DrawPath::drawArc(REAL x, REAL y, REAL width, REAL height, REAL startAngle,
  * @param x4
  * @param y4
  */
-void DrawPath::drawBezier(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3, REAL x4, REAL y4) {
+void DrawPath::drawBezier(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3,
+                          REAL x4, REAL y4) {
     GdipAddPathBezier(path, x1, y1, x2, y2, x3, y3, x4, y4);
 }
 
@@ -108,10 +110,12 @@ void DrawPath::drawCurve2(tTJSVariant points, REAL tension) {
  * @param numberOfSegments
  * @param tension tension
  */
-void DrawPath::drawCurve3(tTJSVariant points, int offset, int numberOfSegments, REAL tension) {
+void DrawPath::drawCurve3(tTJSVariant points, int offset, int numberOfSegments,
+                          REAL tension) {
     std::vector<PointFClass> ps;
     getPoints(points, ps);
-    GdipAddPathCurve3(path, &ps[0], (int)ps.size(), offset, numberOfSegments, tension);
+    GdipAddPathCurve3(path, &ps[0], (int)ps.size(), offset, numberOfSegments,
+                      tension);
 }
 
 /**
@@ -123,7 +127,8 @@ void DrawPath::drawCurve3(tTJSVariant points, int offset, int numberOfSegments, 
  * @param startAngle 時計方向円弧開始位置
  * @param sweepAngle 描画角度
  */
-void DrawPath::drawPie(REAL x, REAL y, REAL width, REAL height, REAL startAngle, REAL sweepAngle) {
+void DrawPath::drawPie(REAL x, REAL y, REAL width, REAL height, REAL startAngle,
+                       REAL sweepAngle) {
     GdipAddPathPie(path, x, y, width, height, startAngle, sweepAngle);
 }
 
@@ -135,7 +140,9 @@ void DrawPath::drawPie(REAL x, REAL y, REAL width, REAL height, REAL startAngle,
  * @param width
  * @param height
  */
-void DrawPath::drawEllipse(REAL x, REAL y, REAL width, REAL height) { GdipAddPathEllipse(path, x, y, width, height); }
+void DrawPath::drawEllipse(REAL x, REAL y, REAL width, REAL height) {
+    GdipAddPathEllipse(path, x, y, width, height);
+}
 
 /**
  * 線分の描画
@@ -145,7 +152,9 @@ void DrawPath::drawEllipse(REAL x, REAL y, REAL width, REAL height) { GdipAddPat
  * @param x2 終点X座標
  * @param y2 終点Y座標
  */
-void DrawPath::drawLine(REAL x1, REAL y1, REAL x2, REAL y2) { GdipAddPathLine(path, x1, y1, x2, y2); }
+void DrawPath::drawLine(REAL x1, REAL y1, REAL x2, REAL y2) {
+    GdipAddPathLine(path, x1, y1, x2, y2);
+}
 
 /**
  * 連続線分の描画

@@ -23,12 +23,13 @@ public:
 
         virtual ~IHardwareDecoder(){};
 
-        virtual bool Open(AVCodecContext *avctx, AVCodecContext *mainctx, const enum AVPixelFormat,
-                          unsigned int surfaces) = 0;
+        virtual bool Open(AVCodecContext *avctx, AVCodecContext *mainctx,
+                          const enum AVPixelFormat, unsigned int surfaces) = 0;
 
         virtual int Decode(AVCodecContext *avctx, AVFrame *frame) = 0;
 
-        virtual bool GetPicture(AVCodecContext *avctx, AVFrame *frame, DVDVideoPicture *picture) = 0;
+        virtual bool GetPicture(AVCodecContext *avctx, AVFrame *frame,
+                                DVDVideoPicture *picture) = 0;
 
         virtual int Check(AVCodecContext *avctx) = 0;
 
@@ -47,9 +48,11 @@ public:
 
     virtual ~CDVDVideoCodecFFmpeg();
 
-    virtual bool Open(CDVDStreamInfo &hints, CDVDCodecOptions &options) override;
+    virtual bool Open(CDVDStreamInfo &hints,
+                      CDVDCodecOptions &options) override;
 
-    virtual int Decode(uint8_t *pData, int iSize, double dts, double pts) override;
+    virtual int Decode(uint8_t *pData, int iSize, double dts,
+                       double pts) override;
 
     virtual void Reset() override;
 
@@ -61,12 +64,15 @@ public:
 
     virtual void SetDropState(bool bDrop) override;
 
-    virtual const char *GetName() override { return m_name.c_str(); }; // m_name is never changed after open
+    virtual const char *GetName() override {
+        return m_name.c_str();
+    }; // m_name is never changed after open
     virtual unsigned GetConvergeCount() override;
 
     virtual unsigned GetAllowedReferences() override;
 
-    virtual bool GetCodecStats(double &pts, int &droppedFrames, int &skippedPics) override;
+    virtual bool GetCodecStats(double &pts, int &droppedFrames,
+                               int &skippedPics) override;
 
     virtual void SetCodecControl(int flags) override;
 
@@ -77,7 +83,8 @@ public:
 protected:
     void Dispose();
 
-    static enum AVPixelFormat GetFormat(struct AVCodecContext *avctx, const AVPixelFormat *fmt);
+    static enum AVPixelFormat GetFormat(struct AVCodecContext *avctx,
+                                        const AVPixelFormat *fmt);
 
     int FilterOpen(const std::string &filters, bool scale);
 
@@ -106,7 +113,8 @@ protected:
 
     int m_iScreenWidth;
     int m_iScreenHeight;
-    int m_iOrientation; // orientation of the video in degress counter clockwise
+    int m_iOrientation; // orientation of the video in degress counter
+                        // clockwise
 
     unsigned int m_uSurfacesCount;
 

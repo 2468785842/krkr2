@@ -23,10 +23,12 @@
 #include "LayerBitmapIntf.h"
 #include "MsgIntf.h"
 
-void tTVPGraphicHandlerType::Load(void *formatdata, void *callbackdata, tTVPGraphicSizeCallback sizecallback,
+void tTVPGraphicHandlerType::Load(void *formatdata, void *callbackdata,
+                                  tTVPGraphicSizeCallback sizecallback,
                                   tTVPGraphicScanLineCallback scanlinecallback,
-                                  tTVPMetaInfoPushCallback metainfopushcallback, tTJSBinaryStream *src,
-                                  tjs_int32 keyidx, tTVPGraphicLoadMode mode) {
+                                  tTVPMetaInfoPushCallback metainfopushcallback,
+                                  tTJSBinaryStream *src, tjs_int32 keyidx,
+                                  tTVPGraphicLoadMode mode) {
     if(LoadHandler == nullptr)
         TVPThrowExceptionMessage(TVPUnknownGraphicFormat, TJS_W("unknown"));
 #if 0
@@ -46,14 +48,19 @@ void tTVPGraphicHandlerType::Load(void *formatdata, void *callbackdata, tTVPGrap
 	}
 	else
 #endif
-    { LoadHandler(formatdata, callbackdata, sizecallback, scanlinecallback, metainfopushcallback, src, keyidx, mode); }
+    {
+        LoadHandler(formatdata, callbackdata, sizecallback, scanlinecallback,
+                    metainfopushcallback, src, keyidx, mode);
+    }
 }
-void tTVPGraphicHandlerType::Save(const ttstr &storagename, const ttstr &mode, const iTVPBaseBitmap *image,
+void tTVPGraphicHandlerType::Save(const ttstr &storagename, const ttstr &mode,
+                                  const iTVPBaseBitmap *image,
                                   iTJSDispatch2 *meta) {
     if(SaveHandler == nullptr)
         TVPThrowExceptionMessage(TVPUnknownGraphicFormat, mode);
 
-    tTJSBinaryStream *stream = TVPCreateStream(TVPNormalizeStorageName(storagename), TJS_BS_WRITE);
+    tTJSBinaryStream *stream =
+        TVPCreateStream(TVPNormalizeStorageName(storagename), TJS_BS_WRITE);
 #if 0
 	if (IsPlugin)
 	{
@@ -80,7 +87,8 @@ void tTVPGraphicHandlerType::Save(const ttstr &storagename, const ttstr &mode, c
         delete stream;
     }
 }
-void tTVPGraphicHandlerType::Header(tTJSBinaryStream *src, iTJSDispatch2 **dic) {
+void tTVPGraphicHandlerType::Header(tTJSBinaryStream *src,
+                                    iTJSDispatch2 **dic) {
     if(HeaderHandler == nullptr)
         TVPThrowExceptionMessage(TVPUnknownGraphicFormat, TJS_W("unknown"));
 #if 0

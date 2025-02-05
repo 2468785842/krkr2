@@ -42,8 +42,9 @@ void GDIFontRasterizer::InitChAntialiasMethod() {
 //---------------------------------------------------------------------------
 
 GDIFontRasterizer::GDIFontRasterizer() :
-    RefCount(0), FontDC(nullptr), NonBoldFontDC(nullptr), LastBitmap(nullptr), ChAntialiasMethodInit(false),
-    ChUseResampling(false), ChAntialiasMethod(camResample8) {
+    RefCount(0), FontDC(nullptr), NonBoldFontDC(nullptr), LastBitmap(nullptr),
+    ChAntialiasMethodInit(false), ChUseResampling(false),
+    ChAntialiasMethod(camResample8) {
     AddRef();
 }
 
@@ -110,14 +111,20 @@ void GDIFontRasterizer::GetTextExtent(tjs_char ch, tjs_int &w, tjs_int &h) {
         w += (int)(h / 50) + 1; // calculate bold font size
     }
 }
-tjs_int GDIFontRasterizer::GetAscentHeight() { return FontDC->GetAscentHeight(); }
-tTVPCharacterData *GDIFontRasterizer::GetBitmap(const tTVPFontAndCharacterData &font, tjs_int aofsx, tjs_int aofsy) {
+tjs_int GDIFontRasterizer::GetAscentHeight() {
+    return FontDC->GetAscentHeight();
+}
+tTVPCharacterData *
+GDIFontRasterizer::GetBitmap(const tTVPFontAndCharacterData &font,
+                             tjs_int aofsx, tjs_int aofsy) {
     InitChAntialiasMethod();
 
     // setup GLYPHMETRICS and reveive buffer
     GLYPHMETRICS gm;
     ZeroMemory(&gm, sizeof(gm));
-    static MAT2 no_transform_matrix = { { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 1 } };
+    static MAT2 no_transform_matrix = {
+        { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 1 }
+    };
     // transformation matrix for intact conversion
     // | 1 0 |
     // | 0 1 |
@@ -160,7 +167,8 @@ tTVPCharacterData *GDIFontRasterizer::GetBitmap(const tTVPFontAndCharacterData &
     code = font.Character;
 
     // get buffer size and output dimensions
-    int size = ::GetGlyphOutline(FontDC->GetDC(), code, format, &gm, 0, nullptr, transmat);
+    int size = ::GetGlyphOutline(FontDC->GetDC(), code, format, &gm, 0, nullptr,
+                                 transmat);
 
     // set up structure's variables
     tTVPCharacterData *data = new tTVPCharacterData();
@@ -173,10 +181,10 @@ tTVPCharacterData *GDIFontRasterizer::GetBitmap(const tTVPFontAndCharacterData &
 
         if(font.Font.Flags & TVP_TF_BOLD) {
             // calculate bold font width;
-            // because sucking Win32 API returns different character size
-            // between Win9x and WinNT, when we specified bold characters.
-            // so we must alternatively calculate bold font size based on
-            // non-bold font width.
+            // because sucking Win32 API returns different character
+            // size between Win9x and WinNT, when we specified bold
+            // characters. so we must alternatively calculate bold
+            // font size based on non-bold font width.
             s.cx += (int)(s.cx / 50) + 1;
         }
 
@@ -215,8 +223,9 @@ tTVPCharacterData *GDIFontRasterizer::GetBitmap(const tTVPFontAndCharacterData &
             data->Pitch = (size / gm.gmBlackBoxY) & ~0x03;
             // data is aligned to DWORD
             /*
-                    data->Pitch = (((gm.gmBlackBoxX -1)>>2)+1)<<2 seems to be
-               proper, but does not work with some characters.
+                    data->Pitch = (((gm.gmBlackBoxX -1)>>2)+1)<<2
+               seems to be proper, but does not work with some
+               characters.
             */
         } else {
             data->Pitch = (((gm.gmBlackBoxX - 1) >> 5) + 1) << 2;
@@ -227,11 +236,12 @@ tTVPCharacterData *GDIFontRasterizer::GetBitmap(const tTVPFontAndCharacterData &
 
         try {
             // draw to buffer
-            ::GetGlyphOutline(FontDC->GetDC(), code, format, &gm, size, data->GetData(), transmat);
+            ::GetGlyphOutline(FontDC->GetDC(), code, format, &gm, size,
+                              data->GetData(), transmat);
 
             if((ChUseResampling) && (font.Font.Flags & TVP_TF_BOLD)) {
-                // our sucking win9x based OS cannot output bold characters
-                // even if BOLD is specified.
+                // our sucking win9x based OS cannot output bold
+                // characters even if BOLD is specified.
                 if(format == GGO_BITMAP)
                     data->Bold2(font.Font.Height << factor);
                 else
@@ -295,7 +305,9 @@ tTVPCharacterData *GDIFontRasterizer::GetBitmap(const tTVPFontAndCharacterData &
     return data;
 }
 void GDIFontRasterizer::GetGlyphDrawRect(const ttstr &text, tTVPRect &area) {
-    static MAT2 no_transform_matrix = { { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 1 } };
+    static MAT2 no_transform_matrix = {
+        { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 1 }
+    };
     GLYPHMETRICS gm;
 
     tjs_int ascent = GetAscentHeight();
@@ -314,7 +326,8 @@ void GDIFontRasterizer::GetGlyphDrawRect(const ttstr &text, tTVPRect &area) {
     for(tjs_uint i = 0; i < len; i++) {
         tjs_char code = text[i];
         ZeroMemory(&gm, sizeof(gm));
-        int err = ::GetGlyphOutline(FontDC->GetDC(), code, GGO_METRICS, &gm, 0, nullptr, &no_transform_matrix);
+        int err = ::GetGlyphOutline(FontDC->GetDC(), code, GGO_METRICS, &gm, 0,
+                                    nullptr, &no_transform_matrix);
         SIZE s = { 0, 0 };
         if(err != GDI_ERROR) {
             ::GetTextExtentPoint32(NonBoldFontDC->GetDC(), &code, 1, &s);

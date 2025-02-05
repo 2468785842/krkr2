@@ -67,7 +67,9 @@ static void *__do_alloc_func(F_alloc_t *f, void *p, size_t c) {
         if(!ptr) {
             tTJSCSH lock(_cs);
             const char *btns[2] = { _retry.c_str(), _cancel.c_str() };
-            while(!ptr && TVPShowSimpleMessageBox(_msg.c_str(), _title.c_str(), 2, btns) == 0) {
+            while(!ptr &&
+                  TVPShowSimpleMessageBox(_msg.c_str(), _title.c_str(), 2,
+                                          btns) == 0) {
                 ptr = f(p, c);
             }
             // TVPExitApplication(-1);
@@ -101,7 +103,8 @@ void TVPCheckMemory() {
         if(freeMem < 24) {
             char buf[256];
             sprintf(buf,
-                    "Insufficient memory (%dMB available)\nYou can diable this "
+                    "Insufficient memory (%dMB available)\nYou can "
+                    "diable this "
                     "notice in global preference.",
                     freeMem);
             const char *btn = "OK";
@@ -114,7 +117,8 @@ void TVPCheckMemory() {
 
 int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption) {
     std::vector<ttstr> normal;
-    normal.emplace_back(LocaleConfigManager::GetInstance()->GetText("msgbox_ok"));
+    normal.emplace_back(
+        LocaleConfigManager::GetInstance()->GetText("msgbox_ok"));
     return TVPShowSimpleMessageBox(text, caption, normal);
 }
 
@@ -126,7 +130,9 @@ int TVPShowSimpleMessageBoxYesNo(const ttstr &text, const ttstr &caption) {
     return TVPShowSimpleMessageBox(text, caption, normal);
 }
 
-ttstr TVPGetMessageByLocale(const std::string &key) { return LocaleConfigManager::GetInstance()->GetText(key); }
+ttstr TVPGetMessageByLocale(const std::string &key) {
+    return LocaleConfigManager::GetInstance()->GetText(key);
+}
 
 int _argc;
 char **_argv;
@@ -274,13 +280,14 @@ int APIENTRY WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 }
 #endif
 tTVPApplication::tTVPApplication() :
-    is_attach_console_(false), tarminate_(false), application_activating_(true), image_load_thread_(nullptr),
-    has_map_report_process_(false) {}
+    is_attach_console_(false), tarminate_(false), application_activating_(true),
+    image_load_thread_(nullptr), has_map_report_process_(false) {}
 tTVPApplication::~tTVPApplication() {
     // 	while( windows_list_.size() ) {
     // 		std::vector<TTVPWindowForm*>::iterator i =
     // windows_list_.begin(); 		delete (*i);
-    // 		// TTVPWindowForm のデストラクタ内でリストから削除されるはず
+    // 		// TTVPWindowForm
+    // のデストラクタ内でリストから削除されるはず
     // 	}
     // 	windows_list_.clear();
     delete image_load_thread_;
@@ -304,7 +311,8 @@ bool tTVPApplication::StartApplication(ttstr path) {
 
     // try starting the program!
     try {
-        //		if(TVPCheckProcessLog()) return true; // sub-process for
+        //		if(TVPCheckProcessLog()) return true; // sub-process
+        // for
         // processing object hash map log
 
         TVPProjectDir = TVPNormalizeStorageName(path);
@@ -313,7 +321,8 @@ bool tTVPApplication::StartApplication(ttstr path) {
         TVPInitFontNames();
 
         // banner
-        TVPAddImportantLog(TVPFormatMessage(TVPProgramStartedOn, TVPGetOSName(), TVPGetPlatformName()));
+        TVPAddImportantLog(TVPFormatMessage(TVPProgramStartedOn, TVPGetOSName(),
+                                            TVPGetPlatformName()));
 
         // TVPInitializeBaseSystems
         TVPInitializeBaseSystems();
@@ -441,7 +450,9 @@ void tTVPApplication::CloseConsole() {
 #endif
 }
 void TVPConsoleLog(const ttstr &mes, bool important);
-void tTVPApplication::PrintConsole(const ttstr &mes, bool important) { TVPConsoleLog(mes, important); }
+void tTVPApplication::PrintConsole(const ttstr &mes, bool important) {
+    TVPConsoleLog(mes, important);
+}
 #if 0
 HWND tTVPApplication::GetHandle() {
 	if( windows_list_.size() > 0 ) {
@@ -713,12 +724,15 @@ void tTVPApplication::CheckDigitizer() {
 #endif
 }
 
-void tTVPApplication::PostUserMessage(const std::function<void()> &func, void *host, int msg) {
+void tTVPApplication::PostUserMessage(const std::function<void()> &func,
+                                      void *host, int msg) {
     std::lock_guard<std::mutex> cs(m_msgQueueLock);
     m_lstUserMsg.emplace_back(host, msg, func);
 }
 
-void tTVPApplication::FilterUserMessage(const std::function<void(std::vector<std::tuple<void *, int, tMsg>> &)> &func) {
+void tTVPApplication::FilterUserMessage(
+    const std::function<void(std::vector<std::tuple<void *, int, tMsg>> &)>
+        &func) {
     std::lock_guard<std::mutex> cs(m_msgQueueLock);
     func(m_lstUserMsg);
 }
@@ -803,14 +817,18 @@ void tTVPApplication::ModalFinished() {
 	}
 }
 #endif
-void tTVPApplication::LoadImageRequest(class iTJSDispatch2 *owner, class tTJSNI_Bitmap *bmp, const ttstr &name) {
+void tTVPApplication::LoadImageRequest(class iTJSDispatch2 *owner,
+                                       class tTJSNI_Bitmap *bmp,
+                                       const ttstr &name) {
     if(image_load_thread_) {
         image_load_thread_->LoadRequest(owner, bmp, name);
     }
 }
 
 void tTVPApplication::RegisterActiveEvent(
-    void *host, const std::function<void(void *, eTVPActiveEvent)> &func /*empty = unregister*/) {
+    void *host,
+    const std::function<void(void *, eTVPActiveEvent)>
+        &func /*empty = unregister*/) {
     if(func)
         m_activeEvents.emplace(host, func);
     else
@@ -846,7 +864,9 @@ void TVPDeleteAcceleratorKeyTable( HWND hWnd ) {
 
 void TVPInitWindowOptions() { ; }
 
-std::string ExtractFileDir(const std::string &FileName) { return av_dirname((char *)FileName.c_str()); }
+std::string ExtractFileDir(const std::string &FileName) {
+    return av_dirname((char *)FileName.c_str());
+}
 
 unsigned long ColorToRGB(unsigned int col) {
     // 0xBBGGRR

@@ -21,15 +21,16 @@
 tjs_uint32 tTJSNC_PhaseVocoder::ClassID = (tjs_uint32)-1;
 
 tTJSNC_PhaseVocoder::tTJSNC_PhaseVocoder() :
-    tTJSNativeClass(TJS_W("PhaseVocoder")){ // register native methods/properties
+    tTJSNativeClass(TJS_W("PhaseVocoder")){
+        // register native methods/properties
 
-                                            TJS_BEGIN_NATIVE_MEMBERS(PhaseVocoder) TJS_DECL_EMPTY_FINALIZE_METHOD
-                                                //----------------------------------------------------------------------
-                                                // constructor/methods
-                                                //----------------------------------------------------------------------
-                                                TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(
-                                                    /*var.name*/ _this, /*var.type*/ tTJSNI_PhaseVocoder,
-                                                    /*TJS class name*/ PhaseVocoder){ return TJS_S_OK;
+        TJS_BEGIN_NATIVE_MEMBERS(PhaseVocoder) TJS_DECL_EMPTY_FINALIZE_METHOD
+            //----------------------------------------------------------------------
+            // constructor/methods
+            //----------------------------------------------------------------------
+            TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(
+                /*var.name*/ _this, /*var.type*/ tTJSNI_PhaseVocoder,
+                /*TJS class name*/ PhaseVocoder){ return TJS_S_OK;
 }
 TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ PhaseVocoder)
 //----------------------------------------------------------------------
@@ -39,9 +40,9 @@ TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ PhaseVocoder)
 //----------------------------------------------------------------------
 // properties
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(interface){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_PhaseVocoder);
+TJS_BEGIN_NATIVE_PROP_DECL(interface){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_PhaseVocoder);
 *result = reinterpret_cast<tjs_int64>((iTVPBasicWaveFilter *)_this);
 return TJS_S_OK;
 }
@@ -51,9 +52,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(interface)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(window){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_PhaseVocoder);
+TJS_BEGIN_NATIVE_PROP_DECL(window){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_PhaseVocoder);
 *result = (tjs_int64)(_this->GetWindow());
 return TJS_S_OK;
 }
@@ -69,9 +70,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(window)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(overlap){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_PhaseVocoder);
+TJS_BEGIN_NATIVE_PROP_DECL(overlap){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_PhaseVocoder);
 *result = (tjs_int64)(_this->GetOverlap());
 return TJS_S_OK;
 }
@@ -87,9 +88,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(overlap)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(pitch){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_PhaseVocoder);
+TJS_BEGIN_NATIVE_PROP_DECL(pitch){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_PhaseVocoder);
 *result = (double)_this->GetPitch();
 return TJS_S_OK;
 }
@@ -105,9 +106,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(pitch)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(time){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
-                                                          /*var. type*/ tTJSNI_PhaseVocoder);
+TJS_BEGIN_NATIVE_PROP_DECL(time){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_PhaseVocoder);
 *result = (double)_this->GetTime();
 return TJS_S_OK;
 }
@@ -129,7 +130,9 @@ TJS_END_NATIVE_MEMBERS
 }
 
 //---------------------------------------------------------------------------
-iTJSNativeInstance *tTJSNC_PhaseVocoder::CreateNativeInstance() { return new tTJSNI_PhaseVocoder(); }
+iTJSNativeInstance *tTJSNC_PhaseVocoder::CreateNativeInstance() {
+    return new tTJSNI_PhaseVocoder();
+}
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -150,17 +153,18 @@ tTJSNI_PhaseVocoder::~tTJSNI_PhaseVocoder() {
     if(PhaseVocoder)
         delete PhaseVocoder, PhaseVocoder = nullptr;
     if(FormatConvertBuffer)
-        delete[] FormatConvertBuffer, FormatConvertBuffer = nullptr, FormatConvertBufferSize = 0;
+        delete[] FormatConvertBuffer, FormatConvertBuffer = nullptr,
+                                      FormatConvertBufferSize = 0;
 }
 
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_PhaseVocoder::Construct(tjs_int numparams, tTJSVariant **param,
-                                                         iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_PhaseVocoder::Construct(tjs_int numparams, tTJSVariant **param,
+                                         iTJSDispatch2 *tjs_obj) {
     return TJS_S_OK;
 }
 
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_PhaseVocoder::Invalidate() {}
+void tTJSNI_PhaseVocoder::Invalidate() {}
 
 //---------------------------------------------------------------------------
 void tTJSNI_PhaseVocoder::SetWindow(int window) {
@@ -201,7 +205,8 @@ void tTJSNI_PhaseVocoder::SetOverlap(int overlap) {
 }
 
 //---------------------------------------------------------------------------
-tTVPSampleAndLabelSource *tTJSNI_PhaseVocoder::Recreate(tTVPSampleAndLabelSource *source) {
+tTVPSampleAndLabelSource *
+tTJSNI_PhaseVocoder::Recreate(tTVPSampleAndLabelSource *source) {
     if(Source)
         TVPThrowExceptionMessage(TVPCannotConnectMultipleWaveSoundBufferAtOnce);
 
@@ -234,17 +239,18 @@ void tTJSNI_PhaseVocoder::Clear() {
     if(PhaseVocoder)
         delete PhaseVocoder, PhaseVocoder = nullptr;
     if(FormatConvertBuffer)
-        delete[] FormatConvertBuffer, FormatConvertBuffer = nullptr, FormatConvertBufferSize = 0;
+        delete[] FormatConvertBuffer, FormatConvertBuffer = nullptr,
+                                      FormatConvertBufferSize = 0;
 }
 
 //---------------------------------------------------------------------------
 void tTJSNI_PhaseVocoder::Update() {
     // Update filter internal state.
-    // Note that this method may be called by non-main thread (decoding thread)
-    // and setting Pitch and Time may be called from main thread, and these may
-    // be simultaneous.
-    // We do not care about that because typically writing size of float is
-    // atomic on most platform. (I don't know any platform which does not
+    // Note that this method may be called by non-main thread
+    // (decoding thread) and setting Pitch and Time may be called from
+    // main thread, and these may be simultaneous. We do not care
+    // about that because typically writing size of float is atomic on
+    // most platform. (I don't know any platform which does not
     // guarantee that).
     if(PhaseVocoder) {
         PhaseVocoder->SetFrequencyScale(Pitch);
@@ -254,14 +260,17 @@ void tTJSNI_PhaseVocoder::Update() {
 }
 
 //---------------------------------------------------------------------------
-void tTJSNI_PhaseVocoder::Fill(float *dest, tjs_uint samples, tjs_uint &written, tTVPWaveSegmentQueue &segments) {
-    if(InputFormat.IsFloat && InputFormat.BitsPerSample == 32 && InputFormat.BytesPerSample == 4) {
+void tTJSNI_PhaseVocoder::Fill(float *dest, tjs_uint samples, tjs_uint &written,
+                               tTVPWaveSegmentQueue &segments) {
+    if(InputFormat.IsFloat && InputFormat.BitsPerSample == 32 &&
+       InputFormat.BytesPerSample == 4) {
         // 入力も32bitフロートなので変換の必要はない
         Source->Decode(dest, samples, written, segments);
     } else {
         // 入力が32bitフロートではないので変換の必要がある
         // いったん変換バッファにためる
-        tjs_uint buf_size = samples * InputFormat.BytesPerSample * InputFormat.Channels;
+        tjs_uint buf_size =
+            samples * InputFormat.BytesPerSample * InputFormat.Channels;
         if(FormatConvertBufferSize < buf_size) {
             // バッファを再確保
             if(FormatConvertBuffer)
@@ -277,15 +286,19 @@ void tTJSNI_PhaseVocoder::Fill(float *dest, tjs_uint samples, tjs_uint &written,
     if(written < samples) {
         // デコードされたサンプル数が要求されたサンプル数に満たない場合
         // 残りを 0 で埋める
-        memset(dest + written * InputFormat.Channels, 0, (samples - written) * sizeof(float) * InputFormat.Channels);
+        memset(dest + written * InputFormat.Channels, 0,
+               (samples - written) * sizeof(float) * InputFormat.Channels);
     }
 }
 
 //---------------------------------------------------------------------------
-void tTJSNI_PhaseVocoder::Decode(void *dest, tjs_uint samples, tjs_uint &written, tTVPWaveSegmentQueue &segments) {
+void tTJSNI_PhaseVocoder::Decode(void *dest, tjs_uint samples,
+                                 tjs_uint &written,
+                                 tTVPWaveSegmentQueue &segments) {
     if(!PhaseVocoder) {
         // PhaseVocoder を作成
-        tRisaPhaseVocoderDSP *pv = new tRisaPhaseVocoderDSP(Window, InputFormat.SamplesPerSec, InputFormat.Channels);
+        tRisaPhaseVocoderDSP *pv = new tRisaPhaseVocoderDSP(
+            Window, InputFormat.SamplesPerSec, InputFormat.Channels);
         pv->SetFrequencyScale(Pitch);
         pv->SetTimeScale(Time);
         pv->SetOverSampling(Overlap);
@@ -306,12 +319,15 @@ void tTJSNI_PhaseVocoder::Decode(void *dest, tjs_uint samples, tjs_uint &written
                 // 入力にデータを流し込む
                 float *p1, *p2;
                 size_t p1len, p2len;
-                PhaseVocoder->GetInputBuffer(inputhopsize, p1, p1len, p2, p2len);
+                PhaseVocoder->GetInputBuffer(inputhopsize, p1, p1len, p2,
+                                             p2len);
                 tjs_uint filled = 0;
                 tjs_uint total = 0;
-                Fill(p1, (tjs_uint)p1len, filled, InputSegments), total += filled;
+                Fill(p1, (tjs_uint)p1len, filled, InputSegments),
+                    total += filled;
                 if(p2)
-                    Fill(p2, (tjs_uint)p2len, filled, InputSegments), total += filled;
+                    Fill(p2, (tjs_uint)p2len, filled, InputSegments),
+                        total += filled;
                 if(total == 0) {
                     break;
                 } // もうデータがない
@@ -336,13 +352,15 @@ void tTJSNI_PhaseVocoder::Decode(void *dest, tjs_uint samples, tjs_uint &written
         size_t output_ready = PhaseVocoder->GetOutputReadySize();
         if(output_ready >= outputhopsize) {
             // PhaseVocoder の出力から dest にコピーする
-            size_t copy_size = outputhopsize > samples ? samples : outputhopsize;
+            size_t copy_size =
+                outputhopsize > samples ? samples : outputhopsize;
             const float *p1, *p2;
             size_t p1len, p2len;
             PhaseVocoder->GetOutputBuffer(copy_size, p1, p1len, p2, p2len);
             memcpy(dest_buf, p1, p1len * sizeof(float) * OutputFormat.Channels);
             if(p2)
-                memcpy(dest_buf + p1len * OutputFormat.Channels, p2, p2len * sizeof(float) * OutputFormat.Channels);
+                memcpy(dest_buf + p1len * OutputFormat.Channels, p2,
+                       p2len * sizeof(float) * OutputFormat.Channels);
 
             samples -= (tjs_uint)copy_size;
             written += (tjs_uint)copy_size;

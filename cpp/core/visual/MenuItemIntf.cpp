@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -24,7 +25,8 @@
 tTVPUniqueTagForInputEvent tTVPOnMenuItemClickInputEvent ::Tag;
 //---------------------------------------------------------------------------
 
-static const tjs_char *TVPSpecifyMenuItem = TJS_W("Please specity MenuItem class object.");
+static const tjs_char *TVPSpecifyMenuItem =
+    TJS_W("Please specity MenuItem class object.");
 
 //---------------------------------------------------------------------------
 // tTJSNI_BaseMenuItem
@@ -40,8 +42,8 @@ tTJSNI_BaseMenuItem::tTJSNI_BaseMenuItem() {
     ActionOwner.Object = ActionOwner.ObjThis = nullptr;
 }
 //---------------------------------------------------------------------------
-tjs_error TJS_INTF_METHOD tTJSNI_BaseMenuItem::Construct(tjs_int numparams, tTJSVariant **param,
-                                                         iTJSDispatch2 *tjs_obj) {
+tjs_error tTJSNI_BaseMenuItem::Construct(tjs_int numparams, tTJSVariant **param,
+                                         iTJSDispatch2 *tjs_obj) {
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
 
@@ -59,8 +61,9 @@ tjs_error TJS_INTF_METHOD tTJSNI_BaseMenuItem::Construct(tjs_int numparams, tTJS
             if(clo.Object == nullptr)
                 TVPThrowExceptionMessage(TVPSpecifyWindow);
             tTJSNI_Window *win = nullptr;
-            if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_Window::ClassID,
-                                                            (iTJSNativeInstance **)&win)))
+            if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+                   TJS_NIS_GETINSTANCE, tTJSNC_Window::ClassID,
+                   (iTJSNativeInstance **)&win)))
                 TVPThrowExceptionMessage(TVPSpecifyWindow);
             Window = win;
         }
@@ -69,7 +72,7 @@ tjs_error TJS_INTF_METHOD tTJSNI_BaseMenuItem::Construct(tjs_int numparams, tTJS
     return TJS_S_OK;
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTJSNI_BaseMenuItem::Invalidate() {
+void tTJSNI_BaseMenuItem::Invalidate() {
     TVPCancelSourceEvents(Owner);
     TVPCancelInputEvents(this);
 
@@ -111,8 +114,9 @@ tTJSNI_MenuItem *tTJSNI_BaseMenuItem::CastFromVariant(const tTJSVariant &from) {
         if(clo.Object == nullptr)
             TVPThrowExceptionMessage(TVPSpecifyMenuItem);
         tTJSNI_MenuItem *menuitem = nullptr;
-        if(TJS_FAILED(clo.Object->NativeInstanceSupport(TJS_NIS_GETINSTANCE, tTJSNC_MenuItem::ClassID,
-                                                        (iTJSNativeInstance **)&menuitem)))
+        if(TJS_FAILED(clo.Object->NativeInstanceSupport(
+               TJS_NIS_GETINSTANCE, tTJSNC_MenuItem::ClassID,
+               (iTJSNativeInstance **)&menuitem)))
             TVPThrowExceptionMessage(TVPSpecifyMenuItem);
         return menuitem;
     }
@@ -162,7 +166,8 @@ iTJSDispatch2 *tTJSNI_BaseMenuItem::GetChildrenArrayNoAddRef() {
 
     if(!ChildrenArrayValid) {
         // re-create children list
-        ArrayClearMethod->FuncCall(0, nullptr, nullptr, nullptr, 0, nullptr, ChildrenArray);
+        ArrayClearMethod->FuncCall(0, nullptr, nullptr, nullptr, 0, nullptr,
+                                   ChildrenArray);
         // clear array
 
         { // locked
@@ -176,7 +181,8 @@ iTJSDispatch2 *tTJSNI_BaseMenuItem::GetChildrenArrayNoAddRef() {
 
                 iTJSDispatch2 *dsp = item->Owner;
                 tTJSVariant val(dsp, dsp);
-                ChildrenArray->PropSetByNum(TJS_MEMBERENSURE, itemcount, &val, ChildrenArray);
+                ChildrenArray->PropSetByNum(TJS_MEMBERENSURE, itemcount, &val,
+                                            ChildrenArray);
                 itemcount++;
             }
         } // locked
@@ -226,14 +232,15 @@ tTJSNI_BaseMenuItem *tTJSNI_BaseMenuItem::GetRootMenuItem() const {
 //---------------------------------------------------------------------------
 tjs_uint32 tTJSNC_MenuItem::ClassID = -1;
 tTJSNC_MenuItem::tTJSNC_MenuItem() :
-    inherited(TJS_W("MenuItem")){ // registration of native members
+    inherited(TJS_W("MenuItem")){
+        // registration of native members
 
-                                  TJS_BEGIN_NATIVE_MEMBERS(MenuItem) // constructor
-                                  TJS_DECL_EMPTY_FINALIZE_METHOD
-                                      //----------------------------------------------------------------------
-                                      TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(
-                                          /*var.name*/ _this, /*var.type*/ tTJSNI_MenuItem,
-                                          /*TJS class name*/ MenuItem){ return TJS_S_OK;
+        TJS_BEGIN_NATIVE_MEMBERS(MenuItem) // constructor
+        TJS_DECL_EMPTY_FINALIZE_METHOD
+            //----------------------------------------------------------------------
+            TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(
+                /*var.name*/ _this, /*var.type*/ tTJSNI_MenuItem,
+                /*TJS class name*/ MenuItem){ return TJS_S_OK;
 }
 TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ MenuItem)
 //----------------------------------------------------------------------
@@ -242,7 +249,8 @@ TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ MenuItem)
 
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ add) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
     tTJSNI_MenuItem *item = tTJSNI_BaseMenuItem::CastFromVariant(*param[0]);
@@ -252,7 +260,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ add) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ add)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ insert) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
     if(numparams < 2)
         return TJS_E_BADPARAMCOUNT;
     tTJSNI_MenuItem *item = tTJSNI_BaseMenuItem::CastFromVariant(*param[0]);
@@ -263,7 +272,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ insert) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ insert)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ remove) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
     tTJSNI_MenuItem *item = tTJSNI_BaseMenuItem::CastFromVariant(*param[0]);
@@ -274,7 +284,8 @@ TJS_END_NATIVE_METHOD_DECL(/*func. name*/ remove)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ popup) // not trackPopup
 {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
     if(numparams < 3)
         return TJS_E_BADPARAMCOUNT;
     tjs_uint32 flags = (tTVInteger)*param[0];
@@ -318,8 +329,9 @@ TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fireClick)
 //--properties
 
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(caption){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+TJS_BEGIN_NATIVE_PROP_DECL(caption){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
 ttstr res;
 _this->GetCaption(res);
 *result = res;
@@ -328,7 +340,8 @@ return TJS_S_OK;
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
     _this->SetCaption(*param);
     return TJS_S_OK;
 }
@@ -336,15 +349,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(caption)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(checked){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+TJS_BEGIN_NATIVE_PROP_DECL(checked){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
 *result = _this->GetChecked();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
     _this->SetChecked(param->operator bool());
     return TJS_S_OK;
 }
@@ -352,15 +367,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(checked)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(enabled){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+TJS_BEGIN_NATIVE_PROP_DECL(enabled){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
 *result = _this->GetEnabled();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
     _this->SetEnabled(param->operator bool());
     return TJS_S_OK;
 }
@@ -368,15 +385,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(enabled)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(group){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+TJS_BEGIN_NATIVE_PROP_DECL(group){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
 *result = _this->GetGroup();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
     _this->SetGroup((tjs_int)*param);
     return TJS_S_OK;
 }
@@ -384,15 +403,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(group)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(radio){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+TJS_BEGIN_NATIVE_PROP_DECL(radio){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
 *result = _this->GetRadio();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
     _this->SetRadio(param->operator bool());
     return TJS_S_OK;
 }
@@ -400,8 +421,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(radio)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(shortcut){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+TJS_BEGIN_NATIVE_PROP_DECL(shortcut){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
 ttstr res;
 _this->GetShortcut(res);
 *result = res;
@@ -410,7 +432,8 @@ return TJS_S_OK;
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
     _this->SetShortcut(*param);
     return TJS_S_OK;
 }
@@ -418,15 +441,17 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(shortcut)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(visible){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+TJS_BEGIN_NATIVE_PROP_DECL(visible){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
 *result = _this->GetVisible();
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
     _this->SetVisible(param->operator bool());
     return TJS_S_OK;
 }
@@ -434,8 +459,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(visible)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(parent){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+TJS_BEGIN_NATIVE_PROP_DECL(parent){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
 tTJSNI_BaseMenuItem *parent = _this->GetParent();
 if(parent) {
     iTJSDispatch2 *dsp = parent->GetOwnerNoAddRef();
@@ -451,8 +477,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(parent)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(children){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+TJS_BEGIN_NATIVE_PROP_DECL(children){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
 iTJSDispatch2 *dsp = _this->GetChildrenArrayNoAddRef();
 *result = tTJSVariant(dsp, dsp);
 return TJS_S_OK;
@@ -464,7 +491,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 TJS_END_NATIVE_PROP_DECL(children)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(root) // not rootMenuItem
-{ TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+{ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
 tTJSNI_BaseMenuItem *root = _this->GetRootMenuItem();
 if(root) {
     iTJSDispatch2 *dsp = root->GetOwnerNoAddRef();
@@ -482,8 +511,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(root) // not rootMenuItem
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(window){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+TJS_BEGIN_NATIVE_PROP_DECL(window){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
 tTJSNI_Window *window = _this->GetWindow();
 if(window) {
     iTJSDispatch2 *dsp = window->GetOwnerNoAddRef();
@@ -501,8 +531,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(window)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(index){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+TJS_BEGIN_NATIVE_PROP_DECL(index){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
 if(result)
     *result = (tTVInteger)_this->GetIndex();
 return TJS_S_OK;
@@ -510,7 +541,8 @@ return TJS_S_OK;
 TJS_END_NATIVE_PROP_GETTER
 
 TJS_BEGIN_NATIVE_PROP_SETTER {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_MenuItem);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_MenuItem);
     _this->SetIndex((tjs_int)(*param));
     return TJS_S_OK;
 }
@@ -534,8 +566,10 @@ iTJSDispatch2 *TVPCreateMenuItemObject(iTJSDispatch2 *window) {
     iTJSDispatch2 *out;
     tTJSVariant param(window);
     tTJSVariant *pparam[2] = { &param, &param };
-    if(TJS_FAILED(menuitemclass.Obj->CreateNew(0, nullptr, nullptr, &out, 2, pparam, menuitemclass.Obj)))
-        TVPThrowExceptionMessage(TVPInternalError, TJS_W("TVPCreateMenuItemObject"));
+    if(TJS_FAILED(menuitemclass.Obj->CreateNew(0, nullptr, nullptr, &out, 2,
+                                               pparam, menuitemclass.Obj)))
+        TVPThrowExceptionMessage(TVPInternalError,
+                                 TJS_W("TVPCreateMenuItemObject"));
 
     return out;
 }

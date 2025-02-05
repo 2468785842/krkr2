@@ -40,7 +40,8 @@ namespace psd {
 
     // イメージ取得時にカラー配置を指定するためのフォーマット構造体
     struct ColorFormat {
-        ColorFormat(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : rShift(r), gShift(g), bShift(b), aShift(a) {}
+        ColorFormat(uint8_t r, uint8_t g, uint8_t b, uint8_t a) :
+            rShift(r), gShift(g), bShift(b), aShift(a) {}
 
         uint8_t rShift;
         uint8_t gShift;
@@ -65,23 +66,27 @@ namespace psd {
         virtual int64_t getInt64(bool convToNative = true) = 0;
         virtual int getData(void *buffer, int size) = 0;
         virtual bool eoi() = 0;
-        virtual void getUnicodeString(std::wstring &str, bool convToNative = true) = 0;
+        virtual void getUnicodeString(std::wstring &str,
+                                      bool convToNative = true) = 0;
         virtual int size() = 0;
         virtual int rest() = 0;
         virtual void advance(int size) = 0;
     };
 
     // swap utilities
-    inline uint16_t byteSwap16(uint16_t x) { return (((x & 0xff00) >> 8) | ((x & 0x00ff) << 8)); }
+    inline uint16_t byteSwap16(uint16_t x) {
+        return (((x & 0xff00) >> 8) | ((x & 0x00ff) << 8));
+    }
 
     inline uint32_t byteSwap32(uint32_t x) {
-        return ((((x)&0xff000000) >> 24) | (((x)&0x00ff0000) >> 8) | (((x)&0x0000ff00) << 8) |
-                (((x)&0x000000ff) << 24));
+        return ((((x)&0xff000000) >> 24) | (((x)&0x00ff0000) >> 8) |
+                (((x)&0x0000ff00) << 8) | (((x)&0x000000ff) << 24));
     }
 
     inline uint64_t byteSwap64(uint64_t x) {
-        return ((x >> 56) | ((x >> 40) & 0xff00) | ((x >> 24) & 0xff0000) | ((x >> 8) & 0xff000000) |
-                ((x << 8) & (0xffull << 32)) | ((x << 24) & (0xffull << 40)) | ((x << 40) & (0xffull << 48)) |
+        return ((x >> 56) | ((x >> 40) & 0xff00) | ((x >> 24) & 0xff0000) |
+                ((x >> 8) & 0xff000000) | ((x << 8) & (0xffull << 32)) |
+                ((x << 24) & (0xffull << 40)) | ((x << 40) & (0xffull << 48)) |
                 (x << 56));
     }
 } // namespace psd

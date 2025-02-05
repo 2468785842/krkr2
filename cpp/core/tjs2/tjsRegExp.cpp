@@ -30,10 +30,12 @@ namespace TJS {
     static tjs_uint32 TJSRegExpFlagToValue(tjs_char ch, tjs_uint32 prev) {
         // converts flag letter to internal flag value.
         // this returns modified prev.
-        // when ch is '\0', returns default flag value and prev is ignored.
+        // when ch is '\0', returns default flag value and prev is
+        // ignored.
 
         if(ch == 0) {
-            return ONIG_OPTION_DEFAULT | ONIG_OPTION_CAPTURE_GROUP | ONIG_OPTION_FIND_NOT_EMPTY;
+            return ONIG_OPTION_DEFAULT | ONIG_OPTION_CAPTURE_GROUP |
+                ONIG_OPTION_FIND_NOT_EMPTY;
         }
 
         switch(ch) {
@@ -44,7 +46,8 @@ namespace TJS {
                 prev |= ONIG_OPTION_IGNORECASE;
                 return prev;
             case TJS_W('l'): // use localized collation
-                /*prev &= ~regbase::nocollate;*/ return prev; // ignore
+                /*prev &= ~regbase::nocollate;*/
+                return prev; // ignore
             default:
                 return prev;
         }
@@ -65,7 +68,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void replace_regex(tTJSVariant **param, tjs_int numparams, tTJSNI_RegExp *_this, iTJSDispatch2 *objthis,
+    void replace_regex(tTJSVariant **param, tjs_int numparams,
+                       tTJSNI_RegExp *_this, iTJSDispatch2 *objthis,
                        ttstr &res) {
         ttstr to;
         tTJSVariantClosure funcval;
@@ -77,7 +81,8 @@ namespace TJS {
         } else {
             funcval = param[1]->AsObjectClosureNoAddRef();
             if(funcval.ObjThis == nullptr) {
-                // replace with objthis when funcval's objthis is nullptr
+                // replace with objthis when funcval's objthis is
+                // nullptr
                 funcval.ObjThis = objthis;
             }
             func = true;
@@ -87,8 +92,8 @@ namespace TJS {
         OnigRegion *region = onig_region_new();
         const tjs_char *s = target.c_str();
         const tjs_char *send = s + target.GetLen();
-        int r =
-            onig_search(_this->RegEx, (UChar *)s, (UChar *)send, (UChar *)s, (UChar *)send, region, ONIG_OPTION_NONE);
+        int r = onig_search(_this->RegEx, (UChar *)s, (UChar *)send, (UChar *)s,
+                            (UChar *)send, region, ONIG_OPTION_NONE);
         int offset = 0;
         if(r >= 0) { // match
             do {
@@ -100,14 +105,17 @@ namespace TJS {
                 if(!func) {
                     res += to;
                 } else {
-                    // call the callback function descripted as param[1]
+                    // call the callback function descripted as
+                    // param[1]
                     tTJSVariant result;
                     tjs_error hr;
-                    iTJSDispatch2 *array = tTJSNC_RegExp::GetResultArray(true, s, _this, region);
+                    iTJSDispatch2 *array =
+                        tTJSNC_RegExp::GetResultArray(true, s, _this, region);
                     tTJSVariant arrayval(array, array);
                     tTJSVariant *param = &arrayval;
                     array->Release();
-                    hr = funcval.FuncCall(0, nullptr, nullptr, &result, 1, &param, nullptr);
+                    hr = funcval.FuncCall(0, nullptr, nullptr, &result, 1,
+                                          &param, nullptr);
                     if(TJS_FAILED(hr)) {
                         onig_region_free(region, 1);
                         return;
@@ -118,7 +126,8 @@ namespace TJS {
                 s += end;
                 onig_region_free(region, 0);
             } while(isreplaceall && s < send &&
-                    onig_search(_this->RegEx, (UChar *)s, (UChar *)send, (UChar *)s, (UChar *)send, region,
+                    onig_search(_this->RegEx, (UChar *)s, (UChar *)send,
+                                (UChar *)s, (UChar *)send, region,
                                 ONIG_OPTION_NONE) >= 0);
             if(s < send) {
                 res += ttstr(s, (int)(send - s));
@@ -130,28 +139,32 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    iTJSDispatch2 *split_regex(const ttstr &target, iTJSDispatch2 *array, tTJSNI_RegExp *_this, bool purgeempty) {
+    iTJSDispatch2 *split_regex(const ttstr &target, iTJSDispatch2 *array,
+                               tTJSNI_RegExp *_this, bool purgeempty) {
         tjs_uint targlen = target.GetLen();
         OnigRegion *region = onig_region_new();
         const tjs_char *s = target.c_str();
         const tjs_char *send = s + targlen;
-        int r =
-            onig_search(_this->RegEx, (UChar *)s, (UChar *)send, (UChar *)s, (UChar *)send, region, ONIG_OPTION_NONE);
+        int r = onig_search(_this->RegEx, (UChar *)s, (UChar *)send, (UChar *)s,
+                            (UChar *)send, region, ONIG_OPTION_NONE);
         int storecount = 0;
         if(r >= 0) { // match
             do {
                 int len = region->beg[0] / sizeof(tjs_char);
                 if(!purgeempty || len > 0) {
                     tTJSVariant val = ttstr(s, len);
-                    array->PropSetByNum(TJS_MEMBERENSURE, storecount++, &val, array);
+                    array->PropSetByNum(TJS_MEMBERENSURE, storecount++, &val,
+                                        array);
                 }
                 s += region->end[0] / sizeof(tjs_char);
                 onig_region_clear(region);
-            } while(onig_search(_this->RegEx, (UChar *)s, (UChar *)send, (UChar *)s, (UChar *)send, region,
+            } while(onig_search(_this->RegEx, (UChar *)s, (UChar *)send,
+                                (UChar *)s, (UChar *)send, region,
                                 ONIG_OPTION_NONE) >= 0);
             if(!purgeempty || s < send) {
                 tTJSVariant val = ttstr(s, (int)(send - s));
-                array->PropSetByNum(TJS_MEMBERENSURE, storecount++, &val, array);
+                array->PropSetByNum(TJS_MEMBERENSURE, storecount++, &val,
+                                    array);
             }
         } else {
             tTJSVariant val = ttstr(s, (int)(send - s));
@@ -186,7 +199,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJSNI_RegExp::Split(iTJSDispatch2 **array, const ttstr &target, bool purgeempty) {
+    void tTJSNI_RegExp::Split(iTJSDispatch2 **array, const ttstr &target,
+                              bool purgeempty) {
         bool arrayallocated = false;
         if(!*array)
             *array = TJSCreateArrayObject(), arrayallocated = true;
@@ -209,19 +223,23 @@ namespace TJS {
     tjs_uint32 tTJSNC_RegExp::ClassID = (tjs_uint32)-1;
 
     tTJSNC_RegExp::tTJSNC_RegExp() :
-        tTJSNativeClass(TJS_W("RegExp")){ // class constructor
+        tTJSNativeClass(TJS_W("RegExp")){
+            // class constructor
 
-                                          TJS_BEGIN_NATIVE_MEMBERS(
-                                              /*TJS class name*/ RegExp) TJS_DECL_EMPTY_FINALIZE_METHOD
-                                              //----------------------------------------------------------------------
-                                              TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(/*var. name*/ _this,
-                                                                                /*var. type*/ tTJSNI_RegExp,
-                                                                                /*TJS class name*/ RegExp){
-                                                  /*
-                                                      TJS constructor
-                                                  */
+            TJS_BEGIN_NATIVE_MEMBERS(
+                /*TJS class name*/
+                RegExp) TJS_DECL_EMPTY_FINALIZE_METHOD
+                //----------------------------------------------------------------------
+                TJS_BEGIN_NATIVE_CONSTRUCTOR_DECL(
+                    /*var. name*/ _this,
+                    /*var. type*/ tTJSNI_RegExp,
+                    /*TJS class name*/ RegExp){
+                    /*
+                        TJS constructor
+                    */
 
-                                                  if(numparams >= 1){ tTJSNC_RegExp::Compile(numparams, param, _this);
+                    if(numparams >=
+                       1){ tTJSNC_RegExp::Compile(numparams, param, _this);
 } // namespace TJS
 
 return TJS_S_OK;
@@ -229,7 +247,8 @@ return TJS_S_OK;
 TJS_END_NATIVE_CONSTRUCTOR_DECL(/*TJS class name*/ RegExp)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ compile) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 
     /*
         compiles given regular expression and flags.
@@ -245,7 +264,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ compile) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ compile)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ _compile) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 
     /*
         internal function; compiles given constant regular expression.
@@ -281,8 +301,10 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ _compile) {
             _this->RegEx = nullptr;
         }
         OnigErrorInfo einfo;
-        int r = onig_new(&(_this->RegEx), (UChar *)exprstart, (UChar *)(expr.c_str() + expr.length()),
-                         flags & ((ONIG_OPTION_MAXBIT << 1) - 1), ONIG_ENCODING_UTF16_LE, ONIG_SYNTAX_PERL, &einfo);
+        int r = onig_new(&(_this->RegEx), (UChar *)exprstart,
+                         (UChar *)(expr.c_str() + expr.length()),
+                         flags & ((ONIG_OPTION_MAXBIT << 1) - 1),
+                         ONIG_ENCODING_UTF16_LE, ONIG_SYNTAX_PERL, &einfo);
         if(r) {
             char s[ONIG_MAX_ERROR_MESSAGE_LEN];
             onig_error_code_to_str((UChar *)s, r, &einfo);
@@ -299,7 +321,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ _compile) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ _compile)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ test) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 
     /*
         do the text searching.
@@ -326,12 +349,13 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ test) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ test)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ match) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 
     /*
         do the text searching.
-        this function is the same as test, except for its return value.
-        match returns an array that contains each matching part.
+        this function is the same as test, except for its return
+       value. match returns an array that contains each matching part.
         if match failed, returns empty array. eg.
         any internal status will not be changed.
     */
@@ -343,7 +367,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ match) {
         ttstr target(*param[0]);
         OnigRegion *region = onig_region_new();
         bool matched = tTJSNC_RegExp::Match(region, target, _this);
-        iTJSDispatch2 *array = tTJSNC_RegExp::GetResultArray(matched, target, _this, region);
+        iTJSDispatch2 *array =
+            tTJSNC_RegExp::GetResultArray(matched, target, _this, region);
         onig_region_free(region, 1);
         *result = tTJSVariant(array, array);
         array->Release();
@@ -354,7 +379,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ match) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ match)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ exec) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 
     /*
         same as the match except for the internal status' change.
@@ -385,16 +411,19 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ exec) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ exec)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ replace) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 
     /*
         replaces the string
 
         newstring = /regexp/.replace(orgstring, newsubstring);
         newsubstring can be:
-            1. normal string ( literal or expression that respresents string )
+            1. normal string ( literal or expression that respresents
+       string )
             2. a function
-        function is called as in RegExp's context, returns new substring.
+        function is called as in RegExp's context, returns new
+       substring.
 
         or
 
@@ -418,12 +447,14 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ replace) {
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ replace)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ split) {
-    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 
     /*
         replaces the string
 
-        array = /regexp/.replace(targetstring, <reserved>, purgeempty);
+        array = /regexp/.replace(targetstring, <reserved>,
+       purgeempty);
 
         or
 
@@ -431,7 +462,8 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ split) {
 
         or
 
-        array = [].split(/regexp/, targetstring, <reserved>, purgeempty);
+        array = [].split(/regexp/, targetstring, <reserved>,
+       purgeempty);
 
         this method does not update properties
     */
@@ -458,8 +490,9 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ split) {
 }
 TJS_END_NATIVE_METHOD_DECL(/*func. name*/ split)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(matches){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+TJS_BEGIN_NATIVE_PROP_DECL(matches){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 *result = _this->Array;
 return TJS_S_OK;
 }
@@ -469,8 +502,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(matches)
 //----------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(start){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+TJS_BEGIN_NATIVE_PROP_DECL(start){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 *result = (tTVInteger)_this->Start;
 return TJS_S_OK;
 }
@@ -486,8 +520,9 @@ TJS_END_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(start)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(index){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+TJS_BEGIN_NATIVE_PROP_DECL(index){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 *result = (tTVInteger)_this->Index;
 return TJS_S_OK;
 }
@@ -497,8 +532,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(index)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(lastIndex){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+TJS_BEGIN_NATIVE_PROP_DECL(lastIndex){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 *result = (tTVInteger)_this->LastIndex;
 return TJS_S_OK;
 }
@@ -508,8 +544,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(lastIndex)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(input){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+TJS_BEGIN_NATIVE_PROP_DECL(input){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 *result = _this->Input;
 return TJS_S_OK;
 }
@@ -519,8 +556,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(input)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(lastMatch){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+TJS_BEGIN_NATIVE_PROP_DECL(lastMatch){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 *result = _this->LastMatch;
 return TJS_S_OK;
 }
@@ -530,8 +568,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(lastMatch)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(lastParen){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+TJS_BEGIN_NATIVE_PROP_DECL(lastParen){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 *result = _this->LastParen;
 return TJS_S_OK;
 }
@@ -541,8 +580,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(lastParen)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(leftContext){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+TJS_BEGIN_NATIVE_PROP_DECL(leftContext){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 *result = _this->LeftContext;
 return TJS_S_OK;
 }
@@ -552,8 +592,9 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(leftContext)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(rightContext){
-    TJS_BEGIN_NATIVE_PROP_GETTER{ TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_RegExp);
+TJS_BEGIN_NATIVE_PROP_DECL(rightContext){ TJS_BEGIN_NATIVE_PROP_GETTER{
+    TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                            /*var. type*/ tTJSNI_RegExp);
 *result = _this->RightContext;
 return TJS_S_OK;
 }
@@ -563,7 +604,8 @@ TJS_DENY_NATIVE_PROP_SETTER
 }
 TJS_END_NATIVE_PROP_DECL(rightContext)
 //---------------------------------------------------------------------------
-TJS_BEGIN_NATIVE_PROP_DECL(last){ TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTJSNC_RegExp::LastRegExp;
+TJS_BEGIN_NATIVE_PROP_DECL(last){
+    TJS_BEGIN_NATIVE_PROP_GETTER{ *result = tTJSNC_RegExp::LastRegExp;
 ;
 return TJS_S_OK;
 }
@@ -577,10 +619,13 @@ TJS_END_NATIVE_MEMBERS
 }
 
 //---------------------------------------------------------------------------
-tTJSNativeInstance *tTJSNC_RegExp::CreateNativeInstance() { return new tTJSNI_RegExp(); }
+tTJSNativeInstance *tTJSNC_RegExp::CreateNativeInstance() {
+    return new tTJSNI_RegExp();
+}
 
 //---------------------------------------------------------------------------
-void tTJSNC_RegExp::Compile(tjs_int numparams, tTJSVariant **param, tTJSNI_RegExp *_this) {
+void tTJSNC_RegExp::Compile(tjs_int numparams, tTJSVariant **param,
+                            tTJSNI_RegExp *_this) {
     ttstr expr = *param[0];
 
     tjs_uint32 flags;
@@ -599,8 +644,10 @@ void tTJSNC_RegExp::Compile(tjs_int numparams, tTJSVariant **param, tTJSNI_RegEx
         _this->RegEx = nullptr;
     }
     OnigErrorInfo einfo;
-    int r = onig_new(&(_this->RegEx), (UChar *)expr.c_str(), (UChar *)(expr.c_str() + expr.length()),
-                     flags & ((ONIG_OPTION_MAXBIT << 1) - 1), ONIG_ENCODING_UTF16_LE, ONIG_SYNTAX_PERL, &einfo);
+    int r = onig_new(&(_this->RegEx), (UChar *)expr.c_str(),
+                     (UChar *)(expr.c_str() + expr.length()),
+                     flags & ((ONIG_OPTION_MAXBIT << 1) - 1),
+                     ONIG_ENCODING_UTF16_LE, ONIG_SYNTAX_PERL, &einfo);
     if(r) {
         char s[ONIG_MAX_ERROR_MESSAGE_LEN];
         onig_error_code_to_str((UChar *)s, r, &einfo);
@@ -610,7 +657,8 @@ void tTJSNC_RegExp::Compile(tjs_int numparams, tTJSVariant **param, tTJSNI_RegEx
 }
 
 //---------------------------------------------------------------------------
-bool tTJSNC_RegExp::Match(OnigRegion *region, const ttstr &target, tTJSNI_RegExp *_this) {
+bool tTJSNC_RegExp::Match(OnigRegion *region, const ttstr &target,
+                          tTJSNI_RegExp *_this) {
     tjs_uint searchstart;
     tjs_uint targlen = target.GetLen();
     if(_this->Start == targlen) {
@@ -621,16 +669,20 @@ bool tTJSNC_RegExp::Match(OnigRegion *region, const ttstr &target, tTJSNI_RegExp
         return false;
     }
     searchstart = _this->Start;
-    int r = onig_search(_this->RegEx, (UChar *)(target.c_str() + searchstart), (UChar *)(target.c_str() + targlen),
-                        (UChar *)(target.c_str() + searchstart), (UChar *)(target.c_str() + targlen), region,
+    int r = onig_search(_this->RegEx, (UChar *)(target.c_str() + searchstart),
+                        (UChar *)(target.c_str() + targlen),
+                        (UChar *)(target.c_str() + searchstart),
+                        (UChar *)(target.c_str() + targlen), region,
                         ONIG_OPTION_NONE);
     return r >= 0;
 }
 
 //---------------------------------------------------------------------------
-bool tTJSNC_RegExp::Exec(OnigRegion *region, const ttstr &target, tTJSNI_RegExp *_this) {
+bool tTJSNC_RegExp::Exec(OnigRegion *region, const ttstr &target,
+                         tTJSNI_RegExp *_this) {
     bool matched = tTJSNC_RegExp::Match(region, target, _this);
-    iTJSDispatch2 *array = tTJSNC_RegExp::GetResultArray(matched, target.c_str() + _this->Start, _this, region);
+    iTJSDispatch2 *array = tTJSNC_RegExp::GetResultArray(
+        matched, target.c_str() + _this->Start, _this, region);
     _this->Array = tTJSVariant(array, array);
     array->Release();
 
@@ -651,15 +703,19 @@ bool tTJSNC_RegExp::Exec(OnigRegion *region, const ttstr &target, tTJSNI_RegExp 
             }
         }
         _this->LastIndex = _this->Start + lastindex / sizeof(tjs_char);
-        _this->LastMatch = ttstr(target.c_str() + (region->beg[0] / sizeof(tjs_char)),
-                                 (region->end[0] - region->beg[0]) / sizeof(tjs_char));
+        _this->LastMatch =
+            ttstr(target.c_str() + (region->beg[0] / sizeof(tjs_char)),
+                  (region->end[0] - region->beg[0]) / sizeof(tjs_char));
         tjs_uint last = num_regs - 1;
-        _this->LastParen = ttstr(target.c_str() + (region->beg[last] / sizeof(tjs_char)),
-                                 (region->end[last] - region->beg[last]) / sizeof(tjs_char));
-        _this->LeftContext = ttstr(target, _this->Start + (region->beg[0]) / sizeof(tjs_char));
+        _this->LastParen =
+            ttstr(target.c_str() + (region->beg[last] / sizeof(tjs_char)),
+                  (region->end[last] - region->beg[last]) / sizeof(tjs_char));
+        _this->LeftContext =
+            ttstr(target, _this->Start + (region->beg[0]) / sizeof(tjs_char));
         _this->RightContext = ttstr(target.c_str() + _this->LastIndex);
         if(_this->Flags & globalsearch) {
-            // global search flag changes the next search starting position.
+            // global search flag changes the next search starting
+            // position.
             tjs_uint match_end = _this->LastIndex;
             _this->Start = match_end;
         }
@@ -668,22 +724,27 @@ bool tTJSNC_RegExp::Exec(OnigRegion *region, const ttstr &target, tTJSNI_RegExp 
 }
 
 //---------------------------------------------------------------------------
-iTJSDispatch2 *tTJSNC_RegExp::GetResultArray(bool matched, const tjs_char *target, tTJSNI_RegExp *_this,
+iTJSDispatch2 *tTJSNC_RegExp::GetResultArray(bool matched,
+                                             const tjs_char *target,
+                                             tTJSNI_RegExp *_this,
                                              const OnigRegion *region) {
     iTJSDispatch2 *array = TJSCreateArrayObject();
     if(matched) {
         // if(_this->RegEx->.empty()) {
         if(region->num_regs <= 0) {
             tTJSVariant val(TJS_W(""));
-            array->PropSetByNum(TJS_MEMBERENSURE | TJS_IGNOREPROP, 0, &val, array);
+            array->PropSetByNum(TJS_MEMBERENSURE | TJS_IGNOREPROP, 0, &val,
+                                array);
         } else {
             tjs_uint size = region->num_regs;
             try {
                 for(tjs_uint i = 0; i < size; i++) {
                     tTJSVariant val;
                     val = ttstr(target + (region->beg[i] / sizeof(tjs_char)),
-                                (region->end[i] - region->beg[i]) / sizeof(tjs_char));
-                    array->PropSetByNum(TJS_MEMBERENSURE | TJS_IGNOREPROP, i, &val, array);
+                                (region->end[i] - region->beg[i]) /
+                                    sizeof(tjs_char));
+                    array->PropSetByNum(TJS_MEMBERENSURE | TJS_IGNOREPROP, i,
+                                        &val, array);
                 }
             } catch(...) {
                 array->Release();

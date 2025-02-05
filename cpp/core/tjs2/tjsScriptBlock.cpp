@@ -40,7 +40,8 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     // for Bytecode
-    tTJSScriptBlock::tTJSScriptBlock(tTJS *owner, const tjs_char *name, tjs_int lineoffset) {
+    tTJSScriptBlock::tTJSScriptBlock(tTJS *owner, const tjs_char *name,
+                                     tjs_int lineoffset) {
         RefCount = 1;
         Owner = owner;
         Owner->AddRef();
@@ -65,20 +66,16 @@ namespace TJS {
     tTJSScriptBlock::~tTJSScriptBlock() {
         if(TopLevelContext)
             TopLevelContext->Release(), TopLevelContext = nullptr;
-        while(ContextStack.size()) {
+        while(!ContextStack.empty()) {
             ContextStack.top()->Release();
             ContextStack.pop();
         }
 
         Owner->RemoveScriptBlock(this);
 
-        if(LexicalAnalyzer)
-            delete LexicalAnalyzer;
-
-        if(Script)
-            delete[] Script;
-        if(Name)
-            delete[] Name;
+        delete LexicalAnalyzer;
+        delete[] Script;
+        delete[] Name;
 
         Owner->Release();
     }
@@ -106,17 +103,22 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJSScriptBlock::Add(tTJSInterCodeContext *cntx) { InterCodeContextList.push_back(cntx); }
+    void tTJSScriptBlock::Add(tTJSInterCodeContext *cntx) {
+        InterCodeContextList.push_back(cntx);
+    }
 
     //---------------------------------------------------------------------------
-    void tTJSScriptBlock::Remove(tTJSInterCodeContext *cntx) { InterCodeContextList.remove(cntx); }
+    void tTJSScriptBlock::Remove(tTJSInterCodeContext *cntx) {
+        InterCodeContextList.remove(cntx);
+    }
 
     //---------------------------------------------------------------------------
     tjs_uint tTJSScriptBlock::GetTotalVMCodeSize() const {
         tjs_uint size = 0;
 
         std::list<tTJSInterCodeContext *>::const_iterator i;
-        for(i = InterCodeContextList.begin(); i != InterCodeContextList.end(); i++) {
+        for(i = InterCodeContextList.begin(); i != InterCodeContextList.end();
+            i++) {
             size += (*i)->GetCodeSize();
         }
         return size;
@@ -127,14 +129,16 @@ namespace TJS {
         tjs_uint size = 0;
 
         std::list<tTJSInterCodeContext *>::const_iterator i;
-        for(i = InterCodeContextList.begin(); i != InterCodeContextList.end(); i++) {
+        for(i = InterCodeContextList.begin(); i != InterCodeContextList.end();
+            i++) {
             size += (*i)->GetDataSize();
         }
         return size;
     }
 
     //---------------------------------------------------------------------------
-    const tjs_char *tTJSScriptBlock::GetLine(tjs_int line, tjs_int *linelength) const {
+    const tjs_char *tTJSScriptBlock::GetLine(tjs_int line,
+                                             tjs_int *linelength) const {
         if(Script == nullptr) {
             *linelength = 10;
             return TJS_W("Bytecode.");
@@ -186,35 +190,17 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     void tTJSScriptBlock::ConsoleOutput(const tjs_char *msg, void *data) {
-        tTJSScriptBlock *blk = (tTJSScriptBlock *)data;
+        auto *blk = (tTJSScriptBlock *)data;
         blk->Owner->OutputToConsole(msg);
     }
-//---------------------------------------------------------------------------
-#ifdef TJS_DEBUG_PROFILE_TIME
-    tjs_uint parsetime = 0;
-    extern tjs_uint time_make_np;
-    extern tjs_uint time_PutData;
-    extern tjs_uint time_PutCode;
-    extern tjs_uint time_this_proxy;
-    extern tjs_uint time_Commit;
-    extern tjs_uint time_yylex;
-    extern tjs_uint time_GenNodeCode;
+    //---------------------------------------------------------------------------
 
-    extern tjs_uint time_ns_Push;
-    extern tjs_uint time_ns_Pop;
-    extern tjs_uint time_ns_Find;
-    extern tjs_uint time_ns_Add;
-    extern tjs_uint time_ns_Remove;
-    extern tjs_uint time_ns_Commit;
-
-#endif
-
-    void tTJSScriptBlock::SetText(tTJSVariant *result, const tjs_char *text, iTJSDispatch2 *context,
-                                  bool isexpression) {
-        TJS_F_TRACE("tTJSScriptBlock::SetText");
+    void tTJSScriptBlock::SetText(tTJSVariant *result, const tjs_char *text,
+                                  iTJSDispatch2 *context, bool isexpression) {
 
         // compiles text and executes its global level scripts.
-        // the script will be compiled as an expression if isexpressn is true.
+        // the script will be compiled as an expression if isexpressn
+        // is true.
         if(!text)
             return;
         if(!text[0])
@@ -264,37 +250,52 @@ namespace TJS {
                 TJS_nsprintf(buf, "parsing : %d", parsetime);
                 OutputDebugString(buf);
                 if(parsetime) {
-                    TJS_nsprintf(buf, "Commit : %d (%d%%)", time_Commit, time_Commit * 100 / parsetime);
+                    TJS_nsprintf(buf, "Commit : %d (%d%%)", time_Commit,
+                                 time_Commit * 100 / parsetime);
                     OutputDebugString(buf);
-                    TJS_nsprintf(buf, "yylex : %d (%d%%)", time_yylex, time_yylex * 100 / parsetime);
+                    TJS_nsprintf(buf, "yylex : %d (%d%%)", time_yylex,
+                                 time_yylex * 100 / parsetime);
                     OutputDebugString(buf);
-                    TJS_nsprintf(buf, "MakeNP : %d (%d%%)", time_make_np, time_make_np * 100 / parsetime);
+                    TJS_nsprintf(buf, "MakeNP : %d (%d%%)", time_make_np,
+                                 time_make_np * 100 / parsetime);
                     OutputDebugString(buf);
-                    TJS_nsprintf(buf, "GenNodeCode : %d (%d%%)", time_GenNodeCode, time_GenNodeCode * 100 / parsetime);
+                    TJS_nsprintf(buf, "GenNodeCode : %d (%d%%)",
+                                 time_GenNodeCode,
+                                 time_GenNodeCode * 100 / parsetime);
                     OutputDebugString(buf);
-                    TJS_nsprintf(buf, "  PutCode : %d (%d%%)", time_PutCode, time_PutCode * 100 / parsetime);
+                    TJS_nsprintf(buf, "  PutCode : %d (%d%%)", time_PutCode,
+                                 time_PutCode * 100 / parsetime);
                     OutputDebugString(buf);
-                    TJS_nsprintf(buf, "  PutData : %d (%d%%)", time_PutData, time_PutData * 100 / parsetime);
+                    TJS_nsprintf(buf, "  PutData : %d (%d%%)", time_PutData,
+                                 time_PutData * 100 / parsetime);
                     OutputDebugString(buf);
-                    TJS_nsprintf(buf, "  this_proxy : %d (%d%%)", time_this_proxy, time_this_proxy * 100 / parsetime);
+                    TJS_nsprintf(buf, "  this_proxy : %d (%d%%)",
+                                 time_this_proxy,
+                                 time_this_proxy * 100 / parsetime);
                     OutputDebugString(buf);
 
-                    TJS_nsprintf(buf, "ns::Push : %d (%d%%)", time_ns_Push, time_ns_Push * 100 / parsetime);
+                    TJS_nsprintf(buf, "ns::Push : %d (%d%%)", time_ns_Push,
+                                 time_ns_Push * 100 / parsetime);
                     OutputDebugString(buf);
-                    TJS_nsprintf(buf, "ns::Pop : %d (%d%%)", time_ns_Pop, time_ns_Pop * 100 / parsetime);
+                    TJS_nsprintf(buf, "ns::Pop : %d (%d%%)", time_ns_Pop,
+                                 time_ns_Pop * 100 / parsetime);
                     OutputDebugString(buf);
-                    TJS_nsprintf(buf, "ns::Find : %d (%d%%)", time_ns_Find, time_ns_Find * 100 / parsetime);
+                    TJS_nsprintf(buf, "ns::Find : %d (%d%%)", time_ns_Find,
+                                 time_ns_Find * 100 / parsetime);
                     OutputDebugString(buf);
-                    TJS_nsprintf(buf, "ns::Remove : %d (%d%%)", time_ns_Remove, time_ns_Remove * 100 / parsetime);
+                    TJS_nsprintf(buf, "ns::Remove : %d (%d%%)", time_ns_Remove,
+                                 time_ns_Remove * 100 / parsetime);
                     OutputDebugString(buf);
-                    TJS_nsprintf(buf, "ns::Commit : %d (%d%%)", time_ns_Commit, time_ns_Commit * 100 / parsetime);
+                    TJS_nsprintf(buf, "ns::Commit : %d (%d%%)", time_ns_Commit,
+                                 time_ns_Commit * 100 / parsetime);
                     OutputDebugString(buf);
                 }
             }
 #endif
 
 #ifdef TJS_DEBUG_DISASM
-            std::list<tTJSInterCodeContext *>::iterator i = InterCodeContextList.begin();
+            std::list<tTJSInterCodeContext *>::iterator i =
+                InterCodeContextList.begin();
             while(i != InterCodeContextList.end()) {
                 ConsoleOutput(TJS_W(""), (void *)this);
                 ConsoleOutput((*i)->GetName(), (void *)this);
@@ -332,10 +333,12 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     // for Bytecode
-    void tTJSScriptBlock::ExecuteTopLevel(tTJSVariant *result, iTJSDispatch2 *context) {
+    void tTJSScriptBlock::ExecuteTopLevel(tTJSVariant *result,
+                                          iTJSDispatch2 *context) {
         try {
 #ifdef TJS_DEBUG_DISASM
-            std::list<tTJSInterCodeContext *>::iterator i = InterCodeContextList.begin();
+            std::list<tTJSInterCodeContext *>::iterator i =
+                InterCodeContextList.begin();
             while(i != InterCodeContextList.end()) {
                 ConsoleOutput(TJS_W(""), (void *)this);
                 ConsoleOutput((*i)->GetName(), (void *)this);
@@ -372,12 +375,14 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJSScriptBlock::ExecuteTopLevelScript(tTJSVariant *result, iTJSDispatch2 *context) {
+    void tTJSScriptBlock::ExecuteTopLevelScript(tTJSVariant *result,
+                                                iTJSDispatch2 *context) {
         if(TopLevelContext) {
 #ifdef TJS_DEBUG_PROFILE_TIME
             clock_t start = clock();
 #endif
-            TopLevelContext->FuncCall(0, nullptr, nullptr, result, 0, nullptr, context);
+            TopLevelContext->FuncCall(0, nullptr, nullptr, result, 0, nullptr,
+                                      context);
 #ifdef TJS_DEBUG_PROFILE_TIME
             tjs_char str[100];
             TJS_sprintf(str, TJS_W("%d"), clock() - start);
@@ -387,7 +392,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJSScriptBlock::PushContextStack(const tjs_char *name, tTJSContextType type) {
+    void tTJSScriptBlock::PushContextStack(const tjs_char *name,
+                                           tTJSContextType type) {
         tTJSInterCodeContext *cntx;
         cntx = new tTJSInterCodeContext(InterCodeContext, name, this, type);
         if(InterCodeContext == nullptr) {
@@ -412,7 +418,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJSScriptBlock::Parse(const tjs_char *script, bool isexpr, bool resultneeded) {
+    void tTJSScriptBlock::Parse(const tjs_char *script, bool isexpr,
+                                bool resultneeded) {
         TJS_F_TRACE("tTJSScriptBlock::Parse");
 
         if(!script)
@@ -420,7 +427,8 @@ namespace TJS {
 
         CompileErrorCount = 0;
 
-        LexicalAnalyzer = new tTJSLexicalAnalyzer(this, script, isexpr, resultneeded);
+        LexicalAnalyzer =
+            new tTJSLexicalAnalyzer(this, script, isexpr, resultneeded);
 
         try {
             parser{ this }.parse();
@@ -449,9 +457,10 @@ namespace TJS {
     //---------------------------------------------------------------------------
     ttstr tTJSScriptBlock::GetNameInfo() const {
         if(LineOffset == 0) {
-            return ttstr(Name);
+            return { Name };
         } else {
-            return ttstr(Name) + TJS_W("(line +") + ttstr(LineOffset) + TJS_W(")");
+            return ttstr(Name) + TJS_W("(line +") + ttstr(LineOffset) +
+                TJS_W(")");
         }
     }
 
@@ -461,20 +470,48 @@ namespace TJS {
         while(i != InterCodeContextList.end()) {
             ConsoleOutput(TJS_W(""), (void *)this);
             ttstr ptr{ fmt::format(" {}", static_cast<void *>((*i))) };
-            ConsoleOutput(
-                (ttstr(TJS_W("(")) + ttstr((*i)->GetContextTypeName()) + TJS_W(") ") + ttstr((*i)->GetName()) + ptr)
-                    .c_str(),
-                (void *)this);
+            ConsoleOutput((ttstr(TJS_W("(")) +
+                           ttstr((*i)->GetContextTypeName()) + TJS_W(") ") +
+                           ttstr((*i)->GetName()) + ptr)
+                              .c_str(),
+                          (void *)this);
             (*i)->Disassemble(ConsoleOutput, (void *)this);
+            i++;
+        }
+    }
+
+    void tTJSScriptBlock::Dump(tTJSBinaryStream *stream) const {
+        struct TmpTJSConsoleOutput : public iTJSConsoleOutput {
+            tTJSBinaryStream *_stream;
+            explicit TmpTJSConsoleOutput(tTJSBinaryStream *s) : _stream(s) {}
+
+            void ExceptionPrint(const tjs_char *msg) override { Print(msg); }
+
+            void Print(const tjs_char *msg) override {
+                _stream->Write(msg, TJS_strlen(msg));
+            }
+        } output{ stream };
+        auto i = InterCodeContextList.begin();
+        while(i != InterCodeContextList.end()) {
+            output.Print(TJS_W(""));
+            ttstr ptr{ fmt::format(" {}", static_cast<void *>((*i))) };
+            output.Print((ttstr(TJS_W("(")) +
+                          ttstr((*i)->GetContextTypeName()) + TJS_W(") ") +
+                          ttstr((*i)->GetName()) + ptr)
+                             .c_str());
+            (*i)->Disassemble([&](const tjs_char *msg,
+                                  void *data) -> void { output.Print(msg); },
+                              (void *)this);
             i++;
         }
     }
 
     //---------------------------------------------------------------------------
     // for Bytecode
-    tjs_int tTJSScriptBlock::GetCodeIndex(const tTJSInterCodeContext *ctx) const {
+    tjs_int
+    tTJSScriptBlock::GetCodeIndex(const tTJSInterCodeContext *ctx) const {
         tjs_int index = 0;
-        for(std::list<tTJSInterCodeContext *>::const_iterator i = InterCodeContextList.begin();
+        for(auto i = InterCodeContextList.begin();
             i != InterCodeContextList.end(); i++, index++) {
             if((*i) == ctx) {
                 return index;
@@ -484,32 +521,43 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    const tjs_uint8 tTJSScriptBlock::BYTECODE_FILE_TAG[BYTECODE_FILE_TAG_SIZE] = {
-        'T', 'J', 'S', '2', '1', '0', '0', 0
+    const tjs_uint8
+        tTJSScriptBlock::BYTECODE_FILE_TAG[BYTECODE_FILE_TAG_SIZE] = {
+            'T', 'J', 'S', '2', '1', '0', '0', 0
+        };
+    const tjs_uint8 tTJSScriptBlock::BYTECODE_CODE_TAG[BYTECODE_TAG_SIZE] = {
+        'T', 'J', 'S', '2'
     };
-    const tjs_uint8 tTJSScriptBlock::BYTECODE_CODE_TAG[BYTECODE_TAG_SIZE] = { 'T', 'J', 'S', '2' };
-    const tjs_uint8 tTJSScriptBlock::BYTECODE_OBJ_TAG[BYTECODE_TAG_SIZE] = { 'O', 'B', 'J', 'S' };
-    const tjs_uint8 tTJSScriptBlock::BYTECODE_DATA_TAG[BYTECODE_TAG_SIZE] = { 'D', 'A', 'T', 'A' };
+    const tjs_uint8 tTJSScriptBlock::BYTECODE_OBJ_TAG[BYTECODE_TAG_SIZE] = {
+        'O', 'B', 'J', 'S'
+    };
+    const tjs_uint8 tTJSScriptBlock::BYTECODE_DATA_TAG[BYTECODE_TAG_SIZE] = {
+        'D', 'A', 'T', 'A'
+    };
 
     //---------------------------------------------------------------------------
-    void tTJSScriptBlock::ExportByteCode(bool outputdebug, tTJSBinaryStream *output) {
+    void tTJSScriptBlock::ExportByteCode(bool outputdebug,
+                                         tTJSBinaryStream *output) {
         const int count = (int)InterCodeContextList.size();
         std::vector<std::vector<tjs_uint8> *> objarray;
         objarray.reserve(count * 2);
-        tjsConstArrayData *constarray = new tjsConstArrayData();
+        auto *constarray = new tjsConstArrayData();
         int objsize = 0;
-        for(std::list<tTJSInterCodeContext *>::const_iterator i = InterCodeContextList.begin();
-            i != InterCodeContextList.end(); i++) {
-            tTJSInterCodeContext *obj = (*i);
-            std::vector<tjs_uint8> *buf = obj->ExportByteCode(outputdebug, this, *constarray);
+        for(auto obj : InterCodeContextList) {
+            std::vector<tjs_uint8> *buf =
+                obj->ExportByteCode(outputdebug, this, *constarray);
             objarray.push_back(buf);
-            objsize += (int)buf->size() + BYTECODE_TAG_SIZE + BYTECODE_CHUNK_SIZE_LEN; // tag + size
+            objsize += (int)buf->size() + BYTECODE_TAG_SIZE +
+                BYTECODE_CHUNK_SIZE_LEN; // tag + size
         }
 
-        objsize += BYTECODE_TAG_SIZE + BYTECODE_CHUNK_SIZE_LEN + 4 + 4; // OBJS tag + size + toplevel + count
+        objsize += BYTECODE_TAG_SIZE + BYTECODE_CHUNK_SIZE_LEN + 4 +
+            4; // OBJS tag + size + toplevel + count
         std::vector<tjs_uint8> *dataarea = constarray->ExportBuffer();
-        int datasize = (int)dataarea->size() + BYTECODE_TAG_SIZE + BYTECODE_CHUNK_SIZE_LEN; // DATA tag + size
-        int filesize = objsize + datasize + BYTECODE_FILE_TAG_SIZE + BYTECODE_CHUNK_SIZE_LEN; // TJS2 tag + file size
+        int datasize = (int)dataarea->size() + BYTECODE_TAG_SIZE +
+            BYTECODE_CHUNK_SIZE_LEN; // DATA tag + size
+        int filesize = objsize + datasize + BYTECODE_FILE_TAG_SIZE +
+            BYTECODE_CHUNK_SIZE_LEN; // TJS2 tag + file size
         int toplevel = -1;
         if(TopLevelContext != nullptr) {
             toplevel = GetCodeIndex(TopLevelContext);
@@ -545,7 +593,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void tTJSScriptBlock::Compile(const tjs_char *text, bool isexpression, bool isresultneeded, bool outputdebug,
+    void tTJSScriptBlock::Compile(const tjs_char *text, bool isexpression,
+                                  bool isresultneeded, bool outputdebug,
                                   tTJSBinaryStream *output) {
         if(!text)
             return;
@@ -584,7 +633,7 @@ namespace TJS {
             if(InterCodeContextList.size() != 1) {
                 if(TopLevelContext)
                     TopLevelContext->Release(), TopLevelContext = nullptr;
-                while(ContextStack.size()) {
+                while(!ContextStack.empty()) {
                     ContextStack.top()->Release();
                     ContextStack.pop();
                 }
@@ -595,7 +644,7 @@ namespace TJS {
         if(InterCodeContextList.size() != 1) {
             if(TopLevelContext)
                 TopLevelContext->Release(), TopLevelContext = nullptr;
-            while(ContextStack.size()) {
+            while(!ContextStack.empty()) {
                 ContextStack.top()->Release();
                 ContextStack.pop();
             }
@@ -610,7 +659,8 @@ namespace TJS {
     /**
      * oCgR[hÌAhXÍzñÌCfbNXðw·ÌÅA»êÉí¹ÄÏ·
      */
-    void tTJSScriptBlock::TranslateCodeAddress(tjs_int32 *code, const tjs_int32 codeSize) {
+    void tTJSScriptBlock::TranslateCodeAddress(tjs_int32 *code,
+                                               const tjs_int32 codeSize) {
         tjs_int i = 0;
         for(; i < codeSize;) {
             tjs_int size;
@@ -627,11 +677,11 @@ namespace TJS {
                     size = 3;
                     break;
 
-#define OP2_DISASM(c)                                                                                                  \
-    case c:                                                                                                            \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        size = 3;                                                                                                      \
+#define OP2_DISASM(c)                                                          \
+    case c:                                                                    \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        size = 3;                                                              \
         break
 
                     OP2_DISASM(VM_CP);
@@ -642,31 +692,31 @@ namespace TJS {
                     OP2_DISASM(VM_CHKINS);
 #undef OP2_DISASM
 
-#define OP2_DISASM(c)                                                                                                  \
-    case c:                                                                                                            \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        size = 3;                                                                                                      \
-        break;                                                                                                         \
-    case c + 1:                                                                                                        \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 4]);                                                                           \
-        size = 5;                                                                                                      \
-        break;                                                                                                         \
-    case c + 2:                                                                                                        \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 4]);                                                                           \
-        size = 5;                                                                                                      \
-        break;                                                                                                         \
-    case c + 3:                                                                                                        \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                                                           \
-        size = 4;                                                                                                      \
+#define OP2_DISASM(c)                                                          \
+    case c:                                                                    \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        size = 3;                                                              \
+        break;                                                                 \
+    case c + 1:                                                                \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 4]);                                   \
+        size = 5;                                                              \
+        break;                                                                 \
+    case c + 2:                                                                \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 4]);                                   \
+        size = 5;                                                              \
+        break;                                                                 \
+    case c + 3:                                                                \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                   \
+        size = 4;                                                              \
         break
 
                     OP2_DISASM(VM_LOR);
@@ -685,8 +735,8 @@ namespace TJS {
                     OP2_DISASM(VM_MUL);
 #undef OP2_DISASM
 
-#define OP1_DISASM                                                                                                     \
-    TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                               \
+#define OP1_DISASM                                                             \
+    TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                       \
     size = 2;
                 case VM_TT:
                     OP1_DISASM
@@ -755,35 +805,35 @@ namespace TJS {
                     size = 3;
                     break;
 
-#define OP1_DISASM(c)                                                                                                  \
-    case c:                                                                                                            \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        size = 2;                                                                                                      \
-        break;                                                                                                         \
-    case c + 1:                                                                                                        \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                                                           \
-        size = 4;                                                                                                      \
-        break;                                                                                                         \
-    case c + 2:                                                                                                        \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                                                           \
-        size = 4;                                                                                                      \
-        break;                                                                                                         \
-    case c + 3:                                                                                                        \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                                                           \
-        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                                                           \
-        size = 3;                                                                                                      \
+#define OP1_DISASM(c)                                                          \
+    case c:                                                                    \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        size = 2;                                                              \
+        break;                                                                 \
+    case c + 1:                                                                \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                   \
+        size = 4;                                                              \
+        break;                                                                 \
+    case c + 2:                                                                \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 3]);                                   \
+        size = 4;                                                              \
+        break;                                                                 \
+    case c + 3:                                                                \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 1]);                                   \
+        TJS_OFFSET_VM_REG_ADDR(code[i + 2]);                                   \
+        size = 3;                                                              \
         break
 
                     OP1_DISASM(VM_INC);
                     OP1_DISASM(VM_DEC);
 #undef OP1_DISASM
 
-#define OP1A_DISASM                                                                                                    \
-    TJS_OFFSET_VM_CODE_ADDR(code[i + 1]);                                                                              \
+#define OP1A_DISASM                                                            \
+    TJS_OFFSET_VM_CODE_ADDR(code[i + 1]);                                      \
     size = 2;
                 case VM_JF:
                     OP1A_DISASM
@@ -821,10 +871,12 @@ namespace TJS {
                         for(tjs_int j = 0; j < num; j++) {
                             switch(code[i + st + j * 2]) {
                                 case fatNormal:
-                                    TJS_OFFSET_VM_REG_ADDR(code[i + st + j * 2 + 1]);
+                                    TJS_OFFSET_VM_REG_ADDR(
+                                        code[i + st + j * 2 + 1]);
                                     break;
                                 case fatExpand:
-                                    TJS_OFFSET_VM_REG_ADDR(code[i + st + j * 2 + 1]);
+                                    TJS_OFFSET_VM_REG_ADDR(
+                                        code[i + st + j * 2 + 1]);
                                     break;
                                 case fatUnnamedExpand:
                                     break;

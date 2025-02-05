@@ -50,18 +50,22 @@ tTVPLayerManager::~tTVPLayerManager() {
         delete DrawBuffer;
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPLayerManager::AddRef() { RefCount++; }
+void tTVPLayerManager::AddRef() { RefCount++; }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPLayerManager::Release() {
+void tTVPLayerManager::Release() {
     if(RefCount == 1)
         delete this;
     else
         RefCount--;
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::RegisterSelfToWindow() { LayerTreeOwner->RegisterLayerManager(this); }
+void tTVPLayerManager::RegisterSelfToWindow() {
+    LayerTreeOwner->RegisterLayerManager(this);
+}
 //---------------------------------------------------------------------------
-void tTVPLayerManager::UnregisterSelfFromWindow() { LayerTreeOwner->UnregisterLayerManager(this); }
+void tTVPLayerManager::UnregisterSelfFromWindow() {
+    LayerTreeOwner->UnregisterLayerManager(this);
+}
 
 void tTVPLayerManager::SetHoldAlpha(bool b) {
     HoldAlpha = b;
@@ -71,7 +75,8 @@ void tTVPLayerManager::SetHoldAlpha(bool b) {
 }
 
 //---------------------------------------------------------------------------
-tTVPBaseTexture *tTVPLayerManager::GetDrawTargetBitmap(const tTVPRect &rect, tTVPRect &cliprect) {
+tTVPBaseTexture *tTVPLayerManager::GetDrawTargetBitmap(const tTVPRect &rect,
+                                                       tTVPRect &cliprect) {
     // retrieve draw target bitmap
     tjs_int w = rect.get_width();
     tjs_int h = rect.get_height();
@@ -102,9 +107,13 @@ tTVPBaseTexture *tTVPLayerManager::GetDrawTargetBitmap(const tTVPRect &rect, tTV
     return DrawBuffer;
 }
 //---------------------------------------------------------------------------
-tTVPLayerType tTVPLayerManager::GetTargetLayerType() { return DesiredLayerType; }
+tTVPLayerType tTVPLayerManager::GetTargetLayerType() {
+    return DesiredLayerType;
+}
 //---------------------------------------------------------------------------
-void tTVPLayerManager::DrawCompleted(const tTVPRect &destrect, tTVPBaseTexture *bmp, const tTVPRect &cliprect,
+void tTVPLayerManager::DrawCompleted(const tTVPRect &destrect,
+                                     tTVPBaseTexture *bmp,
+                                     const tTVPRect &cliprect,
                                      tTVPLayerType type, tjs_int opacity) {
 #if 0
 	if (!LayerTreeOwner) return;
@@ -131,7 +140,8 @@ void tTVPLayerManager::DrawCompleted(const tTVPRect &destrect, tTVPBaseTexture *
         }
     }
 
-    DrawBuffer->Blt(destrect.left, destrect.top, bmp, cliprect, type, opacity, HoldAlpha);
+    DrawBuffer->Blt(destrect.left, destrect.top, bmp, cliprect, type, opacity,
+                    HoldAlpha);
 #endif
 }
 
@@ -174,7 +184,7 @@ void tTVPLayerManager::DetachPrimary() {
     }
 }
 //---------------------------------------------------------------------------
-bool TJS_INTF_METHOD tTVPLayerManager::GetPrimaryLayerSize(tjs_int &w, tjs_int &h) const {
+bool tTVPLayerManager::GetPrimaryLayerSize(tjs_int &w, tjs_int &h) const {
     if(IsPrimaryLayerAttached()) {
         w = Primary->GetWidth();
         h = Primary->GetHeight();
@@ -191,7 +201,9 @@ void tTVPLayerManager::NotifyPart(tTJSNI_BaseLayer *lay) {
     ReleaseCaptureFromTree(lay);
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::InvalidateOverallIndex() { OverallOrderIndexValid = false; }
+void tTVPLayerManager::InvalidateOverallIndex() {
+    OverallOrderIndexValid = false;
+}
 //---------------------------------------------------------------------------
 void tTVPLayerManager::RecreateOverallOrderIndex() {
     // recreate overall order index
@@ -221,7 +233,8 @@ void tTVPLayerManager::QueryUpdateExcludeRect() {
     VisualStateChanged = false;
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::NotifyMouseCursorChange(tTJSNI_BaseLayer *layer, tjs_int cursor) {
+void tTVPLayerManager::NotifyMouseCursorChange(tTJSNI_BaseLayer *layer,
+                                               tjs_int cursor) {
     if(InNotifyingHintOrCursorChange)
         return;
 
@@ -264,7 +277,8 @@ void tTVPLayerManager::SetCursorPos(tjs_int x, tjs_int y) {
     LayerTreeOwner->SetCursorPos(this, x, y);
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::NotifyHintChange(tTJSNI_BaseLayer *layer, const ttstr &hint) {
+void tTVPLayerManager::NotifyHintChange(tTJSNI_BaseLayer *layer,
+                                        const ttstr &hint) {
     if(InNotifyingHintOrCursorChange)
         return;
 
@@ -303,8 +317,8 @@ void tTVPLayerManager::NotifyLayerResize() {
 }
 //---------------------------------------------------------------------------
 void tTVPLayerManager::NotifyWindowInvalidation() {
-    // notifies layer surface is invalidated and should be transfered to
-    // LayerTreeOwner.
+    // notifies layer surface is invalidated and should be transfered
+    // to LayerTreeOwner.
     if(!LayerTreeOwner)
         return;
 
@@ -318,9 +332,9 @@ void tTVPLayerManager::SetLayerTreeOwner(class iTVPLayerTreeOwner *owner) {
 }
 //---------------------------------------------------------------------------
 void tTVPLayerManager::NotifyResizeFromWindow(tjs_uint w, tjs_uint h) {
-    // is called by the owner window, notifies windows's client area size
-    // has been changed.
-    // does not be called if owner window's "autoResize" property is false.
+    // is called by the owner window, notifies windows's client area
+    // size has been changed. does not be called if owner window's
+    // "autoResize" property is false.
 
     // currently this function is not used.
 
@@ -328,8 +342,8 @@ void tTVPLayerManager::NotifyResizeFromWindow(tjs_uint w, tjs_uint h) {
         Primary->InternalSetSize(w, h);
 }
 //---------------------------------------------------------------------------
-tTJSNI_BaseLayer *tTVPLayerManager::GetMostFrontChildAt(tjs_int x, tjs_int y, tTJSNI_BaseLayer *except,
-                                                        bool get_disabled) {
+tTJSNI_BaseLayer *tTVPLayerManager::GetMostFrontChildAt(
+    tjs_int x, tjs_int y, tTJSNI_BaseLayer *except, bool get_disabled) {
     // return most front layer at given point.
     // this does checking of layer's visibility.
     // x and y are given in primary layer's coordinates.
@@ -357,9 +371,11 @@ void tTVPLayerManager::PrimaryDoubleClick(tjs_int x, tjs_int y) {
     }
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::PrimaryMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb, tjs_uint32 flags) {
+void tTVPLayerManager::PrimaryMouseDown(tjs_int x, tjs_int y,
+                                        tTVPMouseButton mb, tjs_uint32 flags) {
     PrimaryMouseMove(x, y, flags);
-    tTJSNI_BaseLayer *l = CaptureOwner ? CaptureOwner : GetMostFrontChildAt(x, y);
+    tTJSNI_BaseLayer *l =
+        CaptureOwner ? CaptureOwner : GetMostFrontChildAt(x, y);
     if(l) {
         l->FromPrimaryCoordinates(x, y);
         ReleaseCaptureCalled = false;
@@ -382,7 +398,8 @@ void tTVPLayerManager::PrimaryMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb
     }
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::PrimaryMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb, tjs_uint32 flags) {
+void tTVPLayerManager::PrimaryMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb,
+                                      tjs_uint32 flags) {
     tTJSNI_BaseLayer *l;
 
     if(CaptureOwner)
@@ -404,7 +421,8 @@ void tTVPLayerManager::PrimaryMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb, 
     }
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::PrimaryMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) {
+void tTVPLayerManager::PrimaryMouseMove(tjs_int x, tjs_int y,
+                                        tjs_uint32 flags) {
     bool poschanged = (LastMouseMoveX != x || LastMouseMoveY != y);
     LastMouseMoveX = x;
     LastMouseMoveY = y;
@@ -435,8 +453,8 @@ void tTVPLayerManager::PrimaryMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) 
 
                 l->FireMouseEnter();
 
-                // recheck l because the layer may become invalid during
-                // FireMouseEnter call.
+                // recheck l because the layer may become invalid
+                // during FireMouseEnter call.
                 if(CaptureOwner)
                     ll = CaptureOwner;
                 else
@@ -449,7 +467,8 @@ void tTVPLayerManager::PrimaryMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) 
                         l->FireMouseEnter();
                 }
 
-                // note: rechecking is done only once to avoid infinite loop
+                // note: rechecking is done only once to avoid
+                // infinite loop
 
                 if(l)
                     l->SetCurrentCursorToWindow();
@@ -494,7 +513,8 @@ void tTVPLayerManager::PrimaryMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) 
     }
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::PrimaryTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) {
+void tTVPLayerManager::PrimaryTouchDown(tjs_real x, tjs_real y, tjs_real cx,
+                                        tjs_real cy, tjs_uint32 id) {
     tjs_int ix = (tjs_int)x, iy = (tjs_int)y;
     ReleaseTouchCapture(id);
     tTJSNI_BaseLayer *l = GetMostFrontChildAt(ix, iy);
@@ -508,9 +528,11 @@ void tTVPLayerManager::PrimaryTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs
     }
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::PrimaryTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) {
+void tTVPLayerManager::PrimaryTouchUp(tjs_real x, tjs_real y, tjs_real cx,
+                                      tjs_real cy, tjs_uint32 id) {
     tjs_int ix = (tjs_int)x, iy = (tjs_int)y;
-    tTJSNI_BaseLayer *l = GetTouchCapture(id) ? GetTouchCapture(id) : GetMostFrontChildAt(ix, iy);
+    tTJSNI_BaseLayer *l =
+        GetTouchCapture(id) ? GetTouchCapture(id) : GetMostFrontChildAt(ix, iy);
     if(l) {
         l->FromPrimaryCoordinates(x, y);
         l->FireTouchUp(x, y, cx, cy, id);
@@ -518,23 +540,28 @@ void tTVPLayerManager::PrimaryTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_r
     }
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::PrimaryTouchMove(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy, tjs_uint32 id) {
+void tTVPLayerManager::PrimaryTouchMove(tjs_real x, tjs_real y, tjs_real cx,
+                                        tjs_real cy, tjs_uint32 id) {
     tjs_int ix = (tjs_int)x, iy = (tjs_int)y;
-    tTJSNI_BaseLayer *l = GetTouchCapture(id) ? GetTouchCapture(id) : GetMostFrontChildAt(ix, iy);
+    tTJSNI_BaseLayer *l =
+        GetTouchCapture(id) ? GetTouchCapture(id) : GetMostFrontChildAt(ix, iy);
     if(l) {
         l->FromPrimaryCoordinates(x, y);
         l->FireTouchMove(x, y, cx, cy, id);
     }
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::PrimaryTouchScaling(tjs_real startdist, tjs_real curdist, tjs_real cx, tjs_real cy,
+void tTVPLayerManager::PrimaryTouchScaling(tjs_real startdist, tjs_real curdist,
+                                           tjs_real cx, tjs_real cy,
                                            tjs_int flag) {
     if(FocusedLayer)
         FocusedLayer->FireTouchScaling(startdist, curdist, cx, cy, flag);
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::PrimaryTouchRotate(tjs_real startangle, tjs_real curangle, tjs_real dist, tjs_real cx,
-                                          tjs_real cy, tjs_int flag) {
+void tTVPLayerManager::PrimaryTouchRotate(tjs_real startangle,
+                                          tjs_real curangle, tjs_real dist,
+                                          tjs_real cx, tjs_real cy,
+                                          tjs_int flag) {
     if(FocusedLayer)
         FocusedLayer->FireTouchRotate(startangle, curangle, dist, cx, cy, flag);
 }
@@ -554,12 +581,15 @@ void tTVPLayerManager::ForceMouseLeave() {
     }
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::ForceMouseRecheck() { PrimaryMouseMove(LastMouseMoveX, LastMouseMoveY, 0); }
+void tTVPLayerManager::ForceMouseRecheck() {
+    PrimaryMouseMove(LastMouseMoveX, LastMouseMoveY, 0);
+}
 //---------------------------------------------------------------------------
 void tTVPLayerManager::MouseOutOfWindow() {
     // notifys that the mouse cursor goes outside of the window.
     if(!CaptureOwner)
-        PrimaryMouseMove(-1, -1, 0); // force mouse cursor out of the all
+        PrimaryMouseMove(-1, -1,
+                         0); // force mouse cursor out of the all
 }
 //---------------------------------------------------------------------------
 void tTVPLayerManager::LeaveMouseFromTree(tTJSNI_BaseLayer *root) {
@@ -575,7 +605,7 @@ void tTVPLayerManager::LeaveMouseFromTree(tTJSNI_BaseLayer *root) {
     }
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPLayerManager::ReleaseCapture() {
+void tTVPLayerManager::ReleaseCapture() {
     // release capture state
     ReleaseCaptureCalled = true;
     if(CaptureOwner) {
@@ -614,7 +644,8 @@ void tTVPLayerManager::ReleaseCaptureFromTree(tTJSNI_BaseLayer *layer) {
 //---------------------------------------------------------------------------
 void tTVPLayerManager::ReleaseTouchCapture(tjs_uint32 id) {
     FindTouchID pred(id);
-    std::vector<tTVPTouchCaptureLayer>::iterator itr = std::find_if(TouchCapture.begin(), TouchCapture.end(), pred);
+    std::vector<tTVPTouchCaptureLayer>::iterator itr =
+        std::find_if(TouchCapture.begin(), TouchCapture.end(), pred);
     if(itr != TouchCapture.end()) {
         tTJSNI_BaseLayer *old = itr->Owner;
         if(old && old->Owner)
@@ -626,7 +657,8 @@ void tTVPLayerManager::ReleaseTouchCapture(tjs_uint32 id) {
 }
 //---------------------------------------------------------------------------
 void tTVPLayerManager::ReleaseTouchCaptureAll() {
-    for(std::vector<tTVPTouchCaptureLayer>::iterator itr = TouchCapture.begin(); itr != TouchCapture.end(); itr++) {
+    for(std::vector<tTVPTouchCaptureLayer>::iterator itr = TouchCapture.begin();
+        itr != TouchCapture.end(); itr++) {
         tTJSNI_BaseLayer *l = itr->Owner;
         if(l->Owner)
             l->Owner->Release();
@@ -637,7 +669,8 @@ void tTVPLayerManager::ReleaseTouchCaptureAll() {
 //---------------------------------------------------------------------------
 void tTVPLayerManager::SetTouchCapture(tjs_uint32 id, tTJSNI_BaseLayer *layer) {
     FindTouchID pred(id);
-    std::vector<tTVPTouchCaptureLayer>::iterator itr = std::find_if(TouchCapture.begin(), TouchCapture.end(), pred);
+    std::vector<tTVPTouchCaptureLayer>::iterator itr =
+        std::find_if(TouchCapture.begin(), TouchCapture.end(), pred);
     if(itr != TouchCapture.end()) {
         // 既に同一IDのものがある場合は、同じ場所で置き換える
         tTJSNI_BaseLayer *old = itr->Owner;
@@ -669,7 +702,8 @@ bool tTVPLayerManager::BlurTree(tTJSNI_BaseLayer *root) {
     tTJSNI_BaseLayer *next = root->GetNextFocusable();
 
     if(next != FocusedLayer)
-        SetFocusTo(next, true); // focus to root's next focusable layer
+        SetFocusTo(next,
+                   true); // focus to root's next focusable layer
     else
         SetFocusTo(nullptr, true);
 
@@ -712,11 +746,13 @@ tTJSNI_BaseLayer *tTVPLayerManager::FocusNext() {
     return l;
 }
 //---------------------------------------------------------------------------
-tTJSNI_BaseLayer *tTVPLayerManager::SearchFirstFocusable(bool ignore_chain_focusable) {
+tTJSNI_BaseLayer *
+tTVPLayerManager::SearchFirstFocusable(bool ignore_chain_focusable) {
     // (primary only) search first focusable layer
     if(!Primary)
         return nullptr;
-    tTJSNI_BaseLayer *lay = Primary->SearchFirstFocusable(ignore_chain_focusable);
+    tTJSNI_BaseLayer *lay =
+        Primary->SearchFirstFocusable(ignore_chain_focusable);
 
     return lay;
 }
@@ -898,7 +934,8 @@ tTJSNI_BaseLayer *tTVPLayerManager::GetCurrentModalLayer() const {
     return *(ModalLayerVector.begin() + size - 1);
 }
 //---------------------------------------------------------------------------
-bool tTVPLayerManager::SearchAttentionPoint(tTJSNI_BaseLayer *target, tjs_int &x, tjs_int &y) {
+bool tTVPLayerManager::SearchAttentionPoint(tTJSNI_BaseLayer *target,
+                                            tjs_int &x, tjs_int &y) {
     // search specified layer 's attention point
     while(target) {
         if(target->UseAttention) {
@@ -991,7 +1028,8 @@ void tTVPLayerManager::PrimaryKeyPress(tjs_char key) {
         Primary->DefaultKeyPress(key);
 }
 //---------------------------------------------------------------------------
-void tTVPLayerManager::PrimaryMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x, tjs_int y) {
+void tTVPLayerManager::PrimaryMouseWheel(tjs_uint32 shift, tjs_int delta,
+                                         tjs_int x, tjs_int y) {
     if(FocusedLayer)
         FocusedLayer->FireMouseWheel(shift, delta, x, y);
 }
@@ -1009,7 +1047,7 @@ void tTVPLayerManager::AddUpdateRegion(const tTVPRect &rect) {
     NotifyWindowInvalidation();
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPLayerManager::UpdateToDrawDevice() {
+void tTVPLayerManager::UpdateToDrawDevice() {
     // drawdevice -> layer
     if(!Primary)
         return;
@@ -1021,9 +1059,9 @@ void tTVPLayerManager::NotifyUpdateRegionFixed() {
     //	Window->NotifyUpdateRegionFixed(UpdateRegion);
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPLayerManager::RequestInvalidation(const tTVPRect &r) {
-    // called by the owner window to notify window surface is invalidated by
-    // the system or user.
+void tTVPLayerManager::RequestInvalidation(const tTVPRect &r) {
+    // called by the owner window to notify window surface is
+    // invalidated by the system or user.
     if(!Primary)
         return;
 
@@ -1035,21 +1073,22 @@ void TJS_INTF_METHOD tTVPLayerManager::RequestInvalidation(const tTVPRect &r) {
     }
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPLayerManager::RecheckInputState() {
+void tTVPLayerManager::RecheckInputState() {
     // To re-check current layer under current mouse position
     // and update hint, cursor type and process layer enter/leave.
     // This can be reasonably slow, about 1 sec interval.
     ForceMouseRecheck();
 }
 //---------------------------------------------------------------------------
-void TJS_INTF_METHOD tTVPLayerManager::DumpLayerStructure() {
+void tTVPLayerManager::DumpLayerStructure() {
     if(Primary)
         Primary->DumpStructure();
 }
 //---------------------------------------------------------------------------
 
-bool tTVPDestTexture::CopyRect(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref, tTVPRect refrect,
-                               tjs_int plane /*= (TVP_BB_COPY_MAIN | TVP_BB_COPY_MASK)*/) {
+bool tTVPDestTexture::CopyRect(
+    tjs_int x, tjs_int y, const iTVPBaseBitmap *ref, tTVPRect refrect,
+    tjs_int plane /*= (TVP_BB_COPY_MAIN | TVP_BB_COPY_MASK)*/) {
     if(HoldAlpha) {
         return tTVPBaseTexture::CopyRect(x, y, ref, refrect, TVP_BB_COPY_MAIN);
     } else {

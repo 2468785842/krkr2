@@ -34,10 +34,12 @@ void TVPCopyImportantLogToClipboard() {
     TVPClipboardSetText(TVPGetImportantLog());
 }
 
-static LRESULT WINAPI DlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+static LRESULT WINAPI DlgProc(HWND hWnd, UINT msg, WPARAM wParam,
+                              LPARAM lParam) {
     switch(msg) {
         case WM_INITDIALOG: {
-            ::SetDlgItemText(hWnd, IDC_INFOMATION_EDIT, TVPGetAboutString().AsStdString().c_str());
+            ::SetDlgItemText(hWnd, IDC_INFOMATION_EDIT,
+                             TVPGetAboutString().AsStdString().c_str());
             return TRUE;
         }
         case WM_COMMAND:
@@ -63,6 +65,7 @@ void TVPShowVersionForm() {
     // get Direct3D driver information
     TVPEnsureDirect3DObject();
     TVPDumpDirect3DDriverInformation();
-    ::DialogBox(nullptr, MAKEINTRESOURCE(IDD_VERSION_DIALOG), nullptr, (DLGPROC)DlgProc);
+    ::DialogBox(nullptr, MAKEINTRESOURCE(IDD_VERSION_DIALOG), nullptr,
+                (DLGPROC)DlgProc);
 }
 //---------------------------------------------------------------------------

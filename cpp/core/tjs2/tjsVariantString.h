@@ -101,13 +101,14 @@ namespace TJS {
                 LongString = TJSVS_malloc(len + 1);
                 LongString[TJS_narrowtowide(LongString, ref, len)] = 0;
             } else {
-                ShortString[TJS_narrowtowide(ShortString, ref, TJS_VS_SHORT_LEN)] = 0;
+                ShortString[TJS_narrowtowide(ShortString, ref,
+                                             TJS_VS_SHORT_LEN)] = 0;
             }
         }
 
         void AllocBuffer(tjs_uint len) {
-            /* note that you must call FixLength if you allocate larger than the
-                actual string size */
+            /* note that you must call FixLength if you allocate
+               larger than the actual string size */
 
             if(LongString)
                 TJSVS_free(LongString), LongString = nullptr;
@@ -128,8 +129,8 @@ namespace TJS {
         }
 
         void AppendBuffer(tjs_uint applen) {
-            /* note that you must call FixLength if you allocate larger than the
-                actual string size */
+            /* note that you must call FixLength if you allocate
+               larger than the actual string size */
 
             // assume this != nullptr
             tjs_int newlen = Length += applen;
@@ -182,7 +183,8 @@ namespace TJS {
             }
         }
 
-        TJS_CONST_METHOD_DEF(TJS_METHOD_RET(const tjs_char *), operator const tjs_char *, ());
+        TJS_CONST_METHOD_DEF(
+            TJS_METHOD_RET(const tjs_char *), operator const tjs_char *, ());
 
         tjs_int GetLength() const;
 
@@ -198,7 +200,9 @@ namespace TJS {
 
         tjs_int GetRefCount() const { return this->RefCount; }
 
-        tjs_int QueryPersistSize() const { return sizeof(tjs_uint) + GetLength() * sizeof(tjs_char); }
+        tjs_int QueryPersistSize() const {
+            return sizeof(tjs_uint) + GetLength() * sizeof(tjs_char);
+        }
 
         void Persist(tjs_uint8 *dest) const {
             tjs_uint size;
@@ -212,25 +216,32 @@ namespace TJS {
             }
         }
     };
-    TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAllocVariantString, (const tjs_char *ref1, const tjs_char *ref2));
+    TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAllocVariantString,
+                     (const tjs_char *ref1, const tjs_char *ref2));
 
-    tTJSVariantString * TJSAllocVariantString(const tjs_char *ref, size_t n);
+    tTJSVariantString *TJSAllocVariantString(const tjs_char *ref, size_t n);
 
-    TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAllocVariantString, (const tjs_char *ref));
+    TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAllocVariantString,
+                     (const tjs_char *ref));
 
-    TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAllocVariantString, (const tjs_nchar *ref));
+    TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAllocVariantString,
+                     (const tjs_nchar *ref));
 
-    TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAllocVariantString, (const tjs_uint8 **src));
+    TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAllocVariantString,
+                     (const tjs_uint8 **src));
 
-    TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAllocVariantStringBuffer, (tjs_uint len));
+    TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAllocVariantStringBuffer,
+                     (tjs_uint len));
 
-    TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAppendVariantString, (tTJSVariantString * str, const tjs_char *app));
+    TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAppendVariantString,
+                     (tTJSVariantString * str, const tjs_char *app));
 
     TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSAppendVariantString,
                      (tTJSVariantString * str, const tTJSVariantString *app));
 
     TJS_EXP_FUNC_DEF(tTJSVariantString *, TJSFormatString,
-                     (const tjs_char *format, tjs_uint numparams, tTJSVariant **params));
+                     (const tjs_char *format, tjs_uint numparams,
+                      tTJSVariant **params));
 
     //---------------------------------------------------------------------------
 } // namespace TJS

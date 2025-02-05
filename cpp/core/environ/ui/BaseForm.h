@@ -59,7 +59,8 @@ public:
         return nullptr;
     }
 
-    cocos2d::ui::Widget *findWidget(const std::string &name, bool notice = true) const {
+    cocos2d::ui::Widget *findWidget(const std::string &name,
+                                    bool notice = true) const {
         return findController<cocos2d::ui::Widget>(name, notice);
     }
 
@@ -67,7 +68,8 @@ public:
 };
 
 template <>
-cocos2d::Node *NodeMap::findController<cocos2d::Node>(const std::string &name, bool notice) const;
+cocos2d::Node *NodeMap::findController<cocos2d::Node>(const std::string &name,
+                                                      bool notice) const;
 
 class CSBReader : public NodeMap {
 public:
@@ -84,12 +86,16 @@ public:
 
     virtual void rearrangeLayout();
 
-    virtual void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *event);
+    virtual void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
+                              cocos2d::Event *event);
 
 protected:
-    bool initFromFile(const char *navibar, const char *body, const char *bottombar, cocos2d::Node *parent = nullptr);
+    bool initFromFile(const char *navibar, const char *body,
+                      const char *bottombar, cocos2d::Node *parent = nullptr);
 
-    bool initFromFile(const char *body) { return initFromFile(nullptr, body, nullptr); }
+    bool initFromFile(const char *body) {
+        return initFromFile(nullptr, body, nullptr);
+    }
 
     virtual void bindBodyController(const NodeMap &allNodes) {}
 
@@ -114,7 +120,8 @@ protected:
 
 class TTouchEventRouter : public cocos2d::ui::Widget {
 public:
-    typedef std::function<void(cocos2d::ui::Widget::TouchEventType event, cocos2d::ui::Widget *sender,
+    typedef std::function<void(cocos2d::ui::Widget::TouchEventType event,
+                               cocos2d::ui::Widget *sender,
                                cocos2d::Touch *touch)>
         EventFunc;
 
@@ -127,7 +134,8 @@ public:
 
     void setEventFunc(const EventFunc &func) { _func = func; }
 
-    virtual void interceptTouchEvent(cocos2d::ui::Widget::TouchEventType event, cocos2d::ui::Widget *sender,
+    virtual void interceptTouchEvent(cocos2d::ui::Widget::TouchEventType event,
+                                     cocos2d::ui::Widget *sender,
                                      cocos2d::Touch *touch) override {
         if(_func)
             _func(event, sender, touch);

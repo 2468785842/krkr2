@@ -22,8 +22,10 @@ namespace TJS {
      */
     class tTJSByteCodeLoader {
     public:
-        static const tjs_uint32 FILE_TAG_LE = ('T') | ('J' << 8) | ('S' << 16) | ('2' << 24);
-        static const tjs_uint32 VER_TAG_LE = ('1') | ('0' << 8) | ('0' << 16) | (0 << 24);
+        static const tjs_uint32 FILE_TAG_LE =
+            ('T') | ('J' << 8) | ('S' << 16) | ('2' << 24);
+        static const tjs_uint32 VER_TAG_LE =
+            ('1') | ('0' << 8) | ('0' << 16) | (0 << 24);
 
     private:
         template <typename T>
@@ -63,8 +65,10 @@ namespace TJS {
             }
         };
 
-        static const tjs_uint32 OBJ_TAG_LE = ('O') | ('B' << 8) | ('J' << 16) | ('S' << 24);
-        static const tjs_uint32 DATA_TAG_LE = ('D') | ('A' << 8) | ('T' << 16) | ('A' << 24);
+        static const tjs_uint32 OBJ_TAG_LE =
+            ('O') | ('B' << 8) | ('J' << 16) | ('S' << 24);
+        static const tjs_uint32 DATA_TAG_LE =
+            ('D') | ('A' << 8) | ('T' << 16) | ('A' << 24);
 
         static const tjs_int32 TYPE_VOID = 0;
         static const tjs_int32 TYPE_OBJECT = 1;
@@ -96,12 +100,14 @@ namespace TJS {
         }
 
         static inline int read4byte(const tjs_uint8 *x) {
-            return (((x)[0]) | (((x)[1]) << 8) | (((x)[2]) << 16) | (((x)[3]) << 24));
+            return (((x)[0]) | (((x)[1]) << 8) | (((x)[2]) << 16) |
+                    (((x)[3]) << 24));
         }
 
         static inline tjs_uint64 read8byte(const tjs_uint8 *x) {
-            return ((tjs_uint64)(x[0]) | ((tjs_uint64)(x[1]) << 8) | ((tjs_uint64)(x[2]) << 16) |
-                    ((tjs_uint64)(x[3]) << 24) | ((tjs_uint64)(x[4]) << 32) | ((tjs_uint64)(x[5]) << 40) |
+            return ((tjs_uint64)(x[0]) | ((tjs_uint64)(x[1]) << 8) |
+                    ((tjs_uint64)(x[2]) << 16) | ((tjs_uint64)(x[3]) << 24) |
+                    ((tjs_uint64)(x[4]) << 32) | ((tjs_uint64)(x[5]) << 40) |
                     ((tjs_uint64)(x[6]) << 48) | ((tjs_uint64)(x[7]) << 56));
         }
 
@@ -117,7 +123,8 @@ namespace TJS {
             }
         }
 
-        tTJSScriptBlock *ReadByteCode(tTJS *owner, const tjs_char *name, const tjs_uint8 *buf, size_t size);
+        tTJSScriptBlock *ReadByteCode(tTJS *owner, const tjs_char *name,
+                                      const tjs_uint8 *buf, size_t size);
 
         /**
          * @param buff : 8バイト以上のサイズ
@@ -127,9 +134,11 @@ namespace TJS {
     private:
         void ReadDataArea(const tjs_uint8 *buff, int offset, size_t size);
 
-        void ReadObjects(tTJSScriptBlock *block, const tjs_uint8 *buff, int offset, int size);
+        void ReadObjects(tTJSScriptBlock *block, const tjs_uint8 *buff,
+                         int offset, int size);
 
-        void TranslateCodeAddress(tTJSScriptBlock *block, tjs_int32 *code, const tjs_int32 size);
+        void TranslateCodeAddress(tTJSScriptBlock *block, tjs_int32 *code,
+                                  const tjs_int32 size);
     };
 
 } // namespace TJS

@@ -14,8 +14,8 @@
 #include "md5.h"
 #include "tjsUtils.h"
 
-// this implements simple environment-noise based pseudo random generator using
-// MD5. may not be suitable for high security usage.
+// this implements simple environment-noise based pseudo random
+// generator using MD5. may not be suitable for high security usage.
 
 //---------------------------------------------------------------------------
 tjs_uint8 TVPRandomSeedPool[0x1000 + 512];
@@ -26,7 +26,8 @@ tjs_uint8 TVPRandomSeedAtom; // need not to initialize
 void TVPPushEnvironNoise(const void *buf, tjs_int bufsize) {
     const tjs_uint8 *p = (const tjs_uint8 *)buf;
     for(int i = 0; i < bufsize; i++) {
-        TVPRandomSeedPool[TVPRandomSeedPoolPos++] ^= (TVPRandomSeedAtom ^= p[i]);
+        TVPRandomSeedPool[TVPRandomSeedPoolPos++] ^=
+            (TVPRandomSeedAtom ^= p[i]);
         TVPRandomSeedPoolPos &= 0xfff;
     }
     TVPRandomSeedPoolPos += (p[0] & 1);

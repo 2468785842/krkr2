@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------
 /*
         TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and contributors
+        Copyright (C) 2000-2007 W.Dee <dee@kikyou.info> and
+   contributors
 
         See details of license at "license.txt"
 */
@@ -58,29 +59,32 @@ public:
     void EnsureDrawer();
 
     tDrawerType GetDrawerType() const { return DrawerType; }
-    void SetPreferredDrawerType(tDrawerType type) { PreferredDrawerType = type; }
+    void SetPreferredDrawerType(tDrawerType type) {
+        PreferredDrawerType = type;
+    }
     tDrawerType GetPreferredDrawerType() const { return PreferredDrawerType; }
 
     //---- LayerManager の管理関連
-    virtual void TJS_INTF_METHOD AddLayerManager(iTVPLayerManager *manager);
+    virtual void AddLayerManager(iTVPLayerManager *manager);
 
     //---- 描画位置・サイズ関連
-    virtual void TJS_INTF_METHOD SetTargetWindow(int wnd, bool is_main);
-    virtual void TJS_INTF_METHOD SetDestRectangle(const tTVPRect &rect);
-    virtual void TJS_INTF_METHOD NotifyLayerResize(iTVPLayerManager *manager);
+    virtual void SetTargetWindow(int wnd, bool is_main);
+    virtual void SetDestRectangle(const tTVPRect &rect);
+    virtual void NotifyLayerResize(iTVPLayerManager *manager);
 
     //---- 再描画関連
-    virtual void TJS_INTF_METHOD Show();
+    virtual void Show();
 
     //---- LayerManager からの画像受け渡し関連
-    virtual void TJS_INTF_METHOD StartBitmapCompletion(iTVPLayerManager *manager);
-    virtual void TJS_INTF_METHOD NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y,
-                                                       tTVPBaseTexture *bmp, const tTVPRect &cliprect,
-                                                       tTVPLayerType type, tjs_int opacity);
-    virtual void TJS_INTF_METHOD EndBitmapCompletion(iTVPLayerManager *manager);
+    virtual void StartBitmapCompletion(iTVPLayerManager *manager);
+    virtual void NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x,
+                                       tjs_int y, tTVPBaseTexture *bmp,
+                                       const tTVPRect &cliprect,
+                                       tTVPLayerType type, tjs_int opacity);
+    virtual void EndBitmapCompletion(iTVPLayerManager *manager);
 
     //---- デバッグ支援
-    virtual void TJS_INTF_METHOD SetShowUpdateRect(bool b);
+    virtual void SetShowUpdateRect(bool b);
     virtual void Clear();
 };
 //---------------------------------------------------------------------------
@@ -96,8 +100,9 @@ class tTJSNI_PassThroughDrawDevice : public tTJSNativeInstance {
 public:
     tTJSNI_PassThroughDrawDevice();
     ~tTJSNI_PassThroughDrawDevice();
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
-    void TJS_INTF_METHOD Invalidate();
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
+    void Invalidate();
 
 public:
     tTVPPassThroughDrawDevice *GetDevice() const { return Device; }

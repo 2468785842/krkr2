@@ -25,7 +25,8 @@ void CProcessInfo::ResetVideoCodecInfo() {
     m_videoFPS = 0.0;
     // 	m_deintMethods.clear();
     // 	m_deintMethods.push_back(EINTERLACEMETHOD::VS_INTERLACEMETHOD_NONE);
-    // 	m_deintMethodDefault = EINTERLACEMETHOD::VS_INTERLACEMETHOD_NONE;
+    // 	m_deintMethodDefault =
+    // EINTERLACEMETHOD::VS_INTERLACEMETHOD_NONE;
     m_renderInfo.Reset();
     m_stateSeeking = false;
 

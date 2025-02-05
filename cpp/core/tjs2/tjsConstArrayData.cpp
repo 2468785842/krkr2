@@ -15,7 +15,9 @@
 namespace TJS {
 
     tjsConstArrayData::~tjsConstArrayData() {
-        for(std::vector<std::vector<tjs_uint8> *>::iterator i = ByteBuffer.begin(); i != ByteBuffer.end(); ++i) {
+        for(std::vector<std::vector<tjs_uint8> *>::iterator i =
+                ByteBuffer.begin();
+            i != ByteBuffer.end(); ++i) {
             delete(*i);
         }
     }
@@ -120,11 +122,13 @@ namespace TJS {
         std::basic_string<tjs_char> b;
         if(val)
             b = std::basic_string<tjs_char>(val);
-        std::map<std::basic_string<tjs_char>, int>::const_iterator index = StringHash.find(b);
+        std::map<std::basic_string<tjs_char>, int>::const_iterator index =
+            StringHash.find(b);
         if(index == StringHash.end()) {
             int idx = (int)String.size();
             String.push_back(b);
-            StringHash.insert(std::pair<std::basic_string<tjs_char>, int>(b, idx));
+            StringHash.insert(
+                std::pair<std::basic_string<tjs_char>, int>(b, idx));
             return idx;
         } else {
             return index->second;
@@ -138,7 +142,8 @@ namespace TJS {
                 return TYPE_VOID;
             case tvtObject: {
                 iTJSDispatch2 *obj = v.AsObjectNoAddRef();
-                int index = block->GetCodeIndex((const tTJSInterCodeContext *)obj);
+                int index =
+                    block->GetCodeIndex((const tTJSInterCodeContext *)obj);
                 if(index >= 0) {
                     return TYPE_INTER_OBJECT;
                 } else {
@@ -177,7 +182,8 @@ namespace TJS {
                 iTJSDispatch2 *obj = v.AsObjectNoAddRef();
                 iTJSDispatch2 *objthis = v.AsObjectThisNoAddRef();
                 if(obj == nullptr && objthis == nullptr) {
-                    return 0; // nullptr の VariantClosure は受け入れる
+                    return 0; // nullptr の VariantClosure
+                              // は受け入れる
                 } else {
                     return -1; // その他は入れない。
                 }

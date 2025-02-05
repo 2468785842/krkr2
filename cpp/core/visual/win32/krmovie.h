@@ -15,7 +15,14 @@
 //#include "typedefine.h"
 
 //---------------------------------------------------------------------------
-enum tTVPVideoStatus { vsStopped, vsPlaying, vsPaused, vsProcessing, vsEnded, vsReady };
+enum tTVPVideoStatus {
+    vsStopped,
+    vsPlaying,
+    vsPaused,
+    vsProcessing,
+    vsEnded,
+    vsReady
+};
 //---------------------------------------------------------------------------
 #define __stdcall
 class tTVPBaseTexture;
@@ -38,10 +45,11 @@ public:
     virtual void __stdcall SetPosition(uint64_t tick) = 0;
     virtual void __stdcall GetPosition(uint64_t *tick) = 0;
     virtual void __stdcall GetStatus(tTVPVideoStatus *status) = 0;
-    // 	virtual void __stdcall GetEvent(long *evcode, LONG_PTR *param1,
-    // 			LONG_PTR *param2, bool *got) = 0;
+    // 	virtual void __stdcall GetEvent(long *evcode, LONG_PTR
+    // *param1, 			LONG_PTR *param2, bool *got) = 0;
 
-    //	virtual void __stdcall FreeEventParams(long evcode, LONG_PTR param1,
+    //	virtual void __stdcall FreeEventParams(long evcode, LONG_PTR
+    // param1,
     // LONG_PTR param2) = 0;
 
     virtual void __stdcall Rewind() = 0;
@@ -53,7 +61,9 @@ public:
 
     virtual void __stdcall GetVideoSize(long *width, long *height) = 0;
     virtual tTVPBaseTexture *GetFrontBuffer() = 0;
-    virtual void __stdcall SetVideoBuffer(tTVPBaseTexture *buff1, tTVPBaseTexture *buff2, long size) = 0;
+    virtual void __stdcall SetVideoBuffer(tTVPBaseTexture *buff1,
+                                          tTVPBaseTexture *buff2,
+                                          long size) = 0;
 
     virtual void __stdcall SetStopFrame(int frame) = 0;
     virtual void __stdcall GetStopFrame(int *frame) = 0;
@@ -67,16 +77,19 @@ public:
     virtual void __stdcall SetAudioVolume(long volume) = 0;
     virtual void __stdcall GetAudioVolume(long *volume) = 0;
 
-    virtual void __stdcall GetNumberOfAudioStream(unsigned long *streamCount) = 0;
+    virtual void __stdcall GetNumberOfAudioStream(
+        unsigned long *streamCount) = 0;
     virtual void __stdcall SelectAudioStream(unsigned long num) = 0;
     virtual void __stdcall GetEnableAudioStreamNum(long *num) = 0;
     virtual void __stdcall DisableAudioStream() = 0;
 
-    virtual void __stdcall GetNumberOfVideoStream(unsigned long *streamCount) = 0;
+    virtual void __stdcall GetNumberOfVideoStream(
+        unsigned long *streamCount) = 0;
     virtual void __stdcall SelectVideoStream(unsigned long num) = 0;
     virtual void __stdcall GetEnableVideoStreamNum(long *num) = 0;
 
-    virtual void __stdcall SetMixingBitmap(class tTVPBaseTexture *dest, float alpha) = 0;
+    virtual void __stdcall SetMixingBitmap(class tTVPBaseTexture *dest,
+                                           float alpha) = 0;
     virtual void __stdcall ResetMixingBitmap() = 0;
 
     virtual void __stdcall SetMixingMovieAlpha(float a) = 0;

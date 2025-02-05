@@ -17,8 +17,8 @@ extern RectFClass *getBounds(ImageClass *image);
 // ----------------------------------------------------------------
 
 // DSTだけ自前コンバータ
-#define NCB_SET_CONVERTOR_DST(type, convertor)                                                                         \
-    NCB_TYPECONV_SRCMAP_SET(type, ncbNativeObjectBoxing::Boxing, true);                                                \
+#define NCB_SET_CONVERTOR_DST(type, convertor)                                 \
+    NCB_TYPECONV_SRCMAP_SET(type, ncbNativeObjectBoxing::Boxing, true);        \
     NCB_TYPECONV_DSTMAP_SET(type, convertor<type>, true)
 
 /**
@@ -29,28 +29,32 @@ extern RectFClass *getBounds(ImageClass *image);
 bool IsArray(const tTJSVariant &var) {
     if(var.Type() == tvtObject) {
         iTJSDispatch2 *obj = var.AsObjectNoAddRef();
-        return obj->IsInstanceOf(0, nullptr, nullptr, TJS_W("Array"), obj) == TJS_S_TRUE;
+        return obj->IsInstanceOf(0, nullptr, nullptr, TJS_W("Array"), obj) ==
+            TJS_S_TRUE;
     }
     return false;
 }
 
 // メンバ変数をプロパティとして登録
-#define NCB_MEMBER_PROPERTY(name, type, membername)                                                                    \
-    struct AutoProp_##name {                                                                                           \
-        static void ProxySet(Class *inst, type value) { inst->membername = value; }                                    \
-        static type ProxyGet(Class *inst) { return inst->membername; }                                                 \
-    };                                                                                                                 \
-    NCB_PROPERTY_PROXY(name, AutoProp_##name::ProxyGet, AutoProp_##name::ProxySet)
+#define NCB_MEMBER_PROPERTY(name, type, membername)                            \
+    struct AutoProp_##name {                                                   \
+        static void ProxySet(Class *inst, type value) {                        \
+            inst->membername = value;                                          \
+        }                                                                      \
+        static type ProxyGet(Class *inst) { return inst->membername; }         \
+    };                                                                         \
+    NCB_PROPERTY_PROXY(name, AutoProp_##name::ProxyGet,                        \
+                       AutoProp_##name::ProxySet)
 
 // ポインタ引数型の getter を変換登録
-#define NCB_ARG_PROPERTY_RO(name, type, methodname)                                                                    \
-    struct AutoProp_##name {                                                                                           \
-        static type ProxyGet(Class *inst) {                                                                            \
-            type var;                                                                                                  \
-            inst->methodname(&var);                                                                                    \
-            return var;                                                                                                \
-        }                                                                                                              \
-    };                                                                                                                 \
+#define NCB_ARG_PROPERTY_RO(name, type, methodname)                            \
+    struct AutoProp_##name {                                                   \
+        static type ProxyGet(Class *inst) {                                    \
+            type var;                                                          \
+            inst->methodname(&var);                                            \
+            return var;                                                        \
+        }                                                                      \
+    };                                                                         \
     Property(TJS_W(#name), &AutoProp_##name::ProxyGet, (int)0, Proxy)
 
 // ------------------------------------------------------
@@ -78,9 +82,11 @@ struct PointFConvertor {
             } else {
                 ncbPropAccessor info(src);
                 if(IsArray(src)) {
-                    dst = PointF{ (REAL)info.getRealValue(0), (REAL)info.getRealValue(1) };
+                    dst = PointF{ (REAL)info.getRealValue(0),
+                                  (REAL)info.getRealValue(1) };
                 } else {
-                    dst = PointF{ (REAL)info.getRealValue(TJS_W("x")), (REAL)info.getRealValue(TJS_W("y")) };
+                    dst = PointF{ (REAL)info.getRealValue(TJS_W("x")),
+                                  (REAL)info.getRealValue(TJS_W("y")) };
                 }
             }
         } else {
@@ -122,11 +128,15 @@ struct RectFConvertor {
             } else {
                 ncbPropAccessor info(src);
                 if(IsArray(src)) {
-                    dst = RectF{ (REAL)info.getRealValue(0), (REAL)info.getRealValue(1), (REAL)info.getRealValue(2),
+                    dst = RectF{ (REAL)info.getRealValue(0),
+                                 (REAL)info.getRealValue(1),
+                                 (REAL)info.getRealValue(2),
                                  (REAL)info.getRealValue(3) };
                 } else {
-                    dst = RectF{ (REAL)info.getRealValue(TJS_W("x")), (REAL)info.getRealValue(TJS_W("y")),
-                                 (REAL)info.getRealValue(TJS_W("width")), (REAL)info.getRealValue(TJS_W("height")) };
+                    dst = RectF{ (REAL)info.getRealValue(TJS_W("x")),
+                                 (REAL)info.getRealValue(TJS_W("y")),
+                                 (REAL)info.getRealValue(TJS_W("width")),
+                                 (REAL)info.getRealValue(TJS_W("height")) };
                 }
             }
         } else {
@@ -155,14 +165,16 @@ NCB_REGISTER_SUBCLASS_DELAY(RectFClass) {
     NCB_METHOD(Clone);
     // XXX	NCB_METHOD_DETAIL(Contains, Class, BOOL, Class::Contains,
     // (REAL,REAL));
-    //	NCB_METHOD_DETAIL(ContainsPoint, Class, BOOL, Class::Contains, (const
-    // PointF&) const); 	NCB_METHOD_DETAIL(ContainsRect, Class, BOOL,
-    // Class::Contains, (const RectF&));
+    //	NCB_METHOD_DETAIL(ContainsPoint, Class, BOOL, Class::Contains,
+    //(const
+    // PointF&) const); 	NCB_METHOD_DETAIL(ContainsRect, Class,
+    // BOOL, Class::Contains, (const RectF&));
     NCB_METHOD(Equals);
     NCB_METHOD_DETAIL(Inflate, Class, void, Class::Inflate, (REAL, REAL));
-    NCB_METHOD_DETAIL(InflatePoint, Class, void, Class::Inflate, (const PointFClass &));
-    // XXX	NCB_METHOD_DETAIL(Intersect, Class, BOOL, Class::Intersect,
-    // (const Rect&));
+    NCB_METHOD_DETAIL(InflatePoint, Class, void, Class::Inflate,
+                      (const PointFClass &));
+    // XXX	NCB_METHOD_DETAIL(Intersect, Class, BOOL,
+    // Class::Intersect, (const Rect&));
     NCB_METHOD(IntersectsWith);
     NCB_METHOD(IsEmptyArea);
     NCB_METHOD_DETAIL(Offset, Class, void, Class::Offset, (REAL, REAL));
@@ -231,7 +243,9 @@ public:
 
     template <class CastT>
     struct CastBridgeFunctor {
-        CastT *operator()(WrapperT *p) const { return (CastT *)p->getGdipObject(); }
+        CastT *operator()(WrapperT *p) const {
+            return (CastT *)p->getGdipObject();
+        }
     };
 };
 
@@ -254,7 +268,8 @@ public:
 
     virtual void operator()(GdipClassP &dst, const tTJSVariant &src) {
         WrapperT *obj;
-        if(src.Type() == tvtObject && (obj = AdaptorT::GetNativeInstance(src.AsObjectNoAddRef()))) {
+        if(src.Type() == tvtObject &&
+           (obj = AdaptorT::GetNativeInstance(src.AsObjectNoAddRef()))) {
             dst = obj->getGdipObject();
         } else {
             // FIXME: nullptr danger!!
@@ -280,38 +295,47 @@ public:
 
 // コンバータ登録用登録用マクロ
 
-#define NCB_GDIP_CONVERTOR(type)                                                                                       \
-    NCB_SET_CONVERTOR(type *, GdipTypeConvertor<type>);                                                                \
+#define NCB_GDIP_CONVERTOR(type)                                               \
+    NCB_SET_CONVERTOR(type *, GdipTypeConvertor<type>);                        \
     NCB_SET_CONVERTOR(const type *, GdipTypeConvertor<const type>)
 
-#define NCB_GDIP_CONVERTOR2(type, convertor)                                                                           \
-    NCB_SET_CONVERTOR(type *, convertor<type>);                                                                        \
+#define NCB_GDIP_CONVERTOR2(type, convertor)                                   \
+    NCB_SET_CONVERTOR(type *, convertor<type>);                                \
     NCB_SET_CONVERTOR(const type *, convertor<const type>)
 
 // ラッピング処理用
-#define NCB_REGISTER_GDIP_SUBCLASS(Class)                                                                              \
-    NCB_GDIP_CONVERTOR(Class);                                                                                         \
-    NCB_REGISTER_SUBCLASS(GdipWrapper<Class>) {                                                                        \
+#define NCB_REGISTER_GDIP_SUBCLASS(Class)                                      \
+    NCB_GDIP_CONVERTOR(Class);                                                 \
+    NCB_REGISTER_SUBCLASS(GdipWrapper<Class>) {                                \
         typedef Class GdipClass;
-#define NCB_REGISTER_GDIP_SUBCLASS2(Class, Convertor)                                                                  \
-    NCB_GDIP_CONVERTOR2(Class, Convertor);                                                                             \
-    NCB_REGISTER_SUBCLASS(GdipWrapper<Class>) {                                                                        \
+#define NCB_REGISTER_GDIP_SUBCLASS2(Class, Convertor)                          \
+    NCB_GDIP_CONVERTOR2(Class, Convertor);                                     \
+    NCB_REGISTER_SUBCLASS(GdipWrapper<Class>) {                                \
         typedef Class GdipClass;
-#define NCB_GDIP_METHOD(name) Method(TJS_W(#name), &GdipClass::name, Bridge<GdipWrapper<GdipClass>::BridgeFunctor>())
-#define NCB_GDIP_MCAST(ret, method, args) static_cast<ret(GdipClass::*) args>(&GdipClass::method)
-#define NCB_GDIP_METHOD2(name, ret, method, args)                                                                      \
-    Method(TJS_W(#name), NCB_GDIP_MCAST(ret, method, args), Bridge<GdipWrapper<GdipClass>::BridgeFunctor>())
-#define NCB_GDIP_PROPERTY(name, get, set)                                                                              \
-    Property(TJS_W(#name), &GdipClass::get, &GdipClass::set, Bridge<GdipWrapper<GdipClass>::BridgeFunctor>())
+#define NCB_GDIP_METHOD(name)                                                  \
+    Method(TJS_W(#name), &GdipClass::name,                                     \
+           Bridge<GdipWrapper<GdipClass>::BridgeFunctor>())
+#define NCB_GDIP_MCAST(ret, method, args)                                      \
+    static_cast<ret(GdipClass::*) args>(&GdipClass::method)
+#define NCB_GDIP_METHOD2(name, ret, method, args)                              \
+    Method(TJS_W(#name), NCB_GDIP_MCAST(ret, method, args),                    \
+           Bridge<GdipWrapper<GdipClass>::BridgeFunctor>())
+#define NCB_GDIP_PROPERTY(name, get, set)                                      \
+    Property(TJS_W(#name), &GdipClass::get, &GdipClass::set,                   \
+             Bridge<GdipWrapper<GdipClass>::BridgeFunctor>())
 // XXX うまくうごかない
-#define NCB_GDIP_PROPERTY_RO(name, get)                                                                                \
-    Property(TJS_W(#name), &GdipClass::get, (int)0, Bridge<GdipWrapper<GdipClass>::BridgeFunctor>())
-#define NCB_GDIP_MEMBER_PROPERTY(name, type, membername)                                                               \
-    struct AutoProp_##name {                                                                                           \
-        static void ProxySet(GdipClass *inst, type value) { inst->membername = value; }                                \
-        static type ProxyGet(GdipClass *inst) { return inst->membername; }                                             \
-    };                                                                                                                 \
-    Property(TJS_W(#name), AutoProp_##name::ProxyGet, AutoProp_##name::ProxySet,                                       \
+#define NCB_GDIP_PROPERTY_RO(name, get)                                        \
+    Property(TJS_W(#name), &GdipClass::get, (int)0,                            \
+             Bridge<GdipWrapper<GdipClass>::BridgeFunctor>())
+#define NCB_GDIP_MEMBER_PROPERTY(name, type, membername)                       \
+    struct AutoProp_##name {                                                   \
+        static void ProxySet(GdipClass *inst, type value) {                    \
+            inst->membername = value;                                          \
+        }                                                                      \
+        static type ProxyGet(GdipClass *inst) { return inst->membername; }     \
+    };                                                                         \
+    Property(TJS_W(#name), AutoProp_##name::ProxyGet,                          \
+             AutoProp_##name::ProxySet,                                        \
              Bridge<GdipWrapper<GdipClass>::BridgeFunctor>())
 
 // ------------------------------------------------------- Matrix
@@ -326,14 +350,19 @@ struct MatrixConvertor : public GdipTypeConvertor<MatrixClass> {
             } else {
                 ncbPropAccessor info(src);
                 if(IsArray(src)) {
-                    result = new MatrixClass{ (REAL)info.getRealValue(0), (REAL)info.getRealValue(1),
-                                              (REAL)info.getRealValue(2), (REAL)info.getRealValue(3),
-                                              (REAL)info.getRealValue(4), (REAL)info.getRealValue(5) };
+                    result = new MatrixClass{
+                        (REAL)info.getRealValue(0), (REAL)info.getRealValue(1),
+                        (REAL)info.getRealValue(2), (REAL)info.getRealValue(3),
+                        (REAL)info.getRealValue(4), (REAL)info.getRealValue(5)
+                    };
                 } else {
                     result =
-                        new MatrixClass{ (REAL)info.getRealValue(TJS_W("m11")), (REAL)info.getRealValue(TJS_W("m12")),
-                                         (REAL)info.getRealValue(TJS_W("m21")), (REAL)info.getRealValue(TJS_W("m22")),
-                                         (REAL)info.getRealValue(TJS_W("dx")),  (REAL)info.getRealValue(TJS_W("dy")) };
+                        new MatrixClass{ (REAL)info.getRealValue(TJS_W("m11")),
+                                         (REAL)info.getRealValue(TJS_W("m12")),
+                                         (REAL)info.getRealValue(TJS_W("m21")),
+                                         (REAL)info.getRealValue(TJS_W("m22")),
+                                         (REAL)info.getRealValue(TJS_W("dx")),
+                                         (REAL)info.getRealValue(TJS_W("dy")) };
                 }
                 dst = result;
             }
@@ -344,7 +373,8 @@ struct MatrixConvertor : public GdipTypeConvertor<MatrixClass> {
     }
 };
 
-static tjs_error MatrixFactory(GdipWrapper<MatrixClass> **result, tjs_int numparams, tTJSVariant **params,
+static tjs_error MatrixFactory(GdipWrapper<MatrixClass> **result,
+                               tjs_int numparams, tTJSVariant **params,
                                iTJSDispatch2 *objthis) {
     MatrixClass *matrix = nullptr;
     RectF *rect = nullptr;
@@ -353,13 +383,17 @@ static tjs_error MatrixFactory(GdipWrapper<MatrixClass> **result, tjs_int numpar
         matrix = new MatrixClass();
     } else if(numparams == 2 &&
               (params[0]->Type() == tvtObject &&
-               (rect = ncbInstanceAdaptor<RectF>::GetNativeInstance(params[0]->AsObjectNoAddRef()))) &&
+               (rect = ncbInstanceAdaptor<RectF>::GetNativeInstance(
+                    params[0]->AsObjectNoAddRef()))) &&
               (params[1]->Type() == tvtObject &&
-               (point = ncbInstanceAdaptor<PointF>::GetNativeInstance(params[0]->AsObjectNoAddRef())))) {
+               (point = ncbInstanceAdaptor<PointF>::GetNativeInstance(
+                    params[0]->AsObjectNoAddRef())))) {
         matrix = new MatrixClass(*rect, *point);
     } else if(numparams == 6) {
-        matrix = new MatrixClass((REAL)params[0]->AsReal(), (REAL)params[1]->AsReal(), (REAL)params[2]->AsReal(),
-                                 (REAL)params[3]->AsReal(), (REAL)params[4]->AsReal(), (REAL)params[5]->AsReal());
+        matrix = new MatrixClass(
+            (REAL)params[0]->AsReal(), (REAL)params[1]->AsReal(),
+            (REAL)params[2]->AsReal(), (REAL)params[3]->AsReal(),
+            (REAL)params[4]->AsReal(), (REAL)params[5]->AsReal());
     } else {
         return TJS_E_INVALIDPARAM;
     }
@@ -384,8 +418,9 @@ NCB_GDIP_METHOD(Rotate);
 NCB_GDIP_METHOD(RotateAt);
 NCB_GDIP_METHOD(Scale);
 NCB_GDIP_METHOD(Shear);
-//	NCB_GDIP_METHOD_DETAIL(TransformPoints, Class, Status, TransformPoints,
-//(PointF*, INT)); XXX 引数が配列 	NCB_GDIP_METHOD_DETAIL(TransformVectors,
+//	NCB_GDIP_METHOD_DETAIL(TransformPoints, Class, Status,
+// TransformPoints, (PointF*, INT)); XXX 引数が配列
+// NCB_GDIP_METHOD_DETAIL(TransformVectors,
 // Class, Status, TransformVectors, (PointF*, INT)); XXX 引数が配列
 NCB_GDIP_METHOD(Translate);
 }
@@ -404,7 +439,9 @@ struct ImageConvertor : public GdipTypeConvertor<ImageClass> {
             if((obj = AdaptorT::GetNativeInstance(src.AsObjectNoAddRef()))) {
                 dst = obj->getGdipObject();
             } else {
-                LayerExDraw *layer = ncbInstanceAdaptor<LayerExDraw>::GetNativeInstance(src.AsObjectNoAddRef());
+                LayerExDraw *layer =
+                    ncbInstanceAdaptor<LayerExDraw>::GetNativeInstance(
+                        src.AsObjectNoAddRef());
                 if(layer) {
                     dst = *layer;
                 } else {
@@ -421,7 +458,8 @@ struct ImageConvertor : public GdipTypeConvertor<ImageClass> {
     }
 };
 
-static tjs_error ImageFactory(GdipWrapper<ImageClass> **result, tjs_int numparams, tTJSVariant **params,
+static tjs_error ImageFactory(GdipWrapper<ImageClass> **result,
+                              tjs_int numparams, tTJSVariant **params,
                               iTJSDispatch2 *objthis) {
     if(numparams == 0) {
         *result = new GdipWrapper<ImageClass>();
@@ -454,7 +492,8 @@ static tTJSVariant ImageClone(GdipWrapper<ImageClass> *obj) {
     ImageClass *src = obj->getGdipObject();
     if(src) {
         ImageClass *newimage = src->Clone();
-        iTJSDispatch2 *adpobj = AdaptorT::CreateAdaptor((ImageClass *)new WrapperT(newimage));
+        iTJSDispatch2 *adpobj =
+            AdaptorT::CreateAdaptor((ImageClass *)new WrapperT(newimage));
         if(adpobj) {
             ret = tTJSVariant(adpobj, adpobj);
             adpobj->Release();
@@ -759,11 +798,15 @@ NCB_REGISTER_CLASS(GdiPlus) {
 
 NCB_GET_INSTANCE_HOOK(LayerExDraw){
     // インスタンスゲッタ
-    NCB_INSTANCE_GETTER(objthis){ // objthis を iTJSDispatch2* 型の引数とする
-                                  ClassT *obj = GetNativeInstance(objthis); // ネイティブインスタンスポインタ取得
+    NCB_INSTANCE_GETTER(objthis){
+        // objthis を iTJSDispatch2* 型の引数とする
+        ClassT *obj =
+            GetNativeInstance(objthis); // ネイティブインスタンスポインタ取得
 if(!obj) {
     obj = new ClassT(objthis); // ない場合は生成する
-    SetNativeInstance(objthis, obj); // objthis に obj をネイティブインスタンスとして登録する
+    SetNativeInstance(
+        objthis,
+        obj); // objthis に obj をネイティブインスタンスとして登録する
 }
 obj->reset();
 return obj;
@@ -777,9 +820,10 @@ return obj;
 /**
  * GpImage はラッピングする必要があるので rawcallback で対応
  */
-static tjs_error TJS_INTF_METHOD GetRecordImage(tTJSVariant *result, tjs_int numparams, tTJSVariant **param,
-                                                iTJSDispatch2 *objthis) {
-    LayerExDraw *obj = ncbInstanceAdaptor<LayerExDraw>::GetNativeInstance(objthis, true);
+static tjs_error GetRecordImage(tTJSVariant *result, tjs_int numparams,
+                                tTJSVariant **param, iTJSDispatch2 *objthis) {
+    LayerExDraw *obj =
+        ncbInstanceAdaptor<LayerExDraw>::GetNativeInstance(objthis, true);
     if(result)
         result->Clear();
     if(obj) {
@@ -787,7 +831,8 @@ static tjs_error TJS_INTF_METHOD GetRecordImage(tTJSVariant *result, tjs_int num
         if(image) {
             typedef GdipWrapper<ImageClass> WrapperT;
             WrapperT *wrap = new WrapperT(image);
-            iTJSDispatch2 *adpobj = ncbInstanceAdaptor<WrapperT>::CreateAdaptor(wrap);
+            iTJSDispatch2 *adpobj =
+                ncbInstanceAdaptor<WrapperT>::CreateAdaptor(wrap);
             if(adpobj) {
                 if(result)
                     *result = tTJSVariant(adpobj, adpobj);

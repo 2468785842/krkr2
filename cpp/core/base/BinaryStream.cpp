@@ -19,12 +19,13 @@
 #include "tjsError.h"
 
 /*
-        Text stream is used by TJS's Array.saveStruct, Dictionary.saveStruct
-   etc. to input/output binary files.
+        Text stream is used by TJS's Array.saveStruct,
+   Dictionary.saveStruct etc. to input/output binary files.
 */
 
 //---------------------------------------------------------------------------
-tTJSBinaryStream *TVPCreateBinaryStreamForRead(const ttstr &name, const ttstr &modestr) {
+tTJSBinaryStream *TVPCreateBinaryStreamForRead(const ttstr &name,
+                                               const ttstr &modestr) {
     // check o mode
     tTJSBinaryStream *stream = TVPCreateStream(name, TJS_BS_READ);
 
@@ -48,7 +49,8 @@ tTJSBinaryStream *TVPCreateBinaryStreamForRead(const ttstr &name, const ttstr &m
 }
 
 //---------------------------------------------------------------------------
-tTJSBinaryStream *TVPCreateBinaryStreamForWrite(const ttstr &name, const ttstr &modestr) {
+tTJSBinaryStream *TVPCreateBinaryStreamForWrite(const ttstr &name,
+                                                const ttstr &modestr) {
     tTJSBinaryStream *stream;
     // check o mode
     const tjs_char *o_ofs;

@@ -32,15 +32,18 @@ tTVPWindow::~tTVPWindow() {
     ::SetWindowLongPtr(window_handle_, GWLP_WNDPROC, (LONG_PTR)::DefWindowProc);
     ::SetWindowLongPtr(window_handle_, GWLP_USERDATA, (LONG_PTR) nullptr);
 }
-LRESULT WINAPI tTVPWindow::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    tTVPWindow *win = reinterpret_cast<tTVPWindow *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+LRESULT WINAPI tTVPWindow::WndProc(HWND hWnd, UINT msg, WPARAM wParam,
+                                   LPARAM lParam) {
+    tTVPWindow *win =
+        reinterpret_cast<tTVPWindow *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
     if(win != nullptr) {
         return win->Proc(hWnd, msg, wParam, lParam);
     }
     return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam,
+                                LPARAM lParam) {
     // マウスメッセージがきた時、Mouse Enter の判定を行う
     if((msg >= WM_MOUSEFIRST && msg <= WM_MOUSELAST) && msg != WM_MOUSELEAVE) {
         if(in_window_ == false) {
@@ -51,7 +54,8 @@ LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             tme.dwFlags = TME_LEAVE;
             tme.hwndTrack = hWnd;
             tme.dwHoverTime = HOVER_DEFAULT;
-            ::TrackMouseEvent(&tme); // ここでエラーをハンドリングしてもあまり意味無いので無視
+            ::TrackMouseEvent(
+                &tme); // ここでエラーをハンドリングしてもあまり意味無いので無視
         }
     }
 
@@ -77,53 +81,67 @@ LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             return 0;
 
         case WM_MOUSEWHEEL:
-            OnMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam), GetShiftState(wParam), GET_X_LPARAM(lParam),
-                         GET_Y_LPARAM(lParam));
+            OnMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam), GetShiftState(wParam),
+                         GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             return 0;
 
         case WM_MOUSEMOVE:
-            if(ignore_touch_mouse_ == false || IsTouchEvent(::GetMessageExtraInfo()) == false) {
-                OnMouseMove(GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            if(ignore_touch_mouse_ == false ||
+               IsTouchEvent(::GetMessageExtraInfo()) == false) {
+                OnMouseMove(GetShiftState(wParam), GET_X_LPARAM(lParam),
+                            GET_Y_LPARAM(lParam));
             }
             return 0;
 
         case WM_LBUTTONDOWN:
-            if(ignore_touch_mouse_ == false || IsTouchEvent(::GetMessageExtraInfo()) == false) {
+            if(ignore_touch_mouse_ == false ||
+               IsTouchEvent(::GetMessageExtraInfo()) == false) {
                 left_double_click_ = false;
-                OnMouseDown(mbLeft, GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                OnMouseDown(mbLeft, GetShiftState(wParam), GET_X_LPARAM(lParam),
+                            GET_Y_LPARAM(lParam));
             }
             return 0;
         case WM_LBUTTONUP:
-            if(ignore_touch_mouse_ == false || IsTouchEvent(::GetMessageExtraInfo()) == false) {
+            if(ignore_touch_mouse_ == false ||
+               IsTouchEvent(::GetMessageExtraInfo()) == false) {
                 if(left_double_click_ == false) {
-                    OnMouseClick(mbLeft, GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                    OnMouseClick(mbLeft, GetShiftState(wParam),
+                                 GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
                 }
                 left_double_click_ = false;
-                OnMouseUp(mbLeft, GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                OnMouseUp(mbLeft, GetShiftState(wParam), GET_X_LPARAM(lParam),
+                          GET_Y_LPARAM(lParam));
             }
             return 0;
         case WM_LBUTTONDBLCLK:
-            if(ignore_touch_mouse_ == false || IsTouchEvent(::GetMessageExtraInfo()) == false) {
+            if(ignore_touch_mouse_ == false ||
+               IsTouchEvent(::GetMessageExtraInfo()) == false) {
                 left_double_click_ = true;
-                OnMouseDoubleClick(mbLeft, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-                OnMouseDown(mbLeft, GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                OnMouseDoubleClick(mbLeft, GET_X_LPARAM(lParam),
+                                   GET_Y_LPARAM(lParam));
+                OnMouseDown(mbLeft, GetShiftState(wParam), GET_X_LPARAM(lParam),
+                            GET_Y_LPARAM(lParam));
             }
             return 0;
 
         case WM_RBUTTONDOWN:
-            OnMouseDown(mbRight, GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            OnMouseDown(mbRight, GetShiftState(wParam), GET_X_LPARAM(lParam),
+                        GET_Y_LPARAM(lParam));
             return 0;
         case WM_RBUTTONUP:
-            OnMouseUp(mbRight, GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            OnMouseUp(mbRight, GetShiftState(wParam), GET_X_LPARAM(lParam),
+                      GET_Y_LPARAM(lParam));
             return 0;
         case WM_RBUTTONDBLCLK: // 右ダブルクリックは無視
             return ::DefWindowProc(hWnd, msg, wParam, lParam);
 
         case WM_MBUTTONDOWN:
-            OnMouseDown(mbMiddle, GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            OnMouseDown(mbMiddle, GetShiftState(wParam), GET_X_LPARAM(lParam),
+                        GET_Y_LPARAM(lParam));
             return 0;
         case WM_MBUTTONUP:
-            OnMouseUp(mbMiddle, GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            OnMouseUp(mbMiddle, GetShiftState(wParam), GET_X_LPARAM(lParam),
+                      GET_Y_LPARAM(lParam));
             return 0;
         case WM_MBUTTONDBLCLK: // 中ダブルクリックは無視
             return ::DefWindowProc(hWnd, msg, wParam, lParam);
@@ -133,20 +151,24 @@ LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
         case WM_XBUTTONUP:
             switch(GET_XBUTTON_WPARAM(wParam)) {
                 case XBUTTON1: // サイドキーが第1Xボタン
-                    OnMouseUp(mbX1, GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                    OnMouseUp(mbX1, GetShiftState(wParam), GET_X_LPARAM(lParam),
+                              GET_Y_LPARAM(lParam));
                     return 0;
                 case XBUTTON2: // サイドキーが第2Xボタン
-                    OnMouseUp(mbX2, GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                    OnMouseUp(mbX2, GetShiftState(wParam), GET_X_LPARAM(lParam),
+                              GET_Y_LPARAM(lParam));
                     return 0;
             }
             return ::DefWindowProc(hWnd, msg, wParam, lParam);
         case WM_XBUTTONDOWN: // 戻るや進むが割り当てられる
             switch(GET_XBUTTON_WPARAM(wParam)) {
                 case XBUTTON1: // サイドキーが第1Xボタン
-                    OnMouseDown(mbX1, GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                    OnMouseDown(mbX1, GetShiftState(wParam),
+                                GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
                     return 0;
                 case XBUTTON2: // サイドキーが第2Xボタン
-                    OnMouseDown(mbX2, GetShiftState(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                    OnMouseDown(mbX2, GetShiftState(wParam),
+                                GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
                     return 0;
             }
             return ::DefWindowProc(hWnd, msg, wParam, lParam);
@@ -159,7 +181,8 @@ LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
                     OnTouchSequenceStart();
                     try {
                         DWORD basetick = TVPGetRoughTickCount32();
-                        if(procGetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs, sizeof(TOUCHINPUT))) {
+                        if(procGetTouchInputInfo((HTOUCHINPUT)lParam, cInputs,
+                                                 pInputs, sizeof(TOUCHINPUT))) {
                             // process pInputs
                             for(UINT i = 0; i < cInputs; i++) {
                                 int x = pInputs[i].x / 100;
@@ -168,31 +191,43 @@ LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
                                 ::ScreenToClient(GetHandle(), &pt);
                                 int lx = pInputs[i].x % 100;
                                 int ly = pInputs[i].y % 100;
-                                double vx = pt.x + static_cast<double>(lx) / 100.0;
-                                double vy = pt.y + static_cast<double>(ly) / 100.0;
+                                double vx =
+                                    pt.x + static_cast<double>(lx) / 100.0;
+                                double vy =
+                                    pt.y + static_cast<double>(ly) / 100.0;
                                 double cx = 1;
                                 double cy = 1;
-                                if(pInputs[i].dwMask & TOUCHINPUTMASKF_CONTACTAREA) {
-                                    cx = static_cast<double>(pInputs[i].cxContact) / 100.0;
-                                    cy = static_cast<double>(pInputs[i].cyContact) / 100.0;
+                                if(pInputs[i].dwMask &
+                                   TOUCHINPUTMASKF_CONTACTAREA) {
+                                    cx = static_cast<double>(
+                                             pInputs[i].cxContact) /
+                                        100.0;
+                                    cy = static_cast<double>(
+                                             pInputs[i].cyContact) /
+                                        100.0;
                                 }
                                 DWORD tick;
-                                if(pInputs[i].dwMask & TOUCHINPUTMASKF_TIMEFROMSYSTEM) {
+                                if(pInputs[i].dwMask &
+                                   TOUCHINPUTMASKF_TIMEFROMSYSTEM) {
                                     tick = pInputs[i].dwTime;
                                 } else {
                                     tick = basetick;
                                 }
                                 if(pInputs[i].dwFlags & TOUCHEVENTF_DOWN) {
-                                    OnTouchDown(vx, vy, cx, cy, pInputs[i].dwID, tick);
+                                    OnTouchDown(vx, vy, cx, cy, pInputs[i].dwID,
+                                                tick);
                                 }
                                 if(pInputs[i].dwFlags & TOUCHEVENTF_MOVE) {
-                                    OnTouchMove(vx, vy, cx, cy, pInputs[i].dwID, tick);
+                                    OnTouchMove(vx, vy, cx, cy, pInputs[i].dwID,
+                                                tick);
                                 }
                                 if(pInputs[i].dwFlags & TOUCHEVENTF_UP) {
-                                    OnTouchUp(vx, vy, cx, cy, pInputs[i].dwID, tick);
+                                    OnTouchUp(vx, vy, cx, cy, pInputs[i].dwID,
+                                              tick);
                                 }
                             }
-                            if(!procCloseTouchInputHandle((HTOUCHINPUT)lParam)) {
+                            if(!procCloseTouchInputHandle(
+                                   (HTOUCHINPUT)lParam)) {
                                 // error handling
                                 TVPThrowWindowsErrorException();
                             }
@@ -231,7 +266,8 @@ LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
                         bHandled = TRUE;
                         break;
                     case GID_ROTATE: {
-                        // double rot = GID_ROTATE_ANGLE_FROM_ARGUMENT(gi.ullArguments)
+                        // double rot =
+                        // GID_ROTATE_ANGLE_FROM_ARGUMENT(gi.ullArguments)
                         /*
                         POINT cpt;
                         cpt.x = gi.ptsLocation.x;
@@ -258,7 +294,8 @@ LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             return DefWindowProc(hWnd, msg, wParam, lParam);
         case WM_SYSKEYDOWN:
         case WM_KEYDOWN:
-            OnKeyDown((WORD)wParam, GetShiftState(), lParam & 0xffff, (lParam & (1 << 30)) ? true : false);
+            OnKeyDown((WORD)wParam, GetShiftState(), lParam & 0xffff,
+                      (lParam & (1 << 30)) ? true : false);
             return ::DefWindowProc(hWnd, msg, wParam, lParam);
         case WM_SYSKEYUP:
         case WM_KEYUP:
@@ -266,7 +303,8 @@ LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             return ::DefWindowProc(hWnd, msg, wParam, lParam);
         case WM_SYSCHAR:
         case WM_CHAR:
-            OnKeyPress((WORD)wParam, lParam & 0xffff, (lParam & (1 << 30)) ? true : false,
+            OnKeyPress((WORD)wParam, lParam & 0xffff,
+                       (lParam & (1 << 30)) ? true : false,
                        (lParam & (1 << 31)) ? true : false);
             return ::DefWindowProc(hWnd, msg, wParam, lParam);
 
@@ -288,12 +326,14 @@ LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
                 lpmmi->ptMinTrackSize.y = min_size_.cy;
             }
             if(max_size_.cx > 0) {
-                lpmmi->ptMaxTrackSize.x = max_size_.cx; // サイズ変更時の最大サイズ
+                lpmmi->ptMaxTrackSize.x =
+                    max_size_.cx; // サイズ変更時の最大サイズ
             } else {
                 lpmmi->ptMaxTrackSize.x = INT_MAX; // サイズ変更時の最大サイズ
             }
             if(max_size_.cy > 0) {
-                lpmmi->ptMaxTrackSize.y = max_size_.cy; // サイズ変更時の最大サイズ
+                lpmmi->ptMaxTrackSize.y =
+                    max_size_.cy; // サイズ変更時の最大サイズ
             } else {
                 lpmmi->ptMaxTrackSize.y = INT_MAX; // サイズ変更時の最大サイズ
             }
@@ -331,9 +371,11 @@ LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             OnDropFile(reinterpret_cast<HDROP>(wParam));
             return 0;
         case WM_MOUSEACTIVATE:
-            return OnMouseActivate(reinterpret_cast<HWND>(wParam), LOWORD(lParam), HIWORD(lParam));
+            return OnMouseActivate(reinterpret_cast<HWND>(wParam),
+                                   LOWORD(lParam), HIWORD(lParam));
         case WM_SETCURSOR:
-            if(OnSetCursor(reinterpret_cast<HWND>(wParam), LOWORD(lParam), HIWORD(lParam)))
+            if(OnSetCursor(reinterpret_cast<HWND>(wParam), LOWORD(lParam),
+                           HIWORD(lParam)))
                 return 1;
             break;
         case WM_ENABLE:
@@ -349,10 +391,12 @@ LRESULT WINAPI tTVPWindow::Proc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             OnDeviceChange(wParam, reinterpret_cast<void *>(lParam));
             break;
         case WM_NCLBUTTONDOWN:
-            OnNonClientMouseDown(mbLeft, wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            OnNonClientMouseDown(mbLeft, wParam, GET_X_LPARAM(lParam),
+                                 GET_Y_LPARAM(lParam));
             break;
         case WM_NCRBUTTONDOWN:
-            OnNonClientMouseDown(mbRight, wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            OnNonClientMouseDown(mbRight, wParam, GET_X_LPARAM(lParam),
+                                 GET_Y_LPARAM(lParam));
             break;
         case WM_SHOWWINDOW:
             if(wParam) {
@@ -381,16 +425,18 @@ void tTVPWindow::OnPaint() {}
 const DWORD tTVPWindow::DEFAULT_EX_STYLE = WS_EX_ACCEPTFILES | WS_EX_APPWINDOW;
 const ULONG tTVPWindow::REGISTER_TOUCH_FLAG = TWF_WANTPALM | TWF_FINETOUCH;
 const DWORD tTVPWindow::DEFAULT_TABLETPENSERVICE_PROPERTY =
-    (TABLET_DISABLE_PRESSANDHOLD | // disables press and hold (right-click)
-                                   // gesture
-     TABLET_DISABLE_PENTAPFEEDBACK | // disables UI feedback on pen up (waves)
-     TABLET_DISABLE_PENBARRELFEEDBACK | // disables UI feedback on pen button
-                                        // down (circle)
-     TABLET_DISABLE_FLICKS // disables pen flicks (back, forward, drag down,
-                           // drag up)
+    (TABLET_DISABLE_PRESSANDHOLD | // disables press and hold
+                                   // (right-click) gesture
+     TABLET_DISABLE_PENTAPFEEDBACK | // disables UI feedback on pen up
+                                     // (waves)
+     TABLET_DISABLE_PENBARRELFEEDBACK | // disables UI feedback on pen
+                                        // button down (circle)
+     TABLET_DISABLE_FLICKS // disables pen flicks (back, forward, drag
+                           // down, drag up)
     );
 
-HRESULT tTVPWindow::CreateWnd(const std::wstring &classname, const std::wstring &title, int width, int height,
+HRESULT tTVPWindow::CreateWnd(const std::wstring &classname,
+                              const std::wstring &title, int width, int height,
                               HWND hParent) {
     window_class_name_ = classname;
     window_title_ = title;
@@ -409,11 +455,14 @@ HRESULT tTVPWindow::CreateWnd(const std::wstring &classname, const std::wstring 
                       nullptr,
                       window_class_name_.c_str(),
                       nullptr };
-    wc.hIcon = ::LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_TVPWIN32));
-    wc.hIconSm = ::LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_TVPWIN32));
+    wc.hIcon =
+        ::LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_TVPWIN32));
+    wc.hIconSm =
+        ::LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_TVPWIN32));
 
     WNDCLASSEX tmpwc = { sizeof(WNDCLASSEX) };
-    BOOL ClassRegistered = ::GetClassInfoEx(wc.hInstance, wc.lpszClassName, &tmpwc);
+    BOOL ClassRegistered =
+        ::GetClassInfoEx(wc.hInstance, wc.lpszClassName, &tmpwc);
     if(ClassRegistered == 0) {
         if(::RegisterClassEx(&wc) == 0) {
 #ifdef _DEBUG
@@ -425,16 +474,18 @@ HRESULT tTVPWindow::CreateWnd(const std::wstring &classname, const std::wstring 
     wc_ = wc;
 
     RECT winRc = { 0, 0, window_client_size_.cx, window_client_size_.cy };
-    ::AdjustWindowRectEx(&winRc, WS_OVERLAPPEDWINDOW, nullptr, DEFAULT_EX_STYLE);
+    ::AdjustWindowRectEx(&winRc, WS_OVERLAPPEDWINDOW, nullptr,
+                         DEFAULT_EX_STYLE);
     DWORD exStyle = DEFAULT_EX_STYLE;
     if(hParent) {
         exStyle |= WS_EX_CONTROLPARENT;
         has_parent_ = true;
     }
-    window_handle_ =
-        ::CreateWindowEx(exStyle, window_class_name_.c_str(), window_title_.c_str(),
-                         WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, CW_USEDEFAULT, CW_USEDEFAULT, winRc.right - winRc.left,
-                         winRc.bottom - winRc.top, hParent, nullptr, wc.hInstance, nullptr);
+    window_handle_ = ::CreateWindowEx(
+        exStyle, window_class_name_.c_str(), window_title_.c_str(),
+        WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, CW_USEDEFAULT, CW_USEDEFAULT,
+        winRc.right - winRc.left, winRc.bottom - winRc.top, hParent, nullptr,
+        wc.hInstance, nullptr);
 
     if(window_handle_ == nullptr) {
 #ifdef _DEBUG
@@ -446,7 +497,8 @@ HRESULT tTVPWindow::CreateWnd(const std::wstring &classname, const std::wstring 
     ime_control_ = new ImeControl(window_handle_);
     border_style_ = bsSizeable;
 
-    ::SetWindowLongPtr(window_handle_, GWLP_WNDPROC, (LONG_PTR)tTVPWindow::WndProc);
+    ::SetWindowLongPtr(window_handle_, GWLP_WNDPROC,
+                       (LONG_PTR)tTVPWindow::WndProc);
     ::SetWindowLongPtr(window_handle_, GWLP_USERDATA, (LONG_PTR)this);
 
     ::ShowWindow(window_handle_, SW_HIDE);
@@ -463,22 +515,27 @@ HRESULT tTVPWindow::CreateWnd(const std::wstring &classname, const std::wstring 
     // ハードがマルチタッチをサポートしているかどうか
     if(procRegisterTouchWindow && ignore_touch == false) {
         int value = ::GetSystemMetrics(SM_DIGITIZER);
-        if((value & (NID_MULTI_INPUT | NID_READY)) == (NID_MULTI_INPUT | NID_READY)) {
+        if((value & (NID_MULTI_INPUT | NID_READY)) ==
+           (NID_MULTI_INPUT | NID_READY)) {
             // マルチタッチサポート & 準備できている
 #ifndef TVP_TOUCH_DISABLE
             procRegisterTouchWindow(window_handle_, REGISTER_TOUCH_FLAG);
             ignore_touch_mouse_ = true;
 #endif
-            // MICROSOFT_TABLETPENSERVICE_PROPERTY プロパティを変更する
+            // MICROSOFT_TABLETPENSERVICE_PROPERTY
+            // プロパティを変更する
             ATOM atom = ::GlobalAddAtom(MICROSOFT_TABLETPENSERVICE_PROPERTY);
-            ::SetProp(window_handle_, MICROSOFT_TABLETPENSERVICE_PROPERTY,
-                      reinterpret_cast<HANDLE>(DEFAULT_TABLETPENSERVICE_PROPERTY));
+            ::SetProp(
+                window_handle_, MICROSOFT_TABLETPENSERVICE_PROPERTY,
+                reinterpret_cast<HANDLE>(DEFAULT_TABLETPENSERVICE_PROPERTY));
             ::GlobalDeleteAtom(atom);
         }
     }
     return S_OK;
 }
-void tTVPWindow::UnregisterWindow() { ::UnregisterClass(window_class_name_.c_str(), wc_.hInstance); }
+void tTVPWindow::UnregisterWindow() {
+    ::UnregisterClass(window_class_name_.c_str(), wc_.hInstance);
+}
 
 void tTVPWindow::SetWidnowTitle(const std::wstring &title) {
     if(window_title_ != title) {
@@ -494,10 +551,13 @@ void tTVPWindow::SetScreenSize(int width, int height) {
         window_client_size_.cx = width;
         window_client_size_.cy = height;
         if(window_handle_) {
-            RECT winRc = { 0, 0, window_client_size_.cx, window_client_size_.cy };
+            RECT winRc = { 0, 0, window_client_size_.cx,
+                           window_client_size_.cy };
             ::AdjustWindowRect(&winRc, WS_OVERLAPPEDWINDOW, nullptr);
-            ::SetWindowPos(window_handle_, HWND_TOP, 0, 0, winRc.right - winRc.left, winRc.bottom - winRc.top,
-                           SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+            ::SetWindowPos(window_handle_, HWND_TOP, 0, 0,
+                           winRc.right - winRc.left, winRc.bottom - winRc.top,
+                           SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER |
+                               SWP_NOZORDER);
         }
     }
 }
@@ -523,10 +583,12 @@ void tTVPWindow::SetClientSize(HWND hWnd, SIZE &size) {
     DWORD exStyle = ::GetWindowLong(hWnd, GWL_EXSTYLE);
     RECT rect;
     ::SetRect(&rect, 0, 0, size.cx, size.cy);
-    if(::AdjustWindowRectEx(&rect, style, HasMenu(hWnd) ? TRUE : FALSE, exStyle)) {
+    if(::AdjustWindowRectEx(&rect, style, HasMenu(hWnd) ? TRUE : FALSE,
+                            exStyle)) {
         RECT rect2;
         if(::GetWindowRect(hWnd, &rect2)) {
-            if(::SetWindowPos(hWnd, nullptr, rect2.left, rect2.top, rect.right - rect.left, rect.bottom - rect.top,
+            if(::SetWindowPos(hWnd, nullptr, rect2.left, rect2.top,
+                              rect.right - rect.left, rect.bottom - rect.top,
                               SIZE_CHANGE_FLAGS) == 0) {
                 TVPThrowWindowsErrorException();
             }
@@ -539,11 +601,19 @@ void tTVPWindow::SetClientSize(HWND hWnd, SIZE &size) {
 }
 
 // 表示状態
-bool tTVPWindow::GetVisible() const { return ::IsWindowVisible(GetHandle()) ? true : false; }
-void tTVPWindow::SetVisible(bool s) { ::ShowWindow(GetHandle(), s ? SW_SHOW : SW_HIDE); }
+bool tTVPWindow::GetVisible() const {
+    return ::IsWindowVisible(GetHandle()) ? true : false;
+}
+void tTVPWindow::SetVisible(bool s) {
+    ::ShowWindow(GetHandle(), s ? SW_SHOW : SW_HIDE);
+}
 
-bool tTVPWindow::GetEnable() const { return ::IsWindowEnabled(GetHandle()) ? true : false; }
-void tTVPWindow::SetEnable(bool s) { ::EnableWindow(GetHandle(), s ? TRUE : FALSE); }
+bool tTVPWindow::GetEnable() const {
+    return ::IsWindowEnabled(GetHandle()) ? true : false;
+}
+void tTVPWindow::SetEnable(bool s) {
+    ::EnableWindow(GetHandle(), s ? TRUE : FALSE);
+}
 
 void tTVPWindow::GetCaption(std::wstring &v) const {
     v.clear();
@@ -564,8 +634,8 @@ void tTVPWindow::SetCaption(const std::wstring &v) {
 }
 
 void tTVPWindow::SetBorderStyle(tTVPBorderStyle st) {
-    const DWORD notStyle =
-        WS_POPUP | WS_CAPTION | WS_BORDER | WS_THICKFRAME | WS_DLGFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU;
+    const DWORD notStyle = WS_POPUP | WS_CAPTION | WS_BORDER | WS_THICKFRAME |
+        WS_DLGFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU;
     DWORD style = ::GetWindowLong(GetHandle(), GWL_STYLE);
     style &= ~notStyle;
     DWORD exStyle = ::GetWindowLong(GetHandle(), GWL_EXSTYLE);
@@ -621,20 +691,25 @@ void tTVPWindow::SetBorderStyle(tTVPBorderStyle st) {
     ::GetSystemMenu(GetHandle(), TRUE);
     ::SendMessage(GetHandle(), WM_NCCREATE, 0, 0);
     ::SetWindowPos(GetHandle(), 0, 0, 0, 0, 0,
-                   SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
+                   SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOZORDER | SWP_NOSIZE |
+                       SWP_NOACTIVATE);
     ::InvalidateRect(GetHandle(), nullptr, TRUE);
 }
-tTVPBorderStyle tTVPWindow::GetBorderStyle() const { return static_cast<tTVPBorderStyle>(border_style_); }
-HICON tTVPWindow::GetBigIcon() { return (HICON)SendMessage(GetHandle(), WM_GETICON, ICON_BIG, 0); }
+tTVPBorderStyle tTVPWindow::GetBorderStyle() const {
+    return static_cast<tTVPBorderStyle>(border_style_);
+}
+HICON tTVPWindow::GetBigIcon() {
+    return (HICON)SendMessage(GetHandle(), WM_GETICON, ICON_BIG, 0);
+}
 
-const UINT tTVPWindow::SIZE_CHANGE_FLAGS =
-    SWP_DEFERERASE | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER;
+const UINT tTVPWindow::SIZE_CHANGE_FLAGS = SWP_DEFERERASE | SWP_NOACTIVATE |
+    SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER;
 
 void tTVPWindow::SetWidth(int w) {
     RECT rect;
     if(::GetWindowRect(GetHandle(), &rect)) {
-        if(::SetWindowPos(GetHandle(), nullptr, rect.left, rect.top, w, rect.bottom - rect.top, SIZE_CHANGE_FLAGS) ==
-           0) {
+        if(::SetWindowPos(GetHandle(), nullptr, rect.left, rect.top, w,
+                          rect.bottom - rect.top, SIZE_CHANGE_FLAGS) == 0) {
             TVPThrowWindowsErrorException();
         }
     } else {
@@ -655,8 +730,8 @@ int tTVPWindow::GetWidth() const {
 void tTVPWindow::SetHeight(int h) {
     RECT rect;
     if(::GetWindowRect(GetHandle(), &rect)) {
-        if(::SetWindowPos(GetHandle(), nullptr, rect.left, rect.top, rect.right - rect.left, h, SIZE_CHANGE_FLAGS) ==
-           0) {
+        if(::SetWindowPos(GetHandle(), nullptr, rect.left, rect.top,
+                          rect.right - rect.left, h, SIZE_CHANGE_FLAGS) == 0) {
             TVPThrowWindowsErrorException();
         }
     } else {
@@ -677,7 +752,8 @@ int tTVPWindow::GetHeight() const {
 void tTVPWindow::SetSize(int w, int h) {
     RECT rect;
     if(::GetWindowRect(GetHandle(), &rect)) {
-        if(::SetWindowPos(GetHandle(), nullptr, rect.left, rect.top, w, h, SIZE_CHANGE_FLAGS) == 0) {
+        if(::SetWindowPos(GetHandle(), nullptr, rect.left, rect.top, w, h,
+                          SIZE_CHANGE_FLAGS) == 0) {
             TVPThrowWindowsErrorException();
         }
     } else {
@@ -693,13 +769,14 @@ void tTVPWindow::GetSize(int &w, int &h) {
         h = w = 0;
     }
 }
-const UINT tTVPWindow::POS_CHANGE_FLAGS =
-    SWP_DEFERERASE | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOOWNERZORDER | SWP_NOZORDER;
+const UINT tTVPWindow::POS_CHANGE_FLAGS = SWP_DEFERERASE | SWP_NOACTIVATE |
+    SWP_NOSIZE | SWP_NOOWNERZORDER | SWP_NOZORDER;
 
 void tTVPWindow::SetLeft(int l) {
     RECT rect;
     if(::GetWindowRect(GetHandle(), &rect)) {
-        if(::SetWindowPos(GetHandle(), nullptr, l, rect.top, rect.right - rect.left, rect.bottom - rect.top,
+        if(::SetWindowPos(GetHandle(), nullptr, l, rect.top,
+                          rect.right - rect.left, rect.bottom - rect.top,
                           POS_CHANGE_FLAGS) == 0) {
             TVPThrowWindowsErrorException();
         }
@@ -719,7 +796,8 @@ int tTVPWindow::GetLeft() const {
 void tTVPWindow::SetTop(int t) {
     RECT rect;
     if(::GetWindowRect(GetHandle(), &rect)) {
-        if(::SetWindowPos(GetHandle(), nullptr, rect.left, t, rect.right - rect.left, rect.bottom - rect.top,
+        if(::SetWindowPos(GetHandle(), nullptr, rect.left, t,
+                          rect.right - rect.left, rect.bottom - rect.top,
                           POS_CHANGE_FLAGS) == 0) {
             TVPThrowWindowsErrorException();
         }
@@ -739,8 +817,8 @@ int tTVPWindow::GetTop() const {
 void tTVPWindow::SetPosition(int l, int t) {
     RECT rect;
     if(::GetWindowRect(GetHandle(), &rect)) {
-        if(::SetWindowPos(GetHandle(), nullptr, l, t, rect.right - rect.left, rect.bottom - rect.top,
-                          POS_CHANGE_FLAGS) == 0) {
+        if(::SetWindowPos(GetHandle(), nullptr, l, t, rect.right - rect.left,
+                          rect.bottom - rect.top, POS_CHANGE_FLAGS) == 0) {
             TVPThrowWindowsErrorException();
         }
     } else {
@@ -749,7 +827,8 @@ void tTVPWindow::SetPosition(int l, int t) {
 }
 void tTVPWindow::SetBounds(int x, int y, int width, int height) {
     if(::SetWindowPos(GetHandle(), nullptr, x, y, width, height,
-                      SWP_DEFERERASE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER) == 0) {
+                      SWP_DEFERERASE | SWP_NOACTIVATE | SWP_NOOWNERZORDER |
+                          SWP_NOZORDER) == 0) {
         TVPThrowWindowsErrorException();
     }
 }
@@ -804,14 +883,16 @@ void tTVPWindow::SetInnerSize(int w, int h) {
 }
 
 void tTVPWindow::BringToFront() {
-    if(::SetWindowPos(GetHandle(), HWND_TOP, 0, 0, 0, 0, (SWP_SHOWWINDOW | SWP_NOMOVE | SWP_NOSIZE)) == 0) {
+    if(::SetWindowPos(GetHandle(), HWND_TOP, 0, 0, 0, 0,
+                      (SWP_SHOWWINDOW | SWP_NOMOVE | SWP_NOSIZE)) == 0) {
         TVPThrowWindowsErrorException();
     }
 }
 void tTVPWindow::SetStayOnTop(bool b) {
-    static const UINT flags =
-        SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOSENDCHANGING;
-    if(::SetWindowPos(GetHandle(), b ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, flags) == 0) {
+    static const UINT flags = SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW |
+        SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOSENDCHANGING;
+    if(::SetWindowPos(GetHandle(), b ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0,
+                      0, flags) == 0) {
         TVPThrowWindowsErrorException();
     }
 }

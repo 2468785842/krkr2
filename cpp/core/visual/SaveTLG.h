@@ -32,7 +32,8 @@ private:
     void DeleteMap(int p);
 
 public:
-    void Encode(const unsigned char *in, long inlen, unsigned char *out, long &outlen);
+    void Encode(const unsigned char *in, long inlen, unsigned char *out,
+                long &outlen);
 
     void Store();
     void Restore();

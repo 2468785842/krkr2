@@ -27,7 +27,8 @@
 namespace TJS {
 
     //---------------------------------------------------------------------------
-    // ObjectHashMap : hash map to track object construction/destruction
+    // ObjectHashMap : hash map to track object
+    // construction/destruction
     //--------------------------------------------------------------------------
     tTJSBinaryStream *TJSObjectHashMapLog = nullptr; // log file object
     //---------------------------------------------------------------------------
@@ -80,7 +81,8 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     template <>
-    void TJSStoreLog<tTJSObjectHashMapLogItemId>(const tTJSObjectHashMapLogItemId &id) {
+    void TJSStoreLog<tTJSObjectHashMapLogItemId>(
+        const tTJSObjectHashMapLogItemId &id) {
         // log item id
         char cid = id;
         TJSObjectHashMapLog->Write(&cid, sizeof(char));
@@ -99,7 +101,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
     struct tTJSObjectHashMapRecord {
         ttstr History; // call history where the object was created
-        ttstr Where; // a label which indicates where the object was created
+        ttstr Where; // a label which indicates where the object was
+                     // created
         ttstr Type; // object type ("class Array" etc)
         tjs_uint32 Flags;
 
@@ -125,7 +128,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
     class tTJSObjectHashMapRecordComparator_HistoryAndType {
     public:
-        bool operator()(const tTJSObjectHashMapRecord &lhs, const tTJSObjectHashMapRecord &rhs) const {
+        bool operator()(const tTJSObjectHashMapRecord &lhs,
+                        const tTJSObjectHashMapRecord &rhs) const {
             if(lhs.Where == rhs.Where)
                 return lhs.Type < rhs.Type;
             return lhs.History < rhs.History;
@@ -134,7 +138,8 @@ namespace TJS {
 
     class tTJSObjectHashMapRecordComparator_Type {
     public:
-        bool operator()(const tTJSObjectHashMapRecord &lhs, const tTJSObjectHashMapRecord &rhs) const {
+        bool operator()(const tTJSObjectHashMapRecord &lhs,
+                        const tTJSObjectHashMapRecord &rhs) const {
             return lhs.Type < rhs.Type;
         }
     };
@@ -145,7 +150,9 @@ namespace TJS {
     tTJSObjectHashMap *TJSObjectHashMap;
 
     class tTJSObjectHashMap {
-        typedef tTJSHashTable<void *, tTJSObjectHashMapRecord, tTJSHashFunc<void *>, 1024> tHash;
+        typedef tTJSHashTable<void *, tTJSObjectHashMapRecord,
+                              tTJSHashFunc<void *>, 1024>
+            tHash;
         tHash Hash;
 
         tjs_int RefCount;
@@ -182,7 +189,9 @@ namespace TJS {
                 TJSObjectHashMap->_Release();
         }
 
-        void Add(void *object, const tTJSObjectHashMapRecord &record) { Hash.Add(object, record); }
+        void Add(void *object, const tTJSObjectHashMapRecord &record) {
+            Hash.Add(object, record);
+        }
 
         void SetType(void *object, const ttstr &info) {
             tTJSObjectHashMapRecord *rec;
@@ -200,7 +209,8 @@ namespace TJS {
             return rec->Type;
         }
 
-        void SetFlag(void *object, tjs_uint32 flags_to_change, tjs_uint32 bits) {
+        void SetFlag(void *object, tjs_uint32 flags_to_change,
+                     tjs_uint32 bits) {
             tTJSObjectHashMapRecord *rec;
             rec = Hash.Find(object);
             if(!rec)
@@ -250,7 +260,8 @@ namespace TJS {
             // list all unfreed objects
             tHash::tIterator i;
             for(i = Hash.GetFirst(); !i.IsNull(); i++) {
-                ttstr addr{ fmt::format("0x{:p}", static_cast<void *>(i.GetKey())) };
+                ttstr addr{ fmt::format("0x{:p}",
+                                        static_cast<void *>(i.GetKey())) };
                 ttstr info = (const tjs_char *)TJSObjectWasNotFreed;
                 info.Replace(TJS_W("%1"), addr);
                 info.Replace(TJS_W("%2"), i.GetValue().Type);
@@ -265,15 +276,20 @@ namespace TJS {
             for(i = Hash.GetFirst(); !i.IsNull(); i++)
                 items.push_back(i.GetValue());
 
-            std::stable_sort(items.begin(), items.end(), tTJSObjectHashMapRecordComparator_HistoryAndType());
+            std::stable_sort(
+                items.begin(), items.end(),
+                tTJSObjectHashMapRecordComparator_HistoryAndType());
 
             ttstr history, type;
             tjs_int count = 0;
             if(!items.empty()) {
                 for(auto i = items.begin();; i++) {
-                    if(i != items.begin() && (i == items.end() || history != i->History || type != i->Type)) {
+                    if(i != items.begin() &&
+                       (i == items.end() || history != i->History ||
+                        type != i->Type)) {
                         ttstr tmp{ fmt::format("{}", static_cast<int>(count)) };
-                        ttstr info = (const tjs_char *)TJSObjectCountingMessageGroupByObjectTypeAndHistory;
+                        ttstr info = (const tjs_char *)
+                            TJSObjectCountingMessageGroupByObjectTypeAndHistory;
                         info.Replace(TJS_W("%1"), tmp);
                         info.Replace(TJS_W("%2"), type);
                         info.Replace(TJS_W("%3"), history);
@@ -294,15 +310,18 @@ namespace TJS {
             // group by object type
             output->Print(TJS_W("---"));
             output->Print((const tjs_char *)TJSGroupByObjectType);
-            std::stable_sort(items.begin(), items.end(), tTJSObjectHashMapRecordComparator_Type());
+            std::stable_sort(items.begin(), items.end(),
+                             tTJSObjectHashMapRecordComparator_Type());
 
             type.Clear();
             count = 0;
             if(!items.empty()) {
                 for(auto i = items.begin();; i++) {
-                    if(i != items.begin() && (i == items.end() || type != i->Type)) {
+                    if(i != items.begin() &&
+                       (i == items.end() || type != i->Type)) {
                         ttstr tmp{ fmt::format("{}", static_cast<int>(count)) };
-                        ttstr info = (const tjs_char *)TJSObjectCountingMessageTJSGroupByObjectType;
+                        ttstr info = (const tjs_char *)
+                            TJSObjectCountingMessageTJSGroupByObjectType;
                         info.Replace(TJS_W("%1"), tmp);
                         info.Replace(TJS_W("%2"), type);
                         output->Print(info.c_str());
@@ -336,11 +355,13 @@ namespace TJS {
         void ReplayLog() {
             // replay recorded log
             while(true) {
-                tTJSObjectHashMapLogItemId id = TJSRestoreLog<tTJSObjectHashMapLogItemId>();
+                tTJSObjectHashMapLogItemId id =
+                    TJSRestoreLog<tTJSObjectHashMapLogItemId>();
                 if(id == liiEnd) // 00 end of the log
                 {
                     break;
-                } else if(id == liiVersion) // 01 identify log structure version
+                } else if(id == liiVersion) // 01 identify log
+                                            // structure version
                 {
                     tjs_int v = TJSRestoreLog<tjs_int>();
                     if(v != TJSVersionHex)
@@ -355,7 +376,8 @@ namespace TJS {
                 {
                     void *object = TJSRestoreLog<void *>();
                     Remove(object);
-                } else if(id == liiSetType) // 04 set object type information
+                } else if(id == liiSetType) // 04 set object type
+                                            // information
                 {
                     void *object = TJSRestoreLog<void *>();
                     ttstr type = TJSRestoreLog<ttstr>();
@@ -386,13 +408,16 @@ namespace TJS {
 
         // create object record and log
         tTJSObjectHashMapRecord rec;
-        ttstr hist(TJSGetStackTraceString(4, (const tjs_char *)(TJSObjectCreationHistoryDelimiter)));
+        ttstr hist(TJSGetStackTraceString(
+            4, (const tjs_char *)(TJSObjectCreationHistoryDelimiter)));
         if(hist.IsEmpty())
-            hist = TJSMapGlobalStringMap((const tjs_char *)TJSCallHistoryIsFromOutOfTJS2Script);
+            hist = TJSMapGlobalStringMap(
+                (const tjs_char *)TJSCallHistoryIsFromOutOfTJS2Script);
         rec.History = hist;
         ttstr where(TJSGetStackTraceString(1));
         if(where.IsEmpty())
-            where = TJSMapGlobalStringMap((const tjs_char *)TJSCallHistoryIsFromOutOfTJS2Script);
+            where = TJSMapGlobalStringMap(
+                (const tjs_char *)TJSCallHistoryIsFromOutOfTJS2Script);
         rec.Where = where;
         static ttstr InitialType(TJS_W("unknown type"));
         rec.Type = InitialType;
@@ -428,7 +453,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void TJSSetObjectHashFlag(void *object, tjs_uint32 flags_to_change, tjs_uint32 bits) {
+    void TJSSetObjectHashFlag(void *object, tjs_uint32 flags_to_change,
+                              tjs_uint32 bits) {
         if(TJSObjectHashMap) {
             TJSObjectHashMap->SetFlag(object, flags_to_change, bits);
         } else if(TJSObjectHashMapLog) {
@@ -455,7 +481,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
     void TJSObjectHashMapSetLog(tTJSBinaryStream *stream) {
         // Set log object. The log file object should not freed until
-        // the program (the program is the Process, not RTL nor TJS2 framework).
+        // the program (the program is the Process, not RTL nor TJS2
+        // framework).
         TJSObjectHashMapLog = stream;
         TJSStoreLog(liiVersion);
         TJSStoreLog(TJSVersionHex);
@@ -579,11 +606,14 @@ namespace TJS {
                 TJSStackTracer->_Release();
         }
 
-        void Push(tTJSInterCodeContext *context, bool in_try) { Stack.push_back(tTJSStackRecord(context, in_try)); }
+        void Push(tTJSInterCodeContext *context, bool in_try) {
+            Stack.push_back(tTJSStackRecord(context, in_try));
+        }
 
         void Pop() { Stack.pop_back(); }
 
-        void SetCodePointer(const tjs_int32 *codebase, tjs_int32 *const *codeptr) {
+        void SetCodePointer(const tjs_int32 *codebase,
+                            tjs_int32 *const *codeptr) {
             tjs_uint size = (tjs_uint)Stack.size();
             if(size < 1)
                 return;
@@ -606,7 +636,8 @@ namespace TJS {
                 const tTJSStackRecord &rec = Stack[top];
                 ttstr str;
                 if(rec.CodeBase && rec.CodePtr) {
-                    str = rec.Context->GetPositionDescriptionString((tjs_int)(*rec.CodePtr - rec.CodeBase));
+                    str = rec.Context->GetPositionDescriptionString(
+                        (tjs_int)(*rec.CodePtr - rec.CodeBase));
                 } else {
                     str = rec.Context->GetPositionDescriptionString(0);
                 }
@@ -614,8 +645,8 @@ namespace TJS {
                 ret += str;
 
                 // skip try block stack.
-                // 'try { } catch' blocks are implemented as sub-functions
-                // in a parent function.
+                // 'try { } catch' blocks are implemented as
+                // sub-functions in a parent function.
                 while(top >= 0 && Stack[top].InTry)
                     top--;
 
@@ -646,7 +677,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    void TJSStackTracerSetCodePointer(const tjs_int32 *codebase, tjs_int32 *const *codeptr) {
+    void TJSStackTracerSetCodePointer(const tjs_int32 *codebase,
+                                      tjs_int32 *const *codeptr) {
         if(TJSStackTracer)
             TJSStackTracer->SetCodePointer(codebase, codeptr);
     }

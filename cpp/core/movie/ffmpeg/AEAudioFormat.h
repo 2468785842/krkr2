@@ -7,7 +7,8 @@
 
 NS_KRMOVIE_BEGIN
 /**
- * The audio format structure that fully defines a stream's audio information
+ * The audio format structure that fully defines a stream's audio
+ * information
  */
 struct AEAudioFormat {
     /**
@@ -48,8 +49,10 @@ struct AEAudioFormat {
     }
 
     bool operator==(const AEAudioFormat &fmt) const {
-        return m_dataFormat == fmt.m_dataFormat && m_sampleRate == fmt.m_sampleRate &&
-            m_channelLayout == fmt.m_channelLayout && m_frames == fmt.m_frames && m_frameSize == fmt.m_frameSize &&
+        return m_dataFormat == fmt.m_dataFormat &&
+            m_sampleRate == fmt.m_sampleRate &&
+            m_channelLayout == fmt.m_channelLayout &&
+            m_frames == fmt.m_frames && m_frameSize == fmt.m_frameSize &&
             m_streamInfo == fmt.m_streamInfo;
     }
 

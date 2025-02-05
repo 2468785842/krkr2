@@ -158,8 +158,8 @@ void tTVPThreadEvent::Set() {
 //---------------------------------------------------------------------------
 void tTVPThreadEvent::WaitFor(tjs_uint timeout) {
     // wait for event;
-    // returns true if the event is set, otherwise (when timed out) returns
-    // false.
+    // returns true if the event is set, otherwise (when timed out)
+    // returns false.
 
     std::unique_lock<std::mutex> lk(Mutex);
     if(timeout != 0) {
@@ -188,7 +188,8 @@ static tjs_int GetProcesserNum() {
     if(!processor_num) {
         processor_num = std::thread::hardware_concurrency();
         tjs_char tmp[34];
-        TVPAddLog(ttstr(TJS_W("Detected CPU core(s): ")) + TJS_tTVInt_to_str(processor_num, tmp));
+        TVPAddLog(ttstr(TJS_W("Detected CPU core(s): ")) +
+                  TJS_tTVInt_to_str(processor_num, tmp));
     }
     return processor_num;
 }
@@ -241,4 +242,6 @@ void TVPOnThreadExited() {
     }
 }
 
-void TVPAddOnThreadExitEvent(const std::function<void()> &ev) { _OnThreadExitedEvents.emplace_back(ev); }
+void TVPAddOnThreadExitEvent(const std::function<void()> &ev) {
+    _OnThreadExitedEvents.emplace_back(ev);
+}

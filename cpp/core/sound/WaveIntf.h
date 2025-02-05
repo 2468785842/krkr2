@@ -25,7 +25,8 @@ typedef tTVReal D3DVALUE;
 enum tTVPSoundGlobalFocusMode {
     /*0*/ sgfmNeverMute, // never mutes
     /*1*/ sgfmMuteOnMinimize, // will mute on the application minimize
-    /*2*/ sgfmMuteOnDeactivate // will mute on the application deactivation
+    /*2*/ sgfmMuteOnDeactivate // will mute on the application
+                               // deactivation
 };
 //---------------------------------------------------------------------------
 
@@ -59,18 +60,22 @@ struct tTVPWaveFormat {
 // PCM bit depth converter
 //---------------------------------------------------------------------------
 TJS_EXP_FUNC_DEF(void, TVPConvertPCMTo16bits,
-                 (tjs_int16 * output, const void *input, const tTVPWaveFormat &format, tjs_int count, bool downmix));
+                 (tjs_int16 * output, const void *input,
+                  const tTVPWaveFormat &format, tjs_int count, bool downmix));
 
 TJS_EXP_FUNC_DEF(void, TVPConvertPCMTo16bits,
-                 (tjs_int16 * output, const void *input, tjs_int channels, tjs_int bytespersample,
-                  tjs_int bitspersample, bool isfloat, tjs_int count, bool downmix));
+                 (tjs_int16 * output, const void *input, tjs_int channels,
+                  tjs_int bytespersample, tjs_int bitspersample, bool isfloat,
+                  tjs_int count, bool downmix));
 
 TJS_EXP_FUNC_DEF(void, TVPConvertPCMToFloat,
-                 (float *output, const void *input, tjs_int channels, tjs_int bytespersample, tjs_int bitspersample,
-                  bool isfloat, tjs_int count));
+                 (float *output, const void *input, tjs_int channels,
+                  tjs_int bytespersample, tjs_int bitspersample, bool isfloat,
+                  tjs_int count));
 
 TJS_EXP_FUNC_DEF(void, TVPConvertPCMToFloat,
-                 (float *output, const void *input, const tTVPWaveFormat &format, tjs_int count));
+                 (float *output, const void *input,
+                  const tTVPWaveFormat &format, tjs_int count));
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -84,23 +89,24 @@ public:
 
     /* Retrieve PCM format, etc. */
 
-    virtual bool Render(void *buf, tjs_uint bufsamplelen, tjs_uint &rendered) = 0;
+    virtual bool Render(void *buf, tjs_uint bufsamplelen,
+                        tjs_uint &rendered) = 0;
 
     /*
         Render PCM from current position.
-        where "buf" is a destination buffer, "bufsamplelen" is the buffer's
-        length in sample granule, "rendered" is to be an actual number of
-        written sample granule.
-        returns whether the decoding is to be continued.
-        because "redered" can be lesser than "bufsamplelen", the player
-        should not end until the returned value becomes false.
+        where "buf" is a destination buffer, "bufsamplelen" is the
+       buffer's length in sample granule, "rendered" is to be an
+       actual number of written sample granule. returns whether the
+       decoding is to be continued. because "redered" can be lesser
+       than "bufsamplelen", the player should not end until the
+       returned value becomes false.
     */
 
     virtual bool SetPosition(tjs_uint64 samplepos) = 0;
 
     /*
-        Seek to "samplepos". "samplepos" must be given in unit of sample
-       granule. returns whether the seeking is succeeded.
+        Seek to "samplepos". "samplepos" must be given in unit of
+       sample granule. returns whether the seeking is succeeded.
     */
 
     virtual bool DesiredFormat(const tTVPWaveFormat &format) { return false; }
@@ -109,7 +115,8 @@ public:
 //---------------------------------------------------------------------------
 class tTVPWaveDecoderCreator {
 public:
-    virtual tTVPWaveDecoder *Create(const ttstr &storagename, const ttstr &extension) = 0;
+    virtual tTVPWaveDecoder *Create(const ttstr &storagename,
+                                    const ttstr &extension) = 0;
     /*
         Create tTVPWaveDecoder instance. returns nullptr if failed.
     */
@@ -133,8 +140,10 @@ class tTVPSampleAndLabelSource;
 
 class iTVPBasicWaveFilter {
 public:
-    // recreate filter. filter will remain owned by the each filter instance.
-    virtual tTVPSampleAndLabelSource *Recreate(tTVPSampleAndLabelSource *source) = 0;
+    // recreate filter. filter will remain owned by the each filter
+    // instance.
+    virtual tTVPSampleAndLabelSource *
+    Recreate(tTVPSampleAndLabelSource *source) = 0;
 
     virtual void Clear() = 0;
 
@@ -158,13 +167,16 @@ class tTJSNI_BaseWaveSoundBuffer : public tTJSNI_SoundBuffer {
     struct tFilterObjectAndInterface {
         tTJSVariant Filter; // filter object
         iTVPBasicWaveFilter *Interface; // filter interface
-        tFilterObjectAndInterface(const tTJSVariant &filter, iTVPBasicWaveFilter *interf) :
-            Filter(filter), Interface(interf) {
+        tFilterObjectAndInterface(const tTJSVariant &filter,
+                                  iTVPBasicWaveFilter *interf) :
+            Filter(filter),
+            Interface(interf) {
             ;
         }
     };
 
-    std::vector<tFilterObjectAndInterface> FilterInterfaces; // backupped filter interface array
+    std::vector<tFilterObjectAndInterface>
+        FilterInterfaces; // backupped filter interface array
 
 protected:
     tTVPWaveLoopManager *LoopManager; // will be set by tTJSNI_WaveSoundBuffer
@@ -173,9 +185,10 @@ protected:
 public:
     tTJSNI_BaseWaveSoundBuffer();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
 
-    void TJS_INTF_METHOD Invalidate();
+    void Invalidate();
 
 protected:
     void InvokeLabelEvent(const ttstr &name);
@@ -237,9 +250,10 @@ public:
 
     ~tTJSNI_WaveFlags();
 
-    tjs_error TJS_INTF_METHOD Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                        iTJSDispatch2 *tjs_obj);
 
-    void TJS_INTF_METHOD Invalidate();
+    void Invalidate();
 
     tTJSNI_WaveSoundBuffer *GetBuffer() const { return Buffer; }
 };
@@ -255,7 +269,9 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance() { return new tTJSNI_WaveFlags(); }
+    tTJSNativeInstance *CreateNativeInstance() {
+        return new tTJSNI_WaveFlags();
+    }
 };
 
 //---------------------------------------------------------------------------

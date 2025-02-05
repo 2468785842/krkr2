@@ -37,7 +37,9 @@ FT_Library &TVPGetFontLibrary() {
         FT_Error error = FT_Init_FreeType(&TVPFontLibrary);
         if(error)
             TVPThrowExceptionMessage(
-                (ttstr(TJS_W("Initialize FreeType failed, error = ")) + TJSIntegerToString((tjs_int)error)).c_str());
+                (ttstr(TJS_W("Initialize FreeType failed, error = ")) +
+                 TJSIntegerToString((tjs_int)error))
+                    .c_str());
         TVPInitFontNames();
     }
     return TVPFontLibrary;
@@ -48,19 +50,23 @@ void TVPReleaseFontLibrary() {
     }
 }
 //---------------------------------------------------------------------------
-static int TVPInternalEnumFonts(FT_Byte *pBuf, int buflen, const ttstr &FontPath,
-                                const std::function<tTJSBinaryStream *(TVPFontNamePathInfo *)> &getter) {
+static int TVPInternalEnumFonts(
+    FT_Byte *pBuf, int buflen, const ttstr &FontPath,
+    const std::function<tTJSBinaryStream *(TVPFontNamePathInfo *)> &getter) {
     unsigned int faceCount = 0;
     FT_Face fontface;
-    FT_Error error = FT_New_Memory_Face(TVPGetFontLibrary(), pBuf, buflen, 0, &fontface);
+    FT_Error error =
+        FT_New_Memory_Face(TVPGetFontLibrary(), pBuf, buflen, 0, &fontface);
     if(error) {
-        TVPAddLog(ttstr(TJS_W("Load Font \"") + FontPath + "\" failed (" + TJSIntegerToString((int)error) + ")"));
+        TVPAddLog(ttstr(TJS_W("Load Font \"") + FontPath + "\" failed (" +
+                        TJSIntegerToString((int)error) + ")"));
         return faceCount;
     }
     int nFaceNum = fontface->num_faces;
     for(int i = 0; i < nFaceNum; ++i) {
         if(i > 0) {
-            if(FT_New_Memory_Face(TVPGetFontLibrary(), pBuf, buflen, i, &fontface)) {
+            if(FT_New_Memory_Face(TVPGetFontLibrary(), pBuf, buflen, i,
+                                  &fontface)) {
                 continue;
             }
         }
@@ -97,7 +103,8 @@ static int TVPInternalEnumFonts(FT_Byte *pBuf, int buflen, const ttstr &FontPath
                     int namelen = name.string_len / 2;
                     tmp.resize(namelen + 1);
                     for(int j = 0; j < namelen; ++j) {
-                        tmp[j] = (name.string[j * 2] << 8) | (name.string[j * 2 + 1]);
+                        tmp[j] = (name.string[j * 2] << 8) |
+                            (name.string[j * 2 + 1]);
                     }
                     fontname = &tmp.front();
                 } else {
@@ -172,7 +179,9 @@ void TVPInitFontNames() {
     std::vector<ttstr> pathlist = Android_GetExternalStoragePath();
 #endif
     do {
-        ttstr userFont = IndividualConfigManager::GetInstance()->GetValue<std::string>("default_font", "");
+        ttstr userFont =
+            IndividualConfigManager::GetInstance()->GetValue<std::string>(
+                "default_font", "");
         if(!userFont.IsEmpty() && TVPEnumFontsProc(userFont))
             break;
 
@@ -198,21 +207,26 @@ void TVPInitFontNames() {
             break;
 
         { // from internal storage
-            auto data = cocos2d::FileUtils::getInstance()->getDataFromFile("DroidSansFallback.ttf");
-            if(TVPInternalEnumFonts(data.getBytes(), data.getSize(), "DroidSansFallback.ttf",
-                                    [](TVPFontNamePathInfo *info) -> tTJSBinaryStream * {
-                                        auto data = cocos2d::FileUtils::getInstance()->getDataFromFile(
-                                            info->Path.AsStdString());
-                                        tTVPMemoryStream *ret = new tTVPMemoryStream();
-                                        ret->WriteBuffer(data.getBytes(), data.getSize());
-                                        ret->SetPosition(0);
-                                        return ret;
-                                    }))
+            auto data = cocos2d::FileUtils::getInstance()->getDataFromFile(
+                "DroidSansFallback.ttf");
+            if(TVPInternalEnumFonts(
+                   data.getBytes(), data.getSize(), "DroidSansFallback.ttf",
+                   [](TVPFontNamePathInfo *info) -> tTJSBinaryStream * {
+                       auto data =
+                           cocos2d::FileUtils::getInstance()->getDataFromFile(
+                               info->Path.AsStdString());
+                       tTVPMemoryStream *ret = new tTVPMemoryStream();
+                       ret->WriteBuffer(data.getBytes(), data.getSize());
+                       ret->SetPosition(0);
+                       return ret;
+                   }))
                 break;
         }
-        if(TVPEnumFontsProc(TJS_W("file://./system/fonts/DroidSansFallback.ttf")))
+        if(TVPEnumFontsProc(
+               TJS_W("file://./system/fonts/DroidSansFallback.ttf")))
             break;
-        if(TVPEnumFontsProc(TJS_W("file://./system/fonts/NotoSansHans-Regular.otf")))
+        if(TVPEnumFontsProc(
+               TJS_W("file://./system/fonts/NotoSansHans-Regular.otf")))
             break;
         if(TVPEnumFontsProc(TJS_W("file://./system/fonts/DroidSans.ttf")))
             break;
@@ -223,7 +237,9 @@ void TVPInitFontNames() {
             break;
 #endif
 
-        std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename("DroidSansFallback.ttf");
+        std::string fullPath =
+            cocos2d::FileUtils::getInstance()->fullPathForFilename(
+                "DroidSansFallback.ttf");
         if(TVPEnumFontsProc(fullPath))
             break;
     } while(false);
@@ -241,7 +257,8 @@ void TVPInitFontNames() {
             }
         };
 #ifdef __ANDROID__
-        TVPGetLocalFileListAt(Android_GetInternalStoragePath() + "/fonts", lister);
+        TVPGetLocalFileListAt(Android_GetInternalStoragePath() + "/fonts",
+                              lister);
         for(const ttstr &path : pathlist) {
             TVPGetLocalFileListAt(path + "/fonts", lister);
         }
@@ -254,9 +271,10 @@ void TVPInitFontNames() {
     }
 
     if(TVPDefaultFontName.IsEmpty()) {
-        TVPShowSimpleMessageBox(("Could not found any font.\nPlease ensure that at "
-                                 "least \"default.ttf\" exists"),
-                                "Exception Occured");
+        TVPShowSimpleMessageBox(
+            ("Could not found any font.\nPlease ensure that at "
+             "least \"default.ttf\" exists"),
+            "Exception Occured");
     }
 }
 //---------------------------------------------------------------------------

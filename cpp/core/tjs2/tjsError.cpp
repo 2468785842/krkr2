@@ -30,19 +30,22 @@ namespace TJS {
         iTJSDispatch2 *global = tjs->GetGlobalNoAddRef();
         tTJSVariant val;
         static tTJSString Exception_name(TJS_W("Exception"));
-        tjs_error hr = global->PropGet(0, Exception_name.c_str(), Exception_name.GetHint(), &val, global);
+        tjs_error hr = global->PropGet(0, Exception_name.c_str(),
+                                       Exception_name.GetHint(), &val, global);
         if(TJS_FAILED(hr))
             TJS_eTJSError(TJSExceptionNotFound);
         // create an Exception object
         iTJSDispatch2 *excpobj;
         tTJSVariantClosure clo = val.AsObjectClosureNoAddRef();
         tTJSVariant *pmsg = &msg;
-        hr = clo.CreateNew(0, nullptr, nullptr, &excpobj, 1, &pmsg, clo.ObjThis);
+        hr =
+            clo.CreateNew(0, nullptr, nullptr, &excpobj, 1, &pmsg, clo.ObjThis);
         if(TJS_FAILED(hr))
             TJS_eTJSError(TJSExceptionNotFound);
         if(trace) {
             static tTJSString trace_name(TJS_W("trace"));
-            excpobj->PropSet(TJS_MEMBERENSURE, trace_name.c_str(), trace_name.GetHint(), trace, excpobj);
+            excpobj->PropSet(TJS_MEMBERENSURE, trace_name.c_str(),
+                             trace_name.GetHint(), trace, excpobj);
         }
         *res = tTJSVariant(excpobj, excpobj);
         excpobj->Release();
@@ -52,26 +55,34 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // eTJSScriptException
     //---------------------------------------------------------------------------
-    eTJSScriptError::tScriptBlockHolder::tScriptBlockHolder(tTJSScriptBlock *block) {
+    eTJSScriptError::tScriptBlockHolder::tScriptBlockHolder(
+        tTJSScriptBlock *block) {
         Block = block;
         Block->AddRef();
     }
 
     //---------------------------------------------------------------------------
-    eTJSScriptError::tScriptBlockHolder::~tScriptBlockHolder() { Block->Release(); }
+    eTJSScriptError::tScriptBlockHolder::~tScriptBlockHolder() {
+        Block->Release();
+    }
 
     //---------------------------------------------------------------------------
-    eTJSScriptError::tScriptBlockHolder::tScriptBlockHolder(const tScriptBlockHolder &Holder) {
+    eTJSScriptError::tScriptBlockHolder::tScriptBlockHolder(
+        const tScriptBlockHolder &Holder) {
         Block = Holder.Block;
         Block->AddRef();
     }
 
     //---------------------------------------------------------------------------
-    eTJSScriptError::eTJSScriptError(const ttstr &Msg, tTJSScriptBlock *block, tjs_int pos) :
-        eTJSError(Msg), Block(block), Position(pos) {}
+    eTJSScriptError::eTJSScriptError(const ttstr &Msg, tTJSScriptBlock *block,
+                                     tjs_int pos) :
+        eTJSError(Msg),
+        Block(block), Position(pos) {}
 
     //---------------------------------------------------------------------------
-    tjs_int eTJSScriptError::GetSourceLine() const { return Block.Block->SrcPosToLine(Position) + 1; }
+    tjs_int eTJSScriptError::GetSourceLine() const {
+        return Block.Block->SrcPosToLine(Position) + 1;
+    }
 
     //---------------------------------------------------------------------------
     const tjs_char *eTJSScriptError::GetBlockName() const {
@@ -93,7 +104,8 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    bool eTJSScriptError::AddTrace(tTJSInterCodeContext *context, tjs_int codepos) {
+    bool eTJSScriptError::AddTrace(tTJSInterCodeContext *context,
+                                   tjs_int codepos) {
         tjs_int len = Trace.GetLen();
         if(len >= TJS_MAX_TRACE_TEXT_LEN)
             return false;
@@ -121,19 +133,27 @@ namespace TJS {
     // throw helper functions
     //---------------------------------------------------------------------------
     //---------------------------------------------------------------------------
-    static void TJSReportExceptionSource(const ttstr &msg, tTJSScriptBlock *block, tjs_int srcpos) {
+    static void TJSReportExceptionSource(const ttstr &msg,
+                                         const tTJSScriptBlock *block,
+                                         tjs_int srcpos) {
         if(TJSEnableDebugMode) {
             tTJS *tjs = block->GetTJS();
-            tjs->OutputExceptionToConsole((msg + TJS_W(" at ") + block->GetLineDescriptionString(srcpos)).c_str());
+            tjs->OutputExceptionToConsole(
+                (msg + TJS_W(" at ") + block->GetLineDescriptionString(srcpos))
+                    .c_str());
         }
     }
 
     //---------------------------------------------------------------------------
-    static void TJSReportExceptionSource(const ttstr &msg, tTJSInterCodeContext *context, tjs_int codepos) {
+    static void TJSReportExceptionSource(const ttstr &msg,
+                                         const tTJSInterCodeContext *context,
+                                         tjs_int codepos) {
         if(TJSEnableDebugMode) {
             tTJS *tjs = context->GetBlock()->GetTJS();
             tjs->OutputExceptionToConsole(
-                (msg + TJS_W(" at ") + context->GetPositionDescriptionString(codepos)).c_str());
+                (msg + TJS_W(" at ") +
+                 context->GetPositionDescriptionString(codepos))
+                    .c_str());
         }
     }
 
@@ -148,65 +168,82 @@ namespace TJS {
     //---------------------------------------------------------------------------
     void TJS_eTJSVariantError(const ttstr &msg) { throw eTJSVariantError(msg); }
 
-    void TJS_eTJSVariantError(const tjs_char *msg) { throw eTJSVariantError(msg); }
+    void TJS_eTJSVariantError(const tjs_char *msg) {
+        throw eTJSVariantError(msg);
+    }
 
     //---------------------------------------------------------------------------
-    void TJS_eTJSScriptError(const ttstr &msg, tTJSScriptBlock *block, tjs_int srcpos) {
+    void TJS_eTJSScriptError(const ttstr &msg, tTJSScriptBlock *block,
+                             tjs_int srcpos) {
         TJSReportExceptionSource(msg, block, srcpos);
         throw eTJSScriptError(msg, block, srcpos);
     }
 
     //---------------------------------------------------------------------------
-    void TJS_eTJSScriptError(const tjs_char *msg, tTJSScriptBlock *block, tjs_int srcpos) {
+    void TJS_eTJSScriptError(const tjs_char *msg, tTJSScriptBlock *block,
+                             tjs_int srcpos) {
         TJSReportExceptionSource(msg, block, srcpos);
         throw eTJSScriptError(msg, block, srcpos);
     }
 
     //---------------------------------------------------------------------------
-    void TJS_eTJSScriptError(const ttstr &msg, tTJSInterCodeContext *context, tjs_int codepos) {
+    void TJS_eTJSScriptError(const ttstr &msg, tTJSInterCodeContext *context,
+                             tjs_int codepos) {
         TJSReportExceptionSource(msg, context, codepos);
-        throw eTJSScriptError(msg, context->GetBlock(), context->CodePosToSrcPos(codepos));
+        throw eTJSScriptError(msg, context->GetBlock(),
+                              context->CodePosToSrcPos(codepos));
     }
 
     //---------------------------------------------------------------------------
-    void TJS_eTJSScriptError(const tjs_char *msg, tTJSInterCodeContext *context, tjs_int codepos) {
+    void TJS_eTJSScriptError(const tjs_char *msg, tTJSInterCodeContext *context,
+                             tjs_int codepos) {
         TJSReportExceptionSource(msg, context, codepos);
-        throw eTJSScriptError(msg, context->GetBlock(), context->CodePosToSrcPos(codepos));
+        throw eTJSScriptError(msg, context->GetBlock(),
+                              context->CodePosToSrcPos(codepos));
     }
 
     //---------------------------------------------------------------------------
-    void TJS_eTJSScriptException(const ttstr &msg, tTJSScriptBlock *block, tjs_int srcpos, tTJSVariant &val) {
+    void TJS_eTJSScriptException(const ttstr &msg, tTJSScriptBlock *block,
+                                 tjs_int srcpos, tTJSVariant &val) {
         TJSReportExceptionSource(msg, block, srcpos);
         throw eTJSScriptException(msg, block, srcpos, val);
     }
 
     //---------------------------------------------------------------------------
-    void TJS_eTJSScriptException(const tjs_char *msg, tTJSScriptBlock *block, tjs_int srcpos, tTJSVariant &val) {
+    void TJS_eTJSScriptException(const tjs_char *msg, tTJSScriptBlock *block,
+                                 tjs_int srcpos, tTJSVariant &val) {
         TJSReportExceptionSource(msg, block, srcpos);
         throw eTJSScriptException(msg, block, srcpos, val);
     }
 
     //---------------------------------------------------------------------------
-    void TJS_eTJSScriptException(const ttstr &msg, tTJSInterCodeContext *context, tjs_int codepos, tTJSVariant &val) {
-        TJSReportExceptionSource(msg, context, codepos);
-        throw eTJSScriptException(msg, context->GetBlock(), context->CodePosToSrcPos(codepos), val);
-    }
-
-    //---------------------------------------------------------------------------
-    void TJS_eTJSScriptException(const tjs_char *msg, tTJSInterCodeContext *context, tjs_int codepos,
+    void TJS_eTJSScriptException(const ttstr &msg,
+                                 tTJSInterCodeContext *context, tjs_int codepos,
                                  tTJSVariant &val) {
         TJSReportExceptionSource(msg, context, codepos);
-        throw eTJSScriptException(msg, context->GetBlock(), context->CodePosToSrcPos(codepos), val);
+        throw eTJSScriptException(msg, context->GetBlock(),
+                                  context->CodePosToSrcPos(codepos), val);
     }
 
     //---------------------------------------------------------------------------
-    void TJS_eTJSCompileError(const ttstr &msg, tTJSScriptBlock *block, tjs_int srcpos) {
+    void TJS_eTJSScriptException(const tjs_char *msg,
+                                 tTJSInterCodeContext *context, tjs_int codepos,
+                                 tTJSVariant &val) {
+        TJSReportExceptionSource(msg, context, codepos);
+        throw eTJSScriptException(msg, context->GetBlock(),
+                                  context->CodePosToSrcPos(codepos), val);
+    }
+
+    //---------------------------------------------------------------------------
+    void TJS_eTJSCompileError(const ttstr &msg, tTJSScriptBlock *block,
+                              tjs_int srcpos) {
         TJSReportExceptionSource(msg, block, srcpos);
         throw eTJSCompileError(msg, block, srcpos);
     }
 
     //---------------------------------------------------------------------------
-    void TJS_eTJSCompileError(const tjs_char *msg, tTJSScriptBlock *block, tjs_int srcpos) {
+    void TJS_eTJSCompileError(const tjs_char *msg, tTJSScriptBlock *block,
+                              tjs_int srcpos) {
         TJSReportExceptionSource(msg, block, srcpos);
         throw eTJSCompileError(msg, block, srcpos);
     }
@@ -244,7 +281,8 @@ namespace TJS {
             default:
                 if(TJS_FAILED(hr)) {
                     // FIXME:
-                    TJS_eTJSError(fmt::sprintf(ttstr{ TJSUnknownFailure }.AsNarrowStdString(), hr));
+                    TJS_eTJSError(fmt::sprintf(
+                        ttstr{ TJSUnknownFailure }.AsNarrowStdString(), hr));
                 }
         }
     }

@@ -63,7 +63,8 @@ tTVPSystemControl::tTVPSystemControl() : EventEnable(true) {
 }
 void tTVPSystemControl::InvokeEvents() { CallDeliverAllEventsOnIdle(); }
 void tTVPSystemControl::CallDeliverAllEventsOnIdle() {
-    //	Application->PostMessageToMainWindow( TVP_EV_DELIVER_EVENTS_DUMMY, 0, 0
+    //	Application->PostMessageToMainWindow(
+    // TVP_EV_DELIVER_EVENTS_DUMMY, 0, 0
     //);
 }
 
@@ -97,7 +98,8 @@ void tTVPSystemControl::NotifyCloseClicked() {
 void tTVPSystemControl::NotifyEventDelivered() {
     // called from event system, notifying the event is delivered.
     LastCloseClickedTick = 0;
-    // if(TVPHaltWarnForm) delete TVPHaltWarnForm, TVPHaltWarnForm = nullptr;
+    // if(TVPHaltWarnForm) delete TVPHaltWarnForm, TVPHaltWarnForm =
+    // nullptr;
 }
 
 bool tTVPSystemControl::ApplicationIdle() {
@@ -119,7 +121,8 @@ void tTVPSystemControl::DeliverEvents() {
 void tTVPSystemControl::SystemWatchTimerTimer() {
     if(TVPTerminated) {
         // this will ensure terminating the application.
-        // the WM_QUIT message disappears in some unknown situations...
+        // the WM_QUIT message disappears in some unknown
+        // situations...
         //		Application->PostMessageToMainWindow(
         // TVP_EV_DELIVER_EVENTS_DUMMY, 0, 0 );
         Application->Terminate();
@@ -132,7 +135,8 @@ void tTVPSystemControl::SystemWatchTimerTimer() {
     // push environ noise
     TVPPushEnvironNoise(&tick, sizeof(tick));
     TVPPushEnvironNoise(&LastCompactedTick, sizeof(LastCompactedTick));
-    TVPPushEnvironNoise(&LastShowModalWindowSentTick, sizeof(LastShowModalWindowSentTick));
+    TVPPushEnvironNoise(&LastShowModalWindowSentTick,
+                        sizeof(LastShowModalWindowSentTick));
     TVPPushEnvironNoise(&MixedIdleTick, sizeof(MixedIdleTick));
 #if 0
 	POINT pt;

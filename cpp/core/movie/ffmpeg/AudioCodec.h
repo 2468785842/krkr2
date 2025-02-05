@@ -101,20 +101,24 @@ public:
     virtual const char *GetName() = 0;
 
     /*
-     * should return amount of data decoded has buffered in preparation for next
-     * audio frame
+     * should return amount of data decoded has buffered in
+     * preparation for next audio frame
      */
     virtual int GetBufferSize() { return 0; }
 
     /*
      * should return the ffmpeg matrix encoding type
      */
-    virtual enum AVMatrixEncoding GetMatrixEncoding() { return AV_MATRIX_ENCODING_NONE; }
+    virtual enum AVMatrixEncoding GetMatrixEncoding() {
+        return AV_MATRIX_ENCODING_NONE;
+    }
 
     /*
      * should return the ffmpeg audio service type
      */
-    virtual enum AVAudioServiceType GetAudioServiceType() { return AV_AUDIO_SERVICE_TYPE_MAIN; }
+    virtual enum AVAudioServiceType GetAudioServiceType() {
+        return AV_AUDIO_SERVICE_TYPE_MAIN;
+    }
 
     /*
      * should return the ffmpeg profile value

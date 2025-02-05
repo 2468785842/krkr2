@@ -65,13 +65,19 @@ void TVPMoviePlayer::GetNumberOfFrame(int *f) {
     *f = m_pPlayer->GetTotalTime() * m_pPlayer->GetFPS() / DVD_PLAYSPEED_NORMAL;
 }
 
-void TVPMoviePlayer::GetTotalTime(int64_t *t) { *t = m_pPlayer->GetTotalTime(); }
+void TVPMoviePlayer::GetTotalTime(int64_t *t) {
+    *t = m_pPlayer->GetTotalTime();
+}
 
-void TVPMoviePlayer::GetVideoSize(long *width, long *height) { m_pPlayer->GetVideoSize(width, height); }
+void TVPMoviePlayer::GetVideoSize(long *width, long *height) {
+    m_pPlayer->GetVideoSize(width, height);
+}
 
 void TVPMoviePlayer::SetPlayRate(double rate) { m_pPlayer->SetSpeed(rate); }
 
-void TVPMoviePlayer::GetPlayRate(double *rate) { *rate = m_pPlayer->GetSpeed(); }
+void TVPMoviePlayer::GetPlayRate(double *rate) {
+    *rate = m_pPlayer->GetSpeed();
+}
 
 iTVPSoundBuffer *TVPMoviePlayer::GetSoundDevice() {
     IDVDStreamPlayerAudio *audioplayer = m_pPlayer->GetAudioPlayer();
@@ -118,7 +124,9 @@ void TVPMoviePlayer::SelectAudioStream(unsigned long iStream) {
     m_pPlayer->SynchronizeDemuxer();
 }
 
-void TVPMoviePlayer::GetEnableAudioStreamNum(long *num) { *num = m_pPlayer->GetAudioStream(); }
+void TVPMoviePlayer::GetEnableAudioStreamNum(long *num) {
+    *num = m_pPlayer->GetAudioStream();
+}
 
 void TVPMoviePlayer::DisableAudioStream() {
     // TODO
@@ -133,9 +141,12 @@ void TVPMoviePlayer::SelectVideoStream(unsigned long iStream) {
     m_pPlayer->SynchronizeDemuxer();
 }
 
-void TVPMoviePlayer::GetEnableVideoStreamNum(long *num) { *num = m_pPlayer->GetVideoStream(); }
+void TVPMoviePlayer::GetEnableVideoStreamNum(long *num) {
+    *num = m_pPlayer->GetVideoStream();
+}
 
-int TVPMoviePlayer::WaitForBuffer(volatile std::atomic_bool &bStop, int timeout) {
+int TVPMoviePlayer::WaitForBuffer(volatile std::atomic_bool &bStop,
+                                  int timeout) {
     int remainBuf = MAX_BUFFER_COUNT - m_usedPicture;
     if(remainBuf > 0)
         return remainBuf;
@@ -158,7 +169,9 @@ void TVPMoviePlayer::Flush() {
 
 void TVPMoviePlayer::FrameMove() { m_pPlayer->FrameMove(); }
 
-void TVPMoviePlayer::SetLoopSegement(int beginFrame, int endFrame) { m_pPlayer->SetLoopSegement(beginFrame, endFrame); }
+void TVPMoviePlayer::SetLoopSegement(int beginFrame, int endFrame) {
+    m_pPlayer->SetLoopSegement(beginFrame, endFrame);
+}
 
 int TVPMoviePlayer::AddVideoPicture(DVDVideoPicture &pic, int index) {
     // from other thread
@@ -196,7 +209,8 @@ int TVPMoviePlayer::AddVideoPicture(DVDVideoPicture &pic, int index) {
 
     {
         std::lock_guard<std::mutex> lk(m_mtxPicture);
-        BitmapPicture &picbuf = m_picture[(m_curPicture + m_usedPicture) & (MAX_BUFFER_COUNT - 1)];
+        BitmapPicture &picbuf =
+            m_picture[(m_curPicture + m_usedPicture) & (MAX_BUFFER_COUNT - 1)];
         picbuf.Clear();
         picbuf.width = width;
         picbuf.height = height;
@@ -263,7 +277,8 @@ void VideoPresentOverlay::PresentPicture(float dt) {
         m_pRootNode->addChild(m_pSprite);
     }
     cocos2d::Size videoSize(pic.width, pic.height);
-    m_pSprite->updateTextureData(pic.data[0], pic.width, pic.height, pic.data[1], pic.width / 2, pic.height / 2,
+    m_pSprite->updateTextureData(pic.data[0], pic.width, pic.height,
+                                 pic.data[1], pic.width / 2, pic.height / 2,
                                  pic.data[2], pic.width / 2, pic.height / 2);
     const tTVPRect &rc = GetBounds();
     float scaleX = rc.get_width() / videoSize.width;
@@ -312,15 +327,19 @@ void MoviePlayerOverlay::SetWindow(tTJSNI_Window *window) {
         sckey);
 }
 
-void MoviePlayerOverlay::BuildGraph(tTJSNI_VideoOverlay *callbackwin, IStream *stream, const tjs_char *streamname,
+void MoviePlayerOverlay::BuildGraph(tTJSNI_VideoOverlay *callbackwin,
+                                    IStream *stream, const tjs_char *streamname,
                                     const tjs_char *type, uint64_t size) {
     m_pCallbackWin = callbackwin;
-    m_pPlayer->SetCallback(
-        std::bind(&MoviePlayerOverlay::OnPlayEvent, this, std::placeholders::_1, std::placeholders::_2));
+    m_pPlayer->SetCallback(std::bind(&MoviePlayerOverlay::OnPlayEvent, this,
+                                     std::placeholders::_1,
+                                     std::placeholders::_2));
     m_pPlayer->OpenFromStream(stream, streamname, type, size);
 }
 
-const tTVPRect &MoviePlayerOverlay::GetBounds() { return m_pCallbackWin->GetBounds(); }
+const tTVPRect &MoviePlayerOverlay::GetBounds() {
+    return m_pCallbackWin->GetBounds();
+}
 
 void KRMovie::MoviePlayerOverlay::SetVisible(bool b) {
     VideoPresentOverlay::SetVisible(b);
@@ -355,6 +374,8 @@ void VideoPresentOverlay2::SetRootNode(cocos2d::Node *node) {
     m_pRootNode = node;
 }
 
-VideoPresentOverlay2 *VideoPresentOverlay2::create() { return new VideoPresentOverlay2; }
+VideoPresentOverlay2 *VideoPresentOverlay2::create() {
+    return new VideoPresentOverlay2;
+}
 
 NS_KRMOVIE_END

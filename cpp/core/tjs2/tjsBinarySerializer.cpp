@@ -15,17 +15,21 @@
 
 namespace TJS {
 
-    const tjs_uint8 tTJSBinarySerializer::HEADER[tTJSBinarySerializer::HEADER_LENGTH] = { 'K', 'B', 'A', 'D',
-                                                                                          '1', '0', '0', 0 };
+    const tjs_uint8
+        tTJSBinarySerializer::HEADER[tTJSBinarySerializer::HEADER_LENGTH] = {
+            'K', 'B', 'A', 'D', '1', '0', '0', 0
+        };
 
-    bool tTJSBinarySerializer::IsBinary(const tjs_uint8 header[tTJSBinarySerializer::HEADER_LENGTH]) {
+    bool tTJSBinarySerializer::IsBinary(
+        const tjs_uint8 header[tTJSBinarySerializer::HEADER_LENGTH]) {
         return memcmp(HEADER, header, tTJSBinarySerializer::HEADER_LENGTH) == 0;
     }
 
     /**
      * バイアント値を格納する
      */
-    void tTJSBinarySerializer::PutVariant(tTJSBinaryStream *stream, tTJSVariant &v) {
+    void tTJSBinarySerializer::PutVariant(tTJSBinaryStream *stream,
+                                          tTJSVariant &v) {
         tTJSVariantType type = v.Type();
         switch(type) {
             case tvtVoid: {
@@ -38,11 +42,10 @@ namespace TJS {
                 break;
                 /*
                                 {
-                                iTJSDispatch2* obj = v.AsObjectNoAddRef();
-                                iTJSDispatch2* objthis = v.AsObjectThisNoAddRef();
-                                if( obj == nullptr && objthis == nullptr ) {
-                                        Put( TYPE_NIL );
-                                } else {
+                                iTJSDispatch2* obj =
+                   v.AsObjectNoAddRef(); iTJSDispatch2* objthis =
+                   v.AsObjectThisNoAddRef(); if( obj == nullptr &&
+                   objthis == nullptr ) { Put( TYPE_NIL ); } else {
                                         SaveStructured
                                 }
                                 break;
@@ -65,10 +68,13 @@ namespace TJS {
         }
     }
 
-    tTJSBinarySerializer::tTJSBinarySerializer() : DicClass(nullptr), RootDictionary(nullptr), RootArray(nullptr) {}
+    tTJSBinarySerializer::tTJSBinarySerializer() :
+        DicClass(nullptr), RootDictionary(nullptr), RootArray(nullptr) {}
 
-    tTJSBinarySerializer::tTJSBinarySerializer(class tTJSDictionaryObject *root) :
-        DicClass(nullptr), RootDictionary(root), RootArray(nullptr) {}
+    tTJSBinarySerializer::tTJSBinarySerializer(
+        class tTJSDictionaryObject *root) :
+        DicClass(nullptr),
+        RootDictionary(root), RootArray(nullptr) {}
 
     tTJSBinarySerializer::tTJSBinarySerializer(class tTJSArrayObject *root) :
         DicClass(nullptr), RootDictionary(nullptr), RootArray(root) {}
@@ -79,7 +85,8 @@ namespace TJS {
         DicClass = nullptr;
     }
 
-    tTJSDictionaryObject *tTJSBinarySerializer::CreateDictionary(tjs_uint count) {
+    tTJSDictionaryObject *
+    tTJSBinarySerializer::CreateDictionary(tjs_uint count) {
         if(RootDictionary) {
             tTJSDictionaryObject *ret = RootDictionary;
             RootDictionary = nullptr;
@@ -97,7 +104,8 @@ namespace TJS {
         tTJSDictionaryObject *dic;
         tTJSVariant param[1] = { (tjs_int)count };
         tTJSVariant *pparam[1] = { param };
-        DicClass->CreateNew(0, nullptr, nullptr, (iTJSDispatch2 **)&dic, 1, pparam, DicClass);
+        DicClass->CreateNew(0, nullptr, nullptr, (iTJSDispatch2 **)&dic, 1,
+                            pparam, DicClass);
         return dic;
     }
 
@@ -115,25 +123,31 @@ namespace TJS {
         return array;
     }
 
-    void tTJSBinarySerializer::AddDictionary(tTJSDictionaryObject *dic, tTJSVariantString *name, tTJSVariant *value) {
+    void tTJSBinarySerializer::AddDictionary(tTJSDictionaryObject *dic,
+                                             tTJSVariantString *name,
+                                             tTJSVariant *value) {
         if(name == nullptr || value == nullptr)
             TJS_eTJSError(TJSReadError);
         dic->PropSetByVS(TJS_MEMBERENSURE, name, value, dic);
     }
 
-    void tTJSBinarySerializer::InsertArray(tTJSArrayObject *array, tjs_uint index, tTJSVariant *value) {
+    void tTJSBinarySerializer::InsertArray(tTJSArrayObject *array,
+                                           tjs_uint index, tTJSVariant *value) {
         if(value == nullptr)
             TJS_eTJSError(TJSReadError);
         tTJSArrayNI *ni = nullptr;
-        tjs_error hr =
-            array->NativeInstanceSupport(TJS_NIS_GETINSTANCE, TJSGetArrayClassID(), (iTJSNativeInstance **)&ni);
+        tjs_error hr = array->NativeInstanceSupport(TJS_NIS_GETINSTANCE,
+                                                    TJSGetArrayClassID(),
+                                                    (iTJSNativeInstance **)&ni);
         if(TJS_SUCCEEDED(hr)) {
             // array->Insert( ni, *value, index );
             array->Add(ni, *value);
         }
     }
 
-    tTJSVariant *tTJSBinarySerializer::ReadBasicType(const tjs_uint8 *buff, const tjs_uint size, tjs_uint &index) {
+    tTJSVariant *tTJSBinarySerializer::ReadBasicType(const tjs_uint8 *buff,
+                                                     const tjs_uint size,
+                                                     tjs_uint &index) {
         if(index > size)
             return nullptr;
         tjs_uint8 type = buff[index];
@@ -275,26 +289,32 @@ namespace TJS {
                 return ReadDictionary(buff, size, count, index);
             }
             default: {
-                if(type >= TYPE_POSITIVE_FIX_NUM_MIN && type <= TYPE_POSITIVE_FIX_NUM_MAX) {
+                if(type >= TYPE_POSITIVE_FIX_NUM_MIN &&
+                   type <= TYPE_POSITIVE_FIX_NUM_MAX) {
                     tjs_int value = type;
                     return new tTJSVariant(value);
-                } else if(type >= TYPE_NEGATIVE_FIX_NUM_MIN && type <= TYPE_NEGATIVE_FIX_NUM_MAX) {
+                } else if(type >= TYPE_NEGATIVE_FIX_NUM_MIN &&
+                          type <= TYPE_NEGATIVE_FIX_NUM_MAX) {
                     tjs_int value = type;
                     return new tTJSVariant(value);
-                } else if(type >= TYPE_FIX_RAW_MIN && type <= TYPE_FIX_RAW_MAX) { // octet
+                } else if(type >= TYPE_FIX_RAW_MIN &&
+                          type <= TYPE_FIX_RAW_MAX) { // octet
                     tjs_int len = type - TYPE_FIX_RAW_MIN;
                     if((len * sizeof(tjs_uint8) + index) > size)
                         TJS_eTJSError(TJSReadError);
                     return ReadOctetVarint(buff, len, index);
-                } else if(type >= TYPE_FIX_STRING_MIN && type <= TYPE_FIX_STRING_MAX) {
+                } else if(type >= TYPE_FIX_STRING_MIN &&
+                          type <= TYPE_FIX_STRING_MAX) {
                     tjs_int len = type - TYPE_FIX_STRING_MIN;
                     if((len * sizeof(tjs_char) + index) > size)
                         TJS_eTJSError(TJSReadError);
                     return ReadStringVarint(buff, len, index);
-                } else if(type >= TYPE_FIX_ARRAY_MIN && type <= TYPE_FIX_ARRAY_MAX) {
+                } else if(type >= TYPE_FIX_ARRAY_MIN &&
+                          type <= TYPE_FIX_ARRAY_MAX) {
                     tjs_int count = type - TYPE_FIX_ARRAY_MIN;
                     return ReadArray(buff, size, count, index);
-                } else if(type >= TYPE_FIX_MAP_MIN && type <= TYPE_FIX_MAP_MAX) {
+                } else if(type >= TYPE_FIX_MAP_MIN &&
+                          type <= TYPE_FIX_MAP_MAX) {
                     tjs_int count = type - TYPE_FIX_MAP_MIN;
                     return ReadDictionary(buff, size, count, index);
                 } else {
@@ -305,7 +325,9 @@ namespace TJS {
         }
     }
 
-    tTJSVariant *tTJSBinarySerializer::ReadArray(const tjs_uint8 *buff, const tjs_uint size, const tjs_uint count,
+    tTJSVariant *tTJSBinarySerializer::ReadArray(const tjs_uint8 *buff,
+                                                 const tjs_uint size,
+                                                 const tjs_uint count,
                                                  tjs_uint &index) {
         if(index > size)
             return nullptr;
@@ -321,7 +343,9 @@ namespace TJS {
         return ret;
     }
 
-    tTJSVariant *tTJSBinarySerializer::ReadDictionary(const tjs_uint8 *buff, const tjs_uint size, const tjs_uint count,
+    tTJSVariant *tTJSBinarySerializer::ReadDictionary(const tjs_uint8 *buff,
+                                                      const tjs_uint size,
+                                                      const tjs_uint count,
                                                       tjs_uint &index) {
         if(index > size)
             return nullptr;
@@ -362,7 +386,8 @@ namespace TJS {
                     break;
                 }
                 default:
-                    if(type >= TYPE_FIX_STRING_MIN && type <= TYPE_FIX_STRING_MAX) {
+                    if(type >= TYPE_FIX_STRING_MIN &&
+                       type <= TYPE_FIX_STRING_MAX) {
                         tjs_int len = type - TYPE_FIX_STRING_MIN;
                         if((len * sizeof(tjs_char) + index) > size)
                             TJS_eTJSError(TJSReadError);
