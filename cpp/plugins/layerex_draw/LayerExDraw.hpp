@@ -8,8 +8,8 @@
 #include "gdip_cxx_pen.h"
 
 extern "C" {
-#include <text.h>
-#include <adjustablearrowcap.h>
+#include <libgdiplus/text.h>
+#include <libgdiplus/adjustablearrowcap.h>
 }
 
 #include "PluginStub.h"

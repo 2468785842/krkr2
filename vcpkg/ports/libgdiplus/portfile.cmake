@@ -30,9 +30,13 @@ file(REMOVE_RECURSE
     "${CURRENT_PACKAGES_DIR}/debug/share"
 )
 
-file(COPY "${SOURCE_PATH}/src/" DESTINATION "${CURRENT_PACKAGES_DIR}/include" FILES_MATCHING PATTERN "*.h")
-file(COPY "${SOURCE_PATH}/src/" DESTINATION "${CURRENT_PACKAGES_DIR}/include" FILES_MATCHING PATTERN "*.inc")
-
+file(COPY "${SOURCE_PATH}/src/" DESTINATION "${CURRENT_PACKAGES_DIR}/include/libgdiplus" FILES_MATCHING PATTERN "*.h")
+file(COPY "${SOURCE_PATH}/src/" DESTINATION "${CURRENT_PACKAGES_DIR}/include/libgdiplus" FILES_MATCHING PATTERN "*.inc")
+if (NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
+    file(COPY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg/config.h" DESTINATION "${CURRENT_PACKAGES_DIR}/include/libgdiplus")
+else()
+    file(COPY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/config.h" DESTINATION "${CURRENT_PACKAGES_DIR}/include/libgdiplus")
+endif ()
 # Handle dependencies
 set(Libgdiplus_PKGCONFIG_MODULES "zlib libjpeg libpng cairo cairo-script-interpreter glib-2.0 libtiff-4 libexif")
 x_vcpkg_pkgconfig_get_modules(PREFIX Libgdiplus_PKGCONFIG MODULES ${Libgdiplus_PKGCONFIG_MODULES} LIBS)

@@ -1,9 +1,5 @@
 #include "VideoCodecFFmpeg.h"
 
-#if(defined HAVE_CONFIG_H) && (!defined TARGET_WINDOWS)
-#include "config.h"
-#endif
-
 #ifndef TARGET_POSIX
 #define RINT(x) ((x) >= 0 ? ((int)((x) + 0.5)) : ((int)((x)-0.5)))
 #else

@@ -1,9 +1,5 @@
 #include "TimeUtils.h"
 
-#if(defined HAVE_CONFIG_H) && (!defined TARGET_WINDOWS)
-#include "config.h"
-#endif
-
 #ifdef _MSC_VER
 #include <windows.h>
 #endif

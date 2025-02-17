@@ -7,8 +7,8 @@
 #ifndef KRKR2_GDIP_CXX_PEN_H
 #define KRKR2_GDIP_CXX_PEN_H
 extern "C" {
-#include <gdiplus-private.h>
-#include <pen-private.h>
+#include <libgdiplus/gdiplus-private.h>
+#include <libgdiplus/pen-private.h>
 }
 
 #include "gdip_cxx_brush.h"

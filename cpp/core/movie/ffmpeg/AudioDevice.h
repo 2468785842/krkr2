@@ -1,7 +1,4 @@
 #pragma once
-#if(defined HAVE_CONFIG_H) && (!defined TARGET_WINDOWS)
-#include "config.h"
-#endif
 
 #include "AEChannelInfo.h"
 #include "AEStream.h"

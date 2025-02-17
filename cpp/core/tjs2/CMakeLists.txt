@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.19)
 project(tjs2)
 
 add_library(${PROJECT_NAME} STATIC)
+target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:_DEBUG>)
 
 set(GEN_CODE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 
