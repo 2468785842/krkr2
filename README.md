@@ -14,7 +14,7 @@
 - [cmake@3.31.1+](https://cmake.org/download/)
 - [vcpkg@latest](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started)
 - [AndroidSDK@33](https://developer.android.com/tools/releases/platform-tools)
-- [AndroidNDK@27.2.12479018](https://developer.android.com/ndk/downloads)
+- [AndroidNDK@28.0.13004108](https://developer.android.com/ndk/downloads)
 - [jdk@17](https://jdk.java.net/archive/)
 - `bison@3.8.2+`: 非 Windows 主机平台
 - `python3`: 非 Windows 主机平台
