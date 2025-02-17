@@ -9,19 +9,19 @@
 #include <cassert>
 
 extern "C" {
-#include <gdiplus-private.h>
-#include <gdipenums.h>
-#include <bitmap-private.h>
-#include <graphics-private.h>
-#include <graphics-path-private.h>
-#include <customlinecap-private.h>
-#include <matrix-private.h>
-#include <image-private.h>
-#include <pen-private.h>
-#include <customlinecap-private.h>
-#include <fontfamily-private.h>
-#include <fontcollection-private.h>
-#include <font-private.h>
+#include <libgdiplus/gdiplus-private.h>
+#include <libgdiplus/gdipenums.h>
+#include <libgdiplus/bitmap-private.h>
+#include <libgdiplus/graphics-private.h>
+#include <libgdiplus/graphics-path-private.h>
+#include <libgdiplus/customlinecap-private.h>
+#include <libgdiplus/matrix-private.h>
+#include <libgdiplus/image-private.h>
+#include <libgdiplus/pen-private.h>
+#include <libgdiplus/customlinecap-private.h>
+#include <libgdiplus/fontfamily-private.h>
+#include <libgdiplus/fontcollection-private.h>
+#include <libgdiplus/font-private.h>
 }
 
 #include <win32_dt.h>

@@ -5,13 +5,13 @@
 #ifndef KRKR2_GDIP_CXX_BRUSH_H
 #define KRKR2_GDIP_CXX_BRUSH_H
 extern "C" {
-#include <gdiplus-private.h>
-#include <brush-private.h>
-#include <solidbrush-private.h>
-#include <hatchbrush-private.h>
-#include <texturebrush-private.h>
-#include <pathgradientbrush-private.h>
-#include <lineargradientbrush-private.h>
+#include <libgdiplus/gdiplus-private.h>
+#include <libgdiplus/brush-private.h>
+#include <libgdiplus/solidbrush-private.h>
+#include <libgdiplus/hatchbrush-private.h>
+#include <libgdiplus/texturebrush-private.h>
+#include <libgdiplus/pathgradientbrush-private.h>
+#include <libgdiplus/lineargradientbrush-private.h>
 }
 
 #include <stdexcept>
