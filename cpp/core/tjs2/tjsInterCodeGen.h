@@ -21,9 +21,9 @@
 #include "tjsObject.h"
 #include "tjs.tab.hpp"
 
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
 #include "tjsDebug.h"
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
 
 namespace TJS {
     class tTJSScriptBlock;
@@ -459,10 +459,10 @@ namespace TJS {
         tTJSInterCodeContext *PropGetter;
         tTJSInterCodeContext *SuperClassGetter;
 
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
         ScopeKey DebuggerScopeKey; //!< for exec
         tTJSVariant *DebuggerRegisterArea; //!< for exec
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
 
     public:
         tTJSContextType GetContextType() const { return ContextType; }
@@ -475,14 +475,14 @@ namespace TJS {
 
         tTJSScriptBlock *GetBlock() const { return Block; }
 
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
         ttstr GetClassName() const;
         ttstr GetSelfClassName() const;
 
         const ScopeKey &GetDebuggerScopeKey() { return DebuggerScopeKey; }
         tTJSVariant *GetDebuggerRegisterArea() { return DebuggerRegisterArea; }
         tTJSVariant *GetDebuggerDataArea() { return DataArea; }
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
     private:
         void OutputWarning(const tjs_char *msg, tjs_int pos = -1);
 
@@ -847,10 +847,10 @@ namespace TJS {
             if(getter)
                 getter->AddRef();
             SuperClassGetter = superclass;
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
             if(Parent)
                 Parent->AddRef();
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
         }
 
         tTJSInterCodeContext(tTJSScriptBlock *block, const tjs_char *name,

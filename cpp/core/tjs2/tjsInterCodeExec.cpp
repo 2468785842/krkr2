@@ -25,12 +25,6 @@
 #include <set>
 #include <mutex>
 
-#ifdef ENABLE_DEBUGGER
-#include "debugger.h"
-static bool isDebuggerPresent() { return true; }
-#define IsDebuggerPresent isDebuggerPresent
-#endif // ENABLE_DEBUGGER
-
 #include <thread>
 
 namespace TJS {
@@ -719,10 +713,10 @@ namespace TJS {
                 TJSWarnIfObjectIsDeleting(Block->GetTJS()->GetConsoleOutput(),
                                           objthis);
 
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
             ScopeKey oldkey;
             tTJSVariant *oldra = nullptr;
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
             try {
                 ra[-1].SetObject(objthis, objthis);
                 ra[0].Clear();
@@ -784,11 +778,11 @@ namespace TJS {
                 throw;
             }
 
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
             // ³Éß·
             DebuggerScopeKey = oldkey;
             DebuggerRegisterArea = oldra;
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
 #if 0
                                                                                                                                     for(tjs_int i=0; i<MaxVariableCount + VariableReserveCount; i++)
 			regs[i].Clear();
@@ -895,21 +889,15 @@ namespace TJS {
 
             if(TJSStackTracerEnabled())
                 TJSStackTracerSetCodePointer(CodeArea, &codesave);
-#ifdef ENABLE_DEBUGGER
-            bool is_enable_debugger = false;
-            if(TJSEnableDebugMode && ::IsDebuggerPresent()) {
-                is_enable_debugger = true;
-            }
-#endif // ENABLE_DEBUGGER
 
             tTJSVariant *ra = ra_org;
             tTJSVariant *da = DataArea;
 
             bool flag = false;
 
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
             tjs_int cur_line_no = -1;
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
             while(true) {
                 codesave = code;
                 switch(*code) {
@@ -1349,13 +1337,13 @@ namespace TJS {
         } catch(eTJSSilent &e) {
             throw e;
         }
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
 #define DEBUGGER_EXCEPTION_HOOK                                                \
-    if(TJSEnableDebugMode && ::IsDebuggerPresent())                            \
+    if(TJSEnableDebugMode)                            \
         raise(SIGTRAP);
-#else // ENABLE_DEBUGGER
+#else // _DEBUG
 #define DEBUGGER_EXCEPTION_HOOK
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
         catch(eTJSScriptException &e) {
             DEBUGGER_EXCEPTION_HOOK;
             e.AddTrace(this, (tjs_int)(codesave - CodeArea));

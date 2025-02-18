@@ -67,7 +67,11 @@ namespace TJS {
     // "this" context since TJS2 version 2.4.1
     bool TJSWarnOnNonGlobalEvalOperator = false;
     // Output warning against non-local post-! operator.
+#ifdef _DEBUG
+    bool TJSEnableDebugMode = true;
+#else
     bool TJSEnableDebugMode = false;
+#endif
     // Enable TJS2 Debugging support. Enabling this may make the
     // program somewhat slower and using more memory.
     // Do not use this mode unless you want to debug the program.

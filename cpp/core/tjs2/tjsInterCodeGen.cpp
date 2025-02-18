@@ -207,11 +207,11 @@ namespace TJS // following is in the namespace
         SourcePosArrayCapa = 0;
         SourcePosArraySize = 0;
 
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
         DebuggerRegisterArea = nullptr;
         if(Parent)
             Parent->AddRef();
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
 
         if(name) {
             Name = new tjs_char[TJS_strlen(name) + 1];
@@ -342,9 +342,9 @@ namespace TJS // following is in the namespace
         SourcePosArrayCapa = srcPosSize;
         SourcePosArraySize = srcPosSize;
 
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
         DebuggerRegisterArea = nullptr;
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
 
         if(name) {
             Name = new tjs_char[TJS_strlen(name) + 1];
@@ -405,12 +405,12 @@ namespace TJS // following is in the namespace
         if(SourcePosArray)
             TJS_free(SourcePosArray), SourcePosArray = nullptr;
 
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
         if(Parent) {
             Parent->Release();
             Parent = nullptr;
         }
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
         inherited::Finalize();
     }
 
@@ -508,7 +508,7 @@ namespace TJS // following is in the namespace
         return ret;
     }
 
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
     //---------------------------------------------------------------------------
     ttstr tTJSInterCodeContext::GetClassName() const {
         ttstr ret;
@@ -557,7 +557,7 @@ namespace TJS // following is in the namespace
 
         return ret;
     }
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
 
     //---------------------------------------------------------------------------
     void tTJSInterCodeContext::OutputWarning(const tjs_char *msg, tjs_int pos) {

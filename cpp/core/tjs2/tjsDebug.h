@@ -13,14 +13,14 @@
 
 #include "tjsString.h"
 
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
 #include <list>
 #include <string>
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
 
 namespace TJS {
 
-#ifdef ENABLE_DEBUGGER
+#ifdef _DEBUG
     struct ScopeKey {
         int ClassIndex; //!< クラス名インデックス
         int FuncIndex; //!< 関数名インデックス
@@ -66,7 +66,7 @@ namespace TJS {
             }
         }
     };
-#endif // ENABLE_DEBUGGER
+#endif // _DEBUG
 
 //---------------------------------------------------------------------------
 // ObjectHashMap : hash map to track object construction/destruction

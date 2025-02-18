@@ -16,14 +16,6 @@
 #include "tjsInterCodeGen.h"
 #include "tjsGlobalStringMap.h"
 
-#ifdef ENABLE_DEBUGGER
-#include <map>
-#include <list>
-#include "Debugger.h"
-#include "Application.h"
-#include "NativeEventQueue.h"
-#endif // ENABLE_DEBUGGER
-
 namespace TJS {
 
     //---------------------------------------------------------------------------
