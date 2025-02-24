@@ -6,7 +6,7 @@ plugins {
 }
 
 subprojects {
-    layout.buildDirectory.set(file("${rootDir}/out/${project.name}"))
+    layout.buildDirectory.set(file("${rootDir}/out/android/${project.name}"))
 
     configurations.configureEach {
         resolutionStrategy {
@@ -17,5 +17,5 @@ subprojects {
 }
 
 tasks.register('clean', Delete) {
-    delete "${rootDir}/out"
+    delete "${rootDir}/out/android"
 }

@@ -1,6 +1,10 @@
 #ifndef _layerExText_hpp_
 #define _layerExText_hpp_
 
+#include "PluginStub.h"
+
+#include "layerExBase.hpp"
+
 #include <vector>
 
 #include "gdip_cxx.h"
@@ -12,9 +16,7 @@ extern "C" {
 #include <libgdiplus/adjustablearrowcap.h>
 }
 
-#include "PluginStub.h"
 #include "combase.h"
-#include "layerExBase.hpp"
 
 /**
  * GDIPlus 固有処理用

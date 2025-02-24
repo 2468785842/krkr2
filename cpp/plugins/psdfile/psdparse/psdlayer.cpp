@@ -1,3 +1,4 @@
+#include <cstring>
 #include "psddata.h"
 #include "psddesc.h"
 

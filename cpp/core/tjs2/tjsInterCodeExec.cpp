@@ -22,6 +22,7 @@
 #include "tjsDebug.h"
 #include "tjsOctPack.h"
 #include "tjsGlobalStringMap.h"
+#include <csignal>
 #include <set>
 #include <mutex>
 
@@ -1339,7 +1340,7 @@ namespace TJS {
         }
 #ifdef _DEBUG
 #define DEBUGGER_EXCEPTION_HOOK                                                \
-    if(TJSEnableDebugMode)                            \
+    if(TJSEnableDebugMode)                                                     \
         raise(SIGTRAP);
 #else // _DEBUG
 #define DEBUGGER_EXCEPTION_HOOK

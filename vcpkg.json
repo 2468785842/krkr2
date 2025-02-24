@@ -35,8 +35,6 @@
       "name": "opencv4",
       "default-features": false,
       "features": [
-        "freetype",
-        "jpeg",
         "openmp"
       ]
     },

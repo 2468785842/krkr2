@@ -1,4 +1,5 @@
 /* Include the SDL main definition header */
+#include <memory>
 #include <jni.h>
 #include <dlfcn.h>
 #include <cocos/platform/android/jni/JniHelper.h>
@@ -61,7 +62,8 @@ static bool DumpFilter(void *data) {
         spdlog::critical("load libSDL2.so failed");
     }
 
-    static auto *pAppDelegate = new TVPAppDelegate();
+    static std::unique_ptr<TVPAppDelegate> pAppDelegate =
+        std::make_unique<TVPAppDelegate>();
 }
 
 namespace kr2android {

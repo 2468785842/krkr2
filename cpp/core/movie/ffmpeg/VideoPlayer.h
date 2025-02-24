@@ -9,6 +9,7 @@
 #include "MessageQueue.h"
 #include "ProcessInfo.h"
 #include "IVideoPlayer.h"
+#include <functional>
 #include <mutex>
 #include <vector>
 #include <memory>
@@ -318,9 +319,9 @@ public:
     virtual void OnPlayBackSeek(int iTime, int iOffset) {}
 
     //	virtual void OnStartup() {}
-    virtual void OnExit();
+    virtual void OnExit() override;
 
-    virtual void Process();
+    virtual void Process() override;
 
     void CreatePlayers();
 

@@ -17,7 +17,7 @@
 #include <atomic>
 
 namespace TJS {
-
+    class tTJSVariant;
 // #define TJS_DEBUG_UNRELEASED_STRING
 // #define TJS_DEBUG_CHECK_STRING_HEAP_INTEGRITY
 // #define TJS_DEBUG_DUMP_STRING

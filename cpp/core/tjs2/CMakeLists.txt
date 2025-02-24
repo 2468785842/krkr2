@@ -38,7 +38,6 @@ foreach(BISON_FILE ${BISON_FILES})
         OUTPUT
             ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.cpp
             ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.hpp
-        PRE_BUILD
         DEPENDS ${BISON_FILE}
         COMMAND ${BISON} ${BISON_FILE}
         WORKING_DIRECTORY ${GEN_CODE_BINARY_DIR}
@@ -121,7 +120,7 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:include/tjs2/parser>
 )
 
-find_package(Boost COMPONENTS locale REQUIRED)
+find_package(Boost COMPONENTS locale REQUIRED NO_MODULE)
 find_package(fmt CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 

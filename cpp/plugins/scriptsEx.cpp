@@ -577,9 +577,7 @@ bool ScriptsAdd::equalStruct(tTJSVariant v1, tTJSVariant v2) {
             tTJSVariantClosure closure(caller);
             tTJSVariant(o1.EnumMembers(TJS_IGNOREPROP, &closure, nullptr));
             bool result = caller->match;
-            caller->
-
-                Release();
+            caller->Release();
 
             return result;
         }

@@ -45,7 +45,7 @@ public:
                           iTJSDispatch2 *obj) {
         logger->info("PSBFile::load");
         if(r->Type() == tvtString) {
-            ttstr path{ r };
+            ttstr path{ *r };
             if(!openPSBFile(path)) {
                 logger->info("cannot open psb file : {}", path.AsStdString());
             }

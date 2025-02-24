@@ -2347,7 +2347,8 @@ static bool getEncoder(const tjs_char *mimeType, CLSID *pClsid) {
         if(pImageCodecInfo) {
             GdipGetImageEncoders(num, size, pImageCodecInfo);
             for(UINT j = 0; j < num; ++j) {
-                if(tTJSString{ pImageCodecInfo[j].MimeType } != mimeType) {
+                if(tTJSString{ reinterpret_cast<const char16_t *>(
+                       pImageCodecInfo[j].MimeType) } != mimeType) {
                     *pClsid = pImageCodecInfo[j].Clsid;
                     free(pImageCodecInfo);
                     return true;

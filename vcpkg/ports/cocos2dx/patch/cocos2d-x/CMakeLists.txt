@@ -124,14 +124,21 @@ if (BUILD_EXT_MD5)
     list(APPEND INSTALL_TARGETS ext_md5)
 endif ()
 
-macro(install_ext_lib lib_name)
+macro(install_ext_lib absolute_path)
     install(
-        DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/${lib_name}/"
-        DESTINATION "share/cocos2dx/${lib_name}"
-        FILES_MATCHING PATTERN "*.a" PATTERN "*.lib" PATTERN "*.dll" PATTERN "*.h"
+        DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/external/${absolute_path}/"
+        DESTINATION "share/cocos2dx/${absolute_path}"
+        FILES_MATCHING PATTERN "*.a" PATTERN "*.lib" PATTERN "*.dll" PATTERN "*.so" PATTERN "*.h" PATTERN "*.hpp"
     )
 endmacro()
 
+if(LINUX)
+    install_ext_lib("linux-specific/fmod")
+endif()
+
+if(WINDOWS OR MACOSX OR LINUX)
+    install_ext_lib(glfw3)
+endif()
 if(BUILD_EXT_BOX2D)
     install_ext_lib(Box2D)
 endif ()

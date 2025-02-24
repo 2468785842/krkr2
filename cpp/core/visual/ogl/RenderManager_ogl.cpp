@@ -155,8 +155,10 @@ namespace GL { // independ from global gl functions
     typedef PROC(WINAPI fGetProcAddress)(LPCSTR);
 #elif defined(TARGET_OS_IPHONE)
     typedef void *(fGetProcAddress)(const char *);
-#else
+#elif defined(__ANDROID__)
     typedef void *(EGLAPIENTRY fGetProcAddress)(const char *);
+#elif defined(LINUX)
+    typedef void *(GLAPIENTRY fGetProcAddress)(const char *);
 #endif
     static fGetProcAddress *glGetProcAddress = nullptr;
 
@@ -1061,11 +1063,14 @@ public:
             case TVPTextureFormat::RGBA:
             case TVPTextureFormat::None:
                 return false;
+            case TVPTextureFormat::Compressed:
+            case TVPTextureFormat::CompressedEnd:
+                break;
         }
         return false;
     }
 
-    virtual bool GetScale(float &x, float &y) {
+    virtual bool GetScale(float &x, float &y) override {
         x = _scaleW;
         y = _scaleH;
         return true;
@@ -1219,10 +1224,10 @@ public:
         ClearTextureCache();
         Bitmap->Release();
     }
-    virtual const void *GetScanLineForRead(tjs_uint l) {
+    virtual const void *GetScanLineForRead(tjs_uint l) override {
         return Bitmap->GetScanLine(l);
     }
-    virtual tjs_int GetPitch() const { return Bitmap->GetPitch(); }
+    virtual tjs_int GetPitch() const override { return Bitmap->GetPitch(); }
     virtual tjs_uint32 GetPoint(int x, int y) override {
         if(Bitmap->Is32bit()) {
             return ((uint32_t *)Bitmap->GetScanLine(y))[x];
@@ -1236,20 +1241,20 @@ public:
         }
     }
     virtual void Update(const void *pixel, TVPTextureFormat::e format,
-                        int pitch, const tTVPRect &rc) {
+                        int pitch, const tTVPRect &rc) override {
         TVPThrowExceptionMessage(TJS_W("Static texture cannot update data."));
     }
-    virtual void SetPoint(int x, int y, uint32_t clr) {
+    virtual void SetPoint(int x, int y, uint32_t clr) override {
         TVPThrowExceptionMessage(
             TJS_W("Static texture cannot set point color."));
     }
-    virtual bool IsStatic() { return true; }
-    virtual bool IsOpaque() {
+    virtual bool IsStatic() override { return true; }
+    virtual bool IsOpaque() override {
         if(Bitmap)
             return Bitmap->IsOpaque;
         return false;
     }
-    virtual void SyncPixel() {
+    virtual void SyncPixel() override {
         // 		if (CachedTexture.size() > 1) {
         // 			;
         // 		}
@@ -1400,7 +1405,8 @@ public:
         delete[] tmp;
     }
 
-    virtual void ApplyVertex(GLVertexInfo &vtx, const tTVPPointD *p, int n) {
+    virtual void ApplyVertex(GLVertexInfo &vtx, const tTVPPointD *p,
+                             int n) override {
         if(!Bitmap) { // route of downscaled single texture
             vtx.tex = this;
             vtx.vtx.resize(n * 2);
@@ -1463,7 +1469,7 @@ public:
         }
     }
 
-    virtual void ApplyVertex(GLVertexInfo &vtx, const tTVPRect &rc) {
+    virtual void ApplyVertex(GLVertexInfo &vtx, const tTVPRect &rc) override {
         if(!Bitmap) {
             vtx.tex = this;
             GLfloat sminu, smaxu, sminv, smaxv;
@@ -1755,7 +1761,7 @@ public:
     }
 
     virtual void Update(const void *pixel, TVPTextureFormat::e format,
-                        int pitch, const tTVPRect &rc) {
+                        int pitch, const tTVPRect &rc) override {
         if(PixelData) {
             if(rc.left > 0 || rc.top > 0 || rc.bottom < Height ||
                rc.right < Width) {
@@ -1780,12 +1786,12 @@ public:
                        rc.get_height());
     }
 
-    virtual void *GetScanLineForWrite(tjs_uint l) {
+    virtual void *GetScanLineForWrite(tjs_uint l) override {
         IsTextureDirty = true;
         return (void *)GetScanLineForRead(l);
     }
 
-    virtual void SetPoint(int x, int y, tjs_uint32 clr) {
+    virtual void SetPoint(int x, int y, tjs_uint32 clr) override {
         if(texture) {
             SyncPixel();
             _glBindTexture2D(texture);
@@ -1796,7 +1802,7 @@ public:
         }
     }
 
-    virtual void SetSize(unsigned int w, unsigned int h) {
+    virtual void SetSize(unsigned int w, unsigned int h) override {
         if(w > internalW || h > internalH) {
             if(PixelData) {
                 delete[] PixelData;
@@ -1854,7 +1860,7 @@ public:
         BlendDstA = dstAlpha;
         return this;
     }
-    virtual bool IsBlendTarget() { return !!BlendFunc; }
+    virtual bool IsBlendTarget() override { return !!BlendFunc; }
     virtual void ApplyTexture(unsigned int i, const GLVertexInfo &info) {
         info.tex->Bind(i);
         glVertexAttribPointer(GetTexCoordAttr(i), 2, GL_FLOAT, GL_FALSE, 0,
@@ -2134,7 +2140,7 @@ public:
         }
     }
 
-    virtual void SetParameterOpa(int id, int Value) {
+    virtual void SetParameterOpa(int id, int Value) override {
         if(id == 0xA19A1E21) {
             //	glEnable(GL_ALPHA_TEST);
             GL::glAlphaFunc(GL_GREATER, Value / 255.f);
@@ -2148,13 +2154,13 @@ public:
         glEnable(GL_ALPHA_TEST);
     }
 
-    virtual void onFinish() { glDisable(GL_ALPHA_TEST); }
+    virtual void onFinish() override { glDisable(GL_ALPHA_TEST); }
 };
 
 class tTVPOGLRenderMethod_Script_BlendColor
     : public tTVPOGLRenderMethod_Script {
     typedef tTVPOGLRenderMethod_Script inherit;
-    virtual int EnumParameterID(const char *name) {
+    virtual int EnumParameterID(const char *name) override {
         if(!strcmp(name, "opacity")) {
             return 0x709AC167;
         }
@@ -2418,7 +2424,7 @@ class TVPRenderManager_OpenGL : public iTVPRenderManager {
 protected:
     virtual tTVPOGLRenderMethod_Script *
     GetRenderMethodFromScript(const char *script, int nTex,
-                              unsigned int flags) {
+                              unsigned int flags) override {
         tTVPOGLRenderMethod_Script *method = new tTVPOGLRenderMethod_Script();
         method->init(script, nTex);
         if(flags & RENDER_METHOD_FLAG_TARGET_AS_INPUT) {
@@ -4185,7 +4191,7 @@ public:
         return newtex;
     }
 
-    virtual iTVPTexture2D *CreateTexture2D(tTJSBinaryStream *src) {
+    virtual iTVPTexture2D *CreateTexture2D(tTJSBinaryStream *src) override {
         // support PVRv3 only so far
         PVRv3Header header;
         if(src->Read(&header, sizeof(header)) != sizeof(header)) {
@@ -4467,9 +4473,10 @@ public:
 #endif
     }
 
-    virtual const char *GetName() { return "OpenGL"; }
-    virtual bool IsSoftware() { return false; }
-    virtual bool GetRenderStat(unsigned int &drawCount, uint64_t &vmemsize) {
+    virtual const char *GetName() override { return "OpenGL"; }
+    virtual bool IsSoftware() override { return false; }
+    virtual bool GetRenderStat(unsigned int &drawCount,
+                               uint64_t &vmemsize) override {
         drawCount = _drawCount;
         _drawCount = 0;
         vmemsize = _totalVMemSize;
@@ -4477,7 +4484,8 @@ public:
         return true;
     }
 
-    virtual bool GetTextureStat(iTVPTexture2D *texture, uint64_t &vmemsize) {
+    virtual bool GetTextureStat(iTVPTexture2D *texture,
+                                uint64_t &vmemsize) override {
         if(!texture) {
             vmemsize = 0;
             return false;
@@ -4490,7 +4498,7 @@ public:
     // dst x Tex1 x ... x TexN -> dst
     virtual void OperateRect(iTVPRenderMethod *_method, iTVPTexture2D *_tar,
                              iTVPTexture2D *reftar, const tTVPRect &rctar,
-                             const tRenderTexRectArray &textures) {
+                             const tRenderTexRectArray &textures) override {
         ++_drawCount;
         tTVPOGLRenderMethod *method = (tTVPOGLRenderMethod *)_method;
         tTVPOGLTexture2D *tar = (tTVPOGLTexture2D *)_tar;
@@ -4626,11 +4634,11 @@ public:
     }
 
     // src x dst -> tar todo: OperateTriangles
-    virtual void OperateTriangles(iTVPRenderMethod *_method, int nTriangles,
-                                  iTVPTexture2D *_tar, iTVPTexture2D *reftar,
-                                  const tTVPRect &rcclip,
-                                  const tTVPPointD *_pttar,
-                                  const tRenderTexQuadArray &textures) {
+    virtual void
+    OperateTriangles(iTVPRenderMethod *_method, int nTriangles,
+                     iTVPTexture2D *_tar, iTVPTexture2D *reftar,
+                     const tTVPRect &rcclip, const tTVPPointD *_pttar,
+                     const tRenderTexQuadArray &textures) override {
         ++_drawCount;
         tTVPOGLRenderMethod *method = (tTVPOGLRenderMethod *)_method;
         tTVPOGLTexture2D *tar = (tTVPOGLTexture2D *)_tar;
@@ -4827,7 +4835,7 @@ public:
                        iTVPTexture2D *_tar, iTVPTexture2D *reftar,
                        const tTVPRect &rcclip,
                        const tTVPPointD *_pttar /*quad{lt,rt,lb,rb}*/,
-                       const tRenderTexQuadArray &textures) {
+                       const tRenderTexQuadArray &textures) override {
         ++_drawCount;
         tTVPOGLTexture2D *tar = (tTVPOGLTexture2D *)_tar;
 
@@ -4894,7 +4902,7 @@ public:
         }
     }
 
-    virtual void BeginStencil(iTVPTexture2D *reftex) {
+    virtual void BeginStencil(iTVPTexture2D *reftex) override {
         if(_CurrentFBOValid && _CurrentRenderTarget) {
             glGetIntegerv(GL_RENDERBUFFER_BINDING, &_prevRenderBuffer);
             glBindRenderbuffer(GL_RENDERBUFFER, _stencil_FBO);

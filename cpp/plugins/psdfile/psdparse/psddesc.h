@@ -259,7 +259,7 @@ namespace psd {
         int itemCount() { return (int)items.size(); }
 
         // 戻り値オーバーロード用のクラス
-        [[nodiscard]] struct _getter {
+        struct [[nodiscard]] _getter {
             _getter(const std::vector<DescriptorItem *> &items, int id) :
                 items(items), id(id) {}
             DescriptorItem *get() const {

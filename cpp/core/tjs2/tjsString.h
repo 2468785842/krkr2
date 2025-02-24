@@ -70,8 +70,9 @@ namespace TJS {
             tTJSString_S{ TJSAllocVariantStringBuffer(len.n) } {}
 
         tTJSString(tjs_char rch) // NOLINT(*-explicit-constructor)
-            :
-            tTJSString_S{ TJSAllocVariantString((tjs_char[]){ rch, 0 }) } {
+        {
+            tjs_char tmp[]{ rch, TJS_W('\0') };
+            this->Ptr = TJSAllocVariantString(tmp);
         } // NOLINT(google-explicit-constructor)
 
         // construct with first n chars of str
@@ -466,7 +467,7 @@ namespace TJS {
     //---------------------------------------------------------------------------
 } // namespace TJS
 
-static tTJSString operator"" _ts(const char *str, size_t len) {
+static TJS::tTJSString operator"" _ts(const char *str, size_t len) {
     return { str, len };
 }
 

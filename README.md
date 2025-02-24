@@ -70,4 +70,4 @@
 
 ### 代码格式化
 
-clang-format: `clang-format -i --verbose $(find ./cpp -regex ".+\.\(cpp\|cc\|h\|hpp\|inc\)")`
+clang-format: `clang-format -i --verbose $(find ./cpp ./linux ./android/cpp -regex ".+\.\(cpp\|cc\|h\|hpp\|inc\)")`

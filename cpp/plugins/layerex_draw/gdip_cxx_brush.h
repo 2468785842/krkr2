@@ -4,6 +4,9 @@
 
 #ifndef KRKR2_GDIP_CXX_BRUSH_H
 #define KRKR2_GDIP_CXX_BRUSH_H
+
+#include "gdip_cxx.h"
+
 extern "C" {
 #include <libgdiplus/gdiplus-private.h>
 #include <libgdiplus/brush-private.h>
@@ -13,8 +16,6 @@ extern "C" {
 #include <libgdiplus/pathgradientbrush-private.h>
 #include <libgdiplus/lineargradientbrush-private.h>
 }
-
-#include <stdexcept>
 
 class [[nodiscard]] BrushBase {
 public:

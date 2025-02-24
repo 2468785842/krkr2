@@ -54,22 +54,24 @@ else()
     message(WARNING "OpenMP not found, fallback to single-threading.")
 endif()
 
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    log
-    android
-    EGL
-    GLESv2
-    GLESv1_CM
-    OpenSLES
-)
-
-find_package(unofficial-breakpad CONFIG REQUIRED)
+if(ANDROID)
+    target_link_libraries(${PROJECT_NAME} PUBLIC
+        log
+        android
+        EGL
+        GLESv2
+        GLESv1_CM
+        OpenSLES
+    )
+endif()
 
 # oboe
-if(DEFINED ANDROID)
+if(ANDROID)
     find_package (oboe CONFIG REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC oboe::oboe)
 endif()
+
+find_package(unofficial-breakpad CONFIG REQUIRED)
 
 # JXR library
 find_package(JXR REQUIRED)

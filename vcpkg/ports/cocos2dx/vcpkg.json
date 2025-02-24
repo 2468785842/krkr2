@@ -5,15 +5,13 @@
   "description": "Cocos2d-x is a suite of open-source, cross-platform, game-development tools utilized by millions of developers across the globe.",
   "homepage": "http://www.cocos2d-x.org/",
   "license": null,
-  "supports": "!uwp & !xbox",
+  "supports": "android | linux",
   "dependencies": [
     "freetype",
     "libjpeg-turbo",
-    {
-      "name": "libpng",
-      "platform": "!linux"
-    },
+    "libpng",
     "libwebp",
+    "curl",
     {
       "name": "openssl",
       "default-features": false
@@ -30,6 +28,30 @@
     {
       "name": "zlib",
       "platform": "osx | android | windows"
+    },
+    {
+      "name": "fontconfig",
+      "platform": "linux"
+    },
+    {
+      "name": "gtk3",
+      "platform": "linux"
+    },
+    {
+      "name": "glew",
+      "platform": "linux"
+    },
+    {
+      "name": "opengl",
+      "platform": "linux"
+    },
+    {
+      "name": "curl",
+      "platform": "linux"
+    },
+    {
+      "name": "sqlite3",
+      "platform": "linux"
     }
   ]
 }

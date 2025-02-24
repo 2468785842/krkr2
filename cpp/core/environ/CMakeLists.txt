@@ -5,7 +5,7 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/DumpSend.cpp
     ${ENVIRON_PATH}/XP3ArchiveRepack.cpp
 
-    ${ENVIRON_PATH}/android/AndroidUtils.cpp
+    $<$<BOOL:${ANDROID}>:${ENVIRON_PATH}/android/AndroidUtils.cpp>
 
     ${ENVIRON_PATH}/cocos2d/AppDelegate.cpp
     ${ENVIRON_PATH}/cocos2d/CCKeyCodeConv.cpp
@@ -58,7 +58,7 @@ set(ENVIRON_SOURCE_FILES
 set(ENVIRON_HEADERS_DIR
     ${ENVIRON_PATH}/
     ${ENVIRON_PATH}/win32
-    ${ENVIRON_PATH}/android
+    $<$<BOOL:${ANDROID}>:${ENVIRON_PATH}/android>
     ${ENVIRON_PATH}/sdl
     PARENT_SCOPE
 )

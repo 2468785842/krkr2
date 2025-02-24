@@ -6,6 +6,7 @@
 #include "RenderFormats.h"
 #include <cstdint>
 #include <atomic>
+#include <string>
 
 #define MAX_PLANES 3
 #define MAX_FIELDS 3

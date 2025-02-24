@@ -22,7 +22,7 @@ android {
             cmake {
                 targets 'krkr2'
                 cppFlags '-fsigned-char'
-                arguments '-DANDROID_STL=c++_shared'
+                arguments '-DANDROID_STL=c++_shared -DANDROID=ON'
             }
         }
         versionCode Integer.parseInt(new Date().format('yyyyMMddHH'))
@@ -32,8 +32,8 @@ android {
     externalNativeBuild {
         cmake {
             version '3.31.1'
-            buildStagingDirectory '../../out/cmake-build-android'
-            path '../../CMakeLists.txt'
+            buildStagingDirectory '../../out/android/cmake-build'
+            path '../cpp/CMakeLists.txt'
         }
     }
 

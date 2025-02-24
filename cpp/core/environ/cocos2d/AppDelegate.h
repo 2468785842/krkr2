@@ -22,5 +22,5 @@ class TVPAppDelegate : public cocos2d::Application {
      */
     void applicationWillEnterForeground() override;
 
-    void applicationScreenSizeChanged(int newWidth, int newHeight) override;
+    void applicationScreenSizeChanged(int newWidth, int newHeight);
 };

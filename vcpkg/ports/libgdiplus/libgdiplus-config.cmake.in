@@ -1,0 +1,74 @@
+# Handle dependencies
+# set(Libgdiplus_PKGCONFIG_MODULES "zlib libjpeg libpng cairo cairo-script-interpreter glib-2.0 libtiff-4 libexif")
+
+# Compute the installation prefix relative to this file.
+get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_FILE}" PATH)
+get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+if(_IMPORT_PREFIX STREQUAL "/")
+  set(_IMPORT_PREFIX "")
+endif()
+
+add_library(libgdiplus::libgdiplus STATIC IMPORTED)
+
+set_target_properties(libgdiplus::libgdiplus PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include/libgdiplus"
+    # INTERFACE_LINK_LIBRARIES
+)
+if(@LINUX@)
+    set_target_properties(libgdiplus::libgdiplus PROPERTIES
+        IMPORTED_LOCATION_RELEASE "${_IMPORT_PREFIX}/lib/libgdiplus.a"
+        IMPORTED_LOCATION_DEBUG "${_IMPORT_PREFIX}/debug/lib/libgdiplus.a"
+    )
+elseif(@WINDOWS@)
+    set_target_properties(libgdiplus::libgdiplus PROPERTIES
+        IMPORTED_LOCATION "${_IMPORT_PREFIX}/lib/gdiplus.lib"
+    )
+endif()
+
+find_package(ZLIB REQUIRED)
+target_link_libraries(libgdiplus::libgdiplus INTERFACE ZLIB::ZLIB)
+
+find_package(JPEG REQUIRED)
+target_link_libraries(libgdiplus::libgdiplus INTERFACE JPEG::JPEG)
+
+find_package(PNG REQUIRED)
+target_link_libraries(libgdiplus::libgdiplus INTERFACE PNG::PNG)
+
+find_package(TIFF REQUIRED)
+target_link_libraries(libgdiplus::libgdiplus INTERFACE TIFF::TIFF)
+ 
+find_package(PkgConfig REQUIRED)
+
+pkg_check_modules(CAIRO REQUIRED IMPORTED_TARGET cairo)
+
+if(NOT ${CAIRO_FOUND})
+    message(FATAL "cairo library not found!")
+else()
+    target_link_libraries(libgdiplus::libgdiplus INTERFACE ${CAIRO_LIBRARIES})
+endif()
+
+pkg_check_modules(CAIRO_SCRIPT_INTERPRETER REQUIRED IMPORTED_TARGET cairo-script-interpreter)
+
+if(NOT ${CAIRO_SCRIPT_INTERPRETER_FOUND})
+    message(FATAL "cairo-script-interpreter library not found!")
+else()
+    target_link_libraries(libgdiplus::libgdiplus INTERFACE ${CAIRO_SCRIPT_INTERPRETER_LIBRARIES})
+endif()
+
+pkg_check_modules(GLIB REQUIRED IMPORTED_TARGET glib-2.0)
+if(NOT ${GLIB_FOUND})
+    message(FATAL "glib-2.0 library not found!")
+else()
+    target_link_libraries(libgdiplus::libgdiplus INTERFACE ${GLIB_LIBRARIES})
+endif()
+
+pkg_check_modules(LIBEXIF REQUIRED IMPORTED_TARGET libexif)
+
+if(NOT ${LIBEXIF_FOUND})
+    message(FATAL "libexif library not found!")
+else()
+    target_link_libraries(libgdiplus::libgdiplus INTERFACE ${LIBEXIF_LIBRARIES})
+endif()
+
+check_required_components(libgdiplus)
