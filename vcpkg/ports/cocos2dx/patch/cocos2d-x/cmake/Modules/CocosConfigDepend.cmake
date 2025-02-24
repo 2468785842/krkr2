@@ -100,7 +100,7 @@ macro(use_cocos2dx_libs_depend target)
         find_package(PkgConfig REQUIRED)
         pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
         target_include_directories(${target} PUBLIC ${GTK3_INCLUDE_DIRS})
-        target_link_directories(${target} PUBLIC ${GTK3_LIBRARY_DIRS} "${VCPKG_IMPORT_PREFIX}/debug/lib")
+        target_link_directories(${target} PUBLIC ${GTK3_LIBRARY_DIRS})
         target_link_libraries(${target} PUBLIC ${GTK3_LIBRARIES})
 
         find_package(GLEW REQUIRED)

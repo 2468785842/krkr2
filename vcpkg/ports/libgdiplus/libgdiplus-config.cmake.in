@@ -11,10 +11,15 @@ endif()
 
 add_library(libgdiplus::libgdiplus STATIC IMPORTED)
 
+# glibconfig
+# https://invent.kde.org/frameworks/extra-cmake-modules/-/blob/master/find-modules/FindGLIB2.cmake
+
 set_target_properties(libgdiplus::libgdiplus PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include/libgdiplus"
     # INTERFACE_LINK_LIBRARIES
+    INTERFACE_LINK_DIRECTORIES "${_IMPORT_PREFIX}/lib;${_IMPORT_PREFIX}/debug/lib"
+    INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include/libgdiplus"
 )
+
 if(@LINUX@)
     set_target_properties(libgdiplus::libgdiplus PROPERTIES
         IMPORTED_LOCATION_RELEASE "${_IMPORT_PREFIX}/lib/libgdiplus.a"
@@ -61,6 +66,7 @@ if(NOT ${GLIB_FOUND})
     message(FATAL "glib-2.0 library not found!")
 else()
     target_link_libraries(libgdiplus::libgdiplus INTERFACE ${GLIB_LIBRARIES})
+    target_include_directories(libgdiplus::libgdiplus INTERFACE "${_IMPORT_PREFIX}/lib/glib-2.0/include" "${_IMPORT_PREFIX}/include/glib-2.0")
 endif()
 
 pkg_check_modules(LIBEXIF REQUIRED IMPORTED_TARGET libexif)

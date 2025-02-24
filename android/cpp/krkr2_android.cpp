@@ -4,10 +4,10 @@
 #include <dlfcn.h>
 #include <cocos/platform/android/jni/JniHelper.h>
 
-#include "core/environ/cocos2d/AppDelegate.h"
-#include "core/environ/cocos2d/MainScene.h"
-#include "core/environ/ConfigManager/GlobalConfigManager.h"
-#include "core/environ/Application.h"
+#include "environ/cocos2d/AppDelegate.h"
+#include "environ/cocos2d/MainScene.h"
+#include "environ/ConfigManager/GlobalConfigManager.h"
+#include "environ/Application.h"
 
 /*******************************************************************************
                  Functions called by JNI

@@ -12,8 +12,6 @@ set(APP_NAME krkr2)
 
 project(${APP_NAME})
 
-set(VCPKG_INSTALL_DIR "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}")
-
 if(NOT ANDROID)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
