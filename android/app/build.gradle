@@ -3,37 +3,16 @@ plugins {
 }
 
 android {
-    ndkVersion '27.2.12479018'
     compileSdk PROP_COMPILE_SDK_VERSION.toInteger()
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
-    }
+    namespace 'org.github.krkr2'
 
     defaultConfig {
         applicationId 'org.github.krkr2'
         minSdkVersion PROP_MIN_SDK_VERSION
         targetSdkVersion PROP_TARGET_SDK_VERSION
 
-        ndk {
-            jobs Runtime.runtime.availableProcessors()
-            //noinspection ChromeOsAbiSupport
-            abiFilters 'arm64-v8a', 'armeabi-v7a'
-        }
-
-//        externalNativeBuild {
-//            cmake {
-//                def buildTypeName = {
-//                    return project.gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') } ? "Release" : "Debug"
-//                }
-//                targets 'krkr2'
-//                arguments "-DCMAKE_BUILD_TYPE=${buildTypeName()}"
-//                cppFlags '-fsigned-char'
-//            }
-//        }
         versionCode Integer.parseInt(new Date().format('yyyyMMddHH'))
-        versionName '1.4.0'
+        versionName '1.4.1'
     }
 
     signingConfigs {
@@ -80,12 +59,10 @@ android {
 
     }
 
-//    externalNativeBuild {
-//        cmake {
-//            buildStagingDirectory '../../out/cmake-build-android'
-//            path '../../CMakeLists.txt'
-//        }
-//    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
 
     splits {
         abi {
@@ -117,11 +94,4 @@ dependencies {
     implementation 'androidx.activity:activity:1.2.3'
     //noinspection GradleDependency
     implementation 'androidx.fragment:fragment:1.3.4'
-
-    configurations.configureEach {
-        resolutionStrategy {
-            force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
-            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
-        }
-    }
 }

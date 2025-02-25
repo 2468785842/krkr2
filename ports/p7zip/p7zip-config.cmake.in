@@ -1,5 +1,0 @@
-@PACKAGE_INIT@
-
-include("${CMAKE_CURRENT_LIST_DIR}/p7zip-targets.cmake")
-
-check_required_components(p7zip)
