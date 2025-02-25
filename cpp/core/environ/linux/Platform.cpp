@@ -292,7 +292,7 @@ bool TVPRenameFile(const std::string &from, const std::string &to) {
 
 void TVPSendToOtherApp(const std::string &filename) {}
 
-std::vector<std::string> TVPGetDriverPath() { return {}; }
+std::vector<std::string> TVPGetDriverPath() { return {"/"}; }
 
 std::string TVPGetDefaultFileDir() {
     char buffer[PATH_MAX];
