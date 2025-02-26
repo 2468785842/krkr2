@@ -16,6 +16,9 @@
 #   public *;
 #}
 
+-keep public class org.tvp.kirikiri2.** { *; }
+-dontwarn org.tvp.kirikiri2.**
+
 # Proguard Cocos2d-x for release
 -keep public class org.cocos2dx.** { *; }
 -dontwarn org.cocos2dx.**
