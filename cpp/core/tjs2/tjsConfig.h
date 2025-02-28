@@ -116,8 +116,8 @@ namespace TJS {
 #define TJS_D(x)
 #define TJS_F_TRACE(x)
 #endif
-
-    void TVPConsoleLog(const tjs_char *l);
+    class tTJSString;
+    void TVPConsoleLog(const tTJSString &str);
 
     extern void TJSNativeDebuggerBreak();
 

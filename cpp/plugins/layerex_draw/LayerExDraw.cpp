@@ -289,7 +289,8 @@ FontInfo::FontInfo(const FontInfo &orig) {
 
     FT_Open_Face(ftLibrary, &args, 0, &this->ftFace);
 
-    FT_Set_Char_Size(this->ftFace, 0, emSize * 64, 72, 72);
+    int dpi = gdip_get_display_dpi();
+    FT_Set_Char_Size(this->ftFace, 0, emSize * 64, dpi, dpi);
 }
 
 /**
@@ -328,7 +329,7 @@ void FontInfo::setFamilyName(const tjs_char *fName) {
     clear();
 
     // 中日韩字体 有衬字体： Noto Serif CJK SC
-    static auto defaultFamily = "Noto Sans CJK SC";
+    static std::string defaultFamily = "Noto Sans CJK SC";
 
     // FIXME: 目前gdiplus无法正常绘制字符不知道为什么！
     // WCHAR* wDefaultFamily = g_utf8_to_utf16(defaultFamily, -1,
@@ -351,14 +352,16 @@ void FontInfo::setFamilyName(const tjs_char *fName) {
     gdiPlusUnsupportedFont = true;
     this->familyName = fName;
     const auto pair = findFontPath(defaultFamily);
-    if(std::equal(pair.second.begin(), pair.second.end(), defaultFamily)) {
+    if(pair.second == defaultFamily) {
         spdlog::get("plugin")->debug("using system font file");
         FT_New_Face(ftLibrary, pair.first.c_str(), 0, &this->ftFace);
     } else {
         spdlog::get("plugin")->debug("using embedded font file");
         loadFontFromAssets(ftLibrary, &this->ftFace);
     }
-    FT_Set_Char_Size(this->ftFace, 0, emSize * 64, 72, 72);
+
+    int dpi = gdip_get_display_dpi();
+    FT_Set_Char_Size(this->ftFace, 0, emSize * 64, dpi, dpi);
 }
 
 void FontInfo::setForceSelfPathDraw(bool state) { forceSelfPathDraw = state; }
@@ -2111,14 +2114,8 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
         return;
     }
 
-    const auto unitsPerEM = static_cast<float>(fontInfo->ftFace->units_per_EM);
-    const auto emSize = static_cast<float>(fontInfo->emSize);
+    static constexpr float scaleFactor = 1 / 64.0f + 0.009f; // 0.009f修正大小, 游戏字体一般偏小过小
 
-    // 动态调整因子，基于units_per_EM
-    const float adjustmentFactor = (unitsPerEM > 1000) ? 4.0f : 1.2f;
-
-    const float scaleFactor = (emSize / unitsPerEM) / adjustmentFactor +
-        0.009f; // 0.009f修正因子, 弥补精度丢失
     PointFClass glyphOffset{ offset.X,
                              offset.Y + fontInfo->getAscent() +
                                  fabs(fontInfo->getDescent()) +
@@ -2128,17 +2125,14 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
     FT_Outline outline = glyph->outline;
 
     const auto getPoint = [&](int index) -> PointFClass {
-        return { static_cast<float>(outline.points[index].x) * scaleFactor +
+        return { static_cast<float>(outline.points[index].x * scaleFactor) +
                      glyphOffset.X,
-                 static_cast<float>(-outline.points[index].y) * scaleFactor +
+                 static_cast<float>(-outline.points[index].y * scaleFactor) +
                      glyphOffset.Y };
     };
 
     std::function<PointFClass(int, int, int)> getConicEndPoint =
         [&](int contourStart, int index, int contourEnd) -> PointFClass {
-        if(FT_CURVE_TAG(outline.tags[index]) != FT_CURVE_TAG_CONIC) {
-            throw std::logic_error{ "must FT_CURVE_TAG_CONIC" };
-        }
 
         int nextIndex = index == contourEnd ? contourStart : index + 1;
         FT_Byte nextTag = FT_CURVE_TAG(outline.tags[nextIndex]);
@@ -2248,7 +2242,7 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
         GdipClosePathFigure(path);
     }
 
-    offset.X += static_cast<float>(glyph->advance.x) * scaleFactor;
+    offset.X += static_cast<float>(glyph->advance.x * scaleFactor);
 }
 
 /*

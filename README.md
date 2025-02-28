@@ -61,8 +61,8 @@
 - Linux: `./gradlew assemble`
 
 > **生成的二进制文件位置**:  
-> - Debug: `out/app/outputs/apk/debug`  
-> - Release: `out/app/outputs/apk/release`  
+> - Debug: `out/android/app/outputs/apk/debug`  
+> - Release: `out/android/app/outputs/apk/release`  
 
 ### 插件资源
 

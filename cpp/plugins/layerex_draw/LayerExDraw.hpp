@@ -47,7 +47,7 @@ protected:
     //    GpFontFamily *fontFamily{}; //< フォントファミリー
     FT_Face ftFace{};
     ttstr familyName{};
-    UINT emSize{ 12 }; //< フォントサイズ
+    float emSize{ 12 }; //< フォントサイズ
     INT style{}; //< フォントスタイル
     bool gdiPlusUnsupportedFont{}; //< GDI+未サポートフォント
     bool forceSelfPathDraw{}; // 自前パス描画強制

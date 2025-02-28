@@ -1114,7 +1114,7 @@ void tTVPComplexRect::RectangleSub(tTVPRegionRect *r, const tTVPRect *rr) {
 //---------------------------------------------------------------------------
 
 namespace TJS {
-    void TVPConsoleLog(const tjs_char *l);
+    void TVPConsoleLog(const ttstr &str);
 }
 #define OutputDebugString TVPConsoleLog
 //---------------------------------------------------------------------------

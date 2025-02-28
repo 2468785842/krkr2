@@ -1589,13 +1589,13 @@ public:
         }
     }
 
-    virtual void ResetTouchVelocity(tjs_int id) {
+    virtual void ResetTouchVelocity(tjs_int id) override{
         TouchVelocityTracker.end(id);
     }
 
-    virtual void ResetMouseVelocity() { MouseVelocityTracker.clear(); }
+    virtual void ResetMouseVelocity() override { MouseVelocityTracker.clear(); }
 
-    bool GetMouseVelocity(float &x, float &y, float &speed) const {
+    bool GetMouseVelocity(float &x, float &y, float &speed) const override{
         if(MouseVelocityTracker.getVelocity(x, y)) {
             speed = hypotf(x, y);
             return true;
@@ -2639,12 +2639,8 @@ void TVPConsoleLog(const ttstr &l, bool important) {
 namespace TJS {
     static const int MAX_LOG_LENGTH = 16 * 1024;
 
-    void TVPConsoleLog(const tjs_char *l) {
-        std::string utf8;
-        assert(sizeof(tjs_char) == sizeof(char16_t));
-        std::u16string buf((const char16_t *)l);
-        if(StringUtils::UTF16ToUTF8(buf, utf8))
-            cocos2d::log("%s", utf8.c_str());
+    void TVPConsoleLog(const ttstr &str) {
+        cocos2d::log("%s", str.AsStdString().c_str());
     }
 
     void TVPConsoleLog(const tjs_nchar *format, ...) {
