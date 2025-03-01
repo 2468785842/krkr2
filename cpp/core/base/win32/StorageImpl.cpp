@@ -185,36 +185,6 @@ void TVPGetLocalFileListAt(
 void tTVPFileMedia::GetListAt(const ttstr &_name, iTVPStorageLister *lister) {
     ttstr name(_name);
     GetLocalName(name);
-#if 0
-    name += TJS_W("*.*");
-
-    // perform UNICODE operation
-    WIN32_FIND_DATAW ffd;
-    HANDLE handle = ::FindFirstFile(name.c_str(), &ffd);
-    if(handle != INVALID_HANDLE_VALUE)
-    {
-        BOOL cont;
-        do
-        {
-            if(!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-            {
-                ttstr file(ffd.cFileName);
-                tjs_char *p = file.Independ();
-                while(*p)
-                {
-                    // make all characters small
-                    if(*p >= TJS_W('A') && *p <= TJS_W('Z'))
-                        *p += TJS_W('a') - TJS_W('A');
-                    p++;
-                }
-                lister->Add(file);
-            }
-
-            cont = ::FindNextFile(handle, &ffd);
-        } while(cont);
-        FindClose(handle);
-    }
-#endif
     TVPGetLocalFileListAt(name,
                           [lister](const ttstr &name, tTVPLocalFileInfo *s) {
                               if(s->Mode & (S_IFREG)) {
@@ -464,10 +434,6 @@ bool TVPRemoveFolder(const ttstr &name) {
 // TVPGetAppPath
 //---------------------------------------------------------------------------
 ttstr TVPGetAppPath() {
-#if 0
-    static ttstr exepath(TVPExtractStoragePath(TVPNormalizeStorageName(ExePath())));
-    return exepath;
-#endif
     static ttstr apppath(TVPExtractStoragePath(TVPProjectDir));
     return apppath;
 }
@@ -514,13 +480,6 @@ bool TVPCheckExistentLocalFile(const ttstr &name) {
 // TVPCheckExistantLocalFolder
 //---------------------------------------------------------------------------
 bool TVPCheckExistentLocalFolder(const ttstr &name) {
-#if 0
-    DWORD attrib = GetFileAttributes(name.c_str());
-    if(attrib != 0xffffffff && (attrib & FILE_ATTRIBUTE_DIRECTORY))
-        return true; // a folder
-    else
-        return false; // not a folder
-#endif
     tTVP_stat s{};
     if(!TVP_stat(name.c_str(), s)) {
         return false; // not exist
@@ -548,10 +507,6 @@ static tTVPArchive *(*ArchiveCreators[])(
 // TVPOpenArchive
 //---------------------------------------------------------------------------
 tTVPArchive *TVPOpenArchive(const ttstr &name, bool normalizeFileName) {
-#if 0
-    tTVPArchive * archive = TVPOpenSusieArchive(name); // in SusieArchive.h
-    if(!archive) return new tTVPXP3Archive(name); else return archive;
-#endif
     tTJSBinaryStream *st = TVPCreateStream(name);
     if(!st)
         return nullptr;
@@ -619,59 +574,6 @@ ttstr TVPLocalExtractFilePath(const ttstr &name) {
     }
     return { p, static_cast<size_t>(i + 1) };
 }
-//---------------------------------------------------------------------------
-
-#if 0
-//---------------------------------------------------------------------------
-// TVPCreateFolders
-//---------------------------------------------------------------------------
-static bool _TVPCreateFolders(const ttstr &folder)
-{
-    // create directories along with "folder"
-    if(folder.IsEmpty()) return true;
-
-    if(TVPCheckExistentLocalFolder(folder))
-        return true; // already created
-
-    const tjs_char *p = folder.c_str();
-    tjs_int i = folder.GetLen() - 1;
-
-    if(p[i] == TJS_W(':')) return true;
-
-    while(i >= 0 && (p[i] == TJS_W('/') || p[i] == TJS_W('\\'))) i--;
-
-    if(i >= 0 && p[i] == TJS_W(':')) return true;
-
-    for(; i >= 0; i--)
-    {
-        if(p[i] == TJS_W(':') || p[i] == TJS_W('/') ||
-            p[i] == TJS_W('\\'))
-            break;
-    }
-
-    ttstr parent(p, i + 1);
-
-    if(!_TVPCreateFolders(parent)) return false;
-
-    BOOL res = ::CreateDirectory(folder.c_str(), nullptr);
-    return 0!=res;
-}
-
-bool TVPCreateFolders(const ttstr &folder)
-{
-    if(folder.IsEmpty()) return true;
-
-    const tjs_char *p = folder.c_str();
-    tjs_int i = folder.GetLen() - 1;
-
-    if(p[i] == TJS_W(':')) return true;
-
-    if(p[i] == TJS_W('/') || p[i] == TJS_W('\\')) i--;
-
-    return _TVPCreateFolders(ttstr(p, i+1));
-}
-//---------------------------------------------------------------------------
-#endif
 
 //---------------------------------------------------------------------------
 // tTVPLocalFileStream
@@ -811,50 +713,6 @@ tjs_uint64 tTVPLocalFileStream::GetSize() {
     lseek64(Handle, curpos, SEEK_SET);
     return ret;
 }
-//---------------------------------------------------------------------------
-
-#ifdef TJS_SUPPORT_VCL
-//---------------------------------------------------------------------------
-// TTVPStreamAdapter
-//---------------------------------------------------------------------------
-__fastcall TTVPStreamAdapter::TTVPStreamAdapter(tTJSBinaryStream *ref) {
-    Stream = ref;
-    Stream->SetPosition(0);
-}
-//---------------------------------------------------------------------------
-__fastcall TTVPStreamAdapter::~TTVPStreamAdapter() { delete Stream; }
-//---------------------------------------------------------------------------
-int __fastcall TTVPStreamAdapter::Read(void *Buffer, int Count) {
-    return (int)Stream->Read(Buffer, Count);
-}
-//---------------------------------------------------------------------------
-int __fastcall TTVPStreamAdapter::Seek(int Offset, WORD Origin) {
-    tjs_int whence;
-    switch(Origin) {
-        case soFromBeginning:
-            whence = TJS_BS_SEEK_SET;
-            break;
-        case soFromCurrent:
-            whence = TJS_BS_SEEK_CUR;
-            break;
-        case soFromEnd:
-            whence = TJS_BS_SEEK_END;
-            break;
-    }
-
-    return (int)Stream->Seek(Offset, whence);
-}
-//---------------------------------------------------------------------------
-int __fastcall TTVPStreamAdapter::Write(const void *Buffer, int Count) {
-    return (int)Stream->Write(Buffer, Count);
-}
-//---------------------------------------------------------------------------
-#endif
-
-#if 1
-//---------------------------------------------------------------------------
-// tTVPIStreamAdapter
-//---------------------------------------------------------------------------
 /*
 this class provides COM's IStream adapter for tTJSBinaryStream
 */
@@ -1111,8 +969,6 @@ HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Clone(IStream **ppstm) {
     return E_NOTIMPL;
 }
 //---------------------------------------------------------------------------
-
-#endif
 
 IStream *TVPCreateIStream(tTJSBinaryStream *s) {
     return new tTVPIStreamAdapter(s);

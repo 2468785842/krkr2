@@ -2,6 +2,9 @@
 #ifndef __FONT_RASTERIZER_H__
 #define __FONT_RASTERIZER_H__
 
+#include "tjsTypes.h"
+#include "tjsString.h"
+
 class FontRasterizer {
 
 public:
@@ -15,7 +18,8 @@ public:
     virtual class tTVPCharacterData *
     GetBitmap(const struct tTVPFontAndCharacterData &font, tjs_int aofsx,
               tjs_int aofsy) = 0;
-    virtual void GetGlyphDrawRect(const ttstr &text, struct tTVPRect &area) = 0;
+    virtual void GetGlyphDrawRect(const TJS::ttstr &text,
+                                  struct tTVPRect &area) = 0;
 };
 
 #endif // __FREE_TYPE_FONT_RASTERIZER_H__

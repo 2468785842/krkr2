@@ -54,184 +54,183 @@
    same executable of Kirikiri (There is a command line option for
    running this facility).
 */
-#if 0
-//---------------------------------------------------------------------------
-// tTVPPipeStream to do IPC (used for Object Hash Map)
-//---------------------------------------------------------------------------
-class tTVPPipeStream : public tTJSBinaryStream
-{
-private:
-    HANDLE Handle;
+// #if 0
+// //---------------------------------------------------------------------------
+// // tTVPPipeStream to do IPC (used for Object Hash Map)
+// //---------------------------------------------------------------------------
+// class tTVPPipeStream : public tTJSBinaryStream
+// {
+// private:
+//     HANDLE Handle;
 
-public:
-    tTVPPipeStream(HANDLE handle)
-    {
-        Handle = handle;
-    }
+// public:
+//     tTVPPipeStream(HANDLE handle)
+//     {
+//         Handle = handle;
+//     }
 
-    ~tTVPPipeStream()
-    {
-        CloseHandle(Handle);
-    }
+//     ~tTVPPipeStream()
+//     {
+//         CloseHandle(Handle);
+//     }
 
-    tjs_uint64 Seek(tjs_int64 offset, tjs_int whence)
-    {
-        return 0; // pipes does not support seeking
-    }
+//     tjs_uint64 Seek(tjs_int64 offset, tjs_int whence)
+//     {
+//         return 0; // pipes does not support seeking
+//     }
 
-    tjs_uint Read(void *buffer, tjs_uint read_size)
-    {
-        DWORD ret = 0;
-        ReadFile(Handle, buffer, read_size, &ret, nullptr);
-        return ret;
-    }
+//     tjs_uint Read(void *buffer, tjs_uint read_size)
+//     {
+//         DWORD ret = 0;
+//         ReadFile(Handle, buffer, read_size, &ret, nullptr);
+//         return ret;
+//     }
 
-    tjs_uint Write(const void *buffer, tjs_uint write_size)
-    {
-        DWORD ret = 0;
-        WriteFile(Handle, buffer, write_size, &ret, nullptr);
-        FlushFileBuffers(Handle);
-        return ret;
-    }
+//     tjs_uint Write(const void *buffer, tjs_uint write_size)
+//     {
+//         DWORD ret = 0;
+//         WriteFile(Handle, buffer, write_size, &ret, nullptr);
+//         FlushFileBuffers(Handle);
+//         return ret;
+//     }
 
-    void SetEndOfStorage()
-    {
-        return;
-    }
+//     void SetEndOfStorage()
+//     {
+//         return;
+//     }
 
-    tjs_uint64 GetSize()
-    {
-        return 0;
-    }
-};
-//---------------------------------------------------------------------------
+//     tjs_uint64 GetSize()
+//     {
+//         return 0;
+//     }
+// };
+// //---------------------------------------------------------------------------
 
 
+// //---------------------------------------------------------------------------
+// // Object Hash Map (memory leak detector) related
+// //---------------------------------------------------------------------------
+// static char TVPObjectHashMapLogStream[sizeof(tTVPPipeStream)];
 
-//---------------------------------------------------------------------------
-// Object Hash Map (memory leak detector) related
-//---------------------------------------------------------------------------
-static char TVPObjectHashMapLogStream[sizeof(tTVPPipeStream)];
+// //---------------------------------------------------------------------------
+// void TVPStartObjectHashMapLog()
+// {
+// #ifndef ENABLE_DEBUGGER
+//     if(TJSObjectHashMapEnabled())
+//     {
+//         // begin logging
 
-//---------------------------------------------------------------------------
-void TVPStartObjectHashMapLog()
-{
-#ifndef ENABLE_DEBUGGER
-    if(TJSObjectHashMapEnabled())
-    {
-        // begin logging
+//         // create anonymous pipe to communicate with child kirikiri process
+//         HANDLE read, write;
+//         SECURITY_ATTRIBUTES sa;
+//         ZeroMemory(&sa, sizeof(sa));
+//         sa.nLength = sizeof(sa);
+//         sa.bInheritHandle = TRUE;
+//         CreatePipe(&read, &write, &sa, 0);
 
-        // create anonymous pipe to communicate with child kirikiri process
-        HANDLE read, write;
-        SECURITY_ATTRIBUTES sa;
-        ZeroMemory(&sa, sizeof(sa));
-        sa.nLength = sizeof(sa);
-        sa.bInheritHandle = TRUE;
-        CreatePipe(&read, &write, &sa, 0);
+//         // redirect stdin to output the object hash map log
+//         HANDLE org_stdin = GetStdHandle(STD_INPUT_HANDLE);
+//         HANDLE childdupwrite;
+//         SetStdHandle(STD_INPUT_HANDLE, read);
+//         DuplicateHandle(GetCurrentProcess(), write, GetCurrentProcess(),
+//             &childdupwrite, 0, FALSE, DUPLICATE_SAME_ACCESS);
+//         CloseHandle(write);
+//         write = childdupwrite;
 
-        // redirect stdin to output the object hash map log
-        HANDLE org_stdin = GetStdHandle(STD_INPUT_HANDLE);
-        HANDLE childdupwrite;
-        SetStdHandle(STD_INPUT_HANDLE, read);
-        DuplicateHandle(GetCurrentProcess(), write, GetCurrentProcess(),
-            &childdupwrite, 0, FALSE, DUPLICATE_SAME_ACCESS);
-        CloseHandle(write);
-        write = childdupwrite;
+//         // create child kirikiri process
+//         STARTUPINFO si;
+//         PROCESS_INFORMATION pi;
+//         ZeroMemory(&si, sizeof(si));
+//         si.cb = sizeof(si);
+//         si.dwFlags = STARTF_USESHOWWINDOW;
+//         si.wShowWindow = SW_SHOWNORMAL;
 
-        // create child kirikiri process
-        STARTUPINFO si;
-        PROCESS_INFORMATION pi;
-        ZeroMemory(&si, sizeof(si));
-        si.cb = sizeof(si);
-        si.dwFlags = STARTF_USESHOWWINDOW;
-        si.wShowWindow = SW_SHOWNORMAL;
+//         wchar_t szFull[_MAX_PATH];
+//         ::GetModuleFileName(nullptr, szFull, sizeof(szFull) /
+//         sizeof(wchar_t)); std::wstring exepath(szFull); BOOL ret =
+//             ::CreateProcess(
+//                 nullptr,
+//                 const_cast<LPTSTR>((exepath + L" -@processohmlog").c_str()),
+//                 nullptr,
+//                 nullptr,
+//                 TRUE,
+//                 0,
+//                 nullptr,
+//                 nullptr,
+//                 &si,
+//                 &pi);
 
-        wchar_t szFull[_MAX_PATH];
-        ::GetModuleFileName(nullptr, szFull, sizeof(szFull) / sizeof(wchar_t));
-        std::wstring exepath(szFull);
-        BOOL ret =
-            ::CreateProcess(
-                nullptr,
-                const_cast<LPTSTR>((exepath + L" -@processohmlog").c_str()),
-                nullptr,
-                nullptr,
-                TRUE,
-                0,
-                nullptr,
-                nullptr,
-                &si,
-                &pi);
+//         if(ret)
+//         {
+//             CloseHandle(pi.hThread);
+//             CloseHandle(pi.hProcess);
+//         }
 
-        if(ret)
-        {
-            CloseHandle(pi.hThread);
-            CloseHandle(pi.hProcess);
-        }
+//         // close unneeded handle
+//         CloseHandle(read);
 
-        // close unneeded handle
-        CloseHandle(read);
+//         // restore original stdin handle
+//         SetStdHandle(STD_INPUT_HANDLE, org_stdin);
 
-        // restore original stdin handle
-        SetStdHandle(STD_INPUT_HANDLE, org_stdin);
+//         // create tTJSBinaryStream object in STATIC AREA
+//         ::new (TVPObjectHashMapLogStream) tTVPPipeStream(write);
 
-        // create tTJSBinaryStream object in STATIC AREA
-        ::new (TVPObjectHashMapLogStream) tTVPPipeStream(write);
+//         // set object hash map log
+//         TJSObjectHashMapSetLog((tTVPLocalFileStream*)TVPObjectHashMapLogStream);
 
-        // set object hash map log
-        TJSObjectHashMapSetLog((tTVPLocalFileStream*)TVPObjectHashMapLogStream);
+//         // write all objects to log
+//         TJSWriteAllUnfreedObjectsToLog();
 
-        // write all objects to log
-        TJSWriteAllUnfreedObjectsToLog();
+//         // end object mapping
+//         TJSReleaseObjectHashMap();
+//     }
+// #endif
+// }
+// //---------------------------------------------------------------------------
+// static tTVPAtExit TVPReportUnfreedObjectsAtExit
+//     (TVP_ATEXIT_PRI_CLEANUP - 1, TVPStartObjectHashMapLog);
+// //---------------------------------------------------------------------------
 
-        // end object mapping
-        TJSReleaseObjectHashMap();
-    }
-#endif
-}
-//---------------------------------------------------------------------------
-static tTVPAtExit TVPReportUnfreedObjectsAtExit
-    (TVP_ATEXIT_PRI_CLEANUP - 1, TVPStartObjectHashMapLog);
-//---------------------------------------------------------------------------
+// //---------------------------------------------------------------------------
+// bool TVPCheckProcessLog()
+// {
+//     // process object hash map log
+//     int argc = Application->ArgC;
+//     char** argv = Application->ArgV;
 
-//---------------------------------------------------------------------------
-bool TVPCheckProcessLog()
-{
-    // process object hash map log
-    int argc = Application->ArgC;
-    char** argv = Application->ArgV;
+//     tjs_int i;
+//     for(i=1; i<argc; i++)
+//     {
+//         if(!strcmp(argv[i], "-@processohmlog")) // this does not refer
+//         TVPGetCommandLine
+//         {
+//             // create object hash map
+//             TJSAddRefObjectHashMap();
 
-    tjs_int i;
-    for(i=1; i<argc; i++)
-    {
-        if(!strcmp(argv[i], "-@processohmlog")) // this does not refer TVPGetCommandLine
-        {
-            // create object hash map
-            TJSAddRefObjectHashMap();
+//             // create pipe object
+//             tTVPPipeStream pipe(GetStdHandle(STD_INPUT_HANDLE));
 
-            // create pipe object
-            tTVPPipeStream pipe(GetStdHandle(STD_INPUT_HANDLE));
+//             // set object hash map log
+//             TJSObjectHashMapSetLog(&pipe);
 
-            // set object hash map log
-            TJSObjectHashMapSetLog(&pipe);
+//             // read from stdin
+//             TJSReplayObjectHashMapLog();
 
-            // read from stdin
-            TJSReplayObjectHashMapLog();
+//             // output report if object had been leaked
+//             if(TJSObjectHashAnyUnfreed())
+//             {
+//                 TVPOnError();
+//                 TJSReportAllUnfreedObjects(TVPGetTJS2ConsoleOutputGateway());
+//             }
 
-            // output report if object had been leaked
-            if(TJSObjectHashAnyUnfreed())
-            {
-                TVPOnError();
-                TJSReportAllUnfreedObjects(TVPGetTJS2ConsoleOutputGateway());
-            }
+//             // release object hash map
+//             TJSReleaseObjectHashMap();
 
-            // release object hash map
-            TJSReleaseObjectHashMap();
+//             return true; // processed
+//         }
+//     }
 
-            return true; // processed
-        }
-    }
-
-    return false;
-}
-//---------------------------------------------------------------------------
-#endif
+//     return false;
+// }
+// //---------------------------------------------------------------------------
+// #endif

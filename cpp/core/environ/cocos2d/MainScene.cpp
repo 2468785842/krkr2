@@ -127,7 +127,7 @@ int TVPDrawSceneOnce(int interval) {
         if(_postUpdate)
             _postUpdate();
         Director *director = Director::getInstance();
-        director->drawScene(/*true*/);
+        director->drawScene();
         TVPForceSwapBuffer();
         lastTick = curTick;
         return 0;
@@ -427,7 +427,7 @@ public:
         }
     }
 
-    bool init() {
+    bool init() override {
         bool ret = inherit::init();
         setClippingToBounds(false);
         DrawSprite = Sprite::create();
@@ -744,22 +744,22 @@ public:
             TVPGetCurrentShiftKeyState()));
     }
 
-    virtual void SetPaintBoxSize(tjs_int w, tjs_int h) {
+    virtual void SetPaintBoxSize(tjs_int w, tjs_int h) override {
         LayerWidth = w;
         LayerHeight = h;
         RecalcPaintBox();
     }
 
-    virtual bool GetFormEnabled() { return isVisible(); }
+    virtual bool GetFormEnabled() override { return isVisible(); }
 
-    virtual void SetDefaultMouseCursor() { ; }
+    virtual void SetDefaultMouseCursor() override {}
 
-    virtual void GetCursorPos(tjs_int &x, tjs_int &y) {
+    virtual void GetCursorPos(tjs_int &x, tjs_int &y) override {
         x = _LastMouseX;
         y = _LastMouseY;
     }
 
-    virtual void SetCursorPos(tjs_int x, tjs_int y) {
+    virtual void SetCursorPos(tjs_int x, tjs_int y) override {
         Vec2 worldPt = PrimaryLayerArea->convertToWorldSpace(
             Vec2(x, PrimaryLayerArea->getContentSize().height - y));
         Vec2 pt = getParent()->convertToNodeSpace(worldPt);
@@ -771,7 +771,7 @@ public:
         }
     }
 
-    virtual void SetHintText(const ttstr &text) {}
+    virtual void SetHintText(const ttstr &text) override {}
 
     tjs_int _textInputPosY;
 
@@ -780,7 +780,7 @@ public:
         _textInputPosY = top;
     }
 
-    virtual void SetImeMode(tTVPImeMode mode) {
+    virtual void SetImeMode(tTVPImeMode mode) override {
         switch(mode) {
             case ::imDisable:
             case ::imClose:
@@ -812,14 +812,14 @@ public:
     }
 
     virtual void ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right,
-                               tjs_int &bottom) {
+                               tjs_int &bottom) override {
         left = tjs_int64(left) * ActualZoomNumer / ActualZoomDenom;
         top = tjs_int64(top) * ActualZoomNumer / ActualZoomDenom;
         right = tjs_int64(right) * ActualZoomNumer / ActualZoomDenom;
         bottom = tjs_int64(bottom) * ActualZoomNumer / ActualZoomDenom;
     }
 
-    virtual void BringToFront() {
+    virtual void BringToFront() override {
         if(_currentWindowLayer != this) {
             if(_currentWindowLayer) {
                 const Size &size = _currentWindowLayer->getViewSize();
@@ -830,7 +830,7 @@ public:
         }
     }
 
-    virtual void ShowWindowAsModal() {
+    virtual void ShowWindowAsModal() override {
         in_mode_ = true;
         setVisible(true);
         BringToFront();
@@ -859,9 +859,9 @@ public:
         in_mode_ = false;
     }
 
-    virtual bool GetVisible() { return isVisible(); }
+    virtual bool GetVisible() override { return isVisible(); }
 
-    virtual void SetVisible(bool bVisible) {
+    virtual void SetVisible(bool bVisible) override {
         Visible = bVisible;
         setVisible(bVisible);
         if(bVisible) {
@@ -873,9 +873,9 @@ public:
         }
     }
 
-    virtual const char *GetCaption() { return _caption.c_str(); }
+    virtual const char *GetCaption() override { return _caption.c_str(); }
 
-    virtual void SetCaption(const std::string &s) { _caption = s; }
+    virtual void SetCaption(const std::string &s) override { _caption = s; }
 
     void ResetDrawSprite() {
         if(DrawSprite) {
@@ -933,32 +933,32 @@ public:
         updateInset();
     }
 
-    virtual void SetWidth(tjs_int w) {
+    virtual void SetWidth(tjs_int w) override {
         Size size = getContentSize();
         size.width = w;
         setContentSize(size);
         RecalcPaintBox();
     }
 
-    virtual void SetHeight(tjs_int h) {
+    virtual void SetHeight(tjs_int h) override {
         Size size = getContentSize();
         size.height = h;
         setContentSize(size);
         RecalcPaintBox();
     }
 
-    virtual void SetSize(tjs_int w, tjs_int h) {
+    virtual void SetSize(tjs_int w, tjs_int h) override {
         setContentSize(Size(w, h));
         RecalcPaintBox();
     }
 
-    virtual void GetSize(tjs_int &w, tjs_int &h) {
+    virtual void GetSize(tjs_int &w, tjs_int &h) override {
         Size size = getContentSize();
         w = size.width;
         h = size.height;
     }
 
-    virtual void GetWinSize(tjs_int &w, tjs_int &h) {
+    virtual void GetWinSize(tjs_int &w, tjs_int &h) override {
         Size size = getViewSize();
         w = size.width;
         h = size.height;
@@ -970,7 +970,7 @@ public:
         return getContentSize().height;
     }
 
-    virtual void SetZoom(tjs_int numer, tjs_int denom) {
+    virtual void SetZoom(tjs_int numer, tjs_int denom) override {
         AdjustNumerAndDenom(numer, denom);
         ZoomNumer = numer;
         ZoomDenom = denom;
@@ -979,7 +979,7 @@ public:
         RecalcPaintBox();
     }
 
-    virtual void UpdateDrawBuffer(iTVPTexture2D *tex) {
+    virtual void UpdateDrawBuffer(iTVPTexture2D *tex) override {
         if(!tex)
             return;
         //		iTVPRenderManager *mgr = TVPGetRenderManager();
@@ -1496,7 +1496,7 @@ public:
         ProgramClosing = false;
     }
 
-    virtual void OnCloseQueryCalled(bool b) {
+    virtual void OnCloseQueryCalled(bool b) override {
         // closing is allowed by onCloseQuery event handler
         if(!ProgramClosing) {
             // closing action by the user
@@ -1528,7 +1528,7 @@ public:
         }
     }
 
-    virtual void UpdateWindow(tTVPUpdateType type) {
+    virtual void UpdateWindow(tTVPUpdateType type) override {
         if(TJSNativeInstance) {
             tTVPRect r;
             r.left = 0;
@@ -1540,7 +1540,7 @@ public:
         }
     }
 
-    virtual void SetVisibleFromScript(bool b) {
+    virtual void SetVisibleFromScript(bool b) override {
         SetVisible(b);
         // 		if (Focusable) {
         // 			SetVisible(b);
@@ -1555,7 +1555,7 @@ public:
         // 		}
     }
 
-    virtual void SetUseMouseKey(bool b) {
+    virtual void SetUseMouseKey(bool b) override {
         UseMouseKey = b;
         if(b) {
             MouseLeftButtonEmulatedPushed = false;
@@ -1573,7 +1573,7 @@ public:
         }
     }
 
-    virtual bool GetUseMouseKey() const { return UseMouseKey; }
+    virtual bool GetUseMouseKey() const override { return UseMouseKey; }
 
     void OnMouseUp(int button, int shift, int x, int y) {
         //	TranslateWindowToDrawArea(x, y);
@@ -1589,13 +1589,13 @@ public:
         }
     }
 
-    virtual void ResetTouchVelocity(tjs_int id) override{
+    virtual void ResetTouchVelocity(tjs_int id) override {
         TouchVelocityTracker.end(id);
     }
 
     virtual void ResetMouseVelocity() override { MouseVelocityTracker.clear(); }
 
-    bool GetMouseVelocity(float &x, float &y, float &speed) const override{
+    bool GetMouseVelocity(float &x, float &y, float &speed) const override {
         if(MouseVelocityTracker.getVelocity(x, y)) {
             speed = hypotf(x, y);
             return true;
@@ -1816,7 +1816,7 @@ TVPMainScene *TVPMainScene::create() {
     ret->initialize();
     ret->autorelease();
 
-    _touchMoveThresholdSq = Device::getDPI() / 10;
+    _touchMoveThresholdSq = cocos2d::Device::getDPI() / 10.0f;
     _touchMoveThresholdSq *= _touchMoveThresholdSq;
     return ret;
 }
@@ -1958,7 +1958,7 @@ void TVPMainScene::doStartup(float dt, std::string path) {
     unschedule("startup");
     IndividualConfigManager *pGlobalCfgMgr =
         IndividualConfigManager::GetInstance();
-    _consoleWin = TVPConsoleWindow::create(16, nullptr);
+    _consoleWin = TVPConsoleWindow::create(24, nullptr);
 
     auto glview = cocos2d::Director::getInstance()->getOpenGLView();
     Size screenSize = glview->getFrameSize();

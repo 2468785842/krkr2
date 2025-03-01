@@ -64,15 +64,9 @@ namespace TJS // following is in the namespace
                     if(nl < 3 || (nl >= 3 && line - curline <= 2)) {
                         tjs_int len;
                         const tjs_char *src = Block->GetLine(curline, &len);
-                        tjs_char *buf = new tjs_char[len + 1];
-                        TJS_strcpy_maxlen(buf, src, len);
-                        try {
-                            output_func_src(buf, TJS_W(""), curline, data);
-                        } catch(...) {
-                            delete[] buf;
-                            throw;
-                        }
-                        delete[] buf;
+                        auto buf = std::make_unique<tjs_char[]>(len + 1);
+                        TJS_strcpy_maxlen(buf.get(), src, len);
+                        output_func_src(buf.get(), TJS_W(""), curline, data);
                         curline++;
                     } else {
                         curline = line - 2;
@@ -81,16 +75,9 @@ namespace TJS // following is in the namespace
             } else if(prevline != line) {
                 tjs_int len;
                 const tjs_char *src = Block->GetLine(line, &len);
-                tjs_char *buf = new tjs_char[len + 1];
-                TJS_strcpy_maxlen(buf, src, len);
-                try {
-                    output_func_src((const tjs_char *)buf, TJS_W(""), line,
-                                    data);
-                } catch(...) {
-                    delete[] buf;
-                    throw;
-                }
-                delete[] buf;
+                auto buf = std::make_unique<tjs_char[]>(len + 1);
+                TJS_strcpy_maxlen(buf.get(), src, len);
+                output_func_src(buf.get(), TJS_W(""), line, data);
             }
 
             prevline = line;

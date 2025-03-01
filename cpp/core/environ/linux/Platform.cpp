@@ -142,7 +142,7 @@ int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
             gtk_widget_destroy(dialog);
         }
     };
-    // there has no implement under android
+
     switch(vecButtons.size()) {
         case 1:
             dialog = gtk_message_dialog_new(
@@ -178,6 +178,7 @@ int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
     }
     return -1;
 }
+
 extern "C" int TVPShowSimpleMessageBox(const char *pszText,
                                        const char *pszTitle, u_int nButton,
                                        const char **btnText) {
@@ -260,7 +261,7 @@ bool TVP_stat(const char *name, tTVP_stat &s) {
 }
 
 bool TVP_stat(const tjs_char *name, tTVP_stat &s) {
-    return TVP_stat(ttstr{name}.AsStdString().c_str(), s);
+    return TVP_stat(ttstr{ name }.AsStdString().c_str(), s);
 }
 
 tjs_uint32 TVPGetRoughTickCount32() {
@@ -292,7 +293,7 @@ bool TVPRenameFile(const std::string &from, const std::string &to) {
 
 void TVPSendToOtherApp(const std::string &filename) {}
 
-std::vector<std::string> TVPGetDriverPath() { return {"/"}; }
+std::vector<std::string> TVPGetDriverPath() { return { "/" }; }
 
 std::string TVPGetDefaultFileDir() {
     char buffer[PATH_MAX];
@@ -309,12 +310,12 @@ std::string TVPGetDefaultFileDir() {
     }
     return std::string(buffer);
 }
+
 std::vector<std::string> TVPGetAppStoragePath() {
     std::vector<std::string> ret;
     ret.emplace_back(TVPGetDefaultFileDir());
     return ret;
 }
-
 
 bool TVPWriteDataToFile(const ttstr &filepath, const void *data,
                         unsigned int len) {

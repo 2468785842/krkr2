@@ -2114,7 +2114,8 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
         return;
     }
 
-    static constexpr float scaleFactor = 1 / 64.0f + 0.009f; // 0.009f修正大小, 游戏字体一般偏小过小
+    static constexpr float scaleFactor =
+        1 / 64.0f + 0.009f; // 0.009f修正大小, 游戏字体一般偏小过小
 
     PointFClass glyphOffset{ offset.X,
                              offset.Y + fontInfo->getAscent() +
@@ -2133,7 +2134,6 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
 
     std::function<PointFClass(int, int, int)> getConicEndPoint =
         [&](int contourStart, int index, int contourEnd) -> PointFClass {
-
         int nextIndex = index == contourEnd ? contourStart : index + 1;
         FT_Byte nextTag = FT_CURVE_TAG(outline.tags[nextIndex]);
 

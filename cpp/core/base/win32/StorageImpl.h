@@ -15,17 +15,6 @@
 #include "UtilStreams.h"
 #include <functional>
 
-//#include <objidl.h> // for IStream
-
-#if 0
-//---------------------------------------------------------------------------
-// Susie plug-in related
-//---------------------------------------------------------------------------
-void TVPLoadArchiveSPI(HINSTANCE inst);
-void TVPUnloadArchiveSPI(HINSTANCE inst);
-//---------------------------------------------------------------------------
-#endif
-
 #ifndef S_IFMT
 #define S_IFDIR 0x4000 // Directory
 #define S_IFREG 0x8000 // Regular
@@ -64,11 +53,11 @@ public:
 
     tjs_uint Read(void *buffer, tjs_uint read_size) override;
 
-    tjs_uint Write(const void *buffer, tjs_uint write_size);
+    tjs_uint Write(const void *buffer, tjs_uint write_size) override;
 
-    void SetEndOfStorage();
+    void SetEndOfStorage() override;
 
-    tjs_uint64 GetSize();
+    tjs_uint64 GetSize() override;
 
     int GetHandle() const { return Handle; }
 };

@@ -450,7 +450,8 @@ extern std::set<ttstr> TVPRegisteredPlugins;
 
 void TVPLoadPlugin(const ttstr &name) {
     bool success = TVPLoadInternalPlugin(name);
-    std::string msg = fmt::format("Loading Plugin: {} {}", name.AsStdString(), success ? "Success" : "Failed");
+    std::string msg = fmt::format("Loading Plugin: {} {}", name.AsStdString(),
+                                  success ? "Success" : "Failed");
     const tjs_char *out = TJS::tTJSString(msg).c_str();
     TJS::TVPConsoleLog(out);
 }

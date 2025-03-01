@@ -41,21 +41,6 @@ static ttstr TVPAppTitle;
 static bool TVPAppTitleInit = false;
 //---------------------------------------------------------------------------
 
-#if 0
-//---------------------------------------------------------------------------
-// TVPShowSimpleMessageBox
-//---------------------------------------------------------------------------
-static void TVPShowSimpleMessageBox(const ttstr & text, const ttstr & caption)
-{
-    HWND hWnd = TVPGetModalWindowOwnerHandle();
-    if( hWnd == INVALID_HANDLE_VALUE ) {
-        hWnd = nullptr;
-    }
-    ::MessageBox( hWnd, text.AsStdString().c_str(), caption.AsStdString().c_str(), MB_OK|MB_ICONINFORMATION );
-}
-//---------------------------------------------------------------------------
-#endif
-
 bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent);
 
 //---------------------------------------------------------------------------
@@ -90,155 +75,8 @@ bool TVPGetAsyncKeyState(tjs_uint keycode, bool getcurrent) {
     return 0!=( GetAsyncKeyState(keycode) & ( getcurrent?0x8000:0x0001) );
 #endif
 }
-//---------------------------------------------------------------------------
 
-#if 0
-//---------------------------------------------------------------------------
-// TVPGetPlatformName
-//---------------------------------------------------------------------------
-ttstr TVPGetPlatformName()
-{
-    SYSTEM_INFO sysInfo;
-    ::GetNativeSystemInfo( &sysInfo );
-    switch( sysInfo.wProcessorArchitecture )
-    {
-        case PROCESSOR_ARCHITECTURE_AMD64:
-        case PROCESSOR_ARCHITECTURE_IA64:
-            return ttstr(TJS_W("Win64"));
-
-        case PROCESSOR_ARCHITECTURE_INTEL:
-        case PROCESSOR_ARCHITECTURE_UNKNOWN:
-        default:
-            return ttstr(TJS_W("Win32"));
-    }
-}
-//---------------------------------------------------------------------------
-
-
-typedef void (WINAPI *RtlGetVersionFunc)(OSVERSIONINFOEX* );
-//---------------------------------------------------------------------------
-// TVPGetOSName
-//---------------------------------------------------------------------------
-ttstr TVPGetOSName()
-{
-    OSVERSIONINFOEX ovi;
-    ovi.dwOSVersionInfoSize = sizeof(ovi);
-
-    bool isGetVersion = false;
-    HMODULE hModule = ::LoadLibrary( L"ntdll.dll" );
-    if( hModule ) {
-        RtlGetVersionFunc func;
-        func = (RtlGetVersionFunc)::GetProcAddress( hModule, "RtlGetVersion" );
-        if( func ) {
-            func( &ovi );
-            isGetVersion = true;
-        }
-        ::FreeLibrary( hModule );
-        hModule = nullptr;
-    }
-    if( isGetVersion == false ) {
-        GetVersionEx((OSVERSIONINFO*)&ovi);
-    }
-    tjs_char buf[256];
-    const tjs_char *osname = nullptr;
-
-    switch(ovi.dwPlatformId)
-    {
-    case VER_PLATFORM_WIN32s:
-        osname = TJS_W("Win32s"); break;
-    case VER_PLATFORM_WIN32_WINDOWS:
-        switch((ovi.dwBuildNumber&0xffff ))
-        {
-        case 1998:
-            osname = TJS_W("Windows 98"); break;
-        case 95:
-            osname = TJS_W("Windows 95"); break;
-        default:
-            osname = TJS_W("Win9x"); break;
-        }
-        break;
-    case VER_PLATFORM_WIN32_NT:
-        if( ovi.dwMajorVersion == 5 ) {
-            switch(ovi.dwMinorVersion) {
-            case 0:
-                osname = TJS_W("Windows 2000");
-                break;
-            case 1:
-                osname = TJS_W("Windows XP");
-                break;
-            case 2:
-                osname = TJS_W("Windows Server 2003");
-                break;
-            }
-        } else if( ovi.dwMajorVersion == 6 ) {
-            switch(ovi.dwMinorVersion) {
-            case 0:
-                if( ovi.wProductType == VER_NT_WORKSTATION )
-                    osname = TJS_W("Windows Vista");
-                else
-                    osname = TJS_W("Windows Server 2008");
-                break;
-            case 1:
-                if( ovi.wProductType == VER_NT_WORKSTATION )
-                    osname = TJS_W("Windows 7");
-                else
-                    osname = TJS_W("Windows Server 2008 R2");
-                break;
-            case 2:
-                if( ovi.wProductType == VER_NT_WORKSTATION )
-                    osname = TJS_W("Windows 8");
-                else
-                    osname = TJS_W("Windows Server 2012");
-                break;
-            case 3:
-                if( ovi.wProductType == VER_NT_WORKSTATION )
-                    osname = TJS_W("Windows 8.1");
-                else
-                    osname = TJS_W("Windows Server 2012 R2");
-                break;
-            case 4:
-                if( ovi.wProductType == VER_NT_WORKSTATION )
-                    osname = TJS_W("Windows 10");
-                break;
-            }
-        }
-        if( osname == nullptr ) osname = TJS_W("Windows NT");
-        break;
-    default:
-        osname = TJS_W("Unknown"); break;
-    }
-
-    TJS_snprintf(buf, sizeof(buf)/sizeof(tjs_char), TJS_W("%ls %d.%d.%d "), osname, ovi.dwMajorVersion,
-        ovi.dwMinorVersion, ovi.dwBuildNumber&0xfff);
-
-    ttstr str(buf);
-    str += ttstr(ovi.szCSDVersion);
-
-    return str;
-}
-//---------------------------------------------------------------------------
-#endif
-
-//---------------------------------------------------------------------------
-// TVPGetOSBits
-//---------------------------------------------------------------------------
-tjs_int TVPGetOSBits() {
-#if 0
-    SYSTEM_INFO sysInfo;
-    ::GetNativeSystemInfo( &sysInfo );
-    switch( sysInfo.wProcessorArchitecture )
-    {
-        case PROCESSOR_ARCHITECTURE_AMD64:
-        case PROCESSOR_ARCHITECTURE_IA64:
-            return 64;
-        case PROCESSOR_ARCHITECTURE_INTEL:
-        case PROCESSOR_ARCHITECTURE_UNKNOWN:
-        default:
-            return 32;
-    }
-#endif
-    return 32;
-}
+tjs_int TVPGetOSBits() { return sizeof(void *) * 8; }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -260,7 +98,7 @@ bool TVPShellExecute(const ttstr &target, const ttstr &param) {
     }
     else
 #endif
-    { return true; }
+    return true;
 }
 //---------------------------------------------------------------------------
 
