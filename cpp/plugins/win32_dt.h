@@ -6,7 +6,7 @@
 
 #ifndef KRKR2_WIN32_DT_H
 #define KRKR2_WIN32_DT_H
-
+#ifndef _WIN32
 typedef void *PVOID;
 typedef PVOID HANDLE;
 typedef HANDLE HMENU;
@@ -21,5 +21,7 @@ typedef HANDLE HGLOBAL;
 typedef unsigned short WORD;
 typedef unsigned int UINT;
 // typedef uintptr_t ULONG_PTR;
-
+#else
+#include <BaseTsd.h>
+#endif
 #endif // KRKR2_WIN32_DT_H

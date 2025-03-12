@@ -121,15 +121,6 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
     std::pair<std::string, std::string> split_path = PathSplit(path);
     ParentPath = split_path.first;
     if(_title) {
-#if CC_PLATFORM_WIN32 == CC_TARGET_PLATFORM
-        // for better screenshot
-        _title->setTitleFontName("SIMHEI.ttf");
-        if(!split_path.second.empty() &&
-           (split_path.second.back() == '/' ||
-            split_path.second.back() == '\\')) {
-            split_path.second.pop_back();
-        }
-#endif
         _title->setTitleText(split_path.second);
 
         Size dispSize = _title->getTitleRenderer()->getContentSize();
@@ -1035,9 +1026,6 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::initFromFile(
             OrigCellModelSize.width - CellTextAreaSize.width;
         CellTextAreaSize.height = 0;
         OrigCellTextSize = FileNameNode->getContentSize();
-#if CC_PLATFORM_WIN32 == CC_TARGET_PLATFORM
-        FileNameNode->setFontName("SIMHEI.ttf");
-#endif
     }
     static const std::string str_highlight("highlight");
     Widget *HighLight =

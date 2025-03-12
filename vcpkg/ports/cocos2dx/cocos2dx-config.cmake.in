@@ -235,6 +235,53 @@ if(@LINUX@)
     find_package(unofficial-sqlite3 CONFIG REQUIRED)
 endif()
 
+if (@WINDOWS@)
+    # sqlite3 prebuilt only existed at windows
+    if (@BUILD_EXT_SQLITE@)
+        find_package(unofficial-sqlite3 CONFIG REQUIRED)
+    endif ()
+
+    find_package(GLEW REQUIRED)
+    find_package(Iconv)
+    find_package(OpenAL CONFIG REQUIRED)
+
+    add_library(ext_MP3Decoder SHARED IMPORTED)
+
+    set_target_properties(ext_MP3Decoder PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/win32-specific/MP3Decoder/include
+    )
+
+    set_target_properties(ext_MP3Decoder PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/win32-specific/MP3Decoder/prebuilt/libmpg123.dll"
+        IMPORTED_IMPLIB "${CMAKE_CURRENT_LIST_DIR}/win32-specific/MP3Decoder/prebuilt/libmpg123.lib"
+    )
+
+    add_library(ext_OggDecoder SHARED IMPORTED)
+
+    set_target_properties(ext_OggDecoder PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/include
+    )
+
+    set_target_properties(ext_OggDecoder PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/prebuilt/libvorbis.dll"
+        IMPORTED_IMPLIB "${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/prebuilt/libvorbis.lib"
+    )
+
+    # internal link depend
+    set_property(TARGET ext_OggDecoder APPEND PROPERTY
+        INTERFACE_LINK_LIBRARIES "${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/prebuilt/libvorbis.lib"
+    )
+    set_property(TARGET ext_OggDecoder APPEND PROPERTY
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/prebuilt/libvorbis.dll"
+    )
+    set_property(TARGET ext_OggDecoder APPEND PROPERTY
+        INTERFACE_LINK_LIBRARIES "${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/prebuilt/libvorbisfile.lib"
+    )
+    set_property(TARGET ext_OggDecoder APPEND PROPERTY
+        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/prebuilt/libvorbisfile.dll"
+    )
+endif ()
+
 if("@WINDOWS@" OR "@MACOSX@" OR "@LINUX@")
     
     add_library(ext_glfw3 STATIC IMPORTED)

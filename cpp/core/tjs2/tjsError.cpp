@@ -14,6 +14,8 @@
 #include "tjsError.h"
 #include "tjs.h"
 
+#include <spdlog/spdlog.h>
+
 #define TJS_MAX_TRACE_TEXT_LEN 1500
 
 namespace TJS {
@@ -161,7 +163,10 @@ namespace TJS {
     void TJS_eTJS() { throw eTJS(); }
 
     //---------------------------------------------------------------------------
-    void TJS_eTJSError(const ttstr &msg) { throw eTJSError(msg); }
+    void TJS_eTJSError(const ttstr &msg) {
+        spdlog::get("tjs2")->error(msg.toString());
+        throw eTJSError(msg);
+    }
 
     void TJS_eTJSError(const tjs_char *msg) { throw eTJSError(msg); }
 

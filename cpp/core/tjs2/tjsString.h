@@ -12,7 +12,6 @@
 #ifndef tjsStringH
 #define tjsStringH
 
-#include <locale>
 #include <string>
 #include <boost/locale.hpp>
 #include <fmt/printf.h>
@@ -107,7 +106,11 @@ namespace TJS {
                              : TJSNullStrPtr;
         }
 
-        [[nodiscard]] std::wstring c_wstr() const {
+        [[nodiscard]] std::string toString() const {
+            return AsNarrowStdString();
+        }
+
+        [[nodiscard]] std::wstring toWString() const {
             return boost::locale::conv::utf_to_utf<wchar_t>(
                 AsNarrowStdString());
         }
@@ -467,8 +470,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
 } // namespace TJS
 
-static TJS::tTJSString operator"" _ts(const char *str, size_t len) {
-    return { str, len };
+static TJS::tTJSString operator"" _tss(const char *str, size_t len) {
+    return TJS::tTJSString{ str, len };
 }
 
 #endif

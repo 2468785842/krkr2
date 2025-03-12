@@ -9,10 +9,17 @@ vcpkg_extract_source_archive(
     SOURCE_PATH
     ARCHIVE "${archive}"
     SOURCE_BASE libbpg-${VERSION}
+    PATCHES
+        msvc-remove-avpriv-linker.patch
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt" DESTINATION "${SOURCE_PATH}")
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/libbpg-config.cmake.in" DESTINATION "${SOURCE_PATH}")
+
+if(VCPKG_TARGET_IS_WINDOWS)
+    vcpkg_replace_string("${SOURCE_PATH}/config.h" "define HAVE_ATOMICS_GCC 1" "define HAVE_ATOMICS_GCC 0")
+    vcpkg_replace_string("${SOURCE_PATH}/config.h" "define HAVE_ATOMICS_WIN32 0" "define HAVE_ATOMICS_WIN32 1")
+endif()
 
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
 

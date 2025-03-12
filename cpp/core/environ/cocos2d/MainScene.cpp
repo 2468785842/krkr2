@@ -892,9 +892,6 @@ public:
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
                                     FOREGROUND_GREEN | FOREGROUND_RED |
                                         FOREGROUND_BLUE);
-            if(!LayerWidth || !LayerHeight) {
-                LayerHeight = LayerHeight;
-            }
 #endif
             size = size / scale;
             // DrawSprite->setTextureRect(Rect(0, 0, size.width,
@@ -1912,11 +1909,6 @@ void TVPMainScene::popUIForm(cocos2d::Node *form, eLeaveAni ani) {
 
 bool TVPMainScene::startupFrom(const std::string &path) {
     // startup from dir
-#ifdef _MSC_VER
-    // TVPSetSystemOption("outputlog", "yes");
-// 	TVPSetSystemOption("ogl_dup_target", "yes");
-//_set_new_handler(_no_memory_cb_vc);
-#endif
     if(!TVPCheckStartupPath(path)) {
         return false;
     }
@@ -1933,7 +1925,7 @@ bool TVPMainScene::startupFrom(const std::string &path) {
         Device::setKeepScreenOn(true);
     }
 
-    for(int i = 0; i < sizeof(_keymap) / sizeof(_keymap[0]); ++i) {
+    for(int i = 0; i < std::size(_keymap); ++i) {
         _keymap[i] = i;
     }
 
@@ -2623,17 +2615,9 @@ void TVPConsoleLog(const ttstr &l, bool important) {
         _consoleWin->addLine(l, important ? Color3B::YELLOW : Color3B::GRAY);
         TVPDrawSceneOnce(100); // force update in 10fps
     }
-#ifdef _WIN32
-    // cocos2d::log("%s", utf8.c_str());
-    char buf[16384] = { 0 };
-    WideCharToMultiByte(CP_ACP, 0, l.c_str(), -1, buf, sizeof(buf), nullptr,
-                        FALSE);
-    puts(buf);
-#else
     std::string utf8;
     if(StringUtils::UTF16ToUTF8(l.c_str(), utf8))
         cocos2d::log("%s", utf8.c_str());
-#endif
 }
 
 namespace TJS {

@@ -1338,50 +1338,39 @@ namespace TJS {
         } catch(eTJSSilent &e) {
             throw e;
         }
-#ifdef _DEBUG
-#define DEBUGGER_EXCEPTION_HOOK                                                \
-    if(TJSEnableDebugMode)                                                     \
-        raise(SIGTRAP);
-#else // _DEBUG
-#define DEBUGGER_EXCEPTION_HOOK
-#endif // _DEBUG
+// #ifdef _DEBUG
+// #define DEBUGGER_EXCEPTION_HOOK                                                \
+//     if(TJSEnableDebugMode)                                                     \
+//         raise(SIGTRAP);
+// #else // _DEBUG
+// #define DEBUGGER_EXCEPTION_HOOK
+// #endif // _DEBUG
         catch(eTJSScriptException &e) {
-            DEBUGGER_EXCEPTION_HOOK;
+            // DEBUGGER_EXCEPTION_HOOK;
             e.AddTrace(this, (tjs_int)(codesave - CodeArea));
             throw e;
         } catch(eTJSScriptError &e) {
-            DEBUGGER_EXCEPTION_HOOK;
+            // DEBUGGER_EXCEPTION_HOOK;
             e.AddTrace(this, (tjs_int)(codesave - CodeArea));
             throw e;
         } catch(eTJS &e) {
-            DEBUGGER_EXCEPTION_HOOK;
+            // DEBUGGER_EXCEPTION_HOOK;
             DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
                                           ra_org);
             TJS_eTJSScriptError(e.GetMessage(), this,
                                 (tjs_int)(codesave - CodeArea));
         } catch(exception &e) {
-            DEBUGGER_EXCEPTION_HOOK;
+            // DEBUGGER_EXCEPTION_HOOK;
             DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
                                           ra_org);
             TJS_eTJSScriptError(e.what(), this, (tjs_int)(codesave - CodeArea));
         } catch(const char *text) {
-            DEBUGGER_EXCEPTION_HOOK;
+            // DEBUGGER_EXCEPTION_HOOK;
             DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
                                           ra_org);
             TJS_eTJSScriptError(text, this, (tjs_int)(codesave - CodeArea));
         }
-#ifdef TJS_SUPPORT_VCL
-        catch(const EAccessViolation &e) {
-            DEBUGGER_EXCEPTION_HOOK;
-            DisplayExceptionGeneratedCode(codesave - CodeArea, ra_org);
-            TJS_eTJSScriptError(e.Message.c_str(), this, codesave - CodeArea);
-        } catch(const Exception &e) {
-            DEBUGGER_EXCEPTION_HOOK;
-            DisplayExceptionGeneratedCode(codesave - CodeArea, ra_org);
-            TJS_eTJSScriptError(e.Message.c_str(), this, codesave - CodeArea);
-        }
-#endif
-#undef DEBUGGER_EXCEPTION_HOOK
+// #undef DEBUGGER_EXCEPTION_HOOK
 
         return (tjs_int)(codesave - CodeArea);
     }

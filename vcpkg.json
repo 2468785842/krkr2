@@ -3,6 +3,7 @@
   "name": "krkr2",
   "version-string": "1.5.0",
   "dependencies": [
+    "7zip",
     "boost-iostreams",
     {
       "name": "boost-locale",
@@ -15,12 +16,19 @@
       "default-features": false
     },
     "cocos2dx",
+    {
+      "name": "dirent",
+      "platform": "windows"
+    },
     "ffmpeg",
     "fmt",
     "jxrlib",
     "libarchive",
     "libbpg",
-    "libgdiplus",
+    {
+      "name": "libgdiplus",
+      "platform": "!windows"
+    },
     "libjpeg-turbo",
     "libogg",
     {
@@ -46,7 +54,6 @@
       "name": "opusfile",
       "default-features": false
     },
-    "7zip",
     {
       "name": "sdl2",
       "default-features": false

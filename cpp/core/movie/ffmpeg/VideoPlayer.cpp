@@ -551,26 +551,6 @@ void BasePlayer::CheckStreamChanges(CCurrentStream &current,
 
 void BasePlayer::Process() {
     while(!m_bAbortRequest) {
-#ifdef HAS_OMXPLAYER
-        if(m_omxplayer_mode &&
-           OMXDoProcessing(m_OmxPlayerState, m_playSpeed, m_VideoPlayerVideo,
-                           m_VideoPlayerAudio, m_CurrentAudio, m_CurrentVideo,
-                           m_HasVideo, m_HasAudio, m_renderManager)) {
-            CloseStream(m_CurrentVideo, false);
-            OpenStream(m_CurrentVideo, m_CurrentVideo.demuxerId,
-                       m_CurrentVideo.id, m_CurrentVideo.source);
-            if(m_State.canseek) {
-                CDVDMsgPlayerSeek::CMode mode;
-                mode.time = (int)GetTime();
-                mode.backward = true;
-                mode.flush = true;
-                mode.accurate = true;
-                mode.sync = true;
-                m_messenger.Put(new CDVDMsgPlayerSeek(mode));
-            }
-        }
-#endif
-
         // handle messages send to this thread, like seek or demuxer
         // reset requests
         HandleMessages();
@@ -638,19 +618,6 @@ void BasePlayer::Process() {
             if(m_playSpeed == DVD_PLAYSPEED_PAUSE)
                 continue;
 
-#ifdef HAS_OMXPLAYER
-            // make sure we tell all players to finish it's data
-            if(m_omxplayer_mode && !m_OmxPlayerState.bOmxSentEOFs) {
-                if(m_CurrentAudio.inited)
-                    m_OmxPlayerState.bOmxWaitAudio = true;
-
-                if(m_CurrentVideo.inited)
-                    m_OmxPlayerState.bOmxWaitVideo = true;
-
-                m_OmxPlayerState.bOmxSentEOFs = true;
-            }
-#endif
-
             if(m_iLoopSegmentBegin != -1) { // process loop info
                 double start = DVD_NOPTS_VALUE;
                 if(m_pDemuxer &&
@@ -661,6 +628,9 @@ void BasePlayer::Process() {
                 }
             }
 
+            #ifdef _WIN32
+            #undef SendMessage
+            #endif
             if(m_CurrentAudio.inited)
                 m_VideoPlayerAudio->SendMessage(
                     new CDVDMsg(CDVDMsg::GENERAL_EOF));

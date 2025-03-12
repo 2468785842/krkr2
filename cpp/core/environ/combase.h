@@ -2,6 +2,10 @@
 #include "typedefine.h"
 #include <cstdint>
 
+#ifdef _WIN32
+#include <objidl.h>
+#endif
+
 #ifndef S_OK
 #define S_OK ((HRESULT)0L)
 #define S_FALSE ((HRESULT)1L)
@@ -26,7 +30,7 @@ struct IID {
 #endif
 
 #ifndef STDMETHODCALLTYPE
-#ifdef WIN32
+#ifdef _WIN32
 #define STDMETHODCALLTYPE __stdcall
 #else
 #define STDMETHODCALLTYPE

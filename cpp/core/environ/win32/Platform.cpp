@@ -7,15 +7,12 @@
 #include <codecvt>
 #include "StorageImpl.h"
 #include "SysInitIntf.h"
-#include "platform/CCFileUtils.h"
 #include <sys/stat.h>
-#include "Application.h"
 #include "EventIntf.h"
-#include "cocos/base/CCDirector.h"
 #include <shellapi.h>
-#include "XP3ArchiveRepack.h"
 #include "RenderManager.h"
 #include <sys/utime.h>
+#include <boost/locale.hpp>
 
 #pragma comment(lib, "psapi.lib")
 
@@ -94,7 +91,7 @@ void TVPCheckAndSendDumps(const std::string &dumpdir,
                           const std::string &versionStr);
 bool TVPCheckStartupArg() {
     int argc;
-    wchar_t **argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    const std::u16string argv = boost::locale::conv::utf_to_utf<char16_t>(*CommandLineToArgvW(GetCommandLineW(), &argc));
     //	__wgetmainargs(&argc, &argv, &env, 0, &info);
     TVPCheckAndSendDumps(TVPGetDefaultFileDir() + "/dumps", "win32-test",
                          "test");
@@ -124,10 +121,10 @@ bool TVPCheckStartupArg() {
                        }
                    });
         for(int i = 2; i < argc; ++i) {
-            std::wstring str = argv[i];
-            size_t pos = str.find(L'=');
+            std::u16string str{argv[i]};
+            size_t pos = str.find(u'=');
             if(pos == str.npos) {
-                TVPSetCommandLine(argv[i], "yes");
+                TVPSetCommandLine(ttstr{argv[i]}.c_str(), "yes"_tss);
             } else {
                 ttstr val = str.c_str() + pos + 1;
                 TVPSetCommandLine(str.substr(0, pos).c_str(), val);
@@ -147,12 +144,12 @@ int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
     // there has no implement under android
     switch(vecButtons.size()) {
         case 1:
-            MessageBoxW(0, text.c_str(), caption.c_str(),
+            MessageBoxW(0, text.toWString().c_str(), caption.toWString().c_str(),
                         /*MB_OK*/ 0);
             return 0;
             break;
         case 2:
-            switch(MessageBoxW(0, text.c_str(), caption.c_str(),
+            switch(MessageBoxW(0, text.toWString().c_str(), caption.toWString().c_str(),
                                /*MB_YESNO*/ 4)) {
                 case 6:
                     return 0;
@@ -236,7 +233,7 @@ static bool _TVPCreateFolders(const ttstr &folder) {
     if(!TVPCreateFolders(parent))
         return false;
 
-    return !_wmkdir(folder.c_str());
+    return !_wmkdir(folder.toWString().c_str());
 }
 //---------------------------------------------------------------------------
 
@@ -258,7 +255,7 @@ bool TVPCreateFolders(const ttstr &folder) {
 
 bool TVPWriteDataToFile(const ttstr &filepath, const void *data,
                         unsigned int len) {
-    FILE *handle = _wfopen(filepath.c_str(), L"wb");
+    FILE *handle = _wfopen(filepath.toWString().c_str(), L"wb");
     if(handle) {
         bool ret = fwrite(data, 1, len, handle) == len;
         fclose(handle);
@@ -311,15 +308,11 @@ void TVPExitApplication(int code) {
 // }
 
 bool TVPDeleteFile(const std::string &filename) {
-    return _wunlink(ttstr(filename).c_str()) == 0;
+    return _wunlink(ttstr(filename).toWString().c_str()) == 0;
 }
 
 bool TVPRenameFile(const std::string &from, const std::string &to) {
-#ifdef WIN32
-    tjs_int ret = _wrename(ttstr(from).c_str(), ttstr(to).c_str());
-#else
-    tjs_int ret = rename(from.c_str(), to.c_str());
-#endif
+    tjs_int ret = _wrename(ttstr(from).toWString().c_str(), ttstr(to).toWString().c_str());
     return !ret;
 }
 
@@ -335,7 +328,7 @@ void TVPPrintLog(const char *str) { printf("%s", str); }
 
 bool TVP_stat(const tjs_char *name, tTVP_stat &s) {
     struct _stat64 t;
-    bool ret = !_wstat64(name, &t);
+    bool ret = !_wstat64(ttstr{name}.toWString().c_str(), &t);
     s.st_mode = t.st_mode;
     s.st_size = t.st_size;
     s.st_atime = t.st_atime;
@@ -354,5 +347,14 @@ void TVP_utime(const char *name, time_t modtime) {
     utb.modtime = modtime;
     utb.actime = modtime;
     ttstr filename(name);
-    _wutime(filename.c_str(), &utb);
+    _wutime(filename.toWString().c_str(), &utb);
 }
+
+int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,
+                          const ttstr &prompt,
+                          const std::vector<ttstr> &vecButtons) {
+    spdlog::get("core")->warn("windows platform simple input box not implement");
+    return 0;
+}
+
+void TVPSendToOtherApp(const std::string &filename) {}

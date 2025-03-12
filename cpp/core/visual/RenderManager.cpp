@@ -28,15 +28,6 @@ extern "C" {
 #include "EventIntf.h"
 #include "lz4.h"
 
-#ifdef _MSC_VER
-#pragma comment(lib, "opencv_ts300d.lib")
-// #pragma comment(lib,"ippicvmt.lib")
-// #pragma comment(lib,"opencv_core300d.lib")
-// #pragma comment(lib,"opencv_imgproc300d.lib")
-// #pragma comment(lib,"opencv_hal300d.lib")
-#pragma comment(lib, "opencv_world300d.lib")
-#endif
-
 //#define USE_SWSCALE
 #define USE_CV_AFFINE
 

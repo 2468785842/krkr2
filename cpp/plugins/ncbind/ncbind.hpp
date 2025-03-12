@@ -490,9 +490,10 @@ struct ncbStringConvertor {
 	}
 	inline void set(tTJSString const &str, DefsT::NumTag<sizeof(tjs_nchar)>) { // for Narrow char
 		tjs_int len = str.GetNarrowStrLen();
-		tjs_nchar tmp[len+1];
+		tjs_nchar *tmp = new tjs_nchar[len+1];
 		str.ToNarrowStr(tmp, len+1);
 		_temp.assign(tmp, len);
+        delete []tmp;
 	}
 	inline void set(tTJSString const &str, DefsT::NumTag<sizeof(tjs_char)>) { // for Wide char
 		_temp = str.c_str();
@@ -2044,7 +2045,7 @@ struct ncbAttachTJS2Class : public ncbRegistNativeClassBase {
 		}
 	}
 
-	void RegistVariant(NameT name, tTJSVariant const &val, FlagsT flg) override {
+	void RegistVariant(NameT name, const TJS::tTJSVariant &val, FlagsT flg) override {
 		_tjs2ClassObj->PropSet(TJS_MEMBERENSURE | flg, name, 0, &val, ((flg & TJS_STATICMEMBER) ? _global : _tjs2ClassObj));
 	}
 

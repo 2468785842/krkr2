@@ -308,17 +308,4 @@ namespace TJS {
         next = rhs.next - rhs.state + state; // fix pointer
     }
 
-    tTJSMersenneTwister &tTJSMersenneTwister::sharedInstance() {
-        static tTJSMersenneTwister *instance = nullptr;
-
-        tjs_uint32 uptime = 0;
-        timespec on{};
-        if(clock_gettime(CLOCK_MONOTONIC, &on) == 0)
-            uptime = on.tv_sec * 1000 + on.tv_nsec / 1000000;
-
-        if(!instance)
-            instance = new tTJSMersenneTwister(uptime);
-        return *instance;
-    }
-
 } // namespace TJS

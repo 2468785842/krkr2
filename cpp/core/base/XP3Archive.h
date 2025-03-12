@@ -42,13 +42,7 @@ struct tTVPXP3ExtractionFilterInfo {
 
 #pragma pack(pop)
 
-#ifndef TVP_tTVPXP3ArchiveExtractionFilter_CONVENTION
-#ifdef _WIN32
-#define TVP_tTVPXP3ArchiveExtractionFilter_CONVENTION _stdcall
-#else
 #define TVP_tTVPXP3ArchiveExtractionFilter_CONVENTION
-#endif
-#endif
 // TVP_tTVPXP3ArchiveExtractionFilter_CONV is _stdcall on win32
 // platforms, for backward application compatibility.
 

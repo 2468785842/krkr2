@@ -15,14 +15,6 @@
 #include <memory>
 #include "VideoRenderer.h"
 
-#ifdef ANDROID
-//#define HAS_OMXPLAYER 1
-#endif
-#ifdef HAS_OMXPLAYER
-#include "../omxplayer/OMXCore.h"
-#include "../omxplayer/OMXClock.h"
-#else
-
 // dummy class to avoid ifdefs where calls are made
 class OMXClock {
 public:
@@ -64,8 +56,6 @@ public:
 
     void OMXSetSpeedAdjust(double adjust, bool lock = true) {}
 };
-
-#endif
 
 struct SOmxPlayerState {
     OMXClock av_clock; // openmax clock component

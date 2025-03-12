@@ -1,6 +1,5 @@
 #include "GlobalConfigManager.h"
 #include "tinyxml2/tinyxml2.h"
-#include "platform/CCFileUtils.h"
 #include "Platform.h"
 #include "UtilStreams.h"
 #include "LocaleConfigManager.h"
@@ -44,11 +43,7 @@ void iSysConfigManager::Initialize() {
     tinyxml2::XMLDocument doc;
 
     FILE *fp = nullptr;
-#ifdef _MSC_VER
-    fp = _wfopen(ttstr(GetFilePath()).c_str(), TJS_W("rb"));
-#else
     fp = fopen(GetFilePath().c_str(), "rb");
-#endif
 
     if(fp && !doc.LoadFile(fp)) {
         tinyxml2::XMLElement *rootElement = doc.RootElement();

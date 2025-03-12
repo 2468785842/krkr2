@@ -80,7 +80,7 @@ public:
         if(10 < readSize && buffer[0] == /* fdm */ 0x66646d) {
             auto originalLen = readSize - 8;
             uLong compressedLen = compressBound(originalLen);
-            auto *compressed = new u_char[compressedLen];
+            auto *compressed = new Bytef[compressedLen];
             int code = uncompress(compressed, &compressedLen,
                                   reinterpret_cast<const Bytef *>(buffer[2]),
                                   originalLen);

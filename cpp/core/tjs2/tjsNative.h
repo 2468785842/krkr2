@@ -199,7 +199,6 @@ namespace TJS {
 
         virtual iTJSDispatch2 *CreateBaseTJSObject();
 
-    private:
     public:
         tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
                            tjs_uint32 *hint, tTJSVariant *result,

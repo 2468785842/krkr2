@@ -1,0 +1,61 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "Windows Config",
+      "generator": "Ninja",
+      "hidden": true,
+      "cacheVariables": {
+        "WINDOWS": true,
+        "VCPKG_TARGET_TRIPLET": "x86-windows-static-md",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "architecture": {
+        "value": "x86",
+        "strategy": "external"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Windows" ],
+          "intelliSenseMode": "windows-msvc-x86"
+        }
+      }
+    },
+    {
+      "name": "Windows Debug Config",
+      "inherits": "Windows Config",
+      "binaryDir": "${sourceDir}/out/windows/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "Windows Release Config",
+      "inherits": "Windows Config",
+      "binaryDir": "${sourceDir}/out/windows/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "Windows Debug Build",
+      "configurePreset": "Windows Debug Config"
+    },
+    {
+      "name": "Windows Release Build",
+      "configurePreset": "Windows Release Config"
+    }
+  ]
+}

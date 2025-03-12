@@ -47,13 +47,8 @@ namespace TJS {
     const tjs_int TJSVersionHex = TJSVersionMajor * 0x1000000 +
         TJSVersionMinor * 0x10000 + TJSVersionRelease;
 
-#ifdef _MSC_VER
-#define WIDEN2(x) L##x
-#define WIDEN(x) WIDEN2(x)
-    tjs_char TJSCompiledDate[] = WIDEN(__DATE__) WIDEN(" ") WIDEN(__TIME__);
-#else
     const char TJSCompiledDate[] = "" __DATE__ " " __TIME__;
-#endif
+
     // first empty literal string is to avoid a compile error with bcc
     // which can not process directly L __DATE__ as a pre-processer
     // wide literal string.

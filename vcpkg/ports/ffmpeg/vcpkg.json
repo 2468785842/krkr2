@@ -16,6 +16,7 @@
     {
       "name": "vcpkg-pkgconfig-get-modules",
       "host": true
-    }
+    },
+    "libiconv"
   ]
 }

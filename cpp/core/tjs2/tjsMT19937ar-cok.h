@@ -32,8 +32,6 @@ namespace TJS {
 
         virtual ~tTJSMersenneTwister() { ; }
 
-        static tTJSMersenneTwister &sharedInstance();
-
     private:
         void init_genrand(unsigned long s);
 

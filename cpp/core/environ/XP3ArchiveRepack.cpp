@@ -11,16 +11,18 @@ extern "C" {
 #include <cassert>
 #include <thread>
 #include <fcntl.h>
-#include <unistd.h>
 #include "win32io.h"
 #include "GraphicsLoaderIntf.h"
 #include <unordered_map>
 #include "LayerIntf.h"
 #include "MsgIntf.h"
-#include "visual/tvpgl_asm_init.h"
 #include "DetectCPU.h"
 #include <set>
 #include "ncbind/ncbind.hpp"
+
+#ifdef _WIN32
+#include <io.h>
+#endif
 
 using namespace TJS;
 using namespace NArchive::N7z;
@@ -53,15 +55,15 @@ public:
     }
     ~OutStreamFor7z() { close(fp); }
 
-    ULONG AddRef() noexcept override { return ++RefCount; }
-    ULONG Release() noexcept override {
+    ULONG STDMETHODCALLTYPE AddRef() noexcept override { return ++RefCount; }
+    ULONG STDMETHODCALLTYPE Release() noexcept override {
         if(RefCount == 1) {
             delete this;
             return 0;
         }
         return --RefCount;
     }
-    HRESULT QueryInterface(REFIID iid, void **ppOut) noexcept override {
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void **ppOut) noexcept override {
         if(!memcmp(&iid, &IID_IOutStream, sizeof(IID_IOutStream))) {
             *ppOut = (IOutStream *)this;
             return S_OK;
@@ -70,34 +72,34 @@ public:
         return E_NOTIMPL;
     }
 
-    HRESULT Write(const void *data, UInt32 size,
+    HRESULT STDMETHODCALLTYPE Write(const void *data, UInt32 size,
                   UInt32 *processedSize) noexcept override {
         *processedSize = write(fp, data, size);
         return S_OK;
     }
-    HRESULT Seek(Int64 offset, UInt32 seekOrigin,
+    HRESULT STDMETHODCALLTYPE Seek(Int64 offset, UInt32 seekOrigin,
                  UInt64 *newPosition) noexcept override {
         int64_t pos = lseek64(fp, offset, seekOrigin);
         if(newPosition)
             *newPosition = pos;
         return S_OK;
     }
-    HRESULT SetSize(UInt64 newSize) noexcept override { return S_OK; }
+    HRESULT STDMETHODCALLTYPE SetSize(UInt64 newSize) noexcept override { return S_OK; }
 };
 
 class OutStreamMemory : public IOutStream, public tTVPMemoryStream {
     unsigned int RefCount = 1;
 
 public:
-    ULONG AddRef() noexcept override { return ++RefCount; }
-    ULONG Release() noexcept override {
+    ULONG STDMETHODCALLTYPE AddRef() noexcept override { return ++RefCount; }
+    ULONG STDMETHODCALLTYPE Release() noexcept override {
         if(RefCount == 1) {
             delete this;
             return 0;
         }
         return --RefCount;
     }
-    HRESULT QueryInterface(REFIID iid, void **ppOut) noexcept override {
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void **ppOut) noexcept override {
         if(!memcmp(&iid, &IID_IOutStream, sizeof(IID_IOutStream))) {
             *ppOut = (IOutStream *)this;
             return S_OK;
@@ -106,17 +108,17 @@ public:
         return E_NOTIMPL;
     }
 
-    HRESULT Write(const void *data, UInt32 size,
+    HRESULT STDMETHODCALLTYPE Write(const void *data, UInt32 size,
                   UInt32 *processedSize) noexcept override {
         *processedSize = tTVPMemoryStream::Write(data, size);
         return S_OK;
     }
-    HRESULT Seek(Int64 offset, UInt32 seekOrigin,
+    HRESULT STDMETHODCALLTYPE Seek(Int64 offset, UInt32 seekOrigin,
                  UInt64 *newPosition) noexcept override {
         *newPosition = tTVPMemoryStream::Seek(offset, seekOrigin);
         return S_OK;
     }
-    HRESULT SetSize(UInt64 newSize) noexcept override {
+    HRESULT STDMETHODCALLTYPE SetSize(UInt64 newSize) noexcept override {
         tTVPMemoryStream::SetSize(newSize);
         return S_OK;
     }
@@ -130,15 +132,15 @@ public:
     SequentialInStreamFor7z(tTJSBinaryStream *s) { fp = s; }
     ~SequentialInStreamFor7z() { fp = nullptr; }
 
-    ULONG AddRef() noexcept override { return ++RefCount; }
-    ULONG Release() noexcept override {
+    ULONG STDMETHODCALLTYPE AddRef() noexcept override { return ++RefCount; }
+    ULONG STDMETHODCALLTYPE Release() noexcept override {
         if(RefCount == 1) {
             delete this;
             return 0;
         }
         return --RefCount;
     }
-    HRESULT QueryInterface(REFIID iid, void **ppOut) noexcept override {
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void **ppOut) noexcept override {
         if(!memcmp(&iid, &IID_IInStream, sizeof(IID_IInStream))) {
             *ppOut = (ISequentialInStream *)this;
             return S_OK;
@@ -147,7 +149,7 @@ public:
         return E_NOTIMPL;
     }
 
-    HRESULT Read(void *data, UInt32 size,
+    HRESULT STDMETHODCALLTYPE Read(void *data, UInt32 size,
                  UInt32 *processedSize) noexcept override {
         *processedSize = fp->Read(data, size);
         return S_OK;
@@ -188,14 +190,14 @@ private:
     HRESULT AddTo7zArchive(tTJSBinaryStream *s, const ttstr &_naem);
 
     // ICompressProgressInfo
-    HRESULT SetRatioInfo(const UInt64 *inSize,
+    HRESULT STDMETHODCALLTYPE SetRatioInfo(const UInt64 *inSize,
                          const UInt64 *outSize) noexcept override;
     // IUnknown
-    HRESULT QueryInterface(REFIID riid, void **ppvObject) noexcept override {
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) noexcept override {
         return E_NOTIMPL;
     }
-    ULONG AddRef() noexcept override { return 0; }
-    ULONG Release() noexcept override { return 0; }
+    ULONG STDMETHODCALLTYPE AddRef() noexcept override { return 0; }
+    ULONG STDMETHODCALLTYPE Release() noexcept override { return 0; }
 
     std::vector<std::pair<tTVPXP3ArchiveEx *, std::string>> ConvFileList;
     std::thread *Thread = nullptr;
@@ -376,7 +378,7 @@ XP3ArchiveRepackAsyncImpl::AddTo7zArchive(tTJSBinaryStream *s,
     SequentialInStreamFor7z str(s);
     tjs_uint64 origSize = s->GetSize();
     file.Size = origSize;
-    UString name{ _name.c_wstr().c_str() };
+    UString name{ _name.toWString().c_str() };
     UInt64 inSizeForReduce = origSize;
     UInt64 newSize = origSize;
     bool compressable = origSize > 64 && origSize < 4 * 1024 * 1024;
@@ -513,7 +515,7 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
                     // add empty files first
                     CFileItem file;
                     CFileItem2 file2;
-                    UString name{ item.Name.c_wstr().c_str() };
+                    UString name{ item.Name.toWString().c_str() };
                     file.Size = item.OrgSize;
                     file.HasStream = false;
                     newDatabase.AddFile(file, file2, name);

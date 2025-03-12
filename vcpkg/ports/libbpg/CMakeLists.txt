@@ -5,8 +5,12 @@ project(libbpg)
 option(USE_X265 "Enable x265 for the encoder" ON)
 option(USE_JCTVC "Enable JCTVC code for the encoder" OFF)
 
-# 编译选项
-set(CMAKE_C_FLAGS "-fno-asynchronous-unwind-tables -fdata-sections -ffunction-sections -fno-math-errno -fno-signed-zeros -fno-tree-vectorize -fomit-frame-pointer")
+if(MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Gy /fp:fast /Qvec- /Oy")
+else()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-asynchronous-unwind-tables -fdata-sections -ffunction-sections -fno-math-errno -fno-signed-zeros -fno-tree-vectorize -fomit-frame-pointer")
+endif()
+
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 
 add_library(libbpg)

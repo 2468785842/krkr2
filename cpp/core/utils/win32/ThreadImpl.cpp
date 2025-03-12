@@ -38,15 +38,15 @@ tTVPThread::tTVPThread(bool suspended) {
     Terminated = false;
     Suspended = suspended;
 
-    pthread_attr_t attr;
-    if(pthread_attr_init(&attr) != 0) {
+    try {
+        Handle = std::thread([this] {
+            StartProc(this);
+        });
+        Handle.detach();
+    } catch (const std::system_error&) {
+        // 捕获线程创建失败异常
         TVPThrowInternalError;
     }
-    if(pthread_create(&Handle, &attr, StartProc, this) != 0) {
-        pthread_attr_destroy(&attr);
-        TVPThrowInternalError;
-    }
-    pthread_attr_destroy(&attr);
 }
 
 //---------------------------------------------------------------------------
@@ -56,9 +56,9 @@ tTVPThread::~tTVPThread() {
 
 //---------------------------------------------------------------------------
 void *tTVPThread::StartProc(void *arg) {
-    tTVPThread *_this = ((tTVPThread *)arg);
+    tTVPThread *_this = (tTVPThread *)arg;
     if(_this->Suspended) {
-        std::unique_lock<std::mutex> lk(_this->_mutex);
+        std::unique_lock lk(_this->_mutex);
         _this->_cond.wait(lk);
     }
     _this->Execute();
@@ -68,70 +68,18 @@ void *tTVPThread::StartProc(void *arg) {
 
 //---------------------------------------------------------------------------
 void tTVPThread::WaitFor() {
-    void *result;
-    pthread_join(Handle, &result);
+    Handle.join();
 }
 
 //---------------------------------------------------------------------------
 tTVPThreadPriority tTVPThread::GetPriority() {
-    sched_param npri = { 0 };
-    int policy = 0;
-    pthread_getschedparam(Handle, &policy, &npri);
-
-    switch(policy) {
-        case 5 /*SCHED_IDLE*/:
-            return ttpIdle;
-        case 3 /*SCHED_BATCH*/:
-            return (npri.sched_priority == 0) ? ttpLowest : ttpLower;
-        case 0 /*SCHED_NORMAL*/:
-            switch(npri.sched_priority) {
-                case 0:
-                    return ttpNormal;
-                case 1:
-                    return ttpHigher;
-                case 2:
-                    return ttpHighest;
-            }
-            break;
-        case 2 /*SCHED_RR*/:
-            return ttpTimeCritical;
-    }
-
+    // TODO: impl
     return ttpNormal;
 }
 
 //---------------------------------------------------------------------------
 void tTVPThread::SetPriority(tTVPThreadPriority pri) {
-    sched_param npri = { 0 }; // SCHED_NORMAL
-    int policy = 0;
-    switch(pri) {
-        case ttpIdle:
-            policy = 5 /*SCHED_IDLE*/;
-            break;
-        case ttpLowest:
-            policy = 3 /*SCHED_BATCH*/;
-            npri.sched_priority = 0;
-            break;
-        case ttpLower:
-            policy = 3 /*SCHED_BATCH*/;
-            npri.sched_priority = 1;
-            break;
-        case ttpNormal:
-            policy = 0 /*SCHED_NORMAL*/;
-            break;
-        case ttpHigher:
-            policy = 0 /*SCHED_NORMAL*/;
-            npri.sched_priority = 1;
-            break;
-        case ttpHighest:
-            policy = 0 /*SCHED_NORMAL*/;
-            npri.sched_priority = 2;
-            break;
-        case ttpTimeCritical:
-            policy = 2 /*SCHED_RR*/;
-            break;
-    }
-    pthread_setschedparam(Handle, policy, &npri);
+    // TODO: impl
 }
 
 //---------------------------------------------------------------------------
@@ -151,7 +99,7 @@ void tTVPThread::Resume() {
 // tTVPThreadEvent
 //---------------------------------------------------------------------------
 void tTVPThreadEvent::Set() {
-    std::unique_lock<std::mutex> lk(Mutex);
+    std::unique_lock lk(Mutex);
     Handle.notify_one();
 }
 
@@ -161,26 +109,17 @@ void tTVPThreadEvent::WaitFor(tjs_uint timeout) {
     // returns true if the event is set, otherwise (when timed out)
     // returns false.
 
-    std::unique_lock<std::mutex> lk(Mutex);
+    std::unique_lock lk(Mutex);
     if(timeout != 0) {
         Handle.wait_for(lk, std::chrono::milliseconds(timeout));
     } else {
         Handle.wait(lk);
     }
-#if 0
-    DWORD state = WaitForSingleObject(Handle, timeout == 0 ? INFINITE : timeout);
-
-    if(state == WAIT_OBJECT_0) return true;
-    return false;
-#endif
 }
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 tjs_int TVPDrawThreadNum = 1;
-
-static std::vector<tjs_int> TVPProcesserIdList;
-static tjs_int TVPThreadTaskNum, TVPThreadTaskCount;
 
 //---------------------------------------------------------------------------
 static tjs_int GetProcesserNum() {

@@ -134,46 +134,13 @@ static ttstr TVPDumpCPUInfo(tjs_int cpu_num) {
 // TVPDetectCPU
 //---------------------------------------------------------------------------
 static void TVPDisableCPU(tjs_uint32 featurebit, const tjs_char *name) {
-#if 0
-	tTJSVariant val;
-	ttstr str;
-	if(TVPGetCommandLine(name, &val))
-	{
-		str = val;
-		if(str == TJS_W("no"))
-			TVPCPUType &=~ featurebit;
-		else if(str == TJS_W("force"))
-			TVPCPUType |= featurebit;
-	}
-#endif
 }
 
-#if defined(WIN32) || defined(__ANDROID__)
-#include <cpu-features.h>
-#endif
-//---------------------------------------------------------------------------
 void TVPDetectCPU() {
     if(TVPCPUChecked)
         return;
     TVPCPUChecked = true;
 
-    // if(SDL_HasSSE2()) TVPCPUFeatures |= TVP_CPU_HAS_SSE2 |
-    // TVP_CPU_HAS_EMMX; if(SDL_HasSSE())  TVPCPUFeatures |=
-    // TVP_CPU_HAS_SSE; if(SDL_HasMMX())  TVPCPUFeatures |=
-    // TVP_CPU_HAS_MMX; if(SDL_HasSSE2()) TVPCPUFeatures |=
-    // TVP_CPU_HAS_SSE2;
-#if defined(__ANDROID__) || defined(WIN32)
-    // if (android_getCpuFamily() == ANDROID_CPU_FAMILY_ARM) {
-    TVPCPUFeatures |= TVP_CPU_FAMILY_ARM; // must be arm
-#if defined(__arm64__) || defined(__aarch64__) || defined(__LP64__)
-    TVPCPUFeatures |= TVP_CPU_HAS_NEON; // aka. asimd
-#else
-    if((android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON) != 0) {
-        TVPCPUFeatures |= TVP_CPU_HAS_NEON;
-    }
-#endif
-    //}
-#endif
 #ifdef __APPLE__
     // must be iOS
     TVPCPUFeatures |= TVP_CPU_FAMILY_ARM | TVP_CPU_HAS_NEON;
@@ -184,61 +151,7 @@ void TVPDetectCPU() {
     TVPCPUType &= ~TVP_CPU_FEATURE_MASK;
     TVPCPUType |= features;
 
-    // 	// get process affinity mask
-    // 	DWORD pam = 1;
-    // 	HANDLE hp = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE,
-    // GetCurrentProcessId()); 	if(hp)
-    // 	{
-    // 		DWORD sam = 1;
-    // 		GetProcessAffinityMask(hp, &pam, &sam);
-    // 		CloseHandle(hp);
-    // 	}
-    //
-    // 	// for each CPU...
-    // 	ttstr cpuinfo;
-    // 	bool first = true;
-    // 	for(tjs_int cpu = 0; cpu < 32; cpu++)
-    // 	{
-    // 		if(pam & (1<<cpu))
-    // 		{
-    // 			tTVPCPUCheckThread * thread = new
-    // tTVPCPUCheckThread(1<<cpu); 			thread->WaitEnd();
-    // bool succeeded = thread->GetSucceeded(); 			delete
-    // thread; if(!succeeded) throw Exception("CPU check failure");
-    // cpuinfo += TVPDumpCPUInfo(cpu) + TJS_W("\r\n");
-    //
-    // 			// mask features
-    // 			if(first)
-    // 			{
-    // 				features =  (TVPCPUFeatures &
-    // TVP_CPU_FEATURE_MASK); 				TVPCPUType =
-    // TVPCPUFeatures; first = false;
-    // 			}
-    // 			else
-    // 			{
-    // 				features &= (TVPCPUFeatures &
-    // TVP_CPU_FEATURE_MASK);
-    // 			}
-    // 		}
-    // 	}
-
-    // Disable or enable cpu features by option
-    // 	TVPDisableCPU(TVP_CPU_HAS_MMX,  TJS_W("-cpummx"));
-    // 	TVPDisableCPU(TVP_CPU_HAS_3DN,  TJS_W("-cpu3dn"));
-    // 	TVPDisableCPU(TVP_CPU_HAS_SSE,  TJS_W("-cpusse"));
-    // 	TVPDisableCPU(TVP_CPU_HAS_CMOV, TJS_W("-cpucmov"));
-    // 	TVPDisableCPU(TVP_CPU_HAS_E3DN, TJS_W("-cpue3dn"));
-    // 	TVPDisableCPU(TVP_CPU_HAS_EMMX, TJS_W("-cpuemmx"));
-    // 	TVPDisableCPU(TVP_CPU_HAS_SSE2, TJS_W("-cpusse2"));
     TVPDisableCPU(TVP_CPU_HAS_NEON, TJS_W("-cpuneon"));
-
-    // 	if(TVPCPUType == 0)
-    // 		throw Exception("CPU check failure: Not supported CPU\r\n"
-    // + 		cpuinfo.AsAnsiString());
-    //
-    // 	TVPAddImportantLog(TJS_W("(info) finally detected CPU features
-    // : ") +
-    //     	TVPDumpCPUFeatures(TVPCPUType));
 }
 //---------------------------------------------------------------------------
 

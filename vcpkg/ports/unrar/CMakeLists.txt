@@ -4,17 +4,17 @@ project(unrar LANGUAGES CXX)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Compiler flags
-set(CMAKE_CXX_FLAGS "-Wno-logical-op-parentheses -Wno-switch -Wno-dangling-else")
+# set(CMAKE_CXX_FLAGS "-Wno-logical-op-parentheses -Wno-switch -Wno-dangling-else")
 
 add_library(${PROJECT_NAME})
 
 # Definitions
-target_compile_definitions(${PROJECT_NAME} PUBLIC -DUNIX_TIME_NS -DRARDLL -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DRAR_SMP)
+target_compile_definitions(${PROJECT_NAME} PRIVATE -DRARDLL -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DRAR_SMP)
 
 # 源文件列表
 set(OBJECTS
     rar.cpp strlist.cpp strfn.cpp pathfn.cpp smallfn.cpp global.cpp file.cpp filefn.cpp filcreat.cpp
-    archive.cpp arcread.cpp unicode.cpp system.cpp crypt.cpp crc.cpp rawread.cpp encname.cpp
+    archive.cpp arcread.cpp unicode.cpp system.cpp isnt.cpp crypt.cpp crc.cpp rawread.cpp encname.cpp
     resource.cpp match.cpp timefn.cpp rdwrfn.cpp consio.cpp options.cpp errhnd.cpp rarvm.cpp secpassword.cpp
     rijndael.cpp getbits.cpp sha1.cpp sha256.cpp blake2s.cpp hash.cpp extinfo.cpp extract.cpp volume.cpp
     list.cpp find.cpp unpack.cpp headers.cpp threadpool.cpp rs16.cpp cmddata.cpp ui.cpp

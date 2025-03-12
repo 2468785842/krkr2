@@ -1,10 +1,11 @@
+#include "LayerExDraw.hpp"
+
 #include <spdlog/spdlog.h>
 #include <cocos2d.h>
 #include <filesystem>
 
 #include "common/Defer.h"
 #include "ncbind.hpp"
-#include "LayerExDraw.hpp"
 
 static u_char *G_FontFamilyData{};
 static ssize_t G_FontFamilyDataSize{};
@@ -354,7 +355,7 @@ void FontInfo::setFamilyName(const tjs_char *fName) {
     const auto pair = findFontPath(defaultFamily);
     if(pair.second == defaultFamily) {
         spdlog::get("plugin")->debug("using system font file");
-        FT_New_Face(ftLibrary, pair.first.c_str(), 0, &this->ftFace);
+        FT_New_Face(ftLibrary, pair.first.generic_string().c_str(), 0, &this->ftFace);
     } else {
         spdlog::get("plugin")->debug("using embedded font file");
         loadFontFromAssets(ftLibrary, &this->ftFace);
@@ -2486,8 +2487,8 @@ static ARGB getColor(GpBitmap *bitmap, int x, int y) {
 tTJSVariant LayerExDraw::getColorRegionRects(ARGB color) {
     iTJSDispatch2 *array = TJSCreateArrayObject();
     if(bitmap) {
-        uint width{};
-        uint height{};
+        UINT width{};
+        UINT height{};
         GdipGetImageWidth(this->bitmap, &width);
         GdipGetImageHeight(this->bitmap, &height);
         GpRegion *region{};
@@ -2506,8 +2507,9 @@ tTJSVariant LayerExDraw::getColorRegionRects(ARGB color) {
 
         // 矩形一覧取得
         GpMatrix matrix;
-        int count{};
-        GdipGetRegionScansCount(region, &count, &matrix);
+        UINT uCount{};
+        GdipGetRegionScansCount(region, &uCount, &matrix);
+        INT count = static_cast<INT>(uCount);
         if(count > 0) {
             auto *rects = new RectF[count];
             GdipGetRegionScans(region, rects, &count, &matrix);

@@ -15,9 +15,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#ifdef _MSC_VER
-#pragma comment(lib, "freetype.lib")
-#endif
 #include "platform/CCFileUtils.h"
 #include "StorageImpl.h"
 #include "BinaryStream.h"
@@ -231,9 +228,9 @@ void TVPInitFontNames() {
         if(TVPEnumFontsProc(TJS_W("file://./system/fonts/DroidSans.ttf")))
             break;
 #elif defined(WIN32)
-        if(TVPEnumFontsProc(TJS_W("file://./c/windows/fonts/msyh.ttf")))
+        if(TVPEnumFontsProc(TJS_W("file://./c/Windows/Fonts/msyh.ttf")))
             break;
-        if(TVPEnumFontsProc(TJS_W("file://./c/windows/fonts/simhei.ttf")))
+        if(TVPEnumFontsProc(TJS_W("file://./c/Windows/Fonts/simhei.ttf")))
             break;
 #endif
 

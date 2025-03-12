@@ -1,4 +1,3 @@
-//#pragma comment(lib, "strmiids.lib")
 #include <stdlib.h>
 #ifdef _MSC_VER
 //#include <concrt.h>
@@ -6,7 +5,7 @@
 #include <stdint.h>
 #include "tjsCommHead.h"
 #include "EventIntf.h"
-#include "layerex_draw/layerExBase.hpp"
+#include "layerExBase.hpp"
 #include "ncbind/ncbind.hpp"
 #include "Application.h"
 #include "LayerBitmapIntf.h"

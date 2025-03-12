@@ -158,12 +158,7 @@ void TVPMainFileSelectorForm::bindBodyController(const NodeMap &allNodes) {
     }
 }
 
-extern "C" void TVPGL_ASM_Test();
-
 void TVPMainFileSelectorForm::show() {
-#ifdef _DEBUG
-    TVPGL_ASM_Test();
-#endif
     ListHistory(); // filter history data
 
     bool first = true;

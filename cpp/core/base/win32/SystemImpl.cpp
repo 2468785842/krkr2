@@ -36,6 +36,11 @@
 #include "tjsArray.h"
 #include "Platform.h"
 
+// 和系统宏冲突了
+#ifdef _WIN32
+#undef GetClassName
+#endif
+
 //---------------------------------------------------------------------------
 static ttstr TVPAppTitle;
 static bool TVPAppTitleInit = false;

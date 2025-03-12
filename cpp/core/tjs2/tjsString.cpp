@@ -8,10 +8,6 @@
 //---------------------------------------------------------------------------
 // tTJSVariant friendly string class implementation
 //---------------------------------------------------------------------------
-#include "tjsCommHead.h"
-#include <cstdarg>
-#include <cstdio>
-
 #include "tjsString.h"
 #include "tjsVariant.h"
 

@@ -1,9 +1,7 @@
 #!/bin/bash
 
-cmake -GNinja -B ./out/linux/debug -DCMAKE_BUILD_TYPE=Debug -DLINUX=ON
+cmake -GNinja -B ./out/linux/debug -DCMAKE_BUILD_TYPE=Debug -DLINUX=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 cmake --build ./out/linux/debug
-
-FILE="/path/to/your/file.txt"
 
 if [ ! -f "/usr/lib/libfmod.so" ]; then
     echo "install libfmod.so."

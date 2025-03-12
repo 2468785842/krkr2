@@ -32,9 +32,6 @@
 
 #if defined(_WIN32)
 
-/* VC++/BCC */
-
-/*[*/
 typedef __int8 tjs_int8;
 typedef unsigned __int8 tjs_uint8;
 typedef __int16 tjs_int16;
@@ -47,12 +44,12 @@ typedef int tjs_int; /* at least 32bits */
 typedef unsigned int tjs_uint; /* at least 32bits */
 
 #ifdef __cplusplus
-typedef wchar_t tjs_char;
+typedef char16_t tjs_char;
 #else
 typedef unsigned short tjs_char;
 #endif
 
-#define TJS_W(X) L##X
+#define TJS_W(X) u##X
 #define TJS_N(X) X
 
 typedef char tjs_nchar;
@@ -60,12 +57,6 @@ typedef double tjs_real;
 
 #define TJS_HOST_IS_BIG_ENDIAN 0
 #define TJS_HOST_IS_LITTLE_ENDIAN 1
-
-#ifndef
-#define
-/* is "cdecl" (by default)
-        since TJS2 2.4.14 (kirikir2 2.25 beta 1) */
-#endif
 
 #define TJS_USERENTRY __cdecl
 
@@ -79,7 +70,10 @@ typedef double tjs_real;
 typedef intptr_t tjs_intptr_t;
 typedef uintptr_t tjs_uintptr_t;
 
-/*]*/
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
 
 #else
 

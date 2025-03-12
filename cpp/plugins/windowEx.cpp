@@ -5,7 +5,14 @@
 #include <cstdint>
 
 typedef unsigned long DWORD;
-typedef uintptr_t ULONG_PTR;
+
+#if !defined(_WIN64) && !defined(_WIN32)
+    typedef unsigned long ULONG_PTR;
+#else
+#include <windows.h>
+#include <WinDef.h>
+#include <WinUser.h>
+#endif
 
 #include "win32_dt.h"
 #include "ncbind/ncbind.hpp"
@@ -15,10 +22,7 @@ typedef uintptr_t ULONG_PTR;
 #include "WindowImpl.h"
 
 #define NCB_MODULE_NAME TJS_W("windowEx.dll")
-
-// ウィンドウクラス名取得用のバッファサイズ
-#define CLASSNAME_MAX 1024
-
+#ifndef _WIN32
 #define WM_NULL 0x0000
 #define WM_CREATE 0x0001
 #define WM_DESTROY 0x0002
@@ -306,6 +310,7 @@ typedef uintptr_t ULONG_PTR;
 #define HTZOOM 9 // [最大化] 按鈕中。
 #define HTCAPTION 2 // In a title bar.
 #define HTCLIENT 1 // In a client area.
+#endif
 
 // イベント名一覧
 #define EXEV_MINIMIZE TJS_W("onMinimize")
@@ -698,7 +703,7 @@ struct WindowEx {
     }
 
     // メニュー更新処理（MenuItemEx用）
-    void setMenuItemID(iTJSDispatch2 *, uint, bool);
+    void setMenuItemID(iTJSDispatch2 *, UINT, bool);
 
     // Message Receiver 登録・解除
     void regist(bool en) {}
@@ -1197,6 +1202,7 @@ return obj;
 ;
 // Note: MIIM_TYPE is replaced by MIIM_BITMAP, MIIM_FTYPE, and
 // MIIM_STRING.
+#ifndef _WIN32
 #define HBMMENU_CALLBACK -1
 #define HBMMENU_SYSTEM 1
 #define HBMMENU_MBAR_RESTORE 2
@@ -1208,6 +1214,7 @@ return obj;
 #define HBMMENU_POPUP_RESTORE 9
 #define HBMMENU_POPUP_MAXIMIZE 10
 #define HBMMENU_POPUP_MINIMIZE 11
+#endif
 
 NCB_ATTACH_CLASS_WITH_HOOK(MenuItemEx, MenuItem) {
     Variant(TJS_W("biSystem"), (tjs_int64)HBMMENU_SYSTEM);

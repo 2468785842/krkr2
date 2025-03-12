@@ -35,7 +35,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     auto director = cocos2d::Director::getInstance();
     auto glview = director->getOpenGLView();
     if(!glview) {
-        glview = cocos2d::GLViewImpl::create("kirikiri2 frame");
+        glview = cocos2d::GLViewImpl::create("kirikiri2");
         director->setOpenGLView(glview);
 #if CC_PLATFORM_WIN32 == CC_TARGET_PLATFORM
         glview->setFrameSize(960, 640);
@@ -50,8 +50,6 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     designSize.height = designSize.width * screenSize.height / screenSize.width;
     glview->setDesignResolutionSize(screenSize.width, screenSize.height,
                                     ResolutionPolicy::EXACT_FIT);
-
-    cocos2d::Size frameSize = glview->getFrameSize();
 
     std::vector<std::string> searchPath;
 

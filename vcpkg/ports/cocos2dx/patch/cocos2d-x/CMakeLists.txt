@@ -139,6 +139,12 @@ endif()
 if(WINDOWS OR MACOSX OR LINUX)
     install_ext_lib(glfw3)
 endif()
+
+if (WINDOWS)
+    install_ext_lib(win32-specific/MP3Decoder)
+    install_ext_lib(win32-specific/OggDecoder)
+endif ()
+
 if(BUILD_EXT_BOX2D)
     install_ext_lib(Box2D)
 endif ()

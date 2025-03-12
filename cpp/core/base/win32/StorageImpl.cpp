@@ -36,9 +36,14 @@
 #include "dirent.h"
 #include "TickCount.h"
 #include <fcntl.h>
-#include <unistd.h>
 #include "combase.h"
+
 #include "win32io.h"
+
+// 和系统宏冲突了
+#ifdef _WIN32
+#undef GetClassName
+#endif
 
 //---------------------------------------------------------------------------
 // tTVPFileMedia
@@ -74,7 +79,6 @@ public:
 
     void GetLocallyAccessibleName(ttstr &name);
 
-public:
     void GetLocalName(ttstr &name);
 };
 

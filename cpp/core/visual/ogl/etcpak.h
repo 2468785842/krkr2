@@ -1,5 +1,4 @@
 #pragma once
-#include <functional>
 // from https://github.com/wolfpld/etcpak
 
 namespace ETCPacker {

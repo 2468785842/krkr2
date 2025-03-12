@@ -1,9 +1,9 @@
-#ifndef _layExBase_hpp_
-#define _layExBase_hpp_
+#pragma once
 
-#include "PluginStub.h"
 #include "LayerImpl.h"
+#include "MsgIntf.h"
 #include "RenderManager.h"
+#include "ScriptMgnIntf.h"
 
 /**
  * プロパティのキャッシュ処理用
@@ -180,5 +180,3 @@ struct layerExBase_GL {
         _this->Update(rc);
     }
 };
-
-#endif

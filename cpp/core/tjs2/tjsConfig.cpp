@@ -13,7 +13,7 @@
 #include <clocale>
 #include <algorithm>
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #include <float.h>
 #define isfinite _finite
 #else
@@ -463,7 +463,7 @@ namespace TJS {
             n = (int)TJS_wcstombs(nullptr, wide, 0);
 
         if(n == -1) {
-            Buf = TJS_N("");
+            Buf = nullptr;
             Allocated = false;
             return;
         }
@@ -666,9 +666,6 @@ namespace TJS {
     }
 
     double TJS_strtod(const tjs_char *string, tjs_char **endPtr) {
-#if defined(_MSC_VER) && defined(_DEBUG)
-        double testret = wcstod(string, endPtr);
-#endif
         int sign, expSign = false;
         double fraction, dblExp;
         const double *d;
@@ -862,7 +859,7 @@ namespace TJS {
             strftime(timebuf, maxsize,
                      ttstr{ wformat }.AsNarrowStdString().c_str(), timeptr);
         ttstr r_timebuf{ timebuf };
-        auto w_r_timebuf = r_timebuf.c_wstr();
+        auto w_r_timebuf = r_timebuf.toWString();
         size_t len = (w_r_timebuf.length() + 1) * sizeof(wchar_t);
         std::memcpy(wstring, w_r_timebuf.c_str(), len);
         return r;

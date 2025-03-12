@@ -21,7 +21,6 @@
  */
 
 #include "KRMovieDef.h"
-#include <cstddef>
 #include <vector>
 
 NS_KRMOVIE_BEGIN

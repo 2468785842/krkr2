@@ -14,14 +14,14 @@
 #include "tjsNative.h"
 #include "ThreadIntf.h"
 #include <condition_variable>
-#include "pthread.h"
+#include <thread>
 
 //---------------------------------------------------------------------------
 // tTVPThread
 //---------------------------------------------------------------------------
 class tTVPThread {
     bool Terminated;
-    pthread_t Handle;
+    std::thread Handle;
     // DWORD ThreadId;
     std::mutex _mutex; // for suspend
     std::condition_variable _cond;

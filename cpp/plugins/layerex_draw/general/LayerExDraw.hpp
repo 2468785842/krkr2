@@ -1,20 +1,11 @@
-#ifndef _layerExText_hpp_
-#define _layerExText_hpp_
-
-#include "PluginStub.h"
-
-#include "layerExBase.hpp"
+#pragma once
 
 #include <vector>
 
 #include "gdip_cxx.h"
 #include "gdip_cxx_brush.h"
 #include "gdip_cxx_pen.h"
-
-extern "C" {
-#include <libgdiplus/text.h>
-#include <libgdiplus/adjustablearrowcap.h>
-}
+#include "layerExBase.hpp"
 
 #include "combase.h"
 
@@ -819,5 +810,3 @@ public:
 
     tTJSVariant getColorRegionRects(ARGB color);
 };
-
-#endif

@@ -1,5 +1,7 @@
 include(CMakeParseArguments)
 
+find_package(Python REQUIRED)
+
 # copy resource `FILES` and `FOLDERS` to TARGET_FILE_DIR/Resources
 function(cocos_copy_target_res cocos_target)
     set(oneValueArgs LINK_TO)
@@ -17,7 +19,7 @@ function(cocos_copy_target_res cocos_target)
         get_filename_component(link_folder_abs ${opt_LINK_TO} ABSOLUTE)
         add_custom_command(TARGET SYNC_RESOURCE-${cocos_target} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E echo "    copying to ${link_folder_abs}"
-            COMMAND ${PYTHON_COMMAND} ARGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_folder.py
+            COMMAND ${Python_EXECUTABLE} ARGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_folder.py
                 -s ${cc_folder} -d ${link_folder_abs}
         )
     endforeach()
@@ -49,20 +51,20 @@ function(cocos_copy_lua_scripts cocos_target src_dir dst_dir)
     endif()
     if(MSVC)
         add_custom_command(TARGET ${luacompile_target} POST_BUILD
-            COMMAND ${PYTHON_COMMAND} ARGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_folder.py
+            COMMAND ${Python_EXECUTABLE} ARGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_folder.py
                 -s ${src_dir} -d ${dst_dir} -l ${LUAJIT32_COMMAND} -m $<CONFIG>
         )
     else()
         if("${CMAKE_BUILD_TYPE}" STREQUAL "")
             add_custom_command(TARGET ${luacompile_target} POST_BUILD
-                COMMAND ${PYTHON_COMMAND} ARGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_folder.py
+                COMMAND ${Python_EXECUTABLE} ARGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_folder.py
                 -s ${src_dir} -d ${dst_dir}
             )
         else()
             add_custom_command(TARGET ${luacompile_target} POST_BUILD
-                COMMAND ${PYTHON_COMMAND} ARGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_folder.py
+                COMMAND ${Python_EXECUTABLE} ARGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_folder.py
                     -s ${src_dir} -d ${dst_dir} -l ${LUAJIT32_COMMAND} -m ${CMAKE_BUILD_TYPE}
-                COMMAND ${PYTHON_COMMAND} ARGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_folder.py
+                COMMAND ${Python_EXECUTABLE} ARGS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_folder.py
                     -s ${src_dir} -d ${dst_dir}/64bit -l ${LUAJIT64_COMMAND} -m ${CMAKE_BUILD_TYPE}
             )
         endif()
@@ -110,11 +112,14 @@ function(search_depend_libs_recursive cocos_target all_depends_out)
             if(${target_type} STREQUAL "SHARED_LIBRARY" OR ${target_type} STREQUAL "STATIC_LIBRARY" OR ${target_type} STREQUAL "MODULE_LIBRARY" OR ${target_type} STREQUAL "EXECUTABLE")
                 get_target_property(tmp_depend_libs ${tmp_target} LINK_LIBRARIES)
                 list(REMOVE_ITEM targets_prepare_search ${tmp_target})
-                list(APPEND tmp_depend_libs ${tmp_target})
+                list(FIND all_depends_inner ${tmp_target} index)
+                if(index EQUAL -1)
+                    list(APPEND all_depends_inner ${tmp_target})
+                endif()
                 foreach(depend_lib ${tmp_depend_libs})
                     if(TARGET ${depend_lib})
-                        list(APPEND all_depends_inner ${depend_lib})
-                        if(NOT (depend_lib STREQUAL tmp_target))
+                        list(FIND all_depends_inner ${depend_lib} dep_index)
+                        if(dep_index EQUAL -1)
                             list(APPEND targets_prepare_search ${depend_lib})
                         endif()
                     endif()

@@ -6,6 +6,10 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/XP3ArchiveRepack.cpp
 
     $<$<BOOL:${ANDROID}>:${ENVIRON_PATH}/android/AndroidUtils.cpp>
+    $<$<BOOL:${ANDROID}>:${ENVIRON_PATH}/linux/Platform.cpp>
+    
+    $<$<BOOL:${LINUX}>:${ENVIRON_PATH}/linux/Platform.cpp>
+    $<$<BOOL:${WINDOWS}>:${ENVIRON_PATH}/win32/Platform.cpp>
 
     ${ENVIRON_PATH}/cocos2d/AppDelegate.cpp
     ${ENVIRON_PATH}/cocos2d/CCKeyCodeConv.cpp
@@ -16,7 +20,6 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/ConfigManager/GlobalConfigManager.cpp
     ${ENVIRON_PATH}/ConfigManager/IndividualConfigManager.cpp
     ${ENVIRON_PATH}/ConfigManager/LocaleConfigManager.cpp
-    ${ENVIRON_PATH}/linux/Platform.cpp
     ${ENVIRON_PATH}/sdl/tvpsdl.cpp
 
     ${ENVIRON_PATH}/ui/BaseForm.cpp

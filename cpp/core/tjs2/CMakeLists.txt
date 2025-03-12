@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.28)
 project(tjs2)
 
 add_library(${PROJECT_NAME} STATIC)
@@ -6,17 +6,18 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:_DEBUG>)
 
 set(GEN_CODE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 
+if(WINDOWS)
+    target_compile_options(${PROJECT_NAME} PRIVATE "/FS")
+endif()
+
 if(NOT EXISTS ${GEN_CODE_BINARY_DIR})
     file(MAKE_DIRECTORY ${GEN_CODE_BINARY_DIR})
 endif()
 
-include("$ENV{VCPKG_ROOT}/scripts/cmake/vcpkg_list.cmake")
-include("$ENV{VCPKG_ROOT}/scripts/cmake/vcpkg_find_acquire_program.cmake")
-
 #===============================================================#
 #======================= generate parser =======================#
 #===============================================================#
-vcpkg_find_acquire_program(BISON)
+find_program(BISON_EXECUTABLE NAMES win_bison.exe bison.exe bison)
 
 set(BISON_FILES
     ${CMAKE_CURRENT_LIST_DIR}/bison/tjs.y
@@ -29,7 +30,7 @@ foreach(BISON_FILE ${BISON_FILES})
 
     execute_process(
         TIMEOUT 5000
-        COMMAND ${BISON} ${BISON_FILE}
+        COMMAND ${BISON_EXECUTABLE} ${BISON_FILE}
         WORKING_DIRECTORY ${GEN_CODE_BINARY_DIR}
         COMMAND_ECHO STDOUT
     )
@@ -39,7 +40,7 @@ foreach(BISON_FILE ${BISON_FILES})
             ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.cpp
             ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.hpp
         DEPENDS ${BISON_FILE}
-        COMMAND ${BISON} ${BISON_FILE}
+        COMMAND ${BISON_EXECUTABLE} ${BISON_FILE}
         WORKING_DIRECTORY ${GEN_CODE_BINARY_DIR}
         COMMENT "Generate Bison File From ${BISON_FILE}"
     )
@@ -58,11 +59,11 @@ install(DIRECTORY "${GEN_CODE_BINARY_DIR}/"
 #===============================================================#
 #==================== generate date word =======================#
 #===============================================================#
-vcpkg_find_acquire_program(PYTHON3)
+find_package(Python3)
 
 execute_process(
     TIMEOUT 5000
-    COMMAND ${PYTHON3} create_world_map.py ${GEN_CODE_BINARY_DIR}/tjsDateWordMap.inc
+    COMMAND ${Python3_EXECUTABLE} create_world_map.py ${GEN_CODE_BINARY_DIR}/tjsDateWordMap.inc
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/script
     COMMAND_ECHO STDOUT
 )
@@ -126,6 +127,6 @@ find_package(spdlog CONFIG REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     Boost::locale
-    fmt::fmt-header-only
-    spdlog::spdlog_header_only
+    fmt::fmt
+    spdlog::spdlog
 )
