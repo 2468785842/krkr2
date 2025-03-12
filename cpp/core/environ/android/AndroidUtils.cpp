@@ -35,7 +35,7 @@
 USING_NS_CC;
 
 #define KR2ActJavaPath "org/tvp/kirikiri2/KR2Activity"
-//#define KR2EntryJavaPath "org/tvp/kirikiri2/Kirikiroid2"
+// #define KR2EntryJavaPath "org/tvp/kirikiri2/Kirikiroid2"
 
 extern unsigned int __page_size = getpagesize();
 

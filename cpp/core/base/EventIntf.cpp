@@ -196,7 +196,7 @@ static tTVPAtExit TVPDestroyEventQueueAtExit(TVP_ATEXIT_PRI_PREPARE,
 bool TVPEventDisabled = false;
 bool TVPEventInterrupting = false;
 
-//#define TVP_EVENT_TASK_RETURN_TICK 100000
+// #define TVP_EVENT_TASK_RETURN_TICK 100000
 /* TVP event system once returns to Operation system when
     TVP_EVENT_TASK_RETURN_TICK is elapsed during event delivering. */
 //---------------------------------------------------------------------------

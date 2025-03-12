@@ -133,8 +133,7 @@ static ttstr TVPDumpCPUInfo(tjs_int cpu_num) {
 //---------------------------------------------------------------------------
 // TVPDetectCPU
 //---------------------------------------------------------------------------
-static void TVPDisableCPU(tjs_uint32 featurebit, const tjs_char *name) {
-}
+static void TVPDisableCPU(tjs_uint32 featurebit, const tjs_char *name) {}
 
 void TVPDetectCPU() {
     if(TVPCPUChecked)

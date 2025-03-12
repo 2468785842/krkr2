@@ -168,8 +168,7 @@ namespace TJS // following is in the namespace
                                                const tjs_char *name,
                                                tTJSScriptBlock *block,
                                                tTJSContextType type) :
-        inherited(TJSGetContextHashSize(type)),
-        Properties(nullptr) {
+        inherited(TJSGetContextHashSize(type)), Properties(nullptr) {
         inherited::CallFinalize = false;
         // this notifies to the class ancestor - "tTJSCustomObject",
         // not to call "finalize" TJS method at the invalidation.
@@ -300,8 +299,7 @@ namespace TJS // following is in the namespace
         tjs_int argcount, tjs_int arraybase, tjs_int colbase, bool srcsorted,
         tSourcePos *srcPos, tjs_int srcPosSize,
         std::vector<tjs_int> &superpointer) :
-        inherited(TJSGetContextHashSize(type)),
-        Properties(nullptr) {
+        inherited(TJSGetContextHashSize(type)), Properties(nullptr) {
         inherited::CallFinalize = false;
         Parent = nullptr;
         PropGetter = PropSetter = SuperClassGetter = nullptr;

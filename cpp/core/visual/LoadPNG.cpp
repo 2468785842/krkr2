@@ -8,8 +8,8 @@
 #include "tvpgl.h"
 
 #include "png.h"
-//#include "pngstruct.h"
-//#include "pnginfo.h"
+// #include "pngstruct.h"
+// #include "pnginfo.h"
 
 #include "DebugIntf.h"
 #include "tjsDictionary.h"

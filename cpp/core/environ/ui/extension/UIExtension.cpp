@@ -24,12 +24,12 @@ bool XKPageView::init(Size size, XKPageViewDelegate *delegate) {
     if(!ScrollView::initWithViewSize(size)) {
         return false;
     }
-    //必须有delegate，否则断掉
-    // CCASSERT(delegate, "delegate should not be nullptr!");
+    // 必须有delegate，否则断掉
+    //  CCASSERT(delegate, "delegate should not be nullptr!");
     setClippingToBounds(false);
     setDelegate(delegate);
     if(_delegate) {
-        //获取page的大小
+        // 获取page的大小
         pageSize = _delegate->sizeForPerPage();
     }
     // init Data

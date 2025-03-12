@@ -12,7 +12,7 @@
 #ifndef __KRMOVIE_H__
 #define __KRMOVIE_H__
 
-//#include "typedefine.h"
+// #include "typedefine.h"
 
 //---------------------------------------------------------------------------
 enum tTVPVideoStatus {

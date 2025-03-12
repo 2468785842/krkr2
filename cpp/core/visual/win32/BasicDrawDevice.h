@@ -3,7 +3,7 @@
 #define BASIC_DRAW_DEVICE_H
 
 #include "DrawDevice.h"
-//#include <d3d9.h>
+// #include <d3d9.h>
 
 //---------------------------------------------------------------------------
 //! @brief

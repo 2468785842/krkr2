@@ -28,7 +28,7 @@ class MouseCursor {
     static const int CURSOR_INDEXES
         [CURSOR_INDEXES_NUM]; // 内部のカーソルインデックスと公開カーソルインデックスの変換テーブル
     //	static std::vector<HCURSOR> CURSOR_HANDLES_FOR_INDEXES;	//
-    //全カーソルのハンドル、新規読込みされたものは追加される
+    // 全カーソルのハンドル、新規読込みされたものは追加される
 
     // 	static const LPTSTR CURSORS[CURSOR_EOT];	//
     // カーソルとリソースIDの対応テーブル 	static HCURSOR

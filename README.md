@@ -101,6 +101,13 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
     clang-format -i --verbose $(find ./cpp ./linux ./windows ./android/cpp -regex ".+\.\(cpp\|cc\|h\|hpp\|inc\)")
     ```
 
+- **Windows**:
+  - 使用 `clang-format` 进行代码格式化:
+    ```powershell
+    Get-ChildItem -Path ./cpp, ./linux, ./windows, ./android/cpp -Recurse | 
+    Where-Object { $_.Name -match '\.(cpp|cc|h|hpp|inc)$' } | 
+    ForEach-Object { clang-format -i --verbose $_.FullName }
+    ```
 ## 插件资源
 
 您可以在 [wamsoft 的 GitHub 仓库](https://github.com/orgs/wamsoft/repositories?type=all) 中找到相关的插件和工具库。

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #ifdef _MSC_VER
-//#include <concrt.h>
+// #include <concrt.h>
 #endif
 #include <stdint.h>
 #include "tjsCommHead.h"

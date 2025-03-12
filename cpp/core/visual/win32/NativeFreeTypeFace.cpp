@@ -15,7 +15,7 @@
  *			tFreeTypeFace
  *もプラットフォームごとに異なった実装となる。
  */
-//#include "../prec.h"
+// #include "../prec.h"
 #include "tjsCommHead.h"
 #include "NativeFreeTypeFace.h"
 #include "FreeType.h"
@@ -99,7 +99,7 @@ tNativeFreeTypeFace::tNativeFreeTypeFace(const std::wstring &fontname,
         }
 
         //- この時点で result は name
-        //タグの内容が入るのに必要なバイト数
+        // タグの内容が入るのに必要なバイト数
         name_content_size = result;
         name_content = new unsigned char[name_content_size]; // メモリを確保
         name_content_ft = new unsigned char[name_content_size]; // メモリを確保
@@ -118,11 +118,11 @@ tNativeFreeTypeFace::tNativeFreeTypeFace(const std::wstring &fontname,
 
         //- TTC (True Type Collection) ファイルのチェック
         //- GetFontData API の仕様では、TTC
-        //ファイルに対しては、現在選択されている
+        // ファイルに対しては、現在選択されている
         //- フォントに対する情報しか返さない。しかし FreeType は TTC
-        //ファイル全体の
+        // ファイル全体の
         //- 情報を必要とする。この場合、GetFontData に 'ttcf'
-        //を得るように指示すると
+        // を得るように指示すると
         //- ファイル全体の情報を得ることが出来る。
         //- 参照 : microsoft.public.win32.programmer.gdi GetFontData
         // and TTC

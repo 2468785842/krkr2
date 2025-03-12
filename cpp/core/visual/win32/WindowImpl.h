@@ -12,7 +12,7 @@
 #ifndef WindowImplH
 #define WindowImplH
 
-//#include <myWindows/StdAfx.h>
+// #include <myWindows/StdAfx.h>
 #include "WindowIntf.h"
 #include "win32/TVPWindow.h"
 
@@ -32,7 +32,7 @@
 // typedef bool * tTVPWindowMessageReceiver
 //	(void *userdata, tTVPWindowMessage *Message);
 //
-//#define TVP_WM_DETACH (WM_USER+106)  // before re-generating the
+// #define TVP_WM_DETACH (WM_USER+106)  // before re-generating the
 // window #define TVP_WM_ATTACH (WM_USER+107)  // after re-generating
 // the window #define TVP_WM_FULLSCREEN_CHANGING (WM_USER+108)  //
 // before full-screen or

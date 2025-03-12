@@ -16,7 +16,7 @@
 
 #include "Application.h"
 #include "CharacterSet.h"
-//#include "resource.h"
+// #include "resource.h"
 
 //---------------------------------------------------------------------------
 // version retrieving

@@ -665,8 +665,9 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     void tTJSBinaryStream::ReadBuffer(void *buffer, tjs_uint read_size) {
-        if(Read(buffer, read_size) != read_size)
+        if(Read(buffer, read_size) != read_size) {
             TJS_eTJSError(TVPGetMessageByLocale("err_read_error"));
+        }
     }
 
     //---------------------------------------------------------------------------

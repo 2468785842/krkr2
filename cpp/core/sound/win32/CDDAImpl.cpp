@@ -11,7 +11,7 @@
 //---------------------------------------------------------------------------
 #include "tjsCommHead.h"
 
-//#include <registry.hpp> // VCL
+// #include <registry.hpp> // VCL
 #include <math.h>
 #include "MsgIntf.h"
 #include "CDDAImpl.h"

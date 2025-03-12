@@ -2,8 +2,8 @@
 #ifdef WIN32
 #include <io.h>
 // posix io api
-inline unsigned int lseek64(int  fileHandle,long offset,int  origin) {
-    return _lseek(fileHandle, offset, origin);
+inline unsigned int lseek64(int fileHandle, __int64 offset, int origin) {
+    return _lseeki64(fileHandle, offset, origin);
 }
 // extern void *valloc(int n);
 // extern void vfree(void *p);

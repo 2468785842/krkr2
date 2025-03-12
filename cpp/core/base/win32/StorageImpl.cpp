@@ -17,16 +17,11 @@
 
 #include "StorageImpl.h"
 #include "WindowImpl.h"
-#include "GraphicsLoaderImpl.h"
 #include "SysInitIntf.h"
 #include "DebugIntf.h"
 #include "Random.h"
 #include "XP3Archive.h"
-//#include "SusieArchive.h"
 #include "FileSelector.h"
-#include "Random.h"
-
-#include <ctime>
 
 #include "Application.h"
 #include "StringUtil.h"
@@ -54,30 +49,30 @@ class tTVPFileMedia : public iTVPStorageMedia {
 public:
     tTVPFileMedia() { RefCount = 1; }
 
-    ~tTVPFileMedia() { ; }
+    ~tTVPFileMedia() override {}
 
-    void AddRef() { RefCount++; }
+    void AddRef() override { RefCount++; }
 
-    void Release() {
+    void Release() override {
         if(RefCount == 1)
             delete this;
         else
             RefCount--;
     }
 
-    void GetName(ttstr &name) { name = TJS_W("file"); }
+    void GetName(ttstr &name) override { name = TJS_W("file"); }
 
-    void NormalizeDomainName(ttstr &name);
+    void NormalizeDomainName(ttstr &name) override;
 
-    void NormalizePathName(ttstr &name);
+    void NormalizePathName(ttstr &name) override;
 
-    bool CheckExistentStorage(const ttstr &name);
+    bool CheckExistentStorage(const ttstr &name) override;
 
-    tTJSBinaryStream *Open(const ttstr &name, tjs_uint32 flags);
+    tTJSBinaryStream *Open(const ttstr &name, tjs_uint32 flags) override;
 
-    void GetListAt(const ttstr &name, iTVPStorageLister *lister);
+    void GetListAt(const ttstr &name, iTVPStorageLister *lister) override;
 
-    void GetLocallyAccessibleName(ttstr &name);
+    void GetLocallyAccessibleName(ttstr &name) override;
 
     void GetLocalName(ttstr &name);
 };
@@ -135,7 +130,7 @@ tTJSBinaryStream *tTVPFileMedia::Open(const ttstr &name, tjs_uint32 flags) {
 void TVPListDir(const std::string &folder,
                 std::function<void(const std::string &, int)> cb) {
     DIR *dirp;
-    struct dirent *direntp;
+    dirent *direntp;
     tTVP_stat stat_buf;
     if((dirp = opendir(folder.c_str()))) {
         while((direntp = readdir(dirp)) != nullptr) {
@@ -152,7 +147,7 @@ void TVPGetLocalFileListAt(
     const ttstr &name,
     const std::function<void(const ttstr &, tTVPLocalFileInfo *)> &cb) {
     DIR *dirp;
-    struct dirent *direntp;
+    dirent *direntp;
     tTVP_stat stat_buf;
     std::string folder(name.AsStdString());
     if((dirp = opendir(folder.c_str()))) {
@@ -269,12 +264,12 @@ void tTVPFileMedia::GetLocallyAccessibleName(ttstr &name) {
     }
 
     // change path delimiter to '\\'
-    tjs_char *pp = newname.Independ();
-    while(*pp) {
-        if(*pp == TJS_W('/'))
-            *pp = TJS_W('\\');
-        pp++;
-    }
+    // tjs_char *pp = newname.Independ();
+    // while(*pp) {
+    //     if(*pp == TJS_W('/'))
+    //         *pp = TJS_W('\\');
+    //     pp++;
+    // }
 #else // posix
     if(!TJS_strncmp(ptr, TJS_W("./"), 2)) {
         ptr += 2; // skip "./"
@@ -402,7 +397,7 @@ void TVPPreNormalizeStorageName(ttstr &name) {
 static tjs_int TVPProcessID;
 
 ttstr TVPGetTemporaryName() {
-    static tjs_int TVPTempUniqueNum = (tjs_int)TVPGetRoughTickCount32();
+    static tjs_int TVPTempUniqueNum = static_cast<tjs_int>(TVPGetRoughTickCount32());
     tjs_int num = TVPTempUniqueNum++;
     ttstr TVPTempPath = TVPGetAppPath();
 
@@ -585,8 +580,7 @@ ttstr TVPLocalExtractFilePath(const ttstr &name) {
 tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
                                          const ttstr &localname,
                                          tjs_uint32 flag) :
-    MemBuffer(nullptr),
-    FileName(localname), Handle(-1) {
+    MemBuffer(nullptr), FileName(localname), Handle(-1) {
     tjs_uint32 access = flag & TJS_BS_ACCESS_MASK;
     if(access == TJS_BS_WRITE) {
         if(TVPCheckExistentLocalFile(localname)) {
@@ -622,7 +616,7 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
             rw |= O_RDWR;
             break;
     }
-
+    rw |= O_BINARY;
     tTJSNarrowStringHolder holder(localname.c_str());
     Handle = open(holder, rw, 0666);
     if(Handle < 0) {
@@ -630,7 +624,7 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
             // use whole file writing
             Handle = open(holder, O_RDONLY, 0666);
             if(Handle >= 0) {
-                tjs_uint64 size = GetSize();
+                tjs_uint64 size = tTVPLocalFileStream::GetSize();
                 if(size < 4 * 1024 * 1024) { // only support file size <= 4M
                     MemBuffer = new tTVPMemoryStream();
                     MemBuffer->SetSize(size);
@@ -711,9 +705,9 @@ tjs_uint64 tTVPLocalFileStream::GetSize() {
     if(MemBuffer) {
         return MemBuffer->GetSize();
     }
-    tjs_uint64 ret;
+
     tjs_int64 curpos = lseek64(Handle, 0, SEEK_CUR);
-    ret = lseek64(Handle, 0, SEEK_END);
+    tjs_uint64 ret = lseek64(Handle, 0, SEEK_END);
     lseek64(Handle, curpos, SEEK_SET);
     return ret;
 }
@@ -721,7 +715,6 @@ tjs_uint64 tTVPLocalFileStream::GetSize() {
 this class provides COM's IStream adapter for tTJSBinaryStream
 */
 class tTVPIStreamAdapter : public IStream {
-private:
     tTJSBinaryStream *Stream;
     ULONG RefCount;
 
@@ -733,44 +726,48 @@ public:
     destruction.
     */
 
-    ~tTVPIStreamAdapter();
+    virtual ~tTVPIStreamAdapter();
 
     // IUnknown
-    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject);
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid,
+                                             void **ppvObject) override;
 
-    ULONG STDMETHODCALLTYPE AddRef();
+    ULONG STDMETHODCALLTYPE AddRef() override;
 
-    ULONG STDMETHODCALLTYPE Release();
+    ULONG STDMETHODCALLTYPE Release() override;
 
     // ISequentialStream
-    HRESULT STDMETHODCALLTYPE Read(void *pv, ULONG cb, ULONG *pcbRead);
+    HRESULT STDMETHODCALLTYPE Read(void *pv, ULONG cb, ULONG *pcbRead) override;
 
     HRESULT STDMETHODCALLTYPE Write(const void *pv, ULONG cb,
-                                    ULONG *pcbWritten);
+                                    ULONG *pcbWritten) override;
 
     // IStream
     HRESULT STDMETHODCALLTYPE Seek(LARGE_INTEGER dlibMove, DWORD dwOrigin,
-                                   ULARGE_INTEGER *plibNewPosition);
+                                   ULARGE_INTEGER *plibNewPosition) override;
 
-    HRESULT STDMETHODCALLTYPE SetSize(ULARGE_INTEGER libNewSize);
+    HRESULT STDMETHODCALLTYPE SetSize(ULARGE_INTEGER libNewSize) override;
 
     HRESULT STDMETHODCALLTYPE CopyTo(IStream *pstm, ULARGE_INTEGER cb,
                                      ULARGE_INTEGER *pcbRead,
-                                     ULARGE_INTEGER *pcbWritten);
+                                     ULARGE_INTEGER *pcbWritten) override;
 
-    HRESULT STDMETHODCALLTYPE Commit(DWORD grfCommitFlags);
+    HRESULT STDMETHODCALLTYPE Commit(DWORD grfCommitFlags) override;
 
-    HRESULT STDMETHODCALLTYPE Revert();
+    HRESULT STDMETHODCALLTYPE Revert() override;
 
     HRESULT STDMETHODCALLTYPE LockRegion(ULARGE_INTEGER libOffset,
-                                         ULARGE_INTEGER cb, DWORD dwLockType);
+                                         ULARGE_INTEGER cb,
+                                         DWORD dwLockType) override;
 
     HRESULT STDMETHODCALLTYPE UnlockRegion(ULARGE_INTEGER libOffset,
-                                           ULARGE_INTEGER cb, DWORD dwLockType);
+                                           ULARGE_INTEGER cb,
+                                           DWORD dwLockType) override;
 
-    HRESULT STDMETHODCALLTYPE Stat(STATSTG *pstatstg, DWORD grfStatFlag);
+    HRESULT STDMETHODCALLTYPE Stat(STATSTG *pstatstg,
+                                   DWORD grfStatFlag) override;
 
-    HRESULT STDMETHODCALLTYPE Clone(IStream **ppstm);
+    HRESULT STDMETHODCALLTYPE Clone(IStream **ppstm) override;
 
     void ClearStream() { Stream = nullptr; }
 };
@@ -801,11 +798,11 @@ HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::QueryInterface(REFIID riid,
 
     *ppvObject = nullptr;
     if(!memcmp(&riid, &IID_IUnknown, 16))
-        *ppvObject = (IUnknown *)this;
+        *ppvObject = reinterpret_cast<IUnknown *>(this);
     else if(!memcmp(&riid, &IID_ISequentialStream, 16))
-        *ppvObject = (ISequentialStream *)this;
+        *ppvObject = reinterpret_cast<ISequentialStream *>(this);
     else if(!memcmp(&riid, &IID_IStream, 16))
-        *ppvObject = (IStream *)this;
+        *ppvObject = reinterpret_cast<IStream *>(this);
 
     if(*ppvObject) {
         AddRef();
@@ -822,17 +819,15 @@ ULONG STDMETHODCALLTYPE tTVPIStreamAdapter::Release() {
     if(RefCount == 1) {
         delete this;
         return 0;
-    } else {
-        return --RefCount;
     }
+    return --RefCount;
 }
 
 //---------------------------------------------------------------------------
 HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Read(void *pv, ULONG cb,
                                                    ULONG *pcbRead) {
     try {
-        ULONG read;
-        read = Stream->Read(pv, cb);
+        ULONG read = Stream->Read(pv, cb);
         if(pcbRead)
             *pcbRead = read;
     } catch(...) {
@@ -845,8 +840,7 @@ HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Read(void *pv, ULONG cb,
 HRESULT STDMETHODCALLTYPE tTVPIStreamAdapter::Write(const void *pv, ULONG cb,
                                                     ULONG *pcbWritten) {
     try {
-        ULONG written;
-        written = Stream->Write(pv, cb);
+        ULONG written = Stream->Write(pv, cb);
         if(pcbWritten)
             *pcbWritten = written;
     } catch(...) {
@@ -1202,8 +1196,7 @@ void TVPReleaseCachedArchiveHandle(void *pointer, tTJSBinaryStream *stream);
 
 TArchiveStream::TArchiveStream(tTVPArchive *owner, tjs_uint64 off,
                                tjs_uint64 len) :
-    Owner(owner),
-    StartPos(off), DataLength(len) {
+    Owner(owner), StartPos(off), DataLength(len) {
     Owner->AddRef();
     _instr = TVPGetCachedArchiveHandle(Owner, Owner->ArchiveName);
     CurrentPos = 0;
@@ -1265,7 +1258,7 @@ tTJSNativeClass *TVPCreateNativeClass_Storages() {
         bool res = TVPSelectFile(dsp);
 
         if(result)
-            *result = (tjs_int)res;
+            *result = static_cast<tjs_int>(res);
 
         return TJS_S_OK;
     }
@@ -1290,7 +1283,7 @@ static FILE *_fileopen(ttstr path) {
 }
 
 bool TVPSaveStreamToFile(tTJSBinaryStream *st, tjs_uint64 offset,
-                         tjs_uint64 size, ttstr outpath) {
+                         tjs_uint64 size, const ttstr &outpath) {
     FILE *fp = _fileopen(outpath);
     if(!fp)
         return false;

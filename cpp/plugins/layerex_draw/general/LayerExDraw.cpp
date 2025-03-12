@@ -355,7 +355,8 @@ void FontInfo::setFamilyName(const tjs_char *fName) {
     const auto pair = findFontPath(defaultFamily);
     if(pair.second == defaultFamily) {
         spdlog::get("plugin")->debug("using system font file");
-        FT_New_Face(ftLibrary, pair.first.generic_string().c_str(), 0, &this->ftFace);
+        FT_New_Face(ftLibrary, pair.first.generic_string().c_str(), 0,
+                    &this->ftFace);
     } else {
         spdlog::get("plugin")->debug("using embedded font file");
         loadFontFromAssets(ftLibrary, &this->ftFace);
@@ -2007,25 +2008,25 @@ ImageClass *LayerExDraw::getRecordImage() {
     //            metaGraphics = nullptr;
     //        }
 
-    //閉じたあと継続するための再描画先を別途構築
-    //        HGLOBAL oldBuffer = metaBuffer;
-    //        metaBuffer = nullptr;
-    //        createRecord();
+    // 閉じたあと継続するための再描画先を別途構築
+    //         HGLOBAL oldBuffer = metaBuffer;
+    //         metaBuffer = nullptr;
+    //         createRecord();
     //
-    //        // 再描画
-    //        if (oldBuffer) {
-    //            IStream* pStream = nullptr;
-    //            if(::CreateStreamOnHGlobal(oldBuffer, FALSE,
-    //            &pStream) == S_OK) 	{
-    //                image = Image::FromStream(pStream,false);
-    //                if (image) {
-    //                    redraw(image);
-    //                }
-    //                pStream->Release();
-    //            }
-    //            ::GlobalFree(oldBuffer);
-    //        }
-    //    }
+    //         // 再描画
+    //         if (oldBuffer) {
+    //             IStream* pStream = nullptr;
+    //             if(::CreateStreamOnHGlobal(oldBuffer, FALSE,
+    //             &pStream) == S_OK) 	{
+    //                 image = Image::FromStream(pStream,false);
+    //                 if (image) {
+    //                     redraw(image);
+    //                 }
+    //                 pStream->Release();
+    //             }
+    //             ::GlobalFree(oldBuffer);
+    //         }
+    //     }
     return image;
 }
 
@@ -2367,7 +2368,7 @@ public:
         long value{};
 
         EncoderInfo(const char *name, GUID guid, long value) :
-            name(name), guid(guid), value(value){};
+            name(name), guid(guid), value(value) {};
 
         EncoderInfo() = default;
     } infos[7];

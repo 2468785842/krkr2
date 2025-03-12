@@ -32,14 +32,13 @@ struct zlib_inmem_func64 : public zlib_filefunc64_def {
     }
 
     static uint32_t ZCALLBACK fread_file_func(voidpf opaque, voidpf stream,
-                                               void *buf, uint32_t size) {
+                                              void *buf, uint32_t size) {
         tTVPMemoryStream *str = (tTVPMemoryStream *)stream;
         return str->Read(buf, size);
     }
 
     static uint32_t ZCALLBACK fwrite_file_func(voidpf opaque, voidpf stream,
-                                                const void *buf,
-                                                uint32_t size) {
+                                               const void *buf, uint32_t size) {
         tTVPMemoryStream *str = (tTVPMemoryStream *)stream;
         return str->Write(buf, size);
     }

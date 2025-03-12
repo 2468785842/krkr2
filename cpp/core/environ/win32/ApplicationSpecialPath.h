@@ -2,7 +2,7 @@
 #ifndef __APPLICATION_SPECIAL_PATH_H__
 #define __APPLICATION_SPECIAL_PATH_H__
 
-//#include <shlobj.h>
+// #include <shlobj.h>
 #include "FilePathUtil.h"
 #include "StorageIntf.h"
 

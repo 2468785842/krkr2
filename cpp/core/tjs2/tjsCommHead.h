@@ -18,8 +18,8 @@
 #ifdef __WIN32__
 #define _CRT_SECURE_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN
-//#include "targetver.h"
-//#include <windows.h>
+// #include "targetver.h"
+// #include <windows.h>
 
 #include <vector>
 

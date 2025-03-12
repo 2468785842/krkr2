@@ -25,21 +25,21 @@
 #include "SysInitImpl.h"
 #include "StorageIntf.h"
 #include "DebugIntf.h"
-//#include "WindowFormUnit.h"
+// #include "WindowFormUnit.h"
 void TVPInitWindowOptions();
 #include "UtilStreams.h"
 #include "ConfigManager/IndividualConfigManager.h"
 
-//#include "FontSelectFormUnit.h"
+// #include "FontSelectFormUnit.h"
 
 #include "StringUtil.h"
-//#include "TVPSysFont.h"
+// #include "TVPSysFont.h"
 #include "CharacterData.h"
 #include "PrerenderedFont.h"
 #include "FontSystem.h"
 #include "visual/FreeType.h"
 #include "FreeTypeFontRasterizer.h"
-//#include "GDIFontRasterizer.h"
+// #include "GDIFontRasterizer.h"
 #include "BitmapBitsAlloc.h"
 #include "RenderManager.h"
 

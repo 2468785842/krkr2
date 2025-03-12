@@ -76,7 +76,7 @@ public:
 	const void * GetBits() const { return Bits; }
 };
 #else
-//#include "LayerBitmapImpl.h"
+// #include "LayerBitmapImpl.h"
 #endif
 
 struct TVPTextureFormat {
@@ -105,7 +105,7 @@ protected:
     iTVPTexture2D(tjs_int w, tjs_int h) : Width(w), Height(h), RefCount(1) {}
 
 public:
-    virtual ~iTVPTexture2D(){};
+    virtual ~iTVPTexture2D() {};
     void AddRef() { ++RefCount; }
     virtual void Release();
     tjs_uint GetWidth() const { return Width; }
@@ -155,13 +155,13 @@ public:
     // the parameter id should not change in whole lifecycle, valid id
     // >= 0
     virtual int EnumParameterID(const char *name) { return -1; };
-    virtual void SetParameterUInt(int id, unsigned int Value){};
-    virtual void SetParameterInt(int id, int Value){};
-    virtual void SetParameterPtr(int id, const void *Value){};
-    virtual void SetParameterFloat(int id, float Value){};
-    virtual void SetParameterColor4B(int id, unsigned int clr){};
-    virtual void SetParameterOpa(int id, int Value){};
-    virtual void SetParameterFloatArray(int id, float *Value, int nElem){};
+    virtual void SetParameterUInt(int id, unsigned int Value) {};
+    virtual void SetParameterInt(int id, int Value) {};
+    virtual void SetParameterPtr(int id, const void *Value) {};
+    virtual void SetParameterFloat(int id, float Value) {};
+    virtual void SetParameterColor4B(int id, unsigned int clr) {};
+    virtual void SetParameterOpa(int id, int Value) {};
+    virtual void SetParameterFloatArray(int id, float *Value, int nElem) {};
     virtual iTVPRenderMethod *SetBlendFuncSeparate(int func, int srcRGB,
                                                    int dstRGB, int srcAlpha,
                                                    int dstAlpha) {
@@ -262,10 +262,10 @@ public:
 
     // interface to access custom parameter
     virtual int EnumParameterID(const char *name) { return -1; }
-    virtual void SetParameterUInt(int id, unsigned int Value){};
-    virtual void SetParameterInt(int id, int Value){};
-    virtual void SetParameterPtr(int id, const void *Value){};
-    virtual void SetParameterFloat(int id, float Value){};
+    virtual void SetParameterUInt(int id, unsigned int Value) {};
+    virtual void SetParameterInt(int id, int Value) {};
+    virtual void SetParameterPtr(int id, const void *Value) {};
+    virtual void SetParameterFloat(int id, float Value) {};
 
     // -------------- operations ----------------
     // dst x Tex1 x ... x TexN -> dst

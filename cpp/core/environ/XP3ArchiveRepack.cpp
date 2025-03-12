@@ -63,7 +63,8 @@ public:
         }
         return --RefCount;
     }
-    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void **ppOut) noexcept override {
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid,
+                                             void **ppOut) noexcept override {
         if(!memcmp(&iid, &IID_IOutStream, sizeof(IID_IOutStream))) {
             *ppOut = (IOutStream *)this;
             return S_OK;
@@ -73,18 +74,24 @@ public:
     }
 
     HRESULT STDMETHODCALLTYPE Write(const void *data, UInt32 size,
-                  UInt32 *processedSize) noexcept override {
+                                    UInt32 *processedSize) noexcept override {
         *processedSize = write(fp, data, size);
         return S_OK;
     }
     HRESULT STDMETHODCALLTYPE Seek(Int64 offset, UInt32 seekOrigin,
-                 UInt64 *newPosition) noexcept override {
+                                   UInt64 *newPosition) noexcept override {
+#ifdef _WIN32
+        int64_t pos = _lseeki64(fp, offset, seekOrigin);
+#else
         int64_t pos = lseek64(fp, offset, seekOrigin);
+#endif
         if(newPosition)
             *newPosition = pos;
         return S_OK;
     }
-    HRESULT STDMETHODCALLTYPE SetSize(UInt64 newSize) noexcept override { return S_OK; }
+    HRESULT STDMETHODCALLTYPE SetSize(UInt64 newSize) noexcept override {
+        return S_OK;
+    }
 };
 
 class OutStreamMemory : public IOutStream, public tTVPMemoryStream {
@@ -99,7 +106,8 @@ public:
         }
         return --RefCount;
     }
-    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void **ppOut) noexcept override {
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid,
+                                             void **ppOut) noexcept override {
         if(!memcmp(&iid, &IID_IOutStream, sizeof(IID_IOutStream))) {
             *ppOut = (IOutStream *)this;
             return S_OK;
@@ -109,12 +117,12 @@ public:
     }
 
     HRESULT STDMETHODCALLTYPE Write(const void *data, UInt32 size,
-                  UInt32 *processedSize) noexcept override {
+                                    UInt32 *processedSize) noexcept override {
         *processedSize = tTVPMemoryStream::Write(data, size);
         return S_OK;
     }
     HRESULT STDMETHODCALLTYPE Seek(Int64 offset, UInt32 seekOrigin,
-                 UInt64 *newPosition) noexcept override {
+                                   UInt64 *newPosition) noexcept override {
         *newPosition = tTVPMemoryStream::Seek(offset, seekOrigin);
         return S_OK;
     }
@@ -140,7 +148,8 @@ public:
         }
         return --RefCount;
     }
-    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void **ppOut) noexcept override {
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid,
+                                             void **ppOut) noexcept override {
         if(!memcmp(&iid, &IID_IInStream, sizeof(IID_IInStream))) {
             *ppOut = (ISequentialInStream *)this;
             return S_OK;
@@ -150,7 +159,7 @@ public:
     }
 
     HRESULT STDMETHODCALLTYPE Read(void *data, UInt32 size,
-                 UInt32 *processedSize) noexcept override {
+                                   UInt32 *processedSize) noexcept override {
         *processedSize = fp->Read(data, size);
         return S_OK;
     }
@@ -190,10 +199,11 @@ private:
     HRESULT AddTo7zArchive(tTJSBinaryStream *s, const ttstr &_naem);
 
     // ICompressProgressInfo
-    HRESULT STDMETHODCALLTYPE SetRatioInfo(const UInt64 *inSize,
-                         const UInt64 *outSize) noexcept override;
+    HRESULT STDMETHODCALLTYPE
+    SetRatioInfo(const UInt64 *inSize, const UInt64 *outSize) noexcept override;
     // IUnknown
-    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) noexcept override {
+    HRESULT STDMETHODCALLTYPE
+    QueryInterface(REFIID riid, void **ppvObject) noexcept override {
         return E_NOTIMPL;
     }
     ULONG STDMETHODCALLTYPE AddRef() noexcept override { return 0; }

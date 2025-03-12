@@ -5,7 +5,7 @@
 #include "SystemControl.h"
 #include "EventIntf.h"
 #include "MsgIntf.h"
-//#include "WindowFormUnit.h"
+// #include "WindowFormUnit.h"
 #include "SysInitIntf.h"
 #include "SysInitImpl.h"
 #include "ScriptMgnIntf.h"
@@ -14,7 +14,7 @@
 #include "StorageIntf.h"
 #include "EmergencyExit.h" // for TVPCPUClock
 #include "DebugIntf.h"
-//#include "VersionFormUnit.h"
+// #include "VersionFormUnit.h"
 #include "WaveImpl.h"
 #include "SystemImpl.h"
 #include "UserEvent.h"

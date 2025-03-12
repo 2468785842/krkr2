@@ -321,14 +321,14 @@ namespace {
                 "preference_mem_limit", "memusage", "high",
                 {
 #else
-		new tTVPPreferenceInfoSelectList("preference_mem_limit", "memusage", "unlimited", {
+            new tTVPPreferenceInfoSelectList(
+                "preference_mem_limit", "memusage", "unlimited",
+                {
 #endif
                     { "preference_mem_unlimited", "unlimited" },
-                        { "preference_mem_high", "high" },
-                        { "preference_mem_medium", "medium" }, {
-                        "preference_mem_low", "low"
-                    }
-                }),
+                    { "preference_mem_high", "high" },
+                    { "preference_mem_medium", "medium" },
+                    { "preference_mem_low", "low" } }),
             new tTVPPreferenceInfoCheckBox("preference_keep_screen_alive",
                                            "keep_screen_alive", true),
             new tTVPPreferenceInfoSliderIcon("preference_virtual_cursor_scale",

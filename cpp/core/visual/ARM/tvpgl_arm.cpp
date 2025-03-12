@@ -5,9 +5,9 @@
 #include <string.h>
 #include <stdarg.h>
 
-//#define TEST_ARM_NEON_CODE
-//#define DEBUG_ARM_NEON
-//#define LOG_NEON_TEST
+// #define TEST_ARM_NEON_CODE
+// #define DEBUG_ARM_NEON
+// #define LOG_NEON_TEST
 
 #ifdef __cplusplus
 #if defined(_MSC_VER)
@@ -3079,7 +3079,7 @@ static tjs_int TVPTLG5DecompressSlide_NEON(tjs_uint8 *out, const tjs_uint8 *in,
     return r;
 }
 
-//#include <cpu-features.h>
+// #include <cpu-features.h>
 
 static tjs_uint32 *testbuff = nullptr;
 static tjs_uint32 *testdata1 = nullptr;

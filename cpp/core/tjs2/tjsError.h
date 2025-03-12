@@ -256,8 +256,7 @@ namespace TJS {
 
         eTJSScriptException(const ttstr &Msg, tTJSScriptBlock *block,
                             tjs_int pos, tTJSVariant &val) :
-            eTJSScriptError(Msg, block, pos),
-            Value(val) {}
+            eTJSScriptError(Msg, block, pos), Value(val) {}
 
         eTJSScriptException(const eTJSScriptException &ref) :
             eTJSScriptError(ref), Value(ref.Value) {
@@ -284,8 +283,7 @@ namespace TJS {
     class eTJSCompileError : public eTJSScriptError {
     public:
         eTJSCompileError(const ttstr &Msg, tTJSScriptBlock *block,
-                         tjs_int pos) :
-            eTJSScriptError(Msg, block, pos) {
+                         tjs_int pos) : eTJSScriptError(Msg, block, pos) {
             ;
         }
 

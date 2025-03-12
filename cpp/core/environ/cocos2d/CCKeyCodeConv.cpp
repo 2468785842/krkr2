@@ -287,7 +287,8 @@ int TVPConvertPadKeyCodeToVKCode(int keyCode) {
 
 const std::unordered_map<std::string, int> &TVPGetVKCodeNameMap() {
     static std::unordered_map<std::string, int> ret({
-#define CASE(x) { #x, VK_##x }
+#define CASE(x)                                                                \
+    { #x, VK_##x }
         CASE(0),         CASE(1),         CASE(2),          CASE(3),
         CASE(4),         CASE(5),         CASE(6),          CASE(7),
         CASE(8),         CASE(9),         CASE(A),          CASE(B),

@@ -293,9 +293,9 @@ public:
 #define H_BLOCK_SIZE 8
 
 //------------------------------ FOR DEBUG
-//#define FILTER_TEST
-//#define WRITE_ENTROPY_VALUES
-//#define WRITE_VSTXT
+// #define FILTER_TEST
+// #define WRITE_ENTROPY_VALUES
+// #define WRITE_VSTXT
 //------------------------------
 
 /*

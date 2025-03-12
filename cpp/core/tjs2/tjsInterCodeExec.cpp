@@ -200,7 +200,7 @@ namespace TJS {
         //	tjs_uint RefCount;
 
     public:
-        tTJSObjectProxy(){
+        tTJSObjectProxy() {
             //		RefCount = 1;
             //		Dispatch1 = nullptr;
             //		Dispatch2 = nullptr;
@@ -1338,13 +1338,13 @@ namespace TJS {
         } catch(eTJSSilent &e) {
             throw e;
         }
-// #ifdef _DEBUG
-// #define DEBUGGER_EXCEPTION_HOOK                                                \
-//     if(TJSEnableDebugMode)                                                     \
+        // #ifdef _DEBUG
+        // #define DEBUGGER_EXCEPTION_HOOK \
+//     if(TJSEnableDebugMode) \
 //         raise(SIGTRAP);
-// #else // _DEBUG
-// #define DEBUGGER_EXCEPTION_HOOK
-// #endif // _DEBUG
+        // #else // _DEBUG
+        // #define DEBUGGER_EXCEPTION_HOOK
+        // #endif // _DEBUG
         catch(eTJSScriptException &e) {
             // DEBUGGER_EXCEPTION_HOOK;
             e.AddTrace(this, (tjs_int)(codesave - CodeArea));
@@ -1370,7 +1370,7 @@ namespace TJS {
                                           ra_org);
             TJS_eTJSScriptError(text, this, (tjs_int)(codesave - CodeArea));
         }
-// #undef DEBUGGER_EXCEPTION_HOOK
+        // #undef DEBUGGER_EXCEPTION_HOOK
 
         return (tjs_int)(codesave - CodeArea);
     }

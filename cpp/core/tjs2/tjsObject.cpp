@@ -263,7 +263,7 @@ namespace TJS {
 
     public:
         tTJSSimpleGetSetProperty(tTJSVariant &value) :
-            tTJSDispatch(), Value(value){};
+            tTJSDispatch(), Value(value) {};
 
         tjs_error PropGet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, tTJSVariant *result,

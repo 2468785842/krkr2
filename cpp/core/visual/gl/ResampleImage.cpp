@@ -17,8 +17,8 @@
 #include <cmath>
 #include <vector>
 
-//#include "tvpgl_ia32_intf.h"
-//#include "DetectCPU.h"
+// #include "tvpgl_ia32_intf.h"
+// #include "DetectCPU.h"
 #include "LayerBitmapIntf.h"
 #include "LayerBitmapImpl.h"
 #include "WeightFunctor.h"

@@ -78,8 +78,7 @@ namespace TJS {
     //---------------------------------------------------------------------------
     eTJSScriptError::eTJSScriptError(const ttstr &Msg, tTJSScriptBlock *block,
                                      tjs_int pos) :
-        eTJSError(Msg),
-        Block(block), Position(pos) {}
+        eTJSError(Msg), Block(block), Position(pos) {}
 
     //---------------------------------------------------------------------------
     tjs_int eTJSScriptError::GetSourceLine() const {
@@ -168,7 +167,9 @@ namespace TJS {
         throw eTJSError(msg);
     }
 
-    void TJS_eTJSError(const tjs_char *msg) { throw eTJSError(msg); }
+    void TJS_eTJSError(const tjs_char *msg) {
+        TJS_eTJSError(ttstr{msg});
+    }
 
     //---------------------------------------------------------------------------
     void TJS_eTJSVariantError(const ttstr &msg) { throw eTJSVariantError(msg); }

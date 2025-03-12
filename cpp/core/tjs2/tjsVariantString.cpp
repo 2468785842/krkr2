@@ -105,7 +105,7 @@ namespace TJS {
     //---------------------------------------------------------------------------
     // StringHeap
     //---------------------------------------------------------------------------
-    //#define TJS_VS_USE_SYSTEM_NEW
+    // #define TJS_VS_USE_SYSTEM_NEW
 
 #define HEAP_FLAG_USING 0x01
 #define HEAP_FLAG_DELETE 0x02
@@ -896,7 +896,7 @@ namespace TJS {
                     // #else
                     fmt[fmtlen++] = 'l';
                     fmt[fmtlen++] = 'l';
-                    //#endif
+                    // #endif
                     fmt[fmtlen++] = *f;
                     fmt[fmtlen++] = 0;
                     int ind[2];
@@ -972,7 +972,7 @@ namespace TJS {
                     // 			fmt[fmtlen++] = 'l';
                     // #else
                     fmt[fmtlen++] = 'l';
-                    //#endif
+                    // #endif
                     fmt[fmtlen++] = *f;
                     fmt[fmtlen++] = 0;
                     int ind[2];

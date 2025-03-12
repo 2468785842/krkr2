@@ -1,5 +1,5 @@
 #pragma once
-//#define __TP_STUB_H__
+// #define __TP_STUB_H__
 #include "tjsCommHead.h"
 #include "tjsNative.h"
 #include "ScriptMgnIntf.h"

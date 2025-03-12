@@ -28,7 +28,7 @@ extern "C" {
 #include "EventIntf.h"
 #include "lz4.h"
 
-//#define USE_SWSCALE
+// #define USE_SWSCALE
 #define USE_CV_AFFINE
 
 //---------------------------------------------------------------------------
@@ -48,7 +48,7 @@ struct tTVPLayerBitmapMemoryRecord {
 #pragma pack(pop)
 
 #ifdef WIN32
-//#define CHECK_MEM_OVERRUN
+// #define CHECK_MEM_OVERRUN
 #define MEM_COMMIT 0x1000
 #define MEM_DECOMMIT 0x4000
 #define PAGE_NOACCESS 0x01
@@ -327,8 +327,8 @@ public:
     tjs_uint8 *BmpData; // pointer to bitmap bits
     tTVPSoftwareTexture2D_static(const void *pixel, int pitch, unsigned int w,
                                  unsigned int h, TVPTextureFormat::e format) :
-        iTVPSoftwareTexture2D(w, h),
-        Format(format), BmpData((tjs_uint8 *)pixel), Pitch(pitch) {}
+        iTVPSoftwareTexture2D(w, h), Format(format),
+        BmpData((tjs_uint8 *)pixel), Pitch(pitch) {}
     virtual ~tTVPSoftwareTexture2D_static() {}
     virtual void Update(const void *pixel, TVPTextureFormat::e format,
                         int pitch, const tTVPRect &rc) {
@@ -3830,8 +3830,7 @@ public:
     public:
         tTVPBilinearStretchWithOpacityFunctionObject(
             tTVPBilinearStretchWithOpacityFunction func, tjs_int opa) :
-            Func(func),
-            Opacity(opa) {
+            Func(func), Opacity(opa) {
             ;
         }
         void operator()(tjs_uint32 *dest, tjs_int destlen,
@@ -3917,8 +3916,7 @@ public:
     public:
         tTVPAffineWithOpacityFunctionObject(tTVPAffineWithOpacityFunction func,
                                             tjs_int opa) :
-            Func(func),
-            Opacity(opa) {
+            Func(func), Opacity(opa) {
             ;
         }
         void operator()(tjs_uint32 *dest, tjs_int len, const tjs_uint32 *src,
@@ -3960,8 +3958,7 @@ public:
     public:
         tTVPBilinearAffineWithOpacityFunctionObject(
             tTVPBilinearAffineWithOpacityFunction func, tjs_int opa) :
-            Func(func),
-            Opacity(opa) {
+            Func(func), Opacity(opa) {
             ;
         }
         void operator()(tjs_uint32 *dest, tjs_int len, const tjs_uint32 *src,
@@ -4253,8 +4250,7 @@ public:
     public:
         tTVPStretchWithOpacityFunctionObject(
             tTVPStretchWithOpacityFunction func, tjs_int opa) :
-            Func(func),
-            Opacity(opa) {
+            Func(func), Opacity(opa) {
             ;
         }
         void operator()(tjs_uint32 *dest, tjs_int len, const tjs_uint32 *src,

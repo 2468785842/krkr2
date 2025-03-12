@@ -787,7 +787,7 @@ public:
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
                 TVPHideIME();
 #else
-                //#ifdef _MSC_VER
+                // #ifdef _MSC_VER
                 TVPMainScene::GetInstance()->detachWithIME();
 #endif
                 break;
@@ -804,7 +804,7 @@ public:
                            screenSize.height / 4);
             }
 #else
-                //#ifdef _MSC_VER
+                // #ifdef _MSC_VER
                 TVPMainScene::GetInstance()->attachWithIME();
 #endif
             break;
@@ -1890,9 +1890,10 @@ void TVPMainScene::popUIForm(cocos2d::Node *form, eLeaveAni ani) {
         ColorMask->runAction(FadeOut::create(UI_CHANGE_DURATION));
         ui->runAction(EaseQuadraticActionOut::create(
             MoveTo::create(UI_CHANGE_DURATION, Vec2(size.width, 0))));
-        runAction(Sequence::createWithTwoActions(
+        this->runAction(Sequence::createWithTwoActions(
             DelayTime::create(UI_CHANGE_DURATION),
-            CallFunc::create([=]() { ui->removeFromParent(); })));
+            CallFunc::create([ui] { ui->removeFromParent(); })
+        ));
     } else if(ani == eLeaveToBottom) {
         cocos2d::Node *ColorMask = children.back();
         ColorMask->runAction(FadeOut::create(UI_CHANGE_DURATION));
@@ -2036,7 +2037,7 @@ void TVPMainScene::update(float delta) {
         if(_accumDt > 0.1f) {
             sprintf(buffer, "%.1f (%d draws)", 1 / dt, drawCount);
             _fpsLabel->setString(buffer);
-            //#ifdef _MSC_VER
+            // #ifdef _MSC_VER
             std::string msg = buffer;
             msg += "\n";
             // sprintf(buffer, "%.2f MB",
@@ -2046,7 +2047,7 @@ void TVPMainScene::update(float delta) {
                     (float)vmemsize / 1024.f, TVPGetSystemFreeMemory());
             msg += buffer;
             _fpsLabel->setString(msg);
-            //#endif
+            // #endif
             _accumDt = 0;
             prevDrawCount = 0;
         }
@@ -2103,7 +2104,7 @@ static float _getUIScale() {
     // == CC_TARGET_PLATFORM 	return /*sqrtf*/(0.0005f / factor) *
     // screenSize.width; #else
     return /*sqrtf*/ (0.0005f / factor) * screenSize.width;
-    //#endif
+    // #endif
 }
 
 float TVPMainScene::getUIScale() {

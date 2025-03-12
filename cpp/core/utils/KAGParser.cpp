@@ -29,7 +29,7 @@ namespace TJS {
 //---------------------------------------------------------------------------
 // #define TJS_strchr			wcschr
 // #define TJS_strcmp			wcscmp
-//#define TJS_strncpy			wcsncpy_s
+// #define TJS_strncpy			wcsncpy_s
 
 const tjs_char *TVPKAGNoLine = TJS_W("Readed scenario file %1 is empty.");
 const tjs_char *TVPKAGCannotOmmitFirstLabelName =

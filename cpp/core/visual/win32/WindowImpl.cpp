@@ -10,15 +10,15 @@
 //---------------------------------------------------------------------------
 #include "tjsCommHead.h"
 
-//#define DIRECTDRAW_VERSION 0x0300
-//#include <ddraw.h>
-//#include <d3d9.h>
+// #define DIRECTDRAW_VERSION 0x0300
+// #include <ddraw.h>
+// #include <d3d9.h>
 
 #include <algorithm>
 #include "MsgIntf.h"
 #include "WindowIntf.h"
 #include "LayerIntf.h"
-//#include "WindowFormUnit.h"
+// #include "WindowFormUnit.h"
 #include "SysInitIntf.h"
 #include "tjsHashSearch.h"
 #include "StorageIntf.h"
@@ -31,8 +31,8 @@
 #include "Application.h"
 #include "TVPScreen.h"
 #include "tjsDictionary.h"
-//#include "VSyncTimingThread.h"
-//#include "MouseCursor.h"
+// #include "VSyncTimingThread.h"
+// #include "MouseCursor.h"
 
 iWindowLayer *TVPCreateAndAddWindow(tTJSNI_Window *w);
 #define MK_SHIFT 4

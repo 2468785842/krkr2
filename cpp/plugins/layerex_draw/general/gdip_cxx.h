@@ -73,7 +73,7 @@ class RectFClass : public RectF {
 public:
     RectFClass() = default;
 
-    RectFClass(const RectF& rf) : RectF{ rf.X, rf.Y, rf.Width, rf.Height } {}
+    RectFClass(const RectF &rf) : RectF{ rf.X, rf.Y, rf.Width, rf.Height } {}
 
     RectFClass(float x, float y, float w, float h) : RectF{ x, y, w, h } {}
 

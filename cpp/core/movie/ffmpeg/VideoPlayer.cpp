@@ -628,9 +628,9 @@ void BasePlayer::Process() {
                 }
             }
 
-            #ifdef _WIN32
-            #undef SendMessage
-            #endif
+#ifdef _WIN32
+#undef SendMessage
+#endif
             if(m_CurrentAudio.inited)
                 m_VideoPlayerAudio->SendMessage(
                     new CDVDMsg(CDVDMsg::GENERAL_EOF));

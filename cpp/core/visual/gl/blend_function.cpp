@@ -24,7 +24,7 @@
 
 #include "tjsTypes.h"
 #include "tvpgl.h"
-//#include "tvpgl_ia32_intf.h"
+// #include "tvpgl_ia32_intf.h"
 #include "tvpgl_mathutil.h"
 
 extern "C" {

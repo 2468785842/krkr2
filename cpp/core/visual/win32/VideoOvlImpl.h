@@ -21,7 +21,7 @@
 #include "voMode.h"
 
 #include "NativeEventQueue.h"
-//#include "typedefine.h"
+// #include "typedefine.h"
 
 //---------------------------------------------------------------------------
 // tTJSNI_VideoOverlay : VideoOverlay Native Instance

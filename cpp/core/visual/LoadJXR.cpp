@@ -76,7 +76,7 @@ bool TVPAcceptSaveAsJXR(void *formatdata, const ttstr &type,
     return result;
 }
 // jxrlib を使うバージョンでは書き込みがうまくできていない
-//#define TVP_JPEG_XR_USE_WIN_CODEC
+// #define TVP_JPEG_XR_USE_WIN_CODEC
 #if defined(WIN32) && defined(TVP_JPEG_XR_USE_WIN_CODEC)
 // Windows 組み込み機能で JPEG XR を開く場合はこちら
 #include <wincodec.h>
@@ -187,8 +187,7 @@ void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst,
                     WICPixelFormatGUID *format_;
                     MetaDictionaryEnumCallback(IPropertyBag2 *prop,
                                                WICPixelFormatGUID *format) :
-                        prop_(prop),
-                        format_(format) {}
+                        prop_(prop), format_(format) {}
                     tjs_error
                     FuncCall(tjs_uint32 flag, const tjs_char *membername,
                              tjs_uint32 *hint, tTJSVariant *result,

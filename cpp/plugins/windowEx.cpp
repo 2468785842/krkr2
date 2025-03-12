@@ -7,7 +7,7 @@
 typedef unsigned long DWORD;
 
 #if !defined(_WIN64) && !defined(_WIN32)
-    typedef unsigned long ULONG_PTR;
+typedef unsigned long ULONG_PTR;
 #else
 #include <windows.h>
 #include <WinDef.h>
@@ -913,7 +913,7 @@ public:
         HDC bmpdc;
         tjs_int bmpx, bmpy, bmpw, bmph;
         //        static ATOM WindowClass;
-    } * ovbmp;
+    } *ovbmp;
 };
 
 // 拡張イベント用ネイティブインスタンスゲッタ

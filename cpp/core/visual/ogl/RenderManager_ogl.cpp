@@ -27,7 +27,7 @@
 #include "pvrtc.h"
 #include "pvr.h"
 
-//#define TEST_SHADER_ENABLED
+// #define TEST_SHADER_ENABLED
 #ifndef GL_ETC1_RGB8_OES
 #define GL_ETC1_RGB8_OES 0x8D64
 #endif
@@ -877,8 +877,7 @@ protected:
 
     tTVPOGLTexture2D(unsigned int w, unsigned int h, TVPTextureFormat::e format,
                      GLint mode = GL_LINEAR) :
-        iTVPTexture2D(w, h),
-        Format(format) {
+        iTVPTexture2D(w, h), Format(format) {
         if(mode) {
             glGenTextures(1, &texture);
             cocos2d::GL::bindTexture2D(texture);

@@ -206,7 +206,7 @@ public:
     //! 特定の矩形の再描画をレイヤマネージャに対して要求する。
     //!				要求は記録されるだけでこのメソッドはすぐに戻る。実際にそれが
     //!				演算されるのは UpdateToDrawDevice()
-    //!を呼んだときである。
+    //! を呼んだときである。
     virtual void
     RequestInvalidation(const tTVPRect &r) = 0; // draw device -> layer
 
@@ -216,7 +216,7 @@ public:
     //!				iTVPDrawDevice::StartBitmapCompletion()
     //!				iTVPDrawDevice::NotifyBitmapCompleted()
     //!				iTVPDrawDevice::EndBitmapCompletion()
-    //!の各メソッドを用い、
+    //! の各メソッドを用い、
     //!				いままでに変更が行われた領域などを順次描画デバイスに送る。
     virtual void UpdateToDrawDevice() = 0;
 

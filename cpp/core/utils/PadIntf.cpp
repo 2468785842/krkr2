@@ -12,7 +12,7 @@
 #include "tjsCommHead.h"
 
 #include "PadIntf.h"
-//#include "PadImpl.h"
+// #include "PadImpl.h"
 
 //---------------------------------------------------------------------------
 tjs_error tTJSNI_BasePad::Construct(tjs_int numparams, tTJSVariant **param,

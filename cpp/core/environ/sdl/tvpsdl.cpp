@@ -20,7 +20,7 @@ void TVPOnError();
 #if defined(WIN32) && defined(_DEBUG)
 #include <new.h>
 #define TVP_MAIN_DEBUG
-//#include <vld.h>
+// #include <vld.h>
 #include "GraphicsLoaderIntf.h"
 #include <set>
 #else
@@ -34,7 +34,7 @@ void TVPOnError();
 #include "TickCount.h"
 #include "ScriptMgnIntf.h"
 #include "DebugIntf.h"
-//#include "PluginImpl.h"
+// #include "PluginImpl.h"
 #include "ScriptMgnImpl.h"
 #include "SystemIntf.h"
 #include "ThreadIntf.h"
@@ -42,8 +42,8 @@ void TVPOnError();
 #include "ConfigManager/LocaleConfigManager.h"
 #include "Exception.h"
 
-//#define HOOK_MALLOC_FOR_OVERRUN
-//#define TC_MALLOC
+// #define HOOK_MALLOC_FOR_OVERRUN
+// #define TC_MALLOC
 
 extern "C" void monstartup(const char *libname);
 

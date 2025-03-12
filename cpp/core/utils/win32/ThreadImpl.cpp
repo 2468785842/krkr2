@@ -12,7 +12,7 @@
 
 #include "tjsCommHead.h"
 
-//#include <process.h>
+// #include <process.h>
 #include <algorithm>
 
 #include "ThreadIntf.h"
@@ -22,7 +22,7 @@
 
 #if defined(CC_TARGET_OS_IPHONE) || defined(__aarch64__)
 #else
-//#define USING_THREADPOOL11
+// #define USING_THREADPOOL11
 #endif
 
 #ifdef USING_THREADPOOL11
@@ -39,11 +39,9 @@ tTVPThread::tTVPThread(bool suspended) {
     Suspended = suspended;
 
     try {
-        Handle = std::thread([this] {
-            StartProc(this);
-        });
+        Handle = std::thread([this] { StartProc(this); });
         Handle.detach();
-    } catch (const std::system_error&) {
+    } catch(const std::system_error &) {
         // 捕获线程创建失败异常
         TVPThrowInternalError;
     }
@@ -67,9 +65,7 @@ void *tTVPThread::StartProc(void *arg) {
 }
 
 //---------------------------------------------------------------------------
-void tTVPThread::WaitFor() {
-    Handle.join();
-}
+void tTVPThread::WaitFor() { Handle.join(); }
 
 //---------------------------------------------------------------------------
 tTVPThreadPriority tTVPThread::GetPriority() {

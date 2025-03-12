@@ -24,7 +24,7 @@
 #include "RenderManager.h"
 #include <assert.h>
 
-//#define TVP_FORCE_BILINEAR
+// #define TVP_FORCE_BILINEAR
 
 iTVPRenderManager *TVPGetSoftwareRenderManager();
 

@@ -3,7 +3,7 @@
 
 #define NCB_MODULE_NAME TJS_W("psd.dll")
 
-//#define LOAD_MEMORY
+// #define LOAD_MEMORY
 #include "typedefine.h"
 #include "tp_stub.h"
 #include "psdparse/psdfile.h"

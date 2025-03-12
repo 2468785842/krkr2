@@ -26,8 +26,7 @@ struct tTVPBlendImageFunc : public tTVPImageCopyFuncBase {
                        void (*blend_func)(tjs_uint32 *dest,
                                           const tjs_uint32 *src, tjs_int len,
                                           tjs_int opa)) :
-        opa_(opa),
-        blend_func_(blend_func) {}
+        opa_(opa), blend_func_(blend_func) {}
 
     virtual void operator()(tjs_uint32 *dest, const tjs_uint32 *src,
                             tjs_int len) const {
@@ -38,8 +37,7 @@ struct tTVPCopyImageFunc : public tTVPImageCopyFuncBase {
     void (*copy_func_)(tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len);
 
     tTVPCopyImageFunc(void (*copy_func)(tjs_uint32 *dest, const tjs_uint32 *src,
-                                        tjs_int len)) :
-        copy_func_(copy_func) {}
+                                        tjs_int len)) : copy_func_(copy_func) {}
 
     virtual void operator()(tjs_uint32 *dest, const tjs_uint32 *src,
                             tjs_int len) const {

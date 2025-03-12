@@ -203,6 +203,7 @@ namespace TJS {
 
     class iTJSTextReadStream {
     public:
+        virtual ~iTJSTextReadStream() = default;
         virtual tjs_uint Read(tTJSString &targ, tjs_uint size) = 0;
 
         virtual void Destruct() = 0; // must delete itself
@@ -211,6 +212,7 @@ namespace TJS {
     //---------------------------------------------------------------------------
     class iTJSTextWriteStream {
     public:
+        virtual ~iTJSTextWriteStream() = default;
         virtual void Write(const tTJSString &targ) = 0;
 
         virtual void Destruct() = 0; // must delete itself
@@ -245,9 +247,9 @@ namespace TJS {
 #define TJS_BS_ACCESS_MASK 0x0f
 #define TJS_BS_OPTION_MASK 0xf0
 
-#define TJS_BS_SEEK_SET 0
-#define TJS_BS_SEEK_CUR 1
-#define TJS_BS_SEEK_END 2
+#define TJS_BS_SEEK_SET SEEK_SET
+#define TJS_BS_SEEK_CUR SEEK_CUR
+#define TJS_BS_SEEK_END SEEK_END
     //---------------------------------------------------------------------------
 
     /*]*/
@@ -256,7 +258,6 @@ namespace TJS {
     // tTJSBinaryStream base stream class
     //---------------------------------------------------------------------------
     class tTJSBinaryStream {
-    private:
     public:
         //-- must implement
         virtual tjs_uint64 Seek(tjs_int64 offset, tjs_int whence) = 0;

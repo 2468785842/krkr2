@@ -14,7 +14,7 @@
 #define MIDIImplH
 
 #include "MIDIIntf.h"
-//#include "Messages.hpp"
+// #include "Messages.hpp"
 
 //---------------------------------------------------------------------------
 TJS_EXP_FUNC_DEF(void, TVPMIDIOutData, (const tjs_uint8 *data, int len));

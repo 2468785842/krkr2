@@ -16,8 +16,8 @@
 #define __REQUIRED_RPCNDR_H_VERSION__ 440
 #endif
 
-//#include "rpc.h"
-//#include "rpcndr.h"
+// #include "rpc.h"
+// #include "rpcndr.h"
 
 #ifndef __tvpsnd_h__
 #define __tvpsnd_h__
@@ -484,9 +484,7 @@ typedef struct ITSSModuleVtbl {
     END_INTERFACE
 } ITSSModuleVtbl;
 
-interface ITSSModule {
-    CONST_VTBL struct ITSSModuleVtbl __RPC_FAR *lpVtbl;
-};
+interface ITSSModule { CONST_VTBL struct ITSSModuleVtbl __RPC_FAR *lpVtbl; };
 
 #ifdef COBJMACROS
 

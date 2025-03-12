@@ -151,7 +151,7 @@ public:
     //!				このバッファが実際はリングバッファで、リングバッファ内部のリニアなバッファ
     //!				の終端をまたぐ可能性があるため。またがない場合はp2はNULLになるが、またぐ
     //!				場合は p1 のあとに p2
-    //!に続けて書き込まなければならない。
+    //! に続けて書き込まなければならない。
     bool GetInputBuffer(size_t numsamplegranules, float *&p1, size_t &p1size,
                         float *&p2, size_t &p2size);
 
@@ -176,7 +176,7 @@ public:
     //!				このバッファが実際はリングバッファで、リングバッファ内部のリニアなバッファ
     //!				の終端をまたぐ可能性があるため。またがない場合はp2はNULLになるが、またぐ
     //!				場合は p1 のあとに p2
-    //!を続けて読み出さなければならない。
+    //! を続けて読み出さなければならない。
     bool GetOutputBuffer(size_t numsamplegranules, const float *&p1,
                          size_t &p1size, const float *&p2, size_t &p2size);
 
@@ -188,7 +188,7 @@ public:
     //! @param		ch			処理を行うチャンネル
     //! @note		ここの部分は各CPUごとに最適化されるため、
     //!				実装は opt_default
-    //!ディレクトリ下などに置かれる。
+    //! ディレクトリ下などに置かれる。
     //!(PhaseVocoderDSP.cpp内にはこれの実装はない)
     void ProcessCore(int ch);
 

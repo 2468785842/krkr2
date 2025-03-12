@@ -22,7 +22,7 @@
 #include "krmovie.h"
 #include "PluginImpl.h"
 #include "WaveImpl.h" // for DirectSound attenuate <-> TVP volume
-//#include <evcode.h>
+// #include <evcode.h>
 
 #include "Application.h"
 #include "combase.h"

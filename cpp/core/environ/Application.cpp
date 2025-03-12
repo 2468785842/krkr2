@@ -19,9 +19,9 @@
 #include "SystemIntf.h"
 
 #include "Exception.h"
-//#include "Resource.h"
+// #include "Resource.h"
 #include "SystemControl.h"
-//#include "MouseCursor.h"
+// #include "MouseCursor.h"
 #include "SystemImpl.h"
 #include "WaveImpl.h"
 #include "GraphicsLoadThread.h"

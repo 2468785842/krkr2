@@ -13,9 +13,9 @@
 
 #include "tjsCommHead.h"
 #include "FreeType.h"
-//#include "NativeFreeTypeFace.h"
-//#include "uni_cp932.h"
-//#include "cp932_uni.h"
+// #include "NativeFreeTypeFace.h"
+// #include "uni_cp932.h"
+// #include "cp932_uni.h"
 
 #include "BinaryStream.h"
 #include "MsgIntf.h"
@@ -93,8 +93,7 @@ private:
  * 定数かTVP_FACE_OPTIONS_XXXX定数の組み合わせ)
  */
 tGenericFreeTypeFace::tGenericFreeTypeFace(const ttstr &fontname,
-                                           tjs_uint32 options) :
-    File(nullptr) {
+                                           tjs_uint32 options) : File(nullptr) {
     // フィールドの初期化
     Face = nullptr;
     memset(&Stream, 0, sizeof(Stream));

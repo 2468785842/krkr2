@@ -28,9 +28,9 @@
 
 #include "Application.h"
 #include "TVPScreen.h"
-//#include "CompatibleNativeFuncs.h"
+// #include "CompatibleNativeFuncs.h"
 #include "DebugIntf.h"
-//#include "VersionFormUnit.h"
+// #include "VersionFormUnit.h"
 #include "vkdefine.h"
 #include "ScriptMgnIntf.h"
 #include "tjsArray.h"
@@ -488,7 +488,7 @@ class tTVPOnApplicationActivateEvent : public tTVPBaseInputEvent {
 public:
     tTVPOnApplicationActivateEvent(bool activate_or_deactivate) :
         tTVPBaseInputEvent(Application, Tag),
-        ActivateOrDeactivate(activate_or_deactivate){};
+        ActivateOrDeactivate(activate_or_deactivate) {};
 
     void Deliver() const { TVPOnApplicationActivate(ActivateOrDeactivate); }
 };

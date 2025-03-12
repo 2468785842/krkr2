@@ -68,11 +68,11 @@ public:
     //! @note
     //! 環状バッファといっても、実際はリニアな領域にバッファが確保されている。
     //!			そのため、 ReadPos + readsize
-    //!がバッファの終端を超えている場合、得たい
+    //! がバッファの終端を超えている場合、得たい
     //!			ブロックは２つに分断されることになる。
     //!			このメソッドは、readsizeが実際にバッファに入っているデータのサイズ以下であるか
     //!			などのチェックはいっさい行わない。事前に GetDataSize
-    //!を調べ、読み込みたい
+    //! を調べ、読み込みたい
     //!			サイズが実際にバッファにあるかどうかをチェックすること。
     void GetReadPointer(size_t readsize, const T *&p1, size_t &p1size,
                         const T *&p2, size_t &p2size, ptrdiff_t offset = 0) {

@@ -37,8 +37,6 @@ void TVPGetLocalFileListAt(
 // tTVPLocalFileStream
 //---------------------------------------------------------------------------
 class tTVPLocalFileStream : public tTJSBinaryStream {
-private:
-    // HANDLE Handle;
     int Handle;
     tTVPMemoryStream *MemBuffer = nullptr;
     ttstr FileName;
@@ -187,6 +185,6 @@ void TVPListDir(const std::string &folder,
                 std::function<void(const std::string &, int)> cb);
 
 bool TVPSaveStreamToFile(tTJSBinaryStream *st, tjs_uint64 offset,
-                         tjs_uint64 size, ttstr outpath);
+                         tjs_uint64 size, const ttstr &outpath);
 
 #endif

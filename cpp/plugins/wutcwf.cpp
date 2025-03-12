@@ -2,7 +2,7 @@
 #include "ncbind/ncbind.hpp"
 #include <stdio.h>
 #include "WaveIntf.h"
-//#include "typedefine.h"
+// #include "typedefine.h"
 #define BYTE uint8_t
 #define LONG int32_t
 #define ULONG uint32_t

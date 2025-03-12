@@ -37,7 +37,7 @@ void TVPSystemInit() {
     if(!TVPProtectInit())
         return;
 #endif
-//#else
+// #else
 #ifdef USING_PROTECT
     while(!TVPProtectInit()) {
         TVPUpdateLicense();

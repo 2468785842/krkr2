@@ -152,7 +152,7 @@ class tTVPOnMenuItemClickInputEvent : public tTVPBaseInputEvent {
 
 public:
     tTVPOnMenuItemClickInputEvent(tTJSNI_BaseMenuItem *menu) :
-        tTVPBaseInputEvent(menu, Tag){};
+        tTVPBaseInputEvent(menu, Tag) {};
     void Deliver() const { ((tTJSNI_BaseMenuItem *)GetSource())->OnClick(); }
 };
 //---------------------------------------------------------------------------

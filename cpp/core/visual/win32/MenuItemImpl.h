@@ -12,9 +12,9 @@
 #ifndef MenuItemImplH
 #define MenuItemImplH
 
-//#include <Menus.hpp>
+// #include <Menus.hpp>
 #include "MenuItemIntf.h"
-//#include "Menus.hpp"
+// #include "Menus.hpp"
 
 //---------------------------------------------------------------------------
 // tTJSNI_MenuItem : MenuItem Native Instance
