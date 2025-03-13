@@ -3,6 +3,8 @@
 // TODO: implement psbfile.dll plugin
 //
 #include <zlib.h>
+#include <spdlog/spdlog.h>
+
 #include "ncbind.hpp"
 #include "PSBHeader.h"
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-cmake -GNinja -B ./out/linux/debug -DCMAKE_BUILD_TYPE=Debug -DLINUX=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-cmake --build ./out/linux/debug
+cmake --preset="Linux Debug Config"
+cmake --build --preset="Linux Debug Build"
 
 if [ ! -f "/usr/lib/libfmod.so" ]; then
     echo "install libfmod.so."

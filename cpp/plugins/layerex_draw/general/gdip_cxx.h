@@ -21,6 +21,7 @@ extern "C" {
 #include <libgdiplus/fontfamily-private.h>
 #include <libgdiplus/fontcollection-private.h>
 #include <libgdiplus/font-private.h>
+#include <libgdiplus/adjustablearrowcap-private.h>
 }
 
 #include <win32_dt.h>

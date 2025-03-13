@@ -1,11 +1,13 @@
-#include "LayerExDraw.hpp"
-
 #include <spdlog/spdlog.h>
 #include <cocos2d.h>
 #include <filesystem>
 
 #include "common/Defer.h"
 #include "ncbind.hpp"
+
+// libgdiplus version 6.1
+// must in last because libgdiplus defined `max` macro, will replace all symbol!!
+#include "LayerExDraw.hpp"
 
 static u_char *G_FontFamilyData{};
 static ssize_t G_FontFamilyDataSize{};

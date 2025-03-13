@@ -214,14 +214,9 @@ public:
         return this->gpStatus;
     }
 
-    GpStatus SetGammaCorrection(bool /*useGammaCorrection*/) {
-        // 5.6.1 GdipGetPathGradientGammaCorrection doesn't impl
-        // 6.x.x GdipGetPathGradientGammaCorrection is available
-        // this->gpStatus =
-        // GdipSetPathGradientGammaCorrection(this->_gpPathG,
-        // useGammaCorrection); you can ignore it printf("warning
-        // PathGradientBrush SetGammaCorrection current not impl");
-        return this->gpStatus = Ok;
+    GpStatus SetGammaCorrection(bool useGammaCorrection) {
+        this->gpStatus = GdipSetPathGradientGammaCorrection(this->_gpPathG, useGammaCorrection);
+        return this->gpStatus;
     }
 
     GpStatus SetInterpolationColors(const Color *presetColors,

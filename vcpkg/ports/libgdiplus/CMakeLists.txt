@@ -107,9 +107,9 @@ elseif(APPLE)
     add_definitions(-DOSX=1)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-cpp-precomp")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -flat_namespace -undefined suppress")
-elseif(LINUX)
-    find_package(Threads REQUIRED)
-    list(APPEND GDIPLUS_LIBS Threads::Threads)
+#elseif(LINUX)
+#    find_package(Threads REQUIRED)
+#    list(APPEND GDIPLUS_LIBS Threads::Threads)
 endif()
 
 target_sources(${PROJECT_NAME} PRIVATE

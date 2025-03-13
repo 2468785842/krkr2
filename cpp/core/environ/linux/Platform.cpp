@@ -1,12 +1,11 @@
-#include "Platform.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 #include <sys/sysinfo.h>
 #include <sys/time.h>
-#include <sys/resource.h>
 #include "EventIntf.h"
+#include "Platform.h"
 
 void TVPGetMemoryInfo(TVPMemoryInfo &m) {
     /* to read /proc/meminfo */
@@ -68,12 +67,16 @@ void TVP_utime(const char *name, time_t modtime) {
 #ifdef LINUX
 #include <filesystem>
 #include <gtk/gtk.h>
-#include <sys/sysinfo.h>
 #include <fstream>
 #include <common/Defer.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <spdlog/spdlog.h>
 #include "StorageImpl.h"
+#undef st_atime
+#undef st_mtime
+#undef st_ctime
+
 // FIXME: 这是临时方案，以后需要重构模块化
 
 tjs_int TVPGetSystemFreeMemory() {

@@ -2,12 +2,14 @@
 
 #include <vector>
 
-#include "gdip_cxx.h"
-#include "gdip_cxx_brush.h"
-#include "gdip_cxx_pen.h"
 #include "layerExBase.hpp"
 
 #include "combase.h"
+
+#include "gdip_cxx.h"
+#include "gdip_cxx_brush.h"
+#include "gdip_cxx_pen.h"
+
 
 /**
  * GDIPlus 固有処理用

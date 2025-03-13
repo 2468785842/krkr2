@@ -46,6 +46,36 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
+    },
+    {
+      "name": "Linux Config",
+      "generator": "Ninja",
+      "hidden": true,
+      "cacheVariables": {
+        "LINUX": true,
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "Linux Debug Config",
+      "inherits": "Linux Config",
+      "binaryDir": "${sourceDir}/out/linux/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "Linux Release Config",
+      "inherits": "Linux Config",
+      "binaryDir": "${sourceDir}/out/linux/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     }
   ],
   "buildPresets": [
@@ -56,6 +86,14 @@
     {
       "name": "Windows Release Build",
       "configurePreset": "Windows Release Config"
+    },
+    {
+      "name": "Linux Debug Build",
+      "configurePreset": "Linux Debug Config"
+    },
+    {
+      "name": "Linux Release Build",
+      "configurePreset": "Linux Release Config"
     }
   ]
 }

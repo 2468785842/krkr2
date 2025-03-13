@@ -12,9 +12,10 @@
 #ifndef tjsStringH
 #define tjsStringH
 
-#include <string>
 #include <boost/locale.hpp>
 #include <fmt/printf.h>
+
+#include <string>
 #include "tjsConfig.h"
 
 #include "tjsVariantString.h"

@@ -13,12 +13,8 @@
 #ifndef tjsConfigH
 #define tjsConfigH
 
-#include <cstdarg>
+#include <string>
 #include <cwchar>
-
-#include <boost/locale.hpp>
-#include <fmt/printf.h>
-#include <spdlog/spdlog.h>
 
 namespace TJS {
     //---------------------------------------------------------------------------
@@ -149,12 +145,9 @@ namespace TJS {
         const std::string funcname;
 
     public:
-        tTJSFuncTrace(const tjs_char *p) :
-            funcname(boost::locale::conv::utf_to_utf<char>(p)) {
-            spdlog::debug("enter: {}", funcname);
-        }
+        tTJSFuncTrace(const tjs_char *p);
 
-        ~tTJSFuncTrace() { spdlog::debug("exit: {}", funcname); }
+        ~tTJSFuncTrace();
     };
     //---------------------------------------------------------------------------
 
@@ -165,8 +158,6 @@ namespace TJS {
     struct tTJSNarrowStringHolder {
         bool Allocated;
         tjs_nchar *Buf;
-
-    public:
         tTJSNarrowStringHolder(const tjs_char *wide);
 
         ~tTJSNarrowStringHolder();

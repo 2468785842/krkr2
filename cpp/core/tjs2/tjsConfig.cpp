@@ -11,7 +11,10 @@
 
 #include "tjsCommHead.h"
 #include <clocale>
-#include <algorithm>
+
+#include <cassert>
+#include <boost/locale.hpp>
+#include <spdlog/spdlog.h>
 
 #ifdef _WIN32
 #include <float.h>
@@ -20,8 +23,6 @@
 #define isfinite std::isfinite
 #endif
 #define INTMAX_MAX 0x7fffffffffffffff
-
-#include <cassert>
 
 static int utf8_mbtowc(/*conv_t conv,*/ tjs_char *pwc, const unsigned char *s,
                        int n) {
@@ -865,6 +866,10 @@ namespace TJS {
         return r;
     }
 
-    //---------------------------------------------------------------------------
-    //---------------------------------------------------------------------------
+    tTJSFuncTrace::tTJSFuncTrace(const tjs_char *p) :
+            funcname(boost::locale::conv::utf_to_utf<char>(p)) {
+        spdlog::debug("enter: {}", funcname);
+    }
+
+    tTJSFuncTrace::~tTJSFuncTrace() { spdlog::debug("exit: {}", funcname); }
 } // namespace TJS

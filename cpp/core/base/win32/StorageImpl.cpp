@@ -10,8 +10,8 @@
 //---------------------------------------------------------------------------
 #include "tjsCommHead.h"
 
-// #include <cderr.h>
-// #include <objbase.h>
+// must before with Platform.h because marco will replece `st_atime` symbol!
+#include <fcntl.h>
 
 #include "MsgIntf.h"
 
@@ -30,7 +30,6 @@
 #include "platform/CCPlatformConfig.h"
 #include "dirent.h"
 #include "TickCount.h"
-#include <fcntl.h>
 #include "combase.h"
 
 #include "win32io.h"
@@ -616,7 +615,9 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
             rw |= O_RDWR;
             break;
     }
+#ifdef _WIN32
     rw |= O_BINARY;
+#endif
     tTJSNarrowStringHolder holder(localname.c_str());
     Handle = open(holder, rw, 0666);
     if(Handle < 0) {

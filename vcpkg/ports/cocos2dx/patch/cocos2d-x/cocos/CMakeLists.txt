@@ -122,7 +122,6 @@ add_library(cocos2d ${COCOS_SRC})
 # use external libs
 add_subdirectory(${COCOS2DX_ROOT_PATH}/external ${ENGINE_BINARY_PATH}/external)
 target_link_libraries(cocos2d PUBLIC external)
-target_link_directories(cocos2d PRIVATE "${VCPKG_IMPORT_PREFIX}/lib" "${VCPKG_IMPORT_PREFIX}/debug/lib")
 
 # add base macro define and compile options
 use_cocos2dx_compile_define(cocos2d)

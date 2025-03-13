@@ -8,7 +8,7 @@
 //---------------------------------------------------------------------------
 // Conditional Compile Control
 //---------------------------------------------------------------------------
-
+#include <spdlog/spdlog.h>
 #include "tjsCommHead.h"
 #include "tjsCompileControl.h"
 #include "tjsLex.h"

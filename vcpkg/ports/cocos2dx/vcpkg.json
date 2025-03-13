@@ -7,6 +7,10 @@
   "license": null,
   "supports": "android | linux | windows",
   "dependencies": [
+    {
+      "name": "bzip2",
+      "platform": "linux"
+    },
     "curl",
     {
       "name": "curl",

@@ -1,5 +1,6 @@
 #pragma once
 // from https://github.com/wolfpld/etcpak
+#include <cstddef>
 
 namespace ETCPacker {
     void *convert(const void *pixel, int w, int h, int pitch, bool etc2,
