@@ -1,2 +1,2 @@
-cmake --preset=WindowsDebug
-cmake --build --preset=WindowsDebug
+cmake --preset="Windows Debug Config"
+cmake --build --preset="Windows Debug Build"
