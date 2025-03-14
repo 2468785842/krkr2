@@ -29,7 +29,8 @@ elseif(LINUX)
 elseif(WINDOWS)
     add_executable(${PROJECT_NAME} 
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/main.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/windows/game.rc)
+        ${CMAKE_CURRENT_SOURCE_DIR}/windows/game.rc
+    )
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)

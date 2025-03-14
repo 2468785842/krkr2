@@ -10,7 +10,9 @@ add_library(${PROJECT_NAME})
 
 # Definitions
 target_compile_definitions(${PROJECT_NAME} PRIVATE -DRARDLL -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DRAR_SMP)
-
+if(NOT WINDOWS)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE -DUNIX_TIME_NS)
+endif()
 # 源文件列表
 set(OBJECTS
     rar.cpp strlist.cpp strfn.cpp pathfn.cpp smallfn.cpp global.cpp file.cpp filefn.cpp filcreat.cpp

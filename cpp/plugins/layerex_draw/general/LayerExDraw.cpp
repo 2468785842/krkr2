@@ -4,9 +4,6 @@
 
 #include "common/Defer.h"
 #include "ncbind.hpp"
-
-// libgdiplus version 6.1
-// must in last because libgdiplus defined `max` macro, will replace all symbol!!
 #include "LayerExDraw.hpp"
 
 static u_char *G_FontFamilyData{};
@@ -24,7 +21,11 @@ static ULONG_PTR gdiplusToken;
 // GDI+ 初期化
 void initGdiPlus() {
     // Initialize GDI+.
-    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
+    gdiplusStartupInput.GdiplusVersion = 1;
+    gdiplusStartupInput.DebugEventCallback = nullptr;
+    gdiplusStartupInput.SuppressBackgroundThread = FALSE;
+    gdiplusStartupInput.SuppressExternalCodecs = FALSE;
+    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, nullptr);
     FT_Init_FreeType(&ftLibrary);
     // FIXME: 加载系统字体到gdiplus, 目前无法正常绘制字符,
     // 需要更新libgdiplus到6.x.x!!
@@ -54,8 +55,8 @@ void initGdiPlus() {
 void deInitGdiPlus() {
     //    delete privateFontCollection;
     free(G_FontFamilyData);
-    GdiplusShutdown(gdiplusToken);
     FT_Done_FreeType(ftLibrary);
+    GdiplusShutdown(gdiplusToken);
 }
 
 /**
@@ -66,7 +67,7 @@ void deInitGdiPlus() {
 std::pair<std::filesystem::path, std::string>
 findFontPath(const std::string &familyName) {
 
-    FcConfig *fcConfig = FcInitLoadConfig();
+    FcConfig *fcConfig = FcInitLoadConfigAndFonts();
 
     FcPattern *pattern{};
     FcPattern *font{};
@@ -330,10 +331,10 @@ void FontInfo::setFamilyName(const tjs_char *fName) {
     if(!fName)
         return;
     clear();
-
+#if defined(__ANDROID__) || defined(__linux__)
     // 中日韩字体 有衬字体： Noto Serif CJK SC
     static std::string defaultFamily = "Noto Sans CJK SC";
-
+#endif
     // FIXME: 目前gdiplus无法正常绘制字符不知道为什么！
     // WCHAR* wDefaultFamily = g_utf8_to_utf16(defaultFamily, -1,
     // nullptr, nullptr, nullptr); auto status =
@@ -364,7 +365,7 @@ void FontInfo::setFamilyName(const tjs_char *fName) {
         loadFontFromAssets(ftLibrary, &this->ftFace);
     }
 
-    int dpi = gdip_get_display_dpi();
+    float dpi = gdip_get_display_dpi();
     FT_Set_Char_Size(this->ftFace, 0, emSize * 64, dpi, dpi);
 }
 
@@ -2130,13 +2131,13 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
     FT_Outline outline = glyph->outline;
 
     const auto getPoint = [&](int index) -> PointFClass {
-        return { static_cast<float>(outline.points[index].x * scaleFactor) +
+        return { outline.points[index].x * scaleFactor +
                      glyphOffset.X,
-                 static_cast<float>(-outline.points[index].y * scaleFactor) +
+                 -outline.points[index].y * scaleFactor +
                      glyphOffset.Y };
     };
 
-    std::function<PointFClass(int, int, int)> getConicEndPoint =
+    std::function getConicEndPoint =
         [&](int contourStart, int index, int contourEnd) -> PointFClass {
         int nextIndex = index == contourEnd ? contourStart : index + 1;
         FT_Byte nextTag = FT_CURVE_TAG(outline.tags[nextIndex]);
@@ -2210,7 +2211,6 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
                 addPathConicBezier(
                     (prevP + currentP) / 2.0f, currentP,
                     getConicEndPoint(contourStart, j, contourEnd));
-                continue;
             }
         }
 
@@ -2246,7 +2246,7 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
         GdipClosePathFigure(path);
     }
 
-    offset.X += static_cast<float>(glyph->advance.x * scaleFactor);
+    offset.X += glyph->advance.x * scaleFactor;
 }
 
 /*
@@ -2510,9 +2510,8 @@ tTJSVariant LayerExDraw::getColorRegionRects(ARGB color) {
 
         // 矩形一覧取得
         GpMatrix matrix;
-        UINT uCount{};
-        GdipGetRegionScansCount(region, &uCount, &matrix);
-        INT count = static_cast<INT>(uCount);
+        int count{};
+        GdipGetRegionScansCount(region, &count, &matrix);
         if(count > 0) {
             auto *rects = new RectF[count];
             GdipGetRegionScans(region, rects, &count, &matrix);

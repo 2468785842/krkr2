@@ -7,6 +7,6 @@
 #cmakedefine HAVE_FCFINI 1
 #cmakedefine HAVE_LIBEXIF 1
 #cmakedefine USE_PANGO_RENDERING 1
-#cmakedefine HAS_X11 @HAS_X11@
+#cmakedefine HAVE_X11 1
 
 #endif  // LIBGDIPLUS_CONFIG_H

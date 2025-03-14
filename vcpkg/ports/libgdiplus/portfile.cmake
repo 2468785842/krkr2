@@ -1,19 +1,26 @@
+set(VCPKG_POLICY_SKIP_ABSOLUTE_PATHS_CHECK enabled)
+
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO mono/libgdiplus
     REF "${VERSION}"
-    SHA512 c51f2702eb5eee0b7975ddc5840888d11cc0d3ea0e6c3c49afca42ef4ca90064b9ece30c447948647c950a1af36f780c79b7d07b304ec3a855cbf3da2371e94d
+    SHA512 fe6a798da6ad194d4e1d3ce2ebb71a43d3f2f3d198bdf053e8a03e861c81c1c838f3d5d60cfde6b1d6f662fb7f9c2192a9acc89c30a65999e841f4ad7b180baf
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt" DESTINATION "${SOURCE_PATH}")
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/config.h.in" DESTINATION "${SOURCE_PATH}")
-file(COPY "${CMAKE_CURRENT_LIST_DIR}/libgdiplus.pc.in" DESTINATION "${SOURCE_PATH}")
 
 set(ENV{PKG_CONFIG} "${CURRENT_HOST_INSTALLED_DIR}/tools/pkgconf/pkgconf${VCPKG_HOST_EXECUTABLE_SUFFIX}")
 get_filename_component(PKGCONFIG_PATH "${PKGCONFIG}" DIRECTORY)
 vcpkg_add_to_path("${PKGCONFIG_PATH}")
 
-vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
+if(VCPKG_TARGET_IS_LINUX)
+    set(OPTIONS -DWITH_X11=ON)
+elseif (VCPKG_TARGET_IS_ANDROID)
+    set(OPTIONS -DWITH_PANGO=OFF)
+endif()
+
+vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}" OPTIONS ${OPTIONS})
 
 vcpkg_cmake_install()
 vcpkg_fixup_pkgconfig()

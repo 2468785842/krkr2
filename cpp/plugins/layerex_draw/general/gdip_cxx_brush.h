@@ -214,9 +214,8 @@ public:
         return this->gpStatus;
     }
 
-    GpStatus SetGammaCorrection(bool useGammaCorrection) {
-        this->gpStatus = GdipSetPathGradientGammaCorrection(this->_gpPathG, useGammaCorrection);
-        return this->gpStatus;
+    GpStatus SetGammaCorrection(bool /*useGammaCorrection*/) {
+        return this->gpStatus = Ok;
     }
 
     GpStatus SetInterpolationColors(const Color *presetColors,

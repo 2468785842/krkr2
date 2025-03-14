@@ -2,8 +2,6 @@
 
 #include "ncbind.hpp"
 
-// libgdiplus version 6.1
-// must in last because libgdiplus defined `max` macro, will replace all symbol!!
 #include "LayerExDraw.hpp"
 
 extern void initGdiPlus();

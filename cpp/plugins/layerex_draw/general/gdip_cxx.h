@@ -6,6 +6,7 @@
 
 #ifndef KRKR2_GDIP_CXX_H
 #define KRKR2_GDIP_CXX_H
+#include <cassert>
 
 extern "C" {
 #include <libgdiplus/gdiplus-private.h>
@@ -74,7 +75,7 @@ class RectFClass : public RectF {
 public:
     RectFClass() = default;
 
-    RectFClass(const RectF &rf) : RectF{ rf.X, rf.Y, rf.Width, rf.Height } {}
+    RectFClass(RectF rf) : RectF{ rf.X, rf.Y, rf.Width, rf.Height } {}
 
     RectFClass(float x, float y, float w, float h) : RectF{ x, y, w, h } {}
 
@@ -340,20 +341,20 @@ public:
         return it;
     }
 
-    [[nodiscard]] UINT GetFlags() const {
-        UINT f;
+    [[nodiscard]] uint GetFlags() const {
+        uint f;
         this->_gpStatus = GdipGetImageFlags(this->_gpImage, &f);
         return f;
     }
 
-    [[nodiscard]] UINT GetHeight() const {
-        UINT h;
+    [[nodiscard]] uint GetHeight() const {
+        uint h;
         this->_gpStatus = GdipGetImageHeight(this->_gpImage, &h);
         return h;
     }
 
-    [[nodiscard]] UINT GetWidth() const {
-        UINT w;
+    [[nodiscard]] uint GetWidth() const {
+        uint w;
         this->_gpStatus = GdipGetImageWidth(this->_gpImage, &w);
         return w;
     }
@@ -380,10 +381,11 @@ private:
 
 class PrivateFontCollection {
 public:
-    PrivateFontCollection() { GdipNewPrivateFontCollection(&_gpFC); }
+    PrivateFontCollection() { GdipNewPrivateFontCollection(&_gpFC); };
 
     void AddFontFile(const WCHAR *filename) {
         this->status = GdipPrivateAddFontFile(this->_gpFC, filename);
+        assert(this->status == Ok && "add font file failed!");
     }
 
     // android mkstemp无法正常使用
@@ -401,6 +403,27 @@ private:
     GpFontCollection *_gpFC{ nullptr };
     GpStatus status;
 };
+
+typedef enum {
+    EncoderValueColorTypeCMYK = 0,
+    EncoderValueColorTypeYCCK = 1,
+    EncoderValueCompressionLZW = 2,
+    EncoderValueCompressionCCITT3 = 3,
+    EncoderValueCompressionCCITT4 = 4,
+    EncoderValueCompressionRle = 5,
+    EncoderValueCompressionNone = 6,
+    EncoderValueScanMethodInterlaced = 7,
+    EncoderValueScanMethodNonInterlaced = 8,
+    EncoderValueVersionGif87 = 9,
+    EncoderValueVersionGif89 = 10,
+    EncoderValueRenderProgressive = 11,
+    EncoderValueRenderNonProgressive = 12,
+    EncoderValueTransformRotate90 = 13,
+    EncoderValueTransformRotate180 = 14,
+    EncoderValueTransformRotate270 = 15,
+    EncoderValueTransformFlipHorizontal = 16,
+    EncoderValueTransformFlipVertical = 17
+} EncoderValue;
 
 static constexpr auto FW_BOLD = 700;
 static constexpr auto FW_REGULAR = 400;
@@ -428,6 +451,59 @@ static const GUID GdipEncoderRenderMethod = { 0x6D42C53A,
                                               0x4825,
                                               { 0x8B, 0xB7, 0x5C, 0x99, 0xE2,
                                                 0xB9, 0xA8, 0xB8 } };
+
+static const GUID GdipEncoderCompression = { 0x0E09D739DU,
+                                             0x0CCD4U,
+                                             0x44EEU,
+                                             { 0x8E, 0x0BA, 0x3F, 0x0BF, 0x8B,
+                                               0x0E4, 0x0FC, 0x58 } };
+
+static const GUID GdipEncoderColorDepth = { 0x66087055U,
+                                            0x0AD66U,
+                                            0x4C7CU,
+                                            { 0x9A, 0x18, 0x38, 0x0A2, 0x31,
+                                              0x0B, 0x83, 0x37 } };
+
+static const GUID GdipEncoderSaveFlag = { 0x292266FCU,
+                                          0x0AC40U,
+                                          0x47BFU,
+                                          { 0x8C, 0x0FC, 0x0A8, 0x5B, 0x89,
+                                            0x0A6, 0x55, 0x0DE } };
+
+static const GUID GdipEncoderSaveAsCMYK = { 0x0A219BBC9U,
+                                            0x0A9DU,
+                                            0x4005U,
+                                            { 0x0A3, 0x0EE, 0x3A, 0x42, 0x1B,
+                                              0x8B, 0x0B0, 0x6C } };
+
+static const GUID GdipEncoderImageItems = { 0x63875E13U,
+                                            0x1F1DU,
+                                            0x45ABU,
+                                            { 0x91, 0x95, 0x0A2, 0x9B, 0x60,
+                                              0x66, 0x0A6, 0x50 } };
+
+static const GUID GdipEncoderTransformation = { 0x8D0EB2D1U,
+                                                0x0A58EU,
+                                                0x4EA8U,
+                                                { 0x0AA, 0x14, 0x10, 0x80, 0x74,
+                                                  0x0B7, 0x0B6, 0x0F9 } };
+static const GUID GdipEncoderQuality = { 0x1D5BE4B5U,
+                                         0x0FA4AU,
+                                         0x452DU,
+                                         { 0x9C, 0x0DD, 0x5D, 0x0B3, 0x51, 0x5,
+                                           0x0E7, 0x0EB } };
+
+static const GUID GdipEncoderLuminanceTable = { 0x0EDB33BCEU,
+                                                0x266U,
+                                                0x4A77U,
+                                                { 0x0B9, 0x4, 0x27, 0x21, 0x60,
+                                                  0x99, 0x0E7, 0x17 } };
+
+static const GUID GdipEncoderChrominanceTable = { 0x0F2E455DCU,
+                                                  0x9B3U,
+                                                  0x4316U,
+                                                  { 0x82, 0x60, 0x67, 0x6A,
+                                                    0x0DA, 0x32, 0x48, 0x1C } };
 
 static const CLSID bmpEncoderClsid = {
     0x557cf400, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e }
