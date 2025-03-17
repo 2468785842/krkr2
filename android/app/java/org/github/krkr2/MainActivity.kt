@@ -1,101 +1,89 @@
-package org.github.krkr2;
+package org.github.krkr2
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.Settings;
-import android.util.Log;
-import android.view.View;
-import android.view.WindowManager;
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
+import android.view.WindowManager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import org.tvp.kirikiri2.KR2Activity
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
 
-import org.tvp.kirikiri2.KR2Activity;
+class MainActivity : KR2Activity() {
 
-public class MainActivity extends KR2Activity {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    private ActivityResultLauncher<Intent> storagePermissionLauncher;
-    private ActivityResultLauncher<String> writePermissionLauncher;
-    private boolean permissionResult;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // Workaround for task root check
-        if (!isTaskRoot()) {
-            return;
+        // Workaround in https://stackoverflow.com/questions/16283079/re-launch-of-activity-on-home-button-but-only-the-first-time/16447508
+        if (!isTaskRoot) {
+            // Android launched another instance of the root activity into an existing task
+            //  so just quietly finish and go away, dropping the user back into the activity
+            //  at the top of the stack (ie: the last state of this task)
+            // Don't need to finish it again since it's finished in super.onCreate .
+            return
         }
 
         // Configure window attributes for cutout display
-        WindowManager.LayoutParams lp = getWindow().getAttributes();
-        lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-        getWindow().setAttributes(lp);
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        );
-        // Initialize Activity Result Launchers
-        storagePermissionLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> permissionResult = checkStoragePermission()
-        );
-
-        writePermissionLauncher = registerForActivityResult(
-                new ActivityResultContracts.RequestPermission(),
-                result -> permissionResult = result
-        );
+        val lp = window.attributes
+        lp.layoutInDisplayCutoutMode =
+            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         if (!checkStoragePermission()) {
-            requestStoragePermission();
-            if (!permissionResult) {
-                Log.e(this.getClass().getName(),
-                        "get storage permission failed!");
-            }
+            requestStoragePermission()
         }
-
     }
 
-    private boolean checkStoragePermission() {
+    private fun checkStoragePermission(): Boolean {
+        // 检查 MANAGE_EXTERNAL_STORAGE 权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return Environment.isExternalStorageManager();
-        } else {
-            return ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED;
+            return Environment.isExternalStorageManager()
         }
+        return ContextCompat.checkSelfPermission(
+            this, Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private void requestStoragePermission() {
+    // 请求用户授予 MANAGE_EXTERNAL_STORAGE 权限
+    private fun requestStoragePermission(): Boolean {
+        var r = false
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            writePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            return;
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { result -> r = result }
+                .launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            return r
         }
 
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.request_storage_permission_title)
-                .setMessage(R.string.request_storage_permission)
-                .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    Intent intent = new Intent(
-                            Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
-                            Uri.parse("package:" + getPackageName())
-                    );
-                    storagePermissionLauncher.launch(intent);
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .show();
+        val startForResult = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            r = result.resultCode == 1 && checkStoragePermission()
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.request_storage_permission_title))
+            .setMessage(getString(R.string.request_storage_permission))
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->
+                startForResult.launch(
+                    Intent(
+                        Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                        Uri.fromParts("package", packageName, null)
+                    )
+                )
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .show()
+
+        return r
     }
 
 }

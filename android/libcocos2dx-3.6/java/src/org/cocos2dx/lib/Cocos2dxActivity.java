@@ -304,7 +304,7 @@ public abstract class Cocos2dxActivity extends ComponentActivity implements Coco
     }
 
 
-    protected FrameLayout mFrameLayout = null;
+    public FrameLayout mFrameLayout = null;
     // ===========================================================
     // Methods
     // ===========================================================

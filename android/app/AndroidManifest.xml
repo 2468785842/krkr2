@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:versionCode="64"
-    android:versionName="1.4.1">
+    android:versionName="1.4.3">
 
     <!-- OpenGL ES 2.0 -->
     <uses-feature
@@ -39,7 +39,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"
             android:screenOrientation="userLandscape"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:theme="@style/Theme.KR2"
             android:windowSoftInputMode="adjustPan"
             tools:ignore="DiscouragedApi">
             <intent-filter>
