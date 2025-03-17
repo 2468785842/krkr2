@@ -13,7 +13,7 @@ android {
         targetSdkVersion PROP_TARGET_SDK_VERSION
 
         versionCode Integer.parseInt(new Date().format('yyyyMMddHH'))
-        versionName '1.4.3'
+        versionName '1.4.2'
     }
 
     signingConfigs {
