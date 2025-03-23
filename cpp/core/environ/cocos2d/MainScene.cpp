@@ -1892,8 +1892,7 @@ void TVPMainScene::popUIForm(cocos2d::Node *form, eLeaveAni ani) {
             MoveTo::create(UI_CHANGE_DURATION, Vec2(size.width, 0))));
         this->runAction(Sequence::createWithTwoActions(
             DelayTime::create(UI_CHANGE_DURATION),
-            CallFunc::create([ui] { ui->removeFromParent(); })
-        ));
+            CallFunc::create([ui] { ui->removeFromParent(); })));
     } else if(ani == eLeaveToBottom) {
         cocos2d::Node *ColorMask = children.back();
         ColorMask->runAction(FadeOut::create(UI_CHANGE_DURATION));

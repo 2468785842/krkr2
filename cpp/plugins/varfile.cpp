@@ -24,7 +24,7 @@ public:
      * コンストラクタ
      */
     VariantStream(tTJSVariant &parent) :
-        refCount(1), parent(parent), stream(0), cur(0) {};
+        refCount(1), parent(parent), stream(0), cur(0){};
 
     /**
      * デストラクタ
@@ -160,7 +160,7 @@ class GetLister : public tTJSDispatch /** EnumMembers 用 */
 
 public:
     // コンストラクタ
-    GetLister(iTVPStorageLister *lister) : lister(lister) {};
+    GetLister(iTVPStorageLister *lister) : lister(lister){};
 
     // EnumMember用繰り返し実行部
     // param[0] メンバ名

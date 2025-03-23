@@ -774,7 +774,7 @@ class tTVPUniversalTransHandlerProvider
     : public tTVPCrossFadeTransHandlerProvider {
 public:
     tTVPUniversalTransHandlerProvider() : tTVPCrossFadeTransHandlerProvider() {}
-    virtual ~tTVPUniversalTransHandlerProvider() {};
+    virtual ~tTVPUniversalTransHandlerProvider(){};
 
     tjs_error GetName(
         /*out*/ const tjs_char **name) {
@@ -1048,7 +1048,7 @@ class tTVPScrollTransHandlerProvider
     : public tTVPCrossFadeTransHandlerProvider {
 public:
     tTVPScrollTransHandlerProvider() : tTVPCrossFadeTransHandlerProvider() {}
-    virtual ~tTVPScrollTransHandlerProvider() {};
+    virtual ~tTVPScrollTransHandlerProvider(){};
 
     tjs_error GetName(
         /*out*/ const tjs_char **name) {

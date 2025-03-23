@@ -194,8 +194,8 @@ NCB_REGISTER_SUBCLASS_DELAY(RectF) {
     // XXX	NCB_METHOD_DETAIL(Contains, Class, BOOL, Class::Contains,
     // (REAL,REAL));
     //	NCB_METHOD_DETAIL(ContainsPoint, Class, BOOL, Class::Contains, (const
-    //PointF&) const); 	NCB_METHOD_DETAIL(ContainsRect, Class, BOOL,
-    //Class::Contains, (const RectF&));
+    // PointF&) const); 	NCB_METHOD_DETAIL(ContainsRect, Class, BOOL,
+    // Class::Contains, (const RectF&));
     NCB_METHOD(Equals);
     NCB_METHOD_DETAIL(Inflate, Class, void, Class::Inflate, (REAL, REAL));
     NCB_METHOD_DETAIL(InflatePoint, Class, void, Class::Inflate,
@@ -441,7 +441,7 @@ NCB_GDIP_METHOD(Scale);
 NCB_GDIP_METHOD(Shear);
 //	NCB_GDIP_METHOD_DETAIL(TransformPoints, Class, Status, TransformPoints,
 //(PointF*, INT)); XXX 引数が配列 	NCB_GDIP_METHOD_DETAIL(TransformVectors,
-//Class, Status, TransformVectors, (PointF*, INT)); XXX 引数が配列
+// Class, Status, TransformVectors, (PointF*, INT)); XXX 引数が配列
 NCB_GDIP_METHOD(Translate);
 }
 ;

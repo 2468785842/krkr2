@@ -32,7 +32,8 @@ namespace TJS {
         tjs_int n;
 
         tTJSStringBufferLength(tjs_int n) // NOLINT(*-explicit-constructor)
-            : n(n) {}
+            :
+            n(n) {}
     };
 
     struct tTJSString_S {
@@ -49,20 +50,24 @@ namespace TJS {
         }
 
         tTJSString(tTJSVariantString *vstr) // NOLINT(*-explicit-constructor)
-            : tTJSString_S{ vstr } {
+            :
+            tTJSString_S{ vstr } {
             if(vstr)
                 vstr->AddRef();
         }
 
         tTJSString(const tjs_char *str) // NOLINT(*-explicit-constructor)
-            : tTJSString_S{ TJSAllocVariantString(str) } {}
+            :
+            tTJSString_S{ TJSAllocVariantString(str) } {}
 
         tTJSString(const tjs_nchar *str) // NOLINT(*-explicit-constructor)
-            : tTJSString_S{ TJSAllocVariantString(str) } {}
+            :
+            tTJSString_S{ TJSAllocVariantString(str) } {}
 
         tTJSString(
             const tTJSStringBufferLength len) // NOLINT(*-explicit-constructor)
-            : tTJSString_S{ TJSAllocVariantStringBuffer(len.n) } {}
+            :
+            tTJSString_S{ TJSAllocVariantStringBuffer(len.n) } {}
 
         tTJSString(tjs_char rch) // NOLINT(*-explicit-constructor)
         {
@@ -80,10 +85,12 @@ namespace TJS {
 
         tTJSString(const std::basic_string<tjs_char>
                        &str) // NOLINT(*-explicit-constructor)
-            : tTJSString_S{ TJSAllocVariantString(str.c_str()) } {}
+            :
+            tTJSString_S{ TJSAllocVariantString(str.c_str()) } {}
 
         tTJSString(const std::string &str) // NOLINT(*-explicit-constructor)
-            : tTJSString_S{ TJSAllocVariantString(str.c_str()) } {}
+            :
+            tTJSString_S{ TJSAllocVariantString(str.c_str()) } {}
 
         tTJSString(const tTJSVariant &val); // NOLINT(*-explicit-constructor)
 

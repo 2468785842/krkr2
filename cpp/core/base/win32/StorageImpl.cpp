@@ -396,7 +396,8 @@ void TVPPreNormalizeStorageName(ttstr &name) {
 static tjs_int TVPProcessID;
 
 ttstr TVPGetTemporaryName() {
-    static tjs_int TVPTempUniqueNum = static_cast<tjs_int>(TVPGetRoughTickCount32());
+    static tjs_int TVPTempUniqueNum =
+        static_cast<tjs_int>(TVPGetRoughTickCount32());
     tjs_int num = TVPTempUniqueNum++;
     ttstr TVPTempPath = TVPGetAppPath();
 
@@ -579,7 +580,8 @@ ttstr TVPLocalExtractFilePath(const ttstr &name) {
 tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
                                          const ttstr &localname,
                                          tjs_uint32 flag) :
-    MemBuffer(nullptr), FileName(localname), Handle(-1) {
+    MemBuffer(nullptr),
+    FileName(localname), Handle(-1) {
     tjs_uint32 access = flag & TJS_BS_ACCESS_MASK;
     if(access == TJS_BS_WRITE) {
         if(TVPCheckExistentLocalFile(localname)) {
@@ -1197,7 +1199,8 @@ void TVPReleaseCachedArchiveHandle(void *pointer, tTJSBinaryStream *stream);
 
 TArchiveStream::TArchiveStream(tTVPArchive *owner, tjs_uint64 off,
                                tjs_uint64 len) :
-    Owner(owner), StartPos(off), DataLength(len) {
+    Owner(owner),
+    StartPos(off), DataLength(len) {
     Owner->AddRef();
     _instr = TVPGetCachedArchiveHandle(Owner, Owner->ArchiveName);
     CurrentPos = 0;

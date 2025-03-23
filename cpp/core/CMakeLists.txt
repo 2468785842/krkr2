@@ -47,12 +47,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 minizip)
 # 启用 OpenMP 支持
 find_package(OpenMP REQUIRED)
 
-if(OPENMP_FOUND)
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
-    target_compile_options(${PROJECT_NAME} PRIVATE ${OpenMP_CXX_FLAGS})
-else()
-    message(WARNING "OpenMP not found, fallback to single-threading.")
-endif()
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+target_compile_options(${PROJECT_NAME} PRIVATE ${OpenMP_CXX_FLAGS})
 
 if(ANDROID)
     target_link_libraries(${PROJECT_NAME} PUBLIC

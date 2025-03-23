@@ -724,8 +724,10 @@ namespace TJS {
         return temp;
 #endif
     }
-    //---------------------------------------------------------------------------
 
-    //---------------------------------------------------------------------------
-
+    tjs_uint8 tTJSBinaryStream::ReadI8LE() {
+        tjs_uint8 temp;
+        ReadBuffer(&temp, 1);
+        return temp;
+    }
 } // namespace TJS

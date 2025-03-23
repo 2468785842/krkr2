@@ -73,7 +73,8 @@ namespace TJS {
 
     tTJSBinarySerializer::tTJSBinarySerializer(
         class tTJSDictionaryObject *root) :
-        DicClass(nullptr), RootDictionary(root), RootArray(nullptr) {}
+        DicClass(nullptr),
+        RootDictionary(root), RootArray(nullptr) {}
 
     tTJSBinarySerializer::tTJSBinarySerializer(class tTJSArrayObject *root) :
         DicClass(nullptr), RootDictionary(nullptr), RootArray(root) {}

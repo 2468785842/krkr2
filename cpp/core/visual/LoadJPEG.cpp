@@ -142,7 +142,8 @@ static void skip_input_data(j_decompress_ptr cinfo, long num_bytes) {
     }
 }
 //---------------------------------------------------------------------------
-static void term_source(j_decompress_ptr cinfo) { /* no work necessary here */ }
+static void term_source(j_decompress_ptr cinfo) { /* no work necessary here */
+}
 //---------------------------------------------------------------------------
 void jpeg_TStream_src(j_decompress_ptr cinfo, tTJSBinaryStream *infile) {
     my_source_mgr *src;

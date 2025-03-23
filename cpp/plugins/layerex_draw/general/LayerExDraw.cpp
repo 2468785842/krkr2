@@ -25,7 +25,7 @@ void initGdiPlus() {
     gdiplusStartupInput.DebugEventCallback = nullptr;
     gdiplusStartupInput.SuppressBackgroundThread = FALSE;
     gdiplusStartupInput.SuppressExternalCodecs = FALSE;
-    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, nullptr);
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
     FT_Init_FreeType(&ftLibrary);
     // FIXME: 加载系统字体到gdiplus, 目前无法正常绘制字符,
     // 需要更新libgdiplus到6.x.x!!
@@ -2131,14 +2131,12 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointFClass &offset,
     FT_Outline outline = glyph->outline;
 
     const auto getPoint = [&](int index) -> PointFClass {
-        return { outline.points[index].x * scaleFactor +
-                     glyphOffset.X,
-                 -outline.points[index].y * scaleFactor +
-                     glyphOffset.Y };
+        return { outline.points[index].x * scaleFactor + glyphOffset.X,
+                 -outline.points[index].y * scaleFactor + glyphOffset.Y };
     };
 
-    std::function getConicEndPoint =
-        [&](int contourStart, int index, int contourEnd) -> PointFClass {
+    std::function getConicEndPoint = [&](int contourStart, int index,
+                                         int contourEnd) -> PointFClass {
         int nextIndex = index == contourEnd ? contourStart : index + 1;
         FT_Byte nextTag = FT_CURVE_TAG(outline.tags[nextIndex]);
 
@@ -2370,7 +2368,7 @@ public:
         long value{};
 
         EncoderInfo(const char *name, GUID guid, long value) :
-            name(name), guid(guid), value(value) {};
+            name(name), guid(guid), value(value){};
 
         EncoderInfo() = default;
     } infos[7];

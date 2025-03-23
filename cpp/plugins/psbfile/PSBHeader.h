@@ -11,14 +11,12 @@
  * 0c 0c 13 0f   16 19 0f 1b   12 00 00 00   00 00 00 00   │ ················ │
  * 00 00 00 00   00 00 00 00   00 00 00 00   00 00 00 21   │ ···············! │
  */
-#ifndef KRKR2_PSBHEADER_H
-#define KRKR2_PSBHEADER_H
+#pragma once
+
 #include <cstdint>
-#include <array>
-
 #include "tjs.h"
-namespace PSB {
 
+namespace PSB {
     struct PSBHeader {
         char signature[4];
         std::uint16_t version;
@@ -27,21 +25,74 @@ namespace PSB {
         std::uint32_t offsetNames;
         std::uint32_t offsetStrings;
         std::uint32_t offsetStringsData;
+        std::uint32_t offsetChunkOffsets;
         std::uint32_t offsetChunkLengths;
         std::uint32_t offsetChunkData;
         std::uint32_t offsetEntries;
         std::uint32_t checksum;
+        std::uint32_t offsetExtraChunkOffsets;
+        std::uint32_t offsetExtraChunkLengths;
+        std::uint32_t offsetExtraChunkData;
+
+        static constexpr int MAX_LENGTH = 56;
+
+        [[nodiscard]] bool isEncrypted() const {
+            return length > MAX_LENGTH + 16 || offsetNames == 0 ||
+                (version > 1 && length != offsetNames && length != 0);
+        }
+
+
+        static std::uint32_t GetHeaderLength(std::uint16_t version) {
+            if(version < 3)
+                return 40u;
+            if(version > 3)
+                return 56u;
+            return 44u;
+        }
+
+        [[nodiscard]] std::uint32_t GetHeaderLength() const {
+            return GetHeaderLength(version);
+        }
     };
 
-    static constexpr std::array<char, 4> PsbSignature = { 'P', 'S', 'B', '\0' };
+    static constexpr char PsbSignature[]{ 'P', 'S', 'B', '\0' };
+    static constexpr char MdfSignature[]{ 'M', 'D', 'F', '\0' };
+    static constexpr char MflSignature[]{ 'M', 'F', 'L', '\0' };
 
-    static bool parsePSBHeader(void *buffer, PSBHeader *psbHeader) {
-        if(!buffer)
-            return false;
-        std::memcpy(psbHeader, buffer, sizeof(PSBHeader));
-        return true;
+    static PSBHeader parsePSBHeader(TJS::tTJSBinaryStream *stream) {
+        PSBHeader header = {};
+
+        stream->ReadBuffer(header.signature, 4);
+        stream->ReadBuffer(&header.version, 2);
+        stream->ReadBuffer(&header.encrypt, 2);
+        stream->ReadBuffer(&header.length, 4);
+        stream->ReadBuffer(&header.offsetNames, 4);
+
+        if(std::strcmp(header.signature, MdfSignature) == 0 ||
+           std::strcmp(header.signature, MflSignature) == 0) {
+            throw "Maybe a MDF file";
+        }
+        if(std::strcmp(header.signature, PsbSignature) != 0) {
+            throw "Not a valid PSB file";
+        }
+        if(header.offsetNames < stream->GetSize()) {
+            stream->ReadBuffer(&header.offsetStrings, 4);
+            stream->ReadBuffer(&header.offsetStringsData, 4);
+            stream->ReadBuffer(&header.offsetChunkOffsets, 4);
+            stream->ReadBuffer(&header.offsetChunkLengths, 4);
+            stream->ReadBuffer(&header.offsetChunkData, 4);
+            stream->ReadBuffer(&header.offsetEntries, 4);
+
+            if(header.version > 2) {
+                stream->ReadBuffer(&header.checksum, 4);
+            }
+            if(header.version > 3) {
+                stream->ReadBuffer(&header.offsetExtraChunkOffsets, 4);
+                stream->ReadBuffer(&header.offsetExtraChunkLengths, 4);
+                stream->ReadBuffer(&header.offsetExtraChunkData, 4);
+            }
+        }
+        return header;
     }
 
-
 } // namespace PSB
-#endif // KRKR2_PSBHEADER_H

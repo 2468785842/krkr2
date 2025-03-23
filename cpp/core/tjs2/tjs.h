@@ -289,10 +289,10 @@ namespace TJS {
 
         void WriteBuffer(const void *buffer, tjs_uint write_size);
 
-        tjs_uint64 ReadI64LE(); // reads little-endian integers
+        tjs_uint64 ReadI64LE();
         tjs_uint32 ReadI32LE();
-
         tjs_uint16 ReadI16LE();
+        tjs_uint8 ReadI8LE();
     };
     //---------------------------------------------------------------------------
 

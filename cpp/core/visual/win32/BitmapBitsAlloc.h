@@ -7,7 +7,7 @@
 //---------------------------------------------------------------------------
 class iTVPMemoryAllocator {
 public:
-    virtual ~iTVPMemoryAllocator() {};
+    virtual ~iTVPMemoryAllocator(){};
     virtual void *allocate(size_t size) = 0;
     virtual void free(void *mem) = 0;
 };

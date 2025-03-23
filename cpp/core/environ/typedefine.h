@@ -37,7 +37,7 @@ typedef uint64_t ULONGLONG;
 typedef void *LPVOID;
 typedef uint32_t *LPDWORD;
 
-typedef char* PSTR, *LPSTR;
+typedef char *PSTR, *LPSTR;
 typedef const char *LPCSTR;
 
 /* ========== 句柄类型模拟 ========== */
