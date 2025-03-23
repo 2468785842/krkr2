@@ -4,24 +4,25 @@
 namespace PSB {
 
 
-    bool PimgType::isThisType(const PSBFile& psb) {
+    bool PimgType::isThisType(const PSBFile &psb) {
         const auto *objects = psb.getObjects();
-        if (psb.getObjects() == nullptr) {
+        if(psb.getObjects() == nullptr) {
             return false;
         }
 
-        if (objects->find("layers") != objects->end()
-         && objects->find("height") != objects->end() 
-        && objects->find("width") != objects->end()) {
+        if(objects->find("layers") != objects->end() &&
+           objects->find("height") != objects->end() &&
+           objects->find("width") != objects->end()) {
             return true;
         }
 
-        for(const auto& [k,v] : *objects) {
-            if(!(k.find('.') != std::string::npos && dynamic_cast<PSBResource*>(v.get()))) {
+        for(const auto &[k, v] : *objects) {
+            if(!(k.find('.') != std::string::npos &&
+                 dynamic_cast<PSBResource *>(v.get()))) {
                 return false;
             }
         }
-        
+
         return true;
     }
-}
+} // namespace PSB

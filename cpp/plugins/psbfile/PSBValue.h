@@ -93,7 +93,7 @@ namespace PSB {
     class IPSBCollection : public IPSBChild {
     public:
         virtual std::shared_ptr<IPSBValue> operator[](int index) = 0;
-        virtual std::shared_ptr<IPSBValue> operator[](const std::string& s) = 0;
+        virtual std::shared_ptr<IPSBValue> operator[](const std::string &s) = 0;
     };
 
     class IPSBSingleton {
@@ -309,7 +309,7 @@ namespace PSB {
 
         IPSBCollection *parent = nullptr;
 
-        std::shared_ptr<IPSBValue> operator[](const std::string& s) override {
+        std::shared_ptr<IPSBValue> operator[](const std::string &s) override {
             const auto tmp = inherit::find(s);
             return tmp != inherit::end() ? tmp->second : nullptr;
         }
@@ -318,7 +318,7 @@ namespace PSB {
             return operator[](fmt::format("{}", i));
         }
 
-        std::shared_ptr<IPSBValue> operator[](const std::string& s) const {
+        std::shared_ptr<IPSBValue> operator[](const std::string &s) const {
             const auto tmp = inherit::find(s);
             return tmp != inherit::end() ? tmp->second : nullptr;
         }
@@ -359,7 +359,7 @@ namespace PSB {
             return inherit::operator[](index);
         }
 
-        std::shared_ptr<IPSBValue> operator[](const std::string& s) override {
+        std::shared_ptr<IPSBValue> operator[](const std::string &s) override {
             assert(false && "not implement method: operator[](std::string)!");
             return nullptr;
         }

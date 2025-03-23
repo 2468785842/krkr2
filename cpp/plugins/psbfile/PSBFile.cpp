@@ -54,7 +54,7 @@ namespace PSB {
         stream->SetPosition(_header.offsetStringsData +
                             stringOffsets[static_cast<int>(idx.value())]);
         auto strValue = PSB::Extension::readStringZeroTrim(stream);
-        
+
         // Strict value equal check
         if(refStr != strings.end() && strValue == refStr->value) {
             str = std::make_unique<PSBString>(*refStr);
@@ -80,8 +80,7 @@ namespace PSB {
         std::optional<std::uint32_t> maxOffset{};
         size_t endPos = pos;
         if(lazyLoad && !offsets.empty()) {
-            maxOffset =
-                *std::max_element(offsets.cbegin(), offsets.cend());
+            maxOffset = *std::max_element(offsets.cbegin(), offsets.cend());
         }
         for(const auto offset : offsets) {
             stream->SetPosition(pos + offset);
@@ -124,8 +123,7 @@ namespace PSB {
         std::optional<std::uint32_t> maxOffset{};
         auto endPos = pos;
         if(lazyLoad && !offsets.empty()) {
-            maxOffset =
-                *std::max_element(offsets.cbegin(), offsets.cend());
+            maxOffset = *std::max_element(offsets.cbegin(), offsets.cend());
         }
 
         for(size_t i = 0; i < names.size(); i++) {
@@ -182,15 +180,15 @@ namespace PSB {
             stream);
         std::optional<std::uint32_t> maxOffset{};
         if(lazyLoad && !offsets.empty()) {
-            maxOffset =
-                *std::max_element(offsets.cbegin(), offsets.cend());
+            maxOffset = *std::max_element(offsets.cbegin(), offsets.cend());
         }
         const auto pos = stream->GetPosition();
         auto endPos = pos;
         auto dictionary = std::make_shared<PSBDictionary>(offsets.size());
         for(const auto offset : offsets) {
             stream->SetPosition(pos + offset);
-            PSBNumber nameIdx(static_cast<PSBObjType>(stream->ReadI8LE()), stream);
+            PSBNumber nameIdx(static_cast<PSBObjType>(stream->ReadI8LE()),
+                              stream);
             auto name = PSBFile::names[static_cast<int>(nameIdx)];
             auto obj = unpack(stream, lazyLoad);
             if(obj != nullptr) {
@@ -267,22 +265,23 @@ namespace PSB {
             case PSB::PSBObjType::ArrayN7:
             case PSB::PSBObjType::ArrayN8:
                 return std::make_shared<PSB::PSBArray>(
-                    typeByte - static_cast<std::int8_t>(PSB::PSBObjType::ArrayN1) + 1,
+                    typeByte -
+                        static_cast<std::int8_t>(PSB::PSBObjType::ArrayN1) + 1,
                     stream);
             case PSB::PSBObjType::StringN1:
             case PSB::PSBObjType::StringN2:
             case PSB::PSBObjType::StringN3:
             case PSB::PSBObjType::StringN4: {
                 auto str = std::make_unique<PSB::PSBString>(
-                    typeByte - static_cast<std::int8_t>(PSB::PSBObjType::StringN1) + 1,
+                    typeByte -
+                        static_cast<std::int8_t>(PSB::PSBObjType::StringN1) + 1,
                     stream);
                 if(lazyLoad) {
-                    const auto foundStr =
-                        std::find_if(strings.begin(), strings.end(),
-                                     [&str](const PSB::PSBString &s) {
-                                         return s.index.has_value() &&
-                                             s.index == str->index;
-                                     });
+                    const auto foundStr = std::find_if(
+                        strings.begin(), strings.end(),
+                        [&str](const PSB::PSBString &s) {
+                            return s.index.has_value() && s.index == str->index;
+                        });
                     if(foundStr == strings.end()) {
                         strings.emplace_back(*str);
                     } else {
@@ -306,19 +305,19 @@ namespace PSB {
                 auto &resList = isExtra ? extraResources : resources;
                 PSB::PSBResource res{
                     typeByte -
-                        static_cast<std::uint8_t>(isExtra
-                            ? PSB::PSBObjType::ExtraChunkN1
-                            : PSB::PSBObjType::ResourceN1) +
+                        static_cast<std::uint8_t>(
+                            isExtra ? PSB::PSBObjType::ExtraChunkN1
+                                    : PSB::PSBObjType::ResourceN1) +
                         1,
                     stream
                 };
                 res.isExtra = isExtra;
                 // LoadResource(ref res, br); //No longer load Resources here
-                const auto foundRes = std::find_if(
-                    resList.begin(), resList.end(),
-                    [&res](const PSB::PSBResource &r) {
-                        return r.index == res.index;
-                    });
+                const auto foundRes =
+                    std::find_if(resList.begin(), resList.end(),
+                                 [&res](const PSB::PSBResource &r) {
+                                     return r.index == res.index;
+                                 });
 
                 if(foundRes == resList.end()) {
                     resList.push_back(res);
@@ -334,10 +333,9 @@ namespace PSB {
                 return _header.version != 1 ? loadObjects(stream, lazyLoad)
                                             : loadObjectsV1(stream, lazyLoad);
             default:
-            LOGGER->error("unknown psbObjType");
+                LOGGER->error("unknown psbObjType");
                 return nullptr;
         }
-
     }
 
     bool PSBFile::loadPSBFile(const ttstr &filePath) {
@@ -457,13 +455,13 @@ namespace PSB {
         }
 
         _root = std::move(obj);
-        //Load Resource
-        for (auto& res : resources) {
+        // Load Resource
+        for(auto &res : resources) {
             loadResource(res, stream.get());
         }
 
-        if (_header.version >= 4) {
-            for(auto& res : extraResources) {
+        if(_header.version >= 4) {
+            for(auto &res : extraResources) {
                 loadExtraResource(res, stream.get());
             }
         }
@@ -472,9 +470,10 @@ namespace PSB {
 
         return true;
     }
-    
-    void PSBFile::loadResource(PSBResource& res, TJS::tTJSBinaryStream *stream) {
-        if (!res.index.has_value()) {
+
+    void PSBFile::loadResource(PSBResource &res,
+                               TJS::tTJSBinaryStream *stream) {
+        if(!res.index.has_value()) {
             throw "Resource Index invalid";
         }
 
@@ -486,9 +485,10 @@ namespace PSB {
         stream->ReadBuffer(tmp.data(), length);
         res.data = std::move(tmp);
     }
-    
-    void PSBFile::loadExtraResource(PSBResource& res, TJS::tTJSBinaryStream *stream){
-        if (!res.index.has_value()) {
+
+    void PSBFile::loadExtraResource(PSBResource &res,
+                                    TJS::tTJSBinaryStream *stream) {
+        if(!res.index.has_value()) {
             throw "Extra Resource Index invalid";
         }
 
@@ -503,18 +503,21 @@ namespace PSB {
 
     void PSBFile::afterLoad() {
         const auto intMax = static_cast<std::uint32_t>(INT_MAX);
-        std::sort(strings.begin(), strings.end(), 
-        [intMax](const PSB::PSBString& r1, const PSB::PSBString& r2) {
-            return r1.index.value_or(intMax) < r2.index.value_or(intMax);
-        });
-        std::sort(resources.begin(), resources.end(), 
-        [intMax](const PSB::PSBResource& r1, const PSB::PSBResource& r2) {
-            return r1.index.value_or(intMax) < r2.index.value_or(intMax);
-        });
-        std::sort(extraResources.begin(), extraResources.end(), 
-        [intMax](const PSB::PSBResource& r1, const PSB::PSBResource& r2) {
-            return r1.index.value_or(intMax) < r2.index.value_or(intMax);
-        });
+        std::sort(strings.begin(), strings.end(),
+                  [intMax](const PSB::PSBString &r1, const PSB::PSBString &r2) {
+                      return r1.index.value_or(intMax) <
+                          r2.index.value_or(intMax);
+                  });
+        std::sort(
+            resources.begin(), resources.end(),
+            [intMax](const PSB::PSBResource &r1, const PSB::PSBResource &r2) {
+                return r1.index.value_or(intMax) < r2.index.value_or(intMax);
+            });
+        std::sort(
+            extraResources.begin(), extraResources.end(),
+            [intMax](const PSB::PSBResource &r1, const PSB::PSBResource &r2) {
+                return r1.index.value_or(intMax) < r2.index.value_or(intMax);
+            });
         // inferType();
     }
 } // namespace PSB

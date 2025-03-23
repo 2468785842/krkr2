@@ -52,21 +52,22 @@ namespace PSB {
         loadObjectsV1(TJS::tTJSBinaryStream *stream, bool lazyLoad = false);
         std::shared_ptr<PSB::IPSBValue> unpack(TJS::tTJSBinaryStream *stream,
                                                bool lazyLoad = false);
-        void loadResource(PSBResource& res, TJS::tTJSBinaryStream *stream);
-        void loadExtraResource(PSBResource& res, TJS::tTJSBinaryStream *stream);
+        void loadResource(PSBResource &res, TJS::tTJSBinaryStream *stream);
+        void loadExtraResource(PSBResource &res, TJS::tTJSBinaryStream *stream);
         void afterLoad();
 
-        const PSBDictionary* getObjects() const {
-            return dynamic_cast<const PSBDictionary*>(_root.get());
+        const PSBDictionary *getObjects() const {
+            return dynamic_cast<const PSBDictionary *>(_root.get());
         }
+
     private:
         PSB::PSBHeader _header{};
         std::shared_ptr<IPSBValue> _root{};
         PSBType _type = PSBType::PSB;
 
-        IPSBType* getTypeHandler() {
-            auto handler= TypeHandlers.find(_type);
-            if (handler != TypeHandlers.end()) {
+        IPSBType *getTypeHandler() {
+            auto handler = TypeHandlers.find(_type);
+            if(handler != TypeHandlers.end()) {
                 return handler->second;
             }
 
@@ -75,8 +76,8 @@ namespace PSB {
         }
 
         PSBType inferType() {
-            for (const auto &handler : TypeHandlers) {
-                if (handler.second->isThisType(*this)) {
+            for(const auto &handler : TypeHandlers) {
+                if(handler.second->isThisType(*this)) {
                     _type = handler.first;
                     return _type;
                 }

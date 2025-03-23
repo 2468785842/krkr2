@@ -7,12 +7,11 @@
 
 namespace PSB {
 
-    static const std::unordered_map<PSBType, IPSBType*> TypeHandlers
-    {
+    static const std::unordered_map<PSBType, IPSBType *> TypeHandlers{
         // {PSBType::Motion, MotionType{}},
         // {PSBType::Scn, ScnType{}},
         // {PSBType::Tachie, ImageType{}},
-        {PSBType::Pimg, new PimgType{}},
+        { PSBType::Pimg, new PimgType{} },
         // {PSBType::Mmo, MmoType{}},
         // {PSBType::ArchiveInfo, ArchiveType{}},
         // {PSBType::SoundArchive, SoundArchiveType{}},
@@ -22,6 +21,7 @@ namespace PSB {
         // {PSBType::SprBlock, SprBlockType{}},
         // {PSBType::SprData, SprDataType{}},
         // {PSBType::Chip, ChipType{}},
-        // {PSBType::PSB, MotionType{}}, //assume as motion type by default, must put this after Motion
+        // {PSBType::PSB, MotionType{}}, //assume as motion type by default,
+        // must put this after Motion
     };
 }

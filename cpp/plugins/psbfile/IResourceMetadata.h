@@ -1,8 +1,6 @@
 #pragma once
 
 namespace PSB {
-    class IResourceMetadata {
+    class IResourceMetadata {};
 
-    };
-
-};
+}; // namespace PSB
