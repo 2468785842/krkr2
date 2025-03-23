@@ -17,12 +17,12 @@ namespace PSB {
         }
 
         for(const auto &[k, v] : *objects) {
-            if(!(k.find('.') != std::string::npos &&
-                 dynamic_cast<PSBResource *>(v.get()))) {
-                return false;
+            if(k.find('.') != std::string::npos &&
+                 dynamic_cast<PSBResource *>(v.get())) {
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 } // namespace PSB

@@ -518,6 +518,6 @@ namespace PSB {
             [intMax](const PSB::PSBResource &r1, const PSB::PSBResource &r2) {
                 return r1.index.value_or(intMax) < r2.index.value_or(intMax);
             });
-        // inferType();
+        inferType();
     }
 } // namespace PSB
