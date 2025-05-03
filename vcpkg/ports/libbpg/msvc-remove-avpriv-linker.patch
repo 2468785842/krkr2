@@ -2,17 +2,17 @@ diff --urN a/libavutil/internal.h b/libavutil/internal.h
 --- a/libavutil/internal.h
 +++ b/libavutil/internal.h
 @@ -167,10 +167,10 @@
-
+ 
  #include "libm.h"
-
+ 
 -#if defined(_MSC_VER)
 -#pragma comment(linker, "/include:"EXTERN_PREFIX"avpriv_strtod")
 -#pragma comment(linker, "/include:"EXTERN_PREFIX"avpriv_snprintf")
 -#endif
-+// #if defined(_MSC_VER)
-+// #pragma comment(linker, "/include:"EXTERN_PREFIX"avpriv_strtod")
-+// #pragma comment(linker, "/include:"EXTERN_PREFIX"avpriv_snprintf")
-+// #endif
-
++//#if defined(_MSC_VER)
++//#pragma comment(linker, "/include:"EXTERN_PREFIX"avpriv_strtod")
++//#pragma comment(linker, "/include:"EXTERN_PREFIX"avpriv_snprintf")
++//#endif
+ 
  /**
   * Return NULL if CONFIG_SMALL is true, otherwise the argument
