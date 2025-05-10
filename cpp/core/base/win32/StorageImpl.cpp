@@ -133,7 +133,7 @@ void TVPListDir(const std::string &folder,
         DWORD drives = GetLogicalDrives();
         for (char drive = 'A'; drive <= 'Z'; ++drive) {
             if (drives & (1 << (drive - 'A'))) {
-                std::string drivePath = std::string(1, drive) + ":/";
+                std::string drivePath = std::string(1, drive) + ":";
                 cb(drivePath, S_IFDIR); // 传递驱动器路径和模式（这里模式为0，表示目录）
             }
         }

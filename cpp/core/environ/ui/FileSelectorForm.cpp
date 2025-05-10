@@ -144,10 +144,15 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
             _title->setTitleText(path.AsStdString() + suffix);
         }
     }
-
+#if defined(_WIN32)
+    if(path.size() > 3 && path.back() == '/') {
+        path.pop_back();
+    }
+#else
     if(path.size() > RootPathLen && path.back() == '/') {
         path.pop_back();
     }
+#endif
 
     if(NaviBar.Left) {
         NaviBar.Left->setVisible(path.size() > RootPathLen);
@@ -176,7 +181,7 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
 #if defined(_WIN32)
     // fill fullpath
     for(auto &it : CurrentDirList) {
-        if(ParentPath =="/"){
+        if(path =="/"){
             it.FullPath =  it.NameForDisplay+"/";
         }else{
             it.FullPath = path + "/" + it.NameForDisplay;
