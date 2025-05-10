@@ -92,6 +92,8 @@ find_package(LibArchive REQUIRED)
 
 find_package(OpenAL CONFIG REQUIRED)
 
+find_package(spdlog CONFIG REQUIRED)
+
 set(OpenCV_ROOT "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/opencv4")
 find_package(OpenCV REQUIRED)
 
@@ -145,4 +147,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     # cocos2d
     cocos2dx::cocos2d
     $<$<BOOL:${ANDROID}>:$<LINK_LIBRARY:WHOLE_ARCHIVE,cocos2dx::cpp_android_spec>>
+
+    # spdlog
+    spdlog::spdlog
 )
