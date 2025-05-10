@@ -119,7 +119,14 @@ static const std::string str_filename("filename");
 
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
     std::pair<std::string, std::string> split_path = PathSplit(path);
+#if defined(_WIN32)
     ParentPath = split_path.first;
+    if(ParentPath.size() == 3){
+        ParentPath = "/";
+    }
+#else
+    ParentPath = split_path.first;
+#endif
     if(_title) {
         _title->setTitleText(split_path.second);
 
@@ -166,10 +173,22 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
                            });
         }
     });
+#if defined(_WIN32)
+    // fill fullpath
+    for(auto &it : CurrentDirList) {
+        if(ParentPath =="/"){
+            it.FullPath =  it.NameForDisplay+"/";
+        }else{
+            it.FullPath = path + "/" + it.NameForDisplay;
+        }
+        
+    }
+#else
     // fill fullpath
     for(auto &it : CurrentDirList) {
         it.FullPath = path + "/" + it.NameForDisplay;
     }
+#endif
     std::sort(CurrentDirList.begin(), CurrentDirList.end());
 
     // update
