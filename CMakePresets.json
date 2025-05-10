@@ -13,6 +13,8 @@
       "cacheVariables": {
         "WINDOWS": true,
         "VCPKG_TARGET_TRIPLET": "x86-windows-static-md",
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl",
         "CMAKE_EXPORT_COMPILE_COMMANDS": true
       },
       "condition": {
