@@ -128,6 +128,16 @@ tTJSBinaryStream *tTVPFileMedia::Open(const ttstr &name, tjs_uint32 flags) {
 
 void TVPListDir(const std::string &folder,
                 std::function<void(const std::string &, int)> cb) {    
+#if __cplusplus >= 201703L
+    try {
+        for(const auto &entry : std::filesystem::directory_iterator(folder)) {
+            const auto &path = entry.path();
+            cb(path.filename().string(), entry.is_directory() ? S_IFDIR : S_IFREG);
+        }
+    } catch(const std::filesystem::filesystem_error &e) {
+        // Handle error if needed
+    }
+#else
     DIR *dirp;
     dirent *direntp;
     tTVP_stat stat_buf;
@@ -140,6 +150,7 @@ void TVPListDir(const std::string &folder,
         }
         closedir(dirp);
     }
+#endif
 }
 
 void TVPGetLocalFileListAt(
