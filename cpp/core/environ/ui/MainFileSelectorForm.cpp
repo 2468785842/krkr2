@@ -177,7 +177,15 @@ void TVPMainFileSelectorForm::show() {
         lastpath = split_path.first;
     }
     if(lastpath.size() <= RootPathLen) {
+#if defined win32 || defined _WIN32
+        const DWORD bufferSize = 260;
+        CHAR buffer[bufferSize];
+        DWORD length = GetCurrentDirectoryA(bufferSize, buffer);
+        buffer[length] = '\0'; // Ensure null-termination
+        lastpath = std::string(buffer);
+#else
         lastpath = TVPGetDriverPath()[0];
+#endif
     }
     ListDir(lastpath); // getCurrentDir()
                        // TODO show usage

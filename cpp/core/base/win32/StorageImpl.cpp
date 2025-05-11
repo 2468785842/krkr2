@@ -127,31 +127,19 @@ tTJSBinaryStream *tTVPFileMedia::Open(const ttstr &name, tjs_uint32 flags) {
 }
 
 void TVPListDir(const std::string &folder,
-                std::function<void(const std::string &, int)> cb) {
-    if(folder == "/"){
-        // 获取所有逻辑驱动器
-        DWORD drives = GetLogicalDrives();
-        for (char drive = 'A'; drive <= 'Z'; ++drive) {
-            if (drives & (1 << (drive - 'A'))) {
-                std::string drivePath = std::string(1, drive) + ":";
-                cb(drivePath, S_IFDIR); // 传递驱动器路径和模式（这里模式为0，表示目录）
-            }
+                std::function<void(const std::string &, int)> cb) {    
+    DIR *dirp;
+    dirent *direntp;
+    tTVP_stat stat_buf;
+    if((dirp = opendir(folder.c_str()))) {
+        while((direntp = readdir(dirp)) != nullptr) {
+            std::string fullpath = folder + "/" + direntp->d_name;
+            if(!TVP_stat(fullpath.c_str(), stat_buf))
+                continue;
+            cb(direntp->d_name, stat_buf.st_mode);
         }
-    }else{
-        DIR *dirp;
-        dirent *direntp;
-        tTVP_stat stat_buf;
-        if((dirp = opendir(folder.c_str()))) {
-            while((direntp = readdir(dirp)) != nullptr) {
-                std::string fullpath = folder + "/" + direntp->d_name;
-                if(!TVP_stat(fullpath.c_str(), stat_buf))
-                    continue;
-                cb(direntp->d_name, stat_buf.st_mode);
-            }
-            closedir(dirp);
-        }
+        closedir(dirp);
     }
-   
 }
 
 void TVPGetLocalFileListAt(

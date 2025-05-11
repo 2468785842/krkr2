@@ -119,14 +119,9 @@ static const std::string str_filename("filename");
 
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
     std::pair<std::string, std::string> split_path = PathSplit(path);
-#if defined(_WIN32)
+
     ParentPath = split_path.first;
-    if(ParentPath.size() == 3){
-        ParentPath = "/";
-    }
-#else
-    ParentPath = split_path.first;
-#endif
+
     if(_title) {
         _title->setTitleText(split_path.second);
 
@@ -144,15 +139,11 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
             _title->setTitleText(path.AsStdString() + suffix);
         }
     }
-#if defined(_WIN32)
-    if(path.size() > 3 && path.back() == '/') {
-        path.pop_back();
-    }
-#else
+
     if(path.size() > RootPathLen && path.back() == '/') {
         path.pop_back();
     }
-#endif
+
 
     if(NaviBar.Left) {
         NaviBar.Left->setVisible(path.size() > RootPathLen);
@@ -178,22 +169,12 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
                            });
         }
     });
-#if defined(_WIN32)
-    // fill fullpath
-    for(auto &it : CurrentDirList) {
-        if(path =="/"){
-            it.FullPath =  it.NameForDisplay+"/";
-        }else{
-            it.FullPath = path + "/" + it.NameForDisplay;
-        }
-        
-    }
-#else
+
     // fill fullpath
     for(auto &it : CurrentDirList) {
         it.FullPath = path + "/" + it.NameForDisplay;
     }
-#endif
+
     std::sort(CurrentDirList.begin(), CurrentDirList.end());
 
     // update
