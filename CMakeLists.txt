@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.28)
 if(ANDROID)
     set(VCPKG_TARGET_ANDROID ON)
     set(ENV{ANDROID_NDK_HOME} "$ENV{ANDROID_NDK}")
+    add_compile_options(-Wno-inconsistent-missing-override)
     include(cmake/vcpkg_android.cmake)
 else()
     set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
@@ -12,8 +13,7 @@ set(APP_NAME krkr2)
 
 project(${APP_NAME})
 
-set(CMAKE_C_STANDARD 17)
-set(CMAKE_CXX_STANDARD 17)
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(KRKR2CORE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/core)

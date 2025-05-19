@@ -106,6 +106,7 @@ android {
         }
     }
 
+   
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach {
             def ver = defaultConfig.versionName
