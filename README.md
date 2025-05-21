@@ -80,10 +80,21 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 - **Android**:
   - 在 Windows 上运行: `./gradlew.bat assemble` 如果遇到`glib`无法安装查看[Build](Build.md)
   - 在 Linux 上运行: `./gradlew assemble`
+  
 - **Windows**:
   - 运行: `./build-windows.bat`
+  
 - **Linux**:
+
+  - 安装依赖
+
+    ```shell
+    sudo apt install libxext-dev pkg-config ninja-build zip autoconfig
+    sudo apt-get install libxrender-dev //cairo需要
+    ```
+  
   - 运行: `./build-linux.sh`
+
 
 ## 可执行文件位置
 
