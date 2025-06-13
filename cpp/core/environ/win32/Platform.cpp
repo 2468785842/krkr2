@@ -13,6 +13,7 @@
 #include "RenderManager.h"
 #include <sys/utime.h>
 #include <boost/locale.hpp>
+#include <spdlog/spdlog.h>
 
 #pragma comment(lib, "psapi.lib")
 

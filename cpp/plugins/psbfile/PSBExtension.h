@@ -9,7 +9,7 @@
 
 namespace PSB::Extension {
 
-    static int getSize(uint i) {
+    static int getSize(std::uint32_t i) {
         int n = 0;
         do {
             i >>= 8;
