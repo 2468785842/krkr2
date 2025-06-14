@@ -10,7 +10,7 @@ vcpkg_extract_source_archive(
     ARCHIVE "${archive}"
     SOURCE_BASE libbpg-${VERSION}
     PATCHES
-        msvc-remove-avpriv-linker.patch
+        remove-msvc-avpriv-linker.patch
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt" DESTINATION "${SOURCE_PATH}")

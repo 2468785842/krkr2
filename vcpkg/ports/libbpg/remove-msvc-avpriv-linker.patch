@@ -3,9 +3,9 @@ index 4565276..5629419 100644
 --- a/libavutil/internal.h
 +++ b/libavutil/internal.h
 @@ -167,11 +167,6 @@
-
+ 
  #include "libm.h"
-
+ 
 -#if defined(_MSC_VER)
 -#pragma comment(linker, "/include:"EXTERN_PREFIX"avpriv_strtod")
 -#pragma comment(linker, "/include:"EXTERN_PREFIX"avpriv_snprintf")

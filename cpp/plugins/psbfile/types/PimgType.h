@@ -4,6 +4,7 @@
 
 #include "IPSBType.h"
 #include "BaseImageType.h"
+#include "../resources/ImageMetadata.h"
 
 namespace PSB {
 
@@ -14,5 +15,9 @@ namespace PSB {
         PSBType getPSBType() override { return PSBType::Pimg; }
 
         bool isThisType(const PSBFile &psb) override;
+
+        std::vector<std::unique_ptr<IResourceMetadata>>
+        collectResources(const PSBFile &psb,
+                         bool deDuplication = true) override;
     };
 }; // namespace PSB

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <unordered_map>
+#include <map>
 
 #include "types/IPSBType.h"
 #include "types/PimgType.h"
 
 namespace PSB {
 
-    static const std::unordered_map<PSBType, IPSBType *> TypeHandlers{
+    static const std::map<PSBType, IPSBType *> TypeHandlers{
         // {PSBType::Motion, MotionType{}},
         // {PSBType::Scn, ScnType{}},
         // {PSBType::Tachie, ImageType{}},

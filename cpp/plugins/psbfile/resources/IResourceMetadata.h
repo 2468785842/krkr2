@@ -1,0 +1,49 @@
+#pragma once
+
+#include <cstdint>
+#include <string>
+#include "../PSBEnums.h"
+
+namespace PSB {
+    class IResourceMetadata {
+    public:
+        std::string name;
+        std::uint32_t index;
+        PSBSpec spec;
+        PSBType psbType;
+        // void Link(std::string fullPath, FreeMountContext context);
+
+        virtual std::string getName() const = 0;
+        virtual void setName(std::string name) = 0;
+        /**
+         * Index is a value for tracking resource when compiling.
+         *  For index appeared in texture name
+         */
+        virtual std::uint32_t getIndex() const = 0;
+
+        virtual void setIndex(std::uint32_t index) = 0;
+    };
+
+
+    // Compression in PSB
+    enum class PSBCompressType {
+        // Normal
+        None,
+
+        // RLE
+        RL,
+
+        // Raw Bitmap
+        Bmp,
+
+        // KRKR TLG
+        Tlg,
+
+        // Astc,
+
+        // Bc7,
+
+        // By extension
+        ByName,
+    };
+}; // namespace PSB
