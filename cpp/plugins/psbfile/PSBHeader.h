@@ -57,10 +57,10 @@ namespace PSB {
 
         if(std::strcmp(header.signature, MdfSignature) == 0 ||
            std::strcmp(header.signature, MflSignature) == 0) {
-            throw "Maybe a MDF file";
+            throw std::exception("Maybe a MDF file");
         }
         if(std::strcmp(header.signature, PsbSignature) != 0) {
-            throw "Not a valid PSB file";
+            throw std::exception("Not a valid PSB file");
         }
         if(header.offsetNames < stream->GetSize()) {
             stream->ReadBuffer(&header.offsetStrings, 4);

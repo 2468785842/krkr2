@@ -13,13 +13,13 @@ namespace PSB {
         PSBType psbType;
         // void Link(std::string fullPath, FreeMountContext context);
 
-        virtual std::string getName() const = 0;
+        [[nodiscard]] virtual std::string getName() const = 0;
         virtual void setName(std::string name) = 0;
         /**
          * Index is a value for tracking resource when compiling.
          *  For index appeared in texture name
          */
-        virtual std::uint32_t getIndex() const = 0;
+        [[nodiscard]] virtual std::uint32_t getIndex() const = 0;
 
         virtual void setIndex(std::uint32_t index) = 0;
     };

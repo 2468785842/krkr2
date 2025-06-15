@@ -10,6 +10,15 @@
 namespace PSB {
     class ImageMetadata : public IResourceMetadata {
     public:
+
+        explicit ImageMetadata() = default;
+
+        ImageMetadata(const ImageMetadata &) = delete;
+        ImageMetadata &operator=(const ImageMetadata &) = delete;
+
+        ImageMetadata(ImageMetadata &&) = default;
+        ImageMetadata &operator=(ImageMetadata &&) = default;
+
         inline static const std::string G_SupportedImageExt[]{ ".png", ".bmp",
                                                                ".jpg",
                                                                ".jpeg" };
@@ -68,7 +77,7 @@ namespace PSB {
         
         void setData(std::vector<uint8_t> data) {
             if (this->_resource == nullptr) {
-                throw "Resource is null";
+                throw std::exception("Resource is null");
             }
 
             this->_resource->data = data;

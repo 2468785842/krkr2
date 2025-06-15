@@ -27,7 +27,7 @@ namespace PSB {
     }
 
     static void
-    findPimgResources(std::vector<std::unique_ptr<IResourceMetadata>> list,
+    findPimgResources(const std::vector<std::unique_ptr<IResourceMetadata>>& list,
                       IPSBValue *obj, bool deDuplication = true) {}
 
     bool endsWithCI(const std::string &str, const std::string &suffix) {
@@ -49,7 +49,7 @@ namespace PSB {
 
             const auto *resource = dynamic_cast<const PSBResource *>(v.get());
             if(resource) {
-                ImageMetadata *meta = new ImageMetadata();
+                auto meta = std::make_unique<ImageMetadata>();
                 meta->name = k;
                 // meta->resource = resource;
                 // meta->compress = endsWithCI(k, ".tlg")
@@ -58,11 +58,10 @@ namespace PSB {
                 meta->psbType = PSBType::Pimg;
                 // meta->spec = psb.Platform;
 
-                resourceList.push_back(
-                    std::make_unique<IResourceMetadata>(*meta));
+                resourceList.push_back(std::move(meta));
             }
         }
-        findPimgResources(resourceList, objs[PimgSourceKey], deDuplication);
+        findPimgResources(resourceList, (*objs)[G_PimgSourceKey].get(), deDuplication);
 
         return resourceList;
     }

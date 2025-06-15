@@ -42,13 +42,14 @@ namespace PSB::Extension {
 
         while(true) {
             constexpr size_t CHUNK_SIZE = 256;
-            char temp[CHUNK_SIZE];
+            char temp[CHUNK_SIZE];// default encoding: UTF-8
             const size_t bytes_read = stream->Read(temp, CHUNK_SIZE);
             if(bytes_read == 0)
                 break;
 
             for(size_t j = 0; j < bytes_read; ++j) {
-                if(temp[j] == '\0' || std::isspace(temp[j])) {
+                unsigned char uc = temp[j]; // std::isspace Cannot be negative
+                if(uc == '\0' || std::isspace(uc)) {
                     name.append(temp, j);
                     return std::move(name);
                 }

@@ -474,7 +474,7 @@ namespace PSB {
     void PSBFile::loadResource(PSBResource &res,
                                TJS::tTJSBinaryStream *stream) {
         if(!res.index.has_value()) {
-            throw "Resource Index invalid";
+            throw std::exception("Resource Index invalid");
         }
 
         auto index = static_cast<int>(res.index.value());
@@ -489,7 +489,7 @@ namespace PSB {
     void PSBFile::loadExtraResource(PSBResource &res,
                                     TJS::tTJSBinaryStream *stream) {
         if(!res.index.has_value()) {
-            throw "Extra Resource Index invalid";
+            throw std::exception("Extra Resource Index invalid");
         }
 
         auto index = static_cast<int>(res.index.value());

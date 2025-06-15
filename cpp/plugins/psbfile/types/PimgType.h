@@ -10,7 +10,7 @@ namespace PSB {
 
     class PimgType : public BaseImageType, public IPSBType {
     public:
-        const std::string PimgSourceKey = "layers";
+        static inline const std::string& G_PimgSourceKey = "layers";
 
         PSBType getPSBType() override { return PSBType::Pimg; }
 
