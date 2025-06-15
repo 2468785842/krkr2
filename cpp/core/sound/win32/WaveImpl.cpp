@@ -1805,8 +1805,7 @@ public:
 
 //---------------------------------------------------------------------------
 tTVPWaveSoundBufferDecodeThread::tTVPWaveSoundBufferDecodeThread(
-    tTJSNI_WaveSoundBuffer *owner) :
-    tTVPThread(true) {
+    tTJSNI_WaveSoundBuffer *owner) : tTVPThread(true) {
     TVPInitSoundOptions();
 
     Owner = owner;
@@ -2658,16 +2657,16 @@ bool tTJSNI_WaveSoundBuffer::FillBuffer(bool firstwrite, bool allowpause) {
         if(L2BufferEnded) {
             if(SoundBuffer->GetRemainBuffers() == 0) {
 #endif
-        FlushAllLabelEvents();
-        SoundBuffer->Pause();
-        ResetSamplePositions();
-        DSBufferPlaying = false;
-        BufferPlaying = false;
-        if(LoopManager)
-            LoopManager->SetPosition(0);
-        return true;
-    }
-}
+                FlushAllLabelEvents();
+                SoundBuffer->Pause();
+                ResetSamplePositions();
+                DSBufferPlaying = false;
+                BufferPlaying = false;
+                if(LoopManager)
+                    LoopManager->SetPosition(0);
+                return true;
+            }
+        }
 #if 0
         else
         {
@@ -2700,65 +2699,67 @@ bool tTJSNI_WaveSoundBuffer::FillBuffer(bool firstwrite, bool allowpause) {
         return true;
     }
 #endif
-writepos = SoundBufferWritePos * AccessUnitBytes;
-if(SoundBuffer->GetRemainBuffers() >= TVPAL_BUFFER_COUNT) {
-    // 			if (!SoundBuffer->IsPlaying()) { // run out of buffer
-    // 				SoundBuffer->Play();
-    // 				// reset offset
-    // 				SoundBuffer->SetSampleOffset(writepos /
-    // InputFormat.BytesPerSample / InputFormat.Channels);
-    // 			}
-    // 			else
-    { return true; }
-}
+        writepos = SoundBufferWritePos * AccessUnitBytes;
+        if(SoundBuffer->GetRemainBuffers() >= TVPAL_BUFFER_COUNT) {
+            // 			if (!SoundBuffer->IsPlaying()) { // run out of buffer
+            // 				SoundBuffer->Play();
+            // 				// reset offset
+            // 				SoundBuffer->SetSampleOffset(writepos /
+            // InputFormat.BytesPerSample / InputFormat.Channels);
+            // 			}
+            // 			else
+            { return true; }
+        }
 
-segment = L1BufferSegmentQueues + SoundBufferWritePos;
-bufferdecodesamplepos = L1BufferDecodeSamplePos + SoundBufferWritePos;
-SoundBufferWritePos++;
-if(SoundBufferWritePos >= L1BufferUnits)
-    SoundBufferWritePos = 0;
-}
+        segment = L1BufferSegmentQueues + SoundBufferWritePos;
+        bufferdecodesamplepos = L1BufferDecodeSamplePos + SoundBufferWritePos;
+        SoundBufferWritePos++;
+        if(SoundBufferWritePos >= L1BufferUnits)
+            SoundBufferWritePos = 0;
+    }
 
-// SoundBufferPrevReadPos = pp;
+    // SoundBufferPrevReadPos = pp;
 
-// decode
-if(bufferremain > 1) // buffer is ready
-{
-    // with no locking operations
-    FillDSBuffer(writepos, *segment);
-} else {
-    PrepareToReadL2Buffer(false); // complete decoding before reading from L2
-
+    // decode
+    if(bufferremain > 1) // buffer is ready
     {
-        tTJSCriticalSectionHolder l2holder(L2BufferCS);
+        // with no locking operations
         FillDSBuffer(writepos, *segment);
-    }
-}
+    } else {
+        PrepareToReadL2Buffer(
+            false); // complete decoding before reading from L2
 
-// insert labels into LabelEventQueue and sort
-const std::deque<tTVPWaveLabel> &labels = segment->GetLabels();
-if(labels.size() != 0) {
-    // add DecodePos offset to each item->Offset
-    // and insert into LabelEventQueue
-    for(std::deque<tTVPWaveLabel>::const_iterator i = labels.begin();
-        i != labels.end(); i++) {
-        LabelEventQueue.emplace_back(
-            i->Position, i->Name, static_cast<tjs_int>(i->Offset + DecodePos));
+        {
+            tTJSCriticalSectionHolder l2holder(L2BufferCS);
+            FillDSBuffer(writepos, *segment);
+        }
     }
 
-    // sort
-    std::sort(LabelEventQueue.begin(), LabelEventQueue.end(),
-              tTVPWaveLabel::tSortByOffsetFuncObj());
+    // insert labels into LabelEventQueue and sort
+    const std::deque<tTVPWaveLabel> &labels = segment->GetLabels();
+    if(labels.size() != 0) {
+        // add DecodePos offset to each item->Offset
+        // and insert into LabelEventQueue
+        for(std::deque<tTVPWaveLabel>::const_iterator i = labels.begin();
+            i != labels.end(); i++) {
+            LabelEventQueue.emplace_back(
+                i->Position, i->Name,
+                static_cast<tjs_int>(i->Offset + DecodePos));
+        }
 
-    // re-schedule label events
-    TVPReschedulePendingLabelEvent(GetNearestEventStep());
-}
+        // sort
+        std::sort(LabelEventQueue.begin(), LabelEventQueue.end(),
+                  tTVPWaveLabel::tSortByOffsetFuncObj());
 
-// write bufferdecodesamplepos
-*bufferdecodesamplepos = DecodePos;
-DecodePos += AccessUnitSamples;
+        // re-schedule label events
+        TVPReschedulePendingLabelEvent(GetNearestEventStep());
+    }
 
-return false;
+    // write bufferdecodesamplepos
+    *bufferdecodesamplepos = DecodePos;
+    DecodePos += AccessUnitSamples;
+
+    return false;
 }
 
 //---------------------------------------------------------------------------

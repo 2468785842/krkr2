@@ -192,13 +192,13 @@ s = sign,  negative if this is 1, otherwise positive.
 /* special expression check */
 #define TJS_IEEE_D_IS_NaN(x)                                                   \
     ((TJS_IEEE_D_EXP_MASK & (x)) == TJS_IEEE_D_EXP_MASK) &&                    \
-        (((x)&TJS_IEEE_D_SIGNIFICAND_MSB_MASK) ||                              \
-         (!((x)&TJS_IEEE_D_SIGNIFICAND_MSB_MASK) &&                            \
+        (((x) & TJS_IEEE_D_SIGNIFICAND_MSB_MASK) ||                            \
+         (!((x) & TJS_IEEE_D_SIGNIFICAND_MSB_MASK) &&                          \
           ((x) &                                                               \
            (TJS_IEEE_D_SIGNIFICAND_MASK ^ TJS_IEEE_D_SIGNIFICAND_MSB_MASK))))
 #define TJS_IEEE_D_IS_INF(x)                                                   \
     (((TJS_IEEE_D_EXP_MASK & (x)) == TJS_IEEE_D_EXP_MASK) &&                   \
-     (!((x)&TJS_IEEE_D_SIGNIFICAND_MASK)))
+     (!((x) & TJS_IEEE_D_SIGNIFICAND_MASK)))
 
 /*]*/
 

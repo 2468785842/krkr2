@@ -10,7 +10,6 @@
 namespace PSB {
     class ImageMetadata : public IResourceMetadata {
     public:
-
         explicit ImageMetadata() = default;
 
         ImageMetadata(const ImageMetadata &) = delete;
@@ -41,7 +40,7 @@ namespace PSB {
         }
 
         void setIndex(std::uint32_t index) {
-            if (this->_resource != nullptr) {
+            if(this->_resource != nullptr) {
                 this->_resource->index = index;
             }
         }
@@ -53,7 +52,8 @@ namespace PSB {
         }
 
         PSBPixelFormat getPalettePixelFormat() {
-            PSBPixelFormat format = Extension::toPSBPixelFormat(getPalType(), _spec);
+            PSBPixelFormat format =
+                Extension::toPSBPixelFormat(getPalType(), _spec);
             if(format != PSBPixelFormat::None) {
                 return format;
             }
@@ -71,18 +71,16 @@ namespace PSB {
             return getTextureIndex(this->_part);
         }
 
-        std::vector<std::uint8_t> getData() {
-            return this->_resource->data;
-        }
-        
+        std::vector<std::uint8_t> getData() { return this->_resource->data; }
+
         void setData(std::vector<uint8_t> data) {
-            if (this->_resource == nullptr) {
+            if(this->_resource == nullptr) {
                 throw std::exception("Resource is null");
             }
 
             this->_resource->data = data;
         }
-        
+
 
     private:
         /**

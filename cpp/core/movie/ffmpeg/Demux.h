@@ -29,7 +29,7 @@ enum StreamSource {
     STREAM_SOURCE_VIDEOMUX = 0x500
 };
 
-#define STREAM_SOURCE_MASK(a) ((a)&0xf00)
+#define STREAM_SOURCE_MASK(a) ((a) & 0xf00)
 
 class CDemuxStream {
 public:
@@ -202,12 +202,12 @@ public:
         EnableStream(id, enable);
     };
 
-    virtual void SetVideoResolution(int width, int height){};
+    virtual void SetVideoResolution(int width, int height) {};
 
     int64_t GetDemuxerId() { return m_demuxerId; };
 
 protected:
-    virtual void EnableStream(int id, bool enable){};
+    virtual void EnableStream(int id, bool enable) {};
 
     virtual CDemuxStream *GetStream(int iStreamId) const = 0;
 

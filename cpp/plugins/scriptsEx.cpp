@@ -34,9 +34,8 @@ struct t_iTJSDispatch2_PropGet {
     t_iTJSDispatch2_PropGet(iTJSDispatch2 *_this_, tjs_uint32 flag_,
                             const tjs_char *membername_, tjs_uint32 *hint_,
                             tTJSVariant *result_, iTJSDispatch2 *objthis_) :
-        _this(_this_),
-        flag(flag_), membername(membername_), hint(hint_), result(result_),
-        objthis(objthis_) {
+        _this(_this_), flag(flag_), membername(membername_), hint(hint_),
+        result(result_), objthis(objthis_) {
         ;
     }
 };
@@ -84,8 +83,8 @@ struct t_iTJSDispatch2_PropGetByNum {
     t_iTJSDispatch2_PropGetByNum(iTJSDispatch2 *_this_, tjs_uint32 flag_,
                                  tjs_int num_, tTJSVariant *result_,
                                  iTJSDispatch2 *objthis_) :
-        _this(_this_),
-        flag(flag_), num(num_), result(result_), objthis(objthis_) {
+        _this(_this_), flag(flag_), num(num_), result(result_),
+        objthis(objthis_) {
         ;
     }
 };
@@ -111,9 +110,8 @@ struct t_iTJSDispatch2_PropSet {
                             const tjs_char *membername_, tjs_uint32 *hint_,
                             const tTJSVariant *param_,
                             iTJSDispatch2 *objthis_) :
-        _this(_this_),
-        flag(flag_), membername(membername_), hint(hint_), param(param_),
-        objthis(objthis_) {
+        _this(_this_), flag(flag_), membername(membername_), hint(hint_),
+        param(param_), objthis(objthis_) {
         ;
     }
 };
@@ -155,8 +153,8 @@ struct t_iTJSDispatch2_PropSetByNum {
     t_iTJSDispatch2_PropSetByNum(iTJSDispatch2 *_this_, tjs_uint32 flag_,
                                  tjs_int num_, const tTJSVariant *param_,
                                  iTJSDispatch2 *objthis_) :
-        _this(_this_),
-        flag(flag_), num(num_), param(param_), objthis(objthis_) {
+        _this(_this_), flag(flag_), num(num_), param(param_),
+        objthis(objthis_) {
         ;
     }
 };
@@ -184,7 +182,7 @@ tjs_error Try_iTJSDispatch2_PropSetByNum(iTJSDispatch2 *_this, tjs_uint32 flag,
 class ScriptsAdd {
 
 public:
-    ScriptsAdd(){};
+    ScriptsAdd() {};
 
     /**
      * メンバ名一覧の取得
@@ -258,7 +256,7 @@ private:
 class DictMemberGetCaller : public tTJSDispatch /** EnumMembers 用 */
 {
 public:
-    DictMemberGetCaller(iTJSDispatch2 *array) : array(array){};
+    DictMemberGetCaller(iTJSDispatch2 *array) : array(array) {};
 
     virtual tjs_error FuncCall( // function invocation
         tjs_uint32 flag, // calling flag
@@ -403,8 +401,8 @@ public:
 
     DictIterateCaller(iTJSDispatch2 *func, iTJSDispatch2 *functhis,
                       tTJSVariant **_paramList, tjs_int _paramCount) :
-        func(func),
-        functhis(functhis), paramList(_paramList), paramCount(_paramCount) {}
+        func(func), functhis(functhis), paramList(_paramList),
+        paramCount(_paramCount) {}
 
     virtual tjs_error FuncCall( // function invocation
         tjs_uint32 flag, // calling flag
@@ -785,7 +783,7 @@ tjs_error ScriptsAdd::getMD5HashString(tTJSVariant *result, tjs_int numparams,
 // 辞書の要素を全cloneするCaller
 class DictMemberCloneCaller : public tTJSDispatch {
 public:
-    DictMemberCloneCaller(iTJSDispatch2 *dict) : dict(dict){};
+    DictMemberCloneCaller(iTJSDispatch2 *dict) : dict(dict) {};
 
     virtual tjs_error FuncCall( // function invocation
         tjs_uint32 flag, // calling flag

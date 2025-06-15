@@ -201,9 +201,9 @@ private:
                        tjs_int excludelevel,
                        const std::vector<bool> &iflevelexecutedstack,
                        tjs_int iflevel) :
-            Storage(storage),
-            Label(label), Offset(offset), OrgLineStr(orglinestr),
-            LineBuffer(linebuffer), Pos(pos), LineBufferUsing(linebufferusing),
+            Storage(storage), Label(label), Offset(offset),
+            OrgLineStr(orglinestr), LineBuffer(linebuffer), Pos(pos),
+            LineBufferUsing(linebufferusing),
             MacroArgStackBase(macroargstackbase),
             MacroArgStackDepth(macroargstackdepth),
             ExcludeLevelStack(excludelevelstack), ExcludeLevel(excludelevel),

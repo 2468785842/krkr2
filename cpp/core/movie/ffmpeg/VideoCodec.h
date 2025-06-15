@@ -250,7 +250,7 @@ public:
      * will be called by video player indicating the playback speed.
      * see DVD_PLAYSPEED_NORMAL, DVD_PLAYSPEED_PAUSE and friends.
      */
-    virtual void SetSpeed(int iSpeed){};
+    virtual void SetSpeed(int iSpeed) {};
 
     /**
      * should return codecs name
@@ -335,7 +335,7 @@ public:
      * Re-open the decoder.
      * Decoder request to re-open
      */
-    virtual void Reopen(){};
+    virtual void Reopen() {};
 
 protected:
     CProcessInfo &m_processInfo;

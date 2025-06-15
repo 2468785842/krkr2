@@ -26,9 +26,9 @@ namespace PSB {
         return false;
     }
 
-    static void
-    findPimgResources(const std::vector<std::unique_ptr<IResourceMetadata>>& list,
-                      IPSBValue *obj, bool deDuplication = true) {}
+    static void findPimgResources(
+        const std::vector<std::unique_ptr<IResourceMetadata>> &list,
+        IPSBValue *obj, bool deDuplication = true) {}
 
     bool endsWithCI(const std::string &str, const std::string &suffix) {
         if(suffix.size() > str.size())
@@ -53,15 +53,16 @@ namespace PSB {
                 meta->name = k;
                 // meta->resource = resource;
                 // meta->compress = endsWithCI(k, ".tlg")
-                    // ? PSBCompressType::Tlg
-                    // : PSBCompressType::ByName;
+                // ? PSBCompressType::Tlg
+                // : PSBCompressType::ByName;
                 meta->psbType = PSBType::Pimg;
                 // meta->spec = psb.Platform;
 
                 resourceList.push_back(std::move(meta));
             }
         }
-        findPimgResources(resourceList, (*objs)[G_PimgSourceKey].get(), deDuplication);
+        findPimgResources(resourceList, (*objs)[G_PimgSourceKey].get(),
+                          deDuplication);
 
         return resourceList;
     }

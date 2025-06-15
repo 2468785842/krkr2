@@ -42,7 +42,7 @@ namespace PSB::Extension {
 
         while(true) {
             constexpr size_t CHUNK_SIZE = 256;
-            char temp[CHUNK_SIZE];// default encoding: UTF-8
+            char temp[CHUNK_SIZE]; // default encoding: UTF-8
             const size_t bytes_read = stream->Read(temp, CHUNK_SIZE);
             if(bytes_read == 0)
                 break;
@@ -69,8 +69,7 @@ namespace PSB::Extension {
         // 构造函数
         RectangleF(float x = 0.0f, float y = 0.0f, float width = 0.0f,
                    float height = 0.0f) :
-            X(x),
-            Y(y), Width(width), Height(height) {}
+            X(x), Y(y), Width(width), Height(height) {}
 
         // 根据左、上、右、下边界创建矩形
         static RectangleF FromLTRB(float left, float top, float right,
@@ -307,9 +306,8 @@ namespace PSB::Extension {
     }
 
 
-    static PSBPixelFormat defaultPalettePixelFormat(PSBSpec spec)
-    {
-        switch (spec) {
+    static PSBPixelFormat defaultPalettePixelFormat(PSBSpec spec) {
+        switch(spec) {
             case PSBSpec::Common:
             case PSBSpec::Ems:
             case PSBSpec::Vita:

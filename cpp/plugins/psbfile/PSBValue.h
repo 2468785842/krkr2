@@ -236,8 +236,7 @@ namespace PSB {
 
         explicit PSBString(std::string value = "",
                            std::optional<std::uint32_t> index = {}) :
-            index(index),
-            value(std::move(value)) {}
+            index(index), value(std::move(value)) {}
 
         PSBObjType getType() override {
 
@@ -310,26 +309,31 @@ namespace PSB {
         }
 
 
-        void emplace(const K& key, const V& val) { mMap.emplace(key, val); }
+        void emplace(const K &key, const V &val) { mMap.emplace(key, val); }
 
         [[nodiscard]] auto begin() const { return mMap.begin(); }
         [[nodiscard]] auto end() const { return mMap.end(); }
-        [[nodiscard]] auto find(const K& key) const { return mMap.find(key); }
+        [[nodiscard]] auto find(const K &key) const { return mMap.find(key); }
 
         [[nodiscard]] V operator[](int index) override { return get(index); }
         [[nodiscard]] V operator[](const K &key) override { return get(key); }
-        [[nodiscard]] V operator[](int index) const override { return get(index); }
-        [[nodiscard]] V operator[](const K &key) const override { return get(key); }
+        [[nodiscard]] V operator[](int index) const override {
+            return get(index);
+        }
+        [[nodiscard]] V operator[](const K &key) const override {
+            return get(key);
+        }
 
-        [[nodiscard]] PSBObjType getType() override { return PSBObjType::Objects; }
+        [[nodiscard]] PSBObjType getType() override {
+            return PSBObjType::Objects;
+        }
 
         void unionWith(const PSBDictionary &dic) {
             for(const auto &[key, val] : dic) {
                 if(mMap.find(key) != mMap.end()) {
-                    auto *childDic = dynamic_cast<PSBDictionary *>(
-                        mMap[key].get());
-                    auto *otherDic =
-                        dynamic_cast<PSBDictionary *>(val.get());
+                    auto *childDic =
+                        dynamic_cast<PSBDictionary *>(mMap[key].get());
+                    auto *otherDic = dynamic_cast<PSBDictionary *>(val.get());
                     if(childDic && otherDic) {
                         childDic->unionWith(*otherDic);
                     }
@@ -338,6 +342,7 @@ namespace PSB {
                 }
             }
         }
+
     private:
         [[nodiscard]] V get(const K &key) const {
             auto it = mMap.find(key);
@@ -347,6 +352,7 @@ namespace PSB {
         [[nodiscard]] V get(int index) const {
             return operator[](fmt::format("{}", index));
         }
+
     private:
         Map mMap{};
         // IPSBCollection *parent = nullptr;
@@ -362,14 +368,18 @@ namespace PSB {
 
         explicit PSBList(size_t capacity) : mVec(capacity) {}
 
-        void push_back(const V& val) { mVec.emplace_back(val); }
+        void push_back(const V &val) { mVec.emplace_back(val); }
         [[nodiscard]] auto begin() const { return mVec.begin(); }
         [[nodiscard]] auto end() const { return mVec.end(); }
 
         [[nodiscard]] V operator[](int index) override { return get(index); }
         [[nodiscard]] V operator[](const K &key) override { return get(key); }
-        [[nodiscard]] V operator[](int index) const override { return get(index); }
-        [[nodiscard]] V operator[](const K &key) const override { return get(key); }
+        [[nodiscard]] V operator[](int index) const override {
+            return get(index);
+        }
+        [[nodiscard]] V operator[](const K &key) const override {
+            return get(key);
+        }
 
         [[nodiscard]] PSBObjType getType() override { return PSBObjType::List; }
 
@@ -417,9 +427,7 @@ namespace PSB {
             return nullptr;
         }
 
-        [[nodiscard]] V get(int index) const {
-            return mVec[index];
-        }
+        [[nodiscard]] V get(int index) const { return mVec[index]; }
 
     private:
         Vec mVec{};

@@ -82,7 +82,7 @@ namespace PSB {
 
 #define DECLARE_ENUM(EnumName, ...)                                            \
     enum class EnumName { __VA_ARGS__, _COUNT };                               \
-    static const char G_##EnumName##Strings[] = { #__VA_ARGS__ };                  \
+    static const char G_##EnumName##Strings[] = { #__VA_ARGS__ };              \
     static std::vector<std::string> G_##EnumName##Vector{};
 
     DECLARE_ENUM(

@@ -39,7 +39,7 @@ void deInitGdiPlus() {
     delete privateFontCollection;
     vector<void *>::const_iterator i = fontDatas.begin();
     while(i != fontDatas.end()) {
-        delete[] * i;
+        delete[] *i;
         i++;
     }
     fontDatas.clear();
