@@ -2,7 +2,7 @@
 // Created by lidong on 25-3-15.
 //
 #pragma once
-#include <cstddef>
+
 #include <optional>
 #include <utility>
 #include <unordered_map>
@@ -16,7 +16,7 @@
 
 namespace PSB {
 
-    enum class PSBObjType : char {
+    enum class PSBObjType : unsigned char {
         None = 0x0,
         Null = 0x1,
         False = 0x2,
@@ -80,8 +80,9 @@ namespace PSB {
     class IPSBValue {
     public:
         virtual ~IPSBValue() = default;
-        [[nodiscard]] virtual PSBObjType getType() = 0;
+        [[nodiscard]] virtual PSBObjType getType() const = 0;
         [[nodiscard]] virtual std::string toString() = 0;
+        [[nodiscard]] virtual tTJSVariant toTJSVal() const = 0;
     };
 
     class IPSBCollection;
@@ -110,18 +111,25 @@ namespace PSB {
     };
 
     struct PSBNull : IPSBValue {
-        PSBObjType getType() override { return PSB::PSBObjType::Null; }
+        [[nodiscard]] PSBObjType getType() const override {
+            return PSB::PSBObjType::Null;
+        }
         std::string toString() override { return "null"; }
+
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
     };
 
     struct PSBBool : IPSBValue {
         bool value{};
         explicit PSBBool(bool value = false) { this->value = value; }
 
-        PSBObjType getType() override {
+        [[nodiscard]] PSBObjType getType() const override {
             return value ? PSB::PSBObjType::True : PSB::PSBObjType::False;
         }
+
         std::string toString() override { return value ? "true" : "false"; }
+
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
     };
 
     enum class PSBNumberType {
@@ -146,6 +154,8 @@ namespace PSB {
         explicit PSBNumber(std::vector<std::uint8_t> data, PSBNumberType type) :
             data(std::move(data)), numberType(type) {}
         explicit PSBNumber(PSBObjType objType, TJS::tTJSBinaryStream *stream);
+
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
 
         [[nodiscard]] std::string toString() override {
             switch(numberType) {
@@ -175,9 +185,14 @@ namespace PSB {
             return BitConverter::fromByteArray<T>(data);
         }
 
-        PSBObjType getType() override;
+        [[nodiscard]] PSBObjType getType() const override;
 
-        explicit operator int() const { return this->getValue<int>(); }
+        explicit operator int() const {
+            if(this->numberType != PSBNumberType::Int) {
+                throw std::exception("not int type!");
+            }
+            return this->getValue<int>();
+        }
     };
 
     struct PSBArray : IPSBValue {
@@ -214,13 +229,15 @@ namespace PSB {
             }
         }
 
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
+
         std::string toString() override {
             return fmt::format("Array[{}]", value.size());
         }
 
         std::uint32_t operator[](int index) const { return value[index]; }
 
-        PSBObjType getType() override {
+        [[nodiscard]] PSBObjType getType() const override {
             switch(Extension::getSize(value.size())) {
                 case 0:
                 case 1:
@@ -261,9 +278,11 @@ namespace PSB {
             index(index), value(std::move(value)) {}
 
 
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
+
         std::string toString() override { return value; }
 
-        PSBObjType getType() override {
+        [[nodiscard]] PSBObjType getType() const override {
 
             switch(Extension::getSize(index.value_or(0))) {
                 case 0:
@@ -295,6 +314,8 @@ namespace PSB {
 
         PSBResource(const PSBResource &) = default;
 
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
+
         std::string toString() override {
             return fmt::format("{{({})}}{{{}}}",
                                isExtra ? Consts::ExtraResourceIdentifier
@@ -302,7 +323,7 @@ namespace PSB {
                                index.value_or(-1));
         }
 
-        PSBObjType getType() override {
+        [[nodiscard]] PSBObjType getType() const override {
 
             switch(Extension::getSize(index.value_or(0))) {
                 case 0:
@@ -361,7 +382,7 @@ namespace PSB {
             return get(key);
         }
 
-        [[nodiscard]] PSBObjType getType() override {
+        [[nodiscard]] PSBObjType getType() const override {
             return PSBObjType::Objects;
         }
 
@@ -379,6 +400,8 @@ namespace PSB {
                 }
             }
         }
+
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
 
     private:
         [[nodiscard]] V get(const K &key) const {
@@ -403,13 +426,15 @@ namespace PSB {
     public:
         std::uint8_t entryLength{ 4 };
 
-        explicit PSBList(size_t capacity) : _vec(capacity) {}
+        explicit PSBList(size_t capacity) { _vec.reserve(capacity); }
+
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
 
         std::string toString() override {
             return fmt::format("List[{}]", _vec.size());
         }
 
-        void push_back(const V &val) { _vec.emplace_back(val); }
+        void push_back(const V &val) { _vec.push_back(val); }
         [[nodiscard]] auto begin() const { return _vec.begin(); }
         [[nodiscard]] auto end() const { return _vec.end(); }
 
@@ -422,7 +447,9 @@ namespace PSB {
             return get(key);
         }
 
-        [[nodiscard]] PSBObjType getType() override { return PSBObjType::List; }
+        [[nodiscard]] PSBObjType getType() const override {
+            return PSBObjType::List;
+        }
 
         static std::vector<std::uint32_t>
         loadIntoList(int n, TJS::tTJSBinaryStream *stream) {
@@ -438,11 +465,8 @@ namespace PSB {
 
             const std::uint8_t entryLength = stream->ReadI8LE() -
                 static_cast<std::uint32_t>(PSBObjType::NumberN8);
-            std::vector<std::uint32_t> list(count);
-            // for (int i = 0; i < count; i++)
-            //{
-            //     list.Add(br.ReadBytes(entryLength).UnzipUInt());
-            // }
+            std::vector<std::uint32_t> list;
+            list.reserve(count);
 
             const auto shouldBeLength = entryLength * static_cast<int>(count);
             const auto buffer =

@@ -172,7 +172,7 @@ namespace PSB {
 
     std::vector<std::unique_ptr<IResourceMetadata>>
     PimgType::collectResources(const PSBFile &psb, bool deDuplication) {
-        auto resourceList = std::vector<std::unique_ptr<IResourceMetadata>>();
+        std::vector<std::unique_ptr<IResourceMetadata>> resourceList;
         if(psb.resources.empty())
             resourceList.resize(psb.resources.size());
         auto objs = psb.getObjects();

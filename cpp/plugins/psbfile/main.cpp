@@ -31,13 +31,15 @@ static tjs_error getRoot(tTJSVariant *r, tjs_int n, tTJSVariant **p,
     // self->getTypeHandler()->collectResources(*self, true);
     auto objs = self->getObjects();
     for(const auto &[k, v] : *objs) {
-        iTJSDispatch2 *dsp = TJSCreateCustomObject();
-        tTJSVariant tmp(dsp, dsp);
-        dsp->Release();
-        dic->PropSet(TJS_MEMBERENSURE, ttstr{ k.c_str() }.c_str(), nullptr,
-                     &tmp, dic);
+        tTJSVariant tmp = v->toTJSVal();
+        dic->PropSet(TJS_MEMBERENSURE, ttstr{ k }.c_str(), nullptr, &tmp, dic);
     }
-    *r = dic; // member layers
+    //
+    // tTJSVariant countVal{static_cast<tjs_int64>(self->resources.size())};
+    // dic->PropSet(TJS_MEMBERENSURE, TJS_W("count"), nullptr, &countVal, dic);
+
+    *r = tTJSVariant{ dic, dic }; // member layers
+    dic->Release();
     return TJS_S_OK;
 }
 

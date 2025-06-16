@@ -21,11 +21,11 @@ namespace PSB {
         PSB::PSBArray chunkOffsets;
         PSB::PSBArray chunkLengths;
 
-        std::vector<PSB::PSBResource> resources;
+        std::vector<std::shared_ptr<PSBResource>> resources;
 
         PSB::PSBArray extraChunkOffsets{};
         PSB::PSBArray extraChunkLengths{};
-        std::vector<PSB::PSBResource> extraResources;
+        std::vector<std::shared_ptr<PSBResource>> extraResources;
 
         explicit PSBFile();
 

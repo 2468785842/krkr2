@@ -2,7 +2,13 @@
 // Created by lidong on 25-3-18.
 //
 #include "PSBValue.h"
+
+#include <spdlog/spdlog.h>
+
 #include "PSBExtension.h"
+#include "tjsArray.h"
+
+#include "tjsObject.h"
 
 namespace PSB {
     PSBNumber::PSBNumber(PSBObjType objType, TJS::tTJSBinaryStream *stream) {
@@ -91,7 +97,7 @@ namespace PSB {
     }
 
 
-    PSBObjType PSBNumber::getType() {
+    PSBObjType PSBNumber::getType() const {
         switch(numberType) {
             case PSBNumberType::Int:
             case PSBNumberType::Long:
@@ -136,4 +142,72 @@ namespace PSB {
                 throw std::exception("Unknown number type");
         }
     }
+
+    tTJSVariant PSBNull::toTJSVal() const { return {}; }
+
+    tTJSVariant PSBBool::toTJSVal() const { return { this->value }; }
+
+    tTJSVariant PSBNumber::toTJSVal() const {
+        switch(numberType) {
+            case PSBNumberType::Int:
+                return { getValue<int>() };
+            case PSBNumberType::Float:
+                return { getValue<float>() };
+            case PSBNumberType::Double:
+                return { getValue<double>() };
+            case PSBNumberType::Long:
+            default:
+                return { getValue<tjs_int64>() };
+        }
+    }
+
+
+    tTJSVariant PSBArray::toTJSVal() const {
+        iTJSDispatch2 *array = TJSCreateArrayObject();
+        for(auto i : this->value) {
+            tTJSVariant tmp{ static_cast<tjs_int32>(i) };
+            tTJSVariant *args[] = { &tmp };
+            static tjs_uint addHint = 0;
+            array->FuncCall(0, TJS_W("add"), &addHint, nullptr, 1, args, array);
+        }
+
+        tTJSVariant result(array, array);
+        array->Release();
+        return result;
+    }
+
+    tTJSVariant PSBString::toTJSVal() const { return ttstr{ this->value }; }
+
+    tTJSVariant PSBResource::toTJSVal() const {
+        // TODO:
+        spdlog::get("plugin")->warn("PSBResource::toTJSVal not impl");
+        return {};
+    }
+
+    tTJSVariant PSBDictionary::toTJSVal() const {
+        iTJSDispatch2 *dsp = TJSCreateCustomObject();
+        for(const auto &[k, v] : this->_map) {
+            tTJSVariant tmp = v->toTJSVal();
+            dsp->PropSet(TJS_MEMBERENSURE, ttstr{ k }.c_str(), nullptr, &tmp,
+                         dsp);
+        }
+        tTJSVariant result(dsp, dsp);
+        dsp->Release();
+        return result;
+    }
+
+    tTJSVariant PSBList::toTJSVal() const {
+        iTJSDispatch2 *array = TJSCreateArrayObject();
+        for(const auto &v : this->_vec) {
+            tTJSVariant tmp = v->toTJSVal();
+            tTJSVariant *args[] = { &tmp };
+            static tjs_uint addHint = 0;
+            array->FuncCall(0, TJS_W("add"), &addHint, nullptr, 1, args, array);
+        }
+
+        tTJSVariant result(array, array);
+        array->Release();
+        return result;
+    }
+
 } // namespace PSB

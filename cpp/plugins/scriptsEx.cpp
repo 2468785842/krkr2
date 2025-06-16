@@ -831,9 +831,7 @@ tTJSVariant ScriptsAdd::clone(tTJSVariant obj) {
                 array->FuncCall(0, TJS_W("add"), &addHint, 0, 1, args, array);
             }
             tTJSVariant result(array, array);
-            array->
-
-                Release();
+            array->Release();
 
             return result;
         }
