@@ -1,6 +1,6 @@
+#include <boost/iostreams/device/mapped_file.hpp>
 #include "psdbase.h"
 #include "psddata.h"
-#include <boost/iostreams/device/mapped_file.hpp>
 
 namespace psd {
     // イメージ取得モード

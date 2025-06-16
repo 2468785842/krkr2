@@ -1,0 +1,17 @@
+diff --git a/src/pngcodec.c b/src/pngcodec.c
+index b28a707..8eeba76 100644
+--- a/src/pngcodec.c
++++ b/src/pngcodec.c
+@@ -136,7 +136,11 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
+ #if defined(PNG_iCCP_SUPPORTED)
+ 	{
+ 		png_charp	name;
+-		png_charp	profile;
++#if (PNG_LIBPNG_VER > 10499)
++		png_bytep	profile = NULL;
++#else
++		png_charp	profile = NULL;
++#endif
+ 		png_uint_32	proflen;
+ 		int		compression_type;
+

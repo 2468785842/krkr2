@@ -1,5 +1,6 @@
 #include "pvrtc.h"
 
+#include <stdint.h>
 #include <algorithm>
 #include <cassert>
 #include <cmath>

@@ -28,10 +28,10 @@ function(download_and_extract URL FILENAME DESTINATION SHA512)
 endfunction()
 
 download_and_extract(
-    "https://github.com/2468785842/cocos2d-x-3rd-party-libs-bin/archive/refs/heads/v3.tar.gz"
-    "cocos2d-x-3rd-party-libs-bin.tar.gz"
+    "https://github.com/phanen/cocos2d-x-3rd-party-libs-bin/archive/refs/heads/fix-gcc15.tar.gz"
+    "cocos2d-x-3rd-party-libs-bin-fix-gcc15.tar.gz"
     "${SOURCE_PATH}/external"
-    "12e44714b0fe548ece1a16d0c50fd6889f78bb6a4380a95266c32551172df8f6b85810829fadf9c761e95cefef4927c95ce9a0c733550139b002dbd5a40b4423"
+    "b7bced2cabfd86009cdc8b33934943ce86c92cbd3db50fc7d5141ac67904f515645f326cc1169544c88e7ac95298258b1b786cd880e4df7e62c4dd330adfaff7"
 )
 
 download_and_extract(

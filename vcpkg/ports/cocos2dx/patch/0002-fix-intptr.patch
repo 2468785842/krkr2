@@ -1,0 +1,24 @@
+diff --git a/cocos/base/allocator/CCAllocatorBase.h b/cocos/base/allocator/CCAllocatorBase.h
+index 4b8736a6ce..a88594b8d8 100644
+--- a/cocos/base/allocator/CCAllocatorBase.h
++++ b/cocos/base/allocator/CCAllocatorBase.h
+@@ -29,6 +29,7 @@
+ /// @cond DO_NOT_SHOW
+ 
+ #include <string>
++#include <cstdint>
+ 
+ #include "platform/CCPlatformMacros.h"
+ #include "base/allocator/CCAllocatorMacros.h"
+diff --git a/cocos/network/CCDownloader.h b/cocos/network/CCDownloader.h
+index 7a87cc76a0..47dec5f982 100644
+--- a/cocos/network/CCDownloader.h
++++ b/cocos/network/CCDownloader.h
+@@ -29,6 +29,7 @@
+ #include <string>
+ #include <memory>
+ #include <vector>
++#include <cstdint>
+ 
+ #include "platform/CCPlatformMacros.h"
+ 
