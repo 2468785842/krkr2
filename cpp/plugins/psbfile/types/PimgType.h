@@ -17,7 +17,6 @@ namespace PSB {
         bool isThisType(const PSBFile &psb) override;
 
         std::vector<std::unique_ptr<IResourceMetadata>>
-        collectResources(const PSBFile &psb,
-                         bool deDuplication = true) override;
+        collectResources(const PSBFile &psb, bool deDuplication) override;
     };
 }; // namespace PSB

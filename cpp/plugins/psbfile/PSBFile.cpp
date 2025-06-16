@@ -1,6 +1,7 @@
 #include "PSBFile.h"
 
 #include <memory>
+#include "ncbind.hpp"
 
 #define LOGGER spdlog::get("plugin")
 
@@ -32,6 +33,7 @@ namespace PSB {
             }
 
             list.resize(list.size());
+            std::reverse(list.begin(), list.end()); // little endian
             auto str = std::string(
                 list.data(),
                 list.size()); // That's why we don't use StringBuilder here.
@@ -94,7 +96,7 @@ namespace PSB {
                         ->parents.push_back(list);
                 }
 
-                list->push_back(std::move(obj));
+                list->push_back(obj);
             }
 
             if(lazyLoad && offset == maxOffset) {
@@ -148,17 +150,15 @@ namespace PSB {
             }
 
             if(obj != nullptr) {
-                auto *c = dynamic_cast<IPSBChild *>(obj.get());
-                if(c) {
+                if(auto *c = dynamic_cast<IPSBChild *>(obj.get())) {
                     c->parent = dictionary;
                 }
-                auto *s = dynamic_cast<IPSBSingleton *>(obj.get());
 
-                if(s) {
+                if(auto *s = dynamic_cast<IPSBSingleton *>(obj.get())) {
                     s->parents.push_back(dictionary);
                 }
 
-                dictionary->emplace(name, std::move(obj));
+                dictionary->emplace(name, obj);
             }
 
             if(lazyLoad && offset == maxOffset) {
@@ -193,17 +193,15 @@ namespace PSB {
             auto obj = unpack(stream, lazyLoad);
             if(obj != nullptr) {
 
-                auto *c = dynamic_cast<IPSBChild *>(obj.get());
-                if(c) {
+                if(auto *c = dynamic_cast<IPSBChild *>(obj.get())) {
                     c->parent = dictionary;
                 }
-                auto *s = dynamic_cast<IPSBSingleton *>(obj.get());
 
-                if(s) {
+                if(auto *s = dynamic_cast<IPSBSingleton *>(obj.get())) {
                     s->parents.push_back(dictionary);
                 }
 
-                dictionary->emplace(name, std::move(obj));
+                dictionary->emplace(name, obj);
             }
 
             if(lazyLoad && offset == maxOffset) {
@@ -230,9 +228,7 @@ namespace PSB {
         //     known type.");
         // }
 
-        auto type = static_cast<PSB::PSBObjType>(typeByte);
-
-        switch(type) {
+        switch(auto type = static_cast<PSB::PSBObjType>(typeByte)) {
             case PSB::PSBObjType::None:
                 return nullptr;
             case PSB::PSBObjType::Null:
@@ -472,7 +468,7 @@ namespace PSB {
     }
 
     void PSBFile::loadResource(PSBResource &res,
-                               TJS::tTJSBinaryStream *stream) {
+                               TJS::tTJSBinaryStream *stream) const {
         if(!res.index.has_value()) {
             throw std::exception("Resource Index invalid");
         }
@@ -487,7 +483,7 @@ namespace PSB {
     }
 
     void PSBFile::loadExtraResource(PSBResource &res,
-                                    TJS::tTJSBinaryStream *stream) {
+                                    TJS::tTJSBinaryStream *stream) const {
         if(!res.index.has_value()) {
             throw std::exception("Extra Resource Index invalid");
         }
@@ -502,7 +498,7 @@ namespace PSB {
     }
 
     void PSBFile::afterLoad() {
-        const auto intMax = static_cast<std::uint32_t>(INT_MAX);
+        constexpr auto intMax = static_cast<std::uint32_t>(INT_MAX);
         std::sort(strings.begin(), strings.end(),
                   [intMax](const PSB::PSBString &r1, const PSB::PSBString &r2) {
                       return r1.index.value_or(intMax) <

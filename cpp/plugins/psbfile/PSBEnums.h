@@ -7,6 +7,39 @@
 #include <boost/locale.hpp>
 
 namespace PSB {
+
+    static void split(const std::string &s, std::vector<std::string> &tokens,
+                      const std::string &delimiters = ",") {
+        std::string::size_type lastPos = s.find_first_not_of(delimiters, 0);
+        std::string::size_type pos = s.find_first_of(delimiters, lastPos);
+        while(std::string::npos != pos || std::string::npos != lastPos) {
+            tokens.emplace_back(s.substr(lastPos, pos - lastPos));
+            lastPos = s.find_first_not_of(delimiters, pos);
+            pos = s.find_first_of(delimiters, lastPos);
+        }
+    }
+
+#define DECLARE_ENUM(EnumName, ...)                                            \
+    enum class EnumName { __VA_ARGS__, _COUNT };                               \
+    static const char G_##EnumName##Strings[] = { #__VA_ARGS__ };              \
+    static std::vector<std::string> G_##EnumName##Vector{};                    \
+    static EnumName tryParseTo##EnumName##Enum(                                \
+        const std::string_view &enumString, bool ignoreCase) {                 \
+        if(G_##EnumName##Vector.empty()) {                                     \
+            split(G_##EnumName##Strings, G_##EnumName##Vector);                \
+        }                                                                      \
+        for(size_t i = 0; i < G_##EnumName##Vector.size(); i++) {              \
+            std::string tmp = G_##EnumName##Vector[i];                         \
+            if(ignoreCase) {                                                   \
+                tmp = boost::locale::to_upper(tmp);                            \
+            }                                                                  \
+            if(tmp == enumString) {                                            \
+                return static_cast<EnumName>(i);                               \
+            }                                                                  \
+        }                                                                      \
+        return EnumName::None;                                                 \
+    }
+
     enum class PSBType {
         // Unknown type PSB
         PSB = 0,
@@ -79,11 +112,6 @@ namespace PSB {
         png,
         bmp,
     };
-
-#define DECLARE_ENUM(EnumName, ...)                                            \
-    enum class EnumName { __VA_ARGS__, _COUNT };                               \
-    static const char G_##EnumName##Strings[] = { #__VA_ARGS__ };              \
-    static std::vector<std::string> G_##EnumName##Vector{};
 
     DECLARE_ENUM(
         PSBPixelFormat, None,
@@ -174,33 +202,4 @@ namespace PSB {
         /// DXT1
         DXT1);
 
-    static void split(const std::string &s, std::vector<std::string> &tokens,
-                      const std::string &delimiters = ",") {
-        std::string::size_type lastPos = s.find_first_not_of(delimiters, 0);
-        std::string::size_type pos = s.find_first_of(delimiters, lastPos);
-        while(std::string::npos != pos || std::string::npos != lastPos) {
-            tokens.push_back(s.substr(
-                lastPos, pos - lastPos)); // use emplace_back after C++11
-            lastPos = s.find_first_not_of(delimiters, pos);
-            pos = s.find_first_of(delimiters, lastPos);
-        }
-    }
-
-    static PSBPixelFormat
-    tryParseToPSBPixelFormatEnum(const std::string_view &enumString,
-                                 bool ignoreCase) {
-        if(G_PSBPixelFormatVector.empty()) {
-            split(G_PSBPixelFormatStrings, G_PSBPixelFormatVector);
-        }
-        for(size_t i = 0; i < G_PSBPixelFormatVector.size(); i++) {
-            std::string tmp = G_PSBPixelFormatVector[i];
-            if(ignoreCase) {
-                tmp = boost::locale::to_upper(tmp);
-            }
-            if(tmp == enumString) {
-                return static_cast<PSBPixelFormat>(i);
-            }
-        }
-        return PSBPixelFormat::None;
-    }
 }; // namespace PSB

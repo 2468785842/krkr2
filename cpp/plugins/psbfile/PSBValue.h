@@ -11,6 +11,7 @@
 
 #include "tjs.h"
 #include "BitConverter.h"
+#include "Consts.h"
 #include "PSBExtension.h"
 
 namespace PSB {
@@ -80,6 +81,7 @@ namespace PSB {
     public:
         virtual ~IPSBValue() = default;
         [[nodiscard]] virtual PSBObjType getType() = 0;
+        [[nodiscard]] virtual std::string toString() = 0;
     };
 
     class IPSBCollection;
@@ -109,6 +111,7 @@ namespace PSB {
 
     struct PSBNull : IPSBValue {
         PSBObjType getType() override { return PSB::PSBObjType::Null; }
+        std::string toString() override { return "null"; }
     };
 
     struct PSBBool : IPSBValue {
@@ -118,6 +121,7 @@ namespace PSB {
         PSBObjType getType() override {
             return value ? PSB::PSBObjType::True : PSB::PSBObjType::False;
         }
+        std::string toString() override { return value ? "true" : "false"; }
     };
 
     enum class PSBNumberType {
@@ -142,6 +146,20 @@ namespace PSB {
         explicit PSBNumber(std::vector<std::uint8_t> data, PSBNumberType type) :
             data(std::move(data)), numberType(type) {}
         explicit PSBNumber(PSBObjType objType, TJS::tTJSBinaryStream *stream);
+
+        [[nodiscard]] std::string toString() override {
+            switch(numberType) {
+                case PSBNumberType::Int:
+                    return std::to_string(getValue<int>());
+                case PSBNumberType::Float:
+                    return std::to_string(getValue<float>());
+                case PSBNumberType::Double:
+                    return std::to_string(getValue<double>());
+                case PSBNumberType::Long:
+                default:
+                    return std::to_string(getValue<long>());
+            }
+        }
 
         [[nodiscard]] std::int64_t getLongValue() const;
 
@@ -196,6 +214,10 @@ namespace PSB {
             }
         }
 
+        std::string toString() override {
+            return fmt::format("Array[{}]", value.size());
+        }
+
         std::uint32_t operator[](int index) const { return value[index]; }
 
         PSBObjType getType() override {
@@ -238,6 +260,9 @@ namespace PSB {
                            std::optional<std::uint32_t> index = {}) :
             index(index), value(std::move(value)) {}
 
+
+        std::string toString() override { return value; }
+
         PSBObjType getType() override {
 
             switch(Extension::getSize(index.value_or(0))) {
@@ -268,6 +293,15 @@ namespace PSB {
             index = tmp;
         }
 
+        PSBResource(const PSBResource &) = default;
+
+        std::string toString() override {
+            return fmt::format("{{({})}}{{{}}}",
+                               isExtra ? Consts::ExtraResourceIdentifier
+                                       : Consts::ResourceIdentifier,
+                               index.value_or(-1));
+        }
+
         PSBObjType getType() override {
 
             switch(Extension::getSize(index.value_or(0))) {
@@ -295,12 +329,12 @@ namespace PSB {
 
     public:
         explicit PSBDictionary() = default;
-        explicit PSBDictionary(int capacity) : mMap(capacity) {}
+        explicit PSBDictionary(int capacity) : _map(capacity) {}
 
         template <typename T>
         bool tryGetPsbValue(const K &key, T *&val) {
-            auto it = mMap.find(key);
-            if(it != mMap.end()) {
+            auto it = _map.find(key);
+            if(it != _map.end()) {
                 val = dynamic_cast<T *>(it->second);
                 return val != nullptr;
             }
@@ -308,12 +342,15 @@ namespace PSB {
             return false;
         }
 
+        std::string toString() override {
+            return fmt::format("Dictionary[{}]", _map.size());
+        }
 
-        void emplace(const K &key, const V &val) { mMap.emplace(key, val); }
+        void emplace(const K &key, const V &val) { _map.emplace(key, val); }
 
-        [[nodiscard]] auto begin() const { return mMap.begin(); }
-        [[nodiscard]] auto end() const { return mMap.end(); }
-        [[nodiscard]] auto find(const K &key) const { return mMap.find(key); }
+        [[nodiscard]] auto begin() const { return _map.begin(); }
+        [[nodiscard]] auto end() const { return _map.end(); }
+        [[nodiscard]] auto find(const K &key) const { return _map.find(key); }
 
         [[nodiscard]] V operator[](int index) override { return get(index); }
         [[nodiscard]] V operator[](const K &key) override { return get(key); }
@@ -330,23 +367,23 @@ namespace PSB {
 
         void unionWith(const PSBDictionary &dic) {
             for(const auto &[key, val] : dic) {
-                if(mMap.find(key) != mMap.end()) {
+                if(_map.find(key) != _map.end()) {
                     auto *childDic =
-                        dynamic_cast<PSBDictionary *>(mMap[key].get());
+                        dynamic_cast<PSBDictionary *>(_map[key].get());
                     auto *otherDic = dynamic_cast<PSBDictionary *>(val.get());
                     if(childDic && otherDic) {
                         childDic->unionWith(*otherDic);
                     }
                 } else {
-                    mMap.emplace(key, val);
+                    _map.emplace(key, val);
                 }
             }
         }
 
     private:
         [[nodiscard]] V get(const K &key) const {
-            auto it = mMap.find(key);
-            return it != mMap.end() ? it->second : nullptr;
+            auto it = _map.find(key);
+            return it != _map.end() ? it->second : nullptr;
         }
 
         [[nodiscard]] V get(int index) const {
@@ -354,7 +391,7 @@ namespace PSB {
         }
 
     private:
-        Map mMap{};
+        Map _map{};
         // IPSBCollection *parent = nullptr;
     };
 
@@ -366,11 +403,15 @@ namespace PSB {
     public:
         std::uint8_t entryLength{ 4 };
 
-        explicit PSBList(size_t capacity) : mVec(capacity) {}
+        explicit PSBList(size_t capacity) : _vec(capacity) {}
 
-        void push_back(const V &val) { mVec.emplace_back(val); }
-        [[nodiscard]] auto begin() const { return mVec.begin(); }
-        [[nodiscard]] auto end() const { return mVec.end(); }
+        std::string toString() override {
+            return fmt::format("List[{}]", _vec.size());
+        }
+
+        void push_back(const V &val) { _vec.emplace_back(val); }
+        [[nodiscard]] auto begin() const { return _vec.begin(); }
+        [[nodiscard]] auto end() const { return _vec.end(); }
 
         [[nodiscard]] V operator[](int index) override { return get(index); }
         [[nodiscard]] V operator[](const K &key) override { return get(key); }
@@ -427,9 +468,9 @@ namespace PSB {
             return nullptr;
         }
 
-        [[nodiscard]] V get(int index) const { return mVec[index]; }
+        [[nodiscard]] V get(int index) const { return _vec[index]; }
 
     private:
-        Vec mVec{};
+        Vec _vec{};
     };
 } // namespace PSB

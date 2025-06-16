@@ -7,10 +7,8 @@
 namespace PSB {
     class IResourceMetadata {
     public:
-        std::string name;
-        std::uint32_t index;
-        PSBSpec spec;
-        PSBType psbType;
+        virtual ~IResourceMetadata() = default;
+
         // void Link(std::string fullPath, FreeMountContext context);
 
         [[nodiscard]] virtual std::string getName() const = 0;
@@ -22,6 +20,12 @@ namespace PSB {
         [[nodiscard]] virtual std::uint32_t getIndex() const = 0;
 
         virtual void setIndex(std::uint32_t index) = 0;
+
+        [[nodiscard]] virtual PSBSpec getSpec() const = 0;
+        virtual void setSpec(PSBSpec spec) = 0;
+
+        [[nodiscard]] virtual PSBType getPSBType() const = 0;
+        virtual void setPSBType(PSBType psbType) = 0;
     };
 
 

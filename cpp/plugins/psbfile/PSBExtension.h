@@ -74,17 +74,17 @@ namespace PSB::Extension {
         // 根据左、上、右、下边界创建矩形
         static RectangleF FromLTRB(float left, float top, float right,
                                    float bottom) {
-            return RectangleF(left, top, right - left, bottom - top);
+            return { left, top, right - left, bottom - top };
         }
 
         // 获取边界
-        float Left() const { return X; }
-        float Right() const { return X + Width; }
-        float Top() const { return Y; }
-        float Bottom() const { return Y + Height; }
+        [[nodiscard]] float Left() const { return X; }
+        [[nodiscard]] float Right() const { return X + Width; }
+        [[nodiscard]] float Top() const { return Y; }
+        [[nodiscard]] float Bottom() const { return Y + Height; }
 
         // 判断点是否在矩形内
-        bool Contains(float x, float y) const {
+        [[nodiscard]] bool Contains(float x, float y) const {
             float effectiveLeft = std::min(X, X + Width);
             float effectiveRight = std::max(X, X + Width);
             float effectiveTop = std::min(Y, Y + Height);
@@ -95,7 +95,7 @@ namespace PSB::Extension {
         }
 
         // 判断矩形是否完全在当前矩形内
-        bool Contains(const RectangleF &rect) const {
+        [[nodiscard]] bool Contains(const RectangleF &rect) const {
             float currLeft = std::min(X, X + Width);
             float currRight = std::max(X, X + Width);
             float currTop = std::min(Y, Y + Height);
@@ -111,7 +111,7 @@ namespace PSB::Extension {
         }
 
         // 判断是否与另一矩形相交
-        bool IntersectsWith(const RectangleF &rect) const {
+        [[nodiscard]] bool IntersectsWith(const RectangleF &rect) const {
             return (rect.Left() < Right() && rect.Right() > Left() &&
                     rect.Top() < Bottom() && rect.Bottom() > Top());
         }
@@ -141,11 +141,10 @@ namespace PSB::Extension {
             float interBottom = std::min(a.Bottom(), b.Bottom());
 
             if(interLeft >= interRight || interTop >= interBottom) {
-                return RectangleF(); // 空矩形
-            } else {
-                return RectangleF(interLeft, interTop, interRight - interLeft,
-                                  interBottom - interTop);
+                return {}; // 空矩形
             }
+            return { interLeft, interTop, interRight - interLeft,
+                     interBottom - interTop };
         }
 
         // 静态方法：返回两个矩形的并集
@@ -155,12 +154,14 @@ namespace PSB::Extension {
             float unionTop = std::min(a.Top(), b.Top());
             float unionBottom = std::max(a.Bottom(), b.Bottom());
 
-            return RectangleF(unionLeft, unionTop, unionRight - unionLeft,
-                              unionBottom - unionTop);
+            return { unionLeft, unionTop, unionRight - unionLeft,
+                     unionBottom - unionTop };
         }
 
         // 判断矩形是否为空（Width 和 Height 均为 0）
-        bool IsEmpty() const { return (Width == 0.0f && Height == 0.0f); }
+        [[nodiscard]] bool IsEmpty() const {
+            return Width == 0.0f && Height == 0.0f;
+        }
 
         // 运算符重载
         bool operator==(const RectangleF &other) const {
@@ -198,7 +199,8 @@ namespace PSB::Extension {
         }
     }
 
-    static PSBPixelFormat toPSBPixelFormat(std::string typeStr, PSBSpec spec) {
+    static PSBPixelFormat toPSBPixelFormat(const std::string &typeStr,
+                                           PSBSpec spec) {
         if(typeStr.empty()) {
             return PSBPixelFormat::None;
         }
