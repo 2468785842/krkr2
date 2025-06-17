@@ -2368,7 +2368,7 @@ public:
         long value{};
 
         EncoderInfo(const char *name, GUID guid, long value) :
-            name(name), guid(guid), value(value){};
+            name(name), guid(guid), value(value) {};
 
         EncoderInfo() = default;
     } infos[7];

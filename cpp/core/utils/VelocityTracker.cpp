@@ -73,8 +73,7 @@ bool VelocityTracker::getVelocity(float &outVx, float &outVy) const {
 
 LeastSquaresVelocityTrackerStrategy::LeastSquaresVelocityTrackerStrategy(
     tjs_uint32 degree, Weighting weighting) :
-    mDegree(degree),
-    mWeighting(weighting) {
+    mDegree(degree), mWeighting(weighting) {
     clear();
 }
 

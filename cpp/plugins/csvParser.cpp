@@ -14,7 +14,7 @@ static iTJSDispatch2 *ArrayClearMethod = nullptr; // Array.clear
 
 class IFile {
 public:
-    virtual ~IFile(){};
+    virtual ~IFile() {};
     virtual bool addNextLine(ttstr &str) = 0;
 };
 
@@ -190,7 +190,7 @@ protected:
                 }
                 fld = ttstr(line.c_str() + i, j - i);
             }
-        next : {
+        next: {
             // 登録
             tTJSVariant var(fld);
             fields->PropSetByNum(TJS_MEMBERENSURE, cnt++, &var, fields);

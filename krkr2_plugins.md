@@ -10,7 +10,7 @@
 | LayerExDraw.dll        | https://github.com/wtnbgo/layerExDraw                                                                   |
 | LayerExImage.dll       | https://github.com/wtnbgo/layerExImage                                                                  |
 | LayerExSave.dll        | https://github.com/wtnbgo/layerExSave                                                                   |
-| PSBFile.dll            | M3                                                                                                     |
+| PSBFile.dll            | M2 PSB Library                                                                                          |
 | PackinOne.dll          | nan                                                                                                     |
 | TextRender.dll         | nan                                                                                                     |
 | addFont.dll            | https://github.com/wtnbgo/addFont                                                                       |

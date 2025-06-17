@@ -27,6 +27,7 @@
 #include <mutex>
 
 #include <thread>
+#include <fmt/format.h>
 
 namespace TJS {
     //---------------------------------------------------------------------------
@@ -200,7 +201,7 @@ namespace TJS {
         //	tjs_uint RefCount;
 
     public:
-        tTJSObjectProxy(){
+        tTJSObjectProxy() {
             //		RefCount = 1;
             //		Dispatch1 = nullptr;
             //		Dispatch2 = nullptr;
@@ -811,9 +812,10 @@ namespace TJS {
     tTJSInterCodeContext::DisplayExceptionGeneratedCode(tjs_int codepos,
                                                         const tTJSVariant *ra) {
         tTJS *tjs = Block->GetTJS();
-        ttstr info(TJS_W("==== An exception occured at ") +
-                   GetPositionDescriptionString(codepos) + TJS_W(", VM ip = ") +
-                   ttstr(codepos) + TJS_W(" ===="));
+        ttstr info{ fmt::format(
+            "==== An exception occurred at {}, VM ip = {} ==== ",
+            GetPositionDescriptionString(codepos).AsNarrowStdString(),
+            codepos) };
         tjs_int info_len = info.GetLen();
 
         tjs->OutputToConsole(info.c_str());

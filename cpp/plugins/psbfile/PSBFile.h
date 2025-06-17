@@ -3,7 +3,6 @@
 #include <spdlog/spdlog.h>
 
 #include "tjs.h"
-#include "ncbind.hpp"
 #include "PSB.h"
 #include "PSBHeader.h"
 #include "PSBValue.h"
@@ -22,11 +21,11 @@ namespace PSB {
         PSB::PSBArray chunkOffsets;
         PSB::PSBArray chunkLengths;
 
-        std::vector<PSB::PSBResource> resources;
+        std::vector<std::shared_ptr<PSBResource>> resources;
 
         PSB::PSBArray extraChunkOffsets{};
         PSB::PSBArray extraChunkLengths{};
-        std::vector<PSB::PSBResource> extraResources;
+        std::vector<std::shared_ptr<PSBResource>> extraResources;
 
         explicit PSBFile();
 
@@ -52,20 +51,28 @@ namespace PSB {
         loadObjectsV1(TJS::tTJSBinaryStream *stream, bool lazyLoad = false);
         std::shared_ptr<PSB::IPSBValue> unpack(TJS::tTJSBinaryStream *stream,
                                                bool lazyLoad = false);
-        void loadResource(PSBResource &res, TJS::tTJSBinaryStream *stream);
-        void loadExtraResource(PSBResource &res, TJS::tTJSBinaryStream *stream);
+        void loadResource(PSBResource &res,
+                          TJS::tTJSBinaryStream *stream) const;
+        void loadExtraResource(PSBResource &res,
+                               TJS::tTJSBinaryStream *stream) const;
         void afterLoad();
 
-        const PSBDictionary *getObjects() const {
-            return dynamic_cast<const PSBDictionary *>(_root.get());
+        [[nodiscard]] std::shared_ptr<const PSBDictionary> getObjects() const {
+            return std::dynamic_pointer_cast<const PSBDictionary>(_root);
         }
 
-    private:
-        PSB::PSBHeader _header{};
-        std::shared_ptr<IPSBValue> _root{};
-        PSBType _type = PSBType::PSB;
+        [[nodiscard]] PSBSpec getPlatform() const {
+            auto spec = (*getObjects())["spec"];
+            std::string specStr = !spec ? "" : spec->toString();
+            if(specStr.empty()) {
+                return PSBSpec::None;
+            }
 
-        IPSBType *getTypeHandler() {
+            // auto p = static_cast<PSBSpec>(spec);
+            return /*p ? p : */ PSBSpec::Other;
+        }
+
+        [[nodiscard]] IPSBType *getTypeHandler() const {
             auto handler = TypeHandlers.find(_type);
             if(handler != TypeHandlers.end()) {
                 return handler->second;
@@ -75,11 +82,16 @@ namespace PSB {
             return nullptr;
         }
 
+    private:
+        PSB::PSBHeader _header{};
+        std::shared_ptr<IPSBValue> _root{};
+        PSBType _type = PSBType::PSB;
+
         PSBType inferType() {
-            for(const auto &handler : TypeHandlers) {
-                if(handler.second->isThisType(*this)) {
-                    _type = handler.first;
-                    return _type;
+            for(const auto &[type, handler] : TypeHandlers) {
+                if(handler->isThisType(*this)) {
+                    this->_type = type;
+                    return this->_type;
                 }
             }
 

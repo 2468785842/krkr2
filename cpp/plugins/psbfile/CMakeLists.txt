@@ -8,6 +8,7 @@ target_sources(${PROJECT_NAME} PUBLIC
     PSBValue.cpp
     PSBFile.cpp
     types/PimgType.cpp
+    resources/ImageMetadata.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE krkr2plugin)

@@ -845,7 +845,7 @@ local void unz64local_DosDateToTmuDate(ZPOS64_T ulDosDate, tm_unz *ptm) {
     ZPOS64_T uDate;
     uDate = (ZPOS64_T)(ulDosDate >> 16);
     ptm->tm_mday = (uInt)(uDate & 0x1f);
-    ptm->tm_mon = (uInt)((((uDate)&0x1E0) / 0x20) - 1);
+    ptm->tm_mon = (uInt)((((uDate) & 0x1E0) / 0x20) - 1);
     ptm->tm_year = (uInt)(((uDate & 0x0FE00) / 0x0200) + 1980);
 
     ptm->tm_hour = (uInt)((ulDosDate & 0xF800) / 0x800);
@@ -2106,8 +2106,7 @@ ZipArchive::~ZipArchive() {
 void storeFilename(ttstr &name, const char *narrowName, const ttstr &filename);
 
 ZipArchive::ZipArchive(const ttstr &name, tTJSBinaryStream *st,
-                       bool normalizeFileName) :
-    tTVPArchive(name) {
+                       bool normalizeFileName) : tTVPArchive(name) {
     if(!st)
         st = TVPCreateStream(name);
     _st = st;

@@ -25,9 +25,21 @@ void deInitPsbFile() { LOGGER->info("deInitPsbFile"); }
 static tjs_error getRoot(tTJSVariant *r, tjs_int n, tTJSVariant **p,
                          iTJSDispatch2 *obj) {
     // TODO:
-    LOGGER->critical("PSBFile::getRoot not implement");
+    LOGGER->warn("PSBFile::getRoot not implement");
     auto *self = ncbInstanceAdaptor<PSB::PSBFile>::GetNativeInstance(obj);
-    // *r = &self->root;
+    iTJSDispatch2 *dic = TJSCreateCustomObject();
+    // self->getTypeHandler()->collectResources(*self, true);
+    auto objs = self->getObjects();
+    for(const auto &[k, v] : *objs) {
+        tTJSVariant tmp = v->toTJSVal();
+        dic->PropSet(TJS_MEMBERENSURE, ttstr{ k }.c_str(), nullptr, &tmp, dic);
+    }
+    //
+    // tTJSVariant countVal{static_cast<tjs_int64>(self->resources.size())};
+    // dic->PropSet(TJS_MEMBERENSURE, TJS_W("count"), nullptr, &countVal, dic);
+
+    *r = tTJSVariant{ dic, dic }; // member layers
+    dic->Release();
     return TJS_S_OK;
 }
 

@@ -1,20 +1,21 @@
 #pragma once
 
+#include <vector>
+#include <memory>
+#include "../resources/IResourceMetadata.h"
 #include "../PSBEnums.h"
 
 namespace PSB {
 
     class PSBFile;
-
     class IPSBType {
     public:
+        virtual ~IPSBType() = default;
         virtual PSBType getPSBType() = 0;
 
         virtual bool isThisType(const PSBFile &psb) = 0;
 
-        // T must be class IResourceMetadata
-        // template<typename T>
-        // std::vector<T> collectResources(PSBFile psb, bool deDuplication =
-        // true);
+        virtual std::vector<std::unique_ptr<IResourceMetadata>>
+        collectResources(const PSBFile &psb, bool deDuplication) = 0;
     };
 }; // namespace PSB

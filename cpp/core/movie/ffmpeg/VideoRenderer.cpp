@@ -719,36 +719,6 @@ void CRenderManager::FlipPage(
             return;
     }
 
-    EPRESENTMETHOD presentmethod;
-#if 0
-        EINTERLACEMETHOD interlacemethod = deintMethod;
-
-        if (interlacemethod == VS_INTERLACEMETHOD_NONE)
-        {
-            presentmethod = PRESENT_METHOD_SINGLE;
-            sync = FS_NONE;
-        } else
-        {
-            if (sync == FS_NONE)
-                presentmethod = PRESENT_METHOD_SINGLE;
-            else
-            {
-                if (interlacemethod == VS_INTERLACEMETHOD_RENDER_BLEND)
-                    presentmethod = PRESENT_METHOD_BLEND;
-                else if (interlacemethod == VS_INTERLACEMETHOD_RENDER_WEAVE)
-                    presentmethod = PRESENT_METHOD_WEAVE;
-                else if (interlacemethod == VS_INTERLACEMETHOD_RENDER_BOB)
-                    presentmethod = PRESENT_METHOD_BOB;
-                else
-                {
-                    if (!m_pRenderer->WantsDoublePass())
-                        presentmethod = PRESENT_METHOD_SINGLE;
-                    else
-                        presentmethod = PRESENT_METHOD_BOB;
-                }
-            }
-        }
-#endif
     CSingleLock lock(m_presentlock);
 
     if(m_free.empty())
@@ -758,7 +728,7 @@ void CRenderManager::FlipPage(
 
     SPresent &m = m_Queue[source];
     //	m.presentfield = sync;
-    m.presentmethod = presentmethod;
+    m.presentmethod = PRESENT_METHOD_SINGLE;
     m.pts = pts;
     requeue(m_queued, m_free);
 

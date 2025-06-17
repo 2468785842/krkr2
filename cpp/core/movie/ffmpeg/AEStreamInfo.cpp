@@ -196,7 +196,7 @@ void CAEStreamParser::GetPacket(uint8_t **buffer, unsigned int *bufferSize) {
 
         /* make sure the buffer is allocated and big enough */
         if(!*buffer || !bufferSize || *bufferSize < size) {
-            delete[] * buffer;
+            delete[] *buffer;
             *buffer = new uint8_t[size];
         }
 

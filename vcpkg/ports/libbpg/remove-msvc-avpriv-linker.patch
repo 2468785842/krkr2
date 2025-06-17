@@ -1,7 +1,8 @@
-diff --urN a/libavutil/internal.h b/libavutil/internal.h
+diff --git a/libavutil/internal.h b/libavutil/internal.h
+index 4565276..5629419 100644
 --- a/libavutil/internal.h
 +++ b/libavutil/internal.h
-@@ -167,10 +167,10 @@
+@@ -167,11 +167,6 @@
  
  #include "libm.h"
  
@@ -9,10 +10,7 @@ diff --urN a/libavutil/internal.h b/libavutil/internal.h
 -#pragma comment(linker, "/include:"EXTERN_PREFIX"avpriv_strtod")
 -#pragma comment(linker, "/include:"EXTERN_PREFIX"avpriv_snprintf")
 -#endif
-+//#if defined(_MSC_VER)
-+//#pragma comment(linker, "/include:"EXTERN_PREFIX"avpriv_strtod")
-+//#pragma comment(linker, "/include:"EXTERN_PREFIX"avpriv_snprintf")
-+//#endif
- 
+-
  /**
   * Return NULL if CONFIG_SMALL is true, otherwise the argument
+  * without modification. Used to disable the definition of strings

@@ -2,7 +2,7 @@
 // Created by lidong on 25-3-15.
 //
 #pragma once
-#include <cstddef>
+
 #include <optional>
 #include <utility>
 #include <unordered_map>
@@ -11,11 +11,12 @@
 
 #include "tjs.h"
 #include "BitConverter.h"
+#include "Consts.h"
 #include "PSBExtension.h"
 
 namespace PSB {
 
-    enum class PSBObjType : char {
+    enum class PSBObjType : unsigned char {
         None = 0x0,
         Null = 0x1,
         False = 0x2,
@@ -79,7 +80,9 @@ namespace PSB {
     class IPSBValue {
     public:
         virtual ~IPSBValue() = default;
-        virtual PSBObjType getType() = 0;
+        [[nodiscard]] virtual PSBObjType getType() const = 0;
+        [[nodiscard]] virtual std::string toString() = 0;
+        [[nodiscard]] virtual tTJSVariant toTJSVal() const = 0;
     };
 
     class IPSBCollection;
@@ -92,8 +95,14 @@ namespace PSB {
 
     class IPSBCollection : public IPSBChild {
     public:
-        virtual std::shared_ptr<IPSBValue> operator[](int index) = 0;
-        virtual std::shared_ptr<IPSBValue> operator[](const std::string &s) = 0;
+        using K = std::string;
+        using V = std::shared_ptr<IPSBValue>;
+
+        virtual V operator[](int index) = 0;
+        virtual V operator[](const K &key) = 0;
+
+        virtual V operator[](int index) const = 0;
+        virtual V operator[](const K &key) const = 0;
     };
 
     class IPSBSingleton {
@@ -102,16 +111,25 @@ namespace PSB {
     };
 
     struct PSBNull : IPSBValue {
-        PSBObjType getType() override { return PSB::PSBObjType::Null; }
+        [[nodiscard]] PSBObjType getType() const override {
+            return PSB::PSBObjType::Null;
+        }
+        std::string toString() override { return "null"; }
+
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
     };
 
     struct PSBBool : IPSBValue {
         bool value{};
         explicit PSBBool(bool value = false) { this->value = value; }
 
-        PSBObjType getType() override {
+        [[nodiscard]] PSBObjType getType() const override {
             return value ? PSB::PSBObjType::True : PSB::PSBObjType::False;
         }
+
+        std::string toString() override { return value ? "true" : "false"; }
+
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
     };
 
     enum class PSBNumberType {
@@ -137,6 +155,22 @@ namespace PSB {
             data(std::move(data)), numberType(type) {}
         explicit PSBNumber(PSBObjType objType, TJS::tTJSBinaryStream *stream);
 
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
+
+        [[nodiscard]] std::string toString() override {
+            switch(numberType) {
+                case PSBNumberType::Int:
+                    return std::to_string(getValue<int>());
+                case PSBNumberType::Float:
+                    return std::to_string(getValue<float>());
+                case PSBNumberType::Double:
+                    return std::to_string(getValue<double>());
+                case PSBNumberType::Long:
+                default:
+                    return std::to_string(getValue<long>());
+            }
+        }
+
         [[nodiscard]] std::int64_t getLongValue() const;
 
         [[nodiscard]] float getFloatValue() const;
@@ -151,9 +185,14 @@ namespace PSB {
             return BitConverter::fromByteArray<T>(data);
         }
 
-        PSBObjType getType() override;
+        [[nodiscard]] PSBObjType getType() const override;
 
-        explicit operator int() const { return this->getValue<int>(); }
+        explicit operator int() const {
+            if(this->numberType != PSBNumberType::Int) {
+                throw std::exception("not int type!");
+            }
+            return this->getValue<int>();
+        }
     };
 
     struct PSBArray : IPSBValue {
@@ -162,13 +201,13 @@ namespace PSB {
         explicit PSBArray() = default;
         explicit PSBArray(int n, TJS::tTJSBinaryStream *stream) {
             if(n < 0 || n > 8) {
-                throw "bad length type size";
+                throw std::exception("bad length type size");
             }
 
             std::uint32_t count{};
             stream->ReadBuffer(&count, n);
             if(count > INT32_MAX) {
-                throw "Long array is not supported yet";
+                throw std::exception("Long array is not supported yet");
             }
 
             entryLength = stream->ReadI8LE() -
@@ -190,9 +229,15 @@ namespace PSB {
             }
         }
 
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
+
+        std::string toString() override {
+            return fmt::format("Array[{}]", value.size());
+        }
+
         std::uint32_t operator[](int index) const { return value[index]; }
 
-        PSBObjType getType() override {
+        [[nodiscard]] PSBObjType getType() const override {
             switch(Extension::getSize(value.size())) {
                 case 0:
                 case 1:
@@ -212,7 +257,7 @@ namespace PSB {
                 case 8:
                     return PSBObjType::ArrayN8;
                 default:
-                    throw "Not a valid array";
+                    throw std::exception("Not a valid array");
             }
         }
     };
@@ -222,7 +267,6 @@ namespace PSB {
 
         std::string value;
 
-        explicit PSBString() = default;
         explicit PSBString(int n, TJS::tTJSBinaryStream *stream) {
             std::uint32_t tmp{};
             stream->Read(&tmp, n);
@@ -231,10 +275,14 @@ namespace PSB {
 
         explicit PSBString(std::string value = "",
                            std::optional<std::uint32_t> index = {}) :
-            index(index),
-            value(std::move(value)) {}
+            index(index), value(std::move(value)) {}
 
-        PSBObjType getType() override {
+
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
+
+        std::string toString() override { return value; }
+
+        [[nodiscard]] PSBObjType getType() const override {
 
             switch(Extension::getSize(index.value_or(0))) {
                 case 0:
@@ -247,7 +295,7 @@ namespace PSB {
                 case 4:
                     return PSBObjType::StringN4;
                 default:
-                    throw "String index has wrong size";
+                    throw std::exception("String index has wrong size");
             }
         }
     };
@@ -264,7 +312,18 @@ namespace PSB {
             index = tmp;
         }
 
-        PSBObjType getType() override {
+        PSBResource(const PSBResource &) = default;
+
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
+
+        std::string toString() override {
+            return fmt::format("{{({})}}{{{}}}",
+                               isExtra ? Consts::ExtraResourceIdentifier
+                                       : Consts::ResourceIdentifier,
+                               index.value_or(-1));
+        }
+
+        [[nodiscard]] PSBObjType getType() const override {
 
             switch(Extension::getSize(index.value_or(0))) {
                 case 0:
@@ -281,110 +340,133 @@ namespace PSB {
                     return isExtra ? PSBObjType::ExtraChunkN4
                                    : PSBObjType::ResourceN4;
                 default:
-                    throw "Not a valid resource";
+                    throw std::exception("Not a valid resource");
             }
         }
     };
 
-    class PSBDictionary
-        : public std::unordered_map<std::string, std::shared_ptr<IPSBValue>>,
-          public IPSBCollection {
-        using inherit =
-            std::unordered_map<std::string, std::shared_ptr<IPSBValue>>;
+    class PSBDictionary : public IPSBCollection {
+        using Map = std::unordered_map<K, V>;
 
     public:
-        explicit PSBDictionary(int capacity) : inherit(capacity) {}
-        explicit PSBDictionary() : inherit() {}
+        explicit PSBDictionary() = default;
+        explicit PSBDictionary(int capacity) : _map(capacity) {}
 
         template <typename T>
-        bool tryGetPsbValue(const std::string &key, T *&value) {
-            auto it = inherit::find(key);
-            if(it != inherit::end()) {
-                value = dynamic_cast<T *>(it->second);
-                return (value != nullptr);
+        bool tryGetPsbValue(const K &key, T *&val) {
+            auto it = _map.find(key);
+            if(it != _map.end()) {
+                val = dynamic_cast<T *>(it->second);
+                return val != nullptr;
             }
-            value = nullptr;
+            val = nullptr;
             return false;
         }
 
-        IPSBCollection *parent = nullptr;
-
-        std::shared_ptr<IPSBValue> operator[](const std::string &s) override {
-            const auto tmp = inherit::find(s);
-            return tmp != inherit::end() ? tmp->second : nullptr;
+        std::string toString() override {
+            return fmt::format("Dictionary[{}]", _map.size());
         }
 
-        std::shared_ptr<IPSBValue> operator[](int i) override {
-            return operator[](fmt::format("{}", i));
+        void emplace(const K &key, const V &val) { _map.emplace(key, val); }
+
+        [[nodiscard]] auto begin() const { return _map.begin(); }
+        [[nodiscard]] auto end() const { return _map.end(); }
+        [[nodiscard]] auto find(const K &key) const { return _map.find(key); }
+
+        [[nodiscard]] V operator[](int index) override { return get(index); }
+        [[nodiscard]] V operator[](const K &key) override { return get(key); }
+        [[nodiscard]] V operator[](int index) const override {
+            return get(index);
+        }
+        [[nodiscard]] V operator[](const K &key) const override {
+            return get(key);
         }
 
-        std::shared_ptr<IPSBValue> operator[](const std::string &s) const {
-            const auto tmp = inherit::find(s);
-            return tmp != inherit::end() ? tmp->second : nullptr;
+        [[nodiscard]] PSBObjType getType() const override {
+            return PSBObjType::Objects;
         }
-
-        std::shared_ptr<IPSBValue> operator[](int i) const {
-            return operator[](fmt::format("{}", i));
-        }
-
-        PSBObjType getType() override { return PSBObjType::Objects; }
 
         void unionWith(const PSBDictionary &dic) {
-            for(const auto &[key, _] : dic) {
-                if(inherit::find(key) != inherit::end()) {
-                    auto *childDic = dynamic_cast<PSBDictionary *>(
-                        inherit::operator[](key).get());
-                    auto *otherDic =
-                        dynamic_cast<PSBDictionary *>(dic[key].get());
+            for(const auto &[key, val] : dic) {
+                if(_map.find(key) != _map.end()) {
+                    auto *childDic =
+                        dynamic_cast<PSBDictionary *>(_map[key].get());
+                    auto *otherDic = dynamic_cast<PSBDictionary *>(val.get());
                     if(childDic && otherDic) {
                         childDic->unionWith(*otherDic);
                     }
                 } else {
-                    inherit::emplace(key, dic[key]);
+                    _map.emplace(key, val);
                 }
             }
         }
+
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
+
+    private:
+        [[nodiscard]] V get(const K &key) const {
+            auto it = _map.find(key);
+            return it != _map.end() ? it->second : nullptr;
+        }
+
+        [[nodiscard]] V get(int index) const {
+            return operator[](fmt::format("{}", index));
+        }
+
+    private:
+        Map _map{};
+        // IPSBCollection *parent = nullptr;
     };
 
-    class PSBList : public IPSBCollection,
-                    public std::vector<std::shared_ptr<IPSBValue>> {
-        using inherit = std::vector<std::shared_ptr<IPSBValue>>;
+    class PSBList : public IPSBCollection {
+
+        using V = std::shared_ptr<IPSBValue>;
+        using Vec = std::vector<V>;
 
     public:
         std::uint8_t entryLength{ 4 };
 
-        explicit PSBList(size_t capacity) : inherit(capacity) {}
+        explicit PSBList(size_t capacity) { _vec.reserve(capacity); }
 
-        std::shared_ptr<IPSBValue> operator[](int index) override {
-            return inherit::operator[](index);
+        [[nodiscard]] tTJSVariant toTJSVal() const override;
+
+        std::string toString() override {
+            return fmt::format("List[{}]", _vec.size());
         }
 
-        std::shared_ptr<IPSBValue> operator[](const std::string &s) override {
-            assert(false && "not implement method: operator[](std::string)!");
-            return nullptr;
+        void push_back(const V &val) { _vec.push_back(val); }
+        [[nodiscard]] auto begin() const { return _vec.begin(); }
+        [[nodiscard]] auto end() const { return _vec.end(); }
+
+        [[nodiscard]] V operator[](int index) override { return get(index); }
+        [[nodiscard]] V operator[](const K &key) override { return get(key); }
+        [[nodiscard]] V operator[](int index) const override {
+            return get(index);
+        }
+        [[nodiscard]] V operator[](const K &key) const override {
+            return get(key);
         }
 
-        PSBObjType getType() override { return PSBObjType::List; }
+        [[nodiscard]] PSBObjType getType() const override {
+            return PSBObjType::List;
+        }
 
         static std::vector<std::uint32_t>
         loadIntoList(int n, TJS::tTJSBinaryStream *stream) {
             if(n < 0 || n > 8) {
-                throw "Long array is not supported yet";
+                throw std::exception("Long array is not supported yet");
             }
 
             std::uint32_t count{};
             stream->ReadBuffer(&count, n);
             if(count > INT32_MAX) {
-                throw "Long array is not supported yet";
+                throw std::exception("Long array is not supported yet");
             }
 
             const std::uint8_t entryLength = stream->ReadI8LE() -
                 static_cast<std::uint32_t>(PSBObjType::NumberN8);
-            std::vector<std::uint32_t> list(count);
-            // for (int i = 0; i < count; i++)
-            //{
-            //     list.Add(br.ReadBytes(entryLength).UnzipUInt());
-            // }
+            std::vector<std::uint32_t> list;
+            list.reserve(count);
 
             const auto shouldBeLength = entryLength * static_cast<int>(count);
             const auto buffer =
@@ -403,5 +485,16 @@ namespace PSB {
 
             return list;
         }
+
+    private:
+        [[nodiscard]] V get(const K &key) const {
+            assert(false && "not implement method: operator[](std::string)!");
+            return nullptr;
+        }
+
+        [[nodiscard]] V get(int index) const { return _vec[index]; }
+
+    private:
+        Vec _vec{};
     };
 } // namespace PSB

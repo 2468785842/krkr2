@@ -21,7 +21,7 @@ public:
     public:
         IHardwareDecoder() {}
 
-        virtual ~IHardwareDecoder(){};
+        virtual ~IHardwareDecoder() {};
 
         virtual bool Open(AVCodecContext *avctx, AVCodecContext *mainctx,
                           const enum AVPixelFormat, unsigned int surfaces) = 0;
@@ -41,7 +41,7 @@ public:
 
         virtual const std::string Name() = 0;
 
-        virtual void SetCodecControl(int flags){};
+        virtual void SetCodecControl(int flags) {};
     };
 
     CDVDVideoCodecFFmpeg(CProcessInfo &processInfo);
