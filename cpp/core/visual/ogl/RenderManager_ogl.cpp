@@ -877,7 +877,8 @@ protected:
 
     tTVPOGLTexture2D(unsigned int w, unsigned int h, TVPTextureFormat::e format,
                      GLint mode = GL_LINEAR) :
-        iTVPTexture2D(w, h), Format(format) {
+        iTVPTexture2D(w, h),
+        Format(format) {
         if(mode) {
             glGenTextures(1, &texture);
             cocos2d::GL::bindTexture2D(texture);

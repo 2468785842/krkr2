@@ -1128,8 +1128,9 @@ namespace ETCPacker {
 
     Bitmap::Bitmap(const v2i &size, const void *pixelData, int pitch,
                    uint lines) :
-        m_data(nullptr), m_block((uint32 *)pixelData), m_lines(lines),
-        m_linesLeft(size.y / 4), m_size(size)
+        m_data(nullptr),
+        m_block((uint32 *)pixelData), m_lines(lines), m_linesLeft(size.y / 4),
+        m_size(size)
     //	, m_sema(0)
     {}
 

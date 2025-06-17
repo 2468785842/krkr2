@@ -4,7 +4,7 @@ typedef unsigned long ucs4_t;
 typedef struct _conv_t {
     unsigned int istate;
     unsigned int ostate;
-} *conv_t;
+} * conv_t;
 /* Return code if invalid. (xxx_wctomb) */
 #define RET_ILUNI -1
 /* Return code if output buffer is too small. (xxx_wctomb, xxx_reset)

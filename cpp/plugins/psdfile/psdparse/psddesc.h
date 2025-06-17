@@ -133,7 +133,7 @@ namespace psd {
         ReferenceItem(ReferenceType t) : type(t) {}
         virtual ~ReferenceItem() {}
         virtual bool load(IteratorBase *data) = 0;
-        virtual void dump(int indent) {};
+        virtual void dump(int indent){};
 
         ReferenceType type;
     };

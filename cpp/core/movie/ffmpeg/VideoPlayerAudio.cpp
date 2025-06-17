@@ -14,7 +14,8 @@ class CDVDMsgAudioCodecChange : public CDVDMsg {
 public:
     CDVDMsgAudioCodecChange(const CDVDStreamInfo &hints,
                             CDVDAudioCodec *codec) :
-        CDVDMsg(GENERAL_STREAMCHANGE), m_codec(codec), m_hints(hints) {}
+        CDVDMsg(GENERAL_STREAMCHANGE),
+        m_codec(codec), m_hints(hints) {}
 
     ~CDVDMsgAudioCodecChange() { delete m_codec; }
 
@@ -25,7 +26,8 @@ public:
 CVideoPlayerAudio::CVideoPlayerAudio(CDVDClock *pClock,
                                      CDVDMessageQueue &parent,
                                      CProcessInfo &processInfo) :
-    CThread(), IDVDStreamPlayerAudio(processInfo), m_messageQueue("audio"),
+    CThread(),
+    IDVDStreamPlayerAudio(processInfo), m_messageQueue("audio"),
     m_messageParent(parent), m_dvdAudio(pClock) {
     m_pClock = pClock;
     m_pAudioCodec = nullptr;

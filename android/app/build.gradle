@@ -39,13 +39,16 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('sign.keystore')
             def signPropsFile = file('sign.properties')
-            Properties signProps = new Properties()
-            signProps.load(new FileInputStream(signPropsFile))
-            keyAlias signProps['SIGN_KEY_ALIAS']
-            keyPassword signProps['SIGN_KEY_PASS']
-            storePassword signProps['SIGN_STORE_PASS']
+            if (signPropsFile.exists()) {
+                def signProps = new Properties()
+                signProps.load(new FileInputStream(signPropsFile))
+
+                keyAlias = signProps['SIGN_KEY_ALIAS']
+                keyPassword = signProps['SIGN_KEY_PASS']
+                storePassword = signProps['SIGN_STORE_PASS']
+                storeFile = file('sign.keystore')
+            }
         }
     }
 

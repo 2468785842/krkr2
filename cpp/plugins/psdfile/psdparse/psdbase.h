@@ -9,21 +9,22 @@
 #define dprint(...) ((void)0)
 #endif
 
-namespace psd {
 #ifdef _MSC_VER
 #ifndef _STDINT
-    typedef __int8 int8_t;
-    typedef unsigned __int8 uint8_t;
-    typedef __int16 int16_t;
-    typedef unsigned __int16 uint16_t;
-    typedef __int32 int32_t;
-    typedef unsigned __int32 uint32_t;
-    typedef __int64 int64_t;
-    typedef unsigned __int64 uint64_t;
+typedef __int8 int8_t;
+typedef unsigned __int8 uint8_t;
+typedef __int16 int16_t;
+typedef unsigned __int16 uint16_t;
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
 #endif
 #else
-#include <stdint.h>
+#include <cstdint>
 #endif
+
+namespace psd {
 
     typedef float float32_t;
     typedef double float64_t;
@@ -55,8 +56,8 @@ namespace psd {
     // イテレータ参照用基底クラス
     class IteratorBase {
     public:
-        IteratorBase() {};
-        virtual ~IteratorBase() {};
+        IteratorBase(){};
+        virtual ~IteratorBase(){};
         virtual IteratorBase *clone() = 0;
         virtual IteratorBase *cloneOffset(int offset) = 0;
         virtual void init() = 0;
@@ -79,8 +80,8 @@ namespace psd {
     }
 
     inline uint32_t byteSwap32(uint32_t x) {
-        return ((((x) & 0xff000000) >> 24) | (((x) & 0x00ff0000) >> 8) |
-                (((x) & 0x0000ff00) << 8) | (((x) & 0x000000ff) << 24));
+        return ((((x)&0xff000000) >> 24) | (((x)&0x00ff0000) >> 8) |
+                (((x)&0x0000ff00) << 8) | (((x)&0x000000ff) << 24));
     }
 
     inline uint64_t byteSwap64(uint64_t x) {

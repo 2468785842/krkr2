@@ -22,7 +22,8 @@ public:
 };
 
 tTVPStringStream::tTVPStringStream(tTJSBinaryStream *s,
-                                   bool onlyLF /*= false*/) : stream(s) {
+                                   bool onlyLF /*= false*/) :
+    stream(s) {
     if(onlyLF)
         _newline = TJS_W("\n");
     else
@@ -194,7 +195,8 @@ static void getVariantString(tTJSVariant &var, tTVPStringStream *writer) {
         case tvtInteger:
             writer->write(TJS_W("int "));
             writer->write(TJSIntegerToString((tTVInteger)var)
-                              ->operator const tjs_char *());
+                              ->
+                              operator const tjs_char *());
             break;
 
         case tvtReal:
@@ -216,7 +218,7 @@ static void getVariantString(tTJSVariant &var, tTVPStringStream *writer) {
 class ArrayAdd {
 
 public:
-    ArrayAdd() {};
+    ArrayAdd(){};
 
     /**
      * save 形式での辞書または配列の保存
@@ -319,7 +321,7 @@ NCB_ATTACH_CLASS(ArrayAdd, Array) {
 class DictAdd {
 
 public:
-    DictAdd() {};
+    DictAdd(){};
 
     /**
      * saveStruct 形式でのオブジェクトの保存

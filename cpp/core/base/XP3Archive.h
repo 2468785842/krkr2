@@ -33,9 +33,9 @@ struct tTVPXP3ExtractionFilterInfo {
     tTVPXP3ExtractionFilterInfo(tjs_uint64 offset, void *buffer,
                                 tjs_uint buffersize, tjs_uint32 filehash,
                                 const ttstr &filename) :
-        Offset(offset), Buffer(buffer), BufferSize(buffersize),
-        FileHash(filehash), FileName(filename),
-        SizeOfSelf(sizeof(tTVPXP3ExtractionFilterInfo)) {
+        Offset(offset),
+        Buffer(buffer), BufferSize(buffersize), FileHash(filehash),
+        FileName(filename), SizeOfSelf(sizeof(tTVPXP3ExtractionFilterInfo)) {
         ;
     }
 };

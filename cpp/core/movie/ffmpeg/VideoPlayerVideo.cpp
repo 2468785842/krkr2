@@ -20,7 +20,8 @@ class CDVDMsgVideoCodecChange : public CDVDMsg {
 public:
     CDVDMsgVideoCodecChange(const CDVDStreamInfo &hints,
                             CDVDVideoCodec *codec) :
-        CDVDMsg(GENERAL_STREAMCHANGE), m_codec(codec), m_hints(hints) {}
+        CDVDMsg(GENERAL_STREAMCHANGE),
+        m_codec(codec), m_hints(hints) {}
 
     ~CDVDMsgVideoCodecChange() { delete m_codec; }
 
@@ -34,7 +35,8 @@ CVideoPlayerVideo::CVideoPlayerVideo(
     ,
     CDVDMessageQueue &parent, CRenderManager &renderManager,
     CProcessInfo &processInfo) :
-    CThread(), IDVDStreamPlayerVideo(processInfo), m_messageQueue("video"),
+    CThread(),
+    IDVDStreamPlayerVideo(processInfo), m_messageQueue("video"),
     m_messageParent(parent), m_renderManager(renderManager) {
     m_pClock = pClock;
     //	m_pOverlayContainer = pOverlayContainer;

@@ -24,7 +24,7 @@
 #define RENDER_FLAG_NOUNLOCK 0x20 /* don't unlock texture after rendering */
 
 /* this defines what color translation coefficients */
-#define CONF_FLAGS_YUVCOEF_MASK(a) ((a) & 0x07)
+#define CONF_FLAGS_YUVCOEF_MASK(a) ((a)&0x07)
 #define CONF_FLAGS_YUVCOEF_BT709 0x01
 #define CONF_FLAGS_YUVCOEF_BT601 0x02
 #define CONF_FLAGS_YUVCOEF_240M 0x03
@@ -34,7 +34,7 @@
 #define CONF_FLAGS_FULLSCREEN 0x10
 
 /* defines color primaries */
-#define CONF_FLAGS_COLPRI_MASK(a) ((a) & 0xe0)
+#define CONF_FLAGS_COLPRI_MASK(a) ((a)&0xe0)
 #define CONF_FLAGS_COLPRI_BT709 0x20 // sRGB, HDTV (ITU-R BT.709)
 #define CONF_FLAGS_COLPRI_BT470M                                               \
     0x40 // NTSC (1953) (FCC 1953, ITU-R BT.470 System M)
@@ -46,23 +46,23 @@
 #define CONF_FLAGS_COLPRI_240M 0xa0 // SMPTE-240M
 
 /* defines chroma subsampling sample location */
-#define CONF_FLAGS_CHROMA_MASK(a) ((a) & 0x0300)
+#define CONF_FLAGS_CHROMA_MASK(a) ((a)&0x0300)
 #define CONF_FLAGS_CHROMA_LEFT 0x0100
 #define CONF_FLAGS_CHROMA_CENTER 0x0200
 #define CONF_FLAGS_CHROMA_TOPLEFT 0x0300
 
 /* defines color transfer function */
-#define CONF_FLAGS_TRC_MASK(a) ((a) & 0x0c00)
+#define CONF_FLAGS_TRC_MASK(a) ((a)&0x0c00)
 #define CONF_FLAGS_TRC_BT709 0x0400
 #define CONF_FLAGS_TRC_GAMMA22 0x0800
 #define CONF_FLAGS_TRC_GAMMA28 0x0c00
 
 /* defines 3d modes */
-#define CONF_FLAGS_STEREO_MODE_MASK(a) ((a) & 0x007000)
+#define CONF_FLAGS_STEREO_MODE_MASK(a) ((a)&0x007000)
 #define CONF_FLAGS_STEREO_MODE_SBS 0x001000
 #define CONF_FLAGS_STEREO_MODE_TAB 0x002000
 
-#define CONF_FLAGS_STEREO_CADENCE(a) ((a) & 0x008000)
+#define CONF_FLAGS_STEREO_CADENCE(a) ((a)&0x008000)
 #define CONF_FLAGS_STEREO_CADANCE_LEFT_RIGHT 0x000000
 #define CONF_FLAGS_STEREO_CADANCE_RIGHT_LEFT 0x008000
 
