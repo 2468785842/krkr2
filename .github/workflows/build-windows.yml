@@ -70,7 +70,7 @@ jobs:
 
       - name: Build Windows
         run: |
-          cmake --preset="Windows Debug Config" -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          cmake --preset="Windows Debug Config" -D CMAKE_C_COMPILER_LAUNCHER=ccache.exe -D CMAKE_CXX_COMPILER_LAUNCHER=ccache.exe
           cmake --build --preset="Windows Debug Build"
 
       - name: Upload artifacts

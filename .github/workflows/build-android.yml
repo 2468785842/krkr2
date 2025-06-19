@@ -54,13 +54,6 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
 
-      - name: Cache Android Commandline Tools
-        uses: actions/cache@v4.2.3
-        id: commandlinetools-cache
-        with:
-          path: ${{ github.workspace }}/.act/commandlinetools-linux-10406996_latest.zip
-          key: commandlinetools-linux-10406996_latest
-
       - name: Download Android CommandLineTools
         if: steps.commandlinetools-cache.outputs.cache-hit != 'true'
         run: |
@@ -68,11 +61,17 @@ jobs:
             wget -P ${{ github.workspace }}/.act https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
           fi
 
+      - name: Cache Android Commandline Tools
+        uses: actions/cache@v4.2.3
+        id: commandlinetools-cache
+        with:
+          path: ${{ github.workspace }}/.act/commandlinetools-linux-10406996_latest.zip
+          key: commandlinetools-linux-10406996_latest
+
       - name: Install Android SDK/NDK
         run: |
           if [ ! -d "${{ env.ANDROID_SDK_ROOT }}/cmdline-tools/latest/bin" ]; then
             unzip -d ${{ github.workspace }}/.act ${{ github.workspace }}/.act/commandlinetools-linux-10406996_latest.zip
-            rm -rf ${{ github.workspace }}/.act/commandlinetools-linux-10406996_latest.zip
             mkdir -p ${{ env.ANDROID_SDK_ROOT }}/cmdline-tools/latest
             mv ${{ github.workspace }}/.act/cmdline-tools/* ${{ env.ANDROID_SDK_ROOT }}/cmdline-tools/latest
           fi
