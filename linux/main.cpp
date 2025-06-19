@@ -1,8 +1,6 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
 #include <string>
 #include <memory>
+#include <gtk/gtk.h>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -10,6 +8,7 @@
 #include "environ/cocos2d/AppDelegate.h"
 
 int main(int argc, char **argv) {
+    gtk_init(&argc, &argv);
     spdlog::set_level(spdlog::level::debug);
 
     static auto core_logger = spdlog::stdout_color_mt("core");

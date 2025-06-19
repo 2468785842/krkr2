@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 3.28)
 
+find_program(CCACHE_PROGRAM ccache)
+if (CCACHE_PROGRAM)
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    message(STATUS "Ccache found: ${CCACHE_PROGRAM}")
+else ()
+    message(STATUS "Ccache not found")
+endif ()
+
 if(ANDROID)
     set(VCPKG_TARGET_ANDROID ON)
     set(ENV{ANDROID_NDK_HOME} "$ENV{ANDROID_NDK}")

@@ -85,7 +85,7 @@ jobs:
 
       - name: Build Linux
         run: |
-          cmake --preset="Linux Debug Config" -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          cmake --preset="Linux Debug Config"
           cmake --build --preset="Linux Debug Build"
           
           cp $(find out/linux/debug/ -name libfmod.so) out/linux/debug/bin/krkr2
