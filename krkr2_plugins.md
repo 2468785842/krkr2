@@ -10,13 +10,13 @@
 | LayerExDraw.dll        | https://github.com/wtnbgo/layerExDraw                                                                   |
 | LayerExImage.dll       | https://github.com/wtnbgo/layerExImage                                                                  |
 | LayerExSave.dll        | https://github.com/wtnbgo/layerExSave                                                                   |
-| PSBFile.dll            | M2 PSB Library                                                                                          |
+| PSBFile.dll            | M2 Inc. PSB Library                                                                                     |
 | PackinOne.dll          | nan                                                                                                     |
 | TextRender.dll         | nan                                                                                                     |
 | addFont.dll            | https://github.com/wtnbgo/addFont                                                                       |
 | csvParser.dll          | https://github.com/wtnbgo/csvParser                                                                     |
 | dirlist.dll            | https://github.com/krkrz/krkrz/tree/last_hodgepodge_repository/src/plugins/win32/dirlist                |
-| emoteplayer.dll        | nan                                                                                                     |
+| emoteplayer.dll        | M2 Inc. : https://emote.mtwo.co.jp/download/                                                            |
 | expat.dll              | https://github.com/krkrz/krkrz/tree/last_hodgepodge_repository/src/plugins/win32/expat                  |
 | extNagano.dll          | https://web.archive.org/web/20120604091809fw_/http://ymtkyk.sakura.ne.jp/krkr.STG/plugin/extNagano.html |
 | extrans.dll            | https://github.com/krkrz/SamplePlugin/tree/master/extrans                                               |
