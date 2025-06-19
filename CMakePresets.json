@@ -8,6 +8,7 @@
   "configurePresets": [
     {
       "name": "Windows Config",
+      "generator": "Ninja",
       "hidden": true,
       "cacheVariables": {
         "WINDOWS": true,
@@ -19,9 +20,13 @@
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       },
+      "toolset": {
+        "value": "host=x86",
+        "strategy": "external"
+      },
       "architecture": {
-        "value": "Win32",
-        "strategy": "set"
+        "value": "x86",
+        "strategy": "external"
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
