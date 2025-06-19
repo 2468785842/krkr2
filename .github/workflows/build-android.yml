@@ -1,6 +1,8 @@
 name: Build Android
 
 on:
+  workflow_dispatch:
+
   workflow_run:
     workflows: ["Code Format Check"]
     types: [ "completed" ]
@@ -116,8 +118,14 @@ jobs:
             setapikey "${{ secrets.NUGET_API_KEY }}" \
             -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
+      - run: apt update  # Only for Docker jobs
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2.18
+
       - name: Build Android
         run: |
+          export CMAKE_C_COMPILER_LAUNCHER=ccache
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
           ./gradlew assembleDebug
 
       - name: Upload artifacts

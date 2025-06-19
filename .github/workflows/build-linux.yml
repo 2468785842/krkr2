@@ -1,6 +1,8 @@
 name: Build Linux
 
 on:
+  workflow_dispatch:
+
   workflow_run:
     workflows: ["Code Format Check"]
     types: [ "completed" ]
@@ -76,9 +78,13 @@ jobs:
             setapikey "${{ secrets.NUGET_API_KEY }}" \
             -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
+      - run: apt update  # Only for Docker jobs
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2.18
+
       - name: Build Linux
         run: |
-          cmake --preset="Linux Debug Config"
+          cmake --preset="Linux Debug Config" -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           cmake --build --preset="Linux Debug Build"
           
           cp $(find out/linux/debug/ -name libfmod.so) out/linux/debug/bin/krkr2

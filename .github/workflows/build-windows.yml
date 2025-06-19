@@ -1,6 +1,8 @@
 name: Build Windows
 
 on:
+  workflow_dispatch:
+
   workflow_run:
     workflows: ["Code Format Check"]
     types: [ "completed" ]
@@ -63,9 +65,12 @@ jobs:
             setapikey "${{ secrets.NUGET_API_KEY }}" `
             -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2.18
+
       - name: Build Windows
         run: |
-          cmake --preset="Windows Debug Config"
+          cmake --preset="Windows Debug Config" -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           cmake --build --preset="Windows Debug Build"
 
       - name: Upload artifacts
