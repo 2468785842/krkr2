@@ -31,7 +31,7 @@ download_and_extract(
     "https://github.com/2468785842/cocos2d-x-3rd-party-libs-bin/archive/refs/heads/v3.tar.gz"
     "cocos2d-x-3rd-party-libs-bin.tar.gz"
     "${SOURCE_PATH}/external"
-    "12e44714b0fe548ece1a16d0c50fd6889f78bb6a4380a95266c32551172df8f6b85810829fadf9c761e95cefef4927c95ce9a0c733550139b002dbd5a40b4423"
+    "b47d10fd7d6b799b11ce15c0f26068bfe7c48e43b4e85cd27f252742df90e8caa165334c7e9d0a112cfb1aa5fca70cb9a48dd8058f370902ff65ce034bd1d0c1"
 )
 
 download_and_extract(
