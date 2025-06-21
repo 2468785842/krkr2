@@ -273,7 +273,7 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
     ttstr inarchive_name;
     bool inarc_name_found = false;
     pca = tmp.c_str();
-    pa = const_cast<tjs_char *>(TJS_strchr(pca, TVPArchiveDelimiter));
+    pa = TJS_strchr(pca, TVPArchiveDelimiter);
     if(pa) {
         inarchive_name = ttstr(pa + 1);
         tTVPArchive::NormalizeInArchiveStorageName(inarchive_name);
