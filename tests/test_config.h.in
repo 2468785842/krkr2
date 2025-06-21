@@ -1,0 +1,6 @@
+#ifndef KRKR2_TEST_CONFIG_H
+#define KRKR2_TEST_CONFIG_H
+
+#cmakedefine TEST_FILES_PATH "@TEST_FILES_PATH@"
+
+#endif

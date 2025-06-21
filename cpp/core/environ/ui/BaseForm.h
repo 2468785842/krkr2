@@ -2,6 +2,8 @@
 
 #include "2d/CCNode.h"
 #include <unordered_map>
+
+#include "csd/CsdUIFactory.h"
 #include "ui/UIWidget.h"
 #include "extensions/GUI/CCScrollView/CCTableViewCell.h"
 
@@ -90,18 +92,45 @@ public:
                               cocos2d::Event *event);
 
 protected:
-    bool initFromFile(const char *navibar, const char *body,
-                      const char *bottombar, cocos2d::Node *parent = nullptr);
+    bool initFromFile(const Csd::NodeBuilderFn &naviBarCall,
+                      const Csd::NodeBuilderFn &bodyCall,
+                      const Csd::NodeBuilderFn &bottomBarCall,
+                      Node *parent = nullptr);
 
-    bool initFromFile(const char *body) {
+    bool initFromFile(Node *naviBarCall, Node *bodyCall, Node *bottomBarCall,
+                      Node *parent = nullptr) {
+        return true;
+    }
+
+    bool initFromFile(Node *body) {
         return initFromFile(nullptr, body, nullptr);
     }
 
-    virtual void bindBodyController(const NodeMap &allNodes) {}
+    bool initFromFile(const Csd::NodeBuilderFn &body) {
+        return initFromFile(nullptr, body, nullptr);
+    }
 
-    virtual void bindFooterController(const NodeMap &allNodes) {}
+    // Screen Size 10%
+    static cocos2d::Size rearrangeHeaderSize(const Node *parent) {
+        const auto &pSize = parent->getContentSize();
+        return { pSize.width, pSize.height * 0.1f };
+    }
 
-    virtual void bindHeaderController(const NodeMap &allNodes) {}
+    // Screen Size 80%
+    static cocos2d::Size rearrangeBodySize(const Node *parent) {
+        const auto &pSize = parent->getContentSize();
+        return { pSize.width, pSize.height * 0.8f };
+    }
+
+    // Screen Size 10%
+    static cocos2d::Size rearrangeFooterSize(const Node *parent) {
+        const auto &pSize = parent->getContentSize();
+        return { pSize.width, pSize.height * 0.1f };
+    }
+
+    virtual void bindHeaderController(const Node *allNodes) = 0;
+    virtual void bindBodyController(const Node *allNodes) = 0;
+    virtual void bindFooterController(const Node *allNodes) = 0;
 
     cocos2d::ui::Widget *RootNode;
 
@@ -134,9 +163,9 @@ public:
 
     void setEventFunc(const EventFunc &func) { _func = func; }
 
-    virtual void interceptTouchEvent(cocos2d::ui::Widget::TouchEventType event,
-                                     cocos2d::ui::Widget *sender,
-                                     cocos2d::Touch *touch) override {
+    void interceptTouchEvent(cocos2d::ui::Widget::TouchEventType event,
+                             cocos2d::ui::Widget *sender,
+                             cocos2d::Touch *touch) override {
         if(_func)
             _func(event, sender, touch);
     }
@@ -152,18 +181,18 @@ protected: // must be inherited
     TCommonTableCell() : _router(nullptr) {}
 
 public:
-    virtual ~TCommonTableCell() {
+    ~TCommonTableCell() override {
         if(_router)
             _router->release();
     }
 
-    virtual void setContentSize(const cocos2d::Size &contentSize) {
+    void setContentSize(const cocos2d::Size &contentSize) override {
         inherit::setContentSize(contentSize);
         if(_router)
             _router->setContentSize(contentSize);
     }
 
-    virtual bool init() {
+    bool init() override {
         bool ret = inherit::init();
         _router = TTouchEventRouter::create();
         return ret;
@@ -175,7 +204,11 @@ protected:
 
 class iTVPFloatForm : public iTVPBaseForm {
 public:
-    virtual void rearrangeLayout() override;
+    void rearrangeLayout() override;
+
+    void bindHeaderController(const Node *allNodes) override {}
+    void bindBodyController(const Node *allNodes) override {}
+    void bindFooterController(const Node *allNodes) override {}
 };
 
 void ReloadTableViewAndKeepPos(cocos2d::extension::TableView *pTableView);

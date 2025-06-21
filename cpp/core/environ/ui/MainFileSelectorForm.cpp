@@ -20,13 +20,14 @@
 #include "StorageImpl.h"
 #include "TipsHelpForm.h"
 #include "XP3RepackForm.h"
+#include "csd/CsdUIFactory.h"
 
 using namespace cocos2d;
 using namespace cocos2d::ui;
 
-const float UI_ACTION_DUR = 0.3f;
-const char *const FileName_NaviBar = "ui/NaviBarWithMenu.csb";
-const char *const FileName_Body = "ui/TableView.csb";
+constexpr float UI_ACTION_DUR = 0.3f;
+// const char *const FileName_NaviBar = "ui/NaviBarWithMenu.csb";
+// const char *const FileName_Body = "ui/TableView.csb";
 // const char * const FileName_BottomBar = "ui/BottomBar.csb";
 // const char * const FileName_BtnPref = "ui/button/Pref.csb";
 const char *const FileName_RecentPathListXML = "recentpath.xml";
@@ -103,39 +104,6 @@ static void _AddHistory(const std::string &path) {
     _SaveHistory();
 }
 
-static bool _CheckGameFolder(const std::string &path) {
-    bool isValidGameFolder = false;
-    std::vector<std::string> subFolders;
-    TVPListDir(path, [&](const std::string &name, int mask) {
-        if(isValidGameFolder || name.empty() || name.front() == '.')
-            return;
-        if(mask & S_IFREG) {
-            std::string lowername = name;
-            std::transform(lowername.begin(), lowername.end(),
-                           lowername.begin(), [](int c) -> int {
-                               if(c <= 'Z' && c >= 'A')
-                                   return c - ('A' - 'a');
-                               return c;
-                           });
-            size_t pos = lowername.rfind('.');
-            if(pos == lowername.npos)
-                return;
-            if(lowername.substr(pos) == ".xp3") {
-                isValidGameFolder = true;
-            }
-        } else if(mask & S_IFDIR) {
-            subFolders.emplace_back(path + "/" + name);
-        }
-    });
-    while(!isValidGameFolder) {
-        if(subFolders.empty())
-            break;
-        isValidGameFolder = _CheckGameFolder(subFolders.back());
-        subFolders.pop_back();
-    }
-    return isValidGameFolder;
-}
-
 TVPMainFileSelectorForm::TVPMainFileSelectorForm() { _menu = nullptr; }
 
 void TVPMainFileSelectorForm::onEnter() {
@@ -149,7 +117,7 @@ void TVPMainFileSelectorForm::onEnter() {
     }
 }
 
-void TVPMainFileSelectorForm::bindBodyController(const NodeMap &allNodes) {
+void TVPMainFileSelectorForm::bindBodyController(const Node *allNodes) {
     TVPBaseFileSelectorForm::bindBodyController(allNodes);
 
     if(NaviBar.Right) {
@@ -231,26 +199,18 @@ TVPMainFileSelectorForm *TVPMainFileSelectorForm::create() {
 
 void TVPMainFileSelectorForm::initFromFile() {
     _LoadHistory();
-    //	if (!_HistoryPath.empty())
-    {
-        CSBReader reader;
+    setContentSize(TVPMainScene::GetInstance()->getUINodeSize());
 
-        Node *root = reader.Load("ui/MainFileSelector.csb");
-        _fileList = reader.findController("fileList");
-        _historyList =
-            dynamic_cast<ListView *>(reader.findController("recentList"));
-        // TODO new node
-        _fileOperateMenuNode = _historyList;
-        LocaleConfigManager::GetInstance()->initText(
-            dynamic_cast<Text *>(reader.findController("recentTitle", false)));
-        addChild(root);
-        Size sceneSize = TVPMainScene::GetInstance()->getUINodeSize();
-        setContentSize(sceneSize);
-        root->setContentSize(sceneSize);
-        ui::Helper::doLayout(root);
-    }
-    inherit::initFromFile(FileName_NaviBar, FileName_Body,
-                          nullptr /*FileName_BottomBar*/, _fileList);
+    Node *root = Csd::createMainFileSelector(this->getContentSize(), 1);
+
+    addChild(root);
+
+    _fileList = root->getChildByName("fileList");
+    _historyList = root->getChildByName<ListView *>("recentList");
+    // TODO new node
+    _fileOperateMenuNode = _historyList;
+    inherit::initFromFile(Csd::createNaviBarWithMenu, Csd::createTableView,
+                          Csd::createEmpty, _fileList);
 }
 
 // std::string _getLastPathFilePath() {
@@ -259,7 +219,7 @@ void TVPMainFileSelectorForm::initFromFile() {
 
 void TVPMainFileSelectorForm::startup(const std::string &path) {
     if(TVPIsFirstLaunch) {
-        TVPTipsHelpForm::show()->setOnExitCallback([this, path]() {
+        TVPTipsHelpForm::show()->setOnExitCallback([this, path] {
             scheduleOnce([this, path](float) { doStartup(path); }, 0,
                          "startup");
         });
@@ -355,78 +315,54 @@ void TVPMainFileSelectorForm::showMenu(Ref *) {
         });
         reader.findWidget("btnHelp")->addClickEventListener(
             [this](Ref *) { TVPTipsHelpForm::show(); });
-        bool showSimpleAbout = false;
-        if(showSimpleAbout) {
-            reader.findWidget("btnAbout")->addClickEventListener([](Ref *) {
-                std::string versionText = "Version ";
-                versionText += TVPGetPackageVersionString();
 
-                std::string btnText =
-                    LocaleConfigManager::GetInstance()->GetText("ok");
-                const char *pszBtnText = btnText.c_str();
-                std::string strCaption =
-                    LocaleConfigManager::GetInstance()->GetText("menu_about");
-                const char *caption = strCaption.c_str();
-                TVPShowSimpleMessageBox(versionText.c_str(), caption, 1,
-                                        &pszBtnText);
-            });
-            reader.findWidget("btnExit")->addClickEventListener([](Ref *) {
-                if(TVPShowSimpleMessageBoxYesNo(
-                       LocaleConfigManager::GetInstance()->GetText(
-                           "sure_to_exit"),
-                       "XP3Player") == 0)
-                    TVPExitApplication(0);
-            });
-        } else {
-            reader.findWidget("btnAbout")->addClickEventListener([](Ref *) {
-                std::string versionText = "Version ";
-                versionText += TVPGetPackageVersionString();
-                versionText += "\n";
-                versionText += LocaleConfigManager::GetInstance()->GetText(
-                    "about_content");
+        reader.findWidget("btnAbout")->addClickEventListener([](Ref *) {
+            std::string versionText = "Version ";
+            versionText += TVPGetPackageVersionString();
+            versionText += "\n";
+            versionText +=
+                LocaleConfigManager::GetInstance()->GetText("about_content");
 
-                const char *pszBtnText[] = {
-                    LocaleConfigManager::GetInstance()->GetText("ok").c_str(),
-                    LocaleConfigManager::GetInstance()
-                        ->GetText("browse_patch_lib")
-                        .c_str(),
-                    LocaleConfigManager::GetInstance()
-                        ->GetText("device_info")
-                        .c_str(),
-                };
+            const char *pszBtnText[] = {
+                LocaleConfigManager::GetInstance()->GetText("ok").c_str(),
+                LocaleConfigManager::GetInstance()
+                    ->GetText("browse_patch_lib")
+                    .c_str(),
+                LocaleConfigManager::GetInstance()
+                    ->GetText("device_info")
+                    .c_str(),
+            };
 
-                std::string strCaption =
-                    LocaleConfigManager::GetInstance()->GetText("menu_about");
-                int n = TVPShowSimpleMessageBox(
-                    versionText.c_str(), strCaption.c_str(),
-                    sizeof(pszBtnText) / sizeof(pszBtnText[0]), pszBtnText);
+            std::string strCaption =
+                LocaleConfigManager::GetInstance()->GetText("menu_about");
+            int n = TVPShowSimpleMessageBox(
+                versionText.c_str(), strCaption.c_str(),
+                sizeof(pszBtnText) / sizeof(pszBtnText[0]), pszBtnText);
 
-                switch(n) {
-                    case 1:
-                        TVPOpenPatchLibUrl();
-                        break;
-                    case 2:
-                        cocos2d::Director::getInstance()
-                            ->getScheduler()
-                            ->performFunctionInCocosThread([] {
-                                std::string text = TVPGetOpenGLInfo();
-                                const char *pOK =
-                                    LocaleConfigManager::GetInstance()
-                                        ->GetText("ok")
-                                        .c_str();
-                                TVPShowSimpleMessageBox(
-                                    text.c_str(),
-                                    LocaleConfigManager::GetInstance()
-                                        ->GetText("device_info")
-                                        .c_str(),
-                                    1, &pOK);
-                            });
-                        break;
-                }
-            });
-            reader.findWidget("btnExit")->addClickEventListener(
-                [](Ref *) { _AskExit(); });
-        }
+            switch(n) {
+                case 1:
+                    TVPOpenPatchLibUrl();
+                    break;
+                case 2:
+                    cocos2d::Director::getInstance()
+                        ->getScheduler()
+                        ->performFunctionInCocosThread([] {
+                            std::string text = TVPGetOpenGLInfo();
+                            const char *pOK = LocaleConfigManager::GetInstance()
+                                                  ->GetText("ok")
+                                                  .c_str();
+                            TVPShowSimpleMessageBox(
+                                text.c_str(),
+                                LocaleConfigManager::GetInstance()
+                                    ->GetText("device_info")
+                                    .c_str(),
+                                1, &pOK);
+                        });
+                    break;
+            }
+        });
+        reader.findWidget("btnExit")->addClickEventListener(
+            [](Ref *) { _AskExit(); });
         // TODO
         //		reader.findWidget("btnRepack")->addClickEventListener([this](Ref*)
         //{ 			TVPProcessXP3Repack(CurrentPath);
@@ -560,7 +496,6 @@ void TVPMainFileSelectorForm::ListHistory() {
             ++it;
         } else {
             it = _HistoryPath.erase(it);
-            continue;
         }
     }
     nullcell = new HistoryCell();

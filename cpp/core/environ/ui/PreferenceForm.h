@@ -69,8 +69,10 @@ public:
 class TVPPreferenceForm : public iTVPBaseForm {
 protected:
     void initPref(const tPreferenceScreen *config);
-    virtual void bindBodyController(const NodeMap &allNodes) override;
-    virtual void bindHeaderController(const NodeMap &allNodes) override;
+
+    void bindHeaderController(const Node *allNodes) override;
+    void bindBodyController(const Node *allNodes) override;
+    void bindFooterController(const Node *allNodes) override {}
 
     const tPreferenceScreen *Config = nullptr;
     cocos2d::ui::ListView *PrefList;
@@ -231,8 +233,9 @@ protected:
         const std::function<
             void(int, const std::pair<std::string, std::string> &)> &setter);
 
-    virtual void bindBodyController(const NodeMap &allNodes) override;
-    virtual void bindHeaderController(const NodeMap &allNodes) override;
+    void bindHeaderController(const Node *allNodes) override;
+    void bindBodyController(const Node *allNodes) override;
+    void bindFooterController(const Node *allNodes) override {}
 
     std::function<std::pair<std::string, std::string>(int)> _getter;
     std::function<void(int, const std::pair<std::string, std::string> &)>

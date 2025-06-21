@@ -18,6 +18,8 @@
 #include <condition_variable>
 #include <filesystem>
 
+#include "csd/CsdUIFactory.h"
+
 using namespace cocos2d;
 using namespace cocos2d::extension;
 using namespace cocos2d::ui;
@@ -70,46 +72,34 @@ TVPBaseFileSelectorForm::~TVPBaseFileSelectorForm() {
     CC_SAFE_RELEASE_NULL(CellTemplateForSize);
 }
 
-void TVPBaseFileSelectorForm::bindHeaderController(const NodeMap &allNodes) {
-    _title = dynamic_cast<Button *>(allNodes.findController("title"));
+void TVPBaseFileSelectorForm::bindHeaderController(const Node *allNodes) {
+    _title = dynamic_cast<Button *>(allNodes->getChildByName("title"));
     if(_title) {
         _title->setEnabled(true);
-        _title->addClickEventListener(
-            std::bind(&TVPBaseFileSelectorForm::onTitleClicked, this,
-                      std::placeholders::_1));
+        _title->addClickEventListener([this](auto &&PH1) {
+            onTitleClicked(std::forward<decltype(PH1)>(PH1));
+        });
     }
 }
 
-void TVPBaseFileSelectorForm::bindBodyController(const NodeMap &allNodes) {
-    Node *TableNode = allNodes.findController("table");
-    auto size = TableNode->getContentSize();
+void TVPBaseFileSelectorForm::bindBodyController(const Node *allNodes) {
+    Node *TableNode = allNodes->getChildByName("table");
+    const auto &size = TableNode->getContentSize();
     CCASSERT(size.width > 0 && size.height > 0,
              "TableNode content size is invalid");
-    FileList = TableView::create(this, TableNode->getContentSize());
+    FileList = TableView::create(this, size);
     FileList->setVerticalFillOrder(TableView::VerticalFillOrder::TOP_DOWN);
-    FileList->setAnchorPoint(Vec2::ZERO);
-    FileList->setClippingToBounds(false);
+    FileList->setClippingToBounds(true);
     FileList->setTouchEnabled(true);
-    FileList->setAnchorPoint(Vec2(0.5, 0.5));
     FileList->setPosition(Vec2::ZERO);
     FileList->setDirection(cocos2d::extension::ScrollView::Direction::VERTICAL);
-    FileList->setClippingToBounds(true); // 限制内容绘制区域
     FileList->setBounceable(true); // 允许滚动时有弹性
-    FileList->setSwallowTouches(false); // 允许事件传递
-
     TableNode->addChild(FileList);
-    // 	ListView::ccListViewCallback func = [this](Ref* cell,
-    // ListView::EventType e){ 		if (e ==
-    // ListView::EventType::ON_SELECTED_ITEM_END) {
-    // onCellClicked(static_cast<ListView*>(cell)->getCurSelectedIndex());
-    // 		}
-    // 	};
-    // 	FileList->addEventListener(func);
 
     if(NaviBar.Left) {
-        NaviBar.Left->addClickEventListener(
-            std::bind(&TVPBaseFileSelectorForm::onBackClicked, this,
-                      std::placeholders::_1));
+        NaviBar.Left->addClickEventListener([this](auto &&PH1) {
+            onBackClicked(std::forward<decltype(PH1)>(PH1));
+        });
     }
 }
 
@@ -387,8 +377,8 @@ TVPBaseFileSelectorForm::FetchCell(FileItemCellImpl *CellModel,
                                    cocos2d::extension::TableView *table,
                                    ssize_t idx) {
     if(!CellModel) {
-        CellModel =
-            FileItemCellImpl::create(FileName_Cell, table->getViewSize().width);
+        CellModel = FileItemCellImpl::create(Csd::createFileItem,
+                                             table->getViewSize().width);
         CellModel->setAnchorPoint(Vec2::ZERO);
         CellModel->setEventFunc(
             [this](Widget::TouchEventType ev, Widget *sender, Touch *touch) {
@@ -432,7 +422,7 @@ TableViewCell *TVPBaseFileSelectorForm::tableCellAtIndex(TableView *table,
     } else {
         cell = FileItemCell::create(this);
     }
-    if((size_t)idx >= CurrentDirList.size()) {
+    if(static_cast<size_t>(idx) >= CurrentDirList.size()) {
         cell->setVisible(false);
         return cell;
     }
@@ -930,14 +920,14 @@ std::string TVPShowFileSelector(const std::string &title,
     return _fileSelectorResult;
 }
 
-const char *const FileName_NaviBar = "ui/NaviBar.csb";
-const char *const FileName_Body = "ui/TableView.csb";
-const char *const FileName_BottomBar = "ui/BottomBarTextInput.csb";
+// const char *const FileName_NaviBar = "ui/NaviBar.csb";
+// const char *const FileName_Body = "ui/TableView.csb";
+// const char *const FileName_BottomBar = "ui/BottomBarTextInput.csb";
 
 TVPFileSelectorForm *
 TVPFileSelectorForm::create(const std::string &initfilename,
                             const std::string &initdir, bool issave) {
-    TVPFileSelectorForm *ret = new TVPFileSelectorForm;
+    auto *ret = new TVPFileSelectorForm;
     ret->autorelease();
     ret->initFromPath(initfilename, initdir, issave);
     return ret;
@@ -947,15 +937,17 @@ void TVPFileSelectorForm::initFromPath(const std::string &initfilename,
                                        const std::string &initdir,
                                        bool issave) {
     _isSaveMode = issave;
-    initFromFile(FileName_NaviBar, FileName_Body, FileName_BottomBar);
+    this->initFromFile(Csd::createNaviBar(),
+                       Csd::createTableView(Size(0, 0), 1),
+                       Csd::createBottomBarTextInput());
     _input->setString(initfilename);
     ListDir(initdir); // getCurrentDir()
 }
 
-void TVPFileSelectorForm::bindFooterController(const NodeMap &allNodes) {
-    _buttonOK = static_cast<Button *>(allNodes.findController("ok"));
-    _buttonCancel = static_cast<Button *>(allNodes.findController("cancel"));
-    _input = static_cast<TextField *>(allNodes.findController("input"));
+void TVPFileSelectorForm::bindFooterController(const Node *allNodes) {
+    _buttonOK = static_cast<Button *>(allNodes->getChildByName("ok"));
+    _buttonCancel = static_cast<Button *>(allNodes->getChildByName("cancel"));
+    _input = static_cast<TextField *>(allNodes->getChildByName("input"));
 
     LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();
     localeMgr->initText(_buttonOK, "ok");
@@ -1007,19 +999,22 @@ void TVPFileSelectorForm::close() {
     TVPMainScene::GetInstance()->popUIForm(this);
 }
 
-void TVPBaseFileSelectorForm::FileItemCellImpl::initFromFile(
-    const char *filename, float width) {
-    CSBReader reader;
-    _root = reader.Load(filename);
-    addChild(_root);
+void TVPBaseFileSelectorForm::FileItemCellImpl::init(
+    const Csd::NodeBuilderFn &nodeBuilderFn, float width) {
+    TTouchEventRouter::init();
+    _root = nodeBuilderFn(
+        Size(width, 96 * TVPMainScene::GetInstance()->getUIScale()), 1);
+
+    this->addChild(_root);
     OrigCellModelSize = _root->getContentSize();
     OrigCellModelSize.width = width;
-    _root->setContentSize(OrigCellModelSize);
+    // _root->setContentSize(OrigCellModelSize);
     setContentSize(OrigCellModelSize);
-    DirIcon = reader.findController(str_diricon);
-    SelectBox = reader.findController<CheckBox>(str_select);
+    DirIcon = _root->getChildByName(str_diricon);
+    SelectBox = _root->getChildByName<CheckBox *>(str_select);
     // SelectBox->setTouchEnabled(false);
-    FileNameNode = static_cast<Text *>(reader.findController(str_filename));
+    FileNameNode = _root->getChildByName<Text *>(str_filename);
+    FileNameNode->setSwallowTouches(false);
     if(DirIcon && FileNameNode) {
         CellTextAreaSize = DirIcon->getContentSize();
         CellTextAreaSize.width =
@@ -1028,8 +1023,7 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::initFromFile(
         OrigCellTextSize = FileNameNode->getContentSize();
     }
     static const std::string str_highlight("highlight");
-    Widget *HighLight =
-        static_cast<Widget *>(reader.findController(str_highlight));
+    Widget *HighLight = _root->getChildByName<Widget *>(str_highlight);
     if(HighLight) {
         HighLight->addClickEventListener(std::bind(
             &FileItemCellImpl::onClicked, this, std::placeholders::_1));
@@ -1059,8 +1053,8 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::initFromFile(
                 }
             });
     }
-    BgOdd = reader.findController("bg_odd", false);
-    BgEven = reader.findController("bg_even", false);
+    BgOdd = _root->getChildByName("bg_odd");
+    BgEven = _root->getChildByName("bg_even");
 }
 
 void TVPBaseFileSelectorForm::FileItemCellImpl::setInfo(int idx,

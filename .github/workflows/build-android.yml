@@ -122,6 +122,9 @@ jobs:
         with:
           key: ${{ github.job }}-${{ matrix.os }}
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Build Android
         run: |
           ./gradlew assembleDebug

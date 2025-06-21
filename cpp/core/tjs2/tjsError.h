@@ -159,16 +159,21 @@ namespace TJS {
     void TJS_eTJS();
 
     //---------------------------------------------------------------------------
-    class eTJSError : public eTJS {
+    class eTJSError : public eTJS, public std::exception {
     public:
         eTJSError(const ttstr &Msg) : Message(Msg) { ; }
 
+        const char *what() const noexcept override {
+            cachedStr = Message.AsStdString();
+            return cachedStr.c_str();
+        }
         const ttstr &GetMessage() const { return Message; }
 
         void AppendMessage(const ttstr &msg) { Message += msg; }
 
     private:
         ttstr Message;
+        mutable std::string cachedStr;
     };
 
     //---------------------------------------------------------------------------

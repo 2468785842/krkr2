@@ -72,7 +72,7 @@ jobs:
 
       - name: Build Windows
         run: |
-          cmake --preset="Windows Debug Config"
+          cmake --preset="Windows Debug Config" -D DISABLE_TEST=ON
           cmake --build --preset="Windows Debug Build"
 
       - name: Upload artifacts

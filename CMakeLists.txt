@@ -79,3 +79,8 @@ if(MSVC)
   target_compile_options(${PROJECT_NAME} PUBLIC "/ZI")
   target_link_options(${PROJECT_NAME} PUBLIC "/INCREMENTAL")
 endif()
+
+if(NOT DISABLE_TEST AND NOT ANDROID)
+    enable_testing()
+    add_subdirectory(tests)
+endif ()

@@ -8,8 +8,9 @@ public:
     static TVPInGameMenuForm *create(const std::string &title,
                                      tTJSNI_MenuItem *item);
 
-    virtual void bindBodyController(const NodeMap &allNodes);
-    virtual void bindHeaderController(const NodeMap &allNodes);
+    void bindHeaderController(const Node *allNodes) override;
+    void bindBodyController(const Node *allNodes) override;
+    void bindFooterController(const Node *allNodes) override {}
 
     void initMenu(const std::string &title, tTJSNI_MenuItem *item);
 

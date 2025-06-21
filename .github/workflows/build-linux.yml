@@ -85,7 +85,7 @@ jobs:
 
       - name: Build Linux
         run: |
-          cmake --preset="Linux Debug Config"
+          cmake --preset="Linux Debug Config" -D DISABLE_TEST=ON
           cmake --build --preset="Linux Debug Build"
           
           cp $(find out/linux/debug/ -name libfmod.so) out/linux/debug/bin/krkr2
