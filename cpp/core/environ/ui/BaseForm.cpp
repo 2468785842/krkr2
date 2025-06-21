@@ -104,10 +104,10 @@ bool iTVPBaseForm::initFromFile(const Csd::NodeBuilderFn &naviBarCall,
     LinearLayoutParameter *param = nullptr;
 
     if(naviBar) {
-        NaviBar.Root = naviBar;
-        NaviBar.Left = naviBar->getChildByName<Button *>("left");
-        NaviBar.Right = naviBar->getChildByName<Widget *>("right");
-        bindHeaderController(naviBar);
+        NaviBar.Root = naviBar->getChildByName("background");
+        NaviBar.Left = NaviBar.Root->getChildByName<Button *>("left");
+        NaviBar.Right = NaviBar.Root->getChildByName<Button *>("right");
+        bindHeaderController(NaviBar.Root);
 
         param = LinearLayoutParameter::create();
         param->setGravity(LinearLayoutParameter::LinearGravity::TOP);
@@ -122,7 +122,7 @@ bool iTVPBaseForm::initFromFile(const Csd::NodeBuilderFn &naviBarCall,
         param = LinearLayoutParameter::create();
         param->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
         bottomBar->setLayoutParameter(param);
-        parent->addChild(bottomBar);
+        parent->addChild(BottomBar.Root);
     }
 
     param = LinearLayoutParameter::create();
@@ -130,7 +130,7 @@ bool iTVPBaseForm::initFromFile(const Csd::NodeBuilderFn &naviBarCall,
     body->setLayoutParameter(param);
     parent->addChild(RootNode);
 
-    bindBodyController(body);
+    bindBodyController(RootNode);
     return ret;
 }
 

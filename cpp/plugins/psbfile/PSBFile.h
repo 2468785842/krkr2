@@ -43,14 +43,14 @@ namespace PSB {
                         TJS::tTJSBinaryStream *stream);
 
         std::shared_ptr<PSBList> loadList(TJS::tTJSBinaryStream *stream,
-                                               bool lazyLoad = false);
+                                          bool lazyLoad = false);
         std::shared_ptr<PSBDictionary>
         loadObjects(TJS::tTJSBinaryStream *stream, bool lazyLoad = false);
 
         std::shared_ptr<PSBDictionary>
         loadObjectsV1(TJS::tTJSBinaryStream *stream, bool lazyLoad = false);
         std::shared_ptr<IPSBValue> unpack(TJS::tTJSBinaryStream *stream,
-                                               bool lazyLoad = false);
+                                          bool lazyLoad = false);
         void loadResource(PSBResource &res,
                           TJS::tTJSBinaryStream *stream) const;
         void loadExtraResource(PSBResource &res,

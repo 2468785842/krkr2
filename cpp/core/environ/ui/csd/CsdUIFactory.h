@@ -93,6 +93,8 @@ namespace Csd {
         const Size titleSize(
             size.width - leftBtnSize.width - rightBtnSize.width, size.height);
 
+        const float yOffset = size.height / 2 - bothSizesPadding;
+
         // 创建根节点：容器层
         const auto root = Widget::create();
         root->setAnchorPoint(Vec2::ZERO);
@@ -100,11 +102,11 @@ namespace Csd {
 
         // 创建 背景
         const auto background = Layout::create();
-        background->setName("Panel_1");
+        background->setName("background");
         background->setContentSize(size);
         background->setTouchEnabled(true);
-        background->setAnchorPoint(Vec2::ZERO);
-        background->setPosition(Vec2::ZERO);
+        background->setAnchorPoint(Vec2(0, 0));
+        background->setPosition(Vec2(0, bothSizesPadding));
         background->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
         background->setBackGroundColor(Color3B(42, 42, 42));
         background->setBackGroundColorOpacity(255);
@@ -116,17 +118,24 @@ namespace Csd {
         leftBtn->setName("left");
         leftBtn->setTouchEnabled(true);
         leftBtn->setContentSize(leftBtnSize);
-        leftBtn->setPosition(Vec2(bothSizesPadding, size.height / 2));
+        leftBtn->setPosition(Vec2(bothSizesPadding, yOffset));
         leftBtn->setAnchorPoint(Vec2(0, 0.5));
 
         // 中间标题按钮
         const auto titleBtn =
             Button::create("img/empty.png", "img/gray.png", "img/empty.png");
+        Label *l = Label::create();
+        l->setSystemFontName("DroidSansFallback.ttf");
+        titleBtn->ignoreContentAdaptWithSize(false);
+        titleBtn->setTitleLabel(l);
         titleBtn->setName("title");
         titleBtn->setContentSize(titleSize);
-        titleBtn->setPosition(Vec2(size.width / 2, size.height / 2));
-        titleBtn->setAnchorPoint(Vec2(0.5, 0.5));
-        titleBtn->setTitleFontSize(64);
+        titleBtn->setPosition(
+            Vec2(leftBtnSize.width + bothSizesPadding, yOffset));
+        titleBtn->setAnchorPoint(Vec2(0, 0.5));
+        titleBtn->setTitleFontSize(24);
+        titleBtn->setTitleAlignment(TextHAlignment::CENTER,
+                                    TextVAlignment::CENTER);
         titleBtn->setTouchEnabled(true);
         titleBtn->setTitleColor(Color3B(199, 199, 199));
 
@@ -136,8 +145,7 @@ namespace Csd {
         rightBtn->setName("right");
         rightBtn->setTouchEnabled(true);
         rightBtn->setContentSize(rightBtnSize);
-        rightBtn->setPosition(
-            Vec2(size.width - bothSizesPadding, size.height / 2));
+        rightBtn->setPosition(Vec2(size.width - bothSizesPadding, yOffset));
         rightBtn->setAnchorPoint(Vec2(1, 0.5));
 
         background->addChild(leftBtn);
@@ -209,39 +217,37 @@ namespace Csd {
         root->addChild(checkBox);
 
         // dir_icon panel
-        const auto dirIcon = Layout::create();
+        const auto dirIcon = Widget::create();
         dirIcon->setName("dir_icon");
         dirIcon->setContentSize(rightMenuSize);
         dirIcon->setAnchorPoint(Vec2(0, 0.5));
         dirIcon->setPosition(Vec2(filenameSize.width, rootSize.height / 2));
-        dirIcon->setBackGroundColorType(Layout::BackGroundColorType::GRADIENT);
-        dirIcon->setBackGroundColor(Color3B(150, 200, 255), Color3B::WHITE);
         dirIcon->setOpacity(102);
-        root->addChild(dirIcon);
 
         // 子 Panel_2_9_4
-        // const auto arrow1 = Layout::create();
-        // arrow1->setName("Panel_2_9_4");
-        // arrow1->setContentSize(Size(45, 10));
-        // arrow1->setRotationSkewX(-135);
-        // arrow1->setRotationSkewY(-135);
-        // arrow1->setPosition(Vec2(70, 40));
-        // arrow1->setAnchorPoint(Vec2::ZERO);
-        // arrow1->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
-        // arrow1->setBackGroundColor(Color3B(191, 191, 191));
-        // dirIcon->addChild(arrow1);
-        //
-        // // 子 Panel_2_0_11_6
-        // const auto arrow2 = Layout::create();
-        // arrow2->setName("Panel_2_0_11_6");
-        // arrow2->setContentSize(Size(45, 10));
-        // arrow2->setRotationSkewX(135);
-        // arrow2->setRotationSkewY(135);
-        // arrow2->setPosition(Vec2(70, 40));
-        // arrow2->setAnchorPoint(Vec2(0, 1));
-        // arrow2->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
-        // arrow2->setBackGroundColor(Color3B(191, 191, 191));
-        // dirIcon->addChild(arrow2);
+        const auto arrow1 = Layout::create();
+        arrow1->setName("Panel_2_9_4");
+        arrow1->setContentSize(Size(45, 10));
+        arrow1->setRotationSkewX(-135);
+        arrow1->setRotationSkewY(-135);
+        arrow1->setPosition(Vec2(70, 40));
+        arrow1->setAnchorPoint(Vec2::ZERO);
+        arrow1->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+        arrow1->setBackGroundColor(Color3B(191, 191, 191));
+        dirIcon->addChild(arrow1);
+
+        // 子 Panel_2_0_11_6
+        const auto arrow2 = Layout::create();
+        arrow2->setName("Panel_2_0_11_6");
+        arrow2->setContentSize(Size(45, 10));
+        arrow2->setRotationSkewX(135);
+        arrow2->setRotationSkewY(135);
+        arrow2->setPosition(Vec2(70, 40));
+        arrow2->setAnchorPoint(Vec2(0, 1));
+        arrow2->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+        arrow2->setBackGroundColor(Color3B(191, 191, 191));
+        dirIcon->addChild(arrow2);
+        root->addChild(dirIcon);
 
         return root;
     }

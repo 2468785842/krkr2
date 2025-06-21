@@ -137,7 +137,7 @@ protected:
     struct {
         // cocos2d::ui::Button *Title;
         cocos2d::ui::Button *Left;
-        cocos2d::ui::Widget *Right;
+        cocos2d::ui::Button *Right;
         cocos2d::Node *Root;
     } NaviBar{};
 

@@ -73,7 +73,7 @@ TVPBaseFileSelectorForm::~TVPBaseFileSelectorForm() {
 }
 
 void TVPBaseFileSelectorForm::bindHeaderController(const Node *allNodes) {
-    _title = dynamic_cast<Button *>(allNodes->getChildByName("title"));
+    _title = allNodes->getChildByName<Button *>("title");
     if(_title) {
         _title->setEnabled(true);
         _title->addClickEventListener([this](auto &&PH1) {
@@ -97,9 +97,8 @@ void TVPBaseFileSelectorForm::bindBodyController(const Node *allNodes) {
     TableNode->addChild(FileList);
 
     if(NaviBar.Left) {
-        NaviBar.Left->addClickEventListener([this](auto &&PH1) {
-            onBackClicked(std::forward<decltype(PH1)>(PH1));
-        });
+        NaviBar.Left->addClickEventListener(
+            [this](Ref *r) { onBackClicked(r); });
     }
 }
 
@@ -108,23 +107,24 @@ static const std::string str_select("select_check");
 static const std::string str_filename("filename");
 
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
-    std::pair<std::string, std::string> split_path = PathSplit(path);
-    ParentPath = split_path.first;
+    auto [fst, snd] = PathSplit(path);
+    ParentPath = fst;
     if(_title) {
-        _title->setTitleText(split_path.second);
 
-        Size dispSize = _title->getTitleRenderer()->getContentSize();
-        Size realSize = _title->getContentSize();
-        if(dispSize.width > realSize.width) {
-            const std::string suffix("...");
-            _title->setTitleText(suffix);
-            float suffixlen =
-                _title->getTitleRenderer()->getContentSize().width * 1.5;
-            float ratio = (realSize.width - suffixlen) / dispSize.width;
-            ttstr path = split_path.second;
-            int charCutCount = path.length() * ratio - suffix.size() + 1;
-            path = path.SubString(0, charCutCount);
-            _title->setTitleText(path.AsStdString() + suffix);
+        const Size dispSize = _title->getContentSize();
+        const size_t fontSize =
+            _title->getTitleRenderer()->getRenderingFontSize();
+        const size_t pathLen = snd.length();
+        const ptrdiff_t overflowChar =
+            (pathLen * fontSize - dispSize.width) / fontSize;
+        if(overflowChar > 0) {
+            constexpr char suffix[] = "...";
+            const size_t renderCharCount =
+                pathLen - overflowChar - std::size(suffix);
+            const std::string curPath = snd.substr(0, renderCharCount);
+            _title->setTitleText(curPath + suffix);
+        } else {
+            _title->setTitleText(snd);
         }
     }
 

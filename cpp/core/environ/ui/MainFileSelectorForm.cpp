@@ -121,8 +121,7 @@ void TVPMainFileSelectorForm::bindBodyController(const Node *allNodes) {
     TVPBaseFileSelectorForm::bindBodyController(allNodes);
 
     if(NaviBar.Right) {
-        NaviBar.Right->addClickEventListener(
-            [this](auto &&PH1) { showMenu(std::forward<decltype(PH1)>(PH1)); });
+        NaviBar.Right->addClickEventListener([this](Ref *r) { showMenu(r); });
     }
 }
 
@@ -212,10 +211,6 @@ void TVPMainFileSelectorForm::initFromFile() {
     inherit::initFromFile(Csd::createNaviBarWithMenu, Csd::createTableView,
                           Csd::createEmpty, _fileList);
 }
-
-// std::string _getLastPathFilePath() {
-// 	return TVPGetInternalPreferencePath() + "lastpath.txt";
-// }
 
 void TVPMainFileSelectorForm::startup(const std::string &path) {
     if(TVPIsFirstLaunch) {
