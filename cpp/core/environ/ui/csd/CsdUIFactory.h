@@ -87,7 +87,7 @@ namespace Csd {
 
     static Widget *createNaviBarWithMenu(const Size &size, float) {
 
-        constexpr int bothSizesPadding = 20;
+        constexpr int bothSizesPadding = 13;
         const Size leftBtnSize(80, 80);
         const Size &rightBtnSize = leftBtnSize;
         const Size titleSize(
@@ -130,10 +130,9 @@ namespace Csd {
         titleBtn->setTitleLabel(l);
         titleBtn->setName("title");
         titleBtn->setContentSize(titleSize);
-        titleBtn->setPosition(
-            Vec2(leftBtnSize.width + bothSizesPadding, yOffset));
+        titleBtn->setPosition(Vec2(leftBtnSize.width, yOffset));
         titleBtn->setAnchorPoint(Vec2(0, 0.5));
-        titleBtn->setTitleFontSize(24);
+        titleBtn->setTitleFontSize(32);
         titleBtn->setTitleAlignment(TextHAlignment::CENTER,
                                     TextVAlignment::CENTER);
         titleBtn->setTouchEnabled(true);
@@ -158,43 +157,39 @@ namespace Csd {
     }
 
     static Widget *createFileItem(const Size &size, float) {
-        constexpr int margin = 8;
+        constexpr int margin = 12;
         const Size rootSize(size.width - margin * 2, size.height - margin * 2);
         const Size &highlightFocusSize = size;
         const Size rightMenuSize(80, 80);
 
-        const Size underlineSize(size.width, 4);
-        const Size filenameSize(size.width - rightMenuSize.width,
-                                size.height - underlineSize.height);
+        const Size underlineSize(rootSize.width, 4);
+        const Size filenameSize(rootSize.width - rightMenuSize.width,
+                                rootSize.height - underlineSize.height);
 
         const auto root = Widget::create();
         root->setAnchorPoint(Vec2::ZERO);
+        root->setPosition(Vec2(margin, margin));
         root->setContentSize(rootSize);
 
-        const auto param = LinearLayoutParameter::create();
-        param->setMargin(Margin(margin, margin, margin, margin));
-        root->setLayoutParameter(param);
-
         // filename label
-        const auto filename = Text::create("", "DroidSansFallback.ttf", 32);
+        const auto filename = Text::create("", "DroidSansFallback.ttf", rootSize.height);
         filename->setName("filename");
         filename->setContentSize(filenameSize);
+        filename->setSwallowTouches(false);
         filename->setAnchorPoint(Vec2::ZERO);
-        filename->setPosition(Vec2::ZERO);
+        filename->setPosition(Vec2(margin, margin));
         filename->setTextColor(Color4B::WHITE);
-        root->addChild(filename, 0);
 
-        // Panel_1: 底部 4 高度灰线
+        // underline: 底部 4 高度灰线
         const auto underline = Layout::create();
         underline->setName("underline");
         underline->setAnchorPoint(Vec2::ZERO);
         underline->setContentSize(underlineSize);
-        underline->setPosition(Vec2(0, filenameSize.height));
+        underline->setPosition(Vec2::ZERO);
         underline->setBackGroundColorType(
             Layout::BackGroundColorType::GRADIENT);
         underline->setBackGroundColor(Color3B(229, 229, 229),
                                       Color3B(42, 42, 42));
-        root->addChild(underline, 0);
 
         // highlight button（点击区域）
         const auto highlight =
@@ -202,8 +197,10 @@ namespace Csd {
         highlight->setName("highlight");
         highlight->setContentSize(highlightFocusSize);
         highlight->setPosition(Vec2::ZERO);
+        highlight->setAnchorPoint(Vec2::ZERO);
         highlight->setOpacity(51); // Alpha
-        root->addChild(highlight, 0);
+        highlight->setSwallowTouches(false);
+        highlight->ignoreContentAdaptWithSize(false);
 
         // select_check checkbox
         const auto checkBox = CheckBox::create(
@@ -212,42 +209,58 @@ namespace Csd {
             "img/empty.png");
         checkBox->setName("select_check");
         checkBox->setContentSize(rightMenuSize);
-        checkBox->setAnchorPoint(Vec2(0, 0.5));
-        checkBox->setPosition(Vec2(filenameSize.width, rootSize.height / 2));
-        root->addChild(checkBox);
+        checkBox->setAnchorPoint(Vec2::ZERO);
+        checkBox->setPosition(Vec2(rootSize.width - margin, -margin));
 
         // dir_icon panel
         const auto dirIcon = Widget::create();
         dirIcon->setName("dir_icon");
         dirIcon->setContentSize(rightMenuSize);
-        dirIcon->setAnchorPoint(Vec2(0, 0.5));
-        dirIcon->setPosition(Vec2(filenameSize.width, rootSize.height / 2));
+        dirIcon->setAnchorPoint(Vec2::ZERO);
+        dirIcon->setPosition(Vec2(rootSize.width - margin, -margin));
         dirIcon->setOpacity(102);
 
-        // 子 Panel_2_9_4
+        // 斜线宽高
+        float lineLength = rootSize.height * 0.6f; // h * ceil(2 / 3)
+        float lineThickness = lineLength * 0.3f;
+
+        // 上斜线
         const auto arrow1 = Layout::create();
-        arrow1->setName("Panel_2_9_4");
-        arrow1->setContentSize(Size(45, 10));
-        arrow1->setRotationSkewX(-135);
-        arrow1->setRotationSkewY(-135);
-        arrow1->setPosition(Vec2(70, 40));
-        arrow1->setAnchorPoint(Vec2::ZERO);
+        arrow1->setName("TopArrowLine");
+        arrow1->setContentSize(Size(lineLength, lineThickness));
         arrow1->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
         arrow1->setBackGroundColor(Color3B(191, 191, 191));
+        arrow1->setAnchorPoint(Vec2(1, 0.5f));
+        arrow1->setPosition(Vec2(0, dirIcon->getContentSize().height / 2));
+        arrow1->setRotation(-45);
         dirIcon->addChild(arrow1);
 
-        // 子 Panel_2_0_11_6
+        // 下斜线
         const auto arrow2 = Layout::create();
-        arrow2->setName("Panel_2_0_11_6");
-        arrow2->setContentSize(Size(45, 10));
-        arrow2->setRotationSkewX(135);
-        arrow2->setRotationSkewY(135);
-        arrow2->setPosition(Vec2(70, 40));
-        arrow2->setAnchorPoint(Vec2(0, 1));
+        arrow2->setName("BottomArrowLine");
+        arrow2->setContentSize(Size(lineLength, lineThickness));
         arrow2->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
         arrow2->setBackGroundColor(Color3B(191, 191, 191));
+        arrow2->setAnchorPoint(Vec2(1, 0.5f));
+        arrow2->setPosition(Vec2(0, dirIcon->getContentSize().height / 2));
+        arrow2->setRotation(45);
         dirIcon->addChild(arrow2);
+
+        const auto rect = Layout::create();
+        rect->setName("rect");
+        rect->setContentSize(Size(lineThickness, lineThickness));
+        rect->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+        rect->setBackGroundColor(Color3B(191, 191, 191));
+        rect->setAnchorPoint(Vec2(0.5f, 0.5f));
+        rect->setPosition(Vec2(0, dirIcon->getContentSize().height / 2));
+        rect->setRotation(45);
+        dirIcon->addChild(rect);
+
+        root->addChild(filename);
+        root->addChild(underline);
+        root->addChild(checkBox);
         root->addChild(dirIcon);
+        root->addChild(highlight); // 最后添加按钮（确保在最上层）
 
         return root;
     }

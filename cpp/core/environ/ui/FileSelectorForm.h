@@ -114,12 +114,12 @@ protected:
 
         void reset() { _set = false; }
 
-        bool isSet() { return _set; }
+        bool isSet() const { return _set; }
 
         void setOwner(FileItemCell *owner) { _owner = owner; }
 
     private:
-        void onClicked(cocos2d::Ref *);
+        void onClicked(cocos2d::Ref *) const;
 
         bool _set;
         cocos2d::Size OrigCellModelSize, CellTextAreaSize, OrigCellTextSize;
@@ -141,7 +141,7 @@ protected:
             _owner(owner), _impl(nullptr) {}
 
         static FileItemCell *create(TVPBaseFileSelectorForm *owner) {
-            FileItemCell *ret = new FileItemCell(owner);
+            auto *ret = new FileItemCell(owner);
             ret->init();
             ret->autorelease();
             return ret;

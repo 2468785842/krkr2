@@ -867,8 +867,9 @@ void TVPListForm::initFromInfo(
 
 void TVPListForm::show() {
     TVPMainScene::setMaskLayTouchBegain(
-        std::bind(&TVPListForm::onMaskTouchBegan, this, std::placeholders::_1,
-                  std::placeholders::_2));
+        [this](cocos2d::Touch * t, cocos2d::Event * e) {
+            return onMaskTouchBegan(t, e);
+        });
     TVPMainScene::GetInstance()->pushUIForm(this,
                                             TVPMainScene::eEnterFromBottom);
 }
@@ -1002,8 +1003,7 @@ void TVPFileSelectorForm::close() {
 void TVPBaseFileSelectorForm::FileItemCellImpl::init(
     const Csd::NodeBuilderFn &nodeBuilderFn, float width) {
     TTouchEventRouter::init();
-    _root = nodeBuilderFn(
-        Size(width, 96 * TVPMainScene::GetInstance()->getUIScale()), 1);
+    _root = nodeBuilderFn(Size(width, 48), 1);
 
     this->addChild(_root);
     OrigCellModelSize = _root->getContentSize();
@@ -1014,7 +1014,6 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::init(
     SelectBox = _root->getChildByName<CheckBox *>(str_select);
     // SelectBox->setTouchEnabled(false);
     FileNameNode = _root->getChildByName<Text *>(str_filename);
-    FileNameNode->setSwallowTouches(false);
     if(DirIcon && FileNameNode) {
         CellTextAreaSize = DirIcon->getContentSize();
         CellTextAreaSize.width =
@@ -1022,14 +1021,14 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::init(
         CellTextAreaSize.height = 0;
         OrigCellTextSize = FileNameNode->getContentSize();
     }
-    static const std::string str_highlight("highlight");
-    Widget *HighLight = _root->getChildByName<Widget *>(str_highlight);
-    if(HighLight) {
-        HighLight->addClickEventListener(std::bind(
-            &FileItemCellImpl::onClicked, this, std::placeholders::_1));
-        HighLight->addTouchEventListener(
+    auto *highLight = _root->getChildByName<Button *>("highlight");
+    if(highLight) {
+        highLight->addClickEventListener([this](Ref* ref) {
+            onClicked(ref);
+        });
+        highLight->addTouchEventListener(
             [this](Ref *p, Widget::TouchEventType ev) {
-                Widget *sender = static_cast<Widget *>(p);
+                auto sender = dynamic_cast<Widget *>(p);
                 switch(ev) {
                     case Widget::TouchEventType::BEGAN:
                         sender->scheduleOnce(
@@ -1085,8 +1084,8 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::setInfo(int idx,
         BgEven->setVisible(idx & 1);
 }
 
-void TVPBaseFileSelectorForm::FileItemCellImpl::onClicked(cocos2d::Ref *p) {
-    Widget *sender = static_cast<Widget *>(p);
+void TVPBaseFileSelectorForm::FileItemCellImpl::onClicked(cocos2d::Ref *p) const {
+    auto *sender = dynamic_cast<Widget *>(p);
     if(sender->isScheduled(str_long_press)) {
         sender->unschedule(str_long_press);
         _owner->onClicked();
