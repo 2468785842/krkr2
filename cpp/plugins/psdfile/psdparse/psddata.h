@@ -279,7 +279,8 @@ namespace psd {
     struct ImageResourceInfo {
         ImageResourceInfo(uint16_t id, std::string &name, int size,
                           IteratorBase *data) :
-            id(id), name(name), size(size), data(data) {};
+            id(id),
+            name(name), size(size), data(data){};
 
         ~ImageResourceInfo() { delete data; }
 
@@ -347,7 +348,8 @@ namespace psd {
     struct AdditionalLayerInfo {
         AdditionalLayerInfo(int sigType, int key, int size,
                             IteratorBase *data) :
-            sigType(sigType), key(key), size(size), data(data) {}
+            sigType(sigType),
+            key(key), size(size), data(data) {}
 
         ~AdditionalLayerInfo() { delete data; }
 
@@ -383,7 +385,7 @@ namespace psd {
     // チャンネル情報
     struct ChannelInfo {
         ChannelInfo(int id, int length) :
-            id(id), length(length), imageData(0) {};
+            id(id), length(length), imageData(0){};
 
         ~ChannelInfo() { delete imageData; }
 

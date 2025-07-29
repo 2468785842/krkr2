@@ -160,7 +160,7 @@ public:
         Tag = tag;
     }
 
-    virtual ~tTVPBaseInputEvent() {};
+    virtual ~tTVPBaseInputEvent(){};
 
     virtual void Deliver() const = 0;
 

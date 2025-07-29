@@ -1,3 +1,5 @@
+#pragma once
+
 #include "psdbase.h"
 #include "psddata.h"
 #include <boost/iostreams/device/mapped_file.hpp>
@@ -16,7 +18,7 @@ namespace psd {
     class PSDFile : public Data {
     public:
         PSDFile() : isLoaded(false) {}
-        ~PSDFile() {}
+        ~PSDFile() override {}
 
         // 読み込み済みフラグ
         bool isLoaded;

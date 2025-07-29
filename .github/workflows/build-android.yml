@@ -1,0 +1,137 @@
+name: Build Android
+
+on:
+  workflow_dispatch:
+
+  workflow_run:
+    workflows: ["Code Format Check"]
+    types: [ "completed" ]
+
+env:
+  ANDROID_NDK_VERSION: "28.0.13004108"
+  VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json,readwrite"
+  VCPKG_INSTALL_OPTIONS: "--debug"
+
+jobs:
+  build-android:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/.act/vcpkg
+      ANDROID_SDK_ROOT: ${{ github.workspace }}/.act/android-sdk
+      ANDROID_NDK: ${{ github.workspace }}/.act/android-ndk
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Delete huge unnecessary tools folder
+        run: |
+          if [ -d /opt/hostedtoolcache ]; then 
+            rm -rf /opt/hostedtoolcache
+            echo "Delete /opt/hostedtoolcache"
+          fi
+
+      - name: Install Mono
+        run: |
+          sudo apt install ca-certificates gnupg
+          sudo gpg --homedir /tmp --no-default-keyring --keyring /usr/share/keyrings/mono-official-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+          echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+          sudo apt update
+          sudo apt install -y mono-complete
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bison python3 nasm
+          
+          wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+          chmod +x dotnet-install.sh
+          ./dotnet-install.sh --channel 8.0
+          echo "$HOME/.dotnet" >> $GITHUB_PATH
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      - name: Download Android CommandLineTools
+        if: steps.commandlinetools-cache.outputs.cache-hit != 'true'
+        run: |
+          if [ ! -f "${{ github.workspace }}/.act/commandlinetools-linux-10406996_latest.zip" ]; then
+            wget -P ${{ github.workspace }}/.act https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
+          fi
+
+      - name: Cache Android Commandline Tools
+        uses: actions/cache@v4.2.3
+        id: commandlinetools-cache
+        with:
+          path: ${{ github.workspace }}/.act/commandlinetools-linux-10406996_latest.zip
+          key: commandlinetools-linux-10406996_latest
+
+      - name: Install Android SDK/NDK
+        run: |
+          if [ ! -d "${{ env.ANDROID_SDK_ROOT }}/cmdline-tools/latest/bin" ]; then
+            unzip -d ${{ github.workspace }}/.act ${{ github.workspace }}/.act/commandlinetools-linux-10406996_latest.zip
+            mkdir -p ${{ env.ANDROID_SDK_ROOT }}/cmdline-tools/latest
+            mv ${{ github.workspace }}/.act/cmdline-tools/* ${{ env.ANDROID_SDK_ROOT }}/cmdline-tools/latest
+          fi
+          
+          yes | ${{ env.ANDROID_SDK_ROOT }}/cmdline-tools/latest/bin/sdkmanager --sdk_root=${{ env.ANDROID_SDK_ROOT }} --licenses
+          
+          ${{ env.ANDROID_SDK_ROOT }}/cmdline-tools/latest/bin/sdkmanager --sdk_root=${{ env.ANDROID_SDK_ROOT }} \
+            "platform-tools" \
+            "platforms;android-33" \
+            "build-tools;34.0.0" \
+            "cmake;3.31.1" \
+            "ndk;${{ env.ANDROID_NDK_VERSION }}"
+
+      - name: Set Android SDK/NDK Env
+        run: |
+          if [ ! -d "${{ env.ANDROID_NDK }}" ]; then
+            ln -s ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ANDROID_NDK_VERSION }} ${{ env.ANDROID_NDK }}
+          fi
+
+          echo "ANDROID_NDK=${{ env.ANDROID_NDK }}" >> $GITHUB_ENV
+          echo "ANDROID_HOME=${{ env.ANDROID_SDK_ROOT }}" >> $GITHUB_ENV
+        # echo "sdk.dir=${{ env.ANDROID_SDK_ROOT }}" > "${{ github.workspace }}/local.properties"
+
+      - name: Setup vcpkg
+        run: |
+          if [ ! -d "${{ env.VCPKG_ROOT }}" ]; then
+            git clone https://github.com/microsoft/vcpkg.git ${{ env.VCPKG_ROOT }}
+          fi
+          
+          ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.sh
+
+      - name: Add NuGet sources
+        shell: bash
+        run: |
+          mono `${{ env.VCPKG_ROOT }}/vcpkg fetch nuget | tail -n 1` \
+            sources add \
+            -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            -StorePasswordInClearText \
+            -Name GitHubPackages \
+            -UserName "${{ github.actor }}" \
+            -Password "${{ secrets.NUGET_API_KEY }}"
+          mono `${{ env.VCPKG_ROOT }}/vcpkg fetch nuget | tail -n 1` \
+            setapikey "${{ secrets.NUGET_API_KEY }}" \
+            -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2.18
+        with:
+          key: ${{ github.job }}-${{ matrix.os }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Android
+        run: |
+          ./gradlew assembleDebug
+
+      - name: Upload artifacts
+        if: ${{ !env.ACT && success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apks
+          path: out/android/app/outputs/apk/debug/*.apk

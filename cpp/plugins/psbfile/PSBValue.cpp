@@ -124,7 +124,7 @@ namespace PSB {
                     case 8:
                         return PSBObjType::NumberN8;
                     default:
-                        throw std::exception("Not a valid Integer");
+                        throw std::runtime_error("Not a valid Integer");
                 }
 
             case PSBNumberType::Float:
@@ -139,7 +139,7 @@ namespace PSB {
             case PSBNumberType::Double:
                 return PSBObjType::Double;
             default:
-                throw std::exception("Unknown number type");
+                throw std::runtime_error("Unknown number type");
         }
     }
 

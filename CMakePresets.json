@@ -22,6 +22,10 @@
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       },
+      "toolset": {
+        "value": "host=x86",
+        "strategy": "external"
+      },
       "architecture": {
         "value": "x86",
         "strategy": "external"

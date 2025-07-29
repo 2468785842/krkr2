@@ -9,6 +9,7 @@ out/
 .vscode/
 .vs/
 .gradle/
+.act/
 
 local.properties
 java_pid26316.hprof

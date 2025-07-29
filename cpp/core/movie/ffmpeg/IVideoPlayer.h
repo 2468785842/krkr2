@@ -23,7 +23,7 @@ struct SStartMsg {
 
 class IDVDStreamPlayer {
 public:
-    IDVDStreamPlayer(CProcessInfo &processInfo) : m_processInfo(processInfo) {};
+    IDVDStreamPlayer(CProcessInfo &processInfo) : m_processInfo(processInfo){};
 
     virtual ~IDVDStreamPlayer() {}
 
@@ -52,7 +52,7 @@ class CDVDVideoCodec;
 class IDVDStreamPlayerVideo : public IDVDStreamPlayer {
 public:
     IDVDStreamPlayerVideo(CProcessInfo &processInfo) :
-        IDVDStreamPlayer(processInfo) {};
+        IDVDStreamPlayer(processInfo){};
 
     ~IDVDStreamPlayerVideo() {}
 
@@ -109,7 +109,7 @@ class CDVDAudioCodec;
 class IDVDStreamPlayerAudio : public IDVDStreamPlayer {
 public:
     IDVDStreamPlayerAudio(CProcessInfo &processInfo) :
-        IDVDStreamPlayer(processInfo) {};
+        IDVDStreamPlayer(processInfo){};
 
     ~IDVDStreamPlayerAudio() {}
 
@@ -131,9 +131,9 @@ public:
 
     virtual void SendMessage(CDVDMsg *pMsg, int priority = 0) = 0;
 
-    virtual void SetVolume(float fVolume) {};
+    virtual void SetVolume(float fVolume){};
 
-    virtual void SetMute(bool bOnOff) {};
+    virtual void SetMute(bool bOnOff){};
 
     //	virtual void SetDynamicRangeCompression(long drc) = 0;
     virtual std::string GetPlayerInfo() = 0;

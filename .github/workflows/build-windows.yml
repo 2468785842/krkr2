@@ -1,0 +1,84 @@
+name: Build Windows
+
+on:
+  workflow_dispatch:
+
+  workflow_run:
+    workflows: ["Code Format Check"]
+    types: [ "completed" ]
+
+env:
+  VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json,readwrite"
+  VCPKG_INSTALL_OPTIONS: "--debug"
+
+jobs:
+  build-windows:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: windows-latest
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/.act/vcpkg
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64_x86
+
+      - name: Normalize and export VCPKG_ROOT
+        run: |
+          $normalized = "${{ github.workspace }}/.act/vcpkg" -replace '\\', '/'
+          echo "VCPKG_ROOT=$normalized" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Install dependencies
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/lexxmark/winflexbison/releases/download/v2.5.25/win_flex_bison-2.5.25.zip" -OutFile "$env:TEMP\winflexbison.zip"
+          Expand-Archive -Path "$env:TEMP\winflexbison.zip" -DestinationPath "C:\winflexbison"
+          echo "C:\winflexbison" | Out-File -Append -Encoding ascii $env:GITHUB_PATH
+          
+          choco install nasm python3 -y
+
+      - name: Setup vcpkg
+        run: |
+          echo "VCPKG_ROOT is: $env:VCPKG_ROOT"
+          
+          if (!(Test-Path "${{ env.VCPKG_ROOT }}")) {
+            git clone https://github.com/microsoft/vcpkg.git ${{ env.VCPKG_ROOT }}
+          }
+          ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.bat
+
+          if (Test-Path "${{ env.VCPKG_ROOT }}/vcpkg.exe") {
+            ${{ env.VCPKG_ROOT }}/vcpkg integrate install
+          }
+
+      - name: Add NuGet sources
+        shell: pwsh
+        run: |
+          .$(${{ env.VCPKG_ROOT }}/vcpkg fetch nuget) `
+            sources add `
+            -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
+            -StorePasswordInClearText `
+            -Name GitHubPackages `
+            -UserName "${{ github.actor }}" `
+            -Password "${{ secrets.NUGET_API_KEY }}"
+          .$(${{ env.VCPKG_ROOT }}/vcpkg fetch nuget) `
+            setapikey "${{ secrets.NUGET_API_KEY }}" `
+            -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2.18
+        with:
+          key: ${{ github.job }}-${{ matrix.os }}
+
+      - name: Build Windows
+        run: |
+          cmake --preset="Windows Debug Config" -D DISABLE_TEST=ON
+          cmake --build --preset="Windows Debug Build"
+
+      - name: Upload artifacts
+        if: ${{ !env.ACT && success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-binaries
+          path: |
+            out/windows/debug/bin/krkr2/**

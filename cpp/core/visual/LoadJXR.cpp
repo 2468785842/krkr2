@@ -187,7 +187,8 @@ void TVPSaveAsJXR(void *formatdata, tTJSBinaryStream *dst,
                     WICPixelFormatGUID *format_;
                     MetaDictionaryEnumCallback(IPropertyBag2 *prop,
                                                WICPixelFormatGUID *format) :
-                        prop_(prop), format_(format) {}
+                        prop_(prop),
+                        format_(format) {}
                     tjs_error
                     FuncCall(tjs_uint32 flag, const tjs_char *membername,
                              tjs_uint32 *hint, tTJSVariant *result,

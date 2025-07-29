@@ -15,6 +15,7 @@
       "name": "breakpad",
       "default-features": false
     },
+    "catch2",
     "cocos2dx",
     {
       "name": "dirent",

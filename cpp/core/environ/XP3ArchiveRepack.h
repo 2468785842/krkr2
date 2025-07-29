@@ -2,10 +2,10 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <cstdint>
 
 class XP3ArchiveRepackAsyncImpl;
 class XP3ArchiveRepackAsync {
-
 public:
     XP3ArchiveRepackAsync();
     ~XP3ArchiveRepackAsync();

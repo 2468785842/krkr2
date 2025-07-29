@@ -11,7 +11,7 @@ extern "C"
 #define ONE ((int)1)
 #define MULTIPLY(a, b) ((a) * (b))
 #define RIGHT_SHIFT(a, b) ((a) >> (b))
-#define DESCALE(x, n) RIGHT_SHIFT((x) + (ONE << ((n) - 1)), n)
+#define DESCALE(x, n) RIGHT_SHIFT((x) + (ONE << ((n)-1)), n)
 #define FIX_0_298631336 ((int)2446) /* FIX(0.298631336) */
 #define FIX_0_390180644 ((int)3196) /* FIX(0.390180644) */
 #define FIX_0_541196100 ((int)4433) /* FIX(0.541196100) */

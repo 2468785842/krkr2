@@ -1,0 +1,100 @@
+name: Build Linux
+
+on:
+  workflow_dispatch:
+
+  workflow_run:
+    workflows: ["Code Format Check"]
+    types: [ "completed" ]
+
+env:
+  VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json,readwrite"
+  VCPKG_INSTALL_OPTIONS: "--debug"
+
+jobs:
+  build-linux:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/.act/vcpkg
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Delete huge unnecessary tools folder
+        if: ${{ !env.ACT }}
+        run: |
+          if [ -d /opt/hostedtoolcache ]; then 
+            rm -rf /opt/hostedtoolcache
+            echo "Delete /opt/hostedtoolcache"
+          fi
+
+      - name: Install Mono
+        run: |
+          sudo apt install ca-certificates gnupg
+          sudo gpg --homedir /tmp --no-default-keyring --keyring /usr/share/keyrings/mono-official-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+          echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+          sudo apt update
+          sudo apt install -y mono-complete
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y perl gcc g++ bison python3 nasm ninja-build
+          
+          sudo apt install -y libxft-dev libxext-dev
+          sudo apt install -y libxxf86vm-dev libx11-dev libxmu-dev libglu1-mesa-dev libgl2ps-dev libxi-dev libzip-dev libpng-dev libcurl4-gnutls-dev libfontconfig1-dev libsqlite3-dev libglew-dev libssl-dev libgtk-3-dev binutils
+          sudo apt install -y autoconf automake libtool pkg-config
+          sudo apt install libltdl-dev
+
+          wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+          chmod +x dotnet-install.sh
+          ./dotnet-install.sh --channel 8.0
+          echo "$HOME/.dotnet" >> $GITHUB_PATH
+
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.31.1
+
+      - name: Setup vcpkg
+        run: |
+          if [ ! -d "${{ env.VCPKG_ROOT }}" ]; then
+            git clone https://github.com/microsoft/vcpkg.git ${{ env.VCPKG_ROOT }}
+          fi
+          
+          ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.sh
+
+      - name: Add NuGet sources
+        shell: bash
+        run: |
+          mono `${{ env.VCPKG_ROOT }}/vcpkg fetch nuget | tail -n 1` \
+            sources add \
+            -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            -StorePasswordInClearText \
+            -Name GitHubPackages \
+            -UserName "${{ github.actor }}" \
+            -Password "${{ secrets.NUGET_API_KEY }}"
+          mono `${{ env.VCPKG_ROOT }}/vcpkg fetch nuget | tail -n 1` \
+            setapikey "${{ secrets.NUGET_API_KEY }}" \
+            -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2.18
+        with:
+          key: ${{ github.job }}-${{ matrix.os }}
+
+      - name: Build Linux
+        run: |
+          cmake --preset="Linux Debug Config" -D DISABLE_TEST=ON
+          cmake --build --preset="Linux Debug Build"
+          
+          cp $(find out/linux/debug/ -name libfmod.so) out/linux/debug/bin/krkr2
+          cp $(find out/linux/debug/ -name libfmodL.so) out/linux/debug/bin/krkr2
+
+      - name: Upload artifacts
+        if: ${{ !env.ACT && success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-binaries
+          path: |
+            out/linux/debug/bin/krkr2/**

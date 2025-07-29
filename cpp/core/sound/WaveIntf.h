@@ -83,7 +83,7 @@ TJS_EXP_FUNC_DEF(void, TVPConvertPCMToFloat,
 //---------------------------------------------------------------------------
 class tTVPWaveDecoder {
 public:
-    virtual ~tTVPWaveDecoder() {};
+    virtual ~tTVPWaveDecoder(){};
 
     virtual void GetFormat(tTVPWaveFormat &format) = 0;
 
@@ -169,7 +169,8 @@ class tTJSNI_BaseWaveSoundBuffer : public tTJSNI_SoundBuffer {
         iTVPBasicWaveFilter *Interface; // filter interface
         tFilterObjectAndInterface(const tTJSVariant &filter,
                                   iTVPBasicWaveFilter *interf) :
-            Filter(filter), Interface(interf) {
+            Filter(filter),
+            Interface(interf) {
             ;
         }
     };

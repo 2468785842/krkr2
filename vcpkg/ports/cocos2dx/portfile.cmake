@@ -23,6 +23,7 @@ vcpkg_extract_source_archive(
     SOURCE_BASE "${COCOS2D_VERSION}"
     PATCHES
         patch/0001-fix-external-api-invoke.patch
+        patch/0001-add-cstdint-header.patch
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/cocos2dx-config.cmake.in" DESTINATION "${SOURCE_PATH}")

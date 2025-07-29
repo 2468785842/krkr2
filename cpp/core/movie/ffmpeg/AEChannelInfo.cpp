@@ -219,7 +219,8 @@ CAEChannelInfo &CAEChannelInfo::operator-=(const enum AEChannel &rhs) {
 }
 
 const enum AEChannel CAEChannelInfo::operator[](unsigned int i) const {
-    assert(i < m_channelCount); return m_channels[i];
+    assert(i < m_channelCount);
+    return m_channels[i];
 }
 
 CAEChannelInfo::operator std::string() const {

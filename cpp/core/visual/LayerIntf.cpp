@@ -7030,7 +7030,7 @@ tTVPBaseTexture *tTJSNI_BaseLayer::Complete(const tTVPRect &rect) {
 
     public:
         tCompleteDrawable(tTVPBaseTexture *bmp, tTVPLayerType layertype) :
-            Bitmap(bmp), LayerType(layertype) {};
+            Bitmap(bmp), LayerType(layertype){};
 
         tTVPBaseTexture *GetDrawTargetBitmap(const tTVPRect &rect,
                                              tTVPRect &cliprect) {
@@ -11205,8 +11205,7 @@ tTJSNC_Font::tTJSNC_Font() : tTJSNativeClass(TJS_W("Font")) {
             0;
 #endif
 
-        if(result)
-            *result = ret;
+            if(result) *result = ret;
 
         return TJS_S_OK;
     }

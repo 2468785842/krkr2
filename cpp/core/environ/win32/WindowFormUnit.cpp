@@ -180,11 +180,11 @@ void TVPInitWindowOptions() {
 
 TTVPWindowForm::TTVPWindowForm(tTVPApplication *app, tTJSNI_Window *ni,
                                tTJSNI_Window *parent) :
-    tTVPWindow(), CurrentMouseCursor(crDefault), touch_points_(this),
-    LayerLeft(0), LayerTop(0), LayerWidth(32), LayerHeight(32),
-    LastMouseDownX(0), LastMouseDownY(0), HintTimer(nullptr),
-    HintDelay(TVP_TOOLTIP_SHOW_DELAY), LastHintSender(nullptr),
-    FullScreenDestRect(0, 0, 0, 0) {
+    tTVPWindow(),
+    CurrentMouseCursor(crDefault), touch_points_(this), LayerLeft(0),
+    LayerTop(0), LayerWidth(32), LayerHeight(32), LastMouseDownX(0),
+    LastMouseDownY(0), HintTimer(nullptr), HintDelay(TVP_TOOLTIP_SHOW_DELAY),
+    LastHintSender(nullptr), FullScreenDestRect(0, 0, 0, 0) {
     CreateWnd(L"TVPMainWindow", Application->GetTitle(), 10, 10, parent);
     TVPInitWindowOptions();
 

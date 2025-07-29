@@ -117,7 +117,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 - **Windows**:
   - 使用 `clang-format` 进行代码格式化:
     ```powershell
-    Get-ChildItem -Path ./cpp, ./linux, ./windows, ./android/cpp -Recurse | 
+    Get-ChildItem -Path ./cpp, ./linux, ./windows, ./android/cpp -Recurse -File | 
     Where-Object { $_.Name -match '\.(cpp|cc|h|hpp|inc)$' } | 
     ForEach-Object { clang-format -i --verbose $_.FullName }
     ```

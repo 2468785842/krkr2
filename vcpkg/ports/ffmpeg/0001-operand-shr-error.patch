@@ -1,0 +1,22 @@
+diff --git a/libavcodec/x86/mathops.h b/libavcodec/x86/mathops.h
+index 6298f5ed19..993ed39bee 100644
+--- a/libavcodec/x86/mathops.h
++++ b/libavcodec/x86/mathops.h
+@@ -115,7 +115,7 @@ __asm__ volatile(\
+ static inline  int32_t NEG_SSR32( int32_t a, int8_t s){
+     __asm__ ("sarl %1, %0\n\t"
+          : "+r" (a)
+-         : "ic" ((uint8_t)(-s))
++         : "c" ((uint8_t)(-s))
+     );
+     return a;
+ }
+@@ -124,7 +124,7 @@ static inline  int32_t NEG_SSR32( int32_t a, int8_t s){
+ static inline uint32_t NEG_USR32(uint32_t a, int8_t s){
+     __asm__ ("shrl %1, %0\n\t"
+          : "+r" (a)
+-         : "ic" ((uint8_t)(-s))
++         : "c" ((uint8_t)(-s))
+     );
+     return a;
+ }

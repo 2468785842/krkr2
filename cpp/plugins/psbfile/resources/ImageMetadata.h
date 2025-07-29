@@ -81,7 +81,7 @@ namespace PSB {
 
         void setData(const std::vector<uint8_t> &data) const {
             if(this->_resource == nullptr) {
-                throw std::exception("Resource is null");
+                throw std::runtime_error("Resource is null");
             }
 
             this->_resource->data = data;

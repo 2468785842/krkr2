@@ -78,7 +78,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
     eTJSScriptError::eTJSScriptError(const ttstr &Msg, tTJSScriptBlock *block,
                                      tjs_int pos) :
-        eTJSError(Msg), Block(block), Position(pos) {}
+        eTJSError(Msg),
+        Block(block), Position(pos) {}
 
     //---------------------------------------------------------------------------
     tjs_int eTJSScriptError::GetSourceLine() const {

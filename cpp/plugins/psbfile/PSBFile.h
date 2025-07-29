@@ -11,20 +11,20 @@ namespace PSB {
 
     class PSBFile {
     public:
-        PSB::PSBArray charset{};
-        PSB::PSBArray namesData{};
-        PSB::PSBArray nameIndexes{};
+        PSBArray charset{};
+        PSBArray namesData{};
+        PSBArray nameIndexes{};
         std::vector<std::string> names{};
-        PSB::PSBArray stringOffsets{};
-        std::vector<PSB::PSBString> strings{};
+        PSBArray stringOffsets{};
+        std::vector<PSBString> strings{};
 
-        PSB::PSBArray chunkOffsets;
-        PSB::PSBArray chunkLengths;
+        PSBArray chunkOffsets;
+        PSBArray chunkLengths;
 
         std::vector<std::shared_ptr<PSBResource>> resources;
 
-        PSB::PSBArray extraChunkOffsets{};
-        PSB::PSBArray extraChunkLengths{};
+        PSBArray extraChunkOffsets{};
+        PSBArray extraChunkLengths{};
         std::vector<std::shared_ptr<PSBResource>> extraResources;
 
         explicit PSBFile();
@@ -39,18 +39,18 @@ namespace PSB {
         /**
          * Load a string based on index, lift stream Position
          */
-        void loadString(std::unique_ptr<PSB::PSBString> &str,
+        void loadString(std::unique_ptr<PSBString> &str,
                         TJS::tTJSBinaryStream *stream);
 
-        std::shared_ptr<PSB::PSBList> loadList(TJS::tTJSBinaryStream *stream,
-                                               bool lazyLoad = false);
-        std::shared_ptr<PSB::PSBDictionary>
+        std::shared_ptr<PSBList> loadList(TJS::tTJSBinaryStream *stream,
+                                          bool lazyLoad = false);
+        std::shared_ptr<PSBDictionary>
         loadObjects(TJS::tTJSBinaryStream *stream, bool lazyLoad = false);
 
-        std::shared_ptr<PSB::PSBDictionary>
+        std::shared_ptr<PSBDictionary>
         loadObjectsV1(TJS::tTJSBinaryStream *stream, bool lazyLoad = false);
-        std::shared_ptr<PSB::IPSBValue> unpack(TJS::tTJSBinaryStream *stream,
-                                               bool lazyLoad = false);
+        std::shared_ptr<IPSBValue> unpack(TJS::tTJSBinaryStream *stream,
+                                          bool lazyLoad = false);
         void loadResource(PSBResource &res,
                           TJS::tTJSBinaryStream *stream) const;
         void loadExtraResource(PSBResource &res,
@@ -82,8 +82,12 @@ namespace PSB {
             return nullptr;
         }
 
+        PSBHeader getPSBHeader() const { return this->_header; }
+
+        PSBType getType() const { return _type; }
+
     private:
-        PSB::PSBHeader _header{};
+        PSBHeader _header{};
         std::shared_ptr<IPSBValue> _root{};
         PSBType _type = PSBType::PSB;
 

@@ -16,8 +16,8 @@ NS_KRMOVIE_BEGIN
 
 CDVDAudioCodecPassthrough::CDVDAudioCodecPassthrough(
     CProcessInfo &processInfo) :
-    CDVDAudioCodec(processInfo), m_buffer(nullptr), m_bufferSize(0),
-    m_trueHDoffset(0) {}
+    CDVDAudioCodec(processInfo),
+    m_buffer(nullptr), m_bufferSize(0), m_trueHDoffset(0) {}
 
 CDVDAudioCodecPassthrough::~CDVDAudioCodecPassthrough() { Dispose(); }
 

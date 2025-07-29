@@ -92,7 +92,7 @@ PSD::PSD(iTJSDispatch2 *objthis) :
     pStream(nullptr), mStreamSize(0), mBufferPos(0), mBufferSize(0)
 #endif
     ,
-    storageStarted(false) {};
+    storageStarted(false){};
 
 /**
  * デストラクタ

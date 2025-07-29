@@ -913,7 +913,7 @@ public:
         HDC bmpdc;
         tjs_int bmpx, bmpy, bmpw, bmph;
         //        static ATOM WindowClass;
-    } *ovbmp;
+    } * ovbmp;
 };
 
 // 拡張イベント用ネイティブインスタンスゲッタ

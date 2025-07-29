@@ -3,7 +3,9 @@ vcpkg_from_github(
     REPO ffmpeg/ffmpeg
     REF "n${VERSION}"
     SHA512 c3b49fe521d3eb946c130a6ad2d199130483e7c01545e53acef316e4c923f768540057e2c0ce2655aaaafc55872e02f045fe59f5a477d1c5b8985ef14c6bd3df
-    PATCHES android-ffmpeg.patch
+    PATCHES
+        0001-android-ffmpeg.patch
+        0001-operand-shr-error.patch
 )
 
 if(SOURCE_PATH MATCHES " ")

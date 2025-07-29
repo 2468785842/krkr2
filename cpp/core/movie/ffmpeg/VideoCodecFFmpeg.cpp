@@ -1,7 +1,7 @@
 #include "VideoCodecFFmpeg.h"
 
 #ifndef TARGET_POSIX
-#define RINT(x) ((x) >= 0 ? ((int)((x) + 0.5)) : ((int)((x) - 0.5)))
+#define RINT(x) ((x) >= 0 ? ((int)((x) + 0.5)) : ((int)((x)-0.5)))
 #else
 #include <math.h>
 #define RINT lrint

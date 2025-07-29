@@ -83,7 +83,8 @@ namespace PSB::Extension {
         // 构造函数
         RectangleF(float x = 0.0f, float y = 0.0f, float width = 0.0f,
                    float height = 0.0f) :
-            X(x), Y(y), Width(width), Height(height) {}
+            X(x),
+            Y(y), Width(width), Height(height) {}
 
         // 根据左、上、右、下边界创建矩形
         static RectangleF FromLTRB(float left, float top, float right,

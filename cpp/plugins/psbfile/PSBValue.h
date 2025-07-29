@@ -189,7 +189,7 @@ namespace PSB {
 
         explicit operator int() const {
             if(this->numberType != PSBNumberType::Int) {
-                throw std::exception("not int type!");
+                throw std::runtime_error("not int type!");
             }
             return this->getValue<int>();
         }
@@ -201,13 +201,13 @@ namespace PSB {
         explicit PSBArray() = default;
         explicit PSBArray(int n, TJS::tTJSBinaryStream *stream) {
             if(n < 0 || n > 8) {
-                throw std::exception("bad length type size");
+                throw std::runtime_error("bad length type size");
             }
 
             std::uint32_t count{};
             stream->ReadBuffer(&count, n);
             if(count > INT32_MAX) {
-                throw std::exception("Long array is not supported yet");
+                throw std::runtime_error("Long array is not supported yet");
             }
 
             entryLength = stream->ReadI8LE() -
@@ -257,7 +257,7 @@ namespace PSB {
                 case 8:
                     return PSBObjType::ArrayN8;
                 default:
-                    throw std::exception("Not a valid array");
+                    throw std::runtime_error("Not a valid array");
             }
         }
     };
@@ -275,7 +275,8 @@ namespace PSB {
 
         explicit PSBString(std::string value = "",
                            std::optional<std::uint32_t> index = {}) :
-            index(index), value(std::move(value)) {}
+            index(index),
+            value(std::move(value)) {}
 
 
         [[nodiscard]] tTJSVariant toTJSVal() const override;
@@ -295,7 +296,7 @@ namespace PSB {
                 case 4:
                     return PSBObjType::StringN4;
                 default:
-                    throw std::exception("String index has wrong size");
+                    throw std::runtime_error("String index has wrong size");
             }
         }
     };
@@ -340,7 +341,7 @@ namespace PSB {
                     return isExtra ? PSBObjType::ExtraChunkN4
                                    : PSBObjType::ResourceN4;
                 default:
-                    throw std::exception("Not a valid resource");
+                    throw std::runtime_error("Not a valid resource");
             }
         }
     };
@@ -454,13 +455,13 @@ namespace PSB {
         static std::vector<std::uint32_t>
         loadIntoList(int n, TJS::tTJSBinaryStream *stream) {
             if(n < 0 || n > 8) {
-                throw std::exception("Long array is not supported yet");
+                throw std::runtime_error("Long array is not supported yet");
             }
 
             std::uint32_t count{};
             stream->ReadBuffer(&count, n);
             if(count > INT32_MAX) {
-                throw std::exception("Long array is not supported yet");
+                throw std::runtime_error("Long array is not supported yet");
             }
 
             const std::uint8_t entryLength = stream->ReadI8LE() -

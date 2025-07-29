@@ -25,7 +25,7 @@ class TVPBaseFileSelectorForm : public iTVPBaseForm,
                                 public cocos2d::extension::TableViewDataSource {
 public:
     TVPBaseFileSelectorForm();
-    virtual ~TVPBaseFileSelectorForm();
+    ~TVPBaseFileSelectorForm() override;
 
     cocos2d::Size tableCellSizeForIndex(cocos2d::extension::TableView *table,
                                         ssize_t idx) override;
@@ -41,13 +41,13 @@ public:
     PathSplit(const std::string &path);
 
 protected:
-    virtual void bindBodyController(const NodeMap &allNodes) override;
-    virtual void bindHeaderController(const NodeMap &allNodes) override;
+    void bindHeaderController(const Node *allNodes) override;
+    void bindBodyController(const Node *allNodes) override;
+    void bindFooterController(const Node *allNodes) override {}
 
     void ListDir(std::string path);
     virtual void getShortCutDirList(std::vector<std::string> &pathlist);
 
-    void onCellItemClicked(cocos2d::Ref *owner);
     void onTitleClicked(cocos2d::Ref *owner);
     void onBackClicked(cocos2d::Ref *owner);
     void _onCellClicked(int idx);
@@ -99,27 +99,27 @@ protected:
     public:
         FileItemCellImpl() : _set(false), _owner(nullptr) {}
 
-        static FileItemCellImpl *create(const char *filename, float width) {
-            FileItemCellImpl *ret = new FileItemCellImpl();
+        static FileItemCellImpl *create(const Csd::NodeBuilderFn &nodeBuilderFn,
+                                        float width) {
+            const auto ret = new FileItemCellImpl();
             ret->autorelease();
-            ret->init();
-            ret->initFromFile(filename, width);
+            ret->init(nodeBuilderFn, width);
             return ret;
         }
 
-        void initFromFile(const char *filename, float width);
+        void init(const Csd::NodeBuilderFn &nodeBuilderFn, float width);
 
         void setInfo(int idx, const FileInfo &info, bool selected,
                      bool showSelect);
 
         void reset() { _set = false; }
 
-        bool isSet() { return _set; }
+        bool isSet() const { return _set; }
 
         void setOwner(FileItemCell *owner) { _owner = owner; }
 
     private:
-        void onClicked(cocos2d::Ref *);
+        void onClicked(cocos2d::Ref *) const;
 
         bool _set;
         cocos2d::Size OrigCellModelSize, CellTextAreaSize, OrigCellTextSize;
@@ -141,7 +141,7 @@ protected:
             _owner(owner), _impl(nullptr) {}
 
         static FileItemCell *create(TVPBaseFileSelectorForm *owner) {
-            FileItemCell *ret = new FileItemCell(owner);
+            auto *ret = new FileItemCell(owner);
             ret->init();
             ret->autorelease();
             return ret;
@@ -191,8 +191,9 @@ public:
     }
 
 protected:
-    virtual void bindFooterController(const NodeMap &allNodes) override;
-    virtual void onCellClicked(int idx) override;
+    void bindFooterController(const Node *allNodes) override;
+
+    void onCellClicked(int idx) override;
     void close();
 
     cocos2d::ui::Button *_buttonOK, *_buttonCancel;

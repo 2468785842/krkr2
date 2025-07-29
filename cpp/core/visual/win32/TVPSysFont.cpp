@@ -184,7 +184,8 @@ struct tTVPFSEnumFontsProcData {
     BYTE CharSet;
     tTVPFSEnumFontsProcData(std::vector<ttstr> &list, tjs_uint32 flags,
                             BYTE charSet) :
-        List(list), Flags(flags), CharSet(charSet) {}
+        List(list),
+        Flags(flags), CharSet(charSet) {}
 };
 //---------------------------------------------------------------------------
 /**

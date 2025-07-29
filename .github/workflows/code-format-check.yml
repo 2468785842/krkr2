@@ -1,0 +1,52 @@
+name: Code Format Check
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'android/**'
+      - 'cmake/**'
+      - 'cpp/**'
+      - 'linux/**'
+      - 'windows/**'
+      - 'vcpkg/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - 'vcpkg.json'
+      - 'vcpkg-configuration.json'
+      - 'build.gradle'
+      - 'gradle.properties'
+      - 'settings.gradle'
+      - 'build-linux.sh'
+      - 'build-windows.bat'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'android/**'
+      - 'cmake/**'
+      - 'cpp/**'
+      - 'linux/**'
+      - 'windows/**'
+      - 'vcpkg/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - 'vcpkg.json'
+      - 'vcpkg-configuration.json'
+      - 'build.gradle'
+      - 'gradle.properties'
+      - 'settings.gradle'
+      - 'build-linux.sh'
+      - 'build-windows.bat'
+      - '.github/workflows/**'
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DoozyX/clang-format-lint-action@v0.18.2
+        with:
+          source: 'cpp linux windows android/cpp'
+          extensions: 'cpp,cc,h,hpp,inc'
+          clangFormatVersion: 13

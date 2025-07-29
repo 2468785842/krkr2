@@ -32,6 +32,7 @@
 #include "Exception.h"
 #include "win32/SystemControl.h"
 #include "ui/UIButton.h"
+#include "ui/csd/CsdUIFactory.h"
 
 USING_NS_CC;
 
@@ -1254,7 +1255,7 @@ public:
         LastMouseKeyTick = TVPGetRoughTickCount32();
     }
 
-    virtual void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) override {
+    void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) override {
         tjs_uint32 tick = TVPGetRoughTickCount32();
         TVPPushEnvironNoise(&tick, sizeof(tick));
         TVPPushEnvironNoise(&key, sizeof(key));
@@ -1349,14 +1350,14 @@ public:
         }
     }
 
-    virtual void OnKeyUp(tjs_uint16 vk, int shift) override {
-        tjs_uint32 s = (shift);
+    void OnKeyUp(tjs_uint16 vk, int shift) override {
+        tjs_uint32 s = shift;
         s |= GetMouseButtonState();
         InternalKeyUp(vk, s);
     }
 
-    virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate,
-                            bool convertkey) override {
+    void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate,
+                    bool convertkey) override {
         if(TJSNativeInstance && vk) {
             if(UseMouseKey && (vk == 0x1b || vk == 13 || vk == 32))
                 return;
@@ -1455,7 +1456,7 @@ public:
         }
     }
 
-    virtual void Close() override {
+    void Close() override {
         // closing action by "close" method
         if(Closing)
             return; // already waiting closing...
@@ -1493,7 +1494,7 @@ public:
         ProgramClosing = false;
     }
 
-    virtual void OnCloseQueryCalled(bool b) override {
+    void OnCloseQueryCalled(bool b) override {
         // closing is allowed by onCloseQuery event handler
         if(!ProgramClosing) {
             // closing action by the user
@@ -1525,7 +1526,7 @@ public:
         }
     }
 
-    virtual void UpdateWindow(tTVPUpdateType type) override {
+    void UpdateWindow(tTVPUpdateType type) override {
         if(TJSNativeInstance) {
             tTVPRect r;
             r.left = 0;
@@ -1537,7 +1538,7 @@ public:
         }
     }
 
-    virtual void SetVisibleFromScript(bool b) override {
+    void SetVisibleFromScript(bool b) override {
         SetVisible(b);
         // 		if (Focusable) {
         // 			SetVisible(b);
@@ -1552,7 +1553,7 @@ public:
         // 		}
     }
 
-    virtual void SetUseMouseKey(bool b) override {
+    void SetUseMouseKey(bool b) override {
         UseMouseKey = b;
         if(b) {
             MouseLeftButtonEmulatedPushed = false;
@@ -1570,7 +1571,7 @@ public:
         }
     }
 
-    virtual bool GetUseMouseKey() const override { return UseMouseKey; }
+    bool GetUseMouseKey() const override { return UseMouseKey; }
 
     void OnMouseUp(int button, int shift, int x, int y) {
         //	TranslateWindowToDrawArea(x, y);
@@ -1586,11 +1587,11 @@ public:
         }
     }
 
-    virtual void ResetTouchVelocity(tjs_int id) override {
+    void ResetTouchVelocity(tjs_int id) override {
         TouchVelocityTracker.end(id);
     }
 
-    virtual void ResetMouseVelocity() override { MouseVelocityTracker.clear(); }
+    void ResetMouseVelocity() override { MouseVelocityTracker.clear(); }
 
     bool GetMouseVelocity(float &x, float &y, float &speed) const override {
         if(MouseVelocityTracker.getVelocity(x, y)) {
@@ -1600,7 +1601,7 @@ public:
         return false;
     }
 
-    virtual void TickBeat() override {
+    void TickBeat() override {
         bool focused = _currentWindowLayer == this;
         // mouse key
         if(UseMouseKey && focused) {
@@ -1618,9 +1619,9 @@ tTJSNI_Window *TVPGetActiveWindow() {
 class TVPWindowManagerOverlay : public iTVPBaseForm {
 public:
     static TVPWindowManagerOverlay *create() {
-        TVPWindowManagerOverlay *ret = new TVPWindowManagerOverlay();
+        auto *ret = new TVPWindowManagerOverlay();
         ret->autorelease();
-        ret->initFromFile(nullptr, "ui/WinMgrOverlay.csb", nullptr);
+        ret->initFromFile(nullptr, Csd::createWinMgrOverlay(), nullptr);
         return ret;
     }
 
@@ -1631,13 +1632,14 @@ public:
         ui::Helper::doLayout(RootNode);
     }
 
-    void bindBodyController(const NodeMap &allNodes) override {
-        _left = static_cast<ui::Button *>(allNodes.findController("left"));
-        _right = static_cast<ui::Button *>(allNodes.findController("right"));
-        _ok = static_cast<ui::Button *>(allNodes.findController("ok"));
+    void bindHeaderController(const Node *allNodes) override {}
 
-        auto funcUpdate =
-            std::bind(&TVPWindowManagerOverlay::updateButtons, this);
+    void bindBodyController(const Node *allNodes) override {
+        _left = allNodes->getChildByName<ui::Button *>("left");
+        _right = allNodes->getChildByName<ui::Button *>("right");
+        _ok = allNodes->getChildByName<ui::Button *>("ok");
+
+        auto funcUpdate = [this] { updateButtons(); };
 
         _left->addClickEventListener([=](Ref *) {
             if(!_currentWindowLayer || !_currentWindowLayer->_prevWindow)
@@ -1682,7 +1684,7 @@ public:
         });
 
         ui::Button *fillscr =
-            static_cast<ui::Button *>(allNodes.findController("fillscr"));
+            (allNodes->getChildByName<cocos2d::ui::Button *>("fillscr"));
         fillscr->addClickEventListener([](Ref *) {
             if(!_currentWindowLayer)
                 return;
@@ -1692,7 +1694,9 @@ public:
         updateButtons();
     }
 
-    void updateButtons() {
+    void bindFooterController(const Node *allNodes) override {}
+
+    void updateButtons() const {
         if(!_currentWindowLayer)
             return;
         if(_left) {
