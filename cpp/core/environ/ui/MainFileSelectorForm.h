@@ -2,6 +2,13 @@
 
 #include "FileSelectorForm.h"
 
+
+#if defined(_WIN32)
+#include <windows.h>
+#elif defined(__linux__)
+#include <sys/stat.h>
+#endif
+
 namespace cocos2d {
     class LayerColor;
 }
@@ -93,3 +100,7 @@ protected:
     cocos2d::Node *newLocalPref, *localPref;
     cocos2d::Size sizeNewLocalPref, sizeLocalPref;
 };
+
+void runFromPath(const std::string &path);
+FileInfo MakeFileInfoFromPath(const std::string& path);
+extern std::wstring filePath;

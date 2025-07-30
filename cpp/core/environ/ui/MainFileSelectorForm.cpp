@@ -125,6 +125,56 @@ void TVPMainFileSelectorForm::bindBodyController(const Node *allNodes) {
     }
 }
 
+
+FileInfo MakeFileInfoFromPath(const std::string& path) {
+    FileInfo info;
+    info.FullPath = path;
+
+    // 提取文件名
+    size_t pos = path.find_last_of("/\\");
+    if(pos != std::string::npos)
+        info.NameForDisplay = path.substr(pos + 1);
+    else
+        info.NameForDisplay = path;
+
+    info.NameForCompare = info.NameForDisplay;
+
+    // 判断是否为目录
+#if defined(_WIN32)
+    DWORD attr = GetFileAttributesA(path.c_str());
+    info.IsDir = (attr != INVALID_FILE_ATTRIBUTES) && (attr & FILE_ATTRIBUTE_DIRECTORY);
+#elif defined(__linux__)
+    struct stat st;
+    if(stat(path.c_str(), &st) == 0)
+        info.IsDir = S_ISDIR(st.st_mode);
+    else
+        info.IsDir = false;
+#else
+    info.IsDir = false;
+#endif
+
+    // CellSize 可以根据你的 UI 需求设置
+    info.CellSize = cocos2d::Size(0, 0);
+
+    return info;
+}
+void runFromPath(const std::string &path) {
+    FileInfo info = MakeFileInfoFromPath(path);
+    int archiveType;
+    if(info.IsDir) {
+        if(CheckDir(info.FullPath)) {
+            startup(info.FullPath);
+        }
+    } else if((archiveType = TVPCheckArchive(info.FullPath.c_str())) == 1) {
+        startup(info.FullPath);
+    } else if(archiveType == 0 && TVPCheckIsVideoFile(info.FullPath.c_str())) {
+        SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
+        TVPMainScene::GetInstance()->addChild(player,
+                                              10); // pushUIForm(player);
+        player->PlayFile(info.FullPath.c_str());
+    }
+}
+
 void TVPMainFileSelectorForm::show() {
     ListHistory(); // filter history data
 
@@ -156,6 +206,10 @@ void TVPMainFileSelectorForm::show() {
     }
     ListDir(lastpath); // getCurrentDir()
                        // TODO show usage
+    if (!filePath.empty()) {
+        std::string path = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(filePath);
+        runFromPath(path);
+    }
 }
 
 static const std::string str_startup_tjs("startup.tjs");
