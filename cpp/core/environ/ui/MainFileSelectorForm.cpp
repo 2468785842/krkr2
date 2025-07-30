@@ -125,55 +125,42 @@ void TVPMainFileSelectorForm::bindBodyController(const Node *allNodes) {
     }
 }
 
+int TVPCheckArchive(const ttstr &localname);
 
-FileInfo MakeFileInfoFromPath(const std::string& path) {
-    FileInfo info;
-    info.FullPath = path;
-
+void TVPMainFileSelectorForm::runFromPath(const std::string &path) {
     // 提取文件名
     size_t pos = path.find_last_of("/\\");
-    if(pos != std::string::npos)
-        info.NameForDisplay = path.substr(pos + 1);
-    else
-        info.NameForDisplay = path;
-
-    info.NameForCompare = info.NameForDisplay;
+    std::string nameForDisplay = (pos != std::string::npos) ? path.substr(pos + 1) : path;
 
     // 判断是否为目录
+    bool isDir = false;
 #if defined(_WIN32)
     DWORD attr = GetFileAttributesA(path.c_str());
-    info.IsDir = (attr != INVALID_FILE_ATTRIBUTES) && (attr & FILE_ATTRIBUTE_DIRECTORY);
+    isDir = (attr != INVALID_FILE_ATTRIBUTES) && (attr & FILE_ATTRIBUTE_DIRECTORY);
 #elif defined(__linux__)
     struct stat st;
     if(stat(path.c_str(), &st) == 0)
-        info.IsDir = S_ISDIR(st.st_mode);
+        isDir = S_ISDIR(st.st_mode);
     else
-        info.IsDir = false;
+        isDir = false;
 #else
-    info.IsDir = false;
+    isDir = false;
 #endif
 
-    // CellSize 可以根据你的 UI 需求设置
-    info.CellSize = cocos2d::Size(0, 0);
-
-    return info;
-}
-void runFromPath(const std::string &path) {
-    FileInfo info = MakeFileInfoFromPath(path);
     int archiveType;
-    if(info.IsDir) {
-        if(CheckDir(info.FullPath)) {
-            startup(info.FullPath);
+    if(isDir) {
+        if(CheckDir(path)) {
+            startup(path);
         }
-    } else if((archiveType = TVPCheckArchive(info.FullPath.c_str())) == 1) {
-        startup(info.FullPath);
-    } else if(archiveType == 0 && TVPCheckIsVideoFile(info.FullPath.c_str())) {
+    } else if((archiveType = TVPCheckArchive(path.c_str())) == 1) {
+        startup(path);
+    } else if(archiveType == 0 && TVPCheckIsVideoFile(path.c_str())) {
         SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
-        TVPMainScene::GetInstance()->addChild(player,
-                                              10); // pushUIForm(player);
-        player->PlayFile(info.FullPath.c_str());
+        TVPMainScene::GetInstance()->addChild(player, 10);
+        player->PlayFile(path.c_str());
     }
 }
+
 
 void TVPMainFileSelectorForm::show() {
     ListHistory(); // filter history data
@@ -209,7 +196,15 @@ void TVPMainFileSelectorForm::show() {
 
 #if defined(_WIN32) || defined(__linux__)
     if (!filePath.empty()) {
-        std::string path = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(filePath);
+#if defined(_WIN32)
+        // Convert std::wstring to UTF-8 std::string on Windows
+        int size_needed = WideCharToMultiByte(CP_UTF8, 0, filePath.c_str(), (int)filePath.size(), NULL, 0, NULL, NULL);
+        std::string path(size_needed, 0);
+        WideCharToMultiByte(CP_UTF8, 0, filePath.c_str(), (int)filePath.size(), &path[0], size_needed, NULL, NULL);
+#else
+        // On Linux, filePath should already be UTF-8 encoded
+        std::string path = filePath;
+#endif
         runFromPath(path);
     }
 #endif
@@ -225,7 +220,7 @@ bool TVPMainFileSelectorForm::CheckDir(const std::string &path) {
     return false;
 }
 
-int TVPCheckArchive(const ttstr &localname);
+
 
 void TVPMainFileSelectorForm::onCellClicked(int idx) {
     FileInfo info = CurrentDirList[idx];

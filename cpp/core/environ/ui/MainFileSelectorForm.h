@@ -28,6 +28,8 @@ public:
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
                       cocos2d::Event *event) override;
 
+    void runFromPath(const std::string &path);
+
 protected:
     TVPMainFileSelectorForm();
 
@@ -101,6 +103,4 @@ protected:
     cocos2d::Size sizeNewLocalPref, sizeLocalPref;
 };
 
-void runFromPath(const std::string &path);
-FileInfo MakeFileInfoFromPath(const std::string& path);
 extern std::wstring filePath;
