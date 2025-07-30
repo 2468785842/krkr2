@@ -206,10 +206,13 @@ void TVPMainFileSelectorForm::show() {
     }
     ListDir(lastpath); // getCurrentDir()
                        // TODO show usage
+
+#if defined(_WIN32) || defined(__linux__)
     if (!filePath.empty()) {
         std::string path = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(filePath);
         runFromPath(path);
     }
+#endif
 }
 
 static const std::string str_startup_tjs("startup.tjs");

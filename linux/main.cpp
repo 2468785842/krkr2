@@ -7,6 +7,8 @@
 
 #include "environ/cocos2d/AppDelegate.h"
 
+std::wstring filePath;
+
 int main(int argc, char **argv) {
     gtk_init(&argc, &argv);
     spdlog::set_level(spdlog::level::debug);
