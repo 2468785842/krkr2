@@ -5,6 +5,7 @@
 
 // Windows Header Files:
 #include <windows.h>
+#include <shellapi.h>
 #include <tchar.h>
 
 // C RunTime Header Files

@@ -3,6 +3,7 @@
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <shellapi.h>
 
 #include "environ/cocos2d/AppDelegate.h"
 
@@ -22,7 +23,11 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     if (argc > 1) {
         // 第一个参数是exe路径，第二个参数是拖拽的文件路径
         xp3Path = argv[1];
-        spdlog::info("XP3 文件路径: {}", std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(xp3Path));
+        // Convert std::wstring to UTF-8 std::string using WideCharToMultiByte
+        int size_needed = WideCharToMultiByte(CP_UTF8, 0, xp3Path.c_str(), (int)xp3Path.size(), NULL, 0, NULL, NULL);
+        std::string xp3PathUtf8(size_needed, 0);
+        WideCharToMultiByte(CP_UTF8, 0, xp3Path.c_str(), (int)xp3Path.size(), &xp3PathUtf8[0], size_needed, NULL, NULL);
+        spdlog::info("XP3 文件路径: {}", xp3PathUtf8);
         filePath = xp3Path;
     }
 
