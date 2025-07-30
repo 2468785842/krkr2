@@ -83,7 +83,12 @@ namespace TJSPP {
     tjs_int32 tTJSPPExprParser::Parse() {
         Current = Script;
         Result = 0;
+// 拷贝构造函数和赋值在winbisonlex为private和delete
+#if defined(_WIN32) || defined(_WIN64)
+        parser bisonPpParser{ this };
+#else
         auto bisonPpParser = parser{ this };
+#endif
         if(bisonPpParser.parse()) {
             TJS_eTJSError(TJSPPError);
         }

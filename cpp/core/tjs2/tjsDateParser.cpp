@@ -61,7 +61,12 @@ namespace TJSDate {
 
         YearSet = MonthSet = MDaySet = HourSet = MinSet = SecSet = TimeZoneSet =
             TimeZoneOffsetSet = AMPMSet = false;
+// 拷贝构造函数和赋值在winbisonlex为private和delete
+#if defined(_WIN32) || defined(_WIN64)
+        parser bisonDateParser{ this };
+#else
         auto bisonDateParser = parser{ this };
+#endif
         if(bisonDateParser.parse())
             TJS_eTJSError(TJSCannotParseDate);
 
