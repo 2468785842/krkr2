@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
-
+set(CMAKE_CXX_STANDARD 17)          # 全局要求 C++17
+set(CMAKE_CXX_STANDARD_REQUIRED ON) # 强制
+set(CMAKE_CXX_EXTENSIONS OFF)       # 关闭编译器扩展
 find_program(CCACHE_PROGRAM ccache)
 if (CCACHE_PROGRAM)
     set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
@@ -28,6 +30,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(KRKR2CORE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/core)
 set(KRKR2PLUGIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/plugins)
+if(MSVC)
+    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/EHsc>")
+endif()
 if(MSVC)
     add_link_options("/ignore:4099")
     # set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
