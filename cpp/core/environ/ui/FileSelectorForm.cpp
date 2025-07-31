@@ -129,6 +129,21 @@ static const std::string str_diricon("dir_icon");
 static const std::string str_select("select_check");
 static const std::string str_filename("filename");
 
+std::string utf8_to_local(const std::string &utf8) {
+    // to UTF-16
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, nullptr, 0);
+    if (wlen <= 0) return "";
+    std::wstring wstr(wlen - 1, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, wstr.data(), wlen - 1);
+
+    // to（GBK/ANSI）
+    int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (len <= 0) return "";
+    std::string local(len - 1, '\0');
+    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, local.data(), len - 1, nullptr, nullptr);
+    return local;
+}
+
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
     auto [fst, snd] = PathSplit(path);
 
@@ -188,7 +203,7 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
         it.FullPath = path + "/" + it.NameForDisplay;
         #ifdef _DEBUG
         spdlog::info("Found file: FullPath {}, NameForDisplay {}, IsDir {}",
-                     it.FullPath, it.NameForDisplay, it.IsDir);
+                     utf8_to_local(it.FullPath),  utf8_to_local(it.NameForDisplay), it.IsDir);
         #endif
     }
 

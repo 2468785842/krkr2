@@ -11,6 +11,9 @@
 #   include <unistd.h>      // 自带 POSIX 宏
 #endif
 
+#ifdef _WIN32
+std::string utf8_to_local(const std::string &utf8);
+#endif
 class TVPListForm : public cocos2d::Node {
 public:
     virtual ~TVPListForm();

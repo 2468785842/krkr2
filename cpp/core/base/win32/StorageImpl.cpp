@@ -135,18 +135,15 @@ void TVPListDir(const std::string &u8folder,
     // ---------------- Windows 分支 ----------------
     namespace fs = std::filesystem;
 
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, u8folder.c_str(), -1, nullptr, 0);
+    if (wlen <= 0) return;
+    std::wstring wfolder(wlen - 1, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, u8folder.c_str(), -1, wfolder.data(), wlen - 1);
     try {
-        int wlen = MultiByteToWideChar(CP_UTF8, 0, u8folder.c_str(), -1, nullptr, 0);
-        if (wlen <= 0) return;
-        std::wstring wfolder(wlen - 1, L'\0');
-        MultiByteToWideChar(CP_UTF8, 0, u8folder.c_str(), -1, wfolder.data(), wlen - 1);
         auto begin = std::filesystem::directory_iterator(wfolder);
         for (const auto& entry : begin) {
             // 文件名（UTF-8）
             std::string name = entry.path().filename().u8string();
-#ifdef _DEBUG
-            spdlog::info("Found file: {}", name);
-#endif
             // 文件类型
             auto st = entry.status();
             int mode = 0;
@@ -157,8 +154,12 @@ void TVPListDir(const std::string &u8folder,
         }
     }
     catch (const fs::filesystem_error&) {
+        int len = WideCharToMultiByte(CP_ACP, 0, wfolder.c_str(), -1, nullptr, 0, nullptr, nullptr);
+        if (len <= 0) spdlog::error("Failed to list directory: {}", u8folder);
+        std::string local(len - 1, '\0');
+        WideCharToMultiByte(CP_ACP, 0, wfolder.c_str(), -1, local.data(), len - 1, nullptr, nullptr);
         // 目录不存在或无权限，静默返回
-        spdlog::warn("Failed to list directory: {}", u8folder);
+        spdlog::error("Failed to list directory: {}", local);
     }
 
 #else
