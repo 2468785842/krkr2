@@ -129,9 +129,10 @@ void TVPMainFileSelectorForm::bindBodyController(const Node *allNodes) {
 int TVPCheckArchive(const ttstr &localname);
 
 void TVPMainFileSelectorForm::runFromPath(const std::string &path) {
+    std::string  _path = utf8_to_local(path);
     // 提取文件名
-    size_t pos = path.find_last_of("/\\");
-    std::string nameForDisplay = (pos != std::string::npos) ? path.substr(pos + 1) : path;
+    size_t pos = _path.find_last_of("/\\");
+    std::string nameForDisplay = (pos != std::string::npos) ? _path.substr(pos + 1) : _path;
 
     // 判断是否为目录
     bool isDir = false;
@@ -150,12 +151,12 @@ void TVPMainFileSelectorForm::runFromPath(const std::string &path) {
 
     int archiveType;
     if(isDir) {
-        if(CheckDir(path)) {
-            startup(path);
+        if(CheckDir(_path)) {
+            startup(_path);
         }
-    } else if((archiveType = TVPCheckArchive(path.c_str())) == 1) {
-        startup(path);
-    } else if(archiveType == 0 && TVPCheckIsVideoFile(path.c_str())) {
+    } else if((archiveType = TVPCheckArchive(_path.c_str())) == 1) {
+        startup(_path);
+    } else if(archiveType == 0 && TVPCheckIsVideoFile(_path.c_str())) {
         SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
         TVPMainScene::GetInstance()->addChild(player, 10);
         player->PlayFile(path.c_str());
@@ -217,6 +218,10 @@ bool TVPMainFileSelectorForm::CheckDir(const std::string &path) {
 void TVPMainFileSelectorForm::onCellClicked(int idx) {
     FileInfo info = CurrentDirList[idx];
     TVPBaseFileSelectorForm::onCellClicked(idx);
+
+    info.FullPath = utf8_to_local(info.FullPath);
+    info.NameForCompare = utf8_to_local(info.NameForCompare);
+    info.NameForDisplay = utf8_to_local(info.NameForDisplay);
     int archiveType;
     if(info.IsDir) {
         if(CheckDir(info.FullPath)) {

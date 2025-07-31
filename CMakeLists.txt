@@ -84,6 +84,7 @@ endif()
 if(MSVC)
   target_compile_options(${PROJECT_NAME} PUBLIC "/ZI")
   target_link_options(${PROJECT_NAME} PUBLIC "/INCREMENTAL")
+  target_link_options(${PROJECT_NAME} PUBLIC "/DEBUG")
 endif()
 
 if(NOT DISABLE_TEST AND NOT ANDROID)

@@ -130,6 +130,7 @@ static const std::string str_select("select_check");
 static const std::string str_filename("filename");
 
 std::string utf8_to_local(const std::string &utf8) {
+    #if defined(_WIN32)
     // to UTF-16
     int wlen = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, nullptr, 0);
     if (wlen <= 0) return "";
@@ -141,7 +142,13 @@ std::string utf8_to_local(const std::string &utf8) {
     if (len <= 0) return "";
     std::string local(len - 1, '\0');
     WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, local.data(), len - 1, nullptr, nullptr);
+
     return local;
+    
+    #elif defined(__LINUX__) || defined(__APPLE__)
+    // Linux/macOS 直接返回原始字符串
+    return utf8;
+    #endif
 }
 
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
