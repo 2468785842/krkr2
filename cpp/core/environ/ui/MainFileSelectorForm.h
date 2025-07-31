@@ -17,7 +17,7 @@ class TVPMainFileSelectorForm : public TVPBaseFileSelectorForm {
     typedef TVPBaseFileSelectorForm inherit;
 
 public:
-    static std::wstring filePath;
+    static std::string filePath;
     void bindBodyController(const Node *allNodes) override;
 
     void show();
