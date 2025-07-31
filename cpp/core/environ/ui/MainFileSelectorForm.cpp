@@ -203,7 +203,7 @@ void TVPMainFileSelectorForm::show() {
 #endif
 }
 
-static const std::string str_startup_tjs("startup.tjs");
+static const std::string str_startup_tjs(u8"startup.tjs");
 
 bool TVPMainFileSelectorForm::CheckDir(const std::string &path) {
     for(const FileInfo &info : CurrentDirList) {
@@ -219,17 +219,20 @@ void TVPMainFileSelectorForm::onCellClicked(int idx) {
     FileInfo info = CurrentDirList[idx];
     TVPBaseFileSelectorForm::onCellClicked(idx);
 
-    info.FullPath = utf8_to_local(info.FullPath);
-    info.NameForCompare = utf8_to_local(info.NameForCompare);
-    info.NameForDisplay = utf8_to_local(info.NameForDisplay);
+    #ifdef _DEBUG
+    spdlog::info("Selected file: {}, FullPath: {}", info.NameForDisplay
+                , info.FullPath);
+    #endif
     int archiveType;
     if(info.IsDir) {
         if(CheckDir(info.FullPath)) {
             startup(info.FullPath);
         }
-    } else if((archiveType = TVPCheckArchive(info.FullPath.c_str())) == 1) {
+    } else if((archiveType = TVPCheckArchive((tjs_char*)utf8_to_wstr(info.FullPath).c_str())) == 1) {
+        spdlog::info("Opening archive: {}", info.FullPath);
         startup(info.FullPath);
-    } else if(archiveType == 0 && TVPCheckIsVideoFile(info.FullPath.c_str())) {
+    } else if(archiveType == 0 && TVPCheckIsVideoFile(utf8_to_local(info.FullPath).c_str())) {
+        spdlog::info("Opening video file: {}", info.FullPath);
         SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
         TVPMainScene::GetInstance()->addChild(player,
                                               10); // pushUIForm(player);

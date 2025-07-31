@@ -151,6 +151,24 @@ std::string utf8_to_local(const std::string &utf8) {
     #endif
 }
 
+std::wstring utf8_to_wstr(const std::string& utf8)
+{
+    if (utf8.empty()) return {};
+
+    // 1. 计算目标长度
+    int len = MultiByteToWideChar(CP_UTF8, 0,
+                                  utf8.c_str(), -1, nullptr, 0);
+    if (len <= 0) return {};
+
+    // 2. 转换
+    std::wstring out(len, 0);
+    MultiByteToWideChar(CP_UTF8, 0,
+                        utf8.c_str(), -1, &out[0], len);
+
+    // len 包含末尾 L'\0'，去掉
+    out.pop_back();
+    return out;
+}
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
     auto [fst, snd] = PathSplit(path);
 
