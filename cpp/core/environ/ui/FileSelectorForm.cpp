@@ -52,14 +52,32 @@ std::pair<std::string, std::string>
 TVPBaseFileSelectorForm::PathSplit(const std::string &path) {
     std::filesystem::path p;
     try {
-        p = std::filesystem::path{ path };
+        #ifdef _WIN32
+            // 1. UTF-8 → UTF-16
+            int wlen = MultiByteToWideChar(CP_UTF8, 0, path.c_str(), -1, nullptr, 0);
+            if (wlen <= 0) return { "", "" };
+            std::wstring wpath(wlen - 1, L'\0');           // 去掉末尾 '\0'
+            MultiByteToWideChar(CP_UTF8, 0, path.c_str(), -1, wpath.data(), wlen - 1);
+
+            p = std::filesystem::path{ wpath };
+        #else
+            // Linux/macOS 直接构造即可
+           p = std::filesystem::path{ path };
+        #endif
     } catch (const std::system_error& e) {
-        OutputDebugStringA(e.what());     
+        spdlog::error("Invalid path: {}", e.what());
+        spdlog::error("Path: {}", path);
+        return { "", "" };    
     }
 
     // 获取父路径和文件名
-    std::string parent = p.parent_path().string();
+#ifdef _WIN32
+    std::string parent   = p.parent_path().u8string();
+    std::string filename = p.filename().u8string();
+#else
+    std::string parent   = p.parent_path().string();
     std::string filename = p.filename().string();
+#endif
 
     return { parent, filename };
 }
@@ -168,6 +186,10 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
     // fill fullpath
     for(auto &it : CurrentDirList) {
         it.FullPath = path + "/" + it.NameForDisplay;
+        #ifdef _DEBUG
+        spdlog::info("Found file: FullPath {}, NameForDisplay {}, IsDir {}",
+                     it.FullPath, it.NameForDisplay, it.IsDir);
+        #endif
     }
 
     std::sort(CurrentDirList.begin(), CurrentDirList.end());

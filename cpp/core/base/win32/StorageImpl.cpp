@@ -13,6 +13,7 @@
 // must before with Platform.h because marco will replece `st_atime` symbol!
 #include <fcntl.h>
 #include <filesystem>
+#include <sys/stat.h> 
 
 #include "MsgIntf.h"
 
@@ -29,7 +30,6 @@
 #include "FilePathUtil.h"
 #include "Platform.h"
 #include "platform/CCPlatformConfig.h"
-#include <sys/stat.h> 
 #include "dirent.h"
 #include "TickCount.h"
 #include "combase.h"
@@ -136,10 +136,17 @@ void TVPListDir(const std::string &u8folder,
     namespace fs = std::filesystem;
 
     try {
-        for (const auto& entry : fs::directory_iterator(u8folder)) {
+        int wlen = MultiByteToWideChar(CP_UTF8, 0, u8folder.c_str(), -1, nullptr, 0);
+        if (wlen <= 0) return;
+        std::wstring wfolder(wlen - 1, L'\0');
+        MultiByteToWideChar(CP_UTF8, 0, u8folder.c_str(), -1, wfolder.data(), wlen - 1);
+        auto begin = std::filesystem::directory_iterator(wfolder);
+        for (const auto& entry : begin) {
             // 文件名（UTF-8）
             std::string name = entry.path().filename().u8string();
-
+#ifdef _DEBUG
+            spdlog::info("Found file: {}", name);
+#endif
             // 文件类型
             auto st = entry.status();
             int mode = 0;
@@ -151,6 +158,7 @@ void TVPListDir(const std::string &u8folder,
     }
     catch (const fs::filesystem_error&) {
         // 目录不存在或无权限，静默返回
+        spdlog::warn("Failed to list directory: {}", u8folder);
     }
 
 #else
