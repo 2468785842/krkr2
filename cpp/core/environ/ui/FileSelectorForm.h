@@ -3,6 +3,14 @@
 #include "GUI/CCScrollView/CCTableView.h"
 #include "base/CCRefPtr.h"
 
+#ifdef _WIN32
+#   define S_ISDIR(m)  (((m) & _S_IFMT) == _S_IFDIR)
+#   define S_ISREG(m)  (((m) & _S_IFMT) == _S_IFREG)
+#   define S_ISLNK(m)  0   // Windows 无 POSIX symlink 标志
+#else
+#   include <unistd.h>      // 自带 POSIX 宏
+#endif
+
 class TVPListForm : public cocos2d::Node {
 public:
     virtual ~TVPListForm();

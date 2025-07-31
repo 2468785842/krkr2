@@ -12,6 +12,7 @@
 
 // must before with Platform.h because marco will replece `st_atime` symbol!
 #include <fcntl.h>
+#include <filesystem>
 
 #include "MsgIntf.h"
 
@@ -28,6 +29,7 @@
 #include "FilePathUtil.h"
 #include "Platform.h"
 #include "platform/CCPlatformConfig.h"
+#include <sys/stat.h> 
 #include "dirent.h"
 #include "TickCount.h"
 #include "combase.h"
@@ -126,22 +128,50 @@ tTJSBinaryStream *tTVPFileMedia::Open(const ttstr &name, tjs_uint32 flags) {
     return new tTVPLocalFileStream(origname, _name, flags);
 }
 
-void TVPListDir(const std::string &folder,
+void TVPListDir(const std::string &u8folder,
                 std::function<void(const std::string &, int)> cb) {    
 
-    DIR *dirp;
-    dirent *direntp;
-    tTVP_stat stat_buf;
-    if((dirp = opendir(folder.c_str()))) {
-        while((direntp = readdir(dirp)) != nullptr) {
-            std::string fullpath = folder + "/" + direntp->d_name;
-            if(!TVP_stat(fullpath.c_str(), stat_buf))
-                continue;
-            cb(direntp->d_name, stat_buf.st_mode);
+#ifdef _WIN32
+    // ---------------- Windows 分支 ----------------
+    namespace fs = std::filesystem;
+
+    try {
+        for (const auto& entry : fs::directory_iterator(u8folder)) {
+            // 文件名（UTF-8）
+            std::string name = entry.path().filename().u8string();
+
+            // 文件类型
+            auto st = entry.status();
+            int mode = 0;
+            if (fs::is_directory(st))      mode = S_IFDIR;
+            else if (fs::is_regular_file(st)) mode = S_IFREG;
+            else if (fs::is_symlink(st))   mode = S_IFLNK;
+            cb(name, mode);
         }
-        closedir(dirp);
+    }
+    catch (const fs::filesystem_error&) {
+        // 目录不存在或无权限，静默返回
     }
 
+#else
+    // ---------------- Linux/macOS 分支 ----------------
+
+    DIR* dirp = opendir(u8path.c_str());
+    if (!dirp) return;
+
+    dirent* dp;
+    while ((dp = readdir(dirp))) {
+        std::string name = dp->d_name;
+        if (name.empty() || name[0] == '.') continue;
+
+        std::string full = u8path + "/" + name;
+        struct stat st{};
+        if (stat(full.c_str(), &st) == 0) {
+            cb(name, st.st_mode);
+        }
+    }
+    closedir(dirp);
+#endif
 }
 
 void TVPGetLocalFileListAt(

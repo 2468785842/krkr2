@@ -50,7 +50,12 @@ static bool IsPathExist(const std::string &path) {
 
 std::pair<std::string, std::string>
 TVPBaseFileSelectorForm::PathSplit(const std::string &path) {
-    std::filesystem::path p{ path };
+    std::filesystem::path p;
+    try {
+        p = std::filesystem::path{ path };
+    } catch (const std::system_error& e) {
+        OutputDebugStringA(e.what());     
+    }
 
     // 获取父路径和文件名
     std::string parent = p.parent_path().string();
@@ -149,7 +154,7 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
             FileInfo &info = CurrentDirList.back();
             info.NameForDisplay = name;
             info.NameForCompare = name;
-            info.IsDir = mask & S_IFDIR;
+            info.IsDir = S_ISDIR(mask);
             std::transform(info.NameForCompare.begin(),
                            info.NameForCompare.end(),
                            info.NameForCompare.begin(), [](int c) -> int {
