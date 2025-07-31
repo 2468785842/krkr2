@@ -7,7 +7,7 @@
 
 #include "environ/cocos2d/AppDelegate.h"
 
-std::wstring filePath;
+#include "environ/ui/MainFileSelectorForm.h"
 USING_NS_CC;
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -28,7 +28,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         std::string xp3PathUtf8(size_needed, 0);
         WideCharToMultiByte(CP_UTF8, 0, xp3Path.c_str(), (int)xp3Path.size(), &xp3PathUtf8[0], size_needed, NULL, NULL);
         spdlog::info("XP3 文件路径: {}", xp3PathUtf8);
-        filePath = xp3Path;
+        TVPMainFileSelectorForm::filePath = xp3Path;
     }
 
     LocalFree(argv);

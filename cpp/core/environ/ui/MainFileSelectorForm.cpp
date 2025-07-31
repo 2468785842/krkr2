@@ -35,6 +35,7 @@ const char *const FileName_RecentPathListXML = "recentpath.xml";
 bool TVPIsFirstLaunch = false;
 
 std::deque<std::string> _HistoryPath;
+std::wstring TVPMainFileSelectorForm::filePath;
 
 static void _AskExit() {
     if(TVPShowSimpleMessageBoxYesNo(
@@ -193,17 +194,17 @@ void TVPMainFileSelectorForm::show() {
     }
     ListDir(lastpath); // getCurrentDir()
                        // TODO show usage
-
+    
 #if defined(_WIN32) || defined(__linux__)
-    if (!filePath.empty()) {
+    if (!TVPMainFileSelectorForm::filePath.empty()) {
 #if defined(_WIN32)
         // Convert std::wstring to UTF-8 std::string on Windows
-        int size_needed = WideCharToMultiByte(CP_UTF8, 0, filePath.c_str(), (int)filePath.size(), NULL, 0, NULL, NULL);
+        int size_needed = WideCharToMultiByte(CP_UTF8, 0, TVPMainFileSelectorForm::filePath.c_str(), (int)TVPMainFileSelectorForm::filePath.size(), NULL, 0, NULL, NULL);
         std::string path(size_needed, 0);
-        WideCharToMultiByte(CP_UTF8, 0, filePath.c_str(), (int)filePath.size(), &path[0], size_needed, NULL, NULL);
+        WideCharToMultiByte(CP_UTF8, 0, TVPMainFileSelectorForm::filePath.c_str(), (int)TVPMainFileSelectorForm::filePath.size(), &path[0], size_needed, NULL, NULL);
 #else
         // On Linux, filePath should already be UTF-8 encoded
-        std::string path = filePath;
+        std::string path = TVPMainFileSelectorForm::filePath;
 #endif
         runFromPath(path);
     }

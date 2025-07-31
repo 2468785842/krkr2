@@ -17,6 +17,7 @@ class TVPMainFileSelectorForm : public TVPBaseFileSelectorForm {
     typedef TVPBaseFileSelectorForm inherit;
 
 public:
+    static std::wstring filePath;
     void bindBodyController(const Node *allNodes) override;
 
     void show();
@@ -103,4 +104,3 @@ protected:
     cocos2d::Size sizeNewLocalPref, sizeLocalPref;
 };
 
-extern std::wstring filePath;
