@@ -36,6 +36,8 @@
 
 #include "win32io.h"
 
+#include "spdlog/spdlog.h"
+
 // 和系统宏冲突了
 #ifdef _WIN32
 #undef GetClassName
@@ -135,18 +137,15 @@ void TVPListDir(const std::string &u8folder,
     // ---------------- Windows 分支 ----------------
     namespace fs = std::filesystem;
 
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, u8folder.c_str(), -1, nullptr, 0);
+    if (wlen <= 0) return;
+    std::wstring wfolder(wlen - 1, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, u8folder.c_str(), -1, wfolder.data(), wlen - 1);
     try {
-        int wlen = MultiByteToWideChar(CP_UTF8, 0, u8folder.c_str(), -1, nullptr, 0);
-        if (wlen <= 0) return;
-        std::wstring wfolder(wlen - 1, L'\0');
-        MultiByteToWideChar(CP_UTF8, 0, u8folder.c_str(), -1, wfolder.data(), wlen - 1);
         auto begin = std::filesystem::directory_iterator(wfolder);
         for (const auto& entry : begin) {
             // 文件名（UTF-8）
             std::string name = entry.path().filename().u8string();
-#ifdef _DEBUG
-            spdlog::info("Found file: {}", name);
-#endif
             // 文件类型
             auto st = entry.status();
             int mode = 0;
@@ -157,8 +156,12 @@ void TVPListDir(const std::string &u8folder,
         }
     }
     catch (const fs::filesystem_error&) {
+        int len = WideCharToMultiByte(CP_ACP, 0, wfolder.c_str(), -1, nullptr, 0, nullptr, nullptr);
+        if (len <= 0) spdlog::error("Failed to list directory: {}", u8folder);
+        std::string local(len - 1, '\0');
+        WideCharToMultiByte(CP_ACP, 0, wfolder.c_str(), -1, local.data(), len - 1, nullptr, nullptr);
         // 目录不存在或无权限，静默返回
-        spdlog::warn("Failed to list directory: {}", u8folder);
+        spdlog::error("Failed to list directory: {}", local);
     }
 
 #else
@@ -591,7 +594,7 @@ int TVPCheckArchive(const ttstr &localname) {
             }
         }
     } catch(eTJSError e) {
-        // arc = nullptr;
+        spdlog::error("Error opening archive {}", localname.toString());
     }
     if(arc) {
         delete arc;
@@ -660,6 +663,31 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 #ifdef _WIN32
     rw |= O_BINARY;
 #endif
+
+#ifdef _WIN32
+    std::wstring wpath(
+        reinterpret_cast<const wchar_t*>(localname.c_str()),
+        localname.GetLen()
+    );
+    Handle = _wopen(wpath.c_str(), rw, 0666);
+    if (Handle < 0) {
+        if (access == TJS_BS_APPEND || access == TJS_BS_UPDATE) {
+            Handle = _wopen(wpath.c_str(), O_RDONLY, 0666);
+            if (Handle >= 0) {
+                tjs_uint64 size = tTVPLocalFileStream::GetSize();
+                if (size < 4 * 1024 * 1024) {
+                    MemBuffer = new tTVPMemoryStream();
+                    MemBuffer->SetSize(size);
+                    read(Handle, MemBuffer->GetInternalBuffer(), size);
+                }
+                close(Handle);
+                Handle = -1;
+            }
+        }
+        if (!MemBuffer)
+            TVPThrowExceptionMessage(TVPCannotOpenStorage, origname);
+    }
+#else
     tTJSNarrowStringHolder holder(localname.c_str());
     Handle = open(holder, rw, 0666);
     if(Handle < 0) {
@@ -680,6 +708,7 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
         if(!MemBuffer)
             TVPThrowExceptionMessage(TVPCannotOpenStorage, origname);
     }
+#endif
     // push current tick as an environment noise
     uint32_t tick = TVPGetRoughTickCount32();
     TVPPushEnvironNoise(&tick, sizeof(tick));

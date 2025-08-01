@@ -48,6 +48,8 @@ static bool IsPathExist(const std::string &path) {
     return true;
 }
 
+// ptah 传入要求utf-8编码的路径
+// 返回值：父路径和文件名
 std::pair<std::string, std::string>
 TVPBaseFileSelectorForm::PathSplit(const std::string &path) {
     std::filesystem::path p;
@@ -129,6 +131,90 @@ static const std::string str_diricon("dir_icon");
 static const std::string str_select("select_check");
 static const std::string str_filename("filename");
 
+std::string utf8_to_local(const std::string &utf8) {
+    #if defined(_WIN32)
+    // to UTF-16
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, nullptr, 0);
+    if (wlen <= 0) return "";
+    std::wstring wstr(wlen - 1, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, wstr.data(), wlen - 1);
+
+    // to（GBK/ANSI）
+    int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (len <= 0) return "";
+    std::string local(len - 1, '\0');
+    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, local.data(), len - 1, nullptr, nullptr);
+
+    return local;
+    
+    #elif defined(__LINUX__) || defined(__APPLE__)
+    // Linux/macOS 直接返回原始字符串
+    return utf8;
+    #endif
+}
+
+std::wstring local_to_wstr(const std::string &local) {
+    #ifdef _WIN32
+    // to UTF-16
+    int wlen = MultiByteToWideChar(CP_ACP, 0, local.c_str(), -1, nullptr, 0);
+    if (wlen <= 0) return L"";
+    std::wstring wstr(wlen - 1, L'\0');
+    MultiByteToWideChar(CP_ACP, 0, local.c_str(), -1, wstr.data(), wlen - 1);
+
+    return wstr;
+    
+    #else
+    // Linux/macOS 直接转换为 wstring
+    return std::wstring(local.begin(), local.end());
+    #endif
+}
+
+std::wstring utf8_to_wstr(const std::string& utf8)
+{
+
+#ifdef _WIN32
+    if (utf8.empty()) return {};
+
+    // 1. 计算目标长度
+    int len = MultiByteToWideChar(CP_UTF8, 0,
+                                  utf8.c_str(), -1, nullptr, 0);
+    if (len <= 0) return {};
+
+    // 2. 转换
+    std::wstring out(len, 0);
+    MultiByteToWideChar(CP_UTF8, 0,
+                        utf8.c_str(), -1, &out[0], len);
+
+    // len 包含末尾 L'\0'，去掉
+    out.pop_back();
+    return out;
+#else 
+    // Linux/macOS 直接返回原始字符串转换为 wstring
+    return std::wstring(utf8.begin(), utf8.end());
+#endif
+}
+
+std::string local_to_utf8(const std::string &local) {
+    #ifdef _WIN32
+    // to UTF-16
+    int wlen = MultiByteToWideChar(CP_ACP, 0, local.c_str(), -1, nullptr, 0);
+    if (wlen <= 0) return "";
+    std::wstring wstr(wlen - 1, L'\0');
+    MultiByteToWideChar(CP_ACP, 0, local.c_str(), -1, wstr.data(), wlen - 1);
+
+    // to UTF-8
+    int len = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (len <= 0) return "";
+    std::string utf8(len - 1, '\0');
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, utf8.data(), len - 1, nullptr, nullptr);
+
+    return utf8;
+    
+    #else
+    // Linux/macOS 直接返回原始字符串
+    return local;
+    #endif
+}
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
     auto [fst, snd] = PathSplit(path);
 
@@ -188,7 +274,7 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
         it.FullPath = path + "/" + it.NameForDisplay;
         #ifdef _DEBUG
         spdlog::info("Found file: FullPath {}, NameForDisplay {}, IsDir {}",
-                     it.FullPath, it.NameForDisplay, it.IsDir);
+                     utf8_to_local(it.FullPath),  utf8_to_local(it.NameForDisplay), it.IsDir);
         #endif
     }
 

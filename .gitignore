@@ -13,3 +13,5 @@ out/
 
 local.properties
 java_pid26316.hprof
+
+*.pdb
