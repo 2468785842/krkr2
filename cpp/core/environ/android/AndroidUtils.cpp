@@ -737,6 +737,8 @@ static bool IsLollipop() { return GetAndroidSDKVersion() >= 21; }
 
 static bool IsOreo() { return GetAndroidSDKVersion() >= 26; }
 
+// 这里的编码就要使用locale编码了
+// 因为调用了tjstr参数的函数 tjstr处理不了utf-8编码
 bool TVPCheckStartupPath(const std::string &path) {
     // check writing permission first
     size_t pos = path.find_last_of('/');

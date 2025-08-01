@@ -1912,10 +1912,13 @@ void TVPMainScene::popUIForm(cocos2d::Node *form, eLeaveAni ani) {
 }
 
 bool TVPMainScene::startupFrom(const std::string &path) {
+
+
     // startup from dir
     if(!TVPCheckStartupPath(path)) {
         return false;
     }
+ 
     IndividualConfigManager *pGlobalCfgMgr =
         IndividualConfigManager::GetInstance();
     pGlobalCfgMgr->UsePreferenceAt(

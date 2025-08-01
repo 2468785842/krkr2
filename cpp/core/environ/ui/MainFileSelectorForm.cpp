@@ -151,15 +151,15 @@ void TVPMainFileSelectorForm::runFromPath(const std::string &path) {
 
     int archiveType;
     if(isDir) {
-        if(CheckDir(_path)) {
-            startup(_path);
+        if(CheckDir(path)) {
+            startup(path);
         }
     } else if((archiveType = TVPCheckArchive(_path.c_str())) == 1) {
-        startup(_path);
+        startup(path);
     } else if(archiveType == 0 && TVPCheckIsVideoFile(_path.c_str())) {
         SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
         TVPMainScene::GetInstance()->addChild(player, 10);
-        player->PlayFile(path.c_str());
+        player->PlayFile((tjs_char*)utf8_to_wstr(path).c_str());
     }
 }
 
@@ -224,20 +224,37 @@ void TVPMainFileSelectorForm::onCellClicked(int idx) {
                 , info.FullPath);
     #endif
     int archiveType;
+    #ifdef _WIN32
     if(info.IsDir) {
         if(CheckDir(info.FullPath)) {
-            startup(utf8_to_local(info.FullPath));
+            startup(info.FullPath);
         }
     } else if((archiveType = TVPCheckArchive((tjs_char*)utf8_to_wstr(info.FullPath).c_str())) == 1) {
-        spdlog::info("Opening archive: {}", info.FullPath);
-        startup(utf8_to_local(info.FullPath));
+        spdlog::info("Opening archive: {}", utf8_to_local(info.FullPath));
+        startup(info.FullPath);
     } else if(archiveType == 0 && TVPCheckIsVideoFile(utf8_to_local(info.FullPath).c_str())) {
+        spdlog::info("Opening video file: {}", utf8_to_local(info.FullPath));
+        SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
+        TVPMainScene::GetInstance()->addChild(player,
+                                              10); // pushUIForm(player);
+        player->PlayFile((tjs_char*)utf8_to_wstr(info.FullPath).c_str());
+    }
+    #else
+    if(info.IsDir) {
+        if(CheckDir(info.FullPath)) {
+            startup(info.FullPath);
+        }
+    } else if((archiveType = TVPCheckArchive(info.FullPath.c_str())) == 1) {
+        spdlog::info("Opening archive: {}", info.FullPath);
+        startup(info.FullPath);
+    } else if(archiveType == 0 && TVPCheckIsVideoFile(info.FullPath.c_str())) {
         spdlog::info("Opening video file: {}", info.FullPath);
         SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
         TVPMainScene::GetInstance()->addChild(player,
                                               10); // pushUIForm(player);
-        player->PlayFile(utf8_to_local(info.FullPath).c_str());
+        player->PlayFile(info.FullPath.c_str());
     }
+    #endif
 }
 
 void TVPMainFileSelectorForm::getShortCutDirList(
@@ -282,19 +299,25 @@ void TVPMainFileSelectorForm::startup(const std::string &path) {
         doStartup(path);
     }
 }
-
+// 使用utf-8编码的路径
+// 这里的path是utf-8编码的字符串
 void TVPMainFileSelectorForm::doStartup(const std::string &path) {
+#ifdef _WIN32
+    if(TVPMainScene::GetInstance()->startupFrom(utf8_to_local(path))) {
+        if(GlobalConfigManager::GetInstance()->GetValue<bool>(
+               "remember_last_path", true)) {
+            _AddHistory(path);
+        }
+    }
+#else
+    // 在Linux上，路径可以直接使用utf-8编码
     if(TVPMainScene::GetInstance()->startupFrom(path)) {
         if(GlobalConfigManager::GetInstance()->GetValue<bool>(
                "remember_last_path", true)) {
-            #ifdef _WIN32
-            std::string utf8Path = local_to_utf8(path);
-            _AddHistory(utf8Path);
-            #else
             _AddHistory(path);
-            #endif
         }
     }
+#endif
 }
 
 std::string TVPGetOpenGLInfo();
