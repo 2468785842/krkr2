@@ -48,6 +48,8 @@ static bool IsPathExist(const std::string &path) {
     return true;
 }
 
+// ptah 传入要求utf-8编码的路径
+// 返回值：父路径和文件名
 std::pair<std::string, std::string>
 TVPBaseFileSelectorForm::PathSplit(const std::string &path) {
     std::filesystem::path p;
@@ -190,6 +192,28 @@ std::wstring utf8_to_wstr(const std::string& utf8)
     // Linux/macOS 直接返回原始字符串转换为 wstring
     return std::wstring(utf8.begin(), utf8.end());
 #endif
+}
+
+std::string local_to_utf8(const std::string &local) {
+    #ifdef _WIN32
+    // to UTF-16
+    int wlen = MultiByteToWideChar(CP_ACP, 0, local.c_str(), -1, nullptr, 0);
+    if (wlen <= 0) return "";
+    std::wstring wstr(wlen - 1, L'\0');
+    MultiByteToWideChar(CP_ACP, 0, local.c_str(), -1, wstr.data(), wlen - 1);
+
+    // to UTF-8
+    int len = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (len <= 0) return "";
+    std::string utf8(len - 1, '\0');
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, utf8.data(), len - 1, nullptr, nullptr);
+
+    return utf8;
+    
+    #else
+    // Linux/macOS 直接返回原始字符串
+    return local;
+    #endif
 }
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
     auto [fst, snd] = PathSplit(path);

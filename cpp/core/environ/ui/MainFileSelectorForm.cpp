@@ -287,7 +287,12 @@ void TVPMainFileSelectorForm::doStartup(const std::string &path) {
     if(TVPMainScene::GetInstance()->startupFrom(path)) {
         if(GlobalConfigManager::GetInstance()->GetValue<bool>(
                "remember_last_path", true)) {
+            #ifdef _WIN32
+            std::string utf8Path = local_to_utf8(path);
+            _AddHistory(utf8Path);
+            #else
             _AddHistory(path);
+            #endif
         }
     }
 }
