@@ -11,7 +11,7 @@
 
 extern "C" void SDL_SetMainReady();
 extern std::thread::id TVPMainThreadID;
-static cocos2d::Size designResolutionSize(960, 640);
+static cocos2d::Size designResolutionSize(1920, 1080);
 
 bool TVPCheckStartupArg();
 
@@ -38,7 +38,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
         glview = cocos2d::GLViewImpl::create("kirikiri2");
         director->setOpenGLView(glview);
 #if CC_PLATFORM_WIN32 == CC_TARGET_PLATFORM
-        glview->setFrameSize(960, 640);
+        glview->setFrameSize(1920, 1080);
 
         // 设置窗口样式为可调节大小
         HWND hwnd = glview->getWin32Window();
@@ -59,7 +59,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     cocos2d::Size designSize = designResolutionSize;
     designSize.height = designSize.width * screenSize.height / screenSize.width;
     glview->setDesignResolutionSize(screenSize.width, screenSize.height,
-                                    ResolutionPolicy::EXACT_FIT);
+                                   ResolutionPolicy::SHOW_ALL); 
 
     std::vector<std::string> searchPath;
 
@@ -100,6 +100,10 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
             }
         },
         0, "launch");
+
+    float scale = std::min(screenSize.width / designResolutionSize.width,
+                       screenSize.height / designResolutionSize.height);
+    director->setContentScaleFactor(scale);
 
     return true;
 }
