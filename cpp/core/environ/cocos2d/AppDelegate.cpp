@@ -39,6 +39,16 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
         director->setOpenGLView(glview);
 #if CC_PLATFORM_WIN32 == CC_TARGET_PLATFORM
         glview->setFrameSize(960, 640);
+
+        // 设置窗口样式为可调节大小
+        HWND hwnd = glview->getWin32Window();
+        if(hwnd) {
+            LONG style = GetWindowLong(hwnd, GWL_STYLE);
+            style |= WS_THICKFRAME | WS_MAXIMIZEBOX; // 支持拖动和最大化
+            SetWindowLong(hwnd, GWL_STYLE, style);
+            SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+        }
 #endif
     }
     // Set the design resolution
