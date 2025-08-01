@@ -14,6 +14,7 @@
 #ifdef _WIN32
 std::string utf8_to_local(const std::string &utf8);
 std::wstring utf8_to_wstr(const std::string& utf8);
+std::string local_to_utf8(const std::wstring &local);
 #endif
 class TVPListForm : public cocos2d::Node {
 public:

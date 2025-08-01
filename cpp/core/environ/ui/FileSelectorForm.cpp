@@ -151,6 +151,22 @@ std::string utf8_to_local(const std::string &utf8) {
     #endif
 }
 
+std::wstring local_to_wstr(const std::string &local) {
+    #ifdef _WIN32
+    // to UTF-16
+    int wlen = MultiByteToWideChar(CP_ACP, 0, local.c_str(), -1, nullptr, 0);
+    if (wlen <= 0) return L"";
+    std::wstring wstr(wlen - 1, L'\0');
+    MultiByteToWideChar(CP_ACP, 0, local.c_str(), -1, wstr.data(), wlen - 1);
+
+    return wstr;
+    
+    #else
+    // Linux/macOS 直接转换为 wstring
+    return std::wstring(local.begin(), local.end());
+    #endif
+}
+
 std::wstring utf8_to_wstr(const std::string& utf8)
 {
 

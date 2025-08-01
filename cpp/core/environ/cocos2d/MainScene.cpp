@@ -1962,7 +1962,12 @@ void TVPMainScene::doStartup(float dt, std::string path) {
     _consoleWin->setScale(1 / scale);
     _consoleWin->setContentSize(getContentSize() * scale);
     GameNode->addChild(_consoleWin, GAME_CONSOLE_ORDER);
+    #ifdef _WIN32
+    extern std::wstring local_to_wstr(const std::string &path);
+    ::Application->StartApplication((tjs_char*)local_to_wstr(path).c_str());
+    #else
     ::Application->StartApplication(path);
+    #endif
     // update one frame
     update(0);
     //_ResotreGLStatues(); // already in update()
