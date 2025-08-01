@@ -153,6 +153,8 @@ std::string utf8_to_local(const std::string &utf8) {
 
 std::wstring utf8_to_wstr(const std::string& utf8)
 {
+
+#ifdef _WIN32
     if (utf8.empty()) return {};
 
     // 1. 计算目标长度
@@ -168,6 +170,10 @@ std::wstring utf8_to_wstr(const std::string& utf8)
     // len 包含末尾 L'\0'，去掉
     out.pop_back();
     return out;
+#else 
+    // Linux/macOS 直接返回原始字符串转换为 wstring
+    return std::wstring(utf8.begin(), utf8.end());
+#endif
 }
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
     auto [fst, snd] = PathSplit(path);

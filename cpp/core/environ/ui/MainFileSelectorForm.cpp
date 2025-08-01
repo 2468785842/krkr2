@@ -226,17 +226,17 @@ void TVPMainFileSelectorForm::onCellClicked(int idx) {
     int archiveType;
     if(info.IsDir) {
         if(CheckDir(info.FullPath)) {
-            startup(info.FullPath);
+            startup(utf8_to_local(info.FullPath));
         }
     } else if((archiveType = TVPCheckArchive((tjs_char*)utf8_to_wstr(info.FullPath).c_str())) == 1) {
         spdlog::info("Opening archive: {}", info.FullPath);
-        startup(info.FullPath);
+        startup(utf8_to_local(info.FullPath));
     } else if(archiveType == 0 && TVPCheckIsVideoFile(utf8_to_local(info.FullPath).c_str())) {
         spdlog::info("Opening video file: {}", info.FullPath);
         SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
         TVPMainScene::GetInstance()->addChild(player,
                                               10); // pushUIForm(player);
-        player->PlayFile(info.FullPath.c_str());
+        player->PlayFile(utf8_to_local(info.FullPath).c_str());
     }
 }
 

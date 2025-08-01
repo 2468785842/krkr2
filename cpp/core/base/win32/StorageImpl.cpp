@@ -36,6 +36,8 @@
 
 #include "win32io.h"
 
+#include "spdlog/spdlog.h"
+
 // 和系统宏冲突了
 #ifdef _WIN32
 #undef GetClassName
@@ -592,7 +594,7 @@ int TVPCheckArchive(const ttstr &localname) {
             }
         }
     } catch(eTJSError e) {
-        // arc = nullptr;
+        spdlog::error("Error opening archive {}", localname.toString());
     }
     if(arc) {
         delete arc;
@@ -661,6 +663,31 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
 #ifdef _WIN32
     rw |= O_BINARY;
 #endif
+
+#ifdef _WIN32
+    std::wstring wpath(
+        reinterpret_cast<const wchar_t*>(localname.c_str()),
+        localname.GetLen()
+    );
+    Handle = _wopen(wpath.c_str(), rw, 0666);
+    if (Handle < 0) {
+        if (access == TJS_BS_APPEND || access == TJS_BS_UPDATE) {
+            Handle = _wopen(wpath.c_str(), O_RDONLY, 0666);
+            if (Handle >= 0) {
+                tjs_uint64 size = tTVPLocalFileStream::GetSize();
+                if (size < 4 * 1024 * 1024) {
+                    MemBuffer = new tTVPMemoryStream();
+                    MemBuffer->SetSize(size);
+                    read(Handle, MemBuffer->GetInternalBuffer(), size);
+                }
+                close(Handle);
+                Handle = -1;
+            }
+        }
+        if (!MemBuffer)
+            TVPThrowExceptionMessage(TVPCannotOpenStorage, origname);
+    }
+#else
     tTJSNarrowStringHolder holder(localname.c_str());
     Handle = open(holder, rw, 0666);
     if(Handle < 0) {
@@ -681,6 +708,7 @@ tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
         if(!MemBuffer)
             TVPThrowExceptionMessage(TVPCannotOpenStorage, origname);
     }
+#endif
     // push current tick as an environment noise
     uint32_t tick = TVPGetRoughTickCount32();
     TVPPushEnvironNoise(&tick, sizeof(tick));
