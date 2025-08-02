@@ -53,6 +53,13 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - `bison@3.8.2+`
   - `python3`
   - `NASM@latest`
+  - `YASM` 用于编译ffmpeg的  
+     使用NASM会出现 
+     ```
+     make: *** No rule to make target 'vp9itxfm_template.asm', needed by 'libavcodec/x86/vp9itxfm.o'.  Stop.
+     ```
+     的错误
+  - [其他的库](linux-require.md)
 
 ## 编译环境配置
 
