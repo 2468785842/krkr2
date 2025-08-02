@@ -11,11 +11,11 @@
 #   include <unistd.h>      // 自带 POSIX 宏
 #endif
 
-#ifdef _WIN32
+
 std::string utf8_to_local(const std::string &utf8);
 std::wstring utf8_to_wstr(const std::string& utf8);
 std::string local_to_utf8(const std::string &local);
-#endif
+std::string wstr_to_local(const std::wstring &wstr);
 class TVPListForm : public cocos2d::Node {
 public:
     virtual ~TVPListForm();

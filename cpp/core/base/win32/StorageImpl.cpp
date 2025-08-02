@@ -167,7 +167,7 @@ void TVPListDir(const std::string &u8folder,
 #else
     // ---------------- Linux/macOS 分支 ----------------
 
-    DIR* dirp = opendir(u8path.c_str());
+    DIR* dirp = opendir(u8folder.c_str());
     if (!dirp) return;
 
     dirent* dp;
@@ -175,7 +175,7 @@ void TVPListDir(const std::string &u8folder,
         std::string name = dp->d_name;
         if (name.empty() || name[0] == '.') continue;
 
-        std::string full = u8path + "/" + name;
+        std::string full = u8folder + "/" + name;
         struct stat st{};
         if (stat(full.c_str(), &st) == 0) {
             cb(name, st.st_mode);

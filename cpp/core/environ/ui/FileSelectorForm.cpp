@@ -215,6 +215,21 @@ std::string local_to_utf8(const std::string &local) {
     return local;
     #endif
 }
+std::string wstr_to_local(const std::wstring &wstr){
+    #ifdef _WIN32
+    // to ANSI/GBK
+    int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (len <= 0) return "";
+    std::string local(len - 1, '\0');
+    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, local.data(), len - 1, nullptr, nullptr);
+
+    return local;
+    
+    #else
+    // Linux/macOS 直接转换为 string
+    return std::string(wstr.begin(), wstr.end());
+    #endif
+}
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
     auto [fst, snd] = PathSplit(path);
 
@@ -258,7 +273,11 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
             FileInfo &info = CurrentDirList.back();
             info.NameForDisplay = name;
             info.NameForCompare = name;
+            #ifdef _WIN32
             info.IsDir = S_ISDIR(mask);
+            #else
+            info.IsDir = (mask & S_IFDIR) != 0;
+            #endif
             std::transform(info.NameForCompare.begin(),
                            info.NameForCompare.end(),
                            info.NameForCompare.begin(), [](int c) -> int {
