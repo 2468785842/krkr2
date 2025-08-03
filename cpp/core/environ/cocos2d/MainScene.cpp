@@ -32,7 +32,6 @@
 #include "Exception.h"
 #include "win32/SystemControl.h"
 #include "ui/UIButton.h"
-#include "ui/csd/CsdUIFactory.h"
 
 USING_NS_CC;
 
@@ -1255,7 +1254,7 @@ public:
         LastMouseKeyTick = TVPGetRoughTickCount32();
     }
 
-    void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) override {
+    virtual void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) override {
         tjs_uint32 tick = TVPGetRoughTickCount32();
         TVPPushEnvironNoise(&tick, sizeof(tick));
         TVPPushEnvironNoise(&key, sizeof(key));
@@ -1350,14 +1349,14 @@ public:
         }
     }
 
-    void OnKeyUp(tjs_uint16 vk, int shift) override {
-        tjs_uint32 s = shift;
+    virtual void OnKeyUp(tjs_uint16 vk, int shift) override {
+        tjs_uint32 s = (shift);
         s |= GetMouseButtonState();
         InternalKeyUp(vk, s);
     }
 
-    void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate,
-                    bool convertkey) override {
+    virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate,
+                            bool convertkey) override {
         if(TJSNativeInstance && vk) {
             if(UseMouseKey && (vk == 0x1b || vk == 13 || vk == 32))
                 return;
@@ -1456,7 +1455,7 @@ public:
         }
     }
 
-    void Close() override {
+    virtual void Close() override {
         // closing action by "close" method
         if(Closing)
             return; // already waiting closing...
@@ -1494,7 +1493,7 @@ public:
         ProgramClosing = false;
     }
 
-    void OnCloseQueryCalled(bool b) override {
+    virtual void OnCloseQueryCalled(bool b) override {
         // closing is allowed by onCloseQuery event handler
         if(!ProgramClosing) {
             // closing action by the user
@@ -1526,7 +1525,7 @@ public:
         }
     }
 
-    void UpdateWindow(tTVPUpdateType type) override {
+    virtual void UpdateWindow(tTVPUpdateType type) override {
         if(TJSNativeInstance) {
             tTVPRect r;
             r.left = 0;
@@ -1538,7 +1537,7 @@ public:
         }
     }
 
-    void SetVisibleFromScript(bool b) override {
+    virtual void SetVisibleFromScript(bool b) override {
         SetVisible(b);
         // 		if (Focusable) {
         // 			SetVisible(b);
@@ -1553,7 +1552,7 @@ public:
         // 		}
     }
 
-    void SetUseMouseKey(bool b) override {
+    virtual void SetUseMouseKey(bool b) override {
         UseMouseKey = b;
         if(b) {
             MouseLeftButtonEmulatedPushed = false;
@@ -1571,7 +1570,7 @@ public:
         }
     }
 
-    bool GetUseMouseKey() const override { return UseMouseKey; }
+    virtual bool GetUseMouseKey() const override { return UseMouseKey; }
 
     void OnMouseUp(int button, int shift, int x, int y) {
         //	TranslateWindowToDrawArea(x, y);
@@ -1587,11 +1586,11 @@ public:
         }
     }
 
-    void ResetTouchVelocity(tjs_int id) override {
+    virtual void ResetTouchVelocity(tjs_int id) override {
         TouchVelocityTracker.end(id);
     }
 
-    void ResetMouseVelocity() override { MouseVelocityTracker.clear(); }
+    virtual void ResetMouseVelocity() override { MouseVelocityTracker.clear(); }
 
     bool GetMouseVelocity(float &x, float &y, float &speed) const override {
         if(MouseVelocityTracker.getVelocity(x, y)) {
@@ -1601,7 +1600,7 @@ public:
         return false;
     }
 
-    void TickBeat() override {
+    virtual void TickBeat() override {
         bool focused = _currentWindowLayer == this;
         // mouse key
         if(UseMouseKey && focused) {
@@ -1619,9 +1618,9 @@ tTJSNI_Window *TVPGetActiveWindow() {
 class TVPWindowManagerOverlay : public iTVPBaseForm {
 public:
     static TVPWindowManagerOverlay *create() {
-        auto *ret = new TVPWindowManagerOverlay();
+        TVPWindowManagerOverlay *ret = new TVPWindowManagerOverlay();
         ret->autorelease();
-        ret->initFromFile(nullptr, Csd::createWinMgrOverlay(), nullptr);
+        ret->initFromFile(nullptr, "ui/WinMgrOverlay.csb", nullptr);
         return ret;
     }
 
@@ -1632,14 +1631,13 @@ public:
         ui::Helper::doLayout(RootNode);
     }
 
-    void bindHeaderController(const Node *allNodes) override {}
+    void bindBodyController(const NodeMap &allNodes) override {
+        _left = static_cast<ui::Button *>(allNodes.findController("left"));
+        _right = static_cast<ui::Button *>(allNodes.findController("right"));
+        _ok = static_cast<ui::Button *>(allNodes.findController("ok"));
 
-    void bindBodyController(const Node *allNodes) override {
-        _left = allNodes->getChildByName<ui::Button *>("left");
-        _right = allNodes->getChildByName<ui::Button *>("right");
-        _ok = allNodes->getChildByName<ui::Button *>("ok");
-
-        auto funcUpdate = [this] { updateButtons(); };
+        auto funcUpdate =
+            std::bind(&TVPWindowManagerOverlay::updateButtons, this);
 
         _left->addClickEventListener([=](Ref *) {
             if(!_currentWindowLayer || !_currentWindowLayer->_prevWindow)
@@ -1684,7 +1682,7 @@ public:
         });
 
         ui::Button *fillscr =
-            (allNodes->getChildByName<cocos2d::ui::Button *>("fillscr"));
+            static_cast<ui::Button *>(allNodes.findController("fillscr"));
         fillscr->addClickEventListener([](Ref *) {
             if(!_currentWindowLayer)
                 return;
@@ -1694,9 +1692,7 @@ public:
         updateButtons();
     }
 
-    void bindFooterController(const Node *allNodes) override {}
-
-    void updateButtons() const {
+    void updateButtons() {
         if(!_currentWindowLayer)
             return;
         if(_left) {
@@ -1912,13 +1908,10 @@ void TVPMainScene::popUIForm(cocos2d::Node *form, eLeaveAni ani) {
 }
 
 bool TVPMainScene::startupFrom(const std::string &path) {
-
-
     // startup from dir
     if(!TVPCheckStartupPath(path)) {
         return false;
     }
- 
     IndividualConfigManager *pGlobalCfgMgr =
         IndividualConfigManager::GetInstance();
     pGlobalCfgMgr->UsePreferenceAt(
@@ -1965,12 +1958,7 @@ void TVPMainScene::doStartup(float dt, std::string path) {
     _consoleWin->setScale(1 / scale);
     _consoleWin->setContentSize(getContentSize() * scale);
     GameNode->addChild(_consoleWin, GAME_CONSOLE_ORDER);
-    #ifdef _WIN32
-    extern std::wstring local_to_wstr(const std::string &path);
-    ::Application->StartApplication((tjs_char*)local_to_wstr(path).c_str());
-    #else
     ::Application->StartApplication(path);
-    #endif
     // update one frame
     update(0);
     //_ResotreGLStatues(); // already in update()
