@@ -32,9 +32,9 @@ void TVPPreferenceForm::initPref(const tPreferenceScreen *config) {
     nullcell->setContentSize(Size(PrefList->getContentSize().width, 200));
     PrefList->pushBackCustomItem(nullcell);
 }
-
+extern Node* findChildByNameRecursively(const Node* parent, const std::string& name);
 void TVPPreferenceForm::bindBodyController(const Node *allNodes) {
-    PrefList = static_cast<ListView *>(allNodes->getChildByName("list"));
+    PrefList = reinterpret_cast<ListView *>(findChildByNameRecursively(allNodes, "list"));
     if(NaviBar.Left) {
         NaviBar.Left->addClickEventListener([this](cocos2d::Ref *) {
             TVPMainScene::GetInstance()->popUIForm(this);
@@ -43,7 +43,7 @@ void TVPPreferenceForm::bindBodyController(const Node *allNodes) {
 }
 
 void TVPPreferenceForm::bindHeaderController(const Node *allNodes) {
-    _title = static_cast<Button *>(allNodes->getChildByName("title"));
+    _title = reinterpret_cast<Button *>(findChildByNameRecursively(allNodes, "title"));
     if(_title)
         _title->setEnabled(false);
 }

@@ -616,6 +616,7 @@ namespace Csd {
         // 创建 ListView
         const auto listView = ListView::create();
         listView->setDirection(ListView::Direction::VERTICAL);
+        listView->setName("list");
         listView->setBounceEnabled(true);
         listView->setTouchEnabled(true);
         listView->setContentSize(Size(720, 960));

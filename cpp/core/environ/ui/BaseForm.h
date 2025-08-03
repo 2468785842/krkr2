@@ -73,6 +73,7 @@ template <>
 cocos2d::Node *NodeMap::findController<cocos2d::Node>(const std::string &name,
                                                       bool notice) const;
 
+
 class CSBReader : public NodeMap {
 public:
     cocos2d::Node *Load(const char *filename);
@@ -97,11 +98,12 @@ protected:
                       const Csd::NodeBuilderFn &bottomBarCall,
                       Node *parent = nullptr);
 
-    bool initFromFile(Node *naviBarCall, Node *bodyCall, Node *bottomBarCall,
-                      Node *parent = nullptr) {
-        return true;
-    }
+    bool initFromFile(Node *naviBar, Node *body, Node *bottomBar,
+                      Node *parent = nullptr);
 
+    bool initFromFile(const char *navibar, const char *body,
+                                const char *bottombar, cocos2d::Node *parent);
+   
     bool initFromFile(Node *body) {
         return initFromFile(nullptr, body, nullptr);
     }
@@ -212,3 +214,4 @@ public:
 };
 
 void ReloadTableViewAndKeepPos(cocos2d::extension::TableView *pTableView);
+

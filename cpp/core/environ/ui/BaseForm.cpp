@@ -134,6 +134,154 @@ bool iTVPBaseForm::initFromFile(const Csd::NodeBuilderFn &naviBarCall,
     return ret;
 }
 
+/**
+ * 递归查找指定名称的子节点
+ * @param parent 从这个节点开始向下找
+ * @param name   要查找的名字
+ * @return       找到的第一个同名节点，找不到返回 nullptr
+ */
+Widget* findChildByNameRecursively(const Widget* parent, const std::string& name)
+{
+    if (!parent) return nullptr;
+
+    // 先查直接子节点
+    Widget* child = parent->getChildByName<Widget*>(name);
+    if (child) return child;
+
+    // 再递归查所有子节点的子节点
+    const Vector<Node*>& children = parent->getChildren();
+    for (Node* node : children)
+    {
+        // 只有 Widget 才继续递归
+        Widget* widget = dynamic_cast<Widget*>(node);
+        if (!widget) continue;
+
+        Widget* result = findChildByNameRecursively(widget, name);
+        if (result) return result;
+    }
+    return nullptr;
+}
+
+/**
+ * 递归查找指定名称的后代节点（支持 Node 及其所有子类）
+ * @param parent 从这个节点开始向下找
+ * @param name   要查找的名字
+ * @return       找到的第一个同名节点，找不到返回 nullptr
+ */
+Node* findChildByNameRecursively(const Node* parent, const std::string& name)
+{
+    if (!parent) return nullptr;
+
+    // 1. 先查直接子节点
+    Node* child = parent->getChildByName(name);
+    if (child) return child;
+
+    // 2. 再递归查所有子节点的子节点
+    for (Node* node : parent->getChildren())
+    {
+        Node* result = findChildByNameRecursively(node, name);
+        if (result) return result;
+    }
+    return nullptr;
+}
+bool iTVPBaseForm::initFromFile(const char *navibar, const char *body,
+                                const char *bottombar, cocos2d::Node *parent) {
+    bool ret = cocos2d::Node::init();
+    // NaviBar.Title = nullptr;
+    NaviBar.Left = nullptr;
+    NaviBar.Right = nullptr;
+    NaviBar.Root = nullptr;
+    CSBReader reader;
+    if(navibar) {
+        NaviBar.Root = reader.Load(navibar);
+        if(!NaviBar.Root) {
+            return false;
+        }
+        // 		NaviBar.Title =
+        // static_cast<Button*>(reader.findController("title")); if
+        // (NaviBar.Title)
+        // { 			NaviBar.Title->setEnabled(false); // normally
+        // 		}
+        NaviBar.Left =
+            dynamic_cast<Button *>(reader.findController("left", false));
+        NaviBar.Right =
+            dynamic_cast<Button *>(reader.findController("right", false));
+        bindHeaderController(NaviBar.Root);
+    }
+
+    BottomBar.Root = nullptr;
+    // BottomBar.Panel = nullptr;
+    if(bottombar) {
+        BottomBar.Root = reader.Load(bottombar);
+        if(!BottomBar.Root) {
+            return false;
+        }
+        // BottomBar.Panel =
+        // static_cast<ListView*>(reader.findController("panel"));
+        bindFooterController(BottomBar.Root);
+    }
+    // FIXME: 依靠bug运行， 此处应为非法转换, 危险操作！！
+    RootNode = reinterpret_cast<Widget *>(reader.Load(body));
+    if(!RootNode) {
+        return false;
+    }
+    if(!parent) {
+        parent = this;
+    }
+    parent->addChild(RootNode);
+    if(NaviBar.Root)
+        parent->addChild(NaviBar.Root);
+    if(BottomBar.Root)
+        parent->addChild(BottomBar.Root);
+    rearrangeLayout();
+    bindBodyController(RootNode);
+    return ret;
+}
+
+bool iTVPBaseForm::initFromFile(Node *naviBar, Node *body,
+                                  Node *bottomBar, Node *parent) {
+    const bool ret = Node::init();
+        RootNode = dynamic_cast<cocos2d::ui::Widget *>(body);
+        if(!RootNode) {
+            return false;
+        }
+
+        if(!parent) {
+            parent = this;
+        }
+
+        LinearLayoutParameter *param = nullptr;
+
+        if(naviBar) {
+            NaviBar.Root = naviBar;
+            NaviBar.Left = dynamic_cast<Button *>(findChildByNameRecursively(NaviBar.Root, "left"));
+            NaviBar.Right = dynamic_cast<Button *>(findChildByNameRecursively(NaviBar.Root, "right"));
+            bindHeaderController(NaviBar.Root);
+
+            param = LinearLayoutParameter::create();
+            param->setGravity(LinearLayoutParameter::LinearGravity::TOP);
+            dynamic_cast<cocos2d::ui::Widget *>(naviBar)->setLayoutParameter(param);
+            parent->addChild(naviBar);
+        }
+
+        if(bottomBar) {
+            BottomBar.Root = bottomBar;
+            bindFooterController(bottomBar);
+
+            param = LinearLayoutParameter::create();
+            param->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
+            dynamic_cast<cocos2d::ui::Widget *>(bottomBar)->setLayoutParameter(param);
+            parent->addChild(BottomBar.Root);
+        }
+
+        param = LinearLayoutParameter::create();
+        param->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
+        dynamic_cast<cocos2d::ui::Widget *>(body)->setLayoutParameter(param);
+        parent->addChild(RootNode);
+
+        bindBodyController(RootNode);
+        return ret;
+}
 void iTVPBaseForm::rearrangeLayout() {}
 
 void iTVPBaseForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
