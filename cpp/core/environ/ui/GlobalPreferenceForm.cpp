@@ -6,11 +6,13 @@
 #include "ConfigManager/GlobalConfigManager.h"
 #include "platform/CCFileUtils.h"
 #include "Platform.h"
-#include "csd/CsdUIFactory.h"
 
 using namespace cocos2d;
 using namespace cocos2d::ui;
 #define GLOBAL_PREFERENCE
+
+const char *const FileName_NaviBar = "ui/NaviBar.csb";
+const char *const FileName_Body = "ui/ListView.csb";
 
 static iSysConfigManager *GetConfigManager() {
     return GlobalConfigManager::GetInstance();
@@ -24,7 +26,7 @@ TVPGlobalPreferenceForm::create(const tPreferenceScreen *config) {
         config = &RootPreference;
     TVPGlobalPreferenceForm *ret = new TVPGlobalPreferenceForm();
     ret->autorelease();
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initFromFile(FileName_NaviBar, FileName_Body, nullptr);
     PrefListSize = ret->PrefList->getContentSize();
     ret->initPref(config);
     ret->setOnExitCallback(std::bind(&GlobalConfigManager::SaveToFile,

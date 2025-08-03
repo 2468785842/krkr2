@@ -7,7 +7,6 @@
 #include "ui/UILoadingBar.h"
 #include "2d/CCLabel.h"
 #include "ConfigManager/LocaleConfigManager.h"
-#include "csd/CsdUIFactory.h"
 
 using namespace cocos2d;
 using namespace cocos2d::ui;
@@ -37,7 +36,7 @@ void TVPMessageBoxForm::init(const std::string &caption,
                              const std::function<void(int)> &callback) {
     _callback = callback;
 
-    initFromFile(nullptr, Csd::createMessageBox(), nullptr);
+    initFromFile(nullptr, "ui/MessageBox.csb", nullptr);
 
     if(_title)
         _title->setString(caption);
@@ -109,13 +108,13 @@ void TVPMessageBoxForm::init(const std::string &caption,
     _btnModel = nullptr;
 }
 
-void TVPMessageBoxForm::bindBodyController(const Node *allNodes) {
-    _title = allNodes->getChildByName<Text *>("title");
-    _textContent = allNodes->getChildByName<Text *>("content");
-    _textContainer = allNodes->getChildByName<ScrollView *>("text");
+void TVPMessageBoxForm::bindBodyController(const NodeMap &allNodes) {
+    _title = static_cast<Text *>(allNodes.findController("title"));
+    _textContent = static_cast<Text *>(allNodes.findController("content"));
+    _textContainer = static_cast<ScrollView *>(allNodes.findController("text"));
 
-    _btnBody = allNodes->getChildByName<Button *>("btnBody");
-    _btnModel = allNodes->getChildByName<Widget *>("btn");
+    _btnBody = static_cast<Button *>(allNodes.findController("btnBody"));
+    _btnModel = allNodes.findWidget("btn");
     _btnList = _btnModel->getParent();
 }
 
@@ -130,7 +129,7 @@ void TVPMessageBoxForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
 TVPSimpleProgressForm *TVPSimpleProgressForm::create() {
     TVPSimpleProgressForm *form = new TVPSimpleProgressForm;
     form->autorelease();
-    form->initFromFile(Csd::createProgressBox());
+    form->initFromFile("ui/ProgressBox.csb");
     return form;
 }
 
@@ -205,15 +204,16 @@ void TVPSimpleProgressForm::setProgress2Visible(bool visible) {
     // TODO
 }
 
-void TVPSimpleProgressForm::bindBodyController(const Node *allNodes) {
-    _progressBar[0] = allNodes->getChildByName<LoadingBar *>("progrss_1");
-    _progressBar[1] = allNodes->getChildByName<LoadingBar *>("progrss_2");
-    _textProgress[0] = allNodes->getChildByName<Text *>("progress_text_1");
-    _textProgress[1] = allNodes->getChildByName<Text *>("progress_text_2");
-    _textContent = allNodes->getChildByName<Text *>("text");
-    _textTitle = allNodes->getChildByName<Text *>("title");
-    _btnContainer = allNodes->getChildByName("btnList");
-    _btnCell = allNodes->getChildByName<Widget *>("btnCell");
-    _btnButton = allNodes->getChildByName<Button *>("btn");
+void TVPSimpleProgressForm::bindBodyController(const NodeMap &allNodes) {
+    LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();
+    _progressBar[0] = allNodes.findController<LoadingBar>("progrss_1");
+    _progressBar[1] = allNodes.findController<LoadingBar>("progrss_2");
+    _textProgress[0] = allNodes.findController<Text>("progress_text_1");
+    _textProgress[1] = allNodes.findController<Text>("progress_text_2");
+    _textContent = allNodes.findController<Text>("text");
+    _textTitle = allNodes.findController<Text>("title");
+    _btnContainer = allNodes.findController("btnList");
+    _btnCell = allNodes.findWidget("btnCell");
+    _btnButton = allNodes.findController<Button>("btn");
     _btnCell->removeFromParentAndCleanup(false);
 }

@@ -12,8 +12,7 @@ struct tPreferenceScreen {
     tPreferenceScreen() {}
     tPreferenceScreen(const std::string &title,
                       const std::initializer_list<iTVPPreferenceInfo *> &elem) :
-        Title(title),
-        Preferences(elem) {}
+        Title(title), Preferences(elem) {}
     ~tPreferenceScreen() { clear(); }
     void clear();
     void init(const std::initializer_list<iTVPPreferenceInfo *> &elem) {
@@ -45,8 +44,7 @@ struct tTVPPreferenceInfo : public iTVPPreferenceInfo {
 public:
     tTVPPreferenceInfo(const std::string &cap, const std::string &key,
                        const T &defval) :
-        iTVPPreferenceInfo(cap, key),
-        DefaultValue(defval) {}
+        iTVPPreferenceInfo(cap, key), DefaultValue(defval) {}
 
     T DefaultValue;
     // 	iTVPPreferenceInfo(const std::string &cap, const std::string
@@ -69,10 +67,8 @@ public:
 class TVPPreferenceForm : public iTVPBaseForm {
 protected:
     void initPref(const tPreferenceScreen *config);
-
-    void bindHeaderController(const Node *allNodes) override;
-    void bindBodyController(const Node *allNodes) override;
-    void bindFooterController(const Node *allNodes) override {}
+    virtual void bindBodyController(const NodeMap &allNodes) override;
+    virtual void bindHeaderController(const NodeMap &allNodes) override;
 
     const tPreferenceScreen *Config = nullptr;
     cocos2d::ui::ListView *PrefList;
@@ -233,9 +229,8 @@ protected:
         const std::function<
             void(int, const std::pair<std::string, std::string> &)> &setter);
 
-    void bindHeaderController(const Node *allNodes) override;
-    void bindBodyController(const Node *allNodes) override;
-    void bindFooterController(const Node *allNodes) override {}
+    virtual void bindBodyController(const NodeMap &allNodes) override;
+    virtual void bindHeaderController(const NodeMap &allNodes) override;
 
     std::function<std::pair<std::string, std::string>(int)> _getter;
     std::function<void(int, const std::pair<std::string, std::string> &)>
@@ -281,8 +276,7 @@ class tPreferenceItemTextSlider : public iPreferenceItemSlider {
 public:
     tPreferenceItemTextSlider(float r,
                               const std::function<std::string(float)> &f) :
-        iPreferenceItemSlider(r),
-        _strScaleConv(f) {}
+        iPreferenceItemSlider(r), _strScaleConv(f) {}
 
 protected:
     virtual void initController(const NodeMap &allNodes) override;

@@ -13,7 +13,6 @@
 #include "SelectListForm.h"
 #include "FileSelectorForm.h"
 #include "Platform.h"
-#include "csd/CsdUIFactory.h"
 
 using namespace cocos2d;
 using namespace cocos2d::ui;
@@ -32,9 +31,9 @@ void TVPPreferenceForm::initPref(const tPreferenceScreen *config) {
     nullcell->setContentSize(Size(PrefList->getContentSize().width, 200));
     PrefList->pushBackCustomItem(nullcell);
 }
-extern Node* findChildByNameRecursively(const Node* parent, const std::string& name);
-void TVPPreferenceForm::bindBodyController(const Node *allNodes) {
-    PrefList = reinterpret_cast<ListView *>(findChildByNameRecursively(allNodes, "list"));
+
+void TVPPreferenceForm::bindBodyController(const NodeMap &allNodes) {
+    PrefList = static_cast<ListView *>(allNodes.findController("list"));
     if(NaviBar.Left) {
         NaviBar.Left->addClickEventListener([this](cocos2d::Ref *) {
             TVPMainScene::GetInstance()->popUIForm(this);
@@ -42,8 +41,8 @@ void TVPPreferenceForm::bindBodyController(const Node *allNodes) {
     }
 }
 
-void TVPPreferenceForm::bindHeaderController(const Node *allNodes) {
-    _title = reinterpret_cast<Button *>(findChildByNameRecursively(allNodes, "title"));
+void TVPPreferenceForm::bindHeaderController(const NodeMap &allNodes) {
+    _title = static_cast<Button *>(allNodes.findController("title"));
     if(_title)
         _title->setEnabled(false);
 }
@@ -284,14 +283,14 @@ TVPCustomPreferenceForm *TVPCustomPreferenceForm::create(
     const std::function<void(int, const std::pair<std::string, std::string> &)>
         &setter) {
     TVPCustomPreferenceForm *ret = new TVPCustomPreferenceForm;
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initFromFile("ui/NaviBar.csb", "ui/ListView.csb", nullptr);
     ret->initFromInfo(tid_title, count, getter, setter);
     ret->autorelease();
     return ret;
 }
 
-void TVPCustomPreferenceForm::bindBodyController(const Node *allNodes) {
-    _listview = static_cast<ListView *>(allNodes->getChildByName("list"));
+void TVPCustomPreferenceForm::bindBodyController(const NodeMap &allNodes) {
+    _listview = static_cast<ListView *>(allNodes.findController("list"));
     if(NaviBar.Left) {
         NaviBar.Left->addClickEventListener([this](cocos2d::Ref *) {
             TVPMainScene::GetInstance()->popUIForm(this);
@@ -299,8 +298,8 @@ void TVPCustomPreferenceForm::bindBodyController(const Node *allNodes) {
     }
 }
 
-void TVPCustomPreferenceForm::bindHeaderController(const Node *allNodes) {
-    _title = static_cast<Button *>(allNodes->getChildByName("title"));
+void TVPCustomPreferenceForm::bindHeaderController(const NodeMap &allNodes) {
+    _title = static_cast<Button *>(allNodes.findController("title"));
     if(_title)
         _title->setEnabled(false);
 }
@@ -514,7 +513,7 @@ void KeyMapPreferenceForm::initData() {
 KeyMapPreferenceForm *KeyMapPreferenceForm::create(iSysConfigManager *mgr) {
     KeyMapPreferenceForm *ret = new KeyMapPreferenceForm(mgr);
     ret->autorelease();
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initFromFile("ui/NaviBar.csb", "ui/ListView.csb", nullptr);
     ret->initData();
     return ret;
 }

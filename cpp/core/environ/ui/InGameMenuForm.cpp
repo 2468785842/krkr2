@@ -6,33 +6,35 @@
 #include "MenuItemIntf.h"
 #include "ui/UIHelper.h"
 #include "tjsGlobalStringMap.h"
-#include "csd/CsdUIFactory.h"
 
 using namespace cocos2d;
 using namespace cocos2d::ui;
 
+const char *const FileName_NaviBar = "ui/NaviBar.csb";
+const char *const FileName_Body = "ui/ListView.csb";
+
 TVPInGameMenuForm *TVPInGameMenuForm::create(const std::string &title,
                                              tTJSNI_MenuItem *item) {
-    auto *ret = new TVPInGameMenuForm;
+    TVPInGameMenuForm *ret = new TVPInGameMenuForm;
     ret->autorelease();
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initFromFile(FileName_NaviBar, FileName_Body, nullptr);
     ret->initMenu(title, item);
     return ret;
 }
 
-void TVPInGameMenuForm::bindHeaderController(const Node *allNodes) {
-    _title = allNodes->getChildByName<Button *>("title");
-    if(_title)
-        _title->setEnabled(false);
-}
-
-void TVPInGameMenuForm::bindBodyController(const Node *allNodes) {
-    _list = allNodes->getChildByName<ListView *>("list");
+void TVPInGameMenuForm::bindBodyController(const NodeMap &allNodes) {
+    _list = static_cast<ListView *>(allNodes.findController("list"));
     if(NaviBar.Left) {
         NaviBar.Left->addClickEventListener([this](cocos2d::Ref *) {
             TVPMainScene::GetInstance()->popUIForm(this);
         });
     }
+}
+
+void TVPInGameMenuForm::bindHeaderController(const NodeMap &allNodes) {
+    _title = static_cast<Button *>(allNodes.findController("title"));
+    if(_title)
+        _title->setEnabled(false);
 }
 
 void TVPInGameMenuForm::initMenu(const std::string &title,

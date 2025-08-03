@@ -1,6 +1,4 @@
 #include "XP3RepackForm.h"
-
-#include <utility>
 #include "StorageImpl.h"
 #include "cocos2d/MainScene.h"
 #include "PreferenceForm.h"
@@ -18,13 +16,12 @@
 #include "TickCount.h"
 #include "2d/CCLayer.h"
 #include "2d/CCActionInterval.h"
-#include "csd/CsdUIFactory.h"
 #include "platform/CCFileUtils.h"
 #include "platform/CCDevice.h"
 
 using namespace cocos2d;
 using namespace cocos2d::ui;
-bool TVPGetXP3ArchiveOffset(tTJSBinaryStream *st, ttstr name,
+bool TVPGetXP3ArchiveOffset(tTJSBinaryStream *st, const ttstr name,
                             tjs_uint64 &offset, bool raise);
 
 static void WalkDir(const ttstr &dir,
@@ -51,7 +48,7 @@ static void WalkDir(const ttstr &dir,
 class TVPXP3Repacker {
     const int UpdateMS = 100; // update rate 10 fps
 public:
-    TVPXP3Repacker(std::string rootdir) : RootDir(std::move(rootdir)) {}
+    TVPXP3Repacker(const std::string &rootdir) : RootDir(rootdir) {}
     ~TVPXP3Repacker();
     void Start(std::vector<std::string> &filelist,
                const std::string &xp3filter);
@@ -63,7 +60,7 @@ private:
     void OnNewFile(int idx, uint64_t size, const std::string &filename);
     void OnNewArchive(int idx, uint64_t size, const std::string &filename);
     void OnProgress(uint64_t total_size, uint64_t arc_size, uint64_t file_size);
-    void OnError(int errcode, const std::string &errmsg) const;
+    void OnError(int errcode, const std::string &errmsg);
     void OnEnded();
 
     TVPSimpleProgressForm *ProgressForm = nullptr;
@@ -152,8 +149,8 @@ void TVPXP3Repacker::OnNewArchive(int idx, uint64_t size,
 
 void TVPXP3Repacker::OnProgress(uint64_t total_size, uint64_t arc_size,
                                 uint64_t file_size) {
-    const tjs_uint32 tick = TVPGetRoughTickCount32();
-    if(static_cast<int>(tick - LastUpdate) < UpdateMS) {
+    tjs_uint32 tick = TVPGetRoughTickCount32();
+    if((int)(tick - LastUpdate) < UpdateMS) {
         return;
     }
 
@@ -174,7 +171,7 @@ void TVPXP3Repacker::OnProgress(uint64_t total_size, uint64_t arc_size,
         });
 }
 
-void TVPXP3Repacker::OnError(int errcode, const std::string &errmsg) const {
+void TVPXP3Repacker::OnError(int errcode, const std::string &errmsg) {
     if(errcode < 0) {
         Director::getInstance()->getScheduler()->performFunctionInCocosThread(
             [this, errcode, errmsg] {
@@ -194,12 +191,8 @@ void TVPXP3Repacker::OnEnded() {
 
 class TVPXP3RepackFileListForm : public iTVPBaseForm {
 public:
-    ~TVPXP3RepackFileListForm() override;
-
-    void bindHeaderController(const Node *allNodes) override {}
-    void bindBodyController(const Node *allNodes) override;
-    void bindFooterController(const Node *allNodes) override {}
-
+    virtual ~TVPXP3RepackFileListForm();
+    virtual void bindBodyController(const NodeMap &allNodes);
     static TVPXP3RepackFileListForm *show(std::vector<std::string> &filelist,
                                           const std::string &dir);
     void initData(std::vector<std::string> &filelist, const std::string &dir);
@@ -221,20 +214,21 @@ TVPXP3RepackFileListForm::~TVPXP3RepackFileListForm() {
         delete m_pRepacker;
 }
 
-void TVPXP3RepackFileListForm::bindBodyController(const Node *allNodes) {
+void TVPXP3RepackFileListForm::bindBodyController(const NodeMap &allNodes) {
     LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
-    const auto btnList = allNodes->getChildByName<ui::ScrollView *>("btn_list");
-    const Size containerSize = btnList->getContentSize();
+    ui::ScrollView *btnList =
+        allNodes.findController<ui::ScrollView>("btn_list");
+    Size containerSize = btnList->getContentSize();
     btnList->setInnerContainerSize(containerSize);
-    const auto btnCell = allNodes->getChildByName<Widget *>("btn_cell");
-    const auto btn = allNodes->getChildByName<Button *>("btn");
-    constexpr int nButton = 2;
+    Widget *btnCell = allNodes.findWidget("btn_cell");
+    Button *btn = allNodes.findController<Button>("btn");
+    int nButton = 2;
 
-    locmgr->initText(allNodes->getChildByName<Text *>("title"), "XP3 Repack");
+    locmgr->initText(allNodes.findController<Text>("title"), "XP3 Repack");
 
     btn->setTitleText(locmgr->GetText("start"));
-    btn->addClickEventListener(
-        [this](auto &&PH1) { onOkClicked(std::forward<decltype(PH1)>(PH1)); });
+    btn->addClickEventListener(std::bind(&TVPXP3RepackFileListForm::onOkClicked,
+                                         this, std::placeholders::_1));
     btnCell->setPositionX(containerSize.width / (nButton + 1) * 1);
     btnList->addChild(btnCell->clone());
 
@@ -245,15 +239,15 @@ void TVPXP3RepackFileListForm::bindBodyController(const Node *allNodes) {
 
     btn->removeFromParent();
 
-    ListViewFiles = allNodes->getChildByName<ListView *>("list_2");
-    ListViewPref = allNodes->getChildByName<ListView *>("list_1");
+    ListViewFiles = allNodes.findController<ListView>("list_2");
+    ListViewPref = allNodes.findController<ListView>("list_1");
 }
 
 TVPXP3RepackFileListForm *
 TVPXP3RepackFileListForm::show(std::vector<std::string> &filelist,
                                const std::string &dir) {
-    auto *form = new TVPXP3RepackFileListForm;
-    form->initFromFile(Csd::createCheckListDialog());
+    TVPXP3RepackFileListForm *form = new TVPXP3RepackFileListForm;
+    form->initFromFile("ui/CheckListDialog.csb");
     form->initData(filelist, dir);
     TVPMainScene::GetInstance()->pushUIForm(form, TVPMainScene::eEnterAniNone);
     return form;
@@ -270,11 +264,12 @@ void TVPXP3RepackFileListForm::initData(std::vector<std::string> &filelist,
     int prefixlen = dir.length() + 1;
     for(size_t i = 0; i < FileList.size(); ++i) {
         std::string filename = FileList[i].substr(prefixlen);
-        auto *cell = CreatePreferenceItem<tPreferenceItemCheckBox>(
-            i, size, filename, [](tPreferenceItemCheckBox *p) {
-                p->_getter = []() -> bool { return true; };
-                p->_setter = [](bool v) {};
-            });
+        tPreferenceItemCheckBox *cell =
+            CreatePreferenceItem<tPreferenceItemCheckBox>(
+                i, size, filename, [](tPreferenceItemCheckBox *p) {
+                    p->_getter = []() -> bool { return true; };
+                    p->_setter = [](bool v) {};
+                });
         cell->setTag(tag++);
         ListViewFiles->pushBackCustomItem(cell);
     }
