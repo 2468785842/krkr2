@@ -57,10 +57,22 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     }
 #endif
     }
+#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+    // Set the design resolution
+    cocos2d::Size screenSize = glview->getFrameSize();
+    if(screenSize.width < screenSize.height) {
+        std::swap(screenSize.width, screenSize.height);
+    }
+    cocos2d::Size designSize = designResolutionSize;
+    designSize.height = designSize.width * screenSize.height / screenSize.width;
+    glview->setDesignResolutionSize(screenSize.width, screenSize.height,
+                                    ResolutionPolicy::EXACT_FIT);
+#else
+    // Set the design resolution
     glview->setDesignResolutionSize(designResolutionSize.width,
                                     designResolutionSize.height,
                                     ResolutionPolicy::SHOW_ALL);
-
+#endif
     std::vector<std::string> searchPath;
 
     // In this demo, we select resource according to the frame's
