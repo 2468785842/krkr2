@@ -132,58 +132,86 @@ Node* findChildByNameRecursively(const Node* parent, const std::string& name)
 }
 
 
-bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn &naviBarCall,
-                                const Csd::NodeBuilderFn &bodyCall,
-                                const Csd::NodeBuilderFn &bottomBarCall,
-                                Node *parent) {
+bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn& naviBarCall,
+                     const Csd::NodeBuilderFn& bodyCall,
+                     const Csd::NodeBuilderFn& bottomBarCall,
+                     Node* parent /* = nullptr */)
+{
+    if (!Node::init()) return false;
+    if (!parent) parent = this;
 
-    const bool ret = Node::init();
-    const auto scale = TVPMainScene::GetInstance()->getUIScale();
+    /* 1. 统一容器：纵向线性布局，占满父节点 */
+    auto container = Layout::create();
+    container->setContentSize(parent->getContentSize());
+    container->setLayoutType(Layout::Type::VERTICAL);
+    container->setAnchorPoint(Vec2::ZERO);
+    parent->addChild(container);
 
-    auto *naviBar = naviBarCall(rearrangeHeaderSize(parent), scale);
-    auto *body = bodyCall(rearrangeBodySize(parent), scale);
-    auto *bottomBar = bottomBarCall(rearrangeFooterSize(parent), scale);
+    /* 2. 计算三栏尺寸（比例 + 缩放） */
+    const float scale = TVPMainScene::GetInstance()->getUIScale();
+    const Size  parentSize = parent->getContentSize();
 
-    RootNode = body;
-    if(!RootNode) {
-        return false;
+    Size naviSize  = rearrangeHeaderSize(parent);   // 10 %
+    Size bodySize  = rearrangeBodySize(parent);     // 80 %
+    Size footSize  = rearrangeFooterSize(parent);   // 10 %
+
+    /* 3. 创建并添加三栏，用 LinearLayoutParameter 自动排布 */
+    if(bottomBarCall){
+        Widget* bottomBar = bottomBarCall(footSize, scale);
+        if (bottomBar != nullptr) {
+            footSize = Size(0, 0); // 如果没有底部栏，则高度为0
+            naviSize = Size(parentSize.width, parentSize.height * 0.1f);
+            bodySize = Size(parentSize.width, parentSize.height * 0.9f);
+        }
+    }else{
+        naviSize = Size(parentSize.width, parentSize.height * 0.1f);
+        bodySize = Size(parentSize.width, parentSize.height * 0.9f);
     }
 
-    if(!parent) {
-        parent = this;
-    }
+    // naviBar
+    if (naviBarCall) {
+        Widget* naviBar = naviBarCall(naviSize, scale);
+        naviBar->setContentSize(naviSize);
+        auto lp = LinearLayoutParameter::create();
+        lp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
+        naviBar->setLayoutParameter(lp);
 
-    LinearLayoutParameter *param = nullptr;
-
-    if(naviBar) {
-        NaviBar.Root = naviBar->getChildByName("background");
-        NaviBar.Left = NaviBar.Root->getChildByName<Button *>("left");
-        NaviBar.Right = NaviBar.Root->getChildByName<Button *>("right");
+        NaviBar.Root = naviBar->getChildByName<Node*>("background");
+        NaviBar.Left = NaviBar.Root->getChildByName<Button*>("left");
+        NaviBar.Right = NaviBar.Root->getChildByName<Button*>("right");
         bindHeaderController(NaviBar.Root);
 
-        param = LinearLayoutParameter::create();
-        param->setGravity(LinearLayoutParameter::LinearGravity::TOP);
-        naviBar->setLayoutParameter(param);
-        parent->addChild(naviBar);
+        container->addChild(naviBar);
     }
 
-    if(bottomBar) {
-        BottomBar.Root = bottomBar;
-        bindFooterController(bottomBar);
+    // body
+    if (bodyCall) {
+        Widget* body = bodyCall(bodySize, scale);
+        body->setContentSize(bodySize);
+        auto lp = LinearLayoutParameter::create();
+        lp->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
+        body->setLayoutParameter(lp);
 
-        param = LinearLayoutParameter::create();
-        param->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
-        bottomBar->setLayoutParameter(param);
-        parent->addChild(BottomBar.Root);
+        RootNode = body;
+        bindBodyController(RootNode);
+        container->addChild(RootNode);
     }
 
-    param = LinearLayoutParameter::create();
-    param->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
-    body->setLayoutParameter(param);
-    parent->addChild(RootNode);
+    // bottomBar
+    if (bottomBarCall) {
+        Widget* bottomBar = bottomBarCall(footSize, scale);
+        if (bottomBar != nullptr) {
+            bottomBar->setContentSize(footSize);
+            auto lp = LinearLayoutParameter::create();
+            lp->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
+            bottomBar->setLayoutParameter(lp);
+            BottomBar.Root = bottomBar;
+            bindFooterController(bottomBar);
+            container->addChild(bottomBar);
+        }
+    }
 
-    bindBodyController(RootNode);
-    return ret;
+    return true;
 }
 bool iTVPBaseForm::initFromWidget(Widget* naviBarCall,
                     Widget* bodyCall,
@@ -196,37 +224,41 @@ bool iTVPBaseForm::initFromWidget(Widget* naviBarCall,
 
     // 统一容器
     auto container = Layout::create();
-    container->setContentSize(Size(720, 720));   // 你的设计分辨率
+    container->setContentSize(parent->getContentSize());
+    container->setLayoutType(Layout::Type::VERTICAL);
     container->setAnchorPoint(Vec2::ZERO);
-    container->setPosition(Vec2::ZERO);
     parent->addChild(container);
 
-    // naviBar
+    // 1) naviBar —— 占 10% 高度，贴顶
     if (naviBarCall) {
-        naviBarCall->setAnchorPoint(Vec2::ZERO);
-        naviBarCall->setPosition(Vec2(0, 600));  // 顶部
+        naviBarCall->setContentSize(Size(container->getContentSize().width,
+                                    container->getContentSize().height * 0.10f));
+        auto* lp = LinearLayoutParameter::create();
+        lp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
+        naviBarCall->setLayoutParameter(lp);
         container->addChild(naviBarCall);
-        NaviBar.Root = naviBarCall;
-        NaviBar.Left = naviBarCall->getChildByName<Button*>("left");
-        NaviBar.Right = naviBarCall->getChildByName<Button*>("right");
     }
 
-    // body
+    // 2) body —— 占 80% 高度，中间填满
     if (bodyCall) {
-        bodyCall->setAnchorPoint(Vec2::ZERO);
-        bodyCall->setPosition(Vec2(0, 120));     // naviBar 下方
+        bodyCall->setContentSize(Size(container->getContentSize().width,
+                                    container->getContentSize().height * 0.80f));
+        auto* lp = LinearLayoutParameter::create();
+        lp->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
+        bodyCall->setLayoutParameter(lp);
         container->addChild(bodyCall);
         RootNode = bodyCall;
         bindBodyController(bodyCall);
     }
 
-    // bottomBar
+    // 3) bottomBar —— 占 10% 高度，贴底
     if (bottomBarCall) {
-        bottomBarCall->setAnchorPoint(Vec2::ZERO);
-        bottomBarCall->setPosition(Vec2(0, 0));  // 底部
+        bottomBarCall->setContentSize(Size(container->getContentSize().width,
+                                        container->getContentSize().height * 0.10f));
+        auto* lp = LinearLayoutParameter::create();
+        lp->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
+        bottomBarCall->setLayoutParameter(lp);
         container->addChild(bottomBarCall);
-        BottomBar.Root = bottomBarCall;
-        bindFooterController(bottomBarCall);
     }
 
     return true;

@@ -114,7 +114,7 @@ namespace Csd {
         // 添加左按钮
         const auto leftBtn =
             Button::create("img/back_btn_off.png", "img/back_btn_on.png",
-                           "img/back_btn_on.png");
+                                    "img/back_btn_on.png");
         leftBtn->setName("left");
         leftBtn->setTouchEnabled(true);
         leftBtn->setContentSize(leftBtnSize);
@@ -189,7 +189,7 @@ namespace Csd {
         underline->setBackGroundColorType(
             Layout::BackGroundColorType::GRADIENT);
         underline->setBackGroundColor(Color3B(229, 229, 229),
-                                      Color3B(42, 42, 42));
+                                    Color3B(42, 42, 42));
 
         // highlight button（点击区域）
         const auto highlight =
@@ -357,6 +357,78 @@ namespace Csd {
         return static_cast<Widget *>(root);
     }
 
+    /**
+     * @param size   设计尺寸（父容器给的宽高）
+     * @param scale  整体缩放（可用于像素密度适配）
+     * @return       已布局好的 Widget*
+     */
+    static Widget* createNaviBarA(const Size& size, float scale)
+    {
+        /* 1. 根 Layout：垂直线性布局 */
+        Layout* root = Layout::create();
+        root->setContentSize(size);                 // 外部给定
+        root->setLayoutType(Layout::Type::VERTICAL);
+        root->setAnchorPoint(Vec2::ZERO);
+        root->setPosition(Vec2::ZERO);
+
+        /* 2. 区域权重（高度比例） */
+        const float hNav   = size.height * 0.20f;   // 20% 顶部栏
+        const float hBody  = size.height * 0.60f;   // 60% 中段
+        const float hFoot  = size.height * 0.20f;   // 20% 底部栏
+
+        /* ---------- 顶部栏 ---------- */
+        Layout* naviBar = Layout::create();
+        naviBar->setContentSize(Size(size.width, hNav));
+        auto naviLp = LinearLayoutParameter::create();
+        naviLp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
+        naviBar->setLayoutParameter(naviLp);
+
+        // 左侧按钮
+        Button* left = Button::create("img/back_btn_off.png", "img/back_btn_on.png");
+        left->setContentSize(Size(100 * scale, 100 * scale));
+        left->setAnchorPoint(Vec2(0, 0.5f));
+        left->setPosition(Vec2(20 * scale, hNav * 0.5f));
+        left->setName("left");
+        naviBar->addChild(left);
+
+        // 中间标题
+        Button* title = Button::create("img/empty.png", "img/gray.png");
+        title->setContentSize(Size(size.width - 220 * scale, hNav));
+        title->setName("title");
+        title->setAnchorPoint(Vec2(0, 0.5f));
+        title->setPosition(Vec2(110 * scale, hNav * 0.5f));
+        title->setTitleText("标题");
+        title->setTitleFontSize(64 * scale);
+        naviBar->addChild(title);
+
+        // 右侧空占位
+        Layout* right = Layout::create();
+        right->setContentSize(Size(100 * scale, hNav));
+        right->setAnchorPoint(Vec2(0.5f, 0.5f));
+        right->setPosition(Vec2(size.width - 50 * scale, hNav * 0.5f));
+        right->setName("right");
+        naviBar->addChild(right);
+
+        root->addChild(naviBar);
+
+        /* 3. 中间空区（示例空 Layout） */
+        Layout* body = Layout::create();
+        body->setContentSize(Size(size.width, hBody));
+        auto bodyLp = LinearLayoutParameter::create();
+        bodyLp->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
+        body->setLayoutParameter(bodyLp);
+        root->addChild(body);
+
+        /* 4. 底部空区（示例空 Layout） */
+        Layout* bottom = Layout::create();
+        bottom->setContentSize(Size(size.width, hFoot));
+        auto footLp = LinearLayoutParameter::create();
+        footLp->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
+        bottom->setLayoutParameter(footLp);
+        root->addChild(bottom);
+
+        return static_cast<Widget*>(root);
+    }
     static Widget *createBottomBarTextInput() {
         const auto root = Widget::create();
         root->setContentSize(Size(720, 340));
@@ -607,7 +679,30 @@ namespace Csd {
 
         return root;
     }
+    static Widget* createListViewA(const Size &size, float) {
+        const auto root = Widget::create();
+        root->setAnchorPoint(Vec2::ZERO);
+        root->setContentSize(size);
 
+        // 创建 ListView
+        const auto listView = ListView::create();
+        listView->setName("list");
+        listView->setDirection(ListView::Direction::VERTICAL);
+        listView->setBounceEnabled(true);
+        listView->setTouchEnabled(true);
+        listView->setContentSize(size);
+        listView->setAnchorPoint(Vec2::ZERO);
+        listView->setPosition(Vec2::ZERO);
+        listView->setItemsMargin(11);
+
+        // 可选：设置背景颜色或图片
+        // listView->setBackGroundColorType(Layout::BackGroundColorType::GRADIENT);
+        // listView->setBackGroundColor(Color3B(150, 150, 255), Color3B(255,
+        // 255, 255));
+
+        root->addChild(listView);
+        return root;
+    }
     static Widget *createListView() {
         const auto root = Widget::create();
 
