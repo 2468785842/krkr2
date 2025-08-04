@@ -210,7 +210,7 @@ bool iTVPBaseForm::initFromWidget(Widget* naviBarCall,
     LinearLayoutParameter *param = nullptr;
 
     if(naviBar) {
-        NaviBar.Root = naviBar->getChildByName("background");
+        NaviBar.Root = naviBar;
         NaviBar.Left = NaviBar.Root->getChildByName<Button *>("left");
         NaviBar.Right = NaviBar.Root->getChildByName<Button *>("right");
         bindHeaderController(NaviBar.Root);
@@ -242,7 +242,9 @@ bool iTVPBaseForm::initFromWidget(Widget* naviBarCall,
     
 }
 
-void iTVPBaseForm::rearrangeLayout() {}
+void iTVPBaseForm::rearrangeLayout() {
+    
+}
 
 void iTVPBaseForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
                                 cocos2d::Event *event) {
