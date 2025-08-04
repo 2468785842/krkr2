@@ -11,7 +11,11 @@
 
 extern "C" void SDL_SetMainReady();
 extern std::thread::id TVPMainThreadID;
+#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
 static cocos2d::Size designResolutionSize(1920, 1080);
+#else
+static cocos2d::Size designResolutionSize(960, 640);
+#endif
 
 bool TVPCheckStartupArg();
 
@@ -44,6 +48,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     glview->setFrameSize(winWidth, winHeight);
 
     // 2. 设置逻辑设计分辨率（保持 1920×1080 的渲染精度）
+    // 感觉这行多余
     glview->setDesignResolutionSize(1920, 1080, ResolutionPolicy::SHOW_ALL);
 
     // 3. 获取 Win32 窗口句柄
@@ -57,7 +62,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     }
 #endif
     }
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+
     // Set the design resolution
     cocos2d::Size screenSize = glview->getFrameSize();
     if(screenSize.width < screenSize.height) {
@@ -67,12 +72,8 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     designSize.height = designSize.width * screenSize.height / screenSize.width;
     glview->setDesignResolutionSize(screenSize.width, screenSize.height,
                                     ResolutionPolicy::EXACT_FIT);
-#else
-    // Set the design resolution
-    glview->setDesignResolutionSize(designResolutionSize.width,
-                                    designResolutionSize.height,
-                                    ResolutionPolicy::SHOW_ALL);
-#endif
+
+
     std::vector<std::string> searchPath;
 
     // In this demo, we select resource according to the frame's
