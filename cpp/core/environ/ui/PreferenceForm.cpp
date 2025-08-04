@@ -284,7 +284,7 @@ TVPCustomPreferenceForm *TVPCustomPreferenceForm::create(
     const std::function<void(int, const std::pair<std::string, std::string> &)>
         &setter) {
     TVPCustomPreferenceForm *ret = new TVPCustomPreferenceForm;
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initFromWidget(Csd::createNaviBar(), Csd::createListView(), nullptr);
     ret->initFromInfo(tid_title, count, getter, setter);
     ret->autorelease();
     return ret;
@@ -514,7 +514,7 @@ void KeyMapPreferenceForm::initData() {
 KeyMapPreferenceForm *KeyMapPreferenceForm::create(iSysConfigManager *mgr) {
     KeyMapPreferenceForm *ret = new KeyMapPreferenceForm(mgr);
     ret->autorelease();
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initFromWidget(Csd::createNaviBar(), Csd::createListView(), nullptr);
     ret->initData();
     return ret;
 }

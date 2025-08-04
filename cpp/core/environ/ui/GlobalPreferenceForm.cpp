@@ -24,7 +24,7 @@ TVPGlobalPreferenceForm::create(const tPreferenceScreen *config) {
         config = &RootPreference;
     TVPGlobalPreferenceForm *ret = new TVPGlobalPreferenceForm();
     ret->autorelease();
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initFromWidget(Csd::createNaviBar(), Csd::createListView(), nullptr);
     PrefListSize = ret->PrefList->getContentSize();
     ret->initPref(config);
     ret->setOnExitCallback(std::bind(&GlobalConfigManager::SaveToFile,

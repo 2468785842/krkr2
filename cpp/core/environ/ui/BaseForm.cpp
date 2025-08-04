@@ -80,7 +80,7 @@ iTVPBaseForm::~iTVPBaseForm() = default;
 
 void iTVPBaseForm::Show() {}
 
-bool iTVPBaseForm::initFromFile(const Csd::NodeBuilderFn &naviBarCall,
+bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn &naviBarCall,
                                 const Csd::NodeBuilderFn &bodyCall,
                                 const Csd::NodeBuilderFn &bottomBarCall,
                                 Node *parent) {

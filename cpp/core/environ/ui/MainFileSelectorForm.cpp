@@ -297,12 +297,12 @@ void TVPMainFileSelectorForm::getShortCutDirList(
 TVPMainFileSelectorForm *TVPMainFileSelectorForm::create() {
     auto *ret = new TVPMainFileSelectorForm();
     ret->autorelease();
-    ret->initFromFile();
+    ret->initFromWidget();
     ret->show();
     return ret;
 }
 
-void TVPMainFileSelectorForm::initFromFile() {
+void TVPMainFileSelectorForm::initFromWidget() {
     _LoadHistory();
     setContentSize(TVPMainScene::GetInstance()->getUINodeSize());
 
@@ -314,7 +314,7 @@ void TVPMainFileSelectorForm::initFromFile() {
     _historyList = root->getChildByName<ListView *>("recentList");
     // TODO new node
     _fileOperateMenuNode = _historyList;
-    inherit::initFromFile(Csd::createNaviBarWithMenu, Csd::createTableView,
+    inherit::initFromBuilder(Csd::createNaviBarWithMenu, Csd::createTableView,
                           Csd::createEmpty, _fileList);
 }
 

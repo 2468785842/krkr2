@@ -269,10 +269,11 @@ namespace Csd {
         // 创建根节点
         const auto root = Widget::create();
         root->setContentSize(Size(720, 120));
+        
 
         // Panel_1 背景面板（含渐变色）
         const auto panel1 = Layout::create();
-        panel1->setName("Panel_1");
+        panel1->setName("background");
         panel1->setContentSize(Size(720, 120));
         panel1->setAnchorPoint(Vec2::ZERO);
         panel1->setPosition(Vec2::ZERO);

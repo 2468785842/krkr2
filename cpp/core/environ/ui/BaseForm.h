@@ -40,7 +40,8 @@ namespace cocos2d {
 namespace cocostudio::timeline {
     class ActionTimeline;
 }
-
+using cocos2d::ui::Widget;
+using cocos2d::Node;
 class NodeMap : public std::unordered_map<std::string, cocos2d::Node *> {
 protected:
     const char *FileName;
@@ -92,22 +93,34 @@ public:
                               cocos2d::Event *event);
 
 protected:
-    bool initFromFile(const Csd::NodeBuilderFn &naviBarCall,
+    bool initFromBuilder(const Csd::NodeBuilderFn &naviBarCall,
                       const Csd::NodeBuilderFn &bodyCall,
                       const Csd::NodeBuilderFn &bottomBarCall,
                       Node *parent = nullptr);
 
-    bool initFromFile(Node *naviBarCall, Node *bodyCall, Node *bottomBarCall,
-                      Node *parent = nullptr) {
-        return true;
+    bool initFromWidget(Widget* naviBarCall,
+                    Widget* bodyCall,
+                    Widget* bottomBarCall,
+                    Node* parent = nullptr) {
+        auto makeBuilder = [](Widget* node) -> Csd::NodeBuilderFn {
+            return [node](const cocos2d::Size&, float) -> Widget* {
+                return node;
+            };
+        };
+        return initFromBuilder(
+            makeBuilder(naviBarCall),
+            makeBuilder(bodyCall),
+            makeBuilder(bottomBarCall),
+            parent
+        );
     }
 
-    bool initFromFile(Node *body) {
-        return initFromFile(nullptr, body, nullptr);
+    bool initFromBodyWidget(Widget *body) {
+        return initFromWidget(nullptr, body, nullptr);
     }
 
-    bool initFromFile(const Csd::NodeBuilderFn &body) {
-        return initFromFile(nullptr, body, nullptr);
+    bool initFromBodyBuilder(const Csd::NodeBuilderFn &body) {
+        return initFromBuilder(nullptr, body, nullptr);
     }
 
     // Screen Size 10%

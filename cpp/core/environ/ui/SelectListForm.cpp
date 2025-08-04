@@ -37,7 +37,7 @@ TVPSelectListForm::create(const std::vector<std::string> &info,
     auto *ret = new TVPSelectListForm();
     ret->autorelease();
     ret->FuncOK = funcok;
-    ret->initFromFile(nullptr, Csd::createSelectList(), nullptr);
+    ret->initFromWidget(nullptr, Csd::createSelectList(), nullptr);
     ret->initWithInfo(info, highlight_tid);
     return ret;
 }
@@ -109,7 +109,7 @@ TVPTextPairInputForm *TVPTextPairInputForm::create(
     auto *ret = new TVPTextPairInputForm();
     ret->autorelease();
     ret->FuncOK = funcok;
-    ret->initFromFile(nullptr, Csd::createTextPairInput(), nullptr);
+    ret->initFromWidget(nullptr, Csd::createTextPairInput(), nullptr);
     ret->initWithInfo(text1, text2);
     return ret;
 }
@@ -142,7 +142,7 @@ TVPKeyPairSelectForm::create(const std::function<void(int)> &funcok) {
     auto *ret = new TVPKeyPairSelectForm;
     ret->autorelease();
     ret->_funcok = funcok;
-    ret->initFromFile(Csd::createSelectList());
+    ret->initFromBodyWidget(Csd::createSelectList());
     ret->initWithInfo();
     return ret;
 }

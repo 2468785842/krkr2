@@ -9,7 +9,7 @@ using namespace cocos2d::ui;
 
 TVPTipsHelpForm *TVPTipsHelpForm::create() {
     TVPTipsHelpForm *ret = new TVPTipsHelpForm;
-    ret->initFromFile(nullptr, Csd::createAllTips(), nullptr);
+    ret->initFromWidget(nullptr, Csd::createAllTips(), nullptr);
     ret->autorelease();
     return ret;
 }
