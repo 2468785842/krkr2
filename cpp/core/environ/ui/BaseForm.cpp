@@ -188,60 +188,49 @@ bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn &naviBarCall,
 bool iTVPBaseForm::initFromWidget(Widget* naviBarCall,
                     Widget* bodyCall,
                     Widget* bottomBarCall,
-                    Node* parent) {
+                    Node* parent /* = nullptr */)
+{
+    if (!Node::init()) return false;
 
-    const bool ret = Node::init();
-    const auto scale = TVPMainScene::GetInstance()->getUIScale();
+    if (!parent) parent = this;
 
+    // 统一容器
+    auto container = Layout::create();
+    container->setContentSize(Size(720, 720));   // 你的设计分辨率
+    container->setAnchorPoint(Vec2::ZERO);
+    container->setPosition(Vec2::ZERO);
+    parent->addChild(container);
 
-    auto *naviBar = naviBarCall;
-    auto *body = bodyCall;
-    auto *bottomBar = bottomBarCall;
-
-    RootNode = body;
-    if(!RootNode) {
-        return false;
+    // naviBar
+    if (naviBarCall) {
+        naviBarCall->setAnchorPoint(Vec2::ZERO);
+        naviBarCall->setPosition(Vec2(0, 600));  // 顶部
+        container->addChild(naviBarCall);
+        NaviBar.Root = naviBarCall;
+        NaviBar.Left = naviBarCall->getChildByName<Button*>("left");
+        NaviBar.Right = naviBarCall->getChildByName<Button*>("right");
     }
 
-    if(!parent) {
-        parent = this;
+    // body
+    if (bodyCall) {
+        bodyCall->setAnchorPoint(Vec2::ZERO);
+        bodyCall->setPosition(Vec2(0, 120));     // naviBar 下方
+        container->addChild(bodyCall);
+        RootNode = bodyCall;
+        bindBodyController(bodyCall);
     }
 
-    LinearLayoutParameter *param = nullptr;
-
-    if(naviBar) {
-        NaviBar.Root = naviBar;
-        NaviBar.Left = NaviBar.Root->getChildByName<Button *>("left");
-        NaviBar.Right = NaviBar.Root->getChildByName<Button *>("right");
-        bindHeaderController(NaviBar.Root);
-
-        param = LinearLayoutParameter::create();
-        param->setGravity(LinearLayoutParameter::LinearGravity::TOP);
-        naviBar->setLayoutParameter(param);
-        parent->addChild(naviBar);
+    // bottomBar
+    if (bottomBarCall) {
+        bottomBarCall->setAnchorPoint(Vec2::ZERO);
+        bottomBarCall->setPosition(Vec2(0, 0));  // 底部
+        container->addChild(bottomBarCall);
+        BottomBar.Root = bottomBarCall;
+        bindFooterController(bottomBarCall);
     }
 
-    if(bottomBar) {
-        BottomBar.Root = bottomBar;
-        bindFooterController(bottomBar);
-
-        param = LinearLayoutParameter::create();
-        param->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
-        bottomBar->setLayoutParameter(param);
-        parent->addChild(BottomBar.Root);
-    }
-
-    param = LinearLayoutParameter::create();
-    param->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
-    body->setLayoutParameter(param);
-    parent->addChild(RootNode);
-
-    bindBodyController(RootNode);
-    return ret;
-    
-    
+    return true;
 }
-
 void iTVPBaseForm::rearrangeLayout() {
     
 }

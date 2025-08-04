@@ -266,52 +266,95 @@ namespace Csd {
     }
 
     static Widget *createNaviBar() {
-        Layout* root = Layout::create();   // ← 用 Layout 代替 Widget
+        // 创建根节点
+        const auto root = Layout::create();
         root->setContentSize(Size(720, 120));
-        root->setAnchorPoint(Vec2::ZERO);
-        root->setPosition(Vec2::ZERO);
+        
 
-        // 背景渐变
-        auto gradient = LayerGradient::create(
-            Color4B(150, 200, 255, 255),
-            Color4B(255, 255, 255, 255),
-            Vec2(0, 1));
-        gradient->setContentSize(root->getContentSize());
+        // Panel_1 背景面板（含渐变色）
+        const auto panel1 = Layout::create();
+        panel1->setName("panel_1");
+        panel1->setContentSize(Size(720, 120));
+        panel1->setAnchorPoint(Vec2::ZERO);
+        panel1->setPosition(Vec2::ZERO);
+        panel1->setTouchEnabled(true);
+
+        // 渐变背景
+        const auto gradient =
+            LayerGradient::create(Color4B(150, 200, 255, 255), // FirstColor
+                                  Color4B(255, 255, 255, 255), // EndColor
+                                  Vec2(0, 1) // ColorVector (Y向上)
+            );
+        gradient->setContentSize(panel1->getContentSize());
         gradient->setAnchorPoint(Vec2::ZERO);
-        root->addChild(gradient, -1);
+        gradient->setPosition(Vec2::ZERO);
+        panel1->addChild(gradient, -1);
 
         // 左侧按钮
-        auto left = Button::create("img/back_btn_off.png", "img/back_btn_on.png");
+        const auto left =
+            Button::create("img/back_btn_off.png", "img/back_btn_on.png",
+                           "img/back_btn_on.png");
         left->setName("left");
+        left->setTouchEnabled(true);
         left->setContentSize(Size(100, 100));
         left->setAnchorPoint(Vec2(0, 0.5f));
         left->setPosition(Vec2(20, 60));
-        root->addChild(left);
+        panel1->addChild(left);
 
-        // 中间标题区域
-        auto title = Button::create("img/empty.png", "img/gray.png");
+        // 中间 Panel_2（裁剪区域）
+        const auto panel2 = Layout::create();
+        panel2->setName("Panel_2");
+        panel2->setContentSize(Size(500, 120));
+        panel2->setAnchorPoint(Vec2::ZERO);
+        panel2->setPosition(Vec2(110, 0));
+        panel2->setClippingEnabled(true);
+        panel2->setTouchEnabled(true);
+
+        // 中间渐变背景（可选）
+        const auto panel2Bg =
+            LayerGradient::create(Color4B(150, 200, 255, 255),
+                                  Color4B(255, 255, 255, 255), Vec2(0, 1));
+        panel2Bg->setContentSize(panel2->getContentSize());
+        panel2Bg->setPosition(Vec2::ZERO);
+        panel2->addChild(panel2Bg, -1);
+
+        // 标题按钮
+        const auto title =
+            Button::create("img/empty.png", "img/gray.png", "img/empty.png");
         title->setName("title");
+        title->setTouchEnabled(true);
         title->setContentSize(Size(500, 120));
         title->setAnchorPoint(Vec2(0, 0.5f));
-        title->setPosition(Vec2(110, 60));
-        title->setTitleText("标题");
+        title->setPosition(Vec2(0, 60));
         title->setTitleFontSize(64);
-        root->addChild(title);
+        title->setTitleColor(Color3B(199, 199, 199));
+        title->setTitleText("标题");
+        panel2->addChild(title);
 
-        // 右侧占位
-        auto right = Layout::create();
+        panel1->addChild(panel2);
+
+        // 右侧按钮（空 Panel）
+        const auto right = Layout::create();
         right->setName("right");
         right->setContentSize(Size(100, 100));
         right->setAnchorPoint(Vec2(0.5f, 0.5f));
         right->setPosition(Vec2(660, 60));
-        root->addChild(right);
+        right->setTouchEnabled(true);
 
-        #ifdef _DEBUG
-        CCLOG("inside create: root=%p, size=%.1fx%.1f",
-            root, root->getContentSize().width, root->getContentSize().height);
-        #endif
+        // 可选：添加背景渐变色
+        const auto rightBg =
+            LayerGradient::create(Color4B(150, 200, 255, 255),
+                                  Color4B(255, 255, 255, 255), Vec2(0, 1));
+        rightBg->setContentSize(right->getContentSize());
+        rightBg->setPosition(Vec2::ZERO);
+        right->addChild(rightBg, -1);
 
-        return static_cast<Widget*>(root);   // ✅ 返回 Layout，尺寸、锚点、坐标都在自己身上
+        panel1->addChild(right);
+
+        // 添加所有到 root
+        root->addChild(panel1);
+
+        return static_cast<Widget *>(root);
     }
 
     static Widget *createBottomBarTextInput() {
