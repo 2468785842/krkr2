@@ -80,6 +80,58 @@ iTVPBaseForm::~iTVPBaseForm() = default;
 
 void iTVPBaseForm::Show() {}
 
+/**
+ * 递归查找指定名称的子节点
+ * @param parent 从这个节点开始向下找
+ * @param name   要查找的名字
+ * @return       找到的第一个同名节点，找不到返回 nullptr
+ */
+Widget* findChildByNameRecursively(const Widget* parent, const std::string& name)
+{
+    if (!parent) return nullptr;
+
+    // 先查直接子节点
+    Widget* child = parent->getChildByName<Widget*>(name);
+    if (child) return child;
+
+    // 再递归查所有子节点的子节点
+    const Vector<Node*>& children = parent->getChildren();
+    for (Node* node : children)
+    {
+        // 只有 Widget 才继续递归
+        Widget* widget = dynamic_cast<Widget*>(node);
+        if (!widget) continue;
+
+        Widget* result = findChildByNameRecursively(widget, name);
+        if (result) return result;
+    }
+    return nullptr;
+}
+
+/**
+ * 递归查找指定名称的后代节点（支持 Node 及其所有子类）
+ * @param parent 从这个节点开始向下找
+ * @param name   要查找的名字
+ * @return       找到的第一个同名节点，找不到返回 nullptr
+ */
+Node* findChildByNameRecursively(const Node* parent, const std::string& name)
+{
+    if (!parent) return nullptr;
+
+    // 1. 先查直接子节点
+    Node* child = parent->getChildByName(name);
+    if (child) return child;
+
+    // 2. 再递归查所有子节点的子节点
+    for (Node* node : parent->getChildren())
+    {
+        Node* result = findChildByNameRecursively(node, name);
+        if (result) return result;
+    }
+    return nullptr;
+}
+
+
 bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn &naviBarCall,
                                 const Csd::NodeBuilderFn &bodyCall,
                                 const Csd::NodeBuilderFn &bottomBarCall,
@@ -132,6 +184,62 @@ bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn &naviBarCall,
 
     bindBodyController(RootNode);
     return ret;
+}
+bool iTVPBaseForm::initFromWidget(Widget* naviBarCall,
+                    Widget* bodyCall,
+                    Widget* bottomBarCall,
+                    Node* parent) {
+
+    const bool ret = Node::init();
+    const auto scale = TVPMainScene::GetInstance()->getUIScale();
+
+
+    auto *naviBar = naviBarCall;
+    auto *body = bodyCall;
+    auto *bottomBar = bottomBarCall;
+
+    RootNode = body;
+    if(!RootNode) {
+        return false;
+    }
+
+    if(!parent) {
+        parent = this;
+    }
+
+    LinearLayoutParameter *param = nullptr;
+
+    if(naviBar) {
+        NaviBar.Root = naviBar->getChildByName("background");
+        NaviBar.Left = NaviBar.Root->getChildByName<Button *>("left");
+        NaviBar.Right = NaviBar.Root->getChildByName<Button *>("right");
+        bindHeaderController(NaviBar.Root);
+
+        param = LinearLayoutParameter::create();
+        param->setGravity(LinearLayoutParameter::LinearGravity::TOP);
+        naviBar->setLayoutParameter(param);
+        parent->addChild(naviBar);
+    }
+
+    if(bottomBar) {
+        BottomBar.Root = bottomBar;
+        bindFooterController(bottomBar);
+
+        param = LinearLayoutParameter::create();
+        param->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
+        bottomBar->setLayoutParameter(param);
+        parent->addChild(BottomBar.Root);
+    }
+
+    param = LinearLayoutParameter::create();
+    param->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
+    body->setLayoutParameter(param);
+    parent->addChild(RootNode);
+
+    bindBodyController(RootNode);
+    return ret;
+    
+    
 }
 
 void iTVPBaseForm::rearrangeLayout() {}

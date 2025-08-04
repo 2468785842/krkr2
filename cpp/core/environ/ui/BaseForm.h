@@ -101,19 +101,7 @@ protected:
     bool initFromWidget(Widget* naviBarCall,
                     Widget* bodyCall,
                     Widget* bottomBarCall,
-                    Node* parent = nullptr) {
-        auto makeBuilder = [](Widget* node) -> Csd::NodeBuilderFn {
-            return [node](const cocos2d::Size&, float) -> Widget* {
-                return node;
-            };
-        };
-        return initFromBuilder(
-            makeBuilder(naviBarCall),
-            makeBuilder(bodyCall),
-            makeBuilder(bottomBarCall),
-            parent
-        );
-    }
+                    Node* parent = nullptr);
 
     bool initFromBodyWidget(Widget *body) {
         return initFromWidget(nullptr, body, nullptr);
@@ -225,3 +213,6 @@ public:
 };
 
 void ReloadTableViewAndKeepPos(cocos2d::extension::TableView *pTableView);
+
+Node* findChildByNameRecursively(const cocos2d::Node *parent, const std::string &name);
+Widget* findChildByNameRecursively(const Widget* parent, const std::string& name);
