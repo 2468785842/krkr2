@@ -600,6 +600,9 @@ bool TVPPreferenceForm::initFromBuilder(
     // 主体内容
     if(bodyBuilder) {
         Widget *body = bodyBuilder(Size(size.width, size.height * 0.8f), scale);
+        #if _DEBUG
+        spdlog::info("body size: {}, {} location <{}, {}>", body->getContentSize().width, body->getContentSize().height, body->getPosition().x, body->getPosition().y);
+        #endif
         auto lp = LinearLayoutParameter::create();
         lp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
         body->setLayoutParameter(lp);

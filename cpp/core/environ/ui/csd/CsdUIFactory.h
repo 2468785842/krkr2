@@ -370,7 +370,7 @@ namespace Csd {
         const Size titleSize(
             size.width - leftBtnSize.width - rightBtnSize.width, size.height);
 
-        const float yOffset = size.height / 2 - bothSizesPadding;
+        const float yOffset = size.height / 2;
 
         // 创建根节点：容器层
         const auto root = Widget::create();
@@ -383,7 +383,7 @@ namespace Csd {
         background->setContentSize(size);
         background->setTouchEnabled(true);
         background->setAnchorPoint(Vec2(0, 0));
-        background->setPosition(Vec2(0, bothSizesPadding));
+        background->setPosition(Vec2(0, 0));
         background->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
         background->setBackGroundColor(Color3B(42, 42, 42));
         background->setBackGroundColorOpacity(255);
