@@ -367,7 +367,7 @@ namespace Csd {
         /* 1. 根 Layout：垂直线性布局 */
         Layout* root = Layout::create();
         root->setContentSize(size);                 // 外部给定
-        root->setLayoutType(Layout::Type::VERTICAL);
+        root->setLayoutType(Layout::Type::HORIZONTAL);
         root->setAnchorPoint(Vec2::ZERO);
         root->setPosition(Vec2::ZERO);
 

@@ -93,22 +93,24 @@ public:
                               cocos2d::Event *event);
 
 protected:
-    bool initFromBuilder(const Csd::NodeBuilderFn &naviBarCall,
-                      const Csd::NodeBuilderFn &bodyCall,
-                      const Csd::NodeBuilderFn &bottomBarCall,
-                      Node *parent = nullptr);
+    // 更清晰的命名和默认参数支持
+    virtual bool initFromBuilder(const Csd::NodeBuilderFn& naviBarBuilder = nullptr,
+                                const Csd::NodeBuilderFn& bodyBuilder = nullptr,
+                                const Csd::NodeBuilderFn& bottomBarBuilder = nullptr,
+                                Node* parent = nullptr);
 
-    bool initFromWidget(Widget* naviBarCall,
-                    Widget* bodyCall,
-                    Widget* bottomBarCall,
-                    Node* parent = nullptr);
+    virtual bool initFromWidget(Widget* naviBarWidget = nullptr,
+                                Widget* bodyWidget = nullptr,
+                                Widget* bottomBarWidget = nullptr,
+                                Node* parent = nullptr);
 
-    bool initFromBodyWidget(Widget *body) {
-        return initFromWidget(nullptr, body, nullptr);
+    // 快捷方法支持parent参数
+    bool initFromBodyWidget(Widget* body, Node* parent = nullptr) {
+        return initFromWidget(nullptr, body, nullptr, parent);
     }
 
-    bool initFromBodyBuilder(const Csd::NodeBuilderFn &body) {
-        return initFromBuilder(nullptr, body, nullptr);
+    bool initFromBodyBuilder(const Csd::NodeBuilderFn& body, Node* parent = nullptr) {
+        return initFromBuilder(nullptr, body, nullptr, parent);
     }
 
     // Screen Size 10%

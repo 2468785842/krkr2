@@ -132,9 +132,9 @@ Node* findChildByNameRecursively(const Node* parent, const std::string& name)
 }
 
 
-bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn& naviBarCall,
-                     const Csd::NodeBuilderFn& bodyCall,
-                     const Csd::NodeBuilderFn& bottomBarCall,
+bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn& naviBarBuilder,
+                     const Csd::NodeBuilderFn& bodyBuilder,
+                     const Csd::NodeBuilderFn& bottomBarBuilder,
                      Node* parent /* = nullptr */)
 {
     if (!Node::init()) return false;
@@ -156,8 +156,8 @@ bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn& naviBarCall,
     Size footSize  = rearrangeFooterSize(parent);   // 10 %
 
     /* 3. 创建并添加三栏，用 LinearLayoutParameter 自动排布 */
-    if(bottomBarCall){
-        Widget* bottomBar = bottomBarCall(footSize, scale);
+    if(bottomBarBuilder){
+        Widget* bottomBar = bottomBarBuilder(footSize, scale);
         if (bottomBar != nullptr) {
             footSize = Size(0, 0); // 如果没有底部栏，则高度为0
             naviSize = Size(parentSize.width, parentSize.height * 0.1f);
@@ -169,8 +169,8 @@ bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn& naviBarCall,
     }
 
     // naviBar
-    if (naviBarCall) {
-        Widget* naviBar = naviBarCall(naviSize, scale);
+    if (naviBarBuilder) {
+        Widget* naviBar = naviBarBuilder(naviSize, scale);
         naviBar->setContentSize(naviSize);
         auto lp = LinearLayoutParameter::create();
         lp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
@@ -185,8 +185,8 @@ bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn& naviBarCall,
     }
 
     // body
-    if (bodyCall) {
-        Widget* body = bodyCall(bodySize, scale);
+    if (bodyBuilder) {
+        Widget* body = bodyBuilder(bodySize, scale);
         body->setContentSize(bodySize);
         auto lp = LinearLayoutParameter::create();
         lp->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
@@ -198,8 +198,8 @@ bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn& naviBarCall,
     }
 
     // bottomBar
-    if (bottomBarCall) {
-        Widget* bottomBar = bottomBarCall(footSize, scale);
+    if (bottomBarBuilder) {
+        Widget* bottomBar = bottomBarBuilder(footSize, scale);
         if (bottomBar != nullptr) {
             bottomBar->setContentSize(footSize);
             auto lp = LinearLayoutParameter::create();
@@ -213,9 +213,9 @@ bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn& naviBarCall,
 
     return true;
 }
-bool iTVPBaseForm::initFromWidget(Widget* naviBarCall,
-                    Widget* bodyCall,
-                    Widget* bottomBarCall,
+bool iTVPBaseForm::initFromWidget(Widget* naviBarWidget,
+                    Widget* bodyWidget,
+                    Widget* bottomBarWidget,
                     Node* parent /* = nullptr */)
 {
     if (!Node::init()) return false;
@@ -230,35 +230,35 @@ bool iTVPBaseForm::initFromWidget(Widget* naviBarCall,
     parent->addChild(container);
 
     // 1) naviBar —— 占 10% 高度，贴顶
-    if (naviBarCall) {
-        naviBarCall->setContentSize(Size(container->getContentSize().width,
+    if (naviBarWidget) {
+        naviBarWidget->setContentSize(Size(container->getContentSize().width,
                                     container->getContentSize().height * 0.10f));
         auto* lp = LinearLayoutParameter::create();
         lp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
-        naviBarCall->setLayoutParameter(lp);
-        container->addChild(naviBarCall);
+        naviBarWidget->setLayoutParameter(lp);
+        container->addChild(naviBarWidget);
     }
 
     // 2) body —— 占 80% 高度，中间填满
-    if (bodyCall) {
-        bodyCall->setContentSize(Size(container->getContentSize().width,
+    if (bodyWidget) {
+        bodyWidget->setContentSize(Size(container->getContentSize().width,
                                     container->getContentSize().height * 0.80f));
         auto* lp = LinearLayoutParameter::create();
         lp->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
-        bodyCall->setLayoutParameter(lp);
-        container->addChild(bodyCall);
-        RootNode = bodyCall;
-        bindBodyController(bodyCall);
+        bodyWidget->setLayoutParameter(lp);
+        container->addChild(bodyWidget);
+        RootNode = bodyWidget;
+        bindBodyController(bodyWidget);
     }
 
     // 3) bottomBar —— 占 10% 高度，贴底
-    if (bottomBarCall) {
-        bottomBarCall->setContentSize(Size(container->getContentSize().width,
+    if (bottomBarWidget) {
+        bottomBarWidget->setContentSize(Size(container->getContentSize().width,
                                         container->getContentSize().height * 0.10f));
         auto* lp = LinearLayoutParameter::create();
         lp->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
-        bottomBarCall->setLayoutParameter(lp);
-        container->addChild(bottomBarCall);
+        bottomBarWidget->setLayoutParameter(lp);
+        container->addChild(bottomBarWidget);
     }
 
     return true;
