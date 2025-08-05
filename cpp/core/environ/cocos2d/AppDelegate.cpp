@@ -39,13 +39,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
         director->setOpenGLView(glview);
 #if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
     // 1. 设置物理窗口大小（实际窗口大小）
-    int winWidth = 1280;
-    int winHeight = 720;
-    glview->setFrameSize(winWidth, winHeight);
-
-    // 2. 设置逻辑设计分辨率（保持 1920×1080 的渲染精度）
-    // 感觉这行多余
-    glview->setDesignResolutionSize(1920, 1080, ResolutionPolicy::SHOW_ALL);
+    glview->setFrameSize(designResolutionSize.width, designResolutionSize.height);
 
     // 3. 获取 Win32 窗口句柄
     HWND hwnd = glview->getWin32Window();
