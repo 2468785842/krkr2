@@ -210,14 +210,15 @@ bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn& naviBarBuilder,
     /* 3. 创建并添加三栏，用 LinearLayoutParameter 自动排布 */
     if(bottomBarBuilder){
         Widget* bottomBar = bottomBarBuilder(footSize, scale);
-        if (bottomBar != nullptr) {
+        if (bottomBar == nullptr) {
             footSize = Size(0, 0); // 如果没有底部栏，则高度为0
             naviSize = Size(parentSize.width, parentSize.height * 0.1f);
             bodySize = Size(parentSize.width, parentSize.height * 0.9f);
         }
     }else{
         naviSize = Size(parentSize.width, parentSize.height * 0.1f);
-        bodySize = Size(parentSize.width, parentSize.height * 0.9f);
+        bodySize = Size(parentSize.width, parentSize.height * 0.8f);
+        footSize = Size(parentSize.width, parentSize.height * 0.1f);
     }
 
     // naviBar
@@ -280,6 +281,21 @@ bool iTVPBaseForm::initFromWidget(Widget* naviBarWidget,
     container->setLayoutType(Layout::Type::VERTICAL);
     container->setAnchorPoint(Vec2::ZERO);
     parent->addChild(container);
+
+    float naviscale = 0.1f;
+    float bodyscale = 0.8f;
+    float footerscale = 0.1f;
+    if (bottomBarWidget) {
+        // 如果有底部栏，则比例为 10% + 80% + 10%
+        naviscale = 0.1f;
+        bodyscale = 0.8f;
+        footerscale = 0.1f;
+    } else {
+        // 没有底部栏，则比例为 10% + 90%
+        naviscale = 0.1f;
+        bodyscale = 0.9f;
+        footerscale = 0.0f; // 底部栏高度为0
+    }
 
     // 1) naviBar —— 占 10% 高度，贴顶
     if (naviBarWidget) {
