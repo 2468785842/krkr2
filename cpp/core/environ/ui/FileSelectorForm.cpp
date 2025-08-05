@@ -247,7 +247,8 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
             constexpr char suffix[] = "...";
             const size_t renderCharCount =
                 pathLen - overflowChar - std::size(suffix);
-            const std::string curPath = snd.substr(0, renderCharCount);
+           // const std::string curPath = snd.substr(0, renderCharCount);
+           const std::string curPath = utf8_safe_substr(snd, renderCharCount);
             _title->setTitleText(curPath + suffix);
         } else {
             _title->setTitleText(snd);
@@ -1227,4 +1228,58 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::onClicked(cocos2d::Ref *p) const
         sender->unschedule(str_long_press);
         _owner->onClicked();
     }
+}
+
+// 把 UTF-8 字符串拆成 Unicode 码点
+static std::vector<uint32_t> utf8_to_codepoints(const std::string& s)
+{
+    std::vector<uint32_t> cp;
+    const unsigned char* p = reinterpret_cast<const unsigned char*>(s.c_str());
+    while (*p)
+    {
+        uint32_t ch = 0;
+        if      ((*p & 0x80) == 0x00) { ch = *p++; }                    // 1 byte
+        else if ((*p & 0xE0) == 0xC0) { ch = (*p++ & 0x1F) << 6;  ch |= (*p++ & 0x3F); }
+        else if ((*p & 0xF0) == 0xE0) { ch = (*p++ & 0x0F) << 12; ch |= (*p++ & 0x3F) << 6;
+                                        ch |= (*p++ & 0x3F); }
+        else if ((*p & 0xF8) == 0xF0) { ch = (*p++ & 0x07) << 18; ch |= (*p++ & 0x3F) << 12;
+                                        ch |= (*p++ & 0x3F) << 6;
+                                        ch |= (*p++ & 0x3F); }
+        else { ++p; continue; } // 非法字节，跳过
+        cp.push_back(ch);
+    }
+    return cp;
+}
+
+// 把码点序列转回 UTF-8
+static std::string codepoints_to_utf8(const std::vector<uint32_t>& cp)
+{
+    std::string s;
+    for (uint32_t c : cp)
+    {
+        if (c <= 0x7F) { s.push_back(static_cast<char>(c)); }
+        else if (c <= 0x7FF) {
+            s.push_back(static_cast<char>(0xC0 | ((c >> 6) & 0x1F)));
+            s.push_back(static_cast<char>(0x80 | (c & 0x3F)));
+        } else if (c <= 0xFFFF) {
+            s.push_back(static_cast<char>(0xE0 | ((c >> 12) & 0x0F)));
+            s.push_back(static_cast<char>(0x80 | ((c >> 6) & 0x3F)));
+            s.push_back(static_cast<char>(0x80 | (c & 0x3F)));
+        } else {
+            s.push_back(static_cast<char>(0xF0 | ((c >> 18) & 0x07)));
+            s.push_back(static_cast<char>(0x80 | ((c >> 12) & 0x3F)));
+            s.push_back(static_cast<char>(0x80 | ((c >> 6) & 0x3F)));
+            s.push_back(static_cast<char>(0x80 | (c & 0x3F)));
+        }
+    }
+    return s;
+}
+
+// 安全截取：按字符数
+static std::string utf8_safe_substr(const std::string& s, size_t max_chars)
+{
+    auto cp = utf8_to_codepoints(s);
+    if (max_chars >= cp.size()) return s;
+    cp.resize(max_chars);
+    return codepoints_to_utf8(cp);
 }
