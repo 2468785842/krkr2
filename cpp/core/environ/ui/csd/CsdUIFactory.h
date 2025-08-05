@@ -1072,7 +1072,7 @@ namespace Csd {
         return nullptr;
     }
 
-    static Widget *createAllTips() {
+    static Widget *createAllTips(Size &size,float scale) {
         LOGGER->warn("createAllTipsLayer");
         return nullptr;
     }

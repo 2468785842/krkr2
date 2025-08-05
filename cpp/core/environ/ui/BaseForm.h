@@ -93,6 +93,15 @@ public:
                               cocos2d::Event *event);
 
 protected:
+    virtual bool initFromFile(const char *navibarFile,
+                              const char *bodyFile,
+                              const char *bottomBarFile,
+                              Node* parent = nullptr);
+    virtual void bindBodyController(const NodeMap &allNodes) {}
+
+    virtual void bindFooterController(const NodeMap &allNodes) {}
+
+    virtual void bindHeaderController(const NodeMap &allNodes) {}
     // 更清晰的命名和默认参数支持
     virtual bool initFromBuilder(const Csd::NodeBuilderFn& naviBarBuilder = nullptr,
                                 const Csd::NodeBuilderFn& bodyBuilder = nullptr,

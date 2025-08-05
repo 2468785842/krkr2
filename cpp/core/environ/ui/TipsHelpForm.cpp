@@ -9,7 +9,7 @@ using namespace cocos2d::ui;
 
 TVPTipsHelpForm *TVPTipsHelpForm::create() {
     TVPTipsHelpForm *ret = new TVPTipsHelpForm;
-    ret->initFromWidget(nullptr, Csd::createAllTips(), nullptr);
+    ret->initFromFile(nullptr, "ui/help/AllTips.csb", nullptr);
     ret->autorelease();
     return ret;
 }
@@ -58,6 +58,17 @@ void TVPTipsHelpForm::rearrangeLayout() {
 void TVPTipsHelpForm::bindBodyController(const Node *allNodes) {
     _tipslist = static_cast<ListView *>(allNodes->getChildByName("tipslist"));
     Widget *btn_close = allNodes->getChildByName<Widget *>("btn_close");
+    btn_close->addClickEventListener([this](Ref *p) {
+        static_cast<Widget *>(p)->setEnabled(false);
+        TVPMainScene::GetInstance()->popUIForm(this);
+    });
+    Widget *nullcell = new Widget();
+    nullcell->setContentSize(Size(_tipslist->getContentSize().width, 200));
+    _tipslist->pushBackCustomItem(nullcell);
+}
+void TVPTipsHelpForm::bindBodyController(const NodeMap &allNodes) {
+    _tipslist = static_cast<ListView *>(allNodes.findController("tipslist"));
+    Widget *btn_close = allNodes.findWidget("btn_close");
     btn_close->addClickEventListener([this](Ref *p) {
         static_cast<Widget *>(p)->setEnabled(false);
         TVPMainScene::GetInstance()->popUIForm(this);
