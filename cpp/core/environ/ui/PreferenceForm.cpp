@@ -514,7 +514,7 @@ void KeyMapPreferenceForm::initData() {
 KeyMapPreferenceForm *KeyMapPreferenceForm::create(iSysConfigManager *mgr) {
     KeyMapPreferenceForm *ret = new KeyMapPreferenceForm(mgr);
     ret->autorelease();
-    ret->initFromWidget(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initFromBuilder(Csd::createNaviBarA, Csd::createListViewA, Csd::createEmpty,nullptr);
     ret->initData();
     return ret;
 }
@@ -583,7 +583,7 @@ bool TVPPreferenceForm::initFromBuilder(
     parent->addChild(container);
     // 导航栏
     if(naviBarBuilder) {
-        Widget *naviBar = naviBarBuilder(Size(size.width,size.height*0.2f), scale);
+        Widget *naviBar = naviBarBuilder(Size(size.width,size.height*0.15f), scale);
         #if _DEBUG
         spdlog::info("naviBar size: {}, {} location <{}, {}>", naviBar->getContentSize().width, naviBar->getContentSize().height, naviBar->getPosition().x, naviBar->getPosition().y);
         #endif
@@ -599,7 +599,7 @@ bool TVPPreferenceForm::initFromBuilder(
     }
     // 主体内容
     if(bodyBuilder) {
-        Widget *body = bodyBuilder(Size(size.width, size.height * 0.8f), scale);
+        Widget *body = bodyBuilder(Size(size.width, size.height * 0.85f), scale);
         #if _DEBUG
         spdlog::info("body size: {}, {} location <{}, {}>", body->getContentSize().width, body->getContentSize().height, body->getPosition().x, body->getPosition().y);
         #endif
