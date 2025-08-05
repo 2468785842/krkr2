@@ -364,70 +364,63 @@ namespace Csd {
      */
     static Widget* createNaviBarA(const Size& size, float scale)
     {
-        /* 1. 根 Layout：垂直线性布局 */
-        Layout* root = Layout::create();
-        root->setContentSize(size);                 // 外部给定
-        root->setLayoutType(Layout::Type::HORIZONTAL);
+        constexpr int bothSizesPadding = 13;
+        const Size leftBtnSize(80, 80);
+        const Size &rightBtnSize = leftBtnSize;
+        const Size titleSize(
+            size.width - leftBtnSize.width - rightBtnSize.width, size.height);
+
+        const float yOffset = size.height / 2 - bothSizesPadding;
+
+        // 创建根节点：容器层
+        const auto root = Widget::create();
         root->setAnchorPoint(Vec2::ZERO);
-        root->setPosition(Vec2::ZERO);
+        root->setContentSize(size);
 
-        /* 2. 区域权重（高度比例） */
-        const float hNav   = size.height * 0.20f;   // 20% 顶部栏
-        const float hBody  = size.height * 0.60f;   // 60% 中段
-        const float hFoot  = size.height * 0.20f;   // 20% 底部栏
+        // 创建 背景
+        const auto background = Layout::create();
+        background->setName("background");
+        background->setContentSize(size);
+        background->setTouchEnabled(true);
+        background->setAnchorPoint(Vec2(0, 0));
+        background->setPosition(Vec2(0, bothSizesPadding));
+        background->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+        background->setBackGroundColor(Color3B(42, 42, 42));
+        background->setBackGroundColorOpacity(255);
 
-        /* ---------- 顶部栏 ---------- */
-        Layout* naviBar = Layout::create();
-        naviBar->setContentSize(Size(size.width, hNav));
-        auto naviLp = LinearLayoutParameter::create();
-        naviLp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
-        naviBar->setLayoutParameter(naviLp);
+        // 添加左按钮
+        const auto leftBtn =
+            Button::create("img/back_btn_off.png", "img/back_btn_on.png",
+                                    "img/back_btn_on.png");
+        leftBtn->setName("left");
+        leftBtn->setTouchEnabled(true);
+        leftBtn->setContentSize(leftBtnSize);
+        leftBtn->setPosition(Vec2(bothSizesPadding, yOffset));
+        leftBtn->setAnchorPoint(Vec2(0, 0.5));
 
-        // 左侧按钮
-        Button* left = Button::create("img/back_btn_off.png", "img/back_btn_on.png");
-        left->setContentSize(Size(100 * scale, 100 * scale));
-        left->setAnchorPoint(Vec2(0, 0.5f));
-        left->setPosition(Vec2(20 * scale, hNav * 0.5f));
-        left->setName("left");
-        naviBar->addChild(left);
+        // 中间标题按钮
+        const auto titleBtn =
+            Button::create("img/empty.png", "img/gray.png", "img/empty.png");
+        Label *l = Label::create();
+        l->setSystemFontName("DroidSansFallback.ttf");
+        titleBtn->ignoreContentAdaptWithSize(false);
+        titleBtn->setTitleLabel(l);
+        titleBtn->setName("title");
+        titleBtn->setContentSize(titleSize);
+        titleBtn->setPosition(Vec2(leftBtnSize.width, yOffset));
+        titleBtn->setAnchorPoint(Vec2(0, 0.5));
+        titleBtn->setTitleFontSize(32);
+        titleBtn->setTitleAlignment(TextHAlignment::CENTER,
+                                    TextVAlignment::CENTER);
+        titleBtn->setTouchEnabled(true);
+        titleBtn->setTitleColor(Color3B(199, 199, 199));
 
-        // 中间标题
-        Button* title = Button::create("img/empty.png", "img/gray.png");
-        title->setContentSize(Size(size.width - 220 * scale, hNav));
-        title->setName("title");
-        title->setAnchorPoint(Vec2(0, 0.5f));
-        title->setPosition(Vec2(110 * scale, hNav * 0.5f));
-        title->setTitleText("标题");
-        title->setTitleFontSize(64 * scale);
-        naviBar->addChild(title);
+        background->addChild(leftBtn);
+        background->addChild(titleBtn);
 
-        // 右侧空占位
-        Layout* right = Layout::create();
-        right->setContentSize(Size(100 * scale, hNav));
-        right->setAnchorPoint(Vec2(0.5f, 0.5f));
-        right->setPosition(Vec2(size.width - 50 * scale, hNav * 0.5f));
-        right->setName("right");
-        naviBar->addChild(right);
+        root->addChild(background);
 
-        root->addChild(naviBar);
-
-        /* 3. 中间空区（示例空 Layout） */
-        Layout* body = Layout::create();
-        body->setContentSize(Size(size.width, hBody));
-        auto bodyLp = LinearLayoutParameter::create();
-        bodyLp->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
-        body->setLayoutParameter(bodyLp);
-        root->addChild(body);
-
-        /* 4. 底部空区（示例空 Layout） */
-        Layout* bottom = Layout::create();
-        bottom->setContentSize(Size(size.width, hFoot));
-        auto footLp = LinearLayoutParameter::create();
-        footLp->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
-        bottom->setLayoutParameter(footLp);
-        root->addChild(bottom);
-
-        return static_cast<Widget*>(root);
+        return root;
     }
     static Widget *createBottomBarTextInput() {
         const auto root = Widget::create();
@@ -683,6 +676,7 @@ namespace Csd {
         const auto root = Widget::create();
         root->setAnchorPoint(Vec2::ZERO);
         root->setContentSize(size);
+        
 
         // 创建 ListView
         const auto listView = ListView::create();
@@ -693,12 +687,11 @@ namespace Csd {
         listView->setContentSize(size);
         listView->setAnchorPoint(Vec2::ZERO);
         listView->setPosition(Vec2::ZERO);
-        listView->setItemsMargin(11);
+
 
         // 可选：设置背景颜色或图片
-        // listView->setBackGroundColorType(Layout::BackGroundColorType::GRADIENT);
-        // listView->setBackGroundColor(Color3B(150, 150, 255), Color3B(255,
-        // 255, 255));
+        listView->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+        listView->setBackGroundColor(Color3B(42, 42, 42));
 
         root->addChild(listView);
         return root;
