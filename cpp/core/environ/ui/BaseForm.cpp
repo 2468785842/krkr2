@@ -297,20 +297,20 @@ bool iTVPBaseForm::initFromWidget(Widget* naviBarWidget,
         footerscale = 0.0f; // 底部栏高度为0
     }
 
-    // 1) naviBar —— 占 10% 高度，贴顶
+    // 1) naviBar —— 贴顶
     if (naviBarWidget) {
         naviBarWidget->setContentSize(Size(container->getContentSize().width,
-                                    container->getContentSize().height * 0.10f));
+                                    container->getContentSize().height * naviscale));
         auto* lp = LinearLayoutParameter::create();
         lp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
         naviBarWidget->setLayoutParameter(lp);
         container->addChild(naviBarWidget);
     }
 
-    // 2) body —— 占 80% 高度，中间填满
+    // 2) body ——中间填满
     if (bodyWidget) {
         bodyWidget->setContentSize(Size(container->getContentSize().width,
-                                    container->getContentSize().height * 0.80f));
+                                    container->getContentSize().height * bodyscale));
         auto* lp = LinearLayoutParameter::create();
         lp->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
         bodyWidget->setLayoutParameter(lp);
@@ -319,10 +319,10 @@ bool iTVPBaseForm::initFromWidget(Widget* naviBarWidget,
         bindBodyController(bodyWidget);
     }
 
-    // 3) bottomBar —— 占 10% 高度，贴底
+    // 3) bottomBar，贴底
     if (bottomBarWidget) {
         bottomBarWidget->setContentSize(Size(container->getContentSize().width,
-                                        container->getContentSize().height * 0.10f));
+                                        container->getContentSize().height * footerscale));
         auto* lp = LinearLayoutParameter::create();
         lp->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
         bottomBarWidget->setLayoutParameter(lp);
