@@ -11,7 +11,9 @@
 
 extern "C" void SDL_SetMainReady();
 extern std::thread::id TVPMainThreadID;
+
 static cocos2d::Size designResolutionSize(1920, 1080);
+const  cocos2d::Size screenSize(1280, 720);
 
 bool TVPCheckStartupArg();
 
@@ -37,9 +39,9 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     if(!glview) {
         glview = cocos2d::GLViewImpl::create("kirikiri2");
         director->setOpenGLView(glview);
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32 
     // 1. 设置物理窗口大小（实际窗口大小）
-    glview->setFrameSize(designResolutionSize.width, designResolutionSize.height);
+    glview->setFrameSize(screenSize.width, screenSize.height);
 
     // 3. 获取 Win32 窗口句柄
     HWND hwnd = glview->getWin32Window();
@@ -54,13 +56,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     }
 
     // Set the design resolution
-    cocos2d::Size screenSize = glview->getFrameSize();
-    if(screenSize.width < screenSize.height) {
-        std::swap(screenSize.width, screenSize.height);
-    }
-    cocos2d::Size designSize = designResolutionSize;
-    designSize.height = designSize.width * screenSize.height / screenSize.width;
-    glview->setDesignResolutionSize(screenSize.width, screenSize.height,
+    glview->setDesignResolutionSize(designResolutionSize.width,designResolutionSize.height,
                                     ResolutionPolicy::EXACT_FIT);
     std::vector<std::string> searchPath;
 
@@ -101,10 +97,13 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
             }
         },
         0, "launch");
-
-    float scale = std::min(screenSize.width / designResolutionSize.width,
-                       screenSize.height / designResolutionSize.height);
-    director->setContentScaleFactor(scale);
+// 让copcos2d自动计算
+#if 0
+    float scale = std::min(
+        static_cast<float>(screenSize.width)  / designResolutionSize.width,
+        static_cast<float>(screenSize.height) / designResolutionSize.height
+    );
+#endif
 
     return true;
 }
