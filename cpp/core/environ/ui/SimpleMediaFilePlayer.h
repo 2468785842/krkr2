@@ -27,9 +27,10 @@ private:
     void onPlayerEvent(KRMovieEvent Msg, void *p);
     void onSliderChanged();
     void rearrangeLayout() override;
-    void bindBodyController(const NodeMap &allNodes) override;
-    void bindFooterController(const NodeMap &allNodes) override;
-    void bindHeaderController(const NodeMap &allNodes) override;
+
+    void bindHeaderController(const Node *allNodes) override;
+    void bindBodyController(const Node *allNodes) override;
+    void bindFooterController(const Node *allNodes) override;
 
     void update(float dt) override;
 

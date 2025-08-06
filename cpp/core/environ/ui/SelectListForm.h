@@ -4,7 +4,11 @@
 
 class iTVPHalfScreenForm : public iTVPBaseForm {
 public:
-    virtual void rearrangeLayout() override;
+    void rearrangeLayout() override;
+
+    void bindHeaderController(const Node *allNodes) override {}
+    void bindBodyController(const Node *allNodes) override {}
+    void bindFooterController(const Node *allNodes) override {}
 };
 
 class TVPSelectListForm : public iTVPHalfScreenForm {
@@ -14,7 +18,7 @@ public:
                                      const std::function<void(int)> &funcok);
 
 protected:
-    virtual void bindBodyController(const NodeMap &allNodes) override;
+    void bindBodyController(const Node *allNodes) override;
     void initWithInfo(const std::vector<std::string> &info,
                       const std::string &highlight_tid);
 
@@ -31,7 +35,7 @@ public:
                &funcok);
 
 private:
-    virtual void bindBodyController(const NodeMap &allNodes) override;
+    void bindBodyController(const Node *allNodes) override;
     void initWithInfo(const std::string &text1, const std::string &text2);
 
     std::function<void(const std::string &, const std::string &)> FuncOK;
@@ -50,12 +54,12 @@ public:
     static TVPKeyPairSelectForm *
     create(const std::function<void(int /*keycode*/)> &funcok);
 
-    virtual ~TVPKeyPairSelectForm();
+    ~TVPKeyPairSelectForm() override;
 
     void initWithInfo();
 
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
-                      cocos2d::Event *event);
+                      cocos2d::Event *event) override;
     void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode,
                        cocos2d::Event *event);
 };

@@ -17,8 +17,8 @@ class TVPMainFileSelectorForm : public TVPBaseFileSelectorForm {
     typedef TVPBaseFileSelectorForm inherit;
 
 public:
-     static std::wstring filePath;
-    virtual void bindBodyController(const NodeMap &allNodes) override;
+    static std::wstring filePath;
+    void bindBodyController(const Node *allNodes) override;
 
     void show();
 
@@ -28,18 +28,19 @@ public:
 
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
                       cocos2d::Event *event) override;
+
     void runFromPath(const std::string &path);
+
 protected:
     TVPMainFileSelectorForm();
 
-    virtual void onEnter() override;
+    void onEnter() override;
 
     bool CheckDir(const std::string &path);
 
-    virtual void onCellClicked(int idx) override;
+    void onCellClicked(int idx) override;
 
-    virtual void
-    getShortCutDirList(std::vector<std::string> &pathlist) override;
+    void getShortCutDirList(std::vector<std::string> &pathlist) override;
 
     void startup(const std::string &path);
 
@@ -83,7 +84,7 @@ protected:
         const std::string &getFullpath() { return _fullpath; }
 
     private:
-        virtual void onSizeChanged() override;
+        void onSizeChanged() override;
 
         cocos2d::ui::ScrollView *_scrollview;
         cocos2d::ui::Widget *_btn_delete, *_btn_jump, *_btn_conf, *_btn_play;
@@ -102,3 +103,4 @@ protected:
     cocos2d::Node *newLocalPref, *localPref;
     cocos2d::Size sizeNewLocalPref, sizeLocalPref;
 };
+

@@ -76,100 +76,65 @@ Node *CSBReader::Load(const char *filename) {
     return ret;
 }
 
-iTVPBaseForm::~iTVPBaseForm() {}
+iTVPBaseForm::~iTVPBaseForm() = default;
 
 void iTVPBaseForm::Show() {}
 
-bool iTVPBaseForm::initFromFile(const char *navibar, const char *body,
-                                const char *bottombar, cocos2d::Node *parent) {
-    bool ret = cocos2d::Node::init();
-    // NaviBar.Title = nullptr;
-    NaviBar.Left = nullptr;
-    NaviBar.Right = nullptr;
-    NaviBar.Root = nullptr;
-    CSBReader reader;
-    if(navibar) {
-        NaviBar.Root = reader.Load(navibar);
-        if(!NaviBar.Root) {
-            return false;
-        }
-        // 		NaviBar.Title =
-        // static_cast<Button*>(reader.findController("title")); if
-        // (NaviBar.Title)
-        // { 			NaviBar.Title->setEnabled(false); // normally
-        // 		}
-        NaviBar.Left =
-            dynamic_cast<Button *>(reader.findController("left", false));
-        NaviBar.Right =
-            dynamic_cast<Widget *>(reader.findController("right", false));
-        bindHeaderController(reader);
-    }
+bool iTVPBaseForm::initFromFile(const Csd::NodeBuilderFn &naviBarCall,
+                                const Csd::NodeBuilderFn &bodyCall,
+                                const Csd::NodeBuilderFn &bottomBarCall,
+                                Node *parent) {
 
-    BottomBar.Root = nullptr;
-    // BottomBar.Panel = nullptr;
-    if(bottombar) {
-        BottomBar.Root = reader.Load(bottombar);
-        if(!BottomBar.Root) {
-            return false;
-        }
-        // BottomBar.Panel =
-        // static_cast<ListView*>(reader.findController("panel"));
-        bindFooterController(reader);
-    }
-    // FIXME: 依靠bug运行， 此处应为非法转换, 危险操作！！
-    RootNode = reinterpret_cast<Widget *>(reader.Load(body));
+    const bool ret = Node::init();
+    const auto scale = TVPMainScene::GetInstance()->getUIScale();
+
+    auto *naviBar = naviBarCall(rearrangeHeaderSize(parent), scale);
+    auto *body = bodyCall(rearrangeBodySize(parent), scale);
+    auto *bottomBar = bottomBarCall(rearrangeFooterSize(parent), scale);
+
+    RootNode = body;
     if(!RootNode) {
         return false;
     }
+
     if(!parent) {
         parent = this;
     }
-    parent->addChild(RootNode);
-    if(NaviBar.Root)
-        parent->addChild(NaviBar.Root);
-    if(BottomBar.Root)
+
+    LinearLayoutParameter *param = nullptr;
+
+    if(naviBar) {
+        NaviBar.Root = naviBar->getChildByName("background");
+        NaviBar.Left = NaviBar.Root->getChildByName<Button *>("left");
+        NaviBar.Right = NaviBar.Root->getChildByName<Button *>("right");
+        bindHeaderController(NaviBar.Root);
+
+        param = LinearLayoutParameter::create();
+        param->setGravity(LinearLayoutParameter::LinearGravity::TOP);
+        naviBar->setLayoutParameter(param);
+        parent->addChild(naviBar);
+    }
+
+    if(bottomBar) {
+        BottomBar.Root = bottomBar;
+        bindFooterController(bottomBar);
+
+        param = LinearLayoutParameter::create();
+        param->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
+        bottomBar->setLayoutParameter(param);
         parent->addChild(BottomBar.Root);
-    rearrangeLayout();
-    bindBodyController(reader);
+    }
+
+    param = LinearLayoutParameter::create();
+    param->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
+    body->setLayoutParameter(param);
+    parent->addChild(RootNode);
+
+    bindBodyController(RootNode);
     return ret;
 }
 
-void iTVPBaseForm::rearrangeLayout() {
-    float scale = TVPMainScene::GetInstance()->getUIScale();
-    Size sceneSize = TVPMainScene::GetInstance()->getUINodeSize();
-    setContentSize(sceneSize);
-    Size bodySize = RootNode->getParent()->getContentSize();
-    if(NaviBar.Root) {
-        Size size = NaviBar.Root->getContentSize();
-        size.width = bodySize.width / scale;
-        NaviBar.Root->setContentSize(size);
-        NaviBar.Root->setScale(scale);
-        ui::Helper::doLayout(NaviBar.Root);
-        size.height *= scale;
-        bodySize.height -= size.height;
-        NaviBar.Root->setPosition(0, bodySize.height);
-    }
-    if(BottomBar.Root) {
-        Size size = BottomBar.Root->getContentSize();
-        size.width = bodySize.width / scale;
-        BottomBar.Root->setContentSize(size);
-        BottomBar.Root->setScale(scale);
-        ui::Helper::doLayout(BottomBar.Root);
-        size.height *= scale;
-        bodySize.height -= size.height;
-        BottomBar.Root->setPosition(Vec2::ZERO);
-    }
-    if(RootNode) {
-        bodySize.height /= scale;
-        bodySize.width /= scale;
-        RootNode->setContentSize(bodySize);
-        RootNode->setScale(scale);
-        ui::Helper::doLayout(RootNode);
-        if(BottomBar.Root)
-            RootNode->setPosition(
-                Vec2(0, BottomBar.Root->getContentSize().height * scale));
-    }
-}
+void iTVPBaseForm::rearrangeLayout() {}
 
 void iTVPBaseForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
                                 cocos2d::Event *event) {
@@ -178,20 +143,6 @@ void iTVPBaseForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
             this, TVPMainScene::eLeaveAniLeaveFromLeft);
     }
 }
-
-// void iTVPBaseForm::initBottomBar(std::vector<std::pair<std::string,
-// std::function<void()> > > args) { 	if (!BottomBar.Panel) return;
-// 	BottomBar.Panel->removeAllItems();
-// 	CSBReader reader;
-// 	for (auto it : args) {
-// 		Widget *root =
-// static_cast<Widget*>(reader.Load(it.first.c_str())); 		Widget
-// *btn = static_cast<Widget*>(reader.findController("button"));
-// std::function<void()> func = it.second; 		if (btn)
-// btn->addClickEventListener([=](cocos2d::Ref*){ func(); });
-// BottomBar.Panel->pushBackCustomItem(root);
-// 	}
-// }
 
 void iTVPFloatForm::rearrangeLayout() {
     float scale = TVPMainScene::GetInstance()->getUIScale();
