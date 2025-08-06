@@ -37,20 +37,22 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     if(!glview) {
         glview = cocos2d::GLViewImpl::create("kirikiri2");
         director->setOpenGLView(glview);
-#if CC_PLATFORM_WIN32 == CC_TARGET_PLATFORM
-        glview->setFrameSize(1920, 1080);
+#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+    // 1. 设置物理窗口大小（实际窗口大小）
+    glview->setFrameSize(designResolutionSize.width, designResolutionSize.height);
 
-        // 设置窗口样式为可调节大小
-        HWND hwnd = glview->getWin32Window();
-        if(hwnd) {
-            LONG style = GetWindowLong(hwnd, GWL_STYLE);
-            style |= WS_THICKFRAME | WS_MAXIMIZEBOX; // 支持拖动和最大化
-            SetWindowLong(hwnd, GWL_STYLE, style);
-            SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
-                SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-        }
+    // 3. 获取 Win32 窗口句柄
+    HWND hwnd = glview->getWin32Window();
+    if (hwnd) {
+        // 添加可调节边框和最大化按钮
+        LONG style = GetWindowLong(hwnd, GWL_STYLE);
+        style |= WS_THICKFRAME | WS_MAXIMIZEBOX;
+        SetWindowLong(hwnd, GWL_STYLE, style);
+
+    }
 #endif
     }
+
     // Set the design resolution
     cocos2d::Size screenSize = glview->getFrameSize();
     if(screenSize.width < screenSize.height) {
@@ -59,8 +61,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     cocos2d::Size designSize = designResolutionSize;
     designSize.height = designSize.width * screenSize.height / screenSize.width;
     glview->setDesignResolutionSize(screenSize.width, screenSize.height,
-                                   ResolutionPolicy::SHOW_ALL); 
-
+                                    ResolutionPolicy::EXACT_FIT);
     std::vector<std::string> searchPath;
 
     // In this demo, we select resource according to the frame's

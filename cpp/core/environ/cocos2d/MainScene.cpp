@@ -1621,7 +1621,7 @@ public:
     static TVPWindowManagerOverlay *create() {
         auto *ret = new TVPWindowManagerOverlay();
         ret->autorelease();
-        ret->initFromFile(nullptr, Csd::createWinMgrOverlay(), nullptr);
+        ret->initFromWidget(nullptr, Csd::createWinMgrOverlay(), nullptr);
         return ret;
     }
 
@@ -1823,6 +1823,15 @@ TVPMainScene *TVPMainScene::create() {
 }
 
 void TVPMainScene::pushUIForm(cocos2d::Node *ui, eEnterAni ani) {
+    #if defined(TVP_DEBUG) || defined(TVP_DEBUG_UI) || defined(_DEBUG)
+    CCLOG("TVPMainScene::pushUIForm: ui=%p, ani=%d", ui, ani);
+    CCLOG("ui initial pos: %f, %f", ui->getPosition().x, ui->getPosition().y);
+    CCLOG("ui contentSize: %f x %f", ui->getContentSize().width, ui->getContentSize().height);
+    #endif
+    if(!ui) {
+        CCLOGERROR("TVPMainScene::pushUIForm: ui is nullptr");
+        return;
+    }
     TVPControlAdDialog(0x10002, 1, 0);
     int n = UINode->getChildrenCount();
     if(ani == eEnterAniNone) {

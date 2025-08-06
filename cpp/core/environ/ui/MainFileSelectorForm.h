@@ -24,7 +24,7 @@ public:
 
     static TVPMainFileSelectorForm *create();
 
-    void initFromFile();
+    void initFromWidget();
 
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
                       cocos2d::Event *event) override;

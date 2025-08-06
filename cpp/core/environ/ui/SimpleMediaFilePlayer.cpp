@@ -101,7 +101,7 @@ SimpleMediaFilePlayer::~SimpleMediaFilePlayer() {
 SimpleMediaFilePlayer *SimpleMediaFilePlayer::create() {
     SimpleMediaFilePlayer *ret = new SimpleMediaFilePlayer;
     ret->autorelease();
-    ret->initFromFile(Csd::createMediaPlayerNavi(),
+    ret->initFromWidget(Csd::createMediaPlayerNavi(),
                       Csd::createMediaPlayerBody(),
                       Csd::createMediaPlayerFoot());
     return ret;

@@ -253,7 +253,7 @@ TVPXP3RepackFileListForm *
 TVPXP3RepackFileListForm::show(std::vector<std::string> &filelist,
                                const std::string &dir) {
     auto *form = new TVPXP3RepackFileListForm;
-    form->initFromFile(Csd::createCheckListDialog());
+    form->initFromBodyWidget(Csd::createCheckListDialog());
     form->initData(filelist, dir);
     TVPMainScene::GetInstance()->pushUIForm(form, TVPMainScene::eEnterAniNone);
     return form;

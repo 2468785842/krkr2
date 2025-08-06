@@ -40,7 +40,8 @@ namespace cocos2d {
 namespace cocostudio::timeline {
     class ActionTimeline;
 }
-
+using cocos2d::ui::Widget;
+using cocos2d::Node;
 class NodeMap : public std::unordered_map<std::string, cocos2d::Node *> {
 protected:
     const char *FileName;
@@ -92,22 +93,33 @@ public:
                               cocos2d::Event *event);
 
 protected:
-    bool initFromFile(const Csd::NodeBuilderFn &naviBarCall,
-                      const Csd::NodeBuilderFn &bodyCall,
-                      const Csd::NodeBuilderFn &bottomBarCall,
-                      Node *parent = nullptr);
+    virtual bool initFromFile(const char *navibarFile,
+                              const char *bodyFile,
+                              const char *bottomBarFile,
+                              Node* parent = nullptr);
+    virtual void bindBodyController(const NodeMap &allNodes) {}
 
-    bool initFromFile(Node *naviBarCall, Node *bodyCall, Node *bottomBarCall,
-                      Node *parent = nullptr) {
-        return true;
+    virtual void bindFooterController(const NodeMap &allNodes) {}
+
+    virtual void bindHeaderController(const NodeMap &allNodes) {}
+    // 更清晰的命名和默认参数支持
+    virtual bool initFromBuilder(const Csd::NodeBuilderFn& naviBarBuilder = nullptr,
+                                const Csd::NodeBuilderFn& bodyBuilder = nullptr,
+                                const Csd::NodeBuilderFn& bottomBarBuilder = nullptr,
+                                Node* parent = nullptr);
+
+    virtual bool initFromWidget(Widget* naviBarWidget = nullptr,
+                                Widget* bodyWidget = nullptr,
+                                Widget* bottomBarWidget = nullptr,
+                                Node* parent = nullptr);
+
+    // 快捷方法支持parent参数
+    bool initFromBodyWidget(Widget* body, Node* parent = nullptr) {
+        return initFromWidget(nullptr, body, nullptr, parent);
     }
 
-    bool initFromFile(Node *body) {
-        return initFromFile(nullptr, body, nullptr);
-    }
-
-    bool initFromFile(const Csd::NodeBuilderFn &body) {
-        return initFromFile(nullptr, body, nullptr);
+    bool initFromBodyBuilder(const Csd::NodeBuilderFn& body, Node* parent = nullptr) {
+        return initFromBuilder(nullptr, body, nullptr, parent);
     }
 
     // Screen Size 10%
@@ -212,3 +224,6 @@ public:
 };
 
 void ReloadTableViewAndKeepPos(cocos2d::extension::TableView *pTableView);
+
+Node* findChildByNameRecursively(const cocos2d::Node *parent, const std::string &name);
+Widget* findChildByNameRecursively(const Widget* parent, const std::string& name);

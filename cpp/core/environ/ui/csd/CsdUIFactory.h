@@ -114,7 +114,7 @@ namespace Csd {
         // 添加左按钮
         const auto leftBtn =
             Button::create("img/back_btn_off.png", "img/back_btn_on.png",
-                           "img/back_btn_on.png");
+                                    "img/back_btn_on.png");
         leftBtn->setName("left");
         leftBtn->setTouchEnabled(true);
         leftBtn->setContentSize(leftBtnSize);
@@ -189,7 +189,7 @@ namespace Csd {
         underline->setBackGroundColorType(
             Layout::BackGroundColorType::GRADIENT);
         underline->setBackGroundColor(Color3B(229, 229, 229),
-                                      Color3B(42, 42, 42));
+                                    Color3B(42, 42, 42));
 
         // highlight button（点击区域）
         const auto highlight =
@@ -267,12 +267,13 @@ namespace Csd {
 
     static Widget *createNaviBar() {
         // 创建根节点
-        const auto root = Widget::create();
+        const auto root = Layout::create();
         root->setContentSize(Size(720, 120));
+        
 
         // Panel_1 背景面板（含渐变色）
         const auto panel1 = Layout::create();
-        panel1->setName("Panel_1");
+        panel1->setName("panel_1");
         panel1->setContentSize(Size(720, 120));
         panel1->setAnchorPoint(Vec2::ZERO);
         panel1->setPosition(Vec2::ZERO);
@@ -353,9 +354,74 @@ namespace Csd {
         // 添加所有到 root
         root->addChild(panel1);
 
-        return root;
+        return static_cast<Widget *>(root);
     }
 
+    /**
+     * @param size   设计尺寸（父容器给的宽高）
+     * @param scale  整体缩放（可用于像素密度适配）
+     * @return       已布局好的 Widget*
+     */
+    static Widget* createNaviBarA(const Size& size, float scale)
+    {
+        constexpr int bothSizesPadding = 13;
+        const Size leftBtnSize(80, 80);
+        const Size &rightBtnSize = leftBtnSize;
+        const Size titleSize(
+            size.width - leftBtnSize.width - rightBtnSize.width, size.height);
+
+        const float yOffset = size.height / 2;
+
+        // 创建根节点：容器层
+        const auto root = Widget::create();
+        root->setAnchorPoint(Vec2::ZERO);
+        root->setContentSize(size);
+
+        // 创建 背景
+        const auto background = Layout::create();
+        background->setName("background");
+        background->setContentSize(size);
+        background->setTouchEnabled(true);
+        background->setAnchorPoint(Vec2(0, 0));
+        background->setPosition(Vec2(0, 0));
+        background->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+        background->setBackGroundColor(Color3B(42, 42, 42));
+        background->setBackGroundColorOpacity(255);
+
+        // 添加左按钮
+        const auto leftBtn =
+            Button::create("img/back_btn_off.png", "img/back_btn_on.png",
+                                    "img/back_btn_on.png");
+        leftBtn->setName("left");
+        leftBtn->setTouchEnabled(true);
+        leftBtn->setContentSize(leftBtnSize);
+        leftBtn->setPosition(Vec2(bothSizesPadding, yOffset));
+        leftBtn->setAnchorPoint(Vec2(0, 0.5));
+
+        // 中间标题按钮
+        const auto titleBtn =
+            Button::create("img/empty.png", "img/gray.png", "img/empty.png");
+        Label *l = Label::create();
+        l->setSystemFontName("DroidSansFallback.ttf");
+        titleBtn->ignoreContentAdaptWithSize(false);
+        titleBtn->setTitleLabel(l);
+        titleBtn->setName("title");
+        titleBtn->setContentSize(titleSize);
+        titleBtn->setPosition(Vec2(leftBtnSize.width, yOffset));
+        titleBtn->setAnchorPoint(Vec2(0, 0.5));
+        titleBtn->setTitleFontSize(32);
+        titleBtn->setTitleAlignment(TextHAlignment::CENTER,
+                                    TextVAlignment::CENTER);
+        titleBtn->setTouchEnabled(true);
+        titleBtn->setTitleColor(Color3B(199, 199, 199));
+
+        background->addChild(leftBtn);
+        background->addChild(titleBtn);
+
+        root->addChild(background);
+
+        return root;
+    }
     static Widget *createBottomBarTextInput() {
         const auto root = Widget::create();
         root->setContentSize(Size(720, 340));
@@ -606,7 +672,30 @@ namespace Csd {
 
         return root;
     }
+    static Widget* createListViewA(const Size &size, float) {
+        const auto root = Widget::create();
+        root->setAnchorPoint(Vec2::ZERO);
+        root->setContentSize(size);
+        
 
+        // 创建 ListView
+        const auto listView = ListView::create();
+        listView->setName("list");
+        listView->setDirection(ListView::Direction::VERTICAL);
+        listView->setBounceEnabled(true);
+        listView->setTouchEnabled(true);
+        listView->setContentSize(size);
+        listView->setAnchorPoint(Vec2::ZERO);
+        listView->setPosition(Vec2::ZERO);
+
+
+        // 可选：设置背景颜色或图片
+        listView->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+        listView->setBackGroundColor(Color3B(42, 42, 42));
+
+        root->addChild(listView);
+        return root;
+    }
     static Widget *createListView() {
         const auto root = Widget::create();
 
@@ -615,6 +704,7 @@ namespace Csd {
 
         // 创建 ListView
         const auto listView = ListView::create();
+        listView->setName("list");
         listView->setDirection(ListView::Direction::VERTICAL);
         listView->setBounceEnabled(true);
         listView->setTouchEnabled(true);
@@ -982,7 +1072,7 @@ namespace Csd {
         return nullptr;
     }
 
-    static Widget *createAllTips() {
+    static Widget *createAllTips(Size &size,float scale) {
         LOGGER->warn("createAllTipsLayer");
         return nullptr;
     }

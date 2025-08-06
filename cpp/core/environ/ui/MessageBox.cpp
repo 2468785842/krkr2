@@ -37,7 +37,7 @@ void TVPMessageBoxForm::init(const std::string &caption,
                              const std::function<void(int)> &callback) {
     _callback = callback;
 
-    initFromFile(nullptr, Csd::createMessageBox(), nullptr);
+    initFromWidget(nullptr, Csd::createMessageBox(), nullptr);
 
     if(_title)
         _title->setString(caption);
@@ -130,7 +130,7 @@ void TVPMessageBoxForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
 TVPSimpleProgressForm *TVPSimpleProgressForm::create() {
     TVPSimpleProgressForm *form = new TVPSimpleProgressForm;
     form->autorelease();
-    form->initFromFile(Csd::createProgressBox());
+    form->initFromBodyWidget(Csd::createProgressBox());
     return form;
 }
 

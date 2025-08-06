@@ -215,3 +215,7 @@ protected:
     std::string _result;
     bool _isSaveMode;
 };
+
+static std::string utf8_safe_substr(const std::string& s, size_t max_chars);
+static std::string codepoints_to_utf8(const std::vector<uint32_t>& cp);
+static std::vector<uint32_t> utf8_to_codepoints(const std::string& s);

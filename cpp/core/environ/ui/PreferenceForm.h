@@ -6,6 +6,8 @@
 namespace tinyxml2 {
     class XMLElement;
 }
+using cocos2d::Size;
+using cocos2d::ui::Widget;
 
 class iTVPPreferenceInfo;
 struct tPreferenceScreen {
@@ -77,6 +79,9 @@ protected:
     const tPreferenceScreen *Config = nullptr;
     cocos2d::ui::ListView *PrefList;
     cocos2d::ui::Button *_title;
+    bool initFromBuilder(const Csd::NodeBuilderFn &naviBarBuilder,
+                         const Csd::NodeBuilderFn &bodyBuilder,
+                         const Csd::NodeBuilderFn &bottomBarBuilder, Node *parent) override;
 };
 
 class iPreferenceItem : public cocos2d::ui::Widget {

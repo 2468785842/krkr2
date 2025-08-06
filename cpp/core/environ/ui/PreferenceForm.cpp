@@ -34,7 +34,7 @@ void TVPPreferenceForm::initPref(const tPreferenceScreen *config) {
 }
 
 void TVPPreferenceForm::bindBodyController(const Node *allNodes) {
-    PrefList = static_cast<ListView *>(allNodes->getChildByName("list"));
+    PrefList = reinterpret_cast<ListView *>(findChildByNameRecursively(allNodes, "list"));
     if(NaviBar.Left) {
         NaviBar.Left->addClickEventListener([this](cocos2d::Ref *) {
             TVPMainScene::GetInstance()->popUIForm(this);
@@ -43,7 +43,7 @@ void TVPPreferenceForm::bindBodyController(const Node *allNodes) {
 }
 
 void TVPPreferenceForm::bindHeaderController(const Node *allNodes) {
-    _title = static_cast<Button *>(allNodes->getChildByName("title"));
+    _title = reinterpret_cast<Button *>(findChildByNameRecursively(allNodes, "title"));
     if(_title)
         _title->setEnabled(false);
 }
@@ -284,7 +284,7 @@ TVPCustomPreferenceForm *TVPCustomPreferenceForm::create(
     const std::function<void(int, const std::pair<std::string, std::string> &)>
         &setter) {
     TVPCustomPreferenceForm *ret = new TVPCustomPreferenceForm;
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initFromWidget(Csd::createNaviBar(), Csd::createListView(), nullptr);
     ret->initFromInfo(tid_title, count, getter, setter);
     ret->autorelease();
     return ret;
@@ -514,7 +514,7 @@ void KeyMapPreferenceForm::initData() {
 KeyMapPreferenceForm *KeyMapPreferenceForm::create(iSysConfigManager *mgr) {
     KeyMapPreferenceForm *ret = new KeyMapPreferenceForm(mgr);
     ret->autorelease();
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initFromBuilder(Csd::createNaviBarA, Csd::createListViewA, Csd::createEmpty,nullptr);
     ret->initData();
     return ret;
 }
@@ -563,4 +563,60 @@ void tPreferenceItemKeyMap::initData(int k, int v, int idx,
     char buf[32];
     sprintf(buf, "%d <=> %d", k, v);
     initFromInfo(idx, size, buf);
+}
+
+bool TVPPreferenceForm::initFromBuilder(
+    const Csd::NodeBuilderFn &naviBarBuilder,
+    const Csd::NodeBuilderFn &bodyBuilder,
+    const Csd::NodeBuilderFn &bottomBarBuilder, Node *parent) {
+
+    auto ret = Node::init();
+    if(!ret) return false;
+    if(!parent) parent = this;
+    Size size = TVPMainScene::GetInstance()->getContentSize();
+    float scale = parent->getScale();
+    auto container = Layout::create();
+    container->setContentSize(size);
+    container->setLayoutType(Layout::Type::VERTICAL);
+    spdlog::info("container size: {}, {} location <{}, {}>", container->getContentSize().width, container->getContentSize().height, container->getPosition().x, container->getPosition().y);
+    container->setName("container");
+    parent->addChild(container);
+    // 导航栏
+    if(naviBarBuilder) {
+        Widget *naviBar = naviBarBuilder(Size(size.width,size.height*0.15f), scale);
+        #if _DEBUG
+        spdlog::info("naviBar size: {}, {} location <{}, {}>", naviBar->getContentSize().width, naviBar->getContentSize().height, naviBar->getPosition().x, naviBar->getPosition().y);
+        #endif
+        auto lp = LinearLayoutParameter::create();
+        lp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
+        naviBar->setLayoutParameter(lp);
+
+        NaviBar.Root = naviBar->getChildByName("background");
+        NaviBar.Left = NaviBar.Root->getChildByName<Button *>("left");
+        NaviBar.Right = NaviBar.Root->getChildByName<Button *>("right");
+        bindHeaderController(NaviBar.Root);
+        container->addChild(naviBar);
+    }
+    // 主体内容
+    if(bodyBuilder) {
+        Widget *body = bodyBuilder(Size(size.width, size.height * 0.85f), scale);
+        #if _DEBUG
+        spdlog::info("body size: {}, {} location <{}, {}>", body->getContentSize().width, body->getContentSize().height, body->getPosition().x, body->getPosition().y);
+        #endif
+        auto lp = LinearLayoutParameter::create();
+        lp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
+        body->setLayoutParameter(lp);
+        RootNode = body;
+        bindBodyController(RootNode);
+        container->addChild(RootNode);
+    } else {
+        // 如果没有主体内容，则创建一个空的 ListView
+        RootNode = ListView::create();
+        RootNode->setContentSize(rearrangeBodySize(parent));
+        container->addChild(RootNode);
+    }
+    
+    PrefList = static_cast<ListView *>(RootNode->getChildByName("list"));
+    return true;
+   
 }
