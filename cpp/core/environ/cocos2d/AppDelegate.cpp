@@ -41,7 +41,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
         director->setOpenGLView(glview);
 #if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32 
     // 1. 设置物理窗口大小（实际窗口大小）
-    //glview->setFrameSize(screenSize.width, screenSize.height);
+    glview->setFrameSize(screenSize.width, screenSize.height);
 
     // 3. 获取 Win32 窗口句柄
     HWND hwnd = glview->getWin32Window();
@@ -57,7 +57,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
 
     // Set the design resolution
     glview->setDesignResolutionSize(designResolutionSize.width,designResolutionSize.height,
-                                    ResolutionPolicy::FIXED_HEIGHT);
+                                    ResolutionPolicy::EXACT_FIT);
     std::vector<std::string> searchPath;
 
     // In this demo, we select resource according to the frame's
