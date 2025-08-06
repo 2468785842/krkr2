@@ -113,12 +113,27 @@ void TVPAppDelegate::initGLContextAttrs() {
     cocos2d::GLView::setGLContextAttrs(glContextAttrs);
 }
 
-void TVPAppDelegate::applicationScreenSizeChanged(int newWidth, int newHeight) {
-    // 	auto director = Director::getInstance();
-    // 	director->getOpenGLView()->setFrameSize(newWidth, newHeight);
-}
 
 void TVPOpenPatchLibUrl() {
     cocos2d::Application::getInstance()->openURL(
         "https://zeas2.github.io/Kirikiroid2_patch/patch");
 }
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+void TVPAppDelegate::applicationScreenSizeChanged(int newWidth, int newHeight) {
+    auto director = cocos2d::Director::getInstance();
+    auto glview = director->getOpenGLView();
+    if (glview) {
+        glview->setFrameSize(newWidth, newHeight);
+        glview->setDesignResolutionSize(
+            designResolutionSize.width,
+            designResolutionSize.height,
+            ResolutionPolicy::EXACT_FIT
+        );
+
+        // 通知场景更新布局（可选）
+        // if (auto scene = TVPMainScene::GetInstance()) {
+        //     scene->updateWindowSize(newWidth, newHeight);
+        // }
+    }
+}
+#endif
