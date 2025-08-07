@@ -54,12 +54,30 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     }
 #endif
     }
-
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
     // Set the design resolution
     glview->setDesignResolutionSize(designResolutionSize.width,designResolutionSize.height,
                                     ResolutionPolicy::EXACT_FIT);
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+     // Set the design resolution
+    cocos2d::Size screenSize = glview->getFrameSize();
+    if(screenSize.width < screenSize.height) {
+        std::swap(screenSize.width, screenSize.height);
+    }
+    cocos2d::Size designSize = designResolutionSize;
+    designSize.height = designSize.width * screenSize.height / screenSize.width;
+    glview->setDesignResolutionSize(screenSize.width, screenSize.height,
+                                    ResolutionPolicy::EXACT_FIT);
+#else
+    CCLOG("This Plafrom don not support");
+#endif
+#if _DEBUG
+    auto visibleSize = director->getVisibleSize();
+    auto frameSize = glview->getFrameSize();
+    CCLOG("VisibleSize: %f x %f", visibleSize.width, visibleSize.height);
+    CCLOG("FrameSize: %f x %f", frameSize.width, frameSize.height);
+#endif
     std::vector<std::string> searchPath;
-
     // In this demo, we select resource according to the frame's
     // height. If the resource size is different from design
     // resolution size, you need to set contentScaleFactor. We use the
@@ -118,22 +136,3 @@ void TVPOpenPatchLibUrl() {
     cocos2d::Application::getInstance()->openURL(
         "https://zeas2.github.io/Kirikiroid2_patch/patch");
 }
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-void TVPAppDelegate::applicationScreenSizeChanged(int newWidth, int newHeight) {
-    auto director = cocos2d::Director::getInstance();
-    auto glview = director->getOpenGLView();
-    if (glview) {
-        glview->setFrameSize(newWidth, newHeight);
-        glview->setDesignResolutionSize(
-            designResolutionSize.width,
-            designResolutionSize.height,
-            ResolutionPolicy::EXACT_FIT
-        );
-
-        // 通知场景更新布局（可选）
-        // if (auto scene = TVPMainScene::GetInstance()) {
-        //     scene->updateWindowSize(newWidth, newHeight);
-        // }
-    }
-}
-#endif

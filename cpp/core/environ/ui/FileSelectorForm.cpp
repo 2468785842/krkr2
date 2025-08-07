@@ -98,7 +98,7 @@ TVPBaseFileSelectorForm::~TVPBaseFileSelectorForm() {
 }
 
 void TVPBaseFileSelectorForm::bindHeaderController(const Node *allNodes) {
-    _title = allNodes->getChildByName<Button *>("title");
+    _title = dynamic_cast<Button *>(findChildByNameRecursively(allNodes,"title"));
     if(_title) {
         _title->setEnabled(true);
         _title->addClickEventListener([this](auto &&PH1) {
@@ -108,7 +108,7 @@ void TVPBaseFileSelectorForm::bindHeaderController(const Node *allNodes) {
 }
 
 void TVPBaseFileSelectorForm::bindBodyController(const Node *allNodes) {
-    Node *TableNode = allNodes->getChildByName("table");
+    Node *TableNode = findChildByNameRecursively(allNodes,"table");
     const auto &size = TableNode->getContentSize();
     CCASSERT(size.width > 0 && size.height > 0,
              "TableNode content size is invalid");
