@@ -37,7 +37,8 @@ void TVPMessageBoxForm::init(const std::string &caption,
                              const std::function<void(int)> &callback) {
     _callback = callback;
 
-    initFromWidget(nullptr, Csd::createMessageBox(), nullptr);
+    // initFromWidget(nullptr, Csd::createMessageBox(), nullptr);
+    initFromFile(nullptr, "ui/MessageBox.csb", nullptr);
 
     if(_title)
         _title->setString(caption);
@@ -127,10 +128,21 @@ void TVPMessageBoxForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
     }
 }
 
+void TVPMessageBoxForm::bindBodyController(const NodeMap &allNodes) {
+    _title = static_cast<Text *>(allNodes.findController("title"));
+    _textContent = static_cast<Text *>(allNodes.findController("content"));
+    _textContainer = static_cast<ScrollView *>(allNodes.findController("text"));
+
+    _btnBody = static_cast<Button *>(allNodes.findController("btnBody"));
+    _btnModel = allNodes.findWidget("btn");
+    _btnList = _btnModel->getParent();
+}
+
 TVPSimpleProgressForm *TVPSimpleProgressForm::create() {
     TVPSimpleProgressForm *form = new TVPSimpleProgressForm;
     form->autorelease();
-    form->initFromBodyWidget(Csd::createProgressBox());
+    // form->initFromBodyWidget(Csd::createProgressBox());
+    form->initFromFile(nullptr,"ui/ProgressBox.csb",nullptr);
     return form;
 }
 
@@ -217,3 +229,18 @@ void TVPSimpleProgressForm::bindBodyController(const Node *allNodes) {
     _btnButton = allNodes->getChildByName<Button *>("btn");
     _btnCell->removeFromParentAndCleanup(false);
 }
+
+void TVPSimpleProgressForm::bindBodyController(const NodeMap &allNodes) {
+    LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();
+    _progressBar[0] = allNodes.findController<LoadingBar>("progrss_1");
+    _progressBar[1] = allNodes.findController<LoadingBar>("progrss_2");
+    _textProgress[0] = allNodes.findController<Text>("progress_text_1");
+    _textProgress[1] = allNodes.findController<Text>("progress_text_2");
+    _textContent = allNodes.findController<Text>("text");
+    _textTitle = allNodes.findController<Text>("title");
+    _btnContainer = allNodes.findController("btnList");
+    _btnCell = allNodes.findWidget("btnCell");
+    _btnButton = allNodes.findController<Button>("btn");
+    _btnCell->removeFromParentAndCleanup(false);
+}
+

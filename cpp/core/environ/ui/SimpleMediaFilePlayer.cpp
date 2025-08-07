@@ -101,9 +101,11 @@ SimpleMediaFilePlayer::~SimpleMediaFilePlayer() {
 SimpleMediaFilePlayer *SimpleMediaFilePlayer::create() {
     SimpleMediaFilePlayer *ret = new SimpleMediaFilePlayer;
     ret->autorelease();
-    ret->initFromWidget(Csd::createMediaPlayerNavi(),
-                      Csd::createMediaPlayerBody(),
-                      Csd::createMediaPlayerFoot());
+    // ret->initFromWidget(Csd::createMediaPlayerNavi(),
+    //                   Csd::createMediaPlayerBody(),
+    //                   Csd::createMediaPlayerFoot());
+    ret->initFromFile("ui/MediaPlayerNavi.csb", "ui/MediaPlayerBody.csb",
+                      "ui/MediaPlayerFoot.csb");
     return ret;
 }
 
@@ -263,6 +265,81 @@ void SimpleMediaFilePlayer::bindHeaderController(const Node *allNodes) {
     PlayTime = static_cast<Text *>(allNodes->getChildByName("PlayTime"));
     RemainTime = static_cast<Text *>(allNodes->getChildByName("RemainTime"));
     Timeline = static_cast<Slider *>(allNodes->getChildByName("Timeline"));
+
+    Timeline->addEventListener(
+        [this](Ref *, Slider::EventType ev) { onSliderChanged(); });
+}
+
+void SimpleMediaFilePlayer::bindBodyController(const NodeMap &allNodes) {
+    OSD = allNodes.findController("OSD");
+    OSD->setVisible(false);
+    OSDText = static_cast<Text *>(allNodes.findController("OSDText"));
+
+    Widget *overlay = allNodes.findWidget("Overlay");
+    _player->InitRootNode(overlay);
+    overlay->addClickEventListener([this](Ref *) {
+        if(!NaviBar->isVisible()) {
+            NaviBar->setVisible(true);
+            NaviBar->setOpacity(0);
+            NaviBar->runAction(FadeIn::create(0.3));
+
+            ControlBar->setVisible(true);
+            ControlBar->setOpacity(0);
+            ControlBar->runAction(FadeIn::create(0.3));
+            hideRemain = 5;
+        }
+    });
+    this->Overlay = overlay;
+}
+
+void SimpleMediaFilePlayer::bindFooterController(const NodeMap &allNodes) {
+    ControlBar = allNodes.findController("ControlBar");
+
+    PlayBtn = allNodes.findWidget("PlayBtn");
+    PlayBtn->addClickEventListener([this](Ref *) { TooglePlayOrPause(); });
+    PlayBtn->addTouchEventListener([this](Ref *_p, Widget::TouchEventType ev) {
+        cocos2d::ui::Widget *p = static_cast<Widget *>(_p);
+        switch(ev) {
+            case Widget::TouchEventType::BEGAN:
+                setPlayButtonHighlight(true);
+                break;
+            case Widget::TouchEventType::MOVED:
+                setPlayButtonHighlight(p->hitTest(p->getTouchMovePosition(),
+                                                  Camera::getVisitingCamera(),
+                                                  nullptr));
+                break;
+            case Widget::TouchEventType::ENDED:
+            case Widget::TouchEventType::CANCELED:
+                setPlayButtonHighlight(false);
+                break;
+            default:
+                break;
+        }
+    });
+    PlayBtnNormal = allNodes.findController("PlayBtnNormal");
+    PlayBtnPress = allNodes.findController("PlayBtnPress");
+    PlayIconNormal = allNodes.findController("PlayIconNormal");
+    PlayIconPress = allNodes.findController("PlayIconPress");
+    PauseIconNormal = allNodes.findController("PauseIconNormal");
+    PauseIconPress = allNodes.findController("PauseIconPress");
+    PlayBtnPress->setVisible(false);
+    PlayIconPress->setVisible(false);
+    PauseIconPress->setVisible(false);
+    // PlayBtnNormal->setVisible(false);
+    // PlayIconNormal->setVisible(false);
+    PauseIconNormal->setVisible(false);
+}
+
+void SimpleMediaFilePlayer::bindHeaderController(const NodeMap &allNodes) {
+    NaviBar = allNodes.findController("NaviBar");
+    cocos2d::ui::Button *Back =
+        static_cast<Button *>(allNodes.findController("Back"));
+    Back->addClickEventListener([this](Ref *) { removeFromParent(); });
+
+    Title = static_cast<Text *>(allNodes.findController("Title"));
+    PlayTime = static_cast<Text *>(allNodes.findController("PlayTime"));
+    RemainTime = static_cast<Text *>(allNodes.findController("RemainTime"));
+    Timeline = static_cast<Slider *>(allNodes.findController("Timeline"));
 
     Timeline->addEventListener(
         [this](Ref *, Slider::EventType ev) { onSliderChanged(); });

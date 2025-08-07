@@ -200,6 +200,10 @@ public:
     void bindBodyController(const Node *allNodes) override;
     void bindFooterController(const Node *allNodes) override {}
 
+     void bindHeaderController(const NodeMap &allNodes) override {}
+    void bindBodyController(const NodeMap &allNodes) override;
+    void bindFooterController(const NodeMap &allNodes) override {}
+
     static TVPXP3RepackFileListForm *show(std::vector<std::string> &filelist,
                                           const std::string &dir);
     void initData(std::vector<std::string> &filelist, const std::string &dir);
@@ -249,11 +253,42 @@ void TVPXP3RepackFileListForm::bindBodyController(const Node *allNodes) {
     ListViewPref = allNodes->getChildByName<ListView *>("list_1");
 }
 
+void TVPXP3RepackFileListForm::bindBodyController(const NodeMap &allNodes) {
+    LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
+    ui::ScrollView *btnList =
+        allNodes.findController<ui::ScrollView>("btn_list");
+    Size containerSize = btnList->getContentSize();
+    btnList->setInnerContainerSize(containerSize);
+    Widget *btnCell = allNodes.findWidget("btn_cell");
+    Button *btn = allNodes.findController<Button>("btn");
+    int nButton = 2;
+
+    locmgr->initText(allNodes.findController<Text>("title"), "XP3 Repack");
+
+    btn->setTitleText(locmgr->GetText("start"));
+    btn->addClickEventListener(std::bind(&TVPXP3RepackFileListForm::onOkClicked,
+                                         this, std::placeholders::_1));
+    btnCell->setPositionX(containerSize.width / (nButton + 1) * 1);
+    btnList->addChild(btnCell->clone());
+
+    btn->setTitleText(locmgr->GetText("cancel"));
+    btn->addClickEventListener([this](Ref *) { close(); });
+    btnCell->setPositionX(containerSize.width / (nButton + 1) * 2);
+    btnList->addChild(btnCell->clone());
+
+    btn->removeFromParent();
+
+    ListViewFiles = allNodes.findController<ListView>("list_2");
+    ListViewPref = allNodes.findController<ListView>("list_1");
+}
+
 TVPXP3RepackFileListForm *
 TVPXP3RepackFileListForm::show(std::vector<std::string> &filelist,
                                const std::string &dir) {
     auto *form = new TVPXP3RepackFileListForm;
-    form->initFromBodyWidget(Csd::createCheckListDialog());
+    // form->initFromBodyWidget(Csd::createCheckListDialog());
+    form->initFromFile(nullptr,"ui/CheckListDialog.csb",nullptr);
+
     form->initData(filelist, dir);
     TVPMainScene::GetInstance()->pushUIForm(form, TVPMainScene::eEnterAniNone);
     return form;

@@ -1072,15 +1072,63 @@ TVPFileSelectorForm::create(const std::string &initfilename,
     return ret;
 }
 
+const char *const FileName_NaviBar = "ui/NaviBar.csb";
+const char *const FileName_Body = "ui/TableView.csb";
+const char *const FileName_BottomBar = "ui/BottomBarTextInput.csb";
+
 void TVPFileSelectorForm::initFromPath(const std::string &initfilename,
                                        const std::string &initdir,
                                        bool issave) {
     _isSaveMode = issave;
-    this->initFromWidget(Csd::createNaviBar(Size(0, 0), 1),
-                         Csd::createTableView(Size(0, 0), 1),
-                         Csd::createBottomBarTextInput());
+    // this->initFromWidget(Csd::createNaviBar(Size(0, 0), 1),
+    //                      Csd::createTableView(Size(0, 0), 1),
+    //                      Csd::createBottomBarTextInput());
+    initFromFile(FileName_NaviBar, FileName_Body, FileName_BottomBar);
     _input->setString(initfilename);
     ListDir(initdir); // getCurrentDir()
+}
+
+void TVPBaseFileSelectorForm::bindHeaderController(const NodeMap &allNodes) {
+    _title = dynamic_cast<Button *>(allNodes.findController("title"));
+    if(_title) {
+        _title->setEnabled(true);
+        _title->addClickEventListener(
+            std::bind(&TVPBaseFileSelectorForm::onTitleClicked, this,
+                      std::placeholders::_1));
+    }
+}
+
+void TVPBaseFileSelectorForm::bindBodyController(const NodeMap &allNodes) {
+    Node *TableNode = allNodes.findController("table");
+    auto size = TableNode->getContentSize();
+    CCASSERT(size.width > 0 && size.height > 0,
+             "TableNode content size is invalid");
+    FileList = TableView::create(this, TableNode->getContentSize());
+    FileList->setVerticalFillOrder(TableView::VerticalFillOrder::TOP_DOWN);
+    FileList->setAnchorPoint(Vec2::ZERO);
+    FileList->setClippingToBounds(false);
+    FileList->setTouchEnabled(true);
+    FileList->setAnchorPoint(Vec2(0.5, 0.5));
+    FileList->setPosition(Vec2::ZERO);
+    FileList->setDirection(cocos2d::extension::ScrollView::Direction::VERTICAL);
+    FileList->setClippingToBounds(true); // 限制内容绘制区域
+    FileList->setBounceable(true); // 允许滚动时有弹性
+    FileList->setSwallowTouches(false); // 允许事件传递
+
+    TableNode->addChild(FileList);
+    // 	ListView::ccListViewCallback func = [this](Ref* cell,
+    // ListView::EventType e){ 		if (e ==
+    // ListView::EventType::ON_SELECTED_ITEM_END) {
+    // onCellClicked(static_cast<ListView*>(cell)->getCurSelectedIndex());
+    // 		}
+    // 	};
+    // 	FileList->addEventListener(func);
+
+    if(NaviBar.Left) {
+        NaviBar.Left->addClickEventListener(
+            std::bind(&TVPBaseFileSelectorForm::onBackClicked, this,
+                      std::placeholders::_1));
+    }
 }
 
 void TVPFileSelectorForm::bindFooterController(const Node *allNodes) {

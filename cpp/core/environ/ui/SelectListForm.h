@@ -9,6 +9,8 @@ public:
     void bindHeaderController(const Node *allNodes) override {}
     void bindBodyController(const Node *allNodes) override {}
     void bindFooterController(const Node *allNodes) override {}
+
+    
 };
 
 class TVPSelectListForm : public iTVPHalfScreenForm {
@@ -19,6 +21,7 @@ public:
 
 protected:
     void bindBodyController(const Node *allNodes) override;
+    void bindBodyController(const NodeMap &allNodes) override;
     void initWithInfo(const std::vector<std::string> &info,
                       const std::string &highlight_tid);
 
@@ -36,6 +39,7 @@ public:
 
 private:
     void bindBodyController(const Node *allNodes) override;
+    void bindBodyController(const NodeMap &allNodes) override;
     void initWithInfo(const std::string &text1, const std::string &text2);
 
     std::function<void(const std::string &, const std::string &)> FuncOK;

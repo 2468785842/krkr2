@@ -20,6 +20,11 @@ private:
     void bindBodyController(const Node *allNodes) override;
     void bindFooterController(const Node *allNodes) override {}
 
+    // 重载以支持NodeMap
+    void bindBodyController(const NodeMap &allNodes) override;
+    void bindHeaderController(const NodeMap &allNodes) override {}
+    void bindFooterController(const NodeMap &allNodes) override {}
+
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
                       cocos2d::Event *event) override;
 
@@ -54,6 +59,11 @@ private:
     void bindHeaderController(const Node *allNodes) override {}
     void bindBodyController(const Node *allNodes) override;
     void bindFooterController(const Node *allNodes) override {}
+
+    // 重载以支持NodeMap
+    void bindBodyController(const NodeMap &allNodes) override;
+    void bindHeaderController(const NodeMap &allNodes) override {}
+    void bindFooterController(const NodeMap &allNodes) override {}
 
     cocos2d::ui::LoadingBar *_progressBar[2];
     cocos2d::ui::Text *_textTitle, *_textContent, *_textProgress[2];
