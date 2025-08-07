@@ -265,104 +265,14 @@ namespace Csd {
         return root;
     }
 
-    static Widget *createNaviBar() {
-        // 创建根节点
-        const auto root = Layout::create();
-        root->setContentSize(Size(720, 120));
-        
-
-        // Panel_1 背景面板（含渐变色）
-        const auto panel1 = Layout::create();
-        panel1->setName("panel_1");
-        panel1->setContentSize(Size(720, 120));
-        panel1->setAnchorPoint(Vec2::ZERO);
-        panel1->setPosition(Vec2::ZERO);
-        panel1->setTouchEnabled(true);
-
-        // 渐变背景
-        const auto gradient =
-            LayerGradient::create(Color4B(150, 200, 255, 255), // FirstColor
-                                  Color4B(255, 255, 255, 255), // EndColor
-                                  Vec2(0, 1) // ColorVector (Y向上)
-            );
-        gradient->setContentSize(panel1->getContentSize());
-        gradient->setAnchorPoint(Vec2::ZERO);
-        gradient->setPosition(Vec2::ZERO);
-        panel1->addChild(gradient, -1);
-
-        // 左侧按钮
-        const auto left =
-            Button::create("img/back_btn_off.png", "img/back_btn_on.png",
-                           "img/back_btn_on.png");
-        left->setName("left");
-        left->setTouchEnabled(true);
-        left->setContentSize(Size(100, 100));
-        left->setAnchorPoint(Vec2(0, 0.5f));
-        left->setPosition(Vec2(20, 60));
-        panel1->addChild(left);
-
-        // 中间 Panel_2（裁剪区域）
-        const auto panel2 = Layout::create();
-        panel2->setName("Panel_2");
-        panel2->setContentSize(Size(500, 120));
-        panel2->setAnchorPoint(Vec2::ZERO);
-        panel2->setPosition(Vec2(110, 0));
-        panel2->setClippingEnabled(true);
-        panel2->setTouchEnabled(true);
-
-        // 中间渐变背景（可选）
-        const auto panel2Bg =
-            LayerGradient::create(Color4B(150, 200, 255, 255),
-                                  Color4B(255, 255, 255, 255), Vec2(0, 1));
-        panel2Bg->setContentSize(panel2->getContentSize());
-        panel2Bg->setPosition(Vec2::ZERO);
-        panel2->addChild(panel2Bg, -1);
-
-        // 标题按钮
-        const auto title =
-            Button::create("img/empty.png", "img/gray.png", "img/empty.png");
-        title->setName("title");
-        title->setTouchEnabled(true);
-        title->setContentSize(Size(500, 120));
-        title->setAnchorPoint(Vec2(0, 0.5f));
-        title->setPosition(Vec2(0, 60));
-        title->setTitleFontSize(64);
-        title->setTitleColor(Color3B(199, 199, 199));
-        title->setTitleText("标题");
-        panel2->addChild(title);
-
-        panel1->addChild(panel2);
-
-        // 右侧按钮（空 Panel）
-        const auto right = Layout::create();
-        right->setName("right");
-        right->setContentSize(Size(100, 100));
-        right->setAnchorPoint(Vec2(0.5f, 0.5f));
-        right->setPosition(Vec2(660, 60));
-        right->setTouchEnabled(true);
-
-        // 可选：添加背景渐变色
-        const auto rightBg =
-            LayerGradient::create(Color4B(150, 200, 255, 255),
-                                  Color4B(255, 255, 255, 255), Vec2(0, 1));
-        rightBg->setContentSize(right->getContentSize());
-        rightBg->setPosition(Vec2::ZERO);
-        right->addChild(rightBg, -1);
-
-        panel1->addChild(right);
-
-        // 添加所有到 root
-        root->addChild(panel1);
-
-        return static_cast<Widget *>(root);
-    }
+    
 
     /**
      * @param size   设计尺寸（父容器给的宽高）
      * @param scale  整体缩放（可用于像素密度适配）
      * @return       已布局好的 Widget*
      */
-    static Widget* createNaviBarA(const Size& size, float scale)
+    static Widget* createNaviBar(const Size& size, float scale)
     {
         constexpr int bothSizesPadding = 13;
         const Size leftBtnSize(80, 80);
@@ -672,7 +582,7 @@ namespace Csd {
 
         return root;
     }
-    static Widget* createListViewA(const Size &size, float) {
+    static Widget* createListView(const Size &size, float) {
         const auto root = Widget::create();
         root->setAnchorPoint(Vec2::ZERO);
         root->setContentSize(size);
@@ -696,31 +606,7 @@ namespace Csd {
         root->addChild(listView);
         return root;
     }
-    static Widget *createListView() {
-        const auto root = Widget::create();
-
-        // 设置 layer 尺寸
-        root->setContentSize(Size(720, 960));
-
-        // 创建 ListView
-        const auto listView = ListView::create();
-        listView->setName("list");
-        listView->setDirection(ListView::Direction::VERTICAL);
-        listView->setBounceEnabled(true);
-        listView->setTouchEnabled(true);
-        listView->setContentSize(Size(720, 960));
-        listView->setAnchorPoint(Vec2::ZERO);
-        listView->setPosition(Vec2::ZERO);
-        listView->setItemsMargin(11);
-
-        // 可选：设置背景颜色或图片
-        // listView->setBackGroundColorType(Layout::BackGroundColorType::GRADIENT);
-        // listView->setBackGroundColor(Color3B(150, 150, 255), Color3B(255,
-        // 255, 255));
-
-        root->addChild(listView);
-        return root;
-    }
+    
 
     static Widget *createMessageBox() {
         const auto root = Widget::create();

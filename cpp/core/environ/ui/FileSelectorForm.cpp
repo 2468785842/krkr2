@@ -1076,9 +1076,9 @@ void TVPFileSelectorForm::initFromPath(const std::string &initfilename,
                                        const std::string &initdir,
                                        bool issave) {
     _isSaveMode = issave;
-    this->initFromWidget(Csd::createNaviBar(),
-                       Csd::createTableView(Size(0, 0), 1),
-                       Csd::createBottomBarTextInput());
+    this->initFromWidget(Csd::createNaviBar(Size(0, 0), 1),
+                         Csd::createTableView(Size(0, 0), 1),
+                         Csd::createBottomBarTextInput());
     _input->setString(initfilename);
     ListDir(initdir); // getCurrentDir()
 }

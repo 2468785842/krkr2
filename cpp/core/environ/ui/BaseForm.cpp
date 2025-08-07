@@ -229,9 +229,9 @@ bool iTVPBaseForm::initFromBuilder(const Csd::NodeBuilderFn& naviBarBuilder,
         lp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
         naviBar->setLayoutParameter(lp);
 
-        NaviBar.Root = naviBar->getChildByName<Node*>("background");
-        NaviBar.Left = NaviBar.Root->getChildByName<Button*>("left");
-        NaviBar.Right = NaviBar.Root->getChildByName<Button*>("right");
+        NaviBar.Root = naviBar;
+        NaviBar.Left = dynamic_cast<Button *>(findChildByNameRecursively(NaviBar.Root,"left"));
+        NaviBar.Right = dynamic_cast<Button *>(findChildByNameRecursively(NaviBar.Root,"right"));
         bindHeaderController(NaviBar.Root);
 
         container->addChild(naviBar);
@@ -305,6 +305,10 @@ bool iTVPBaseForm::initFromWidget(Widget* naviBarWidget,
         lp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
         naviBarWidget->setLayoutParameter(lp);
         container->addChild(naviBarWidget);
+        NaviBar.Root = naviBarWidget;
+        NaviBar.Left = dynamic_cast<Button *>(findChildByNameRecursively(NaviBar.Root,"left"));
+        NaviBar.Right = dynamic_cast<Button *>(findChildByNameRecursively(NaviBar.Root,"right"));
+        bindHeaderController(NaviBar.Root);
     }
 
     // 2) body ——中间填满
@@ -327,6 +331,8 @@ bool iTVPBaseForm::initFromWidget(Widget* naviBarWidget,
         lp->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
         bottomBarWidget->setLayoutParameter(lp);
         container->addChild(bottomBarWidget);
+        BottomBar.Root = bottomBarWidget;
+        bindFooterController(bottomBarWidget);
     }
 
     return true;
