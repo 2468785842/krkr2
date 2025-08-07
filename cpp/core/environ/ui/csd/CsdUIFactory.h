@@ -967,5 +967,33 @@ namespace Csd {
         LOGGER->warn("createWinMgrOverlayLayer");
         return nullptr;
     }
+        /**
+     * 创建一个横向分割线 Widget
+     * @param width      分割线实际长度
+     * @param lineHeight 线粗（像素）
+     * @param color      线颜色
+     */
+    static Widget* createSeperateItem(float width,
+                            float lineHeight = 2.0f,
+                            const Color4F& color = Color4F::GRAY)
+    {
+        // 1. 根节点
+        Widget* root = Widget::create();
+        root->setContentSize(Size(width, lineHeight + 20));   // 上下各留 10 像素空隙
+
+        // 2. 用 DrawNode 画线
+        DrawNode* line = DrawNode::create();
+        Vec2 from(0, 0);
+        Vec2 to(width, 0);
+        line->drawLine(from, to, color);
+
+        // 3. 把线放在根节点中间
+        line->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
+        line->setPosition(Vec2(0, (lineHeight + 20) * 0.5f));
+
+        root->addChild(line);
+        return root;
+    }
 
 } // namespace Csd
+
