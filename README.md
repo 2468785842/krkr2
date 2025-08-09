@@ -100,6 +100,8 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
     ```
   
   - 运行: `./build-linux.sh`
+  - `docker`
+    - 安装`docker-desktop` 运行 `docker build -f DockerFile.linux -t krkr2:latest`
 
 
 ## 可执行文件位置
