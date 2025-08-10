@@ -13,7 +13,7 @@
 #   include <unistd.h>
 #   include <dirent.h>
 #endif
-
+#define NCB_MODULE_NAME TJS_W("fstat.dll")
 // ------------- 工具函数 -------------
 static ttstr TVPGetPlacedPath(const ttstr& f) { return TVPGetPlacedPath(f); } // 官方已有
 static tjs_int64 getTick() { return TVPGetTickCount(); }                     // 官方已有
