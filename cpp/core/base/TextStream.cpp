@@ -762,3 +762,45 @@ const tjs_char *TVPGetDefaultReadEncoding() {
     return DefaultReadEncoding.c_str();
 }
 //---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+// TVPLoadText
+//   封装 tTVPTextReadStream，把完整文件内容一次性读回 ttstr
+//---------------------------------------------------------------------------
+ttstr TVPLoadText(const ttstr &name, const ttstr &modestr)
+{
+    iTJSTextReadStream *stream = nullptr;
+    ttstr result;
+    try
+    {
+        stream = new tTVPTextReadStream(name, modestr);
+        stream->Read(result, 0);   // 0 表示“读到 EOF”
+    }
+    catch(...)
+    {
+        if(stream) stream->Destruct();
+        throw;
+    }
+    if(stream) stream->Destruct();
+    return result;
+}
+
+//---------------------------------------------------------------------------
+// TVPSaveText
+//   封装 tTVPTextWriteStream，一次性把 ttstr 写入文件
+//---------------------------------------------------------------------------
+void TVPSaveText(const ttstr &name, const ttstr &text, const ttstr &modestr)
+{
+    iTJSTextWriteStream *stream = nullptr;
+    try
+    {
+        stream = new tTVPTextWriteStream(name, modestr);
+        stream->Write(text);
+    }
+    catch(...)
+    {
+        if(stream) stream->Destruct();
+        throw;
+    }
+    if(stream) stream->Destruct();
+}
