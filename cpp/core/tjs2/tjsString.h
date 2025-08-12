@@ -468,6 +468,8 @@ namespace TJS {
 
     typedef tTJSString ttstr;
 
+    typedef tTJSString tjs_string;
+
     //---------------------------------------------------------------------------
 } // namespace TJS
 

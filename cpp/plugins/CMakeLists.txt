@@ -54,8 +54,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC krkr2core)
 add_subdirectory(psdfile)
 add_subdirectory(psbfile)
 add_subdirectory(layerex_draw)
-add_subdirectory(json)
-add_subdirectory(fstat)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC psdfile psbfile layerExDraw)
 
