@@ -15,7 +15,7 @@
 #endif
 #define NCB_MODULE_NAME TJS_W("fstat.dll")
 // ------------- 工具函数 -------------
-static ttstr TVPGetPlacedPath(const ttstr& f) { return TVPGetPlacedPath(f); } // 官方已有
+
 static tjs_int64 getTick() { return TVPGetTickCount(); }                     // 官方已有
 
 struct Storages
@@ -133,7 +133,7 @@ struct Storages
 /* ---------- 注册 ---------- */
 NCB_ATTACH_CLASS(Storages, Storages)
 {
-    Property(TJS_W("currentPath"), &Storages::get_currentPath, &Storages::set_currentPath);
+    //Property(TJS_W("currentPath"), &Storages::get_currentPath, &Storages::set_currentPath);
     RawCallback(TJS_W("fstat"),            &Storages::fstat,            TJS_STATICMEMBER);
     RawCallback(TJS_W("exportFile"),       &Storages::exportFile,       TJS_STATICMEMBER);
     RawCallback(TJS_W("deleteFile"),       &Storages::deleteFile,       TJS_STATICMEMBER);
