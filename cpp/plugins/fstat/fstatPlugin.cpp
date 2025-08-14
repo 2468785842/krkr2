@@ -1,5 +1,10 @@
 #include "ncbind/ncbind.hpp"
 #include "utils/TickCount.h"
+#include "tjsCommHead.h"   // 通常包含 TJS 核心定义
+#include "tjsNative.h"     // 包含 TJS 本地对象和类，可能包含 TJSObject
+#include "StorageIntf.h"   // 通常包含 TVP 存储接口，如 tTVPStreamInfo, TVPCreateStream 等
+#include "tjsDictionary.h" // 如果有单独的字典头文件
+#include "tjsDate.h"       // 你已经包含了 tjsDate.h，这是正确的
 #include <sys/stat.h>
 #include <fstream>
 #include <vector>
@@ -32,9 +37,94 @@ struct Storages
     }
 
     /*==================== 文件信息 ====================*/
-    static tjs_error  fstat(tTJSVariant* r, tjs_int n, tTJSVariant** p, iTJSDispatch2*)
+    //---------------------------------------------------------------------------
+    // fstat
+    //   取得文件大小与三种时间戳，封装成 TJS 字典返回
+    //---------------------------------------------------------------------------
+    static tjs_error fstat(tTJSVariant *result, tjs_int numparams,
+          tTJSVariant **param, iTJSDispatch2 *objthis)
     {
-        // if (r) *r = TJSObject::CreateDictionary();   // 空字典
+        if(numparams < 1) return TJS_E_BADPARAMCOUNT;
+
+        //-----------------------------------------------------------
+        // 1. 把 TJS 文件名转换成 TVP 统一存储名
+        //-----------------------------------------------------------
+        ttstr filename = *param[0];
+        filename = TVPNormalizeStorageName(filename);
+
+        //-----------------------------------------------------------
+        // 2. 打开文件流
+        //-----------------------------------------------------------
+        tTJSBinaryStream *strm = nullptr;
+        try
+        {
+            strm = TVPCreateStream(filename, TJS_BS_READ);
+        }
+        catch(...) // 捕获所有类型的异常，更具体的异常处理可能更好
+        {
+            // 不存在或其它原因导致打开失败
+            // 使用 TJSCreateDictionaryObject() 创建字典对象
+            iTJSDispatch2 *dictOnError = TJSCreateDictionaryObject();
+            if(result) *result = tTJSVariant(dictOnError, dictOnError);
+            if(dictOnError) dictOnError->Release(); // 创建后如果不再使用需要释放
+            return TJS_S_OK;
+        }
+
+        //-----------------------------------------------------------
+        // 3. 取得大小和时间戳
+        //-----------------------------------------------------------
+        tjs_uint64 size64 = strm->GetSize();
+
+
+//        tTVPStreamInfo info = {0}; // 初始化结构体
+
+//        strm->GetInfo(info); // 取得时间戳等信息
+
+        delete strm; // 关闭并删除流对象
+
+        //-----------------------------------------------------------
+        // 4. 构造返回字典
+        //-----------------------------------------------------------
+        // 使用 TJSCreateDictionaryObject() 创建字典对象
+        iTJSDispatch2 *dict = TJSCreateDictionaryObject();
+        if (!dict) { // 检查字典是否成功创建
+            if(result) result->Clear(); // 清除结果，表示失败
+            return TJS_E_FAIL; // 或者其他合适的错误码
+        }
+
+        tTJSVariant val;
+        tTJSVariant dateVal; // 为日期创建一个单独的 Variant 变量，避免混淆
+
+        // size
+        val = (tTVInteger)size64; // tTVInteger 通常是 tjs_int64 的别名
+        dict->PropSet(TJS_MEMBERENSURE, TJS_W("size"), 0, &val, dict);
+
+        // mtime (修改时间)
+//        if(info.MTime != 0) // tTVPStreamInfo 通常直接存储 time_t 类型的时间戳
+//        {
+//            if (info.mtime) { // 确保指针有效
+//                tTJSDateVariantFromTime(dateVal, *info.mtime);
+//                dict->PropSet(TJS_MEMBERENSURE, TJS_W("mtime"), 0, &dateVal, dict);
+//            }
+//        }
+
+        // atime (访问时间)
+//        if(info.atime) // 假设 info.atime 是 time_t*
+//        {
+//            tTJSDateVariantFromTime(dateVal, *info.atime);
+//            dict->PropSet(TJS_MEMBERENSURE, TJS_W("atime"), 0, &dateVal, dict);
+//        }
+
+
+        // ctime (创建时间 或 元数据更改时间，取决于平台)
+//        if(info.ctime) // 假设 info.ctime 是 time_t*
+//        {
+//            tTJSDateVariantFromTime(dateVal, *info.ctime);
+//            dict->PropSet(TJS_MEMBERENSURE, TJS_W("ctime"), 0, &dateVal, dict);
+//        }
+
+        if(result) *result = tTJSVariant(dict, dict);
+        dict->Release(); // 释放字典对象 (result 持有其引用)
         return TJS_S_OK;
     }
 
@@ -277,7 +367,65 @@ struct Storages
         // 返回成功
         return TJS_S_OK;
     }
-    static tjs_error dirlistEx(tTJSVariant* r, tjs_int numparams, tTJSVariant** param, iTJSDispatch2*){
+    static tjs_error dirlistEx(tTJSVariant* r, tjs_int numparams, tTJSVariant** param, iTJSDispatch2*)
+    {
+        // 参数检查
+        if (numparams < 1)
+            return TJS_E_BADPARAMCOUNT;
+
+        // 获取目录路径
+        ttstr dir(*param[0]);
+
+        // 检查目录路径是否以 '/' 结尾
+        if (dir.GetLastChar() != TJS_W('/'))
+            TVPThrowExceptionMessage(TJS_W("'/' must be specified at the end of given directory name."));
+
+        // 将目录路径转换为 OS 原生格式
+        dir = TVPNormalizeStorageName(dir);
+
+        // 创建数组对象
+        iTJSDispatch2* array = TJSCreateArrayObject();
+        if (!r)
+            return TJS_S_OK;
+
+        try {
+            tTJSArrayNI* ni;
+            array->NativeInstanceSupport(TJS_NIS_GETINSTANCE, TJSGetArrayClassID(), (iTJSNativeInstance**)&ni);
+
+            // 获取目录中的文件和子目录
+            TVPGetLocalName(dir);
+            TVPGetLocalFileListAt(dir, [ni](const ttstr& name, tTVPLocalFileInfo* s) {
+                // 创建文件信息对象
+                tTJSVariant fileInfo;
+                tTJSVariant nameVar(name.c_str());
+//                tTJSVariant sizeVar(s->Size);
+                tTJSVariant attribVar(s->Mode);
+                tTJSVariant mtimeVar(s->ModifyTime);
+                tTJSVariant atimeVar(s->AccessTime);
+                tTJSVariant ctimeVar(s->CreationTime);
+
+                // 创建文件信息对象
+//                tTJSVariantMap* fileInfoMap = new tTJSVariantMap();
+//                fileInfoMap->AddItem("name", nameVar);
+//                fileInfoMap->AddItem("size", sizeVar);
+//                fileInfoMap->AddItem("attrib", attribVar);
+//                fileInfoMap->AddItem("mtime", mtimeVar);
+//                fileInfoMap->AddItem("atime", atimeVar);
+//                fileInfoMap->AddItem("ctime", ctimeVar);
+
+                // 将文件信息对象添加到数组中
+//                ni->Items.emplace_back(fileInfoMap);
+            });
+
+            // 将数组对象赋值给结果
+            *r = tTJSVariant(array, array);
+            array->Release();
+        } catch (...) {
+            array->Release();
+            throw;
+        }
+
+        // 返回成功
         return TJS_S_OK;
     }
 
