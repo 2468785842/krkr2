@@ -394,28 +394,77 @@ struct Storages
 
             // 获取目录中的文件和子目录
             TVPGetLocalName(dir);
+
+            // ... 在 dirlistEx 函数内部的 TVPGetLocalFileListAt 回调中 ...
             TVPGetLocalFileListAt(dir, [ni](const ttstr& name, tTVPLocalFileInfo* s) {
-                // 创建文件信息对象
-                tTJSVariant fileInfo;
-                tTJSVariant nameVar(name.c_str());
-//                tTJSVariant sizeVar(s->Size);
-                tTJSVariant attribVar(s->Mode);
-                tTJSVariant mtimeVar(s->ModifyTime);
-                tTJSVariant atimeVar(s->AccessTime);
-                tTJSVariant ctimeVar(s->CreationTime);
+                // 创建一个标准的 TJS 字典对象来存储文件信息
+                iTJSDispatch2* fileInfoDict = TJSCreateDictionaryObject();
+                if (!fileInfoDict) {
+                    // 处理创建字典失败的情况，例如抛出异常或记录错误
+                    // TVPThrowExceptionMessage(TJS_W("Failed to create dictionary object for file info."));
+                    return; // 或者 continue，取决于你的错误处理策略
+                }
 
-                // 创建文件信息对象
-//                tTJSVariantMap* fileInfoMap = new tTJSVariantMap();
-//                fileInfoMap->AddItem("name", nameVar);
-//                fileInfoMap->AddItem("size", sizeVar);
-//                fileInfoMap->AddItem("attrib", attribVar);
-//                fileInfoMap->AddItem("mtime", mtimeVar);
-//                fileInfoMap->AddItem("atime", atimeVar);
-//                fileInfoMap->AddItem("ctime", ctimeVar);
+                tTJSVariant tempVal; // 用于设置属性的临时 Variant
 
-                // 将文件信息对象添加到数组中
-//                ni->Items.emplace_back(fileInfoMap);
-            });
+                // 1. 设置 name
+                tempVal = name; // ttstr 可以隐式或显式转换为 tTJSVariant
+                fileInfoDict->PropSet(
+                    TJS_MEMBERENSURE, // 创建成员如果不存在
+                    TJS_W("name"),    // 属性名
+                    0,                // hint (通常为0)
+                    &tempVal,         // 属性值
+                    fileInfoDict      // 对象本身
+                );
+
+                // 2. 设置 size (s->Size 通常是 tjs_uint64)
+                tempVal = static_cast<tTVInteger>(s->Size); // tTVInteger 通常是 tjs_int64
+                fileInfoDict->PropSet(TJS_MEMBERENSURE, TJS_W("size"), 0, &tempVal, fileInfoDict);
+
+                // 3. 设置 attrib (s->Mode 通常是 tjs_uint32 或 int)
+                tempVal = static_cast<tTVInteger>(s->Mode);
+                fileInfoDict->PropSet(TJS_MEMBERENSURE, TJS_W("attrib"), 0, &tempVal, fileInfoDict);
+
+                // 4. 设置 mtime (s->ModifyTime 通常是 time_t)
+                // 需要将 time_t 转换为 TJS 的 Date 对象
+                if (s->ModifyTime != 0) { // 检查时间戳是否有效
+                    tTJSVariant dateVariant;
+                    // 假设 tTJSDateVariantFromTime 接受 time_t*
+                    // 如果 s->ModifyTime 本身就是 time_t*，则直接使用 s->ModifyTime
+                    // 如果 s->ModifyTime 是 time_t，则传递其地址
+                    time_t modTime = s->ModifyTime; // 假设 s->ModifyTime 是 time_t
+                    dateVariant = tTJSVariant(modTime);
+//                    tTJSDateVariantFromTime(dateVariant, &modTime);
+                    fileInfoDict->PropSet(TJS_MEMBERENSURE, TJS_W("mtime"), 0, &dateVariant, fileInfoDict);
+                }
+
+                // 5. 设置 atime (s->AccessTime 通常是 time_t)
+                if (s->AccessTime != 0) {
+                    tTJSVariant dateVariant;
+                    time_t accTime = s->AccessTime;
+//                    tTJSDateVariantFromTime(dateVariant, &accTime);
+                    dateVariant = tTJSVariant(accTime);
+                    fileInfoDict->PropSet(TJS_MEMBERENSURE, TJS_W("atime"), 0, &dateVariant, fileInfoDict);
+                }
+
+                // 6. 设置 ctime (s->CreationTime 通常是 time_t)
+                if (s->CreationTime != 0) {
+                    tTJSVariant dateVariant;
+                    time_t creTime = s->CreationTime;
+//                    tTJSDateVariantFromTime(dateVariant, &creTime);
+                    dateVariant = tTJSVariant(creTime);
+                    fileInfoDict->PropSet(TJS_MEMBERENSURE, TJS_W("ctime"), 0, &dateVariant, fileInfoDict);
+                }
+
+                // 将创建的字典对象 (作为 tTJSVariant) 添加到数组中
+                // tTJSVariant 构造函数会增加 fileInfoDict 的引用计数
+                ni->Items.emplace_back(tTJSVariant(fileInfoDict, fileInfoDict));
+
+                // 释放我们在这里创建的 fileInfoDict 的引用，因为 tTJSVariant 已经持有了它
+                fileInfoDict->Release();
+
+            }); // 结束 TVPGetLocalFileListAt 的 lambda 回调
+
 
             // 将数组对象赋值给结果
             *r = tTJSVariant(array, array);
