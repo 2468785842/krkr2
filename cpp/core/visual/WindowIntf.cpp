@@ -253,25 +253,38 @@ void tTJSNI_BaseWindow::FireOnActivate(bool activate_or_deactivate) {
 }
 //---------------------------------------------------------------------------
 void tTJSNI_BaseWindow::SetDrawDeviceObject(const tTJSVariant &val) {
-    // invalidate existing draw device
-    if(DrawDeviceObject.Type() == tvtObject)
-        DrawDeviceObject.AsObjectClosureNoAddRef().Invalidate(
-            0, nullptr, nullptr, DrawDeviceObject.AsObjectNoAddRef());
-
-    // assign new device
-    DrawDeviceObject = val;
-    DrawDevice = nullptr;
 
     // extract interface
-    if(DrawDeviceObject.Type() == tvtObject) {
-        tTJSVariantClosure clo = DrawDeviceObject.AsObjectClosureNoAddRef();
+    if (val.Type() == tvtObject) {
+        tTJSVariantClosure clo = val.AsObjectClosureNoAddRef();
         tTJSVariant iface_v;
-        if(TJS_FAILED(
-               clo.PropGet(0, TJS_W("interface"), nullptr, &iface_v, nullptr)))
+        if (TJS_FAILED(
+               clo.PropGet(0, TJS_W("interface"), nullptr, &iface_v, nullptr))) {
+            // Log the error or handle it as needed
             TVPThrowExceptionMessage(TVPCannotRetriveInterfaceFromDrawDevice);
-        DrawDevice = reinterpret_cast<iTVPDrawDevice *>(
+            // Do not set DrawDevice if there is an error
+            return; // Exit the function or handle the error as needed
+        }
+        auto *tmpDrawDevice = reinterpret_cast<iTVPDrawDevice*>(
             (tjs_intptr_t)(tjs_int64)iface_v);
-        DrawDevice->SetWindowInterface(const_cast<tTJSNI_BaseWindow *>(this));
+        if(!tmpDrawDevice) {
+            TVPThrowExceptionMessage(TVPCannotRetriveInterfaceFromDrawDevice);
+            return; // Exit the function or handle the error as needed
+        }
+        if(tmpDrawDevice ==DrawDevice){
+            TVPConsoleLog(TJS_W("DrawDevice is same do need not to change"));
+            return;
+        }
+        // invalidate existing draw device
+        if(DrawDeviceObject.Type() == tvtObject)
+            DrawDeviceObject.AsObjectClosureNoAddRef().Invalidate(
+                0, nullptr, nullptr, DrawDeviceObject.AsObjectNoAddRef());
+
+        // assign new device
+        DrawDeviceObject = val;
+
+        DrawDevice = tmpDrawDevice;
+        DrawDevice->SetWindowInterface(const_cast<tTJSNI_BaseWindow*>(this));
         ResetDrawDevice();
     }
 }

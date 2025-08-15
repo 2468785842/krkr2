@@ -6,7 +6,7 @@
 #include "ncbind.hpp"
 #include "tjs.h"
 
-struct SteamEx {
+struct Steam {
     /* Steam Cloud */
     static tjs_error getCloudQuota   (tTJSVariant *r,tjs_int,tTJSVariant**,iTJSDispatch2*){if(r){*r=(tTVInteger)0;}return TJS_S_OK;}
     static tjs_error getCloudFileCount(tTJSVariant*r,tjs_int,tTJSVariant**,iTJSDispatch2*){if(r){*r=(tTVInteger)0;}return TJS_S_OK;}
@@ -30,22 +30,22 @@ struct SteamEx {
     static tjs_error getDLCData        (tTJSVariant*r,tjs_int,tTJSVariant**,iTJSDispatch2*){if(r){*r=tTJSVariant();}return TJS_S_OK;}
 };
 
-NCB_ATTACH_CLASS(SteamEx, Steam) {
-    RawCallback("getCloudQuota",    &SteamEx::getCloudQuota,    TJS_STATICMEMBER);
-    RawCallback("getCloudFileCount",&SteamEx::getCloudFileCount,TJS_STATICMEMBER);
-    RawCallback("getCloudFileInfo", &SteamEx::getCloudFileInfo, TJS_STATICMEMBER);
-    RawCallback("deleteCloudFile",  &SteamEx::deleteCloudFile,  TJS_STATICMEMBER);
-    RawCallback("copyCloudFile",    &SteamEx::copyCloudFile,    TJS_STATICMEMBER);
+NCB_REGISTER_CLASS(Steam) {
+    RawCallback("getCloudQuota",    &Steam::getCloudQuota,    TJS_STATICMEMBER);
+    RawCallback("getCloudFileCount",&Steam::getCloudFileCount,TJS_STATICMEMBER);
+    RawCallback("getCloudFileInfo", &Steam::getCloudFileInfo, TJS_STATICMEMBER);
+    RawCallback("deleteCloudFile",  &Steam::deleteCloudFile,  TJS_STATICMEMBER);
+    RawCallback("copyCloudFile",    &Steam::copyCloudFile,    TJS_STATICMEMBER);
 
-    RawCallback("triggerScreenshot",&SteamEx::triggerScreenshot,TJS_STATICMEMBER);
-    RawCallback("hookScreenshots",  &SteamEx::hookScreenshots,  TJS_STATICMEMBER);
-    RawCallback("writeScreenshot",  &SteamEx::writeScreenshot,  TJS_STATICMEMBER);
+    RawCallback("triggerScreenshot",&Steam::triggerScreenshot,TJS_STATICMEMBER);
+    RawCallback("hookScreenshots",  &Steam::hookScreenshots,  TJS_STATICMEMBER);
+    RawCallback("writeScreenshot",  &Steam::writeScreenshot,  TJS_STATICMEMBER);
 
-    RawCallback("isBroadcasting",   &SteamEx::isBroadcasting,   TJS_STATICMEMBER);
-    RawCallback("hookBroadcasting", &SteamEx::hookBroadcasting, TJS_STATICMEMBER);
+    RawCallback("isBroadcasting",   &Steam::isBroadcasting,   TJS_STATICMEMBER);
+    RawCallback("hookBroadcasting", &Steam::hookBroadcasting, TJS_STATICMEMBER);
 
-    RawCallback("isIsSubscribedApp",&SteamEx::isIsSubscribedApp,TJS_STATICMEMBER);
-    RawCallback("ssDlcInstalled",   &SteamEx::ssDlcInstalled,   TJS_STATICMEMBER);
-    RawCallback("getDLCCount",      &SteamEx::getDLCCount,      TJS_STATICMEMBER);
-    RawCallback("getDLCData",       &SteamEx::getDLCData,       TJS_STATICMEMBER);
+    RawCallback("isIsSubscribedApp",&Steam::isIsSubscribedApp,TJS_STATICMEMBER);
+    RawCallback("ssDlcInstalled",   &Steam::ssDlcInstalled,   TJS_STATICMEMBER);
+    RawCallback("getDLCCount",      &Steam::getDLCCount,      TJS_STATICMEMBER);
+    RawCallback("getDLCData",       &Steam::getDLCData,       TJS_STATICMEMBER);
 }
