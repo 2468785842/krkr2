@@ -9147,71 +9147,36 @@ tTJSNC_Layer::tTJSNC_Layer() : tTJSNativeClass(TJS_W("Layer")) {
     //----------------------------------------------------------------------
 
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ adjustGamma) {
-        TJS_GET_NATIVE_INSTANCE(/*var. name*/ layer_instance, /*var. type*/ tTJSNI_Layer); // 或者 tTJSNI_BaseLayer
+        TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
+                                /*var. type*/ tTJSNI_Layer);
 
-        if(numparams < 3) { // 至少需要 RGamma, RFloor, RCeil
-            TVPAddImportantLog(TJS_W("Layer.adjustGamma: Expected at least 3 parameters (RGamma, RFloor, RCeil). For full RGB, 9 parameters are needed."));
-            return TJS_E_BADPARAMCOUNT;
-        }
+        if(numparams == 0)
+            return TJS_S_OK;
 
-        tTVPGLGammaAdjustData gamma_data_struct; // 使用您提供的结构体定义
+        tTVPGLGammaAdjustData data;
+        memcpy(&data, &TVPIntactGammaAdjustData, sizeof(data));
 
-        // --- R Channel ---
-        if (param[0]->Type() != tvtVoid) gamma_data_struct.RGamma = (float)param[0]->AsReal();
-        else return TJS_E_INVALIDPARAM;
+        if(numparams >= 1 && param[0]->Type() != tvtVoid)
+            data.RGamma = param[0]->AsReal();
+        if(numparams >= 2 && param[1]->Type() != tvtVoid)
+            data.RFloor = *param[1];
+        if(numparams >= 3 && param[2]->Type() != tvtVoid)
+            data.RCeil = *param[2];
+        if(numparams >= 4 && param[3]->Type() != tvtVoid)
+            data.GGamma = param[3]->AsReal();
+        if(numparams >= 5 && param[4]->Type() != tvtVoid)
+            data.GFloor = *param[4];
+        if(numparams >= 6 && param[5]->Type() != tvtVoid)
+            data.GCeil = *param[5];
+        if(numparams >= 7 && param[6]->Type() != tvtVoid)
+            data.BGamma = param[6]->AsReal();
+        if(numparams >= 8 && param[7]->Type() != tvtVoid)
+            data.BFloor = *param[7];
+        if(numparams >= 9 && param[8]->Type() != tvtVoid)
+            data.BCeil = *param[8];
 
-        if (numparams >= 2 && param[1]->Type() != tvtVoid) gamma_data_struct.RFloor = (tjs_int)*param[1];
-        else gamma_data_struct.RFloor = 0; // Default floor
+        _this->AdjustGamma(data);
 
-        if (numparams >= 3 && param[2]->Type() != tvtVoid) gamma_data_struct.RCeil = (tjs_int)*param[2];
-        else gamma_data_struct.RCeil = 255; // Default ceil
-
-        // --- G Channel (optional based on numparams) ---
-        if (numparams >= 6) { // If G channel params are provided
-            if (param[3]->Type() != tvtVoid) gamma_data_struct.GGamma = (float)param[3]->AsReal();
-            else return TJS_E_INVALIDPARAM;
-            if (param[4]->Type() != tvtVoid) gamma_data_struct.GFloor = (tjs_int)*param[4];
-            else return TJS_E_INVALIDPARAM; // Or default
-            if (param[5]->Type() != tvtVoid) gamma_data_struct.GCeil = (tjs_int)*param[5];
-            else return TJS_E_INVALIDPARAM; // Or default
-        } else {
-            // Default G channel to match R if not provided, or to no-op
-            gamma_data_struct.GGamma = gamma_data_struct.RGamma;
-            gamma_data_struct.GFloor = gamma_data_struct.RFloor;
-            gamma_data_struct.GCeil  = gamma_data_struct.RCeil;
-        }
-
-        // --- B Channel (optional based on numparams) ---
-        if (numparams >= 9) { // If B channel params are provided
-            if (param[6]->Type() != tvtVoid) gamma_data_struct.BGamma = (float)param[6]->AsReal();
-            else return TJS_E_INVALIDPARAM;
-            if (param[7]->Type() != tvtVoid) gamma_data_struct.BFloor = (tjs_int)*param[7];
-            else return TJS_E_INVALIDPARAM; // Or default
-            if (param[8]->Type() != tvtVoid) gamma_data_struct.BCeil = (tjs_int)*param[8];
-            else return TJS_E_INVALIDPARAM; // Or default
-        } else {
-            // Default B channel to match R if not provided, or to no-op
-            gamma_data_struct.BGamma = gamma_data_struct.RGamma;
-            gamma_data_struct.BFloor = gamma_data_struct.RFloor;
-            gamma_data_struct.BCeil  = gamma_data_struct.RCeil;
-        }
-
-        // Validate Floor/Ceil values
-        if (gamma_data_struct.RFloor < 0) gamma_data_struct.RFloor = 0;
-        if (gamma_data_struct.RFloor > 255) gamma_data_struct.RFloor = 255;
-        if (gamma_data_struct.RCeil < 0) gamma_data_struct.RCeil = 0;
-        if (gamma_data_struct.RCeil > 255) gamma_data_struct.RCeil = 255;
-        if (gamma_data_struct.RFloor > gamma_data_struct.RCeil) {
-            // Swap or set to a valid state, e.g., floor = ceil
-            TVPAddLog(TJS_W("Layer.adjustGamma: RFloor > RCeil. Adjusting."));
-            gamma_data_struct.RFloor = gamma_data_struct.RCeil;
-        }
-        // Similar validation for G and B Floor/Ceil
-
-        // Call the existing C++ method in tTJSNI_BaseLayer (or tTJSNI_Layer)
-        layer_instance->AdjustGamma(gamma_data_struct);
-
-        if(result) result->Clear();
         return TJS_S_OK;
     }
     TJS_END_NATIVE_METHOD_DECL(/*func. name*/ adjustGamma)
