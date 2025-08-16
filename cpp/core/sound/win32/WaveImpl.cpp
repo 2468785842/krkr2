@@ -1819,10 +1819,11 @@ tTVPWaveSoundBufferDecodeThread::tTVPWaveSoundBufferDecodeThread(
 tTVPWaveSoundBufferDecodeThread::~tTVPWaveSoundBufferDecodeThread() {
     SetPriority(TVPDecodeThreadHighPriority);
     Running = false;
-    //Resume();
-    Event.Set();
-    WaitFor();
     Terminate();
+    Resume();
+    //Event.Set();
+    WaitFor();
+
 }
 //---------------------------------------------------------------------------
 #define TVP_WSB_DECODE_THREAD_SLEEP_TIME 110
