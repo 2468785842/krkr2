@@ -49,4 +49,4 @@ jobs:
         with:
           source: 'cpp linux windows android/cpp'
           extensions: 'cpp,cc,h,hpp,inc'
-          clangFormatVersion: 20
+          clangFormatVersion: 18
