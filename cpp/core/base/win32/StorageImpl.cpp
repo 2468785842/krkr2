@@ -39,6 +39,10 @@
 #undef GetClassName
 #endif
 
+#if defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__)
+#define lseek64 lseek
+#endif
+
 //---------------------------------------------------------------------------
 // tTVPFileMedia
 //---------------------------------------------------------------------------

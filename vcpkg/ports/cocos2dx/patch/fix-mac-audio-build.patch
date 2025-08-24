@@ -1,0 +1,94 @@
+diff --git a/cocos/audio/apple/AudioCache.h b/cocos/audio/apple/AudioCache.h
+index 6174dcbdef..6678a9ec4b 100644
+--- a/cocos/audio/apple/AudioCache.h
++++ b/cocos/audio/apple/AudioCache.h
+@@ -30,6 +30,7 @@
+ 
+ #import <OpenAL/al.h>
+ 
++#include <functional>
+ #include <string>
+ #include <mutex>
+ #include <vector>
+diff --git a/cocos/audio/mac/CDAudioManager.m b/cocos/audio/mac/CDAudioManager.m
+index ced152e4e9..333e10a4c3 100644
+--- a/cocos/audio/mac/CDAudioManager.m
++++ b/cocos/audio/mac/CDAudioManager.m
+@@ -325,8 +325,9 @@ + (void) configure: (tAudioManagerMode) mode {
+ 
+ -(BOOL) isOtherAudioPlaying {
+     UInt32 isPlaying = 0;
+-    UInt32 varSize = sizeof(isPlaying);
+-    AudioSessionGetProperty (kAudioSessionProperty_OtherAudioIsPlaying, &varSize, &isPlaying);
++    // UInt32 varSize = sizeof(isPlaying);
++    // AudioSessionGetProperty (kAudioSessionProperty_OtherAudioIsPlaying, &varSize, &isPlaying);
++    isPlaying = [[AVAudioSession sharedInstance] isOtherAudioPlaying]; 
+     return (isPlaying != 0);
+ }
+ 
+@@ -405,9 +406,9 @@ - (id) init: (tAudioManagerMode) mode {
+     if ((self = [super init])) {
+         
+         //Initialise the audio session 
+-        AVAudioSession* session = [AVAudioSession sharedInstance];
+-        session.delegate = self;
+-    
++        // AVAudioSession* session = [AVAudioSession sharedInstance];
++        // session.delegate = self;
++        [[AVAudioSession sharedInstance] setActive:YES error:nil];
+         _mode = mode;
+         backgroundMusicCompletionSelector = nil;
+         _isObservingAppEvents = FALSE;
+@@ -475,33 +476,8 @@ -(BOOL) isBackgroundMusicPlaying {
+ //ringer mute switch to off (i.e. enables sound) therefore polling is the only reliable way to
+ //determine ringer switch state
+ -(BOOL) isDeviceMuted {
+-
+-#if TARGET_IPHONE_SIMULATOR
+     //Calling audio route stuff on the simulator causes problems
+     return NO;
+-#else    
+-    CFStringRef newAudioRoute;
+-    UInt32 propertySize = sizeof (CFStringRef);
+-    
+-    AudioSessionGetProperty (
+-                             kAudioSessionProperty_AudioRoute,
+-                             &propertySize,
+-                             &newAudioRoute
+-                             );
+-    
+-    if (newAudioRoute == NULL) {
+-        //Don't expect this to happen but playing safe otherwise a null in the CFStringCompare will cause a crash
+-        return YES;
+-    } else {    
+-        CFComparisonResult newDeviceIsMuted =    CFStringCompare (
+-                                                                 newAudioRoute,
+-                                                                 (CFStringRef) @"",
+-                                                                 0
+-                                                                 );
+-        
+-        return (newDeviceIsMuted == kCFCompareEqualTo);
+-    }    
+-#endif
+ }    
+ 
+ #pragma mark Audio Interrupt Protocol
+diff --git a/cocos/audio/mac/CDXMacOSXSupport.h b/cocos/audio/mac/CDXMacOSXSupport.h
+index eaa97f2e34..7aad68cced 100644
+--- a/cocos/audio/mac/CDXMacOSXSupport.h
++++ b/cocos/audio/mac/CDXMacOSXSupport.h
+@@ -40,10 +40,10 @@
+ #import <Foundation/Foundation.h>
+ #import <AppKit/NSSound.h>
+ 
+-enum AudioSessionProperties {
+-	kAudioSessionProperty_OtherAudioIsPlaying,
+-	kAudioSessionProperty_AudioRoute	
+-};
++// enum AudioSessionProperties {
++// 	kAudioSessionProperty_OtherAudioIsPlaying,
++// 	kAudioSessionProperty_AudioRoute	
++// };
+ #ifdef __cplusplus
+ extern "C" {
+ #endif	

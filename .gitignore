@@ -12,3 +12,5 @@ out/
 .act/
 
 local.properties
+
+.DS_Store

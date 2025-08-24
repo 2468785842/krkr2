@@ -44,11 +44,13 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 
 target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 minizip)
 
-# 启用 OpenMP 支持
-find_package(OpenMP REQUIRED)
+if(NOT APPLE)
+    # 启用 OpenMP 支持
+    find_package(OpenMP REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
-target_compile_options(${PROJECT_NAME} PRIVATE ${OpenMP_CXX_FLAGS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+    target_compile_options(${PROJECT_NAME} PRIVATE ${OpenMP_CXX_FLAGS})
+endif ()
 
 if(ANDROID)
     target_link_libraries(${PROJECT_NAME} PUBLIC

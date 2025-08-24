@@ -334,6 +334,12 @@ void FontInfo::setFamilyName(const tjs_char *fName) {
 #if defined(__ANDROID__) || defined(__linux__)
     // 中日韩字体 有衬字体： Noto Serif CJK SC
     static std::string defaultFamily = "Noto Sans CJK SC";
+#elif defined(__APPLE__)
+    // 在苹果平台上，可以根据语言环境选择最合适的字体
+    static std::string defaultFamily = "PingFang SC";
+#elif defined(_WIN32)
+    // 微软雅黑
+    static std::string defaultFamily = "Microsoft YaHei";
 #endif
     // FIXME: 目前gdiplus无法正常绘制字符不知道为什么！
     // WCHAR* wDefaultFamily = g_utf8_to_utf16(defaultFamily, -1,

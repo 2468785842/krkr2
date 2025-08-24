@@ -40,6 +40,36 @@ elseif(WINDOWS)
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/main.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/game.rc
     )
+elseif(APPLE)
+    if(IOS)
+#        list(APPEND GAME_HEADER
+#                proj.ios_mac/ios/AppController.h
+#                proj.ios_mac/ios/RootViewController.h
+#        )
+#        set(APP_UI_RES
+#                proj.ios_mac/ios/LaunchScreen.storyboard
+#                proj.ios_mac/ios/LaunchScreenBackground.png
+#                proj.ios_mac/ios/Images.xcassets
+#        )
+#        list(APPEND GAME_SOURCE
+#                proj.ios_mac/ios/main.m
+#                proj.ios_mac/ios/AppController.mm
+#                proj.ios_mac/ios/RootViewController.mm
+#                proj.ios_mac/ios/Prefix.pch
+#                ${APP_UI_RES}
+#        )
+    elseif(MACOS)
+        set(APP_UI_RES
+                ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Icon.icns
+                ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Info.plist
+        )
+        add_executable(${PROJECT_NAME}
+                ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/main.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/platform.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Prefix.pch
+                ${APP_UI_RES}
+        )
+endif()
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
@@ -57,14 +87,26 @@ if(NOT ANDROID)
 
     set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/ui/cocos-studio")
 
-    if(WINDOWS)
+    if(WINDOWS OR APPLE)
         cocos_mark_multi_resources(common_res_files RES_TO "Resources" FOLDERS ${GAME_RES_FOLDER})
     endif()
 
     # mark app resources
     setup_cocos_app_config(${APP_NAME})
 
-    if(WINDOWS)
+    if(APPLE)
+        set_target_properties(${APP_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
+        if(MACOSX)
+            set_target_properties(${APP_NAME} PROPERTIES
+                    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Info.plist"
+            )
+        elseif(IOS)
+#            cocos_pak_xcode(${APP_NAME} INFO_PLIST "iOSBundleInfo.plist.in")
+#            set_xcode_property(${APP_NAME} ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon")
+#            set_xcode_property(${APP_NAME} DEVELOPMENT_TEAM "")
+#            set_xcode_property(${APP_NAME} CODE_SIGN_IDENTITY "iPhone Developer")
+        endif()
+    elseif(WINDOWS)
         target_sources(${PROJECT_NAME} PRIVATE ${common_res_files})
         cocos_copy_target_dll(${APP_NAME})
     endif()

@@ -27,6 +27,10 @@ extern "C" {
 using namespace TJS;
 using namespace NArchive::N7z;
 
+#if defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__)
+#define lseek64 lseek
+#endif
+
 #define COMPRESS_THRESHOLD 4 * 1024 * 1024
 #define S_INTERRUPT ((HRESULT)0x114705)
 

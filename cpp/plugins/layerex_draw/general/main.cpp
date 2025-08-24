@@ -286,7 +286,7 @@ public:
                 adpobj->Release();
             } else {
                 // FIXME: nullptr danger!!
-                dst = NULL;
+                // dst = NULL;
             }
         } else {
             dst.Clear();

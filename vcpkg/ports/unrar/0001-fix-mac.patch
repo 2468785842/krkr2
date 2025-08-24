@@ -1,0 +1,22 @@
+diff --git a/find.cpp b/find.cpp
+index b22f82d..8109f6c 100644
+--- a/find.cpp
++++ b/find.cpp
+@@ -144,10 +144,16 @@ bool FindFile::FastFind(const wchar *FindMask,FindData *fd,bool GetSymLink)
+   fd->Size=st.st_size;
+ 
+ #ifdef UNIX_TIME_NS
++#if defined(__APPLE__) || defined(__MACH__)
++  fd->mtime.SetUnixNS(st.st_mtimespec.tv_sec*(uint64)1000000000+st.st_mtimespec.tv_nsec);
++  fd->atime.SetUnixNS(st.st_atimespec.tv_sec*(uint64)1000000000+st.st_atimespec.tv_nsec);
++  fd->ctime.SetUnixNS(st.st_ctimespec.tv_sec*(uint64)1000000000+st.st_ctimespec.tv_nsec);
++#else
+   fd->mtime.SetUnixNS(st.st_mtim.tv_sec*(uint64)1000000000+st.st_mtim.tv_nsec);
+   fd->atime.SetUnixNS(st.st_atim.tv_sec*(uint64)1000000000+st.st_atim.tv_nsec);
+   fd->ctime.SetUnixNS(st.st_ctim.tv_sec*(uint64)1000000000+st.st_ctim.tv_nsec);
+-#else
++#endif
++  #else
+   fd->mtime.SetUnix(st.st_mtime);
+   fd->atime.SetUnix(st.st_atime);
+   fd->ctime.SetUnix(st.st_ctime);

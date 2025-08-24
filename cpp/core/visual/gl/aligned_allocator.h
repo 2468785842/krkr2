@@ -3,7 +3,7 @@
 #ifndef __ALIGNED_ALLOCATOR_H__
 #define __ALIGNED_ALLOCATOR_H__
 
-#include <malloc.h> // _aligned_malloc and _aligned_free
+#include <cstdlib> // _aligned_malloc and _aligned_free
 #include <memory> // std::allocator
 
 #if defined(_M_IX86) || defined(_M_X64)

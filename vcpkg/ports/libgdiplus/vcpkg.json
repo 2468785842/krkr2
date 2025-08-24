@@ -1,7 +1,7 @@
 {
   "name": "libgdiplus",
   "version-string": "5.6.1",
-  "port-version": 3,
+  "port-version": 4,
   "description": "Libgdiplus is the Mono library that provides a GDI+-compatible API on non-Windows operating systems. Our implementation uses Cairo to do most of the heavy lifting.",
   "homepage": "https://www.mono-project.com/docs/gui/libgdiplus/",
   "license": null,

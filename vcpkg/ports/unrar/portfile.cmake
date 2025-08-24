@@ -9,6 +9,8 @@ vcpkg_extract_source_archive(
     SOURCE_PATH
     ARCHIVE "${archive}"
     SOURCE_BASE unrarsrc-${VERSION}
+    PATCHES
+        0001-fix-mac.patch
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt" DESTINATION "${SOURCE_PATH}")
