@@ -300,8 +300,7 @@ static void TVPCreateTable() {
     TVPPsMakeTable();
 }
 
-static void TVPDestroyTable() { /* nothing to do ... */
-}
+static void TVPDestroyTable() { /* nothing to do ... */ }
 
 /*export*/
 TVP_GL_FUNC_DECL(void, TVPAlphaBlend_c,
@@ -9009,7 +9008,9 @@ TVP_GL_FUNC_DECL(void, TVPCopyMask_c,
         }
 
         while(len >= 0) {
-            { dest[len] = (dest[len] & 0xffffff) + (src[len] & 0xff000000); }
+            {
+                dest[len] = (dest[len] & 0xffffff) + (src[len] & 0xff000000);
+            }
             len--;
         }
     } else {
@@ -9111,7 +9112,9 @@ TVP_GL_FUNC_DECL(void, TVPCopyColor_c,
         }
 
         while(len >= 0) {
-            { dest[len] = (dest[len] & 0xff000000) + (src[len] & 0x00ffffff); }
+            {
+                dest[len] = (dest[len] & 0xff000000) + (src[len] & 0x00ffffff);
+            }
             len--;
         }
     } else {
@@ -9232,21 +9235,39 @@ TVP_GL_FUNC_DECL(void, TVPFillARGB_c,
         len -= (8 - 1);
 
         while(___index < len) {
-            { dest[(___index + 0)] = value; }
-            { dest[(___index + 1)] = value; }
-            { dest[(___index + 2)] = value; }
-            { dest[(___index + 3)] = value; }
-            { dest[(___index + 4)] = value; }
-            { dest[(___index + 5)] = value; }
-            { dest[(___index + 6)] = value; }
-            { dest[(___index + 7)] = value; }
+            {
+                dest[(___index + 0)] = value;
+            }
+            {
+                dest[(___index + 1)] = value;
+            }
+            {
+                dest[(___index + 2)] = value;
+            }
+            {
+                dest[(___index + 3)] = value;
+            }
+            {
+                dest[(___index + 4)] = value;
+            }
+            {
+                dest[(___index + 5)] = value;
+            }
+            {
+                dest[(___index + 6)] = value;
+            }
+            {
+                dest[(___index + 7)] = value;
+            }
             ___index += 8;
         }
 
         len += (8 - 1);
 
         while(___index < len) {
-            { dest[___index] = value; }
+            {
+                dest[___index] = value;
+            }
             ___index++;
         }
     }
@@ -9263,21 +9284,39 @@ TVP_GL_FUNC_DECL(void, TVPFillARGB_NC_c,
         len -= (8 - 1);
 
         while(___index < len) {
-            { dest[(___index + 0)] = value; }
-            { dest[(___index + 1)] = value; }
-            { dest[(___index + 2)] = value; }
-            { dest[(___index + 3)] = value; }
-            { dest[(___index + 4)] = value; }
-            { dest[(___index + 5)] = value; }
-            { dest[(___index + 6)] = value; }
-            { dest[(___index + 7)] = value; }
+            {
+                dest[(___index + 0)] = value;
+            }
+            {
+                dest[(___index + 1)] = value;
+            }
+            {
+                dest[(___index + 2)] = value;
+            }
+            {
+                dest[(___index + 3)] = value;
+            }
+            {
+                dest[(___index + 4)] = value;
+            }
+            {
+                dest[(___index + 5)] = value;
+            }
+            {
+                dest[(___index + 6)] = value;
+            }
+            {
+                dest[(___index + 7)] = value;
+            }
             ___index += 8;
         }
 
         len += (8 - 1);
 
         while(___index < len) {
-            { dest[___index] = value; }
+            {
+                dest[___index] = value;
+            }
             ___index++;
         }
     }
@@ -9419,7 +9458,7 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum16_c,
                 tjs_uint32 add, sub;
                 add = addline[(___index + 0)];
                 sub = subline[(___index + 0)];
-                dest[(___index + 0) * 4 + 0] += ((add)&0xff) - ((sub)&0xff);
+                dest[(___index + 0) * 4 + 0] += ((add) & 0xff) - ((sub) & 0xff);
                 dest[(___index + 0) * 4 + 1] +=
                     ((add >> 8) & 0xff) - ((sub >> 8) & 0xff);
                 dest[(___index + 0) * 4 + 2] +=
@@ -9430,7 +9469,7 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum16_c,
                 tjs_uint32 add, sub;
                 add = addline[(___index + 1)];
                 sub = subline[(___index + 1)];
-                dest[(___index + 1) * 4 + 0] += ((add)&0xff) - ((sub)&0xff);
+                dest[(___index + 1) * 4 + 0] += ((add) & 0xff) - ((sub) & 0xff);
                 dest[(___index + 1) * 4 + 1] +=
                     ((add >> 8) & 0xff) - ((sub >> 8) & 0xff);
                 dest[(___index + 1) * 4 + 2] +=
@@ -9441,7 +9480,7 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum16_c,
                 tjs_uint32 add, sub;
                 add = addline[(___index + 2)];
                 sub = subline[(___index + 2)];
-                dest[(___index + 2) * 4 + 0] += ((add)&0xff) - ((sub)&0xff);
+                dest[(___index + 2) * 4 + 0] += ((add) & 0xff) - ((sub) & 0xff);
                 dest[(___index + 2) * 4 + 1] +=
                     ((add >> 8) & 0xff) - ((sub >> 8) & 0xff);
                 dest[(___index + 2) * 4 + 2] +=
@@ -9452,7 +9491,7 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum16_c,
                 tjs_uint32 add, sub;
                 add = addline[(___index + 3)];
                 sub = subline[(___index + 3)];
-                dest[(___index + 3) * 4 + 0] += ((add)&0xff) - ((sub)&0xff);
+                dest[(___index + 3) * 4 + 0] += ((add) & 0xff) - ((sub) & 0xff);
                 dest[(___index + 3) * 4 + 1] +=
                     ((add >> 8) & 0xff) - ((sub >> 8) & 0xff);
                 dest[(___index + 3) * 4 + 2] +=
@@ -9469,7 +9508,7 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum16_c,
                 tjs_uint32 add, sub;
                 add = addline[___index];
                 sub = subline[___index];
-                dest[___index * 4 + 0] += ((add)&0xff) - ((sub)&0xff);
+                dest[___index * 4 + 0] += ((add) & 0xff) - ((sub) & 0xff);
                 dest[___index * 4 + 1] +=
                     ((add >> 8) & 0xff) - ((sub >> 8) & 0xff);
                 dest[___index * 4 + 2] +=
@@ -9499,8 +9538,8 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum16_d_c,
                     (add_a = (add >> 24)) - (sub_a = (sub >> 24));
                 add_a += add_a >> 7;
                 sub_a += sub_a >> 7;
-                dest[(___index + 0) * 4 + 0] +=
-                    (((add)&0xff) * add_a >> 8) - (((sub)&0xff) * sub_a >> 8);
+                dest[(___index + 0) * 4 + 0] += (((add) & 0xff) * add_a >> 8) -
+                    (((sub) & 0xff) * sub_a >> 8);
                 dest[(___index + 0) * 4 + 1] +=
                     (((add >> 8) & 0xff) * add_a >> 8) -
                     (((sub >> 8) & 0xff) * sub_a >> 8);
@@ -9517,8 +9556,8 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum16_d_c,
                     (add_a = (add >> 24)) - (sub_a = (sub >> 24));
                 add_a += add_a >> 7;
                 sub_a += sub_a >> 7;
-                dest[(___index + 1) * 4 + 0] +=
-                    (((add)&0xff) * add_a >> 8) - (((sub)&0xff) * sub_a >> 8);
+                dest[(___index + 1) * 4 + 0] += (((add) & 0xff) * add_a >> 8) -
+                    (((sub) & 0xff) * sub_a >> 8);
                 dest[(___index + 1) * 4 + 1] +=
                     (((add >> 8) & 0xff) * add_a >> 8) -
                     (((sub >> 8) & 0xff) * sub_a >> 8);
@@ -9535,8 +9574,8 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum16_d_c,
                     (add_a = (add >> 24)) - (sub_a = (sub >> 24));
                 add_a += add_a >> 7;
                 sub_a += sub_a >> 7;
-                dest[(___index + 2) * 4 + 0] +=
-                    (((add)&0xff) * add_a >> 8) - (((sub)&0xff) * sub_a >> 8);
+                dest[(___index + 2) * 4 + 0] += (((add) & 0xff) * add_a >> 8) -
+                    (((sub) & 0xff) * sub_a >> 8);
                 dest[(___index + 2) * 4 + 1] +=
                     (((add >> 8) & 0xff) * add_a >> 8) -
                     (((sub >> 8) & 0xff) * sub_a >> 8);
@@ -9553,8 +9592,8 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum16_d_c,
                     (add_a = (add >> 24)) - (sub_a = (sub >> 24));
                 add_a += add_a >> 7;
                 sub_a += sub_a >> 7;
-                dest[(___index + 3) * 4 + 0] +=
-                    (((add)&0xff) * add_a >> 8) - (((sub)&0xff) * sub_a >> 8);
+                dest[(___index + 3) * 4 + 0] += (((add) & 0xff) * add_a >> 8) -
+                    (((sub) & 0xff) * sub_a >> 8);
                 dest[(___index + 3) * 4 + 1] +=
                     (((add >> 8) & 0xff) * add_a >> 8) -
                     (((sub >> 8) & 0xff) * sub_a >> 8);
@@ -9577,8 +9616,8 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum16_d_c,
                     (add_a = (add >> 24)) - (sub_a = (sub >> 24));
                 add_a += add_a >> 7;
                 sub_a += sub_a >> 7;
-                dest[___index * 4 + 0] +=
-                    (((add)&0xff) * add_a >> 8) - (((sub)&0xff) * sub_a >> 8);
+                dest[___index * 4 + 0] += (((add) & 0xff) * add_a >> 8) -
+                    (((sub) & 0xff) * sub_a >> 8);
                 dest[___index * 4 + 1] += (((add >> 8) & 0xff) * add_a >> 8) -
                     (((sub >> 8) & 0xff) * sub_a >> 8);
                 dest[___index * 4 + 2] += (((add >> 16) & 0xff) * add_a >> 8) -
@@ -9602,7 +9641,7 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum32_c,
                 tjs_uint32 add, sub;
                 add = addline[(___index + 0)];
                 sub = subline[(___index + 0)];
-                dest[(___index + 0) * 4 + 0] += ((add)&0xff) - ((sub)&0xff);
+                dest[(___index + 0) * 4 + 0] += ((add) & 0xff) - ((sub) & 0xff);
                 dest[(___index + 0) * 4 + 1] +=
                     ((add >> 8) & 0xff) - ((sub >> 8) & 0xff);
                 dest[(___index + 0) * 4 + 2] +=
@@ -9613,7 +9652,7 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum32_c,
                 tjs_uint32 add, sub;
                 add = addline[(___index + 1)];
                 sub = subline[(___index + 1)];
-                dest[(___index + 1) * 4 + 0] += ((add)&0xff) - ((sub)&0xff);
+                dest[(___index + 1) * 4 + 0] += ((add) & 0xff) - ((sub) & 0xff);
                 dest[(___index + 1) * 4 + 1] +=
                     ((add >> 8) & 0xff) - ((sub >> 8) & 0xff);
                 dest[(___index + 1) * 4 + 2] +=
@@ -9624,7 +9663,7 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum32_c,
                 tjs_uint32 add, sub;
                 add = addline[(___index + 2)];
                 sub = subline[(___index + 2)];
-                dest[(___index + 2) * 4 + 0] += ((add)&0xff) - ((sub)&0xff);
+                dest[(___index + 2) * 4 + 0] += ((add) & 0xff) - ((sub) & 0xff);
                 dest[(___index + 2) * 4 + 1] +=
                     ((add >> 8) & 0xff) - ((sub >> 8) & 0xff);
                 dest[(___index + 2) * 4 + 2] +=
@@ -9635,7 +9674,7 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum32_c,
                 tjs_uint32 add, sub;
                 add = addline[(___index + 3)];
                 sub = subline[(___index + 3)];
-                dest[(___index + 3) * 4 + 0] += ((add)&0xff) - ((sub)&0xff);
+                dest[(___index + 3) * 4 + 0] += ((add) & 0xff) - ((sub) & 0xff);
                 dest[(___index + 3) * 4 + 1] +=
                     ((add >> 8) & 0xff) - ((sub >> 8) & 0xff);
                 dest[(___index + 3) * 4 + 2] +=
@@ -9652,7 +9691,7 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum32_c,
                 tjs_uint32 add, sub;
                 add = addline[___index];
                 sub = subline[___index];
-                dest[___index * 4 + 0] += ((add)&0xff) - ((sub)&0xff);
+                dest[___index * 4 + 0] += ((add) & 0xff) - ((sub) & 0xff);
                 dest[___index * 4 + 1] +=
                     ((add >> 8) & 0xff) - ((sub >> 8) & 0xff);
                 dest[___index * 4 + 2] +=
@@ -9682,8 +9721,8 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum32_d_c,
                     (add_a = (add >> 24)) - (sub_a = (sub >> 24));
                 add_a += add_a >> 7;
                 sub_a += sub_a >> 7;
-                dest[(___index + 0) * 4 + 0] +=
-                    (((add)&0xff) * add_a >> 8) - (((sub)&0xff) * sub_a >> 8);
+                dest[(___index + 0) * 4 + 0] += (((add) & 0xff) * add_a >> 8) -
+                    (((sub) & 0xff) * sub_a >> 8);
                 dest[(___index + 0) * 4 + 1] +=
                     (((add >> 8) & 0xff) * add_a >> 8) -
                     (((sub >> 8) & 0xff) * sub_a >> 8);
@@ -9700,8 +9739,8 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum32_d_c,
                     (add_a = (add >> 24)) - (sub_a = (sub >> 24));
                 add_a += add_a >> 7;
                 sub_a += sub_a >> 7;
-                dest[(___index + 1) * 4 + 0] +=
-                    (((add)&0xff) * add_a >> 8) - (((sub)&0xff) * sub_a >> 8);
+                dest[(___index + 1) * 4 + 0] += (((add) & 0xff) * add_a >> 8) -
+                    (((sub) & 0xff) * sub_a >> 8);
                 dest[(___index + 1) * 4 + 1] +=
                     (((add >> 8) & 0xff) * add_a >> 8) -
                     (((sub >> 8) & 0xff) * sub_a >> 8);
@@ -9718,8 +9757,8 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum32_d_c,
                     (add_a = (add >> 24)) - (sub_a = (sub >> 24));
                 add_a += add_a >> 7;
                 sub_a += sub_a >> 7;
-                dest[(___index + 2) * 4 + 0] +=
-                    (((add)&0xff) * add_a >> 8) - (((sub)&0xff) * sub_a >> 8);
+                dest[(___index + 2) * 4 + 0] += (((add) & 0xff) * add_a >> 8) -
+                    (((sub) & 0xff) * sub_a >> 8);
                 dest[(___index + 2) * 4 + 1] +=
                     (((add >> 8) & 0xff) * add_a >> 8) -
                     (((sub >> 8) & 0xff) * sub_a >> 8);
@@ -9736,8 +9775,8 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum32_d_c,
                     (add_a = (add >> 24)) - (sub_a = (sub >> 24));
                 add_a += add_a >> 7;
                 sub_a += sub_a >> 7;
-                dest[(___index + 3) * 4 + 0] +=
-                    (((add)&0xff) * add_a >> 8) - (((sub)&0xff) * sub_a >> 8);
+                dest[(___index + 3) * 4 + 0] += (((add) & 0xff) * add_a >> 8) -
+                    (((sub) & 0xff) * sub_a >> 8);
                 dest[(___index + 3) * 4 + 1] +=
                     (((add >> 8) & 0xff) * add_a >> 8) -
                     (((sub >> 8) & 0xff) * sub_a >> 8);
@@ -9760,8 +9799,8 @@ TVP_GL_FUNC_DECL(void, TVPAddSubVertSum32_d_c,
                     (add_a = (add >> 24)) - (sub_a = (sub >> 24));
                 add_a += add_a >> 7;
                 sub_a += sub_a >> 7;
-                dest[___index * 4 + 0] +=
-                    (((add)&0xff) * add_a >> 8) - (((sub)&0xff) * sub_a >> 8);
+                dest[___index * 4 + 0] += (((add) & 0xff) * add_a >> 8) -
+                    (((sub) & 0xff) * sub_a >> 8);
                 dest[___index * 4 + 1] += (((add >> 8) & 0xff) * add_a >> 8) -
                     (((sub >> 8) & 0xff) * sub_a >> 8);
                 dest[___index * 4 + 2] += (((add >> 16) & 0xff) * add_a >> 8) -
@@ -10418,8 +10457,7 @@ TVP_GL_FUNC_DECL(void, TVPInitGammaAdjustTempData_c,
 
 /*export*/
 TVP_GL_FUNC_DECL(void, TVPUninitGammaAdjustTempData_c,
-                 (tTVPGLGammaAdjustTempData * temp)) { /* nothing to do */
-}
+                 (tTVPGLGammaAdjustTempData * temp)) { /* nothing to do */ }
 /*export*/
 TVP_GL_FUNC_DECL(void, TVPAdjustGamma_c,
                  (tjs_uint32 * dest, tjs_int len,
@@ -10926,17 +10964,27 @@ TVP_GL_FUNC_DECL(void, TVPBLExpand8BitTo8BitPal_c,
         len -= (4 - 1);
 
         while(___index < len) {
-            { dest[(___index + 0)] = pal[buf[(___index + 0)]] & 0xff; }
-            { dest[(___index + 1)] = pal[buf[(___index + 1)]] & 0xff; }
-            { dest[(___index + 2)] = pal[buf[(___index + 2)]] & 0xff; }
-            { dest[(___index + 3)] = pal[buf[(___index + 3)]] & 0xff; }
+            {
+                dest[(___index + 0)] = pal[buf[(___index + 0)]] & 0xff;
+            }
+            {
+                dest[(___index + 1)] = pal[buf[(___index + 1)]] & 0xff;
+            }
+            {
+                dest[(___index + 2)] = pal[buf[(___index + 2)]] & 0xff;
+            }
+            {
+                dest[(___index + 3)] = pal[buf[(___index + 3)]] & 0xff;
+            }
             ___index += 4;
         }
 
         len += (4 - 1);
 
         while(___index < len) {
-            { dest[___index] = pal[buf[___index]] & 0xff; }
+            {
+                dest[___index] = pal[buf[___index]] & 0xff;
+            }
             ___index++;
         }
     }
@@ -10951,21 +10999,39 @@ TVP_GL_FUNC_DECL(void, TVPBLExpand8BitTo32BitPal_c,
         len -= (8 - 1);
 
         while(___index < len) {
-            { dest[(___index + 0)] = pal[buf[(___index + 0)]]; }
-            { dest[(___index + 1)] = pal[buf[(___index + 1)]]; }
-            { dest[(___index + 2)] = pal[buf[(___index + 2)]]; }
-            { dest[(___index + 3)] = pal[buf[(___index + 3)]]; }
-            { dest[(___index + 4)] = pal[buf[(___index + 4)]]; }
-            { dest[(___index + 5)] = pal[buf[(___index + 5)]]; }
-            { dest[(___index + 6)] = pal[buf[(___index + 6)]]; }
-            { dest[(___index + 7)] = pal[buf[(___index + 7)]]; }
+            {
+                dest[(___index + 0)] = pal[buf[(___index + 0)]];
+            }
+            {
+                dest[(___index + 1)] = pal[buf[(___index + 1)]];
+            }
+            {
+                dest[(___index + 2)] = pal[buf[(___index + 2)]];
+            }
+            {
+                dest[(___index + 3)] = pal[buf[(___index + 3)]];
+            }
+            {
+                dest[(___index + 4)] = pal[buf[(___index + 4)]];
+            }
+            {
+                dest[(___index + 5)] = pal[buf[(___index + 5)]];
+            }
+            {
+                dest[(___index + 6)] = pal[buf[(___index + 6)]];
+            }
+            {
+                dest[(___index + 7)] = pal[buf[(___index + 7)]];
+            }
             ___index += 8;
         }
 
         len += (8 - 1);
 
         while(___index < len) {
-            { dest[___index] = pal[buf[___index]]; }
+            {
+                dest[___index] = pal[buf[___index]];
+            }
             ___index++;
         }
     }
@@ -11180,7 +11246,7 @@ TVP_GL_FUNC_DECL(void, TVPBLConvert15BitTo32Bit_c,
 
 #define compose_grayscale(r, g, b)                                             \
     ((unsigned char)((                                                         \
-        ((tjs_int)(b)*19 + (tjs_int)(g)*183 + (tjs_int)(r)*54) >> 8)))
+        ((tjs_int)(b) * 19 + (tjs_int)(g) * 183 + (tjs_int)(r) * 54) >> 8)))
 /*export*/
 TVP_GL_FUNC_DECL(void, TVPBLConvert24BitTo8Bit_c,
                  (tjs_uint8 * dest, const tjs_uint8 *buf, tjs_int len)) {
@@ -12468,8 +12534,7 @@ unsigned char TVPPsTableOverlay[256][256];
     s = ((((s & 0x00ff00ff) * a) >> 8) & 0x00ff00ff) |                         \
         ((((s & 0x0000ff00) * a) >> 8) & 0x0000ff00);
 
-#define TVPPsOperationAlphaBlend                                               \
-    { TVPPS_ALPHABLEND }
+#define TVPPsOperationAlphaBlend { TVPPS_ALPHABLEND }
 #if 0 /* Fade src BEFORE add/sub */
 #define TVPPsOperationAddBlend                                                 \
     {                                                                          \

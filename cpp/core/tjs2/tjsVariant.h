@@ -138,7 +138,9 @@ namespace TJS {
         //-----------------------------------------------------
 
 #define tTJSVariant_BITCOPY(a, b)                                              \
-    { *(tTJSVariant_S *)&(a) = *(tTJSVariant_S *)&(b); }
+    {                                                                          \
+        *(tTJSVariant_S *)&(a) = *(tTJSVariant_S *)&(b);                       \
+    }
 
         union {
             tTJSVariantClosure_S Object;

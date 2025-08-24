@@ -172,7 +172,8 @@ namespace Csd {
         root->setContentSize(rootSize);
 
         // filename label
-        const auto filename = Text::create("", "DroidSansFallback.ttf", rootSize.height);
+        const auto filename =
+            Text::create("", "DroidSansFallback.ttf", rootSize.height);
         filename->setName("filename");
         filename->setContentSize(filenameSize);
         filename->setSwallowTouches(false);

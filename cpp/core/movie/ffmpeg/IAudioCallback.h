@@ -5,9 +5,9 @@
 NS_KRMOVIE_BEGIN
 class IAudioCallback {
 public:
-    IAudioCallback(){};
+    IAudioCallback() {};
 
-    virtual ~IAudioCallback(){};
+    virtual ~IAudioCallback() {};
 
     virtual void OnInitialize(int iChannels, int iSamplesPerSec,
                               int iBitsPerSample) = 0;

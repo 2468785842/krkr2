@@ -54,7 +54,7 @@
 #error "Not supported System."
 #endif
 
-#if(defined(__SSE__) && defined(__GNUC__)) || defined(_MSC_VER)
+#if (defined(__SSE__) && defined(__GNUC__)) || defined(_MSC_VER)
 
 /* We need type definitions from the XMM header file.  */
 #include <xmmintrin.h>

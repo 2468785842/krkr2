@@ -580,8 +580,7 @@ ttstr TVPLocalExtractFilePath(const ttstr &name) {
 tTVPLocalFileStream::tTVPLocalFileStream(const ttstr &origname,
                                          const ttstr &localname,
                                          tjs_uint32 flag) :
-    MemBuffer(nullptr),
-    FileName(localname), Handle(-1) {
+    MemBuffer(nullptr), FileName(localname), Handle(-1) {
     tjs_uint32 access = flag & TJS_BS_ACCESS_MASK;
     if(access == TJS_BS_WRITE) {
         if(TVPCheckExistentLocalFile(localname)) {
@@ -1199,8 +1198,7 @@ void TVPReleaseCachedArchiveHandle(void *pointer, tTJSBinaryStream *stream);
 
 TArchiveStream::TArchiveStream(tTVPArchive *owner, tjs_uint64 off,
                                tjs_uint64 len) :
-    Owner(owner),
-    StartPos(off), DataLength(len) {
+    Owner(owner), StartPos(off), DataLength(len) {
     Owner->AddRef();
     _instr = TVPGetCachedArchiveHandle(Owner, Owner->ArchiveName);
     CurrentPos = 0;

@@ -11,8 +11,7 @@ tTVPCharacterData::tTVPCharacterData(const tjs_uint8 *indata, tjs_int inpitch,
                                      tjs_uint blackboxw, tjs_uint blackboxh,
                                      const tGlyphMetrics &metrics,
                                      bool fullcolor) :
-    Antialiased(false),
-    Blured(false) {
+    Antialiased(false), Blured(false) {
 
     // フィールドのクリア
     RefCount = 1; // 参照カウンタの初期値は 1

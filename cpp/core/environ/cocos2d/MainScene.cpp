@@ -2449,8 +2449,8 @@ bool TVPMainScene::attachWithIME() {
         // open keyboard
         auto pGlView = Director::getInstance()->getOpenGLView();
         if(pGlView) {
-#if(CC_TARGET_PLATFORM != CC_PLATFORM_WP8 &&                                   \
-    CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_WP8 &&                                  \
+     CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
             pGlView->setIMEKeyboardState(true);
 #else
             pGlView->setIMEKeyboardState(true, "");
@@ -2466,8 +2466,8 @@ bool TVPMainScene::detachWithIME() {
         // close keyboard
         auto glView = Director::getInstance()->getOpenGLView();
         if(glView) {
-#if(CC_TARGET_PLATFORM != CC_PLATFORM_WP8 &&                                   \
-    CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_WP8 &&                                  \
+     CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
             glView->setIMEKeyboardState(false);
 #else
             glView->setIMEKeyboardState(false, "");

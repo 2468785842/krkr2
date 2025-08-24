@@ -867,7 +867,7 @@ void TVPListForm::initFromInfo(
 
 void TVPListForm::show() {
     TVPMainScene::setMaskLayTouchBegain(
-        [this](cocos2d::Touch * t, cocos2d::Event * e) {
+        [this](cocos2d::Touch *t, cocos2d::Event *e) {
             return onMaskTouchBegan(t, e);
         });
     TVPMainScene::GetInstance()->pushUIForm(this,
@@ -1023,9 +1023,7 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::init(
     }
     auto *highLight = _root->getChildByName<Button *>("highlight");
     if(highLight) {
-        highLight->addClickEventListener([this](Ref* ref) {
-            onClicked(ref);
-        });
+        highLight->addClickEventListener([this](Ref *ref) { onClicked(ref); });
         highLight->addTouchEventListener(
             [this](Ref *p, Widget::TouchEventType ev) {
                 auto sender = dynamic_cast<Widget *>(p);
@@ -1084,7 +1082,8 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::setInfo(int idx,
         BgEven->setVisible(idx & 1);
 }
 
-void TVPBaseFileSelectorForm::FileItemCellImpl::onClicked(cocos2d::Ref *p) const {
+void TVPBaseFileSelectorForm::FileItemCellImpl::onClicked(
+    cocos2d::Ref *p) const {
     auto *sender = dynamic_cast<Widget *>(p);
     if(sender->isScheduled(str_long_press)) {
         sender->unschedule(str_long_press);

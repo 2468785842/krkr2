@@ -47,7 +47,7 @@ struct tTVPRect {
         left = l, top = t, right = r, bottom = b;
     }
 
-    tTVPRect(){};
+    tTVPRect() {};
 
     union {
         struct {

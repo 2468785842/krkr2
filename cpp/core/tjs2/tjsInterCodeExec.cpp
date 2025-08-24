@@ -201,7 +201,7 @@ namespace TJS {
         //	tjs_uint RefCount;
 
     public:
-        tTJSObjectProxy(){
+        tTJSObjectProxy() {
             //		RefCount = 1;
             //		Dispatch1 = nullptr;
             //		Dispatch2 = nullptr;

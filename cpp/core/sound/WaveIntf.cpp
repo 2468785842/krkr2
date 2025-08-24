@@ -795,9 +795,9 @@ public:
 
     virtual void Clear() { Source = nullptr; }
 
-    virtual void Update(){};
+    virtual void Update() {};
 
-    virtual void Reset(){};
+    virtual void Reset() {};
 
     virtual const tTVPWaveFormat &GetFormat() const { return OutputFormat; }
 };
@@ -1737,7 +1737,7 @@ TJS_END_NATIVE_PROP_DECL(count)
             _this->GetBuffer()->GetWaveLoopManager(); /* note that the manager \
                                                          can be nullptr */     \
         if(manager)                                                            \
-            manager->SetFlag(N, (tjs_int)*param);                              \
+            manager->SetFlag(N, (tjs_int) * param);                            \
         return TJS_S_OK;                                                       \
     }                                                                          \
     TJS_END_NATIVE_PROP_SETTER                                                 \

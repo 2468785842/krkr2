@@ -4,10 +4,10 @@
 class XKPageView;
 class XKPageViewDelegate {
 public:
-    virtual ~XKPageViewDelegate(){};
-    XKPageViewDelegate(){};
+    virtual ~XKPageViewDelegate() {};
+    XKPageViewDelegate() {};
     virtual cocos2d::Size sizeForPerPage() = 0;
-    virtual void pageViewDidScroll(XKPageView *pageView){};
+    virtual void pageViewDidScroll(XKPageView *pageView) {};
 };
 
 class XKPageView : public cocos2d::extension::ScrollView {
