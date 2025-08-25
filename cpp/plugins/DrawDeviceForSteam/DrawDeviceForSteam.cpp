@@ -347,6 +347,7 @@ tjs_error  DestroyDrawDeviceForSteam(
         TVPMainWindow->DrawDevice = p->GetReal(); // 你壳里留个 getter 就行
     }
     delete p;
+    return TJS_S_OK;
 }
 
 class tTJSNI_DrawDeviceForSteam : public tTJSNativeInstance
