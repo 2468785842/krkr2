@@ -6,6 +6,9 @@
 #include "ncbind.hpp"
 #include "LayerExDraw.hpp"
 
+using namespace layerex;
+using namespace libgdiplus;
+
 static u_char *G_FontFamilyData{};
 static ssize_t G_FontFamilyDataSize{};
 
@@ -268,7 +271,7 @@ bool loadFontFromAssets(FT_Library library, FT_Face *face) {
  * @param emSize フォントのサイズ
  * @param style フォントスタイル
  */
-FontInfo::FontInfo(const tjs_char *fName, REAL emSize, INT style) {
+layerex::FontInfo::FontInfo(const tjs_char *fName, REAL emSize, INT style) {
     setFamilyName(fName);
     setEmSize(emSize);
     setStyle(style);
@@ -277,7 +280,7 @@ FontInfo::FontInfo(const tjs_char *fName, REAL emSize, INT style) {
 /**
  * コピーコンストラクタ
  */
-FontInfo::FontInfo(const FontInfo &orig) {
+layerex::FontInfo::FontInfo(const FontInfo &orig) {
     //    this->fontFamily = nullptr;
     //    if (orig.fontFamily) {
     //        GdipCloneFontFamily(orig.fontFamily, &this->fontFamily);
@@ -300,12 +303,12 @@ FontInfo::FontInfo(const FontInfo &orig) {
 /**
  * デストラクタ
  */
-FontInfo::~FontInfo() { clear(); }
+layerex::FontInfo::~FontInfo() { clear(); }
 
 /**
  * フォント情報のクリア
  */
-void FontInfo::clear() {
+void layerex::FontInfo::clear() {
     //    GdipDeleteFontFamily(this->fontFamily);
     FT_Done_Face(this->ftFace);
     this->ftFace = nullptr;
@@ -318,7 +321,7 @@ void FontInfo::clear() {
 /**
  * フォントの指定
  */
-void FontInfo::setFamilyName(const tjs_char *fName) {
+void layerex::FontInfo::setFamilyName(const tjs_char *fName) {
     // HOOK familyFont
     propertyModified = true;
 
@@ -375,15 +378,15 @@ void FontInfo::setFamilyName(const tjs_char *fName) {
     FT_Set_Char_Size(this->ftFace, 0, emSize * 64, dpi, dpi);
 }
 
-void FontInfo::setForceSelfPathDraw(bool state) { forceSelfPathDraw = state; }
+void layerex::FontInfo::setForceSelfPathDraw(bool state) { forceSelfPathDraw = state; }
 
-bool FontInfo::getForceSelfPathDraw() const { return forceSelfPathDraw; }
+bool layerex::FontInfo::getForceSelfPathDraw() const { return forceSelfPathDraw; }
 
-bool FontInfo::getSelfPathDraw() const {
+bool layerex::FontInfo::getSelfPathDraw() const {
     return forceSelfPathDraw || gdiPlusUnsupportedFont;
 }
 
-void FontInfo::updateSizeParams() const {
+void layerex::FontInfo::updateSizeParams() const {
     if(!propertyModified)
         return;
 
@@ -409,27 +412,27 @@ void FontInfo::updateSizeParams() const {
     descentLeading = -ascentLeading;
 }
 
-REAL FontInfo::getAscent() const {
+REAL layerex::FontInfo::getAscent() const {
     this->updateSizeParams();
     return ascent;
 }
 
-REAL FontInfo::getDescent() const {
+REAL layerex::FontInfo::getDescent() const {
     this->updateSizeParams();
     return descent;
 }
 
-REAL FontInfo::getAscentLeading() const {
+REAL layerex::FontInfo::getAscentLeading() const {
     this->updateSizeParams();
     return ascentLeading;
 }
 
-REAL FontInfo::getDescentLeading() const {
+REAL layerex::FontInfo::getDescentLeading() const {
     this->updateSizeParams();
     return descentLeading;
 }
 
-REAL FontInfo::getLineSpacing() const {
+REAL layerex::FontInfo::getLineSpacing() const {
     this->updateSizeParams();
     return lineSpacing;
 }
@@ -624,7 +627,7 @@ void commonBrushParameter(ncbPropAccessor &info, T *brush) {
     }
     // SetGammaCorrection
     if(info.checkVariant(TJS_W("useGammaCorrection"), var)) {
-        brush->SetGammaCorrection((BOOL)var);
+        brush->SetGammaCorrection((libgdiplus::BOOL)var);
     }
     // SetInterpolationColors
     if(info.checkVariant(TJS_W("interpolationColors"), var)) {
@@ -918,7 +921,7 @@ bool Appearance::getLineCap(tTJSVariant &in, GpLineCap &cap,
                 width = (REAL)(tjs_real)var;
             if(info.checkVariant(TJS_W("height"), var))
                 height = (REAL)(tjs_real)var;
-            BOOL filled = info.getIntValue(TJS_W("filled"), 1);
+            libgdiplus::BOOL filled = info.getIntValue(TJS_W("filled"), 1);
             GpAdjustableArrowCap *arrow{};
             GdipCreateAdjustableArrowCap(height, width, filled, &arrow);
             if(info.checkVariant(TJS_W("middleInset"), var))
@@ -992,7 +995,7 @@ void LayerExDraw::reset() {
         clipWidth = _clipWidth;
         clipHeight = _clipHeight;
         GpRegion *clip{};
-        Rect r{ clipLeft, clipTop, clipWidth, clipHeight };
+        GpRect r{ clipLeft, clipTop, clipWidth, clipHeight };
         GdipCreateRegionRectI(&r, &clip);
         GdipSetClipRegion(this->graphics, clip, CombineModeReplace);
         GdipDeleteRegion(clip);
@@ -2374,7 +2377,7 @@ public:
         long value{};
 
         EncoderInfo(const char *name, GUID guid, long value) :
-            name(name), guid(guid), value(value){};
+            name(name), guid(guid), value(value) {};
 
         EncoderInfo() = default;
     } infos[7];
@@ -2506,7 +2509,7 @@ tTJSVariant LayerExDraw::getColorRegionRects(ARGB color) {
                     int x0 = i++;
                     while(i < width && getColor(bitmap, i, j) == color)
                         i++;
-                    Rect r{ x0, j, i - x0, 1 };
+                    GpRect r{ x0, j, i - x0, 1 };
                     GdipCombineRegionRectI(region, &r, CombineModeReplace);
                 }
             }

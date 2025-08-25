@@ -69,7 +69,7 @@ cocos2d::ui::Widget *
 TVPInGameMenuForm::createMenuItem(int idx, tTJSNI_MenuItem *item,
                                   const std::string &caption) {
     iPreferenceItem *ret = nullptr;
-    const Size &size = _list->getContentSize();
+    const cocos2d::Size &size = _list->getContentSize();
     if(!item->GetChildren().empty()) {
         ret = CreatePreferenceItem<tPreferenceItemSubDir>(idx, size, caption);
         ret->addClickEventListener([=](Ref *) {
@@ -98,7 +98,7 @@ TVPInGameMenuForm::createMenuItem(int idx, tTJSNI_MenuItem *item,
         CSBReader reader;
         Widget *root =
             static_cast<Widget *>(reader.Load("ui/comctrl/SeperateItem.csb"));
-        Size rootsize = root->getContentSize();
+        cocos2d::Size rootsize = root->getContentSize();
         rootsize.width = size.width;
         root->setContentSize(rootsize);
         ui::Helper::doLayout(root);

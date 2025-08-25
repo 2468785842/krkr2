@@ -136,10 +136,6 @@ if(LINUX)
     install_ext_lib("linux-specific/fmod")
 endif()
 
-if(WINDOWS OR MACOSX OR LINUX)
-    install_ext_lib(glfw3)
-endif()
-
 if (WINDOWS)
     install_ext_lib(win32-specific/MP3Decoder)
     install_ext_lib(win32-specific/OggDecoder)

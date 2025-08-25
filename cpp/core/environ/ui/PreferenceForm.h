@@ -12,8 +12,7 @@ struct tPreferenceScreen {
     tPreferenceScreen() {}
     tPreferenceScreen(const std::string &title,
                       const std::initializer_list<iTVPPreferenceInfo *> &elem) :
-        Title(title),
-        Preferences(elem) {}
+        Title(title), Preferences(elem) {}
     ~tPreferenceScreen() { clear(); }
     void clear();
     void init(const std::initializer_list<iTVPPreferenceInfo *> &elem) {
@@ -45,8 +44,7 @@ struct tTVPPreferenceInfo : public iTVPPreferenceInfo {
 public:
     tTVPPreferenceInfo(const std::string &cap, const std::string &key,
                        const T &defval) :
-        iTVPPreferenceInfo(cap, key),
-        DefaultValue(defval) {}
+        iTVPPreferenceInfo(cap, key), DefaultValue(defval) {}
 
     T DefaultValue;
     // 	iTVPPreferenceInfo(const std::string &cap, const std::string
@@ -281,8 +279,7 @@ class tPreferenceItemTextSlider : public iPreferenceItemSlider {
 public:
     tPreferenceItemTextSlider(float r,
                               const std::function<std::string(float)> &f) :
-        iPreferenceItemSlider(r),
-        _strScaleConv(f) {}
+        iPreferenceItemSlider(r), _strScaleConv(f) {}
 
 protected:
     virtual void initController(const NodeMap &allNodes) override;

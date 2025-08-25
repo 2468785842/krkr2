@@ -2827,7 +2827,9 @@ void BasePlayer::UpdatePlayState(double timeout) {
         // DVD_TIME_TO_MSEC(state.time_offset);
         // state.time_total = pDisplayTime->GetTotalTime(); 		}
         // else
-        { state.time_offset = 0; }
+        {
+            state.time_offset = 0;
+        }
 
         state.canpause = true;
         state.canseek = true;

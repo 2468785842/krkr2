@@ -18,7 +18,7 @@ const char *const FileName_Cell = "ui/SelectListItem.csb";
 
 void iTVPHalfScreenForm::rearrangeLayout() {
     float scale = TVPMainScene::GetInstance()->getUIScale();
-    Size sceneSize = TVPMainScene::GetInstance()->getUINodeSize();
+    cocos2d::Size sceneSize = TVPMainScene::GetInstance()->getUINodeSize();
     sceneSize.height *= 0.5f;
     setContentSize(sceneSize);
     if(RootNode) {
@@ -44,7 +44,7 @@ TVPSelectListForm::create(const std::vector<std::string> &info,
 
 void TVPSelectListForm::bindBodyController(const Node *allNodes) {
     Node *node = allNodes->getChildByName("pageview");
-    Size nodesize = node->getContentSize();
+    cocos2d::Size nodesize = node->getContentSize();
     pageView = XKPageView::create(nodesize, nullptr);
     node->addChild(pageView);
     pageView->setDirection(extension::ScrollView::Direction::VERTICAL);
@@ -64,7 +64,7 @@ void TVPSelectListForm::bindBodyController(const Node *allNodes) {
 void TVPSelectListForm::initWithInfo(const std::vector<std::string> &info,
                                      const std::string &highlight_tid) {
     // pageView->removeAllPages();
-    Size size = pageView->getViewSize();
+    cocos2d::Size size = pageView->getViewSize();
     bool size_set = false;
     int selectedIdx = 0;
     for(int idx = 0; idx < info.size(); ++idx) {

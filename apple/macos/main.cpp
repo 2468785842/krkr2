@@ -8,8 +8,7 @@
 
 USING_NS_CC;
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     spdlog::set_level(spdlog::level::debug);
 
     static auto core_logger = spdlog::stdout_color_mt("core");

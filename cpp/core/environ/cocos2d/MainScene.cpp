@@ -320,7 +320,8 @@ Sprite *TVPLoadCursorCUR(tTJSBinaryStream *pStream) {
         tex->initWithImage(surface);
         Sprite *sprite = Sprite::create();
         sprite->setTexture(tex);
-        sprite->setTextureRect(Rect(0, 0, bmhdr.biWidth, bmhdr.biHeight));
+        sprite->setTextureRect(
+            cocos2d::Rect(0, 0, bmhdr.biWidth, bmhdr.biHeight));
         sprite->setAnchorPoint(
             Vec2((float)entry.wHotSpotX / bmhdr.biWidth,
                  1.f - (float)entry.wHotSpotY / bmhdr.biHeight));
@@ -436,7 +437,7 @@ public:
         PrimaryLayerArea = Node::create();
         addChild(PrimaryLayerArea);
         PrimaryLayerArea->addChild(DrawSprite);
-        setAnchorPoint(Size::ZERO);
+        setAnchorPoint(cocos2d::Size::ZERO);
         EventListenerMouse *evmouse = EventListenerMouse::create();
         evmouse->onMouseScroll = std::bind(&TVPWindowLayer::onMouseScroll, this,
                                            std::placeholders::_1);
@@ -462,7 +463,7 @@ public:
     cocos2d::Node *GetPrimaryArea() override { return PrimaryLayerArea; }
 
     virtual Vec2 minContainerOffset() {
-        const Size &size = getContentSize();
+        const cocos2d::Size &size = getContentSize();
         float scale = _container->getScale();
         Vec2 ret(_viewSize.width - size.width * scale * _drawSpriteScaleX,
                  _viewSize.height - size.height * scale * _drawSpriteScaleY);
@@ -482,7 +483,7 @@ public:
 
     Vec2 maxContainerOffset() {
         // bottom-left
-        const Size &size = getContentSize();
+        const cocos2d::Size &size = getContentSize();
         float scale = _container->getScale();
         Vec2 ret(_viewSize.width - size.width * scale * _drawSpriteScaleX,
                  _viewSize.height - size.height * scale * _drawSpriteScaleY);
@@ -798,9 +799,9 @@ public:
             default:
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
             {
-                Size screenSize = cocos2d::Director::getInstance()
-                                      ->getOpenGLView()
-                                      ->getFrameSize();
+                cocos2d::Size screenSize = cocos2d::Director::getInstance()
+                                               ->getOpenGLView()
+                                               ->getFrameSize();
                 TVPShowIME(0, _textInputPosY, screenSize.width,
                            screenSize.height / 4);
             }
@@ -823,7 +824,7 @@ public:
     virtual void BringToFront() override {
         if(_currentWindowLayer != this) {
             if(_currentWindowLayer) {
-                const Size &size = _currentWindowLayer->getViewSize();
+                const cocos2d::Size &size = _currentWindowLayer->getViewSize();
                 _currentWindowLayer->setPosition(Vec2(size.width, 0));
                 _currentWindowLayer->TJSNativeInstance->OnReleaseCapture();
             }
@@ -880,7 +881,7 @@ public:
 
     void ResetDrawSprite() {
         if(DrawSprite) {
-            Size size = getContentSize();
+            cocos2d::Size size = getContentSize();
             float scale = (float)ActualZoomNumer / ActualZoomDenom;
 #ifdef _DEBUG
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
@@ -895,10 +896,11 @@ public:
                                         FOREGROUND_BLUE);
 #endif
             size = size / scale;
-            // DrawSprite->setTextureRect(Rect(0, 0, size.width,
+            // DrawSprite->setTextureRect(cocos2d::Rect(0, 0, size.width,
             // size.height));
             DrawSprite->setScale(_drawTextureScaleX, _drawTextureScaleY);
-            DrawSprite->setTextureRect(Rect(0, 0, LayerWidth, LayerHeight));
+            DrawSprite->setTextureRect(
+                cocos2d::Rect(0, 0, LayerWidth, LayerHeight));
             DrawSprite->setPosition(Vec2(0, size.height));
             PrimaryLayerArea->setContentSize(size);
             PrimaryLayerArea->setScale(scale);
@@ -909,8 +911,8 @@ public:
         if(!LayerWidth || !LayerHeight)
             return;
         ResetDrawSprite();
-        Size size = getViewSize();
-        Size contSize = getContentSize();
+        cocos2d::Size size = getViewSize();
+        cocos2d::Size contSize = getContentSize();
         float r = size.width / size.height;
         float R = contSize.width / contSize.height;
         float scale;
@@ -932,32 +934,32 @@ public:
     }
 
     virtual void SetWidth(tjs_int w) override {
-        Size size = getContentSize();
+        cocos2d::Size size = getContentSize();
         size.width = w;
         setContentSize(size);
         RecalcPaintBox();
     }
 
     virtual void SetHeight(tjs_int h) override {
-        Size size = getContentSize();
+        cocos2d::Size size = getContentSize();
         size.height = h;
         setContentSize(size);
         RecalcPaintBox();
     }
 
     virtual void SetSize(tjs_int w, tjs_int h) override {
-        setContentSize(Size(w, h));
+        setContentSize(cocos2d::Size(w, h));
         RecalcPaintBox();
     }
 
     virtual void GetSize(tjs_int &w, tjs_int &h) override {
-        Size size = getContentSize();
+        cocos2d::Size size = getContentSize();
         w = size.width;
         h = size.height;
     }
 
     virtual void GetWinSize(tjs_int &w, tjs_int &h) override {
-        Size size = getViewSize();
+        cocos2d::Size size = getViewSize();
         w = size.width;
         h = size.height;
     }
@@ -984,7 +986,7 @@ public:
         // 		if (!mgr->IsSoftware()) {
         // 			static iTVPRenderMethod *method =
         // TVPGetRenderManager()->GetRenderMethod("CopyOpaqueImage");
-        // Size size =
+        // cocos2d::Size size =
         // DrawSprite->getContentSize(); 			tTVPRect rctar(0,
         // 0, size.width,
         // size.height); 			if (!DrawTexture) {
@@ -1020,7 +1022,7 @@ public:
                     ((float)LayerHeight / tex->GetHeight());
                 _drawTextureScaleY = 1 / _drawTextureScaleY;
             }
-            DrawSprite->setTextureRect(Rect(0, 0, sw, sh));
+            DrawSprite->setTextureRect(cocos2d::Rect(0, 0, sw, sh));
             DrawSprite->setBlendFunc(BlendFunc::DISABLE);
             ResetDrawSprite();
         }
@@ -1056,19 +1058,19 @@ public:
             }
             tjs_int w, h;
             if (!it.first->GetVideoSize(w, h)) continue;
-            Size videoSize(w, h);
+            cocos2d::Size videoSize(w, h);
             cocos2d::Texture2D *pTex = pSprite->getTexture();
-            const Size &size = pTex->getContentSize();
+            const cocos2d::Size &size = pTex->getContentSize();
             std::function<void(const void*, int, int, int)> drawer;
             if (size.width != videoSize.width || size.height != videoSize.height) {
                 if (size.width < videoSize.width || size.height < videoSize.height) {
                     drawer = [pTex, pSprite](const void* data, int pitch, int w, int h) {
                         pTex->initWithData(data, pitch * h, cocos2d::Texture2D::PixelFormat::RGBA8888,
-                            w, h, cocos2d::Size::ZERO);
-                        pSprite->setTextureRect(Rect(0, 0, w, h));
+                            w, h, cocos2d::cocos2d::Size::ZERO);
+                        pSprite->setTextureRect(cocos2d::Rect(0, 0, w, h));
                     };
                 } else {
-                    pSprite->setTextureRect(Rect(0, 0, videoSize.width, videoSize.height));
+                    pSprite->setTextureRect(cocos2d::Rect(0, 0, videoSize.width, videoSize.height));
                 }
             }
             if (!drawer) {
@@ -1096,8 +1098,8 @@ public:
     void toogleFillScale() {
         float scaleX = PrimaryLayerArea->getScaleX();
         float scaleY = PrimaryLayerArea->getScaleY();
-        const Size &drawSize = PrimaryLayerArea->getContentSize();
-        Size viewSize = getViewSize();
+        const cocos2d::Size &drawSize = PrimaryLayerArea->getContentSize();
+        cocos2d::Size viewSize = getViewSize();
         float R = viewSize.width / viewSize.height;
         float r = drawSize.width / drawSize.height;
         if(fabs(R - r) < 0.01) {
@@ -1265,7 +1267,7 @@ public:
             if(key == VK_RETURN || key == VK_SPACE || key == VK_ESCAPE ||
                key == VK_PAD1 || key == VK_PAD2) {
                 Vec2 p(_LastMouseX, _LastMouseY);
-                Size size = PrimaryLayerArea->getContentSize();
+                cocos2d::Size size = PrimaryLayerArea->getContentSize();
                 if(p.x >= 0 && p.y >= 0 && p.x < size.width &&
                    p.y < size.height) {
                     if(key == VK_RETURN || key == VK_SPACE || key == VK_PAD1) {
@@ -1326,7 +1328,7 @@ public:
                 if(key == VK_RETURN || key == VK_SPACE || key == VK_ESCAPE ||
                    key == VK_PAD1 || key == VK_PAD2) {
                     Vec2 p(_LastMouseX, _LastMouseY);
-                    Size size = PrimaryLayerArea->getContentSize();
+                    cocos2d::Size size = PrimaryLayerArea->getContentSize();
                     if(p.x >= 0 && p.y >= 0 && p.x < size.width &&
                        p.y < size.height) {
                         if(key == VK_RETURN || key == VK_SPACE ||
@@ -1626,7 +1628,8 @@ public:
     }
 
     void rearrangeLayout() override {
-        Size sceneSize = TVPMainScene::GetInstance()->getGameNodeSize();
+        cocos2d::Size sceneSize =
+            TVPMainScene::GetInstance()->getGameNodeSize();
         setContentSize(sceneSize);
         RootNode->setContentSize(sceneSize);
         ui::Helper::doLayout(RootNode);
@@ -1645,7 +1648,8 @@ public:
             if(!_currentWindowLayer || !_currentWindowLayer->_prevWindow)
                 return;
             //_currentWindowLayer->_prevWindow->setVisible(true);
-            Size size = _currentWindowLayer->_prevWindow->getViewSize();
+            cocos2d::Size size =
+                _currentWindowLayer->_prevWindow->getViewSize();
             _currentWindowLayer->_prevWindow->setPosition(-size.width, 0);
             _currentWindowLayer->_prevWindow->runAction(
                 EaseQuadraticActionOut::create(
@@ -1664,7 +1668,8 @@ public:
             if(!_currentWindowLayer || !_currentWindowLayer->_nextWindow)
                 return;
             //_currentWindowLayer->_nextWindow->setVisible(true);
-            Size size = _currentWindowLayer->_nextWindow->getViewSize();
+            cocos2d::Size size =
+                _currentWindowLayer->_nextWindow->getViewSize();
             _currentWindowLayer->_nextWindow->setPosition(size.width, 0);
             _currentWindowLayer->_nextWindow->runAction(
                 EaseQuadraticActionOut::create(
@@ -1759,8 +1764,8 @@ TVPMainScene *TVPMainScene::CreateInstance() {
 
 void TVPMainScene::initialize() {
     auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-    Size screenSize = glview->getFrameSize();
-    Size designSize = glview->getDesignResolutionSize();
+    cocos2d::Size screenSize = glview->getFrameSize();
+    cocos2d::Size designSize = glview->getDesignResolutionSize();
     ScreenRatio = screenSize.height / designSize.height;
     designSize.width = designSize.height * screenSize.width / screenSize.height;
     initWithSize(designSize);
@@ -1829,7 +1834,7 @@ void TVPMainScene::pushUIForm(cocos2d::Node *ui, eEnterAni ani) {
         UINode->addChild(ui);
     } else if(ani == eEnterAniOverFromRight) {
         if(n > 0) {
-            Size size = UINode->getContentSize();
+            cocos2d::Size size = UINode->getContentSize();
             cocos2d::Node *lastui = UINode->getChildren().back();
             lastui->runAction(EaseQuadraticActionOut::create(
                 MoveTo::create(UI_CHANGE_DURATION, Vec2(size.width / -5, 0))));
@@ -1847,7 +1852,7 @@ void TVPMainScene::pushUIForm(cocos2d::Node *ui, eEnterAni ani) {
         }
         UINode->addChild(ui);
     } else if(ani == eEnterFromBottom) {
-        Size size = UINode->getContentSize();
+        cocos2d::Size size = UINode->getContentSize();
         cocos2d::Node *ColorMask =
             MaskLayer::create(Color4B(0, 0, 0, 0), size.width, size.height);
         ColorMask->runAction(FadeTo::create(UI_CHANGE_DURATION, 128));
@@ -1880,7 +1885,7 @@ void TVPMainScene::popUIForm(cocos2d::Node *form, eLeaveAni ani) {
         Node *ui = children.back();
         if(form)
             CCAssert(form == ui, "must be the same form");
-        Size size = UINode->getContentSize();
+        cocos2d::Size size = UINode->getContentSize();
         if(n > 1) {
             Node *lastui = children.at(n - 2);
             lastui->setPosition(size.width / -5, 0);
@@ -1957,7 +1962,7 @@ void TVPMainScene::doStartup(float dt, std::string path) {
     _consoleWin = TVPConsoleWindow::create(24, nullptr);
 
     auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-    Size screenSize = glview->getFrameSize();
+    cocos2d::Size screenSize = glview->getFrameSize();
     float scale = screenSize.height / getContentSize().height;
     _consoleWin->setScale(1 / scale);
     _consoleWin->setContentSize(getContentSize() * scale);
@@ -2073,7 +2078,7 @@ void TVPMainScene::rotateUI() {
     float rot = UINode->getRotation();
     if(rot < 1) {
         UINode->setRotation(90);
-        UINode->setContentSize(Size{ UISize.height, UISize.width });
+        UINode->setContentSize(cocos2d::Size{ UISize.height, UISize.width });
     } else {
         UINode->setRotation(0);
         UINode->setContentSize(UISize);
@@ -2092,8 +2097,8 @@ static float _getUIScale() {
     auto glview = Director::getInstance()->getOpenGLView();
     float factor = (glview->getScaleX() + glview->getScaleY()) / 2;
     factor /= Device::getDPI(); // inch per pixel
-    Size screenSize = glview->getFrameSize();
-    Size designSize = glview->getDesignResolutionSize();
+    cocos2d::Size screenSize = glview->getFrameSize();
+    cocos2d::Size designSize = glview->getDesignResolutionSize();
     designSize.width = designSize.height * screenSize.width / screenSize.height;
     screenSize.width = factor * designSize.width;
 #ifdef _WIN32
@@ -2262,7 +2267,7 @@ void TVPMainScene::popAllUIForm() {
     TVPControlAdDialog(0x10002, 0, 0);
     auto children = UINode->getChildren();
     for(auto ui : children) {
-        Size size = getContentSize();
+        cocos2d::Size size = getContentSize();
         cocos2d::Node *ColorMask =
             MaskLayer::create(Color4B(0, 0, 0, 128), size.width, size.height);
         ColorMask->setPosition(Vec2(-size.width, 0));
@@ -2380,7 +2385,7 @@ void TVPMainScene::onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *event) {
         newPoint = GameNode->convertToNodeSpace(pt);
         moveDistance = newPoint - _mouseTouchPoint;
         pt = _mouseBeginPoint + moveDistance;
-        Size size = GameNode->getContentSize();
+        cocos2d::Size size = GameNode->getContentSize();
         newpt = pt;
         if(pt.x < 0)
             newpt.x = 0;
@@ -2449,8 +2454,8 @@ bool TVPMainScene::attachWithIME() {
         // open keyboard
         auto pGlView = Director::getInstance()->getOpenGLView();
         if(pGlView) {
-#if(CC_TARGET_PLATFORM != CC_PLATFORM_WP8 &&                                   \
-    CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_WP8 &&                                  \
+     CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
             pGlView->setIMEKeyboardState(true);
 #else
             pGlView->setIMEKeyboardState(true, "");
@@ -2466,8 +2471,8 @@ bool TVPMainScene::detachWithIME() {
         // close keyboard
         auto glView = Director::getInstance()->getOpenGLView();
         if(glView) {
-#if(CC_TARGET_PLATFORM != CC_PLATFORM_WP8 &&                                   \
-    CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_WP8 &&                                  \
+     CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
             glView->setIMEKeyboardState(false);
 #else
             glView->setIMEKeyboardState(false, "");
@@ -2545,7 +2550,7 @@ void TVPMainScene::onAxisEvent(cocos2d::Controller *ctrl, int keyCode,
     pt = _currentWindowLayer->PrimaryLayerArea->convertToWorldSpace(pt);
     pt = GameNode->convertToNodeSpace(pt);
     Vec2 newpt = pt;
-    Size size = GameNode->getContentSize();
+    cocos2d::Size size = GameNode->getContentSize();
     if(pt.x < 0)
         newpt.x = 0;
     else if(pt.x > size.width)

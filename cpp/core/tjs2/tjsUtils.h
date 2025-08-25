@@ -319,7 +319,7 @@ namespace TJS {
             T Data;
             int prevIndex;
             int nextIndex;
-        } * PointerBuffPtr;
+        } *PointerBuffPtr;
         std::vector<int> UnusedIndexStack;
         unsigned int nCpacity;
         unsigned int nQuantity;
@@ -372,7 +372,7 @@ namespace TJS {
                                         sizeof(_tVectorList_Node)];
                     memcpy(newPtr, PointerBuffPtr,
                            sizeof(_tVectorList_Node) * nCpacity);
-                    delete[](char *) PointerBuffPtr;
+                    delete[](char *)PointerBuffPtr;
                     PointerBuffPtr = newPtr;
                 }
                 for(int i = nNewCapacity - 1; i >= (int)nCpacity; --i) {
@@ -464,7 +464,7 @@ namespace TJS {
 
         void clean() {
             if(PointerBuffPtr)
-                delete[](char *) PointerBuffPtr;
+                delete[](char *)PointerBuffPtr;
             PointerBuffPtr = 0;
             nCpacity = 0;
             nQuantity = 0;
@@ -538,7 +538,7 @@ namespace TJS {
             }
 
             T &operator*() {
-#if(defined(WIN32) || defined(_WIN32)) && defined(_DEBUG)
+#if (defined(WIN32) || defined(_WIN32)) && defined(_DEBUG)
                 if(end())
                     throw;
 #endif
@@ -546,7 +546,7 @@ namespace TJS {
             }
 
             T *operator->() {
-#if(defined(WIN32) || defined(_WIN32)) && defined(_DEBUG)
+#if (defined(WIN32) || defined(_WIN32)) && defined(_DEBUG)
                 if(end())
                     throw;
 #endif
@@ -682,11 +682,11 @@ namespace TJS {
 #define TJS_FC_CLASS_NAN 1
 #define TJS_FC_CLASS_INF 2
 
-#define TJS_FC_IS_NORMAL(x) (((x)&TJS_FC_CLASS_MASK) == TJS_FC_CLASS_NORMAL)
-#define TJS_FC_IS_NAN(x) (((x)&TJS_FC_CLASS_MASK) == TJS_FC_CLASS_NAN)
-#define TJS_FC_IS_INF(x) (((x)&TJS_FC_CLASS_MASK) == TJS_FC_CLASS_INF)
+#define TJS_FC_IS_NORMAL(x) (((x) & TJS_FC_CLASS_MASK) == TJS_FC_CLASS_NORMAL)
+#define TJS_FC_IS_NAN(x) (((x) & TJS_FC_CLASS_MASK) == TJS_FC_CLASS_NAN)
+#define TJS_FC_IS_INF(x) (((x) & TJS_FC_CLASS_MASK) == TJS_FC_CLASS_INF)
 
-#define TJS_FC_IS_NEGATIVE(x) (0 != ((x)&TJS_FC_SIGN_MASK))
+#define TJS_FC_IS_NEGATIVE(x) (0 != ((x) & TJS_FC_SIGN_MASK))
 #define TJS_FC_IS_POSITIVE(x) (!TJS_FC_IS_NEGATIVE(x))
 
     /*]*/

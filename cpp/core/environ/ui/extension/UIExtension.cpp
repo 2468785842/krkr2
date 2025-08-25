@@ -42,7 +42,7 @@ bool XKPageView::init(Size size, XKPageViewDelegate *delegate) {
 void XKPageView::adjust(float offset) {
     Vec2 vec;
     float xOrY;
-    const Size &size = getViewSize();
+    const cocos2d::Size &size = getViewSize();
     if(_direction == ScrollView::Direction::HORIZONTAL) {
         vec = Vec2((size.width - pageSize.width) / 2 -
                        current_index * pageSize.width,
@@ -222,7 +222,7 @@ void XKPageView::setCurPageIndex(ssize_t idx) {
     current_index = idx;
 
     Vec2 vec;
-    const Size &size = getViewSize();
+    const cocos2d::Size &size = getViewSize();
     if(_direction == ScrollView::Direction::HORIZONTAL) {
         vec = Vec2((size.width - pageSize.width) / 2 -
                        current_index * pageSize.width,

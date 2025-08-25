@@ -8,6 +8,7 @@
 #define KRKR2_GDIP_CXX_H
 #include <cassert>
 
+namespace libgdiplus {
 extern "C" {
 #include <libgdiplus/gdiplus-private.h>
 #include <libgdiplus/gdipenums.h>
@@ -529,5 +530,5 @@ static const CLSID wmfEncoderClsid = {
 static const CLSID emfEncoderClsid = {
     0x557cf403, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e }
 };
-
+}
 #endif // KRKR2_GDIP_CXX_H

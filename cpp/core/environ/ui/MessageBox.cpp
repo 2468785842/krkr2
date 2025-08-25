@@ -45,8 +45,8 @@ void TVPMessageBoxForm::init(const std::string &caption,
         _textContent->setString("");
         _textContent->ignoreContentAdaptWithSize(true);
         _textContent->setString(text);
-        const Size &textSize = _textContent->getContentSize();
-        const Size &viewSize = _textContainer->getInnerContainerSize();
+        const cocos2d::Size &textSize = _textContent->getContentSize();
+        const cocos2d::Size &viewSize = _textContainer->getInnerContainerSize();
         if(textSize.height > viewSize.height) {
             _textContainer->setInnerContainerSize(textSize);
             _textContent->setPosition(Vec2(0, textSize.height));
@@ -59,12 +59,12 @@ void TVPMessageBoxForm::init(const std::string &caption,
 
     float totalWidth = 0;
 
-    Size origsize = _btnModel->getContentSize();
-    Size btnSize = _btnBody->getContentSize();
+    cocos2d::Size origsize = _btnModel->getContentSize();
+    cocos2d::Size btnSize = _btnBody->getContentSize();
 
     for(int i = 0; i < nBtns; ++i) {
         _btnBody->setTitleText(btnText[i]);
-        Size textSize = _btnBody->getTitleRenderer()->getContentSize();
+        cocos2d::Size textSize = _btnBody->getTitleRenderer()->getContentSize();
         float fontSize = _btnBody->getTitleFontSize();
         textSize.width += fontSize;
         _btnBody->addClickEventListener([this, i](Ref *node) {
@@ -75,9 +75,9 @@ void TVPMessageBoxForm::init(const std::string &caption,
                 _callback(i);
             release();
         });
-        Size size = _btnModel->getContentSize();
+        cocos2d::Size size = _btnModel->getContentSize();
         if(btnSize.width < textSize.width) {
-            Size size = origsize;
+            cocos2d::Size size = origsize;
             size.width += textSize.width - btnSize.width;
             _btnModel->setContentSize(size);
             ui::Helper::doLayout(_btnModel);
@@ -137,7 +137,7 @@ TVPSimpleProgressForm *TVPSimpleProgressForm::create() {
 void TVPSimpleProgressForm::initButtons(
     const std::vector<
         std::pair<std::string, std::function<void(cocos2d::Ref *)>>> &vec) {
-    Size btnSize = _btnCell->getContentSize();
+    cocos2d::Size btnSize = _btnCell->getContentSize();
     float totalWidth = 0;
     float containerWidth = _btnContainer->getContentSize().width;
     float edge = _btnCell->getPosition().x;

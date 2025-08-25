@@ -224,7 +224,7 @@ TVPXP3RepackFileListForm::~TVPXP3RepackFileListForm() {
 void TVPXP3RepackFileListForm::bindBodyController(const Node *allNodes) {
     LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
     const auto btnList = allNodes->getChildByName<ui::ScrollView *>("btn_list");
-    const Size containerSize = btnList->getContentSize();
+    const cocos2d::Size containerSize = btnList->getContentSize();
     btnList->setInnerContainerSize(containerSize);
     const auto btnCell = allNodes->getChildByName<Widget *>("btn_cell");
     const auto btn = allNodes->getChildByName<Button *>("btn");
@@ -266,7 +266,7 @@ void TVPXP3RepackFileListForm::initData(std::vector<std::string> &filelist,
     RootDir = dir;
     FileList.swap(filelist);
     int tag = 256;
-    Size size = ListViewFiles->getContentSize();
+    cocos2d::Size size = ListViewFiles->getContentSize();
     int prefixlen = dir.length() + 1;
     for(size_t i = 0; i < FileList.size(); ++i) {
         std::string filename = FileList[i].substr(prefixlen);

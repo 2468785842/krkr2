@@ -21,6 +21,7 @@
       "platform": "linux"
     },
     "freetype",
+    "glfw3",
     {
       "name": "glew",
       "platform": "linux | windows"

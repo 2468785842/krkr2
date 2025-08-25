@@ -13,9 +13,7 @@
         *dest++ = s;                                                           \
     }
 void __cdecl TVPPS_FUNC_NORM(tjs_uint32 *dest, const tjs_uint32 *buf,
-                             tjs_int len) {
-    TVPPS_MAINLOOP
-}
+                             tjs_int len){ TVPPS_MAINLOOP }
 #undef OPERATION1
 /* ------------------------------ */
 #define OPERATION1                                                             \
@@ -26,9 +24,7 @@ void __cdecl TVPPS_FUNC_NORM(tjs_uint32 *dest, const tjs_uint32 *buf,
         *dest++ = s;                                                           \
     }
 void __cdecl TVPPS_FUNC_O(tjs_uint32 *dest, const tjs_uint32 *buf, tjs_int len,
-                          tjs_int opa) {
-    TVPPS_MAINLOOP
-}
+                          tjs_int opa){ TVPPS_MAINLOOP }
 #undef OPERATION1
 /* ------------------------------ */
 #define OPERATION1                                                             \
@@ -38,9 +34,7 @@ void __cdecl TVPPS_FUNC_O(tjs_uint32 *dest, const tjs_uint32 *buf, tjs_int len,
         *dest++ = s | (d & 0xff000000);                                        \
     }
 void __cdecl TVPPS_FUNC_HDA(tjs_uint32 *dest, const tjs_uint32 *buf,
-                            tjs_int len) {
-    TVPPS_MAINLOOP
-}
+                            tjs_int len){ TVPPS_MAINLOOP }
 #undef OPERATION1
 /* ------------------------------ */
 #define OPERATION1                                                             \

@@ -4,6 +4,8 @@
 
 #include "LayerExDraw.hpp"
 
+using namespace layerex;
+
 extern void initGdiPlus();
 
 extern void deInitGdiPlus();

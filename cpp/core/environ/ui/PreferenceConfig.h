@@ -25,7 +25,7 @@ static void PreferenceSetValueFloat(const std::string &name, float v) {
 namespace {
     static tPreferenceScreen RootPreference;
     static tPreferenceScreen OpenglOptPreference, SoftRendererOptPreference;
-    static Size PrefListSize;
+    static cocos2d::Size PrefListSize;
 
     class tTVPPreferenceInfoConstant : public iTVPPreferenceInfo {
     public:
@@ -326,11 +326,9 @@ namespace {
                 {
 #endif
                     { "preference_mem_unlimited", "unlimited" },
-                        { "preference_mem_high", "high" },
-                        { "preference_mem_medium", "medium" }, {
-                        "preference_mem_low", "low"
-                    }
-                }),
+                    { "preference_mem_high", "high" },
+                    { "preference_mem_medium", "medium" },
+                    { "preference_mem_low", "low" } }),
             new tTVPPreferenceInfoCheckBox("preference_keep_screen_alive",
                                            "keep_screen_alive", true),
             new tTVPPreferenceInfoSliderIcon("preference_virtual_cursor_scale",

@@ -10,7 +10,8 @@
 #include "gdip_cxx_brush.h"
 #include "gdip_cxx_pen.h"
 
-
+namespace layerex {
+using namespace libgdiplus;
 /**
  * GDIPlus 固有処理用
  */
@@ -812,3 +813,4 @@ public:
 
     tTJSVariant getColorRegionRects(ARGB color);
 };
+}

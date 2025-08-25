@@ -107,7 +107,9 @@ void tTVPGraphicHandlerType::Header(tTJSBinaryStream *src,
 	}
 	else
 #endif
-    { HeaderHandler(FormatData, src, dic); }
+    {
+        HeaderHandler(FormatData, src, dic);
+    }
 }
 /*
         support of SPI for archive files is in StorageImpl.cpp

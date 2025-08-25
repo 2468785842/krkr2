@@ -45,8 +45,6 @@ macro(cocos2dx_depend)
         endif()
             
         if(MACOSX)
-            list(APPEND PREBUILT_SPECIFIC_LIBS GLFW3)
-
             find_library(COCOA_LIBRARY Cocoa)
             find_library(OPENGL_LIBRARY OpenGL)
             find_library(APPLICATIONSERVICES_LIBRARY ApplicationServices)

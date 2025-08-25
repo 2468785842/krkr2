@@ -488,7 +488,7 @@ class tTVPOnApplicationActivateEvent : public tTVPBaseInputEvent {
 public:
     tTVPOnApplicationActivateEvent(bool activate_or_deactivate) :
         tTVPBaseInputEvent(Application, Tag),
-        ActivateOrDeactivate(activate_or_deactivate){};
+        ActivateOrDeactivate(activate_or_deactivate) {};
 
     void Deliver() const { TVPOnApplicationActivate(ActivateOrDeactivate); }
 };

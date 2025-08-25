@@ -111,7 +111,7 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
     ParentPath = fst;
     if(_title) {
 
-        const Size dispSize = _title->getContentSize();
+        const cocos2d::Size dispSize = _title->getContentSize();
         const size_t fontSize =
             _title->getTitleRenderer()->getRenderingFontSize();
         const size_t pathLen = snd.length();
@@ -356,8 +356,8 @@ void TVPBaseFileSelectorForm::onTitleClicked(cocos2d::Ref *owner) {
     _listform->show();
     // march all button's text in its width
     for(Button *btn : buttons) {
-        Size dispSize = btn->getTitleRenderer()->getContentSize();
-        Size realSize = btn->getContentSize();
+        cocos2d::Size dispSize = btn->getTitleRenderer()->getContentSize();
+        cocos2d::Size realSize = btn->getContentSize();
         if(dispSize.width > realSize.width) {
             std::string text = btn->getTitleText();
             float ratio = realSize.width / dispSize.width;
@@ -851,7 +851,7 @@ void TVPListForm::initFromInfo(
     ui::Helper::doLayout(_root);
     float width = listview->getContentSize().width;
     for(Widget *cell : cells) {
-        Size size = cell->getContentSize();
+        cocos2d::Size size = cell->getContentSize();
         size.width = width;
         cell->setContentSize(size);
         ui::Helper::doLayout(cell);
@@ -867,7 +867,7 @@ void TVPListForm::initFromInfo(
 
 void TVPListForm::show() {
     TVPMainScene::setMaskLayTouchBegain(
-        [this](cocos2d::Touch * t, cocos2d::Event * e) {
+        [this](cocos2d::Touch *t, cocos2d::Event *e) {
             return onMaskTouchBegan(t, e);
         });
     TVPMainScene::GetInstance()->pushUIForm(this,
@@ -1023,9 +1023,7 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::init(
     }
     auto *highLight = _root->getChildByName<Button *>("highlight");
     if(highLight) {
-        highLight->addClickEventListener([this](Ref* ref) {
-            onClicked(ref);
-        });
+        highLight->addClickEventListener([this](Ref *ref) { onClicked(ref); });
         highLight->addTouchEventListener(
             [this](Ref *p, Widget::TouchEventType ev) {
                 auto sender = dynamic_cast<Widget *>(p);
@@ -1064,7 +1062,7 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::setInfo(int idx,
         FileNameNode->ignoreContentAdaptWithSize(true);
         FileNameNode->setTextAreaSize(CellTextAreaSize);
         FileNameNode->setString(info.NameForDisplay);
-        Size size(OrigCellModelSize);
+        cocos2d::Size size(OrigCellModelSize);
         size.height +=
             FileNameNode->getContentSize().height - OrigCellTextSize.height;
         _root->setContentSize(size);
@@ -1084,7 +1082,8 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::setInfo(int idx,
         BgEven->setVisible(idx & 1);
 }
 
-void TVPBaseFileSelectorForm::FileItemCellImpl::onClicked(cocos2d::Ref *p) const {
+void TVPBaseFileSelectorForm::FileItemCellImpl::onClicked(
+    cocos2d::Ref *p) const {
     auto *sender = dynamic_cast<Widget *>(p);
     if(sender->isScheduled(str_long_press)) {
         sender->unschedule(str_long_press);

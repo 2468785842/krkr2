@@ -263,8 +263,7 @@ namespace TJS {
     public:
         tTJSNativeClassForPlugin(const ttstr &name,
                                  tTJSCreateNativeInstance proc) :
-            procCreateNativeInstance(proc),
-            tTJSNativeClass(name) {}
+            procCreateNativeInstance(proc), tTJSNativeClass(name) {}
 
     protected:
         iTJSNativeInstance *CreateNativeInstance() {

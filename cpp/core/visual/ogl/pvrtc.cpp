@@ -627,7 +627,8 @@ namespace PvrTcEncoder {
 
         for(int y = 0; y < blocks; ++y) {
             for(int x = 0; x < blocks; ++x) {
-                const unsigned char(*factor)[4] = PvrTcPacket::BILINEAR_FACTORS;
+                const unsigned char (*factor)[4] =
+                    PvrTcPacket::BILINEAR_FACTORS;
                 const ColorRgba<unsigned char> *data =
                     bitmap.GetData() + y * 4 * size + x * 4;
 
@@ -750,7 +751,8 @@ namespace PvrTcEncoder {
 
         for(int y = 0; y < blocks; ++y) {
             for(int x = 0; x < blocks; ++x) {
-                const unsigned char(*factor)[4] = PvrTcPacket::BILINEAR_FACTORS;
+                const unsigned char (*factor)[4] =
+                    PvrTcPacket::BILINEAR_FACTORS;
                 const ColorRgba<unsigned char> *data =
                     bitmap.GetData() + y * 4 * size + x * 4;
 

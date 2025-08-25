@@ -238,7 +238,7 @@ void TVPOpenPatchLibUrl();
 
 void TVPMainFileSelectorForm::showMenu(Ref *) {
     if(!_menu) {
-        Size uiSize = getContentSize();
+        cocos2d::Size uiSize = getContentSize();
         CSBReader reader;
         _menu = reader.Load("ui/MenuList.csb");
         _menu->setAnchorPoint(Vec2::ZERO);
@@ -260,7 +260,7 @@ void TVPMainFileSelectorForm::showMenu(Ref *) {
         } else {
             uiSize.width *= 0.6f;
         }
-        Size menuSize = _menu->getContentSize();
+        cocos2d::Size menuSize = _menu->getContentSize();
         float scale = uiSize.width / menuSize.width;
         menuSize.height = uiSize.height / scale;
         _menu->setScale(scale);
@@ -382,21 +382,21 @@ void TVPMainFileSelectorForm::showMenu(Ref *) {
             hideMenu(nullptr);
         });
     }
-    const Size &uiSize = getContentSize();
+    const cocos2d::Size &uiSize = getContentSize();
     const Vec2 &pos = _menu->getPosition();
-    const Size &size = _menu->getContentSize();
+    const cocos2d::Size &size = _menu->getContentSize();
     float w = size.width * _menu->getScale();
     if(pos.x > uiSize.width - w / 10.0f) {
         if(IndividualConfigManager::CheckExistAt(CurrentPath)) {
             localPref->setVisible(true);
             localPref->setContentSize(sizeLocalPref);
             newLocalPref->setVisible(false);
-            newLocalPref->setContentSize(Size::ZERO);
+            newLocalPref->setContentSize(cocos2d::Size::ZERO);
         } else {
             newLocalPref->setVisible(true);
             newLocalPref->setContentSize(sizeNewLocalPref);
             localPref->setVisible(false);
-            localPref->setContentSize(Size::ZERO);
+            localPref->setContentSize(cocos2d::Size::ZERO);
         }
         _menuList->requestDoLayout();
         _mask->stopAllActions();
@@ -423,7 +423,7 @@ bool TVPMainFileSelectorForm::isMenuShowed() {
     if(!_menu)
         return false;
     const Vec2 &pos = _menu->getPosition();
-    const Size &size = _menu->getContentSize();
+    const cocos2d::Size &size = _menu->getContentSize();
     float w = size.width * _menu->getScale();
     if(pos.x < getContentSize().width - w * 0.9f) {
         return true;
@@ -435,7 +435,7 @@ bool TVPMainFileSelectorForm::isMenuShrinked() {
     if(!_menu)
         return true;
     const Vec2 &pos = _menu->getPosition();
-    const Size &size = _menu->getContentSize();
+    const cocos2d::Size &size = _menu->getContentSize();
     float w = size.width * _menu->getScale();
     if(pos.x > getContentSize().width - w / 10.0f) {
         return false;
@@ -457,7 +457,7 @@ void TVPMainFileSelectorForm::ListHistory() {
     _historyList->removeAllChildren();
     auto *nullcell = new HistoryCell();
     nullcell->init();
-    Size cellsize = _historyList->getContentSize();
+    cocos2d::Size cellsize = _historyList->getContentSize();
     cellsize.height = 100;
     nullcell->setContentSize(cellsize);
     _historyList->pushBackCustomItem(nullcell);
@@ -484,7 +484,7 @@ void TVPMainFileSelectorForm::ListHistory() {
                 },
                 [this, path](Ref *) { ListDir(path); }, funcConf,
                 [this, fullpath](Ref *) { startup(fullpath); });
-            Size cellsize = cell->getContentSize();
+            cocos2d::Size cellsize = cell->getContentSize();
             cellsize.width = _historyList->getContentSize().width;
             cell->setContentSize(cellsize);
             _historyList->pushBackCustomItem(cell);
@@ -575,7 +575,7 @@ void TVPMainFileSelectorForm::HistoryCell::rearrangeLayout() {
     Vec2 pt = Vec2::ZERO;
     pt.x = _file->getContentSize().width;
     Vec2 ptWorld = _file->convertToWorldSpace(pt);
-    Size viewSize = _scrollview->getContentSize();
+    cocos2d::Size viewSize = _scrollview->getContentSize();
     Node *container = _scrollview->getInnerContainer();
     pt = container->convertToNodeSpace(ptWorld);
     float btnw = _panel_delete->getContentSize().width;

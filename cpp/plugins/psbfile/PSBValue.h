@@ -275,8 +275,7 @@ namespace PSB {
 
         explicit PSBString(std::string value = "",
                            std::optional<std::uint32_t> index = {}) :
-            index(index),
-            value(std::move(value)) {}
+            index(index), value(std::move(value)) {}
 
 
         [[nodiscard]] tTJSVariant toTJSVal() const override;

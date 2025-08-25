@@ -92,8 +92,8 @@ typedef struct {
     // が 0 など）は KbMedia Player によって直ちに Close が呼ばれる。
     //  pInfo が nullptr の場合は何もしないで nullptr を返すこと
 
-    HKMP(WINAPI *OpenFromBuffer)
-    (const BYTE *Buffer, DWORD dwSize, SOUNDINFO *pInfo);
+    HKMP(WINAPI *OpenFromBuffer)(const BYTE *Buffer, DWORD dwSize,
+                                 SOUNDINFO *pInfo);
     // メモリから開く。サポートしない場合は nullptr にすること。
     // サポートしないからといって、常に nullptr
     // を返すように実装してはならない。

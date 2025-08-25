@@ -7,6 +7,7 @@ vcpkg_from_github(
     SHA512 fe6a798da6ad194d4e1d3ce2ebb71a43d3f2f3d198bdf053e8a03e861c81c1c838f3d5d60cfde6b1d6f662fb7f9c2192a9acc89c30a65999e841f4ad7b180baf
     PATCHES
         0001-fix-mac.patch
+        0001-fix-quartz-api.patch
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt" DESTINATION "${SOURCE_PATH}")

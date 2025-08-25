@@ -21,6 +21,10 @@ set(APP_NAME krkr2)
 
 project(${APP_NAME})
 
+if(APPLE)
+    enable_language(OBJC OBJCXX)
+endif()
+
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -65,7 +69,7 @@ elseif(APPLE)
         )
         add_executable(${PROJECT_NAME}
                 ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/main.cpp
-                ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/platform.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/platform.mm
                 ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Prefix.pch
                 ${APP_UI_RES}
         )
@@ -96,6 +100,7 @@ if(NOT ANDROID)
 
     if(APPLE)
         set_target_properties(${APP_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
+        target_sources(${APP_NAME} PRIVATE ${common_res_files})
         if(MACOSX)
             set_target_properties(${APP_NAME} PROPERTIES
                     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Info.plist"

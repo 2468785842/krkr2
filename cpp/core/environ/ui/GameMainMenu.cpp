@@ -42,7 +42,7 @@ bool TVPGameMainMenu::init() {
 
     CSBReader reader;
     _root = reader.Load("ui/GameMenu.csb");
-    Size size = TVPMainScene::GetInstance()->getGameNodeSize();
+    cocos2d::Size size = TVPMainScene::GetInstance()->getGameNodeSize();
     float scale;
     if(size.width > size.height) {
         scale = size.height / 720;
@@ -115,7 +115,7 @@ bool TVPGameMainMenu::init() {
     });
 
     reader.findWidget("btn_keyboard")->addClickEventListener([this](Ref *) {
-        Size screenSize =
+        cocos2d::Size screenSize =
             cocos2d::Director::getInstance()->getOpenGLView()->getFrameSize();
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
         TVPShowIME(0, 0, screenSize.width, screenSize.height);
@@ -172,9 +172,9 @@ void TVPGameMainMenu::onHandlerTouchMoved(cocos2d::Touch *touch,
 
     _handler->setPositionX(_handler->getPositionX() + movDist.x);
     const Vec2 &pos = _handler->getPosition();
-    const Size &size = _handler->getContentSize();
+    const cocos2d::Size &size = _handler->getContentSize();
     const Vec2 &anchor = _handler->getAnchorPointInPoints();
-    const Size &rootsize = _root->getContentSize();
+    const cocos2d::Size &rootsize = _root->getContentSize();
     float handlerLeftBoundary = pos.x - anchor.x;
     float handlerRightBoundary = handlerLeftBoundary + size.width;
     if(handlerLeftBoundary < 0) {
@@ -204,7 +204,7 @@ void TVPGameMainMenu::onHandlerTouchEnded(cocos2d::Touch *touch,
     if(isClick && !_draggingY) {
         doExpand = _shrinked ^ _draggingX;
     } else {
-        const Size &rootsize = _root->getContentSize();
+        const cocos2d::Size &rootsize = _root->getContentSize();
         if(_shrinked) {
             doExpand = _root->getPositionY() > -rootsize.height * 0.75f;
         } else {

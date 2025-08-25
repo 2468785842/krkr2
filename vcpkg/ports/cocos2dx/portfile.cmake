@@ -26,6 +26,7 @@ vcpkg_extract_source_archive(
         patch/0001-add-cstdint-header.patch
         patch/fix-iconv-cast.patch
         patch/fix-mac-audio-build.patch
+        patch/fix-mac-glew.patch
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/cocos2dx-config.cmake.in" DESTINATION "${SOURCE_PATH}")

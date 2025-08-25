@@ -484,9 +484,7 @@ typedef struct ITSSModuleVtbl {
     END_INTERFACE
 } ITSSModuleVtbl;
 
-interface ITSSModule {
-    CONST_VTBL struct ITSSModuleVtbl __RPC_FAR *lpVtbl;
-};
+interface ITSSModule { CONST_VTBL struct ITSSModuleVtbl __RPC_FAR *lpVtbl; };
 
 #ifdef COBJMACROS
 

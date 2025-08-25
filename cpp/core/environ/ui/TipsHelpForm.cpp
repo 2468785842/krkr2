@@ -45,8 +45,8 @@ void TVPTipsHelpForm::setOneTip(const std::string &tipName) {
 }
 
 void TVPTipsHelpForm::rearrangeLayout() {
-    Size sceneSize = TVPMainScene::GetInstance()->getUINodeSize();
-    Size rootSize = RootNode->getContentSize();
+    cocos2d::Size sceneSize = TVPMainScene::GetInstance()->getUINodeSize();
+    cocos2d::Size rootSize = RootNode->getContentSize();
     float scale = sceneSize.width / rootSize.width;
     rootSize.height = rootSize.width * sceneSize.height / sceneSize.width;
     setContentSize(rootSize);
