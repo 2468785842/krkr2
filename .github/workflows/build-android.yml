@@ -22,6 +22,8 @@ jobs:
       ANDROID_NDK: ${{ github.workspace }}/.act/android-ndk
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Delete huge unnecessary tools folder
         run: |
