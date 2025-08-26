@@ -24,6 +24,10 @@
     "ffmpeg",
     "fmt",
     "jxrlib",
+    {
+      "name": "glfw3",
+      "platform": "linux | windows | osx"
+    },
     "libarchive",
     "libbpg",
     {

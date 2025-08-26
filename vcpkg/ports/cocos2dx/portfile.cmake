@@ -27,6 +27,7 @@ vcpkg_extract_source_archive(
         patch/fix-iconv-cast.patch
         patch/fix-mac-audio-build.patch
         patch/fix-mac-glew.patch
+        patch/fix-mac-glfw3.patch
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/cocos2dx-config.cmake.in" DESTINATION "${SOURCE_PATH}")
