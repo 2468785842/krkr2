@@ -11,18 +11,18 @@
 
 #include "PSBEnums.h"
 
-// 定义 
-// 
-// 
-// 
-// 
+// 定义
+//
+//
+//
+//
 // 类型
 #if defined(_MSC_VER)
-    // 如果是 MSVC，定义 uint 为 unsigned int
-    typedef unsigned int uint;
+// 如果是 MSVC，定义 uint 为 unsigned int
+typedef unsigned int uint;
 #else
-    // 对于其他编译器，使用 std::uint32_t
-    using uint = std::uint32_t;
+// 对于其他编译器，使用 std::uint32_t
+using uint = std::uint32_t;
 #endif
 
 namespace PSB::Extension {

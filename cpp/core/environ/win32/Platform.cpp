@@ -316,14 +316,14 @@ bool TVPDeleteFile(const std::string &filename) {
     return _wunlink(ttstr(filename).toWString().c_str()) == 0;
 }
 #endif
-bool TVPDeleteFile(const std::string& filename)
-{
+bool TVPDeleteFile(const std::string &filename) {
     /* 1. UTF-8 → UTF-16 */
     int len = MultiByteToWideChar(CP_UTF8, 0, filename.c_str(), -1, nullptr, 0);
-    if (len <= 0) return false;
+    if(len <= 0)
+        return false;
     std::wstring path(len, 0);
     MultiByteToWideChar(CP_UTF8, 0, filename.c_str(), -1, &path[0], len);
-    path.pop_back();                 // 去掉末尾 '\0'
+    path.pop_back(); // 去掉末尾 '\0'
 
     /* 2. 构造双 '\0' 结尾 */
     path.push_back(L'\0');
@@ -331,8 +331,8 @@ bool TVPDeleteFile(const std::string& filename)
 
     /* 3. 递归删除（文件或目录均可） */
     SHFILEOPSTRUCTW op = {};
-    op.wFunc  = FO_DELETE;
-    op.pFrom  = path.c_str();
+    op.wFunc = FO_DELETE;
+    op.pFrom = path.c_str();
     op.fFlags = FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT;
 
     return SHFileOperationW(&op) == 0;
@@ -345,16 +345,18 @@ bool TVPRenameFile(const std::string &from, const std::string &to) {
     return !ret;
 }
 #endif
-bool TVPRenameFile(const std::string& from, const std::string& to) {
+bool TVPRenameFile(const std::string &from, const std::string &to) {
     // UTF-8 → UTF-16
     int len1 = MultiByteToWideChar(CP_UTF8, 0, from.c_str(), -1, nullptr, 0);
-    int len2 = MultiByteToWideChar(CP_UTF8, 0, to.c_str(),   -1, nullptr, 0);
-    if (len1 <= 0 || len2 <= 0) return false;
+    int len2 = MultiByteToWideChar(CP_UTF8, 0, to.c_str(), -1, nullptr, 0);
+    if(len1 <= 0 || len2 <= 0)
+        return false;
 
     std::wstring wfrom(len1, 0), wto(len2, 0);
     MultiByteToWideChar(CP_UTF8, 0, from.c_str(), -1, &wfrom[0], len1);
-    MultiByteToWideChar(CP_UTF8, 0, to.c_str(),   -1, &wto[0],   len2);
-    wfrom.pop_back(); wto.pop_back();
+    MultiByteToWideChar(CP_UTF8, 0, to.c_str(), -1, &wto[0], len2);
+    wfrom.pop_back();
+    wto.pop_back();
 
     // MOVEFILE_REPLACE_EXISTING 允许覆盖已有目标
     return MoveFileExW(wfrom.c_str(), wto.c_str(),

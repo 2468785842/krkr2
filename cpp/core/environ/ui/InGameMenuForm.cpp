@@ -96,7 +96,8 @@ TVPInGameMenuForm::createMenuItem(int idx, tTJSNI_MenuItem *item,
             });
     } else if(caption == "-") {
         float w = size.width;
-        Widget* sep = Csd::createSeperateItem(w, 2.0f, Color4F(0.6f, 0.6f, 0.6f, 1.0f));
+        Widget *sep =
+            Csd::createSeperateItem(w, 2.0f, Color4F(0.6f, 0.6f, 0.6f, 1.0f));
         return sep;
     } else {
         ret = CreatePreferenceItem<tPreferenceItemConstant>(idx, size, caption);

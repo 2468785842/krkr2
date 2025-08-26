@@ -17,16 +17,19 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // 处理命令行参数，获取拖拽的文件路径
     int argc = 0;
-    LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    LPWSTR *argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
     std::wstring xp3Path;
-    if (argc > 1) {
+    if(argc > 1) {
         // 第一个参数是exe路径，第二个参数是拖拽的文件路径
         xp3Path = argv[1];
         // Convert std::wstring to UTF-8 std::string using WideCharToMultiByte
-        int size_needed = WideCharToMultiByte(CP_UTF8, 0, xp3Path.c_str(), (int)xp3Path.size(), NULL, 0, NULL, NULL);
+        int size_needed =
+            WideCharToMultiByte(CP_UTF8, 0, xp3Path.c_str(),
+                                (int)xp3Path.size(), NULL, 0, NULL, NULL);
         std::string xp3PathUtf8(size_needed, 0);
-        WideCharToMultiByte(CP_UTF8, 0, xp3Path.c_str(), (int)xp3Path.size(), &xp3PathUtf8[0], size_needed, NULL, NULL);
+        WideCharToMultiByte(CP_UTF8, 0, xp3Path.c_str(), (int)xp3Path.size(),
+                            &xp3PathUtf8[0], size_needed, NULL, NULL);
         spdlog::info("XP3 文件路径: {}", xp3PathUtf8);
         TVPMainFileSelectorForm::filePath = xp3Path;
     }

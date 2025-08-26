@@ -66,7 +66,7 @@ void *tTVPThread::StartProc(void *arg) {
 
 //---------------------------------------------------------------------------
 void tTVPThread::WaitFor() {
-    if (Handle.joinable()) {
+    if(Handle.joinable()) {
         Handle.join();
     }
 }

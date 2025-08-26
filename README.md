@@ -13,6 +13,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
     - [编译步骤](#编译步骤)
   - [可执行文件位置](#可执行文件位置)
   - [代码格式化](#代码格式化)
+  - [支持的游戏](#支持的游戏)
   - [插件资源](#插件资源)
   - [贡献指南](#贡献指南)
   - [许可证](#许可证)
@@ -27,7 +28,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 - **Linux**:
   - x64
 - **MacOS**:
-  - arm
+  - arm64
 
 ## 依赖构建工具
 
@@ -124,6 +125,10 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
     Where-Object { $_.Name -match '\.(cpp|cc|h|hpp|inc)$' } | 
     ForEach-Object { clang-format -i --verbose $_.FullName }
     ```
+
+## 支持的游戏
+- [games](support_games.txt)
+
 ## 插件资源
 
 您可以在 [wamsoft 的 GitHub 仓库](https://github.com/orgs/wamsoft/repositories?type=all) 中找到相关的插件和工具库。

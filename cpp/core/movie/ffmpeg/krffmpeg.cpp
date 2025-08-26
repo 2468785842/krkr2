@@ -121,18 +121,19 @@ static int64_t AVSeekFunc(void *opaque, int64_t offset, int whence) {
 
 bool TVPCheckIsVideoFile(const char *uri) {
     TVPInitLibAVCodec();
-    tTJSBinaryStream *stream =nullptr;
-    try{
-        stream =  TVPCreateStream(uri, TJS_BS_READ);
-    }
-    catch(eTJSScriptException &e) {
-        spdlog::error("Error opening video file: %s", e.GetMessage().AsStdString().c_str());
+    tTJSBinaryStream *stream = nullptr;
+    try {
+        stream = TVPCreateStream(uri, TJS_BS_READ);
+    } catch(eTJSScriptException &e) {
+        spdlog::error("Error opening video file: %s",
+                      e.GetMessage().AsStdString().c_str());
         return false;
-    }catch(eTJSError &e) {
-        spdlog::error("Error opening video file: %s", e.GetMessage().AsStdString().c_str());
+    } catch(eTJSError &e) {
+        spdlog::error("Error opening video file: %s",
+                      e.GetMessage().AsStdString().c_str());
         return false;
     }
-    
+
     int bufSize = 32 * 1024;
     if(stream->GetSize() < bufSize) {
         delete stream;
