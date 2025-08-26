@@ -147,6 +147,7 @@ if (WINDOWS)
 endif ()
 
 if (WINDOWS OR MACOSX OR LINUX)
+    find_package(PkgConfig REQUIRED)
     pkg_check_modules(glfw REQUIRED glfw3)
     target_include_directories(external INTERFACE "${glfw_INCLUDE_DIRS}/GLFW")
     target_link_libraries(external INTERFACE ${glfw_LIBRARIES})
