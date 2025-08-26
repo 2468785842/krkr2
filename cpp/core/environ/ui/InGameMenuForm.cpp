@@ -95,14 +95,9 @@ TVPInGameMenuForm::createMenuItem(int idx, tTJSNI_MenuItem *item,
                 item->_setter = setter;
             });
     } else if(caption == "-") {
-        CSBReader reader;
-        Widget *root =
-            static_cast<Widget *>(reader.Load("ui/comctrl/SeperateItem.csb"));
-        cocos2d::Size rootsize = root->getContentSize();
-        rootsize.width = size.width;
-        root->setContentSize(rootsize);
-        ui::Helper::doLayout(root);
-        return root;
+        float w = size.width;
+        Widget* sep = Csd::createSeperateItem(w, 2.0f, Color4F(0.6f, 0.6f, 0.6f, 1.0f));
+        return sep;
     } else {
         ret = CreatePreferenceItem<tPreferenceItemConstant>(idx, size, caption);
         ret->addClickEventListener([=](Ref *) {

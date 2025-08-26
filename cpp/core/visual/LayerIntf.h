@@ -508,6 +508,8 @@ public:
     void *GetProvinceImagePixelBufferForWrite();
     tjs_int GetProvinceImagePixelBufferPitch() const;
 
+    void ApplyLightContrast(tjs_int brightness_offset, tjs_int contrast_value);
+
     //---------------------------------- input event / hit test
     // management --
 private:
@@ -859,6 +861,11 @@ public:
     void DoBoxBlur(tjs_int xblur = 1, tjs_int yblur = 1);
 
     void AdjustGamma(const tTVPGLGammaAdjustData &data);
+
+    // 高斯模糊方法
+    // radius: 模糊半径，影响核的大小和模糊程度 (例如，整数 1, 2, 3...)
+    // sigma: 高斯函数的标准差，控制模糊的平滑度 (例如，浮点数 1.0, 1.5...)
+    void ApplyGaussianBlur(tjs_int radius, float sigma);
     void DoGrayScale();
     void LRFlip();
     void UDFlip();

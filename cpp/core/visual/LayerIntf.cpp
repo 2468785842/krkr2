@@ -969,6 +969,137 @@ void tTJSNI_BaseLayer::CheckChildrenVisibleState() {
     TVP_LAYER_FOR_EACH_CHILD_NOLOCK_END
 }
 
+void tTJSNI_BaseLayer::ApplyLightContrast(tjs_int brightness_offset, tjs_int contrast_value) {
+    if(!CanHaveImage || !MainImage || !GetHasImage()) {
+        TVPAddLog(
+            TJS_W("BaseLayer::ApplyLightContrast: Layer cannot have, does not have, or GetHasImage is false for the main image."));
+        return;
+    }
+
+
+    tjs_uint image_width = GetImageWidth();
+    tjs_uint image_height = GetImageHeight();
+
+    if (image_width == 0 || image_height == 0) {
+        TVPAddLog(TJS_W("BaseLayer::ApplyLightContrast: Image dimensions are zero."));
+        return;
+    }
+
+    void* buffer_raw = GetMainImagePixelBufferForWrite();
+    if (!buffer_raw) {
+        TVPAddLog(TJS_W("BaseLayer::ApplyLightContrast: Failed to get main image pixel buffer for writing."));
+        return;
+    }
+
+    tjs_uint8* pixel_buffer_base = static_cast<tjs_uint8*>(buffer_raw);
+    tjs_int pitch = GetMainImagePixelBufferPitch();
+    const int bytes_per_pixel = 4; // 假设 32-bit ARGB
+
+    // 对比度调整因子计算
+    // contrast_value: 假设范围是 -100 到 100 (一个常见的范围)
+    // 映射到更适合公式的值，例如 -255 到 255 (如果 contrast_value 定义如此)
+    // 如果 contrast_value 就是 -255 到 255，则不需要映射
+    // 这里我们假设 contrast_value 是一个可以直接用于公式的标度
+    // 一个常用的对比度公式因子:
+    // contrast_value 一般范围在 -255 到 255. 0 是无变化.
+    // 我们需要将其转换为一个乘法因子。
+    // 如果 contrast_value 为 C (范围 -255 到 255):
+    // factor = (259.0 * (C + 255.0)) / (255.0 * (259.0 - C));
+    // 如果 C 为 0, factor = (259*255)/(255*259) = 1 (无变化)
+    // 如果 C 为 255, factor = (259*510)/(255*4) = 129.5 (最大对比度) - 这个公式可能需要调整或选择其他
+    //
+    // 另一种简单的对比度方法：
+    // factor = (100.0 + contrast_value) / 100.0; // 如果 contrast_value 是百分比 (-100 to infinity)
+    // newColor = factor * (oldColor - 128) + 128;
+    //
+    // 为了简单，我们使用一个可调的 contrast_level (例如 -127 到 127)
+    // float fContrast = 1.0f + (contrast_value / 127.0f); // 假设 contrast_value 在 -127 到 127
+    // 如果 contrast_value 在 TJS 中是 0-255 或类似，你需要先规范化
+
+    double actual_contrast_factor;
+    if (contrast_value == 0) {
+        actual_contrast_factor = 1.0;
+    } else {
+        // 使用一个更标准化的对比度公式
+        // 让 TJS 传入的 contrast_value 在 -100 到 100 之间
+        // 如果 contrast_value = 0, factor should be 1.0
+        // 如果 contrast_value = 100, factor might be 2.0 (增强对比度)
+        // 如果 contrast_value = -100, factor might be 0.0 (降低对比度到灰色)
+        // 我们需要定义 contrast_value 的含义。假设它是一个百分比调整。
+        // 例如, 0 = no change, 100 = double contrast range, -100 = flatten to grey
+        // 一个简单的线性映射：
+        // if contrast_value in [-100, 100]
+        // mapped_contrast = (contrast_value + 100.0) / 100.0; // range [0, 2]
+        // This is not standard.
+        // Let's use the formula: Factor = (259 * (Contrast + 255)) / (255 * (259 - Contrast))
+        // Where Contrast is in [-255, 255].
+        // If your TJS FaceContrast is, say, 0-100, you need to map it.
+        // Example mapping: if FaceContrast is 0..100 (0=normal, 100=max)
+        // then C_formula = FaceContrast * 2.55; (maps 100 to 255)
+        // If FaceContrast is -100..100 (0=normal)
+        // then C_formula = FaceContrast * 2.55;
+
+        // 我们假设 TJS 传入的 contrast_value 就是公式中的 C (范围 -255 到 255)
+        if (contrast_value > 255) contrast_value = 255;
+        if (contrast_value < -255) contrast_value = -255;
+
+        if (contrast_value == 255) { // 避免除以零或接近零
+            actual_contrast_factor = 259.0 * (255.0 + 255.0) / (255.0 * (259.0 - 254.9)); // 近似
+        } else if (contrast_value == -255) {
+            actual_contrast_factor = 0; // 变成灰色
+        }
+        else {
+            actual_contrast_factor = (259.0 * (contrast_value + 255.0)) / (255.0 * (259.0 - contrast_value));
+        }
+    }
+
+
+    for (tjs_uint y = 0; y < image_height; ++y) {
+        tjs_uint8* current_scanline_ptr = pixel_buffer_base + (y * pitch);
+        for (tjs_uint x = 0; x < image_width; ++x) {
+            tjs_uint32* current_pixel_val_ptr = reinterpret_cast<tjs_uint32*>(current_scanline_ptr + x * bytes_per_pixel);
+            tjs_uint32 original_color = *current_pixel_val_ptr;
+
+            tjs_uint8 a_comp = (original_color >> 24) & 0xFF;
+            tjs_uint8 r_comp = (original_color >> 16) & 0xFF;
+            tjs_uint8 g_comp = (original_color >> 8) & 0xFF;
+            tjs_uint8 b_comp = original_color & 0xFF;
+
+            // 1. 应用亮度调整
+            tjs_int r_bright = static_cast<tjs_int>(r_comp) + brightness_offset;
+            tjs_int g_bright = static_cast<tjs_int>(g_comp) + brightness_offset;
+            tjs_int b_bright = static_cast<tjs_int>(b_comp) + brightness_offset;
+
+            // Clamp brightness adjusted values
+            r_bright = (r_bright < 0) ? 0 : ((r_bright > 255) ? 255 : r_bright);
+            g_bright = (g_bright < 0) ? 0 : ((g_bright > 255) ? 255 : g_bright);
+            b_bright = (b_bright < 0) ? 0 : ((b_bright > 255) ? 255 : b_bright);
+
+            // 2. 应用对比度调整 (在亮度调整后的值上)
+            double r_contrast = actual_contrast_factor * (r_bright - 128.0) + 128.0;
+            double g_contrast = actual_contrast_factor * (g_bright - 128.0) + 128.0;
+            double b_contrast = actual_contrast_factor * (b_bright - 128.0) + 128.0;
+
+            // Clamp contrast adjusted values
+            r_comp = static_cast<tjs_uint8>((r_contrast < 0) ? 0 : ((r_contrast > 255) ? 255 : r_contrast));
+            g_comp = static_cast<tjs_uint8>((g_contrast < 0) ? 0 : ((g_contrast > 255) ? 255 : g_contrast));
+            b_comp = static_cast<tjs_uint8>((b_contrast < 0) ? 0 : ((b_contrast > 255) ? 255 : b_contrast));
+
+            *current_pixel_val_ptr = (static_cast<tjs_uint32>(a_comp) << 24) |
+                (static_cast<tjs_uint32>(r_comp) << 16) |
+                (static_cast<tjs_uint32>(g_comp) << 8)  |
+                static_cast<tjs_uint32>(b_comp);
+        }
+    }
+
+    SetImageModified(true);
+    Update();
+
+    TVPAddLog(TJS_W("BaseLayer::ApplyLightContrast: Brightness adjusted by ") + ttstr(brightness_offset) +
+              TJS_W(", Contrast factor applied: ") + ttstr(std::to_string(actual_contrast_factor)) +
+              TJS_W(" (from input contrast_value: ") + ttstr(contrast_value) + TJS_W(")"));
+}
+
 //---------------------------------------------------------------------------
 void tTJSNI_BaseLayer::NotifyChildrenVisualStateChanged() {
     VisibleChildrenCount = -1;
@@ -5245,6 +5376,144 @@ void tTJSNI_BaseLayer::AdjustGamma(const tTVPGLGammaAdjustData &data) {
     Update();
 }
 
+// Function to generate a 1D Gaussian kernel
+std::vector<float> generate_1d_gaussian_kernel(int radius, float sigma) {
+    int size = 2 * radius + 1;
+    std::vector<float> kernel(size);
+    float sum = 0.0f;
+    float r_squared = 2.0f * sigma * sigma;
+
+    for (int i = 0; i < size; ++i) {
+        int x = i - radius;
+        kernel[i] = exp(-(static_cast<float>(x * x)) / r_squared);
+        sum += kernel[i];
+    }
+
+    // Normalize the kernel
+    for (int i = 0; i < size; ++i) {
+        kernel[i] /= sum;
+    }
+    return kernel;
+}
+
+void tTJSNI_BaseLayer::ApplyGaussianBlur(tjs_int radius, float sigma) {
+    if (!CanHaveImage || !MainImage || !GetHasImage()) {
+        TVPAddLog(TJS_W("BaseLayer::ApplyGaussianBlur: Layer cannot have or does not have a main image."));
+        return;
+    }
+
+    tjs_uint image_width = GetImageWidth();
+    tjs_uint image_height = GetImageHeight();
+
+    if (image_width == 0 || image_height == 0 || radius <= 0 || sigma <= 0.0f) {
+        TVPAddLog(TJS_W("BaseLayer::ApplyGaussianBlur: Invalid parameters (dimensions, radius, or sigma)."));
+        return;
+    }
+
+    // 1. Get original image data (we'll need a copy to read from while writing to the main buffer)
+    // It's safer to work on a copy or a temporary buffer for convolution
+    std::vector<tjs_uint32> original_pixels(image_width * image_height);
+
+    const void* main_buffer_ptr = GetMainImagePixelBuffer(); // For reading
+    if(!main_buffer_ptr) {
+        TVPAddLog(TJS_W("BaseLayer::ApplyGaussianBlur: Failed to get main image pixel buffer for reading."));
+        return;
+    }
+    const tjs_uint8* main_image_data_byte_ptr = reinterpret_cast<const tjs_uint8*>(main_buffer_ptr);
+    tjs_int main_image_pitch = GetMainImagePixelBufferPitch();
+
+    for (tjs_uint y_idx = 0; y_idx < image_height; ++y_idx) {
+        const tjs_uint32* scanline_in = reinterpret_cast<const tjs_uint32*>(main_image_data_byte_ptr + y_idx * main_image_pitch);
+        for (tjs_uint x_idx = 0; x_idx < image_width; ++x_idx) {
+            original_pixels[y_idx * image_width + x_idx] = scanline_in[x_idx];
+        }
+    }
+    // Release read buffer if GetMainImagePixelBuffer() implies a lock
+    // (Depends on specific implementation of GetMainImagePixelBuffer)
+
+
+    // 2. Generate 1D Gaussian kernel (for separable convolution)
+    std::vector<float> kernel_1d = generate_1d_gaussian_kernel(radius, sigma);
+    int kernel_radius = radius; // kernel_1d.size() = 2 * kernel_radius + 1
+
+    // 3. Prepare a temporary buffer for the first pass (horizontal blur)
+    std::vector<tjs_uint32> temp_pixels(image_width * image_height);
+
+    // --- First Pass: Horizontal Blur ---
+    for (tjs_int y = 0; y < static_cast<tjs_int>(image_height); ++y) {
+        for (tjs_int x = 0; x < static_cast<tjs_int>(image_width); ++x) {
+            float sum_r = 0.0f, sum_g = 0.0f, sum_b = 0.0f, sum_a = 0.0f;
+            // float total_weight = 0.0f; // Kernel is already normalized
+
+            for (int k = -kernel_radius; k <= kernel_radius; ++k) {
+                int sample_x = x + k;
+
+                // Edge handling: Clamp to edge (simple method)
+                sample_x = std::max(0, std::min(sample_x, static_cast<tjs_int>(image_width) - 1));
+
+                tjs_uint32 pixel_color = original_pixels[y * image_width + sample_x];
+                float weight = kernel_1d[k + kernel_radius];
+
+                sum_a += ((pixel_color >> 24) & 0xFF) * weight;
+                sum_r += ((pixel_color >> 16) & 0xFF) * weight;
+                sum_g += ((pixel_color >> 8) & 0xFF) * weight;
+                sum_b += (pixel_color & 0xFF) * weight;
+            }
+
+            tjs_uint8 final_a = static_cast<tjs_uint8>(std::min(255.0f, std::max(0.0f, sum_a)));
+            tjs_uint8 final_r = static_cast<tjs_uint8>(std::min(255.0f, std::max(0.0f, sum_r)));
+            tjs_uint8 final_g = static_cast<tjs_uint8>(std::min(255.0f, std::max(0.0f, sum_g)));
+            tjs_uint8 final_b = static_cast<tjs_uint8>(std::min(255.0f, std::max(0.0f, sum_b)));
+
+            temp_pixels[y * image_width + x] = (final_a << 24) | (final_r << 16) | (final_g << 8) | final_b;
+        }
+    }
+
+    // --- Second Pass: Vertical Blur (from temp_pixels to final output buffer) ---
+    void* output_buffer_raw = GetMainImagePixelBufferForWrite();
+    if (!output_buffer_raw) {
+        TVPAddLog(TJS_W("BaseLayer::ApplyGaussianBlur: Failed to get main image pixel buffer for writing."));
+        return; // Or restore original_pixels to the buffer if appropriate
+    }
+    tjs_uint8* output_pixel_buffer_base = static_cast<tjs_uint8*>(output_buffer_raw);
+    tjs_int output_pitch = GetMainImagePixelBufferPitch();
+
+    for (tjs_int y = 0; y < static_cast<tjs_int>(image_height); ++y) {
+        for (tjs_int x = 0; x < static_cast<tjs_int>(image_width); ++x) {
+            float sum_r = 0.0f, sum_g = 0.0f, sum_b = 0.0f, sum_a = 0.0f;
+
+            for (int k = -kernel_radius; k <= kernel_radius; ++k) {
+                int sample_y = y + k;
+
+                // Edge handling: Clamp to edge
+                sample_y = std::max(0, std::min(sample_y, static_cast<tjs_int>(image_height) - 1));
+
+                tjs_uint32 pixel_color = temp_pixels[sample_y * image_width + x]; // Read from horizontally blurred temp buffer
+                float weight = kernel_1d[k + kernel_radius];
+
+                sum_a += ((pixel_color >> 24) & 0xFF) * weight;
+                sum_r += ((pixel_color >> 16) & 0xFF) * weight;
+                sum_g += ((pixel_color >> 8) & 0xFF) * weight;
+                sum_b += (pixel_color & 0xFF) * weight;
+            }
+
+            tjs_uint32* output_pixel_val_ptr = reinterpret_cast<tjs_uint32*>(output_pixel_buffer_base + y * output_pitch + x * 4 /*bytes_per_pixel*/);
+
+            output_pixel_val_ptr[0] =
+                (static_cast<tjs_uint8>(std::min(255.0f, std::max(0.0f, sum_a))) << 24) |
+                (static_cast<tjs_uint8>(std::min(255.0f, std::max(0.0f, sum_r))) << 16) |
+                (static_cast<tjs_uint8>(std::min(255.0f, std::max(0.0f, sum_g))) << 8)  |
+                (static_cast<tjs_uint8>(std::min(255.0f, std::max(0.0f, sum_b))));
+        }
+    }
+
+    SetImageModified(true);
+    Update();
+
+    TVPAddLog(TJS_W("BaseLayer::ApplyGaussianBlur: Gaussian blur applied with radius ") + ttstr(radius) +
+              TJS_W(" and sigma ") + ttstr(std::to_string(sigma)));
+}
+
 //---------------------------------------------------------------------------
 void tTJSNI_BaseLayer::DoGrayScale() {
     // this is not affected by DrawFace
@@ -7647,6 +7916,47 @@ tTJSNC_Layer::tTJSNC_Layer() : tTJSNativeClass(TJS_W("Layer")) {
     //-- methods
 
     //----------------------------------------------------------------------
+
+    //----------------------------------------------------------------------
+    // 在合适的位置，例如其他 Layer 方法绑定之后
+    //----------------------------------------------------------------------
+    TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ light) // TJS中调用的方法名是 "light"
+    {
+        // 获取调用该方法的 Layer 对象的 C++ 实例
+        TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this, /*var. type*/ tTJSNI_Layer);
+
+        // 检查参数数量
+        // light 方法期望两个参数：brightness 和 contrast
+        if(numparams < 2)
+            return TJS_E_BADPARAMCOUNT; // 参数数量不足
+
+        // 从 TJSVariant 类型的参数中获取值
+        // param[0] 是第一个参数 (brightness)
+        // param[1] 是第二个参数 (contrast)
+        // 你需要将它们转换为 C++ 中合适的类型，例如 tjs_int 或 float
+
+        tjs_int brightness = 0; // 默认值
+        tjs_int contrast = 0;   // 默认值
+
+        // 从 tTJSVariant 转换为 tjs_int (或其他适当类型)
+        // 需要进行类型检查和转换
+        if (param[0]->Type() != tvtVoid) { // 确保参数不是 void (即提供了参数)
+            brightness = param[0]->AsInteger(); // 或者 param[0]->AsReal() 如果是浮点数
+        }
+        if (param[1]->Type() != tvtVoid) {
+            contrast = param[1]->AsInteger();   // 或者 param[1]->AsReal()
+        }
+        _this->ApplyLightContrast(brightness,contrast);
+        // 需要实现内部逻辑
+        if(result) result->Clear(); // 清除返回值，表示void
+
+        return TJS_S_OK; // 表示成功
+    }
+    TJS_END_NATIVE_METHOD_DECL(/*func. name*/ light)
+    //----------------------------------------------------------------------
+
+
+    //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ moveBefore) {
         TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,
                                 /*var. type*/ tTJSNI_Layer);
@@ -8869,6 +9179,53 @@ tTJSNC_Layer::tTJSNC_Layer() : tTJSNativeClass(TJS_W("Layer")) {
         return TJS_S_OK;
     }
     TJS_END_NATIVE_METHOD_DECL(/*func. name*/ adjustGamma)
+
+
+    TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ gaussianBlur) {
+        TJS_GET_NATIVE_INSTANCE(/*var. name*/ layer_instance, /*var. type*/ tTJSNI_Layer);
+
+        if(numparams < 1) return TJS_E_BADPARAMCOUNT; // At least radius is needed
+
+        tjs_int radius = 1; // Default radius
+        float sigma = 1.0f; // Default sigma
+
+        if (param[0]->Type() != tvtVoid) {
+            radius = param[0]->AsInteger();
+        }
+
+        if (numparams >= 2 && param[1]->Type() != tvtVoid) {
+            sigma = (float)param[1]->AsReal();
+        } else {
+            // If sigma is not provided, a common practice is to derive it from radius
+            // sigma = 0.3 * ((radius - 1) * 0.5 - 1) + 0.8; // Example from some libraries
+            // Or simply: sigma = static_cast<float>(radius) / 2.0f;
+            // For simplicity, if only radius is given, let's use a sigma that "looks good" for that radius.
+            // A common rule of thumb: sigma approx radius/2 or radius/3
+            // Or, use a fixed sensible default if not provided, or require it.
+            // Here, we use a default if not given, but you might want to require both.
+            if (radius > 0 && sigma == 1.0f && numparams < 2) { // Sigma was not explicitly set
+                sigma = std::max(1.0f, static_cast<float>(radius) / 2.5f);
+            }
+        }
+
+        if (radius <= 0) {
+            TVPAddLog(TJS_W("Layer.gaussianBlur: Radius must be positive."));
+            return TJS_E_INVALIDPARAM;
+        }
+        if (sigma <= 0.0f) {
+            TVPAddLog(TJS_W("Layer.gaussianBlur: Sigma must be positive."));
+            return TJS_E_INVALIDPARAM;
+        }
+
+
+        layer_instance->ApplyGaussianBlur(radius, sigma);
+
+        if(result) result->Clear();
+        return TJS_S_OK;
+    }
+    TJS_END_NATIVE_METHOD_DECL(/*func. name*/ gaussianBlur)
+
+
     //----------------------------------------------------------------------
     TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ doGrayScale) {
         TJS_GET_NATIVE_INSTANCE(/*var. name*/ _this,

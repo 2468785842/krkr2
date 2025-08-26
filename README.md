@@ -55,6 +55,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - `bison@3.8.2+`
   - `python3`
   - `NASM@latest`
+  - `YASM`
 - **MacOS**:
   - Xcode
   - Ninja
@@ -83,10 +84,12 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 ### 编译步骤
 
 - **Android**:
-  - 在 Windows 上运行: `./gradlew.bat assemble`
+  - 在 Windows 上运行: `./gradlew.bat assemble` 如果遇到`glib`无法安装查看[Build](Build.md)
   - 在 Linux 上运行: `./gradlew assemble`
+  
 - **Windows**:
   - 运行: `./build-windows.bat`
+  
 - **Linux**:
   - 运行: `./build-linux.sh`
 

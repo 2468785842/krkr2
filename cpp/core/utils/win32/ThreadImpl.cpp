@@ -65,7 +65,11 @@ void *tTVPThread::StartProc(void *arg) {
 }
 
 //---------------------------------------------------------------------------
-void tTVPThread::WaitFor() { Handle.join(); }
+void tTVPThread::WaitFor() {
+    if (Handle.joinable()) {
+        Handle.join();
+    }
+}
 
 //---------------------------------------------------------------------------
 tTVPThreadPriority tTVPThread::GetPriority() {

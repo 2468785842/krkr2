@@ -4,6 +4,11 @@
 #include <stdint.h>
 #include <cassert>
 #include <climits>
+
+#if defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
+        #include <emmintrin.h> // For SSE2 intrinsics like _mm_set_sd and _mm_cvttsd_si32
+#endif
+
 #include <cmath>
 
 // use real compiler defines in here as we want to
@@ -103,6 +108,7 @@ namespace MathUtils {
         const float round_to_nearest = 0.5f;
         int i;
 #if defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
+        
         const float round_dn_to_nearest = 0.4999999f;
         i = (x > 0) ? _mm_cvttsd_si32(_mm_set_sd(x + round_to_nearest))
                     : _mm_cvttsd_si32(_mm_set_sd(x - round_dn_to_nearest));

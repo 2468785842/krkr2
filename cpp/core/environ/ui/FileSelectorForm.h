@@ -3,6 +3,19 @@
 #include "GUI/CCScrollView/CCTableView.h"
 #include "base/CCRefPtr.h"
 
+#ifdef _WIN32
+#   define S_ISDIR(m)  (((m) & _S_IFMT) == _S_IFDIR)
+#   define S_ISREG(m)  (((m) & _S_IFMT) == _S_IFREG)
+#   define S_ISLNK(m)  0   // Windows 无 POSIX symlink 标志
+#else
+#   include <unistd.h>      // 自带 POSIX 宏
+#endif
+
+
+std::string utf8_to_local(const std::string &utf8);
+std::wstring utf8_to_wstr(const std::string& utf8);
+std::string local_to_utf8(const std::string &local);
+std::string wstr_to_local(const std::wstring &wstr);
 class TVPListForm : public cocos2d::Node {
 public:
     virtual ~TVPListForm();
@@ -44,6 +57,9 @@ protected:
     void bindHeaderController(const Node *allNodes) override;
     void bindBodyController(const Node *allNodes) override;
     void bindFooterController(const Node *allNodes) override {}
+
+    void bindHeaderController(const NodeMap &allNodes) override;
+    void bindBodyController(const NodeMap &allNodes) override;
 
     void ListDir(std::string path);
     virtual void getShortCutDirList(std::vector<std::string> &pathlist);
@@ -202,3 +218,7 @@ protected:
     std::string _result;
     bool _isSaveMode;
 };
+
+static std::string utf8_safe_substr(const std::string& s, size_t max_chars);
+static std::string codepoints_to_utf8(const std::vector<uint32_t>& cp);
+static std::vector<uint32_t> utf8_to_codepoints(const std::string& s);

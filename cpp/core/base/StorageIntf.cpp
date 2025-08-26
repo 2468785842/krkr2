@@ -291,9 +291,14 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
     //   media name is: /^[A-Za-z]+:/
     pa = pb = tmp.Independ();
     while(*pa) {
+        #ifdef WIN32
+            if(*pa == TJS_W(':'))
+                break;
+        #else
         if(!((*pa >= TJS_W('A') && *pa <= TJS_W('Z')) ||
              (*pa >= TJS_W('a') && *pa <= TJS_W('z'))))
             break;
+        #endif
         pa++;
     }
 

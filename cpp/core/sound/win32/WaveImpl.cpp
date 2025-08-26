@@ -1516,11 +1516,11 @@ tTVPWaveSoundBufferThread::tTVPWaveSoundBufferThread() :
 //---------------------------------------------------------------------------
 tTVPWaveSoundBufferThread::~tTVPWaveSoundBufferThread() {
     SetPriority(ttpNormal);
-    Terminate();
     Resume();
     Event.Set();
     WaitFor();
     EventQueue.Deallocate();
+    Terminate();
 }
 
 //---------------------------------------------------------------------------
@@ -1820,8 +1820,9 @@ tTVPWaveSoundBufferDecodeThread::~tTVPWaveSoundBufferDecodeThread() {
     Running = false;
     Terminate();
     Resume();
-    Event.Set();
+    //Event.Set();
     WaitFor();
+
 }
 //---------------------------------------------------------------------------
 #define TVP_WSB_DECODE_THREAD_SLEEP_TIME 110
@@ -1970,8 +1971,10 @@ void tTJSNI_WaveSoundBuffer::Invalidate() {
 
     DestroySoundBuffer();
 
-    if(Thread)
+    if(Thread){
         delete Thread, Thread = nullptr;
+    }
+
 
     TVPRemoveWaveSoundBuffer(this);
 }

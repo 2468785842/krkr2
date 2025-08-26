@@ -1623,7 +1623,7 @@ public:
     static TVPWindowManagerOverlay *create() {
         auto *ret = new TVPWindowManagerOverlay();
         ret->autorelease();
-        ret->initFromFile(nullptr, Csd::createWinMgrOverlay(), nullptr);
+        ret->initFromWidget(nullptr, Csd::createWinMgrOverlay(), nullptr);
         return ret;
     }
 
@@ -1828,6 +1828,15 @@ TVPMainScene *TVPMainScene::create() {
 }
 
 void TVPMainScene::pushUIForm(cocos2d::Node *ui, eEnterAni ani) {
+    #if defined(TVP_DEBUG) || defined(TVP_DEBUG_UI) || defined(_DEBUG)
+    CCLOG("TVPMainScene::pushUIForm: ui=%p, ani=%d", ui, ani);
+    CCLOG("ui initial pos: %f, %f", ui->getPosition().x, ui->getPosition().y);
+    CCLOG("ui contentSize: %f x %f", ui->getContentSize().width, ui->getContentSize().height);
+    #endif
+    if(!ui) {
+        CCLOGERROR("TVPMainScene::pushUIForm: ui is nullptr");
+        return;
+    }
     TVPControlAdDialog(0x10002, 1, 0);
     int n = UINode->getChildrenCount();
     if(ani == eEnterAniNone) {
@@ -1921,6 +1930,7 @@ bool TVPMainScene::startupFrom(const std::string &path) {
     if(!TVPCheckStartupPath(path)) {
         return false;
     }
+ 
     IndividualConfigManager *pGlobalCfgMgr =
         IndividualConfigManager::GetInstance();
     pGlobalCfgMgr->UsePreferenceAt(
@@ -1967,7 +1977,12 @@ void TVPMainScene::doStartup(float dt, std::string path) {
     _consoleWin->setScale(1 / scale);
     _consoleWin->setContentSize(getContentSize() * scale);
     GameNode->addChild(_consoleWin, GAME_CONSOLE_ORDER);
+    #ifdef _WIN32
+    extern std::wstring local_to_wstr(const std::string &path);
+    ::Application->StartApplication((tjs_char*)local_to_wstr(path).c_str());
+    #else
     ::Application->StartApplication(path);
+    #endif
     // update one frame
     update(0);
     //_ResotreGLStatues(); // already in update()
