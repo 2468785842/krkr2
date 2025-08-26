@@ -213,14 +213,14 @@ void TVPMainFileSelectorForm::initFromFile() {
 }
 
 void TVPMainFileSelectorForm::startup(const std::string &path) {
-    if(TVPIsFirstLaunch) {
-        TVPTipsHelpForm::show()->setOnExitCallback([this, path] {
-            scheduleOnce([this, path](float) { doStartup(path); }, 0,
-                         "startup");
-        });
-    } else {
-        doStartup(path);
-    }
+    //    if(TVPIsFirstLaunch) {
+    //        TVPTipsHelpForm::show()->setOnExitCallback([this, path] {
+    //            scheduleOnce([this, path](float) { doStartup(path); }, 0,
+    //                         "startup");
+    //        });
+    //    } else {
+    doStartup(path);
+    //    }
 }
 
 void TVPMainFileSelectorForm::doStartup(const std::string &path) {

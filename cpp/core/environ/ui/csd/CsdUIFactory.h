@@ -996,8 +996,70 @@ namespace Csd {
     }
 
     static Widget *createAllTips() {
-        LOGGER->warn("createAllTipsLayer");
-        return nullptr;
+        // 创建根节点
+        const auto root = Widget::create();
+        root->setContentSize(cocos2d::Size(960, 480));
+
+        // 创建 ListView
+        const auto listView = ListView::create();
+        listView->setDirection(ScrollView::Direction::VERTICAL);
+        listView->setBounceEnabled(true);
+        listView->setTouchEnabled(true);
+        listView->setContentSize(cocos2d::Size(960, 480));
+        listView->setAnchorPoint(cocos2d::Vec2::ZERO);
+        listView->setPosition(cocos2d::Vec2::ZERO);
+        listView->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+        listView->setBackGroundColor(cocos2d::Color3B(42, 42, 42));
+        root->addChild(listView);
+
+        // 创建 touchTip 面板
+        const auto touchTip = Layout::create();
+        touchTip->setContentSize(cocos2d::Size(960, 360));
+        touchTip->setAnchorPoint(cocos2d::Vec2::ZERO);
+        touchTip->setPosition(cocos2d::Vec2(0, 180));
+        touchTip->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+        touchTip->setBackGroundColor(cocos2d::Color3B(150, 200, 255));
+
+        // 创建 FileNode_1 (这里用空节点代替)
+        const auto fileNode1 = Widget::create();
+        fileNode1->setContentSize(cocos2d::Size(960, 360));
+        fileNode1->setAnchorPoint(cocos2d::Vec2::ZERO);
+        fileNode1->setPosition(cocos2d::Vec2::ZERO);
+        touchTip->addChild(fileNode1);
+
+        // 创建 screenTip 面板
+        const auto screenTip = Layout::create();
+        screenTip->setContentSize(cocos2d::Size(960, 180));
+        screenTip->setAnchorPoint(cocos2d::Vec2::ZERO);
+        screenTip->setPosition(cocos2d::Vec2(0, 0));
+        screenTip->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+        screenTip->setBackGroundColor(cocos2d::Color3B(150, 200, 255));
+        screenTip->setLocalZOrder(1);
+
+        // 创建 FileNode_2 (这里用空节点代替)
+        const auto fileNode2 = Widget::create();
+        fileNode2->setContentSize(cocos2d::Size(960, 180));
+        fileNode2->setAnchorPoint(cocos2d::Vec2::ZERO);
+        fileNode2->setPosition(cocos2d::Vec2::ZERO);
+        screenTip->addChild(fileNode2);
+
+        // 将两个面板添加到 ListView
+        listView->addChild(touchTip);
+        listView->addChild(screenTip);
+
+        // 创建关闭按钮
+        const auto btnClose =
+            Button::create("img/Cancel_Normal.png", "img/Cancel_Press.png",
+                           "img/Cancel_Press.png");
+        btnClose->setAnchorPoint(cocos2d::Vec2(1, 1));
+        btnClose->setPosition(cocos2d::Vec2(960, 480));
+        btnClose->setContentSize(cocos2d::Size(80, 80));
+        btnClose->setTitleText("");
+        btnClose->setTitleFontSize(14);
+        btnClose->setTitleColor(cocos2d::Color3B(65, 65, 70));
+        root->addChild(btnClose);
+
+        return root;
     }
 
     static Widget *createWinMgrOverlay() {

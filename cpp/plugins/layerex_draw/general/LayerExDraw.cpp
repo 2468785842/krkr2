@@ -378,9 +378,13 @@ void layerex::FontInfo::setFamilyName(const tjs_char *fName) {
     FT_Set_Char_Size(this->ftFace, 0, emSize * 64, dpi, dpi);
 }
 
-void layerex::FontInfo::setForceSelfPathDraw(bool state) { forceSelfPathDraw = state; }
+void layerex::FontInfo::setForceSelfPathDraw(bool state) {
+    forceSelfPathDraw = state;
+}
 
-bool layerex::FontInfo::getForceSelfPathDraw() const { return forceSelfPathDraw; }
+bool layerex::FontInfo::getForceSelfPathDraw() const {
+    return forceSelfPathDraw;
+}
 
 bool layerex::FontInfo::getSelfPathDraw() const {
     return forceSelfPathDraw || gdiPlusUnsupportedFont;

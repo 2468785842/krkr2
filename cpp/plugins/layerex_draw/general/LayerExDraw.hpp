@@ -11,806 +11,808 @@
 #include "gdip_cxx_pen.h"
 
 namespace layerex {
-using namespace libgdiplus;
-/**
- * GDIPlus 固有処理用
- */
-struct GdiPlus {
+    using namespace libgdiplus;
     /**
-     * プライベートフォントの追加
-     * @param fontFileName フォントファイル名
+     * GDIPlus 固有処理用
      */
-    static void addPrivateFont(const tjs_char *fontFileName);
+    struct GdiPlus {
+        /**
+         * プライベートフォントの追加
+         * @param fontFileName フォントファイル名
+         */
+        static void addPrivateFont(const tjs_char *fontFileName);
 
-    /**
-     * フォントファミリー名を取得
-     * @param privateOnly true ならプライベートフォントのみ取得
-     */
-    static tTJSVariant getFontList(bool privateOnly);
-};
-
-/**
- * フォント情報
- */
-class FontInfo {
-    friend class LayerExDraw;
-
-    friend class DrawPath;
-
-protected:
-    //    GpFontFamily *fontFamily{}; //< フォントファミリー
-    FT_Face ftFace{};
-    ttstr familyName{};
-    float emSize{ 12 }; //< フォントサイズ
-    INT style{}; //< フォントスタイル
-    bool gdiPlusUnsupportedFont{}; //< GDI+未サポートフォント
-    bool forceSelfPathDraw{}; // 自前パス描画強制
-    mutable bool propertyModified{ true };
-    mutable REAL ascent{};
-    mutable REAL descent{};
-    mutable REAL lineSpacing{};
-    mutable REAL ascentLeading{};
-    mutable REAL descentLeading{};
-
-    /**
-     * フォント情報のクリア
-     */
-    void clear();
-
-public:
-    FontInfo() = default;
-
-    /**
-     * コンストラクタ
-     * @param familyName フォントファミリー
-     * @param emSize フォントのサイズ
-     * @param style フォントスタイル
-     */
-    FontInfo(const tjs_char *familyName, REAL emSize, INT style);
-
-    FontInfo(const FontInfo &orig);
-
-    /**
-     * デストラクタ
-     */
-    virtual ~FontInfo();
-
-    void setFamilyName(const tjs_char *familyName);
-
-    const tjs_char *getFamilyName() { return familyName.c_str(); }
-
-    void setEmSize(REAL emSize) {
-        this->emSize = emSize;
-        propertyModified = true;
-    }
-
-    REAL getEmSize() { return emSize; }
-
-    void setStyle(INT style) {
-        this->style = style;
-        propertyModified = true;
-    }
-
-    INT getStyle() { return style; }
-
-    void setForceSelfPathDraw(bool state);
-
-    bool getForceSelfPathDraw() const;
-
-    bool getSelfPathDraw() const;
-
-    void updateSizeParams() const;
-
-    REAL getAscent() const;
-
-    REAL getDescent() const;
-
-    REAL getAscentLeading() const;
-
-    REAL getDescentLeading() const;
-
-    REAL getLineSpacing() const;
-};
-
-/**
- * 描画外観情報
- */
-class Appearance {
-    friend class LayerExDraw;
-
-public:
-    // 描画情報
-    struct DrawInfo {
-        int type; // 0:ブラシ 1:ペン
-        void *info; // 情報オブジェクト
-        REAL ox; //< 表示オフセット
-        REAL oy; //< 表示オフセット
-        DrawInfo() : ox(0), oy(0), type(0), info(nullptr) {}
-
-        DrawInfo(REAL ox, REAL oy, Pen *pen) :
-            ox(ox), oy(oy), type(0), info(pen) {}
-
-        DrawInfo(REAL ox, REAL oy, BrushBase *brush) :
-            ox(ox), oy(oy), type(1), info(brush) {}
-
-        DrawInfo(const DrawInfo &orig) {
-            ox = orig.ox;
-            oy = orig.oy;
-            type = orig.type;
-            if(orig.info) {
-                switch(type) {
-                    case 0:
-                        info = (void *)((Pen *)orig.info)->Clone();
-                        break;
-                    case 1:
-                        info = (void *)((BrushBase *)orig.info)->Clone();
-                        break;
-                }
-            } else {
-                info = nullptr;
-            }
-        }
-
-        virtual ~DrawInfo() {
-            if(info) {
-                switch(type) {
-                    case 0:
-                        delete(Pen *)info;
-                        break;
-                    case 1:
-                        delete(BrushBase *)info;
-                        break;
-                }
-            }
-        }
+        /**
+         * フォントファミリー名を取得
+         * @param privateOnly true ならプライベートフォントのみ取得
+         */
+        static tTJSVariant getFontList(bool privateOnly);
     };
 
-    std::vector<DrawInfo> drawInfos;
-
-public:
-    Appearance();
-
-    virtual ~Appearance();
-
     /**
-     * 情報のクリア
+     * フォント情報
      */
-    void clear();
+    class FontInfo {
+        friend class LayerExDraw;
 
-    /**
-     * ブラシの追加
-     * @param colorOrBrush ARGB色指定またはブラシ情報（辞書）
-     * @param ox 表示オフセットX
-     * @param oy 表示オフセットY
-     */
-    void addBrush(tTJSVariant colorOrBrush, REAL ox = 0, REAL oy = 0);
+        friend class DrawPath;
 
-    /**
-     * ペンの追加
-     * @param colorOrBrush ARGB色指定またはブラシ情報（辞書）
-     * @param widthOrOption ペン幅またはペン情報（辞書）
-     * @param ox 表示オフセットX
-     * @param oy 表示オフセットY
-     */
-    void addPen(tTJSVariant colorOrBrush, tTJSVariant widthOrOption,
-                REAL ox = 0, REAL oy = 0);
+    protected:
+        //    GpFontFamily *fontFamily{}; //< フォントファミリー
+        FT_Face ftFace{};
+        ttstr familyName{};
+        float emSize{ 12 }; //< フォントサイズ
+        INT style{}; //< フォントスタイル
+        bool gdiPlusUnsupportedFont{}; //< GDI+未サポートフォント
+        bool forceSelfPathDraw{}; // 自前パス描画強制
+        mutable bool propertyModified{ true };
+        mutable REAL ascent{};
+        mutable REAL descent{};
+        mutable REAL lineSpacing{};
+        mutable REAL ascentLeading{};
+        mutable REAL descentLeading{};
 
-protected:
-    /**
-     * LineCapの取得
-     */
-    bool getLineCap(tTJSVariant &in, GpLineCap &cap, CustomLineCap *&custom,
-                    REAL pw);
+        /**
+         * フォント情報のクリア
+         */
+        void clear();
 
-    std::vector<CustomLineCap *> customLineCaps;
-};
+    public:
+        FontInfo() = default;
 
-/**
- * 描画外観情報
- */
-class DrawPath {
-    friend class LayerExDraw;
+        /**
+         * コンストラクタ
+         * @param familyName フォントファミリー
+         * @param emSize フォントのサイズ
+         * @param style フォントスタイル
+         */
+        FontInfo(const tjs_char *familyName, REAL emSize, INT style);
 
-public:
-    DrawPath() { GdipCreatePath(FillModeAlternate, &this->path); };
+        FontInfo(const FontInfo &orig);
 
-    ~DrawPath() { GdipDeletePath(this->path); }
+        /**
+         * デストラクタ
+         */
+        virtual ~FontInfo();
 
-    void startFigure();
+        void setFamilyName(const tjs_char *familyName);
 
-    void closeFigure();
+        const tjs_char *getFamilyName() { return familyName.c_str(); }
 
-    void drawArc(REAL x, REAL y, REAL width, REAL height, REAL startAngle,
-                 REAL sweepAngle);
+        void setEmSize(REAL emSize) {
+            this->emSize = emSize;
+            propertyModified = true;
+        }
 
-    void drawBezier(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3,
-                    REAL x4, REAL y4);
+        REAL getEmSize() { return emSize; }
 
-    void drawBeziers(tTJSVariant points);
+        void setStyle(INT style) {
+            this->style = style;
+            propertyModified = true;
+        }
 
-    void drawClosedCurve(tTJSVariant points);
+        INT getStyle() { return style; }
 
-    void drawClosedCurve2(tTJSVariant points, REAL tension);
+        void setForceSelfPathDraw(bool state);
 
-    void drawCurve(tTJSVariant points);
+        bool getForceSelfPathDraw() const;
 
-    void drawCurve2(tTJSVariant points, REAL tension);
+        bool getSelfPathDraw() const;
 
-    void drawCurve3(tTJSVariant points, int offset, int numberOfSegments,
-                    REAL tension);
+        void updateSizeParams() const;
 
-    void drawPie(REAL x, REAL y, REAL width, REAL height, REAL startAngle,
-                 REAL sweepAngle);
+        REAL getAscent() const;
 
-    void drawEllipse(REAL x, REAL y, REAL width, REAL height);
+        REAL getDescent() const;
 
-    void drawLine(REAL x1, REAL y1, REAL x2, REAL y2);
+        REAL getAscentLeading() const;
 
-    void drawLines(tTJSVariant points);
+        REAL getDescentLeading() const;
 
-    void drawPolygon(tTJSVariant points);
-
-    void drawRectangle(REAL x, REAL y, REAL width, REAL height);
-
-    void drawRectangles(tTJSVariant rects);
-
-protected:
-    GpPath *path;
-};
-
-/*
- * アウトラインベースのテキスト描画メソッドの追加
- */
-class LayerExDraw : public layerExBase {
-protected:
-    // 情報保持用
-    GeometryT width, height;
-    BufferT buffer;
-    PitchT pitch;
-    GeometryT clipLeft, clipTop, clipWidth, clipHeight;
-
-    /// レイヤを参照するビットマップ
-    GpBitmap *bitmap;
-    /// レイヤに対して描画するコンテキスト
-    GpGraphics *graphics;
-
-    // Transform 指定
-    MatrixClass transform;
-    MatrixClass viewTransform;
-    MatrixClass calcTransform;
-
-protected:
-    // 描画スムージング指定
-    SmoothingMode smoothingMode;
-    // drawString のアンチエイリアス指定
-    TextRenderingHint textRenderingHint;
-
-public:
-    int getSmoothingMode() { return (int)smoothingMode; }
-
-    void setSmoothingMode(int mode) { smoothingMode = (SmoothingMode)mode; }
-
-    int getTextRenderingHint() { return (int)textRenderingHint; }
-
-    void setTextRenderingHint(int hint) {
-        textRenderingHint = (TextRenderingHint)hint;
-    }
-
-protected:
-    /// 描画内容記録用メタファイル
-    GpMetafile *metafile;
-    //    GpGraphics *metaGraphics;
-
-    bool updateWhenDraw;
-
-    void updateRect(RectFClass &rect);
-
-public:
-    void setUpdateWhenDraw(int updateWhenDraw) {
-        this->updateWhenDraw = updateWhenDraw != 0;
-    }
-
-    int getUpdateWhenDraw() { return updateWhenDraw ? 1 : 0; }
-
-    operator ImageClass *() { return new ImageClass{ bitmap }; }
-
-    operator const ImageClass *() const { return new ImageClass{ bitmap }; }
-
-    operator GpBitmap *() { return bitmap; }
-
-    operator const GpBitmap *() const { return bitmap; }
-
-    operator GpGraphics *() { return graphics; }
-
-    operator const GpGraphics *() const { return graphics; }
-
-    template <class T>
-    struct BridgeFunctor {
-        T *operator()(LayerExDraw *p) const { return (T *)*p; }
+        REAL getLineSpacing() const;
     };
 
-public:
-    LayerExDraw(DispatchT obj);
-
-    ~LayerExDraw();
-
-    virtual void reset();
-
-    // ------------------------------------------------------------------
-    // 描画パラメータ指定
-    // ------------------------------------------------------------------
-
-protected:
-    void updateViewTransform();
-
-    void updateTransform();
-
-public:
     /**
-     * 表示トランスフォームの指定
+     * 描画外観情報
      */
-    void setViewTransform(/* const */ MatrixClass *transform);
+    class Appearance {
+        friend class LayerExDraw;
 
-    void resetViewTransform();
+    public:
+        // 描画情報
+        struct DrawInfo {
+            int type; // 0:ブラシ 1:ペン
+            void *info; // 情報オブジェクト
+            REAL ox; //< 表示オフセット
+            REAL oy; //< 表示オフセット
+            DrawInfo() : ox(0), oy(0), type(0), info(nullptr) {}
 
-    void rotateViewTransform(REAL angle);
+            DrawInfo(REAL ox, REAL oy, Pen *pen) :
+                ox(ox), oy(oy), type(0), info(pen) {}
 
-    void scaleViewTransform(REAL sx, REAL sy);
+            DrawInfo(REAL ox, REAL oy, BrushBase *brush) :
+                ox(ox), oy(oy), type(1), info(brush) {}
 
-    void translateViewTransform(REAL dx, REAL dy);
+            DrawInfo(const DrawInfo &orig) {
+                ox = orig.ox;
+                oy = orig.oy;
+                type = orig.type;
+                if(orig.info) {
+                    switch(type) {
+                        case 0:
+                            info = (void *)((Pen *)orig.info)->Clone();
+                            break;
+                        case 1:
+                            info = (void *)((BrushBase *)orig.info)->Clone();
+                            break;
+                    }
+                } else {
+                    info = nullptr;
+                }
+            }
+
+            virtual ~DrawInfo() {
+                if(info) {
+                    switch(type) {
+                        case 0:
+                            delete(Pen *)info;
+                            break;
+                        case 1:
+                            delete(BrushBase *)info;
+                            break;
+                    }
+                }
+            }
+        };
+
+        std::vector<DrawInfo> drawInfos;
+
+    public:
+        Appearance();
+
+        virtual ~Appearance();
+
+        /**
+         * 情報のクリア
+         */
+        void clear();
+
+        /**
+         * ブラシの追加
+         * @param colorOrBrush ARGB色指定またはブラシ情報（辞書）
+         * @param ox 表示オフセットX
+         * @param oy 表示オフセットY
+         */
+        void addBrush(tTJSVariant colorOrBrush, REAL ox = 0, REAL oy = 0);
+
+        /**
+         * ペンの追加
+         * @param colorOrBrush ARGB色指定またはブラシ情報（辞書）
+         * @param widthOrOption ペン幅またはペン情報（辞書）
+         * @param ox 表示オフセットX
+         * @param oy 表示オフセットY
+         */
+        void addPen(tTJSVariant colorOrBrush, tTJSVariant widthOrOption,
+                    REAL ox = 0, REAL oy = 0);
+
+    protected:
+        /**
+         * LineCapの取得
+         */
+        bool getLineCap(tTJSVariant &in, GpLineCap &cap, CustomLineCap *&custom,
+                        REAL pw);
+
+        std::vector<CustomLineCap *> customLineCaps;
+    };
 
     /**
-     * トランスフォームの指定
-     * @param matrix トランスフォームマトリックス
+     * 描画外観情報
      */
-    void setTransform(/* const */ MatrixClass *transform);
+    class DrawPath {
+        friend class LayerExDraw;
 
-    void resetTransform();
+    public:
+        DrawPath() { GdipCreatePath(FillModeAlternate, &this->path); };
 
-    void rotateTransform(REAL angle);
+        ~DrawPath() { GdipDeletePath(this->path); }
 
-    void scaleTransform(REAL sx, REAL sy);
+        void startFigure();
 
-    void translateTransform(REAL dx, REAL dy);
+        void closeFigure();
 
-    // ------------------------------------------------------------------
-    // 描画メソッド群
-    // ------------------------------------------------------------------
+        void drawArc(REAL x, REAL y, REAL width, REAL height, REAL startAngle,
+                     REAL sweepAngle);
 
-protected:
-    /**
-     * パスの更新領域情報を取得
-     * @param app 表示表現
-     * @param path 描画するパス
-     * @return 更新領域情報
-     */
-    RectFClass getPathExtents(const Appearance *app,
-                              /* const */ GpPath *path);
+        void drawBezier(REAL x1, REAL y1, REAL x2, REAL y2, REAL x3, REAL y3,
+                        REAL x4, REAL y4);
 
-    /**
-     * パスの描画用下請け処理
-     * @param graphics 描画先
-     * @param pen 描画用ペン
-     * @param matrix 描画位置調整用matrix
-     * @param path 描画内容
-     */
-    void draw(GpGraphics *graphics, const Pen *pen, const MatrixClass *matrix,
-              const GpPath *path);
+        void drawBeziers(tTJSVariant points);
 
-    /**
-     * 塗りの描画用下請け処理
-     * @param graphics 描画先
-     * @param brush 描画用ブラシ
-     * @param matrix 描画位置調整用matrix
-     * @param path 描画内容
-     */
-    void fill(GpGraphics *graphics, const BrushBase *brush,
-              const MatrixClass *matrix, const GpPath *path);
+        void drawClosedCurve(tTJSVariant points);
 
-    /**
-     * パスの描画
-     * @param app アピアランス
-     * @param path 描画するパス
-     * @return 更新領域情報
-     */
-    RectFClass _drawPath(const Appearance *app, GpPath *path);
+        void drawClosedCurve2(tTJSVariant points, REAL tension);
 
-    /**
-     * グリフアウトラインの取得
-     * @param font フォント
-     * @param offset オフセット
-     * @param path グリフを書き出すパス
-     * @param glyph 描画するグリフ
-     */
-    void getGlyphOutline(const FontInfo *font, PointFClass &offset,
-                         GpPath *path, UINT charcode);
+        void drawCurve(tTJSVariant points);
+
+        void drawCurve2(tTJSVariant points, REAL tension);
+
+        void drawCurve3(tTJSVariant points, int offset, int numberOfSegments,
+                        REAL tension);
+
+        void drawPie(REAL x, REAL y, REAL width, REAL height, REAL startAngle,
+                     REAL sweepAngle);
+
+        void drawEllipse(REAL x, REAL y, REAL width, REAL height);
+
+        void drawLine(REAL x1, REAL y1, REAL x2, REAL y2);
+
+        void drawLines(tTJSVariant points);
+
+        void drawPolygon(tTJSVariant points);
+
+        void drawRectangle(REAL x, REAL y, REAL width, REAL height);
+
+        void drawRectangles(tTJSVariant rects);
+
+    protected:
+        GpPath *path;
+    };
 
     /*
-     * テキストアウトラインの取得
-     * @param font フォント
-     * @param offset オフセット
-     * @param path グリフを書き出すパス
-     * @param text 描画するテキスト
+     * アウトラインベースのテキスト描画メソッドの追加
      */
-    void getTextOutline(const FontInfo *font, PointFClass &offset, GpPath *path,
-                        const ttstr &text);
+    class LayerExDraw : public layerExBase {
+    protected:
+        // 情報保持用
+        GeometryT width, height;
+        BufferT buffer;
+        PitchT pitch;
+        GeometryT clipLeft, clipTop, clipWidth, clipHeight;
 
-public:
-    /**
-     * 画面の消去
-     * @param argb 消去色
-     */
-    void clear(ARGB argb);
+        /// レイヤを参照するビットマップ
+        GpBitmap *bitmap;
+        /// レイヤに対して描画するコンテキスト
+        GpGraphics *graphics;
 
-    /**
-     * パスの描画
-     * @param app アピアランス
-     * @param path パス
-     */
-    RectFClass drawPath(const Appearance *app, const DrawPath *path);
+        // Transform 指定
+        MatrixClass transform;
+        MatrixClass viewTransform;
+        MatrixClass calcTransform;
 
-    /**
-     * 円弧の描画
-     * @param app アピアランス
-     * @param x 左上座標
-     * @param y 左上座標
-     * @param width 横幅
-     * @param height 縦幅
-     * @param startAngle 時計方向円弧開始位置
-     * @param sweepAngle 描画角度
-     * @return 更新領域情報
-     */
-    RectFClass drawArc(const Appearance *app, REAL x, REAL y, REAL width,
-                       REAL height, REAL startAngle, REAL sweepAngle);
+    protected:
+        // 描画スムージング指定
+        SmoothingMode smoothingMode;
+        // drawString のアンチエイリアス指定
+        TextRenderingHint textRenderingHint;
 
-    /**
-     * 円錐の描画
-     * @param app アピアランス
-     * @param x 左上座標
-     * @param y 左上座標
-     * @param width 横幅
-     * @param height 縦幅
-     * @param startAngle 時計方向円弧開始位置
-     * @param sweepAngle 描画角度
-     * @return 更新領域情報
-     */
-    RectFClass drawPie(const Appearance *app, REAL x, REAL y, REAL width,
-                       REAL height, REAL startAngle, REAL sweepAngle);
+    public:
+        int getSmoothingMode() { return (int)smoothingMode; }
 
-    /**
-     * ベジェ曲線の描画
-     * @param app アピアランス
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
-     * @param x3
-     * @param y3
-     * @param x4
-     * @param y4
-     * @return 更新領域情報
-     */
-    RectFClass drawBezier(const Appearance *app, REAL x1, REAL y1, REAL x2,
-                          REAL y2, REAL x3, REAL y3, REAL x4, REAL y4);
+        void setSmoothingMode(int mode) { smoothingMode = (SmoothingMode)mode; }
 
-    /**
-     * 連続ベジェ曲線の描画
-     * @param app アピアランス
-     * @param points 点の配列
-     * @return 更新領域情報
-     */
-    RectFClass drawBeziers(const Appearance *app, tTJSVariant points);
+        int getTextRenderingHint() { return (int)textRenderingHint; }
 
-    /**
-     * Closed cardinal spline の描画
-     * @param app アピアランス
-     * @param points 点の配列
-     * @return 更新領域情報
-     */
-    RectFClass drawClosedCurve(const Appearance *app, tTJSVariant points);
+        void setTextRenderingHint(int hint) {
+            textRenderingHint = (TextRenderingHint)hint;
+        }
 
-    /**
-     * Closed cardinal spline の描画
-     * @param app アピアランス
-     * @param points 点の配列
-     * @pram tension tension
-     * @return 更新領域情報
-     */
-    RectFClass drawClosedCurve2(const Appearance *app, tTJSVariant points,
-                                REAL tension);
+    protected:
+        /// 描画内容記録用メタファイル
+        GpMetafile *metafile;
+        //    GpGraphics *metaGraphics;
 
-    /**
-     * cardinal spline の描画
-     * @param app アピアランス
-     * @param points 点の配列
-     * @return 更新領域情報
-     */
-    RectFClass drawCurve(const Appearance *app, tTJSVariant points);
+        bool updateWhenDraw;
 
-    /**
-     * cardinal spline の描画
-     * @param app アピアランス
-     * @param points 点の配列
-     * @parma tension tension
-     * @return 更新領域情報
-     */
-    RectFClass drawCurve2(const Appearance *app, tTJSVariant points,
-                          REAL tension);
+        void updateRect(RectFClass &rect);
 
-    /**
-     * cardinal spline の描画
-     * @param app アピアランス
-     * @param points 点の配列
-     * @param offset
-     * @param numberOfSegment
-     * @param tension tension
-     * @return 更新領域情報
-     */
-    RectFClass drawCurve3(const Appearance *app, tTJSVariant points, int offset,
-                          int numberOfSegments, REAL tension);
+    public:
+        void setUpdateWhenDraw(int updateWhenDraw) {
+            this->updateWhenDraw = updateWhenDraw != 0;
+        }
 
-    /**
-     * 楕円の描画
-     * @param app アピアランス
-     * @param x
-     * @param y
-     * @param width
-     * @param height
-     * @return 更新領域情報
-     */
-    RectFClass drawEllipse(const Appearance *app, REAL x, REAL y, REAL width,
-                           REAL height);
+        int getUpdateWhenDraw() { return updateWhenDraw ? 1 : 0; }
 
-    /**
-     * 線分の描画
-     * @param app アピアランス
-     * @param x1 始点X座標
-     * @param y1 始点Y座標
-     * @param x2 終点X座標
-     * @param y2 終点Y座標
-     * @return 更新領域情報
-     */
-    RectFClass drawLine(const Appearance *app, REAL x1, REAL y1, REAL x2,
-                        REAL y2);
+        operator ImageClass *() { return new ImageClass{ bitmap }; }
 
-    /**
-     * 連続線分の描画
-     * @param app アピアランス
-     * @param points 点の配列
-     * @return 更新領域情報
-     */
-    RectFClass drawLines(const Appearance *app, tTJSVariant points);
+        operator const ImageClass *() const { return new ImageClass{ bitmap }; }
 
-    /**
-     * 多角形の描画
-     * @param app アピアランス
-     * @param points 点の配列
-     * @return 更新領域情報
-     */
-    RectFClass drawPolygon(const Appearance *app, tTJSVariant points);
+        operator GpBitmap *() { return bitmap; }
 
-    /**
-     * 矩形の描画
-     * @param app アピアランス
-     * @param x
-     * @param y
-     * @param width
-     * @param height
-     * @return 更新領域情報
-     */
-    RectFClass drawRectangle(const Appearance *app, REAL x, REAL y, REAL width,
-                             REAL height);
+        operator const GpBitmap *() const { return bitmap; }
 
-    /**
-     * 複数矩形の描画
-     * @param app アピアランス
-     * @param rects 矩形情報の配列
-     * @return 更新領域情報
-     */
-    RectFClass drawRectangles(const Appearance *app, tTJSVariant rects);
+        operator GpGraphics *() { return graphics; }
 
-    /**
-     * 文字列の描画
-     * @param font フォント
-     * @param app アピアランス
-     * @param x 描画位置X
-     * @param y 描画位置Y
-     * @param text 描画テキスト
-     * @return 更新領域情報
-     */
-    RectFClass drawPathString(const FontInfo *font, const Appearance *app,
+        operator const GpGraphics *() const { return graphics; }
+
+        template <class T>
+        struct BridgeFunctor {
+            T *operator()(LayerExDraw *p) const { return (T *)*p; }
+        };
+
+    public:
+        LayerExDraw(DispatchT obj);
+
+        ~LayerExDraw();
+
+        virtual void reset();
+
+        // ------------------------------------------------------------------
+        // 描画パラメータ指定
+        // ------------------------------------------------------------------
+
+    protected:
+        void updateViewTransform();
+
+        void updateTransform();
+
+    public:
+        /**
+         * 表示トランスフォームの指定
+         */
+        void setViewTransform(/* const */ MatrixClass *transform);
+
+        void resetViewTransform();
+
+        void rotateViewTransform(REAL angle);
+
+        void scaleViewTransform(REAL sx, REAL sy);
+
+        void translateViewTransform(REAL dx, REAL dy);
+
+        /**
+         * トランスフォームの指定
+         * @param matrix トランスフォームマトリックス
+         */
+        void setTransform(/* const */ MatrixClass *transform);
+
+        void resetTransform();
+
+        void rotateTransform(REAL angle);
+
+        void scaleTransform(REAL sx, REAL sy);
+
+        void translateTransform(REAL dx, REAL dy);
+
+        // ------------------------------------------------------------------
+        // 描画メソッド群
+        // ------------------------------------------------------------------
+
+    protected:
+        /**
+         * パスの更新領域情報を取得
+         * @param app 表示表現
+         * @param path 描画するパス
+         * @return 更新領域情報
+         */
+        RectFClass getPathExtents(const Appearance *app,
+                                  /* const */ GpPath *path);
+
+        /**
+         * パスの描画用下請け処理
+         * @param graphics 描画先
+         * @param pen 描画用ペン
+         * @param matrix 描画位置調整用matrix
+         * @param path 描画内容
+         */
+        void draw(GpGraphics *graphics, const Pen *pen,
+                  const MatrixClass *matrix, const GpPath *path);
+
+        /**
+         * 塗りの描画用下請け処理
+         * @param graphics 描画先
+         * @param brush 描画用ブラシ
+         * @param matrix 描画位置調整用matrix
+         * @param path 描画内容
+         */
+        void fill(GpGraphics *graphics, const BrushBase *brush,
+                  const MatrixClass *matrix, const GpPath *path);
+
+        /**
+         * パスの描画
+         * @param app アピアランス
+         * @param path 描画するパス
+         * @return 更新領域情報
+         */
+        RectFClass _drawPath(const Appearance *app, GpPath *path);
+
+        /**
+         * グリフアウトラインの取得
+         * @param font フォント
+         * @param offset オフセット
+         * @param path グリフを書き出すパス
+         * @param glyph 描画するグリフ
+         */
+        void getGlyphOutline(const FontInfo *font, PointFClass &offset,
+                             GpPath *path, UINT charcode);
+
+        /*
+         * テキストアウトラインの取得
+         * @param font フォント
+         * @param offset オフセット
+         * @param path グリフを書き出すパス
+         * @param text 描画するテキスト
+         */
+        void getTextOutline(const FontInfo *font, PointFClass &offset,
+                            GpPath *path, const ttstr &text);
+
+    public:
+        /**
+         * 画面の消去
+         * @param argb 消去色
+         */
+        void clear(ARGB argb);
+
+        /**
+         * パスの描画
+         * @param app アピアランス
+         * @param path パス
+         */
+        RectFClass drawPath(const Appearance *app, const DrawPath *path);
+
+        /**
+         * 円弧の描画
+         * @param app アピアランス
+         * @param x 左上座標
+         * @param y 左上座標
+         * @param width 横幅
+         * @param height 縦幅
+         * @param startAngle 時計方向円弧開始位置
+         * @param sweepAngle 描画角度
+         * @return 更新領域情報
+         */
+        RectFClass drawArc(const Appearance *app, REAL x, REAL y, REAL width,
+                           REAL height, REAL startAngle, REAL sweepAngle);
+
+        /**
+         * 円錐の描画
+         * @param app アピアランス
+         * @param x 左上座標
+         * @param y 左上座標
+         * @param width 横幅
+         * @param height 縦幅
+         * @param startAngle 時計方向円弧開始位置
+         * @param sweepAngle 描画角度
+         * @return 更新領域情報
+         */
+        RectFClass drawPie(const Appearance *app, REAL x, REAL y, REAL width,
+                           REAL height, REAL startAngle, REAL sweepAngle);
+
+        /**
+         * ベジェ曲線の描画
+         * @param app アピアランス
+         * @param x1
+         * @param y1
+         * @param x2
+         * @param y2
+         * @param x3
+         * @param y3
+         * @param x4
+         * @param y4
+         * @return 更新領域情報
+         */
+        RectFClass drawBezier(const Appearance *app, REAL x1, REAL y1, REAL x2,
+                              REAL y2, REAL x3, REAL y3, REAL x4, REAL y4);
+
+        /**
+         * 連続ベジェ曲線の描画
+         * @param app アピアランス
+         * @param points 点の配列
+         * @return 更新領域情報
+         */
+        RectFClass drawBeziers(const Appearance *app, tTJSVariant points);
+
+        /**
+         * Closed cardinal spline の描画
+         * @param app アピアランス
+         * @param points 点の配列
+         * @return 更新領域情報
+         */
+        RectFClass drawClosedCurve(const Appearance *app, tTJSVariant points);
+
+        /**
+         * Closed cardinal spline の描画
+         * @param app アピアランス
+         * @param points 点の配列
+         * @pram tension tension
+         * @return 更新領域情報
+         */
+        RectFClass drawClosedCurve2(const Appearance *app, tTJSVariant points,
+                                    REAL tension);
+
+        /**
+         * cardinal spline の描画
+         * @param app アピアランス
+         * @param points 点の配列
+         * @return 更新領域情報
+         */
+        RectFClass drawCurve(const Appearance *app, tTJSVariant points);
+
+        /**
+         * cardinal spline の描画
+         * @param app アピアランス
+         * @param points 点の配列
+         * @parma tension tension
+         * @return 更新領域情報
+         */
+        RectFClass drawCurve2(const Appearance *app, tTJSVariant points,
+                              REAL tension);
+
+        /**
+         * cardinal spline の描画
+         * @param app アピアランス
+         * @param points 点の配列
+         * @param offset
+         * @param numberOfSegment
+         * @param tension tension
+         * @return 更新領域情報
+         */
+        RectFClass drawCurve3(const Appearance *app, tTJSVariant points,
+                              int offset, int numberOfSegments, REAL tension);
+
+        /**
+         * 楕円の描画
+         * @param app アピアランス
+         * @param x
+         * @param y
+         * @param width
+         * @param height
+         * @return 更新領域情報
+         */
+        RectFClass drawEllipse(const Appearance *app, REAL x, REAL y,
+                               REAL width, REAL height);
+
+        /**
+         * 線分の描画
+         * @param app アピアランス
+         * @param x1 始点X座標
+         * @param y1 始点Y座標
+         * @param x2 終点X座標
+         * @param y2 終点Y座標
+         * @return 更新領域情報
+         */
+        RectFClass drawLine(const Appearance *app, REAL x1, REAL y1, REAL x2,
+                            REAL y2);
+
+        /**
+         * 連続線分の描画
+         * @param app アピアランス
+         * @param points 点の配列
+         * @return 更新領域情報
+         */
+        RectFClass drawLines(const Appearance *app, tTJSVariant points);
+
+        /**
+         * 多角形の描画
+         * @param app アピアランス
+         * @param points 点の配列
+         * @return 更新領域情報
+         */
+        RectFClass drawPolygon(const Appearance *app, tTJSVariant points);
+
+        /**
+         * 矩形の描画
+         * @param app アピアランス
+         * @param x
+         * @param y
+         * @param width
+         * @param height
+         * @return 更新領域情報
+         */
+        RectFClass drawRectangle(const Appearance *app, REAL x, REAL y,
+                                 REAL width, REAL height);
+
+        /**
+         * 複数矩形の描画
+         * @param app アピアランス
+         * @param rects 矩形情報の配列
+         * @return 更新領域情報
+         */
+        RectFClass drawRectangles(const Appearance *app, tTJSVariant rects);
+
+        /**
+         * 文字列の描画
+         * @param font フォント
+         * @param app アピアランス
+         * @param x 描画位置X
+         * @param y 描画位置Y
+         * @param text 描画テキスト
+         * @return 更新領域情報
+         */
+        RectFClass drawPathString(const FontInfo *font, const Appearance *app,
+                                  REAL x, REAL y, const tjs_char *text);
+
+        /**
+         * 文字列の描画(OpenTypeのPostScriptフォント対応)
+         * @param font フォント
+         * @param app アピアランス
+         * @param x 描画位置X
+         * @param y 描画位置Y
+         * @param text 描画テキスト
+         * @return 更新領域情報
+         */
+        RectFClass drawPathString2(const FontInfo *font, const Appearance *app,
+                                   REAL x, REAL y, const tjs_char *text);
+
+        // -------------------------------------------------------------------------------
+
+        /**
+         * 文字列の描画
+         * @param font フォント
+         * @param app アピアランス
+         * @param x 描画位置X
+         * @param y 描画位置Y
+         * @param text 描画テキスト
+         * @return 更新領域情報
+         */
+        RectFClass drawString(const FontInfo *font, const Appearance *app,
                               REAL x, REAL y, const tjs_char *text);
 
-    /**
-     * 文字列の描画(OpenTypeのPostScriptフォント対応)
-     * @param font フォント
-     * @param app アピアランス
-     * @param x 描画位置X
-     * @param y 描画位置Y
-     * @param text 描画テキスト
-     * @return 更新領域情報
-     */
-    RectFClass drawPathString2(const FontInfo *font, const Appearance *app,
-                               REAL x, REAL y, const tjs_char *text);
+        /**
+         * 文字列の描画更新領域情報の取得
+         * @param font フォント
+         * @param text 描画テキスト
+         * @return 更新領域情報の辞書 left, top, width, height
+         */
+        RectFClass measureString(const FontInfo *font, const tjs_char *text);
 
-    // -------------------------------------------------------------------------------
+        /**
+         * 文字列にぴったりと接っする矩形の取得
+         * @param font フォント
+         * @param text 描画テキスト
+         * @return 領域情報の辞書 left, top, width, height
+         */
+        RectFClass measureStringInternal(const FontInfo *font,
+                                         const tjs_char *text);
 
-    /**
-     * 文字列の描画
-     * @param font フォント
-     * @param app アピアランス
-     * @param x 描画位置X
-     * @param y 描画位置Y
-     * @param text 描画テキスト
-     * @return 更新領域情報
-     */
-    RectFClass drawString(const FontInfo *font, const Appearance *app, REAL x,
-                          REAL y, const tjs_char *text);
+        /**
+         * 文字列の描画更新領域情報の取得(OpenTypeのPostScriptフォント対応)
+         * @param font フォント
+         * @param text 描画テキスト
+         * @return 更新領域情報の辞書 left, top, width, height
+         */
+        RectFClass measureString2(const FontInfo *font, const tjs_char *text);
 
-    /**
-     * 文字列の描画更新領域情報の取得
-     * @param font フォント
-     * @param text 描画テキスト
-     * @return 更新領域情報の辞書 left, top, width, height
-     */
-    RectFClass measureString(const FontInfo *font, const tjs_char *text);
+        /**
+         * 文字列にぴったりと接っする矩形の取得(OpenTypeのPostScriptフォント対応)
+         * @param font フォント
+         * @param text 描画テキスト
+         * @return 領域情報の辞書 left, top, width, height
+         */
+        RectFClass measureStringInternal2(const FontInfo *font,
+                                          const tjs_char *text);
 
-    /**
-     * 文字列にぴったりと接っする矩形の取得
-     * @param font フォント
-     * @param text 描画テキスト
-     * @return 領域情報の辞書 left, top, width, height
-     */
-    RectFClass measureStringInternal(const FontInfo *font,
-                                     const tjs_char *text);
+        // -----------------------------------------------------------------------------
 
-    /**
-     * 文字列の描画更新領域情報の取得(OpenTypeのPostScriptフォント対応)
-     * @param font フォント
-     * @param text 描画テキスト
-     * @return 更新領域情報の辞書 left, top, width, height
-     */
-    RectFClass measureString2(const FontInfo *font, const tjs_char *text);
+        /**
+         * 画像の描画。コピー先は元画像の Bounds を配慮した位置、サイズは
+         * Pixel 指定になります。
+         * @param x コピー先原点X
+         * @param y コピー先原点Y
+         * @param image コピー元画像
+         * @return 更新領域情報
+         */
+        RectFClass drawImage(REAL x, REAL y, ImageClass *src);
 
-    /**
-     * 文字列にぴったりと接っする矩形の取得(OpenTypeのPostScriptフォント対応)
-     * @param font フォント
-     * @param text 描画テキスト
-     * @return 領域情報の辞書 left, top, width, height
-     */
-    RectFClass measureStringInternal2(const FontInfo *font,
-                                      const tjs_char *text);
+        /**
+         * 画像の矩形コピー
+         * @param dleft コピー先左端
+         * @param dtop  コピー先上端
+         * @param src コピー元画像
+         * @param sleft 元矩形の左端
+         * @param stop  元矩形の上端
+         * @param swidth 元矩形の横幅
+         * @param sheight  元矩形の縦幅
+         * @return 更新領域情報
+         */
+        RectFClass drawImageRect(REAL dleft, REAL dtop, ImageClass *src,
+                                 REAL sleft, REAL stop, REAL swidth,
+                                 REAL sheight);
 
-    // -----------------------------------------------------------------------------
+        /**
+         * 画像の拡大縮小コピー
+         * @param dleft コピー先左端
+         * @param dtop  コピー先上端
+         * @param dwidth コピー先の横幅
+         * @param dheight  コピー先の縦幅
+         * @param src コピー元画像
+         * @param sleft 元矩形の左端
+         * @param stop  元矩形の上端
+         * @param swidth 元矩形の横幅
+         * @param sheight  元矩形の縦幅
+         * @return 更新領域情報
+         */
+        RectFClass drawImageStretch(REAL dleft, REAL dtop, REAL dwidth,
+                                    REAL dheight, ImageClass *src, REAL sleft,
+                                    REAL stop, REAL swidth, REAL sheight);
 
-    /**
-     * 画像の描画。コピー先は元画像の Bounds を配慮した位置、サイズは
-     * Pixel 指定になります。
-     * @param x コピー先原点X
-     * @param y コピー先原点Y
-     * @param image コピー元画像
-     * @return 更新領域情報
-     */
-    RectFClass drawImage(REAL x, REAL y, ImageClass *src);
+        /**
+         * 画像のアフィン変換コピー
+         * @param src コピー元画像
+         * @param sleft 元矩形の左端
+         * @param stop  元矩形の上端
+         * @param swidth 元矩形の横幅
+         * @param sheight  元矩形の縦幅
+         * @param affine アフィンパラメータの種類(true:変換行列,
+         * false:座標指定),
+         * @return 更新領域情報
+         */
+        RectFClass drawImageAffine(ImageClass *src, REAL sleft, REAL stop,
+                                   REAL swidth, REAL sheight, bool affine,
+                                   REAL A, REAL B, REAL C, REAL D, REAL E,
+                                   REAL F);
 
-    /**
-     * 画像の矩形コピー
-     * @param dleft コピー先左端
-     * @param dtop  コピー先上端
-     * @param src コピー元画像
-     * @param sleft 元矩形の左端
-     * @param stop  元矩形の上端
-     * @param swidth 元矩形の横幅
-     * @param sheight  元矩形の縦幅
-     * @return 更新領域情報
-     */
-    RectFClass drawImageRect(REAL dleft, REAL dtop, ImageClass *src, REAL sleft,
-                             REAL stop, REAL swidth, REAL sheight);
+        // ------------------------------------------------
+        // メタファイル操作
+        // ------------------------------------------------
 
-    /**
-     * 画像の拡大縮小コピー
-     * @param dleft コピー先左端
-     * @param dtop  コピー先上端
-     * @param dwidth コピー先の横幅
-     * @param dheight  コピー先の縦幅
-     * @param src コピー元画像
-     * @param sleft 元矩形の左端
-     * @param stop  元矩形の上端
-     * @param swidth 元矩形の横幅
-     * @param sheight  元矩形の縦幅
-     * @return 更新領域情報
-     */
-    RectFClass drawImageStretch(REAL dleft, REAL dtop, REAL dwidth,
-                                REAL dheight, ImageClass *src, REAL sleft,
-                                REAL stop, REAL swidth, REAL sheight);
+    protected:
+        /**
+         * 記録情報の生成
+         */
+        void createRecord();
 
-    /**
-     * 画像のアフィン変換コピー
-     * @param src コピー元画像
-     * @param sleft 元矩形の左端
-     * @param stop  元矩形の上端
-     * @param swidth 元矩形の横幅
-     * @param sheight  元矩形の縦幅
-     * @param affine アフィンパラメータの種類(true:変換行列,
-     * false:座標指定),
-     * @return 更新領域情報
-     */
-    RectFClass drawImageAffine(ImageClass *src, REAL sleft, REAL stop,
-                               REAL swidth, REAL sheight, bool affine, REAL A,
-                               REAL B, REAL C, REAL D, REAL E, REAL F);
+        /**
+         * 記録情報の生成
+         */
+        void recreateRecord();
 
-    // ------------------------------------------------
-    // メタファイル操作
-    // ------------------------------------------------
+        /**
+         * 記録情報の破棄
+         */
+        void destroyRecord();
 
-protected:
-    /**
-     * 記録情報の生成
-     */
-    void createRecord();
+        /**
+         * 再描画用
+         */
+        bool redraw(ImageClass *image);
 
-    /**
-     * 記録情報の生成
-     */
-    void recreateRecord();
+    public:
+        /**
+         * @param record 描画内容を記録するかどうか
+         */
+        void setRecord(bool record);
 
-    /**
-     * 記録情報の破棄
-     */
-    void destroyRecord();
+        /**
+         * @return record 描画内容を記録するかどうか
+         */
+        bool getRecord() { return metafile != nullptr; }
 
-    /**
-     * 再描画用
-     */
-    bool redraw(ImageClass *image);
+        /**
+         * 記録内容を ImageClass として取得
+         * @return 成功したら true
+         */
+        ImageClass *getRecordImage();
 
-public:
-    /**
-     * @param record 描画内容を記録するかどうか
-     */
-    void setRecord(bool record);
+        /**
+         * 記録内容の再描画
+         * @return 再描画したら true
+         */
+        bool redrawRecord();
 
-    /**
-     * @return record 描画内容を記録するかどうか
-     */
-    bool getRecord() { return metafile != nullptr; }
+        /**
+         * 記録内容の保存
+         * @param filename 保存ファイル名
+         * @return 成功したら true
+         */
+        bool saveRecord(const tjs_char *filename);
 
-    /**
-     * 記録内容を ImageClass として取得
-     * @return 成功したら true
-     */
-    ImageClass *getRecordImage();
+        /**
+         * 記録内容の読み込み
+         * @param filename 読み込みファイル名
+         * @return 成功したら true
+         */
+        bool loadRecord(const tjs_char *filename);
 
-    /**
-     * 記録内容の再描画
-     * @return 再描画したら true
-     */
-    bool redrawRecord();
+        /**
+         * 画像の保存
+         */
+        static tjs_error saveImage(tTJSVariant *result, tjs_int numparams,
+                                   tTJSVariant **param, iTJSDispatch2 *objthis);
 
-    /**
-     * 記録内容の保存
-     * @param filename 保存ファイル名
-     * @return 成功したら true
-     */
-    bool saveRecord(const tjs_char *filename);
+        // ------------------------------------------------
+        // リージョン取得
+        // ------------------------------------------------
 
-    /**
-     * 記録内容の読み込み
-     * @param filename 読み込みファイル名
-     * @return 成功したら true
-     */
-    bool loadRecord(const tjs_char *filename);
-
-    /**
-     * 画像の保存
-     */
-    static tjs_error saveImage(tTJSVariant *result, tjs_int numparams,
-                               tTJSVariant **param, iTJSDispatch2 *objthis);
-
-    // ------------------------------------------------
-    // リージョン取得
-    // ------------------------------------------------
-
-    tTJSVariant getColorRegionRects(ARGB color);
-};
-}
+        tTJSVariant getColorRegionRects(ARGB color);
+    };
+} // namespace layerex

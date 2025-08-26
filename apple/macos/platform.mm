@@ -3,6 +3,7 @@
 // TODO: implement method
 //
 #include <string>
+#include <filesystem>
 
 #include <algorithm>
 #include <CoreFoundation/CoreFoundation.h>
@@ -22,20 +23,68 @@
 #import <CoreServices/CoreServices.h>
 #import <Foundation/Foundation.h>
 
+#include "StorageImpl.h"
 #include "EventIntf.h"
 #include "Platform.h"
 #include "tjsString.h"
 
 bool TVPDeleteFile(const std::string &filename) {
-    return false;
+    return unlink(filename.c_str()) == 0;
 }
 
 bool TVPRenameFile(const std::string &from, const std::string &to) {
-    return false;
+    tjs_int ret = rename(from.c_str(), to.c_str());
+    return !ret;
 }
 
-bool TVPCreateFolders(const TJS::ttstr &folder) {
-    return false;
+bool TVPCreateFolders(const ttstr &folder);
+
+static bool _TVPCreateFolders(const ttstr &folder) {
+    // create directories along with "folder"
+    if(folder.IsEmpty())
+        return true;
+
+    if(TVPCheckExistentLocalFolder(folder))
+        return true; // already created
+
+    const tjs_char *p = folder.c_str();
+    tjs_int i = folder.GetLen() - 1;
+
+    if(p[i] == TJS_W(':'))
+        return true;
+
+    while(i >= 0 && (p[i] == TJS_W('/') || p[i] == TJS_W('\\')))
+        i--;
+
+    if(i >= 0 && p[i] == TJS_W(':'))
+        return true;
+
+    for(; i >= 0; i--) {
+        if(p[i] == TJS_W(':') || p[i] == TJS_W('/') || p[i] == TJS_W('\\'))
+            break;
+    }
+
+    ttstr parent(p, i + 1);
+    if(!TVPCreateFolders(parent))
+        return false;
+
+    return !std::filesystem::create_directory(folder.AsStdString().c_str());
+}
+
+bool TVPCreateFolders(const ttstr &folder) {
+    if(folder.IsEmpty())
+        return true;
+
+    const tjs_char *p = folder.c_str();
+    tjs_int i = folder.GetLen() - 1;
+
+    if(p[i] == TJS_W(':'))
+        return true;
+
+    if(p[i] == TJS_W('/') || p[i] == TJS_W('\\'))
+        i--;
+
+    return _TVPCreateFolders(ttstr(p, i + 1));
 }
 
 std::vector<std::string> GetAccessibleDirectories() {
@@ -50,22 +99,22 @@ std::vector<std::string> GetAccessibleDirectories() {
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     if (paths && [paths count] > 0) {
         NSString* documentsPath = [paths objectAtIndex:0];
-        result.push_back([documentsPath UTF8String]);
+        result.emplace_back([documentsPath UTF8String]);
     }
-    
-    if (FSFindFolder(kUserDomain, kApplicationSupportFolderType, kCreateFolder, &fsRef) == noErr) {
-        CFURLRef url = CFURLCreateFromFSRef(kCFAllocatorDefault, &fsRef);
-        if (url && CFURLGetFileSystemRepresentation(url, true, (UInt8*)path, PATH_MAX)) {
-            result.push_back(path);
-        }
-        if (url) CFRelease(url);
-    }
+//
+//    if (FSFindFolder(kUserDomain, kApplicationSupportFolderType, kCreateFolder, &fsRef) == noErr) {
+//        CFURLRef url = CFURLCreateFromFSRef(kCFAllocatorDefault, &fsRef);
+//        if (url && CFURLGetFileSystemRepresentation(url, true, (UInt8*)path, PATH_MAX)) {
+//            result.emplace_back(path);
+//        }
+//        if (url) CFRelease(url);
+//    }
 
     // 获取桌面目录
     paths = NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES);
     if (paths && [paths count] > 0) {
         NSString* desktopPath = [paths objectAtIndex:0];
-        result.push_back([desktopPath UTF8String]);
+        result.emplace_back([desktopPath UTF8String]);
     }
 
     return result;
@@ -109,7 +158,7 @@ void TVPGetMemoryInfo(TVPMemoryInfo &m) {
     }
 
     // 获取交换空间信息
-    xsw_usage swap_usage;
+    xsw_usage swap_usage{};
     size_t swap_size = sizeof(swap_usage);
     mib[0] = CTL_VM;
     mib[1] = VM_SWAPUSAGE;
@@ -121,7 +170,7 @@ void TVPGetMemoryInfo(TVPMemoryInfo &m) {
 
     // macOS 没有直接的 Vmalloc 概念，但可以获取虚拟内存信息
     // 这里使用进程虚拟内存大小作为近似值
-    struct task_basic_info_64 info;
+    struct task_basic_info_64 info{};
     mach_msg_type_number_t info_count = TASK_BASIC_INFO_64_COUNT;
 
     if (task_info(mach_task_self(), TASK_BASIC_INFO_64, (task_info_t)&info, &info_count) == KERN_SUCCESS) {
@@ -201,42 +250,62 @@ tjs_int TVPGetSelfUsedMemory() {
 }
 
 std::string TVPGetCurrentLanguage() {
-    // 获取首选语言列表
     CFArrayRef preferredLanguages = CFLocaleCopyPreferredLanguages();
     if (preferredLanguages == nullptr || CFArrayGetCount(preferredLanguages) == 0) {
         return "en_US"; // 默认值
     }
 
-    // 获取首选语言
-    CFStringRef preferredLanguage = (CFStringRef)CFArrayGetValueAtIndex(preferredLanguages, 0);
-
-    // 转换为 C 字符串
+    auto preferredLanguage = (CFStringRef)CFArrayGetValueAtIndex(preferredLanguages, 0);
     char buffer[256];
     CFStringGetCString(preferredLanguage, buffer, sizeof(buffer), kCFStringEncodingUTF8);
-
-    // 转换为 C++ 字符串
     std::string localeStr(buffer);
-
-    // 释放资源
     CFRelease(preferredLanguages);
 
-    // 处理语言代码格式（将连字符替换为下划线）
+    // 替换连字符为下划线
     std::replace(localeStr.begin(), localeStr.end(), '-', '_');
 
-    // 分割语言和国家代码
-    size_t underscore_pos = localeStr.find('_');
-    if (underscore_pos != std::string::npos) {
-        std::string language = localeStr.substr(0, underscore_pos);
-        std::string country = localeStr.substr(underscore_pos + 1);
-
-        // 将国家代码转为小写
-        std::transform(country.begin(), country.end(), country.begin(), ::tolower);
-
-        return language + "_" + country;
+    // 分割字符串部分
+    std::vector<std::string> parts;
+    std::istringstream iss(localeStr);
+    std::string part;
+    while (std::getline(iss, part, '_')) {
+        parts.push_back(part);
     }
 
-    // 如果没有国家代码，直接返回语言代码
-    return localeStr;
+    if (parts.empty()) {
+        return "en_US";
+    }
+
+    // 提取语言代码（第一部分）
+    std::string language = parts[0];
+
+    // 查找国家代码（最后一个两部分字母的部分，通常是国家代码）
+    std::string country;
+    for (size_t i = parts.size() - 1; i > 0; --i) {
+        if (parts[i].size() == 2) {
+            country = parts[i];
+            break;
+        }
+    }
+
+    // 如果没有找到国家代码，检查是否有类似"CN"的代码
+    if (country.empty() && parts.size() > 1) {
+        // 检查最后一个部分是否为2字母代码（国家代码）
+        const std::string& lastPart = parts.back();
+        if (lastPart.size() == 2) {
+            country = lastPart;
+        }
+    }
+
+    // 转换国家代码为小写
+    std::transform(country.begin(), country.end(), country.begin(), ::tolower);
+
+    // 组合结果
+    if (!country.empty()) {
+        return language + "_" + country;
+    } else {
+        return language;
+    }
 }
 
 void TVPProcessInputEvents() {

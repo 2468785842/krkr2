@@ -8,7 +8,7 @@ using namespace cocos2d;
 using namespace cocos2d::ui;
 
 TVPTipsHelpForm *TVPTipsHelpForm::create() {
-    TVPTipsHelpForm *ret = new TVPTipsHelpForm;
+    auto *ret = new TVPTipsHelpForm;
     ret->initFromFile(nullptr, Csd::createAllTips(), nullptr);
     ret->autorelease();
     return ret;
@@ -24,8 +24,6 @@ TVPTipsHelpForm *TVPTipsHelpForm::show(const char *tipName) {
 }
 
 void TVPTipsHelpForm::setOneTip(const std::string &tipName) {
-    auto &allCell = _tipslist->getItems();
-    int cellCount = allCell.size();
     while(!_tipslist->getItems().empty()) {
         Node *cell = _tipslist->getItem(_tipslist->getItems().size() - 1);
         if(cell->getName() == tipName) {
@@ -57,12 +55,12 @@ void TVPTipsHelpForm::rearrangeLayout() {
 
 void TVPTipsHelpForm::bindBodyController(const Node *allNodes) {
     _tipslist = static_cast<ListView *>(allNodes->getChildByName("tipslist"));
-    Widget *btn_close = allNodes->getChildByName<Widget *>("btn_close");
+    auto *btn_close = allNodes->getChildByName<Widget *>("btn_close");
     btn_close->addClickEventListener([this](Ref *p) {
         static_cast<Widget *>(p)->setEnabled(false);
         TVPMainScene::GetInstance()->popUIForm(this);
     });
-    Widget *nullcell = new Widget();
-    nullcell->setContentSize(Size(_tipslist->getContentSize().width, 200));
-    _tipslist->pushBackCustomItem(nullcell);
+    auto *nullCell = Widget::create();
+    nullCell->setContentSize(Size(_tipslist->getContentSize().width, 200));
+    _tipslist->pushBackCustomItem(nullCell);
 }

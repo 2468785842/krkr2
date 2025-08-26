@@ -12,7 +12,7 @@ namespace libgdiplus {
 
 #include <libgdiplus/gdiplus-private.h>
 #include <libgdiplus/pen-private.h>
-}
+    }
 
 #include "gdip_cxx_brush.h"
 
@@ -21,17 +21,17 @@ namespace libgdiplus {
         Pen(GpPen *gpPen) : _gpPen(gpPen) {}
 
         Pen(const BrushBase *brush, float width) {
-            GdipCreatePen2((Brush *) brush, width, UnitWorld, &this->_gpPen);
+            GdipCreatePen2((Brush *)brush, width, UnitWorld, &this->_gpPen);
         }
 
         Pen(const Color &color, float width) {
-            GdipCreatePen1(*(ARGB *) &color, width, UnitWorld, &this->_gpPen);
+            GdipCreatePen1(*(ARGB *)&color, width, UnitWorld, &this->_gpPen);
         }
 
         [[nodiscard]] Pen *Clone() const {
-            GpPen *cloned{nullptr};
+            GpPen *cloned{ nullptr };
             this->_gpStatus = GdipClonePen(this->_gpPen, &cloned);
-            return new Pen{cloned};
+            return new Pen{ cloned };
         }
 
         GpStatus SetWidth(float width) {
@@ -46,7 +46,7 @@ namespace libgdiplus {
 
         GpStatus SetCompoundArray(const float *compoundArray, int count) {
             this->_gpStatus =
-                    GdipSetPenCompoundArray(this->_gpPen, compoundArray, count);
+                GdipSetPenCompoundArray(this->_gpPen, compoundArray, count);
             return this->_gpStatus;
         }
 
@@ -66,7 +66,8 @@ namespace libgdiplus {
         }
 
         GpStatus SetDashPattern(const float *dashArray, int count) {
-            this->_gpStatus = GdipSetPenDashArray(this->_gpPen, dashArray, count);
+            this->_gpStatus =
+                GdipSetPenDashArray(this->_gpPen, dashArray, count);
             return this->_gpStatus;
         }
 
@@ -105,9 +106,9 @@ namespace libgdiplus {
         ~Pen() { GdipDeletePen(this->_gpPen); }
 
     private:
-        GpPen *_gpPen{nullptr};
+        GpPen *_gpPen{ nullptr };
         mutable GpStatus _gpStatus{};
     };
-}
+} // namespace libgdiplus
 
 #endif // KRKR2_GDIP_CXX_PEN_H
