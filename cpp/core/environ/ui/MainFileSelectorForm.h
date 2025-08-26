@@ -2,6 +2,13 @@
 
 #include "FileSelectorForm.h"
 
+
+#if defined(_WIN32)
+#include <windows.h>
+#elif defined(__linux__)
+#include <sys/stat.h>
+#endif
+
 namespace cocos2d {
     class LayerColor;
 }
@@ -10,16 +17,19 @@ class TVPMainFileSelectorForm : public TVPBaseFileSelectorForm {
     typedef TVPBaseFileSelectorForm inherit;
 
 public:
+    static std::wstring filePath;
     void bindBodyController(const Node *allNodes) override;
 
     void show();
 
     static TVPMainFileSelectorForm *create();
 
-    void initFromFile();
+    void initFromWidget();
 
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
                       cocos2d::Event *event) override;
+
+    void runFromPath(const std::string &path);
 
 protected:
     TVPMainFileSelectorForm();

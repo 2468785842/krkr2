@@ -1,4 +1,6 @@
 #include "LayerExDraw.hpp"
+using namespace libgdiplus;
+using namespace layerex;
 
 extern void getPoints(const tTJSVariant &var, std::vector<PointFClass> &points);
 

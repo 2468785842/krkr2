@@ -122,7 +122,7 @@ void SimpleMediaFilePlayer::PlayFile(ttstr uri) {
     RemainTime->setString(_formatTime(_totalTime /*, '-'*/));
     long w, h;
     _player->GetOverlay().GetVideoSize(&w, &h);
-    Size size = Overlay->getContentSize();
+    cocos2d::Size size = Overlay->getContentSize();
     float scale = size.width / size.height;
     Vec2 pos;
     if(float(w) / h > scale) {
@@ -177,12 +177,12 @@ void SimpleMediaFilePlayer::onSliderChanged() {
 }
 
 void SimpleMediaFilePlayer::rearrangeLayout() {
-    Size sceneSize = TVPMainScene::GetInstance()->getGameNodeSize();
+    cocos2d::Size sceneSize = TVPMainScene::GetInstance()->getGameNodeSize();
     setContentSize(sceneSize);
     RootNode->setContentSize(sceneSize);
     ui::Helper::doLayout(RootNode);
 
-    Size size = iTVPBaseForm::NaviBar.Root->getContentSize();
+    cocos2d::Size size = iTVPBaseForm::NaviBar.Root->getContentSize();
     float scale = sceneSize.width / size.width;
     iTVPBaseForm::NaviBar.Root->setAnchorPoint(Vec2(0, 1));
     iTVPBaseForm::NaviBar.Root->setScale(scale);

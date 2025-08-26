@@ -1,0 +1,155 @@
+// Steam クラス(static)
+class Steam {
+
+	// ---------------------------------------------------------
+	// 実績
+	// ---------------------------------------------------------
+
+	/**
+	 * 実績情報再取得要求 ※起動時に呼び出されるので普通は呼ぶ必要なし
+	 * @return 呼び出し成功
+	 */
+	function requestInitialize();
+
+	property initialized; // 実績情報初期化済み
+
+	property achievementsCount; // 実績個数
+
+	/*
+	 * 実績の情報を取得する
+	 * @param n 番号または識別名
+	 * @return 実績情報
+	 *
+	 * ach 識別名
+	 * name 表示名
+	 * desc 解説
+	 * hidden 隠しかどうか
+	 * achieved 解放済み
+	 * unlockTime 解放した時間(unix時間)
+	 */
+	function getAchievement(n);
+
+	/*
+	 * 実績を解放する
+	 * @param n 番号または識別名
+	 */
+	function setAchievement(n);
+
+	/**
+	 * 実績を解除する
+	 * @param n 番号または識別名
+	 */
+	function clearAchievment(n);
+
+	// ---------------------------------------------------------
+	// その他情報
+	// ---------------------------------------------------------
+
+	/**
+	 * static method
+	 * @return 現在の Steam の言語を取得
+	 */
+	function getLanguage();
+
+	// ---------------------------------------------------------
+	// クラウド
+	// ---------------------------------------------------------
+
+	// Steamクラウドの有効/無効設定
+	property cloudEnabled;
+
+	/**
+	 * Steamクラウドの容量情報の取得
+	 * @return %[total:トータルサイズ, available:使用可能容量]
+	 */
+	function getCloudQuota();
+
+	// Steamクラウドのファイル数
+	property coundFileCount;
+
+	/**
+	 * 個別のSteamクラウドファイルの名前とサイズの情報を取得
+	 * @param n ファイル番号
+	 * @return %[filename:名前, size:サイズ, time:タイムスタンプ]
+	 */
+	function getCloudFileInfo(n);
+
+	/**
+	 * Steamクラウドのファイルを削除する
+	 * @return 成功したら true
+	 */
+	function deleteCloudFile(name);
+
+	/**
+	 * Steamクラウドのファイルを複製する
+	 * @return 成功したら true
+	 */
+	function copyCloudFile(src, dest);
+
+	// ---------------------------------------------------------
+	// スクリーンショット
+	// ---------------------------------------------------------
+
+    /**
+	 * スクリーンショット処理をアプリ側から起動させる
+	 */
+    function triggerScreenshot();
+
+    /**
+	 * @param callback コールバック関数（voidの場合は登録解除）
+	 * ※コールバック関数内からwriteScreenshotを呼びます
+	 */
+	function hookScreenshots(callback);
+
+	/**
+	 * スクリーンショットの登録
+	 * @param layer 画像
+	 * @param location "場所文字列" (空文字の場合は登録しない）
+	 */
+	function writeScreenshot(layer, location);
+
+	// ---------------------------------------------------------
+	// 配信状態
+	// ---------------------------------------------------------
+
+    /**
+	 * @return 配信中なら真
+	 */
+   function isBroadcasting();
+
+   /**
+    * 配信状態変更時のコールバック
+	* @param callback コールバック(function (is_start) {})
+    */
+   function hookBroadcasting(callback);
+
+
+	// ---------------------------------------------------------
+	// DLC
+	// ---------------------------------------------------------
+
+	// only use this member if you need to check ownership of another game related to yours, a demo for example
+	function isIsSubscribedApp(appID);
+
+	// Takes AppID of DLC and checks if the user owns the DLC & if the DLC is installed
+	function ssDlcInstalled(appID);
+
+	/**
+	 * @return DLCの個数を返す
+	 */
+	function getDLCCount();
+
+	/**
+	 * @param no DLCの番号
+	 * @rerurn DLC情報
+	      appID
+		  aAvailable
+		  chName
+	 *
+	 */
+	function getDLCData(no);
+}
+
+
+//※Steamクラウドmedia
+//  "steam://" + filename (ドメインの概念はない）

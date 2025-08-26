@@ -48,13 +48,41 @@ static bool IsPathExist(const std::string &path) {
     return true;
 }
 
+// ptah 传入要求utf-8编码的路径
+// 返回值：父路径和文件名
 std::pair<std::string, std::string>
 TVPBaseFileSelectorForm::PathSplit(const std::string &path) {
-    std::filesystem::path p{ path };
+    std::filesystem::path p;
+    try {
+#ifdef _WIN32
+        // 1. UTF-8 → UTF-16
+        int wlen =
+            MultiByteToWideChar(CP_UTF8, 0, path.c_str(), -1, nullptr, 0);
+        if(wlen <= 0)
+            return { "", "" };
+        std::wstring wpath(wlen - 1, L'\0'); // 去掉末尾 '\0'
+        MultiByteToWideChar(CP_UTF8, 0, path.c_str(), -1, wpath.data(),
+                            wlen - 1);
+
+        p = std::filesystem::path{ wpath };
+#else
+        // Linux/macOS 直接构造即可
+        p = std::filesystem::path{ path };
+#endif
+    } catch(const std::system_error &e) {
+        spdlog::error("Invalid path: {}", e.what());
+        spdlog::error("Path: {}", path);
+        return { "", "" };
+    }
 
     // 获取父路径和文件名
+#ifdef _WIN32
+    std::string parent = p.parent_path().u8string();
+    std::string filename = p.filename().u8string();
+#else
     std::string parent = p.parent_path().string();
     std::string filename = p.filename().string();
+#endif
 
     return { parent, filename };
 }
@@ -106,12 +134,124 @@ static const std::string str_diricon("dir_icon");
 static const std::string str_select("select_check");
 static const std::string str_filename("filename");
 
+std::string utf8_to_local(const std::string &utf8) {
+#if defined(_WIN32)
+    // to UTF-16
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, nullptr, 0);
+    if(wlen <= 0)
+        return "";
+    std::wstring wstr(wlen - 1, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, wstr.data(), wlen - 1);
+
+    // to（GBK/ANSI）
+    int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0,
+                                  nullptr, nullptr);
+    if(len <= 0)
+        return "";
+    std::string local(len - 1, '\0');
+    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, local.data(), len - 1,
+                        nullptr, nullptr);
+
+    return local;
+
+#elif defined(__LINUX__) || defined(__APPLE__)
+    // Linux/macOS 直接返回原始字符串
+    return utf8;
+#endif
+}
+
+std::wstring local_to_wstr(const std::string &local) {
+#ifdef _WIN32
+    // to UTF-16
+    int wlen = MultiByteToWideChar(CP_ACP, 0, local.c_str(), -1, nullptr, 0);
+    if(wlen <= 0)
+        return L"";
+    std::wstring wstr(wlen - 1, L'\0');
+    MultiByteToWideChar(CP_ACP, 0, local.c_str(), -1, wstr.data(), wlen - 1);
+
+    return wstr;
+
+#else
+    // Linux/macOS 直接转换为 wstring
+    return std::wstring(local.begin(), local.end());
+#endif
+}
+
+std::wstring utf8_to_wstr(const std::string &utf8) {
+
+#ifdef _WIN32
+    if(utf8.empty())
+        return {};
+
+    // 1. 计算目标长度
+    int len = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, nullptr, 0);
+    if(len <= 0)
+        return {};
+
+    // 2. 转换
+    std::wstring out(len, 0);
+    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, &out[0], len);
+
+    // len 包含末尾 L'\0'，去掉
+    out.pop_back();
+    return out;
+#else
+    // Linux/macOS 直接返回原始字符串转换为 wstring
+    return std::wstring(utf8.begin(), utf8.end());
+#endif
+}
+
+std::string local_to_utf8(const std::string &local) {
+#ifdef _WIN32
+    // to UTF-16
+    int wlen = MultiByteToWideChar(CP_ACP, 0, local.c_str(), -1, nullptr, 0);
+    if(wlen <= 0)
+        return "";
+    std::wstring wstr(wlen - 1, L'\0');
+    MultiByteToWideChar(CP_ACP, 0, local.c_str(), -1, wstr.data(), wlen - 1);
+
+    // to UTF-8
+    int len = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0,
+                                  nullptr, nullptr);
+    if(len <= 0)
+        return "";
+    std::string utf8(len - 1, '\0');
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, utf8.data(), len - 1,
+                        nullptr, nullptr);
+
+    return utf8;
+
+#else
+    // Linux/macOS 直接返回原始字符串
+    return local;
+#endif
+}
+std::string wstr_to_local(const std::wstring &wstr) {
+#ifdef _WIN32
+    // to ANSI/GBK
+    int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0,
+                                  nullptr, nullptr);
+    if(len <= 0)
+        return "";
+    std::string local(len - 1, '\0');
+    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, local.data(), len - 1,
+                        nullptr, nullptr);
+
+    return local;
+
+#else
+    // Linux/macOS 直接转换为 string
+    return std::string(wstr.begin(), wstr.end());
+#endif
+}
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
     auto [fst, snd] = PathSplit(path);
+
     ParentPath = fst;
+
     if(_title) {
 
-        const Size dispSize = _title->getContentSize();
+        const cocos2d::Size dispSize = _title->getContentSize();
         const size_t fontSize =
             _title->getTitleRenderer()->getRenderingFontSize();
         const size_t pathLen = snd.length();
@@ -146,7 +286,11 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
             FileInfo &info = CurrentDirList.back();
             info.NameForDisplay = name;
             info.NameForCompare = name;
-            info.IsDir = mask & S_IFDIR;
+#ifdef _WIN32
+            info.IsDir = S_ISDIR(mask);
+#else
+            info.IsDir = (mask & S_IFDIR) != 0;
+#endif
             std::transform(info.NameForCompare.begin(),
                            info.NameForCompare.end(),
                            info.NameForCompare.begin(), [](int c) -> int {
@@ -156,10 +300,17 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
                            });
         }
     });
+
     // fill fullpath
     for(auto &it : CurrentDirList) {
         it.FullPath = path + "/" + it.NameForDisplay;
+#ifdef _DEBUG
+        spdlog::info("Found file: FullPath {}, NameForDisplay {}, IsDir {}",
+                     utf8_to_local(it.FullPath),
+                     utf8_to_local(it.NameForDisplay), it.IsDir);
+#endif
     }
+
     std::sort(CurrentDirList.begin(), CurrentDirList.end());
 
     // update
@@ -356,8 +507,8 @@ void TVPBaseFileSelectorForm::onTitleClicked(cocos2d::Ref *owner) {
     _listform->show();
     // march all button's text in its width
     for(Button *btn : buttons) {
-        Size dispSize = btn->getTitleRenderer()->getContentSize();
-        Size realSize = btn->getContentSize();
+        cocos2d::Size dispSize = btn->getTitleRenderer()->getContentSize();
+        cocos2d::Size realSize = btn->getContentSize();
         if(dispSize.width > realSize.width) {
             std::string text = btn->getTitleText();
             float ratio = realSize.width / dispSize.width;
@@ -851,7 +1002,7 @@ void TVPListForm::initFromInfo(
     ui::Helper::doLayout(_root);
     float width = listview->getContentSize().width;
     for(Widget *cell : cells) {
-        Size size = cell->getContentSize();
+        cocos2d::Size size = cell->getContentSize();
         size.width = width;
         cell->setContentSize(size);
         ui::Helper::doLayout(cell);
@@ -1062,7 +1213,7 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::setInfo(int idx,
         FileNameNode->ignoreContentAdaptWithSize(true);
         FileNameNode->setTextAreaSize(CellTextAreaSize);
         FileNameNode->setString(info.NameForDisplay);
-        Size size(OrigCellModelSize);
+        cocos2d::Size size(OrigCellModelSize);
         size.height +=
             FileNameNode->getContentSize().height - OrigCellTextSize.height;
         _root->setContentSize(size);
@@ -1089,4 +1240,66 @@ void TVPBaseFileSelectorForm::FileItemCellImpl::onClicked(
         sender->unschedule(str_long_press);
         _owner->onClicked();
     }
+}
+
+// 把 UTF-8 字符串拆成 Unicode 码点
+static std::vector<uint32_t> utf8_to_codepoints(const std::string &s) {
+    std::vector<uint32_t> cp;
+    const unsigned char *p = reinterpret_cast<const unsigned char *>(s.c_str());
+    while(*p) {
+        uint32_t ch = 0;
+        if((*p & 0x80) == 0x00) {
+            ch = *p++;
+        } // 1 byte
+        else if((*p & 0xE0) == 0xC0) {
+            ch = (*p++ & 0x1F) << 6;
+            ch |= (*p++ & 0x3F);
+        } else if((*p & 0xF0) == 0xE0) {
+            ch = (*p++ & 0x0F) << 12;
+            ch |= (*p++ & 0x3F) << 6;
+            ch |= (*p++ & 0x3F);
+        } else if((*p & 0xF8) == 0xF0) {
+            ch = (*p++ & 0x07) << 18;
+            ch |= (*p++ & 0x3F) << 12;
+            ch |= (*p++ & 0x3F) << 6;
+            ch |= (*p++ & 0x3F);
+        } else {
+            ++p;
+            continue;
+        } // 非法字节，跳过
+        cp.push_back(ch);
+    }
+    return cp;
+}
+
+// 把码点序列转回 UTF-8
+static std::string codepoints_to_utf8(const std::vector<uint32_t> &cp) {
+    std::string s;
+    for(uint32_t c : cp) {
+        if(c <= 0x7F) {
+            s.push_back(static_cast<char>(c));
+        } else if(c <= 0x7FF) {
+            s.push_back(static_cast<char>(0xC0 | ((c >> 6) & 0x1F)));
+            s.push_back(static_cast<char>(0x80 | (c & 0x3F)));
+        } else if(c <= 0xFFFF) {
+            s.push_back(static_cast<char>(0xE0 | ((c >> 12) & 0x0F)));
+            s.push_back(static_cast<char>(0x80 | ((c >> 6) & 0x3F)));
+            s.push_back(static_cast<char>(0x80 | (c & 0x3F)));
+        } else {
+            s.push_back(static_cast<char>(0xF0 | ((c >> 18) & 0x07)));
+            s.push_back(static_cast<char>(0x80 | ((c >> 12) & 0x3F)));
+            s.push_back(static_cast<char>(0x80 | ((c >> 6) & 0x3F)));
+            s.push_back(static_cast<char>(0x80 | (c & 0x3F)));
+        }
+    }
+    return s;
+}
+
+// 安全截取：按字符数
+static std::string utf8_safe_substr(const std::string &s, size_t max_chars) {
+    auto cp = utf8_to_codepoints(s);
+    if(max_chars >= cp.size())
+        return s;
+    cp.resize(max_chars);
+    return codepoints_to_utf8(cp);
 }

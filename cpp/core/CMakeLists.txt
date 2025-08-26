@@ -44,11 +44,13 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 
 target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 minizip)
 
-# 启用 OpenMP 支持
-find_package(OpenMP REQUIRED)
+if(NOT APPLE)
+    # 启用 OpenMP 支持
+    find_package(OpenMP REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
-target_compile_options(${PROJECT_NAME} PRIVATE ${OpenMP_CXX_FLAGS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+    target_compile_options(${PROJECT_NAME} PRIVATE ${OpenMP_CXX_FLAGS})
+endif ()
 
 if(ANDROID)
     target_link_libraries(${PROJECT_NAME} PUBLIC
@@ -91,6 +93,8 @@ find_package(SDL2 CONFIG REQUIRED)
 find_package(LibArchive REQUIRED)
 
 find_package(OpenAL CONFIG REQUIRED)
+
+find_package(spdlog CONFIG REQUIRED)
 
 set(OpenCV_ROOT "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/opencv4")
 find_package(OpenCV REQUIRED)
@@ -145,4 +149,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     # cocos2d
     cocos2dx::cocos2d
     $<$<BOOL:${ANDROID}>:$<LINK_LIBRARY:WHOLE_ARCHIVE,cocos2dx::cpp_android_spec>>
+
+    # spdlog
+    spdlog::spdlog
 )

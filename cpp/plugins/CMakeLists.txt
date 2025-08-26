@@ -48,13 +48,24 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 add_definitions(-D__STDC_CONSTANT_MACROS -DTJS_TEXT_OUT_CRLF)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH} ${KRKR2PLUGIN_PATH}/ncbind)
+target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH} ${KRKR2PLUGIN_PATH}/ncbind ${KRKR2PLUGIN_PATH}/simplebinder})
 target_link_libraries(${PROJECT_NAME} PUBLIC krkr2core)
 
 add_subdirectory(psdfile)
 add_subdirectory(psbfile)
 add_subdirectory(layerex_draw)
+
+add_subdirectory(json)
+add_subdirectory(fstat)
+add_subdirectory(steam)
+add_subdirectory(DrawDeviceForSteam)
+# add_subdirectory(KAGParserEx)
 target_link_libraries(${PROJECT_NAME} PUBLIC psdfile psbfile layerExDraw)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC fstat json steam DrawDeviceForSteam
+#         KAGParserEx
+)
+
 
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)

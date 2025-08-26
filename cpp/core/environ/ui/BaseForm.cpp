@@ -146,7 +146,7 @@ void iTVPBaseForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
 
 void iTVPFloatForm::rearrangeLayout() {
     float scale = TVPMainScene::GetInstance()->getUIScale();
-    Size sceneSize = TVPMainScene::GetInstance()->getUINodeSize();
+    cocos2d::Size sceneSize = TVPMainScene::GetInstance()->getUINodeSize();
     setContentSize(sceneSize);
     Vec2 center = sceneSize / 2;
     sceneSize.height *= 0.75f;

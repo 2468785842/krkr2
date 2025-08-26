@@ -43,7 +43,7 @@
 #define _XMMLIB_H_INCLUDED
 
 #include "tjsCommHead.h"
-#include <malloc.h>
+#include <cstdlib>
 
 #if defined(_M_IX86) || defined(_M_X64)
 

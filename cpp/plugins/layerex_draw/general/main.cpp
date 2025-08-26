@@ -4,6 +4,8 @@
 
 #include "LayerExDraw.hpp"
 
+using namespace layerex;
+
 extern void initGdiPlus();
 
 extern void deInitGdiPlus();
@@ -286,7 +288,7 @@ public:
                 adpobj->Release();
             } else {
                 // FIXME: nullptr danger!!
-                dst = NULL;
+                // dst = NULL;
             }
         } else {
             dst.Clear();

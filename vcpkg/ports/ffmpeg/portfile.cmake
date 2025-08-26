@@ -6,6 +6,7 @@ vcpkg_from_github(
     PATCHES
         0001-android-ffmpeg.patch
         0001-operand-shr-error.patch
+        0001-fixed-mac.patch
 )
 
 if(SOURCE_PATH MATCHES " ")
@@ -33,9 +34,9 @@ elseif(VCPKG_TARGET_IS_UWP)
 elseif(VCPKG_TARGET_IS_WINDOWS)
     string(APPEND OPTIONS " --target-os=win32 --enable-w32threads --enable-d3d11va --enable-dxva2 --disable-libvpx")
 elseif(VCPKG_TARGET_IS_OSX)
-    string(APPEND OPTIONS " --target-os=darwin --enable-appkit --enable-avfoundation --enable-coreimage --enable-audiotoolbox --enable-videotoolbox")
+    string(APPEND OPTIONS " --target-os=darwin --enable-audiotoolbox --enable-videotoolbox")
 elseif(VCPKG_TARGET_IS_IOS)
-    string(APPEND OPTIONS " --enable-avfoundation --enable-coreimage --enable-videotoolbox")
+    string(APPEND OPTIONS " --enable-videotoolbox")
 elseif(VCPKG_CMAKE_SYSTEM_NAME STREQUAL "Android")
     string(APPEND OPTIONS " --target-os=android --enable-jni --enable-mediacodec")
 elseif(VCPKG_CMAKE_SYSTEM_NAME STREQUAL "QNX")

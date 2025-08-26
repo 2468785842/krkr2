@@ -12,3 +12,7 @@ out/
 .act/
 
 local.properties
+
+java_pid*.hprof
+.DS_Store
+*.pdb

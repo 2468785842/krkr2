@@ -54,7 +54,7 @@ void tPreferenceScreen::clear() {
     Preferences.clear();
 }
 
-void iPreferenceItem::initFromInfo(int idx, Size size,
+void iPreferenceItem::initFromInfo(int idx, cocos2d::Size size,
                                    const std::string &title) {
     init();
     CSBReader reader;
@@ -117,10 +117,10 @@ void tPreferenceItemCheckBox::onPressStateChangedToPressed() {
 void tPreferenceItemConstant::initController(const NodeMap &allNodes) {
     highlight = allNodes.findController("highlight");
     allNodes.findController("dir_icon")->setVisible(false);
-    Size origSize = _title->getContentSize();
-    _title->setTextAreaSize(Size::ZERO);
+    cocos2d::Size origSize = _title->getContentSize();
+    _title->setTextAreaSize(cocos2d::Size::ZERO);
     std::string s = _title->getString();
-    Size sizeTmp = _title->getVirtualRendererSize();
+    cocos2d::Size sizeTmp = _title->getVirtualRendererSize();
     float addHeight = 0;
     if(sizeTmp.width < origSize.width) { // single line
         sizeTmp.width = origSize.width;
@@ -317,7 +317,7 @@ void TVPCustomPreferenceForm::initFromInfo(
     if(!_listview)
         return;
     _listview->removeAllItems();
-    Size size = _listview->getContentSize();
+    cocos2d::Size size = _listview->getContentSize();
     CSBReader reader;
     for(int i = 0; i < count; ++i) {
         tPreferenceItemKeyValPair *item = new tPreferenceItemKeyValPair;
@@ -476,7 +476,7 @@ void KeyMapPreferenceForm::initData() {
     PrefList->removeAllItems();
     locmgr->initText(_title, "preference_keymap_title");
 
-    Size size = PrefList->getContentSize();
+    cocos2d::Size size = PrefList->getContentSize();
 #if 0
 	tPreferenceItemConstant* celladd = CreatePreferenceItem<tPreferenceItemConstant>(0, size, locmgr->GetText("preference_keymap_add"));
 	celladd->setTouchEnabled(true);
@@ -524,7 +524,7 @@ void tPreferenceItemDeletable::initController(const NodeMap &allNodes) {
     _scrollview =
         allNodes.findController<cocos2d::ui::ScrollView>("scrollview");
     _scrollview->setScrollBarEnabled(false);
-    Size viewSize = _scrollview->getContentSize();
+    cocos2d::Size viewSize = _scrollview->getContentSize();
     float iconWidth = _deleteIcon->getContentSize().width;
     viewSize.width += iconWidth;
     _scrollview->setInnerContainerSize(viewSize);

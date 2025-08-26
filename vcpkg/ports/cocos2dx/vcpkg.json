@@ -1,11 +1,11 @@
 {
   "name": "cocos2dx",
   "version-string": "3.17.2",
-  "port-version": 3,
+  "port-version": 4,
   "description": "Cocos2d-x is a suite of open-source, cross-platform, game-development tools utilized by millions of developers across the globe.",
   "homepage": "http://www.cocos2d-x.org/",
   "license": null,
-  "supports": "android | linux | windows",
+  "supports": "android | linux | windows | osx",
   "dependencies": [
     {
       "name": "bzip2",
@@ -21,6 +21,7 @@
       "platform": "linux"
     },
     "freetype",
+    "glfw3",
     {
       "name": "glew",
       "platform": "linux | windows"

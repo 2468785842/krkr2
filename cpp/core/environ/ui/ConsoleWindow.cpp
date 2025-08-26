@@ -40,7 +40,7 @@ void TVPConsoleWindow::visit(Renderer *renderer, const Mat4 &parentTransform,
         for(std::pair<ttstr, cocos2d::Color3B> &line : _queuedLines) {
             cocos2d::Label *label;
             if(_unusedLabels.empty()) {
-                Size dim(getContentSize());
+                cocos2d::Size dim(getContentSize());
                 dim.height = 0;
                 label = cocos2d::Label::createWithTTF(
                     "", "DroidSansFallback.ttf", _fontSize, dim);
@@ -59,7 +59,7 @@ void TVPConsoleWindow::visit(Renderer *renderer, const Mat4 &parentTransform,
             height += label->getContentSize().height;
             _queuedLabels.emplace_back(label);
         }
-        Size size = getContentSize();
+        cocos2d::Size size = getContentSize();
         // remove out of range text
         while(!_dispLabels.empty()) {
             cocos2d::Label *label = _dispLabels.front();

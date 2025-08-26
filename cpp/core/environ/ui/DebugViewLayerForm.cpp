@@ -36,12 +36,12 @@ public:
         return true;
     }
 
-    virtual void setContentSize(const Size &contentSize) override {
+    virtual void setContentSize(const cocos2d::Size &contentSize) override {
         TableViewCell::setContentSize(contentSize);
         _bottomLine->setContentSize(Size(contentSize.width, 2));
     }
 
-    void setData(const Size &laySize, const LayerInfo &data) {
+    void setData(const cocos2d::Size &laySize, const LayerInfo &data) {
         float left = data.Indent * 5;
         iTVPTexture2D *tex = data.Texture;
         if(tex) {
@@ -79,7 +79,7 @@ public:
         }
         _name->setPosition(/*left*/ 0, laySize.height + 2);
         _name->setString(data.Name);
-        Size newSize(laySize);
+        cocos2d::Size newSize(laySize);
         newSize.height += 24;
         setContentSize(newSize);
     }
@@ -121,7 +121,7 @@ static unsigned char _2x2_block_Image[] = {
 
 bool DebugViewLayerForm::init() {
     Node::init();
-    Size selfsize = TVPMainScene::GetInstance()->getGameNodeSize();
+    cocos2d::Size selfsize = TVPMainScene::GetInstance()->getGameNodeSize();
     setContentSize(selfsize);
 
     Texture2D *tex = new Texture2D();

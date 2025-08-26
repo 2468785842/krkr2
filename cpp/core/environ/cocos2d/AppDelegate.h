@@ -21,6 +21,4 @@ class TVPAppDelegate : public cocos2d::Application {
      * @brief  The function be called when the application enter foreground
      */
     void applicationWillEnterForeground() override;
-
-    void applicationScreenSizeChanged(int newWidth, int newHeight);
 };

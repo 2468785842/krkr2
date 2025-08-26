@@ -35,6 +35,7 @@ const char *const FileName_RecentPathListXML = "recentpath.xml";
 bool TVPIsFirstLaunch = false;
 
 std::deque<std::string> _HistoryPath;
+std::wstring TVPMainFileSelectorForm::filePath;
 
 static void _AskExit() {
     if(TVPShowSimpleMessageBoxYesNo(
@@ -125,6 +126,65 @@ void TVPMainFileSelectorForm::bindBodyController(const Node *allNodes) {
     }
 }
 
+int TVPCheckArchive(const ttstr &localname);
+
+void TVPMainFileSelectorForm::runFromPath(const std::string &path) {
+
+
+    // 判断是否为目录
+    bool isDir = false;
+#if defined(_WIN32)
+    DWORD attr = GetFileAttributesA(path.c_str());
+    isDir =
+        (attr != INVALID_FILE_ATTRIBUTES) && (attr & FILE_ATTRIBUTE_DIRECTORY);
+#elif defined(__linux__)
+    struct stat st;
+    if(stat(path.c_str(), &st) == 0)
+        isDir = S_ISDIR(st.st_mode);
+    else
+        isDir = false;
+#else
+    isDir = FileUtils::getInstance()->isDirectoryExist(path);
+#endif
+
+    int archiveType;
+#ifdef _WIN32
+    if(isDir) {
+        if(CheckDir(path)) {
+            startup(path);
+        } else if((archiveType = TVPCheckArchive(
+                       (tjs_char *)utf8_to_wstr(path).c_str())) == 1) {
+            spdlog::info("Opening archive: {}", utf8_to_local(path));
+            startup(path);
+        } else if(archiveType == 0 &&
+                  TVPCheckIsVideoFile(utf8_to_local(path).c_str())) {
+            spdlog::info("Opening video file: {}", utf8_to_local(path));
+            SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
+            TVPMainScene::GetInstance()->addChild(player,
+                                                  10); // pushUIForm(player);
+            player->PlayFile((tjs_char *)utf8_to_wstr(path).c_str());
+        }
+    }
+#else
+    if(isDir) {
+        if(CheckDir(path)) {
+            startup(path);
+
+        } else if((archiveType = TVPCheckArchive(path.c_str())) == 1) {
+            spdlog::info("Opening archive: {}", path);
+            startup(path);
+        } else if(archiveType == 0 && TVPCheckIsVideoFile(path.c_str())) {
+            spdlog::info("Opening video file: {}", path);
+            SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
+            TVPMainScene::GetInstance()->addChild(player,
+                                                  10); // pushUIForm(player);
+            player->PlayFile(path.c_str());
+        }
+    }
+#endif
+}
+
+
 void TVPMainFileSelectorForm::show() {
     ListHistory(); // filter history data
 
@@ -144,13 +204,43 @@ void TVPMainFileSelectorForm::show() {
         lastpath = split_path.first;
     }
     if(lastpath.size() <= RootPathLen) {
+#if defined win32 || defined _WIN32
+        const DWORD bufferSize = 260;
+        CHAR buffer[bufferSize];
+        DWORD length = GetCurrentDirectoryA(bufferSize, buffer);
+        buffer[length] = '\0'; // Ensure null-termination
+        lastpath = std::string(buffer);
+#else
         lastpath = TVPGetDriverPath()[0];
+#endif
     }
     ListDir(lastpath); // getCurrentDir()
                        // TODO show usage
+
+#if defined(_WIN32) || defined(__linux__)
+    if(!TVPMainFileSelectorForm::filePath.empty()) {
+#if defined(_WIN32)
+        // Convert std::wstring to UTF-8 std::string on Windows
+        int size_needed = WideCharToMultiByte(
+            CP_UTF8, 0, TVPMainFileSelectorForm::filePath.c_str(),
+            (int)TVPMainFileSelectorForm::filePath.size(), NULL, 0, NULL, NULL);
+        std::string path(size_needed, 0);
+        WideCharToMultiByte(CP_UTF8, 0,
+                            TVPMainFileSelectorForm::filePath.c_str(),
+                            (int)TVPMainFileSelectorForm::filePath.size(),
+                            &path[0], size_needed, NULL, NULL);
+#else
+        // On Linux, the local is utf-8 encoded
+        // path need to be utf-8 encoded
+        std::string path = wstr_to_local(TVPMainFileSelectorForm::filePath);
+
+#endif
+        runFromPath(path);
+    }
+#endif
 }
 
-static const std::string str_startup_tjs("startup.tjs");
+static const std::string str_startup_tjs(u8"startup.tjs");
 
 bool TVPMainFileSelectorForm::CheckDir(const std::string &path) {
     for(const FileInfo &info : CurrentDirList) {
@@ -160,24 +250,49 @@ bool TVPMainFileSelectorForm::CheckDir(const std::string &path) {
     return false;
 }
 
-int TVPCheckArchive(const ttstr &localname);
 
 void TVPMainFileSelectorForm::onCellClicked(int idx) {
     FileInfo info = CurrentDirList[idx];
     TVPBaseFileSelectorForm::onCellClicked(idx);
+
+#ifdef _DEBUG
+    spdlog::info("Selected file: {}, FullPath: {}", info.NameForDisplay,
+                 info.FullPath);
+#endif
     int archiveType;
+#ifdef _WIN32
+    if(info.IsDir) {
+        if(CheckDir(info.FullPath)) {
+            startup(info.FullPath);
+        }
+    } else if((archiveType = TVPCheckArchive(
+                   (tjs_char *)utf8_to_wstr(info.FullPath).c_str())) == 1) {
+        spdlog::info("Opening archive: {}", utf8_to_local(info.FullPath));
+        startup(info.FullPath);
+    } else if(archiveType == 0 &&
+              TVPCheckIsVideoFile(utf8_to_local(info.FullPath).c_str())) {
+        spdlog::info("Opening video file: {}", utf8_to_local(info.FullPath));
+        SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
+        TVPMainScene::GetInstance()->addChild(player,
+                                              10); // pushUIForm(player);
+        player->PlayFile((tjs_char *)utf8_to_wstr(info.FullPath).c_str());
+    }
+#else
     if(info.IsDir) {
         if(CheckDir(info.FullPath)) {
             startup(info.FullPath);
         }
     } else if((archiveType = TVPCheckArchive(info.FullPath.c_str())) == 1) {
+        spdlog::info("Opening archive: {}", info.FullPath);
         startup(info.FullPath);
     } else if(archiveType == 0 && TVPCheckIsVideoFile(info.FullPath.c_str())) {
+        spdlog::info("Opening video file: {}", info.FullPath);
         SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
         TVPMainScene::GetInstance()->addChild(player,
                                               10); // pushUIForm(player);
         player->PlayFile(info.FullPath.c_str());
     }
+#endif
 }
 
 void TVPMainFileSelectorForm::getShortCutDirList(
@@ -191,12 +306,12 @@ void TVPMainFileSelectorForm::getShortCutDirList(
 TVPMainFileSelectorForm *TVPMainFileSelectorForm::create() {
     auto *ret = new TVPMainFileSelectorForm();
     ret->autorelease();
-    ret->initFromFile();
+    ret->initFromWidget();
     ret->show();
     return ret;
 }
 
-void TVPMainFileSelectorForm::initFromFile() {
+void TVPMainFileSelectorForm::initFromWidget() {
     _LoadHistory();
     setContentSize(TVPMainScene::GetInstance()->getUINodeSize());
 
@@ -213,23 +328,34 @@ void TVPMainFileSelectorForm::initFromFile() {
 }
 
 void TVPMainFileSelectorForm::startup(const std::string &path) {
-    if(TVPIsFirstLaunch) {
-        TVPTipsHelpForm::show()->setOnExitCallback([this, path] {
-            scheduleOnce([this, path](float) { doStartup(path); }, 0,
-                         "startup");
-        });
-    } else {
-        doStartup(path);
-    }
+    //    if(TVPIsFirstLaunch) {
+    //        TVPTipsHelpForm::show()->setOnExitCallback([this, path] {
+    //            scheduleOnce([this, path](float) { doStartup(path); }, 0,
+    //                         "startup");
+    //        });
+    //    } else {
+    doStartup(path);
+    //    }
 }
-
+// 使用utf-8编码的路径
+// 这里的path是utf-8编码的字符串
 void TVPMainFileSelectorForm::doStartup(const std::string &path) {
+#ifdef _WIN32
+    if(TVPMainScene::GetInstance()->startupFrom(utf8_to_local(path))) {
+        if(GlobalConfigManager::GetInstance()->GetValue<bool>(
+               "remember_last_path", true)) {
+            _AddHistory(path);
+        }
+    }
+#else
+    // 在Linux上，路径可以直接使用utf-8编码
     if(TVPMainScene::GetInstance()->startupFrom(path)) {
         if(GlobalConfigManager::GetInstance()->GetValue<bool>(
                "remember_last_path", true)) {
             _AddHistory(path);
         }
     }
+#endif
 }
 
 std::string TVPGetOpenGLInfo();
@@ -238,7 +364,7 @@ void TVPOpenPatchLibUrl();
 
 void TVPMainFileSelectorForm::showMenu(Ref *) {
     if(!_menu) {
-        Size uiSize = getContentSize();
+        cocos2d::Size uiSize = getContentSize();
         CSBReader reader;
         _menu = reader.Load("ui/MenuList.csb");
         _menu->setAnchorPoint(Vec2::ZERO);
@@ -260,7 +386,7 @@ void TVPMainFileSelectorForm::showMenu(Ref *) {
         } else {
             uiSize.width *= 0.6f;
         }
-        Size menuSize = _menu->getContentSize();
+        cocos2d::Size menuSize = _menu->getContentSize();
         float scale = uiSize.width / menuSize.width;
         menuSize.height = uiSize.height / scale;
         _menu->setScale(scale);
@@ -382,21 +508,21 @@ void TVPMainFileSelectorForm::showMenu(Ref *) {
             hideMenu(nullptr);
         });
     }
-    const Size &uiSize = getContentSize();
+    const cocos2d::Size &uiSize = getContentSize();
     const Vec2 &pos = _menu->getPosition();
-    const Size &size = _menu->getContentSize();
+    const cocos2d::Size &size = _menu->getContentSize();
     float w = size.width * _menu->getScale();
     if(pos.x > uiSize.width - w / 10.0f) {
         if(IndividualConfigManager::CheckExistAt(CurrentPath)) {
             localPref->setVisible(true);
             localPref->setContentSize(sizeLocalPref);
             newLocalPref->setVisible(false);
-            newLocalPref->setContentSize(Size::ZERO);
+            newLocalPref->setContentSize(cocos2d::Size::ZERO);
         } else {
             newLocalPref->setVisible(true);
             newLocalPref->setContentSize(sizeNewLocalPref);
             localPref->setVisible(false);
-            localPref->setContentSize(Size::ZERO);
+            localPref->setContentSize(cocos2d::Size::ZERO);
         }
         _menuList->requestDoLayout();
         _mask->stopAllActions();
@@ -423,7 +549,7 @@ bool TVPMainFileSelectorForm::isMenuShowed() {
     if(!_menu)
         return false;
     const Vec2 &pos = _menu->getPosition();
-    const Size &size = _menu->getContentSize();
+    const cocos2d::Size &size = _menu->getContentSize();
     float w = size.width * _menu->getScale();
     if(pos.x < getContentSize().width - w * 0.9f) {
         return true;
@@ -435,7 +561,7 @@ bool TVPMainFileSelectorForm::isMenuShrinked() {
     if(!_menu)
         return true;
     const Vec2 &pos = _menu->getPosition();
-    const Size &size = _menu->getContentSize();
+    const cocos2d::Size &size = _menu->getContentSize();
     float w = size.width * _menu->getScale();
     if(pos.x > getContentSize().width - w / 10.0f) {
         return false;
@@ -457,7 +583,7 @@ void TVPMainFileSelectorForm::ListHistory() {
     _historyList->removeAllChildren();
     auto *nullcell = new HistoryCell();
     nullcell->init();
-    Size cellsize = _historyList->getContentSize();
+    cocos2d::Size cellsize = _historyList->getContentSize();
     cellsize.height = 100;
     nullcell->setContentSize(cellsize);
     _historyList->pushBackCustomItem(nullcell);
@@ -484,7 +610,7 @@ void TVPMainFileSelectorForm::ListHistory() {
                 },
                 [this, path](Ref *) { ListDir(path); }, funcConf,
                 [this, fullpath](Ref *) { startup(fullpath); });
-            Size cellsize = cell->getContentSize();
+            cocos2d::Size cellsize = cell->getContentSize();
             cellsize.width = _historyList->getContentSize().width;
             cell->setContentSize(cellsize);
             _historyList->pushBackCustomItem(cell);
@@ -575,7 +701,7 @@ void TVPMainFileSelectorForm::HistoryCell::rearrangeLayout() {
     Vec2 pt = Vec2::ZERO;
     pt.x = _file->getContentSize().width;
     Vec2 ptWorld = _file->convertToWorldSpace(pt);
-    Size viewSize = _scrollview->getContentSize();
+    cocos2d::Size viewSize = _scrollview->getContentSize();
     Node *container = _scrollview->getInnerContainer();
     pt = container->convertToNodeSpace(ptWorld);
     float btnw = _panel_delete->getContentSize().width;

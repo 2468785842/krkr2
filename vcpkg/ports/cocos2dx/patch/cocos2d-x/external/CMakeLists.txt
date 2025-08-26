@@ -147,8 +147,9 @@ if (WINDOWS)
 endif ()
 
 if (WINDOWS OR MACOSX OR LINUX)
-    add_subdirectory(glfw3)
-    target_link_libraries(external INTERFACE ext_glfw3)
+    pkg_check_modules(glfw REQUIRED glfw3)
+    target_include_directories(external INTERFACE "${glfw_INCLUDE_DIRS}/GLFW")
+    target_link_libraries(external INTERFACE ${glfw_LIBRARIES})
 endif ()
 
 if (BUILD_EXT_ZLIB)

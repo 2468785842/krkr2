@@ -33,4 +33,7 @@ bool TVPStringEncode(const ttstr &s, std::string &result,
                      ttstr encoding = "utf8");
 //---------------------------------------------------------------------------
 
+ttstr TVPLoadText(const ttstr &name, const ttstr &modestr);
+void TVPSaveText(const ttstr &name, const ttstr &text, const ttstr &modestr);
+
 #endif

@@ -25,7 +25,7 @@ static void PreferenceSetValueFloat(const std::string &name, float v) {
 namespace {
     static tPreferenceScreen RootPreference;
     static tPreferenceScreen OpenglOptPreference, SoftRendererOptPreference;
-    static Size PrefListSize;
+    static cocos2d::Size PrefListSize;
 
     class tTVPPreferenceInfoConstant : public iTVPPreferenceInfo {
     public:
