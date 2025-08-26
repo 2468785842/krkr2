@@ -21,7 +21,10 @@
       "platform": "linux"
     },
     "freetype",
-    "glfw3",
+    {
+      "name": "glfw3",
+      "platform": "linux | windows | osx"
+    },
     {
       "name": "glew",
       "platform": "linux | windows"
@@ -57,6 +60,10 @@
     },
     {
       "name": "vcpkg-cmake-config",
+      "host": true
+    },
+    {
+      "name": "vcpkg-pkgconfig-get-modules",
       "host": true
     },
     {
