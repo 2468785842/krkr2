@@ -1,0 +1,74 @@
+diff --git a/cocos/base/CCController-linux-win32.cpp b/cocos/base/CCController-linux-win32.cpp
+index 9324b64a2a..05d64aaf22 100644
+--- a/cocos/base/CCController-linux-win32.cpp
++++ b/cocos/base/CCController-linux-win32.cpp
+@@ -33,7 +33,7 @@ THE SOFTWARE.
+ #include "base/CCDirector.h"
+ #include "base/CCScheduler.h"
+ #include "base/CCEventController.h"
+-#include "glfw3.h"
++#include <GLFW/glfw3.h>
+ 
+ NS_CC_BEGIN
+ 
+diff --git a/cocos/platform/desktop/CCGLViewImpl-desktop.h b/cocos/platform/desktop/CCGLViewImpl-desktop.h
+index 1eda42c325..4e3394d65d 100644
+--- a/cocos/platform/desktop/CCGLViewImpl-desktop.h
++++ b/cocos/platform/desktop/CCGLViewImpl-desktop.h
+@@ -30,7 +30,7 @@ THE SOFTWARE.
+ #include "base/CCRef.h"
+ #include "platform/CCCommon.h"
+ #include "platform/CCGLView.h"
+-#include "glfw3.h"
++#include <GLFW/glfw3.h>
+ 
+ #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+ #ifndef GLFW_EXPOSE_NATIVE_WIN32
+@@ -39,7 +39,7 @@ THE SOFTWARE.
+ #ifndef GLFW_EXPOSE_NATIVE_WGL
+ #define GLFW_EXPOSE_NATIVE_WGL
+ #endif
+-#include "glfw3native.h"
++#include <GLFW/glfw3native.h>
+ #endif /* (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) */
+ 
+ #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+@@ -49,7 +49,7 @@ THE SOFTWARE.
+ #ifndef GLFW_EXPOSE_NATIVE_COCOA
+ #define GLFW_EXPOSE_NATIVE_COCOA
+ #endif
+-#include "glfw3native.h"
++#include <GLFW/glfw3native.h>
+ #endif // #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+ 
+ NS_CC_BEGIN
+diff --git a/templates/lua-template-default/frameworks/runtime-src/proj.ios_mac/mac/SimulatorApp.mm b/templates/lua-template-default/frameworks/runtime-src/proj.ios_mac/mac/SimulatorApp.mm
+index 952f65c1c7..adf8d684a0 100644
+--- a/templates/lua-template-default/frameworks/runtime-src/proj.ios_mac/mac/SimulatorApp.mm
++++ b/templates/lua-template-default/frameworks/runtime-src/proj.ios_mac/mac/SimulatorApp.mm
+@@ -31,8 +31,8 @@ of this software and associated documentation files (the "Software"), to deal
+ 
+ #import "SimulatorApp.h"
+ #include "AppDelegate.h"
+-#include "glfw3.h"
+-#include "glfw3native.h"
++#include <GLFW/glfw3.h>
++#include <GLFW/glfw3native.h>
+ 
+ #include "runtime/Runtime.h"
+ #include "runtime/ConfigParser.h"
+diff --git a/templates/lua-template-default/frameworks/runtime-src/proj.win32/SimulatorWin.cpp b/templates/lua-template-default/frameworks/runtime-src/proj.win32/SimulatorWin.cpp
+index c1514e7ba0..b5c04c4163 100644
+--- a/templates/lua-template-default/frameworks/runtime-src/proj.win32/SimulatorWin.cpp
++++ b/templates/lua-template-default/frameworks/runtime-src/proj.win32/SimulatorWin.cpp
+@@ -43,8 +43,8 @@
+ 
+ #include "SimulatorWin.h"
+ 
+-#include "glfw3.h"
+-#include "glfw3native.h"
++#include <GLFW/glfw3.h>
++#include <GLFW/glfw3native.h>
+ 
+ #include "scripting/lua-bindings/manual/CCLuaEngine.h"
+ #include "AppEvent.h"

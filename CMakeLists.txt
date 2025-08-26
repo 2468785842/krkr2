@@ -82,6 +82,10 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
 
+if (WINDOWS OR MACOS OR LINUX)
+    find_package(glfw3 CONFIG REQUIRED)
+endif ()
+
 # build library
 add_subdirectory(${KRKR2CORE_PATH})
 add_subdirectory(${KRKR2PLUGIN_PATH})
