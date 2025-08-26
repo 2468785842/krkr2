@@ -1915,7 +1915,7 @@ parse_start:
                         args.getProp(__exp_name, val);
                         exp = val;
                         //						const std::string s =
-                        //exp.AsStdString();
+                        // exp.AsStdString();
                         if(exp == TJS_W(""))
                             TVPThrowExceptionMessage(
                                 TVP_KAGPARSER_MESSAGEMAP(TVPKAGSyntaxError));
