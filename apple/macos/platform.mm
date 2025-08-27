@@ -20,11 +20,33 @@
 #import <CoreServices/CoreServices.h>
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
+#import <AppKit/AppKit.h>
+
+#include <cocos2d.h>
 
 #include "StorageImpl.h"
 #include "EventIntf.h"
 #include "Platform.h"
 #include "tjsString.h"
+
+bool initWindow(cocos2d::GLView* glView) {
+
+    auto director = cocos2d::Director::getInstance();
+    auto glview = director->getOpenGLView();
+    auto cocoaWindow = (NSWindow*)glview->getCocoaWindow();
+
+    if (cocoaWindow) {
+        // 现在你可以操作 cocoaWindow 了
+        [cocoaWindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+        [cocoaWindow setStyleMask:[cocoaWindow styleMask] | NSWindowStyleMaskResizable]; // 确保可调整大小（通常默认已有）
+
+        // 如果你想在启动时就“最大化”
+//        NSRect screenRect = [[NSScreen mainScreen] visibleFrame];
+//        [cocoaWindow setFrame:screenRect display:YES];
+        return true;
+    }
+    return false;
+}
 
 bool TVPDeleteFile(const std::string &filename) {
     return unlink(filename.c_str()) == 0;

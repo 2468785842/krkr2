@@ -81,8 +81,21 @@ findFontPath(const std::string &familyName) {
         FcPatternDestroy(pattern);
     };
 
+#if defined(__unix__)
     FcConfigAppFontAddDir(fcConfig,
                           reinterpret_cast<const FcChar8 *>("/system/fonts"));
+#elif defined(__APPLE__)
+    // 添加 macOS 字体目录
+    const char* macFontDirs[] = {
+        "/Library/Fonts",
+        "/System/Library/Fonts",
+        "~/Library/Fonts"
+    };
+
+    for (const char* dir : macFontDirs) {
+        FcConfigAppFontAddDir(fcConfig, reinterpret_cast<const FcChar8*>(dir));
+    }
+#endif
 
     pattern = FcPatternCreate();
 
@@ -339,10 +352,12 @@ void layerex::FontInfo::setFamilyName(const tjs_char *fName) {
     static std::string defaultFamily = "Noto Sans CJK SC";
 #elif defined(__APPLE__)
     // 在苹果平台上，可以根据语言环境选择最合适的字体
-    static std::string defaultFamily = "PingFang SC";
+    static std::string defaultFamily = "PingFang";
 #elif defined(_WIN32)
     // 微软雅黑
     static std::string defaultFamily = "Microsoft YaHei";
+#else
+    static std::string defaultFamily = "";
 #endif
     // FIXME: 目前gdiplus无法正常绘制字符不知道为什么！
     // WCHAR* wDefaultFamily = g_utf8_to_utf16(defaultFamily, -1,
@@ -366,11 +381,11 @@ void layerex::FontInfo::setFamilyName(const tjs_char *fName) {
     this->familyName = fName;
     const auto pair = findFontPath(defaultFamily);
     if(pair.second == defaultFamily) {
-        spdlog::get("plugin")->debug("using system font file");
+        spdlog::get("plugin")->info("using system font file");
         FT_New_Face(ftLibrary, pair.first.generic_string().c_str(), 0,
                     &this->ftFace);
     } else {
-        spdlog::get("plugin")->debug("using embedded font file");
+        spdlog::get("plugin")->warn("using embedded font file");
         loadFontFromAssets(ftLibrary, &this->ftFace);
     }
 

@@ -2101,17 +2101,17 @@ public:
                                    GL_RGBA, GL_UNSIGNED_BYTE, clr);
         }
         CHECK_GL_ERROR_DEBUG();
-#ifdef _DEBUG
-        static bool check = false;
-        if(check) {
-            cv::Mat _src(tar->GetInternalHeight(), tar->GetInternalWidth(),
-                         CV_8UC4);
-            GL::glGetTextureImage(tar->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
-                                  tar->GetInternalHeight() *
-                                      tar->GetInternalWidth() * 4,
-                                  _src.ptr(0, 0));
-        }
-#endif
+// #ifdef _DEBUG
+//         static bool check = false;
+//         if(check) {
+//             cv::Mat _src(tar->GetInternalHeight(), tar->GetInternalWidth(),
+//                          CV_8UC4);
+//             GL::glGetTextureImage(tar->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
+//                                   tar->GetInternalHeight() *
+//                                       tar->GetInternalWidth() * 4,
+//                                   _src.ptr(0, 0));
+//         }
+// #endif
         return true;
 #if 0
 		tar->AsTarget();
@@ -4407,20 +4407,20 @@ public:
                                    rc.top, 0, dst->texture, GL_TEXTURE_2D, 0, 0,
                                    0, 0, rc.get_width(), rc.get_height(), 1);
             CHECK_GL_ERROR_DEBUG();
-#ifdef _DEBUG
-            static bool check = false;
-            if(check) {
-                cv::Mat _src(src->internalH, src->internalW, CV_8UC4);
-                cv::Mat _dst(dst->internalH, dst->internalW, CV_8UC4);
-                GL::glGetTextureImage(
-                    src->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
-                    src->internalH * src->internalW * 4, _src.ptr(0, 0));
-                GL::glGetTextureImage(
-                    dst->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
-                    dst->internalH * dst->internalW * 4, _dst.ptr(0, 0));
-                dst = dst;
-            }
-#endif
+// #ifdef _DEBUG
+//             static bool check = false;
+//             if(check) {
+//                 cv::Mat _src(src->internalH, src->internalW, CV_8UC4);
+//                 cv::Mat _dst(dst->internalH, dst->internalW, CV_8UC4);
+//                 GL::glGetTextureImage(
+//                     src->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
+//                     src->internalH * src->internalW * 4, _src.ptr(0, 0));
+//                 GL::glGetTextureImage(
+//                     dst->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
+//                     dst->internalH * dst->internalW * 4, _dst.ptr(0, 0));
+//                 dst = dst;
+//             }
+// #endif
             return;
         }
 
@@ -4456,20 +4456,20 @@ public:
         glDrawArrays(GL_TRIANGLES, 0, 6);
         method->onFinish();
         CHECK_GL_ERROR_DEBUG();
-#ifdef _DEBUG
-        static bool check = false;
-        if(check) {
-            cv::Mat _src(src->internalH, src->internalW, CV_8UC4);
-            cv::Mat _dst(dst->internalH, dst->internalW, CV_8UC4);
-            GL::glGetTextureImage(src->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
-                                  src->internalH * src->internalW * 4,
-                                  _src.ptr(0, 0));
-            GL::glGetTextureImage(dst->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
-                                  dst->internalH * dst->internalW * 4,
-                                  _dst.ptr(0, 0));
-            dst = dst;
-        }
-#endif
+// #ifdef _DEBUG
+//         static bool check = false;
+//         if(check) {
+//             cv::Mat _src(src->internalH, src->internalW, CV_8UC4);
+//             cv::Mat _dst(dst->internalH, dst->internalW, CV_8UC4);
+//             GL::glGetTextureImage(src->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
+//                                   src->internalH * src->internalW * 4,
+//                                   _src.ptr(0, 0));
+//             GL::glGetTextureImage(dst->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
+//                                   dst->internalH * dst->internalW * 4,
+//                                   _dst.ptr(0, 0));
+//             dst = dst;
+//         }
+// #endif
     }
 
     virtual const char *GetName() override { return "OpenGL"; }
@@ -4602,34 +4602,34 @@ public:
         //}
         method->onFinish();
         CHECK_GL_ERROR_DEBUG();
-#ifdef _DEBUG
-        static bool check = false;
-        if(check) {
-            cv::Mat *_src[3] = { nullptr };
-            for(unsigned int i = 0; i < texlist.size(); ++i) {
-                _src[i] = new cv::Mat(texlist[i].tex->internalH,
-                                      texlist[i].tex->internalW, CV_8UC4);
-                GL::glGetTextureImage(
-                    texlist[i].tex->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
-                    texlist[i].tex->internalH * texlist[i].tex->internalW * 4,
-                    _src[i]->ptr(0, 0));
-            }
-            cv::Mat _tar(tar->internalH, tar->internalW, CV_8UC4);
-            cv::Mat _stencil(tar->internalH, tar->internalW, CV_8U);
-            GL::glGetTextureImage(tar->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
-                                  tar->internalH * tar->internalW * 4,
-                                  _tar.ptr(0, 0));
-            if(glIsEnabled(GL_STENCIL_TEST)) {
-                glReadPixels(0, 0, tar->internalW, tar->internalH,
-                             GL_STENCIL_INDEX, GL_UNSIGNED_BYTE,
-                             _stencil.ptr(0, 0));
-            }
-            tar = tar;
-            for(unsigned int i = 0; i < texlist.size(); ++i) {
-                delete _src[i];
-            }
-        }
-#endif
+// #ifdef _DEBUG
+//         static bool check = false;
+//         if(check) {
+//             cv::Mat *_src[3] = { nullptr };
+//             for(unsigned int i = 0; i < texlist.size(); ++i) {
+//                 _src[i] = new cv::Mat(texlist[i].tex->internalH,
+//                                       texlist[i].tex->internalW, CV_8UC4);
+//                 GL::glGetTextureImage(
+//                     texlist[i].tex->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
+//                     texlist[i].tex->internalH * texlist[i].tex->internalW * 4,
+//                     _src[i]->ptr(0, 0));
+//             }
+//             cv::Mat _tar(tar->internalH, tar->internalW, CV_8UC4);
+//             cv::Mat _stencil(tar->internalH, tar->internalW, CV_8U);
+//             GL::glGetTextureImage(tar->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
+//                                   tar->internalH * tar->internalW * 4,
+//                                   _tar.ptr(0, 0));
+//             if(glIsEnabled(GL_STENCIL_TEST)) {
+//                 glReadPixels(0, 0, tar->internalW, tar->internalH,
+//                              GL_STENCIL_INDEX, GL_UNSIGNED_BYTE,
+//                              _stencil.ptr(0, 0));
+//             }
+//             tar = tar;
+//             for(unsigned int i = 0; i < texlist.size(); ++i) {
+//                 delete _src[i];
+//             }
+//         }
+// #endif
     }
 
     // src x dst -> tar todo: OperateTriangles
@@ -4763,34 +4763,34 @@ public:
         glDrawArrays(GL_TRIANGLES, 0, ptcount);
         method->onFinish();
         CHECK_GL_ERROR_DEBUG();
-#ifdef _DEBUG
-        static bool check = false;
-        if(check) {
-            cv::Mat *_src[3] = { nullptr };
-            for(unsigned int i = 0; i < texlist.size(); ++i) {
-                _src[i] = new cv::Mat(texlist[i].tex->internalH,
-                                      texlist[i].tex->internalW, CV_8UC4);
-                GL::glGetTextureImage(
-                    texlist[i].tex->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
-                    texlist[i].tex->internalH * texlist[i].tex->internalW * 4,
-                    _src[i]->ptr(0, 0));
-            }
-            cv::Mat _tar(tar->internalH, tar->internalW, CV_8UC4);
-            cv::Mat _stencil(tar->internalH, tar->internalW, CV_8U);
-            GL::glGetTextureImage(tar->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
-                                  tar->internalH * tar->internalW * 4,
-                                  _tar.ptr(0, 0));
-            if(glIsEnabled(GL_STENCIL_TEST)) {
-                glReadPixels(0, 0, tar->internalW, tar->internalH,
-                             GL_STENCIL_INDEX, GL_UNSIGNED_BYTE,
-                             _stencil.ptr(0, 0));
-            }
-            tar = tar;
-            for(unsigned int i = 0; i < texlist.size(); ++i) {
-                delete _src[i];
-            }
-        }
-#endif
+// #ifdef _DEBUG
+//         static bool check = false;
+//         if(check) {
+//             cv::Mat *_src[3] = { nullptr };
+//             for(unsigned int i = 0; i < texlist.size(); ++i) {
+//                 _src[i] = new cv::Mat(texlist[i].tex->internalH,
+//                                       texlist[i].tex->internalW, CV_8UC4);
+//                 GL::glGetTextureImage(
+//                     texlist[i].tex->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
+//                     texlist[i].tex->internalH * texlist[i].tex->internalW * 4,
+//                     _src[i]->ptr(0, 0));
+//             }
+//             cv::Mat _tar(tar->internalH, tar->internalW, CV_8UC4);
+//             cv::Mat _stencil(tar->internalH, tar->internalW, CV_8U);
+//             GL::glGetTextureImage(tar->texture, 0, GL_BGRA, GL_UNSIGNED_BYTE,
+//                                   tar->internalH * tar->internalW * 4,
+//                                   _tar.ptr(0, 0));
+//             if(glIsEnabled(GL_STENCIL_TEST)) {
+//                 glReadPixels(0, 0, tar->internalW, tar->internalH,
+//                              GL_STENCIL_INDEX, GL_UNSIGNED_BYTE,
+//                              _stencil.ptr(0, 0));
+//             }
+//             tar = tar;
+//             for(unsigned int i = 0; i < texlist.size(); ++i) {
+//                 delete _src[i];
+//             }
+//         }
+// #endif
     }
 
     class tTVPOGLRenderMethod_Perspective : public tTVPOGLRenderMethod_Script {

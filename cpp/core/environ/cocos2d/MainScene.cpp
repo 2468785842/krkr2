@@ -883,18 +883,18 @@ public:
         if(DrawSprite) {
             cocos2d::Size size = getContentSize();
             float scale = (float)ActualZoomNumer / ActualZoomDenom;
-#ifdef _DEBUG
-            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
-                                    FOREGROUND_GREEN | FOREGROUND_RED |
-                                        FOREGROUND_INTENSITY);
-            printf("reset sprite: size=(%f,%f), Numer=%d, Denom=%d "
-                   "Layer=(%d,%d)\n",
-                   size.width, size.height, ActualZoomNumer, ActualZoomDenom,
-                   LayerWidth, LayerHeight);
-            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
-                                    FOREGROUND_GREEN | FOREGROUND_RED |
-                                        FOREGROUND_BLUE);
-#endif
+// #ifdef _DEBUG
+//             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+//                                     FOREGROUND_GREEN | FOREGROUND_RED |
+//                                         FOREGROUND_INTENSITY);
+//             printf("reset sprite: size=(%f,%f), Numer=%d, Denom=%d "
+//                    "Layer=(%d,%d)\n",
+//                    size.width, size.height, ActualZoomNumer, ActualZoomDenom,
+//                    LayerWidth, LayerHeight);
+//             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+//                                     FOREGROUND_GREEN | FOREGROUND_RED |
+//                                         FOREGROUND_BLUE);
+// #endif
             size = size / scale;
             // DrawSprite->setTextureRect(cocos2d::Rect(0, 0, size.width,
             // size.height));
