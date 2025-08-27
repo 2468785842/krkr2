@@ -5,17 +5,17 @@ ENV DEBIAN_FRONTEND=noninteractive
 # ---------- 系统工具 ----------
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates gnupg wget curl git zip unzip tar\
-        # 编译链
+        # 编译链 \
         build-essential gcc g++ ninja-build nasm yasm python3 python3-jinja2 \
         autoconf automake libtool pkg-config libltdl-dev \
-        # X11 / OpenGL / 其它三方库头文件
+        # X11 / OpenGL / 其它三方库头文件 \
         libxft-dev libxext-dev libxxf86vm-dev libx11-dev libxmu-dev \
         libglu1-mesa-dev libgl2ps-dev libxi-dev libzip-dev libpng-dev \
         libcurl4-gnutls-dev libfontconfig1-dev libsqlite3-dev libglew-dev \
         libssl-dev libgtk-3-dev binutils \
-        # ccache
+        # ccache \
         ccache \
-        # Mono
+        # Mono \
         # mono-complete \
     && rm -rf /var/lib/apt/lists/*
 
@@ -69,11 +69,11 @@ RUN git clone https://github.com/microsoft/vcpkg.git ${VCPKG_ROOT} \
 
 # ---------- 源码 ----------
 WORKDIR /workspace
-COPY . .
+COPY .. .
 
 # ---------- 构建 ----------
 FROM build-tools AS generate 
-RUN cmake --preset="Linux Debug Config" -D DISABLE_TES T=ON
+RUN cmake --preset="Linux Debug Config" -DDISABLE_TEST=ON
 FROM build AS build
 RUN cmake --build --preset="Linux Debug Build" 
 
@@ -85,3 +85,8 @@ RUN mkdir -p /opt/krkr2 \
 # ---------- 运行入口 ----------
 WORKDIR /opt/krkr2
 CMD ["bash"]
+
+# 添加元数据
+LABEL description="Linux build environment for Krkr2 project" \
+      version="1.0"
+#      maintainer="your-email@example.com" \

@@ -13,7 +13,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
     - [编译步骤](#编译步骤)
   - [可执行文件位置](#可执行文件位置)
   - [代码格式化](#代码格式化)
-  - [支持的游戏](#支持的游戏)
+  - [支持的游戏](#支持的游戏列表)
   - [插件资源](#插件资源)
   - [贡献指南](#贡献指南)
   - [许可证](#许可证)
@@ -43,6 +43,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - `python3`
   - `NASM@latest`
 - **Windows**:
+  - [ninja@latest](https://github.com/ninja-build/ninja/releases)
   - `Visual Studio 2022`
   - `vcpkg@latest`
   - [cmake@3.31.1+](https://cmake.org/download/)
@@ -50,6 +51,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - `python3`
   - `NASM@latest`
 - **Linux**:
+  - [ninja@latest](https://github.com/ninja-build/ninja/releases)
   - `GCC`
   - `vcpkg@latest`
   - [cmake@3.31.1+](https://cmake.org/download/)
@@ -59,7 +61,10 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - `YASM`
 - **MacOS**:
   - Xcode
-  - Ninja
+  - [ninja@latest](https://github.com/ninja-build/ninja/releases)
+  - `bison@3.8.2+`
+  - `python3`
+  - `NASM@latest`
 
 ## 编译环境配置
 
@@ -74,7 +79,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 - **Windows**:
   - `VCPKG_ROOT`: `D:/vcpkg`（注意使用正斜杠 `/` 或双反斜杠 `\\`）
   - 将 `winflexbison` 的路径添加到 `PATH` 环境变量中。
-- **Linux**:
+- **Linux OR MacOS**:
   - `VCPKG_ROOT`: `/path/to/vcpkg`
 
 > **注意**: 在 Windows 上，环境变量路径必须使用 `/` 或 `\\`，避免使用单一的 `\`。例如：
@@ -85,14 +90,26 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 ### 编译步骤
 
 - **Android**:
-  - 在 Windows 上运行: `./gradlew.bat assemble` 如果遇到`glib`无法安装查看[Build](Build.md)
+  - 在 Windows 上运行: `./gradlew.bat assemble`
+    - 如果遇到`glib`无法安装查看[FAQ#安装glib失败](./doc/FAQ.md#安装glib失败)
   - 在 Linux 上运行: `./gradlew assemble`
   
 - **Windows**:
-  - 运行: `./build-windows.bat`
+  - 运行: `./scripts/build-windows.bat`
   
 - **Linux**:
-  - 运行: `./build-linux.sh`
+  - 运行: `./scripts/build-linux.sh`
+
+- **MacOS**:
+  - 运行:
+  ```
+    cmake --preset="MacOS Debug Config"
+    cmake --build --preset="MacOS Debug Build"
+  ```
+  
+- **使用Docker容器**:
+  - Android: `docker build -f dockers/android.Dockerfile -t android-builder .`
+  - Linux: `docker build -f dockers/linux.Dockerfile -t linux-builder .`
 
 ## 可执行文件位置
 
@@ -103,6 +120,8 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - 可执行文件: `out/windows/debug/bin/krkr2/krkr2.exe`
 - **Linux**:
   - 可执行文件: `out/linux/debug/bin/krkr2/krkr2`
+- **MacOS**:
+  - 可执行文件: `out/macos/debug/bin/krkr2/krkr2.app`
 
 ## 代码格式化
 
@@ -126,8 +145,8 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
     ForEach-Object { clang-format -i --verbose $_.FullName }
     ```
 
-## 支持的游戏
-- [games](support_games.txt)
+## 支持的游戏列表
+- [games](./doc/support_games.txt)
 
 ## 插件资源
 
