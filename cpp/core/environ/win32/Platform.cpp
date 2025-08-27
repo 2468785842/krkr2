@@ -156,9 +156,9 @@ int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
                                caption.toWString().c_str(),
                                /*MB_YESNO*/ 4)) {
                 case 6:
-                    return 0;
+                    return 0; // YES 0
                 default:
-                    return 1;
+                    return 1; // NO 1
             }
             break;
     }

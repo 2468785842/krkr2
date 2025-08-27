@@ -229,6 +229,7 @@ static bool _TVPCreateFolders(const ttstr &folder) {
 int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,
                           const ttstr &prompt,
                           const std::vector<ttstr> &vecButtons) {
+    // TODO
     spdlog::get("core")->warn("linux platform simple input box not implement");
     return 0;
 }
