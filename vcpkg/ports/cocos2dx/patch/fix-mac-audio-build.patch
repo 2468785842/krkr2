@@ -10,10 +10,111 @@ index 6174dcbdef..6678a9ec4b 100644
  #include <string>
  #include <mutex>
  #include <vector>
+diff --git a/cocos/audio/apple/AudioEngine-inl.mm b/cocos/audio/apple/AudioEngine-inl.mm
+index 4c53db0e6c..e859fccef8 100644
+--- a/cocos/audio/apple/AudioEngine-inl.mm
++++ b/cocos/audio/apple/AudioEngine-inl.mm
+@@ -103,7 +103,7 @@ -(id) init
+     if (self = [super init])
+     {
+       if ([[[UIDevice currentDevice] systemVersion] intValue] > 5) {
+-          [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
++          [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:AVAudioSessionInterruptionNotification object:[CCAVAudioSession sharedInstance]];
+           [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationDidBecomeActiveNotification object:nil];
+           [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationWillResignActiveNotification object:nil];
+       }
+@@ -115,7 +115,7 @@ -(id) init
+       }
+ #endif
+     
+-    BOOL success = [[AVAudioSession sharedInstance]
++    BOOL success = [[CCAVAudioSession sharedInstance]
+                     setCategory: AVAudioSessionCategoryAmbient
+                     error: nil];
+     if (!success)
+@@ -157,9 +157,9 @@ -(void)handleInterruption:(NSNotification*)notification
+             {
+                 ALOGD("AVAudioSessionInterruptionTypeEnded, application == UIApplicationStateActive, alcMakeContextCurrent(s_ALContext)");
+                 NSError *error = nil;
+-                [[AVAudioSession sharedInstance] setActive:YES error:&error];
++                [[CCAVAudioSession sharedInstance] setActive:YES error:&error];
+                 if(error != nil){
+-                    ALOGE("AVAudioSessionInterruptionTypeEnded, AVAudioSession setActive fail, %d",(int)error.code);
++                    ALOGE("AVAudioSessionInterruptionTypeEnded, CCAVAudioSession setActive fail, %d",(int)error.code);
+                     return;
+                 }
+                 
+@@ -195,14 +195,14 @@ -(void)handleInterruption:(NSNotification*)notification
+             resumeOnBecomingActive = false;
+             ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
+             NSError *error = nil;
+-            BOOL success = [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryAmbient error: &error];
++            BOOL success = [[CCAVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryAmbient error: &error];
+             if (!success) {
+                 ALOGE("Fail to set audio session.");
+                 return;
+             }
+-            [[AVAudioSession sharedInstance] setActive:YES error:&error];
++            [[CCAVAudioSession sharedInstance] setActive:YES error:&error];
+             if(error != nil){
+-                ALOGE("UIApplicationDidBecomeActiveNotification, AVAudioSession setActive fail, %d",(int)error.code);
++                ALOGE("UIApplicationDidBecomeActiveNotification, CCAVAudioSession setActive fail, %d",(int)error.code);
+                 return;
+             }
+             alcMakeContextCurrent(s_ALContext);
+diff --git a/cocos/audio/ios/CDAudioManager.m b/cocos/audio/ios/CDAudioManager.m
+index b0d4ceec30..414c1429ec 100644
+--- a/cocos/audio/ios/CDAudioManager.m
++++ b/cocos/audio/ios/CDAudioManager.m
+@@ -253,7 +253,7 @@ @implementation CDAudioManager
+ 
+ -(BOOL) audioSessionSetActive:(BOOL) active {
+     NSError *activationError = nil;
+-    if ([[AVAudioSession sharedInstance] setActive:active error:&activationError]) {
++    if ([[CCAVAudioSession sharedInstance] setActive:active error:&activationError]) {
+         _audioSessionActive = active;
+         CDLOGINFO(@"Denshion::CDAudioManager - Audio session set active %i succeeded", active); 
+         return YES;
+@@ -266,7 +266,7 @@ -(BOOL) audioSessionSetActive:(BOOL) active {
+ 
+ -(BOOL) audioSessionSetCategory:(NSString*) category {
+     NSError *categoryError = nil;
+-    if ([[AVAudioSession sharedInstance] setCategory:category error:&categoryError]) {
++    if ([[CCAVAudioSession sharedInstance] setCategory:category error:&categoryError]) {
+         CDLOGINFO(@"Denshion::CDAudioManager - Audio session set category %@ succeeded", category); 
+         return YES;
+     } else {
+@@ -419,7 +419,7 @@ - (id) init: (tAudioManagerMode) mode {
+          [[NSNotificationCenter defaultCenter] addObserver: self
+          selector:    NSSelectorFromString(@"handleInterruption:")
+          name:        AVAudioSessionInterruptionNotification
+-         object:      [AVAudioSession sharedInstance]];
++         object:      [CCAVAudioSession sharedInstance]];
+     
+         _mode = mode;
+         backgroundMusicCompletionSelector = nil;
 diff --git a/cocos/audio/mac/CDAudioManager.m b/cocos/audio/mac/CDAudioManager.m
-index ced152e4e9..333e10a4c3 100644
+index ced152e4e9..636377a757 100644
 --- a/cocos/audio/mac/CDAudioManager.m
 +++ b/cocos/audio/mac/CDAudioManager.m
+@@ -247,7 +247,7 @@ @implementation CDAudioManager
+ 
+ -(BOOL) audioSessionSetActive:(BOOL) active {
+     NSError *activationError = nil;
+-    if ([[AVAudioSession sharedInstance] setActive:active error:&activationError]) {
++    if ([[CCAVAudioSession sharedInstance] setActive:active error:&activationError]) {
+         _audioSessionActive = active;
+         CDLOGINFO(@"Denshion::CDAudioManager - Audio session set active %i succeeded", active); 
+         return YES;
+@@ -260,7 +260,7 @@ -(BOOL) audioSessionSetActive:(BOOL) active {
+ 
+ -(BOOL) audioSessionSetCategory:(NSString*) category {
+     NSError *categoryError = nil;
+-    if ([[AVAudioSession sharedInstance] setCategory:category error:&categoryError]) {
++    if ([[CCAVAudioSession sharedInstance] setCategory:category error:&categoryError]) {
+         CDLOGINFO(@"Denshion::CDAudioManager - Audio session set category %@ succeeded", category); 
+         return YES;
+     } else {
 @@ -325,8 +325,9 @@ + (void) configure: (tAudioManagerMode) mode {
  
  -(BOOL) isOtherAudioPlaying {
@@ -22,7 +123,7 @@ index ced152e4e9..333e10a4c3 100644
 -    AudioSessionGetProperty (kAudioSessionProperty_OtherAudioIsPlaying, &varSize, &isPlaying);
 +    // UInt32 varSize = sizeof(isPlaying);
 +    // AudioSessionGetProperty (kAudioSessionProperty_OtherAudioIsPlaying, &varSize, &isPlaying);
-+    isPlaying = [[AVAudioSession sharedInstance] isOtherAudioPlaying]; 
++    isPlaying = [[CCAVAudioSession sharedInstance] isOtherAudioPlaying]; 
      return (isPlaying != 0);
  }
  
@@ -33,9 +134,9 @@ index ced152e4e9..333e10a4c3 100644
 -        AVAudioSession* session = [AVAudioSession sharedInstance];
 -        session.delegate = self;
 -    
-+        // AVAudioSession* session = [AVAudioSession sharedInstance];
++        // CCAVAudioSession* session = [CCAVAudioSession sharedInstance];
 +        // session.delegate = self;
-+        [[AVAudioSession sharedInstance] setActive:YES error:nil];
++        [[CCAVAudioSession sharedInstance] setActive:YES error:nil];
          _mode = mode;
          backgroundMusicCompletionSelector = nil;
          _isObservingAppEvents = FALSE;
@@ -74,7 +175,7 @@ index ced152e4e9..333e10a4c3 100644
  
  #pragma mark Audio Interrupt Protocol
 diff --git a/cocos/audio/mac/CDXMacOSXSupport.h b/cocos/audio/mac/CDXMacOSXSupport.h
-index eaa97f2e34..7aad68cced 100644
+index eaa97f2e34..6842be9bae 100644
 --- a/cocos/audio/mac/CDXMacOSXSupport.h
 +++ b/cocos/audio/mac/CDXMacOSXSupport.h
 @@ -40,10 +40,10 @@
@@ -92,3 +193,28 @@ index eaa97f2e34..7aad68cced 100644
  #ifdef __cplusplus
  extern "C" {
  #endif	
+@@ -182,7 +182,7 @@ enum {
+ 	AVAudioSessionSetActiveFlags_NotifyOthersOnDeactivation = 1
+ };
+ 
+-@interface AVAudioSession : NSObject {
++@interface CCAVAudioSession : NSObject {
+ 	
+ 	// properties
+ 	NSString* category;
+diff --git a/cocos/audio/mac/CDXMacOSXSupport.mm b/cocos/audio/mac/CDXMacOSXSupport.mm
+index 8799eb90df..a3f7021b32 100644
+--- a/cocos/audio/mac/CDXMacOSXSupport.mm
++++ b/cocos/audio/mac/CDXMacOSXSupport.mm
+@@ -162,9 +162,9 @@ - (float)averagePowerForChannel:(NSUInteger)channelNumber{return 0.0f;}
+ @end
+ 
+ /**
+- A "do nothing" implementation - AVAudioSession is not really relevant to Mac OS X.
++ A "do nothing" implementation - CCAVAudioSession is not really relevant to Mac OS X.
+  */
+-@implementation AVAudioSession
++@implementation CCAVAudioSession
+ @synthesize delegate, category, preferredHardwareSampleRate, preferredIOBufferDuration;
+ @synthesize inputIsAvailable, currentHardwareSampleRate, currentHardwareInputNumberOfChannels, currentHardwareOutputNumberOfChannels;
+ 
