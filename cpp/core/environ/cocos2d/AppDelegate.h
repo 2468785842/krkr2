@@ -1,7 +1,7 @@
 #pragma once
 #include <cocos2d.h>
 
-extern bool initWindow(cocos2d::GLView*);
+//extern bool initWindow(cocos2d::GLView*);
 
 class TVPAppDelegate : public cocos2d::Application {
 

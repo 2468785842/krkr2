@@ -80,7 +80,6 @@ elseif(APPLE)
         )
         add_executable(${PROJECT_NAME}
                 ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/main.cpp
-                ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/platform.mm
                 ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Prefix.pch
                 ${APP_UI_RES}
         )

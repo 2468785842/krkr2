@@ -53,7 +53,7 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) ||                               \
     (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX) ||                               \
     (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
-    initWindow(glview);
+//    initWindow(glview);
     // 2. 获取设备实际屏幕尺寸
     const cocos2d::Size screenSize = glview->getFrameSize();
 

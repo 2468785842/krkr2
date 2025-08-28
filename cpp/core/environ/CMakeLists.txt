@@ -9,7 +9,10 @@ set(ENVIRON_SOURCE_FILES
     $<$<BOOL:${ANDROID}>:${ENVIRON_PATH}/linux/Platform.cpp>
     
     $<$<BOOL:${LINUX}>:${ENVIRON_PATH}/linux/Platform.cpp>
+
     $<$<BOOL:${WINDOWS}>:${ENVIRON_PATH}/win32/Platform.cpp>
+
+    $<$<BOOL:${MACOS}>:${ENVIRON_PATH}/apple/macos/platform.mm>
 
     ${ENVIRON_PATH}/cocos2d/AppDelegate.cpp
     ${ENVIRON_PATH}/cocos2d/CCKeyCodeConv.cpp

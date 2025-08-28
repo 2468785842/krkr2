@@ -232,6 +232,9 @@ void TVPInitFontNames() {
             break;
         if(TVPEnumFontsProc(TJS_W("file://./c/Windows/Fonts/simhei.ttf")))
             break;
+#elif TARGET_OS_MAC
+        if(TVPEnumFontsProc(TJS_W("file://./System/Library/Fonts/Times.ttc")))
+            break;
 #endif
 
         std::string fullPath =
