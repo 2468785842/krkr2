@@ -6,11 +6,14 @@
 #include "ncbind.hpp"
 #include "LayerExDraw.hpp"
 
+#include <freetype/freetype.h>
+
+#include "FontImpl.h"
+
 using namespace layerex;
 using namespace libgdiplus;
 
 static u_char *G_FontFamilyData{};
-static ssize_t G_FontFamilyDataSize{};
 
 static FT_Library ftLibrary;
 
@@ -60,72 +63,6 @@ void deInitGdiPlus() {
     free(G_FontFamilyData);
     FT_Done_FreeType(ftLibrary);
     GdiplusShutdown(gdiplusToken);
-}
-
-/**
- * 查找给定的字体， 返回最接近的匹配字体
- * @param familyName 字体名称
- * @return 返回<字体文件路径，字体名称>
- */
-std::pair<std::filesystem::path, std::string>
-findFontPath(const std::string &familyName) {
-
-    FcConfig *fcConfig = FcInitLoadConfigAndFonts();
-
-    FcPattern *pattern{};
-    FcPattern *font{};
-
-    DEFER {
-        FcConfigDestroy(fcConfig);
-        FcPatternDestroy(font);
-        FcPatternDestroy(pattern);
-    };
-
-#if defined(__unix__)
-    FcConfigAppFontAddDir(fcConfig,
-                          reinterpret_cast<const FcChar8 *>("/system/fonts"));
-#elif defined(__APPLE__)
-    // 添加 macOS 字体目录
-    const char* macFontDirs[] = {
-        "/Library/Fonts",
-        "/System/Library/Fonts",
-        "~/Library/Fonts"
-    };
-
-    for (const char* dir : macFontDirs) {
-        FcConfigAppFontAddDir(fcConfig, reinterpret_cast<const FcChar8*>(dir));
-    }
-#endif
-
-    pattern = FcPatternCreate();
-
-    FcPatternAddString(pattern, FC_FAMILY,
-                       reinterpret_cast<const u_char *>(familyName.c_str()));
-    FcConfigSubstitute(fcConfig, pattern, FcMatchPattern);
-    FcDefaultSubstitute(pattern);
-
-    FcResult result;
-    font = FcFontMatch(fcConfig, pattern, &result);
-
-    if(!font) {
-        spdlog::get("plugin")->error("family font not found: {} ", familyName);
-        return {};
-    }
-
-    // 获取字体文件路径
-    FcChar8 *filePath = nullptr;
-    if(FcPatternGetString(font, FC_FILE, 0, &filePath) != FcResultMatch) {
-        spdlog::get("plugin")->error("Failed to get font file path.");
-        return {};
-    }
-
-    FcChar8 *fontFamily = nullptr;
-    FcPatternGetString(font, FC_FAMILY, 0, &fontFamily);
-    spdlog::get("plugin")->info("match font family is {}",
-                                reinterpret_cast<char *>(fontFamily));
-
-    return { reinterpret_cast<char *>(filePath),
-             reinterpret_cast<char *>(fontFamily) };
 }
 
 /**
@@ -255,29 +192,6 @@ tTJSVariant GdiPlus::getFontList(bool privateOnly) {
     return ret;
 }
 
-bool loadFontFromAssets(FT_Library library, FT_Face *face) {
-
-    if(!G_FontFamilyData) {
-        const auto fileUtilsInst = cocos2d::FileUtils::getInstance();
-        G_FontFamilyData = fileUtilsInst->getFileData(
-            "DroidSansFallback.ttf", "r", &G_FontFamilyDataSize);
-
-        if(!G_FontFamilyData || G_FontFamilyDataSize == 0) {
-            spdlog::get("plugin")->error("load font file failed!");
-        }
-    }
-
-    FT_Error code = FT_New_Memory_Face(library, G_FontFamilyData,
-                                       G_FontFamilyDataSize, 0, face);
-
-    if(code != 0) {
-        spdlog::get("plugin")->error("create FT_Face failed");
-        return false;
-    }
-
-    return true;
-}
-
 /**
  * コンストラクタ
  * @param familyName フォントファミリー
@@ -347,18 +261,6 @@ void layerex::FontInfo::setFamilyName(const tjs_char *fName) {
     if(!fName)
         return;
     clear();
-#if defined(__ANDROID__) || defined(__linux__)
-    // 中日韩字体 有衬字体： Noto Serif CJK SC
-    static std::string defaultFamily = "Noto Sans CJK SC";
-#elif defined(__APPLE__)
-    // 在苹果平台上，可以根据语言环境选择最合适的字体
-    static std::string defaultFamily = "PingFang";
-#elif defined(_WIN32)
-    // 微软雅黑
-    static std::string defaultFamily = "Microsoft YaHei";
-#else
-    static std::string defaultFamily = "";
-#endif
     // FIXME: 目前gdiplus无法正常绘制字符不知道为什么！
     // WCHAR* wDefaultFamily = g_utf8_to_utf16(defaultFamily, -1,
     // nullptr, nullptr, nullptr); auto status =
@@ -379,17 +281,12 @@ void layerex::FontInfo::setFamilyName(const tjs_char *fName) {
     clear();
     gdiPlusUnsupportedFont = true;
     this->familyName = fName;
-    const auto pair = findFontPath(defaultFamily);
-    if(pair.second == defaultFamily) {
-        spdlog::get("plugin")->info("using system font file");
-        FT_New_Face(ftLibrary, pair.first.generic_string().c_str(), 0,
-                    &this->ftFace);
-    } else {
-        spdlog::get("plugin")->warn("using embedded font file");
-        loadFontFromAssets(ftLibrary, &this->ftFace);
-    }
-
-    float dpi = gdip_get_display_dpi();
+    const std::unique_ptr<tTJSBinaryStream> stream { TVPCreateFontStream(TVPGetDefaultFontName())};
+    const auto bufferSize = static_cast<FT_Long>(stream->GetSize());
+    const auto buffer = std::make_unique<FT_Byte[]>(bufferSize);
+    stream->ReadBuffer(buffer.get(), bufferSize);
+    FT_New_Memory_Face(ftLibrary, buffer.get(), bufferSize, 0, &this->ftFace);
+    const float dpi = gdip_get_display_dpi();
     FT_Set_Char_Size(this->ftFace, 0, emSize * 64, dpi, dpi);
 }
 
