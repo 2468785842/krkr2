@@ -219,6 +219,8 @@ void TVPInitFontNames() {
                    }))
                 break;
         }
+        // 中日韩字体 有衬字体： Noto Serif CJK SC
+
         if(TVPEnumFontsProc(
                TJS_W("file://./system/fonts/DroidSansFallback.ttf")))
             break;
@@ -233,7 +235,7 @@ void TVPInitFontNames() {
         if(TVPEnumFontsProc(TJS_W("file://./c/Windows/Fonts/simhei.ttf")))
             break;
 #elif TARGET_OS_MAC
-        if(TVPEnumFontsProc(TJS_W("file://./System/Library/Fonts/Times.ttc")))
+        if(TVPEnumFontsProc(TJS_W("file://./Library/Fonts/Arial Unicode.ttf")))
             break;
 #endif
 
