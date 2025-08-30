@@ -181,7 +181,17 @@ namespace PSB {
     tTJSVariant PSBResource::toTJSVal() const {
         // TODO:
         spdlog::get("plugin")->warn("PSBResource::toTJSVal not impl");
-        return {};
+        iTJSDispatch2 *array = TJSCreateArrayObject();
+        for(const auto &v : this->data) {
+            tTJSVariant tmp = v;
+            tTJSVariant *args[] = { &tmp };
+            static tjs_uint addHint = 0;
+            array->FuncCall(0, TJS_W("add"), &addHint, nullptr, 1, args, array);
+        }
+
+        tTJSVariant result(array, array);
+        array->Release();
+        return result;
     }
 
     tTJSVariant PSBDictionary::toTJSVal() const {

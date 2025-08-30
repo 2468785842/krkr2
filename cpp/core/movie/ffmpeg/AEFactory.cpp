@@ -9,7 +9,7 @@ extern "C" {
 
 #include "Timer.h"
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 
 NS_KRMOVIE_BEGIN
 

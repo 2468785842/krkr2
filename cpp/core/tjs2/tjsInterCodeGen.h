@@ -191,7 +191,7 @@ namespace TJS {
 
         void Clear();
 
-        void SetOpecode(tjs_int op) { Op = op; }
+        void SetOpcode(tjs_int op) { Op = op; }
 
         void SetPosition(tjs_int pos) { Position = pos; }
 
@@ -204,29 +204,26 @@ namespace TJS {
 
         void Add(tTJSExprNode *n);
 
-        tjs_int GetOpecode() const { return Op; }
+        tjs_int GetOpcode() const { return Op; }
 
         tjs_int GetPosition() const { return Position; }
 
         tTJSVariant &GetValue() {
             if(!Val)
                 return *(tTJSVariant *)nullptr;
-            else
-                return *Val;
+            return *Val;
         }
 
         tTJSExprNode *operator[](tjs_int i) const {
             if(!Nodes)
                 return nullptr;
-            else
-                return (*Nodes)[i];
+            return (*Nodes)[i];
         }
 
         unsigned int GetSize() const {
             if(Nodes)
-                return (unsigned int)Nodes->size();
-            else
-                return 0;
+                return static_cast<unsigned int>(Nodes->size());
+            return 0;
         }
 
         // for array and dictionary constant value
@@ -266,7 +263,6 @@ namespace TJS {
     public:
         void ClearNodesToDelete();
 
-    public:
         struct tSubParam {
             tTJSSubType SubType;
             tjs_int SubFlag;
@@ -332,8 +328,7 @@ namespace TJS {
             }
 
             tFixData &operator=(const tFixData &fixdata) {
-                if(Code)
-                    delete[] Code;
+                delete[] Code;
                 StartIP = fixdata.StartIP;
                 Size = fixdata.Size;
                 NewSize = fixdata.NewSize;
@@ -344,8 +339,7 @@ namespace TJS {
             }
 
             ~tFixData() {
-                if(Code)
-                    delete[] Code;
+                delete[] Code;
             }
         };
 
@@ -774,16 +768,16 @@ namespace TJS {
         void RegisterObjectMember(iTJSDispatch2 *dest);
 
         // for Byte code
-        static inline void Add4ByteToVector(std::vector<tjs_uint8> *array,
-                                            int value) {
+        static void Add4ByteToVector(std::vector<tjs_uint8> *array,
+                                     int value) {
             array->push_back((tjs_uint8)((value >> 0) & 0xff));
             array->push_back((tjs_uint8)((value >> 8) & 0xff));
             array->push_back((tjs_uint8)((value >> 16) & 0xff));
             array->push_back((tjs_uint8)((value >> 24) & 0xff));
         }
 
-        static inline void Add2ByteToVector(std::vector<tjs_uint8> *array,
-                                            tjs_int16 value) {
+        static void Add2ByteToVector(std::vector<tjs_uint8> *array,
+                                     tjs_int16 value) {
             array->push_back((tjs_uint8)((value >> 0) & 0xff));
             array->push_back((tjs_uint8)((value >> 8) & 0xff));
         }
@@ -872,7 +866,7 @@ namespace TJS {
 
         void TJSVariantArrayStackRelease();
 
-        class tTJSVariantArrayStack *TJSVariantArrayStack = nullptr;
+        tTJSVariantArrayStack *TJSVariantArrayStack = nullptr;
     };
     //---------------------------------------------------------------------------
 } // namespace TJS
