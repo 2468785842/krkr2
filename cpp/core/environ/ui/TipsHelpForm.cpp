@@ -54,10 +54,10 @@ void TVPTipsHelpForm::rearrangeLayout() {
 }
 
 void TVPTipsHelpForm::bindBodyController(const Node *allNodes) {
-    _tipslist = static_cast<ListView *>(allNodes->getChildByName("tipslist"));
+    _tipslist = dynamic_cast<ListView *>(allNodes->getChildByName("tipslist"));
     auto *btn_close = allNodes->getChildByName<Widget *>("btn_close");
     btn_close->addClickEventListener([this](Ref *p) {
-        static_cast<Widget *>(p)->setEnabled(false);
+        dynamic_cast<Widget *>(p)->setEnabled(false);
         TVPMainScene::GetInstance()->popUIForm(this);
     });
     auto *nullCell = Widget::create();

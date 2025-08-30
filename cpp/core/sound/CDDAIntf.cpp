@@ -17,7 +17,7 @@
 //---------------------------------------------------------------------------
 // tTJSNI_BaseCDDASoundBuffer
 //---------------------------------------------------------------------------
-tTJSNI_BaseCDDASoundBuffer::tTJSNI_BaseCDDASoundBuffer() {}
+tTJSNI_BaseCDDASoundBuffer::tTJSNI_BaseCDDASoundBuffer() = default;
 
 //---------------------------------------------------------------------------
 tjs_error tTJSNI_BaseCDDASoundBuffer::Construct(tjs_int numparams,

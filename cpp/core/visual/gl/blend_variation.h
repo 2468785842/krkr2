@@ -26,7 +26,7 @@
 template <class blend_func>
 struct normal_op {
     blend_func func_;
-    inline normal_op() {}
+    inline normal_op() = default;
     inline normal_op(tjs_uint32 opa) {}
     inline tjs_uint32 operator()(tjs_uint32 d, tjs_uint32 s) const {
         tjs_uint32 a = (s >> 24);
@@ -62,7 +62,7 @@ struct translucent_nsa_op {
 template <class blend_func>
 struct hda_op {
     blend_func func_;
-    inline hda_op() {}
+    inline hda_op() = default;
     inline hda_op(tjs_uint32 opa) {}
     inline tjs_uint32 operator()(tjs_uint32 d, tjs_uint32 s) const {
         tjs_uint32 a = (s >> 24);
@@ -73,7 +73,7 @@ struct hda_op {
 template <class blend_func>
 struct hda_nsa_op {
     blend_func func_;
-    inline hda_nsa_op() {}
+    inline hda_nsa_op() = default;
     inline hda_nsa_op(tjs_uint32 opa) {}
     inline tjs_uint32 operator()(tjs_uint32 d, tjs_uint32 s) const {
         return (func_(d, s) & 0x00ffffff) | (d & 0xff000000);
@@ -108,7 +108,7 @@ struct hda_translucent_nsa_op {
 template <class blend_func>
 struct dest_alpha_op {
     blend_func func_;
-    inline dest_alpha_op() {}
+    inline dest_alpha_op() = default;
     inline dest_alpha_op(tjs_uint32 opa) {}
     inline tjs_uint32 operator()(tjs_uint32 d, tjs_uint32 s) const {
 #ifdef NOT_USE_TABLE

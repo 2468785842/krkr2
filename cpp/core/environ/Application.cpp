@@ -52,7 +52,7 @@ static void _no_memory_cb() {
     } else {
         Application->PostUserMessage(_do_compact);
     }
-    _reservedMem = realloc(0, 1024 * 1024 * 4);
+    _reservedMem = realloc(nullptr, 1024 * 1024 * 4);
 }
 
 static std::string _title, _msg, _retry, _cancel;

@@ -532,8 +532,7 @@ namespace TJS {
                 if(TJS_strchr(delim, *s) != nullptr) {
                     // delimiter found
                     if(!purgeempty || (purgeempty && (s - sstart) != 0)) {
-                        ni->Items.push_back(
-                            tTJSString(sstart, (int)(s - sstart)));
+                        ni->Items.emplace_back(tTJSString(sstart, (int)(s - sstart)));
                     }
                     s++;
                     sstart = s;
@@ -543,7 +542,7 @@ namespace TJS {
             }
 
             if(!purgeempty || (purgeempty && (s - sstart) != 0)) {
-                ni->Items.push_back(tTJSString(sstart, (int)(s - sstart)));
+                ni->Items.emplace_back(tTJSString(sstart, (int)(s - sstart)));
             }
 
             if(result)
@@ -1300,11 +1299,11 @@ void tTJSArrayNI::AssignStructure(iTJSDispatch2 *dsp,
                             }
                         }
                         if(objrec) {
-                            Items.push_back(tTJSVariant(
-                                (iTJSDispatch2 *)nullptr)); // becomes nullptr
+                            Items.emplace_back(
+                                (iTJSDispatch2 *)nullptr); // becomes nullptr
                         } else {
                             iTJSDispatch2 *newobj = TJSCreateDictionaryObject();
-                            Items.push_back(tTJSVariant(newobj, newobj));
+                            Items.emplace_back(newobj, newobj);
                             newobj->Release();
                             tTJSDictionaryNI *newni = nullptr;
                             if(TJS_SUCCEEDED(newobj->NativeInstanceSupport(
@@ -1329,11 +1328,11 @@ void tTJSArrayNI::AssignStructure(iTJSDispatch2 *dsp,
                             }
                         }
                         if(objrec) {
-                            Items.push_back(tTJSVariant(
-                                (iTJSDispatch2 *)nullptr)); // becomes nullptr
+                            Items.emplace_back(
+                                (iTJSDispatch2 *)nullptr); // becomes nullptr
                         } else {
                             iTJSDispatch2 *newobj = TJSCreateArrayObject();
-                            Items.push_back(tTJSVariant(newobj, newobj));
+                            Items.emplace_back(newobj, newobj);
                             newobj->Release();
                             tTJSArrayNI *newni = nullptr;
                             if(TJS_SUCCEEDED(newobj->NativeInstanceSupport(

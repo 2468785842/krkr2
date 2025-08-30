@@ -105,7 +105,7 @@ namespace TJS {
 
         tTJSSkipCommentResult ProcessPPStatement();
 
-        tjs_int GetToken(tjs_int &value);
+        tjs_int GetToken(tjs_int &n);
 
         tjs_int32 ParsePPExpression(const tjs_char *start, tjs_int n);
 
@@ -118,9 +118,9 @@ namespace TJS {
         tjs_int IfLevel; // @if nesting level
 
     public:
-        const tTJSVariant &GetValue(tjs_int idx) const { return *Values[idx]; }
+        [[nodiscard]] const tTJSVariant &GetValue(tjs_int idx) const { return *Values[idx]; }
 
-        const tjs_char *GetString(tjs_int idx) const {
+        [[nodiscard]] const tjs_char *GetString(tjs_int idx) const {
             return Values[idx]->GetString();
         }
 

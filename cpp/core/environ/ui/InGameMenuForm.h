@@ -18,6 +18,6 @@ private:
     cocos2d::ui::Widget *createMenuItem(int idx, tTJSNI_MenuItem *item,
                                         const std::string &caption);
 
-    cocos2d::ui::ListView *_list;
-    cocos2d::ui::Button *_title;
+    cocos2d::ui::ListView *_list{};
+    cocos2d::ui::Button *_title{};
 };

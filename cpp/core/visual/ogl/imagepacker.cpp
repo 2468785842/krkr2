@@ -251,7 +251,7 @@ namespace ImagePacker {
         for(int f = 0; f < funcs; ++f)
             delete[] order[f];
 
-        return rect_wh(clip_x, clip_y);
+        return {clip_x, clip_y};
     }
 
     bool pack(rect_xywhf *const *v, int n, int max_s, vector<bin> &bins) {

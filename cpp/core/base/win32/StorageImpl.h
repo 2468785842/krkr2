@@ -57,7 +57,7 @@ public:
 
     tjs_uint64 GetSize() override;
 
-    int GetHandle() const { return Handle; }
+    [[nodiscard]] int GetHandle() const { return Handle; }
 };
 //---------------------------------------------------------------------------
 
@@ -138,17 +138,17 @@ public:
         destruction.
     */
 
-    ~tTVPBinaryStreamAdapter();
+    ~tTVPBinaryStreamAdapter() override;
 
-    tjs_uint64 Seek(tjs_int64 offset, tjs_int whence);
+    tjs_uint64 Seek(tjs_int64 offset, tjs_int whence) override;
 
-    tjs_uint Read(void *buffer, tjs_uint read_size);
+    tjs_uint Read(void *buffer, tjs_uint read_size) override;
 
-    tjs_uint Write(const void *buffer, tjs_uint write_size);
+    tjs_uint Write(const void *buffer, tjs_uint write_size) override;
 
-    tjs_uint64 GetSize();
+    tjs_uint64 GetSize() override;
 
-    void SetEndOfStorage();
+    void SetEndOfStorage() override;
 };
 //---------------------------------------------------------------------------
 
@@ -177,7 +177,7 @@ public:
 
     ~tTVPPluginHolder();
 
-    const ttstr &GetLocalName() const;
+    [[nodiscard]] const ttstr &GetLocalName() const;
 };
 //---------------------------------------------------------------------------
 

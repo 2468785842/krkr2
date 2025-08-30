@@ -21,8 +21,8 @@
  */
 static void PCMConvertLoopInt16ToFloat32_c(void *dest, const void *src,
                                            size_t numsamples) {
-    float *d = static_cast<float *>(dest);
-    const tjs_int16 *s = static_cast<const tjs_int16 *>(src);
+    auto *d = static_cast<float *>(dest);
+    const auto *s = static_cast<const tjs_int16 *>(src);
     const tjs_int16 *s_lim = s + numsamples;
 
     while(s < s_lim) {
@@ -39,8 +39,8 @@ static void PCMConvertLoopInt16ToFloat32_c(void *dest, const void *src,
  */
 static void PCMConvertLoopFloat32ToInt16_c(void *dest, const void *src,
                                            size_t numsamples) {
-    tjs_uint16 *d = static_cast<tjs_uint16 *>(dest);
-    const float *s = static_cast<const float *>(src);
+    auto *d = static_cast<tjs_uint16 *>(dest);
+    const auto *s = static_cast<const float *>(src);
     const float *s_lim = s + numsamples;
 
     while(s < s_lim) {

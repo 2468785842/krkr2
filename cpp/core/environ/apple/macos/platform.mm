@@ -160,7 +160,7 @@ void TVPGetMemoryInfo(TVPMemoryInfo &m) {
 
     mib[0] = CTL_HW;
     mib[1] = HW_MEMSIZE;
-    if (sysctl(mib, 2, &total_memory, &length, NULL, 0) == 0) {
+    if (sysctl(mib, 2, &total_memory, &length, nullptr, 0) == 0) {
         m.MemTotal = total_memory / 1024; // 转换为KB
     }
 
@@ -183,7 +183,7 @@ void TVPGetMemoryInfo(TVPMemoryInfo &m) {
     mib[0] = CTL_VM;
     mib[1] = VM_SWAPUSAGE;
 
-    if (sysctl(mib, 2, &swap_usage, &swap_size, NULL, 0) == 0) {
+    if (sysctl(mib, 2, &swap_usage, &swap_size, nullptr, 0) == 0) {
         m.SwapTotal = swap_usage.xsu_total / 1024; // 转换为KB
         m.SwapFree = (swap_usage.xsu_total - swap_usage.xsu_used) / 1024; // 转换为KB
     }

@@ -6,7 +6,7 @@ public:
     TVPGameMainMenu(GLubyte opa);
     static TVPGameMainMenu *create(GLubyte opa);
 
-    virtual bool init() override;
+    bool init() override;
 
     void setMouseIcon(bool bMouse);
 

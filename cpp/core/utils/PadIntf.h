@@ -19,10 +19,10 @@
 //---------------------------------------------------------------------------
 class tTJSNI_BasePad : public tTJSNativeInstance {
 public:
-    virtual tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                                iTJSDispatch2 *dsp);
+    tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                                iTJSDispatch2 *dsp) override;
 
-    virtual void Invalidate();
+    void Invalidate() override;
 };
 //---------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance();
+    tTJSNativeInstance *CreateNativeInstance() override;
 };
 
 //---------------------------------------------------------------------------

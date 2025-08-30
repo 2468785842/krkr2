@@ -23,7 +23,7 @@ extern "C" {
 extern std::thread::id TVPMainThreadID;
 
 static int lockmgr(void **arg, enum AVLockOp op) {
-    std::mutex **mtx = (std::mutex **)arg;
+    auto **mtx = (std::mutex **)arg;
     switch(op) {
         case AV_LOCK_CREATE:
             *mtx = new std::mutex();
@@ -105,12 +105,12 @@ void GetMFVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin, IStream *stream,
 }
 
 static int AVReadFunc(void *opaque, uint8_t *buf, int buf_size) {
-    TJS::tTJSBinaryStream *stream = (TJS::tTJSBinaryStream *)opaque;
+    auto *stream = (TJS::tTJSBinaryStream *)opaque;
     return stream->Read(buf, buf_size);
 }
 
 static int64_t AVSeekFunc(void *opaque, int64_t offset, int whence) {
-    TJS::tTJSBinaryStream *stream = (TJS::tTJSBinaryStream *)opaque;
+    auto *stream = (TJS::tTJSBinaryStream *)opaque;
     switch(whence) {
         case AVSEEK_SIZE:
             return stream->GetSize();

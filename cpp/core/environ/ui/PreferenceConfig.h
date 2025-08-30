@@ -31,7 +31,7 @@ namespace {
     public:
         tTVPPreferenceInfoConstant(const std::string &cap) :
             iTVPPreferenceInfo(cap, "") {}
-        virtual iPreferenceItem *createItem(int idx) override {
+        iPreferenceItem *createItem(int idx) override {
             LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
             return CreatePreferenceItem<tPreferenceItemConstant>(
                 idx, PrefListSize, locmgr->GetText(Caption));
@@ -43,7 +43,7 @@ namespace {
         tTVPPreferenceInfoCheckBox(const std::string &cap,
                                    const std::string &key, bool defval) :
             tTVPPreferenceInfo<bool>(cap, key, defval) {}
-        virtual iPreferenceItem *createItem(int idx) override {
+        iPreferenceItem *createItem(int idx) override {
             LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
             return CreatePreferenceItem<tPreferenceItemCheckBox>(
                 idx, PrefListSize, locmgr->GetText(Caption),
@@ -66,7 +66,7 @@ namespace {
                 &listinfo) :
             tTVPPreferenceInfo<std::string>(cap, key, defval),
             ListInfo(listinfo) {}
-        virtual iPreferenceItem *createItem(int idx) override {
+        iPreferenceItem *createItem(int idx) override {
             LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
             return CreatePreferenceItem<tPreferenceItemSelectList>(
                 idx, PrefListSize, locmgr->GetText(Caption),
@@ -77,7 +77,7 @@ namespace {
                     item->_setter = [this](std::string v) { onSetValue(v); };
                 });
         }
-        virtual const std::vector<std::pair<std::string, std::string>> &
+        const std::vector<std::pair<std::string, std::string>> &
         getListInfo() override {
             return ListInfo;
         }
@@ -100,7 +100,7 @@ namespace {
                 std::initializer_list<std::pair<std::string, std::string>>()),
             TextFmtList(listinfo) {}
 
-        virtual const std::vector<std::pair<std::string, std::string>> &
+        const std::vector<std::pair<std::string, std::string>> &
         getListInfo() override {
             if(!ListInited) {
                 ListInited = true;
@@ -142,7 +142,7 @@ namespace {
                                      const std::string &defval) :
             tTVPPreferenceInfo<std::string>(cap, key, defval) {}
 
-        virtual iPreferenceItem *createItem(int idx) override {
+        iPreferenceItem *createItem(int idx) override {
             LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
             return CreatePreferenceItem<tPreferenceItemFileSelect>(
                 idx, PrefListSize, locmgr->GetText(Caption),
@@ -169,7 +169,7 @@ namespace {
                 return &SoftRendererOptPreference;
             return nullptr;
         }
-        virtual iPreferenceItem *createItem(int idx) override {
+        iPreferenceItem *createItem(int idx) override {
             LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
             iPreferenceItem *ret = CreatePreferenceItem<tPreferenceItemSubDir>(
                 idx, PrefListSize, locmgr->GetText(Caption));
@@ -179,7 +179,7 @@ namespace {
             });
             return ret;
         }
-        virtual tPreferenceScreen *GetSubScreenInfo() {
+        tPreferenceScreen *GetSubScreenInfo() override {
             return GetSubPreferenceInfo();
         }
     };
@@ -194,7 +194,7 @@ namespace {
             Preference(title, elem) {
             Caption = title;
         }
-        virtual iPreferenceItem *createItem(int idx) override {
+        iPreferenceItem *createItem(int idx) override {
             LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
             iPreferenceItem *ret = CreatePreferenceItem<tPreferenceItemSubDir>(
                 idx, PrefListSize, locmgr->GetText(Caption));
@@ -204,7 +204,7 @@ namespace {
             });
             return ret;
         }
-        virtual tPreferenceScreen *GetSubScreenInfo() { return &Preference; }
+        tPreferenceScreen *GetSubScreenInfo() override { return &Preference; }
     };
 
     class tTVPPreferenceInfoSliderIcon : public tTVPPreferenceInfo<float> {
@@ -212,7 +212,7 @@ namespace {
         tTVPPreferenceInfoSliderIcon(const std::string &cap,
                                      const std::string &key, float defval) :
             tTVPPreferenceInfo<float>(cap, key, defval) {}
-        virtual iPreferenceItem *createItem(int idx) override {
+        iPreferenceItem *createItem(int idx) override {
             LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
 
             tPreferenceItemCursorSlider *ret = new tPreferenceItemCursorSlider(
@@ -239,7 +239,7 @@ namespace {
             return buf;
         }
 
-        virtual iPreferenceItem *createItem(int idx) override {
+        iPreferenceItem *createItem(int idx) override {
             LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
             tPreferenceItemTextSlider *ret = new tPreferenceItemTextSlider(
                 DefaultValue, convertPercentScale);
@@ -257,7 +257,7 @@ namespace {
     public:
         tTVPPreferenceInfoResetDefaultSkin(const std::string &cap) :
             iTVPPreferenceInfo(cap, "") {}
-        virtual iPreferenceItem *createItem(int idx) override {
+        iPreferenceItem *createItem(int idx) override {
             LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
             tPreferenceItemConstant *ret =
                 CreatePreferenceItem<tPreferenceItemConstant>(
@@ -280,7 +280,7 @@ namespace {
     public:
         tTVPPreferenceInfoKeyMap(const std::string &cap) :
             iTVPPreferenceInfo(cap, "") {}
-        virtual iPreferenceItem *createItem(int idx) override {
+        iPreferenceItem *createItem(int idx) override {
             LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
             iPreferenceItem *ret = CreatePreferenceItem<tPreferenceItemSubDir>(
                 idx, PrefListSize, locmgr->GetText(Caption));

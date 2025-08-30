@@ -102,7 +102,7 @@ tjs_int TVPWideCharToUtf8String(const tjs_char *in, char *out) {
 //---------------------------------------------------------------------------
 static bool inline TVPUtf8ToWideChar(const char *&in, tjs_char *out) {
     // convert a utf-8 charater from 'in' to wide charater 'out'
-    const unsigned char *&p = (const unsigned char *&)in;
+    const auto&p = (const unsigned char *&)in;
     if(p[0] < 0x80) {
         if(out)
             *out = (tjs_char)in[0];

@@ -66,9 +66,9 @@ void TVPLoadHeaderBPG(void *formatdata, tTJSBinaryStream *src,
 
     *dic = TJSCreateDictionaryObject();
     tTJSVariant val((tjs_int32)img_info.width);
-    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("width"), 0, &val, (*dic));
+    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("width"), nullptr, &val, (*dic));
     val = tTJSVariant((tjs_int32)img_info.height);
-    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("height"), 0, &val, (*dic));
+    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("height"), nullptr, &val, (*dic));
     val = tTJSVariant(img_info.has_alpha ? 32 : 24);
-    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("bpp"), 0, &val, (*dic));
+    (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("bpp"), nullptr, &val, (*dic));
 }

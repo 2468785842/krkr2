@@ -22,13 +22,12 @@ TVPGlobalPreferenceForm::create(const tPreferenceScreen *config) {
     Initialize();
     if(!config)
         config = &RootPreference;
-    TVPGlobalPreferenceForm *ret = new TVPGlobalPreferenceForm();
+    auto *ret = new TVPGlobalPreferenceForm();
     ret->autorelease();
     ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
     PrefListSize = ret->PrefList->getContentSize();
     ret->initPref(config);
-    ret->setOnExitCallback(std::bind(&GlobalConfigManager::SaveToFile,
-                                     GlobalConfigManager::GetInstance()));
+    ret->setOnExitCallback([capture0 = GlobalConfigManager::GetInstance()] { capture0->SaveToFile(); });
     return ret;
 }
 

@@ -77,7 +77,7 @@ TVPInGameMenuForm::createMenuItem(int idx, tTJSNI_MenuItem *item,
         });
     } else if(item->GetGroup() > 0 || item->GetRadio()) {
         auto getter = [=]() -> bool { return item->GetChecked(); };
-        auto setter = [=](bool b) {
+        auto setter = [=](bool) {
             item->OnClick();
             TVPMainScene::GetInstance()->popAllUIForm();
         };
@@ -88,7 +88,7 @@ TVPInGameMenuForm::createMenuItem(int idx, tTJSNI_MenuItem *item,
             });
     } else if(item->GetChecked()) {
         auto getter = [=]() -> bool { return item->GetChecked(); };
-        auto setter = [=](bool b) { item->OnClick(); };
+        auto setter = [=](bool) { item->OnClick(); };
         ret = CreatePreferenceItem<tPreferenceItemCheckBox>(
             idx, size, caption, [=](tPreferenceItemCheckBox *item) {
                 item->_getter = getter;
@@ -103,8 +103,7 @@ TVPInGameMenuForm::createMenuItem(int idx, tTJSNI_MenuItem *item,
         ret = CreatePreferenceItem<tPreferenceItemConstant>(idx, size, caption);
         ret->addClickEventListener([=](Ref *) {
             TVPMainScene::GetInstance()->scheduleOnce(
-                std::bind(&TVPMainScene::popAllUIForm,
-                          TVPMainScene::GetInstance()),
+                [c = TVPMainScene::GetInstance()](float) { c->popAllUIForm(); },
                 0, "close_menu");
             item->OnClick();
         });

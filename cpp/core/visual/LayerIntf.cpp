@@ -173,7 +173,7 @@ private:
         Temporaries.resize(TempLevel);
     }
 
-    void OnCompact(tjs_int level) {
+    void OnCompact(tjs_int level) override {
         // OnCompact method from tTVPCompactEventCallbackIntf
         // called when the application is idle, deactivated,
         // minimized, or etc...
@@ -7348,14 +7348,14 @@ tTVPBaseTexture *tTJSNI_BaseLayer::Complete(const tTVPRect &rect) {
             Bitmap(bmp), LayerType(layertype) {};
 
         tTVPBaseTexture *GetDrawTargetBitmap(const tTVPRect &rect,
-                                             tTVPRect &cliprect) {
+                                             tTVPRect &cliprect) override {
             cliprect = rect;
             return Bitmap;
         }
 
-        tTVPLayerType GetTargetLayerType() { return LayerType; }
+        tTVPLayerType GetTargetLayerType() override { return LayerType; }
 
-        virtual void DrawCompleted(const tTVPRect &destrect,
+        void DrawCompleted(const tTVPRect &destrect,
                                    tTVPBaseTexture *bmp,
                                    const tTVPRect &cliprect, tTVPLayerType type,
                                    tjs_int opacity) override {
@@ -7373,7 +7373,7 @@ tTVPBaseTexture *tTJSNI_BaseLayer::Complete(const tTVPRect &rect) {
                       layertype == ltOpaque ? 0xFF000000 : 0);
         };
 
-        virtual void DrawCompleted(const tTVPRect &destrect,
+        void DrawCompleted(const tTVPRect &destrect,
                                    tTVPBaseTexture *bmp,
                                    const tTVPRect &cliprect, tTVPLayerType type,
                                    tjs_int opacity) override {

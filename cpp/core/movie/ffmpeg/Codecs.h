@@ -4,6 +4,8 @@
 
 #include "RenderFormats.h"
 #include <string>
+#include <utility>
+#include <utility>
 
 NS_KRMOVIE_BEGIN
 // 0x100000 is the video starting range
@@ -13,8 +15,8 @@ NS_KRMOVIE_BEGIN
 // special options that can be passed to a codec
 class CDVDCodecOption {
 public:
-    CDVDCodecOption(const std::string &name, const std::string &value) :
-        m_name(name), m_value(value) {}
+    CDVDCodecOption(std::string name, std::string value) :
+        m_name(std::move(name)), m_value(std::move(value)) {}
 
     std::string m_name;
     std::string m_value;

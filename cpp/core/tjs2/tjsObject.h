@@ -99,9 +99,9 @@ namespace TJS {
         //	bool DestructionTrace;
 
     public:
-        tjs_uint AddRef();
+        tjs_uint AddRef() override;
 
-        tjs_uint Release();
+        tjs_uint Release() override;
 
     protected:
         tjs_uint GetRefCount() { return RefCount; }
@@ -110,120 +110,120 @@ namespace TJS {
         tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
                            tjs_uint32 *hint, tTJSVariant *result,
                            tjs_int numparams, tTJSVariant **param,
-                           iTJSDispatch2 *objthis) {
+                           iTJSDispatch2 *objthis) override {
             return membername ? TJS_E_MEMBERNOTFOUND : TJS_E_NOTIMPL;
         }
 
         tjs_error FuncCallByNum(tjs_uint32 flag, tjs_int num,
                                 tTJSVariant *result, tjs_int numparams,
-                                tTJSVariant **param, iTJSDispatch2 *objthis);
+                                tTJSVariant **param, iTJSDispatch2 *objthis) override;
 
         tjs_error PropGet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, tTJSVariant *result,
-                          iTJSDispatch2 *objthis) {
+                          iTJSDispatch2 *objthis) override {
             return membername ? TJS_E_MEMBERNOTFOUND : TJS_E_NOTIMPL;
         }
 
         tjs_error PropGetByNum(tjs_uint32 flag, tjs_int num,
-                               tTJSVariant *result, iTJSDispatch2 *objthis);
+                               tTJSVariant *result, iTJSDispatch2 *objthis) override;
 
         tjs_error PropSet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, const tTJSVariant *param,
-                          iTJSDispatch2 *objthis) {
+                          iTJSDispatch2 *objthis) override {
             return membername ? TJS_E_MEMBERNOTFOUND : TJS_E_NOTIMPL;
         }
 
         tjs_error PropSetByNum(tjs_uint32 flag, tjs_int num,
                                const tTJSVariant *param,
-                               iTJSDispatch2 *objthis);
+                               iTJSDispatch2 *objthis) override;
 
         tjs_error GetCount(tjs_int *result, const tjs_char *membername,
-                           tjs_uint32 *hint, iTJSDispatch2 *objthis) {
+                           tjs_uint32 *hint, iTJSDispatch2 *objthis) override {
             return TJS_E_NOTIMPL;
         }
 
         tjs_error GetCountByNum(tjs_int *result, tjs_int num,
-                                iTJSDispatch2 *objthis);
+                                iTJSDispatch2 *objthis) override;
 
         tjs_error PropSetByVS(tjs_uint32 flag, tTJSVariantString *membername,
                               const tTJSVariant *param,
-                              iTJSDispatch2 *objthis) {
+                              iTJSDispatch2 *objthis) override {
             return TJS_E_NOTIMPL;
         }
 
         tjs_error EnumMembers(tjs_uint32 flag, tTJSVariantClosure *callback,
-                              iTJSDispatch2 *objthis) {
+                              iTJSDispatch2 *objthis) override {
             return TJS_E_NOTIMPL;
         }
 
         tjs_error DeleteMember(tjs_uint32 flag, const tjs_char *membername,
-                               tjs_uint32 *hint, iTJSDispatch2 *objthis) {
+                               tjs_uint32 *hint, iTJSDispatch2 *objthis) override {
             return membername ? TJS_E_MEMBERNOTFOUND : TJS_E_NOTIMPL;
         }
 
         tjs_error DeleteMemberByNum(tjs_uint32 flag, tjs_int num,
-                                    iTJSDispatch2 *objthis);
+                                    iTJSDispatch2 *objthis) override;
 
         tjs_error Invalidate(tjs_uint32 flag, const tjs_char *membername,
-                             tjs_uint32 *hint, iTJSDispatch2 *objthis) {
+                             tjs_uint32 *hint, iTJSDispatch2 *objthis) override {
             return membername ? TJS_E_MEMBERNOTFOUND : TJS_E_NOTIMPL;
         }
 
         tjs_error InvalidateByNum(tjs_uint32 flag, tjs_int num,
-                                  iTJSDispatch2 *objthis);
+                                  iTJSDispatch2 *objthis) override;
 
         tjs_error IsValid(tjs_uint32 flag, const tjs_char *membername,
-                          tjs_uint32 *hint, iTJSDispatch2 *objthis) {
+                          tjs_uint32 *hint, iTJSDispatch2 *objthis) override {
             return membername ? TJS_E_MEMBERNOTFOUND : TJS_E_NOTIMPL;
         }
 
         tjs_error IsValidByNum(tjs_uint32 flag, tjs_int num,
-                               iTJSDispatch2 *objthis);
+                               iTJSDispatch2 *objthis) override;
 
         tjs_error CreateNew(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, iTJSDispatch2 **result,
                             tjs_int numparams, tTJSVariant **param,
-                            iTJSDispatch2 *objthis) {
+                            iTJSDispatch2 *objthis) override {
             return membername ? TJS_E_MEMBERNOTFOUND : TJS_E_NOTIMPL;
         }
 
         tjs_error CreateNewByNum(tjs_uint32 flag, tjs_int num,
                                  iTJSDispatch2 **result, tjs_int numparams,
-                                 tTJSVariant **param, iTJSDispatch2 *objthis);
+                                 tTJSVariant **param, iTJSDispatch2 *objthis) override;
 
-        tjs_error Reserved1() { return TJS_E_NOTIMPL; }
+        tjs_error Reserved1() override { return TJS_E_NOTIMPL; }
 
         tjs_error IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, const tjs_char *classname,
-                               iTJSDispatch2 *objthis) {
+                               iTJSDispatch2 *objthis) override {
             return membername ? TJS_E_MEMBERNOTFOUND : TJS_E_NOTIMPL;
         }
 
         tjs_error IsInstanceOfByNum(tjs_uint32 flag, tjs_int num,
                                     const tjs_char *classname,
-                                    iTJSDispatch2 *objthis);
+                                    iTJSDispatch2 *objthis) override;
 
         tjs_error Operation(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, tTJSVariant *result,
-                            const tTJSVariant *param, iTJSDispatch2 *objthis);
+                            const tTJSVariant *param, iTJSDispatch2 *objthis) override;
 
         tjs_error OperationByNum(tjs_uint32 flag, tjs_int num,
                                  tTJSVariant *result, const tTJSVariant *param,
-                                 iTJSDispatch2 *objthis);
+                                 iTJSDispatch2 *objthis) override;
 
         tjs_error NativeInstanceSupport(tjs_uint32 flag, tjs_int32 classid,
-                                        iTJSNativeInstance **pointer) {
+                                        iTJSNativeInstance **pointer) override {
             return TJS_E_NOTIMPL;
         }
 
         tjs_error ClassInstanceInfo(tjs_uint32 flag, tjs_uint num,
-                                    tTJSVariant *value) {
+                                    tTJSVariant *value) override {
             return TJS_E_NOTIMPL;
         }
 
-        tjs_error Reserved2() { return TJS_E_NOTIMPL; }
+        tjs_error Reserved2() override { return TJS_E_NOTIMPL; }
 
-        tjs_error Reserved3() { return TJS_E_NOTIMPL; }
+        tjs_error Reserved3() override { return TJS_E_NOTIMPL; }
     };
     //---------------------------------------------------------------------------
     /*]*/
@@ -304,7 +304,7 @@ namespace TJS {
                 Hash = hash;
             }
 
-            const tjs_char *GetName() const {
+            [[nodiscard]] const tjs_char *GetName() const {
                 return (const tjs_char *)(*Name);
             }
 
@@ -347,7 +347,7 @@ namespace TJS {
 
         //---------------------------------------------------------------------
     protected:
-        bool GetValidity() const { return !IsInvalidated; }
+        [[nodiscard]] bool GetValidity() const { return !IsInvalidated; }
 
         bool CallFinalize; // set false if this object does not need
                            // to call "finalize"
@@ -365,10 +365,10 @@ namespace TJS {
     public:
         tTJSCustomObject(tjs_int hashbits = TJS_NAMESPACE_DEFAULT_HASH_BITS);
 
-        virtual ~tTJSCustomObject();
+        ~tTJSCustomObject() override;
 
     private:
-        void BeforeDestruction();
+        void BeforeDestruction() override;
 
         void CheckObjectClosureAdd(const tTJSVariant &val) {
             // adjust the reference counter when the object closure's
@@ -443,52 +443,52 @@ namespace TJS {
         tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
                            tjs_uint32 *hint, tTJSVariant *result,
                            tjs_int numparams, tTJSVariant **param,
-                           iTJSDispatch2 *objthis);
+                           iTJSDispatch2 *objthis) override;
 
         tjs_error PropGet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, tTJSVariant *result,
-                          iTJSDispatch2 *objthis);
+                          iTJSDispatch2 *objthis) override;
 
         tjs_error PropSet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, const tTJSVariant *param,
-                          iTJSDispatch2 *objthis);
+                          iTJSDispatch2 *objthis) override;
 
         tjs_error GetCount(tjs_int *result, const tjs_char *membername,
-                           tjs_uint32 *hint, iTJSDispatch2 *objthis);
+                           tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error PropSetByVS(tjs_uint32 flag, tTJSVariantString *membername,
-                              const tTJSVariant *param, iTJSDispatch2 *objthis);
+                              const tTJSVariant *param, iTJSDispatch2 *objthis) override;
 
         tjs_error EnumMembers(tjs_uint32 flag, tTJSVariantClosure *callback,
-                              iTJSDispatch2 *objthis);
+                              iTJSDispatch2 *objthis) override;
 
         tjs_error DeleteMember(tjs_uint32 flag, const tjs_char *membername,
-                               tjs_uint32 *hint, iTJSDispatch2 *objthis);
+                               tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error Invalidate(tjs_uint32 flag, const tjs_char *membername,
-                             tjs_uint32 *hint, iTJSDispatch2 *objthis);
+                             tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error IsValid(tjs_uint32 flag, const tjs_char *membername,
-                          tjs_uint32 *hint, iTJSDispatch2 *objthis);
+                          tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error CreateNew(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, iTJSDispatch2 **result,
                             tjs_int numparams, tTJSVariant **param,
-                            iTJSDispatch2 *objthis);
+                            iTJSDispatch2 *objthis) override;
 
         tjs_error IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, const tjs_char *classname,
-                               iTJSDispatch2 *objthis);
+                               iTJSDispatch2 *objthis) override;
 
         tjs_error Operation(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, tTJSVariant *result,
-                            const tTJSVariant *param, iTJSDispatch2 *objthis);
+                            const tTJSVariant *param, iTJSDispatch2 *objthis) override;
 
         tjs_error NativeInstanceSupport(tjs_uint32 flag, tjs_int32 classid,
-                                        iTJSNativeInstance **pointer);
+                                        iTJSNativeInstance **pointer) override;
 
         tjs_error ClassInstanceInfo(tjs_uint32 flag, tjs_uint num,
-                                    tTJSVariant *value);
+                                    tTJSVariant *value) override;
     };
     //---------------------------------------------------------------------------
 

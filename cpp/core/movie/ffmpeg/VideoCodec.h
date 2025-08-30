@@ -192,7 +192,7 @@ class CDVDVideoCodec {
 public:
     CDVDVideoCodec(CProcessInfo &processInfo) : m_processInfo(processInfo) {}
 
-    virtual ~CDVDVideoCodec() {}
+    virtual ~CDVDVideoCodec() = default;
 
     /**
      * Open the decoder, returns true on success

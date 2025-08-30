@@ -76,7 +76,7 @@ public:
     NativeEventQueue(T *owner, void (T::*Handler)(NativeEvent &)) :
         owner_(owner), handler_(Handler) {}
 
-    void Dispatch(NativeEvent &ev) { (owner_->*handler_)(ev); }
+    void Dispatch(NativeEvent &ev) override { (owner_->*handler_)(ev); }
 
     T *GetOwner() { return owner_; }
 };

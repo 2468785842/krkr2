@@ -1171,7 +1171,7 @@ namespace TJS {
                 return 0;
 
             TJSThrowVariantConvertError(*this, tvtInteger, tvtReal);
-            return tTJSVariant();
+            return {};
         }
 
     private:

@@ -17,11 +17,11 @@
 #include "BitmapLayerTreeOwner.h"
 #include "MsgIntf.h"
 
-#include <assert.h>
+#include <cassert>
 
 tTJSNI_BitmapLayerTreeOwner::tTJSNI_BitmapLayerTreeOwner() :
     Owner(nullptr), BitmapObject(nullptr), BitmapNI(nullptr) {}
-tTJSNI_BitmapLayerTreeOwner::~tTJSNI_BitmapLayerTreeOwner() {}
+tTJSNI_BitmapLayerTreeOwner::~tTJSNI_BitmapLayerTreeOwner() = default;
 
 // tTJSNativeInstance
 tjs_error tTJSNI_BitmapLayerTreeOwner::Construct(tjs_int numparams,
@@ -70,7 +70,7 @@ void tTJSNI_BitmapLayerTreeOwner::NotifyBitmapCompleted(
     if(BitmapNI) {
         BitmapNI->SetSize(w, h);
     }
-    tjs_uint8 *dstbits = (tjs_uint8 *)BitmapNI->GetPixelBufferForWrite();
+    auto *dstbits = (tjs_uint8 *)BitmapNI->GetPixelBufferForWrite();
     tjs_int dstpitch = BitmapNI->GetPixelBufferPitch();
     // cliprect がはみ出していいないことを確認
     if(!(x < 0 || y < 0 || x + cliprect.get_width() > w ||
@@ -85,7 +85,7 @@ void tTJSNI_BitmapLayerTreeOwner::NotifyBitmapCompleted(
         long width_bytes = cliprect.get_width() * 4; // 32bit
         long dest_y = y;
         long dest_x = x;
-        const tjs_uint8 *src_p = (const tjs_uint8 *)bitmapinfo->GetScanLine(0);
+        const auto *src_p = (const tjs_uint8 *)bitmapinfo->GetScanLine(0);
         long src_pitch;
 #if 0
 		if(bitmapinfo->GetHeight() < 0) {

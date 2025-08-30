@@ -217,7 +217,7 @@ void tTJSNI_BaseMenuItem::OnClick() {
 }
 //---------------------------------------------------------------------------
 tTJSNI_BaseMenuItem *tTJSNI_BaseMenuItem::GetRootMenuItem() const {
-    tTJSNI_BaseMenuItem *current = const_cast<tTJSNI_BaseMenuItem *>(this);
+    auto *current = const_cast<tTJSNI_BaseMenuItem *>(this);
     tTJSNI_BaseMenuItem *parent = current->GetParent();
     while(parent) {
         current = parent;

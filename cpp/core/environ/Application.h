@@ -101,10 +101,10 @@ public:
     static void PrintConsole(const ttstr &mes, bool important = false);
     bool IsAttachConsole() { return is_attach_console_; }
 
-    bool IsTarminate() const { return tarminate_; }
+    [[nodiscard]] bool IsTarminate() const { return tarminate_; }
 
     //	HWND GetHandle();
-    bool IsIconic() {
+    static bool IsIconic() {
 #if 0
 		HWND hWnd = GetHandle();
 		if( hWnd != INVALID_HANDLE_VALUE ) {
@@ -133,7 +133,7 @@ public:
 	void HandleMessage();
 	void HandleIdle(MSG &msg);
 #endif
-    const ttstr &GetTitle() const { return title_; }
+    [[nodiscard]] const ttstr &GetTitle() const { return title_; }
     void SetTitle(const ttstr &caption);
 #if 0
 	static inline int MessageDlg( const ttstr& string, const ttstr& caption, int type, int button ) {
@@ -155,7 +155,7 @@ public:
     // LPARAM
     // lParam);
     void PostUserMessage(const std::function<void()> &func,
-                         void *param1 = nullptr, int param2 = 0);
+                         void *host = nullptr, int msg = 0);
     void FilterUserMessage(
         const std::function<void(std::vector<std::tuple<void *, int, tMsg>> &)>
             &func);
@@ -181,8 +181,8 @@ public:
     void OnExit();
     void OnLowMemory();
 
-    bool GetActivating() const { return application_activating_; }
-    bool GetNotMinimizing() const;
+    [[nodiscard]] bool GetActivating() const { return application_activating_; }
+    [[nodiscard]] bool GetNotMinimizing() const;
 
     /**
      * 画像の非同期読込み要求

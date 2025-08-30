@@ -18,7 +18,7 @@
 
 #ifndef TVP_REVRGB
 #define TVP_REVRGB(v)                                                          \
-    ((v & 0xFF00FF00) | ((v >> 16) & 0xFF) | ((v & 0xFF) << 16))
+    (((v) & 0xFF00FF00) | (((v) >> 16) & 0xFF) | (((v) & 0xFF) << 16))
 #endif
 
 /*[*/
@@ -146,7 +146,7 @@ public:
     void SetSizeWithFill(tjs_uint w, tjs_uint h, tjs_uint32 fillvalue);
 
     // point access
-    tjs_uint32 GetPoint(tjs_int x, tjs_int y) const;
+    [[nodiscard]] tjs_uint32 GetPoint(tjs_int x, tjs_int y) const;
     bool SetPoint(tjs_int x, tjs_int y, tjs_uint32 value);
     bool SetPointMain(tjs_int x, tjs_int y,
                       tjs_uint32 color); // for 32bpp
@@ -200,7 +200,7 @@ public:
     bool StretchBlt(tTVPRect cliprect, tTVPRect destrect,
                     const iTVPBaseBitmap *ref, tTVPRect refrect,
                     tTVPBBBltMethod method, tjs_int opa, bool hda = true,
-                    tTVPBBStretchType type = stNearest, tjs_real typeopt = 0.0);
+                    tTVPBBStretchType mode = stNearest, tjs_real typeopt = 0.0);
 
 public:
     bool AffineBlt(tTVPRect destrect, const iTVPBaseBitmap *ref,
@@ -214,7 +214,7 @@ public:
                    tTVPRect refrect, const t2DAffineMatrix &matrix,
                    tTVPBBBltMethod method, tjs_int opa,
                    tTVPRect *updaterect = nullptr, bool hda = true,
-                   tTVPBBStretchType mode = stNearest, bool clear = false,
+                   tTVPBBStretchType type = stNearest, bool clear = false,
                    tjs_uint32 clearcolor = 0);
 
 private:

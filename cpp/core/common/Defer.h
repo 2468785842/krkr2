@@ -52,6 +52,6 @@ namespace clover {
 
 // Helper macro
 #define DEFER                                                                  \
-    auto SCOPE_GUARD_CONCATENATE(ext_exitBlock_, __LINE__) =                   \
-        clover::detail::ScopeGuardOnExit() + [&]()
+    (auto SCOPE_GUARD_CONCATENATE(ext_exitBlock_, __LINE__) =                   \
+        clover::detail::ScopeGuardOnExit() + [&]())
 #endif // KRKR2_DEFER_H

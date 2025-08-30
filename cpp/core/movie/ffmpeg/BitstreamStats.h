@@ -26,11 +26,11 @@ public:
 
     void AddSampleBits(unsigned int nBits);
 
-    inline double GetBitrate() const { return m_dBitrate; }
+    [[nodiscard]] inline double GetBitrate() const { return m_dBitrate; }
 
-    inline double GetMaxBitrate() const { return m_dMaxBitrate; }
+    [[nodiscard]] inline double GetMaxBitrate() const { return m_dMaxBitrate; }
 
-    inline double GetMinBitrate() const { return m_dMinBitrate; }
+    [[nodiscard]] inline double GetMinBitrate() const { return m_dMinBitrate; }
 
     void Start();
 

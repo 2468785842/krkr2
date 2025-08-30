@@ -406,12 +406,12 @@ public:
             Options->Release();
     }
 
-    tjs_error AddRef() {
+    tjs_error AddRef() override {
         RefCount++;
         return TJS_S_OK;
     }
 
-    tjs_error Release() {
+    tjs_error Release() override {
         if(RefCount == 1)
             delete this;
         else
@@ -421,7 +421,7 @@ public:
 
     tjs_error SetOption(
         /*in*/ iTVPSimpleOptionProvider *options // option provider
-    ) {
+    ) override {
         if(Options)
             Options->Release();
         options = options;
@@ -431,14 +431,14 @@ public:
         return TJS_S_OK;
     }
 
-    tjs_error StartProcess(tjs_uint64 tick);
-    tjs_error EndProcess();
+    tjs_error StartProcess(tjs_uint64 tick) override;
+    tjs_error EndProcess() override;
     tjs_error Process(
-        /*in,out*/ tTVPDivisibleData *data);
+        /*in,out*/ tTVPDivisibleData *data) override;
     tjs_error MakeFinalImage(
         /*in,out*/ iTVPScanLineProvider **dest,
         /*in*/ iTVPScanLineProvider *src1,
-        /*in*/ iTVPScanLineProvider *src2);
+        /*in*/ iTVPScanLineProvider *src2) override;
 
     virtual void Blend(tTVPDivisibleData *data);
 };
@@ -762,11 +762,11 @@ public:
         Method->SetParameterInt(MethodVagueID, vague);
     }
 
-    ~tTVPUniversalTransHandler() { Rule->Release(); }
+    ~tTVPUniversalTransHandler() override { Rule->Release(); }
 
-    tjs_error StartProcess(tjs_uint64 tick);
+    tjs_error StartProcess(tjs_uint64 tick) override;
     // tTVPCrossFadeTransHandler::blend override
-    void Blend(tTVPDivisibleData *data);
+    void Blend(tTVPDivisibleData *data) override;
     // tTVPCrossFadeTransHandler::blend override
 };
 //---------------------------------------------------------------------------
@@ -774,10 +774,10 @@ class tTVPUniversalTransHandlerProvider
     : public tTVPCrossFadeTransHandlerProvider {
 public:
     tTVPUniversalTransHandlerProvider() : tTVPCrossFadeTransHandlerProvider() {}
-    virtual ~tTVPUniversalTransHandlerProvider() {};
+    ~tTVPUniversalTransHandlerProvider() override {};
 
     tjs_error GetName(
-        /*out*/ const tjs_char **name) {
+        /*out*/ const tjs_char **name) override {
         if(name) {
             *name = TJS_W("universal");
             return TJS_S_OK;
@@ -786,12 +786,12 @@ public:
         }
     }
 
-    virtual iTVPBaseTransHandler *GetTransitionObject(
+    iTVPBaseTransHandler *GetTransitionObject(
         /*in*/ iTVPSimpleOptionProvider *options, // option provider
         /*in*/ iTVPSimpleImageProvider *imagepro, // image provider
         /*in*/ tTVPLayerType layertype,
         /*in*/ tjs_uint src1w, tjs_uint src1h, // source 1 size
-        /*in*/ tjs_uint src2w, tjs_uint src2h) // source 2 size
+        /*in*/ tjs_uint src2w, tjs_uint src2h) override // source 2 size
     {
         tjs_error er;
 
@@ -1038,9 +1038,9 @@ public:
         Stay = stay;
     }
 
-    ~tTVPScrollTransHandler() {}
+    ~tTVPScrollTransHandler() override {}
 
-    void Blend(tTVPDivisibleData *data);
+    void Blend(tTVPDivisibleData *data) override;
     // tTVPCrossFadeTransHandler::blend override
 };
 //---------------------------------------------------------------------------
@@ -1048,10 +1048,10 @@ class tTVPScrollTransHandlerProvider
     : public tTVPCrossFadeTransHandlerProvider {
 public:
     tTVPScrollTransHandlerProvider() : tTVPCrossFadeTransHandlerProvider() {}
-    virtual ~tTVPScrollTransHandlerProvider() {};
+    ~tTVPScrollTransHandlerProvider() override {};
 
     tjs_error GetName(
-        /*out*/ const tjs_char **name) {
+        /*out*/ const tjs_char **name) override {
         if(name) {
             *name = TJS_W("scroll");
             return TJS_S_OK;
@@ -1069,7 +1069,7 @@ public:
         /*out*/ tTVPTransType *type, // transition type
         /*out*/ tTVPTransUpdateType *updatetype, // update typwe
         /*out*/ iTVPBaseTransHandler **handler // transition handler
-    ) {
+    ) override {
         tjs_error er = tTVPCrossFadeTransHandlerProvider::StartTransition(
             options, imagepro, layertype, src1w, src1h, src2w, src2h, type,
             updatetype, handler);
@@ -1080,12 +1080,12 @@ public:
         return er;
     }
 
-    virtual iTVPBaseTransHandler *GetTransitionObject(
+    iTVPBaseTransHandler *GetTransitionObject(
         /*in*/ iTVPSimpleOptionProvider *options, // option provider
         /*in*/ iTVPSimpleImageProvider *imagepro, // image provider
         /*in*/ tTVPLayerType layertype,
         /*in*/ tjs_uint src1w, tjs_uint src1h, // source 1 size
-        /*in*/ tjs_uint src2w, tjs_uint src2h) // source 2 size
+        /*in*/ tjs_uint src2w, tjs_uint src2h) override // source 2 size
     {
         tjs_error er;
         tjs_int64 value;

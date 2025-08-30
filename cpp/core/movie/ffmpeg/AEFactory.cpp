@@ -157,7 +157,7 @@ public:
         m_impl = TVPCreateSoundBuffer(format, 8);
     }
 
-    virtual ~CAEStreamAL() {
+    ~CAEStreamAL() override {
         {
             //			std::unique_lock<std::mutex> lk(_mutex);
             if(swr_ctx) {
@@ -174,7 +174,7 @@ public:
         _cond.notify_all();
     }
 
-    virtual unsigned int AddData(const uint8_t *const *data,
+    unsigned int AddData(const uint8_t *const *data,
                                  unsigned int offset, unsigned int frames,
                                  double pts) override {
         _timer.Set(1000);
@@ -226,11 +226,11 @@ public:
         return frames;
     }
 
-    virtual double GetDelay() override {
+    double GetDelay() override {
         return (double)m_impl->GetLatencySeconds();
     }
 
-    virtual CAESyncInfo GetSyncInfo() override {
+    CAESyncInfo GetSyncInfo() override {
         CAESyncInfo info; // TODO
         info.delay = 0;
         info.error = 0;
@@ -240,25 +240,25 @@ public:
         return info;
     }
 
-    virtual double GetCacheTime() override {
+    double GetCacheTime() override {
         return 1; // TODO
     }
 
-    virtual double GetCacheTotal() override {
+    double GetCacheTotal() override {
         // return std::max(GetDelay(), (double)TVPAL_BUFFER_COUNT);
         return GetDelay();
     }
 
-    virtual void Pause() override { m_impl->Pause(); }
+    void Pause() override { m_impl->Pause(); }
 
-    virtual void Resume() override { m_impl->Play(); }
+    void Resume() override { m_impl->Play(); }
 
-    virtual bool IsSuspended() { return !m_impl->IsPlaying(); }
+    bool IsSuspended() override { return !m_impl->IsPlaying(); }
 
-    virtual void Drain(bool wait) {} // TODO
-    virtual void Flush() { m_impl->Reset(); }
+    void Drain(bool wait) override {} // TODO
+    void Flush() override { m_impl->Reset(); }
 
-    virtual iTVPSoundBuffer *GetNativeImpl() override { return m_impl; }
+    iTVPSoundBuffer *GetNativeImpl() override { return m_impl; }
 };
 
 bool CAEFactory::SupportsRaw(AEAudioFormat &format) {

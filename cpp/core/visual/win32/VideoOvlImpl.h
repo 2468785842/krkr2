@@ -67,14 +67,14 @@ class tTJSNI_VideoOverlay : public tTJSNI_BaseVideoOverlay {
 public:
     tTJSNI_VideoOverlay();
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
 
 public:
     void Open(const ttstr &name);
     void Close();
     void Shutdown();
-    void Disconnect(); // tTJSNI_BaseVideoOverlay::Disconnect override
+    void Disconnect() override; // tTJSNI_BaseVideoOverlay::Disconnect override
 
     void Play();
     void Stop();
@@ -99,19 +99,19 @@ public:
     void SetPosition(tjs_int left, tjs_int top);
     void SetSize(tjs_int width, tjs_int height);
     void SetBounds(const tTVPRect &rect);
-    virtual const tTVPRect &GetBounds() const override { return Rect; }
+    [[nodiscard]] const tTVPRect &GetBounds() const override { return Rect; }
 
     void SetLeft(tjs_int l);
-    tjs_int GetLeft() const { return Rect.left; }
+    [[nodiscard]] tjs_int GetLeft() const { return Rect.left; }
     void SetTop(tjs_int t);
-    tjs_int GetTop() const { return Rect.top; }
+    [[nodiscard]] tjs_int GetTop() const { return Rect.top; }
     void SetWidth(tjs_int w);
-    tjs_int GetWidth() const { return Rect.get_width(); }
+    [[nodiscard]] tjs_int GetWidth() const { return Rect.get_width(); }
     void SetHeight(tjs_int h);
-    tjs_int GetHeight() const { return Rect.get_height(); }
+    [[nodiscard]] tjs_int GetHeight() const { return Rect.get_height(); }
 
     void SetVisible(bool b);
-    bool GetVisible() const override { return Visible; }
+    [[nodiscard]] bool GetVisible() const override { return Visible; }
 
     void SetTimePosition(tjs_uint64 p);
     tjs_uint64 GetTimePosition();
@@ -124,7 +124,7 @@ public:
     tjs_int64 GetTotalTime();
 
     void SetLoop(bool b);
-    bool GetLoop() const { return Loop; }
+    [[nodiscard]] bool GetLoop() const { return Loop; }
 
     void SetLayer1(tTJSNI_BaseLayer *l);
     tTJSNI_BaseLayer *GetLayer1() { return Layer1; }
@@ -132,7 +132,7 @@ public:
     tTJSNI_BaseLayer *GetLayer2() { return Layer2; }
 
     void SetMode(tTVPVideoOverlayMode m);
-    virtual tTVPVideoOverlayMode GetMode() const override { return Mode; }
+    [[nodiscard]] tTVPVideoOverlayMode GetMode() const override { return Mode; }
 
     tjs_real GetPlayRate();
     void SetPlayRate(tjs_real r);
@@ -144,7 +144,7 @@ public:
     tjs_int GetAudioBalance();
     void SetAudioBalance(tjs_int b);
     tjs_int GetAudioVolume();
-    void SetAudioVolume(tjs_int v);
+    void SetAudioVolume(tjs_int b);
 
     tjs_uint GetNumberOfAudioStream();
     void SelectAudioStream(tjs_uint n);

@@ -1023,7 +1023,7 @@ static tjs_uint TVPRebuildAutoPathTable() {
             public:
                 std::vector<ttstr> list;
 
-                void Add(const ttstr &file) { list.push_back(file); }
+                void Add(const ttstr &file) override { list.push_back(file); }
             } lister;
 
             TVPStorageMediaManager.GetListAt(path, &lister);

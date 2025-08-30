@@ -338,14 +338,14 @@ public:
         }
     }
 
-    ~tTVPTextReadStream() {
+    ~tTVPTextReadStream() override {
         if(Stream)
             delete Stream;
         if(Buffer)
             delete[] Buffer;
     }
 
-    tjs_uint Read(tTJSString &targ, tjs_uint size) {
+    tjs_uint Read(tTJSString &targ, tjs_uint size) override {
         if(DirectLoad) {
             if(sizeof(tjs_char) == 2) {
                 if(size == 0)
@@ -445,7 +445,7 @@ public:
         }
     }
 
-    void Destruct() { delete this; }
+    void Destruct() override { delete this; }
 };
 
 //---------------------------------------------------------------------------
@@ -562,7 +562,7 @@ public:
         }
     }
 
-    ~tTVPTextWriteStream() {
+    ~tTVPTextWriteStream() override {
         if(CryptMode == 2) {
 
             if(!CompressionFailed) {
@@ -624,7 +624,7 @@ public:
         Stream->WriteBuffer(buf, 8);
     }
 
-    void Write(const ttstr &targ) {
+    void Write(const ttstr &targ) override {
         tjs_uint16 *buf;
         tjs_int len = targ.GetLen();
         buf = new tjs_uint16[len + 1];
@@ -719,7 +719,7 @@ public:
         }
     }
 
-    void Destruct() { delete this; }
+    void Destruct() override { delete this; }
 };
 
 //---------------------------------------------------------------------------

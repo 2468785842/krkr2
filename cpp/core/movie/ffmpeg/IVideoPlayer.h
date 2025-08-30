@@ -54,23 +54,23 @@ public:
     IDVDStreamPlayerVideo(CProcessInfo &processInfo) :
         IDVDStreamPlayer(processInfo) {};
 
-    ~IDVDStreamPlayerVideo() {}
+    ~IDVDStreamPlayerVideo() override {}
 
-    virtual bool OpenStream(CDVDStreamInfo &hint) = 0;
+    bool OpenStream(CDVDStreamInfo &hint) override = 0;
 
-    virtual void CloseStream(bool bWaitForBuffers) = 0;
+    void CloseStream(bool bWaitForBuffers) override = 0;
 
     virtual void Flush(bool sync) = 0;
 
-    virtual bool AcceptsData() = 0;
+    bool AcceptsData() override = 0;
 
     virtual bool HasData() const = 0;
 
     virtual int GetLevel() = 0;
 
-    virtual bool IsInited() const = 0;
+    bool IsInited() const override = 0;
 
-    virtual void SendMessage(CDVDMsg *pMsg, int priority = 0) = 0;
+    void SendMessage(CDVDMsg *pMsg, int priority = 0) override = 0;
 
     virtual void EnableSubtitle(bool bEnable) = 0;
 
@@ -81,7 +81,7 @@ public:
 
     virtual void SetSubtitleDelay(double delay) = 0;
 
-    virtual bool IsStalled() const = 0;
+    bool IsStalled() const override = 0;
 
     virtual bool IsRewindStalled() const { return false; }
 
@@ -111,25 +111,25 @@ public:
     IDVDStreamPlayerAudio(CProcessInfo &processInfo) :
         IDVDStreamPlayer(processInfo) {};
 
-    ~IDVDStreamPlayerAudio() {}
+    ~IDVDStreamPlayerAudio() override {}
 
-    virtual bool OpenStream(CDVDStreamInfo &hints) = 0;
+    bool OpenStream(CDVDStreamInfo &hints) override = 0;
 
-    virtual void CloseStream(bool bWaitForBuffers) = 0;
+    void CloseStream(bool bWaitForBuffers) override = 0;
 
     virtual void SetSpeed(int speed) = 0;
 
     virtual void Flush(bool sync) = 0;
 
-    virtual bool AcceptsData() = 0;
+    bool AcceptsData() override = 0;
 
     virtual bool HasData() const = 0;
 
     virtual int GetLevel() = 0;
 
-    virtual bool IsInited() const = 0;
+    bool IsInited() const override = 0;
 
-    virtual void SendMessage(CDVDMsg *pMsg, int priority = 0) = 0;
+    void SendMessage(CDVDMsg *pMsg, int priority = 0) override = 0;
 
     virtual void SetVolume(float fVolume) {};
 
@@ -144,7 +144,7 @@ public:
 
     virtual double GetCurrentPts() = 0;
 
-    virtual bool IsStalled() const = 0;
+    bool IsStalled() const override = 0;
 
     virtual bool IsPassthrough() = 0;
 

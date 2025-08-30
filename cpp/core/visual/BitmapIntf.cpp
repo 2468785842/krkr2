@@ -29,8 +29,8 @@ tjs_error tTJSNI_Bitmap::Construct(tjs_int numparams, tTJSVariant **param,
             if(ret)
                 ret->Release(); // ignore
         } else if(numparams > 1) {
-            tjs_uint32 width = (tjs_uint32)(tjs_int64)*param[0];
-            tjs_uint32 height = (tjs_uint32)(tjs_int64)*param[1];
+            auto width = (tjs_uint32)(tjs_int64)*param[0];
+            auto height = (tjs_uint32)(tjs_int64)*param[1];
             tjs_uint32 bpp = 32;
             if(numparams > 2) {
                 bpp = (tjs_int)*param[2];

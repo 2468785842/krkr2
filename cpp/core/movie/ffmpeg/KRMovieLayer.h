@@ -8,22 +8,22 @@ NS_KRMOVIE_BEGIN
 class VideoPresentLayer : public TVPMoviePlayer,
                           public tTVPContinuousEventCallbackIntf {
 protected:
-    tTVPBaseTexture *m_BmpBits[2];
+    tTVPBaseTexture *m_BmpBits[2]{};
     int m_nCurBmpBuff = 0;
 
 public:
-    ~VideoPresentLayer();
+    ~VideoPresentLayer() override;
 
-    virtual tTVPBaseTexture *GetFrontBuffer() override;
+    tTVPBaseTexture *GetFrontBuffer() override;
 
-    virtual void SetVideoBuffer(tTVPBaseTexture *buff1, tTVPBaseTexture *buff2,
+    void SetVideoBuffer(tTVPBaseTexture *buff1, tTVPBaseTexture *buff2,
                                 long size) override;
 
-    virtual void OnContinuousCallback(tjs_uint64 tick) override;
+    void OnContinuousCallback(tjs_uint64 tick) override;
 
     virtual void OnPlayEvent(KRMovieEvent msg, void *p) = 0;
 
-    virtual int AddVideoPicture(DVDVideoPicture &pic, int index) override;
+    int AddVideoPicture(DVDVideoPicture &pic, int index) override;
 };
 
 class MoviePlayerLayer : public VideoPresentLayer {
@@ -35,9 +35,9 @@ public:
                     const tjs_char *streamname, const tjs_char *type,
                     uint64_t size);
 
-    virtual void OnPlayEvent(KRMovieEvent msg, void *p) override;
+    void OnPlayEvent(KRMovieEvent msg, void *p) override;
 
-    virtual void Play() override;
+    void Play() override;
 };
 
 NS_KRMOVIE_END

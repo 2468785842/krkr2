@@ -476,7 +476,7 @@ void TVPSaveAsJPG(void *formatdata, tTJSBinaryStream *dst,
             FuncCall(tjs_uint32 flag, const tjs_char *membername,
                      tjs_uint32 *hint, tTJSVariant *result, tjs_int numparams,
                      tTJSVariant **param,
-                     iTJSDispatch2 *objthis) { // called from
+                     iTJSDispatch2 *objthis) override { // called from
                                                // tTJSCustomObject::EnumMembers
                 if(numparams < 3)
                     return TJS_E_BADPARAMCOUNT;

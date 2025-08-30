@@ -32,22 +32,22 @@ public:
     tTJSNI_Timer();
 
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
+                        iTJSDispatch2 *tjs_obj) override;
 
-    void Invalidate();
+    void Invalidate() override;
 
     void InternalSetInterval(tjs_uint64 n) { Interval = n; }
 
     void SetInterval(tjs_uint64 n);
 
-    tjs_uint64 GetInterval() const;
+    [[nodiscard]] tjs_uint64 GetInterval() const;
     // { return Interval; }
 
     void ZeroPendingCount() { PendingCount = 0; }
 
     void SetNextTick(tjs_uint64 n) { NextTick = n; }
 
-    tjs_uint64 GetNextTick() const;
+    [[nodiscard]] tjs_uint64 GetNextTick() const;
     // { return NextTick; }
     // bcc 5.5.1 has an inliner bug of bad returning of int64...
 
@@ -55,7 +55,7 @@ public:
 
     void SetEnabled(bool b);
 
-    bool GetEnabled() const { return Enabled; }
+    [[nodiscard]] bool GetEnabled() const { return Enabled; }
 
     void Trigger(tjs_uint n);
 

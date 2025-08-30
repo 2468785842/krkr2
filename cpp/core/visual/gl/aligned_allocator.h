@@ -45,7 +45,7 @@ struct aligned_allocator : public std::allocator<T> {
         typedef aligned_allocator<U, TAlign> other;
     };
 
-    aligned_allocator() noexcept {}
+    aligned_allocator() noexcept = default;
     aligned_allocator(const aligned_allocator &) noexcept {}
     template <class U>
     aligned_allocator(const aligned_allocator<U, TAlign> &) noexcept {}
@@ -54,7 +54,7 @@ struct aligned_allocator : public std::allocator<T> {
     operator=(const aligned_allocator<U, TAlign> &) noexcept {}
 
     // allocate
-    T *allocate(std::size_t c, const void *hint = 0) {
+    T *allocate(std::size_t c, const void *hint = nullptr) {
         void *ptr = nullptr;
         if(posix_memalign(&ptr, TAlign, sizeof(T) * c)) {
             throw std::bad_alloc();

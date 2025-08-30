@@ -17,29 +17,29 @@ class CDVDAudioCodecFFmpeg : public CDVDAudioCodec {
 public:
     CDVDAudioCodecFFmpeg(CProcessInfo &processInfo);
 
-    virtual ~CDVDAudioCodecFFmpeg();
+    ~CDVDAudioCodecFFmpeg() override;
 
-    virtual bool Open(CDVDStreamInfo &hints, CDVDCodecOptions &options);
+    bool Open(CDVDStreamInfo &hints, CDVDCodecOptions &options) override;
 
-    virtual void Dispose();
+    void Dispose() override;
 
-    virtual int Decode(uint8_t *pData, int iSize, double dts, double pts);
+    int Decode(uint8_t *pData, int iSize, double dts, double pts) override;
 
-    virtual void GetData(DVDAudioFrame &frame);
+    void GetData(DVDAudioFrame &frame) override;
 
-    virtual int GetData(uint8_t **dst);
+    int GetData(uint8_t **dst) override;
 
-    virtual void Reset();
+    void Reset() override;
 
-    virtual AEAudioFormat GetFormat() { return m_format; }
+    AEAudioFormat GetFormat() override { return m_format; }
 
-    virtual const char *GetName() { return "FFmpeg"; }
+    const char *GetName() override { return "FFmpeg"; }
 
-    virtual enum AVMatrixEncoding GetMatrixEncoding();
+    enum AVMatrixEncoding GetMatrixEncoding() override;
 
-    virtual enum AVAudioServiceType GetAudioServiceType();
+    enum AVAudioServiceType GetAudioServiceType() override;
 
-    virtual int GetProfile();
+    int GetProfile() override;
 
 protected:
     enum AEDataFormat GetDataFormat();
@@ -50,7 +50,7 @@ protected:
 
     CAEChannelInfo GetChannelMap();
 
-    int GetBitRate();
+    int GetBitRate() override;
 
     AEAudioFormat m_format;
     AVCodecContext *m_pCodecContext;

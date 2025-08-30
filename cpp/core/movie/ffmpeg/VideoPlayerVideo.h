@@ -46,64 +46,64 @@ public:
                       CDVDMessageQueue &parent, CRenderManager &renderManager,
                       CProcessInfo &processInfo);
 
-    virtual ~CVideoPlayerVideo();
+    ~CVideoPlayerVideo() override;
 
-    bool OpenStream(CDVDStreamInfo &hint);
+    bool OpenStream(CDVDStreamInfo &hint) override;
 
-    void CloseStream(bool bWaitForBuffers);
+    void CloseStream(bool bWaitForBuffers) override;
 
-    void Flush(bool sync);
+    void Flush(bool sync) override;
 
-    bool AcceptsData();
+    bool AcceptsData() override;
 
-    bool HasData() const { return m_messageQueue.GetDataSize() > 0; }
+    bool HasData() const override { return m_messageQueue.GetDataSize() > 0; }
 
-    int GetLevel() { return m_messageQueue.GetLevel(); }
+    int GetLevel() override { return m_messageQueue.GetLevel(); }
 
-    bool IsInited() const { return m_messageQueue.IsInited(); }
+    bool IsInited() const override { return m_messageQueue.IsInited(); }
 
-    void SendMessage(CDVDMsg *pMsg, int priority = 0) {
+    void SendMessage(CDVDMsg *pMsg, int priority = 0) override {
         m_messageQueue.Put(pMsg, priority);
     }
 
-    void FlushMessages() { m_messageQueue.Flush(); }
+    void FlushMessages() override { m_messageQueue.Flush(); }
 
-    void EnableSubtitle(bool bEnable) { m_bRenderSubs = bEnable; }
+    void EnableSubtitle(bool bEnable) override { m_bRenderSubs = bEnable; }
 
-    bool IsSubtitleEnabled() { return m_bRenderSubs; }
+    bool IsSubtitleEnabled() override { return m_bRenderSubs; }
 
     //	void EnableFullscreen(bool bEnable) { m_bAllowFullscreen =
     // bEnable; }
-    double GetSubtitleDelay() { return m_iSubtitleDelay; }
+    double GetSubtitleDelay() override { return m_iSubtitleDelay; }
 
-    void SetSubtitleDelay(double delay) { m_iSubtitleDelay = delay; }
+    void SetSubtitleDelay(double delay) override { m_iSubtitleDelay = delay; }
 
     bool IsStalled() const override { return m_stalled; }
 
     bool IsRewindStalled() const override { return m_rewindStalled; }
 
-    double GetCurrentPts();
+    double GetCurrentPts() override;
 
-    double GetOutputDelay(); /* returns the expected delay, from that
+    double GetOutputDelay() override; /* returns the expected delay, from that
                                 a packet is put in queue */
-    int GetDecoderFreeSpace() { return 0; }
+    int GetDecoderFreeSpace() override { return 0; }
 
-    std::string GetPlayerInfo();
+    std::string GetPlayerInfo() override;
 
-    int GetVideoBitrate();
+    int GetVideoBitrate() override;
 
-    std::string GetStereoMode();
+    std::string GetStereoMode() override;
 
-    void SetSpeed(int iSpeed);
+    void SetSpeed(int iSpeed) override;
 
     // classes
     //	CDVDOverlayContainer* m_pOverlayContainer;
     CDVDClock *m_pClock;
 
 protected:
-    virtual void OnExit();
+    void OnExit() override;
 
-    virtual void Process();
+    void Process() override;
 
     bool ProcessDecoderOutput(int &decoderState, double &frametime,
                               double &pts);

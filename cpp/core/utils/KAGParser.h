@@ -161,9 +161,9 @@ public:
     tTJSNI_KAGParser();
 
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
+                        iTJSDispatch2 *tjs_obj) override;
 
-    void Invalidate();
+    void Invalidate() override;
 
 private:
     iTJSDispatch2 *Owner; // owner object

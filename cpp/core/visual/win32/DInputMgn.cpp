@@ -200,7 +200,7 @@ void tTVPKeyRepeatEmulator::GetKeyRepeatParam() {
 #define TVP_REPEAT_LIMIT 10
 tTVPKeyRepeatEmulator::tTVPKeyRepeatEmulator() : Pressed(false) {}
 //---------------------------------------------------------------------------
-tTVPKeyRepeatEmulator::~tTVPKeyRepeatEmulator() {}
+
 //---------------------------------------------------------------------------
 void tTVPKeyRepeatEmulator::Down() {
     Pressed = true;
@@ -222,7 +222,7 @@ tjs_int tTVPKeyRepeatEmulator::GetRepeatCount() {
     if(IntervalTime <= 0)
         return 0;
 
-    tjs_int elapsed = (tjs_int)(TVPGetRoughTickCount32() - PressedTick);
+    auto elapsed = (tjs_int)(TVPGetRoughTickCount32() - PressedTick);
 
     elapsed -= HoldTime;
     if(elapsed < 0)

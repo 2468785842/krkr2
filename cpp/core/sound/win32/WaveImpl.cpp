@@ -1474,7 +1474,7 @@ class tTVPWaveSoundBufferThread : public tTVPThread {
 public:
     tTVPWaveSoundBufferThread();
 
-    ~tTVPWaveSoundBufferThread();
+    ~tTVPWaveSoundBufferThread() override;
 
 private:
     // void __fastcall UtilWndProc(Messages::TMessage &Msg);
@@ -1484,7 +1484,7 @@ public:
     void ReschedulePendingLabelEvent(tjs_int tick);
 
 protected:
-    void Execute();
+    void Execute() override;
 
 public:
     void Start();
@@ -1792,9 +1792,9 @@ class tTVPWaveSoundBufferDecodeThread : public tTVPThread {
 public:
     tTVPWaveSoundBufferDecodeThread(tTJSNI_WaveSoundBuffer *owner);
 
-    ~tTVPWaveSoundBufferDecodeThread();
+    ~tTVPWaveSoundBufferDecodeThread() override;
 
-    void Execute();
+    void Execute() override;
 
     void Interrupt();
 

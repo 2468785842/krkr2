@@ -88,7 +88,7 @@ public:
     virtual bool IsGuiLayer() { return true; }
 
     // Render info, can be called before configure
-    virtual CRenderInfo GetRenderInfo() { return CRenderInfo(); }
+    virtual CRenderInfo GetRenderInfo() { return {}; }
 
     virtual void Update() {}
 

@@ -249,7 +249,7 @@ namespace TJS {
         TJS_END_NATIVE_MEMBERS
     }
     //---------------------------------------------------------------------------
-    tTJSDictionaryClass::~tTJSDictionaryClass() {}
+    tTJSDictionaryClass::~tTJSDictionaryClass() = default;
     //---------------------------------------------------------------------------
     tTJSNativeInstance *tTJSDictionaryClass::CreateNativeInstance() {
         return new tTJSDictionaryNI();
@@ -321,7 +321,7 @@ namespace TJS {
     //---------------------------------------------------------------------------
     tTJSDictionaryNI::tTJSDictionaryNI() { Owner = nullptr; }
     //---------------------------------------------------------------------------
-    tTJSDictionaryNI::~tTJSDictionaryNI() {}
+    tTJSDictionaryNI::~tTJSDictionaryNI() = default;
     //---------------------------------------------------------------------------
     tjs_error tTJSDictionaryNI::Construct(tjs_int numparams,
                                           tTJSVariant **param,
@@ -715,7 +715,7 @@ namespace TJS {
         CallFinalize = false;
     }
     //---------------------------------------------------------------------------
-    tTJSDictionaryObject::~tTJSDictionaryObject() {}
+    tTJSDictionaryObject::~tTJSDictionaryObject() = default;
     //---------------------------------------------------------------------------
     tjs_error
     tTJSDictionaryObject::FuncCall(tjs_uint32 flag, const tjs_char *membername,

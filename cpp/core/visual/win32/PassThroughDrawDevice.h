@@ -45,7 +45,7 @@ private:
 public:
     tTVPPassThroughDrawDevice(); //!< コンストラクタ
 private:
-    ~tTVPPassThroughDrawDevice(); //!< デストラクタ
+    ~tTVPPassThroughDrawDevice() override; //!< デストラクタ
 
 public:
     void SetToRecreateDrawer() { DestroyDrawer(); }
@@ -58,34 +58,34 @@ private:
 public:
     void EnsureDrawer();
 
-    tDrawerType GetDrawerType() const { return DrawerType; }
+    [[nodiscard]] tDrawerType GetDrawerType() const { return DrawerType; }
     void SetPreferredDrawerType(tDrawerType type) {
         PreferredDrawerType = type;
     }
-    tDrawerType GetPreferredDrawerType() const { return PreferredDrawerType; }
+    [[nodiscard]] tDrawerType GetPreferredDrawerType() const { return PreferredDrawerType; }
 
     //---- LayerManager の管理関連
-    virtual void AddLayerManager(iTVPLayerManager *manager);
+    void AddLayerManager(iTVPLayerManager *manager) override;
 
     //---- 描画位置・サイズ関連
     virtual void SetTargetWindow(int wnd, bool is_main);
-    virtual void SetDestRectangle(const tTVPRect &rect);
-    virtual void NotifyLayerResize(iTVPLayerManager *manager);
+    void SetDestRectangle(const tTVPRect &rect) override;
+    void NotifyLayerResize(iTVPLayerManager *manager) override;
 
     //---- 再描画関連
-    virtual void Show();
+    void Show() override;
 
     //---- LayerManager からの画像受け渡し関連
-    virtual void StartBitmapCompletion(iTVPLayerManager *manager);
-    virtual void NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x,
+    void StartBitmapCompletion(iTVPLayerManager *manager) override;
+    void NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x,
                                        tjs_int y, tTVPBaseTexture *bmp,
                                        const tTVPRect &cliprect,
-                                       tTVPLayerType type, tjs_int opacity);
-    virtual void EndBitmapCompletion(iTVPLayerManager *manager);
+                                       tTVPLayerType type, tjs_int opacity) override;
+    void EndBitmapCompletion(iTVPLayerManager *manager) override;
 
     //---- デバッグ支援
-    virtual void SetShowUpdateRect(bool b);
-    virtual void Clear();
+    void SetShowUpdateRect(bool b) override;
+    void Clear() override;
 };
 //---------------------------------------------------------------------------
 
@@ -99,13 +99,13 @@ class tTJSNI_PassThroughDrawDevice : public tTJSNativeInstance {
 
 public:
     tTJSNI_PassThroughDrawDevice();
-    ~tTJSNI_PassThroughDrawDevice();
+    ~tTJSNI_PassThroughDrawDevice() override;
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
 
 public:
-    tTVPPassThroughDrawDevice *GetDevice() const { return Device; }
+    [[nodiscard]] tTVPPassThroughDrawDevice *GetDevice() const { return Device; }
 };
 //---------------------------------------------------------------------------
 
@@ -119,7 +119,7 @@ public:
     static tjs_uint32 ClassID;
 
 private:
-    iTJSNativeInstance *CreateNativeInstance();
+    iTJSNativeInstance *CreateNativeInstance() override;
 };
 //---------------------------------------------------------------------------
 

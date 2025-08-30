@@ -24,7 +24,7 @@ SlideCompressor::SlideCompressor() {
         AddMap(i);
 }
 //---------------------------------------------------------------------------
-SlideCompressor::~SlideCompressor() {}
+SlideCompressor::~SlideCompressor() = default;
 //---------------------------------------------------------------------------
 int SlideCompressor::GetMatch(const unsigned char *cur, int curlen, int &pos,
                               int s) {

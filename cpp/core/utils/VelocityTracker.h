@@ -64,7 +64,7 @@ protected:
     VelocityTrackerStrategy() {}
 
 public:
-    virtual ~VelocityTrackerStrategy() {}
+    virtual ~VelocityTrackerStrategy() = default;
 
     virtual void clear() = 0;
 
@@ -95,13 +95,13 @@ public:
     LeastSquaresVelocityTrackerStrategy(tjs_uint32 degree,
                                         Weighting weighting = WEIGHTING_NONE);
 
-    virtual ~LeastSquaresVelocityTrackerStrategy();
+    ~LeastSquaresVelocityTrackerStrategy() override;
 
-    virtual void clear();
+    void clear() override;
 
-    virtual void addMovement(tjs_uint64 eventTime, float x, float y);
+    void addMovement(tjs_uint64 eventTime, float x, float y) override;
 
-    virtual bool getEstimator(Estimator *outEstimator) const;
+    bool getEstimator(Estimator *outEstimator) const override;
 
 private:
     // Sample horizon.
@@ -118,10 +118,10 @@ private:
         Position positions;
         bool usingThis;
 
-        inline const Position &getPosition() const { return positions; }
+        [[nodiscard]] inline const Position &getPosition() const { return positions; }
     };
 
-    float chooseWeight(tjs_uint32 index) const;
+    [[nodiscard]] float chooseWeight(tjs_uint32 index) const;
 
     const tjs_uint32 mDegree;
     const Weighting mWeighting;
@@ -182,7 +182,7 @@ public:
 
     inline void setID(tjs_int id) { mID = id; }
 
-    inline tjs_int getID() const { return mID; }
+    [[nodiscard]] inline tjs_int getID() const { return mID; }
 
     inline void clearID() { mID = -1; }
 
@@ -201,7 +201,7 @@ private:
     VelocityTracker tracker_[MAX_TRACKING];
 
 private:
-    int findEmptyEntry() const {
+    [[nodiscard]] int findEmptyEntry() const {
         for(int i = 0; i < MAX_TRACKING; i++) {
             if(tracker_[i].getID() < 0) {
                 return i;
@@ -210,7 +210,7 @@ private:
         return -1;
     }
 
-    int findEntry(tjs_int32 id) const {
+    [[nodiscard]] int findEntry(tjs_int32 id) const {
         for(int i = 0; i < MAX_TRACKING; i++) {
             if(tracker_[i].getID() == id) {
                 return i;

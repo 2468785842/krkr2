@@ -8,6 +8,8 @@
 //---------------------------------------------------------------------------
 // VM code disassembler
 //---------------------------------------------------------------------------
+#include <utility>
+
 #include "tjsCommHead.h"
 
 #include "tjsInterCodeGen.h"
@@ -591,7 +593,7 @@ namespace TJS // following is in the namespace
     struct of_data {
         std::function<void(const tjs_char *msg, void *data)> func;
 
-        void *funcdata;
+        void *funcdata{};
     };
 
     void tTJSInterCodeContext::_output_func(const tjs_char *msg,
@@ -608,7 +610,7 @@ namespace TJS // following is in the namespace
         }
 
         try {
-            of_data *dat = (of_data *)(data);
+            auto *dat = (of_data *)(data);
             dat->func(buf.c_str(), dat->funcdata);
         } catch(...) {
             throw;
@@ -626,7 +628,7 @@ namespace TJS // following is in the namespace
         else
             buf = { fmt::format("#{} {}", c_name, c_msg) };
         try {
-            of_data *dat = (of_data *)(data);
+            auto *dat = (of_data *)(data);
             dat->func(buf.c_str(), dat->funcdata);
         } catch(...) {
             throw;
@@ -639,7 +641,7 @@ namespace TJS // following is in the namespace
         void *data, tjs_int start, tjs_int end) {
         // dis-assemble
         of_data dat;
-        dat.func = output_func;
+        dat.func = std::move(output_func);
         dat.funcdata = data;
         Disassemble(_output_func, _output_func_src, (void *)&dat, start, end);
     }

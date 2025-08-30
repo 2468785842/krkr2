@@ -123,13 +123,13 @@ CDVDVideoCodec *CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint,
         //    CLog::Log(LOGINFO, "CDVDFactoryCodec - High video
         //    resolution detected %dx%d, trying half resolution
         //    decoding ", hint.width, hint.height);
-        options.m_keys.push_back(CDVDCodecOption("lowres", "1"));
+        options.m_keys.emplace_back("lowres", "1");
     }
 #endif
 
     char value[32];
     sprintf(value, "%d", info.max_buffer_size);
-    options.m_keys.push_back(CDVDCodecOption("surfaces", value));
+    options.m_keys.emplace_back("surfaces", value);
     pCodec = OpenCodec(new CDVDVideoCodecFFmpeg(processInfo), hint, options);
     if(pCodec)
         return pCodec;
@@ -146,7 +146,7 @@ CDVDAudioCodec *CDVDFactoryCodec::CreateAudioCodec(CDVDStreamInfo &hint,
     CDVDCodecOptions options;
 
     if(!allowdtshddecode)
-        options.m_keys.push_back(CDVDCodecOption("allowdtshddecode", "0"));
+        options.m_keys.emplace_back("allowdtshddecode", "0");
 
     // we don't use passthrough if "sync playback to display" is
     // enabled

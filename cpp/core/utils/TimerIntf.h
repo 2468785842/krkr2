@@ -42,9 +42,9 @@ public:
     tTJSNI_BaseTimer();
 
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
+                        iTJSDispatch2 *tjs_obj) override;
 
-    void Invalidate();
+    void Invalidate() override;
 
 protected:
     void Fire(tjs_uint n);
@@ -54,15 +54,15 @@ protected:
     bool AreEventsInQueue();
 
 public:
-    tTJSVariantClosure GetActionOwnerNoAddRef() const { return ActionOwner; }
+    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const { return ActionOwner; }
 
     ttstr &GetActionName() { return ActionName; }
 
-    tjs_int GetCapacity() const { return Capacity; }
+    [[nodiscard]] tjs_int GetCapacity() const { return Capacity; }
 
     void SetCapacity(tjs_int c) { Capacity = c; }
 
-    tTVPAsyncTriggerMode GetMode() const { return Mode; }
+    [[nodiscard]] tTVPAsyncTriggerMode GetMode() const { return Mode; }
 
     void SetMode(tTVPAsyncTriggerMode mode) { Mode = mode; }
 };
@@ -82,7 +82,7 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance();
+    tTJSNativeInstance *CreateNativeInstance() override;
     /*
         implement this in each platform.
         this must return a proper instance of tTJSNI_Timer.

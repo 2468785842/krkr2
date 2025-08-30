@@ -756,7 +756,7 @@ void TVPClearXP3SegmentCache() {
 
 //---------------------------------------------------------------------------
 struct tTVPClearSegmentCacheCallback : public tTVPCompactEventCallbackIntf {
-    virtual void OnCompact(tjs_int level) {
+    void OnCompact(tjs_int level) override {
         if(level >= TVP_COMPACT_LEVEL_DEACTIVATE) {
             // clear the segment cache on application deactivate
             TVPClearXP3SegmentCache();

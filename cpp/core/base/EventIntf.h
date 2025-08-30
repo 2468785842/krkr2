@@ -160,13 +160,13 @@ public:
         Tag = tag;
     }
 
-    virtual ~tTVPBaseInputEvent() {};
+    virtual ~tTVPBaseInputEvent() = default;
 
     virtual void Deliver() const = 0;
 
-    void *GetSource() const { return Source; }
+    [[nodiscard]] void *GetSource() const { return Source; }
 
-    tjs_int GetTag() const { return Tag; }
+    [[nodiscard]] tjs_int GetTag() const { return Tag; }
 };
 
 //---------------------------------------------------------------------------
@@ -331,12 +331,12 @@ public:
     tTJSNI_AsyncTrigger();
 
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
+                        iTJSDispatch2 *tjs_obj) override;
 
-    void Invalidate();
+    void Invalidate() override;
 
 public:
-    tTJSVariantClosure GetActionOwnerNoAddRef() const { return ActionOwner; }
+    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const { return ActionOwner; }
 
     ttstr &GetActionName() { return ActionName; }
 
@@ -344,11 +344,11 @@ public:
 
     void Cancel();
 
-    bool GetCached() const { return Cached; }
+    [[nodiscard]] bool GetCached() const { return Cached; }
 
     void SetCached(bool b);
 
-    tTVPAsyncTriggerMode GetMode() const { return Mode; }
+    [[nodiscard]] tTVPAsyncTriggerMode GetMode() const { return Mode; }
 
     void SetMode(tTVPAsyncTriggerMode m);
 };
@@ -366,7 +366,7 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance();
+    tTJSNativeInstance *CreateNativeInstance() override;
 };
 
 //---------------------------------------------------------------------------

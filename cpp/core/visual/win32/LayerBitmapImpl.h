@@ -63,20 +63,20 @@ public:
             RefCount--;
     }
 
-    tjs_uint GetWidth() const { return Width; }
-    tjs_uint GetHeight() const { return Height; }
+    [[nodiscard]] tjs_uint GetWidth() const { return Width; }
+    [[nodiscard]] tjs_uint GetHeight() const { return Height; }
 
-    tjs_uint GetBPP() const { return BitmapInfo->GetBPP(); }
-    bool Is32bit() const { return BitmapInfo->Is32bit(); }
-    bool Is8bit() const { return BitmapInfo->Is8bit(); }
+    [[nodiscard]] tjs_uint GetBPP() const { return BitmapInfo->GetBPP(); }
+    [[nodiscard]] bool Is32bit() const { return BitmapInfo->Is32bit(); }
+    [[nodiscard]] bool Is8bit() const { return BitmapInfo->Is8bit(); }
 
-    void *GetScanLine(tjs_uint l) const;
+    [[nodiscard]] void *GetScanLine(tjs_uint l) const;
 
-    tjs_int GetPitch() const { return PitchStep; }
+    [[nodiscard]] tjs_int GetPitch() const { return PitchStep; }
 
-    bool IsIndependent() const { return RefCount == 1; }
+    [[nodiscard]] bool IsIndependent() const { return RefCount == 1; }
 
-    const BitmapInfomation *GetBitmapInfomation() const { return BitmapInfo; }
+    [[nodiscard]] const BitmapInfomation *GetBitmapInfomation() const { return BitmapInfo; }
 #ifdef _WIN32
     const TVPBITMAPINFO *GetBITMAPINFO() const {
         return BitmapInfo->GetBITMAPINFO();
@@ -86,10 +86,10 @@ public:
     }
 #endif
 
-    const void *GetBits() const { return Bits; }
-    const tjs_uint *GetPalette() const { return Palette; };
+    [[nodiscard]] const void *GetBits() const { return Bits; }
+    [[nodiscard]] const tjs_uint *GetPalette() const { return Palette; };
     tjs_uint *GetPalette() { return Palette; };
-    tjs_uint GetPaletteCount() const { return ActualPalCount; };
+    [[nodiscard]] tjs_uint GetPaletteCount() const { return ActualPalCount; };
     void SetPaletteCount(tjs_uint count);
 
     bool IsOpaque = false;
@@ -111,9 +111,9 @@ public:
     virtual ~tTVPNativeBaseBitmap();
 
     /* metrics */
-    tjs_uint GetWidth() const;
+    [[nodiscard]] tjs_uint GetWidth() const;
     void SetWidth(tjs_uint w);
-    tjs_uint GetHeight() const;
+    [[nodiscard]] tjs_uint GetHeight() const;
     void SetHeight(tjs_uint h);
 
     void SetSize(tjs_uint w, tjs_uint h, bool keepimage = true);
@@ -123,11 +123,11 @@ public:
     void SetSizeAndImageBuffer(tTVPBitmap *bmp);
 
     /* color depth */
-    tjs_uint GetBPP() const;
+    [[nodiscard]] tjs_uint GetBPP() const;
 
-    bool Is32BPP() const;
-    bool Is8BPP() const;
-    bool IsOpaque() const;
+    [[nodiscard]] bool Is32BPP() const;
+    [[nodiscard]] bool Is8BPP() const;
+    [[nodiscard]] bool IsOpaque() const;
 
     /* assign */
     bool Assign(const tTVPNativeBaseBitmap &rhs);
@@ -135,9 +135,9 @@ public:
     bool AssignTexture(iTVPTexture2D *tex);
 
     /* scan line */
-    const void *GetScanLine(tjs_uint l) const;
+    [[nodiscard]] const void *GetScanLine(tjs_uint l) const;
     void *GetScanLineForWrite(tjs_uint l);
-    tjs_int GetPitchBytes() const;
+    [[nodiscard]] tjs_int GetPitchBytes() const;
 
     /* object lifetime management */
     void Independ();
@@ -145,10 +145,10 @@ public:
     void Recreate();
     void Recreate(tjs_uint w, tjs_uint h, tjs_uint bpp);
 
-    bool IsIndependent() const;
+    [[nodiscard]] bool IsIndependent() const;
 
     /* other utilities */
-    iTVPTexture2D *GetTexture() const { return Bitmap; }
+    [[nodiscard]] iTVPTexture2D *GetTexture() const { return Bitmap; }
     virtual iTVPTexture2D *GetTextureForRender(bool isBlendTarget,
                                                const tTVPRect *rc);
 #if 0
@@ -174,7 +174,7 @@ private:
 
 public:
     void SetFont(const tTVPFont &font);
-    const tTVPFont &GetFont() const { return Font; };
+    [[nodiscard]] const tTVPFont &GetFont() const { return Font; };
 
     void GetFontList(tjs_uint32 flags, std::vector<ttstr> &list);
 

@@ -1149,7 +1149,7 @@ namespace ETCPacker {
     class BitmapDownsampled : public Bitmap {
     public:
         BitmapDownsampled(const Bitmap &bmp, uint lines);
-        ~BitmapDownsampled();
+        ~BitmapDownsampled() override;
     };
 
     BitmapDownsampled::BitmapDownsampled(const Bitmap &bmp, uint lines) :

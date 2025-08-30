@@ -39,9 +39,8 @@ tTVPDrawDevice::~tTVPDrawDevice() {
     // そのため、ここではいったん配列をコピーしてからそれぞれの
     // Release() を呼ぶ。
     std::vector<iTVPLayerManager *> backup = Managers;
-    for(std::vector<iTVPLayerManager *>::iterator i = backup.begin();
-        i != backup.end(); i++)
-        (*i)->Release();
+    for(auto & i : backup)
+        i->Release();
 }
 //---------------------------------------------------------------------------
 
@@ -581,9 +580,8 @@ void tTVPDrawDevice::RequestInvalidation(const tTVPRect &rect) {
 //---------------------------------------------------------------------------
 void tTVPDrawDevice::Update() {
     // すべての layer manager の UpdateToDrawDevice を呼ぶ
-    for(std::vector<iTVPLayerManager *>::iterator i = Managers.begin();
-        i != Managers.end(); i++) {
-        (*i)->UpdateToDrawDevice();
+    for(auto & Manager : Managers) {
+        Manager->UpdateToDrawDevice();
     }
 }
 //---------------------------------------------------------------------------
@@ -600,9 +598,8 @@ bool tTVPDrawDevice::WaitForVBlank(tjs_int *in_vblank, tjs_int *delayed) {
 //---------------------------------------------------------------------------
 void tTVPDrawDevice::DumpLayerStructure() {
     // すべての layer manager の DumpLayerStructure を呼ぶ
-    for(std::vector<iTVPLayerManager *>::iterator i = Managers.begin();
-        i != Managers.end(); i++) {
-        (*i)->DumpLayerStructure();
+    for(auto & Manager : Managers) {
+        Manager->DumpLayerStructure();
     }
 }
 //---------------------------------------------------------------------------

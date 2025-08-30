@@ -90,28 +90,28 @@ enum class KRMovieEvent {
 NS_KRMOVIE_BEGIN
 
 struct CCurrentStream {
-    int64_t demuxerId; // demuxer's id of current playing stream
-    int id; // id of current playing stream
-    int source;
-    double dts; // last dts from demuxer, used to find disncontinuities
-    double dur; // last frame expected duration
-    int dispTime; // display time from input stream
+    int64_t demuxerId{}; // demuxer's id of current playing stream
+    int id{}; // id of current playing stream
+    int source{};
+    double dts{}; // last dts from demuxer, used to find disncontinuities
+    double dur{}; // last frame expected duration
+    int dispTime{}; // display time from input stream
     CDVDStreamInfo hint; // stream hints, used to notice stream changes
-    void *stream; // pointer or integer, identifying stream playing.
+    void *stream{}; // pointer or integer, identifying stream playing.
                   // if it changes stream changed
-    int changes; // remembered counter from stream to track codec
+    int changes{}; // remembered counter from stream to track codec
                  // changes
-    bool inited;
-    unsigned int packets;
+    bool inited{};
+    unsigned int packets{};
     IDVDStreamPlayer::ESyncState syncState;
-    double starttime;
-    double cachetime;
-    double cachetotal;
+    double starttime{};
+    double cachetime{};
+    double cachetotal{};
     const StreamType type;
     const int player;
     // stuff to handle starting after seek
-    double startpts;
-    double lastdts;
+    double startpts{};
+    double lastdts{};
 
     enum { AV_SYNC_NONE, AV_SYNC_CHECK, AV_SYNC_CONT, AV_SYNC_FORCE } avsync;
 
@@ -168,29 +168,29 @@ struct SPlayerState {
         lastSeek = 0;
     }
 
-    double timestamp; // last time of update
-    double lastSeek; // time of last seek
-    double time_offset; // difference between time and pts
+    double timestamp{}; // last time of update
+    double lastSeek{}; // time of last seek
+    double time_offset{}; // difference between time and pts
 
-    double time; // current playback time
-    double time_total; // total playback time
-    double dts; // last known dts
+    double time{}; // current playback time
+    double time_total{}; // total playback time
+    double dts{}; // last known dts
 
     std::string player_state; // full player state
-    bool isInMenu;
-    bool hasMenu;
+    bool isInMenu{};
+    bool hasMenu{};
 
-    bool canrecord; // can input stream record
-    bool recording; // are we currently recording
-    bool canpause; // pvr: can pause the current playing item
-    bool canseek; // pvr: can seek in the current playing item
-    bool caching;
+    bool canrecord{}; // can input stream record
+    bool recording{}; // are we currently recording
+    bool canpause{}; // pvr: can pause the current playing item
+    bool canseek{}; // pvr: can seek in the current playing item
+    bool caching{};
 
-    int64_t cache_bytes; // number of bytes current's cached
-    double cache_level; // current estimated required cache level
-    double cache_delay; // time until cache is expected to reach
+    int64_t cache_bytes{}; // number of bytes current's cached
+    double cache_level{}; // current estimated required cache level
+    double cache_delay{}; // time until cache is expected to reach
                         // estimated level
-    double cache_offset; // percentage of file ahead of current position
+    double cache_offset{}; // percentage of file ahead of current position
 };
 
 struct SelectionStream {
@@ -281,21 +281,21 @@ public:
     void Pause();
 
     // IRenderMsg
-    virtual void VideoParamsChange() override;
+    void VideoParamsChange() override;
 
-    virtual void GetDebugInfo(std::string &audio, std::string &video,
+    void GetDebugInfo(std::string &audio, std::string &video,
                               std::string &general) override;
 
-    virtual void UpdateClockSync(bool enabled) override;
+    void UpdateClockSync(bool enabled) override;
 
-    virtual void UpdateRenderInfo(CRenderInfo &info) override;
+    void UpdateRenderInfo(CRenderInfo &info) override;
 
-    virtual CBaseRenderer *CreateRenderer() override { return m_pRenderer; }
+    CBaseRenderer *CreateRenderer() override { return m_pRenderer; }
 
 public:
     BasePlayer(CBaseRenderer *renderer);
 
-    virtual ~BasePlayer();
+    ~BasePlayer() override;
 
     bool OpenFromStream(IStream *stream, const tjs_char *streamname,
                         const tjs_char *type, uint64_t size);
@@ -309,9 +309,9 @@ public:
     virtual void OnPlayBackSeek(int iTime, int iOffset) {}
 
     //	virtual void OnStartup() {}
-    virtual void OnExit() override;
+    void OnExit() override;
 
-    virtual void Process() override;
+    void Process() override;
 
     void CreatePlayers();
 

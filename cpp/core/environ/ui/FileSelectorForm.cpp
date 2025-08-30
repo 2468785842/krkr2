@@ -173,7 +173,7 @@ std::wstring local_to_wstr(const std::string &local) {
 
 #else
     // Linux/macOS 直接转换为 wstring
-    return std::wstring(local.begin(), local.end());
+    return {local.begin(), local.end()};
 #endif
 }
 
@@ -197,7 +197,7 @@ std::wstring utf8_to_wstr(const std::string &utf8) {
     return out;
 #else
     // Linux/macOS 直接返回原始字符串转换为 wstring
-    return std::wstring(utf8.begin(), utf8.end());
+    return {utf8.begin(), utf8.end()};
 #endif
 }
 
@@ -241,7 +241,7 @@ std::string wstr_to_local(const std::wstring &wstr) {
 
 #else
     // Linux/macOS 直接转换为 string
-    return std::string(wstr.begin(), wstr.end());
+    return {wstr.begin(), wstr.end()};
 #endif
 }
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
@@ -590,7 +590,7 @@ ssize_t TVPBaseFileSelectorForm::numberOfCellsInTableView(TableView *table) {
 Size TVPBaseFileSelectorForm::tableCellSizeForIndex(TableView *table,
                                                     ssize_t idx) {
     if((size_t)idx >= CurrentDirList.size()) {
-        return Size(table->getContentSize().width, 200);
+        return {table->getContentSize().width, 200};
     }
     FileInfo &info = CurrentDirList[idx];
     if(info.CellSize.width == 0.f) {

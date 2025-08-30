@@ -84,7 +84,7 @@ bool CAEStreamInfo::operator==(const CAEStreamInfo &info) const {
     return true;
 }
 
-CAEStreamParser::~CAEStreamParser() {}
+
 
 void CAEStreamParser::Reset() {
     m_skipBytes = 0;

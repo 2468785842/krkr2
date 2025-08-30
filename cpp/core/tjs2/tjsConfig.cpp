@@ -658,7 +658,7 @@ namespace TJS {
     void TJS_free(void *buf) { free((char *)buf - sizeof(size_t)); }
 
     tjs_char *TJS_strrchr(const tjs_char *s, int c) {
-        tjs_char *ret = 0;
+        tjs_char *ret = nullptr;
         do {
             if(*s == (char)c)
                 ret = (tjs_char *)s;

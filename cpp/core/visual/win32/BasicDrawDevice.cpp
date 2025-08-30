@@ -474,7 +474,7 @@ void tTVPBasicDrawDevice::ErrorToLog( HRESULT hr ) {
 #endif
 //---------------------------------------------------------------------------
 void tTVPBasicDrawDevice::AddLayerManager(iTVPLayerManager *manager) {
-    if(inherited::Managers.size() > 0) {
+    if(!inherited::Managers.empty()) {
         // "Basic" デバイスでは２つ以上のLayer Managerを登録できない
         TVPThrowExceptionMessage(
             TVPBasicDrawDeviceDoesNotSupporteLayerManagerMoreThanOne);
@@ -541,7 +541,7 @@ void tTVPBasicDrawDevice::Show() {
         if(form && !Managers.empty()) {
             iTVPBaseBitmap *buf = Managers.back()->GetDrawBuffer();
             if(buf)
-                ;
+
             form->UpdateDrawBuffer(buf->GetTexture());
         }
     }

@@ -24,7 +24,7 @@ CBaseRenderer::CBaseRenderer() {
     }
 }
 
-CBaseRenderer::~CBaseRenderer() {}
+CBaseRenderer::~CBaseRenderer() = default;
 
 float CBaseRenderer::GetAspectRatio() const {
     float width = (float)m_sourceWidth;

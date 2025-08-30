@@ -46,22 +46,6 @@
 // #include "tvpgl_ia32_intf.h"
 #include "DetectCPU.h"
 
-extern void InterleaveOverlappingWindow(
-    float *__restrict dest, const float *__restrict const *__restrict src,
-    float *__restrict win, int numch, size_t srcofs, size_t len);
-
-extern void DeinterleaveApplyingWindow(float *__restrict dest[],
-                                       const float *__restrict src,
-                                       float *__restrict win, int numch,
-                                       size_t destofs, size_t len);
-
-#if 0
-extern void InterleaveOverlappingWindow_sse(float * __restrict dest, const float * __restrict const * __restrict src,
-                    float * __restrict win, int numch, size_t srcofs, size_t len);
-extern void DeinterleaveApplyingWindow_sse(float * __restrict dest[], const float * __restrict src,
-                    float * __restrict win, int numch, size_t destofs, size_t len);
-#endif
-
 //---------------------------------------------------------------------------
 tRisaPhaseVocoderDSP::tRisaPhaseVocoderDSP(unsigned int framesize,
                                            unsigned int frequency,
@@ -378,23 +362,11 @@ tRisaPhaseVocoderDSP::tStatus tRisaPhaseVocoderDSP::Process() {
         InputBuffer.GetReadPointer(FrameSize * Channels, p1, p1len, p2, p2len);
         p1len /= Channels;
         p2len /= Channels;
-#if 0
-        if( use_sse ) {
-            DeinterleaveApplyingWindow_sse(AnalWork, p1, InputWindow, Channels, 0, p1len);
-            if(p2)
-                DeinterleaveApplyingWindow_sse(AnalWork, p2, InputWindow + p1len, Channels, p1len, p2len);
-        } else {
-            DeinterleaveApplyingWindow(AnalWork, p1, InputWindow, Channels, 0, p1len);
-            if(p2)
-                DeinterleaveApplyingWindow(AnalWork, p2, InputWindow + p1len, Channels, p1len, p2len);
-        }
-#else
         DeinterleaveApplyingWindow(AnalWork, p1, InputWindow, Channels, 0,
                                    p1len);
         if(p2)
             DeinterleaveApplyingWindow(AnalWork, p2, InputWindow + p1len,
                                        Channels, p1len, p2len);
-#endif
     }
 
     // チャンネルごとに処理
@@ -404,12 +376,7 @@ tRisaPhaseVocoderDSP::tStatus tRisaPhaseVocoderDSP::Process() {
         //------------------------------------------------
 
         // 演算の根幹部分を実行する
-#if 0
-        if(use_sse) ProcessCore_sse(ch);
-        else ProcessCore(ch);
-#else
         ProcessCore(ch);
-#endif
     }
 
     // 窓関数を適用しつつ、SynthWork から出力バッファに書き込む
@@ -421,23 +388,11 @@ tRisaPhaseVocoderDSP::tStatus tRisaPhaseVocoderDSP::Process() {
                                      p2len);
         p1len /= Channels;
         p2len /= Channels;
-#if 0
-        if( use_sse ) {
-            InterleaveOverlappingWindow_sse(p1, SynthWork, OutputWindow, Channels, 0, p1len);
-            if(p2)
-                InterleaveOverlappingWindow_sse(p2, SynthWork, OutputWindow + p1len, Channels, p1len, p2len);
-        } else {
-            InterleaveOverlappingWindow(p1, SynthWork, OutputWindow, Channels, 0, p1len);
-            if(p2)
-                InterleaveOverlappingWindow(p2, SynthWork, OutputWindow + p1len, Channels, p1len, p2len);
-        }
-#else
         InterleaveOverlappingWindow(p1, SynthWork, OutputWindow, Channels, 0,
                                     p1len);
         if(p2)
             InterleaveOverlappingWindow(p2, SynthWork, OutputWindow + p1len,
                                         Channels, p1len, p2len);
-#endif
     }
 
     // LastSynthPhase を再調整するか
@@ -459,7 +414,7 @@ tRisaPhaseVocoderDSP::tStatus tRisaPhaseVocoderDSP::Process() {
         for(unsigned int ch = 0; ch < Channels; ch++) {
             unsigned int framesize_d2 = FrameSize / 2;
             for(unsigned int i = 0; i < framesize_d2; i++) {
-                long int n =
+                auto n =
                     static_cast<long int>(LastSynthPhase[ch][i] / (2.0 * M_PI));
                 LastSynthPhase[ch][i] -= static_cast<float>(n * (2.0 * M_PI));
             }
@@ -551,7 +506,7 @@ void tRisaPhaseVocoderDSP::ProcessCore(int ch) {
             float fi = i * FrequencyScale_rcp;
 
             // floor(x) と floor(x) + 1 の間でバイリニア補間を行う
-            unsigned int index = static_cast<unsigned int>(fi); // floor
+            auto index = static_cast<unsigned int>(fi); // floor
             float frac = fi - index;
 
             if(index + 1 < framesize_d2) {

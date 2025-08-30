@@ -128,11 +128,11 @@ public:
 
     //! @brief		セグメントの配列を得る
     //! @return		セグメントの配列
-    const std::deque<tTVPWaveSegment> &GetSegments() const { return Segments; }
+    [[nodiscard]] const std::deque<tTVPWaveSegment> &GetSegments() const { return Segments; }
 
     //! @brief		ラベルの配列を得る
     //! @return		ラベルの配列
-    const std::deque<tTVPWaveLabel> &GetLabels() const { return Labels; }
+    [[nodiscard]] const std::deque<tTVPWaveLabel> &GetLabels() const { return Labels; }
 
     //! @brief		tTVPWaveSegmentQueueをエンキューする
     //! @param		queue
@@ -166,19 +166,19 @@ public:
 
     //! @brief		このキューの全体の長さを得る
     //! @return		このキューの長さ (サンプルグラニュール単位)
-    tjs_int64 GetFilteredLength() const;
+    [[nodiscard]] tjs_int64 GetFilteredLength() const;
 
     //! @brief		このキューの長さを変化させる
     //! @param		new_total_filtered_length 新しいキューの長さ
     //! (サンプルグラニュール単位)
     //! @note		キュー中のSegments などの長さや
     //! Labelsの位置は線形補間される
-    void Scale(tjs_int64 new_total_length);
+    void Scale(tjs_int64 new_total_filtered_length);
 
     //! @brief		フィルタされた位置からデコード位置へ変換を行う
     //! @param		pos フィルタされた位置
     //! @note		デコード位置
-    tjs_int64 FilteredPositionToDecodePosition(tjs_int64 pos) const;
+    [[nodiscard]] tjs_int64 FilteredPositionToDecodePosition(tjs_int64 pos) const;
 };
 //---------------------------------------------------------------------------
 

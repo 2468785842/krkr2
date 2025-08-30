@@ -25,7 +25,7 @@ CDVDClock::CDVDClock() {
     m_systemUsed = m_systemFrequency;
 }
 
-CDVDClock::~CDVDClock() {}
+CDVDClock::~CDVDClock() = default;
 
 // Returns the current absolute clock in units of DVD_TIME_BASE
 // (usually microseconds).

@@ -37,7 +37,7 @@ namespace TJS {
 
             T operator[](int index) const { return array_[index]; }
 
-            size_t size() const { return length_; }
+            [[nodiscard]] size_t size() const { return length_; }
 
             void set(T *array, size_t length) {
                 array_ = array;
@@ -138,7 +138,7 @@ namespace TJS {
                          int offset, int size);
 
         void TranslateCodeAddress(tTJSScriptBlock *block, tjs_int32 *code,
-                                  const tjs_int32 size);
+                                  tjs_int32 size);
     };
 
 } // namespace TJS

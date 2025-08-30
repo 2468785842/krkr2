@@ -231,12 +231,12 @@ namespace TJS {
         iTJSDispatch2 *Dispatch2;
 
     public:
-        tjs_uint AddRef() {
+        tjs_uint AddRef() override {
             return 1;
             //		return ++RefCount;
         }
 
-        tjs_uint Release() {
+        tjs_uint Release() override {
             return 1;
             /*
                             if(RefCount == 1)
@@ -259,7 +259,7 @@ namespace TJS {
         tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
                            tjs_uint32 *hint, tTJSVariant *result,
                            tjs_int numparams, tTJSVariant **param,
-                           iTJSDispatch2 *objthis) {
+                           iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->FuncCall(flag, membername, hint, result,
                                                numparams, param, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -270,7 +270,7 @@ namespace TJS {
 
         tjs_error FuncCallByNum(tjs_uint32 flag, tjs_int num,
                                 tTJSVariant *result, tjs_int numparams,
-                                tTJSVariant **param, iTJSDispatch2 *objthis) {
+                                tTJSVariant **param, iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->FuncCallByNum(flag, num, result,
                                                     numparams, param, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -281,7 +281,7 @@ namespace TJS {
 
         tjs_error PropGet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, tTJSVariant *result,
-                          iTJSDispatch2 *objthis) {
+                          iTJSDispatch2 *objthis) override {
             tjs_error hr =
                 Dispatch1->PropGet(flag, membername, hint, result, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -290,7 +290,7 @@ namespace TJS {
         }
 
         tjs_error PropGetByNum(tjs_uint32 flag, tjs_int num,
-                               tTJSVariant *result, iTJSDispatch2 *objthis) {
+                               tTJSVariant *result, iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->PropGetByNum(flag, num, result, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
                 return Dispatch2->PropGetByNum(flag, num, result, OBJ2);
@@ -299,7 +299,7 @@ namespace TJS {
 
         tjs_error PropSet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, const tTJSVariant *param,
-                          iTJSDispatch2 *objthis) {
+                          iTJSDispatch2 *objthis) override {
             tjs_error hr =
                 Dispatch1->PropSet(flag, membername, hint, param, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -309,7 +309,7 @@ namespace TJS {
 
         tjs_error PropSetByNum(tjs_uint32 flag, tjs_int num,
                                const tTJSVariant *param,
-                               iTJSDispatch2 *objthis) {
+                               iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->PropSetByNum(flag, num, param, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
                 return Dispatch2->PropSetByNum(flag, num, param, OBJ2);
@@ -317,7 +317,7 @@ namespace TJS {
         }
 
         tjs_error GetCount(tjs_int *result, const tjs_char *membername,
-                           tjs_uint32 *hint, iTJSDispatch2 *objthis) {
+                           tjs_uint32 *hint, iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->GetCount(result, membername, hint, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
                 return Dispatch2->GetCount(result, membername, hint, OBJ2);
@@ -325,7 +325,7 @@ namespace TJS {
         }
 
         tjs_error GetCountByNum(tjs_int *result, tjs_int num,
-                                iTJSDispatch2 *objthis) {
+                                iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->GetCountByNum(result, num, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
                 return Dispatch2->GetCountByNum(result, num, OBJ2);
@@ -334,7 +334,7 @@ namespace TJS {
 
         tjs_error PropSetByVS(tjs_uint32 flag, tTJSVariantString *membername,
                               const tTJSVariant *param,
-                              iTJSDispatch2 *objthis) {
+                              iTJSDispatch2 *objthis) override {
             tjs_error hr =
                 Dispatch1->PropSetByVS(flag, membername, param, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -343,12 +343,12 @@ namespace TJS {
         }
 
         tjs_error EnumMembers(tjs_uint32 flag, tTJSVariantClosure *callback,
-                              iTJSDispatch2 *objthis) {
+                              iTJSDispatch2 *objthis) override {
             return TJS_E_NOTIMPL;
         }
 
         tjs_error DeleteMember(tjs_uint32 flag, const tjs_char *membername,
-                               tjs_uint32 *hint, iTJSDispatch2 *objthis) {
+                               tjs_uint32 *hint, iTJSDispatch2 *objthis) override {
             tjs_error hr =
                 Dispatch1->DeleteMember(flag, membername, hint, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -357,7 +357,7 @@ namespace TJS {
         }
 
         tjs_error DeleteMemberByNum(tjs_uint32 flag, tjs_int num,
-                                    iTJSDispatch2 *objthis) {
+                                    iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->DeleteMemberByNum(flag, num, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
                 return Dispatch2->DeleteMemberByNum(flag, num, OBJ2);
@@ -365,7 +365,7 @@ namespace TJS {
         }
 
         tjs_error Invalidate(tjs_uint32 flag, const tjs_char *membername,
-                             tjs_uint32 *hint, iTJSDispatch2 *objthis) {
+                             tjs_uint32 *hint, iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->Invalidate(flag, membername, hint, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
                 return Dispatch2->Invalidate(flag, membername, hint, OBJ2);
@@ -373,7 +373,7 @@ namespace TJS {
         }
 
         tjs_error InvalidateByNum(tjs_uint32 flag, tjs_int num,
-                                  iTJSDispatch2 *objthis) {
+                                  iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->InvalidateByNum(flag, num, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
                 return Dispatch2->InvalidateByNum(flag, num, OBJ2);
@@ -381,7 +381,7 @@ namespace TJS {
         }
 
         tjs_error IsValid(tjs_uint32 flag, const tjs_char *membername,
-                          tjs_uint32 *hint, iTJSDispatch2 *objthis) {
+                          tjs_uint32 *hint, iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->IsValid(flag, membername, hint, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
                 return Dispatch2->IsValid(flag, membername, hint, OBJ2);
@@ -389,7 +389,7 @@ namespace TJS {
         }
 
         tjs_error IsValidByNum(tjs_uint32 flag, tjs_int num,
-                               iTJSDispatch2 *objthis) {
+                               iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->IsValidByNum(flag, num, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
                 return Dispatch2->IsValidByNum(flag, num, OBJ2);
@@ -399,7 +399,7 @@ namespace TJS {
         tjs_error CreateNew(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, iTJSDispatch2 **result,
                             tjs_int numparams, tTJSVariant **param,
-                            iTJSDispatch2 *objthis) {
+                            iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->CreateNew(flag, membername, hint, result,
                                                 numparams, param, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -410,7 +410,7 @@ namespace TJS {
 
         tjs_error CreateNewByNum(tjs_uint32 flag, tjs_int num,
                                  iTJSDispatch2 **result, tjs_int numparams,
-                                 tTJSVariant **param, iTJSDispatch2 *objthis) {
+                                 tTJSVariant **param, iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->CreateNewByNum(flag, num, result,
                                                      numparams, param, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -419,11 +419,11 @@ namespace TJS {
             return hr;
         }
 
-        tjs_error Reserved1() { return TJS_E_NOTIMPL; }
+        tjs_error Reserved1() override { return TJS_E_NOTIMPL; }
 
         tjs_error IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, const tjs_char *classname,
-                               iTJSDispatch2 *objthis) {
+                               iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->IsInstanceOf(flag, membername, hint,
                                                    classname, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -434,7 +434,7 @@ namespace TJS {
 
         tjs_error IsInstanceOfByNum(tjs_uint32 flag, tjs_int num,
                                     const tjs_char *classname,
-                                    iTJSDispatch2 *objthis) {
+                                    iTJSDispatch2 *objthis) override {
             tjs_error hr =
                 Dispatch1->IsInstanceOfByNum(flag, num, classname, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -444,7 +444,7 @@ namespace TJS {
 
         tjs_error Operation(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, tTJSVariant *result,
-                            const tTJSVariant *param, iTJSDispatch2 *objthis) {
+                            const tTJSVariant *param, iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->Operation(flag, membername, hint, result,
                                                 param, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -455,7 +455,7 @@ namespace TJS {
 
         tjs_error OperationByNum(tjs_uint32 flag, tjs_int num,
                                  tTJSVariant *result, const tTJSVariant *param,
-                                 iTJSDispatch2 *objthis) {
+                                 iTJSDispatch2 *objthis) override {
             tjs_error hr =
                 Dispatch1->OperationByNum(flag, num, result, param, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -465,18 +465,18 @@ namespace TJS {
         }
 
         tjs_error NativeInstanceSupport(tjs_uint32 flag, tjs_int32 classid,
-                                        iTJSNativeInstance **pointer) {
+                                        iTJSNativeInstance **pointer) override {
             return TJS_E_NOTIMPL;
         }
 
         tjs_error ClassInstanceInfo(tjs_uint32 flag, tjs_uint num,
-                                    tTJSVariant *value) {
+                                    tTJSVariant *value) override {
             return TJS_E_NOTIMPL;
         }
 
-        tjs_error Reserved2() { return TJS_E_NOTIMPL; }
+        tjs_error Reserved2() override { return TJS_E_NOTIMPL; }
 
-        tjs_error Reserved3() { return TJS_E_NOTIMPL; }
+        tjs_error Reserved3() override { return TJS_E_NOTIMPL; }
     };
 
 #undef OBJ1
@@ -2746,7 +2746,7 @@ namespace TJS {
             tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, tTJSVariant *result,
                                tjs_int numparams, tTJSVariant **param,
-                               iTJSDispatch2 *objthis) {
+                               iTJSDispatch2 *objthis) override {
                 // *param[0] = name   *param[1] = flags   *param[2] =
                 // value
                 tjs_uint32 flags = (tjs_int)*param[1];

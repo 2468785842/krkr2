@@ -25,18 +25,18 @@ private:
     tjs_int RefCount;
 
 public:
-    tjs_int OriginX; //!< 文字Bitmapを描画するascent位置との横オフセット
-    tjs_int OriginY; //!< 文字Bitmapを描画するascent位置との縦オフセット
-    tGlyphMetrics Metrics; //!< メトリック、送り幅と高さを保持
-    tjs_int Pitch; //!< 保持している画像ピッチ
-    tjs_uint BlackBoxX; //!< 保持している画像幅
-    tjs_uint BlackBoxY; //!< 保持している画像高さ
-    tjs_int BlurLevel;
-    tjs_int BlurWidth;
+    tjs_int OriginX{}; //!< 文字Bitmapを描画するascent位置との横オフセット
+    tjs_int OriginY{}; //!< 文字Bitmapを描画するascent位置との縦オフセット
+    tGlyphMetrics Metrics{}; //!< メトリック、送り幅と高さを保持
+    tjs_int Pitch{}; //!< 保持している画像ピッチ
+    tjs_uint BlackBoxX{}; //!< 保持している画像幅
+    tjs_uint BlackBoxY{}; //!< 保持している画像高さ
+    tjs_int BlurLevel{};
+    tjs_int BlurWidth{};
     tjs_uint Gray; // 階調
 
-    bool Antialiased;
-    bool Blured;
+    bool Antialiased{};
+    bool Blured{};
     bool FullColored;
 
 public:
@@ -52,7 +52,7 @@ public:
 
     void Alloc(tjs_int size);
 
-    tjs_uint8 *GetData() const { return Data; }
+    [[nodiscard]] tjs_uint8 *GetData() const { return Data; }
 
     void AddRef() { RefCount++; }
     void Release() {
@@ -88,13 +88,13 @@ public:
 //---------------------------------------------------------------------------
 struct tTVPFontAndCharacterData {
     tTVPFont Font;
-    tjs_uint32 FontHash;
-    tjs_char Character;
-    tjs_int BlurLevel;
-    tjs_int BlurWidth;
-    bool Antialiased;
-    bool Blured;
-    bool Hinting;
+    tjs_uint32 FontHash{};
+    tjs_char Character{};
+    tjs_int BlurLevel{};
+    tjs_int BlurWidth{};
+    bool Antialiased{};
+    bool Blured{};
+    bool Hinting{};
     bool operator==(const tTVPFontAndCharacterData &rhs) const {
         return Character == rhs.Character && Font == rhs.Font &&
             Antialiased == rhs.Antialiased && BlurLevel == rhs.BlurLevel &&

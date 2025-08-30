@@ -182,9 +182,9 @@ TVPTimer::TVPTimer() : event_(nullptr), interval_(1000), enabled_(true) {
 
 TVPTimer::~TVPTimer() {
     delete impl_;
-    if(event_) {
+
         delete event_;
-    }
+
 }
 
 void TVPTimer::UpdateTimer() {

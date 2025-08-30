@@ -253,13 +253,13 @@ namespace TJS {
         tTJSInterCodeContext(tTJSInterCodeContext *parant, const tjs_char *name,
                              tTJSScriptBlock *block, tTJSContextType type);
 
-        virtual ~tTJSInterCodeContext();
+        ~tTJSInterCodeContext() override;
 
         // is bytecode export
         static bool IsBytecodeCompile;
 
     protected:
-        void Finalize();
+        void Finalize() override;
         //-------------------------------------------------------
         // compiling stuff
 
@@ -793,46 +793,46 @@ namespace TJS {
         tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
                            tjs_uint32 *hint, tTJSVariant *result,
                            tjs_int numparams, tTJSVariant **param,
-                           iTJSDispatch2 *objthis);
+                           iTJSDispatch2 *objthis) override;
 
         tjs_error PropGet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, tTJSVariant *result,
-                          iTJSDispatch2 *objthis);
+                          iTJSDispatch2 *objthis) override;
 
         tjs_error PropSet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, const tTJSVariant *param,
-                          iTJSDispatch2 *objthis);
+                          iTJSDispatch2 *objthis) override;
 
         tjs_error CreateNew(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, iTJSDispatch2 **result,
                             tjs_int numparams, tTJSVariant **param,
-                            iTJSDispatch2 *objthis);
+                            iTJSDispatch2 *objthis) override;
 
         tjs_error IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, const tjs_char *classname,
-                               iTJSDispatch2 *objthis);
+                               iTJSDispatch2 *objthis) override;
 
         tjs_error GetCount(tjs_int *result, const tjs_char *membername,
-                           tjs_uint32 *hint, iTJSDispatch2 *objthis);
+                           tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error PropSetByVS(tjs_uint32 flag, tTJSVariantString *mambername,
                               const tTJSVariant *param,
-                              iTJSDispatch2 *objthis) {
+                              iTJSDispatch2 *objthis) override {
             return TJS_E_NOTIMPL;
         }
 
         tjs_error DeleteMember(tjs_uint32 flag, const tjs_char *membername,
-                               tjs_uint32 *hint, iTJSDispatch2 *objthis);
+                               tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error Invalidate(tjs_uint32 flag, const tjs_char *membername,
-                             tjs_uint32 *hint, iTJSDispatch2 *objthis);
+                             tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error IsValid(tjs_uint32 flag, const tjs_char *membername,
-                          tjs_uint32 *hint, iTJSDispatch2 *objthis);
+                          tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error Operation(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, tTJSVariant *result,
-                            const tTJSVariant *param, iTJSDispatch2 *objthis);
+                            const tTJSVariant *param, iTJSDispatch2 *objthis) override;
 
         // for Byte code
         void SetCodeObject(tTJSInterCodeContext *parent,

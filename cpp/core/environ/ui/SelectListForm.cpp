@@ -70,7 +70,7 @@ void TVPSelectListForm::initWithInfo(const std::vector<std::string> &info,
     for(int idx = 0; idx < info.size(); ++idx) {
         const std::string &str = info[idx];
         CSBReader reader;
-        Widget *cell = static_cast<Widget *>(reader.Load(FileName_Cell));
+        auto *cell = static_cast<Widget *>(reader.Load(FileName_Cell));
         if(!size_set) {
             size.height = cell->getContentSize().height;
             pageView->setPageSize(size);

@@ -5,7 +5,7 @@
 
 NS_KRMOVIE_BEGIN
 #define DMX_SPECIALID_STREAMINFO -10
-#define DMX_SPECIALID_STREAMCHANGE -11
+#define DMX_SPECIALID_STREAMCHANGE (-11)
 
 struct DemuxPacket {
     unsigned char *pData; // data

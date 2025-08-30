@@ -92,7 +92,7 @@ public:
     //! @brief		デストラクタ
     ~tRisaPhaseVocoderDSP();
 
-    float GetTimeScale() const {
+    [[nodiscard]] float GetTimeScale() const {
         return TimeScale;
     } //!< 時間軸方向のスケールを得る
 
@@ -100,7 +100,7 @@ public:
     //! @param		v     スケール
     void SetTimeScale(float v);
 
-    float GetFrequencyScale() const {
+    [[nodiscard]] float GetFrequencyScale() const {
         return FrequencyScale;
     } //!< 周波数軸方向のスケールを得る
 
@@ -110,7 +110,7 @@ public:
 
     //! @brief		オーバーサンプリング係数を取得する
     //! @return		オーバーサンプリング係数
-    unsigned int GetOverSampling() const { return OverSampling; }
+    [[nodiscard]] unsigned int GetOverSampling() const { return OverSampling; }
 
     //! @brief		オーバーサンプリング係数を設定する
     //! @param		v		係数 ( 0 =
@@ -118,10 +118,10 @@ public:
     //! )
     void SetOverSampling(unsigned int v);
 
-    unsigned int GetInputHopSize() const {
+    [[nodiscard]] unsigned int GetInputHopSize() const {
         return InputHopSize;
     } //!< InputHopSizeを得る
-    unsigned int GetOutputHopSize() const {
+    [[nodiscard]] unsigned int GetOutputHopSize() const {
         return OutputHopSize;
     } //!< OutputHopSize を得る
 

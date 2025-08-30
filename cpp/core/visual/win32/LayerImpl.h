@@ -18,10 +18,10 @@
 class tTJSNI_Layer : public tTJSNI_BaseLayer {
 public:
     tTJSNI_Layer();
-    ~tTJSNI_Layer();
+    ~tTJSNI_Layer() override;
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
     static tTJSNI_Layer *FromVariant(const tTJSVariant &var);
     static tTJSNI_Layer *FromObject(iTJSDispatch2 *obj);
     // HRGN CreateMaskRgn(tjs_uint threshold);

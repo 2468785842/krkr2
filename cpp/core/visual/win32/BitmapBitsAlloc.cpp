@@ -10,8 +10,8 @@
 class BasicAllocator : public iTVPMemoryAllocator {
 public:
     BasicAllocator() { TVPAddLog(TJS_W("(info) Use malloc for Bitmap")); }
-    void *allocate(size_t size) { return malloc(size); }
-    void free(void *mem) { ::free(mem); }
+    void *allocate(size_t size) override { return malloc(size); }
+    void free(void *mem) override { ::free(mem); }
 };
 #if 0
 class GlobalAllocAllocator : public iTVPMemoryAllocator

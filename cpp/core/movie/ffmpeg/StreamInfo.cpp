@@ -135,7 +135,7 @@ void CDVDStreamInfo::Assign(const CDVDStreamInfo &right, bool withextradata) {
         memcpy(extradata, right.extradata, extrasize);
     } else {
         extrasize = 0;
-        extradata = 0;
+        extradata = nullptr;
     }
 
     // VIDEO

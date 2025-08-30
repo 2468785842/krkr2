@@ -14,7 +14,7 @@ void TVPUninitDirectSound();
 
 class iTVPSoundBuffer {
 public:
-    virtual ~iTVPSoundBuffer() {}
+    virtual ~iTVPSoundBuffer() = default;
 
     virtual void Release() = 0;
 

@@ -39,7 +39,7 @@ public:
 
 //---------------------------------------------------------------------------
 void TVPAddSoundBuffer(tTJSNI_SoundBuffer *buf) {
-    if(TVPSoundBufferVector.size() == 0) {
+    if(TVPSoundBufferVector.empty()) {
         // first buffer
         TVPSoundBufferTimer = new TVPTimer(); // Create Timer Object
         TVPSoundBufferTimer->SetInterval(TVP_SB_BEAT_INTERVAL);
@@ -53,7 +53,7 @@ void TVPAddSoundBuffer(tTJSNI_SoundBuffer *buf) {
 
 //---------------------------------------------------------------------------
 void TVPRemoveSoundBuffer(tTJSNI_SoundBuffer *buf) {
-    if(TVPSoundBufferVector.size() != 0) {
+    if(!TVPSoundBufferVector.empty()) {
         std::vector<tTJSNI_SoundBuffer *>::iterator i;
         i = std::find(TVPSoundBufferVector.begin(), TVPSoundBufferVector.end(),
                       buf);
@@ -62,7 +62,7 @@ void TVPRemoveSoundBuffer(tTJSNI_SoundBuffer *buf) {
         }
     }
 
-    if(TVPSoundBufferVector.size() == 0) {
+    if(TVPSoundBufferVector.empty()) {
         // all buffer was removed
         delete TVPSoundBufferTimer;
     }
@@ -72,7 +72,7 @@ void TVPRemoveSoundBuffer(tTJSNI_SoundBuffer *buf) {
 //---------------------------------------------------------------------------
 // tTJSNI_SoundBuffer
 //---------------------------------------------------------------------------
-tTJSNI_SoundBuffer::tTJSNI_SoundBuffer() {}
+tTJSNI_SoundBuffer::tTJSNI_SoundBuffer() = default;
 
 //---------------------------------------------------------------------------
 tjs_error tTJSNI_SoundBuffer::Construct(tjs_int numparams, tTJSVariant **param,

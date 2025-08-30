@@ -36,7 +36,7 @@ namespace TJS {
     //---------------------------------------------------------------------------
     tTJSNI_RandomGenerator::~tTJSNI_RandomGenerator() {
         // C++ destructor
-        if(Generator)
+
             delete Generator;
     }
 
@@ -123,7 +123,7 @@ namespace TJS {
                         delete Generator, Generator = nullptr;
                     Generator = new tTJSMersenneTwister(*data);
                 } catch(...) {
-                    if(data)
+
                         delete data;
                     TJS_eTJSError(TJSNotReconstructiveRandomizeData);
                 }

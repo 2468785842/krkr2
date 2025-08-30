@@ -51,10 +51,10 @@ public:
 
     tTVPTimerThread();
 
-    ~tTVPTimerThread();
+    ~tTVPTimerThread() override;
 
 protected:
-    void Execute();
+    void Execute() override;
 
 private:
     void Proc(NativeEvent &event);

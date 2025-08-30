@@ -34,7 +34,7 @@ public:
 
     virtual ~tTVPThread();
 
-    bool GetTerminated() const { return Terminated; }
+    [[nodiscard]] bool GetTerminated() const { return Terminated; }
 
     void SetTerminated(bool s) { Terminated = s; }
 

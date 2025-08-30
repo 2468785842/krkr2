@@ -7,7 +7,7 @@ class TVPTipsHelpForm : public iTVPBaseForm {
     void bindBodyController(const Node *allNodes) override;
     void bindFooterController(const Node *allNodes) override {}
 
-    cocos2d::ui::ListView *_tipslist;
+    cocos2d::ui::ListView *_tipslist{};
 
 public:
     static TVPTipsHelpForm *create();

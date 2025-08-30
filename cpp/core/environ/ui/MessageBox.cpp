@@ -16,7 +16,7 @@ void TVPMessageBoxForm::show(const std::string &caption,
                              const std::string &text, int nBtns,
                              const std::string *btnText,
                              const std::function<void(int)> &callback) {
-    TVPMessageBoxForm *ret = new TVPMessageBoxForm;
+    auto *ret = new TVPMessageBoxForm;
     ret->autorelease();
     ret->init(caption, text, nBtns, btnText, callback);
     TVPMainScene::GetInstance()->pushUIForm(ret, TVPMainScene::eEnterAniNone);
@@ -128,7 +128,7 @@ void TVPMessageBoxForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
 }
 
 TVPSimpleProgressForm *TVPSimpleProgressForm::create() {
-    TVPSimpleProgressForm *form = new TVPSimpleProgressForm;
+    auto *form = new TVPSimpleProgressForm;
     form->autorelease();
     form->initFromFile(Csd::createProgressBox());
     return form;

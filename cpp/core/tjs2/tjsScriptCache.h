@@ -26,8 +26,8 @@ namespace TJS {
     private:
         struct tScriptCacheData {
             ttstr Script;
-            bool ExpressionMode;
-            bool MustReturnResult;
+            bool ExpressionMode{};
+            bool MustReturnResult{};
 
             bool operator==(const tScriptCacheData &rhs) const {
                 return Script == rhs.Script &&

@@ -490,7 +490,7 @@ public:
         tTVPBaseInputEvent(Application, Tag),
         ActivateOrDeactivate(activate_or_deactivate) {};
 
-    void Deliver() const { TVPOnApplicationActivate(ActivateOrDeactivate); }
+    void Deliver() const override { TVPOnApplicationActivate(ActivateOrDeactivate); }
 };
 
 tTVPUniqueTagForInputEvent tTVPOnApplicationActivateEvent::Tag;

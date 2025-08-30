@@ -712,8 +712,7 @@ namespace TJS // following is in the namespace
 
             // make a patch information
             // use FunctionRegisterCodePoint for insertion point
-            FixList.push_back(
-                tFixData(FunctionRegisterCodePoint, 0, 1, code, true));
+            FixList.emplace_back(FunctionRegisterCodePoint, 0, 1, code, true);
         }
 
         // process funtion reservation to enable backward reference of
@@ -766,8 +765,7 @@ namespace TJS // following is in the namespace
             *(codep++) = TJS_TO_VM_REG_ADDR(1);
 
             // make a patch information
-            FixList.push_back(
-                tFixData(FunctionRegisterCodePoint, 0, codesize, code, true));
+            FixList.emplace_back(FunctionRegisterCodePoint, 0, codesize, code, true);
 
             NonLocalFunctionDeclVector.clear();
         }
@@ -915,8 +913,7 @@ namespace TJS // following is in the namespace
             tjs_int name = Parent->PutData(val);
             bool changethis =
                 ContextType == ctFunction || ContextType == ctProperty;
-            Parent->NonLocalFunctionDeclVector.push_back(
-                tNonLocalFunctionDecl(data, name, changethis));
+            Parent->NonLocalFunctionDeclVector.emplace_back(data, name, changethis);
         }
 
         if(ContextType == ctFunction && Parent->ContextType == ctFunction) {
@@ -2573,7 +2570,7 @@ namespace TJS // following is in the namespace
                 PutCode(TJS_TO_VM_REG_ADDR(zerodp), node_pos);
                 frame += 2;
 
-                ArrayArgStack.push(tArrayArg());
+                ArrayArgStack.emplace();
                 ArrayArgStack.top().Object = frame0;
                 ArrayArgStack.top().Counter = frame0 + 1;
 
@@ -2636,7 +2633,7 @@ namespace TJS // following is in the namespace
                 ClearFrame(frame,
                            frame0 + 1); // clear register at frame+1
 
-                ArrayArgStack.push(tArrayArg());
+                ArrayArgStack.emplace();
                 ArrayArgStack.top().Object = frame0;
 
                 tjs_int nodesize = node->GetSize();
@@ -2748,7 +2745,7 @@ namespace TJS // following is in the namespace
                                           tTJSFuncArgType type) {
         // add a function argument
         // addr = register address to add
-        FuncArgStack.top().ArgVector.push_back(tFuncArgItem(addr, type));
+        FuncArgStack.top().ArgVector.emplace_back(addr, type);
         if(type == fatExpand || type == fatUnnamedExpand)
             FuncArgStack.top().HasExpand = true; // has expanding node
     }
@@ -2923,7 +2920,7 @@ namespace TJS // following is in the namespace
     void tTJSInterCodeContext::EnterWhileCode(bool do_while) {
         // enter to "while"
         // ( do_while = true indicates do-while syntax )
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = do_while ? ntDoWhile : ntWhile;
         NestVector.back().LoopStartIP = CodeAreaSize;
     }
@@ -2996,7 +2993,7 @@ namespace TJS // following is in the namespace
     void tTJSInterCodeContext::EnterIfCode() {
         // enter to "if"
 
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntIf;
     }
 
@@ -3045,7 +3042,7 @@ namespace TJS // following is in the namespace
         // enter to "else".
         // before is "if", is clear from syntax definition.
 
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntElse;
         NestVector.back().Patch2 = CodeAreaSize;
         AddJumpList();
@@ -3078,7 +3075,7 @@ namespace TJS // following is in the namespace
         // created in the
         //	first clause )
 
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntFor;
         EnterBlock();
         // create a scope for "for" initializing clause even it does
@@ -3159,7 +3156,7 @@ namespace TJS // following is in the namespace
         // enter to "switch"
         // "node" indicates a reference expression
 
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntSwitch;
         NestVector.back().Patch1 = -1;
         NestVector.back().Patch2 = -1;
@@ -3321,7 +3318,7 @@ namespace TJS // following is in the namespace
             PutCode(TJS_TO_VM_REG_ADDR(resaddr), NODE_POS);
         }
 
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntWith;
 
         NestVector.back().RefRegister = FrameBase;
@@ -3504,7 +3501,7 @@ namespace TJS // following is in the namespace
     void tTJSInterCodeContext::EnterTryCode() {
         // enter to "try"
 
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntTry;
         NestVector.back().VariableCreated = false;
 
@@ -3657,7 +3654,7 @@ namespace TJS // following is in the namespace
 
         Namespace.Push();
         tjs_int varcount = Namespace.GetCount();
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntBlock;
         NestVector.back().VariableCount = varcount;
     }

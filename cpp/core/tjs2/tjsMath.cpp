@@ -14,8 +14,8 @@
 
 #define _USE_MATH_DEFINES
 
-#include "math.h"
-#include "time.h"
+#include <cmath>
+#include <ctime>
 
 #ifdef __WIN32__
 #ifndef TJS_NO_MASK_MATHERR
@@ -242,7 +242,7 @@ namespace TJS {
                 *(tjs_uint64 *)&r = TJS_IEEE_D_N_INF;
                 for(tjs_int i = 0; i < numparams; ++i) {
                     tTVReal v = param[i]->AsReal();
-                    tjs_uint64 *ui64 = (tjs_uint64 *)&v;
+                    auto *ui64 = (tjs_uint64 *)&v;
                     if(TJS_IEEE_D_IS_NaN(*ui64)) {
                         tjs_real d;
                         *(tjs_uint64 *)&d = TJS_IEEE_D_P_NaN;
@@ -277,7 +277,7 @@ namespace TJS {
                 *(tjs_uint64 *)&r = TJS_IEEE_D_P_INF;
                 for(tjs_int i = 0; i < numparams; ++i) {
                     tTVReal v = param[i]->AsReal();
-                    tjs_uint64 *ui64 = (tjs_uint64 *)&v;
+                    auto *ui64 = (tjs_uint64 *)&v;
                     if(TJS_IEEE_D_IS_NaN(*ui64)) {
                         tjs_real d;
                         *(tjs_uint64 *)&d = TJS_IEEE_D_P_NaN;

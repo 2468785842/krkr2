@@ -2,10 +2,11 @@
 #include "Clock.h"
 #include "DemuxPacket.h"
 #include <cmath>
+#include <utility>
 
 NS_KRMOVIE_BEGIN
-CDVDMessageQueue::CDVDMessageQueue(const std::string &owner) :
-    /*m_hEvent(true),*/ m_owner(owner) {
+CDVDMessageQueue::CDVDMessageQueue(std::string owner) :
+    /*m_hEvent(true),*/ m_owner(std::move(owner)) {
     m_iDataSize = 0;
     m_bAbortRequest = false;
     m_bInitialized = false;

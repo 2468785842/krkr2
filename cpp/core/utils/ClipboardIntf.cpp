@@ -47,7 +47,7 @@ TJS_BEGIN_NATIVE_METHOD_DECL(/*func. name*/ hasFormat) {
     if(numparams < 1)
         return TJS_E_BADPARAMCOUNT;
 
-    tTVPClipboardFormat format = (tTVPClipboardFormat)(tjs_int)*param[0];
+    auto format = (tTVPClipboardFormat)(tjs_int)*param[0];
 
     bool has = TVPClipboardHasFormat(format);
 

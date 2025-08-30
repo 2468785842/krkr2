@@ -20,7 +20,7 @@ namespace TJS {
     //---------------------------------------------------------------------------
     class tTJSMessageMapper {
         tTJSHashTable<ttstr, tTJSMessageHolder *> Hash;
-        tjs_uint RefCount;
+        tjs_uint RefCount{};
 
     public:
         tTJSMessageMapper() { ; }
@@ -132,9 +132,9 @@ namespace TJS {
             ttstr ret;
             if(TJSMessageMapper->Get(name, ret))
                 return ret;
-            return ttstr();
+            return {};
         }
-        return ttstr();
+        return {};
     }
     //---------------------------------------------------------------------------
 } // namespace TJS

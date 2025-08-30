@@ -29,7 +29,7 @@ namespace TJS {
     public:
         tTJSNI_RandomGenerator();
 
-        ~tTJSNI_RandomGenerator();
+        ~tTJSNI_RandomGenerator() override;
 
     private:
         tTJSMersenneTwister *Generator;
@@ -57,7 +57,7 @@ namespace TJS {
         static tjs_uint32 ClassID;
 
     private:
-        tTJSNativeInstance *CreateNativeInstance();
+        tTJSNativeInstance *CreateNativeInstance() override;
     };
     //---------------------------------------------------------------------------
 } // namespace TJS

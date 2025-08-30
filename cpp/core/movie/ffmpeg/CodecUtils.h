@@ -18,7 +18,7 @@ public:
 
     static bool CopyPicture(DVDVideoPicture *pDst, DVDVideoPicture *pSrc);
 
-    static bool CopyPicture(YV12Image *pDst, DVDVideoPicture *pSrc);
+    static bool CopyPicture(YV12Image *pImage, DVDVideoPicture *pSrc);
 
     static DVDVideoPicture *ConvertToNV12Picture(DVDVideoPicture *pSrc);
 
@@ -37,7 +37,7 @@ public:
 
     static ERenderFormat EFormatFromPixfmt(int fmt);
 
-    static AVPixelFormat PixfmtFromEFormat(ERenderFormat format);
+    static AVPixelFormat PixfmtFromEFormat(ERenderFormat fmt);
 };
 
 NS_KRMOVIE_END

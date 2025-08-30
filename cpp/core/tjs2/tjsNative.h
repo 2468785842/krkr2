@@ -36,14 +36,14 @@ namespace TJS {
     //---------------------------------------------------------------------------
     class tTJSNativeInstance : public iTJSNativeInstance {
     public:
-        virtual tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                                    iTJSDispatch2 *tjs_obj) {
+        tjs_error Construct(tjs_int numparams, tTJSVariant **param,
+                                    iTJSDispatch2 *tjs_obj) override {
             return TJS_S_OK;
         }
 
-        virtual void Invalidate() { ; }
+        void Invalidate() override { ; }
 
-        virtual void Destruct() { delete this; }
+        void Destruct() override { delete this; }
 
         virtual ~tTJSNativeInstance() { ; };
     };
@@ -84,16 +84,16 @@ namespace TJS {
     public:
         tTJSNativeClassMethod(tTJSNativeClassMethodCallback processfunc);
 
-        ~tTJSNativeClassMethod();
+        ~tTJSNativeClassMethod() override;
 
         tjs_error IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, const tjs_char *classname,
-                               iTJSDispatch2 *objthis);
+                               iTJSDispatch2 *objthis) override;
 
         tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
                            tjs_uint32 *hint, tTJSVariant *result,
                            tjs_int numparams, tTJSVariant **param,
-                           iTJSDispatch2 *objthis);
+                           iTJSDispatch2 *objthis) override;
     };
     //---------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ namespace TJS {
         tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
                            tjs_uint32 *hint, tTJSVariant *result,
                            tjs_int numparams, tTJSVariant **param,
-                           iTJSDispatch2 *objthis);
+                           iTJSDispatch2 *objthis) override;
     };
     //---------------------------------------------------------------------------
 
@@ -158,19 +158,19 @@ namespace TJS {
         tTJSNativeClassProperty(tTJSNativeClassPropertyGetCallback get,
                                 tTJSNativeClassPropertySetCallback set);
 
-        ~tTJSNativeClassProperty();
+        ~tTJSNativeClassProperty() override;
 
         tjs_error IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, const tjs_char *classname,
-                               iTJSDispatch2 *objthis);
+                               iTJSDispatch2 *objthis) override;
 
         tjs_error PropGet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, tTJSVariant *result,
-                          iTJSDispatch2 *objthis);
+                          iTJSDispatch2 *objthis) override;
 
         tjs_error PropSet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, const tTJSVariant *param,
-                          iTJSDispatch2 *objthis);
+                          iTJSDispatch2 *objthis) override;
     };
     //---------------------------------------------------------------------------
 
@@ -183,7 +183,7 @@ namespace TJS {
     public:
         tTJSNativeClass(const ttstr &name);
 
-        virtual ~tTJSNativeClass();
+        ~tTJSNativeClass() override;
 
         void RegisterNCM(const tjs_char *name, iTJSDispatch2 *dsp,
                          const tjs_char *classname, tTJSNativeInstanceType type,
@@ -193,7 +193,7 @@ namespace TJS {
         tjs_int32 _ClassID;
         ttstr ClassName;
 
-        void Finalize();
+        void Finalize() override;
 
         virtual iTJSNativeInstance *CreateNativeInstance() { return nullptr; }
 
@@ -203,18 +203,18 @@ namespace TJS {
         tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
                            tjs_uint32 *hint, tTJSVariant *result,
                            tjs_int numparams, tTJSVariant **param,
-                           iTJSDispatch2 *objthis);
+                           iTJSDispatch2 *objthis) override;
 
         tjs_error CreateNew(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, iTJSDispatch2 **result,
                             tjs_int numparams, tTJSVariant **param,
-                            iTJSDispatch2 *objthis);
+                            iTJSDispatch2 *objthis) override;
 
         tjs_error IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, const tjs_char *classname,
-                               iTJSDispatch2 *objthis);
+                               iTJSDispatch2 *objthis) override;
 
-        const ttstr &GetClassName() const { return ClassName; }
+        [[nodiscard]] const ttstr &GetClassName() const { return ClassName; }
 
         void SetClassID(tjs_int32 classid) { _ClassID = classid; }
     };
@@ -266,7 +266,7 @@ namespace TJS {
             procCreateNativeInstance(proc), tTJSNativeClass(name) {}
 
     protected:
-        iTJSNativeInstance *CreateNativeInstance() {
+        iTJSNativeInstance *CreateNativeInstance() override {
             return procCreateNativeInstance();
         }
     };
@@ -485,16 +485,16 @@ namespace TJS {
         tTJSNativeFunction(const tjs_char *name = nullptr);
 
         // 'name' is just to be used as a label for debugging
-        ~tTJSNativeFunction();
+        ~tTJSNativeFunction() override;
 
         tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
                            tjs_uint32 *hint, tTJSVariant *result,
                            tjs_int numparams, tTJSVariant **param,
-                           iTJSDispatch2 *objthis);
+                           iTJSDispatch2 *objthis) override;
 
         tjs_error IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, const tjs_char *classname,
-                               iTJSDispatch2 *objthis);
+                               iTJSDispatch2 *objthis) override;
 
     protected:
         tjs_error virtual Process(tTJSVariant *result, tjs_int numparams,

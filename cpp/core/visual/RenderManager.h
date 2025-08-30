@@ -105,7 +105,7 @@ protected:
     iTVPTexture2D(tjs_int w, tjs_int h) : Width(w), Height(h), RefCount(1) {}
 
 public:
-    virtual ~iTVPTexture2D() {};
+    virtual ~iTVPTexture2D() = default;
     void AddRef() { ++RefCount; }
     virtual void Release();
     tjs_uint GetWidth() const { return Width; }
@@ -148,7 +148,7 @@ public:
 
 class iTVPRenderMethod {
 protected:
-    virtual ~iTVPRenderMethod() {} // undeletable
+    virtual ~iTVPRenderMethod() = default; // undeletable
     std::string Name;
 
 public:
@@ -205,7 +205,7 @@ namespace TJS {
 }
 class iTVPRenderManager {
 protected:
-    virtual ~iTVPRenderManager() {} // undeletable
+    virtual ~iTVPRenderManager() = default; // undeletable
     void RegisterRenderMethod(const char *name, iTVPRenderMethod *method);
     virtual iTVPRenderMethod *GetRenderMethodFromScript(const char *script,
                                                         int nTex,

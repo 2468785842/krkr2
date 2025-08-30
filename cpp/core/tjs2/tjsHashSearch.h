@@ -150,7 +150,7 @@ namespace TJS {
             element *NNext; // next item in the additional order
         } Elms[HashSize];
 
-        tjs_uint Count;
+        tjs_uint Count{};
 
         element *NFirst; // first item in the additional order
         element *NLast; // last item in the additional order
@@ -212,7 +212,7 @@ namespace TJS {
 
             ValueT &GetValue() { return *(ValueT *)elm->Value; }
 
-            bool IsNull() const { return elm == nullptr; }
+            [[nodiscard]] bool IsNull() const { return elm == nullptr; }
         };
 
         static tjs_uint32 MakeHash(const KeyT &key) {
@@ -225,9 +225,9 @@ namespace TJS {
 
         void Clear() { InternalClear(); }
 
-        tIterator GetFirst() const { return tIterator(NFirst); }
+        [[nodiscard]] tIterator GetFirst() const { return tIterator(NFirst); }
 
-        tIterator GetLast() const { return tIterator(NLast); }
+        [[nodiscard]] tIterator GetLast() const { return tIterator(NLast); }
 
         void Add(const KeyT &key, const ValueT &value) {
             // add Key and Value
@@ -280,7 +280,7 @@ namespace TJS {
             }
 
             // insert after lv1
-            element *newelm = new element;
+            auto *newelm = new element;
             newelm->Flags = 0;
             Construct(*newelm, key, value);
             newelm->Hash = hash;
@@ -292,7 +292,7 @@ namespace TJS {
             CheckAddingElementOrder(newelm);
         }
 
-        ValueT *Find(const KeyT &key) const {
+        [[nodiscard]] ValueT *Find(const KeyT &key) const {
             // find key
             // return   nullptr  if not found
             const element *elm =
@@ -308,7 +308,7 @@ namespace TJS {
             return FindWithHash(key, HashFuncT::Make(key), keyout, value);
         }
 
-        ValueT *FindWithHash(const KeyT &key, tjs_uint32 hash) const {
+        [[nodiscard]] ValueT *FindWithHash(const KeyT &key, tjs_uint32 hash) const {
             // find key ( hash )
             // return   nullptr  if not found
 #ifdef TJS_HS_DEBUG_CHAIN
@@ -480,7 +480,7 @@ namespace TJS {
                 delete elm;
         }
 
-        const element *InternalFindWithHash(const KeyT &key,
+        [[nodiscard]] const element *InternalFindWithHash(const KeyT &key,
                                             tjs_uint32 hash) const {
             // find key ( hash )
 #ifdef TJS_HS_DEBUG_CHAIN

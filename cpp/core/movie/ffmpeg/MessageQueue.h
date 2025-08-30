@@ -42,17 +42,17 @@ enum MsgQueueReturnCode {
     MSGQ_INVALID_MSG = -3,
     MSGQ_OUT_OF_MEMORY = -4
 };
-#define MSGQ_IS_ERROR(c) (c < 0)
+#define MSGQ_IS_ERROR(c) ((c) < 0)
 
 class CDVDMessageQueue {
 public:
-    CDVDMessageQueue(const std::string &owner);
+    CDVDMessageQueue(std::string owner);
 
     virtual ~CDVDMessageQueue();
 
     void Init();
 
-    void Flush(CDVDMsg::Message message = CDVDMsg::DEMUXER_PACKET);
+    void Flush(CDVDMsg::Message type = CDVDMsg::DEMUXER_PACKET);
 
     void Abort();
 

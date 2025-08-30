@@ -232,7 +232,7 @@ struct AxisParam {
     std::vector<int> min_length_;
     weight_vector_t weight_;
 
-    static const int toAlign(int &length) {
+    static int toAlign(int &length) {
         length = ((length + ALIGN_OFFSET) / ALIGN_DIV) * ALIGN_DIV;
     }
 };

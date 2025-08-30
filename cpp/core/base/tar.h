@@ -122,7 +122,7 @@ typedef union hblock {
         return sum;
     }
 
-    int getFormat() const {
+    [[nodiscard]] int getFormat() const {
         if(dbuf.magic[5] == TOMAGIC[5]) {
             return TAR_FORMAT_GNU;
         } else {

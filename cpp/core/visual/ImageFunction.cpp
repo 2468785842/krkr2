@@ -4,7 +4,7 @@
 #include "BitmapIntf.h"
 #include "RectItf.h"
 
-tTJSNI_ImageFunction::tTJSNI_ImageFunction() {}
+tTJSNI_ImageFunction::tTJSNI_ImageFunction() = default;
 
 tjs_error tTJSNI_ImageFunction::Construct(tjs_int numparams,
                                           tTJSVariant **param,

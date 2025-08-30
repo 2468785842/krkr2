@@ -337,7 +337,7 @@ void CRenderManager::FrameMove() {
         }
 
         // release all previous
-        for(std::deque<int>::iterator it = m_discard.begin();
+        for(auto it = m_discard.begin();
             it != m_discard.end();) {
             // renderer may want to keep the frame for postprocessing
             if(!m_pRenderer->NeedBuffer(*it) || !m_bRenderGUI) {

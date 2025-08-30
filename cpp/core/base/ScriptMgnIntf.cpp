@@ -1571,7 +1571,7 @@ tTJSNativeInstance *tTJSNC_Scripts::CreateNativeInstance() {
 // TVPCreateNativeClass_Scripts
 //---------------------------------------------------------------------------
 tTJSNativeClass *TVPCreateNativeClass_Scripts() {
-    tTJSNC_Scripts *cls = new tTJSNC_Scripts();
+    auto *cls = new tTJSNC_Scripts();
 
     // setup some platform-specific members
 

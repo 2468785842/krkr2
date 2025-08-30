@@ -125,7 +125,7 @@ public:
         y2 = bottom;
     };
 
-    bool PtInRect(const CPointGen<T> &point) const {
+    [[nodiscard]] bool PtInRect(const CPointGen<T> &point) const {
         if(x1 <= point.x && point.x <= x2 && y1 <= point.y && point.y <= y2)
             return true;
         return false;
@@ -171,23 +171,23 @@ public:
         return *this;
     };
 
-    inline bool IsEmpty() const XBMC_FORCE_INLINE {
+    [[nodiscard]] inline bool IsEmpty() const XBMC_FORCE_INLINE {
         return (x2 - x1) * (y2 - y1) == 0;
     };
 
-    inline CPointGen<T> P1() const XBMC_FORCE_INLINE {
+    [[nodiscard]] inline CPointGen<T> P1() const XBMC_FORCE_INLINE {
         return CPointGen<T>(x1, y1);
     }
 
-    inline CPointGen<T> P2() const XBMC_FORCE_INLINE {
+    [[nodiscard]] inline CPointGen<T> P2() const XBMC_FORCE_INLINE {
         return CPointGen<T>(x2, y2);
     }
 
-    inline T Width() const XBMC_FORCE_INLINE { return x2 - x1; };
+    [[nodiscard]] inline T Width() const XBMC_FORCE_INLINE { return x2 - x1; };
 
-    inline T Height() const XBMC_FORCE_INLINE { return y2 - y1; };
+    [[nodiscard]] inline T Height() const XBMC_FORCE_INLINE { return y2 - y1; };
 
-    inline T Area() const XBMC_FORCE_INLINE { return Width() * Height(); };
+    [[nodiscard]] inline T Area() const XBMC_FORCE_INLINE { return Width() * Height(); };
 
     std::vector<this_type> SubtractRect(this_type splitterRect) {
         std::vector<this_type> newRectaglesList;

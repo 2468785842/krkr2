@@ -8,7 +8,7 @@
 class FontRasterizer {
 
 public:
-    virtual ~FontRasterizer() {}
+    virtual ~FontRasterizer() = default;
     virtual void AddRef() = 0;
     virtual void Release() = 0;
     virtual void ApplyFont(class tTVPNativeBaseBitmap *bmp, bool force) = 0;

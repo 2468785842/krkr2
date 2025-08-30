@@ -18,7 +18,7 @@ std::string local_to_utf8(const std::string &local);
 std::string wstr_to_local(const std::wstring &wstr);
 class TVPListForm : public cocos2d::Node {
 public:
-    virtual ~TVPListForm();
+    ~TVPListForm() override;
     ;
     static TVPListForm *create(const std::vector<cocos2d::ui::Widget *> &cells);
 

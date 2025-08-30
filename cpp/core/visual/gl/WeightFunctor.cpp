@@ -12,8 +12,8 @@
 #define _USE_MATH_DEFINES
 #include "tjsCommHead.h"
 
-#include <float.h>
-#include <math.h>
+#include <cfloat>
+#include <cmath>
 #include <cmath>
 
 #include "WeightFunctor.h"

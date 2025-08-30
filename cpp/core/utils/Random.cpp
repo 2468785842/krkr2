@@ -24,7 +24,7 @@ tjs_int TVPRandomSeedPoolPos = 0;
 tjs_uint8 TVPRandomSeedAtom; // need not to initialize
 //---------------------------------------------------------------------------
 void TVPPushEnvironNoise(const void *buf, tjs_int bufsize) {
-    const tjs_uint8 *p = (const tjs_uint8 *)buf;
+    const auto *p = (const tjs_uint8 *)buf;
     for(int i = 0; i < bufsize; i++) {
         TVPRandomSeedPool[TVPRandomSeedPoolPos++] ^=
             (TVPRandomSeedAtom ^= p[i]);

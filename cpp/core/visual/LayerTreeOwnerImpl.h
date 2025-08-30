@@ -24,7 +24,7 @@ protected:
 
 protected:
     iTVPLayerManager *GetLayerManagerAt(size_t index);
-    const iTVPLayerManager *GetLayerManagerAt(size_t index) const;
+    [[nodiscard]] const iTVPLayerManager *GetLayerManagerAt(size_t index) const;
     bool TransformToPrimaryLayerManager(tjs_int &x, tjs_int &y);
     bool TransformToPrimaryLayerManager(tjs_real &x, tjs_real &y);
     bool TransformFromPrimaryLayerManager(tjs_int &x, tjs_int &y);
@@ -35,8 +35,8 @@ public:
     tTVPLayerTreeOwner();
 
     // LayerManager/Layer -> LTO
-    virtual void RegisterLayerManager(class iTVPLayerManager *manager);
-    virtual void UnregisterLayerManager(class iTVPLayerManager *manager);
+    void RegisterLayerManager(class iTVPLayerManager *manager) override;
+    void UnregisterLayerManager(class iTVPLayerManager *manager) override;
 
     /* 実際の描画
     virtual void
@@ -50,27 +50,27 @@ public:
     */
 
     // 以下は何もしない
-    virtual void SetMouseCursor(class iTVPLayerManager *manager,
-                                tjs_int cursor);
-    virtual void GetCursorPos(class iTVPLayerManager *manager, tjs_int &x,
-                              tjs_int &y);
-    virtual void SetCursorPos(class iTVPLayerManager *manager, tjs_int x,
-                              tjs_int y);
-    virtual void ReleaseMouseCapture(class iTVPLayerManager *manager);
+    void SetMouseCursor(class iTVPLayerManager *manager,
+                                tjs_int cursor) override;
+    void GetCursorPos(class iTVPLayerManager *manager, tjs_int &x,
+                              tjs_int &y) override;
+    void SetCursorPos(class iTVPLayerManager *manager, tjs_int x,
+                              tjs_int y) override;
+    void ReleaseMouseCapture(class iTVPLayerManager *manager) override;
 
-    virtual void SetHint(class iTVPLayerManager *manager, iTJSDispatch2 *sender,
-                         const ttstr &hint);
+    void SetHint(class iTVPLayerManager *manager, iTJSDispatch2 *sender,
+                         const ttstr &hint) override;
 
-    virtual void NotifyLayerResize(class iTVPLayerManager *manager);
-    virtual void NotifyLayerImageChange(class iTVPLayerManager *manager);
+    void NotifyLayerResize(class iTVPLayerManager *manager) override;
+    void NotifyLayerImageChange(class iTVPLayerManager *manager) override;
 
-    virtual void SetAttentionPoint(class iTVPLayerManager *manager,
+    void SetAttentionPoint(class iTVPLayerManager *manager,
                                    tTJSNI_BaseLayer *layer, tjs_int x,
-                                   tjs_int y);
-    virtual void DisableAttentionPoint(class iTVPLayerManager *manager);
+                                   tjs_int y) override;
+    void DisableAttentionPoint(class iTVPLayerManager *manager) override;
 
-    virtual void SetImeMode(class iTVPLayerManager *manager, tjs_int mode);
-    virtual void ResetImeMode(class iTVPLayerManager *manager);
+    void SetImeMode(class iTVPLayerManager *manager, tjs_int mode) override;
+    void ResetImeMode(class iTVPLayerManager *manager) override;
 
     // virtual iTJSDispatch2 * GetOwnerNoAddRef()
     // const = 0;

@@ -114,7 +114,7 @@ public:
     //! 最初の要素への参照が帰ってくる。要素がバッファ内に無いときは無効な要素
     //!			(アクセスできない要素)が帰ってくるので、事前にバッファ内に要素が1つ以上
     //!			存在することを確認すること。このメソッドは読み込みポインタを移動しない。
-    const T &GetFirst() const {
+    [[nodiscard]] const T &GetFirst() const {
         size_t pos = ReadPos;
         return Buffer[pos];
     }
@@ -124,7 +124,7 @@ public:
     //! @note
     //! n番目の要素への参照が帰ってくる。要素がバッファ内に無いときや範囲外の時
     //!			の動作は未定義である。このメソッドは読み込みポインタを移動しない。
-    const T &GetAt(size_t n) const {
+    [[nodiscard]] const T &GetAt(size_t n) const {
         size_t pos = ReadPos + n;
         while(pos >= Size)
             pos -= Size;

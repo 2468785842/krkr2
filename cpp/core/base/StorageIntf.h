@@ -299,7 +299,7 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance();
+    tTJSNativeInstance *CreateNativeInstance() override;
 };
 
 //---------------------------------------------------------------------------
@@ -312,9 +312,9 @@ protected:
 
     tTVPStorageMedia() : refCount(1) {}
 
-    virtual void AddRef() override { refCount++; }
+    void AddRef() override { refCount++; }
 
-    virtual void Release() override {
+    void Release() override {
         if(refCount == 1) {
             delete this;
         } else {
@@ -322,11 +322,11 @@ protected:
         }
     }
 
-    virtual void NormalizeDomainName(ttstr &name) override {}
+    void NormalizeDomainName(ttstr &name) override {}
 
-    virtual void NormalizePathName(ttstr &name) override {}
+    void NormalizePathName(ttstr &name) override {}
 
-    virtual void GetLocallyAccessibleName(ttstr &name) override {}
+    void GetLocallyAccessibleName(ttstr &name) override {}
 };
 
 class TArchiveStream : public tTJSBinaryStream {
@@ -338,9 +338,9 @@ class TArchiveStream : public tTJSBinaryStream {
 public:
     TArchiveStream(tTVPArchive *owner, tjs_uint64 off, tjs_uint64 len);
 
-    virtual ~TArchiveStream();
+    ~TArchiveStream() override;
 
-    virtual tjs_uint64 Seek(tjs_int64 offset, tjs_int whence) {
+    tjs_uint64 Seek(tjs_int64 offset, tjs_int whence) override {
         switch(whence) {
             case TJS_BS_SEEK_SET:
                 CurrentPos = offset;
@@ -362,7 +362,7 @@ public:
         return CurrentPos;
     }
 
-    virtual tjs_uint Read(void *buffer, tjs_uint read_size) {
+    tjs_uint Read(void *buffer, tjs_uint read_size) override {
         if(CurrentPos + read_size >= (tjs_int64)DataLength) {
             read_size = (tjs_uint)(DataLength - CurrentPos);
         }
@@ -374,11 +374,11 @@ public:
         return read_size;
     }
 
-    virtual tjs_uint Write(const void *buffer, tjs_uint write_size) {
+    tjs_uint Write(const void *buffer, tjs_uint write_size) override {
         return 0;
     }
 
-    virtual tjs_uint64 GetSize() { return DataLength; }
+    tjs_uint64 GetSize() override { return DataLength; }
 };
 
 #endif

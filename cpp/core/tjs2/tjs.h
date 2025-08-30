@@ -121,7 +121,7 @@ namespace TJS {
     public:
         iTJSDispatch2 *GetGlobal();
 
-        iTJSDispatch2 *GetGlobalNoAddRef() const;
+        [[nodiscard]] iTJSDispatch2 *GetGlobalNoAddRef() const;
 
         tTJSVariantArrayStack *GetVariantArrayStack() {
             return VariantArrayStack;
@@ -135,7 +135,7 @@ namespace TJS {
     public:
         void SetConsoleOutput(iTJSConsoleOutput *console);
 
-        iTJSConsoleOutput *GetConsoleOutput() const { return ConsoleOutput; };
+        [[nodiscard]] iTJSConsoleOutput *GetConsoleOutput() const { return ConsoleOutput; };
 
         void OutputToConsole(const tjs_char *msg) const;
 

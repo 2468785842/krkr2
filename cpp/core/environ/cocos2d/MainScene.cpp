@@ -408,7 +408,7 @@ public:
         }
     }
 
-    virtual ~TVPWindowLayer() {
+    ~TVPWindowLayer() override {
         if(_lastWindowLayer == this)
             _lastWindowLayer = _prevWindow;
         if(_nextWindow)
@@ -631,7 +631,7 @@ public:
         }
     }
 
-    virtual void onTouchEnded(Touch *touch, Event *unused_event) override {
+    void onTouchEnded(Touch *touch, Event *unused_event) override {
         if(_windowMgrOverlay)
             return inherit::onTouchEnded(touch, unused_event);
         auto touchIter = std::find(_touches.begin(), _touches.end(), touch);
@@ -672,7 +672,7 @@ public:
         }
     }
 
-    virtual void onTouchCancelled(Touch *touch, Event *unused_event) override {
+    void onTouchCancelled(Touch *touch, Event *unused_event) override {
         if(_windowMgrOverlay)
             return inherit::onTouchCancelled(touch, unused_event);
         auto touchIter = std::find(_touches.begin(), _touches.end(), touch);
@@ -746,22 +746,22 @@ public:
             TVPGetCurrentShiftKeyState()));
     }
 
-    virtual void SetPaintBoxSize(tjs_int w, tjs_int h) override {
+    void SetPaintBoxSize(tjs_int w, tjs_int h) override {
         LayerWidth = w;
         LayerHeight = h;
         RecalcPaintBox();
     }
 
-    virtual bool GetFormEnabled() override { return isVisible(); }
+    bool GetFormEnabled() override { return isVisible(); }
 
-    virtual void SetDefaultMouseCursor() override {}
+    void SetDefaultMouseCursor() override {}
 
-    virtual void GetCursorPos(tjs_int &x, tjs_int &y) override {
+    void GetCursorPos(tjs_int &x, tjs_int &y) override {
         x = _LastMouseX;
         y = _LastMouseY;
     }
 
-    virtual void SetCursorPos(tjs_int x, tjs_int y) override {
+    void SetCursorPos(tjs_int x, tjs_int y) override {
         Vec2 worldPt = PrimaryLayerArea->convertToWorldSpace(
             Vec2(x, PrimaryLayerArea->getContentSize().height - y));
         Vec2 pt = getParent()->convertToNodeSpace(worldPt);
@@ -773,16 +773,16 @@ public:
         }
     }
 
-    virtual void SetHintText(const ttstr &text) override {}
+    void SetHintText(const ttstr &text) override {}
 
     tjs_int _textInputPosY;
 
-    virtual void SetAttentionPoint(tjs_int left, tjs_int top,
+    void SetAttentionPoint(tjs_int left, tjs_int top,
                                    const struct tTVPFont *font) override {
         _textInputPosY = top;
     }
 
-    virtual void SetImeMode(tTVPImeMode mode) override {
+    void SetImeMode(tTVPImeMode mode) override {
         switch(mode) {
             case ::imDisable:
             case ::imClose:
@@ -813,7 +813,7 @@ public:
         }
     }
 
-    virtual void ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right,
+    void ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right,
                                tjs_int &bottom) override {
         left = tjs_int64(left) * ActualZoomNumer / ActualZoomDenom;
         top = tjs_int64(top) * ActualZoomNumer / ActualZoomDenom;
@@ -821,7 +821,7 @@ public:
         bottom = tjs_int64(bottom) * ActualZoomNumer / ActualZoomDenom;
     }
 
-    virtual void BringToFront() override {
+    void BringToFront() override {
         if(_currentWindowLayer != this) {
             if(_currentWindowLayer) {
                 const cocos2d::Size &size = _currentWindowLayer->getViewSize();
@@ -832,7 +832,7 @@ public:
         }
     }
 
-    virtual void ShowWindowAsModal() override {
+    void ShowWindowAsModal() override {
         in_mode_ = true;
         setVisible(true);
         BringToFront();
@@ -861,9 +861,9 @@ public:
         in_mode_ = false;
     }
 
-    virtual bool GetVisible() override { return isVisible(); }
+    bool GetVisible() override { return isVisible(); }
 
-    virtual void SetVisible(bool bVisible) override {
+    void SetVisible(bool bVisible) override {
         Visible = bVisible;
         setVisible(bVisible);
         if(bVisible) {
@@ -875,9 +875,9 @@ public:
         }
     }
 
-    virtual const char *GetCaption() override { return _caption.c_str(); }
+    const char *GetCaption() override { return _caption.c_str(); }
 
-    virtual void SetCaption(const std::string &s) override { _caption = s; }
+    void SetCaption(const std::string &s) override { _caption = s; }
 
     void ResetDrawSprite() {
         if(DrawSprite) {
@@ -933,44 +933,44 @@ public:
         updateInset();
     }
 
-    virtual void SetWidth(tjs_int w) override {
+    void SetWidth(tjs_int w) override {
         cocos2d::Size size = getContentSize();
         size.width = w;
         setContentSize(size);
         RecalcPaintBox();
     }
 
-    virtual void SetHeight(tjs_int h) override {
+    void SetHeight(tjs_int h) override {
         cocos2d::Size size = getContentSize();
         size.height = h;
         setContentSize(size);
         RecalcPaintBox();
     }
 
-    virtual void SetSize(tjs_int w, tjs_int h) override {
+    void SetSize(tjs_int w, tjs_int h) override {
         setContentSize(cocos2d::Size(w, h));
         RecalcPaintBox();
     }
 
-    virtual void GetSize(tjs_int &w, tjs_int &h) override {
+    void GetSize(tjs_int &w, tjs_int &h) override {
         cocos2d::Size size = getContentSize();
         w = size.width;
         h = size.height;
     }
 
-    virtual void GetWinSize(tjs_int &w, tjs_int &h) override {
+    void GetWinSize(tjs_int &w, tjs_int &h) override {
         cocos2d::Size size = getViewSize();
         w = size.width;
         h = size.height;
     }
 
-    virtual tjs_int GetWidth() const override { return getContentSize().width; }
+    tjs_int GetWidth() const override { return getContentSize().width; }
 
-    virtual tjs_int GetHeight() const override {
+    tjs_int GetHeight() const override {
         return getContentSize().height;
     }
 
-    virtual void SetZoom(tjs_int numer, tjs_int denom) override {
+    void SetZoom(tjs_int numer, tjs_int denom) override {
         AdjustNumerAndDenom(numer, denom);
         ZoomNumer = numer;
         ZoomDenom = denom;
@@ -979,7 +979,7 @@ public:
         RecalcPaintBox();
     }
 
-    virtual void UpdateDrawBuffer(iTVPTexture2D *tex) override {
+    void UpdateDrawBuffer(iTVPTexture2D *tex) override {
         if(!tex)
             return;
         //		iTVPRenderManager *mgr = TVPGetRenderManager();
@@ -1126,7 +1126,7 @@ public:
         relocateContainer(false);
     }
 
-    virtual void InvalidateClose() override {
+    void InvalidateClose() override {
         // closing action by object invalidation;
         // this will not cause any user confirmation of closing the
         // window.
@@ -1135,7 +1135,7 @@ public:
         this->removeFromParent(); // and delete this
     }
 
-    virtual bool GetWindowActive() override {
+    bool GetWindowActive() override {
         return _currentWindowLayer == this;
     }
 
@@ -1372,11 +1372,11 @@ public:
     tTVPImeMode LastSetImeMode = ::imDisable;
     tTVPImeMode DefaultImeMode = ::imDisable;
 
-    virtual tTVPImeMode GetDefaultImeMode() const override {
+    tTVPImeMode GetDefaultImeMode() const override {
         return DefaultImeMode;
     }
 
-    virtual void ResetImeMode() override { SetImeMode(DefaultImeMode); }
+    void ResetImeMode() override { SetImeMode(DefaultImeMode); }
 
     bool Closing = false, ProgramClosing = false, CanCloseWork = false;
     bool in_mode_ = false; // is modal

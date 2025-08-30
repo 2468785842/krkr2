@@ -26,7 +26,7 @@ private: // ÉÜÅ[ÉUÅ[êÈåæ
     uint32_t LastShowModalWindowSentTick;
     uint32_t LastRehashedTick;
 
-    uint32_t MixedIdleTick;
+    uint32_t MixedIdleTick{};
 
     TVPTimer SystemWatchTimer;
 
@@ -43,7 +43,7 @@ public:
     void NotifyEventDelivered();
 
     void SetEventEnabled(bool b) { EventEnable = b; }
-    bool GetEventEnabled() const { return EventEnable; }
+    [[nodiscard]] bool GetEventEnabled() const { return EventEnable; }
 
     bool ApplicationIdle();
 

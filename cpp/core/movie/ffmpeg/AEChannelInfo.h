@@ -17,7 +17,7 @@ public:
 
     CAEChannelInfo(const enum AEChannel *rhs);
 
-    CAEChannelInfo(const enum AEStdChLayout rhs);
+    CAEChannelInfo(enum AEStdChLayout rhs);
 
     ~CAEChannelInfo();
 
@@ -25,7 +25,7 @@ public:
 
     CAEChannelInfo &operator=(const enum AEChannel *rhs);
 
-    CAEChannelInfo &operator=(const enum AEStdChLayout rhs);
+    CAEChannelInfo &operator=(enum AEStdChLayout rhs);
 
     bool operator==(const CAEChannelInfo &rhs) const;
 
@@ -35,7 +35,7 @@ public:
 
     CAEChannelInfo &operator-=(const enum AEChannel &rhs);
 
-    const enum AEChannel operator[](unsigned int i) const;
+    enum AEChannel operator[](unsigned int i) const;
 
     operator std::string() const;
 
@@ -44,15 +44,15 @@ public:
 
     void Reset();
 
-    inline unsigned int Count() const { return m_channelCount; }
+    [[nodiscard]] inline unsigned int Count() const { return m_channelCount; }
 
-    static const char *GetChName(const enum AEChannel ch);
+    static const char *GetChName(enum AEChannel ch);
 
-    bool HasChannel(const enum AEChannel ch) const;
+    [[nodiscard]] bool HasChannel(enum AEChannel ch) const;
 
-    bool ContainsChannels(const CAEChannelInfo &rhs) const;
+    [[nodiscard]] bool ContainsChannels(const CAEChannelInfo &rhs) const;
 
-    void ReplaceChannel(const enum AEChannel from, const enum AEChannel to);
+    void ReplaceChannel(enum AEChannel from, enum AEChannel to);
 
     int BestMatch(const std::vector<CAEChannelInfo> &dsts,
                   int *score = nullptr) const;

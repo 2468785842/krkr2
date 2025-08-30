@@ -54,9 +54,9 @@ extern tTVPJoyPadDetectionType TVPJoyPadDetectionType; // = jdtDirectInput;
 // tTVPKeyRepeatEmulator : A class for emulating keyboard key repeats.
 //---------------------------------------------------------------------------
 class tTVPKeyRepeatEmulator {
-    tjs_uint32 PressedTick;
+    tjs_uint32 PressedTick{};
     bool Pressed;
-    tjs_int LastRepeatCount;
+    tjs_int LastRepeatCount{};
 
     static tjs_int HoldTime; // keyboard key-repeats hold-time
     static tjs_int IntervalTime; // keyboard key-repeats interval-time
@@ -77,7 +77,7 @@ class tTVPKeyRepeatEmulator {
 
 public:
     tTVPKeyRepeatEmulator();
-    ~tTVPKeyRepeatEmulator();
+    ~tTVPKeyRepeatEmulator() = default;
 
     void Down();
     void Up();
@@ -113,7 +113,7 @@ public:
 class tTVPWheelDirectInputDevice : public tTVPDirectInputDevice {
 public:
     tTVPWheelDirectInputDevice(int window);
-    ~tTVPWheelDirectInputDevice();
+    ~tTVPWheelDirectInputDevice() override;
 
     tjs_int GetWheelDelta();
 };
@@ -137,7 +137,7 @@ class tTVPPadDirectInputDevice : public tTVPDirectInputDevice {
 
 public:
     tTVPPadDirectInputDevice(int window);
-    ~tTVPPadDirectInputDevice();
+    ~tTVPPadDirectInputDevice() override;
 
 private:
     static bool CALLBACK EnumJoySticksCallback(LPCDIDEVICEINSTANCE lpddi,
@@ -153,9 +153,9 @@ public:
     void WindowActivated();
     void WindowDeactivated();
 
-    const std::vector<tjs_uint16> &GetUppedKeys() const { return UppedKeys; }
-    const std::vector<tjs_uint16> &GetDownedKeys() const { return DownedKeys; }
-    const std::vector<tjs_uint16> &GetRepeatKeys() const { return RepeatKeys; }
+    [[nodiscard]] const std::vector<tjs_uint16> &GetUppedKeys() const { return UppedKeys; }
+    [[nodiscard]] const std::vector<tjs_uint16> &GetDownedKeys() const { return DownedKeys; }
+    [[nodiscard]] const std::vector<tjs_uint16> &GetRepeatKeys() const { return RepeatKeys; }
 
 private:
     tjs_uint32 GetState();

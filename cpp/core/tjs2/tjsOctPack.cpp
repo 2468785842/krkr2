@@ -772,10 +772,8 @@ namespace TJS {
                         len = tail - current;
                     std::vector<tjs_int8> ret;
                     BinToNumber<tjs_int8, 1>(ret, current, tail, (tjs_uint)len);
-                    for(std::vector<tjs_int8>::const_iterator iter =
-                            ret.begin();
-                        iter != ret.end(); iter++) {
-                        result->Add(ni, tTJSVariant((tjs_int)*iter));
+                    for(signed char iter : ret) {
+                        result->Add(ni, tTJSVariant((tjs_int)iter));
                     }
                     current += len;
                     break;
@@ -787,10 +785,8 @@ namespace TJS {
                     std::vector<tjs_uint8> ret;
                     BinToNumber<tjs_uint8, 1>(ret, current, tail,
                                               (tjs_uint)len);
-                    for(std::vector<tjs_uint8>::const_iterator iter =
-                            ret.begin();
-                        iter != ret.end(); iter++) {
-                        result->Add(ni, tTJSVariant((tjs_int)*iter));
+                    for(unsigned char iter : ret) {
+                        result->Add(ni, tTJSVariant((tjs_int)iter));
                     }
                     current += len;
                     break;
@@ -801,10 +797,8 @@ namespace TJS {
                     std::vector<tjs_real> ret;
                     BinToReal<tjs_real, tjs_uint64, 8>(ret, current, tail,
                                                        (tjs_uint)len);
-                    for(std::vector<tjs_real>::const_iterator iter =
-                            ret.begin();
-                        iter != ret.end(); iter++) {
-                        result->Add(ni, tTJSVariant((tjs_real)*iter));
+                    for(double iter : ret) {
+                        result->Add(ni, tTJSVariant((tjs_real)iter));
                     }
                     current += len * 8;
                     break;
@@ -815,9 +809,8 @@ namespace TJS {
                     std::vector<float> ret;
                     BinToReal<float, tjs_uint32, 4>(ret, current, tail,
                                                     (tjs_uint)len);
-                    for(std::vector<float>::const_iterator iter = ret.begin();
-                        iter != ret.end(); iter++) {
-                        result->Add(ni, tTJSVariant((tjs_real)*iter));
+                    for(float iter : ret) {
+                        result->Add(ni, tTJSVariant((tjs_real)iter));
                     }
                     current += len * 4;
                     break;
@@ -849,9 +842,8 @@ namespace TJS {
                         len = (tail - current) / 4;
                     std::vector<tjs_int> ret;
                     BinToNumber<tjs_int, 4>(ret, current, tail, (tjs_uint)len);
-                    for(std::vector<tjs_int>::const_iterator iter = ret.begin();
-                        iter != ret.end(); iter++) {
-                        result->Add(ni, tTJSVariant((tjs_int)*iter));
+                    for(int iter : ret) {
+                        result->Add(ni, tTJSVariant((tjs_int)iter));
                     }
                     current += len * 4;
                     break;
@@ -863,10 +855,8 @@ namespace TJS {
                         len = (tail - current) / 4;
                     std::vector<tjs_uint> ret;
                     BinToNumber<tjs_uint, 4>(ret, current, tail, (tjs_uint)len);
-                    for(std::vector<tjs_uint>::const_iterator iter =
-                            ret.begin();
-                        iter != ret.end(); iter++) {
-                        result->Add(ni, tTJSVariant((tjs_int64)*iter));
+                    for(unsigned int iter : ret) {
+                        result->Add(ni, tTJSVariant((tjs_int64)iter));
                     }
                     current += len * 4;
                     break;
@@ -879,10 +869,8 @@ namespace TJS {
                     std::vector<tjs_uint16> ret;
                     BinToNumberBE<tjs_uint16, 2>(ret, current, tail,
                                                  (tjs_uint)len);
-                    for(std::vector<tjs_uint16>::const_iterator iter =
-                            ret.begin();
-                        iter != ret.end(); iter++) {
-                        result->Add(ni, tTJSVariant((tjs_int)*iter));
+                    for(unsigned short iter : ret) {
+                        result->Add(ni, tTJSVariant((tjs_int)iter));
                     }
                     current += len * 2;
                     break;
@@ -895,10 +883,8 @@ namespace TJS {
                     std::vector<tjs_uint> ret;
                     BinToNumberBE<tjs_uint, 4>(ret, current, tail,
                                                (tjs_uint)len);
-                    for(std::vector<tjs_uint>::const_iterator iter =
-                            ret.begin();
-                        iter != ret.end(); iter++) {
-                        result->Add(ni, tTJSVariant((tjs_int64)*iter));
+                    for(unsigned int iter : ret) {
+                        result->Add(ni, tTJSVariant((tjs_int64)iter));
                     }
                     current += len * 4;
                     break;
@@ -920,10 +906,8 @@ namespace TJS {
                     std::vector<tjs_int16> ret;
                     BinToNumber<tjs_int16, 2>(ret, current, tail,
                                               (tjs_uint)len);
-                    for(std::vector<tjs_int16>::const_iterator iter =
-                            ret.begin();
-                        iter != ret.end(); iter++) {
-                        result->Add(ni, tTJSVariant((tjs_int)*iter));
+                    for(short iter : ret) {
+                        result->Add(ni, tTJSVariant((tjs_int)iter));
                     }
                     current += len * 2;
                     break;
@@ -936,10 +920,8 @@ namespace TJS {
                     std::vector<tjs_uint16> ret;
                     BinToNumber<tjs_uint16, 2>(ret, current, tail,
                                                (tjs_uint)len);
-                    for(std::vector<tjs_uint16>::const_iterator iter =
-                            ret.begin();
-                        iter != ret.end(); iter++) {
-                        result->Add(ni, tTJSVariant((tjs_int)*iter));
+                    for(unsigned short iter : ret) {
+                        result->Add(ni, tTJSVariant((tjs_int)iter));
                     }
                     current += len * 2;
                     break;
@@ -952,10 +934,8 @@ namespace TJS {
                     std::vector<tjs_uint16> ret;
                     BinToNumberLE<tjs_uint16, 2>(ret, current, tail,
                                                  (tjs_uint)len);
-                    for(std::vector<tjs_uint16>::const_iterator iter =
-                            ret.begin();
-                        iter != ret.end(); iter++) {
-                        result->Add(ni, tTJSVariant((tjs_int)*iter));
+                    for(unsigned short iter : ret) {
+                        result->Add(ni, tTJSVariant((tjs_int)iter));
                     }
                     current += len * 2;
                     break;
@@ -968,10 +948,8 @@ namespace TJS {
                     std::vector<tjs_uint> ret;
                     BinToNumberLE<tjs_uint, 4>(ret, current, tail,
                                                (tjs_uint)len);
-                    for(std::vector<tjs_uint>::const_iterator iter =
-                            ret.begin();
-                        iter != ret.end(); iter++) {
-                        result->Add(ni, tTJSVariant((tjs_int64)*iter));
+                    for(unsigned int iter : ret) {
+                        result->Add(ni, tTJSVariant((tjs_int64)iter));
                     }
                     current += len * 4;
                     break;

@@ -31,7 +31,7 @@
  *http://www.dspguru.com/comp.dsp/tricks/alg/fxdatan2.htm
  */
 static inline float VFast_arctan2(float y, float x) {
-    static const float coeff_1 = (float)(M_PI / 4);
+    static const auto coeff_1 = (float)(M_PI / 4);
     static const float coeff_2 = 3 * coeff_1;
     float angle;
     float abs_y = fabs(y) + (float)1e-10; // kludge to prevent 0/0 condition
@@ -154,7 +154,7 @@ static inline float WrapPi_F1(float v) {
  */
 void DeinterleaveApplyingWindow(float *__restrict dest[],
                                 const float *__restrict src,
-                                float *__restrict win, int numch,
+                                const float *__restrict win, int numch,
                                 size_t destofs, size_t len);
 //---------------------------------------------------------------------------
 
@@ -172,7 +172,7 @@ void DeinterleaveApplyingWindow(float *__restrict dest[],
  */
 void InterleaveOverlappingWindow(float *__restrict dest,
                                  const float *__restrict const *__restrict src,
-                                 float *__restrict win, int numch,
+                                 const float *__restrict win, int numch,
                                  size_t srcofs, size_t len);
 //---------------------------------------------------------------------------
 

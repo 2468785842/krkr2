@@ -28,12 +28,12 @@ class tTJSNI_PhaseVocoder : public tTJSNativeInstance,
 public:
     tTJSNI_PhaseVocoder();
 
-    ~tTJSNI_PhaseVocoder();
+    ~tTJSNI_PhaseVocoder() override;
 
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
+                        iTJSDispatch2 *tjs_obj) override;
 
-    void Invalidate();
+    void Invalidate() override;
 
 private:
     int Window; // window size
@@ -42,29 +42,29 @@ private:
     float Time; // time scale
 
 public:
-    int GetWindow() const { return Window; }
+    [[nodiscard]] int GetWindow() const { return Window; }
 
     void SetWindow(int window);
 
-    int GetOverlap() const { return Overlap; }
+    [[nodiscard]] int GetOverlap() const { return Overlap; }
 
     void SetOverlap(int overlap);
 
-    float GetPitch() const { return Pitch; }
+    [[nodiscard]] float GetPitch() const { return Pitch; }
 
     void SetPitch(float pitch) { Pitch = pitch; }
 
-    float GetTime() const { return Time; }
+    [[nodiscard]] float GetTime() const { return Time; }
 
     void SetTime(float time) { Time = time; }
 
 private:
-    tTVPSampleAndLabelSource *Recreate(tTVPSampleAndLabelSource *source);
+    tTVPSampleAndLabelSource *Recreate(tTVPSampleAndLabelSource *source) override;
 
     // from iTVPBasicWaveFilter
-    void Clear(); // from iTVPBasicWaveFilter
-    void Reset(); // from iTVPBasicWaveFilter
-    void Update(); // from iTVPBasicWaveFilter
+    void Clear() override; // from iTVPBasicWaveFilter
+    void Reset() override; // from iTVPBasicWaveFilter
+    void Update() override; // from iTVPBasicWaveFilter
 
 private:
     tTVPSampleAndLabelSource *Source; // source filter
@@ -85,9 +85,9 @@ private:
 
     void
     Decode(void *dest, tjs_uint samples, tjs_uint &written,
-           tTVPWaveSegmentQueue &segments); // from tTVPSampleAndLabelSource
+           tTVPWaveSegmentQueue &segments) override; // from tTVPSampleAndLabelSource
 
-    const tTVPWaveFormat &GetFormat() const { return OutputFormat; }
+    [[nodiscard]] const tTVPWaveFormat &GetFormat() const override { return OutputFormat; }
     // from tTVPSampleAndLabelSource
 };
 //---------------------------------------------------------------------------
@@ -102,7 +102,7 @@ public:
     static tjs_uint32 ClassID;
 
 private:
-    iTJSNativeInstance *CreateNativeInstance();
+    iTJSNativeInstance *CreateNativeInstance() override;
 };
 //---------------------------------------------------------------------------
 

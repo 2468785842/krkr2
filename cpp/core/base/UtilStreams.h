@@ -30,7 +30,7 @@ public:
 
     tTJSBinaryStream *operator->() const { return Stream; }
 
-    tTJSBinaryStream *Get() const { return Stream; }
+    [[nodiscard]] tTJSBinaryStream *Get() const { return Stream; }
 
     void Close() {
         if(Stream) {
@@ -65,9 +65,9 @@ public:
 
     ~tTVPLocalTempStorageHolder();
 
-    bool IsTemporaryFile() const { return FileMustBeDeleted; }
+    [[nodiscard]] bool IsTemporaryFile() const { return FileMustBeDeleted; }
 
-    const ttstr &GetLocalName() const { return LocalName; }
+    [[nodiscard]] const ttstr &GetLocalName() const { return LocalName; }
 };
 //---------------------------------------------------------------------------
 
@@ -104,7 +104,7 @@ public:
     tjs_uint64 GetSize() override { return Size; }
 
     // non-tTJSBinaryStream based methods
-    void *GetInternalBuffer() const { return Block; }
+    [[nodiscard]] void *GetInternalBuffer() const { return Block; }
 
     void Clear();
 
@@ -173,7 +173,7 @@ protected:
 public:
     bool StopRequired = false;
 
-    virtual ~iTVPUnpackArchiveImpl() {}
+    virtual ~iTVPUnpackArchiveImpl() = default;
 
     void SetCallback(const tTVPUnpackArchiveCallbacks *cb) { _callbacks = cb; }
 

@@ -265,10 +265,10 @@ namespace TJS {
                         vdata[i] = (iTJSDispatch2 *)nullptr;
                         break;
                     case TYPE_INTER_OBJECT:
-                        work.push_back(VariantRepalace(&(vdata[i]), index));
+                        work.emplace_back(&(vdata[i]), index);
                         break;
                     case TYPE_INTER_GENERATOR:
-                        work.push_back(VariantRepalace(&(vdata[i]), index));
+                        work.emplace_back(&(vdata[i]), index);
                         break;
                     case TYPE_STRING:
                         vdata[i] = StringArray[index].c_str(); // tTJSString

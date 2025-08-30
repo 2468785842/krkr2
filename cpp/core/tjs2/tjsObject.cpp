@@ -267,7 +267,7 @@ namespace TJS {
 
         tjs_error PropGet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, tTJSVariant *result,
-                          iTJSDispatch2 *objthis) {
+                          iTJSDispatch2 *objthis) override {
             if(membername)
                 return TJS_E_MEMBERNOTFOUND;
             if(result)
@@ -277,7 +277,7 @@ namespace TJS {
 
         tjs_error PropSet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, const tTJSVariant *param,
-                          iTJSDispatch2 *objthis) {
+                          iTJSDispatch2 *objthis) override {
             if(membername)
                 return TJS_E_MEMBERNOTFOUND;
             Value = *param;
@@ -286,7 +286,7 @@ namespace TJS {
 
         tjs_error PropSetByVS(tjs_uint32 flag, tTJSVariantString *membername,
                               const tTJSVariant *param,
-                              iTJSDispatch2 *objthis) {
+                              iTJSDispatch2 *objthis) override {
             if(membername)
                 return TJS_E_MEMBERNOTFOUND;
             Value = *param;

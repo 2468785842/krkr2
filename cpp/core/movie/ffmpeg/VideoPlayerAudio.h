@@ -17,61 +17,61 @@ public:
     CVideoPlayerAudio(CDVDClock *pClock, CDVDMessageQueue &parent,
                       CProcessInfo &processInfo);
 
-    virtual ~CVideoPlayerAudio();
+    ~CVideoPlayerAudio() override;
 
-    bool OpenStream(CDVDStreamInfo &hints);
+    bool OpenStream(CDVDStreamInfo &hints) override;
 
-    void CloseStream(bool bWaitForBuffers);
+    void CloseStream(bool bWaitForBuffers) override;
 
-    void SetSpeed(int speed);
+    void SetSpeed(int speed) override;
 
-    void Flush(bool sync);
+    void Flush(bool sync) override;
 
     // waits until all available data has been rendered
-    bool AcceptsData();
+    bool AcceptsData() override;
 
-    bool HasData() const { return m_messageQueue.GetDataSize() > 0; }
+    bool HasData() const override { return m_messageQueue.GetDataSize() > 0; }
 
-    int GetLevel() { return m_messageQueue.GetLevel(); }
+    int GetLevel() override { return m_messageQueue.GetLevel(); }
 
-    bool IsInited() const { return m_messageQueue.IsInited(); }
+    bool IsInited() const override { return m_messageQueue.IsInited(); }
 
-    void SendMessage(CDVDMsg *pMsg, int priority = 0) {
+    void SendMessage(CDVDMsg *pMsg, int priority = 0) override {
         m_messageQueue.Put(pMsg, priority);
     }
 
-    void FlushMessages() { m_messageQueue.Flush(); }
+    void FlushMessages() override { m_messageQueue.Flush(); }
 
     //	void SetDynamicRangeCompression(long drc)             {
     // m_dvdAudio.SetDynamicRangeCompression(drc); }
-    float GetDynamicRangeAmplification() const { return 0.0f; }
+    float GetDynamicRangeAmplification() const override { return 0.0f; }
 
-    std::string GetPlayerInfo();
+    std::string GetPlayerInfo() override;
 
-    int GetAudioBitrate();
+    int GetAudioBitrate() override;
 
-    int GetAudioChannels();
+    int GetAudioChannels() override;
 
     // holds stream information for current playing stream
     CDVDStreamInfo m_streaminfo;
 
-    double GetCurrentPts() {
+    double GetCurrentPts() override {
         CSingleLock lock(m_info_section);
         return m_info.pts;
     }
 
-    bool IsStalled() const { return m_stalled; }
+    bool IsStalled() const override { return m_stalled; }
 
     bool IsPassthrough() override;
 
-    virtual CDVDAudio *GetOutputDevice() override { return &m_dvdAudio; }
+    CDVDAudio *GetOutputDevice() override { return &m_dvdAudio; }
 
 protected:
-    virtual void OnStartup();
+    void OnStartup() override;
 
-    virtual void OnExit();
+    void OnExit() override;
 
-    virtual void Process();
+    void Process() override;
 
     void UpdatePlayerInfo();
 

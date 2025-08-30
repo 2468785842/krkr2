@@ -261,7 +261,7 @@ namespace TJS {
         tjs_int align = 1 << align_bits;
         void *ptr = (void *)(new tjs_uint8[bytes + align + sizeof(void *)]);
         void *org_ptr = ptr;
-        tTJSPointerSizedInteger::type *iptr =
+        auto *iptr =
             reinterpret_cast<tTJSPointerSizedInteger::type *>(&ptr);
         *iptr += align + sizeof(void *);
         *iptr &= ~(tTJSPointerSizedInteger::type)(align - 1);
@@ -279,7 +279,7 @@ namespace TJS {
     // floating-point class checker
     //---------------------------------------------------------------------------
     tjs_uint32 TJSGetFPClass(tjs_real r) {
-        tjs_uint64 *ui64 = (tjs_uint64 *)&r;
+        auto *ui64 = (tjs_uint64 *)&r;
 
         if(TJS_IEEE_D_IS_NaN(*ui64)) {
             if(TJS_IEEE_D_SIGN_MASK & *ui64)

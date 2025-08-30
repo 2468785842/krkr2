@@ -3,7 +3,7 @@
 
 using namespace cocos2d;
 
-TVPConsoleWindow::TVPConsoleWindow() {}
+TVPConsoleWindow::TVPConsoleWindow() = default;
 
 TVPConsoleWindow *TVPConsoleWindow::create(int fontSize,
                                            cocos2d::Node *parent) {

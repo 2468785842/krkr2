@@ -422,7 +422,7 @@ ttstr TVPGetLastLog(tjs_uint n) {
         return TJS_W(""); // log system is shuttingdown
 
     tjs_uint len = 0;
-    tjs_uint size = (tjs_uint)TVPLogDeque->size();
+    auto size = (tjs_uint)TVPLogDeque->size();
     if(n > size)
         n = size;
     if(n == 0)

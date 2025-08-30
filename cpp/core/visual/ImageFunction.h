@@ -14,8 +14,8 @@ class tTJSNI_ImageFunction : public tTJSNativeInstance {
 public:
     tTJSNI_ImageFunction();
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
 };
 
 class tTJSNC_ImageFunction : public tTJSNativeClass {
@@ -26,7 +26,7 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance();
+    tTJSNativeInstance *CreateNativeInstance() override;
 
     static tTVPBBBltMethod
     GetBltMethodFromOperationMode(tTVPBlendOperationMode mode,

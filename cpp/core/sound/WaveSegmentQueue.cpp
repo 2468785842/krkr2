@@ -62,9 +62,8 @@ void tTVPWaveSegmentQueue::Enqueue(const tTVPWaveLabel &Label) {
 void tTVPWaveSegmentQueue::Enqueue(
     const std::deque<tTVPWaveSegment> &segments) {
     // segment の追加
-    for(std::deque<tTVPWaveSegment>::const_iterator i = segments.begin();
-        i != segments.end(); i++)
-        Enqueue(*i);
+    for(const auto & segment : segments)
+        Enqueue(segment);
 }
 //---------------------------------------------------------------------------
 
@@ -74,9 +73,7 @@ void tTVPWaveSegmentQueue::Enqueue(const std::deque<tTVPWaveLabel> &Labels) {
     tjs_int64 Label_offset = GetFilteredLength();
 
     // Label の追加
-    for(std::deque<tTVPWaveLabel>::const_iterator i = Labels.begin();
-        i != Labels.end(); i++) {
-        tTVPWaveLabel one_Label(*i);
+    for(auto one_Label : Labels) {
         one_Label.Offset += static_cast<tjs_int>(Label_offset); // offset の修正
         Enqueue(one_Label);
     }
@@ -128,16 +125,15 @@ void tTVPWaveSegmentQueue::Dequeue(tTVPWaveSegmentQueue &dest,
 
     // Labels を切り出す
     size_t Labels_to_dequeue = 0;
-    for(std::deque<tTVPWaveLabel>::iterator i = Labels.begin();
-        i != Labels.end(); i++) {
-        tjs_int64 newoffset = i->Offset - length;
+    for(auto & Label : Labels) {
+        tjs_int64 newoffset = Label.Offset - length;
         if(newoffset < 0) {
             // newoffset が負 なので dest に入れる
-            dest.Enqueue(*i);
+            dest.Enqueue(Label);
             Labels_to_dequeue++; // あとで dequeue
         } else {
             // *i のオフセットを修正
-            i->Offset = static_cast<tjs_int>(newoffset);
+            Label.Offset = static_cast<tjs_int>(newoffset);
         }
     }
 
@@ -150,9 +146,8 @@ void tTVPWaveSegmentQueue::Dequeue(tTVPWaveSegmentQueue &dest,
 tjs_int64 tTVPWaveSegmentQueue::GetFilteredLength() const {
     // キューの長さは すべての Segments のFilteredLengthの合計
     tjs_int64 length = 0;
-    for(std::deque<tTVPWaveSegment>::const_iterator i = Segments.begin();
-        i != Segments.end(); i++)
-        length += i->FilteredLength;
+    for(const auto & Segment : Segments)
+        length += Segment.FilteredLength;
 
     return length;
 }
@@ -170,10 +165,9 @@ void tTVPWaveSegmentQueue::Scale(tjs_int64 new_total_filtered_length) {
     tjs_int64 offset_was = 0; // 変化前のオフセット
     tjs_int64 offset_is = 0; // 変化後のオフセット
 
-    for(std::deque<tTVPWaveSegment>::iterator i = Segments.begin();
-        i != Segments.end(); i++) {
-        tjs_int64 old_end = offset_was + i->FilteredLength;
-        offset_was += i->FilteredLength;
+    for(auto & Segment : Segments) {
+        tjs_int64 old_end = offset_was + Segment.FilteredLength;
+        offset_was += Segment.FilteredLength;
 
         // old_end は全体から見てどの位置にある？
         double ratio = static_cast<double>(old_end) /
@@ -184,9 +178,9 @@ void tTVPWaveSegmentQueue::Scale(tjs_int64 new_total_filtered_length) {
             static_cast<tjs_int64>(ratio * new_total_filtered_length);
 
         // FilteredLength の修正
-        i->FilteredLength = new_end - offset_is;
+        Segment.FilteredLength = new_end - offset_is;
 
-        offset_is += i->FilteredLength;
+        offset_is += Segment.FilteredLength;
     }
 
     // からっぽのSegments の除去
@@ -200,9 +194,8 @@ void tTVPWaveSegmentQueue::Scale(tjs_int64 new_total_filtered_length) {
 
     // Labels の修正
     double ratio = (double)new_total_filtered_length / (double)total_length_was;
-    for(std::deque<tTVPWaveLabel>::iterator i = Labels.begin();
-        i != Labels.end(); i++) {
-        i->Offset = static_cast<tjs_int64>(i->Offset * ratio);
+    for(auto & Label : Labels) {
+        Label.Offset = static_cast<tjs_int64>(Label.Offset * ratio);
     }
 }
 //---------------------------------------------------------------------------
@@ -213,17 +206,16 @@ tTVPWaveSegmentQueue::FilteredPositionToDecodePosition(tjs_int64 pos) const {
     // Segments の修正
     tjs_int64 offset_filtered = 0;
 
-    for(std::deque<tTVPWaveSegment>::const_iterator i = Segments.begin();
-        i != Segments.end(); i++) {
+    for(const auto & Segment : Segments) {
         if(offset_filtered <= pos &&
-           pos < offset_filtered + i->FilteredLength) {
+           pos < offset_filtered + Segment.FilteredLength) {
             // 対応する区間が見つかったので線形で補完して返す
-            return (tjs_int64)(i->Start +
-                               (pos - offset_filtered) * (double)i->Length /
-                                   (double)i->FilteredLength);
+            return (tjs_int64)(Segment.Start +
+                               (pos - offset_filtered) * (double)Segment.Length /
+                                   (double)Segment.FilteredLength);
         }
 
-        offset_filtered += i->FilteredLength;
+        offset_filtered += Segment.FilteredLength;
     }
 
     // 対応する区間が見つからないので、明らかに負であれば 0 を、

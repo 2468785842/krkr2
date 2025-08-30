@@ -226,7 +226,7 @@ extern void TVPLoadHeaderBPG(void *formatdata, tTJSBinaryStream *src,
 // Image saving handler
 //---------------------------------------------------------------------------
 extern void TVPSaveAsBMP(void *formatdata, tTJSBinaryStream *dst,
-                         const iTVPBaseBitmap *image, const ttstr &mode,
+                         const iTVPBaseBitmap *bmp, const ttstr &mode,
                          iTJSDispatch2 *meta);
 extern void TVPSaveAsPNG(void *formatdata, tTJSBinaryStream *dst,
                          const iTVPBaseBitmap *image, const ttstr &mode,

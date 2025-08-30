@@ -54,7 +54,7 @@ namespace TJS {
         double rand_double(); /* generates a random number on [0,1)
                                  with IEEE 64-bit double precision */
 
-        const tTJSMersenneTwisterData &GetData() const { return *this; }
+        [[nodiscard]] const tTJSMersenneTwisterData &GetData() const { return *this; }
 
         /* retrieve data */
         void SetData(const tTJSMersenneTwisterData &rhs);

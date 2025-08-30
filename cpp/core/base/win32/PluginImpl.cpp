@@ -916,7 +916,7 @@ bool TVPGetFileVersionOf(const wchar_t* module_filename, tjs_int &major, tjs_int
 // TVPCreateNativeClass_Plugins
 //---------------------------------------------------------------------------
 tTJSNativeClass *TVPCreateNativeClass_Plugins() {
-    tTJSNC_Plugins *cls = new tTJSNC_Plugins();
+    auto *cls = new tTJSNC_Plugins();
 
     // setup some platform-specific members
     //---------------------------------------------------------------------------
@@ -960,7 +960,7 @@ tTJSNativeClass *TVPCreateNativeClass_Plugins() {
         iTJSDispatch2 *array = TJSCreateArrayObject();
         try {
             tjs_int idx = 0;
-            for(ttstr name : TVPRegisteredPlugins) {
+            for(const ttstr& name : TVPRegisteredPlugins) {
                 tTJSVariant val(name);
                 array->PropSetByNum(TJS_MEMBERENSURE, idx++, &val, array);
             }

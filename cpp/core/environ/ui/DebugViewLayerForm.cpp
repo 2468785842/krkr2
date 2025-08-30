@@ -20,7 +20,7 @@ public:
         return ret;
     }
 
-    virtual bool init() override {
+    bool init() override {
         TableViewCell::init();
         _bottomLine = LayerColor::create(Color4B::WHITE, 100, 1);
         addChild(_bottomLine);
@@ -36,7 +36,7 @@ public:
         return true;
     }
 
-    virtual void setContentSize(const cocos2d::Size &contentSize) override {
+    void setContentSize(const cocos2d::Size &contentSize) override {
         TableViewCell::setContentSize(contentSize);
         _bottomLine->setContentSize(Size(contentSize.width, 2));
     }

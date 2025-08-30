@@ -140,20 +140,20 @@ public:
         }
     }
 
-    virtual ~tTVPSoundBuffer();
+    ~tTVPSoundBuffer() override;
 
-    virtual void Release() override { delete this; }
+    void Release() override { delete this; }
 
-    virtual void Play() override { _playing = true; }
+    void Play() override { _playing = true; }
 
-    virtual void Pause() override { _playing = false; }
+    void Pause() override { _playing = false; }
 
-    virtual void Stop() override {
+    void Stop() override {
         _playing = false;
         Reset();
     }
 
-    virtual void Reset() override {
+    void Reset() override {
         std::lock_guard<std::mutex> lk(_buffer_mtx);
         _buffers.clear();
         _inCachedSamples = 0;
@@ -161,23 +161,23 @@ public:
         _sendedSamples = 0;
     }
 
-    virtual bool IsPlaying() override { return _playing; }
+    bool IsPlaying() override { return _playing; }
 
-    virtual void SetVolume(float v) override {
+    void SetVolume(float v) override {
         _volume = v;
         RecalcVolume();
     }
 
-    virtual float GetVolume() override { return _volume; }
+    float GetVolume() override { return _volume; }
 
-    virtual void SetPan(float v) override {
+    void SetPan(float v) override {
         _pan = v;
         RecalcVolume();
     }
 
-    virtual float GetPan() override { return _pan; }
+    float GetPan() override { return _pan; }
 
-    virtual void AppendBuffer(const void *_inbuf,
+    void AppendBuffer(const void *_inbuf,
                               unsigned int inlen /*, int tag = 0*/) override {
         if(_cvt) {
             std::vector<uint8_t> buffer;
@@ -212,22 +212,22 @@ public:
         }
     }
 
-    virtual bool IsBufferValid() override {
+    bool IsBufferValid() override {
         return true; // unlimited buffer size
                      // return !_buffers.empty(); // thread safe if
                      // read only
     }
 
-    virtual tjs_uint GetLatencySamples() override;
+    tjs_uint GetLatencySamples() override;
 
     // 	virtual void SetSampleOffset(tjs_uint n) override {
     // 		_sendedSamples = n;
     // 	}
-    virtual int GetRemainBuffers() override { return _buffers.size(); }
+    int GetRemainBuffers() override { return _buffers.size(); }
 
-    virtual tjs_uint GetCurrentPlaySamples() override;
+    tjs_uint GetCurrentPlaySamples() override;
 
-    virtual float GetLatencySeconds() override;
+    float GetLatencySeconds() override;
 
     void FillBuffer(uint8_t *out, int len);
 };
@@ -535,7 +535,7 @@ public:
         }
     }
 
-    virtual ~tTVPSoundBufferAL() {
+    ~tTVPSoundBufferAL() override {
         alDeleteBuffers(_bufferCount, _bufferIds);
         alDeleteSources(1, &_alSource);
         delete[] _bufferIds;
@@ -553,7 +553,7 @@ public:
         return queued < _bufferCount;
     }
 
-    virtual void AppendBuffer(const void *buf,
+    void AppendBuffer(const void *buf,
                               unsigned int len /*, int tag = 0*/) override {
         if(len <= 0)
             return;
@@ -689,11 +689,11 @@ public:
         return total / _frame_size;
     }
 
-    virtual float GetLatencySeconds() override {
+    float GetLatencySeconds() override {
         return (float)GetLatencySamples() / _format.SamplesPerSec;
     }
 
-    virtual tjs_uint GetCurrentPlaySamples() override {
+    tjs_uint GetCurrentPlaySamples() override {
         ALint offset = 0;
         alGetSourcei(_alSource, AL_SAMPLE_OFFSET, &offset);
         return _sendedSamples + offset;
@@ -743,7 +743,7 @@ public:
         return true;
     }
 
-    virtual tTVPSoundBuffer *CreateStream(tTVPWaveFormat &fmt,
+    tTVPSoundBuffer *CreateStream(tTVPWaveFormat &fmt,
                                           int bufcount) override {
         tTVPSoundBuffer *s = new tTVPSoundBufferAL(fmt, bufcount);
         _streams.emplace(s);

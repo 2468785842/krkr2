@@ -1001,7 +1001,7 @@ namespace TJS {
         ExprMode = exprmode;
         ResultNeeded = resneeded;
         PrevToken = -1;
-        tjs_int len = (tjs_int)TJS_strlen(script);
+        auto len = (tjs_int)TJS_strlen(script);
         Script = new tjs_char[len + 2];
         TJS_strcpy(Script, script);
         if(ExprMode) {
