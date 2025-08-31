@@ -44,44 +44,29 @@ TEST_CASE("exec tjs2 script") {
     REGISTER_OBJECT(Debug, TVPCreateNativeClass_Debug());
 
 #define SCRIPT(file_name)                                                      \
-    ttstr tvPInitTJSScriptText{};                                              \
-    auto *stream =                                                             \
-        TVPCreateTextStreamForRead(TEST_FILES_PATH "/tjs2/" file_name, "");    \
-    stream->Read(tvPInitTJSScriptText, 0);
+    do {                                                                       \
+        ttstr tvPInitTJSScriptText{};                                          \
+        auto *stream = TVPCreateTextStreamForRead(                             \
+            TEST_FILES_PATH "/tjs2/" file_name, "");                           \
+        stream->Read(tvPInitTJSScriptText, 0);                                 \
+        tvPScriptEngine->ExecScript(tvPInitTJSScriptText);                     \
+        delete stream;                                                         \
+    } while(false)
 
-    SECTION("exec test_class.tjs") {
-        SCRIPT("test_class.tjs");
-        tvPScriptEngine->ExecScript(tvPInitTJSScriptText);
-    }
+    SECTION("exec test_class.tjs") { SCRIPT("test_class.tjs"); }
 
-    SECTION("exec test_function.tjs") {
-        SCRIPT("test_function.tjs");
-        tvPScriptEngine->ExecScript(tvPInitTJSScriptText);
-    }
+    SECTION("exec test_function.tjs") { SCRIPT("test_function.tjs"); }
 
-    SECTION("exec test_misc.tjs") {
-        SCRIPT("test_misc.tjs");
-        tvPScriptEngine->ExecScript(tvPInitTJSScriptText);
-    }
+    SECTION("exec test_misc.tjs") { SCRIPT("test_misc.tjs"); }
 
-    SECTION("exec test_string.tjs") {
-        SCRIPT("test_string.tjs");
-        tvPScriptEngine->ExecScript(tvPInitTJSScriptText);
-    }
+    SECTION("exec test_string.tjs") { SCRIPT("test_string.tjs"); }
 
-    SECTION("exec test_variant.tjs") {
-        SCRIPT("test_variant.tjs");
-        tvPScriptEngine->ExecScript(tvPInitTJSScriptText);
-    }
+    SECTION("exec test_variant.tjs") { SCRIPT("test_variant.tjs"); }
 
-    SECTION("exec test_with.tjs") {
-        SCRIPT("test_with.tjs");
-        tvPScriptEngine->ExecScript(tvPInitTJSScriptText);
-    }
+    SECTION("exec test_with.tjs") { SCRIPT("test_with.tjs"); }
 
     // SECTION("exec test.tjs") {
     //     SCRIPT("test.tjs");
-    //     tvPScriptEngine->ExecScript(tvPInitTJSScriptText);
     // }
 
     tvPScriptEngine->Release();
