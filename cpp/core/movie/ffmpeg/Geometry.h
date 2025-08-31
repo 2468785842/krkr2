@@ -187,7 +187,9 @@ public:
 
     [[nodiscard]] inline T Height() const XBMC_FORCE_INLINE { return y2 - y1; };
 
-    [[nodiscard]] inline T Area() const XBMC_FORCE_INLINE { return Width() * Height(); };
+    [[nodiscard]] inline T Area() const XBMC_FORCE_INLINE {
+        return Width() * Height();
+    };
 
     std::vector<this_type> SubtractRect(this_type splitterRect) {
         std::vector<this_type> newRectaglesList;

@@ -141,12 +141,12 @@ class tTVPStorageMediaManager {
             ttstr name;
             media->GetName(name);
             MediaNameLen = name.GetLen();
-            /*IsCaseSensitive = media->IsCaseSensitive();*/ }
+        /*IsCaseSensitive = media->IsCaseSensitive();*/ }
 
-            const tjs_char *GetDomainAndPath(const ttstr &name) const {
-                return name.c_str() + MediaNameLen + 3;
-                // 3 = strlen("://")
-            }
+        const tjs_char *GetDomainAndPath(const ttstr &name) const {
+            return name.c_str() + MediaNameLen + 3;
+            // 3 = strlen("://")
+        }
     };
 
     typedef tTJSHashTable<tMediaNameString, tMediaRecord, tHashFunc, 16>
@@ -1195,21 +1195,21 @@ tTJSBinaryStream *TVPCreateStream(const ttstr &_name, tjs_uint32 flags) {
                 TJS_W("[") +
                 TVPFormatMessage(TVPFilenameContainsSharpWarn, _name) +
                 TJS_W("]"));
-        throw e;
+        throw;
     } catch(eTJSScriptError &e) {
         if(TJS_strchr(_name.c_str(), '#'))
             e.AppendMessage(
                 TJS_W("[") +
                 TVPFormatMessage(TVPFilenameContainsSharpWarn, _name) +
                 TJS_W("]"));
-        throw e;
+        throw;
     } catch(eTJSError &e) {
         if(TJS_strchr(_name.c_str(), '#'))
             e.AppendMessage(
                 TJS_W("[") +
                 TVPFormatMessage(TVPFilenameContainsSharpWarn, _name) +
                 TJS_W("]"));
-        throw e;
+        throw;
     } catch(...) {
         // check whether the filename contains '#' (former delimiter
         // for archive filename before 2.19 beta 14)

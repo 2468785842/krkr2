@@ -326,13 +326,13 @@ public:
 
 public: // methods from tTVPDrawable
     tTVPBaseTexture *GetDrawTargetBitmap(const tTVPRect &rect,
-                                                 tTVPRect &cliprect) override;
+                                         tTVPRect &cliprect) override;
 
     tTVPLayerType GetTargetLayerType() override;
 
     void DrawCompleted(const tTVPRect &destrect, tTVPBaseTexture *bmp,
-                               const tTVPRect &cliprect, tTVPLayerType type,
-                               tjs_int opacity) override;
+                       const tTVPRect &cliprect, tTVPLayerType type,
+                       tjs_int opacity) override;
     tTVPBaseTexture *GetDrawBuffer() override { return DrawBuffer; }
     tTVPBaseTexture *GetOrCreateDrawBuffer();
 
@@ -388,18 +388,19 @@ public:
     void SetLayerTreeOwner(class iTVPLayerTreeOwner *owner);
     void NotifyResizeFromWindow(tjs_uint w,
                                 tjs_uint h); // draw device -> layer
-    void RequestInvalidation(const tTVPRect &r) override; // draw device -> layer
+    void
+    RequestInvalidation(const tTVPRect &r) override; // draw device -> layer
 
     void NotifyClick(tjs_int x, tjs_int y) override { PrimaryClick(x, y); }
     void NotifyDoubleClick(tjs_int x, tjs_int y) override {
         PrimaryDoubleClick(x, y);
     }
     void NotifyMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb,
-                                 tjs_uint32 flags) override {
+                         tjs_uint32 flags) override {
         PrimaryMouseDown(x, y, mb, flags);
     }
     void NotifyMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb,
-                               tjs_uint32 flags) override {
+                       tjs_uint32 flags) override {
         PrimaryMouseUp(x, y, mb, flags);
     }
     void NotifyMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) override {
@@ -414,29 +415,29 @@ public:
     }
     void NotifyKeyPress(tjs_char key) override { PrimaryKeyPress(key); }
     void NotifyMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x,
-                                  tjs_int y) override {
+                          tjs_int y) override {
         PrimaryMouseWheel(shift, delta, x, y);
     }
 
-    void NotifyTouchDown(tjs_real x, tjs_real y, tjs_real cx,
-                                 tjs_real cy, tjs_uint32 id) override {
+    void NotifyTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
+                         tjs_uint32 id) override {
         PrimaryTouchDown(x, y, cx, cy, id);
     }
     void NotifyTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
-                               tjs_uint32 id) override {
+                       tjs_uint32 id) override {
         PrimaryTouchUp(x, y, cx, cy, id);
     }
-    void NotifyTouchMove(tjs_real x, tjs_real y, tjs_real cx,
-                                 tjs_real cy, tjs_uint32 id) override {
+    void NotifyTouchMove(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
+                         tjs_uint32 id) override {
         PrimaryTouchMove(x, y, cx, cy, id);
     }
-    void NotifyTouchScaling(tjs_real startdist, tjs_real curdist,
-                                    tjs_real cx, tjs_real cy, tjs_int flag) override {
+    void NotifyTouchScaling(tjs_real startdist, tjs_real curdist, tjs_real cx,
+                            tjs_real cy, tjs_int flag) override {
         PrimaryTouchScaling(startdist, curdist, cx, cy, flag);
     }
     void NotifyTouchRotate(tjs_real startangle, tjs_real curangle,
-                                   tjs_real dist, tjs_real cx, tjs_real cy,
-                                   tjs_int flag) override {
+                           tjs_real dist, tjs_real cx, tjs_real cy,
+                           tjs_int flag) override {
         PrimaryTouchRotate(startangle, curangle, dist, cx, cy, flag);
     }
     void NotifyMultiTouch() override { PrimaryMultiTouch(); }
@@ -484,7 +485,9 @@ public:
     // check newly added tree's focusable state
     bool SetFocusTo(tTJSNI_BaseLayer *layer, bool direction = true);
     // set focus to layer
-    void SetFocusedLayer(tTJSNI_BaseLayer *layer) override { SetFocusTo(layer, false); }
+    void SetFocusedLayer(tTJSNI_BaseLayer *layer) override {
+        SetFocusTo(layer, false);
+    }
     tTJSNI_BaseLayer *FocusPrev(); // focus to previous layer
     tTJSNI_BaseLayer *FocusNext(); // focus to next layer
     void ReleaseAllModalLayer(); // release all modal layer on invalidation

@@ -174,9 +174,8 @@ public:
         _cond.notify_all();
     }
 
-    unsigned int AddData(const uint8_t *const *data,
-                                 unsigned int offset, unsigned int frames,
-                                 double pts) override {
+    unsigned int AddData(const uint8_t *const *data, unsigned int offset,
+                         unsigned int frames, double pts) override {
         _timer.Set(1000);
         while(/*m_impl &&*/ !m_impl->IsBufferValid()) {
             std::unique_lock<std::mutex> lk(_mutex);
@@ -226,9 +225,7 @@ public:
         return frames;
     }
 
-    double GetDelay() override {
-        return (double)m_impl->GetLatencySeconds();
-    }
+    double GetDelay() override { return (double)m_impl->GetLatencySeconds(); }
 
     CAESyncInfo GetSyncInfo() override {
         CAESyncInfo info; // TODO

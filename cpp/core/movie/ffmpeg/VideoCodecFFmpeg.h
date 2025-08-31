@@ -48,11 +48,9 @@ public:
 
     ~CDVDVideoCodecFFmpeg() override;
 
-    bool Open(CDVDStreamInfo &hints,
-                      CDVDCodecOptions &options) override;
+    bool Open(CDVDStreamInfo &hints, CDVDCodecOptions &options) override;
 
-    int Decode(uint8_t *pData, int iSize, double dts,
-                       double pts) override;
+    int Decode(uint8_t *pData, int iSize, double dts, double pts) override;
 
     void Reset() override;
 
@@ -72,7 +70,7 @@ public:
     unsigned GetAllowedReferences() override;
 
     bool GetCodecStats(double &pts, int &droppedFrames,
-                               int &skippedPics) override;
+                       int &skippedPics) override;
 
     void SetCodecControl(int flags) override;
 

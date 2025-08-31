@@ -51,22 +51,22 @@ public:
 
     // 以下は何もしない
     void SetMouseCursor(class iTVPLayerManager *manager,
-                                tjs_int cursor) override;
+                        tjs_int cursor) override;
     void GetCursorPos(class iTVPLayerManager *manager, tjs_int &x,
-                              tjs_int &y) override;
+                      tjs_int &y) override;
     void SetCursorPos(class iTVPLayerManager *manager, tjs_int x,
-                              tjs_int y) override;
+                      tjs_int y) override;
     void ReleaseMouseCapture(class iTVPLayerManager *manager) override;
 
     void SetHint(class iTVPLayerManager *manager, iTJSDispatch2 *sender,
-                         const ttstr &hint) override;
+                 const ttstr &hint) override;
 
     void NotifyLayerResize(class iTVPLayerManager *manager) override;
     void NotifyLayerImageChange(class iTVPLayerManager *manager) override;
 
     void SetAttentionPoint(class iTVPLayerManager *manager,
-                                   tTJSNI_BaseLayer *layer, tjs_int x,
-                                   tjs_int y) override;
+                           tTJSNI_BaseLayer *layer, tjs_int x,
+                           tjs_int y) override;
     void DisableAttentionPoint(class iTVPLayerManager *manager) override;
 
     void SetImeMode(class iTVPLayerManager *manager, tjs_int mode) override;

@@ -330,8 +330,8 @@ public:
         iTVPSoftwareTexture2D(w, h), Format(format),
         BmpData((tjs_uint8 *)pixel), Pitch(pitch) {}
     ~tTVPSoftwareTexture2D_static() override {}
-    void Update(const void *pixel, TVPTextureFormat::e format,
-                        int pitch, const tTVPRect &rc) override {
+    void Update(const void *pixel, TVPTextureFormat::e format, int pitch,
+                const tTVPRect &rc) override {
         assert(rc.left == 0 && rc.top == 0 && Format == format);
         Pitch = pitch;
         BmpData = (tjs_uint8 *)pixel;
@@ -462,8 +462,8 @@ public:
         return nullptr;
     }
 
-    void Update(const void *pixel, TVPTextureFormat::e format,
-                        int pitch, const tTVPRect &rc) override {
+    void Update(const void *pixel, TVPTextureFormat::e format, int pitch,
+                const tTVPRect &rc) override {
         assert(0);
     }
 
@@ -552,8 +552,7 @@ public:
         return 0;
     }
 
-    tjs_uint DecompressLineData(tjs_uint line,
-                                        tjs_uint8 *buf) override {
+    tjs_uint DecompressLineData(tjs_uint line, tjs_uint8 *buf) override {
         memcpy(buf, tTVPSoftwareTexture2D_half::GetScanLineForRead(line),
                Pitch);
         return 1;
@@ -577,9 +576,7 @@ public:
         return origTex;
     }
 
-    tjs_uint GetInternalHeight() const override {
-        return _scanline.size();
-    }
+    tjs_uint GetInternalHeight() const override { return _scanline.size(); }
 
     size_t GetBitmapSize() override {
         return Pitch * _scanlineData.size() *
@@ -651,8 +648,7 @@ public:
         _totalVMemSize += DataSize;
     }
 
-    tjs_uint DecompressLineData(tjs_uint line,
-                                        tjs_uint8 *buf) override {
+    tjs_uint DecompressLineData(tjs_uint line, tjs_uint8 *buf) override {
         size_t n = line >> ShiftH;
         if(n >= CompressedBlock.size())
             n = CompressedBlock.size() - 1;
@@ -772,8 +768,7 @@ public:
                                                  format);
     }
 
-    tjs_uint DecompressLineData(tjs_uint line,
-                                        tjs_uint8 *buf) override {
+    tjs_uint DecompressLineData(tjs_uint line, tjs_uint8 *buf) override {
         size_t n = line >> ShiftH;
         if(n >= CompressedBlock.size())
             n = CompressedBlock.size() - 1;
@@ -917,8 +912,8 @@ public:
         if(Bitmap)
             Bitmap->Release();
     }
-    void Update(const void *pixel, TVPTextureFormat::e format,
-                        int pitch, const tTVPRect &rc) override {
+    void Update(const void *pixel, TVPTextureFormat::e format, int pitch,
+                const tTVPRect &rc) override {
         assert(rc.left == 0);
         unsigned char *src = (unsigned char *)pixel;
         tjs_uint8 *dst = (tjs_uint8 *)Bitmap->GetScanLine(rc.top);
@@ -1003,9 +998,9 @@ public:
     void SetParameterOpa(int id, int v) override { opa = v; }
     void SetParameterColor4B(int id, unsigned int v) override { color = v; }
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rctar,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule, const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *rule, const tTVPRect &rcrule) override {
         assert(_tar == _dst && rctar == rcdst);
         int h = rcsrc.get_height(), w = rcsrc.get_width();
         assert(h == rcdst.get_height() && w == rcdst.get_width());
@@ -1043,9 +1038,9 @@ public:
 
     void SetParameterOpa(int id, int v) override { opa = v; }
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rctar,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule, const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *rule, const tTVPRect &rcrule) override {
         assert(_tar == _dst && rctar == rcdst);
         int h = rcsrc.get_height(), w = rcsrc.get_width();
         assert(h == rcdst.get_height() && w == rcdst.get_width());
@@ -1100,9 +1095,9 @@ public:
     void SetParameterColor4B(int id, tjs_uint32 v) override { clr = v; }
 
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rect,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule, const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *rule, const tTVPRect &rcrule) override {
         tjs_int pitch = _tar->GetPitch();
         bool is32bpp = _tar->GetFormat() == TVPTextureFormat::RGBA;
         tjs_uint8 *dest = (tjs_uint8 *)_tar->GetScanLineForWrite(rect.top) +
@@ -1172,10 +1167,9 @@ protected:
 
 public:
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rect,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule,
-                          const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *rule, const tTVPRect &rcrule) override {
         tjs_int pitch = _tar->GetPitch();
         tjs_uint8 *dest = (tjs_uint8 *)_tar->GetScanLineForWrite(rect.top) +
             rect.left * sizeof(TDst);
@@ -1263,9 +1257,9 @@ public:
     void SetParameterOpa(int id, int v) override { opa = v; }
 
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rect,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule, const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *rule, const tTVPRect &rcrule) override {
         tjs_int pitch = _tar->GetPitch();
         tjs_uint8 *dest = (tjs_uint8 *)_tar->GetScanLineForWrite(rect.top) +
             rect.left * sizeof(TDst);
@@ -1305,9 +1299,9 @@ template <typename TDst, typename TSrc, int THREAD_FACTOR,
 class tTVPRenderMethod_Copy : public tTVPRenderMethod_Software {
 public:
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rctar,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule, const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *rule, const tTVPRect &rcrule) override {
         tjs_int h = rcsrc.bottom - rcsrc.top;
         tjs_int w = rcsrc.right - rcsrc.left;
         assert(w == rctar.get_width() && h == rctar.get_height());
@@ -1367,9 +1361,9 @@ public:
 class tTVPRenderMethod_DirectCopy : public tTVPRenderMethod_Software {
 public:
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rctar,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule, const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *rule, const tTVPRect &rcrule) override {
         int pixelsize = _tar->GetFormat() == TVPTextureFormat::Gray
             ? sizeof(tjs_uint8)
             : sizeof(tjs_uint32);
@@ -1529,9 +1523,9 @@ public:
 class tTVPRenderMethod_DoGrayScale : public tTVPRenderMethod_DirectCopy {
 public:
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rctar,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule, const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *rule, const tTVPRect &rcrule) override {
         tTVPRenderMethod_DirectCopy::DoRender(_tar, rctar, _dst, rcdst, _src,
                                               rcsrc, rule, rcrule);
         tjs_int pitch = _tar->GetPitch();
@@ -1550,9 +1544,9 @@ template <typename TPix, int THREAD_FACTOR>
 class tTVPRenderMethod_BaseBlt : public tTVPRenderMethod_Software {
 public:
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rctar,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule, const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *rule, const tTVPRect &rcrule) override {
         tjs_int h = rcsrc.bottom - rcsrc.top;
         tjs_int w = rcsrc.right - rcsrc.left;
         assert(_tar == _dst && rctar == rcdst);
@@ -1583,8 +1577,8 @@ class tTVPRenderMethod_Blt
     : public tTVPRenderMethod_BaseBlt<tjs_uint32, THREAD_FACTOR> {
     typedef tTVPRenderMethod_BaseBlt<tjs_uint32, THREAD_FACTOR> inherit;
     void PartialFill(iTVPTexture2D *dst, iTVPTexture2D *src, tjs_int sx,
-                             tjs_int sy, tjs_int dx, tjs_int dy, tjs_int w,
-                             tjs_int h) override {
+                     tjs_int sy, tjs_int dx, tjs_int dy, tjs_int w,
+                     tjs_int h) override {
         for(tjs_int y = 0; y < h; ++y) {
             Func(((tjs_uint32 *)dst->GetScanLineForWrite(dy + y)) + dx,
                  ((const tjs_uint32 *)src->GetScanLineForRead(sy + y)) + sx, w);
@@ -1614,9 +1608,9 @@ protected:
 
 public:
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rctar,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule, const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *rule, const tTVPRect &rcrule) override {
         tjs_int h = rcsrc.bottom - rcsrc.top;
         tjs_int w = rcsrc.right - rcsrc.left;
         assert(w == rcdst.get_width() && h == rcdst.get_height());
@@ -1687,9 +1681,9 @@ protected:
 
 public:
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rctar,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *_rule, const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *_rule, const tTVPRect &rcrule) override {
         tjs_int h = rcsrc.bottom - rcsrc.top;
         tjs_int w = rcsrc.right - rcsrc.left;
         assert(w == rcdst.get_width() && h == rcdst.get_height());
@@ -1804,9 +1798,9 @@ public:
         return -1;
     }
     void SetParameterOpa(int id, int v) override { opa = v; }
-    void PartialFill(iTVPTexture2D *_dst, iTVPTexture2D *src,
-                             tjs_int sx, tjs_int sy, tjs_int dx, tjs_int dy,
-                             tjs_int w, tjs_int h) override {
+    void PartialFill(iTVPTexture2D *_dst, iTVPTexture2D *src, tjs_int sx,
+                     tjs_int sy, tjs_int dx, tjs_int dy, tjs_int w,
+                     tjs_int h) override {
         if(opa == 255) {
             for(tjs_int y = 0; y < h; ++y) {
                 tjs_uint32 *dst =
@@ -1844,9 +1838,9 @@ public:
         return -1;
     }
     void SetParameterOpa(int id, int v) override { opa = v; }
-    void PartialFill(iTVPTexture2D *_dst, iTVPTexture2D *src,
-                             tjs_int sx, tjs_int sy, tjs_int dx, tjs_int dy,
-                             tjs_int w, tjs_int h) override {
+    void PartialFill(iTVPTexture2D *_dst, iTVPTexture2D *src, tjs_int sx,
+                     tjs_int sy, tjs_int dx, tjs_int dy, tjs_int w,
+                     tjs_int h) override {
         for(tjs_int y = 0; y < h; ++y) {
             tjs_uint32 *dst =
                 ((tjs_uint32 *)_dst->GetScanLineForWrite(dy + y)) + dx;
@@ -1872,9 +1866,9 @@ public:
         return -1;
     }
     void SetParameterOpa(int id, int v) override { opa = v; }
-    void PartialFill(iTVPTexture2D *_dst, iTVPTexture2D *src,
-                             tjs_int sx, tjs_int sy, tjs_int dx, tjs_int dy,
-                             tjs_int w, tjs_int h) override {
+    void PartialFill(iTVPTexture2D *_dst, iTVPTexture2D *src, tjs_int sx,
+                     tjs_int sy, tjs_int dx, tjs_int dy, tjs_int w,
+                     tjs_int h) override {
         for(tjs_int y = 0; y < h; ++y) {
             tjs_uint32 *dst =
                 ((tjs_uint32 *)_dst->GetScanLineForWrite(dy + y)) + dx;
@@ -1901,9 +1895,9 @@ public:
     }
 
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rctar,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule, const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *rule, const tTVPRect &rcrule) override {
 #if 0
 		tTVPRenderMethod_DirectCopy::DoRender(
 			_tar, rctar,
@@ -1929,9 +1923,9 @@ template <void (*&Func)(tjs_uint32 *, tjs_int)>
 class tTVPRenderMethod_ApplySelf : public tTVPRenderMethod_DirectCopy {
 public:
     void DoRender(iTVPTexture2D *_tar, const tTVPRect &rctar,
-                          iTVPTexture2D *_dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *_src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule, const tTVPRect &rcrule) override {
+                  iTVPTexture2D *_dst, const tTVPRect &rcdst,
+                  iTVPTexture2D *_src, const tTVPRect &rcsrc,
+                  iTVPTexture2D *rule, const tTVPRect &rcrule) override {
         tTVPRenderMethod_DirectCopy::DoRender(_tar, rctar, _dst, rcdst, _src,
                                               rcsrc, rule, rcrule);
 
@@ -2320,10 +2314,10 @@ public:
                 break;
         }
     }
-    void DoRender(iTVPTexture2D *tar, const tTVPRect &rctar,
-                          iTVPTexture2D *dst, const tTVPRect &rcdst,
-                          iTVPTexture2D *src, const tTVPRect &rcsrc,
-                          iTVPTexture2D *rule, const tTVPRect &rcrule) override {
+    void DoRender(iTVPTexture2D *tar, const tTVPRect &rctar, iTVPTexture2D *dst,
+                  const tTVPRect &rcdst, iTVPTexture2D *src,
+                  const tTVPRect &rcsrc, iTVPTexture2D *rule,
+                  const tTVPRect &rcrule) override {
         // 		tTVPRenderMethod_DirectCopy::DoRender(
         // 			tar, rctar,
         // 			dst, rcdst,
@@ -3000,7 +2994,7 @@ public:
     }
 
     iTVPTexture2D *CreateTexture2D(unsigned int neww, unsigned int newh,
-                                           iTVPTexture2D *tex) override {
+                                   iTVPTexture2D *tex) override {
         return new tTVPSoftwareTexture2D(tex, neww, newh);
     }
 
@@ -3128,8 +3122,8 @@ public:
     }
 
     void OperateRect(iTVPRenderMethod *method, iTVPTexture2D *tar,
-                             iTVPTexture2D *reftar, const tTVPRect &rctar,
-                             const tRenderTexRectArray &textures) override {
+                     iTVPTexture2D *reftar, const tTVPRect &rctar,
+                     const tRenderTexRectArray &textures) override {
 #ifdef _DEBUG
         static bool check = false;
         cv::Mat _src[3], _tar;
@@ -3533,11 +3527,10 @@ public:
     }
 
     // src x dst -> tar
-    void
-    OperateTriangles(iTVPRenderMethod *method, int nTriangles,
-                     iTVPTexture2D *target, iTVPTexture2D *reftar,
-                     const tTVPRect &rcclip, const tTVPPointD *pttar,
-                     const tRenderTexQuadArray &textures) override {
+    void OperateTriangles(iTVPRenderMethod *method, int nTriangles,
+                          iTVPTexture2D *target, iTVPTexture2D *reftar,
+                          const tTVPRect &rcclip, const tTVPPointD *pttar,
+                          const tRenderTexQuadArray &textures) override {
         ++_drawCount;
         assert(textures.size() == 1);
         for(int i = 0; i < textures.size(); ++i) {
@@ -4757,11 +4750,10 @@ public:
     }
 
     void OperatePerspective(iTVPRenderMethod *method, int nQuads,
-                                    iTVPTexture2D *target,
-                                    iTVPTexture2D *reftar,
-                                    const tTVPRect &rcclip,
-                                    const tTVPPointD *pttar /*quad*/,
-                                    const tRenderTexQuadArray &textures) override {
+                            iTVPTexture2D *target, iTVPTexture2D *reftar,
+                            const tTVPRect &rcclip,
+                            const tTVPPointD *pttar /*quad*/,
+                            const tRenderTexQuadArray &textures) override {
         assert(textures.size() == 1);
         for(int i = 0; i < textures.size(); ++i) {
             textures[i].first->GetScanLineForRead(

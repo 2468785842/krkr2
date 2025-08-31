@@ -339,10 +339,8 @@ public:
     }
 
     ~tTVPTextReadStream() override {
-        if(Stream)
-            delete Stream;
-        if(Buffer)
-            delete[] Buffer;
+        delete Stream;
+        delete[] Buffer;
     }
 
     tjs_uint Read(tTJSString &targ, tjs_uint size) override {

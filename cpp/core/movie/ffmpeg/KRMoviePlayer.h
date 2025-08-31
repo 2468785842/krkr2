@@ -100,11 +100,10 @@ public:
     tTVPBaseTexture *GetFrontBuffer() override { return nullptr; }
 
     void SetVideoBuffer(tTVPBaseTexture *buff1, tTVPBaseTexture *buff2,
-                                long size) override {}
+                        long size) override {}
 
     // function for mixer mode
-    void SetMixingBitmap(class tTVPBaseTexture *dest,
-                                 float alpha) override {}
+    void SetMixingBitmap(class tTVPBaseTexture *dest, float alpha) override {}
 
     void ResetMixingBitmap() override {}
 
@@ -173,7 +172,7 @@ public:
     int AddVideoPicture(DVDVideoPicture &pic, int index) override;
 
     int WaitForBuffer(volatile std::atomic_bool &bStop,
-                              int timeout = 0) override;
+                      int timeout = 0) override;
 
     void Flush() override;
 

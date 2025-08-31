@@ -42,12 +42,18 @@ public:
     }
     [[nodiscard]] inline bool Is32bit() const { return GetBPP() == 32; }
     [[nodiscard]] inline bool Is8bit() const { return GetBPP() == 8; }
-    [[nodiscard]] inline int GetWidth() const { return BitmapInfo->bmiHeader.biWidth; }
-    [[nodiscard]] inline int GetHeight() const { return BitmapInfo->bmiHeader.biHeight; }
+    [[nodiscard]] inline int GetWidth() const {
+        return BitmapInfo->bmiHeader.biWidth;
+    }
+    [[nodiscard]] inline int GetHeight() const {
+        return BitmapInfo->bmiHeader.biHeight;
+    }
     [[nodiscard]] inline tjs_uint GetImageSize() const {
         return BitmapInfo->bmiHeader.biSizeImage;
     }
-    [[nodiscard]] inline int GetPitchBytes() const { return GetImageSize() / GetHeight(); }
+    [[nodiscard]] inline int GetPitchBytes() const {
+        return GetImageSize() / GetHeight();
+    }
     BitmapInfomation &operator=(BitmapInfomation &r) {
         memcpy(BitmapInfo, r.BitmapInfo, BitmapInfoSize);
         return *this;
@@ -55,7 +61,9 @@ public:
 
     // 以下、Win32 のみのメソッド
     TVPBITMAPINFO *GetBITMAPINFO() { return BitmapInfo; }
-    [[nodiscard]] const TVPBITMAPINFO *GetBITMAPINFO() const { return BitmapInfo; }
+    [[nodiscard]] const TVPBITMAPINFO *GetBITMAPINFO() const {
+        return BitmapInfo;
+    }
 };
 
 #endif // __BITMAP_INFOMATION_H__

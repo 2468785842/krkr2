@@ -373,9 +373,9 @@ void tTVPWaveLoopManager::Decode(void *dest, tjs_uint samples,
                             delete[] CrossFadeSamples,
                                 CrossFadeSamples = nullptr;
 
-                            delete[] src1;
+                        delete[] src1;
 
-                            delete[] src2;
+                        delete[] src2;
                         next_event_pos = link.From;
                     }
                     if(CrossFadeSamples) {

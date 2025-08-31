@@ -261,8 +261,7 @@ namespace TJS {
         tjs_int align = 1 << align_bits;
         void *ptr = (void *)(new tjs_uint8[bytes + align + sizeof(void *)]);
         void *org_ptr = ptr;
-        auto *iptr =
-            reinterpret_cast<tTJSPointerSizedInteger::type *>(&ptr);
+        auto *iptr = reinterpret_cast<tTJSPointerSizedInteger::type *>(&ptr);
         *iptr += align + sizeof(void *);
         *iptr &= ~(tTJSPointerSizedInteger::type)(align - 1);
         (reinterpret_cast<void **>(ptr))[-1] = org_ptr;

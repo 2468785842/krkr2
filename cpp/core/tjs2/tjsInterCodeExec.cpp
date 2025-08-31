@@ -270,7 +270,8 @@ namespace TJS {
 
         tjs_error FuncCallByNum(tjs_uint32 flag, tjs_int num,
                                 tTJSVariant *result, tjs_int numparams,
-                                tTJSVariant **param, iTJSDispatch2 *objthis) override {
+                                tTJSVariant **param,
+                                iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->FuncCallByNum(flag, num, result,
                                                     numparams, param, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -290,7 +291,8 @@ namespace TJS {
         }
 
         tjs_error PropGetByNum(tjs_uint32 flag, tjs_int num,
-                               tTJSVariant *result, iTJSDispatch2 *objthis) override {
+                               tTJSVariant *result,
+                               iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->PropGetByNum(flag, num, result, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
                 return Dispatch2->PropGetByNum(flag, num, result, OBJ2);
@@ -348,7 +350,8 @@ namespace TJS {
         }
 
         tjs_error DeleteMember(tjs_uint32 flag, const tjs_char *membername,
-                               tjs_uint32 *hint, iTJSDispatch2 *objthis) override {
+                               tjs_uint32 *hint,
+                               iTJSDispatch2 *objthis) override {
             tjs_error hr =
                 Dispatch1->DeleteMember(flag, membername, hint, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -365,7 +368,8 @@ namespace TJS {
         }
 
         tjs_error Invalidate(tjs_uint32 flag, const tjs_char *membername,
-                             tjs_uint32 *hint, iTJSDispatch2 *objthis) override {
+                             tjs_uint32 *hint,
+                             iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->Invalidate(flag, membername, hint, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
                 return Dispatch2->Invalidate(flag, membername, hint, OBJ2);
@@ -410,7 +414,8 @@ namespace TJS {
 
         tjs_error CreateNewByNum(tjs_uint32 flag, tjs_int num,
                                  iTJSDispatch2 **result, tjs_int numparams,
-                                 tTJSVariant **param, iTJSDispatch2 *objthis) override {
+                                 tTJSVariant **param,
+                                 iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->CreateNewByNum(flag, num, result,
                                                      numparams, param, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -444,7 +449,8 @@ namespace TJS {
 
         tjs_error Operation(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, tTJSVariant *result,
-                            const tTJSVariant *param, iTJSDispatch2 *objthis) override {
+                            const tTJSVariant *param,
+                            iTJSDispatch2 *objthis) override {
             tjs_error hr = Dispatch1->Operation(flag, membername, hint, result,
                                                 param, OBJ1);
             if(hr == TJS_E_MEMBERNOTFOUND && Dispatch1 != Dispatch2)
@@ -880,11 +886,10 @@ namespace TJS {
     }
 
     //---------------------------------------------------------------------------
-    tjs_int tTJSInterCodeContext::ExecuteCode(tTJSVariant *ra_org,
-                                              tjs_int startip,
-                                              tTJSVariant **args,
-                                              tjs_int numargs,
-                                              tTJSVariant *result) {
+    tjs_int
+    tTJSInterCodeContext::ExecuteCode(tTJSVariant *ra_org, tjs_int startip,
+                                      tTJSVariant **args, tjs_int numargs,
+                                      tTJSVariant *result, bool tryCatch) {
         // execute VM codes
         tjs_int32 *codesave;
         try {
@@ -898,9 +903,6 @@ namespace TJS {
 
             bool flag = false;
 
-#ifdef _DEBUG
-            tjs_int cur_line_no = -1;
-#endif // _DEBUG
             while(true) {
                 codesave = code;
                 switch(*code) {
@@ -1286,6 +1288,7 @@ namespace TJS {
                         return (tjs_int)(code + 1 - CodeArea);
 
                     case VM_ENTRY:
+                        tryCatch = true;
                         code = CodeArea +
                             ExecuteCodeInTryBlock(
                                    ra, (tjs_int)(code - CodeArea + 3), args,
@@ -1296,6 +1299,7 @@ namespace TJS {
                         break;
 
                     case VM_EXTRY:
+                        tryCatch = false;
                         return (tjs_int)(code + 1 - CodeArea); // same as ret
 
                     case VM_THROW:
@@ -1337,40 +1341,43 @@ namespace TJS {
                         ThrowInvalidVMCode();
                 }
             }
-        } catch(eTJSSilent &e) {
-            throw e;
+        } catch(eTJSSilent &) {
+            throw;
         }
         // #ifdef _DEBUG
         // #define DEBUGGER_EXCEPTION_HOOK \
-//     if(TJSEnableDebugMode) \
-//         raise(SIGTRAP);
+        //     if(TJSEnableDebugMode) \
+        //         raise(SIGTRAP);
         // #else // _DEBUG
         // #define DEBUGGER_EXCEPTION_HOOK
         // #endif // _DEBUG
-        catch(eTJSScriptException &e) {
+        catch(eTJSScriptError &e) {
             // DEBUGGER_EXCEPTION_HOOK;
             e.AddTrace(this, (tjs_int)(codesave - CodeArea));
-            throw e;
-        } catch(eTJSScriptError &e) {
-            // DEBUGGER_EXCEPTION_HOOK;
-            e.AddTrace(this, (tjs_int)(codesave - CodeArea));
-            throw e;
+            throw;
         } catch(eTJS &e) {
             // DEBUGGER_EXCEPTION_HOOK;
-            DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
-                                          ra_org);
-            TJS_eTJSScriptError(e.GetMessage(), this,
-                                (tjs_int)(codesave - CodeArea));
+            if(!tryCatch) {
+                DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
+                                              ra_org);
+                TJS_eTJSScriptError(e.GetMessage(), this,
+                                    (tjs_int)(codesave - CodeArea));
+            }
         } catch(exception &e) {
             // DEBUGGER_EXCEPTION_HOOK;
-            DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
-                                          ra_org);
-            TJS_eTJSScriptError(e.what(), this, (tjs_int)(codesave - CodeArea));
+            if(!tryCatch) {
+                DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
+                                              ra_org);
+                TJS_eTJSScriptError(e.what(), this,
+                                    (tjs_int)(codesave - CodeArea));
+            }
         } catch(const char *text) {
             // DEBUGGER_EXCEPTION_HOOK;
-            DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
-                                          ra_org);
-            TJS_eTJSScriptError(text, this, (tjs_int)(codesave - CodeArea));
+            if(!tryCatch) {
+                DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
+                                              ra_org);
+                TJS_eTJSScriptError(text, this, (tjs_int)(codesave - CodeArea));
+            }
         }
         // #undef DEBUGGER_EXCEPTION_HOOK
 
@@ -1388,7 +1395,7 @@ namespace TJS {
                 TJSStackTracerPush(this, true);
             tjs_int ret;
             try {
-                ret = ExecuteCode(ra, startip, args, numargs, result);
+                ret = ExecuteCode(ra, startip, args, numargs, result, true);
             } catch(...) {
                 if(TJSStackTracerEnabled())
                     TJSStackTracerPop();

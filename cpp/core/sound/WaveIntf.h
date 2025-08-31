@@ -207,7 +207,9 @@ public:
 
     iTJSDispatch2 *GetWaveLabelsObjectNoAddRef();
 
-    [[nodiscard]] tTVPWaveLoopManager *GetWaveLoopManager() const { return LoopManager; }
+    [[nodiscard]] tTVPWaveLoopManager *GetWaveLoopManager() const {
+        return LoopManager;
+    }
 
     iTJSDispatch2 *GetFiltersNoAddRef() { return Filters; }
 };

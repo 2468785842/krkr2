@@ -190,7 +190,8 @@ private:
     bool Shutdown; // true when shutting down
     bool CompactEventHookInit;
     void RegisterCompactEventHook();
-    void OnCompact(tjs_int level) override; // method from tTVPCompactEventCallbackIntf
+    void OnCompact(
+        tjs_int level) override; // method from tTVPCompactEventCallbackIntf
 
     //----------------------------------------------- interface to
     // manager --
@@ -1192,7 +1193,9 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance() override { return new tTJSNI_Font(); }
+    tTJSNativeInstance *CreateNativeInstance() override {
+        return new tTJSNI_Font();
+    }
 };
 //---------------------------------------------------------------------------
 iTJSDispatch2 *TVPCreateFontObject(iTJSDispatch2 *layer);

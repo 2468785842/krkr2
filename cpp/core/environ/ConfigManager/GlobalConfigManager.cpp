@@ -93,13 +93,13 @@ void iSysConfigManager::SaveToFile() {
     tinyxml2::XMLDocument doc;
     doc.LinkEndChild(doc.NewDeclaration());
     tinyxml2::XMLElement *rootElement = doc.NewElement("GlobalPreference");
-    for(auto & it : AllConfig) {
+    for(auto &it : AllConfig) {
         tinyxml2::XMLElement *item = doc.NewElement("Item");
         item->SetAttribute("key", it.first.c_str());
         item->SetAttribute("value", it.second.c_str());
         rootElement->LinkEndChild(item);
     }
-    for(auto & CustomArgument : CustomArguments) {
+    for(auto &CustomArgument : CustomArguments) {
         tinyxml2::XMLElement *item = doc.NewElement("Custom");
         item->SetAttribute("key", CustomArgument.first.c_str());
         item->SetAttribute("value", CustomArgument.second.c_str());

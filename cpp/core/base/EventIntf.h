@@ -336,7 +336,9 @@ public:
     void Invalidate() override;
 
 public:
-    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const { return ActionOwner; }
+    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const {
+        return ActionOwner;
+    }
 
     ttstr &GetActionName() { return ActionName; }
 

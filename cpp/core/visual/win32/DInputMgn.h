@@ -153,9 +153,15 @@ public:
     void WindowActivated();
     void WindowDeactivated();
 
-    [[nodiscard]] const std::vector<tjs_uint16> &GetUppedKeys() const { return UppedKeys; }
-    [[nodiscard]] const std::vector<tjs_uint16> &GetDownedKeys() const { return DownedKeys; }
-    [[nodiscard]] const std::vector<tjs_uint16> &GetRepeatKeys() const { return RepeatKeys; }
+    [[nodiscard]] const std::vector<tjs_uint16> &GetUppedKeys() const {
+        return UppedKeys;
+    }
+    [[nodiscard]] const std::vector<tjs_uint16> &GetDownedKeys() const {
+        return DownedKeys;
+    }
+    [[nodiscard]] const std::vector<tjs_uint16> &GetRepeatKeys() const {
+        return RepeatKeys;
+    }
 
 private:
     tjs_uint32 GetState();

@@ -82,8 +82,12 @@ public:
 
     void SetOption(tjs_uint32 opt) { Options |= opt; }
     void ClearOption(tjs_uint32 opt) { Options &= ~opt; }
-    [[nodiscard]] bool GetOption(tjs_uint32 opt) const { return (Options & opt) == opt; }
-    [[nodiscard]] tjs_char GetDefaultChar() const { return Face->GetDefaultChar(); }
+    [[nodiscard]] bool GetOption(tjs_uint32 opt) const {
+        return (Options & opt) == opt;
+    }
+    [[nodiscard]] tjs_char GetDefaultChar() const {
+        return Face->GetDefaultChar();
+    }
     tjs_char GetFirstChar() {
         FT_UInt gindex;
         return static_cast<tjs_char>(FT_Get_First_Char(FTFace, &gindex));

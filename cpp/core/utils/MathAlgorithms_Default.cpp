@@ -15,8 +15,9 @@
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void DeinterleaveApplyingWindow(float *dest[], const float *src, const float *win,
-                                int numch, size_t destofs, size_t len) {
+void DeinterleaveApplyingWindow(float *dest[], const float *src,
+                                const float *win, int numch, size_t destofs,
+                                size_t len) {
     size_t n;
     switch(numch) {
         case 1: // mono

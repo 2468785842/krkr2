@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(TestPlugins LANGUAGES CXX)
 
 set(SOURCES
-        tjs-disassemble.cpp
+        tjs.cpp
 )
 
 string(REPLACE ".cpp" "" BASENAMES_SOURCES "${SOURCES}")
@@ -21,7 +21,7 @@ foreach(name ${ALL_TARGETS})
         PRIVATE
             Catch2::Catch2
         PUBLIC
-            krkr2core
+            krkr2plugin krkr2core
     )
     target_include_directories(${name} PRIVATE "${TEST_CONFIG_DIR}")
     catch_discover_tests(${name})

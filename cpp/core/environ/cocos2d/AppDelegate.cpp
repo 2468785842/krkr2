@@ -53,12 +53,13 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) ||                               \
     (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX) ||                               \
     (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
-//    initWindow(glview);
+    //    initWindow(glview);
     // 2. 获取设备实际屏幕尺寸
     const cocos2d::Size screenSize = glview->getFrameSize();
 
     // 3. 设置设计分辨率，选择合适的适配策略
-    glview->setDesignResolutionSize(designSize.width, designSize.height, ResolutionPolicy::SHOW_ALL);
+    glview->setDesignResolutionSize(designSize.width, designSize.height,
+                                    ResolutionPolicy::SHOW_ALL);
 
     // 4. 根据设备屏幕比例调整内容缩放
     const float scaleX = screenSize.width / designSize.width;

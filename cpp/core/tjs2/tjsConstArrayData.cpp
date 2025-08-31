@@ -15,7 +15,7 @@
 namespace TJS {
 
     tjsConstArrayData::~tjsConstArrayData() {
-        for(const auto & i : ByteBuffer) {
+        for(const auto &i : ByteBuffer) {
             delete i;
         }
     }

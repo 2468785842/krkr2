@@ -400,7 +400,8 @@ public:
     // ITSSWaveDecoder
     void GetFormat(tTVPWaveFormat &format) override { format = Format; }
 
-    bool Render(void *_buf, tjs_uint bufsamplelen, tjs_uint &rendered) override {
+    bool Render(void *_buf, tjs_uint bufsamplelen,
+                tjs_uint &rendered) override {
         // render output PCM
         if(!InputFile)
             return false; // InputFile is yet not inited

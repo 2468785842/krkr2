@@ -152,7 +152,9 @@ namespace TJS {
 
         virtual ~eTJS() { ; }
 
-        [[nodiscard]] virtual const ttstr &GetMessage() const { return TJSNonamedException; }
+        [[nodiscard]] virtual const ttstr &GetMessage() const {
+            return TJSNonamedException;
+        }
     };
 
     //---------------------------------------------------------------------------

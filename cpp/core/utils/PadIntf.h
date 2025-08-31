@@ -20,7 +20,7 @@
 class tTJSNI_BasePad : public tTJSNativeInstance {
 public:
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                                iTJSDispatch2 *dsp) override;
+                        iTJSDispatch2 *dsp) override;
 
     void Invalidate() override;
 };

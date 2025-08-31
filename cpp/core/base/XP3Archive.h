@@ -128,7 +128,9 @@ public:
 
     tjs_uint GetCount() override { return Count; }
 
-    [[nodiscard]] const ttstr &GetName(tjs_uint idx) const { return ItemVector[idx].Name; }
+    [[nodiscard]] const ttstr &GetName(tjs_uint idx) const {
+        return ItemVector[idx].Name;
+    }
 
     [[nodiscard]] tjs_uint32 GetFileHash(tjs_uint idx) const {
         return ItemVector[idx].FileHash;

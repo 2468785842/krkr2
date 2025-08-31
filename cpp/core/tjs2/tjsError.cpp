@@ -162,10 +162,7 @@ namespace TJS {
     void TJS_eTJS() { throw eTJS(); }
 
     //---------------------------------------------------------------------------
-    void TJS_eTJSError(const ttstr &msg) {
-        spdlog::get("tjs2")->error(msg.toString());
-        throw eTJSError(msg);
-    }
+    void TJS_eTJSError(const ttstr &msg) { throw eTJSError(msg); }
 
     void TJS_eTJSError(const tjs_char *msg) { TJS_eTJSError(ttstr{ msg }); }
 

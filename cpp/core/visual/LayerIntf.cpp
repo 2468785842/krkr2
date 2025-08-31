@@ -7355,10 +7355,9 @@ tTVPBaseTexture *tTJSNI_BaseLayer::Complete(const tTVPRect &rect) {
 
         tTVPLayerType GetTargetLayerType() override { return LayerType; }
 
-        void DrawCompleted(const tTVPRect &destrect,
-                                   tTVPBaseTexture *bmp,
-                                   const tTVPRect &cliprect, tTVPLayerType type,
-                                   tjs_int opacity) override {
+        void DrawCompleted(const tTVPRect &destrect, tTVPBaseTexture *bmp,
+                           const tTVPRect &cliprect, tTVPLayerType type,
+                           tjs_int opacity) override {
             if(bmp != Bitmap) {
                 Bitmap->CopyRect(destrect.left, destrect.top, bmp, cliprect);
             }
@@ -7373,10 +7372,9 @@ tTVPBaseTexture *tTJSNI_BaseLayer::Complete(const tTVPRect &rect) {
                       layertype == ltOpaque ? 0xFF000000 : 0);
         };
 
-        void DrawCompleted(const tTVPRect &destrect,
-                                   tTVPBaseTexture *bmp,
-                                   const tTVPRect &cliprect, tTVPLayerType type,
-                                   tjs_int opacity) override {
+        void DrawCompleted(const tTVPRect &destrect, tTVPBaseTexture *bmp,
+                           const tTVPRect &cliprect, tTVPLayerType type,
+                           tjs_int opacity) override {
             if(bmp != Bitmap) {
                 BltImage(Bitmap, LayerType, destrect.left, destrect.top, bmp,
                          cliprect, type, opacity, LayerType == ltOpaque);

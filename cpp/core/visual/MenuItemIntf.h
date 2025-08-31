@@ -95,7 +95,9 @@ public:
     virtual void Remove(tTJSNI_MenuItem *item) = 0;
 
 public:
-    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const { return ActionOwner; }
+    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const {
+        return ActionOwner;
+    }
 
     [[nodiscard]] iTJSDispatch2 *GetOwnerNoAddRef() const { return Owner; }
 
@@ -153,7 +155,9 @@ class tTVPOnMenuItemClickInputEvent : public tTVPBaseInputEvent {
 public:
     tTVPOnMenuItemClickInputEvent(tTJSNI_BaseMenuItem *menu) :
         tTVPBaseInputEvent(menu, Tag) {};
-    void Deliver() const override { ((tTJSNI_BaseMenuItem *)GetSource())->OnClick(); }
+    void Deliver() const override {
+        ((tTJSNI_BaseMenuItem *)GetSource())->OnClick();
+    }
 };
 //---------------------------------------------------------------------------
 

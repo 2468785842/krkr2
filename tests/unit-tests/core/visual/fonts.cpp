@@ -15,7 +15,6 @@ TEST_CASE("get default font name") {
     TVPProjectDir = TVPNormalizeStorageName(path);
 
     TVPInitFontNames();
-    const ttstr& fontName = TVPGetDefaultFontName();
+    const ttstr &fontName = TVPGetDefaultFontName();
     CAPTURE(fontName.c_str());
-
 }

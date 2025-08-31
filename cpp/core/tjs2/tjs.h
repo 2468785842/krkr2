@@ -37,6 +37,7 @@ namespace TJS {
     //---------------------------------------------------------------------------
     class iTJSConsoleOutput {
     public:
+        virtual ~iTJSConsoleOutput() = default;
         virtual void ExceptionPrint(const tjs_char *msg) = 0;
 
         virtual void Print(const tjs_char *msg) = 0;
@@ -135,7 +136,9 @@ namespace TJS {
     public:
         void SetConsoleOutput(iTJSConsoleOutput *console);
 
-        [[nodiscard]] iTJSConsoleOutput *GetConsoleOutput() const { return ConsoleOutput; };
+        [[nodiscard]] iTJSConsoleOutput *GetConsoleOutput() const {
+            return ConsoleOutput;
+        };
 
         void OutputToConsole(const tjs_char *msg) const;
 

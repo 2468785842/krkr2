@@ -41,7 +41,7 @@ int CSelectionStreams::IndexOf(StreamType type, int source, int64_t demuxerId,
                                int id) {
     std::lock_guard<std::recursive_mutex> lock(m_section);
     int count = -1;
-    for(auto & m_Stream : m_Streams) {
+    for(auto &m_Stream : m_Streams) {
         if(type && m_Stream.type != type)
             continue;
         count++;
@@ -61,7 +61,7 @@ int CSelectionStreams::IndexOf(StreamType type, int source, int64_t demuxerId,
 SelectionStream &CSelectionStreams::Get(StreamType type, int index) {
     std::lock_guard<std::recursive_mutex> lock(m_section);
     int count = -1;
-    for(auto & m_Stream : m_Streams) {
+    for(auto &m_Stream : m_Streams) {
         if(m_Stream.type != type)
             continue;
         count++;
@@ -82,7 +82,7 @@ std::vector<SelectionStream> CSelectionStreams::Get(StreamType type) {
 bool CSelectionStreams::Get(StreamType type, CDemuxStream::EFlags flag,
                             SelectionStream &out) {
     std::lock_guard<std::recursive_mutex> lock(m_section);
-    for(auto & m_Stream : m_Streams) {
+    for(auto &m_Stream : m_Streams) {
         if(m_Stream.type != type)
             continue;
         if((m_Stream.flags & flag) != flag)
@@ -97,7 +97,7 @@ int CSelectionStreams::Source(StreamSource source,
                               const std::string &filename) {
     std::lock_guard<std::recursive_mutex> lock(m_section);
     int index = source - 1;
-    for(auto & s : m_Streams) {
+    for(auto &s : m_Streams) {
         if(STREAM_SOURCE_MASK(s.source) != source)
             continue;
         // if it already exists, return same

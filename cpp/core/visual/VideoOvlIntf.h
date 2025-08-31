@@ -63,7 +63,9 @@ public:
     [[nodiscard]] virtual tTVPVideoOverlayMode GetMode() const = 0;
     virtual bool GetVideoSize(tjs_int &w, tjs_int &h) const = 0;
 
-    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const { return ActionOwner; }
+    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const {
+        return ActionOwner;
+    }
 };
 //---------------------------------------------------------------------------
 

@@ -250,7 +250,10 @@ void TVPCheckAndSendDumps(const std::string &dumpdir,
         sprintf(buf, msgfmt.c_str(), allDumps.size());
         if(TVPShowSimpleMessageBoxYesNo(buf, title) == 0) {
             static std::thread dumpthread;
-            dumpthread = std::thread([dumpdir, allDumps, packageName, versionStr] { SendDumps(dumpdir, allDumps, packageName, versionStr); });
+            dumpthread =
+                std::thread([dumpdir, allDumps, packageName, versionStr] {
+                    SendDumps(dumpdir, allDumps, packageName, versionStr);
+                });
         } else {
             ClearDumps(dumpdir, allDumps);
         }

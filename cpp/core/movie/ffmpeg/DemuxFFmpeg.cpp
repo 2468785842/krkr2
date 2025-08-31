@@ -167,8 +167,7 @@ bool CDVDDemuxFFmpeg::Open(InputStream *pInput, bool streaminfo,
         } else
 #endif
     {
-        auto *buffer =
-            (unsigned char *)av_malloc(FFMPEG_FILE_BUFFER_SIZE);
+        auto *buffer = (unsigned char *)av_malloc(FFMPEG_FILE_BUFFER_SIZE);
         m_ioContext =
             avio_alloc_context(buffer, FFMPEG_FILE_BUFFER_SIZE, 0, this,
                                dvd_file_read, nullptr, dvd_file_seek);
@@ -1217,8 +1216,7 @@ CDemuxStream *CDVDDemuxFFmpeg::AddStream(int streamIdx) {
 
         switch(pStream->codec->codec_type) {
             case AVMEDIA_TYPE_AUDIO: {
-                auto *st =
-                    new CDemuxStreamAudioFFmpeg(this, pStream);
+                auto *st = new CDemuxStreamAudioFFmpeg(this, pStream);
                 stream = st;
                 st->iChannels = pStream->codec->channels;
                 st->iSampleRate = pStream->codec->sample_rate;
@@ -1237,8 +1235,7 @@ CDemuxStream *CDVDDemuxFFmpeg::AddStream(int streamIdx) {
                 break;
             }
             case AVMEDIA_TYPE_VIDEO: {
-                auto *st =
-                    new CDemuxStreamVideoFFmpeg(this, pStream);
+                auto *st = new CDemuxStreamVideoFFmpeg(this, pStream);
                 stream = st;
                 if(strcmp(m_pFormatContext->iformat->name, "flv") == 0)
                     st->bVFR = true;

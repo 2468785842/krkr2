@@ -6,12 +6,12 @@
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-int main( int argc, char* argv[] ) {
+int main(int argc, char *argv[]) {
 
     static auto core_logger = spdlog::stdout_color_mt("core");
     static auto tjs2_logger = spdlog::stdout_color_mt("tjs2");
 
-    int result = Catch::Session().run( argc, argv );
+    int result = Catch::Session().run(argc, argv);
 
     return result;
 }

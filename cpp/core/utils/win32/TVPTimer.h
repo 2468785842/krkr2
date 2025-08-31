@@ -49,7 +49,7 @@ public:
     template <typename T>
     void SetOnTimerHandler(T *owner, void (T::*Handler)()) {
 
-            delete event_;
+        delete event_;
         event_ = new TVPTimerEvent<T>(owner, Handler);
         UpdateTimer();
     }

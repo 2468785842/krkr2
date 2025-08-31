@@ -62,7 +62,9 @@ public:
     void SetPreferredDrawerType(tDrawerType type) {
         PreferredDrawerType = type;
     }
-    [[nodiscard]] tDrawerType GetPreferredDrawerType() const { return PreferredDrawerType; }
+    [[nodiscard]] tDrawerType GetPreferredDrawerType() const {
+        return PreferredDrawerType;
+    }
 
     //---- LayerManager の管理関連
     void AddLayerManager(iTVPLayerManager *manager) override;
@@ -77,10 +79,9 @@ public:
 
     //---- LayerManager からの画像受け渡し関連
     void StartBitmapCompletion(iTVPLayerManager *manager) override;
-    void NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x,
-                                       tjs_int y, tTVPBaseTexture *bmp,
-                                       const tTVPRect &cliprect,
-                                       tTVPLayerType type, tjs_int opacity) override;
+    void NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y,
+                               tTVPBaseTexture *bmp, const tTVPRect &cliprect,
+                               tTVPLayerType type, tjs_int opacity) override;
     void EndBitmapCompletion(iTVPLayerManager *manager) override;
 
     //---- デバッグ支援
@@ -105,7 +106,9 @@ public:
     void Invalidate() override;
 
 public:
-    [[nodiscard]] tTVPPassThroughDrawDevice *GetDevice() const { return Device; }
+    [[nodiscard]] tTVPPassThroughDrawDevice *GetDevice() const {
+        return Device;
+    }
 };
 //---------------------------------------------------------------------------
 

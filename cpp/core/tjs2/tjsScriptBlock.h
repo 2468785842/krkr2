@@ -73,7 +73,8 @@ namespace TJS {
         }
         [[nodiscard]] tjs_uint GetTotalVMCodeSize()
             const; // returns in VM word size ( 1 word = 32bit )
-        [[nodiscard]] tjs_uint GetTotalVMDataSize() const; // returns in tTJSVariant count
+        [[nodiscard]] tjs_uint
+        GetTotalVMDataSize() const; // returns in tTJSVariant count
 
         [[nodiscard]] bool IsReusable() const {
             return GetContextCount() == 1 && TopLevelContext != nullptr &&

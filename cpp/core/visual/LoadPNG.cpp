@@ -648,9 +648,11 @@ void TVPLoadHeaderPNG(void *formatdata, tTJSBinaryStream *src,
 
         *dic = TJSCreateDictionaryObject();
         tTJSVariant val((tjs_int64)width);
-        (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("width"), nullptr, &val, (*dic));
+        (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("width"), nullptr, &val,
+                        (*dic));
         val = tTJSVariant((tjs_int64)height);
-        (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("height"), nullptr, &val, (*dic));
+        (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("height"), nullptr, &val,
+                        (*dic));
         val = tTJSVariant(bit_depth);
         (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("bpp"), nullptr, &val, (*dic));
         // color_type,interlace_type,compression_type,filter_type
@@ -678,19 +680,19 @@ void TVPLoadHeaderPNG(void *formatdata, tTJSBinaryStream *src,
                     val = tTJSVariant(TJS_W("unknown"));
                     break;
             }
-            (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("offset unit"), nullptr, &val,
-                            (*dic));
+            (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("offset unit"), nullptr,
+                            &val, (*dic));
         }
 
         png_uint_32 reso_x, reso_y;
         int reso_unit_type;
         if(png_get_pHYs(png_ptr, info_ptr, &reso_x, &reso_y, &reso_unit_type)) {
             val = tTJSVariant((tjs_int64)reso_x);
-            (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("resolution x"), nullptr, &val,
-                            (*dic));
+            (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("resolution x"), nullptr,
+                            &val, (*dic));
             val = tTJSVariant((tjs_int64)reso_y);
-            (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("resolution y"), nullptr, &val,
-                            (*dic));
+            (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("resolution y"), nullptr,
+                            &val, (*dic));
             switch(reso_unit_type) {
                 case PNG_RESOLUTION_METER:
                     val = tTJSVariant(TJS_W("meter"));
@@ -699,8 +701,8 @@ void TVPLoadHeaderPNG(void *formatdata, tTJSBinaryStream *src,
                     val = tTJSVariant(TJS_W("unknown"));
                     break;
             }
-            (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("resolution unit"), nullptr, &val,
-                            (*dic));
+            (*dic)->PropSet(TJS_MEMBERENSURE, TJS_W("resolution unit"), nullptr,
+                            &val, (*dic));
         }
     } catch(...) {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);

@@ -778,7 +778,7 @@ public:
     tjs_int _textInputPosY;
 
     void SetAttentionPoint(tjs_int left, tjs_int top,
-                                   const struct tTVPFont *font) override {
+                           const struct tTVPFont *font) override {
         _textInputPosY = top;
     }
 
@@ -814,7 +814,7 @@ public:
     }
 
     void ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right,
-                               tjs_int &bottom) override {
+                       tjs_int &bottom) override {
         left = tjs_int64(left) * ActualZoomNumer / ActualZoomDenom;
         top = tjs_int64(top) * ActualZoomNumer / ActualZoomDenom;
         right = tjs_int64(right) * ActualZoomNumer / ActualZoomDenom;
@@ -883,18 +883,21 @@ public:
         if(DrawSprite) {
             cocos2d::Size size = getContentSize();
             float scale = (float)ActualZoomNumer / ActualZoomDenom;
-// #ifdef _DEBUG
-//             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
-//                                     FOREGROUND_GREEN | FOREGROUND_RED |
-//                                         FOREGROUND_INTENSITY);
-//             printf("reset sprite: size=(%f,%f), Numer=%d, Denom=%d "
-//                    "Layer=(%d,%d)\n",
-//                    size.width, size.height, ActualZoomNumer, ActualZoomDenom,
-//                    LayerWidth, LayerHeight);
-//             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
-//                                     FOREGROUND_GREEN | FOREGROUND_RED |
-//                                         FOREGROUND_BLUE);
-// #endif
+            // #ifdef _DEBUG
+            //             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+            //                                     FOREGROUND_GREEN |
+            //                                     FOREGROUND_RED |
+            //                                         FOREGROUND_INTENSITY);
+            //             printf("reset sprite: size=(%f,%f), Numer=%d,
+            //             Denom=%d "
+            //                    "Layer=(%d,%d)\n",
+            //                    size.width, size.height, ActualZoomNumer,
+            //                    ActualZoomDenom, LayerWidth, LayerHeight);
+            //             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+            //                                     FOREGROUND_GREEN |
+            //                                     FOREGROUND_RED |
+            //                                         FOREGROUND_BLUE);
+            // #endif
             size = size / scale;
             // DrawSprite->setTextureRect(cocos2d::Rect(0, 0, size.width,
             // size.height));
@@ -966,9 +969,7 @@ public:
 
     tjs_int GetWidth() const override { return getContentSize().width; }
 
-    tjs_int GetHeight() const override {
-        return getContentSize().height;
-    }
+    tjs_int GetHeight() const override { return getContentSize().height; }
 
     void SetZoom(tjs_int numer, tjs_int denom) override {
         AdjustNumerAndDenom(numer, denom);
@@ -1135,9 +1136,7 @@ public:
         this->removeFromParent(); // and delete this
     }
 
-    bool GetWindowActive() override {
-        return _currentWindowLayer == this;
-    }
+    bool GetWindowActive() override { return _currentWindowLayer == this; }
 
     int GetMouseButtonState() const {
         int s = 0;
@@ -1372,9 +1371,7 @@ public:
     tTVPImeMode LastSetImeMode = ::imDisable;
     tTVPImeMode DefaultImeMode = ::imDisable;
 
-    tTVPImeMode GetDefaultImeMode() const override {
-        return DefaultImeMode;
-    }
+    tTVPImeMode GetDefaultImeMode() const override { return DefaultImeMode; }
 
     void ResetImeMode() override { SetImeMode(DefaultImeMode); }
 

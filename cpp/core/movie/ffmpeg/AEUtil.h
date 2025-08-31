@@ -115,19 +115,15 @@ public:
     //  unsigned int channels);
     static const char *GetStdChLayoutName(enum AEStdChLayout layout);
 
-    static unsigned int
-    DataFormatToBits(enum AEDataFormat dataFormat);
+    static unsigned int DataFormatToBits(enum AEDataFormat dataFormat);
 
-    static unsigned int
-    DataFormatToUsedBits(enum AEDataFormat dataFormat);
+    static unsigned int DataFormatToUsedBits(enum AEDataFormat dataFormat);
 
-    static unsigned int
-    DataFormatToDitherBits(enum AEDataFormat dataFormat);
+    static unsigned int DataFormatToDitherBits(enum AEDataFormat dataFormat);
 
     static const char *DataFormatToStr(enum AEDataFormat dataFormat);
 
-    static const char *
-    StreamTypeToStr(enum CAEStreamInfo::DataType dataType);
+    static const char *StreamTypeToStr(enum CAEStreamInfo::DataType dataType);
 
     /*! \brief convert a volume percentage (as a proportion) to a dB
      gain We assume a dB range of 60dB, i.e. assume that 0% volume

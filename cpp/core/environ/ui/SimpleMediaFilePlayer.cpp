@@ -26,8 +26,7 @@ class SimplePlayerOverlay {
 public:
     SimplePlayerOverlay() {
         _overlay = KRMovie::VideoPresentOverlay2::create();
-        _overlay->SetFuncGetBounds(
-            [this] { return GetBounds(); });
+        _overlay->SetFuncGetBounds([this] { return GetBounds(); });
     }
     ~SimplePlayerOverlay() { _overlay->Release(); }
     void SetBounds(const tTVPRect &rect) { _rect = rect; }
@@ -86,7 +85,10 @@ static std::string _formatTime(unsigned int t, char prefix = 0) {
 
 SimpleMediaFilePlayer::SimpleMediaFilePlayer() {
     _player = new SimplePlayerOverlay;
-    _player->SetCallback([this](auto && PH1, auto && PH2) { onPlayerEvent(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); });
+    _player->SetCallback([this](auto &&PH1, auto &&PH2) {
+        onPlayerEvent(std::forward<decltype(PH1)>(PH1),
+                      std::forward<decltype(PH2)>(PH2));
+    });
 }
 
 SimpleMediaFilePlayer::~SimpleMediaFilePlayer() {

@@ -960,7 +960,7 @@ tTJSNativeClass *TVPCreateNativeClass_Plugins() {
         iTJSDispatch2 *array = TJSCreateArrayObject();
         try {
             tjs_int idx = 0;
-            for(const ttstr& name : TVPRegisteredPlugins) {
+            for(const ttstr &name : TVPRegisteredPlugins) {
                 tTJSVariant val(name);
                 array->PropSetByNum(TJS_MEMBERENSURE, idx++, &val, array);
             }

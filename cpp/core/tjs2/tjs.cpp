@@ -272,7 +272,7 @@ namespace TJS {
                 ScriptBlocks.erase(i);
                 break;
             }
-            i++;
+            ++i;
         }
     }
 

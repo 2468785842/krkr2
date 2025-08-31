@@ -67,9 +67,9 @@ tTVPPrerenderedFont::tTVPPrerenderedFont(const ttstr &storage)
                                                                          32));
     } catch(...) {
 
-            delete stream;
+        delete stream;
 
-            delete[] Image;
+        delete[] Image;
         throw;
     }
     TVPPrerenderedFonts.Add(storage, this);
@@ -77,7 +77,7 @@ tTVPPrerenderedFont::tTVPPrerenderedFont(const ttstr &storage)
 //---------------------------------------------------------------------------
 tTVPPrerenderedFont::~tTVPPrerenderedFont() {
 
-        delete[] Image;
+    delete[] Image;
 
     TVPPrerenderedFonts.Delete(Storage);
 }

@@ -532,7 +532,8 @@ namespace TJS {
                 if(TJS_strchr(delim, *s) != nullptr) {
                     // delimiter found
                     if(!purgeempty || (purgeempty && (s - sstart) != 0)) {
-                        ni->Items.emplace_back(tTJSString(sstart, (int)(s - sstart)));
+                        ni->Items.emplace_back(
+                            tTJSString(sstart, (int)(s - sstart)));
                     }
                     s++;
                     sstart = s;

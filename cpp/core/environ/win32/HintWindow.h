@@ -42,9 +42,8 @@ public:
 
     virtual void __fastcall ActivateHint(const TRect &Rect,
                                          const AnsiString AHint);
-    virtual void __fastcall ActivateHintData(const TRect &Rect,
-                                             const AnsiString AHint,
-                                             void *AData);
+    virtual void __fastcall
+    ActivateHintData(const TRect &Rect, const AnsiString AHint, void *AData);
     virtual TRect __fastcall CalcHintRect(int MaxWidth, const AnsiString AHint,
                                           void *AData);
     virtual bool __fastcall IsHintMsg(tagMSG &Msg);

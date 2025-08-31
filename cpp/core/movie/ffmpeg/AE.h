@@ -152,7 +152,7 @@ public:
      */
     virtual IAEStream *MakeStream(AEAudioFormat &audioFormat,
                                   unsigned int options,
-                                  IAEClockCallback *clock)= 0;
+                                  IAEClockCallback *clock) = 0;
 
     /**
      * This method will remove the specifyed stream from the engine.
@@ -253,12 +253,12 @@ public:
      * Instruct AE to keep configuration for a specified time
      * @param millis time for which old configuration should be kept
      */
-    virtual void KeepConfiguration(unsigned int millis) { }
+    virtual void KeepConfiguration(unsigned int millis) {}
 
     /**
      * Instruct AE to re-initialize, e.g. after ELD change event
      */
-    virtual void DeviceChange() { }
+    virtual void DeviceChange() {}
 
     /**
      * Indicates if dsp addon system is active.

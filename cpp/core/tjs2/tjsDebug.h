@@ -119,7 +119,9 @@ namespace TJS {
         return nullptr != TJSObjectHashMap;
     }
 
-    extern inline bool TJSObjectFlagEnabled() { return nullptr != TJSObjectHashMap; }
+    extern inline bool TJSObjectFlagEnabled() {
+        return nullptr != TJSObjectHashMap;
+    }
 
     extern ttstr TJSGetObjectTypeInfo(void *object);
 
@@ -149,7 +151,9 @@ namespace TJS {
     extern ttstr TJSGetStackTraceString(tjs_int limit = 0,
                                         const tjs_char *delimiter = nullptr);
 
-    static inline bool TJSStackTracerEnabled() { return nullptr != TJSStackTracer; }
+    static inline bool TJSStackTracerEnabled() {
+        return nullptr != TJSStackTracer;
+    }
     //---------------------------------------------------------------------------
 
 } // namespace TJS

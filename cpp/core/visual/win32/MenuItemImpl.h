@@ -76,7 +76,8 @@ public:
     [[nodiscard]] tjs_int GetIndex() const;
     void SetIndex(tjs_int newIndex);
 
-    [[nodiscard]] tjs_int TrackPopup(tjs_uint32 flags, tjs_int x, tjs_int y) const;
+    [[nodiscard]] tjs_int TrackPopup(tjs_uint32 flags, tjs_int x,
+                                     tjs_int y) const;
 
     [[nodiscard]] const ObjectVector<tTJSNI_BaseMenuItem> &GetChildren() const {
         return Children;

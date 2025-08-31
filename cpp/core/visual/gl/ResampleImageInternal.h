@@ -29,7 +29,7 @@ struct tTVPBlendImageFunc : public tTVPImageCopyFuncBase {
         opa_(opa), blend_func_(blend_func) {}
 
     void operator()(tjs_uint32 *dest, const tjs_uint32 *src,
-                            tjs_int len) const override {
+                    tjs_int len) const override {
         blend_func_(dest, src, len, opa_);
     }
 };
@@ -40,7 +40,7 @@ struct tTVPCopyImageFunc : public tTVPImageCopyFuncBase {
                                         tjs_int len)) : copy_func_(copy_func) {}
 
     void operator()(tjs_uint32 *dest, const tjs_uint32 *src,
-                            tjs_int len) const override {
+                    tjs_int len) const override {
         copy_func_(dest, src, len);
     }
 };
@@ -88,9 +88,13 @@ struct tTVPResampleClipping {
     void setClipping(const tTVPRect &cliprect, const tTVPRect &destrect);
 
     /** 実際にコピーされる幅 */
-    [[nodiscard]] inline tjs_int getDestWidth() const { return width_ - offsetx_; }
+    [[nodiscard]] inline tjs_int getDestWidth() const {
+        return width_ - offsetx_;
+    }
     /** 実際にコピーされる高さ */
-    [[nodiscard]] inline tjs_int getDestHeight() const { return height_ - offsety_; }
+    [[nodiscard]] inline tjs_int getDestHeight() const {
+        return height_ - offsety_;
+    }
 };
 
 /**

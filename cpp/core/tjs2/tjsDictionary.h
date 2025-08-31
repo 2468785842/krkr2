@@ -66,7 +66,9 @@ namespace TJS {
         void Invalidate() override; // Invalidate override
 
     public:
-        [[nodiscard]] bool IsValid() const { return Owner != nullptr; } // check validation
+        [[nodiscard]] bool IsValid() const {
+            return Owner != nullptr;
+        } // check validation
 
         void Assign(iTJSDispatch2 *dsp, bool clear = true);
 
@@ -177,7 +179,8 @@ namespace TJS {
 
         tjs_error Operation(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, tTJSVariant *result,
-                            const tTJSVariant *param, iTJSDispatch2 *objthis) override;
+                            const tTJSVariant *param,
+                            iTJSDispatch2 *objthis) override;
     };
     //---------------------------------------------------------------------------
 

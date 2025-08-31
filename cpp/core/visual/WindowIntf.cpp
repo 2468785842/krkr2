@@ -188,7 +188,7 @@ void tTJSNI_BaseWindow::Invalidate() {
 
     // free DrawBuffer
 
-        delete DrawBuffer;
+    delete DrawBuffer;
 
     // disconnect all VideoOverlay objects
     {

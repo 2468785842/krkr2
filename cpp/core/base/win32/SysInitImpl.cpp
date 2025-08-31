@@ -497,10 +497,10 @@ static void PushAllCommandlineArguments() {}
 static void PushConfigFileOptions(const std::vector<std::string> *options) {
     if(!options)
         return;
-    for(const auto & option : *options) {
+    for(const auto &option : *options) {
         if(option.c_str()[0] != ';') // unless comment
-            TVPProgramArguments.push_back(TVPParseCommandLineOne(
-                TJS_W("-") + ttstr(option.c_str())));
+            TVPProgramArguments.push_back(
+                TVPParseCommandLineOne(TJS_W("-") + ttstr(option.c_str())));
     }
 }
 
@@ -512,7 +512,7 @@ static void TVPInitProgramArgumentsAndDataPath(bool stop_after_datapath_got) {
         // find options from self executable image
         const int num_option_layers = 3;
         std::vector<std::string> *options[num_option_layers];
-        for(auto & option : options)
+        for(auto &option : options)
             option = nullptr;
         try {
             // read embedded options and default configuration file
@@ -552,12 +552,12 @@ static void TVPInitProgramArgumentsAndDataPath(bool stop_after_datapath_got) {
             PushConfigFileOptions(options[1]); // has more priority
             PushConfigFileOptions(options[0]); // has lesser priority
         } catch(...) {
-            for(auto & option : options)
+            for(auto &option : options)
                 if(option)
                     delete option;
             throw;
         }
-        for(auto & option : options)
+        for(auto &option : options)
             if(option)
                 delete option;
 

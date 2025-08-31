@@ -12,6 +12,7 @@
 #define DebugIntfH
 
 #include "tjsNative.h"
+#include "tjs.h"
 
 //---------------------------------------------------------------------------
 // global definitions

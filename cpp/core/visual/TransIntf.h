@@ -144,7 +144,7 @@ public:
         /*out*/ tTVPTransType *type, // transition type
         /*out*/ tTVPTransUpdateType *updatetype, // update typwe
         /*out*/ iTVPBaseTransHandler **handler // transition handler
-    ) override;
+        ) override;
 
     virtual iTVPBaseTransHandler *GetTransitionObject(
         /*in*/ iTVPSimpleOptionProvider *options, // option provider

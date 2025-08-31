@@ -45,9 +45,13 @@ public:
 
     inline void SetInfinite() { totalWaitTime = InfiniteValue; }
 
-    [[nodiscard]] inline bool IsInfinite() const { return (totalWaitTime == InfiniteValue); }
+    [[nodiscard]] inline bool IsInfinite() const {
+        return (totalWaitTime == InfiniteValue);
+    }
 
-    [[nodiscard]] inline unsigned int GetInitialTimeoutValue() const { return totalWaitTime; }
+    [[nodiscard]] inline unsigned int GetInitialTimeoutValue() const {
+        return totalWaitTime;
+    }
 
     [[nodiscard]] inline unsigned int GetStartTime() const { return startTime; }
 };

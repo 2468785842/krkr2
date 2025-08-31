@@ -118,7 +118,9 @@ private:
         Position positions;
         bool usingThis;
 
-        [[nodiscard]] inline const Position &getPosition() const { return positions; }
+        [[nodiscard]] inline const Position &getPosition() const {
+            return positions;
+        }
     };
 
     [[nodiscard]] float chooseWeight(tjs_uint32 index) const;

@@ -30,8 +30,7 @@ public:
         eEnterFromBottom,
     };
 
-    void pushUIForm(cocos2d::Node *ui,
-                    eEnterAni ani = eEnterAniOverFromRight);
+    void pushUIForm(cocos2d::Node *ui, eEnterAni ani = eEnterAniOverFromRight);
 
     enum eLeaveAni {
         eLeaveAniNone,

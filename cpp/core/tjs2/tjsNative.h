@@ -37,7 +37,7 @@ namespace TJS {
     class tTJSNativeInstance : public iTJSNativeInstance {
     public:
         tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                                    iTJSDispatch2 *tjs_obj) override {
+                            iTJSDispatch2 *tjs_obj) override {
             return TJS_S_OK;
         }
 

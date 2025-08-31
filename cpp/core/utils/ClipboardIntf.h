@@ -35,7 +35,7 @@ TJS_EXP_FUNC_DEF(bool, TVPClipboardGetText, (ttstr & text));
 class tTJSNI_BaseClipboard : public tTJSNativeInstance {
 public:
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                                iTJSDispatch2 *dsp) override;
+                        iTJSDispatch2 *dsp) override;
 
     void Invalidate() override;
 };

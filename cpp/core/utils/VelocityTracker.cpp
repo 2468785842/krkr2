@@ -77,7 +77,8 @@ LeastSquaresVelocityTrackerStrategy::LeastSquaresVelocityTrackerStrategy(
     clear();
 }
 
-LeastSquaresVelocityTrackerStrategy::~LeastSquaresVelocityTrackerStrategy() = default;
+LeastSquaresVelocityTrackerStrategy::~LeastSquaresVelocityTrackerStrategy() =
+    default;
 
 void LeastSquaresVelocityTrackerStrategy::clear() {
     mIndex = 0;

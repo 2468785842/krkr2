@@ -53,7 +53,8 @@ public:
     NodeMap(const char *filename, cocos2d::Node *node);
 
     template <typename T = cocos2d::Node>
-    [[nodiscard]] T *findController(const std::string &name, bool notice = true) const {
+    [[nodiscard]] T *findController(const std::string &name,
+                                    bool notice = true) const {
         auto *node = findController<cocos2d::Node>(name, notice);
         if(node) {
             return dynamic_cast<T *>(node);
@@ -62,7 +63,7 @@ public:
     }
 
     [[nodiscard]] cocos2d::ui::Widget *findWidget(const std::string &name,
-                                    bool notice = true) const {
+                                                  bool notice = true) const {
         return findController<cocos2d::ui::Widget>(name, notice);
     }
 
@@ -70,8 +71,9 @@ public:
 };
 
 template <>
-[[nodiscard]] cocos2d::Node *NodeMap::findController<cocos2d::Node>(const std::string &name,
-                                                      bool notice) const;
+[[nodiscard]] cocos2d::Node *
+NodeMap::findController<cocos2d::Node>(const std::string &name,
+                                       bool notice) const;
 
 class CSBReader : public NodeMap {
 public:

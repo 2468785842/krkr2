@@ -170,7 +170,7 @@ s = sign,  negative if this is 1, otherwise positive.
 
 #define TJS_IEEE_D_GET_SIGN(x) (0 != ((x) & TJS_IEEE_D_SIGN_MASK))
 #define TJS_IEEE_D_GET_EXP(x)                                                  \
-    ((tjs_int)((((x) & TJS_IEEE_D_EXP_MASK) >> TJS_IEEE_D_SIGNIFICAND_BITS) -    \
+    ((tjs_int)((((x) & TJS_IEEE_D_EXP_MASK) >> TJS_IEEE_D_SIGNIFICAND_BITS) -  \
                TJS_IEEE_D_EXP_BIAS))
 #define TJS_IEEE_D_GET_SIGNIFICAND(x) ((x) & TJS_IEEE_D_SIGNIFICAND_MASK)
 

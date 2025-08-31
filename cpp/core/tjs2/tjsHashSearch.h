@@ -308,7 +308,8 @@ namespace TJS {
             return FindWithHash(key, HashFuncT::Make(key), keyout, value);
         }
 
-        [[nodiscard]] ValueT *FindWithHash(const KeyT &key, tjs_uint32 hash) const {
+        [[nodiscard]] ValueT *FindWithHash(const KeyT &key,
+                                           tjs_uint32 hash) const {
             // find key ( hash )
             // return   nullptr  if not found
 #ifdef TJS_HS_DEBUG_CHAIN
@@ -480,8 +481,8 @@ namespace TJS {
                 delete elm;
         }
 
-        [[nodiscard]] const element *InternalFindWithHash(const KeyT &key,
-                                            tjs_uint32 hash) const {
+        [[nodiscard]] const element *
+        InternalFindWithHash(const KeyT &key, tjs_uint32 hash) const {
             // find key ( hash )
 #ifdef TJS_HS_DEBUG_CHAIN
             hash = 0;

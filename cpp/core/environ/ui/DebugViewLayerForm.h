@@ -13,9 +13,8 @@ public:
     bool init() override;
 
 private:
-    cocos2d::Size
-    tableCellSizeForIndex(cocos2d::extension::TableView *table,
-                          ssize_t idx) override;
+    cocos2d::Size tableCellSizeForIndex(cocos2d::extension::TableView *table,
+                                        ssize_t idx) override;
     cocos2d::extension::TableViewCell *
     tableCellAtIndex(cocos2d::extension::TableView *table,
                      ssize_t idx) override;

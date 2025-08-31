@@ -655,7 +655,10 @@ namespace TJS {
         return ret;
     }
 
-    void TJS_free(void *buf) { free((char *)buf - sizeof(size_t)); }
+    void TJS_free(void *buf) {
+        if(buf)
+            free((char *)buf - sizeof(size_t));
+    }
 
     tjs_char *TJS_strrchr(const tjs_char *s, int c) {
         tjs_char *ret = nullptr;

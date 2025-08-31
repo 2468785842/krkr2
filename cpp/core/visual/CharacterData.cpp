@@ -464,8 +464,7 @@ void tTVPCharacterData::AddHorizontalLine(tjs_int liney, tjs_int thickness,
     if(newwidth != BlackBoxX || newheight != BlackBoxY) {
         // tjs_int newpitch =  (((newwidth -1)>>2)+1)<<2;
         tjs_int newpitch = (((newwidth * 4 - 1) >> 3) + 1) << 3;
-        auto *newdata =
-            (tjs_uint8 *)TJSAlignedAlloc(newpitch * newheight, 4);
+        auto *newdata = (tjs_uint8 *)TJSAlignedAlloc(newpitch * newheight, 4);
         memset(newdata, 0, sizeof(tjs_uint8) * newpitch * newheight);
         // x は OriginX 分ずれる
         // y は OriginY - top分ずれる

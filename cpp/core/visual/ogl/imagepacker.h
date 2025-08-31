@@ -77,7 +77,8 @@ namespace ImagePacker {
     struct rect_ltrb {
         rect_ltrb();
         rect_ltrb(int left, int top, int right, int bottom);
-        [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] int l, t, r, b, w() const, h() const, area() const, perimeter() const;
+        [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] int l, t, r, b,
+            w() const, h() const, area() const, perimeter() const;
         void w(int), h(int);
     };
 

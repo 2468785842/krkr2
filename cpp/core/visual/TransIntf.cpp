@@ -421,7 +421,7 @@ public:
 
     tjs_error SetOption(
         /*in*/ iTVPSimpleOptionProvider *options // option provider
-    ) override {
+        ) override {
         if(Options)
             Options->Release();
         options = options;
@@ -1069,7 +1069,7 @@ public:
         /*out*/ tTVPTransType *type, // transition type
         /*out*/ tTVPTransUpdateType *updatetype, // update typwe
         /*out*/ iTVPBaseTransHandler **handler // transition handler
-    ) override {
+        ) override {
         tjs_error er = tTVPCrossFadeTransHandlerProvider::StartTransition(
             options, imagepro, layertype, src1w, src1h, src2w, src2h, type,
             updatetype, handler);

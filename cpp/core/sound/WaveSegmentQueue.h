@@ -128,11 +128,15 @@ public:
 
     //! @brief		セグメントの配列を得る
     //! @return		セグメントの配列
-    [[nodiscard]] const std::deque<tTVPWaveSegment> &GetSegments() const { return Segments; }
+    [[nodiscard]] const std::deque<tTVPWaveSegment> &GetSegments() const {
+        return Segments;
+    }
 
     //! @brief		ラベルの配列を得る
     //! @return		ラベルの配列
-    [[nodiscard]] const std::deque<tTVPWaveLabel> &GetLabels() const { return Labels; }
+    [[nodiscard]] const std::deque<tTVPWaveLabel> &GetLabels() const {
+        return Labels;
+    }
 
     //! @brief		tTVPWaveSegmentQueueをエンキューする
     //! @param		queue
@@ -178,7 +182,8 @@ public:
     //! @brief		フィルタされた位置からデコード位置へ変換を行う
     //! @param		pos フィルタされた位置
     //! @note		デコード位置
-    [[nodiscard]] tjs_int64 FilteredPositionToDecodePosition(tjs_int64 pos) const;
+    [[nodiscard]] tjs_int64
+    FilteredPositionToDecodePosition(tjs_int64 pos) const;
 };
 //---------------------------------------------------------------------------
 

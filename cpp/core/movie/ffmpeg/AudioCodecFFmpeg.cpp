@@ -40,7 +40,7 @@ bool CDVDAudioCodecFFmpeg::Open(CDVDStreamInfo &hints,
     bool allowdtshddecode = true;
 
     // set any special options
-    for(auto & m_key : options.m_keys)
+    for(auto &m_key : options.m_keys)
         if(m_key.m_name == "allowdtshddecode")
             allowdtshddecode = atoi(m_key.m_value.c_str());
 

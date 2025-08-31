@@ -67,7 +67,9 @@ public:
     [[nodiscard]] tTVPSoundStatus GetStatus() const { return Status; }
 
 public:
-    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const { return ActionOwner; }
+    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const {
+        return ActionOwner;
+    }
 
     //-- fading stuff
     //-----------------------------------------------------

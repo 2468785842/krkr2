@@ -281,7 +281,8 @@ void layerex::FontInfo::setFamilyName(const tjs_char *fName) {
     clear();
     gdiPlusUnsupportedFont = true;
     this->familyName = fName;
-    const std::unique_ptr<tTJSBinaryStream> stream { TVPCreateFontStream(TVPGetDefaultFontName())};
+    const std::unique_ptr<tTJSBinaryStream> stream{ TVPCreateFontStream(
+        TVPGetDefaultFontName()) };
     const auto bufferSize = static_cast<FT_Long>(stream->GetSize());
     const auto buffer = std::make_unique<FT_Byte[]>(bufferSize);
     stream->ReadBuffer(buffer.get(), bufferSize);

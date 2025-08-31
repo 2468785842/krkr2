@@ -338,9 +338,7 @@ namespace TJS {
                 return *this;
             }
 
-            ~tFixData() {
-                delete[] Code;
-            }
+            ~tFixData() { delete[] Code; }
         };
 
         struct tNonLocalFunctionDecl {
@@ -678,7 +676,7 @@ namespace TJS {
 
         tjs_int ExecuteCode(tTJSVariant *ra, tjs_int startip,
                             tTJSVariant **args, tjs_int numargs,
-                            tTJSVariant *result);
+                            tTJSVariant *result, bool tryCatch = false);
 
         tjs_int ExecuteCodeInTryBlock(tTJSVariant *ra, tjs_int startip,
                                       tTJSVariant **args, tjs_int numargs,
@@ -768,8 +766,7 @@ namespace TJS {
         void RegisterObjectMember(iTJSDispatch2 *dest);
 
         // for Byte code
-        static void Add4ByteToVector(std::vector<tjs_uint8> *array,
-                                     int value) {
+        static void Add4ByteToVector(std::vector<tjs_uint8> *array, int value) {
             array->push_back((tjs_uint8)((value >> 0) & 0xff));
             array->push_back((tjs_uint8)((value >> 8) & 0xff));
             array->push_back((tjs_uint8)((value >> 16) & 0xff));
@@ -816,7 +813,8 @@ namespace TJS {
         }
 
         tjs_error DeleteMember(tjs_uint32 flag, const tjs_char *membername,
-                               tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
+                               tjs_uint32 *hint,
+                               iTJSDispatch2 *objthis) override;
 
         tjs_error Invalidate(tjs_uint32 flag, const tjs_char *membername,
                              tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
@@ -826,7 +824,8 @@ namespace TJS {
 
         tjs_error Operation(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, tTJSVariant *result,
-                            const tTJSVariant *param, iTJSDispatch2 *objthis) override;
+                            const tTJSVariant *param,
+                            iTJSDispatch2 *objthis) override;
 
         // for Byte code
         void SetCodeObject(tTJSInterCodeContext *parent,

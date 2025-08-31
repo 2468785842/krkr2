@@ -51,11 +51,17 @@ namespace TJS {
 
         // this count includes variable holder that is marked as
         // un-used
-        [[nodiscard]] tjs_int GetLocalCountStart() const { return LocalCountStart; }
+        [[nodiscard]] tjs_int GetLocalCountStart() const {
+            return LocalCountStart;
+        }
 
-        [[nodiscard]] tjs_int *GetStartWriteAddr() const { return StartWriteAddr; }
+        [[nodiscard]] tjs_int *GetStartWriteAddr() const {
+            return StartWriteAddr;
+        }
 
-        [[nodiscard]] tjs_int *GetCountWriteAddr() const { return CountWriteAddr; }
+        [[nodiscard]] tjs_int *GetCountWriteAddr() const {
+            return CountWriteAddr;
+        }
     };
 
     //---------------------------------------------------------------------------

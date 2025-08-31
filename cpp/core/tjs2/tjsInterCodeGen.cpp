@@ -765,7 +765,8 @@ namespace TJS // following is in the namespace
             *(codep++) = TJS_TO_VM_REG_ADDR(1);
 
             // make a patch information
-            FixList.emplace_back(FunctionRegisterCodePoint, 0, codesize, code, true);
+            FixList.emplace_back(FunctionRegisterCodePoint, 0, codesize, code,
+                                 true);
 
             NonLocalFunctionDeclVector.clear();
         }
@@ -913,7 +914,8 @@ namespace TJS // following is in the namespace
             tjs_int name = Parent->PutData(val);
             bool changethis =
                 ContextType == ctFunction || ContextType == ctProperty;
-            Parent->NonLocalFunctionDeclVector.emplace_back(data, name, changethis);
+            Parent->NonLocalFunctionDeclVector.emplace_back(data, name,
+                                                            changethis);
         }
 
         if(ContextType == ctFunction && Parent->ContextType == ctFunction) {
@@ -1021,7 +1023,7 @@ namespace TJS // following is in the namespace
         // we do thus nasty thing because the std::vector does not
         // free its storage even we call 'clear' method...
 #define RE_CREATE(place, type, classname)                                      \
-    (&place)->~classname();                                              \
+    (&place)->~classname();                                                    \
     new(&place) type()
 
         RE_CREATE(NodeToDeleteVector, std::vector<tTJSExprNode *>, vector);
@@ -1989,8 +1991,7 @@ namespace TJS // following is in the namespace
                 }
                 if((*node)[0]) {
                     tTJSExprNode *n = (*node)[0];
-                    if(n->GetOpcode() ==
-                       parser::token_kind_type::T_EXPANDARG) {
+                    if(n->GetOpcode() == parser::token_kind_type::T_EXPANDARG) {
                         // expanding argument
                         if((*n)[0])
                             AddFuncArg(_GenNodeCode(frame, (*n)[0],
@@ -3815,8 +3816,7 @@ namespace TJS // following is in the namespace
 #endif
 
 #ifndef TJS_NO_CONSTANT_FOLDING
-        if(node1 &&
-           node1->GetOpcode() == parser::token_kind_type::T_CONSTVAL) {
+        if(node1 && node1->GetOpcode() == parser::token_kind_type::T_CONSTVAL) {
             // constant folding
             tTJSExprNode *ret = nullptr;
 
@@ -3893,10 +3893,8 @@ namespace TJS // following is in the namespace
 #endif
 
 #ifndef TJS_NO_CONSTANT_FOLDING
-        if(node1 &&
-           node1->GetOpcode() == parser::token_kind_type::T_CONSTVAL &&
-           node2 &&
-           node2->GetOpcode() == parser::token_kind_type::T_CONSTVAL) {
+        if(node1 && node1->GetOpcode() == parser::token_kind_type::T_CONSTVAL &&
+           node2 && node2->GetOpcode() == parser::token_kind_type::T_CONSTVAL) {
             // constant folding
             switch(opecode) {
                 case parser::token_kind_type::T_COMMA:

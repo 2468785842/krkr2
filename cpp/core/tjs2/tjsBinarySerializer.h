@@ -451,8 +451,7 @@ namespace TJS {
         ReadStringVarint(const tjs_uint8 *buff, tjs_uint len, tjs_uint &index) {
             tTJSVariantString *ret = ReadString(buff, len, index);
             if(!ret) {
-                auto *var =
-                    new tTJSVariant(TJSMapGlobalStringMap(ttstr()));
+                auto *var = new tTJSVariant(TJSMapGlobalStringMap(ttstr()));
                 return var;
             } else {
                 ttstr str(ret);
@@ -500,10 +499,10 @@ namespace TJS {
         class tTJSArrayObject *CreateArray(tjs_uint count);
 
         static void AddDictionary(class tTJSDictionaryObject *dic,
-                           tTJSVariantString *name, tTJSVariant *value);
+                                  tTJSVariantString *name, tTJSVariant *value);
 
         static void InsertArray(class tTJSArrayObject *array, tjs_uint index,
-                         tTJSVariant *value);
+                                tTJSVariant *value);
 
         tTJSVariant *ReadBasicType(const tjs_uint8 *buff, tjs_uint size,
                                    tjs_uint &index);

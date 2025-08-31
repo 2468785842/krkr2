@@ -98,9 +98,9 @@ struct CCurrentStream {
     int dispTime{}; // display time from input stream
     CDVDStreamInfo hint; // stream hints, used to notice stream changes
     void *stream{}; // pointer or integer, identifying stream playing.
-                  // if it changes stream changed
+                    // if it changes stream changed
     int changes{}; // remembered counter from stream to track codec
-                 // changes
+                   // changes
     bool inited{};
     unsigned int packets{};
     IDVDStreamPlayer::ESyncState syncState;
@@ -189,7 +189,7 @@ struct SPlayerState {
     int64_t cache_bytes{}; // number of bytes current's cached
     double cache_level{}; // current estimated required cache level
     double cache_delay{}; // time until cache is expected to reach
-                        // estimated level
+                          // estimated level
     double cache_offset{}; // percentage of file ahead of current position
 };
 
@@ -284,7 +284,7 @@ public:
     void VideoParamsChange() override;
 
     void GetDebugInfo(std::string &audio, std::string &video,
-                              std::string &general) override;
+                      std::string &general) override;
 
     void UpdateClockSync(bool enabled) override;
 

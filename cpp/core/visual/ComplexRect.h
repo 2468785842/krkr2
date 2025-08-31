@@ -366,9 +366,9 @@ public:
 public: // iterator
     tIterator GetIterator() const {
         if(Count)
-            return {Head};
+            return { Head };
         else
-            return {nullptr};
+            return { nullptr };
     }
 
 public: // debug

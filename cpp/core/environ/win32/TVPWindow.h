@@ -448,8 +448,12 @@ public:
         TouchRotateThreshold = threshold;
     }
     double GetTouchRotateThreshold() { return TouchRotateThreshold; }
-    [[nodiscard]] tjs_real GetTouchPointStartX(tjs_int index) const { return 0; }
-    [[nodiscard]] tjs_real GetTouchPointStartY(tjs_int index) const { return 0; }
+    [[nodiscard]] tjs_real GetTouchPointStartX(tjs_int index) const {
+        return 0;
+    }
+    [[nodiscard]] tjs_real GetTouchPointStartY(tjs_int index) const {
+        return 0;
+    }
     [[nodiscard]] tjs_real GetTouchPointX(tjs_int index) const { return 0; }
     [[nodiscard]] tjs_real GetTouchPointY(tjs_int index) const { return 0; }
     [[nodiscard]] tjs_int GetTouchPointID(tjs_int index) const { return 0; }

@@ -2222,7 +2222,9 @@ namespace ASTCRealTimeCodec {
         [[nodiscard]] const vec3f_t &row(size_t i) const { return m[i]; }
 
         float &at(size_t i, size_t j) { return m[i].components[j]; }
-        [[nodiscard]] const float &at(size_t i, size_t j) const { return m[i].components[j]; }
+        [[nodiscard]] const float &at(size_t i, size_t j) const {
+            return m[i].components[j];
+        }
 
     private:
         vec3f_t m[3];

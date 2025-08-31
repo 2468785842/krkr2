@@ -235,8 +235,8 @@ public:
     bool CloseFlag;
 
 public:
-    [[nodiscard]] bool
-    CanDeliverEvents() const override; // tTJSNI_BaseWindow::CanDeliverEvents override
+    [[nodiscard]] bool CanDeliverEvents()
+        const override; // tTJSNI_BaseWindow::CanDeliverEvents override
 
 public:
     [[nodiscard]] TTVPWindowForm *GetForm() const override { return Form; }

@@ -173,7 +173,8 @@ void tPreferenceItemSelectList::initController(const NodeMap &allNodes) {
     selected = static_cast<Text *>(allNodes.findController("selected"));
     updateHightlight();
     setTouchEnabled(true);
-    addClickEventListener([this](auto && PH1) { showForm(std::forward<decltype(PH1)>(PH1)); });
+    addClickEventListener(
+        [this](auto &&PH1) { showForm(std::forward<decltype(PH1)>(PH1)); });
 }
 
 const char *tPreferenceItemSelectList::getUIFileName() const {
@@ -238,7 +239,8 @@ void tPreferenceItemKeyValPair::initController(const NodeMap &allNodes) {
     _title->setString(val.first);
     selected->setString(val.second);
     setTouchEnabled(true);
-    addClickEventListener([this](auto && PH1) { showInput(std::forward<decltype(PH1)>(PH1)); });
+    addClickEventListener(
+        [this](auto &&PH1) { showInput(std::forward<decltype(PH1)>(PH1)); });
 }
 
 const char *tPreferenceItemKeyValPair::getUIFileName() const {
@@ -422,7 +424,8 @@ void tPreferenceItemFileSelect::initController(const NodeMap &allNodes) {
     selected = static_cast<Text *>(allNodes.findController("selected"));
     updateHightlight();
     setTouchEnabled(true);
-    addClickEventListener([this](auto && PH1) { showForm(std::forward<decltype(PH1)>(PH1)); });
+    addClickEventListener(
+        [this](auto &&PH1) { showForm(std::forward<decltype(PH1)>(PH1)); });
 }
 
 const char *tPreferenceItemFileSelect::getUIFileName() const {
@@ -541,8 +544,10 @@ void tPreferenceItemDeletable::onTouchEvent(
     cocos2d::Ref *p, cocos2d::ui::Widget::TouchEventType ev) {}
 
 void tPreferenceItemDeletable::walkTouchEvent(Widget *node) {
-    node->addTouchEventListener(
-        [this](auto && PH1, auto && PH2) { onTouchEvent(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2)); });
+    node->addTouchEventListener([this](auto &&PH1, auto &&PH2) {
+        onTouchEvent(std::forward<decltype(PH1)>(PH1),
+                     std::forward<decltype(PH2)>(PH2));
+    });
     auto &vecChildren = node->getChildren();
     for(Node *child : vecChildren) {
         Widget *widget = static_cast<Widget *>(child);

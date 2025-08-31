@@ -312,8 +312,8 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
     std::string result;
 
     // get filter
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("filter"), nullptr,
-                                     &val, params))) {
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("filter"),
+                                     nullptr, &val, params))) {
     }
 
     // 		if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST,
@@ -339,8 +339,8 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
     }
 
     // filenames
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("name"), nullptr,
-                                     &val, params))) {
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("name"),
+                                     nullptr, &val, params))) {
         ttstr lname(val);
         if(!lname.IsEmpty()) {
             if(lname.IndexOf('/') >= 0) {
@@ -363,16 +363,16 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
     }
 
     // title
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("title"), nullptr,
-                                     &val, params))) {
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("title"),
+                                     nullptr, &val, params))) {
         title = tTJSNarrowStringHolder(
             val.AsStringNoAddRef()->operator const tjs_char *());
     }
 
     // flags
     bool issave = false;
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("save"), nullptr,
-                                     &val, params)))
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("save"),
+                                     nullptr, &val, params)))
         issave = val.operator bool();
 
     // show dialog box

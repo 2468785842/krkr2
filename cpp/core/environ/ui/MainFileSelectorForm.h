@@ -87,7 +87,8 @@ protected:
         void onSizeChanged() override;
 
         cocos2d::ui::ScrollView *_scrollview{};
-        cocos2d::ui::Widget *_btn_delete{}, *_btn_jump{}, *_btn_conf{}, *_btn_play{};
+        cocos2d::ui::Widget *_btn_delete{}, *_btn_jump{}, *_btn_conf{},
+            *_btn_play{};
         cocos2d::ui::Text *_prefix{}, *_path{}, *_file{};
         cocos2d::Node *_panel_delete{}, *_root = nullptr;
         std::string _fullpath;

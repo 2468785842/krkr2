@@ -245,11 +245,13 @@ public:
 
     void SetLooping(bool b) { Looping = b; }
 
-    void
-    Decode(void *dest, tjs_uint samples, tjs_uint &written,
-           tTVPWaveSegmentQueue &segments) override; // from tTVPSampleAndLabelSource
+    void Decode(void *dest, tjs_uint samples, tjs_uint &written,
+                tTVPWaveSegmentQueue &segments)
+        override; // from tTVPSampleAndLabelSource
 
-    [[nodiscard]] const tTVPWaveFormat &GetFormat() const override { return *Format; }
+    [[nodiscard]] const tTVPWaveFormat &GetFormat() const override {
+        return *Format;
+    }
 
     // from tTVPSampleAndLabelSource
     bool DesiredFormat(const tTVPWaveFormat &format) override;

@@ -118,7 +118,9 @@ namespace TJS {
         tjs_int IfLevel; // @if nesting level
 
     public:
-        [[nodiscard]] const tTJSVariant &GetValue(tjs_int idx) const { return *Values[idx]; }
+        [[nodiscard]] const tTJSVariant &GetValue(tjs_int idx) const {
+            return *Values[idx];
+        }
 
         [[nodiscard]] const tjs_char *GetString(tjs_int idx) const {
             return Values[idx]->GetString();

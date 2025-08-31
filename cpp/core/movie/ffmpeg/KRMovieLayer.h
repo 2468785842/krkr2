@@ -17,7 +17,7 @@ public:
     tTVPBaseTexture *GetFrontBuffer() override;
 
     void SetVideoBuffer(tTVPBaseTexture *buff1, tTVPBaseTexture *buff2,
-                                long size) override;
+                        long size) override;
 
     void OnContinuousCallback(tjs_uint64 tick) override;
 

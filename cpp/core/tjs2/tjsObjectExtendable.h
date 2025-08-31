@@ -26,7 +26,9 @@ namespace TJS {
 
         iTJSDispatch2 *GetSuper() { return SuperClass; }
 
-        [[nodiscard]] const iTJSDispatch2 *GetSuper() const { return SuperClass; }
+        [[nodiscard]] const iTJSDispatch2 *GetSuper() const {
+            return SuperClass;
+        }
 
         void SetSuper(iTJSDispatch2 *dsp);
 
@@ -56,7 +58,8 @@ namespace TJS {
                            tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error DeleteMember(tjs_uint32 flag, const tjs_char *membername,
-                               tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
+                               tjs_uint32 *hint,
+                               iTJSDispatch2 *objthis) override;
 
         tjs_error Invalidate(tjs_uint32 flag, const tjs_char *membername,
                              tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
@@ -66,7 +69,8 @@ namespace TJS {
 
         tjs_error Operation(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, tTJSVariant *result,
-                            const tTJSVariant *param, iTJSDispatch2 *objthis) override;
+                            const tTJSVariant *param,
+                            iTJSDispatch2 *objthis) override;
 
         tjs_error NativeInstanceSupport(tjs_uint32 flag, tjs_int32 classid,
                                         iTJSNativeInstance **pointer) override;

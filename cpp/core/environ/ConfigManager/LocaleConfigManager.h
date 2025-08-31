@@ -5,10 +5,10 @@
 #include <vector>
 
 
-    namespace cocos2d::ui {
-        class Text;
-        class Button;
-    } // namespace cocos2d::ui
+namespace cocos2d::ui {
+    class Text;
+    class Button;
+} // namespace cocos2d::ui
 
 
 class LocaleConfigManager {

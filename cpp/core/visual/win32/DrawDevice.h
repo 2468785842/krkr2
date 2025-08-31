@@ -599,9 +599,9 @@ public:
     void OnClick(tjs_int x, tjs_int y) override;
     void OnDoubleClick(tjs_int x, tjs_int y) override;
     void OnMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb,
-                             tjs_uint32 flags) override;
+                     tjs_uint32 flags) override;
     void OnMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb,
-                           tjs_uint32 flags) override;
+                   tjs_uint32 flags) override;
     void OnMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) override;
     void OnReleaseCapture() override;
     void OnMouseOutOfWindow() override;
@@ -609,36 +609,34 @@ public:
     void OnKeyUp(tjs_uint key, tjs_uint32 shift) override;
     void OnKeyPress(tjs_char key) override;
     void OnMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x,
-                              tjs_int y) override;
+                      tjs_int y) override;
     void OnTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
-                             tjs_uint32 id) override;
+                     tjs_uint32 id) override;
     void OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
-                           tjs_uint32 id) override;
+                   tjs_uint32 id) override;
     void OnTouchMove(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
-                             tjs_uint32 id) override;
-    void OnTouchScaling(tjs_real startdist, tjs_real curdist,
-                                tjs_real cx, tjs_real cy, tjs_int flag) override;
-    void OnTouchRotate(tjs_real startangle, tjs_real curangle,
-                               tjs_real dist, tjs_real cx, tjs_real cy,
-                               tjs_int flag) override;
+                     tjs_uint32 id) override;
+    void OnTouchScaling(tjs_real startdist, tjs_real curdist, tjs_real cx,
+                        tjs_real cy, tjs_int flag) override;
+    void OnTouchRotate(tjs_real startangle, tjs_real curangle, tjs_real dist,
+                       tjs_real cx, tjs_real cy, tjs_int flag) override;
     void OnMultiTouch() override;
-    void OnDisplayRotate(tjs_int orientation, tjs_int rotate,
-                                 tjs_int bpp, tjs_int width, tjs_int height) override;
+    void OnDisplayRotate(tjs_int orientation, tjs_int rotate, tjs_int bpp,
+                         tjs_int width, tjs_int height) override;
     void RecheckInputState() override;
 
     // layer manager → drawdevice
     void SetDefaultMouseCursor(iTVPLayerManager *manager) override;
     void SetMouseCursor(iTVPLayerManager *manager, tjs_int cursor) override;
     void GetCursorPos(iTVPLayerManager *manager, tjs_int &x,
-                              tjs_int &y) override;
+                      tjs_int &y) override;
     void SetCursorPos(iTVPLayerManager *manager, tjs_int x, tjs_int y) override;
     void SetHintText(iTVPLayerManager *manager, iTJSDispatch2 *sender,
-                             const ttstr &text) override;
+                     const ttstr &text) override;
     void WindowReleaseCapture(iTVPLayerManager *manager) override;
 
-    void SetAttentionPoint(iTVPLayerManager *manager,
-                                   tTJSNI_BaseLayer *layer, tjs_int l,
-                                   tjs_int t) override;
+    void SetAttentionPoint(iTVPLayerManager *manager, tTJSNI_BaseLayer *layer,
+                           tjs_int l, tjs_int t) override;
     void DisableAttentionPoint(iTVPLayerManager *manager) override;
     void SetImeMode(iTVPLayerManager *manager, tTVPImeMode mode) override;
     void ResetImeMode(iTVPLayerManager *manager) override;
@@ -660,11 +658,10 @@ public:
 
     void SetLockedSize(tjs_int w, tjs_int h);
     //---- フルスクリーン
-    bool SwitchToFullScreen(int window, tjs_uint w, tjs_uint h,
-                                    tjs_uint bpp, tjs_uint color,
-                                    bool changeresolution) override;
-    void RevertFromFullScreen(int window, tjs_uint w, tjs_uint h,
-                                      tjs_uint bpp, tjs_uint color) override;
+    bool SwitchToFullScreen(int window, tjs_uint w, tjs_uint h, tjs_uint bpp,
+                            tjs_uint color, bool changeresolution) override;
+    void RevertFromFullScreen(int window, tjs_uint w, tjs_uint h, tjs_uint bpp,
+                              tjs_uint color) override;
 
     // ほかのメソッドについては実装しない
 };

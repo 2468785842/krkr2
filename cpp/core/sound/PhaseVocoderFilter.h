@@ -59,7 +59,8 @@ public:
     void SetTime(float time) { Time = time; }
 
 private:
-    tTVPSampleAndLabelSource *Recreate(tTVPSampleAndLabelSource *source) override;
+    tTVPSampleAndLabelSource *
+    Recreate(tTVPSampleAndLabelSource *source) override;
 
     // from iTVPBasicWaveFilter
     void Clear() override; // from iTVPBasicWaveFilter
@@ -83,11 +84,13 @@ private:
     void Fill(float *dest, tjs_uint samples, tjs_uint &written,
               tTVPWaveSegmentQueue &segments);
 
-    void
-    Decode(void *dest, tjs_uint samples, tjs_uint &written,
-           tTVPWaveSegmentQueue &segments) override; // from tTVPSampleAndLabelSource
+    void Decode(void *dest, tjs_uint samples, tjs_uint &written,
+                tTVPWaveSegmentQueue &segments)
+        override; // from tTVPSampleAndLabelSource
 
-    [[nodiscard]] const tTVPWaveFormat &GetFormat() const override { return OutputFormat; }
+    [[nodiscard]] const tTVPWaveFormat &GetFormat() const override {
+        return OutputFormat;
+    }
     // from tTVPSampleAndLabelSource
 };
 //---------------------------------------------------------------------------

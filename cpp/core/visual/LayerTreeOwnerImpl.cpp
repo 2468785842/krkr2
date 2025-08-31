@@ -98,8 +98,7 @@ void tTVPLayerTreeOwner::RegisterLayerManager(class iTVPLayerManager *manager) {
 void tTVPLayerTreeOwner::UnregisterLayerManager(
     class iTVPLayerManager *manager) {
     // Managers から manager を削除する。Releaseする。
-    auto i =
-        std::find(Managers.begin(), Managers.end(), manager);
+    auto i = std::find(Managers.begin(), Managers.end(), manager);
     if(i == Managers.end())
         TVPThrowInternalError;
     (*i)->Release();
@@ -173,7 +172,7 @@ void tTVPLayerTreeOwner::NotifyLayerResize(class iTVPLayerManager *manager) {
 void tTVPLayerTreeOwner::NotifyLayerImageChange(
     class iTVPLayerManager *manager) {
     // change layer image
-    for(auto & Manager : Managers) {
+    for(auto &Manager : Managers) {
         Manager->UpdateToDrawDevice();
     }
 

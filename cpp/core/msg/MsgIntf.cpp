@@ -66,8 +66,7 @@ ttstr TVPFormatMessage(const tjs_char *msg, const ttstr &p1) {
 
 ttstr TVPFormatMessage(const tjs_char *msg, const ttstr &p1, const ttstr &p2) {
     tjs_char *p;
-    auto *buf =
-        new tjs_char[TJS_strlen(msg) + p1.GetLen() + p2.GetLen() + 1];
+    auto *buf = new tjs_char[TJS_strlen(msg) + p1.GetLen() + p2.GetLen() + 1];
     p = buf;
     for(; *msg; msg++, p++) {
         if(*msg == TJS_W('%')) {

@@ -76,7 +76,9 @@ public:
 
     [[nodiscard]] bool IsIndependent() const { return RefCount == 1; }
 
-    [[nodiscard]] const BitmapInfomation *GetBitmapInfomation() const { return BitmapInfo; }
+    [[nodiscard]] const BitmapInfomation *GetBitmapInfomation() const {
+        return BitmapInfo;
+    }
 #ifdef _WIN32
     const TVPBITMAPINFO *GetBITMAPINFO() const {
         return BitmapInfo->GetBITMAPINFO();

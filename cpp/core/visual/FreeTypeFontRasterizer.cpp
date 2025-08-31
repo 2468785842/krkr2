@@ -50,7 +50,7 @@ FreeTypeFontRasterizer::FreeTypeFontRasterizer() :
 }
 FreeTypeFontRasterizer::~FreeTypeFontRasterizer() {
 
-        delete Face;
+    delete Face;
     Face = nullptr;
     if(FaceFallback) {
         delete FaceFallback;
@@ -65,7 +65,7 @@ void FreeTypeFontRasterizer::Release() {
     LastBitmap = nullptr;
     if(RefCount == 0) {
 
-            delete Face;
+        delete Face;
         Face = nullptr;
         if(FaceFallback) {
             delete FaceFallback;

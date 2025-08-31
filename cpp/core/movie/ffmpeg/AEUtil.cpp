@@ -74,8 +74,7 @@ const char *CAEUtil::GetStdChLayoutName(const enum AEStdChLayout layout) {
     return layouts[layout];
 }
 
-unsigned int
-CAEUtil::DataFormatToBits(const enum AEDataFormat dataFormat) {
+unsigned int CAEUtil::DataFormatToBits(const enum AEDataFormat dataFormat) {
     if(dataFormat < 0 || dataFormat >= AE_FMT_MAX)
         return 0;
 
@@ -117,8 +116,7 @@ CAEUtil::DataFormatToBits(const enum AEDataFormat dataFormat) {
     return formats[dataFormat];
 }
 
-unsigned int
-CAEUtil::DataFormatToUsedBits(const enum AEDataFormat dataFormat) {
+unsigned int CAEUtil::DataFormatToUsedBits(const enum AEDataFormat dataFormat) {
     if(dataFormat == AE_FMT_S24BE4 || dataFormat == AE_FMT_S24LE4 ||
        dataFormat == AE_FMT_S24NE4 || dataFormat == AE_FMT_S24NE4MSB)
         return 24;

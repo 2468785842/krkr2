@@ -542,7 +542,7 @@ void tTVPBasicDrawDevice::Show() {
             iTVPBaseBitmap *buf = Managers.back()->GetDrawBuffer();
             if(buf)
 
-            form->UpdateDrawBuffer(buf->GetTexture());
+                form->UpdateDrawBuffer(buf->GetTexture());
         }
     }
 #if 0

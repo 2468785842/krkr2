@@ -178,7 +178,7 @@ public:
     float GetPan() override { return _pan; }
 
     void AppendBuffer(const void *_inbuf,
-                              unsigned int inlen /*, int tag = 0*/) override {
+                      unsigned int inlen /*, int tag = 0*/) override {
         if(_cvt) {
             std::vector<uint8_t> buffer;
             uint8_t *inbuf = (uint8_t *)_inbuf;
@@ -554,7 +554,7 @@ public:
     }
 
     void AppendBuffer(const void *buf,
-                              unsigned int len /*, int tag = 0*/) override {
+                      unsigned int len /*, int tag = 0*/) override {
         if(len <= 0)
             return;
         std::lock_guard<std::mutex> lk(_buffer_mtx);
@@ -743,8 +743,7 @@ public:
         return true;
     }
 
-    tTVPSoundBuffer *CreateStream(tTVPWaveFormat &fmt,
-                                          int bufcount) override {
+    tTVPSoundBuffer *CreateStream(tTVPWaveFormat &fmt, int bufcount) override {
         tTVPSoundBuffer *s = new tTVPSoundBufferAL(fmt, bufcount);
         _streams.emplace(s);
         return s;

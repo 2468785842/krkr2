@@ -116,7 +116,8 @@ namespace TJS {
 
         tjs_error FuncCallByNum(tjs_uint32 flag, tjs_int num,
                                 tTJSVariant *result, tjs_int numparams,
-                                tTJSVariant **param, iTJSDispatch2 *objthis) override;
+                                tTJSVariant **param,
+                                iTJSDispatch2 *objthis) override;
 
         tjs_error PropGet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, tTJSVariant *result,
@@ -125,7 +126,8 @@ namespace TJS {
         }
 
         tjs_error PropGetByNum(tjs_uint32 flag, tjs_int num,
-                               tTJSVariant *result, iTJSDispatch2 *objthis) override;
+                               tTJSVariant *result,
+                               iTJSDispatch2 *objthis) override;
 
         tjs_error PropSet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, const tTJSVariant *param,
@@ -157,7 +159,8 @@ namespace TJS {
         }
 
         tjs_error DeleteMember(tjs_uint32 flag, const tjs_char *membername,
-                               tjs_uint32 *hint, iTJSDispatch2 *objthis) override {
+                               tjs_uint32 *hint,
+                               iTJSDispatch2 *objthis) override {
             return membername ? TJS_E_MEMBERNOTFOUND : TJS_E_NOTIMPL;
         }
 
@@ -165,7 +168,8 @@ namespace TJS {
                                     iTJSDispatch2 *objthis) override;
 
         tjs_error Invalidate(tjs_uint32 flag, const tjs_char *membername,
-                             tjs_uint32 *hint, iTJSDispatch2 *objthis) override {
+                             tjs_uint32 *hint,
+                             iTJSDispatch2 *objthis) override {
             return membername ? TJS_E_MEMBERNOTFOUND : TJS_E_NOTIMPL;
         }
 
@@ -189,7 +193,8 @@ namespace TJS {
 
         tjs_error CreateNewByNum(tjs_uint32 flag, tjs_int num,
                                  iTJSDispatch2 **result, tjs_int numparams,
-                                 tTJSVariant **param, iTJSDispatch2 *objthis) override;
+                                 tTJSVariant **param,
+                                 iTJSDispatch2 *objthis) override;
 
         tjs_error Reserved1() override { return TJS_E_NOTIMPL; }
 
@@ -205,7 +210,8 @@ namespace TJS {
 
         tjs_error Operation(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, tTJSVariant *result,
-                            const tTJSVariant *param, iTJSDispatch2 *objthis) override;
+                            const tTJSVariant *param,
+                            iTJSDispatch2 *objthis) override;
 
         tjs_error OperationByNum(tjs_uint32 flag, tjs_int num,
                                  tTJSVariant *result, const tTJSVariant *param,
@@ -457,13 +463,15 @@ namespace TJS {
                            tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error PropSetByVS(tjs_uint32 flag, tTJSVariantString *membername,
-                              const tTJSVariant *param, iTJSDispatch2 *objthis) override;
+                              const tTJSVariant *param,
+                              iTJSDispatch2 *objthis) override;
 
         tjs_error EnumMembers(tjs_uint32 flag, tTJSVariantClosure *callback,
                               iTJSDispatch2 *objthis) override;
 
         tjs_error DeleteMember(tjs_uint32 flag, const tjs_char *membername,
-                               tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
+                               tjs_uint32 *hint,
+                               iTJSDispatch2 *objthis) override;
 
         tjs_error Invalidate(tjs_uint32 flag, const tjs_char *membername,
                              tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
@@ -482,7 +490,8 @@ namespace TJS {
 
         tjs_error Operation(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, tTJSVariant *result,
-                            const tTJSVariant *param, iTJSDispatch2 *objthis) override;
+                            const tTJSVariant *param,
+                            iTJSDispatch2 *objthis) override;
 
         tjs_error NativeInstanceSupport(tjs_uint32 flag, tjs_int32 classid,
                                         iTJSNativeInstance **pointer) override;

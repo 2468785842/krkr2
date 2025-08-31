@@ -25,7 +25,7 @@ class tTJSNI_Pad : public tTJSNI_BasePad {
 
 public:
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                                iTJSDispatch2 *dsp) override;
+                        iTJSDispatch2 *dsp) override;
 
     void Invalidate() override;
 
@@ -127,7 +127,7 @@ public:
 
 protected:
     bool UserCreationMode{}; // true if this form was created by the
-                           // userscript,
+                             // userscript,
     // otherwise (when created by the system as "Script Editor") this
     // will be false
     bool MultilineMode{};
