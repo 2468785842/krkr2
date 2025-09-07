@@ -232,8 +232,6 @@ namespace PSB {
                 return std::make_shared<PSB::PSBBool>(type ==
                                                       PSB::PSBObjType::True);
             case PSB::PSBObjType::NumberN0:
-                return std::make_shared<PSB::PSBNumber>(
-                    0); // PsbNumber is not comparable!
             case PSB::PSBObjType::NumberN1:
             case PSB::PSBObjType::NumberN2:
             case PSB::PSBObjType::NumberN3:

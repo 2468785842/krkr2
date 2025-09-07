@@ -2,10 +2,14 @@
 #include "FreeTypeFontRasterizer.h"
 #include "LayerBitmapIntf.h"
 #include "FreeType.h"
+#if _WIN32
+#include <corecrt_math_defines.h>
+#else
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
 #include <cmath>
+#endif
 #include "MsgIntf.h"
 #include "FontSystem.h"
 #include <complex>

@@ -24,3 +24,12 @@ TEST_CASE("read psbfile ev107a.pimg") {
     // const std::shared_ptr<const PSB::PSBDictionary> &objs = f.getObjects();
     // REQUIRE(objs->find("layers") != objs->end());
 }
+TEST_CASE("extract ev107a.pimg") {
+    PSB::PSBFile f;
+    REQUIRE(f.loadPSBFile(TEST_FILES_PATH "/ev107a.pimg"));
+    const PSB::PSBHeader &header = f.getPSBHeader();
+    REQUIRE(f.getType() == PSB::PSBType::Pimg);
+    CAPTURE(header.version, f.getType());
+    auto resMetadata = f.getTypeHandler()->collectResources(f, true);
+    REQUIRE(!resMetadata.empty());
+}

@@ -11,19 +11,20 @@
 #include "tjsCommHead.h"
 
 #include "tjsMath.h"
-
-#define _USE_MATH_DEFINES
-
-#include <cmath>
 #include <ctime>
 
-#ifdef __WIN32__
+#ifdef _WIN32
+#include <corecrt_math_defines.h>
 #ifndef TJS_NO_MASK_MATHERR
-#include <float.h>
+#include <cfloat>
 #endif
 #ifdef _MSC_VER
 #define _USERENTRY
 #endif
+
+#else
+#define _USE_MATH_DEFINES
+#include <cmath>
 #endif
 
 //---------------------------------------------------------------------------
