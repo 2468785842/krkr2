@@ -196,7 +196,7 @@ void TVPMainFileSelectorForm::show() {
           (lastpath.size() > RootPathLen &&
            !FileUtils::getInstance()->isDirectoryExist(lastpath))) {
         first = false;
-        std::pair<std::string, std::string> split_path = PathSplit(lastpath);
+        std::pair<std::string, std::string> split_path = pathSplit(lastpath);
         if(split_path.second.empty()) {
             lastpath.clear();
             break;
@@ -593,10 +593,10 @@ void TVPMainFileSelectorForm::ListHistory() {
         if(TVPCheckExistentLocalFile(fullpath) ||
            TVPCheckExistentLocalFolder(fullpath)) {
             std::pair<std::string, std::string> split_path =
-                PathSplit(fullpath);
+                pathSplit(fullpath);
             std::string lastname = split_path.second;
             std::string path = split_path.first;
-            split_path = PathSplit(path);
+            split_path = pathSplit(path);
             cell = HistoryCell::create(fullpath, split_path.first + "/",
                                        split_path.second, "/" + lastname);
             Widget::ccWidgetClickCallback funcConf;

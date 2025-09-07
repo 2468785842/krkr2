@@ -51,7 +51,7 @@ public:
     virtual void onCellLongPress(int idx);
     void rearrangeLayout() override;
     static std::pair<std::string, std::string>
-    PathSplit(const std::string &path);
+    pathSplit(const std::string &path);
 
 protected:
     void bindHeaderController(const Node *allNodes) override;

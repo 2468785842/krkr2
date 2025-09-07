@@ -51,7 +51,7 @@ static bool IsPathExist(const std::string &path) {
 // ptah 传入要求utf-8编码的路径
 // 返回值：父路径和文件名
 std::pair<std::string, std::string>
-TVPBaseFileSelectorForm::PathSplit(const std::string &path) {
+TVPBaseFileSelectorForm::pathSplit(const std::string &path) {
     std::filesystem::path p;
     try {
 #ifdef _WIN32
@@ -154,7 +154,7 @@ std::string utf8_to_local(const std::string &utf8) {
 
     return local;
 
-#elif defined(__LINUX__) || defined(__APPLE__)
+#elif defined(__linux__) || defined(__APPLE__)
     // Linux/macOS 直接返回原始字符串
     return utf8;
 #endif
@@ -245,7 +245,7 @@ std::string wstr_to_local(const std::wstring &wstr) {
 #endif
 }
 void TVPBaseFileSelectorForm::ListDir(std::string path) {
-    auto [fst, snd] = PathSplit(path);
+    auto [fst, snd] = pathSplit(path);
 
     ParentPath = fst;
 
@@ -637,7 +637,7 @@ void TVPBaseFileSelectorForm::onPasteClicked(cocos2d::Ref *owner) {
     // TODO progress bar
     auto func = _clipboardForMoving ? TVPRenameFile : TVPCopyFile;
     for(const std::string &path : _clipboardForFileManager) {
-        auto split_path = PathSplit(path);
+        auto split_path = pathSplit(path);
         std::string target = CurrentPath + "/" + split_path.second;
         if(IsPathExist(target)) {
             LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();

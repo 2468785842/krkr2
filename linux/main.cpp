@@ -18,13 +18,11 @@ int main(int argc, char **argv) {
     static auto plugin_logger = spdlog::stdout_color_mt("plugin");
     // 将输入的参数也就是输入文件转为wstring
     if(argc > 1) {
-
         TVPMainFileSelectorForm::filePath = utf8_to_wstr(argv[1]);
     } else {
         TVPMainFileSelectorForm::filePath = L"";
     }
     spdlog::set_default_logger(core_logger);
-
 
     static std::unique_ptr<TVPAppDelegate> pAppDelegate =
         std::make_unique<TVPAppDelegate>();

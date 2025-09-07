@@ -1932,7 +1932,7 @@ bool TVPMainScene::startupFrom(const std::string &path) {
     IndividualConfigManager *pGlobalCfgMgr =
         IndividualConfigManager::GetInstance();
     pGlobalCfgMgr->UsePreferenceAt(
-        TVPBaseFileSelectorForm::PathSplit(path).first);
+        TVPBaseFileSelectorForm::pathSplit(path).first);
     if(UINode->getChildrenCount()) {
         popUIForm(nullptr);
     }

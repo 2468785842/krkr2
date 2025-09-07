@@ -447,7 +447,7 @@ void tPreferenceItemFileSelect::showForm(cocos2d::Ref *) {
     std::string initname, initdir;
     if(!fullname.empty()) {
         std::pair<std::string, std::string> path =
-            TVPBaseFileSelectorForm::PathSplit(fullname);
+            TVPBaseFileSelectorForm::pathSplit(fullname);
         initdir = path.first;
         initname = path.second;
     }
