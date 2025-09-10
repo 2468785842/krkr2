@@ -28,7 +28,6 @@ static tjs_error getRoot(tTJSVariant *r, tjs_int n, tTJSVariant **p,
     LOGGER->warn("PSBFile::getRoot not implement");
     auto *self = ncbInstanceAdaptor<PSB::PSBFile>::GetNativeInstance(obj);
     iTJSDispatch2 *dic = TJSCreateCustomObject();
-    // self->getTypeHandler()->collectResources(*self, true);
     auto objs = self->getObjects();
     for(const auto &[k, v] : *objs) {
         tTJSVariant tmp = v->toTJSVal();
@@ -38,7 +37,7 @@ static tjs_error getRoot(tTJSVariant *r, tjs_int n, tTJSVariant **p,
     // tTJSVariant countVal{static_cast<tjs_int64>(self->resources.size())};
     // dic->PropSet(TJS_MEMBERENSURE, TJS_W("count"), nullptr, &countVal, dic);
 
-    *r = tTJSVariant{ dic, dic }; // member layers
+    *r = tTJSVariant{ dic, dic };
     dic->Release();
     return TJS_S_OK;
 }

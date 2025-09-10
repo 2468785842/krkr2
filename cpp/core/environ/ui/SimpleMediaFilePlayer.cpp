@@ -26,7 +26,7 @@ class SimplePlayerOverlay {
 public:
     SimplePlayerOverlay() {
         _overlay = KRMovie::VideoPresentOverlay2::create();
-        _overlay->SetFuncGetBounds([this] { return GetBounds(); });
+        _overlay->SetFuncGetBounds([this] -> const tTVPRect& { return GetBounds(); });
     }
     ~SimplePlayerOverlay() { _overlay->Release(); }
     void SetBounds(const tTVPRect &rect) { _rect = rect; }

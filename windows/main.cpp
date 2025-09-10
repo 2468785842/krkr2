@@ -44,7 +44,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     spdlog::set_default_logger(core_logger);
 
-    static std::unique_ptr<TVPAppDelegate> pAppDelegate =
-        std::make_unique<TVPAppDelegate>();
+    static auto pAppDelegate = std::make_unique<TVPAppDelegate>();
     return pAppDelegate->run();
 }

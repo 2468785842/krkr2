@@ -1,0 +1,26 @@
+diff --git a/src/graphics-path.c b/src/graphics-path.c
+index 1aaa97b..321a8b3 100644
+--- a/src/graphics-path.c
++++ b/src/graphics-path.c
+@@ -1212,7 +1212,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
+ 	PangoLayout* layout; 
+ 
+ 	cairo_save (cr);
+-	layout = gdip_pango_setup_layout (cr, string, length, font, layoutRect, &box, format, NULL);
++	layout = gdip_pango_setup_layout ((GpGraphics*)cr, string, length, font, layoutRect, &box, format, NULL);
+ 	pango_cairo_layout_path (cr, layout);
+ 	g_object_unref (layout);
+ 	cairo_restore (cr);
+diff --git a/src/pngcodec.c b/src/pngcodec.c
+index b28a707..e01d7fb 100644
+--- a/src/pngcodec.c
++++ b/src/pngcodec.c
+@@ -140,7 +140,7 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
+ 		png_uint_32	proflen;
+ 		int		compression_type;
+ 
+-		if (png_get_iCCP(png_ptr, info_ptr, &name, &compression_type, &profile, &proflen)) {
++		if (png_get_iCCP(png_ptr, info_ptr, &name, &compression_type, (png_bytepp)&profile, &proflen)) {
+ 			gdip_bitmapdata_property_add_ASCII(bitmap_data, PropertyTagICCProfileDescriptor, (BYTE*)name);
+ 			gdip_bitmapdata_property_add_byte(bitmap_data, PropertyTagICCProfile, (BYTE)compression_type);
+ 		}

@@ -4,6 +4,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include "LayerBitmapIntf.h"
+#include "StorageIntf.h"
 #include "psbfile/PSBFile.h"
 #include "test_config.h"
 
@@ -16,15 +18,6 @@ TEST_CASE("read psbfile title.psb") {
 }
 
 TEST_CASE("read psbfile ev107a.pimg") {
-    PSB::PSBFile f;
-    REQUIRE(f.loadPSBFile(TEST_FILES_PATH "/ev107a.pimg"));
-    const PSB::PSBHeader &header = f.getPSBHeader();
-    REQUIRE(f.getType() == PSB::PSBType::Pimg);
-    CAPTURE(header.version, f.getType());
-    // const std::shared_ptr<const PSB::PSBDictionary> &objs = f.getObjects();
-    // REQUIRE(objs->find("layers") != objs->end());
-}
-TEST_CASE("extract ev107a.pimg") {
     PSB::PSBFile f;
     REQUIRE(f.loadPSBFile(TEST_FILES_PATH "/ev107a.pimg"));
     const PSB::PSBHeader &header = f.getPSBHeader();

@@ -8,6 +8,7 @@ vcpkg_from_github(
     PATCHES
         0001-fix-mac.patch
         0001-fix-quartz-api.patch
+        0001-fix-linux.patch
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt" DESTINATION "${SOURCE_PATH}")
