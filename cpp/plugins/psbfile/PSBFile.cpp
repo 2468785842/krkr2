@@ -7,7 +7,6 @@
 #define LOGGER spdlog::get("plugin")
 
 namespace PSB {
-    PSBFile::PSBFile() { LOGGER->info("PSBFile::constructor"); }
 
     void PSBFile::loadKeys(TJS::tTJSBinaryStream *stream) {
         const size_t len = nameIndexes.value.size();
