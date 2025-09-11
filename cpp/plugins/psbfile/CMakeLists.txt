@@ -7,6 +7,7 @@ target_sources(${PROJECT_NAME} PUBLIC
     main.cpp
     PSBValue.cpp
     PSBFile.cpp
+    PSBMedia.cpp
     types/PimgType.cpp
     resources/ImageMetadata.cpp
 )
