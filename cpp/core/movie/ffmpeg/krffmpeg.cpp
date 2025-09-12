@@ -125,12 +125,10 @@ bool TVPCheckIsVideoFile(const char *uri) {
     try {
         stream = TVPCreateStream(uri, TJS_BS_READ);
     } catch(eTJSScriptException &e) {
-        spdlog::error("Error opening video file: %s",
-                      e.GetMessage().AsStdString().c_str());
+        spdlog::error("Error opening video file: {}", e.what());
         return false;
     } catch(eTJSError &e) {
-        spdlog::error("Error opening video file: %s",
-                      e.GetMessage().AsStdString().c_str());
+        spdlog::error("Error opening video file: {}", e.what());
         return false;
     }
 

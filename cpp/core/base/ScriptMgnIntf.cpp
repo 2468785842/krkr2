@@ -947,12 +947,10 @@ void TVPExecuteStartupScript() {
     }
 
     // execute "startup.tjs"
-    // 	try
-    // 	{
     try {
 
         ttstr place(TVPSearchPlacedPath(TVPStartupScriptName));
-        TVPAddLog(TJS_W("(info) Loading startup script : ") + place);
+        spdlog::info("Loading startup script: {}", place.AsStdString());
         TVPStartupSuccess = false;
         try {
             iTJSTextReadStream *stream = TVPCreateTextStreamForRead(place, "");
@@ -960,24 +958,22 @@ void TVPExecuteStartupScript() {
             TVPExecuteStorage(TVPStartupScriptName);
             TVPStartupSuccess = true;
         } catch(...) {
-            if(!TVPIsExistentStorage(TJS_W("System/Initialize.tjs"))) {
+            if(!TVPIsExistentStorage(TJS_W("system/Initialize.tjs"))) {
                 throw;
             }
         }
-        if(TVPStartupSuccess) {
-        } else {
+        if(!TVPStartupSuccess) {
             // try direct execute initialize.tjs to compatible for
             // some patch
-            TVPExecuteStorage(TJS_W("System/Initialize.tjs"));
+            TVPExecuteStorage(TJS_W("system/Initialize.tjs"));
             TVPStartupSuccess = true;
         }
-        TVPAddLog(TJS_W("(info) Startup script ended."));
+        spdlog::info("Startup script ended.");
         try {
             ttstr patch = TVPGetAppPath() + "AfterStartup.tjs";
             if(TVPIsExistentStorageNoSearch(patch))
                 TVPExecuteStorage(patch);
-        } catch(...) {
-        }
+        } catch(...) {}
     }
     TJS_CONVERT_TO_TJS_EXCEPTION
     //}

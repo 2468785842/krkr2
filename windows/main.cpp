@@ -5,6 +5,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <shellapi.h>
 
+#include "tjsString.h"
 #include "environ/cocos2d/AppDelegate.h"
 
 #include "environ/ui/MainFileSelectorForm.h"
@@ -31,7 +32,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         WideCharToMultiByte(CP_UTF8, 0, xp3Path.c_str(), (int)xp3Path.size(),
                             &xp3PathUtf8[0], size_needed, NULL, NULL);
         spdlog::info("XP3 文件路径: {}", xp3PathUtf8);
-        TVPMainFileSelectorForm::filePath = xp3Path;
+        TVPMainFileSelectorForm::filePath = xp3PathUtf8;
     }
 
     LocalFree(argv);
