@@ -58,13 +58,11 @@ static tjs_error setRoot(tTJSVariant *r, tjs_int n, tTJSVariant **p,
 
 static tjs_error load(tTJSVariant *r, tjs_int n, tTJSVariant **p,
                       iTJSDispatch2 *obj) {
-    bool loadSuccess = true;
     auto *self = ncbInstanceAdaptor<PSB::PSBFile>::GetNativeInstance(obj);
     if((*p)->Type() == tvtString) {
         ttstr path{ **p };
         if(!self->loadPSBFile(path)) {
             LOGGER->info("cannot load psb file : {}", path.AsStdString());
-            loadSuccess = false;
         }
         auto objs = self->getObjects();
         for (const auto &[k, v] : *objs) {
@@ -78,16 +76,13 @@ static tjs_error load(tTJSVariant *r, tjs_int n, tTJSVariant **p,
     }
     if((*p)->Type() == tvtOctet) {
         LOGGER->info("PSBFile::load stream");
-        loadSuccess = false;
     }
-    *r = loadSuccess;
     return TJS_S_OK;
 }
 
 NCB_REGISTER_CLASS(PSBFile) {
     NCB_CONSTRUCTOR(());
     RawCallback(TJS_W("root"), &getRoot, &setRoot, 0);
-    //    Method(TJS_W("load"), &ClassT::load);
     RawCallback(TJS_W("load"), &load, 0);
 };
 

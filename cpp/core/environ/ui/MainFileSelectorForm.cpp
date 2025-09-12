@@ -1,4 +1,7 @@
 #include "MainFileSelectorForm.h"
+
+#include <filesystem>
+
 #include "cocos2d.h"
 #include "cocostudio/CocoLoader.h"
 #include "cocostudio/CCSSceneReader.h"
@@ -243,11 +246,8 @@ void TVPMainFileSelectorForm::show() {
 static const std::string str_startup_tjs(u8"startup.tjs");
 
 bool TVPMainFileSelectorForm::CheckDir(const std::string &path) {
-    for(const FileInfo &info : CurrentDirList) {
-        if(info.NameForCompare == str_startup_tjs)
-            return true;
-    }
-    return false;
+    auto startup_file = std::filesystem::path(path) / str_startup_tjs;
+    return std::filesystem::exists(startup_file);
 }
 
 
