@@ -143,8 +143,7 @@ void TVPMainFileSelectorForm::runFromPath(const std::string &path) {
     } else if((archiveType = TVPCheckArchive(path)) == 1) {
         spdlog::info("Opening archive: {}", path);
         startup(path);
-    } else if(archiveType == 0 &&
-              TVPCheckIsVideoFile(path.c_str())) {
+    } else if(archiveType == 0 && TVPCheckIsVideoFile(path.c_str())) {
         spdlog::info("Opening video file: {}", path);
         SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
         TVPMainScene::GetInstance()->addChild(player,
@@ -190,7 +189,7 @@ void TVPMainFileSelectorForm::onCellClicked(int idx) {
     TVPBaseFileSelectorForm::onCellClicked(idx);
 
     spdlog::debug("Selected file: {}, FullPath: {}", info.NameForDisplay,
-                 info.FullPath);
+                  info.FullPath);
     runFromPath(info.FullPath);
 }
 

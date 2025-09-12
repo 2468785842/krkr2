@@ -18,7 +18,7 @@
 #define LOGGER spdlog::get("plugin")
 
 using namespace PSB;
-static PSBMedia* psbMedia = nullptr;
+static PSBMedia *psbMedia = nullptr;
 
 void initPsbFile() {
     psbMedia = new PSBMedia();
@@ -28,7 +28,7 @@ void initPsbFile() {
 }
 
 void deInitPsbFile() {
-    if (psbMedia != nullptr) {
+    if(psbMedia != nullptr) {
         TVPUnregisterStorageMedia(psbMedia);
     }
     LOGGER->info("deInitPsbFile");
@@ -67,10 +67,11 @@ static tjs_error load(tTJSVariant *r, tjs_int n, tTJSVariant **p,
             loadSuccess = false;
         }
         auto objs = self->getObjects();
-        for (const auto &[k, v] : *objs) {
+        for(const auto &[k, v] : *objs) {
             const auto &res = std::dynamic_pointer_cast<PSBResource>(v);
-            if (res == nullptr) continue;
-            ttstr pathN{k};
+            if(res == nullptr)
+                continue;
+            ttstr pathN{ k };
             psbMedia->NormalizeDomainName(path);
             psbMedia->NormalizePathName(pathN);
             psbMedia->add((path + TJS_W("/") + pathN).AsStdString(), res);
@@ -80,7 +81,8 @@ static tjs_error load(tTJSVariant *r, tjs_int n, tTJSVariant **p,
         LOGGER->info("PSBFile::load stream");
         loadSuccess = false;
     }
-    if(r != nullptr) *r = tTJSVariant(loadSuccess);
+    if(r != nullptr)
+        *r = tTJSVariant(loadSuccess);
     return TJS_S_OK;
 }
 

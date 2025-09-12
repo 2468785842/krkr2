@@ -451,9 +451,7 @@ namespace PSB {
             return PSBObjType::List;
         }
 
-        [[nodiscard]] size_t size() const {
-            return _vec.size();
-        }
+        [[nodiscard]] size_t size() const { return _vec.size(); }
 
         static std::vector<std::uint32_t>
         loadIntoList(int n, TJS::tTJSBinaryStream *stream) {

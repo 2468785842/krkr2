@@ -36,9 +36,11 @@ namespace PSB {
 
         void GetLocallyAccessibleName(ttstr &name) override;
 
-        void add(const std::string &name, const std::shared_ptr<PSBResource> &resource);
+        void add(const std::string &name,
+                 const std::shared_ptr<PSBResource> &resource);
+
     private:
         int _ref = 0;
         std::unordered_map<std::string, PSBResource> _resources;
     };
-}
+} // namespace PSB

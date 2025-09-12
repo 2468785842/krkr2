@@ -196,8 +196,7 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
         it.FullPath = path + "/" + it.NameForDisplay;
 #ifdef _DEBUG
         spdlog::info("Found file: FullPath {}, NameForDisplay {}, IsDir {}",
-                     it.FullPath,
-                     it.NameForDisplay, it.IsDir);
+                     it.FullPath, it.NameForDisplay, it.IsDir);
 #endif
     }
 

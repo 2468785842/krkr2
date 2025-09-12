@@ -973,7 +973,8 @@ void TVPExecuteStartupScript() {
             ttstr patch = TVPGetAppPath() + "AfterStartup.tjs";
             if(TVPIsExistentStorageNoSearch(patch))
                 TVPExecuteStorage(patch);
-        } catch(...) {}
+        } catch(...) {
+        }
     }
     TJS_CONVERT_TO_TJS_EXCEPTION
     //}

@@ -25,11 +25,17 @@ namespace clover {
         ScopeGuard(const ScopeGuard &) = delete;
 
         ScopeGuard &operator=(const ScopeGuard &) = delete;
-        ScopeGuard(ScopeGuard &&rhs) noexcept : _fun(std::move(rhs._fun)), _active(rhs._active) { rhs.dismiss(); }
+        ScopeGuard(ScopeGuard &&rhs) noexcept :
+            _fun(std::move(rhs._fun)), _active(rhs._active) {
+            rhs.dismiss();
+        }
         ~ScopeGuard() noexcept {
-            if (_active) {
-                try { _fun(); }
-                catch (...) { std::terminate(); } // 或记录日志
+            if(_active) {
+                try {
+                    _fun();
+                } catch(...) {
+                    std::terminate();
+                } // 或记录日志
             }
         }
 
@@ -38,15 +44,15 @@ namespace clover {
         bool _active;
     };
 
-    template<typename Fun>
-    auto make_scope_guard(Fun&& f) {
+    template <typename Fun>
+    auto make_scope_guard(Fun &&f) {
         return ScopeGuard<Fun>(std::forward<Fun>(f));
     }
 
 } // namespace clover
 
 // Helper macro
-#define DEFER(code) \
-    auto SCOPE_GUARD_CONCATENATE(_sg_, __LINE__) = \
-        ::clover::make_scope_guard([=](){code;})
+#define DEFER(code)                                                            \
+    auto SCOPE_GUARD_CONCATENATE(_sg_, __LINE__) =                             \
+        ::clover::make_scope_guard([=]() { code; })
 #endif // KRKR2_DEFER_H

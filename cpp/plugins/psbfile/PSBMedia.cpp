@@ -13,17 +13,20 @@
 namespace PSB {
 #define LOGGER spdlog::get("plugin")
 
-    void PSBMedia::NormalizeDomainName(ttstr &name)  {
+    void PSBMedia::NormalizeDomainName(ttstr &name) {
         tjs_int dotIndex = name.IndexOf(TJS_W('.'));
-        if(dotIndex == -1) return;
-        name = name.SubString(0, dotIndex) + name.SubString(dotIndex, name.GetLen()).AsLowerCase();
+        if(dotIndex == -1)
+            return;
+        name = name.SubString(0, dotIndex) +
+            name.SubString(dotIndex, name.GetLen()).AsLowerCase();
     }
 
-    void PSBMedia::NormalizePathName(ttstr &name)  {
+    void PSBMedia::NormalizePathName(ttstr &name) {
         // province(_p), mask(_m)
         // tjs_int extIndex = name.IndexOf(TJS_W("_m"));
         // if(extIndex == -1) return;
-        // name = name.SubString(0, extIndex) + name.SubString(extIndex + 2, name.GetLen());
+        // name = name.SubString(0, extIndex) + name.SubString(extIndex + 2,
+        // name.GetLen());
     }
 
     bool PSBMedia::CheckExistentStorage(const ttstr &name) {
@@ -42,11 +45,12 @@ namespace PSB {
         LOGGER->error("TODO: PSBMedia GetListAt");
     }
 
-    void PSBMedia::GetLocallyAccessibleName(ttstr &name)  {
+    void PSBMedia::GetLocallyAccessibleName(ttstr &name) {
         LOGGER->error("TODO: PSBMedia GetLocallyAccessibleName");
     }
 
-    void PSBMedia::add(const std::string &name, const std::shared_ptr<PSBResource> &resource) {
+    void PSBMedia::add(const std::string &name,
+                       const std::shared_ptr<PSBResource> &resource) {
         this->_resources[name] = *resource;
     }
-}
+} // namespace PSB
