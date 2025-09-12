@@ -12,10 +12,6 @@
 #endif
 
 
-std::string utf8_to_local(const std::string &utf8);
-std::wstring utf8_to_wstr(const std::string &utf8);
-std::string local_to_utf8(const std::string &local);
-std::string wstr_to_local(const std::wstring &wstr);
 class TVPListForm : public cocos2d::Node {
 public:
     ~TVPListForm() override;
@@ -51,7 +47,7 @@ public:
     virtual void onCellLongPress(int idx);
     void rearrangeLayout() override;
     static std::pair<std::string, std::string>
-    PathSplit(const std::string &path);
+    pathSplit(const std::string &path);
 
 protected:
     void bindHeaderController(const Node *allNodes) override;

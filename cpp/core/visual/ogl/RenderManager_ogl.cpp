@@ -49,7 +49,6 @@
 
 namespace TJS {
     void TVPConsoleLog(const ttstr &str);
-    void TVPConsoleLog(const tjs_nchar *format, ...);
 } // namespace TJS
 static void ShowInMessageBox(const char *format, ...) {
     va_list args;

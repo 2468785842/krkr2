@@ -131,8 +131,7 @@ static void TVPCauseAtExit() {
     std::sort(TVPAtExitInfos->begin(),
               TVPAtExitInfos->end()); // descending sort
 
-    std::vector<tTVPAtExitInfo>::iterator i;
-    for(i = TVPAtExitInfos->begin(); i != TVPAtExitInfos->end(); i++) {
+    for(auto i = TVPAtExitInfos->begin(); i != TVPAtExitInfos->end(); ++i) {
         i->Handler();
     }
 

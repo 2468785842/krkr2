@@ -213,7 +213,7 @@ bool TCWFDecoder::Open(const ttstr &url) {
     TSSFormat.Channels = Header.channels;
     TSSFormat.BitsPerSample = 16;
     TSSFormat.BytesPerSample = 2;
-    TSSFormat.Seekable = 2;
+    TSSFormat.Seekable = true;
     TSSFormat.TotalSamples = 0;
     TSSFormat.TotalTime = 0;
     TSSFormat.SpeakerConfig = 0;

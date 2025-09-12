@@ -1288,7 +1288,7 @@ namespace TJS {
                         return (tjs_int)(code + 1 - CodeArea);
 
                     case VM_ENTRY:
-                        tryCatch = true;
+                        // tryCatch = true;
                         code = CodeArea +
                             ExecuteCodeInTryBlock(
                                    ra, (tjs_int)(code - CodeArea + 3), args,

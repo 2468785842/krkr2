@@ -140,11 +140,11 @@ std::string TVPGetCurrentLanguage() {
 int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
                             const std::vector<ttstr> &vecButtons) {
     GtkWidget *dialog = nullptr;
-    DEFER {
+    DEFER({
         if(dialog) {
             gtk_widget_destroy(dialog);
         }
-    };
+    });
 
     switch(vecButtons.size()) {
         case 1:

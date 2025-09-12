@@ -1932,7 +1932,7 @@ bool TVPMainScene::startupFrom(const std::string &path) {
     IndividualConfigManager *pGlobalCfgMgr =
         IndividualConfigManager::GetInstance();
     pGlobalCfgMgr->UsePreferenceAt(
-        TVPBaseFileSelectorForm::PathSplit(path).first);
+        TVPBaseFileSelectorForm::pathSplit(path).first);
     if(UINode->getChildrenCount()) {
         popUIForm(nullptr);
     }
@@ -1975,12 +1975,7 @@ void TVPMainScene::doStartup(float dt, std::string path) {
     _consoleWin->setScale(1 / scale);
     _consoleWin->setContentSize(getContentSize() * scale);
     GameNode->addChild(_consoleWin, GAME_CONSOLE_ORDER);
-#ifdef _WIN32
-    extern std::wstring local_to_wstr(const std::string &path);
-    ::Application->StartApplication((tjs_char *)local_to_wstr(path).c_str());
-#else
     ::Application->StartApplication(path);
-#endif
     // update one frame
     update(0);
     //_ResotreGLStatues(); // already in update()
@@ -2637,25 +2632,17 @@ void TVPConsoleLog(const ttstr &l, bool important) {
         _consoleWin->addLine(l, important ? Color3B::YELLOW : Color3B::GRAY);
         TVPDrawSceneOnce(100); // force update in 10fps
     }
-    std::string utf8;
-    if(StringUtils::UTF16ToUTF8(l.c_str(), utf8))
-        cocos2d::log("%s", utf8.c_str());
+    spdlog::get("tjs2")->info("{}", l.AsStdString());
 }
 
 namespace TJS {
-    static const int MAX_LOG_LENGTH = 16 * 1024;
-
     void TVPConsoleLog(const ttstr &str) {
-        cocos2d::log("%s", str.AsStdString().c_str());
+        spdlog::get("tjs2")->info("{}", str.AsStdString());
     }
 
-    void TVPConsoleLog(const tjs_nchar *format, ...) {
-        va_list args;
-        va_start(args, format);
-        char buf[MAX_LOG_LENGTH];
-        vsnprintf(buf, MAX_LOG_LENGTH - 3, format, args);
-        cocos2d::log("%s", buf);
-        va_end(args);
+    template <typename... Args>
+    void TVPConsoleLog(spdlog::format_string_t<Args...> fmt, Args &&...args) {
+        spdlog::get("tjs2")->info(fmt, std::forward<Args>(args)...);
     }
 } // namespace TJS
 

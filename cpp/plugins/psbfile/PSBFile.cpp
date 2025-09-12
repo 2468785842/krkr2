@@ -7,7 +7,6 @@
 #define LOGGER spdlog::get("plugin")
 
 namespace PSB {
-    PSBFile::PSBFile() { LOGGER->info("PSBFile::constructor"); }
 
     void PSBFile::loadKeys(TJS::tTJSBinaryStream *stream) {
         const size_t len = nameIndexes.value.size();
@@ -232,8 +231,6 @@ namespace PSB {
                 return std::make_shared<PSB::PSBBool>(type ==
                                                       PSB::PSBObjType::True);
             case PSB::PSBObjType::NumberN0:
-                return std::make_shared<PSB::PSBNumber>(
-                    0); // PsbNumber is not comparable!
             case PSB::PSBObjType::NumberN1:
             case PSB::PSBObjType::NumberN2:
             case PSB::PSBObjType::NumberN3:
