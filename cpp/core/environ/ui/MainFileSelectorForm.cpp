@@ -112,6 +112,10 @@ TVPMainFileSelectorForm::TVPMainFileSelectorForm() { _menu = nullptr; }
 
 void TVPMainFileSelectorForm::onEnter() {
     inherit::onEnter();
+    if(!filePath.empty()) {
+        this->runFromPath(filePath);
+        return;
+    }
     if(_historyList) {
         _historyList->doLayout();
         auto &allcell = _historyList->getItems();
@@ -134,6 +138,7 @@ int TVPCheckArchive(const ttstr &localname);
 void TVPMainFileSelectorForm::runFromPath(const std::string &path) {
     int archiveType;
     if(CheckDir(path)) {
+        spdlog::info("Opening dir: {}", path);
         startup(path);
     } else if((archiveType = TVPCheckArchive(path)) == 1) {
         spdlog::info("Opening archive: {}", path);
@@ -171,10 +176,6 @@ void TVPMainFileSelectorForm::show() {
         lastpath = TVPGetDriverPath()[0];
     }
     ListDir(lastpath);
-
-    if(!filePath.empty()) {
-        runFromPath(filePath);
-    }
 }
 
 static const std::string str_startup_tjs(u8"startup.tjs");
@@ -183,7 +184,6 @@ bool TVPMainFileSelectorForm::CheckDir(const std::string &path) {
     auto startup_file = std::filesystem::path(path) / str_startup_tjs;
     return std::filesystem::exists(startup_file);
 }
-
 
 void TVPMainFileSelectorForm::onCellClicked(int idx) {
     FileInfo info = CurrentDirList[idx];
@@ -205,8 +205,10 @@ void TVPMainFileSelectorForm::getShortCutDirList(
 TVPMainFileSelectorForm *TVPMainFileSelectorForm::create() {
     auto *ret = new TVPMainFileSelectorForm();
     ret->autorelease();
-    ret->initFromWidget();
-    ret->show();
+    if(filePath.empty()) {
+        ret->initFromWidget();
+        ret->show();
+    }
     return ret;
 }
 

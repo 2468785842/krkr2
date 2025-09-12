@@ -80,7 +80,7 @@ static tjs_error load(tTJSVariant *r, tjs_int n, tTJSVariant **p,
         LOGGER->info("PSBFile::load stream");
         loadSuccess = false;
     }
-    *r = tTJSVariant(loadSuccess);
+    if(r != nullptr) *r = tTJSVariant(loadSuccess);
     return TJS_S_OK;
 }
 

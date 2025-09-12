@@ -1957,7 +1957,7 @@ bool TVPMainScene::startupFrom(const std::string &path) {
     // 	}
 
     scheduleOnce(
-        std::bind(&TVPMainScene::doStartup, this, std::placeholders::_1, path),
+        [this, &path](float delay) { doStartup(delay, path); },
         0, "startup");
 
     return true;

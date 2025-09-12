@@ -28,6 +28,7 @@
 
 #include <thread>
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 namespace TJS {
     //---------------------------------------------------------------------------
@@ -1288,7 +1289,7 @@ namespace TJS {
                         return (tjs_int)(code + 1 - CodeArea);
 
                     case VM_ENTRY:
-                        // tryCatch = true;
+                        tryCatch = true;
                         code = CodeArea +
                             ExecuteCodeInTryBlock(
                                    ra, (tjs_int)(code - CodeArea + 3), args,
@@ -1362,6 +1363,8 @@ namespace TJS {
                                               ra_org);
                 TJS_eTJSScriptError(e.GetMessage(), this,
                                     (tjs_int)(codesave - CodeArea));
+            } else {
+                spdlog::get("tjs2")->error("{}", e.GetMessage().AsStdString());
             }
         } catch(exception &e) {
             // DEBUGGER_EXCEPTION_HOOK;
@@ -1370,6 +1373,8 @@ namespace TJS {
                                               ra_org);
                 TJS_eTJSScriptError(e.what(), this,
                                     (tjs_int)(codesave - CodeArea));
+            } else {
+                spdlog::get("tjs2")->error("{}", e.what());
             }
         } catch(const char *text) {
             // DEBUGGER_EXCEPTION_HOOK;
@@ -1377,6 +1382,8 @@ namespace TJS {
                 DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
                                               ra_org);
                 TJS_eTJSScriptError(text, this, (tjs_int)(codesave - CodeArea));
+            } else {
+                spdlog::get("tjs2")->error("{}", text);
             }
         }
         // #undef DEBUGGER_EXCEPTION_HOOK
