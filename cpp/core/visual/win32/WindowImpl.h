@@ -230,23 +230,23 @@ class tTJSNI_Window : public tTJSNI_BaseWindow {
 public:
     tTJSNI_Window();
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
     bool CloseFlag;
 
 public:
-    bool
-    CanDeliverEvents() const; // tTJSNI_BaseWindow::CanDeliverEvents override
+    [[nodiscard]] bool CanDeliverEvents()
+        const override; // tTJSNI_BaseWindow::CanDeliverEvents override
 
 public:
-    TTVPWindowForm *GetForm() const override { return Form; }
+    [[nodiscard]] TTVPWindowForm *GetForm() const override { return Form; }
     void NotifyWindowClose();
     void SendCloseMessage();
     void TickBeat();
 
 private:
-    bool GetWindowActive();
-    void UpdateVSyncThread();
+    bool GetWindowActive() override;
+    void UpdateVSyncThread() override;
     /**
      * フルスクリーン時に操作できない値を変えようとした時に確認のため呼び出し、フルスクリーンの時例外を出す
      */
@@ -263,7 +263,7 @@ public:
     void NotifySrcResize() override; // is called from primary layer
 
     void SetDefaultMouseCursor() override; // set window mouse cursor to default
-    void SetMouseCursor(tjs_int cursor) override; // set window mouse cursor
+    void SetMouseCursor(tjs_int handle) override; // set window mouse cursor
     void GetCursorPos(tjs_int &x, tjs_int &y) override;
     void SetCursorPos(tjs_int x, tjs_int y) override;
     void WindowReleaseCapture() override;
@@ -273,7 +273,7 @@ public:
     void DisableAttentionPoint() override;
     void SetImeMode(tTVPImeMode mode) override;
     void SetDefaultImeMode(tTVPImeMode mode);
-    tTVPImeMode GetDefaultImeMode() const override;
+    [[nodiscard]] tTVPImeMode GetDefaultImeMode() const override;
     void ResetImeMode() override;
 
     //-- update managment
@@ -317,93 +317,93 @@ public:
     void HideMouseCursor();
 
     //-- properties
-    bool GetVisible() const;
+    [[nodiscard]] bool GetVisible() const;
     void SetVisible(bool s);
 
     void GetCaption(ttstr &v) const;
     void SetCaption(const ttstr &v);
 
     void SetWidth(tjs_int w);
-    tjs_int GetWidth() const;
+    [[nodiscard]] tjs_int GetWidth() const;
     void SetHeight(tjs_int h);
-    tjs_int GetHeight() const;
+    [[nodiscard]] tjs_int GetHeight() const;
     void SetSize(tjs_int w, tjs_int h);
 
     void SetMinWidth(int v);
-    int GetMinWidth() const;
+    [[nodiscard]] int GetMinWidth() const;
     void SetMinHeight(int v);
-    int GetMinHeight() const;
+    [[nodiscard]] int GetMinHeight() const;
     void SetMinSize(int w, int h);
 
     void SetMaxWidth(int v);
-    int GetMaxWidth() const;
+    [[nodiscard]] int GetMaxWidth() const;
     void SetMaxHeight(int v);
-    int GetMaxHeight() const;
+    [[nodiscard]] int GetMaxHeight() const;
     void SetMaxSize(int w, int h);
 
     void SetLeft(tjs_int l);
-    tjs_int GetLeft() const;
+    [[nodiscard]] tjs_int GetLeft() const;
     void SetTop(tjs_int t);
-    tjs_int GetTop() const;
+    [[nodiscard]] tjs_int GetTop() const;
     void SetPosition(tjs_int l, tjs_int t);
 
 #ifdef USE_OBSOLETE_FUNCTIONS
     void SetLayerLeft(tjs_int l);
-    tjs_int GetLayerLeft() const;
+    [[nodiscard]] tjs_int GetLayerLeft() const;
     void SetLayerTop(tjs_int t);
-    tjs_int GetLayerTop() const;
+    [[nodiscard]] tjs_int GetLayerTop() const;
     void SetLayerPosition(tjs_int l, tjs_int t);
 
     void SetInnerSunken(bool b);
-    bool GetInnerSunken() const;
+    [[nodiscard]] bool GetInnerSunken() const;
 #endif
 
     void SetInnerWidth(tjs_int w);
-    tjs_int GetInnerWidth() const;
+    [[nodiscard]] tjs_int GetInnerWidth() const;
     void SetInnerHeight(tjs_int h);
-    tjs_int GetInnerHeight() const;
+    [[nodiscard]] tjs_int GetInnerHeight() const;
 
     void SetInnerSize(tjs_int w, tjs_int h);
 
     void SetBorderStyle(tTVPBorderStyle st);
-    tTVPBorderStyle GetBorderStyle() const;
+    [[nodiscard]] tTVPBorderStyle GetBorderStyle() const;
 
     void SetStayOnTop(bool b);
-    bool GetStayOnTop() const;
+    [[nodiscard]] bool GetStayOnTop() const;
 
 #ifdef USE_OBSOLETE_FUNCTIONS
     void SetShowScrollBars(bool b);
-    bool GetShowScrollBars() const;
+    [[nodiscard]] bool GetShowScrollBars() const;
 #endif
 
     void SetFullScreen(bool b);
-    bool GetFullScreen() const;
+    [[nodiscard]] bool GetFullScreen() const;
 
     void SetUseMouseKey(bool b);
-    bool GetUseMouseKey() const;
+    [[nodiscard]] bool GetUseMouseKey() const;
 
     void SetTrapKey(bool b);
-    bool GetTrapKey() const;
+    [[nodiscard]] bool GetTrapKey() const;
 
     void SetMaskRegion(tjs_int threshold);
     void RemoveMaskRegion();
 
     void SetMouseCursorState(tTVPMouseCursorState mcs);
-    tTVPMouseCursorState GetMouseCursorState() const;
+    [[nodiscard]] tTVPMouseCursorState GetMouseCursorState() const;
 
     void SetFocusable(bool b);
     bool GetFocusable();
 
     void SetZoom(tjs_int numer, tjs_int denom);
     void SetZoomNumer(tjs_int n);
-    tjs_int GetZoomNumer() const;
+    [[nodiscard]] tjs_int GetZoomNumer() const;
     void SetZoomDenom(tjs_int n);
-    tjs_int GetZoomDenom() const;
+    [[nodiscard]] tjs_int GetZoomDenom() const;
 
     void SetTouchScaleThreshold(tjs_real threshold);
-    tjs_real GetTouchScaleThreshold() const;
+    [[nodiscard]] tjs_real GetTouchScaleThreshold() const;
     void SetTouchRotateThreshold(tjs_real threshold);
-    tjs_real GetTouchRotateThreshold() const;
+    [[nodiscard]] tjs_real GetTouchRotateThreshold() const;
 
     tjs_real GetTouchPointStartX(tjs_int index);
     tjs_real GetTouchPointStartY(tjs_int index);
@@ -416,10 +416,10 @@ public:
     void ResetMouseVelocity();
 
     void SetHintDelay(tjs_int delay);
-    tjs_int GetHintDelay() const;
+    [[nodiscard]] tjs_int GetHintDelay() const;
 
     void SetEnableTouch(bool b);
-    bool GetEnableTouch() const;
+    [[nodiscard]] bool GetEnableTouch() const;
 
     int GetDisplayOrientation();
     int GetDisplayRotate();

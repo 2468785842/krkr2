@@ -491,7 +491,7 @@ class tTVPUnpackArchiveImplLibArchive : public iTVPUnpackArchiveImpl {
     std::string onPassphraseCallback();
 
 public:
-    virtual ~tTVPUnpackArchiveImplLibArchive() {
+    ~tTVPUnpackArchiveImplLibArchive() override {
         if(pTVPArc)
             pTVPArc->Release();
         if(FpIn) {
@@ -504,7 +504,7 @@ public:
         }
     }
 
-    virtual bool Open(const std::string &path) override {
+    bool Open(const std::string &path) override {
         FpIn = fopen(path.c_str(), "rb");
         int file_count = 0;
         tjs_uint64 size_count = 0;
@@ -568,11 +568,11 @@ public:
         return true;
     }
 
-    virtual int GetFileCount() override { return _totalFileCount; }
+    int GetFileCount() override { return _totalFileCount; }
 
-    virtual tjs_int64 GetTotalSize() override { return _totalSize; }
+    tjs_int64 GetTotalSize() override { return _totalSize; }
 
-    virtual void ExtractTo(const std::string &OutPath) override {
+    void ExtractTo(const std::string &OutPath) override {
         tjs_uint64 total_size = 0;
         if(pTVPArc) {
             int file_count = pTVPArc->GetCount();
@@ -778,9 +778,9 @@ class tTVPUnpackArchiveImplUnRAR : public iTVPUnpackArchiveImpl {
     }
 
 public:
-    virtual ~tTVPUnpackArchiveImplUnRAR() {}
+    ~tTVPUnpackArchiveImplUnRAR() override {}
 
-    virtual bool Open(const std::string &path) override {
+    bool Open(const std::string &path) override {
         _archivePath = path;
         RARArc arc;
         if(!arc.Open((char *)_archivePath.c_str(), RAR_OM_LIST)) {
@@ -819,11 +819,11 @@ public:
         return true;
     }
 
-    virtual int GetFileCount() override { return _filelist.size(); }
+    int GetFileCount() override { return _filelist.size(); }
 
-    virtual tjs_int64 GetTotalSize() override { return _totalSize; }
+    tjs_int64 GetTotalSize() override { return _totalSize; }
 
-    virtual void ExtractTo(const std::string &path) override {
+    void ExtractTo(const std::string &path) override {
         RARArc arc;
         if(!arc.Open((char *)_archivePath.c_str(), RAR_OM_EXTRACT)) {
             _callbacks->FuncOnError(1001, "Cannot open file");

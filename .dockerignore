@@ -1,0 +1,10 @@
+dockers/
+doc/
+out/
+.github/
+ui/cocos-studio/out_ui/
+tests/
+
+README.md
+.actrc
+.gitignore

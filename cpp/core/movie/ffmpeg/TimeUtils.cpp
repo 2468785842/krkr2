@@ -4,7 +4,7 @@
 #include <windows.h>
 #endif
 
-#include <time.h>
+#include <ctime>
 #include "tp_stub.h"
 #include "TickCount.h"
 
@@ -16,7 +16,7 @@ int64_t CurrentHostCounter() {
     QueryPerformanceCounter(&PerformanceCount);
     return ((int64_t)PerformanceCount.QuadPart);
 #elif defined(CLOCK_MONOTONIC_RAW)
-    struct timespec now;
+    struct timespec now{};
     clock_gettime(CLOCK_MONOTONIC_RAW, &now);
     return (((int64_t)now.tv_sec * 1000000000L) + now.tv_nsec);
 #elif defined(CLOCK_MONOTONIC)

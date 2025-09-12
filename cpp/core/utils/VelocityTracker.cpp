@@ -52,7 +52,7 @@ static float vectorNorm(const float *a, tjs_uint32 m) {
 // --- VelocityTracker ---
 VelocityTracker::VelocityTracker() : mStrategy(2), mID(-1) {}
 
-VelocityTracker::~VelocityTracker() {}
+VelocityTracker::~VelocityTracker() = default;
 
 bool VelocityTracker::getVelocity(float &outVx, float &outVy) const {
     VelocityTrackerStrategy::Estimator estimator;
@@ -77,7 +77,8 @@ LeastSquaresVelocityTrackerStrategy::LeastSquaresVelocityTrackerStrategy(
     clear();
 }
 
-LeastSquaresVelocityTrackerStrategy::~LeastSquaresVelocityTrackerStrategy() {}
+LeastSquaresVelocityTrackerStrategy::~LeastSquaresVelocityTrackerStrategy() =
+    default;
 
 void LeastSquaresVelocityTrackerStrategy::clear() {
     mIndex = 0;

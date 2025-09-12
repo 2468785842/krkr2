@@ -122,7 +122,7 @@ bool tTJSNI_BaseTimer::AreEventsInQueue() {
         static ttstr eventname(TJS_W("onTimer"));
         return TVPAreEventsInQueue(Owner, Owner, eventname, 0);
     }
-    return 0;
+    return false;
 }
 //---------------------------------------------------------------------------
 

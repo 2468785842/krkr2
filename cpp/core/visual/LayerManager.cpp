@@ -681,7 +681,7 @@ void tTVPLayerManager::SetTouchCapture(tjs_uint32 id, tTJSNI_BaseLayer *layer) {
             layer->Owner->AddRef();
     } else {
         // ない場合は、末尾に追加。
-        TouchCapture.push_back(tTVPTouchCaptureLayer(id, layer));
+        TouchCapture.emplace_back(id, layer);
         if(layer->Owner)
             layer->Owner->AddRef();
     }

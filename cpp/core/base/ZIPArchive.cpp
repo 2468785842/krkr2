@@ -2012,17 +2012,17 @@ class ZipArchive : public tTVPArchive {
     std::vector<FileEntry> filelist;
 
 public:
-    ~ZipArchive();
+    ~ZipArchive() override;
 
     ZipArchive(const ttstr &name, tTJSBinaryStream *st, bool normalizeFileName);
 
     bool isValid() { return uf != nullptr; }
 
-    virtual tjs_uint GetCount() { return filelist.size(); }
+    tjs_uint GetCount() override { return filelist.size(); }
 
-    virtual ttstr GetName(tjs_uint idx) { return filelist[idx].first; }
+    ttstr GetName(tjs_uint idx) override { return filelist[idx].first; }
 
-    virtual tTJSBinaryStream *CreateStreamByIndex(tjs_uint idx);
+    tTJSBinaryStream *CreateStreamByIndex(tjs_uint idx) override;
 
     tTJSBinaryStream *_st = nullptr;
 };

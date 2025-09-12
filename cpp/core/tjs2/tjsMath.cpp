@@ -11,19 +11,20 @@
 #include "tjsCommHead.h"
 
 #include "tjsMath.h"
+#include <ctime>
 
-#define _USE_MATH_DEFINES
-
-#include "math.h"
-#include "time.h"
-
-#ifdef __WIN32__
+#ifdef _WIN32
+#include <corecrt_math_defines.h>
 #ifndef TJS_NO_MASK_MATHERR
-#include <float.h>
+#include <cfloat>
 #endif
 #ifdef _MSC_VER
 #define _USERENTRY
 #endif
+
+#else
+#define _USE_MATH_DEFINES
+#include <cmath>
 #endif
 
 //---------------------------------------------------------------------------
@@ -242,7 +243,7 @@ namespace TJS {
                 *(tjs_uint64 *)&r = TJS_IEEE_D_N_INF;
                 for(tjs_int i = 0; i < numparams; ++i) {
                     tTVReal v = param[i]->AsReal();
-                    tjs_uint64 *ui64 = (tjs_uint64 *)&v;
+                    auto *ui64 = (tjs_uint64 *)&v;
                     if(TJS_IEEE_D_IS_NaN(*ui64)) {
                         tjs_real d;
                         *(tjs_uint64 *)&d = TJS_IEEE_D_P_NaN;
@@ -277,7 +278,7 @@ namespace TJS {
                 *(tjs_uint64 *)&r = TJS_IEEE_D_P_INF;
                 for(tjs_int i = 0; i < numparams; ++i) {
                     tTVReal v = param[i]->AsReal();
-                    tjs_uint64 *ui64 = (tjs_uint64 *)&v;
+                    auto *ui64 = (tjs_uint64 *)&v;
                     if(TJS_IEEE_D_IS_NaN(*ui64)) {
                         tjs_real d;
                         *(tjs_uint64 *)&d = TJS_IEEE_D_P_NaN;

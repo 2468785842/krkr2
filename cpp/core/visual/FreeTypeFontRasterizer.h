@@ -16,16 +16,16 @@ class FreeTypeFontRasterizer : public FontRasterizer {
 
 public:
     FreeTypeFontRasterizer();
-    virtual ~FreeTypeFontRasterizer();
-    void AddRef();
-    void Release();
-    void ApplyFont(class tTVPNativeBaseBitmap *bmp, bool force);
-    void ApplyFont(const struct tTVPFont &font);
-    void GetTextExtent(tjs_char ch, tjs_int &w, tjs_int &h);
-    tjs_int GetAscentHeight();
+    ~FreeTypeFontRasterizer() override;
+    void AddRef() override;
+    void Release() override;
+    void ApplyFont(class tTVPNativeBaseBitmap *bmp, bool force) override;
+    void ApplyFont(const struct tTVPFont &font) override;
+    void GetTextExtent(tjs_char ch, tjs_int &w, tjs_int &h) override;
+    tjs_int GetAscentHeight() override;
     tTVPCharacterData *GetBitmap(const tTVPFontAndCharacterData &font,
-                                 tjs_int aofsx, tjs_int aofsy);
-    void GetGlyphDrawRect(const ttstr &text, struct tTVPRect &area);
+                                 tjs_int aofsx, tjs_int aofsy) override;
+    void GetGlyphDrawRect(const ttstr &text, struct tTVPRect &area) override;
 };
 
 #endif // __FREE_TYPE_FONT_RASTERIZER_H__

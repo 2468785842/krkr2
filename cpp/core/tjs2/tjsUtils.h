@@ -516,7 +516,7 @@ namespace TJS {
                 return *this;
             }
 
-            const iterator operator++(int _zero) { // ++ suffix
+            iterator operator++(int _zero) { // ++ suffix
                 iterator ret = *this;
                 if(!end()) {
                     index = (*m_pNodeBuffer)[index].nextIndex;
@@ -530,7 +530,7 @@ namespace TJS {
                 return *this;
             }
 
-            const iterator operator--(int _zero) { // -- suffix
+            iterator operator--(int _zero) { // -- suffix
                 iterator ret = *this;
                 if(!end())
                     index = (*m_pNodeBuffer)[index].prevIndex;

@@ -331,9 +331,10 @@ void MoviePlayerOverlay::BuildGraph(tTJSNI_VideoOverlay *callbackwin,
                                     IStream *stream, const tjs_char *streamname,
                                     const tjs_char *type, uint64_t size) {
     m_pCallbackWin = callbackwin;
-    m_pPlayer->SetCallback(std::bind(&MoviePlayerOverlay::OnPlayEvent, this,
-                                     std::placeholders::_1,
-                                     std::placeholders::_2));
+    m_pPlayer->SetCallback([this](auto &&PH1, auto &&PH2) {
+        OnPlayEvent(std::forward<decltype(PH1)>(PH1),
+                    std::forward<decltype(PH2)>(PH2));
+    });
     m_pPlayer->OpenFromStream(stream, streamname, type, size);
 }
 

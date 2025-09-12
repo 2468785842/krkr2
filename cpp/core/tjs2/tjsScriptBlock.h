@@ -60,7 +60,7 @@ namespace TJS {
     public:
         tjs_int CompileErrorCount;
 
-        tTJS *GetTJS() const { return Owner; }
+        [[nodiscard]] tTJS *GetTJS() const { return Owner; }
 
         void AddRef();
         void Release();
@@ -68,25 +68,26 @@ namespace TJS {
         void Add(tTJSInterCodeContext *cntx);
         void Remove(tTJSInterCodeContext *cntx);
 
-        tjs_uint GetContextCount() const {
+        [[nodiscard]] tjs_uint GetContextCount() const {
             return (tjs_uint)InterCodeContextList.size();
         }
-        tjs_uint GetTotalVMCodeSize()
+        [[nodiscard]] tjs_uint GetTotalVMCodeSize()
             const; // returns in VM word size ( 1 word = 32bit )
-        tjs_uint GetTotalVMDataSize() const; // returns in tTJSVariant count
+        [[nodiscard]] tjs_uint
+        GetTotalVMDataSize() const; // returns in tTJSVariant count
 
-        bool IsReusable() const {
+        [[nodiscard]] bool IsReusable() const {
             return GetContextCount() == 1 && TopLevelContext != nullptr &&
                 !UsingPreProcessor;
         }
 
         const tjs_char *GetLine(tjs_int line, tjs_int *linelength) const;
-        tjs_int SrcPosToLine(tjs_int pos) const;
-        tjs_int LineToSrcPos(tjs_int line) const;
+        [[nodiscard]] tjs_int SrcPosToLine(tjs_int pos) const;
+        [[nodiscard]] tjs_int LineToSrcPos(tjs_int line) const;
 
-        ttstr GetLineDescriptionString(tjs_int pos) const;
+        [[nodiscard]] ttstr GetLineDescriptionString(tjs_int pos) const;
 
-        const tjs_char *GetScript() const { return Script; }
+        [[nodiscard]] const tjs_char *GetScript() const { return Script; }
 
         void PushContextStack(const tjs_char *name, tTJSContextType type);
         void PopContextStack();
@@ -97,11 +98,11 @@ namespace TJS {
         tTJSLexicalAnalyzer *GetLexicalAnalyzer() { return LexicalAnalyzer; }
         tTJSInterCodeContext *GetCurrentContext() { return InterCodeContext; }
 
-        const tjs_char *GetName() const { return Name; }
+        [[nodiscard]] const tjs_char *GetName() const { return Name; }
         void SetName(const tjs_char *name, tjs_int lineofs);
-        ttstr GetNameInfo() const;
+        [[nodiscard]] ttstr GetNameInfo() const;
 
-        tjs_int GetLineOffset() const { return LineOffset; }
+        [[nodiscard]] tjs_int GetLineOffset() const { return LineOffset; }
 
         void NotifyUsingPreProcessor() { UsingPreProcessor = true; }
 
@@ -159,7 +160,7 @@ namespace TJS {
         void Compile(const tjs_char *text, bool isexpression,
                      bool isresultneeded, bool outputdebug,
                      tTJSBinaryStream *output);
-        void TranslateCodeAddress(tjs_int32 *code, const tjs_int32 codeSize);
+        void TranslateCodeAddress(tjs_int32 *code, tjs_int32 codeSize);
     };
     //---------------------------------------------------------------------------
 } // namespace TJS

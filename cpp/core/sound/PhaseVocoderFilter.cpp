@@ -297,8 +297,8 @@ void tTJSNI_PhaseVocoder::Decode(void *dest, tjs_uint samples,
                                  tTVPWaveSegmentQueue &segments) {
     if(!PhaseVocoder) {
         // PhaseVocoder を作成
-        tRisaPhaseVocoderDSP *pv = new tRisaPhaseVocoderDSP(
-            Window, InputFormat.SamplesPerSec, InputFormat.Channels);
+        auto *pv = new tRisaPhaseVocoderDSP(Window, InputFormat.SamplesPerSec,
+                                            InputFormat.Channels);
         pv->SetFrequencyScale(Pitch);
         pv->SetTimeScale(Time);
         pv->SetOverSampling(Overlap);
@@ -309,7 +309,7 @@ void tTJSNI_PhaseVocoder::Decode(void *dest, tjs_uint samples,
     size_t outputhopsize = PhaseVocoder->GetOutputHopSize();
     tTVPWaveSegmentQueue queue;
 
-    float *dest_buf = (float *)dest;
+    auto *dest_buf = (float *)dest;
     written = 0;
     while(samples > 0) {
         tRisaPhaseVocoderDSP::tStatus status;

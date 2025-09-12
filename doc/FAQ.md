@@ -1,3 +1,4 @@
+## 安装glib失败
 ### 在Wndows为Android进行跨平台编译时遇到vcpkg无法安装glib时
 #### 原因
 - 是因为 meson 生成的 install.dat 的路径不正常如

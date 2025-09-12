@@ -279,7 +279,7 @@ public:
 // transition handler provider abstract class
 class iTVPTransHandlerProvider {
 public:
-    virtual ~iTVPTransHandlerProvider() {} // add by ZeaS
+    virtual ~iTVPTransHandlerProvider() = default; // add by ZeaS
     virtual tjs_error AddRef() = 0;
     virtual tjs_error Release() = 0;
 

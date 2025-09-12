@@ -47,7 +47,7 @@ protected:
 
     IAEStream() {}
 
-    virtual ~IAEStream() {}
+    virtual ~IAEStream() = default;
 
 public:
     /**

@@ -17,7 +17,7 @@ class TVPMainFileSelectorForm : public TVPBaseFileSelectorForm {
     typedef TVPBaseFileSelectorForm inherit;
 
 public:
-    static std::wstring filePath;
+    static std::string filePath;
     void bindBodyController(const Node *allNodes) override;
 
     void show();
@@ -64,7 +64,7 @@ protected:
                                    const std::string &prefix,
                                    const std::string &pathname,
                                    const std::string &filename) {
-            HistoryCell *ret = new HistoryCell();
+            auto *ret = new HistoryCell();
             ret->autorelease();
             ret->init();
             ret->initInfo(fullpath, prefix, pathname, filename);
@@ -86,10 +86,11 @@ protected:
     private:
         void onSizeChanged() override;
 
-        cocos2d::ui::ScrollView *_scrollview;
-        cocos2d::ui::Widget *_btn_delete, *_btn_jump, *_btn_conf, *_btn_play;
-        cocos2d::ui::Text *_prefix, *_path, *_file;
-        cocos2d::Node *_panel_delete, *_root = nullptr;
+        cocos2d::ui::ScrollView *_scrollview{};
+        cocos2d::ui::Widget *_btn_delete{}, *_btn_jump{}, *_btn_conf{},
+            *_btn_play{};
+        cocos2d::ui::Text *_prefix{}, *_path{}, *_file{};
+        cocos2d::Node *_panel_delete{}, *_root = nullptr;
         std::string _fullpath;
     };
 

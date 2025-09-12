@@ -34,7 +34,7 @@ struct BicubicWeight {
     static const float RANGE;
 
     float coeff;
-    float p[5];
+    float p[5]{};
     /**
      * @param c : シャープさ。小さくなるにしたがって強くなる
      */

@@ -22,40 +22,39 @@ class tTJSNI_BitmapLayerTreeOwner : public tTJSNativeInstance,
 public:
 public:
     tTJSNI_BitmapLayerTreeOwner();
-    ~tTJSNI_BitmapLayerTreeOwner();
+    ~tTJSNI_BitmapLayerTreeOwner() override;
 
     // tTJSNativeInstance
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
 
     iTJSDispatch2 *GetBitmapObjectNoAddRef();
 
     // tTVPLayerTreeOwner
-    iTJSDispatch2 *GetOwnerNoAddRef() const { return Owner; }
+    iTJSDispatch2 *GetOwnerNoAddRef() const override { return Owner; }
 
-    virtual void StartBitmapCompletion(iTVPLayerManager *manager);
-    virtual void NotifyBitmapCompleted(class iTVPLayerManager *manager,
-                                       tjs_int x, tjs_int y,
-                                       tTVPBaseTexture *bmp,
-                                       const tTVPRect &cliprect,
-                                       tTVPLayerType type, tjs_int opacity);
-    virtual void EndBitmapCompletion(iTVPLayerManager *manager);
+    void StartBitmapCompletion(iTVPLayerManager *manager) override;
+    void NotifyBitmapCompleted(class iTVPLayerManager *manager, tjs_int x,
+                               tjs_int y, tTVPBaseTexture *bmp,
+                               const tTVPRect &cliprect, tTVPLayerType type,
+                               tjs_int opacity) override;
+    void EndBitmapCompletion(iTVPLayerManager *manager) override;
 
-    virtual void OnSetMouseCursor(tjs_int cursor);
-    virtual void OnGetCursorPos(tjs_int &x, tjs_int &y);
-    virtual void OnSetCursorPos(tjs_int x, tjs_int y);
-    virtual void OnReleaseMouseCapture();
-    virtual void OnSetHintText(iTJSDispatch2 *sender, const ttstr &hint);
+    void OnSetMouseCursor(tjs_int cursor) override;
+    void OnGetCursorPos(tjs_int &x, tjs_int &y) override;
+    void OnSetCursorPos(tjs_int x, tjs_int y) override;
+    void OnReleaseMouseCapture() override;
+    void OnSetHintText(iTJSDispatch2 *sender, const ttstr &hint) override;
 
-    virtual void OnResizeLayer(tjs_int w, tjs_int h);
-    virtual void OnChangeLayerImage();
+    void OnResizeLayer(tjs_int w, tjs_int h) override;
+    void OnChangeLayerImage() override;
 
-    virtual void OnSetAttentionPoint(tTJSNI_BaseLayer *layer, tjs_int x,
-                                     tjs_int y);
-    virtual void OnDisableAttentionPoint();
-    virtual void OnSetImeMode(tjs_int mode);
-    virtual void OnResetImeMode();
+    void OnSetAttentionPoint(tTJSNI_BaseLayer *layer, tjs_int x,
+                             tjs_int y) override;
+    void OnDisableAttentionPoint() override;
+    void OnSetImeMode(tjs_int mode) override;
+    void OnResetImeMode() override;
 
     tjs_int GetWidth() const { return BitmapNI->GetWidth(); }
     tjs_int GetHeight() const { return BitmapNI->GetHeight(); }
@@ -69,7 +68,7 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance();
+    tTJSNativeInstance *CreateNativeInstance() override;
 };
 
 extern tTJSNativeClass *TVPCreateNativeClass_BitmapLayerTreeOwner();

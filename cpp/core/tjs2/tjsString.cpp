@@ -268,7 +268,7 @@ namespace TJS {
             p++;
 
         tTJSString _str(p);
-        tjs_char *p0 = (tjs_char *)_str.c_str();
+        auto *p0 = (tjs_char *)_str.c_str();
         tjs_char *p1 = (tjs_char *)_str.c_str() + _str.length() - 1;
         while(p0 < p1 && *p1 != '\0' && *p1 < 0x20)
             *p1-- = '\0';

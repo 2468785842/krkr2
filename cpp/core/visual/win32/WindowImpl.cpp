@@ -1971,7 +1971,7 @@ void tTJSNI_Window::SetEnableTouch(bool b) {
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetEnableTouch() const {
     if(!Form)
-        return 0;
+        return false;
     return Form->GetEnableTouch();
 }
 //---------------------------------------------------------------------------

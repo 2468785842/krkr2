@@ -10,7 +10,7 @@ protected:
     std::vector<std::pair<std::string, std::string>> CustomArguments;
     std::map<int, int> KeyMap;
 
-    bool ConfigUpdated;
+    bool ConfigUpdated{};
 
     virtual std::string GetFilePath() = 0;
 
@@ -37,7 +37,7 @@ public:
     const std::map<int, int> &GetKeyMap() { return KeyMap; }
     void SetKeyMap(int k, int v /* 0 means remove */);
 
-    const std::vector<std::pair<std::string, std::string>> &
+    [[nodiscard]] const std::vector<std::pair<std::string, std::string>> &
     GetCustomArguments() const {
         return CustomArguments;
     }
@@ -60,7 +60,7 @@ std::string iSysConfigManager::GetValue<std::string>(const std::string &name,
 
 class GlobalConfigManager : public iSysConfigManager {
 
-    virtual std::string GetFilePath() override;
+    std::string GetFilePath() override;
 
     GlobalConfigManager();
 

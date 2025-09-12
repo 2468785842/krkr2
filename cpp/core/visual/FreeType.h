@@ -75,21 +75,25 @@ public:
 
     void GetFaceNameList(std::vector<ttstr> &dest);
 
-    const ttstr &GetFontName() const { return FontName; }
+    [[nodiscard]] const ttstr &GetFontName() const { return FontName; }
 
     tjs_int GetHeight() { return Height; }
     void SetHeight(int height);
 
     void SetOption(tjs_uint32 opt) { Options |= opt; }
     void ClearOption(tjs_uint32 opt) { Options &= ~opt; }
-    bool GetOption(tjs_uint32 opt) const { return (Options & opt) == opt; }
-    tjs_char GetDefaultChar() const { return Face->GetDefaultChar(); }
+    [[nodiscard]] bool GetOption(tjs_uint32 opt) const {
+        return (Options & opt) == opt;
+    }
+    [[nodiscard]] tjs_char GetDefaultChar() const {
+        return Face->GetDefaultChar();
+    }
     tjs_char GetFirstChar() {
         FT_UInt gindex;
         return static_cast<tjs_char>(FT_Get_First_Char(FTFace, &gindex));
     }
 
-    tjs_int GetAscent() const {
+    [[nodiscard]] tjs_int GetAscent() const {
         tjs_int ppem = FTFace->size->metrics.y_ppem;
         tjs_int upe = FTFace->units_per_EM;
         return FTFace->ascender * ppem / upe;

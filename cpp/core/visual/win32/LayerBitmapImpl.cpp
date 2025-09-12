@@ -232,7 +232,7 @@ void TVPSetFontCacheForLowMem() {
 void TVPClearFontCache() { TVPFontCache.Clear(); }
 //---------------------------------------------------------------------------
 struct tTVPClearFontCacheCallback : public tTVPCompactEventCallbackIntf {
-    virtual void OnCompact(tjs_int level) {
+    void OnCompact(tjs_int level) override {
         if(level >= TVP_COMPACT_LEVEL_MINIMIZE) {
             // clear the font cache on application minimize
             TVPClearFontCache();

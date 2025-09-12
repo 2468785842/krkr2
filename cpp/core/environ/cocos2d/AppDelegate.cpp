@@ -1,4 +1,5 @@
 #include "AppDelegate.h"
+
 #include "MainScene.h"
 #include "environ/Application.h"
 #include "environ/Platform.h"
@@ -12,8 +13,7 @@
 extern "C" void SDL_SetMainReady();
 extern std::thread::id TVPMainThreadID;
 
-static cocos2d::Size designResolutionSize(1920, 1080);
-const cocos2d::Size screenSize(1280, 720);
+static cocos2d::Size designSize(960, 640); // 960, 640
 
 bool TVPCheckStartupArg();
 
@@ -37,13 +37,9 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     auto director = cocos2d::Director::getInstance();
     auto glview = director->getOpenGLView();
     if(!glview) {
-        glview = cocos2d::GLViewImpl::create("kirikiri2");
+        glview = cocos2d::GLViewImpl::create("krkr2");
         director->setOpenGLView(glview);
 #if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
-        // 1. 设置物理窗口大小（实际窗口大小）
-        glview->setFrameSize(screenSize.width, screenSize.height);
-
-        // 3. 获取 Win32 窗口句柄
         HWND hwnd = glview->getWin32Window();
         if(hwnd) {
             // 添加可调节边框和最大化按钮
@@ -53,31 +49,40 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
         }
 #endif
     }
+
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) ||                               \
-    (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-    // Set the design resolution
-    glview->setDesignResolutionSize(designResolutionSize.width,
-                                    designResolutionSize.height,
-                                    ResolutionPolicy::EXACT_FIT);
+    (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX) ||                               \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+    //    initWindow(glview);
+    // 2. 获取设备实际屏幕尺寸
+    const cocos2d::Size screenSize = glview->getFrameSize();
+
+    // 3. 设置设计分辨率，选择合适的适配策略
+    glview->setDesignResolutionSize(designSize.width, designSize.height,
+                                    ResolutionPolicy::SHOW_ALL);
+
+    // 4. 根据设备屏幕比例调整内容缩放
+    const float scaleX = screenSize.width / designSize.width;
+    const float scaleY = screenSize.height / designSize.height;
+    const float scale = std::max(scaleX, scaleY);
+
+    // 设置导演类的内容缩放
+    director->setContentScaleFactor(scale);
+    glview->setFrameSize(screenSize.width, screenSize.height);
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     // Set the design resolution
     cocos2d::Size screenSize = glview->getFrameSize();
     if(screenSize.width < screenSize.height) {
         std::swap(screenSize.width, screenSize.height);
     }
-    cocos2d::Size designSize = designResolutionSize;
-    designSize.height = designSize.width * screenSize.height / screenSize.width;
+    cocos2d::Size ds = designSize;
+    ds.height = ds.width * screenSize.height / screenSize.width;
     glview->setDesignResolutionSize(screenSize.width, screenSize.height,
                                     ResolutionPolicy::EXACT_FIT);
 #else
     CCLOG("This Plafrom don not support");
 #endif
-#if _DEBUG
-    auto visibleSize = director->getVisibleSize();
-    auto frameSize = glview->getFrameSize();
-    CCLOG("VisibleSize: %f x %f", visibleSize.width, visibleSize.height);
-    CCLOG("FrameSize: %f x %f", frameSize.width, frameSize.height);
-#endif
+
     std::vector<std::string> searchPath;
 
     // In this demo, we select resource according to the frame's

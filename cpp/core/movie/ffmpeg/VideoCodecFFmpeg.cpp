@@ -128,7 +128,7 @@ enum AVPixelFormat CDVDVideoCodecFFmpeg::GetFormat(struct AVCodecContext *avctx,
         ctx->SetHardware(nullptr);
         avctx->get_buffer2 = avcodec_default_get_buffer2;
         avctx->slice_flags = 0;
-        avctx->hwaccel_context = 0;
+        avctx->hwaccel_context = nullptr;
     }
 
     const AVPixelFormat *cur = fmt;

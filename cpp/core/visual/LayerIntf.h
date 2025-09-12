@@ -177,10 +177,10 @@ protected:
     // stuff --
 public:
     tTJSNI_BaseLayer();
-    ~tTJSNI_BaseLayer();
+    ~tTJSNI_BaseLayer() override;
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
 
     iTJSDispatch2 *GetOwnerNoAddRef() const { return Owner; }
 
@@ -190,7 +190,8 @@ private:
     bool Shutdown; // true when shutting down
     bool CompactEventHookInit;
     void RegisterCompactEventHook();
-    void OnCompact(tjs_int level); // method from tTVPCompactEventCallbackIntf
+    void OnCompact(
+        tjs_int level) override; // method from tTVPCompactEventCallbackIntf
 
     //----------------------------------------------- interface to
     // manager --
@@ -1002,8 +1003,8 @@ private:
 
     // these 3 below are methods from tTVPDrawable
     tTVPBaseTexture *GetDrawTargetBitmap(const tTVPRect &rect,
-                                         tTVPRect &cliprect);
-    tTVPLayerType GetTargetLayerType();
+                                         tTVPRect &cliprect) override;
+    tTVPLayerType GetTargetLayerType() override;
     void DrawCompleted(const tTVPRect &destrect, tTVPBaseTexture *bmp,
                        const tTVPRect &cliprect, tTVPLayerType type,
                        tjs_int opacity) override;
@@ -1088,7 +1089,7 @@ private:
 
         tTVPBaseTexture *GetDrawTargetBitmap(const tTVPRect &rect,
                                              tTVPRect &cliprect) override;
-        tTVPLayerType GetTargetLayerType();
+        tTVPLayerType GetTargetLayerType() override;
         void DrawCompleted(const tTVPRect &destrect, tTVPBaseTexture *bmp,
                            const tTVPRect &cliprect, tTVPLayerType type,
                            tjs_int opacity) override;
@@ -1097,7 +1098,7 @@ private:
 
     struct tTransIdleCallback : public tTVPContinuousEventCallbackIntf {
         tTJSNI_BaseLayer *Owner;
-        void OnContinuousCallback(tjs_uint64 tick) {
+        void OnContinuousCallback(tjs_uint64 tick) override {
             Owner->InvokeTransition(tick);
         }
         // from tTVPIdleEventCallbackIntf
@@ -1119,7 +1120,7 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance();
+    tTJSNativeInstance *CreateNativeInstance() override;
     /*
             implement this in each platform.
             this must return a proper instance of tTJSNI_Layer.
@@ -1142,10 +1143,10 @@ class tTJSNI_Font : public tTJSNativeInstance {
 
 public:
     tTJSNI_Font();
-    ~tTJSNI_Font();
+    ~tTJSNI_Font() override;
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
 
     tTJSNI_BaseLayer *GetLayer() const { return Layer; }
 
@@ -1192,7 +1193,9 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance() { return new tTJSNI_Font(); }
+    tTJSNativeInstance *CreateNativeInstance() override {
+        return new tTJSNI_Font();
+    }
 };
 //---------------------------------------------------------------------------
 iTJSDispatch2 *TVPCreateFontObject(iTJSDispatch2 *layer);

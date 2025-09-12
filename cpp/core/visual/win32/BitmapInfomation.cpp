@@ -40,8 +40,8 @@ BitmapInfomation::BitmapInfomation(tjs_uint width, tjs_uint height, int bpp) {
 
     // create grayscale palette
     if(bpp == 8) {
-        TVPRGBQUAD *pal = (TVPRGBQUAD *)((tjs_uint8 *)BitmapInfo +
-                                         sizeof(TVPBITMAPINFOHEADER));
+        auto *pal = (TVPRGBQUAD *)((tjs_uint8 *)BitmapInfo +
+                                   sizeof(TVPBITMAPINFOHEADER));
         for(tjs_int i = 0; i < 256; i++) {
             pal[i].rgbBlue = pal[i].rgbGreen = pal[i].rgbRed = (tjs_uint8)i;
             pal[i].rgbReserved = 0;

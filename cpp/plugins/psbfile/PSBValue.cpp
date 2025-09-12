@@ -7,6 +7,7 @@
 
 #include "PSBExtension.h"
 #include "tjsArray.h"
+#include "tjsDictionary.h"
 
 #include "tjsObject.h"
 
@@ -179,13 +180,12 @@ namespace PSB {
     tTJSVariant PSBString::toTJSVal() const { return ttstr{ this->value }; }
 
     tTJSVariant PSBResource::toTJSVal() const {
-        // TODO:
-        spdlog::get("plugin")->warn("PSBResource::toTJSVal not impl");
-        return {};
+        tTJSVariant result(this->data.data(), this->data.size());
+        return result;
     }
 
     tTJSVariant PSBDictionary::toTJSVal() const {
-        iTJSDispatch2 *dsp = TJSCreateCustomObject();
+        iTJSDispatch2 *dsp = TJSCreateDictionaryObject();
         for(const auto &[k, v] : this->_map) {
             tTJSVariant tmp = v->toTJSVal();
             dsp->PropSet(TJS_MEMBERENSURE, ttstr{ k }.c_str(), nullptr, &tmp,

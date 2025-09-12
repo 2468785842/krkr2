@@ -51,7 +51,7 @@ namespace TJS {
     //---------------------------------------------------------------------------
     void tTJSLocalSymbolList::Add(const tjs_char *name) {
         if(Find(name) == -1) {
-            tTJSLocalSymbol *newsym = new tTJSLocalSymbol;
+            auto *newsym = new tTJSLocalSymbol;
             newsym->Name = new tjs_char[TJS_strlen(name) + 1];
             TJS_strcpy(newsym->Name, name);
             size_t i;
@@ -134,7 +134,7 @@ namespace TJS {
         tTJSTimeProfiler prof(time_ns_Push);
 #endif
         CurrentCount = GetCount();
-        tTJSLocalSymbolList *list = new tTJSLocalSymbolList(CurrentCount);
+        auto *list = new tTJSLocalSymbolList(CurrentCount);
         Levels.push_back(list);
     }
     //---------------------------------------------------------------------------
@@ -218,14 +218,14 @@ namespace TJS {
     //---------------------------------------------------------------------------
     tTJSLocalSymbolList *tTJSLocalNamespace::GetTopSymbolList() {
         // returns top symbol list
-        if(Levels.size() == 0)
+        if(Levels.empty())
             return nullptr;
         return (tTJSLocalSymbolList *)(Levels[Levels.size() - 1]);
     }
     //---------------------------------------------------------------------------
     void tTJSLocalNamespace::Clear() {
         // all clear
-        while(Levels.size())
+        while(!Levels.empty())
             Pop();
     }
     //---------------------------------------------------------------------------

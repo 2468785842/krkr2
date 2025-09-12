@@ -252,7 +252,7 @@ void TVPClearScnearioCache() { TVPScenarioCache.Clear(); }
 
 //---------------------------------------------------------------------------
 struct tTVPClearScenarioCacheCallback : public tTVPCompactEventCallbackIntf {
-    virtual void OnCompact(tjs_int level) {
+    void OnCompact(tjs_int level) override {
         if(level >= TVP_COMPACT_LEVEL_DEACTIVATE) {
             // clear the scenario cache
 #ifndef _DEBUG

@@ -19,7 +19,7 @@ public:
     TVPTimerEvent(T *owner, void (T::*Handler)()) :
         owner_(owner), handler_(Handler) {}
 
-    void Handle() { (owner_->*handler_)(); }
+    void Handle() override { (owner_->*handler_)(); }
 };
 
 class tTVPTimerImpl;
@@ -48,8 +48,8 @@ public:
 
     template <typename T>
     void SetOnTimerHandler(T *owner, void (T::*Handler)()) {
-        if(event_)
-            delete event_;
+
+        delete event_;
         event_ = new TVPTimerEvent<T>(owner, Handler);
         UpdateTimer();
     }
@@ -61,7 +61,7 @@ public:
         }
     }
 
-    int GetInterval() const { return interval_; }
+    [[nodiscard]] int GetInterval() const { return interval_; }
 
     void SetEnabled(bool b) {
         if(enabled_ != b) {
@@ -70,7 +70,7 @@ public:
         }
     }
 
-    bool GetEnable() const { return enabled_; }
+    [[nodiscard]] bool GetEnable() const { return enabled_; }
 
     static void ProgressAllTimer();
 };

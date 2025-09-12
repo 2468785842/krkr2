@@ -67,15 +67,15 @@ public:
         memset(&Packet, 0, sizeof(Packet));
     }
 
-    ~FFWaveDecoder() { Clear(); }
+    ~FFWaveDecoder() override { Clear(); }
 
 public:
     // ITSSWaveDecoder
-    virtual void GetFormat(tTVPWaveFormat &format) { format = Format; }
+    void GetFormat(tTVPWaveFormat &format) override { format = Format; }
 
-    virtual bool Render(void *buf, tjs_uint bufsamplelen, tjs_uint &rendered);
+    bool Render(void *buf, tjs_uint bufsamplelen, tjs_uint &rendered) override;
 
-    virtual bool SetPosition(tjs_uint64 samplepos);
+    bool SetPosition(tjs_uint64 samplepos) override;
 
     // others
     bool SetStream(const ttstr &storagename);

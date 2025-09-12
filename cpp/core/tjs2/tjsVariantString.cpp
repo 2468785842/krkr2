@@ -597,7 +597,7 @@ namespace TJS {
         tjs_uint size = *(const tjs_uint *)(*src);
         *src += sizeof(tjs_uint);
         if(!size)
-            return 0;
+            return nullptr;
         *src += sizeof(tjs_uint);
         tTJSVariantString *ret = TJSAllocStringHeap();
         ret->SetString((const tjs_char *)src, size);

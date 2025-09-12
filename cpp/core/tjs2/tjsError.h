@@ -148,11 +148,13 @@ namespace TJS {
 
         eTJS(const eTJS &) { ; }
 
-        eTJS &operator=(const eTJS &e) { return *this; }
+        eTJS &operator=(const eTJS &e) = default;
 
         virtual ~eTJS() { ; }
 
-        virtual const ttstr &GetMessage() const { return TJSNonamedException; }
+        [[nodiscard]] virtual const ttstr &GetMessage() const {
+            return TJSNonamedException;
+        }
     };
 
     //---------------------------------------------------------------------------
@@ -167,7 +169,7 @@ namespace TJS {
             cachedStr = Message.AsStdString();
             return cachedStr.c_str();
         }
-        const ttstr &GetMessage() const { return Message; }
+        const ttstr &GetMessage() const override { return Message; }
 
         void AppendMessage(const ttstr &msg) { Message += msg; }
 
@@ -234,9 +236,7 @@ namespace TJS {
 
         eTJSScriptError(const ttstr &Msg, tTJSScriptBlock *block, tjs_int pos);
 
-        eTJSScriptError(const eTJSScriptError &ref) :
-            eTJSError(ref), Block(ref.Block), Position(ref.Position),
-            Trace(ref.Trace) {}
+        eTJSScriptError(const eTJSScriptError &ref) = default;
     };
 
     //---------------------------------------------------------------------------

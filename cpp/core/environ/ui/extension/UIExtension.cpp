@@ -238,8 +238,8 @@ void XKPageView::setCurPageIndex(ssize_t idx) {
 
 class WidgetNodeReader : public cocostudio::NodeReader {
 public:
-    virtual cocos2d::Node *
-    createNodeWithFlatBuffers(const flatbuffers::Table *nodeOptions) {
+    cocos2d::Node *
+    createNodeWithFlatBuffers(const flatbuffers::Table *nodeOptions) override {
         Widget *node = Widget::create();
 
         setPropsWithFlatBuffers(node, nodeOptions);

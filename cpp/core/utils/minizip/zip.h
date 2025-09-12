@@ -91,13 +91,13 @@ extern zipFile ZEXPORT zipOpen64(const void *path, int append);
    the file you did not want delete. */
 
 extern zipFile ZEXPORT zipOpen2(const char *path, int append, const char **globalcomment,
-                                zlib_filefunc_def *pzlib_filefunc_def);
+                                zlib_filefunc_def *pzlib_filefunc32_def);
 
 extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **globalcomment,
                                    zlib_filefunc64_def *pzlib_filefunc_def);
 
 extern zipFile ZEXPORT zipOpen3(const char *path, int append, uint64_t disk_size,
-                                const char **globalcomment, zlib_filefunc_def *pzlib_filefunc_def);
+                                const char **globalcomment, zlib_filefunc_def *pzlib_filefunc32_def);
 /* Same as zipOpen2 but allows specification of spanned zip size */
 
 extern zipFile ZEXPORT zipOpen3_64(const void *path, int append, uint64_t disk_size,
@@ -138,7 +138,7 @@ extern int ZEXPORT zipOpenNewFileInZip2_64(zipFile file, const char *filename, c
 extern int ZEXPORT zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
                                         const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
                                         uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits, int memLevel,
-                                        int strategy, const char *password, uint32_t crcForCrypting);
+                                        int strategy, const char *password, uint32_t crc_for_crypting);
 /* Same as zipOpenNewFileInZip2, except
     windowBits, memLevel, strategy : see parameter strategy in deflateInit2
     password : crypting password (NULL for no crypting)

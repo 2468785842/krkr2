@@ -10,15 +10,13 @@
 
 #include "tjs.h"
 #include "tjsConstArrayData.h"
-#include <limits.h>
+#include <climits>
 
 namespace TJS {
 
     tjsConstArrayData::~tjsConstArrayData() {
-        for(std::vector<std::vector<tjs_uint8> *>::iterator i =
-                ByteBuffer.begin();
-            i != ByteBuffer.end(); ++i) {
-            delete(*i);
+        for(const auto &i : ByteBuffer) {
+            delete i;
         }
     }
 
@@ -49,7 +47,7 @@ namespace TJS {
         if(index >= 0)
             return index;
         index = (int)ByteBuffer.size();
-        std::vector<tjs_uint8> *buf = new std::vector<tjs_uint8>();
+        auto *buf = new std::vector<tjs_uint8>();
         buf->reserve(len);
         for(tjs_uint i = 0; i < len; i++) {
             buf->push_back(data[i]);
@@ -59,27 +57,25 @@ namespace TJS {
     }
 
     int tjsConstArrayData::PutByte(tjs_int8 b) {
-        std::map<tjs_int8, int>::const_iterator index = ByteHash.find(b);
+        const auto index = ByteHash.find(b);
         if(index == ByteHash.end()) {
-            int idx = (int)Byte.size();
+            int idx = static_cast<int>(Byte.size());
             Byte.push_back(b);
-            ByteHash.insert(std::pair<tjs_int8, int>(b, idx));
+            ByteHash.insert(std::pair(b, idx));
             return idx;
-        } else {
-            return index->second;
         }
+        return index->second;
     }
 
     int tjsConstArrayData::PutShort(tjs_int16 b) {
-        std::map<tjs_int16, int>::const_iterator index = ShortHash.find(b);
+        const auto index = ShortHash.find(b);
         if(index == ShortHash.end()) {
-            int idx = (int)Short.size();
+            int idx = static_cast<int>(Short.size());
             Short.push_back(b);
-            ShortHash.insert(std::pair<tjs_int16, int>(b, idx));
+            ShortHash.insert(std::pair(b, idx));
             return idx;
-        } else {
-            return index->second;
         }
+        return index->second;
     }
 
     int tjsConstArrayData::PutInteger(tjs_int32 b) {

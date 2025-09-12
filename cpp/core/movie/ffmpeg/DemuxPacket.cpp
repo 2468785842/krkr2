@@ -23,7 +23,7 @@ void DemuxPacket::Free(DemuxPacket *pPacket) {
 }
 
 DemuxPacket *DemuxPacket::Allocate(int iDataSize /*= 0*/) {
-    DemuxPacket *pPacket = new DemuxPacket;
+    auto *pPacket = new DemuxPacket;
     if(!pPacket)
         return nullptr;
 

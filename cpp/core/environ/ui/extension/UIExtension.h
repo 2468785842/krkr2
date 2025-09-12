@@ -25,23 +25,23 @@ public:
     void setTouchEnabled(bool enabled);
 
 private:
-    virtual bool onTouchBegan(cocos2d::Touch *touch,
-                              cocos2d::Event *unusedEvent) override;
-    virtual void onTouchMoved(cocos2d::Touch *touch,
-                              cocos2d::Event *unusedEvent) override;
-    virtual void onTouchEnded(cocos2d::Touch *touch,
-                              cocos2d::Event *unusedEvent) override;
+    bool onTouchBegan(cocos2d::Touch *touch,
+                      cocos2d::Event *unusedEvent) override;
+    void onTouchMoved(cocos2d::Touch *touch,
+                      cocos2d::Event *unusedEvent) override;
+    void onTouchEnded(cocos2d::Touch *touch,
+                      cocos2d::Event *unusedEvent) override;
 
     void performedAnimatedScroll(float dt);
-    int current_index;
-    float current_offset;
+    int current_index{};
+    float current_offset{};
 
     void adjust(float offset);
     cocos2d::Size pageSize;
     CC_SYNTHESIZE(XKPageViewDelegate *, _delegate, Delegate);
 
 public:
-    int pageCount;
+    int pageCount{};
     void addPage(Node *node);
     cocos2d::Node *getPageAtIndex(int index);
 };

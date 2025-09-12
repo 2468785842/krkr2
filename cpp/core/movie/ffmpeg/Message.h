@@ -70,7 +70,7 @@ public:
 
     CDVDMsg(Message msg) { m_message = msg; }
 
-    virtual ~CDVDMsg() {}
+    ~CDVDMsg() override = default;
 
     /**
      * checks for message type
@@ -96,13 +96,13 @@ class CDVDMsgGeneralSynchronize : public CDVDMsg {
 public:
     CDVDMsgGeneralSynchronize(unsigned int timeout, unsigned int sources);
 
-    ~CDVDMsgGeneralSynchronize();
+    ~CDVDMsgGeneralSynchronize() override;
 
-    virtual long Release();
+    long Release() override;
 
     // waits until all threads waiting, released the object
     // if abort is set somehow
-    bool Wait(unsigned int ms, unsigned int source);
+    bool Wait(unsigned int milliseconds, unsigned int source);
 
     void Wait(std::atomic<bool> &abort, unsigned int source);
 
@@ -192,7 +192,7 @@ class CDVDMsgDemuxerPacket : public CDVDMsg {
 public:
     CDVDMsgDemuxerPacket(DemuxPacket *packet, bool drop = false);
 
-    virtual ~CDVDMsgDemuxerPacket();
+    ~CDVDMsgDemuxerPacket() override;
 
     DemuxPacket *GetPacket() { return m_packet; }
 

@@ -117,10 +117,10 @@ class tTVPContinuousHandlerCallLimitThread : public tTVPThread {
 public:
     tTVPContinuousHandlerCallLimitThread();
 
-    ~tTVPContinuousHandlerCallLimitThread();
+    ~tTVPContinuousHandlerCallLimitThread() override;
 
 protected:
-    void Execute();
+    void Execute() override;
 
     void WndProc(NativeEvent &ev) { EventQueue.HandlerDefault(ev); }
 

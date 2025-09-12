@@ -39,7 +39,7 @@ namespace TJS {
                                      iTJSDispatch2 *context,
                                      const tjs_char *name, tjs_int lineofs) {
         // currently this does nothing with normal script blocks.
-        tTJSScriptBlock *blk = new tTJSScriptBlock(Owner);
+        auto *blk = new tTJSScriptBlock(Owner);
 
         try {
             if(name)
@@ -57,7 +57,7 @@ namespace TJS {
     void tTJSScriptCache::ExecScript(const ttstr &script, tTJSVariant *result,
                                      iTJSDispatch2 *context, const ttstr *name,
                                      tjs_int lineofs) {
-        tTJSScriptBlock *blk = new tTJSScriptBlock(Owner);
+        auto *blk = new tTJSScriptBlock(Owner);
 
         try {
             if(name)
@@ -79,7 +79,7 @@ namespace TJS {
                                          tjs_int lineofs) {
         // currently this works only with anonymous script blocks.
         if(name) {
-            tTJSScriptBlock *blk = new tTJSScriptBlock(Owner);
+            auto *blk = new tTJSScriptBlock(Owner);
 
             try {
                 blk->SetName(name, lineofs);
@@ -112,7 +112,7 @@ namespace TJS {
         }
 
         // not found in cache
-        tTJSScriptBlock *blk = new tTJSScriptBlock(Owner);
+        auto *blk = new tTJSScriptBlock(Owner);
 
         try {
             blk->SetText(result, expression, context, true);
@@ -142,7 +142,7 @@ namespace TJS {
         // above.
 
         if(name && !name->IsEmpty()) {
-            tTJSScriptBlock *blk = new tTJSScriptBlock(Owner);
+            auto *blk = new tTJSScriptBlock(Owner);
 
             try {
                 blk->SetName(name->c_str(), lineofs);
@@ -175,7 +175,7 @@ namespace TJS {
         }
 
         // not found in cache
-        tTJSScriptBlock *blk = new tTJSScriptBlock(Owner);
+        auto *blk = new tTJSScriptBlock(Owner);
 
         try {
             blk->SetText(result, expression.c_str(), context, true);

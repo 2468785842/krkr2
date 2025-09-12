@@ -58,9 +58,9 @@ public:
 
     void AbortAddPackets();
 
-    double GetClock();
+    double GetClock() override;
 
-    double GetClockSpeed();
+    double GetClockSpeed() override;
 
     IAEStream *m_pAudioStream;
 
@@ -69,7 +69,7 @@ protected:
     double m_timeOfPts;
     double m_syncError;
     unsigned int m_syncErrorTime;
-    double m_resampleRatio;
+    double m_resampleRatio{};
     std::recursive_mutex m_critSection;
 
     unsigned int m_sampeRate;
@@ -78,7 +78,7 @@ protected:
     CAEChannelInfo m_channelLayout;
     bool m_bPaused;
 
-    std::atomic_bool m_bAbort;
+    std::atomic_bool m_bAbort{};
     CDVDClock *m_pClock;
 };
 NS_KRMOVIE_END

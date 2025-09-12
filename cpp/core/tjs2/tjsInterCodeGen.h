@@ -191,7 +191,7 @@ namespace TJS {
 
         void Clear();
 
-        void SetOpecode(tjs_int op) { Op = op; }
+        void SetOpcode(tjs_int op) { Op = op; }
 
         void SetPosition(tjs_int pos) { Position = pos; }
 
@@ -204,29 +204,26 @@ namespace TJS {
 
         void Add(tTJSExprNode *n);
 
-        tjs_int GetOpecode() const { return Op; }
+        tjs_int GetOpcode() const { return Op; }
 
         tjs_int GetPosition() const { return Position; }
 
         tTJSVariant &GetValue() {
             if(!Val)
                 return *(tTJSVariant *)nullptr;
-            else
-                return *Val;
+            return *Val;
         }
 
         tTJSExprNode *operator[](tjs_int i) const {
             if(!Nodes)
                 return nullptr;
-            else
-                return (*Nodes)[i];
+            return (*Nodes)[i];
         }
 
         unsigned int GetSize() const {
             if(Nodes)
-                return (unsigned int)Nodes->size();
-            else
-                return 0;
+                return static_cast<unsigned int>(Nodes->size());
+            return 0;
         }
 
         // for array and dictionary constant value
@@ -253,20 +250,19 @@ namespace TJS {
         tTJSInterCodeContext(tTJSInterCodeContext *parant, const tjs_char *name,
                              tTJSScriptBlock *block, tTJSContextType type);
 
-        virtual ~tTJSInterCodeContext();
+        ~tTJSInterCodeContext() override;
 
         // is bytecode export
         static bool IsBytecodeCompile;
 
     protected:
-        void Finalize();
+        void Finalize() override;
         //-------------------------------------------------------
         // compiling stuff
 
     public:
         void ClearNodesToDelete();
 
-    public:
         struct tSubParam {
             tTJSSubType SubType;
             tjs_int SubFlag;
@@ -332,8 +328,7 @@ namespace TJS {
             }
 
             tFixData &operator=(const tFixData &fixdata) {
-                if(Code)
-                    delete[] Code;
+                delete[] Code;
                 StartIP = fixdata.StartIP;
                 Size = fixdata.Size;
                 NewSize = fixdata.NewSize;
@@ -343,10 +338,7 @@ namespace TJS {
                 return *this;
             }
 
-            ~tFixData() {
-                if(Code)
-                    delete[] Code;
-            }
+            ~tFixData() { delete[] Code; }
         };
 
         struct tNonLocalFunctionDecl {
@@ -684,7 +676,7 @@ namespace TJS {
 
         tjs_int ExecuteCode(tTJSVariant *ra, tjs_int startip,
                             tTJSVariant **args, tjs_int numargs,
-                            tTJSVariant *result);
+                            tTJSVariant *result, bool tryCatch = false);
 
         tjs_int ExecuteCodeInTryBlock(tTJSVariant *ra, tjs_int startip,
                                       tTJSVariant **args, tjs_int numargs,
@@ -774,16 +766,15 @@ namespace TJS {
         void RegisterObjectMember(iTJSDispatch2 *dest);
 
         // for Byte code
-        static inline void Add4ByteToVector(std::vector<tjs_uint8> *array,
-                                            int value) {
+        static void Add4ByteToVector(std::vector<tjs_uint8> *array, int value) {
             array->push_back((tjs_uint8)((value >> 0) & 0xff));
             array->push_back((tjs_uint8)((value >> 8) & 0xff));
             array->push_back((tjs_uint8)((value >> 16) & 0xff));
             array->push_back((tjs_uint8)((value >> 24) & 0xff));
         }
 
-        static inline void Add2ByteToVector(std::vector<tjs_uint8> *array,
-                                            tjs_int16 value) {
+        static void Add2ByteToVector(std::vector<tjs_uint8> *array,
+                                     tjs_int16 value) {
             array->push_back((tjs_uint8)((value >> 0) & 0xff));
             array->push_back((tjs_uint8)((value >> 8) & 0xff));
         }
@@ -793,46 +784,48 @@ namespace TJS {
         tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
                            tjs_uint32 *hint, tTJSVariant *result,
                            tjs_int numparams, tTJSVariant **param,
-                           iTJSDispatch2 *objthis);
+                           iTJSDispatch2 *objthis) override;
 
         tjs_error PropGet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, tTJSVariant *result,
-                          iTJSDispatch2 *objthis);
+                          iTJSDispatch2 *objthis) override;
 
         tjs_error PropSet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, const tTJSVariant *param,
-                          iTJSDispatch2 *objthis);
+                          iTJSDispatch2 *objthis) override;
 
         tjs_error CreateNew(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, iTJSDispatch2 **result,
                             tjs_int numparams, tTJSVariant **param,
-                            iTJSDispatch2 *objthis);
+                            iTJSDispatch2 *objthis) override;
 
         tjs_error IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, const tjs_char *classname,
-                               iTJSDispatch2 *objthis);
+                               iTJSDispatch2 *objthis) override;
 
         tjs_error GetCount(tjs_int *result, const tjs_char *membername,
-                           tjs_uint32 *hint, iTJSDispatch2 *objthis);
+                           tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error PropSetByVS(tjs_uint32 flag, tTJSVariantString *mambername,
                               const tTJSVariant *param,
-                              iTJSDispatch2 *objthis) {
+                              iTJSDispatch2 *objthis) override {
             return TJS_E_NOTIMPL;
         }
 
         tjs_error DeleteMember(tjs_uint32 flag, const tjs_char *membername,
-                               tjs_uint32 *hint, iTJSDispatch2 *objthis);
+                               tjs_uint32 *hint,
+                               iTJSDispatch2 *objthis) override;
 
         tjs_error Invalidate(tjs_uint32 flag, const tjs_char *membername,
-                             tjs_uint32 *hint, iTJSDispatch2 *objthis);
+                             tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error IsValid(tjs_uint32 flag, const tjs_char *membername,
-                          tjs_uint32 *hint, iTJSDispatch2 *objthis);
+                          tjs_uint32 *hint, iTJSDispatch2 *objthis) override;
 
         tjs_error Operation(tjs_uint32 flag, const tjs_char *membername,
                             tjs_uint32 *hint, tTJSVariant *result,
-                            const tTJSVariant *param, iTJSDispatch2 *objthis);
+                            const tTJSVariant *param,
+                            iTJSDispatch2 *objthis) override;
 
         // for Byte code
         void SetCodeObject(tTJSInterCodeContext *parent,
@@ -872,7 +865,7 @@ namespace TJS {
 
         void TJSVariantArrayStackRelease();
 
-        class tTJSVariantArrayStack *TJSVariantArrayStack = nullptr;
+        tTJSVariantArrayStack *TJSVariantArrayStack = nullptr;
     };
     //---------------------------------------------------------------------------
 } // namespace TJS

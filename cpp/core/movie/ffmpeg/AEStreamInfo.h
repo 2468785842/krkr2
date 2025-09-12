@@ -47,10 +47,10 @@ class CAEStreamParser {
 public:
     CAEStreamParser();
 
-    ~CAEStreamParser();
+    ~CAEStreamParser() = default;
 
     int AddData(uint8_t *data, unsigned int size, uint8_t **buffer = nullptr,
-                unsigned int *bufferSize = 0);
+                unsigned int *bufferSize = nullptr);
 
     void SetCoreOnly(bool value) { m_coreOnly = value; }
 
@@ -108,7 +108,7 @@ private:
 
     unsigned int SyncTrueHD(uint8_t *data, unsigned int size);
 
-    static unsigned int GetTrueHDChannels(const uint16_t chanmap);
+    static unsigned int GetTrueHDChannels(uint16_t chanmap);
 };
 
 NS_KRMOVIE_END

@@ -197,7 +197,7 @@ namespace TJS {
             tTJSObjectHashMapRecord *rec;
             rec = Hash.Find(object);
             if(!rec)
-                return ttstr();
+                return {};
             return rec->Type;
         }
 
@@ -502,7 +502,7 @@ namespace TJS {
     ttstr TJSGetObjectTypeInfo(void *object) {
         if(TJSObjectHashMap)
             return TJSObjectHashMap->GetType(object);
-        return ttstr();
+        return {};
     }
 
     //---------------------------------------------------------------------------
@@ -686,7 +686,7 @@ namespace TJS {
         if(TJSStackTracer)
             return TJSStackTracer->GetTraceString(limit, delimiter);
         else
-            return ttstr();
+            return {};
     }
 
 } // namespace TJS

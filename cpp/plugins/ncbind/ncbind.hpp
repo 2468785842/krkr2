@@ -2182,19 +2182,19 @@ protected:
 	void Unregist() const override { DelegateT d(_name); { RegistT r(d, false); r.Regist(); } }
 };
 
-#define NCB_REGISTER_CLASS_COMMON(cls, tmpl, init) \
+#define NCB_REGISTER_CLASS_COMMON(cls, tmpl, nt, init) \
 	template    struct ncbClassInfo<cls>; \
 /*	template <>        ncbClassInfo<cls>::InfoT ncbClassInfo<cls>::_info;*/ \
 	static tmpl<cls> tmpl ## _ ## cls init; \
-	template <> void   tmpl<cls>::RegistT::Regist()
+	template <> void   ncbRegistClass<nt<cls>>::Regist()
 
 #define NCB_REGISTER_CLASS_DELAY(name, cls) \
-	NCB_REGISTER_CLASS_COMMON(cls, ncbNativeClassAutoRegister, (NCB_MODULE_NAME, TJS_W(# name)))
+	NCB_REGISTER_CLASS_COMMON(cls, ncbNativeClassAutoRegister, ncbRegistNativeClass, (NCB_MODULE_NAME, TJS_W(# name)))
 
 #define NCB_REGISTER_CLASS(cls) NCB_REGISTER_CLASS_DIFFER(cls, cls)
 #define NCB_REGISTER_CLASS_DIFFER(name, cls) \
 	NCB_TYPECONV_BOXING(cls); \
-	NCB_REGISTER_CLASS_COMMON(cls, ncbNativeClassAutoRegister, (NCB_MODULE_NAME, TJS_W(# name)))
+	NCB_REGISTER_CLASS_COMMON(cls, ncbNativeClassAutoRegister, ncbRegistNativeClass, (NCB_MODULE_NAME, TJS_W(# name)))
 
 #define NCB_REGISTER_SUBCLASS_DELAY(cls) \
 	template <> struct ncbSubClassCheck<cls> { enum { IsSubClass = true }; }; \
@@ -2264,7 +2264,7 @@ private:
 
 #define NCB_ATTACH_CLASS_WITH_HOOK(cls, attach) \
 	template <> struct ncbNativeClassMethodBase::nativeInstanceGetter<cls>; \
-	NCB_REGISTER_CLASS_COMMON(cls, ncbAttachTJS2ClassAutoRegister, (NCB_MODULE_NAME, TJS_W(# cls), TJS_W(# attach)))
+	NCB_REGISTER_CLASS_COMMON(cls, ncbAttachTJS2ClassAutoRegister, ncbAttachTJS2Class, (NCB_MODULE_NAME, TJS_W(# cls), TJS_W(# attach)))
 
 #define NCB_ATTACH_CLASS(cls, attach) \
 	NCB_ATTACHED_INSTANCE_DELAY_CREATE(cls); \

@@ -37,7 +37,7 @@ namespace PSB::Extension {
     }
 
     static void readAndUnzip(TJS::tTJSBinaryStream *stream, std::uint8_t size,
-                             std::vector<std::uint8_t> data,
+                             std::vector<std::uint8_t> &data,
                              bool usigned = false) {
         stream->Read(data.data(), size);
 

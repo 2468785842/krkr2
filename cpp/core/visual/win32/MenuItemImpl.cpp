@@ -27,7 +27,7 @@ static void AddMenuDispatch(tTVInteger hWnd, iTJSDispatch2 *menu) {
         std::map<tTVInteger, iTJSDispatch2 *>::value_type(hWnd, menu));
 }
 iTJSDispatch2 *TVPGetMenuDispatch(tTVInteger hWnd) {
-    std::map<tTVInteger, iTJSDispatch2 *>::iterator i = MENU_LIST.find(hWnd);
+    auto i = MENU_LIST.find(hWnd);
     if(i != MENU_LIST.end()) {
         return i->second;
     }
@@ -44,13 +44,13 @@ static bool _IsWindow(tTVInteger hWnd) {
 }
 
 static void UpdateMenuList() {
-    std::map<tTVInteger, iTJSDispatch2 *>::iterator i = MENU_LIST.begin();
+    auto i = MENU_LIST.begin();
     for(; i != MENU_LIST.end();) {
         tTVInteger hWnd = i->first;
         bool exist = _IsWindow(hWnd);
         if(exist == false) {
             // �Ȥˤʤ��ʤä�Window
-            std::map<tTVInteger, iTJSDispatch2 *>::iterator target = i;
+            auto target = i;
             i++;
             iTJSDispatch2 *menu = target->second;
             MENU_LIST.erase(target);
@@ -151,7 +151,7 @@ bool tTJSNI_MenuItem::CanDeliverEvents() const {
             enabled = false;
             break;
         }
-        item = static_cast<const tTJSNI_MenuItem *>(item->GetParent());
+        item = dynamic_cast<const tTJSNI_MenuItem *>(item->GetParent());
     }
     return enabled;
 }
@@ -228,7 +228,7 @@ void tTJSNI_MenuItem::SetChecked(bool b) {
     // MenuItem->setChecked (b);
     if(b && IsRadio && Parent) {
         for(tTJSNI_BaseMenuItem *_item : Parent->Children) {
-            tTJSNI_MenuItem *item = static_cast<tTJSNI_MenuItem *>(_item);
+            auto *item = dynamic_cast<tTJSNI_MenuItem *>(_item);
             if(item->IsRadio && item->GroupIndex == GroupIndex)
                 item->IsChecked = false;
         }

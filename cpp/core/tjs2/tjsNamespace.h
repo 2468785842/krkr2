@@ -47,15 +47,21 @@ namespace TJS {
 
         void Remove(const tjs_char *name);
 
-        tjs_int GetCount() const { return (tjs_int)List.size(); }
+        [[nodiscard]] tjs_int GetCount() const { return (tjs_int)List.size(); }
 
         // this count includes variable holder that is marked as
         // un-used
-        tjs_int GetLocalCountStart() const { return LocalCountStart; }
+        [[nodiscard]] tjs_int GetLocalCountStart() const {
+            return LocalCountStart;
+        }
 
-        tjs_int *GetStartWriteAddr() const { return StartWriteAddr; }
+        [[nodiscard]] tjs_int *GetStartWriteAddr() const {
+            return StartWriteAddr;
+        }
 
-        tjs_int *GetCountWriteAddr() const { return CountWriteAddr; }
+        [[nodiscard]] tjs_int *GetCountWriteAddr() const {
+            return CountWriteAddr;
+        }
     };
 
     //---------------------------------------------------------------------------
@@ -76,7 +82,7 @@ namespace TJS {
 
         tjs_int GetCount();
 
-        tjs_int GetMaxCount() const { return MaxCount; }
+        [[nodiscard]] tjs_int GetMaxCount() const { return MaxCount; }
 
         tjs_int Find(const tjs_char *name);
 

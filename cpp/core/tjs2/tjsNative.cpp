@@ -340,7 +340,7 @@ namespace TJS {
             tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, tTJSVariant *result,
                                tjs_int numparams, tTJSVariant **param,
-                               iTJSDispatch2 *objthis) {
+                               iTJSDispatch2 *objthis) override {
                 // *param[0] = name   *param[1] = flags   *param[2] =
                 // value
                 tjs_uint32 flags = (tjs_int)*param[1];

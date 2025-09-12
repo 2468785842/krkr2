@@ -10,7 +10,7 @@ template <typename T>
 struct IRef {
     IRef() : m_refs(1) {}
 
-    virtual ~IRef() {}
+    virtual ~IRef() = default;
 
     IRef(const IRef &) = delete;
 

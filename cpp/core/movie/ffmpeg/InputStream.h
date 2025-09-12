@@ -13,9 +13,9 @@ class InputStream : public IRef<InputStream> {
     std::string m_strFileName;
 
 public:
-    InputStream(IStream *s, const std::string &filename);
+    InputStream(IStream *s, std::string filename);
 
-    ~InputStream();
+    ~InputStream() override;
 
     uint64_t GetLength() { return m_nFileSize; }
 

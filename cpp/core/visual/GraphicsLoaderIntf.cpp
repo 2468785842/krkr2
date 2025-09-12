@@ -1461,7 +1461,7 @@ static tTVPAtExit TVPUninitMessageLoad(TVP_ATEXIT_PRI_RELEASE,
                                        TVPClearGraphicCache);
 //---------------------------------------------------------------------------
 struct tTVPClearGraphicCacheCallback : public tTVPCompactEventCallbackIntf {
-    virtual void OnCompact(tjs_int level) {
+    void OnCompact(tjs_int level) override {
         if(level >= TVP_COMPACT_LEVEL_MINIMIZE) {
             // clear the font cache on application minimize
             TVPClearGraphicCache();
@@ -2191,7 +2191,7 @@ class tBitmapForAsyncTouch : public tTJSNI_Bitmap {
 
 public:
     tBitmapForAsyncTouch() { Construct(0, nullptr, nullptr); }
-    virtual void SetLoading(bool load) override {
+    void SetLoading(bool load) override {
         inherit::SetLoading(load);
         if(!load) {
             ::Application->PostUserMessage([this]() {

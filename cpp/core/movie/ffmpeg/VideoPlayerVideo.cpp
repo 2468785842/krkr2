@@ -22,7 +22,7 @@ public:
                             CDVDVideoCodec *codec) :
         CDVDMsg(GENERAL_STREAMCHANGE), m_codec(codec), m_hints(hints) {}
 
-    ~CDVDMsgVideoCodecChange() { delete m_codec; }
+    ~CDVDMsgVideoCodecChange() override { delete m_codec; }
 
     CDVDVideoCodec *m_codec;
     CDVDStreamInfo m_hints;

@@ -248,9 +248,9 @@ public:
 
     //     bool Blt(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref,
     // 		tTVPRect refrect, tTVPBBBltMethod method, tjs_int opa);
-    virtual bool
+    bool
     CopyRect(tjs_int x, tjs_int y, const iTVPBaseBitmap *ref, tTVPRect refrect,
-             tjs_int plane = (TVP_BB_COPY_MAIN | TVP_BB_COPY_MASK));
+             tjs_int plane = (TVP_BB_COPY_MAIN | TVP_BB_COPY_MASK)) override;
 
     void SetHoldAlpha(bool b) { HoldAlpha = b; }
 };
@@ -308,32 +308,32 @@ private:
     virtual ~tTVPLayerManager();
 
 public:
-    virtual void AddRef();
-    virtual void Release();
+    void AddRef() override;
+    void Release() override;
 
-    virtual void SetDrawDeviceData(void *data) { DrawDeviceData = data; }
-    virtual void *GetDrawDeviceData() const { return DrawDeviceData; }
+    void SetDrawDeviceData(void *data) override { DrawDeviceData = data; }
+    void *GetDrawDeviceData() const override { return DrawDeviceData; }
 
 public:
     void RegisterSelfToWindow();
     void UnregisterSelfFromWindow();
 
 public:
-    virtual void SetDesiredLayerType(tTVPLayerType type) {
+    void SetDesiredLayerType(tTVPLayerType type) override {
         DesiredLayerType = type;
     }
     void SetHoldAlpha(bool b);
 
 public: // methods from tTVPDrawable
-    virtual tTVPBaseTexture *GetDrawTargetBitmap(const tTVPRect &rect,
-                                                 tTVPRect &cliprect);
+    tTVPBaseTexture *GetDrawTargetBitmap(const tTVPRect &rect,
+                                         tTVPRect &cliprect) override;
 
-    virtual tTVPLayerType GetTargetLayerType();
+    tTVPLayerType GetTargetLayerType() override;
 
-    virtual void DrawCompleted(const tTVPRect &destrect, tTVPBaseTexture *bmp,
-                               const tTVPRect &cliprect, tTVPLayerType type,
-                               tjs_int opacity) override;
-    virtual tTVPBaseTexture *GetDrawBuffer() { return DrawBuffer; }
+    void DrawCompleted(const tTVPRect &destrect, tTVPBaseTexture *bmp,
+                       const tTVPRect &cliprect, tTVPLayerType type,
+                       tjs_int opacity) override;
+    tTVPBaseTexture *GetDrawBuffer() override { return DrawBuffer; }
     tTVPBaseTexture *GetOrCreateDrawBuffer();
 
 public:
@@ -341,10 +341,10 @@ public:
     AttachPrimary(tTJSNI_BaseLayer *pri); // attach primary layer to the manager
     void DetachPrimary(); // detach primary layer from the manager
 
-    virtual tTJSNI_BaseLayer *GetPrimaryLayer() const { return Primary; }
+    tTJSNI_BaseLayer *GetPrimaryLayer() const override { return Primary; }
     bool IsPrimaryLayerAttached() const { return Primary != nullptr; }
 
-    virtual bool GetPrimaryLayerSize(tjs_int &w, tjs_int &h) const;
+    bool GetPrimaryLayerSize(tjs_int &w, tjs_int &h) const override;
 
     void NotifyPart(tTJSNI_BaseLayer *lay); // notifies layer parting
                                             // from its parent
@@ -388,58 +388,59 @@ public:
     void SetLayerTreeOwner(class iTVPLayerTreeOwner *owner);
     void NotifyResizeFromWindow(tjs_uint w,
                                 tjs_uint h); // draw device -> layer
-    virtual void RequestInvalidation(const tTVPRect &r); // draw device -> layer
+    void
+    RequestInvalidation(const tTVPRect &r) override; // draw device -> layer
 
-    virtual void NotifyClick(tjs_int x, tjs_int y) { PrimaryClick(x, y); }
-    virtual void NotifyDoubleClick(tjs_int x, tjs_int y) {
+    void NotifyClick(tjs_int x, tjs_int y) override { PrimaryClick(x, y); }
+    void NotifyDoubleClick(tjs_int x, tjs_int y) override {
         PrimaryDoubleClick(x, y);
     }
-    virtual void NotifyMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb,
-                                 tjs_uint32 flags) {
+    void NotifyMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb,
+                         tjs_uint32 flags) override {
         PrimaryMouseDown(x, y, mb, flags);
     }
-    virtual void NotifyMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb,
-                               tjs_uint32 flags) {
+    void NotifyMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb,
+                       tjs_uint32 flags) override {
         PrimaryMouseUp(x, y, mb, flags);
     }
-    virtual void NotifyMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) {
+    void NotifyMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) override {
         PrimaryMouseMove(x, y, flags);
     }
-    virtual void NotifyMouseOutOfWindow() { MouseOutOfWindow(); }
-    virtual void NotifyKeyDown(tjs_uint key, tjs_uint32 shift) {
+    void NotifyMouseOutOfWindow() override { MouseOutOfWindow(); }
+    void NotifyKeyDown(tjs_uint key, tjs_uint32 shift) override {
         PrimaryKeyDown(key, shift);
     }
-    virtual void NotifyKeyUp(tjs_uint key, tjs_uint32 shift) {
+    void NotifyKeyUp(tjs_uint key, tjs_uint32 shift) override {
         PrimaryKeyUp(key, shift);
     }
-    virtual void NotifyKeyPress(tjs_char key) { PrimaryKeyPress(key); }
-    virtual void NotifyMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x,
-                                  tjs_int y) {
+    void NotifyKeyPress(tjs_char key) override { PrimaryKeyPress(key); }
+    void NotifyMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x,
+                          tjs_int y) override {
         PrimaryMouseWheel(shift, delta, x, y);
     }
 
-    virtual void NotifyTouchDown(tjs_real x, tjs_real y, tjs_real cx,
-                                 tjs_real cy, tjs_uint32 id) {
+    void NotifyTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
+                         tjs_uint32 id) override {
         PrimaryTouchDown(x, y, cx, cy, id);
     }
-    virtual void NotifyTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
-                               tjs_uint32 id) {
+    void NotifyTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
+                       tjs_uint32 id) override {
         PrimaryTouchUp(x, y, cx, cy, id);
     }
-    virtual void NotifyTouchMove(tjs_real x, tjs_real y, tjs_real cx,
-                                 tjs_real cy, tjs_uint32 id) {
+    void NotifyTouchMove(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
+                         tjs_uint32 id) override {
         PrimaryTouchMove(x, y, cx, cy, id);
     }
-    virtual void NotifyTouchScaling(tjs_real startdist, tjs_real curdist,
-                                    tjs_real cx, tjs_real cy, tjs_int flag) {
+    void NotifyTouchScaling(tjs_real startdist, tjs_real curdist, tjs_real cx,
+                            tjs_real cy, tjs_int flag) override {
         PrimaryTouchScaling(startdist, curdist, cx, cy, flag);
     }
-    virtual void NotifyTouchRotate(tjs_real startangle, tjs_real curangle,
-                                   tjs_real dist, tjs_real cx, tjs_real cy,
-                                   tjs_int flag) {
+    void NotifyTouchRotate(tjs_real startangle, tjs_real curangle,
+                           tjs_real dist, tjs_real cx, tjs_real cy,
+                           tjs_int flag) override {
         PrimaryTouchRotate(startangle, curangle, dist, cx, cy, flag);
     }
-    virtual void NotifyMultiTouch() { PrimaryMultiTouch(); }
+    void NotifyMultiTouch() override { PrimaryMultiTouch(); }
 
     void PrimaryTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
                           tjs_uint32 id);
@@ -472,19 +473,21 @@ public:
     void MouseOutOfWindow();
     void LeaveMouseFromTree(tTJSNI_BaseLayer *root); // force to leave mouse
 
-    virtual void ReleaseCapture();
+    void ReleaseCapture() override;
     void ReleaseCaptureFromTree(tTJSNI_BaseLayer *layer);
 
     bool BlurTree(tTJSNI_BaseLayer *root); // remove focus from "root"
     tTJSNI_BaseLayer *SearchFirstFocusable(
         bool ignore_chain_focusable = true); // search first focusable layer
 
-    virtual tTJSNI_BaseLayer *GetFocusedLayer() const { return FocusedLayer; }
+    tTJSNI_BaseLayer *GetFocusedLayer() const override { return FocusedLayer; }
     void CheckTreeFocusableState(tTJSNI_BaseLayer *root);
     // check newly added tree's focusable state
     bool SetFocusTo(tTJSNI_BaseLayer *layer, bool direction = true);
     // set focus to layer
-    void SetFocusedLayer(tTJSNI_BaseLayer *layer) { SetFocusTo(layer, false); }
+    void SetFocusedLayer(tTJSNI_BaseLayer *layer) override {
+        SetFocusTo(layer, false);
+    }
     tTJSNI_BaseLayer *FocusPrev(); // focus to previous layer
     tTJSNI_BaseLayer *FocusNext(); // focus to next layer
     void ReleaseAllModalLayer(); // release all modal layer on invalidation
@@ -524,17 +527,17 @@ public:
     void AddUpdateRegion(const tTVPComplexRect &rects);
     void AddUpdateRegion(const tTVPRect &rect);
     void PrimaryUpdateByWindow(const tTVPRect &rect);
-    virtual void UpdateToDrawDevice();
+    void UpdateToDrawDevice() override;
     void NotifyUpdateRegionFixed();
 
 public:
-    void RecheckInputState();
+    void RecheckInputState() override;
     // To re-check current layer under current mouse position
     // and update hint, cursor type and process layer enter/leave.
     // This can be reasonably slow, about 1 sec interval.
 
 public:
-    void DumpLayerStructure();
+    void DumpLayerStructure() override;
 
     void ReleaseTouchCapture(tjs_uint32 id);
     void ReleaseTouchCaptureAll();

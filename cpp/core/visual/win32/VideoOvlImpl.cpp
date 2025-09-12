@@ -164,8 +164,8 @@ void tTJSNI_VideoOverlay::Open(const ttstr &_name) {
             stream0 = TVPCreateStream(name);
             size = (long)stream0->GetSize();
         } catch(...) {
-            if(stream0)
-                delete stream0;
+
+            delete stream0;
             throw;
         }
 

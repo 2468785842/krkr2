@@ -11,8 +11,8 @@ class TVPYUVSprite : public cocos2d::Sprite {
                                         cocos2d::Texture2D::PixelFormat::NONE;
     cocos2d::CustomCommand _drawCommand;
 
-    GLuint _buffersVAO;
-    GLuint _buffersVBO[2]; // 0: vertex  1: indices
+    GLuint _buffersVAO{};
+    GLuint _buffersVBO[2]{}; // 0: vertex  1: indices
 
     void setupVBOAndVAO();
 
@@ -21,7 +21,7 @@ class TVPYUVSprite : public cocos2d::Sprite {
                                    cocos2d::Texture2D::PixelFormat pixfmt);
 
 public:
-    virtual ~TVPYUVSprite();
+    ~TVPYUVSprite() override;
 
     static TVPYUVSprite *create();
 

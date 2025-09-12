@@ -24,7 +24,7 @@ protected:
 
     std::function<void(int)> FuncOK;
 
-    XKPageView *pageView;
+    XKPageView *pageView{};
 };
 
 class TVPTextPairInputForm : public iTVPHalfScreenForm {
@@ -40,7 +40,7 @@ private:
 
     std::function<void(const std::string &, const std::string &)> FuncOK;
 
-    cocos2d::ui::TextField *input1, *input2;
+    cocos2d::ui::TextField *input1{}, *input2{};
 };
 
 class TVPKeyPairSelectForm : public TVPSelectListForm {

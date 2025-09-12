@@ -16,7 +16,7 @@ public:
                             CDVDAudioCodec *codec) :
         CDVDMsg(GENERAL_STREAMCHANGE), m_codec(codec), m_hints(hints) {}
 
-    ~CDVDMsgAudioCodecChange() { delete m_codec; }
+    ~CDVDMsgAudioCodecChange() override { delete m_codec; }
 
     CDVDAudioCodec *m_codec;
     CDVDStreamInfo m_hints;

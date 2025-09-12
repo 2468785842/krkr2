@@ -92,7 +92,7 @@ namespace TJS {
         void SetString(const tjs_nchar *ref) {
             if(LongString)
                 TJSVS_free(LongString), LongString = nullptr;
-            tjs_int len = (tjs_int)TJS_narrowtowidelen(ref);
+            auto len = (tjs_int)TJS_narrowtowidelen(ref);
             if(len == -1)
                 TJSThrowNarrowToWideConversionError();
 

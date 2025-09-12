@@ -97,9 +97,9 @@ class tTVPXP3Archive : public tTVPArchive {
 public:
     struct tArchiveItem {
         ttstr Name;
-        tjs_uint32 FileHash;
-        tjs_uint64 OrgSize; // original ( uncompressed ) size
-        tjs_uint64 ArcSize; // in-archive size
+        tjs_uint32 FileHash{};
+        tjs_uint64 OrgSize{}; // original ( uncompressed ) size
+        tjs_uint64 ArcSize{}; // in-archive size
         std::vector<tTVPXP3ArchiveSegment> Segments;
 
         bool operator<(const tArchiveItem &rhs) const {
@@ -120,25 +120,27 @@ public:
     tTVPXP3Archive(const ttstr &name, tTJSBinaryStream *st = nullptr,
                    tjs_int64 offset = -1, bool normalizeFileName = true);
 
-    ~tTVPXP3Archive();
+    ~tTVPXP3Archive() override;
 
     static tTVPArchive *Create(const ttstr &name,
                                tTJSBinaryStream *st = nullptr,
                                bool normalizeFileName = true);
 
-    tjs_uint GetCount() { return Count; }
+    tjs_uint GetCount() override { return Count; }
 
-    const ttstr &GetName(tjs_uint idx) const { return ItemVector[idx].Name; }
+    [[nodiscard]] const ttstr &GetName(tjs_uint idx) const {
+        return ItemVector[idx].Name;
+    }
 
-    tjs_uint32 GetFileHash(tjs_uint idx) const {
+    [[nodiscard]] tjs_uint32 GetFileHash(tjs_uint idx) const {
         return ItemVector[idx].FileHash;
     }
 
-    ttstr GetName(tjs_uint idx) { return ItemVector[idx].Name; }
+    ttstr GetName(tjs_uint idx) override { return ItemVector[idx].Name; }
 
-    const ttstr &GetName() const { return ArchiveName; }
+    [[nodiscard]] const ttstr &GetName() const { return ArchiveName; }
 
-    tTJSBinaryStream *CreateStreamByIndex(tjs_uint idx);
+    tTJSBinaryStream *CreateStreamByIndex(tjs_uint idx) override;
 
 private:
     static bool FindChunk(const tjs_uint8 *data, const tjs_uint8 *name,
@@ -187,7 +189,7 @@ public:
                          std::vector<tTVPXP3ArchiveSegment> *segments,
                          tTJSBinaryStream *stream, tjs_uint64 orgsize);
 
-    ~tTVPXP3ArchiveStream();
+    ~tTVPXP3ArchiveStream() override;
 
     tTJSVariant &GetFilterContext() { return FilterContext; }
 
@@ -197,13 +199,13 @@ private:
     bool OpenNextSegment();
 
 public:
-    tjs_uint64 Seek(tjs_int64 offset, tjs_int whence);
+    tjs_uint64 Seek(tjs_int64 offset, tjs_int whence) override;
 
-    tjs_uint Read(void *buffer, tjs_uint read_size);
+    tjs_uint Read(void *buffer, tjs_uint read_size) override;
 
-    tjs_uint Write(const void *buffer, tjs_uint write_size);
+    tjs_uint Write(const void *buffer, tjs_uint write_size) override;
 
-    tjs_uint64 GetSize();
+    tjs_uint64 GetSize() override;
 };
 //---------------------------------------------------------------------------
 

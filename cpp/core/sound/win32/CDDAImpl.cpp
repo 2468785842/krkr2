@@ -12,7 +12,7 @@
 #include "tjsCommHead.h"
 
 // #include <registry.hpp> // VCL
-#include <math.h>
+#include <cmath>
 #include "MsgIntf.h"
 #include "CDDAImpl.h"
 #include "SysInitIntf.h"

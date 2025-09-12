@@ -7,7 +7,7 @@
 class IndividualConfigManager : public iSysConfigManager {
     typedef iSysConfigManager inherit;
 
-    virtual std::string GetFilePath() override;
+    std::string GetFilePath() override;
 
     void Clear();
 

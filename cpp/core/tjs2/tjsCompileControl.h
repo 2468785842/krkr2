@@ -34,15 +34,15 @@ namespace TJSPP {
 
         tTJS *GetTJS() { return TJS; }
 
-        const tjs_char *GetString(tjs_int idx) const;
+        [[nodiscard]] const tjs_char *GetString(tjs_int idx) const;
 
-        tjs_int32 Result;
+        tjs_int32 Result{};
 
     private:
         std::vector<ttstr> IDs;
 
         const tjs_char *Script;
-        const tjs_char *Current;
+        const tjs_char *Current{};
     };
     int yylex(parser::value_type *yylex, tTJSPPExprParser *ptr);
 } // namespace TJSPP

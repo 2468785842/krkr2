@@ -140,11 +140,11 @@ std::string TVPGetCurrentLanguage() {
 int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
                             const std::vector<ttstr> &vecButtons) {
     GtkWidget *dialog = nullptr;
-    DEFER {
+    DEFER({
         if(dialog) {
             gtk_widget_destroy(dialog);
         }
-    };
+    });
 
     switch(vecButtons.size()) {
         case 1:
@@ -229,6 +229,7 @@ static bool _TVPCreateFolders(const ttstr &folder) {
 int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,
                           const ttstr &prompt,
                           const std::vector<ttstr> &vecButtons) {
+    // TODO
     spdlog::get("core")->warn("linux platform simple input box not implement");
     return 0;
 }

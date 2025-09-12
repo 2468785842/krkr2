@@ -931,9 +931,7 @@ tjs_error ScriptsAdd::safeEvalStorage(tTJSVariant *result, tjs_int numparams,
         stream->Destruct();
         throw;
     }
-    stream->
-
-        Destruct();
+    stream->Destruct();
 
     /*
     ttstr content(TJS_W("(const)["));

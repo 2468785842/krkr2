@@ -39,9 +39,9 @@ tjs_uint32 TVPFromActualColor(tjs_uint32 color) {
 //---------------------------------------------------------------------------
 // tTJSNI_Layer
 //---------------------------------------------------------------------------
-tTJSNI_Layer::tTJSNI_Layer() {}
+tTJSNI_Layer::tTJSNI_Layer() = default;
 //---------------------------------------------------------------------------
-tTJSNI_Layer::~tTJSNI_Layer() {}
+tTJSNI_Layer::~tTJSNI_Layer() = default;
 //---------------------------------------------------------------------------
 tjs_error tTJSNI_Layer::Construct(tjs_int numparams, tTJSVariant **param,
                                   iTJSDispatch2 *tjs_obj) {

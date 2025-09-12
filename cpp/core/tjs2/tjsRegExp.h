@@ -41,7 +41,7 @@ namespace TJS {
     public:
         tTJSNI_RegExp();
 
-        ~tTJSNI_RegExp();
+        ~tTJSNI_RegExp() override;
 
         void Split(iTJSDispatch2 **array, const ttstr &target, bool purgeempty);
     };
@@ -75,7 +75,7 @@ namespace TJS {
         }
 
     private:
-        tTJSNativeInstance *CreateNativeInstance();
+        tTJSNativeInstance *CreateNativeInstance() override;
 
     public:
         static tjs_uint32 ClassID;

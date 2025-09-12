@@ -83,7 +83,7 @@ TJS_EXP_FUNC_DEF(void, TVPConvertPCMToFloat,
 //---------------------------------------------------------------------------
 class tTVPWaveDecoder {
 public:
-    virtual ~tTVPWaveDecoder() {};
+    virtual ~tTVPWaveDecoder() = default;
 
     virtual void GetFormat(tTVPWaveFormat &format) = 0;
 
@@ -185,9 +185,9 @@ public:
     tTJSNI_BaseWaveSoundBuffer();
 
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
+                        iTJSDispatch2 *tjs_obj) override;
 
-    void Invalidate();
+    void Invalidate() override;
 
 protected:
     void InvokeLabelEvent(const ttstr &name);
@@ -207,7 +207,9 @@ public:
 
     iTJSDispatch2 *GetWaveLabelsObjectNoAddRef();
 
-    tTVPWaveLoopManager *GetWaveLoopManager() const { return LoopManager; }
+    [[nodiscard]] tTVPWaveLoopManager *GetWaveLoopManager() const {
+        return LoopManager;
+    }
 
     iTJSDispatch2 *GetFiltersNoAddRef() { return Filters; }
 };
@@ -227,7 +229,7 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance();
+    tTJSNativeInstance *CreateNativeInstance() override;
 };
 
 //---------------------------------------------------------------------------
@@ -247,14 +249,14 @@ class tTJSNI_WaveFlags : public tTJSNativeInstance {
 public:
     tTJSNI_WaveFlags();
 
-    ~tTJSNI_WaveFlags();
+    ~tTJSNI_WaveFlags() override;
 
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
+                        iTJSDispatch2 *tjs_obj) override;
 
-    void Invalidate();
+    void Invalidate() override;
 
-    tTJSNI_WaveSoundBuffer *GetBuffer() const { return Buffer; }
+    [[nodiscard]] tTJSNI_WaveSoundBuffer *GetBuffer() const { return Buffer; }
 };
 //---------------------------------------------------------------------------
 
@@ -268,7 +270,7 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance() {
+    tTJSNativeInstance *CreateNativeInstance() override {
         return new tTJSNI_WaveFlags();
     }
 };

@@ -10,7 +10,7 @@ tTJSBinaryStream *TVPCreateFontStream(const ttstr &fontname);
 struct TVPFontNamePathInfo {
     ttstr Path;
     std::function<tTJSBinaryStream *(TVPFontNamePathInfo *)> Getter;
-    int Index;
+    int Index{};
 };
 TVPFontNamePathInfo *TVPFindFont(const ttstr &name);
 

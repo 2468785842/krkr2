@@ -30,15 +30,14 @@ public:
         eEnterFromBottom,
     };
 
-    void pushUIForm(cocos2d::Node *node,
-                    eEnterAni ani = eEnterAniOverFromRight);
+    void pushUIForm(cocos2d::Node *ui, eEnterAni ani = eEnterAniOverFromRight);
 
     enum eLeaveAni {
         eLeaveAniNone,
         eLeaveAniLeaveFromLeft,
         eLeaveToBottom,
     };
-    void popUIForm(cocos2d::Node *node, eLeaveAni ani = eLeaveAniLeaveFromLeft);
+    void popUIForm(cocos2d::Node *form, eLeaveAni ani = eLeaveAniLeaveFromLeft);
     void popAllUIForm();
 
     void addLayer(TVPWindowLayer *lay);
@@ -62,7 +61,7 @@ public:
     static void onCharInput(int keyCode);
     static void onTextInput(const std::string &text);
 
-    static float convertCursorScale(float cfgScale /*0 ~ 1*/);
+    static float convertCursorScale(float val /*0 ~ 1*/);
 
 private:
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,

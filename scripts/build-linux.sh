@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cmake --preset="Linux Debug Config"
+cmake --preset="Linux Debug Config" -DDISABLE_TEST=ON
 cmake --build --preset="Linux Debug Build"
 
 if [ ! -f "/usr/lib/libfmod.so" ]; then

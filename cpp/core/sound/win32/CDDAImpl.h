@@ -45,9 +45,9 @@ public:
     tTJSNI_CDDASoundBuffer();
 
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
+                        iTJSDispatch2 *tjs_obj) override;
 
-    void Invalidate();
+    void Invalidate() override;
 
 #ifdef ENABLE_CDDA
     //-- playing stuff
@@ -97,9 +97,9 @@ public:
 protected:
 #else
 
-    void SetVolume(tjs_int v) {}
+    void SetVolume(tjs_int v) override {}
 
-    tjs_int GetVolume() const { return 0; }
+    [[nodiscard]] tjs_int GetVolume() const override { return 0; }
 
 #endif
 };

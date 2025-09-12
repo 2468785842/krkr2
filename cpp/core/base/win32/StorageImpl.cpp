@@ -1269,7 +1269,7 @@ ttstr TVPSearchCD(const ttstr &name) {
         }
     }
 #endif
-    return ttstr();
+    return {};
 }
 //---------------------------------------------------------------------------
 

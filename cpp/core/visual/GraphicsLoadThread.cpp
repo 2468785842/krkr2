@@ -42,7 +42,7 @@ tTVPImageLoadCommand::~tTVPImageLoadCommand() {
 static int TVPLoadGraphicAsync_SizeCallback(void *callbackdata, tjs_uint w,
                                             tjs_uint h,
                                             tTVPGraphicPixelFormat fmt) {
-    tTVPTmpBitmapImage *img = (tTVPTmpBitmapImage *)callbackdata;
+    auto *img = (tTVPTmpBitmapImage *)callbackdata;
     if(!img->bmp) {
         img->bmp = new tTVPBitmap(w, h, 32);
     } else if(img->bmp->GetWidth() != w || img->bmp->GetHeight() != h) {
@@ -64,7 +64,7 @@ static int TVPLoadGraphicAsync_SizeCallback(void *callbackdata, tjs_uint w,
 //---------------------------------------------------------------------------
 static void *TVPLoadGraphicAsync_ScanLineCallback(void *callbackdata,
                                                   tjs_int y) {
-    tTVPTmpBitmapImage *img = (tTVPTmpBitmapImage *)callbackdata;
+    auto *img = (tTVPTmpBitmapImage *)callbackdata;
     if(y >= 0) {
         if(y < (tjs_int)img->bmp->GetHeight()) {
             return img->bmp->GetScanLine(y);
@@ -78,11 +78,11 @@ static void *TVPLoadGraphicAsync_ScanLineCallback(void *callbackdata,
 static void TVPLoadGraphicAsync_MetaInfoPushCallback(void *callbackdata,
                                                      const ttstr &name,
                                                      const ttstr &value) {
-    tTVPTmpBitmapImage *img = (tTVPTmpBitmapImage *)callbackdata;
+    auto *img = (tTVPTmpBitmapImage *)callbackdata;
 
     if(!img->MetaInfo)
         img->MetaInfo = new std::vector<tTVPGraphicMetaInfoPair>();
-    img->MetaInfo->push_back(tTVPGraphicMetaInfoPair(name, value));
+    img->MetaInfo->emplace_back(name, value);
 }
 //---------------------------------------------------------------------------
 
@@ -94,12 +94,12 @@ tTVPAsyncImageLoader::~tTVPAsyncImageLoader() {
     ExitRequest();
     WaitFor();
     EventQueue.Deallocate();
-    while(CommandQueue.size() > 0) {
+    while(!CommandQueue.empty()) {
         tTVPImageLoadCommand *cmd = CommandQueue.front();
         CommandQueue.pop();
         delete cmd;
     }
-    while(LoadedQueue.size() > 0) {
+    while(!LoadedQueue.empty()) {
         tTVPImageLoadCommand *cmd = LoadedQueue.front();
         LoadedQueue.pop();
         delete cmd;
@@ -132,7 +132,7 @@ void tTVPAsyncImageLoader::HandleLoadedImage() {
         tTVPImageLoadCommand *cmd = nullptr;
         {
             tTJSCriticalSectionHolder cs(ImageQueueCS);
-            if(LoadedQueue.size() > 0) {
+            if(!LoadedQueue.empty()) {
                 cmd = LoadedQueue.front();
                 LoadedQueue.pop();
                 loading = true;
@@ -246,7 +246,7 @@ void tTVPAsyncImageLoader::LoadRequest(iTJSDispatch2 *owner, tTJSNI_Bitmap *bmp,
 void tTVPAsyncImageLoader::PushLoadQueue(iTJSDispatch2 *owner,
                                          tTJSNI_Bitmap *bmp,
                                          const ttstr &nname) {
-    tTVPImageLoadCommand *cmd = new tTVPImageLoadCommand();
+    auto *cmd = new tTVPImageLoadCommand();
     cmd->owner_ = owner;
     if(owner)
         owner->AddRef();
@@ -275,7 +275,7 @@ void tTVPAsyncImageLoader::LoadingThread() {
 
             { // Lock
                 tTJSCriticalSectionHolder cs(CommandQueueCS);
-                if(CommandQueue.size()) {
+                if(!CommandQueue.empty()) {
                     cmd = CommandQueue.front();
                     CommandQueue.pop();
                 }

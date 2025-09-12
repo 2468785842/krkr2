@@ -81,13 +81,13 @@ public:
     SevenZipArchive(const ttstr &name, tTJSBinaryStream *st) :
         tTVPArchive(name), SevenZipStreamWrap(st) {}
 
-    virtual ~SevenZipArchive() {}
+    ~SevenZipArchive() override {}
 
-    virtual tjs_uint GetCount() { return filelist.size(); }
+    tjs_uint GetCount() override { return filelist.size(); }
 
-    virtual ttstr GetName(tjs_uint idx) { return filelist[idx].first; }
+    ttstr GetName(tjs_uint idx) override { return filelist[idx].first; }
 
-    virtual tTJSBinaryStream *CreateStreamByIndex(tjs_uint idx) {
+    tTJSBinaryStream *CreateStreamByIndex(tjs_uint idx) override {
         tjs_uint fileIndex = filelist[idx].second;
         UInt64 fileSize = SzArEx_GetFileSize(&db, fileIndex);
         if(fileSize <= 0)

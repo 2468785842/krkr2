@@ -105,15 +105,26 @@ void TVPXP3Repacker::Start(std::vector<std::string> &filelist,
         ProgressForm->setContent("");
     }
     ArcRepacker.SetCallback(
-        std::bind(&TVPXP3Repacker::OnNewFile, this, std::placeholders::_1,
-                  std::placeholders::_2, std::placeholders::_3),
-        std::bind(&TVPXP3Repacker::OnNewArchive, this, std::placeholders::_1,
-                  std::placeholders::_2, std::placeholders::_3),
-        std::bind(&TVPXP3Repacker::OnProgress, this, std::placeholders::_1,
-                  std::placeholders::_2, std::placeholders::_3),
-        std::bind(&TVPXP3Repacker::OnError, this, std::placeholders::_1,
-                  std::placeholders::_2),
-        std::bind(&TVPXP3Repacker::OnEnded, this));
+        [this](auto &&PH1, auto &&PH2, auto &&PH3) {
+            OnNewFile(std::forward<decltype(PH1)>(PH1),
+                      std::forward<decltype(PH2)>(PH2),
+                      std::forward<decltype(PH3)>(PH3));
+        },
+        [this](auto &&PH1, auto &&PH2, auto &&PH3) {
+            OnNewArchive(std::forward<decltype(PH1)>(PH1),
+                         std::forward<decltype(PH2)>(PH2),
+                         std::forward<decltype(PH3)>(PH3));
+        },
+        [this](auto &&PH1, auto &&PH2, auto &&PH3) {
+            OnProgress(std::forward<decltype(PH1)>(PH1),
+                       std::forward<decltype(PH2)>(PH2),
+                       std::forward<decltype(PH3)>(PH3));
+        },
+        [this](auto &&PH1, auto &&PH2) {
+            OnError(std::forward<decltype(PH1)>(PH1),
+                    std::forward<decltype(PH2)>(PH2));
+        },
+        [this] { OnEnded(); });
     if(cocos2d::FileUtils::getInstance()->isFileExist(xp3filter)) {
         ArcRepacker.SetXP3Filter(xp3filter);
     }

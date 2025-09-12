@@ -110,7 +110,7 @@ namespace TJS {
         }
 
     public:
-        tjsConstArrayData() {}
+        tjsConstArrayData() = default;
 
         ~tjsConstArrayData();
 

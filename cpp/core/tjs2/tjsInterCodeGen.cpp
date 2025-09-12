@@ -712,8 +712,7 @@ namespace TJS // following is in the namespace
 
             // make a patch information
             // use FunctionRegisterCodePoint for insertion point
-            FixList.push_back(
-                tFixData(FunctionRegisterCodePoint, 0, 1, code, true));
+            FixList.emplace_back(FunctionRegisterCodePoint, 0, 1, code, true);
         }
 
         // process funtion reservation to enable backward reference of
@@ -766,8 +765,8 @@ namespace TJS // following is in the namespace
             *(codep++) = TJS_TO_VM_REG_ADDR(1);
 
             // make a patch information
-            FixList.push_back(
-                tFixData(FunctionRegisterCodePoint, 0, codesize, code, true));
+            FixList.emplace_back(FunctionRegisterCodePoint, 0, codesize, code,
+                                 true);
 
             NonLocalFunctionDeclVector.clear();
         }
@@ -915,8 +914,8 @@ namespace TJS // following is in the namespace
             tjs_int name = Parent->PutData(val);
             bool changethis =
                 ContextType == ctFunction || ContextType == ctProperty;
-            Parent->NonLocalFunctionDeclVector.push_back(
-                tNonLocalFunctionDecl(data, name, changethis));
+            Parent->NonLocalFunctionDeclVector.emplace_back(data, name,
+                                                            changethis);
         }
 
         if(ContextType == ctFunction && Parent->ContextType == ctFunction) {
@@ -1024,7 +1023,7 @@ namespace TJS // following is in the namespace
         // we do thus nasty thing because the std::vector does not
         // free its storage even we call 'clear' method...
 #define RE_CREATE(place, type, classname)                                      \
-    (&place)->type::~classname();                                              \
+    (&place)->~classname();                                                    \
     new(&place) type()
 
         RE_CREATE(NodeToDeleteVector, std::vector<tTJSExprNode *>, vector);
@@ -1130,7 +1129,7 @@ namespace TJS // following is in the namespace
 
         tjs_int node_pos = NODE_POS;
 
-        switch(node->GetOpecode()) {
+        switch(node->GetOpcode()) {
             case parser::token_kind_type::T_CONSTVAL: // constant
                                                       // value
             {
@@ -1294,7 +1293,7 @@ namespace TJS // following is in the namespace
                                        tSubParam());
 
                 tSubParam param2;
-                switch(node->GetOpecode()) // this may be sucking...
+                switch(node->GetOpcode()) // this may be sucking...
                 {
                     case parser::token_kind_type::T_AMPERSANDEQUAL:
                         param2.SubType = stBitAND;
@@ -1453,7 +1452,7 @@ namespace TJS // following is in the namespace
                     inv = true;
                 tjs_int addr1 = CodeAreaSize;
                 AddJumpList();
-                PutCode(node->GetOpecode() ==
+                PutCode(node->GetOpcode() ==
                                 parser::token_kind_type::T_LOGICALOR
                             ? (inv ? VM_JNF : VM_JF)
                             : (inv ? VM_JF : VM_JNF),
@@ -1545,7 +1544,7 @@ namespace TJS // following is in the namespace
                 resaddr2 = _GenNodeCode(frame, (*node)[1], TJS_RT_NEEDED, 0,
                                         tSubParam());
                 tjs_int32 code;
-                switch(node->GetOpecode()) // sucking....
+                switch(node->GetOpcode()) // sucking....
                 {
                     case parser::token_kind_type::T_VERTLINE:
                         code = VM_BOR;
@@ -1623,7 +1622,7 @@ namespace TJS // following is in the namespace
                 resaddr2 = _GenNodeCode(frame, (*node)[1], TJS_RT_NEEDED, 0,
                                         tSubParam());
                 tjs_int32 code1, code2;
-                switch(node->GetOpecode()) // ...
+                switch(node->GetOpcode()) // ...
                 {
                     case parser::token_kind_type::T_NOTEQUAL:
                         code1 = VM_CEQ;
@@ -1739,7 +1738,7 @@ namespace TJS // following is in the namespace
                     frame++;
                 }
                 tjs_int32 code;
-                switch(node->GetOpecode()) {
+                switch(node->GetOpcode()) {
                         //			case
                         // parser::token_kind_type::T_EXCRAMATION:
                         // code = VM_LNOT;
@@ -1805,9 +1804,9 @@ namespace TJS // following is in the namespace
                     _yyerror(TJSCannotModifyLHS, Block);
                 bool haspropnode;
                 tTJSExprNode *cnode = (*node)[0];
-                if(cnode->GetOpecode() == parser::token_kind_type::T_DOT ||
-                   cnode->GetOpecode() == parser::token_kind_type::T_LBRACKET ||
-                   cnode->GetOpecode() == parser::token_kind_type::T_WITHDOT)
+                if(cnode->GetOpcode() == parser::token_kind_type::T_DOT ||
+                   cnode->GetOpcode() == parser::token_kind_type::T_LBRACKET ||
+                   cnode->GetOpcode() == parser::token_kind_type::T_WITHDOT)
                     haspropnode = true;
                 else
                     haspropnode = false;
@@ -1852,7 +1851,7 @@ namespace TJS // following is in the namespace
                 if(TJSIsModifySubType(param.SubType))
                     _yyerror(TJSCannotModifyLHS, Block);
                 tSubParam param2;
-                switch(node->GetOpecode()) {
+                switch(node->GetOpcode()) {
                     case parser::token_kind_type::T_TYPEOF:
                         param2.SubType = stTypeOf;
                         break;
@@ -1887,19 +1886,19 @@ namespace TJS // following is in the namespace
                 // properties ?
                 bool haspropnode, hasnonlocalsymbol;
                 tTJSExprNode *cnode = (*node)[0];
-                if(node->GetOpecode() ==
+                if(node->GetOpcode() ==
                        parser::token_kind_type::T_LPARENTHESIS &&
-                   (cnode->GetOpecode() == parser::token_kind_type::T_DOT ||
-                    cnode->GetOpecode() == parser::token_kind_type::T_LBRACKET))
+                   (cnode->GetOpcode() == parser::token_kind_type::T_DOT ||
+                    cnode->GetOpcode() == parser::token_kind_type::T_LBRACKET))
                     haspropnode = true;
                 else
                     haspropnode = false;
 
                 // does (*node)[0] have a node that accesses non-local
                 // functions ?
-                if(node->GetOpecode() ==
+                if(node->GetOpcode() ==
                        parser::token_kind_type::T_LPARENTHESIS &&
-                   cnode->GetOpecode() == parser::token_kind_type::T_SYMBOL) {
+                   cnode->GetOpcode() == parser::token_kind_type::T_SYMBOL) {
                     if(AsGlobalContextMode) {
                         hasnonlocalsymbol = true;
                     } else {
@@ -1953,7 +1952,7 @@ namespace TJS // following is in the namespace
                                                0, param2);
 
                         // code generatio of function calling
-                        PutCode(node->GetOpecode() ==
+                        PutCode(node->GetOpcode() ==
                                         parser::token_kind_type::T_NEW
                                     ? VM_NEW
                                     : VM_CALL,
@@ -1992,8 +1991,7 @@ namespace TJS // following is in the namespace
                 }
                 if((*node)[0]) {
                     tTJSExprNode *n = (*node)[0];
-                    if(n->GetOpecode() ==
-                       parser::token_kind_type::T_EXPANDARG) {
+                    if(n->GetOpcode() == parser::token_kind_type::T_EXPANDARG) {
                         // expanding argument
                         if((*n)[0])
                             AddFuncArg(_GenNodeCode(frame, (*n)[0],
@@ -2023,7 +2021,7 @@ namespace TJS // following is in the namespace
             {
                 // member access ( direct or indirect )
                 bool direct =
-                    node->GetOpecode() == parser::token_kind_type::T_DOT;
+                    node->GetOpcode() == parser::token_kind_type::T_DOT;
                 tjs_int dp;
 
                 tSubParam param2;
@@ -2053,7 +2051,7 @@ namespace TJS // following is in the namespace
                     case stEqual:
                     case stIgnorePropSet:
                         if(param.SubType == stEqual) {
-                            if((*node)[0]->GetOpecode() ==
+                            if((*node)[0]->GetOpcode() ==
                                parser::token_kind_type::T_THIS_PROXY)
                                 PutCode(direct ? VM_SPD : VM_SPI, node_pos);
                             else
@@ -2326,12 +2324,12 @@ namespace TJS // following is in the namespace
                     tTJSTimeProfiler prof(time_this_proxy);
 #endif
                     tTJSExprNode nodep;
-                    nodep.SetOpecode(parser::token::T_DOT);
+                    nodep.SetOpcode(parser::token::T_DOT);
                     nodep.SetPosition(node_pos);
                     tTJSExprNode *node1 = new tTJSExprNode;
                     NodeToDeleteVector.push_back(node1);
                     nodep.Add(node1);
-                    node1->SetOpecode(
+                    node1->SetOpcode(
                         AsGlobalContextMode
                             ? parser::token_kind_type::T_GLOBAL
                             : parser::token_kind_type::T_THIS_PROXY);
@@ -2339,7 +2337,7 @@ namespace TJS // following is in the namespace
                     tTJSExprNode *node2 = new tTJSExprNode;
                     NodeToDeleteVector.push_back(node2);
                     nodep.Add(node2);
-                    node2->SetOpecode(parser::token::T_SYMBOL);
+                    node2->SetOpcode(parser::token::T_SYMBOL);
                     node2->SetPosition(node_pos);
                     node2->SetValue(node->GetValue());
                     return _GenNodeCode(frame, &nodep, restype, reqresaddr,
@@ -2351,7 +2349,7 @@ namespace TJS // following is in the namespace
                                                         // operator
             case parser::token_kind_type::T_PROPACCESS: // unary '*'
                                                         // operator
-                if(node->GetOpecode() ==
+                if(node->GetOpcode() ==
                    (TJSUnaryAsteriskIgnoresPropAccess
                         ? parser::token_kind_type::T_PROPACCESS
                         : parser::token_kind_type::T_IGNOREPROP)) {
@@ -2506,12 +2504,12 @@ namespace TJS // following is in the namespace
             {
                 // dot operator omitting object name
                 tTJSExprNode nodep;
-                nodep.SetOpecode(parser::token::T_DOT);
+                nodep.SetOpcode(parser::token::T_DOT);
                 nodep.SetPosition(node_pos);
                 tTJSExprNode *node1 = new tTJSExprNode;
                 NodeToDeleteVector.push_back(node1);
                 nodep.Add(node1);
-                node1->SetOpecode(parser::token::T_WITHDOT_PROXY);
+                node1->SetOpcode(parser::token::T_WITHDOT_PROXY);
                 node1->SetPosition(node_pos);
                 nodep.Add((*node)[0]);
                 return _GenNodeCode(frame, &nodep, restype, reqresaddr, param);
@@ -2573,7 +2571,7 @@ namespace TJS // following is in the namespace
                 PutCode(TJS_TO_VM_REG_ADDR(zerodp), node_pos);
                 frame += 2;
 
-                ArrayArgStack.push(tArrayArg());
+                ArrayArgStack.emplace();
                 ArrayArgStack.top().Object = frame0;
                 ArrayArgStack.top().Counter = frame0 + 1;
 
@@ -2636,7 +2634,7 @@ namespace TJS // following is in the namespace
                 ClearFrame(frame,
                            frame0 + 1); // clear register at frame+1
 
-                ArrayArgStack.push(tArrayArg());
+                ArrayArgStack.emplace();
                 ArrayArgStack.top().Object = frame0;
 
                 tjs_int nodesize = node->GetSize();
@@ -2748,7 +2746,7 @@ namespace TJS // following is in the namespace
                                           tTJSFuncArgType type) {
         // add a function argument
         // addr = register address to add
-        FuncArgStack.top().ArgVector.push_back(tFuncArgItem(addr, type));
+        FuncArgStack.top().ArgVector.emplace_back(addr, type);
         if(type == fatExpand || type == fatUnnamedExpand)
             FuncArgStack.top().HasExpand = true; // has expanding node
     }
@@ -2923,7 +2921,7 @@ namespace TJS // following is in the namespace
     void tTJSInterCodeContext::EnterWhileCode(bool do_while) {
         // enter to "while"
         // ( do_while = true indicates do-while syntax )
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = do_while ? ntDoWhile : ntWhile;
         NestVector.back().LoopStartIP = CodeAreaSize;
     }
@@ -2996,7 +2994,7 @@ namespace TJS // following is in the namespace
     void tTJSInterCodeContext::EnterIfCode() {
         // enter to "if"
 
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntIf;
     }
 
@@ -3045,7 +3043,7 @@ namespace TJS // following is in the namespace
         // enter to "else".
         // before is "if", is clear from syntax definition.
 
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntElse;
         NestVector.back().Patch2 = CodeAreaSize;
         AddJumpList();
@@ -3078,7 +3076,7 @@ namespace TJS // following is in the namespace
         // created in the
         //	first clause )
 
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntFor;
         EnterBlock();
         // create a scope for "for" initializing clause even it does
@@ -3159,7 +3157,7 @@ namespace TJS // following is in the namespace
         // enter to "switch"
         // "node" indicates a reference expression
 
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntSwitch;
         NestVector.back().Patch1 = -1;
         NestVector.back().Patch2 = -1;
@@ -3321,7 +3319,7 @@ namespace TJS // following is in the namespace
             PutCode(TJS_TO_VM_REG_ADDR(resaddr), NODE_POS);
         }
 
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntWith;
 
         NestVector.back().RefRegister = FrameBase;
@@ -3504,7 +3502,7 @@ namespace TJS // following is in the namespace
     void tTJSInterCodeContext::EnterTryCode() {
         // enter to "try"
 
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntTry;
         NestVector.back().VariableCreated = false;
 
@@ -3657,7 +3655,7 @@ namespace TJS // following is in the namespace
 
         Namespace.Push();
         tjs_int varcount = Namespace.GetCount();
-        NestVector.push_back(tNestData());
+        NestVector.emplace_back();
         NestVector.back().Type = ntBlock;
         NestVector.back().VariableCount = varcount;
     }
@@ -3789,7 +3787,7 @@ namespace TJS // following is in the namespace
     tTJSInterCodeContext::MakeConstValNode(const tTJSVariant &val) {
         tTJSExprNode *n = new tTJSExprNode;
         NodeToDeleteVector.push_back(n);
-        n->SetOpecode(parser::token::T_CONSTVAL);
+        n->SetOpcode(parser::token::T_CONSTVAL);
         n->SetValue(val);
         n->SetPosition(LEX_POS);
         return n;
@@ -3805,7 +3803,7 @@ namespace TJS // following is in the namespace
 #endif
         tTJSExprNode *n = new tTJSExprNode;
         NodeToDeleteVector.push_back(n);
-        n->SetOpecode(opecode);
+        n->SetOpcode(opecode);
         n->SetPosition(LEX_POS);
         return n;
     }
@@ -3818,8 +3816,7 @@ namespace TJS // following is in the namespace
 #endif
 
 #ifndef TJS_NO_CONSTANT_FOLDING
-        if(node1 &&
-           node1->GetOpecode() == parser::token_kind_type::T_CONSTVAL) {
+        if(node1 && node1->GetOpcode() == parser::token_kind_type::T_CONSTVAL) {
             // constant folding
             tTJSExprNode *ret = nullptr;
 
@@ -3881,7 +3878,7 @@ namespace TJS // following is in the namespace
 
         tTJSExprNode *n = new tTJSExprNode;
         NodeToDeleteVector.push_back(n);
-        n->SetOpecode(opecode);
+        n->SetOpcode(opecode);
         n->SetPosition(LEX_POS);
         n->Add(node1);
         return n;
@@ -3896,10 +3893,8 @@ namespace TJS // following is in the namespace
 #endif
 
 #ifndef TJS_NO_CONSTANT_FOLDING
-        if(node1 &&
-           node1->GetOpecode() == parser::token_kind_type::T_CONSTVAL &&
-           node2 &&
-           node2->GetOpecode() == parser::token_kind_type::T_CONSTVAL) {
+        if(node1 && node1->GetOpcode() == parser::token_kind_type::T_CONSTVAL &&
+           node2 && node2->GetOpcode() == parser::token_kind_type::T_CONSTVAL) {
             // constant folding
             switch(opecode) {
                 case parser::token_kind_type::T_COMMA:
@@ -3977,7 +3972,7 @@ namespace TJS // following is in the namespace
 
         tTJSExprNode *n = new tTJSExprNode;
         NodeToDeleteVector.push_back(n);
-        n->SetOpecode(opecode);
+        n->SetOpcode(opecode);
         n->SetPosition(LEX_POS);
         n->Add(node1);
         n->Add(node2);
@@ -3994,7 +3989,7 @@ namespace TJS // following is in the namespace
 #endif
         tTJSExprNode *n = new tTJSExprNode;
         NodeToDeleteVector.push_back(n);
-        n->SetOpecode(opecode);
+        n->SetOpcode(opecode);
         n->SetPosition(LEX_POS);
         n->Add(node1);
         n->Add(node2);

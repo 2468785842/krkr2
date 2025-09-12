@@ -272,7 +272,7 @@ namespace TJS {
                 ScriptBlocks.erase(i);
                 break;
             }
-            i++;
+            ++i;
         }
     }
 
@@ -303,12 +303,12 @@ namespace TJS {
         // characters ...
         if(!msg)
             return;
-        tjs_int len = (tjs_int)TJS_strlen(msg);
+        auto len = (tjs_int)TJS_strlen(msg);
         tjs_int ns = ((tjs_int)width - len) / 2;
         if(ns <= 0) {
             OutputToConsole(msg);
         } else {
-            tjs_char *outbuf = new tjs_char[ns + len + 1];
+            auto *outbuf = new tjs_char[ns + len + 1];
             tjs_char *p = outbuf;
             while(ns--)
                 *(p++) = TJS_W(' ');
@@ -327,8 +327,8 @@ namespace TJS {
     //---------------------------------------------------------------------------
     void tTJS::OutputToConsoleSeparator(const tjs_char *text,
                                         tjs_uint count) const {
-        tjs_int len = (tjs_int)TJS_strlen(text);
-        tjs_char *outbuf = new tjs_char[len * count + 1];
+        auto len = (tjs_int)TJS_strlen(text);
+        auto *outbuf = new tjs_char[len * count + 1];
         tjs_char *p = outbuf;
         while(count--) {
             TJS_strcpy(p, text);
@@ -584,7 +584,7 @@ namespace TJS {
                              bool isresultneeded, bool outputdebug,
                              bool isexpression, const tjs_char *name,
                              tjs_int lineofs) {
-        tTJSScriptBlock *blk = new tTJSScriptBlock(this);
+        auto *blk = new tTJSScriptBlock(this);
         try {
             if(name)
                 blk->SetName(name, lineofs);

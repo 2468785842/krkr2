@@ -37,9 +37,9 @@ public:
     tTJSNI_BaseSoundBuffer();
 
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
+                        iTJSDispatch2 *tjs_obj) override;
 
-    void Invalidate();
+    void Invalidate() override;
 
 protected:
     iTJSDispatch2 *Owner; // owner object
@@ -51,10 +51,10 @@ protected:
     // fading the volume.
     virtual void SetVolume(tjs_int i) = 0;
 
-    virtual tjs_int GetVolume() const = 0;
+    [[nodiscard]] virtual tjs_int GetVolume() const = 0;
 
 public:
-    ttstr GetStatusString() const;
+    [[nodiscard]] ttstr GetStatusString() const;
 
 protected:
     bool CanDeliverEvents;
@@ -64,10 +64,12 @@ protected:
     void SetStatusAsync(tTVPSoundStatus s);
 
 public:
-    tTVPSoundStatus GetStatus() const { return Status; }
+    [[nodiscard]] tTVPSoundStatus GetStatus() const { return Status; }
 
 public:
-    tTJSVariantClosure GetActionOwnerNoAddRef() const { return ActionOwner; }
+    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const {
+        return ActionOwner;
+    }
 
     //-- fading stuff
     //-----------------------------------------------------
@@ -79,10 +81,10 @@ protected:
 
 private:
     bool InFading;
-    tjs_int TargetVolume; // distination volume
-    tjs_int DeltaVolume; // delta volume for each interval
-    tjs_int FadeCount; // beat count over fading
-    tjs_int BlankLeft; // blank time until fading
+    tjs_int TargetVolume{}; // distination volume
+    tjs_int DeltaVolume{}; // delta volume for each interval
+    tjs_int FadeCount{}; // beat count over fading
+    tjs_int BlankLeft{}; // blank time until fading
 
 public:
     void Fade(tjs_int to, tjs_int time, tjs_int blanktime);

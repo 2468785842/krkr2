@@ -4,18 +4,18 @@
 #include <string>
 #include <vector>
 
-namespace cocos2d {
-    namespace ui {
-        class Text;
-        class Button;
-    } // namespace ui
-} // namespace cocos2d
+
+namespace cocos2d::ui {
+    class Text;
+    class Button;
+} // namespace cocos2d::ui
+
 
 class LocaleConfigManager {
 
     std::unordered_map<std::string, std::string> AllConfig; // tid->text in utf8
 
-    bool ConfigUpdated;
+    bool ConfigUpdated{};
 
     LocaleConfigManager();
 

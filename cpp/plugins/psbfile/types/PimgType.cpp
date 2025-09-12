@@ -101,7 +101,7 @@ namespace PSB {
                                          "IResourceMetadata Failed!");
                         }
                     } else {
-                        LOGGER->critical("not found item by layer_id");
+                        continue;
                     }
 
                     res->setIndex(static_cast<unsigned int>(layerId));

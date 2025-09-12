@@ -28,7 +28,7 @@ TVPGameMainMenu::TVPGameMainMenu(GLubyte opa) {
 }
 
 TVPGameMainMenu *TVPGameMainMenu::create(GLubyte opa) {
-    TVPGameMainMenu *ret = new TVPGameMainMenu(opa);
+    auto *ret = new TVPGameMainMenu(opa);
     ret->init();
     ret->autorelease();
     return ret;

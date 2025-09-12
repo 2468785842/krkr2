@@ -22,8 +22,8 @@ private:
     void Start();
     void UpdateRefreshrate();
     void UpdateClock(int NrVBlanks, bool CheckMissed);
-    double UpdateInterval() const;
-    int64_t TimeOfNextVblank() const;
+    [[nodiscard]] double UpdateInterval() const;
+    [[nodiscard]] int64_t TimeOfNextVblank() const;
     static void CBUpdateClock(int NrVBlanks, uint64_t time,
                               CVideoReferenceClock *clock);
 

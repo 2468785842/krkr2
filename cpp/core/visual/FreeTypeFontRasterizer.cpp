@@ -2,10 +2,14 @@
 #include "FreeTypeFontRasterizer.h"
 #include "LayerBitmapIntf.h"
 #include "FreeType.h"
+#if _WIN32
+#include <corecrt_math_defines.h>
+#else
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
-#include <math.h>
+#include <cmath>
+#endif
 #include "MsgIntf.h"
 #include "FontSystem.h"
 #include <complex>
@@ -49,8 +53,8 @@ FreeTypeFontRasterizer::FreeTypeFontRasterizer() :
     AddRef();
 }
 FreeTypeFontRasterizer::~FreeTypeFontRasterizer() {
-    if(Face)
-        delete Face;
+
+    delete Face;
     Face = nullptr;
     if(FaceFallback) {
         delete FaceFallback;
@@ -64,8 +68,8 @@ void FreeTypeFontRasterizer::Release() {
     RefCount--;
     LastBitmap = nullptr;
     if(RefCount == 0) {
-        if(Face)
-            delete Face;
+
+        delete Face;
         Face = nullptr;
         if(FaceFallback) {
             delete FaceFallback;
@@ -135,7 +139,7 @@ void FreeTypeFontRasterizer::ApplyFont(const tTVPFont &font) {
 void FreeTypeFontRasterizer::GetTextExtent(tjs_char ch, tjs_int &w,
                                            tjs_int &h) {
     if(Face) {
-        tGlyphMetrics metrics;
+        tGlyphMetrics metrics{};
         if(Face->GetGlyphSizeFromCharcode(ch, metrics)) {
             w = metrics.CellIncX;
             h = metrics.CellIncY;

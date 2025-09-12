@@ -5,7 +5,7 @@
 #include "ui/UIText.h"
 #include "ui/UIButton.h"
 
-LocaleConfigManager::LocaleConfigManager() {}
+LocaleConfigManager::LocaleConfigManager() = default;
 
 std::string LocaleConfigManager::GetFilePath() {
     std::string pathprefix = "locale/"; // constant file in app package

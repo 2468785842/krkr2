@@ -312,8 +312,8 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
     std::string result;
 
     // get filter
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("filter"), 0,
-                                     &val, params))) {
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("filter"),
+                                     nullptr, &val, params))) {
     }
 
     // 		if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST,
@@ -323,7 +323,7 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
 
     // initial dir
     if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("initialDir"),
-                                     0, &val, params))) {
+                                     nullptr, &val, params))) {
         ttstr lname(val);
         if(!lname.IsEmpty()) {
             TVPGetLocalName(lname);
@@ -333,14 +333,14 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
 
     // default extension
     if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("defaultExt"),
-                                     0, &val, params))) {
+                                     nullptr, &val, params))) {
         defaultext = tTJSNarrowStringHolder(
             val.AsStringNoAddRef()->operator const tjs_char *());
     }
 
     // filenames
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("name"), 0,
-                                     &val, params))) {
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("name"),
+                                     nullptr, &val, params))) {
         ttstr lname(val);
         if(!lname.IsEmpty()) {
             if(lname.IndexOf('/') >= 0) {
@@ -363,16 +363,16 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
     }
 
     // title
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("title"), 0,
-                                     &val, params))) {
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("title"),
+                                     nullptr, &val, params))) {
         title = tTJSNarrowStringHolder(
             val.AsStringNoAddRef()->operator const tjs_char *());
     }
 
     // flags
     bool issave = false;
-    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("save"), 0,
-                                     &val, params)))
+    if(TJS_SUCCEEDED(params->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("save"),
+                                     nullptr, &val, params)))
         issave = val.operator bool();
 
     // show dialog box
@@ -383,13 +383,13 @@ bool TVPSelectFile(iTJSDispatch2 *params) {
 
         // filter index
         val = (tjs_int)0;
-        params->PropSet(TJS_MEMBERENSURE, TJS_W("filterIndex"), 0, &val,
+        params->PropSet(TJS_MEMBERENSURE, TJS_W("filterIndex"), nullptr, &val,
                         params);
 
         // file name
         ttstr tresult = TVPNormalizeStorageName(ttstr(result.c_str()));
         val = tresult;
-        params->PropSet(TJS_MEMBERENSURE, TJS_W("name"), 0, &val, params);
+        params->PropSet(TJS_MEMBERENSURE, TJS_W("name"), nullptr, &val, params);
         return true;
     }
 

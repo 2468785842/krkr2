@@ -16,19 +16,19 @@ protected:
 
 public:
     tTJSNI_Bitmap();
-    virtual ~tTJSNI_Bitmap();
+    ~tTJSNI_Bitmap() override;
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
 
 public:
     tTVPBaseBitmap *GetBitmap() { return Bitmap; }
-    const tTVPBaseBitmap *GetBitmap() const { return Bitmap; }
+    [[nodiscard]] const tTVPBaseBitmap *GetBitmap() const { return Bitmap; }
 
-    tjs_uint32 GetPixel(tjs_int x, tjs_int y) const;
+    [[nodiscard]] tjs_uint32 GetPixel(tjs_int x, tjs_int y) const;
     void SetPixel(tjs_int x, tjs_int y, tjs_uint32 color);
 
-    tjs_int GetMaskPixel(tjs_int x, tjs_int y) const;
+    [[nodiscard]] tjs_int GetMaskPixel(tjs_int x, tjs_int y) const;
     void SetMaskPixel(tjs_int x, tjs_int y, tjs_int mask);
 
     void Independ(bool copy = true);
@@ -45,18 +45,18 @@ public:
     void SetSizeAndImageBuffer(tTVPBitmap *bmp);
 
     void SetWidth(tjs_uint width);
-    tjs_uint GetWidth() const;
+    [[nodiscard]] tjs_uint GetWidth() const;
     void SetHeight(tjs_uint height);
-    tjs_uint GetHeight() const;
+    [[nodiscard]] tjs_uint GetHeight() const;
 
-    const void *GetPixelBuffer() const;
+    [[nodiscard]] const void *GetPixelBuffer() const;
     void *GetPixelBufferForWrite();
-    tjs_int GetPixelBufferPitch() const;
+    [[nodiscard]] tjs_int GetPixelBufferPitch() const;
 
     // copy on wirte
     void CopyFrom(const tTJSNI_Bitmap *src);
 
-    bool IsLoading() const { return Loading; }
+    [[nodiscard]] bool IsLoading() const { return Loading; }
 
     // for internal
     void CopyFrom(const class iTVPBaseBitmap *src);
@@ -71,7 +71,7 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance();
+    tTJSNativeInstance *CreateNativeInstance() override;
 };
 
 extern tTJSNativeClass *TVPCreateNativeClass_Bitmap();

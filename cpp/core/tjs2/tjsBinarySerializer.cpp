@@ -118,7 +118,7 @@ namespace TJS {
         if(RootDictionary) {
             TJSThrowFrom_tjs_error(TJS_E_INVALIDPARAM); // 型が違う
         }
-        tTJSArrayObject *array = (tTJSArrayObject *)TJSCreateArrayObject();
+        auto *array = (tTJSArrayObject *)TJSCreateArrayObject();
         return array;
     }
 
@@ -337,7 +337,7 @@ namespace TJS {
             InsertArray(array, i, value);
             delete value;
         }
-        tTJSVariant *ret = new tTJSVariant(array, array);
+        auto *ret = new tTJSVariant(array, array);
         array->Release();
         return ret;
     }
@@ -403,15 +403,15 @@ namespace TJS {
             if(name)
                 name->Release();
         }
-        tTJSVariant *ret = new tTJSVariant(dic, dic);
+        auto *ret = new tTJSVariant(dic, dic);
         dic->Release();
         return ret;
     }
 
     tTJSVariant *tTJSBinarySerializer::Read(tTJSBinaryStream *stream) {
         tjs_uint64 pos = stream->GetPosition();
-        tjs_uint size = (tjs_uint)(stream->GetSize() - pos);
-        tjs_uint8 *buffstart = new tjs_uint8[size];
+        auto size = (tjs_uint)(stream->GetSize() - pos);
+        auto *buffstart = new tjs_uint8[size];
         if(size != stream->Read(buffstart, size)) {
             TJS_eTJSError(TJSReadError);
         }

@@ -533,8 +533,8 @@ protected:
     size_t PrimaryLayerManagerIndex; //!< プライマリレイヤマネージャ
     std::vector<iTVPLayerManager *> Managers; //!< レイヤマネージャの配列
     tTVPRect DestRect; //!< 描画先位置
-    tjs_int SrcWidth, SrcHeight;
-    tjs_int WinWidth, WinHeight;
+    tjs_int SrcWidth{}, SrcHeight{};
+    tjs_int WinWidth{}, WinHeight{};
     tjs_int LockedWidth = 0, LockedHeight = 0;
     tTVPRect ClipRect; //!< クリッピング矩形
 
@@ -577,94 +577,91 @@ public:
     bool TransformFromPrimaryLayerManager(tjs_int &x, tjs_int &y);
 
     //---- オブジェクト生存期間制御
-    virtual void Destruct();
+    void Destruct() override;
 
     //---- window interface 関連
-    virtual void SetWindowInterface(iTVPWindow *window);
+    void SetWindowInterface(iTVPWindow *window) override;
 
     //---- LayerManager の管理関連
-    virtual void AddLayerManager(iTVPLayerManager *manager);
-    virtual void RemoveLayerManager(iTVPLayerManager *manager);
+    void AddLayerManager(iTVPLayerManager *manager) override;
+    void RemoveLayerManager(iTVPLayerManager *manager) override;
 
     //---- 描画位置・サイズ関連
-    virtual void SetDestRectangle(const tTVPRect &rect);
-    virtual void SetWindowSize(tjs_int w, tjs_int h);
-    virtual void SetClipRectangle(const tTVPRect &rect);
-    virtual void GetSrcSize(tjs_int &w, tjs_int &h);
-    virtual void NotifyLayerResize(iTVPLayerManager *manager);
-    virtual void NotifyLayerImageChange(iTVPLayerManager *manager);
+    void SetDestRectangle(const tTVPRect &rect) override;
+    void SetWindowSize(tjs_int w, tjs_int h) override;
+    void SetClipRectangle(const tTVPRect &rect) override;
+    void GetSrcSize(tjs_int &w, tjs_int &h) override;
+    void NotifyLayerResize(iTVPLayerManager *manager) override;
+    void NotifyLayerImageChange(iTVPLayerManager *manager) override;
 
     //---- ユーザーインターフェース関連
     // window → drawdevice
-    virtual void OnClick(tjs_int x, tjs_int y);
-    virtual void OnDoubleClick(tjs_int x, tjs_int y);
-    virtual void OnMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb,
-                             tjs_uint32 flags);
-    virtual void OnMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb,
-                           tjs_uint32 flags);
-    virtual void OnMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags);
-    virtual void OnReleaseCapture();
-    virtual void OnMouseOutOfWindow();
-    virtual void OnKeyDown(tjs_uint key, tjs_uint32 shift);
-    virtual void OnKeyUp(tjs_uint key, tjs_uint32 shift);
-    virtual void OnKeyPress(tjs_char key);
-    virtual void OnMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x,
-                              tjs_int y);
-    virtual void OnTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
-                             tjs_uint32 id);
-    virtual void OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
-                           tjs_uint32 id);
-    virtual void OnTouchMove(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
-                             tjs_uint32 id);
-    virtual void OnTouchScaling(tjs_real startdist, tjs_real curdist,
-                                tjs_real cx, tjs_real cy, tjs_int flag);
-    virtual void OnTouchRotate(tjs_real startangle, tjs_real curangle,
-                               tjs_real dist, tjs_real cx, tjs_real cy,
-                               tjs_int flag);
-    virtual void OnMultiTouch();
-    virtual void OnDisplayRotate(tjs_int orientation, tjs_int rotate,
-                                 tjs_int bpp, tjs_int width, tjs_int height);
-    virtual void RecheckInputState();
+    void OnClick(tjs_int x, tjs_int y) override;
+    void OnDoubleClick(tjs_int x, tjs_int y) override;
+    void OnMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb,
+                     tjs_uint32 flags) override;
+    void OnMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb,
+                   tjs_uint32 flags) override;
+    void OnMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags) override;
+    void OnReleaseCapture() override;
+    void OnMouseOutOfWindow() override;
+    void OnKeyDown(tjs_uint key, tjs_uint32 shift) override;
+    void OnKeyUp(tjs_uint key, tjs_uint32 shift) override;
+    void OnKeyPress(tjs_char key) override;
+    void OnMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x,
+                      tjs_int y) override;
+    void OnTouchDown(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
+                     tjs_uint32 id) override;
+    void OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
+                   tjs_uint32 id) override;
+    void OnTouchMove(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
+                     tjs_uint32 id) override;
+    void OnTouchScaling(tjs_real startdist, tjs_real curdist, tjs_real cx,
+                        tjs_real cy, tjs_int flag) override;
+    void OnTouchRotate(tjs_real startangle, tjs_real curangle, tjs_real dist,
+                       tjs_real cx, tjs_real cy, tjs_int flag) override;
+    void OnMultiTouch() override;
+    void OnDisplayRotate(tjs_int orientation, tjs_int rotate, tjs_int bpp,
+                         tjs_int width, tjs_int height) override;
+    void RecheckInputState() override;
 
     // layer manager → drawdevice
-    virtual void SetDefaultMouseCursor(iTVPLayerManager *manager);
-    virtual void SetMouseCursor(iTVPLayerManager *manager, tjs_int cursor);
-    virtual void GetCursorPos(iTVPLayerManager *manager, tjs_int &x,
-                              tjs_int &y);
-    virtual void SetCursorPos(iTVPLayerManager *manager, tjs_int x, tjs_int y);
-    virtual void SetHintText(iTVPLayerManager *manager, iTJSDispatch2 *sender,
-                             const ttstr &text);
-    virtual void WindowReleaseCapture(iTVPLayerManager *manager);
+    void SetDefaultMouseCursor(iTVPLayerManager *manager) override;
+    void SetMouseCursor(iTVPLayerManager *manager, tjs_int cursor) override;
+    void GetCursorPos(iTVPLayerManager *manager, tjs_int &x,
+                      tjs_int &y) override;
+    void SetCursorPos(iTVPLayerManager *manager, tjs_int x, tjs_int y) override;
+    void SetHintText(iTVPLayerManager *manager, iTJSDispatch2 *sender,
+                     const ttstr &text) override;
+    void WindowReleaseCapture(iTVPLayerManager *manager) override;
 
-    virtual void SetAttentionPoint(iTVPLayerManager *manager,
-                                   tTJSNI_BaseLayer *layer, tjs_int l,
-                                   tjs_int t);
-    virtual void DisableAttentionPoint(iTVPLayerManager *manager);
-    virtual void SetImeMode(iTVPLayerManager *manager, tTVPImeMode mode);
-    virtual void ResetImeMode(iTVPLayerManager *manager);
+    void SetAttentionPoint(iTVPLayerManager *manager, tTJSNI_BaseLayer *layer,
+                           tjs_int l, tjs_int t) override;
+    void DisableAttentionPoint(iTVPLayerManager *manager) override;
+    void SetImeMode(iTVPLayerManager *manager, tTVPImeMode mode) override;
+    void ResetImeMode(iTVPLayerManager *manager) override;
 
     //---- プライマリレイヤ関連
-    virtual tTJSNI_BaseLayer *GetPrimaryLayer();
-    virtual tTJSNI_BaseLayer *GetFocusedLayer();
-    virtual void SetFocusedLayer(tTJSNI_BaseLayer *layer);
+    tTJSNI_BaseLayer *GetPrimaryLayer() override;
+    tTJSNI_BaseLayer *GetFocusedLayer() override;
+    void SetFocusedLayer(tTJSNI_BaseLayer *layer) override;
 
     //---- 再描画関連
-    virtual void RequestInvalidation(const tTVPRect &rect);
-    virtual void Update();
-    virtual void Show() = 0;
-    virtual bool WaitForVBlank(tjs_int *in_vblank, tjs_int *delayed);
+    void RequestInvalidation(const tTVPRect &rect) override;
+    void Update() override;
+    void Show() override = 0;
+    bool WaitForVBlank(tjs_int *in_vblank, tjs_int *delayed) override;
 
     //---- デバッグ支援
-    virtual void DumpLayerStructure();
-    virtual void SetShowUpdateRect(bool b);
+    void DumpLayerStructure() override;
+    void SetShowUpdateRect(bool b) override;
 
     void SetLockedSize(tjs_int w, tjs_int h);
     //---- フルスクリーン
-    virtual bool SwitchToFullScreen(int window, tjs_uint w, tjs_uint h,
-                                    tjs_uint bpp, tjs_uint color,
-                                    bool changeresolution);
-    virtual void RevertFromFullScreen(int window, tjs_uint w, tjs_uint h,
-                                      tjs_uint bpp, tjs_uint color);
+    bool SwitchToFullScreen(int window, tjs_uint w, tjs_uint h, tjs_uint bpp,
+                            tjs_uint color, bool changeresolution) override;
+    void RevertFromFullScreen(int window, tjs_uint w, tjs_uint h, tjs_uint bpp,
+                              tjs_uint color) override;
 
     // ほかのメソッドについては実装しない
 };

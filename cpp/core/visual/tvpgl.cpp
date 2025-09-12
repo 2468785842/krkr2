@@ -287,7 +287,7 @@ static void TVPCreateTable() {
     for(b = 0; b < 256; b++) {
         TVPDivTable[(0 << 8) + b] = 0;
         for(a = 1; a < 256; a++) {
-            tjs_int tmp = (tjs_int)(b * 255 / a);
+            auto tmp = (tjs_int)(b * 255 / a);
             if(tmp > 255)
                 tmp = 255;
             TVPDivTable[(a << 8) + b] = (tjs_uint8)(tmp);

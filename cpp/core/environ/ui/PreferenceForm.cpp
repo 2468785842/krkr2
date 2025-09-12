@@ -173,8 +173,8 @@ void tPreferenceItemSelectList::initController(const NodeMap &allNodes) {
     selected = static_cast<Text *>(allNodes.findController("selected"));
     updateHightlight();
     setTouchEnabled(true);
-    addClickEventListener(std::bind(&tPreferenceItemSelectList::showForm, this,
-                                    std::placeholders::_1));
+    addClickEventListener(
+        [this](auto &&PH1) { showForm(std::forward<decltype(PH1)>(PH1)); });
 }
 
 const char *tPreferenceItemSelectList::getUIFileName() const {
@@ -239,8 +239,8 @@ void tPreferenceItemKeyValPair::initController(const NodeMap &allNodes) {
     _title->setString(val.first);
     selected->setString(val.second);
     setTouchEnabled(true);
-    addClickEventListener(std::bind(&tPreferenceItemKeyValPair::showInput, this,
-                                    std::placeholders::_1));
+    addClickEventListener(
+        [this](auto &&PH1) { showInput(std::forward<decltype(PH1)>(PH1)); });
 }
 
 const char *tPreferenceItemKeyValPair::getUIFileName() const {
@@ -424,8 +424,8 @@ void tPreferenceItemFileSelect::initController(const NodeMap &allNodes) {
     selected = static_cast<Text *>(allNodes.findController("selected"));
     updateHightlight();
     setTouchEnabled(true);
-    addClickEventListener(std::bind(&tPreferenceItemFileSelect::showForm, this,
-                                    std::placeholders::_1));
+    addClickEventListener(
+        [this](auto &&PH1) { showForm(std::forward<decltype(PH1)>(PH1)); });
 }
 
 const char *tPreferenceItemFileSelect::getUIFileName() const {
@@ -447,7 +447,7 @@ void tPreferenceItemFileSelect::showForm(cocos2d::Ref *) {
     std::string initname, initdir;
     if(!fullname.empty()) {
         std::pair<std::string, std::string> path =
-            TVPBaseFileSelectorForm::PathSplit(fullname);
+            TVPBaseFileSelectorForm::pathSplit(fullname);
         initdir = path.first;
         initname = path.second;
     }
@@ -544,9 +544,10 @@ void tPreferenceItemDeletable::onTouchEvent(
     cocos2d::Ref *p, cocos2d::ui::Widget::TouchEventType ev) {}
 
 void tPreferenceItemDeletable::walkTouchEvent(Widget *node) {
-    node->addTouchEventListener(
-        std::bind(&tPreferenceItemDeletable::onTouchEvent, this,
-                  std::placeholders::_1, std::placeholders::_2));
+    node->addTouchEventListener([this](auto &&PH1, auto &&PH2) {
+        onTouchEvent(std::forward<decltype(PH1)>(PH1),
+                     std::forward<decltype(PH2)>(PH2));
+    });
     auto &vecChildren = node->getChildren();
     for(Node *child : vecChildren) {
         Widget *widget = static_cast<Widget *>(child);

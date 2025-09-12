@@ -29,7 +29,7 @@ public:
 
     std::string m_description;
 
-    virtual std::string GetStreamName() override;
+    std::string GetStreamName() override;
 };
 
 class CDemuxStreamAudioFFmpeg : public CDemuxStreamAudio {
@@ -42,7 +42,7 @@ public:
 
     std::string m_description;
 
-    virtual std::string GetStreamName() override;
+    std::string GetStreamName() override;
 };
 
 struct StereoModeConversionMap;
@@ -51,7 +51,7 @@ class CDVDDemuxFFmpeg : public IDemux {
 public:
     CDVDDemuxFFmpeg();
 
-    virtual ~CDVDDemuxFFmpeg();
+    ~CDVDDemuxFFmpeg() override;
 
     bool Open(InputStream *pInput, bool streaminfo = true,
               bool fileinfo = false);
@@ -82,7 +82,7 @@ public:
 
     int GetNrOfStreams() const override;
 
-    virtual std::string GetStreamCodecName(int iStreamId) override;
+    std::string GetStreamCodecName(int iStreamId) override;
 
     bool Aborted();
 

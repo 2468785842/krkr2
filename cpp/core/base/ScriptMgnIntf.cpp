@@ -947,12 +947,10 @@ void TVPExecuteStartupScript() {
     }
 
     // execute "startup.tjs"
-    // 	try
-    // 	{
     try {
 
         ttstr place(TVPSearchPlacedPath(TVPStartupScriptName));
-        TVPAddLog(TJS_W("(info) Loading startup script : ") + place);
+        spdlog::info("Loading startup script: {}", place.AsStdString());
         TVPStartupSuccess = false;
         try {
             iTJSTextReadStream *stream = TVPCreateTextStreamForRead(place, "");
@@ -960,18 +958,17 @@ void TVPExecuteStartupScript() {
             TVPExecuteStorage(TVPStartupScriptName);
             TVPStartupSuccess = true;
         } catch(...) {
-            if(!TVPIsExistentStorage(TJS_W("System/Initialize.tjs"))) {
+            if(!TVPIsExistentStorage(TJS_W("system/Initialize.tjs"))) {
                 throw;
             }
         }
-        if(TVPStartupSuccess) {
-        } else {
+        if(!TVPStartupSuccess) {
             // try direct execute initialize.tjs to compatible for
             // some patch
-            TVPExecuteStorage(TJS_W("System/Initialize.tjs"));
+            TVPExecuteStorage(TJS_W("system/Initialize.tjs"));
             TVPStartupSuccess = true;
         }
-        TVPAddLog(TJS_W("(info) Startup script ended."));
+        spdlog::info("Startup script ended.");
         try {
             ttstr patch = TVPGetAppPath() + "AfterStartup.tjs";
             if(TVPIsExistentStorageNoSearch(patch))
@@ -1571,7 +1568,7 @@ tTJSNativeInstance *tTJSNC_Scripts::CreateNativeInstance() {
 // TVPCreateNativeClass_Scripts
 //---------------------------------------------------------------------------
 tTJSNativeClass *TVPCreateNativeClass_Scripts() {
-    tTJSNC_Scripts *cls = new tTJSNC_Scripts();
+    auto *cls = new tTJSNC_Scripts();
 
     // setup some platform-specific members
 

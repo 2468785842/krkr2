@@ -108,26 +108,22 @@ private:
     static __m128i m_sseSeed;
 #endif
 
-    static float SoftClamp(const float x);
+    static float SoftClamp(float x);
 
 public:
     //  static CAEChannelInfo          GuessChLayout     (const
     //  unsigned int channels);
-    static const char *GetStdChLayoutName(const enum AEStdChLayout layout);
+    static const char *GetStdChLayoutName(enum AEStdChLayout layout);
 
-    static const unsigned int
-    DataFormatToBits(const enum AEDataFormat dataFormat);
+    static unsigned int DataFormatToBits(enum AEDataFormat dataFormat);
 
-    static const unsigned int
-    DataFormatToUsedBits(const enum AEDataFormat dataFormat);
+    static unsigned int DataFormatToUsedBits(enum AEDataFormat dataFormat);
 
-    static const unsigned int
-    DataFormatToDitherBits(const enum AEDataFormat dataFormat);
+    static unsigned int DataFormatToDitherBits(enum AEDataFormat dataFormat);
 
-    static const char *DataFormatToStr(const enum AEDataFormat dataFormat);
+    static const char *DataFormatToStr(enum AEDataFormat dataFormat);
 
-    static const char *
-    StreamTypeToStr(const enum CAEStreamInfo::DataType dataType);
+    static const char *StreamTypeToStr(enum CAEStreamInfo::DataType dataType);
 
     /*! \brief convert a volume percentage (as a proportion) to a dB
      gain We assume a dB range of 60dB, i.e. assume that 0% volume
@@ -135,7 +131,7 @@ public:
      0..1 \return the corresponding gain in dB from -60dB .. 0dB. \sa
      GainToScale
      */
-    static inline const float PercentToGain(const float value) {
+    static inline float PercentToGain(const float value) {
         static const float db_range = 60.0f;
         return (value - 1) * db_range;
     }
@@ -146,7 +142,7 @@ public:
      corresponding gain in dB from -60dB .. 0dB. \return value the
      volume from 0..1 \sa ScaleToGain
      */
-    static inline const float GainToPercent(const float gain) {
+    static inline float GainToPercent(const float gain) {
         static const float db_range = 60.0f;
         return 1 + (gain / db_range);
     }
@@ -156,7 +152,7 @@ public:
      in decibels. \return the scale factor (equivalent to a voltage
      multiplier). \sa PercentToGain
      */
-    static inline const float GainToScale(const float dB) {
+    static inline float GainToScale(const float dB) {
         float val = 0.0f;
         // we need to make sure that our lowest db returns plain zero
         if(dB > -60.0f)
@@ -175,7 +171,7 @@ public:
      (equivalent to a voltage multiplier). \return dB the gain in
      decibels. \sa GainToScale
      */
-    static inline const float ScaleToGain(const float scale) {
+    static inline float ScaleToGain(const float scale) {
         return 20 * log10(scale);
     }
 
@@ -193,9 +189,9 @@ public:
       This is NOT safe for crypto work, but perfectly fine for audio
       usage (dithering)
     */
-    static float FloatRand1(const float min, const float max);
+    static float FloatRand1(float min, float max);
 
-    static void FloatRand4(const float min, const float max, float result[4],
+    static void FloatRand4(float min, float max, float result[4],
                            __m128 *sseresult = nullptr);
 
     static bool S16NeedsByteSwap(AEDataFormat in, AEDataFormat out);

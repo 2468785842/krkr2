@@ -1,5 +1,15 @@
 #include "ProcessInfo.h"
 
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
 NS_KRMOVIE_BEGIN
 // Override for platform ports
 #if !defined(PLATFORM_OVERRIDE)
@@ -9,9 +19,9 @@ CProcessInfo *CProcessInfo::CreateInstance() { return new CProcessInfo(); }
 #endif
 
 // base class definitions
-CProcessInfo::CProcessInfo() {}
+CProcessInfo::CProcessInfo() = default;
 
-CProcessInfo::~CProcessInfo() {}
+CProcessInfo::~CProcessInfo() = default;
 
 void CProcessInfo::ResetVideoCodecInfo() {
     CSingleLock lock(m_videoCodecSection);
@@ -44,7 +54,7 @@ void CProcessInfo::SetVideoDecoderName(std::string name, bool isHw) {
     CSingleLock lock(m_videoCodecSection);
 
     m_videoIsHWDecoder = isHw;
-    m_videoDecoderName = name;
+    m_videoDecoderName = std::move(name);
 
     //	CServiceBroker::GetDataCacheCore().SetVideoDecoderName(m_videoDecoderName,
     // m_videoIsHWDecoder);
@@ -65,7 +75,7 @@ bool CProcessInfo::IsVideoHwDecoder() {
 void CProcessInfo::SetVideoDeintMethod(std::string method) {
     CSingleLock lock(m_videoCodecSection);
 
-    m_videoDeintMethod = method;
+    m_videoDeintMethod = std::move(method);
 
     //	CServiceBroker::GetDataCacheCore().SetVideoDeintMethod(m_videoDeintMethod);
 }
@@ -79,7 +89,7 @@ std::string CProcessInfo::GetVideoDeintMethod() {
 void CProcessInfo::SetVideoPixelFormat(std::string pixFormat) {
     CSingleLock lock(m_videoCodecSection);
 
-    m_videoPixelFormat = pixFormat;
+    m_videoPixelFormat = std::move(pixFormat);
 
     //	CServiceBroker::GetDataCacheCore().SetVideoPixelFormat(m_videoPixelFormat);
 }
@@ -213,7 +223,7 @@ void CProcessInfo::ResetAudioCodecInfo() {
 void CProcessInfo::SetAudioDecoderName(std::string name) {
     CSingleLock lock(m_audioCodecSection);
 
-    m_audioDecoderName = name;
+    m_audioDecoderName = std::move(name);
 
     //	CServiceBroker::GetDataCacheCore().SetAudioDecoderName(m_audioDecoderName);
 }
@@ -227,7 +237,7 @@ std::string CProcessInfo::GetAudioDecoderName() {
 void CProcessInfo::SetAudioChannels(std::string channels) {
     CSingleLock lock(m_audioCodecSection);
 
-    m_audioChannels = channels;
+    m_audioChannels = std::move(channels);
 
     //	CServiceBroker::GetDataCacheCore().SetAudioChannels(m_audioChannels);
 }

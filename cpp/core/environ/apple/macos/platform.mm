@@ -1,13 +1,11 @@
 //
 // Created by LiDong on 2025/8/24.
-// TODO: implement method
 //
 #include <string>
 #include <filesystem>
-
+#include <vector>
 #include <algorithm>
 #include <CoreFoundation/CoreFoundation.h>
-
 #include <mach-o/dyld.h>
 #include <mach/task.h>
 #include <mach/vm_statistics.h>
@@ -19,14 +17,36 @@
 #include <sys/time.h>
 #include <sys/sysctl.h>
 
-#include <vector>
 #import <CoreServices/CoreServices.h>
 #import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
+#import <AppKit/AppKit.h>
+
+#include <cocos2d.h>
 
 #include "StorageImpl.h"
 #include "EventIntf.h"
 #include "Platform.h"
 #include "tjsString.h"
+
+//bool initWindow(cocos2d::GLView* glView) {
+//
+//    auto director = cocos2d::Director::getInstance();
+//    auto glview = director->getOpenGLView();
+//    auto cocoaWindow = (NSWindow*)glview->getCocoaWindow();
+//
+//    if (cocoaWindow) {
+//        // 现在你可以操作 cocoaWindow 了
+//        [cocoaWindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+//        [cocoaWindow setStyleMask:[cocoaWindow styleMask] | NSWindowStyleMaskResizable]; // 确保可调整大小（通常默认已有）
+//
+//        // 如果你想在启动时就“最大化”
+////        NSRect screenRect = [[NSScreen mainScreen] visibleFrame];
+////        [cocoaWindow setFrame:screenRect display:YES];
+//        return true;
+//    }
+//    return false;
+//}
 
 bool TVPDeleteFile(const std::string &filename) {
     return unlink(filename.c_str()) == 0;
@@ -140,7 +160,7 @@ void TVPGetMemoryInfo(TVPMemoryInfo &m) {
 
     mib[0] = CTL_HW;
     mib[1] = HW_MEMSIZE;
-    if (sysctl(mib, 2, &total_memory, &length, NULL, 0) == 0) {
+    if (sysctl(mib, 2, &total_memory, &length, nullptr, 0) == 0) {
         m.MemTotal = total_memory / 1024; // 转换为KB
     }
 
@@ -163,7 +183,7 @@ void TVPGetMemoryInfo(TVPMemoryInfo &m) {
     mib[0] = CTL_VM;
     mib[1] = VM_SWAPUSAGE;
 
-    if (sysctl(mib, 2, &swap_usage, &swap_size, NULL, 0) == 0) {
+    if (sysctl(mib, 2, &swap_usage, &swap_size, nullptr, 0) == 0) {
         m.SwapTotal = swap_usage.xsu_total / 1024; // 转换为KB
         m.SwapFree = (swap_usage.xsu_total - swap_usage.xsu_used) / 1024; // 转换为KB
     }
@@ -189,9 +209,7 @@ bool TVPCheckStartupArg() {
     return false;
 }
 
-void TVPControlAdDialog(int adType, int arg1, int arg2) {
-
-}
+void TVPControlAdDialog(int, int, int) { /*pass*/ }
 
 void TVPExitApplication(int code) {
     // clear some static data for memory leak detect
@@ -199,13 +217,17 @@ void TVPExitApplication(int code) {
     exit(code);
 }
 
-void TVPForceSwapBuffer() {
-
-}
+void TVPForceSwapBuffer() { /* pass */ }
 
 bool TVPWriteDataToFile(const ttstr &filepath, const void *data,
                         unsigned int len) {
-
+    FILE *handle = fopen(filepath.AsStdString().c_str(), "wb");
+    if(handle) {
+        bool ret = fwrite(data, 1, len, handle) == len;
+        fclose(handle);
+        return ret;
+    }
+    return false;
 }
 
 bool TVPCheckStartupPath(const std::string &path) { return true; }
@@ -308,14 +330,14 @@ std::string TVPGetCurrentLanguage() {
     }
 }
 
-void TVPProcessInputEvents() {
-
-}
+void TVPProcessInputEvents() { /* pass */ }
 
 int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,
                           const ttstr &prompt,
                           const std::vector<ttstr> &vecButtons) {
-
+    // TODO
+    spdlog::get("core")->warn("macos platform simple input box not implement");
+    return 0;
 }
 
 tjs_uint32 TVPGetRoughTickCount32() {
@@ -353,12 +375,52 @@ tjs_int TVPGetSystemFreeMemory() {
 
 int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
                             const std::vector<ttstr> &vecButtons) {
+    // 确保在主线程执行UI操作
+    if (![NSThread isMainThread]) {
+        __block int result = -1;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            result = TVPShowSimpleMessageBox(text, caption, vecButtons);
+        });
+        return result;
+    }
 
+    // 转换文本
+    std::string utf8Text = text.AsStdString();
+    std::string utf8Caption = caption.AsStdString();
+    NSString *nsText = [NSString stringWithUTF8String:utf8Text.c_str()];
+    NSString *nsCaption = [NSString stringWithUTF8String:utf8Caption.c_str()];
+
+    // 创建警告框
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:nsCaption];
+    [alert setInformativeText:nsText];
+    [alert setAlertStyle:NSAlertStyleInformational];
+
+    // 添加按钮
+    for (int i = 0; i < vecButtons.size(); i++) {
+        std::string utf8Button = vecButtons[i].AsStdString();
+        NSString *nsButton = [NSString stringWithUTF8String:utf8Button.c_str()];
+        [alert addButtonWithTitle:nsButton];
+    }
+
+    // 显示对话框并获取响应
+    NSInteger response = [alert runModal];
+
+    // 将响应转换为索引
+    if (vecButtons.size() > 0) {
+        return response - NSAlertFirstButtonReturn;
+    }
+
+    return -1;
 }
 
-int TVPShowSimpleMessageBox(const char *pszText, const char *pszTitle,
+extern "C" int TVPShowSimpleMessageBox(const char *pszText, const char *pszTitle,
                             unsigned int nButton, const char **btnText) {
-    return 0;
+    std::vector<ttstr> vecButtons{};
+    for(u_int i = 0; i < nButton; ++i) {
+        vecButtons.emplace_back(btnText[i]);
+    }
+    return TVPShowSimpleMessageBox(pszText, pszTitle, vecButtons);
 }
 
 std::string TVPGetPackageVersionString() {

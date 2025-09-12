@@ -21,7 +21,7 @@ public:
     public:
         IHardwareDecoder() {}
 
-        virtual ~IHardwareDecoder() {};
+        ~IHardwareDecoder() override {};
 
         virtual bool Open(AVCodecContext *avctx, AVCodecContext *mainctx,
                           const enum AVPixelFormat, unsigned int surfaces) = 0;
@@ -46,35 +46,33 @@ public:
 
     CDVDVideoCodecFFmpeg(CProcessInfo &processInfo);
 
-    virtual ~CDVDVideoCodecFFmpeg();
+    ~CDVDVideoCodecFFmpeg() override;
 
-    virtual bool Open(CDVDStreamInfo &hints,
-                      CDVDCodecOptions &options) override;
+    bool Open(CDVDStreamInfo &hints, CDVDCodecOptions &options) override;
 
-    virtual int Decode(uint8_t *pData, int iSize, double dts,
-                       double pts) override;
+    int Decode(uint8_t *pData, int iSize, double dts, double pts) override;
 
-    virtual void Reset() override;
+    void Reset() override;
 
-    virtual void Reopen() override;
+    void Reopen() override;
 
     bool GetPictureCommon(DVDVideoPicture *pDvdVideoPicture);
 
-    virtual bool GetPicture(DVDVideoPicture *pDvdVideoPicture) override;
+    bool GetPicture(DVDVideoPicture *pDvdVideoPicture) override;
 
-    virtual void SetDropState(bool bDrop) override;
+    void SetDropState(bool bDrop) override;
 
-    virtual const char *GetName() override {
+    const char *GetName() override {
         return m_name.c_str();
     }; // m_name is never changed after open
-    virtual unsigned GetConvergeCount() override;
+    unsigned GetConvergeCount() override;
 
-    virtual unsigned GetAllowedReferences() override;
+    unsigned GetAllowedReferences() override;
 
-    virtual bool GetCodecStats(double &pts, int &droppedFrames,
-                               int &skippedPics) override;
+    bool GetCodecStats(double &pts, int &droppedFrames,
+                       int &skippedPics) override;
 
-    virtual void SetCodecControl(int flags) override;
+    void SetCodecControl(int flags) override;
 
     IHardwareDecoder *GetHardware() { return m_pHardware; };
 

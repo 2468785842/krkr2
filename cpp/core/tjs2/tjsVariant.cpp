@@ -740,7 +740,7 @@ namespace TJS {
                         return val2.Real == 0;
                     }
                     case tvtString:
-                        return val2.String == 0;
+                        return val2.String == nullptr;
                     default:
                         return false;
                 }
@@ -754,7 +754,7 @@ namespace TJS {
                         return Real == 0;
                     }
                     case tvtString:
-                        return String == 0;
+                        return String == nullptr;
                     default:
                         return false;
                 }

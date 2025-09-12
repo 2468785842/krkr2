@@ -68,9 +68,9 @@ namespace TJS {
 
     void *TJS_malloc(size_t n);
 
-    void *TJS_realloc(void *orig, size_t n);
+    void *TJS_realloc(void *buf, size_t n);
 
-    void TJS_free(void *p);
+    void TJS_free(void *buf);
 
 #define TJS_nsprintf sprintf
 #define TJS_nstrcpy strcpy
@@ -84,7 +84,7 @@ namespace TJS {
 #define TJS_octetcpy memcpy
 #define TJS_octetcmp memcmp
 
-    double TJS_strtod(const tjs_char *pString, tjs_char **ppEnd);
+    double TJS_strtod(const tjs_char *pString, tjs_char **endPtr);
 
     TJS_EXP_FUNC_DEF(tjs_int64, TJS_atoll, (const tjs_char *s));
 

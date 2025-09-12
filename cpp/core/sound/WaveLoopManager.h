@@ -167,9 +167,9 @@ public:
     virtual void Decode(void *dest, tjs_uint samples, tjs_uint &written,
                         tTVPWaveSegmentQueue &segments) = 0;
 
-    virtual const tTVPWaveFormat &GetFormat() const = 0;
+    [[nodiscard]] virtual const tTVPWaveFormat &GetFormat() const = 0;
 
-    virtual ~tTVPSampleAndLabelSource() {}
+    virtual ~tTVPSampleAndLabelSource() = default;
 
     virtual bool DesiredFormat(const tTVPWaveFormat &format) { return false; }
 };
@@ -209,7 +209,7 @@ class tTVPWaveLoopManager : public tTVPSampleAndLabelSource {
 public:
     tTVPWaveLoopManager();
 
-    virtual ~tTVPWaveLoopManager();
+    ~tTVPWaveLoopManager() override;
 
     void SetDecoder(tTVPWaveDecoder *decoder);
 
@@ -225,34 +225,36 @@ public:
 
     void ClearLinksAndLabels();
 
-    const std::vector<tTVPWaveLoopLink> &GetLinks() const;
+    [[nodiscard]] const std::vector<tTVPWaveLoopLink> &GetLinks() const;
 
-    const std::vector<tTVPWaveLabel> &GetLabels() const;
+    [[nodiscard]] const std::vector<tTVPWaveLabel> &GetLabels() const;
 
     void SetLinks(const std::vector<tTVPWaveLoopLink> &links);
 
     void SetLabels(const std::vector<tTVPWaveLabel> &labels);
 
-    bool GetIgnoreLinks() const;
+    [[nodiscard]] bool GetIgnoreLinks() const;
 
     void SetIgnoreLinks(bool b);
 
-    tjs_int64 GetPosition() const;
+    [[nodiscard]] tjs_int64 GetPosition() const;
 
     void SetPosition(tjs_int64 pos);
 
-    bool GetLooping() const { return Looping; }
+    [[nodiscard]] bool GetLooping() const { return Looping; }
 
     void SetLooping(bool b) { Looping = b; }
 
-    void
-    Decode(void *dest, tjs_uint samples, tjs_uint &written,
-           tTVPWaveSegmentQueue &segments); // from tTVPSampleAndLabelSource
+    void Decode(void *dest, tjs_uint samples, tjs_uint &written,
+                tTVPWaveSegmentQueue &segments)
+        override; // from tTVPSampleAndLabelSource
 
-    const tTVPWaveFormat &GetFormat() const { return *Format; }
+    [[nodiscard]] const tTVPWaveFormat &GetFormat() const override {
+        return *Format;
+    }
 
     // from tTVPSampleAndLabelSource
-    virtual bool DesiredFormat(const tTVPWaveFormat &format);
+    bool DesiredFormat(const tTVPWaveFormat &format) override;
 
 private:
     bool GetNearestEvent(tjs_int64 current, tTVPWaveLoopLink &link,

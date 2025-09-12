@@ -3,7 +3,6 @@
 // TODO: implement psbfile.dll plugin
 // reference https://github.com/UlyssesWu/FreeMote
 //
-#include <zlib.h>
 #include <spdlog/spdlog.h>
 #include <cassert>
 
@@ -11,34 +10,41 @@
 #include "ncbind.hpp"
 #include "PSBFile.h"
 #include "PSBHeader.h"
+#include "PSBMedia.h"
 #include "PSBValue.h"
 
 #define NCB_MODULE_NAME TJS_W("psbfile.dll")
 
 #define LOGGER spdlog::get("plugin")
 
-void initPsbFile() { LOGGER->info("initPsbFile"); }
+using namespace PSB;
+static PSBMedia *psbMedia = nullptr;
 
-void deInitPsbFile() { LOGGER->info("deInitPsbFile"); }
+void initPsbFile() {
+    psbMedia = new PSBMedia();
+    TVPRegisterStorageMedia(psbMedia);
+    psbMedia->Release();
+    LOGGER->info("initPsbFile");
+}
+
+void deInitPsbFile() {
+    if(psbMedia != nullptr) {
+        TVPUnregisterStorageMedia(psbMedia);
+    }
+    LOGGER->info("deInitPsbFile");
+}
 
 
 static tjs_error getRoot(tTJSVariant *r, tjs_int n, tTJSVariant **p,
                          iTJSDispatch2 *obj) {
-    // TODO:
-    LOGGER->warn("PSBFile::getRoot not implement");
     auto *self = ncbInstanceAdaptor<PSB::PSBFile>::GetNativeInstance(obj);
     iTJSDispatch2 *dic = TJSCreateCustomObject();
-    // self->getTypeHandler()->collectResources(*self, true);
     auto objs = self->getObjects();
     for(const auto &[k, v] : *objs) {
         tTJSVariant tmp = v->toTJSVal();
         dic->PropSet(TJS_MEMBERENSURE, ttstr{ k }.c_str(), nullptr, &tmp, dic);
     }
-    //
-    // tTJSVariant countVal{static_cast<tjs_int64>(self->resources.size())};
-    // dic->PropSet(TJS_MEMBERENSURE, TJS_W("count"), nullptr, &countVal, dic);
-
-    *r = tTJSVariant{ dic, dic }; // member layers
+    *r = tTJSVariant{ dic, dic };
     dic->Release();
     return TJS_S_OK;
 }
@@ -60,20 +66,29 @@ static tjs_error load(tTJSVariant *r, tjs_int n, tTJSVariant **p,
             LOGGER->info("cannot load psb file : {}", path.AsStdString());
             loadSuccess = false;
         }
+        auto objs = self->getObjects();
+        for(const auto &[k, v] : *objs) {
+            const auto &res = std::dynamic_pointer_cast<PSBResource>(v);
+            if(res == nullptr)
+                continue;
+            ttstr pathN{ k };
+            psbMedia->NormalizeDomainName(path);
+            psbMedia->NormalizePathName(pathN);
+            psbMedia->add((path + TJS_W("/") + pathN).AsStdString(), res);
+        }
     }
     if((*p)->Type() == tvtOctet) {
         LOGGER->info("PSBFile::load stream");
         loadSuccess = false;
     }
-    *r = loadSuccess;
+    if(r != nullptr)
+        *r = tTJSVariant(loadSuccess);
     return TJS_S_OK;
 }
 
-using namespace PSB;
 NCB_REGISTER_CLASS(PSBFile) {
     NCB_CONSTRUCTOR(());
     RawCallback(TJS_W("root"), &getRoot, &setRoot, 0);
-    //    Method(TJS_W("load"), &ClassT::load);
     RawCallback(TJS_W("load"), &load, 0);
 };
 

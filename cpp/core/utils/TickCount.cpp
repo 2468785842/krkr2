@@ -52,10 +52,10 @@ class tTVPWatchThread : public tTVPThread {
 public:
     tTVPWatchThread();
 
-    ~tTVPWatchThread();
+    ~tTVPWatchThread() override;
 
 protected:
-    void Execute();
+    void Execute() override;
 
 } static *TVPWatchThread = nullptr;
 

@@ -53,7 +53,8 @@ public:
 		return ChangeFileExt(exename.AsStdString(), ".cf");
 	}
 #endif
-    static ttstr GetDataPathDirectory(ttstr datapath, const ttstr &exename) {
+    static ttstr GetDataPathDirectory(const ttstr &datapath,
+                                      const ttstr &exename) {
         ttstr nativeDataPath = TVPGetAppPath();
         TVPGetLocalName(nativeDataPath);
         nativeDataPath += "/savedata/";

@@ -1218,9 +1218,9 @@ bool iTVPBaseBitmap::Copy9Patch(const iTVPBaseBitmap *ref, tTVPRect &margin) {
         return false; // TODO implement universal version
     }
 
-    const tjs_uint32 *src = (const tjs_uint32 *)ref->GetScanLine(0);
+    const auto *src = (const tjs_uint32 *)ref->GetScanLine(0);
     tjs_int pitch = ref->GetPitchBytes() / sizeof(tjs_uint32);
-    const tjs_uint32 *srcbottom = (const tjs_uint32 *)ref->GetScanLine(h - 1);
+    const auto *srcbottom = (const tjs_uint32 *)ref->GetScanLine(h - 1);
     tTVPRect scale(-1, -1, -1, -1);
     margin = tTVPRect(-1, -1, -1, -1);
     tTVPARGB<tjs_uint8> hor, ver;
@@ -1279,7 +1279,7 @@ bool iTVPBaseBitmap::Copy9Patch(const iTVPBaseBitmap *ref, tTVPRect &margin) {
     const tjs_int dst_center_height = dh - src_top_height - src_bottom_height;
     const tjs_int src_center_step = (src_center_width << 16) / dst_center_width;
 
-    tjs_uint32 *dst = (tjs_uint32 *)GetScanLineForWrite(0);
+    auto *dst = (tjs_uint32 *)GetScanLineForWrite(0);
     tjs_int dpitch = GetPitchBytes() / sizeof(tjs_uint32);
     const tjs_uint32 *s1 = src + pitch + 1;
     const tjs_uint32 *s2 = src + pitch + scale.right;
@@ -2305,7 +2305,7 @@ bool iTVPBaseBitmap::StretchBlt(tTVPRect cliprect, tTVPRect destrect,
     // check for special case noticed above
 
     //--- extract stretch type
-    tTVPBBStretchType type = (tTVPBBStretchType)(mode & stTypeMask);
+    auto type = (tTVPBBStretchType)(mode & stTypeMask);
 
     //--- pull the dimension
     tjs_int w = GetWidth();
@@ -4012,7 +4012,7 @@ bool iTVPBaseBitmap::AffineBlt(tTVPRect destrect, const iTVPBaseBitmap *ref,
         { (double)refrect.right, (double)refrect.bottom },
     };
 
-    tTVPBBStretchType type = (tTVPBBStretchType)(mode & stTypeMask);
+    auto type = (tTVPBBStretchType)(mode & stTypeMask);
     static int StretchTypeId =
         TVPGetRenderManager()->EnumParameterID("StretchType");
     TVPGetRenderManager()->SetParameterInt(StretchTypeId, (int)type);
@@ -4508,8 +4508,8 @@ void tTVPBaseBitmap::UDFlip(const tTVPRect &rect) {
     tjs_int h = (rect.bottom - rect.top) / 2;
     tjs_int w = rect.right - rect.left;
     tjs_int pitch = GetPitchBytes();
-    tjs_uint8 *l1 = (tjs_uint8 *)GetScanLineForWrite(rect.top);
-    tjs_uint8 *l2 = (tjs_uint8 *)GetScanLineForWrite(rect.bottom - 1);
+    auto *l1 = (tjs_uint8 *)GetScanLineForWrite(rect.top);
+    auto *l2 = (tjs_uint8 *)GetScanLineForWrite(rect.bottom - 1);
 
     if(Is32BPP()) {
         // 32bpp
@@ -4559,7 +4559,7 @@ void tTVPBaseBitmap::LRFlip(const tTVPRect &rect) {
     tjs_int w = rect.right - rect.left;
 
     tjs_int pitch = GetPitchBytes();
-    tjs_uint8 *line = (tjs_uint8 *)GetScanLineForWrite(rect.top);
+    auto *line = (tjs_uint8 *)GetScanLineForWrite(rect.top);
 
     if(Is32BPP()) {
         // 32bpp

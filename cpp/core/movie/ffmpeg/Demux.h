@@ -118,7 +118,7 @@ public:
         iBitsPerPixel = 0;
     }
 
-    virtual ~CDemuxStreamVideo() {}
+    ~CDemuxStreamVideo() override {}
 
     int iFpsScale; // scale of 1000 and a rate of 29970 will result
                    // in 29.97 fps
@@ -147,7 +147,7 @@ public:
         type = STREAM_AUDIO;
     }
 
-    virtual ~CDemuxStreamAudio() {}
+    ~CDemuxStreamAudio() override {}
 
     std::string GetStreamType();
 
@@ -218,6 +218,6 @@ protected:
     int64_t m_demuxerId;
 
 private:
-    int64_t NewGuid();
+    static int64_t NewGuid();
 };
 NS_KRMOVIE_END

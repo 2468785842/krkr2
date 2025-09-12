@@ -10,16 +10,15 @@ class DebugViewLayerForm : public cocos2d::Node,
 public:
     static DebugViewLayerForm *create();
 
-    virtual bool init() override;
+    bool init() override;
 
 private:
-    virtual cocos2d::Size
-    tableCellSizeForIndex(cocos2d::extension::TableView *table,
-                          ssize_t idx) override;
-    virtual cocos2d::extension::TableViewCell *
+    cocos2d::Size tableCellSizeForIndex(cocos2d::extension::TableView *table,
+                                        ssize_t idx) override;
+    cocos2d::extension::TableViewCell *
     tableCellAtIndex(cocos2d::extension::TableView *table,
                      ssize_t idx) override;
-    virtual ssize_t
+    ssize_t
     numberOfCellsInTableView(cocos2d::extension::TableView *table) override {
         return _layers.size();
     }

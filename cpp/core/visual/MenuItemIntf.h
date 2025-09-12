@@ -75,14 +75,14 @@ protected:
 public:
     tTJSNI_BaseMenuItem();
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
 
 public:
     static tTJSNI_MenuItem *CastFromVariant(const tTJSVariant &from);
 
 protected:
-    virtual bool
+    [[nodiscard]] virtual bool
     CanDeliverEvents() const = 0; // must be implemented in each platforms
 
 protected:
@@ -95,15 +95,17 @@ public:
     virtual void Remove(tTJSNI_MenuItem *item) = 0;
 
 public:
-    tTJSVariantClosure GetActionOwnerNoAddRef() const { return ActionOwner; }
+    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const {
+        return ActionOwner;
+    }
 
-    iTJSDispatch2 *GetOwnerNoAddRef() const { return Owner; }
+    [[nodiscard]] iTJSDispatch2 *GetOwnerNoAddRef() const { return Owner; }
 
-    tTJSNI_BaseMenuItem *GetParent() const { return Parent; }
+    [[nodiscard]] tTJSNI_BaseMenuItem *GetParent() const { return Parent; }
 
-    tTJSNI_BaseMenuItem *GetRootMenuItem() const;
+    [[nodiscard]] tTJSNI_BaseMenuItem *GetRootMenuItem() const;
 
-    tTJSNI_Window *GetWindow() const { return Window; }
+    [[nodiscard]] tTJSNI_Window *GetWindow() const { return Window; }
 
     iTJSDispatch2 *GetChildrenArrayNoAddRef();
 
@@ -125,7 +127,7 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance();
+    tTJSNativeInstance *CreateNativeInstance() override;
     /*
         implement this in each platform.
         this must return a proper instance of tTJSNC_MenuItem.
@@ -153,7 +155,9 @@ class tTVPOnMenuItemClickInputEvent : public tTVPBaseInputEvent {
 public:
     tTVPOnMenuItemClickInputEvent(tTJSNI_BaseMenuItem *menu) :
         tTVPBaseInputEvent(menu, Tag) {};
-    void Deliver() const { ((tTJSNI_BaseMenuItem *)GetSource())->OnClick(); }
+    void Deliver() const override {
+        ((tTJSNI_BaseMenuItem *)GetSource())->OnClick();
+    }
 };
 //---------------------------------------------------------------------------
 

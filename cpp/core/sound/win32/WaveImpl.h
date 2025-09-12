@@ -79,9 +79,9 @@ public:
     tTJSNI_WaveSoundBuffer();
 
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
+                        iTJSDispatch2 *tjs_obj) override;
 
-    void Invalidate();
+    void Invalidate() override;
 
     //-- buffer management
     //------------------------------------------------
@@ -235,7 +235,7 @@ public:
     tjs_int GetChannels() const { return InputFormat.Channels; }
 
 protected:
-    void TimerBeatHandler(); // override
+    void TimerBeatHandler() override; // override
 
 public:
     void Open(const ttstr &storagename);
@@ -273,9 +273,9 @@ public:
     void SetVolumeToSoundBuffer();
 
 public:
-    void SetVolume(tjs_int v);
+    void SetVolume(tjs_int v) override;
 
-    tjs_int GetVolume() const { return Volume; }
+    tjs_int GetVolume() const override { return Volume; }
 
     void SetVolume2(tjs_int v);
 

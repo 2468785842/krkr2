@@ -56,7 +56,7 @@ public:
     // (SubPrefScreen) delete SubPrefScreen;
     // 	}
 
-    virtual void InitDefaultConfig() {
+    void InitDefaultConfig() override {
         if(!Key.empty())
             GlobalConfigManager::GetInstance()->GetValue<T>(Key, DefaultValue);
     }
@@ -73,8 +73,8 @@ protected:
     void bindFooterController(const Node *allNodes) override {}
 
     const tPreferenceScreen *Config = nullptr;
-    cocos2d::ui::ListView *PrefList;
-    cocos2d::ui::Button *_title;
+    cocos2d::ui::ListView *PrefList{};
+    cocos2d::ui::Button *_title{};
 };
 
 class iPreferenceItem : public cocos2d::ui::Widget {
@@ -85,8 +85,8 @@ public:
 protected:
     virtual void initController(const NodeMap &allNodes) = 0;
     virtual const char *getUIFileName() const = 0;
-    cocos2d::ui::Text *_title;
-    cocos2d::Node *BgOdd, *BgEven;
+    cocos2d::ui::Text *_title{};
+    cocos2d::Node *BgOdd{}, *BgEven{};
 };
 
 template <typename TArg>
@@ -122,20 +122,20 @@ public:
     tPreferenceItemCheckBox();
 
 protected:
-    virtual void initController(const NodeMap &allNodes) override;
-    virtual const char *getUIFileName() const override;
-    virtual void onPressStateChangedToNormal() override;
-    virtual void onPressStateChangedToPressed() override;
+    void initController(const NodeMap &allNodes) override;
+    const char *getUIFileName() const override;
+    void onPressStateChangedToNormal() override;
+    void onPressStateChangedToPressed() override;
     cocos2d::ui::CheckBox *checkbox;
     cocos2d::Node *highlight;
 };
 
 class tPreferenceItemWithHighlight : public iPreferenceItem {
 protected:
-    virtual void initController(const NodeMap &allNodes) override;
+    void initController(const NodeMap &allNodes) override;
 
-    virtual void onPressStateChangedToNormal() override;
-    virtual void onPressStateChangedToPressed() override;
+    void onPressStateChangedToNormal() override;
+    void onPressStateChangedToPressed() override;
 
     cocos2d::Node *highlight = nullptr;
 };
@@ -145,12 +145,12 @@ public:
     tPreferenceItemSubDir();
 
 protected:
-    virtual const char *getUIFileName() const override;
+    const char *getUIFileName() const override;
 };
 
 class tPreferenceItemConstant : public tPreferenceItemSubDir {
 protected:
-    virtual void initController(const NodeMap &allNodes) override;
+    void initController(const NodeMap &allNodes) override;
 };
 
 class tPreferenceItemSelectListInfo {
@@ -166,11 +166,11 @@ public:
     void initInfo(tPreferenceItemSelectListInfo *info) { CurInfo = info; }
 
 protected:
-    virtual void initController(const NodeMap &allNodes) override;
-    virtual const char *getUIFileName() const override;
+    void initController(const NodeMap &allNodes) override;
+    const char *getUIFileName() const override;
 
-    virtual void onPressStateChangedToNormal() override;
-    virtual void onPressStateChangedToPressed() override;
+    void onPressStateChangedToNormal() override;
+    void onPressStateChangedToPressed() override;
 
     void showForm(cocos2d::Ref *);
     void updateHightlight();
@@ -183,11 +183,11 @@ protected:
 
 class tPreferenceItemFileSelect : public tPreferenceItem<std::string> {
 protected:
-    virtual void initController(const NodeMap &allNodes) override;
-    virtual const char *getUIFileName() const override;
+    void initController(const NodeMap &allNodes) override;
+    const char *getUIFileName() const override;
 
-    virtual void onPressStateChangedToNormal() override;
-    virtual void onPressStateChangedToPressed() override;
+    void onPressStateChangedToNormal() override;
+    void onPressStateChangedToPressed() override;
 
     void showForm(cocos2d::Ref *);
     void updateHightlight();
@@ -203,11 +203,11 @@ public:
     tPreferenceItemKeyValPair();
 
 protected:
-    virtual void initController(const NodeMap &allNodes) override;
-    virtual const char *getUIFileName() const override;
+    void initController(const NodeMap &allNodes) override;
+    const char *getUIFileName() const override;
 
-    virtual void onPressStateChangedToNormal() override;
-    virtual void onPressStateChangedToPressed() override;
+    void onPressStateChangedToNormal() override;
+    void onPressStateChangedToPressed() override;
 
     void showInput(cocos2d::Ref *);
     void updateText();
@@ -238,8 +238,8 @@ protected:
     std::function<std::pair<std::string, std::string>(int)> _getter;
     std::function<void(int, const std::pair<std::string, std::string> &)>
         _setter;
-    cocos2d::ui::ListView *_listview;
-    cocos2d::ui::Button *_title;
+    cocos2d::ui::ListView *_listview{};
+    cocos2d::ui::Button *_title{};
 };
 
 class iPreferenceItemSlider : public tPreferenceItem<float> {
@@ -247,11 +247,11 @@ class iPreferenceItemSlider : public tPreferenceItem<float> {
 
 public:
     iPreferenceItemSlider(float r) : _resetValue(r) {}
-    virtual void initController(const NodeMap &allNodes) override;
+    void initController(const NodeMap &allNodes) override;
 
 protected:
-    cocos2d::ui::Slider *_slider;
-    cocos2d::ui::Button *_reset;
+    cocos2d::ui::Slider *_slider{};
+    cocos2d::ui::Button *_reset{};
     float _resetValue;
 };
 
@@ -263,13 +263,13 @@ public:
         iPreferenceItemSlider(r), _curScaleConv(f) {}
 
 protected:
-    virtual void initController(const NodeMap &allNodes) override;
-    virtual const char *getUIFileName() const override;
+    void initController(const NodeMap &allNodes) override;
+    const char *getUIFileName() const override;
 
-    virtual void onEnter() override;
+    void onEnter() override;
 
-    cocos2d::Node *_icon;
-    cocos2d::Node *_cursor;
+    cocos2d::Node *_icon{};
+    cocos2d::Node *_cursor{};
     std::function<float(float)> _curScaleConv;
 };
 
@@ -282,16 +282,16 @@ public:
         iPreferenceItemSlider(r), _strScaleConv(f) {}
 
 protected:
-    virtual void initController(const NodeMap &allNodes) override;
-    virtual const char *getUIFileName() const override;
+    void initController(const NodeMap &allNodes) override;
+    const char *getUIFileName() const override;
 
-    cocos2d::ui::Text *_text;
+    cocos2d::ui::Text *_text{};
     std::function<std::string(float)> _strScaleConv;
 };
 
 class tPreferenceItemDeletable : public iPreferenceItem {
-    virtual void initController(const NodeMap &allNodes) override;
-    virtual const char *getUIFileName() const override;
+    void initController(const NodeMap &allNodes) override;
+    const char *getUIFileName() const override;
     void onTouchEvent(cocos2d::Ref *, cocos2d::ui::Widget::TouchEventType);
     void walkTouchEvent(cocos2d::ui::Widget *node);
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <map>
-#include <list>
 #include <vector>
 #include <utility>
 #include "AEAudioFormat.h"
@@ -58,7 +57,7 @@ protected:
 
     IAE() {}
 
-    virtual ~IAE() {}
+    virtual ~IAE() = default;
 
     /**
      * Returns true when it should be possible to initialize this
@@ -120,13 +119,13 @@ public:
      * Sets the master volume level of the AudioEngine
      * @param volume The new volume level between 0.0 and 1.0
      */
-    virtual void SetVolume(const float volume) = 0;
+    virtual void SetVolume(float volume) = 0;
 
     /**
      * Set the mute state (does not affect volume level value)
      * @param enabled The mute state
      */
-    virtual void SetMute(const bool enabled) = 0;
+    virtual void SetMute(bool enabled) = 0;
 
     /**
      * Get the current mute state
@@ -139,7 +138,7 @@ public:
      * @param mode One of AE_SOUND_OFF, AE_SOUND_IDLE or
      * AE_SOUND_ALWAYS
      */
-    virtual void SetSoundMode(const int mode) = 0;
+    virtual void SetSoundMode(int mode) = 0;
 
     /**
      * Creates and returns a new IAEStream in the format specified,
@@ -147,12 +146,13 @@ public:
      * @param audioFormat
      * @param options A bit field of stream options (see: enum
      * AEStreamOptions)
+     * @param clock
      * @return a new IAEStream that will accept data in the requested
      * format
      */
     virtual IAEStream *MakeStream(AEAudioFormat &audioFormat,
-                                  unsigned int options = 0,
-                                  IAEClockCallback *clock = nullptr) = 0;
+                                  unsigned int options,
+                                  IAEClockCallback *clock) = 0;
 
     /**
      * This method will remove the specifyed stream from the engine.
@@ -253,22 +253,22 @@ public:
      * Instruct AE to keep configuration for a specified time
      * @param millis time for which old configuration should be kept
      */
-    virtual void KeepConfiguration(unsigned int millis) { return; }
+    virtual void KeepConfiguration(unsigned int millis) {}
 
     /**
      * Instruct AE to re-initialize, e.g. after ELD change event
      */
-    virtual void DeviceChange() { return; }
+    virtual void DeviceChange() {}
 
     /**
      * Indicates if dsp addon system is active.
      */
-    virtual bool HasDSP() { return false; };
+    virtual bool HasDSP() { return false; }
 
     /**
      * Get the current sink data format
      *
-     * @param Current sink data format. For more details see
+     * @param SinkFormat Current sink data format. For more details see
      * AEAudioFormat.
      * @return Returns true on success, else false.
      */

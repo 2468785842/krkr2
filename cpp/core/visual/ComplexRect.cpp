@@ -141,10 +141,8 @@ void TVPDeallocateRegionRect(tTVPRegionRect *rect) {
     // Full-Free check
     if(TVPRegionFreeRects->size() == TVPRegionFreeMaxCount) {
         // Free all rectangles
-        for(std::vector<tTVPRegionRect *>::iterator i =
-                TVPRegionFreeRects->begin();
-            i != TVPRegionFreeRects->end(); i++)
-            delete[](char *)(*i);
+        for(auto &TVPRegionFreeRect : *TVPRegionFreeRects)
+            delete[](char *)TVPRegionFreeRect;
 
         // Free the vector
         delete TVPRegionFreeRects, TVPRegionFreeRects = nullptr;

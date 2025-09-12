@@ -645,7 +645,7 @@ unary_expr
 	| "~" unary_expr							{ $$ = cc->MakeNP1(token::T_TILDE, $2); }
 	| "--" unary_expr							{ $$ = cc->MakeNP1(token::T_DECREMENT, $2); }
 	| "++" unary_expr							{ $$ = cc->MakeNP1(token::T_INCREMENT, $2); }
-	| "new" func_call_expr						{ $$ = $2; $$->SetOpecode(token::T_NEW); }
+	| "new" func_call_expr						{ $$ = $2; $$->SetOpcode(token::T_NEW); }
 	| "invalidate" unary_expr					{ $$ = cc->MakeNP1(token::T_INVALIDATE, $2); }
 	| "isvalid" unary_expr						{ $$ = cc->MakeNP1(token::T_ISVALID, $2); }
 	| incontextof_expr "isvalid"				{ $$ = cc->MakeNP1(token::T_ISVALID, $1); }

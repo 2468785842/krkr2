@@ -39,17 +39,17 @@ class tTJSNI_BaseVideoOverlay : public tTJSNativeInstance {
 public:
     tTJSNI_BaseVideoOverlay();
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
 
 protected:
     iTJSDispatch2 *Owner;
     bool CanDeliverEvents;
-    tTJSNI_Window *Window;
+    tTJSNI_Window *Window{};
     TJS::tTJSVariantClosure ActionOwner;
     tTVPSoundStatus Status; // status
 
-    ttstr GetStatusString() const;
+    [[nodiscard]] ttstr GetStatusString() const;
     void SetStatus(tTVPSoundStatus s);
     void SetStatusAsync(tTVPSoundStatus s);
     void FireCallbackCommand(const ttstr &command, const ttstr &argument);
@@ -58,12 +58,14 @@ protected:
 
 public:
     virtual void Disconnect() = 0; // called from Window object's invalidation
-    virtual bool GetVisible() const = 0;
-    virtual const tTVPRect &GetBounds() const = 0;
-    virtual tTVPVideoOverlayMode GetMode() const = 0;
+    [[nodiscard]] virtual bool GetVisible() const = 0;
+    [[nodiscard]] virtual const tTVPRect &GetBounds() const = 0;
+    [[nodiscard]] virtual tTVPVideoOverlayMode GetMode() const = 0;
     virtual bool GetVideoSize(tjs_int &w, tjs_int &h) const = 0;
 
-    tTJSVariantClosure GetActionOwnerNoAddRef() const { return ActionOwner; }
+    [[nodiscard]] tTJSVariantClosure GetActionOwnerNoAddRef() const {
+        return ActionOwner;
+    }
 };
 //---------------------------------------------------------------------------
 
@@ -80,7 +82,7 @@ public:
     static tjs_uint32 ClassID;
 
 protected:
-    tTJSNativeInstance *CreateNativeInstance();
+    tTJSNativeInstance *CreateNativeInstance() override;
 };
 //---------------------------------------------------------------------------
 extern tTJSNativeClass *TVPCreateNativeClass_VideoOverlay();

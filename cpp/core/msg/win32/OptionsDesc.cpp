@@ -629,7 +629,7 @@ static const unsigned long compressed_size = 7229;
 static const unsigned long decompressed_size = 21817;
 
 ttstr TVPGetCommandDesc() {
-    unsigned char *dest = new unsigned char[decompressed_size + 1];
+    auto *dest = new unsigned char[decompressed_size + 1];
 
     ttstr ret;
 

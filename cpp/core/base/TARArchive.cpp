@@ -40,8 +40,8 @@ tjs_uint64 parseOctNum(const char *oct, int length) {
 class TARArchive : public tTVPArchive {
     struct EntryInfo {
         ttstr filename;
-        tjs_uint64 offset;
-        tjs_uint64 size;
+        tjs_uint64 offset{};
+        tjs_uint64 size{};
     };
     std::vector<EntryInfo> filelist;
 
@@ -50,7 +50,7 @@ class TARArchive : public tTVPArchive {
 public:
     TARArchive(const ttstr &arcname) : tTVPArchive(arcname) {}
 
-    ~TARArchive() { TVPFreeArchiveHandlePoolByPointer(this); }
+    ~TARArchive() override { TVPFreeArchiveHandlePoolByPointer(this); }
 
     bool init(tTJSBinaryStream *_instr, bool normalizeFileName) {
         if(_instr) {
@@ -123,11 +123,11 @@ public:
         return false;
     }
 
-    virtual tjs_uint GetCount() { return filelist.size(); }
+    tjs_uint GetCount() override { return filelist.size(); }
 
-    virtual ttstr GetName(tjs_uint idx) { return filelist[idx].filename; }
+    ttstr GetName(tjs_uint idx) override { return filelist[idx].filename; }
 
-    virtual tTJSBinaryStream *CreateStreamByIndex(tjs_uint idx);
+    tTJSBinaryStream *CreateStreamByIndex(tjs_uint idx) override;
 };
 
 tTJSBinaryStream *TARArchive::CreateStreamByIndex(tjs_uint idx) {
@@ -137,7 +137,7 @@ tTJSBinaryStream *TARArchive::CreateStreamByIndex(tjs_uint idx) {
 
 tTVPArchive *TVPOpenTARArchive(const ttstr &name, tTJSBinaryStream *st,
                                bool normalizeFileName) {
-    TARArchive *arc = new TARArchive(name);
+    auto *arc = new TARArchive(name);
     if(!arc->init(st, normalizeFileName)) {
         delete arc;
         return nullptr;

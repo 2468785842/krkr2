@@ -33,12 +33,13 @@ IndividualPreferenceForm::create(const tPreferenceScreen *config) {
     initInividualConfig();
     if(!config)
         config = &RootPreference;
-    IndividualPreferenceForm *ret = new IndividualPreferenceForm();
+    auto *ret = new IndividualPreferenceForm();
     ret->autorelease();
     ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
     PrefListSize = ret->PrefList->getContentSize();
     ret->initPref(config);
-    ret->setOnExitCallback(std::bind(&IndividualConfigManager::SaveToFile,
-                                     IndividualConfigManager::GetInstance()));
+    ret->setOnExitCallback([capture0 = IndividualConfigManager::GetInstance()] {
+        capture0->SaveToFile();
+    });
     return ret;
 }

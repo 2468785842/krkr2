@@ -10,13 +10,14 @@
 //! @file
 //! @brief 数学関数群
 //---------------------------------------------------------------------------
-#include <stdlib.h>
+#include <cstdlib>
 
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-void DeinterleaveApplyingWindow(float *dest[], const float *src, float *win,
-                                int numch, size_t destofs, size_t len) {
+void DeinterleaveApplyingWindow(float *dest[], const float *src,
+                                const float *win, int numch, size_t destofs,
+                                size_t len) {
     size_t n;
     switch(numch) {
         case 1: // mono
@@ -51,7 +52,7 @@ void DeinterleaveApplyingWindow(float *dest[], const float *src, float *win,
 
 //---------------------------------------------------------------------------
 void InterleaveOverlappingWindow(float *dest, const float *const *src,
-                                 float *win, int numch, size_t srcofs,
+                                 const float *win, int numch, size_t srcofs,
                                  size_t len) {
     size_t n;
     switch(numch) {

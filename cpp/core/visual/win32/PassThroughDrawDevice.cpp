@@ -163,16 +163,16 @@ public:
     tTVPDrawer_Software(tTVPPassThroughDrawDevice *device) :
         tTVPDrawer(device) {}
 
-    virtual ttstr GetName() { return TJS_W("Software rendering"); }
+    ttstr GetName() override { return TJS_W("Software rendering"); }
 
-    virtual void StartBitmapCompletion() {
+    void StartBitmapCompletion() override {
         Clear();
         // 		SDL_Renderer *renderer = TVPGetPrimaryRender();
         // 		SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00,
         // 0x00); 		SDL_RenderFillRect(renderer, nullptr);
     }
 
-    virtual void EndBitmapCompletion(iTVPBaseBitmap *_bmp) {
+    void EndBitmapCompletion(iTVPBaseBitmap *_bmp) override {
         if(!_bmp)
             return;
 
@@ -184,11 +184,11 @@ public:
         //        SDL_DestroyTexture(texture);
         //        SDL_FreeSurface(surface);
     }
-    virtual void Show() {
+    void Show() override {
         /* Update the screen! */
         // TVPGetRenderManager()->PresentScreen();
     }
-    virtual void Clear() {
+    void Clear() override {
         // TVPGetRenderManager()->ClearScreen();
     }
 };

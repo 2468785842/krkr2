@@ -69,11 +69,11 @@ private:
 
 public:
     tGenericFreeTypeFace(const ttstr &fontname, tjs_uint32 options);
-    virtual ~tGenericFreeTypeFace();
+    ~tGenericFreeTypeFace() override;
 
-    virtual FT_Face GetFTFace() const;
-    virtual void GetFaceNameList(std::vector<ttstr> &dest) const;
-    virtual tjs_char GetDefaultChar() const { return L' '; }
+    FT_Face GetFTFace() const override;
+    void GetFaceNameList(std::vector<ttstr> &dest) const override;
+    tjs_char GetDefaultChar() const override { return L' '; }
 
 private:
     void Clear();

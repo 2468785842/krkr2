@@ -602,7 +602,7 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
                 strImg->SetPosition(0);
                 if(dic) {
                     tTJSVariant val;
-                    dic->PropGet(0, TJS_W("bpp"), 0, &val, dic);
+                    dic->PropGet(0, TJS_W("bpp"), nullptr, &val, dic);
                     dic->Release();
                     int bpp = val.AsInteger();
                     isImage = bpp == 24 || bpp == 32;

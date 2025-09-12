@@ -54,7 +54,7 @@ tTVPThread::~tTVPThread() {
 
 //---------------------------------------------------------------------------
 void *tTVPThread::StartProc(void *arg) {
-    tTVPThread *_this = (tTVPThread *)arg;
+    auto *_this = (tTVPThread *)arg;
     if(_this->Suspended) {
         std::unique_lock lk(_this->_mutex);
         _this->_cond.wait(lk);

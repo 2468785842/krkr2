@@ -391,16 +391,14 @@ namespace PvrTcEncoder {
             unsigned char r = colorA >> 9;
             unsigned char g = colorA >> 4 & 0x1f;
             unsigned char b = colorA & 0xf;
-            return ColorRgb<int>(Data::BITSCALE_5_TO_8[r],
-                                 Data::BITSCALE_5_TO_8[g],
-                                 Data::BITSCALE_4_TO_8[b]);
+            return { Data::BITSCALE_5_TO_8[r], Data::BITSCALE_5_TO_8[g],
+                     Data::BITSCALE_4_TO_8[b] };
         } else {
             unsigned char r = (colorA >> 7) & 0xf;
             unsigned char g = (colorA >> 3) & 0xf;
             unsigned char b = colorA & 7;
-            return ColorRgb<int>(Data::BITSCALE_4_TO_8[r],
-                                 Data::BITSCALE_4_TO_8[g],
-                                 Data::BITSCALE_3_TO_8[b]);
+            return { Data::BITSCALE_4_TO_8[r], Data::BITSCALE_4_TO_8[g],
+                     Data::BITSCALE_3_TO_8[b] };
         }
     }
 
@@ -409,16 +407,14 @@ namespace PvrTcEncoder {
             unsigned char r = colorB >> 10;
             unsigned char g = colorB >> 5 & 0x1f;
             unsigned char b = colorB & 0x1f;
-            return ColorRgb<int>(Data::BITSCALE_5_TO_8[r],
-                                 Data::BITSCALE_5_TO_8[g],
-                                 Data::BITSCALE_5_TO_8[b]);
+            return { Data::BITSCALE_5_TO_8[r], Data::BITSCALE_5_TO_8[g],
+                     Data::BITSCALE_5_TO_8[b] };
         } else {
             unsigned char r = colorB >> 8 & 0xf;
             unsigned char g = colorB >> 4 & 0xf;
             unsigned char b = colorB & 0xf;
-            return ColorRgb<int>(Data::BITSCALE_4_TO_8[r],
-                                 Data::BITSCALE_4_TO_8[g],
-                                 Data::BITSCALE_4_TO_8[b]);
+            return { Data::BITSCALE_4_TO_8[r], Data::BITSCALE_4_TO_8[g],
+                     Data::BITSCALE_4_TO_8[b] };
         }
     }
 
@@ -427,17 +423,15 @@ namespace PvrTcEncoder {
             unsigned char r = colorA >> 9;
             unsigned char g = colorA >> 4 & 0x1f;
             unsigned char b = colorA & 0xf;
-            return ColorRgba<int>(Data::BITSCALE_5_TO_8[r],
-                                  Data::BITSCALE_5_TO_8[g],
-                                  Data::BITSCALE_4_TO_8[b], 255);
+            return { Data::BITSCALE_5_TO_8[r], Data::BITSCALE_5_TO_8[g],
+                     Data::BITSCALE_4_TO_8[b], 255 };
         } else {
             unsigned char a = colorA >> 11 & 7;
             unsigned char r = colorA >> 7 & 0xf;
             unsigned char g = colorA >> 3 & 0xf;
             unsigned char b = colorA & 7;
-            return ColorRgba<int>(
-                Data::BITSCALE_4_TO_8[r], Data::BITSCALE_4_TO_8[g],
-                Data::BITSCALE_3_TO_8[b], Data::BITSCALE_3_TO_8[a]);
+            return { Data::BITSCALE_4_TO_8[r], Data::BITSCALE_4_TO_8[g],
+                     Data::BITSCALE_3_TO_8[b], Data::BITSCALE_3_TO_8[a] };
         }
     }
 
@@ -446,17 +440,15 @@ namespace PvrTcEncoder {
             unsigned char r = colorB >> 10;
             unsigned char g = colorB >> 5 & 0x1f;
             unsigned char b = colorB & 0x1f;
-            return ColorRgba<int>(Data::BITSCALE_5_TO_8[r],
-                                  Data::BITSCALE_5_TO_8[g],
-                                  Data::BITSCALE_5_TO_8[b], 255);
+            return { Data::BITSCALE_5_TO_8[r], Data::BITSCALE_5_TO_8[g],
+                     Data::BITSCALE_5_TO_8[b], 255 };
         } else {
             unsigned char a = colorB >> 12 & 7;
             unsigned char r = colorB >> 8 & 0xf;
             unsigned char g = colorB >> 4 & 0xf;
             unsigned char b = colorB & 0xf;
-            return ColorRgba<int>(
-                Data::BITSCALE_4_TO_8[r], Data::BITSCALE_4_TO_8[g],
-                Data::BITSCALE_4_TO_8[b], Data::BITSCALE_3_TO_8[a]);
+            return { Data::BITSCALE_4_TO_8[r], Data::BITSCALE_4_TO_8[g],
+                     Data::BITSCALE_4_TO_8[b], Data::BITSCALE_3_TO_8[a] };
         }
     }
 
@@ -527,7 +519,7 @@ namespace PvrTcEncoder {
             //	delete[] data;
         }
 
-        Point2<int> GetSize() const { return Point2<int>(width, height); }
+        Point2<int> GetSize() const { return { width, height }; }
 
         int GetArea() const { return width * height; }
 

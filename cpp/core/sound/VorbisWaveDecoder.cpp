@@ -41,7 +41,7 @@ public:
         pcmsize = FloatExtraction ? 4 : 2;
     }
 
-    ~VorbisWaveDecoder() {
+    ~VorbisWaveDecoder() override {
         if(InputFileInit) {
             ov_clear(&InputFile);
             InputFileInit = false;
@@ -53,13 +53,13 @@ public:
 
 public:
     // ITSSWaveDecoder
-    virtual void GetFormat(tTVPWaveFormat &format) { format = Format; }
+    void GetFormat(tTVPWaveFormat &format) override { format = Format; }
 
-    virtual bool Render(void *buf, tjs_uint bufsamplelen, tjs_uint &rendered);
+    bool Render(void *buf, tjs_uint bufsamplelen, tjs_uint &rendered) override;
 
-    virtual bool SetPosition(tjs_uint64 samplepos);
+    bool SetPosition(tjs_uint64 samplepos) override;
 
-    virtual bool DesiredFormat(const tTVPWaveFormat &format) {
+    bool DesiredFormat(const tTVPWaveFormat &format) override {
         if(format.IsFloat == Format.IsFloat)
             return false;
         if(format.IsFloat) {
@@ -373,7 +373,7 @@ public:
     OpusWaveDecoder() :
         InputFile(nullptr), InputStream(nullptr), Buffer(nullptr) {}
 
-    ~OpusWaveDecoder() {
+    ~OpusWaveDecoder() override {
         if(InputFile) {
             op_free(InputFile);
             InputFile = nullptr;
@@ -398,9 +398,10 @@ public:
 
 public:
     // ITSSWaveDecoder
-    virtual void GetFormat(tTVPWaveFormat &format) { format = Format; }
+    void GetFormat(tTVPWaveFormat &format) override { format = Format; }
 
-    virtual bool Render(void *_buf, tjs_uint bufsamplelen, tjs_uint &rendered) {
+    bool Render(void *_buf, tjs_uint bufsamplelen,
+                tjs_uint &rendered) override {
         // render output PCM
         if(!InputFile)
             return false; // InputFile is yet not inited
@@ -442,7 +443,7 @@ public:
         return !remain; // if the decoding is ended
     }
 
-    virtual bool SetPosition(tjs_uint64 samplepos) {
+    bool SetPosition(tjs_uint64 samplepos) override {
         // set PCM position (seek)
         if(!InputFile)
             return false;

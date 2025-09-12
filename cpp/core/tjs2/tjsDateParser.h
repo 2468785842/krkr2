@@ -54,7 +54,7 @@ namespace TJSDate {
     public:
         tTJSDateParser(const tjs_char *in);
 
-        ~tTJSDateParser();
+        ~tTJSDateParser() = default;
 
         tjs_int64 GetTime();
 

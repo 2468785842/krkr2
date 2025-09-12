@@ -23,11 +23,11 @@ private:
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
                       cocos2d::Event *event) override;
 
-    cocos2d::ui::ScrollView *_textContainer; // "text"
-    cocos2d::Node *_btnList; // parent of "btn"
-    cocos2d::ui::Text *_title, *_textContent; // "content"
-    cocos2d::ui::Widget *_btnModel; // "btn"
-    cocos2d::ui::Button *_btnBody;
+    cocos2d::ui::ScrollView *_textContainer{}; // "text"
+    cocos2d::Node *_btnList{}; // parent of "btn"
+    cocos2d::ui::Text *_title{}, *_textContent{}; // "content"
+    cocos2d::ui::Widget *_btnModel{}; // "btn"
+    cocos2d::ui::Button *_btnBody{};
 
     std::function<void(int)> _callback;
 };
@@ -55,11 +55,11 @@ private:
     void bindBodyController(const Node *allNodes) override;
     void bindFooterController(const Node *allNodes) override {}
 
-    cocos2d::ui::LoadingBar *_progressBar[2];
-    cocos2d::ui::Text *_textTitle, *_textContent, *_textProgress[2];
+    cocos2d::ui::LoadingBar *_progressBar[2]{};
+    cocos2d::ui::Text *_textTitle{}, *_textContent{}, *_textProgress[2]{};
     std::vector<cocos2d::ui::Button *> _vecButtons;
-    cocos2d::Node *_btnContainer;
+    cocos2d::Node *_btnContainer{};
     // button template
     cocos2d::RefPtr<cocos2d::ui::Widget> _btnCell;
-    cocos2d::ui::Button *_btnButton;
+    cocos2d::ui::Button *_btnButton{};
 };

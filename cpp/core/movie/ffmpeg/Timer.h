@@ -22,7 +22,7 @@ public:
         totalWaitTime = millisecondsIntoTheFuture;
     }
 
-    inline bool IsTimePast() const {
+    [[nodiscard]] inline bool IsTimePast() const {
         return totalWaitTime == InfiniteValue
             ? false
             : (totalWaitTime == 0
@@ -30,7 +30,7 @@ public:
                    : (TVPGetRoughTickCount32() - startTime) >= totalWaitTime);
     }
 
-    inline unsigned int MillisLeft() const {
+    [[nodiscard]] inline unsigned int MillisLeft() const {
         if(totalWaitTime == InfiniteValue)
             return InfiniteValue;
         if(totalWaitTime == 0)
@@ -45,10 +45,14 @@ public:
 
     inline void SetInfinite() { totalWaitTime = InfiniteValue; }
 
-    inline bool IsInfinite() const { return (totalWaitTime == InfiniteValue); }
+    [[nodiscard]] inline bool IsInfinite() const {
+        return (totalWaitTime == InfiniteValue);
+    }
 
-    inline unsigned int GetInitialTimeoutValue() const { return totalWaitTime; }
+    [[nodiscard]] inline unsigned int GetInitialTimeoutValue() const {
+        return totalWaitTime;
+    }
 
-    inline unsigned int GetStartTime() const { return startTime; }
+    [[nodiscard]] inline unsigned int GetStartTime() const { return startTime; }
 };
 NS_KRMOVIE_END

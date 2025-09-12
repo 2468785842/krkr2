@@ -718,7 +718,7 @@ namespace TJS {
 
         TJS_METHOD_DEF(tTJSVariantClosure &, AsObjectClosure, ()) {
             if(vt == tvtObject) {
-                AddRefObject();
+                this->AddRefObject();
                 return *(tTJSVariantClosure *)&Object;
             }
             TJSThrowVariantConvertError(*this, tvtObject);
@@ -1171,7 +1171,7 @@ namespace TJS {
                 return 0;
 
             TJSThrowVariantConvertError(*this, tvtInteger, tvtReal);
-            return tTJSVariant();
+            return {};
         }
 
     private:

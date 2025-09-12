@@ -17,7 +17,7 @@
 //---------------------------------------------------------------------------
 // tTJSNI_BaseMIDISoundBuffer
 //---------------------------------------------------------------------------
-tTJSNI_BaseMIDISoundBuffer::tTJSNI_BaseMIDISoundBuffer() {}
+tTJSNI_BaseMIDISoundBuffer::tTJSNI_BaseMIDISoundBuffer() = default;
 
 //---------------------------------------------------------------------------
 tjs_error tTJSNI_BaseMIDISoundBuffer::Construct(tjs_int numparams,

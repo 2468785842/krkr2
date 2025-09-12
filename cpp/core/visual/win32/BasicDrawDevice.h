@@ -13,15 +13,15 @@ class tTVPBasicDrawDevice : public tTVPDrawDevice {
     typedef tTVPDrawDevice inherited;
 
     void *TargetWindow;
-    bool IsMainWindow;
+    bool IsMainWindow{};
     bool DrawUpdateRectangle;
     bool BackBufferDirty;
 
     void *Direct3D;
     void *Direct3DDevice;
     void *Texture;
-    int D3dPP;
-    int DispMode;
+    int D3dPP{};
+    int DispMode{};
 
     //	UINT	CurrentMonitor;
     void *TextureBuffer; //!< テクスチャのサーフェースへのメモリポインタ
@@ -39,7 +39,7 @@ public:
     tTVPBasicDrawDevice(); //!< コンストラクタ
 
 private:
-    ~tTVPBasicDrawDevice(); //!< デストラクタ
+    ~tTVPBasicDrawDevice() override; //!< デストラクタ
 
     void InvalidateAll();
 #if 0
@@ -72,40 +72,41 @@ public:
         dtDBD3D // Direct3D によるダブルバッファリングを行うdrawer
     } DrawerType = dtDrawDib,
       PreferredDrawerType = dtDrawDib;
-    tDrawerType GetDrawerType() const { return DrawerType; }
+    [[nodiscard]] tDrawerType GetDrawerType() const { return DrawerType; }
     void SetPreferredDrawerType(tDrawerType type) {
         PreferredDrawerType = type;
     }
-    tDrawerType GetPreferredDrawerType() const { return PreferredDrawerType; }
+    [[nodiscard]] tDrawerType GetPreferredDrawerType() const {
+        return PreferredDrawerType;
+    }
 
 public:
     //	void EnsureDevice();
 
     //---- LayerManager の管理関連
-    virtual void AddLayerManager(iTVPLayerManager *manager);
+    void AddLayerManager(iTVPLayerManager *manager) override;
 
     //---- 描画位置・サイズ関連
     //	virtual void SetTargetWindow(HWND wnd, bool
     // is_main);
-    virtual void SetDestRectangle(const tTVPRect &rect);
-    virtual void NotifyLayerResize(iTVPLayerManager *manager);
+    void SetDestRectangle(const tTVPRect &rect) override;
+    void NotifyLayerResize(iTVPLayerManager *manager) override;
 
     //---- 再描画関連
-    virtual void Show();
+    void Show() override;
     //	virtual bool WaitForVBlank( tjs_int*
     // in_vblank, tjs_int*
     // delayed );
 
     //---- LayerManager からの画像受け渡し関連
-    virtual void StartBitmapCompletion(iTVPLayerManager *manager);
-    virtual void NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x,
-                                       tjs_int y, tTVPBaseTexture *bmp,
-                                       const tTVPRect &cliprect,
-                                       tTVPLayerType type, tjs_int opacity);
-    virtual void EndBitmapCompletion(iTVPLayerManager *manager);
+    void StartBitmapCompletion(iTVPLayerManager *manager) override;
+    void NotifyBitmapCompleted(iTVPLayerManager *manager, tjs_int x, tjs_int y,
+                               tTVPBaseTexture *bmp, const tTVPRect &cliprect,
+                               tTVPLayerType type, tjs_int opacity) override;
+    void EndBitmapCompletion(iTVPLayerManager *manager) override;
 
     //---- デバッグ支援
-    virtual void SetShowUpdateRect(bool b);
+    void SetShowUpdateRect(bool b) override;
 #if 0
 //---- フルスクリーン
 	virtual bool SwitchToFullScreen( HWND window, tjs_uint w, tjs_uint h, tjs_uint bpp, tjs_uint color, bool changeresolution );
@@ -124,13 +125,13 @@ class tTJSNI_BasicDrawDevice : public tTJSNativeInstance {
 
 public:
     tTJSNI_BasicDrawDevice();
-    ~tTJSNI_BasicDrawDevice();
+    ~tTJSNI_BasicDrawDevice() override;
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
 
 public:
-    tTVPBasicDrawDevice *GetDevice() const { return Device; }
+    [[nodiscard]] tTVPBasicDrawDevice *GetDevice() const { return Device; }
 };
 //---------------------------------------------------------------------------
 
@@ -144,7 +145,7 @@ public:
     static tjs_uint32 ClassID;
 
 private:
-    iTJSNativeInstance *CreateNativeInstance();
+    iTJSNativeInstance *CreateNativeInstance() override;
 };
 //---------------------------------------------------------------------------
 

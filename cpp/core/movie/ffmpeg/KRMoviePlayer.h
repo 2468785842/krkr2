@@ -22,160 +22,159 @@ NS_KRMOVIE_BEGIN
 
 class TVPMoviePlayer : public iTVPVideoOverlay, public CBaseRenderer {
 public:
-    ~TVPMoviePlayer();
+    ~TVPMoviePlayer() override;
 
-    virtual void AddRef() override { RefCount++; }
+    void AddRef() override { RefCount++; }
 
-    virtual void Release() override;
+    void Release() override;
 
-    virtual void SetVisible(bool b) override { Visible = b; }
+    void SetVisible(bool b) override { Visible = b; }
 
-    virtual void Play() override { m_pPlayer->Play(); }
+    void Play() override { m_pPlayer->Play(); }
 
-    virtual void Stop() override { m_pPlayer->Stop(); }
+    void Stop() override { m_pPlayer->Stop(); }
 
-    virtual void Pause() override { m_pPlayer->Pause(); }
+    void Pause() override { m_pPlayer->Pause(); }
 
-    virtual void SetPosition(uint64_t tick) override;
+    void SetPosition(uint64_t tick) override;
 
-    virtual void GetPosition(uint64_t *tick) override;
+    void GetPosition(uint64_t *tick) override;
 
-    virtual void GetStatus(tTVPVideoStatus *status) override;
+    void GetStatus(tTVPVideoStatus *status) override;
 
-    virtual void Rewind() override;
+    void Rewind() override;
 
-    virtual void SetFrame(int f) override;
+    void SetFrame(int f) override;
 
-    virtual void GetFrame(int *f) override;
+    void GetFrame(int *f) override;
 
-    virtual void GetFPS(double *f) override;
+    void GetFPS(double *f) override;
 
-    virtual void GetNumberOfFrame(int *f) override;
+    void GetNumberOfFrame(int *f) override;
 
-    virtual void GetTotalTime(int64_t *t) override;
+    void GetTotalTime(int64_t *t) override;
 
-    virtual void GetVideoSize(long *width, long *height) override;
+    void GetVideoSize(long *width, long *height) override;
 
-    virtual void SetPlayRate(double rate) override;
+    void SetPlayRate(double rate) override;
 
-    virtual void GetPlayRate(double *rate) override;
+    void GetPlayRate(double *rate) override;
 
-    virtual void SetAudioBalance(long balance) override;
+    void SetAudioBalance(long balance) override;
 
-    virtual void GetAudioBalance(long *balance) override;
+    void GetAudioBalance(long *balance) override;
 
-    virtual void SetAudioVolume(long volume) override;
+    void SetAudioVolume(long volume) override;
 
-    virtual void GetAudioVolume(long *volume) override;
+    void GetAudioVolume(long *volume) override;
 
-    virtual void GetNumberOfAudioStream(unsigned long *streamCount) override;
+    void GetNumberOfAudioStream(unsigned long *streamCount) override;
 
-    virtual void SelectAudioStream(unsigned long num) override;
+    void SelectAudioStream(unsigned long num) override;
 
-    virtual void GetEnableAudioStreamNum(long *num) override;
+    void GetEnableAudioStreamNum(long *num) override;
 
-    virtual void DisableAudioStream() override;
+    void DisableAudioStream() override;
 
-    virtual void GetNumberOfVideoStream(unsigned long *streamCount) override;
+    void GetNumberOfVideoStream(unsigned long *streamCount) override;
 
-    virtual void SelectVideoStream(unsigned long num) override;
+    void SelectVideoStream(unsigned long num) override;
 
-    virtual void GetEnableVideoStreamNum(long *num) override;
+    void GetEnableVideoStreamNum(long *num) override;
 
     // TODO
-    virtual void SetStopFrame(int frame) override {}
+    void SetStopFrame(int frame) override {}
 
-    virtual void GetStopFrame(int *frame) override {}
+    void GetStopFrame(int *frame) override {}
 
-    virtual void SetDefaultStopFrame() override {}
+    void SetDefaultStopFrame() override {}
 
     // function for overlay mode
-    virtual void SetWindow(class tTJSNI_Window *window) override {}
+    void SetWindow(class tTJSNI_Window *window) override {}
 
-    virtual void SetMessageDrainWindow(void *window) override {}
+    void SetMessageDrainWindow(void *window) override {}
 
-    virtual void SetRect(int l, int t, int r, int b) override {}
+    void SetRect(int l, int t, int r, int b) override {}
 
     // function for layer mode
-    virtual tTVPBaseTexture *GetFrontBuffer() override { return nullptr; }
+    tTVPBaseTexture *GetFrontBuffer() override { return nullptr; }
 
-    virtual void SetVideoBuffer(tTVPBaseTexture *buff1, tTVPBaseTexture *buff2,
-                                long size) override {}
+    void SetVideoBuffer(tTVPBaseTexture *buff1, tTVPBaseTexture *buff2,
+                        long size) override {}
 
     // function for mixer mode
-    virtual void SetMixingBitmap(class tTVPBaseTexture *dest,
-                                 float alpha) override {}
+    void SetMixingBitmap(class tTVPBaseTexture *dest, float alpha) override {}
 
-    virtual void ResetMixingBitmap() override {}
+    void ResetMixingBitmap() override {}
 
-    virtual void SetMixingMovieAlpha(float a) override {}
+    void SetMixingMovieAlpha(float a) override {}
 
-    virtual void GetMixingMovieAlpha(float *a) override { *a = 1.0f; }
+    void GetMixingMovieAlpha(float *a) override { *a = 1.0f; }
 
-    virtual void SetMixingMovieBGColor(unsigned long col) override {}
+    void SetMixingMovieBGColor(unsigned long col) override {}
 
-    virtual void GetMixingMovieBGColor(unsigned long *col) override {
+    void GetMixingMovieBGColor(unsigned long *col) override {
         *col = 0xFF000000;
     }
 
-    virtual void PresentVideoImage() override {}
+    void PresentVideoImage() override {}
 
-    virtual void GetContrastRangeMin(float *v) override {}
+    void GetContrastRangeMin(float *v) override {}
 
-    virtual void GetContrastRangeMax(float *v) override {}
+    void GetContrastRangeMax(float *v) override {}
 
-    virtual void GetContrastDefaultValue(float *v) override {}
+    void GetContrastDefaultValue(float *v) override {}
 
-    virtual void GetContrastStepSize(float *v) override {}
+    void GetContrastStepSize(float *v) override {}
 
-    virtual void GetContrast(float *v) override {}
+    void GetContrast(float *v) override {}
 
-    virtual void SetContrast(float v) override {}
+    void SetContrast(float v) override {}
 
-    virtual void GetBrightnessRangeMin(float *v) override {}
+    void GetBrightnessRangeMin(float *v) override {}
 
-    virtual void GetBrightnessRangeMax(float *v) override {}
+    void GetBrightnessRangeMax(float *v) override {}
 
-    virtual void GetBrightnessDefaultValue(float *v) override {}
+    void GetBrightnessDefaultValue(float *v) override {}
 
-    virtual void GetBrightnessStepSize(float *v) override {}
+    void GetBrightnessStepSize(float *v) override {}
 
-    virtual void GetBrightness(float *v) override {}
+    void GetBrightness(float *v) override {}
 
-    virtual void SetBrightness(float v) override {}
+    void SetBrightness(float v) override {}
 
-    virtual void GetHueRangeMin(float *v) override {}
+    void GetHueRangeMin(float *v) override {}
 
-    virtual void GetHueRangeMax(float *v) override {}
+    void GetHueRangeMax(float *v) override {}
 
-    virtual void GetHueDefaultValue(float *v) override {}
+    void GetHueDefaultValue(float *v) override {}
 
-    virtual void GetHueStepSize(float *v) override {}
+    void GetHueStepSize(float *v) override {}
 
-    virtual void GetHue(float *v) override {}
+    void GetHue(float *v) override {}
 
-    virtual void SetHue(float v) override {}
+    void SetHue(float v) override {}
 
-    virtual void GetSaturationRangeMin(float *v) override {}
+    void GetSaturationRangeMin(float *v) override {}
 
-    virtual void GetSaturationRangeMax(float *v) override {}
+    void GetSaturationRangeMax(float *v) override {}
 
-    virtual void GetSaturationDefaultValue(float *v) override {}
+    void GetSaturationDefaultValue(float *v) override {}
 
-    virtual void GetSaturationStepSize(float *v) override {}
+    void GetSaturationStepSize(float *v) override {}
 
-    virtual void GetSaturation(float *v) override {}
+    void GetSaturation(float *v) override {}
 
-    virtual void SetSaturation(float v) override {}
+    void SetSaturation(float v) override {}
 
-    virtual void SetLoopSegement(int beginFrame, int endFrame) override;
+    void SetLoopSegement(int beginFrame, int endFrame) override;
 
-    virtual int AddVideoPicture(DVDVideoPicture &pic, int index) override;
+    int AddVideoPicture(DVDVideoPicture &pic, int index) override;
 
-    virtual int WaitForBuffer(volatile std::atomic_bool &bStop,
-                              int timeout = 0) override;
+    int WaitForBuffer(volatile std::atomic_bool &bStop,
+                      int timeout = 0) override;
 
-    virtual void Flush() override;
+    void Flush() override;
 
     bool IsPlaying() const { return m_pPlayer->IsPlaying(); }
 
@@ -230,16 +229,16 @@ protected:
     cocos2d::Node *m_pRootNode = nullptr;
     TVPYUVSprite *m_pSprite = nullptr;
 
-    ~VideoPresentOverlay();
+    ~VideoPresentOverlay() override;
 
     void ClearNode();
 
 public:
     void PresentPicture(float dt);
 
-    virtual void Stop() override;
+    void Stop() override;
 
-    virtual void Play() override;
+    void Play() override;
 
 protected:
     virtual const tTVPRect &GetBounds() = 0;
@@ -252,24 +251,24 @@ class MoviePlayerOverlay : public VideoPresentOverlay {
     void OnPlayEvent(KRMovieEvent msg, void *p);
 
 public:
-    ~MoviePlayerOverlay();
+    ~MoviePlayerOverlay() override;
 
-    virtual void SetWindow(class tTJSNI_Window *window) override;
+    void SetWindow(class tTJSNI_Window *window) override;
 
     void BuildGraph(tTJSNI_VideoOverlay *callbackwin, IStream *stream,
                     const tjs_char *streamname, const tjs_char *type,
                     uint64_t size);
 
-    virtual const tTVPRect &GetBounds() override;
+    const tTVPRect &GetBounds() override;
 
-    virtual void SetVisible(bool b) override;
+    void SetVisible(bool b) override;
 };
 
 class VideoPresentOverlay2 : public VideoPresentOverlay {
     std::function<const tTVPRect &()> m_funcGetBounds;
 
 public:
-    virtual const tTVPRect &GetBounds() override { return m_funcGetBounds(); }
+    const tTVPRect &GetBounds() override { return m_funcGetBounds(); }
 
     void SetFuncGetBounds(const std::function<const tTVPRect &()> &func) {
         m_funcGetBounds = func;

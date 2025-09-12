@@ -8,7 +8,7 @@ class Exception /*: public std::exception*/ {
 public:
     Exception(const ttstr &mes) : message_(mes) {}
 
-    virtual const ttstr &what() const { return message_; }
+    [[nodiscard]] virtual const ttstr &what() const { return message_; }
 };
 
 class EAbort : public Exception {

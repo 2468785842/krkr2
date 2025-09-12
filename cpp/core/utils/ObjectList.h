@@ -312,7 +312,7 @@ public:
 
     tObjectList(const tObjectList<ObjT> &ref) : List(ref.List) {}
 
-    ~tObjectList() {}
+    ~tObjectList() = default;
 
     void operator=(const tObjectList<ObjT> &ref) { List.operator=(ref.List); }
 

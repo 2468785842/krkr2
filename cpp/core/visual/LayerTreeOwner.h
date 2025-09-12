@@ -50,7 +50,7 @@ public:
                             tjs_int mode) = 0; // mode == tTVPImeMode
     virtual void ResetImeMode(class iTVPLayerManager *manager) = 0;
 
-    virtual iTJSDispatch2 *GetOwnerNoAddRef() const = 0;
+    [[nodiscard]] virtual iTJSDispatch2 *GetOwnerNoAddRef() const = 0;
     // LTO -> LayerManager/Layer
     // LTO からの通知は必要要件ではない
 };

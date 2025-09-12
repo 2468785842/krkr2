@@ -76,7 +76,7 @@ public:
     /**
      * 読込みスレッドメイン
      */
-    void Execute();
+    void Execute() override;
 
     /**
      * メインスレッドハンドラ
@@ -86,7 +86,7 @@ public:
 
 public:
     tTVPAsyncImageLoader();
-    ~tTVPAsyncImageLoader();
+    ~tTVPAsyncImageLoader() override;
 
     /**
      読込みスレッドの終了を要求する(終了は待たない)

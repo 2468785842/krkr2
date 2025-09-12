@@ -408,13 +408,13 @@ public:
     tTVPWD_RIFFWave(tTJSBinaryStream *stream, tjs_uint64 datastart,
                     const tTVPWaveFormat &format);
 
-    ~tTVPWD_RIFFWave();
+    ~tTVPWD_RIFFWave() override;
 
-    void GetFormat(tTVPWaveFormat &format);
+    void GetFormat(tTVPWaveFormat &format) override;
 
-    bool Render(void *buf, tjs_uint bufsamplelen, tjs_uint &rendered);
+    bool Render(void *buf, tjs_uint bufsamplelen, tjs_uint &rendered) override;
 
-    bool SetPosition(tjs_uint64 samplepos);
+    bool SetPosition(tjs_uint64 samplepos) override;
 };
 
 //---------------------------------------------------------------------------
@@ -511,7 +511,8 @@ bool tTVPWD_RIFFWave::SetPosition(tjs_uint64 samplepos) {
 //---------------------------------------------------------------------------
 class tTVPWDC_RIFFWave : public tTVPWaveDecoderCreator {
 public:
-    tTVPWaveDecoder *Create(const ttstr &storagename, const ttstr &extension);
+    tTVPWaveDecoder *Create(const ttstr &storagename,
+                            const ttstr &extension) override;
 };
 
 //---------------------------------------------------------------------------
@@ -781,8 +782,8 @@ protected:
     tTVPWaveFormat OutputFormat;
 
 public:
-    virtual tTVPSampleAndLabelSource *
-    Recreate(tTVPSampleAndLabelSource *source) {
+    tTVPSampleAndLabelSource *
+    Recreate(tTVPSampleAndLabelSource *source) override {
         Source = source;
         OutputFormat = source->GetFormat();
         OutputFormat.IsFloat = false;
@@ -791,23 +792,23 @@ public:
         return this;
     }
 
-    virtual ~iSoundBufferConvertToPCM16() {}
+    ~iSoundBufferConvertToPCM16() override {}
 
-    virtual void Clear() { Source = nullptr; }
+    void Clear() override { Source = nullptr; }
 
-    virtual void Update() {};
+    void Update() override {};
 
-    virtual void Reset() {};
+    void Reset() override {};
 
-    virtual const tTVPWaveFormat &GetFormat() const { return OutputFormat; }
+    const tTVPWaveFormat &GetFormat() const override { return OutputFormat; }
 };
 
 //---------------------------------------------------------------------------
 class SoundBufferConvertFloatToPCM16 : public iSoundBufferConvertToPCM16 {
     std::vector<float> buffer;
 
-    virtual void Decode(void *dest, tjs_uint samples, tjs_uint &written,
-                        tTVPWaveSegmentQueue &segments) {
+    void Decode(void *dest, tjs_uint samples, tjs_uint &written,
+                tTVPWaveSegmentQueue &segments) override {
         tjs_uint numsamples = samples * OutputFormat.Channels;
         if(buffer.size() < numsamples)
             buffer.resize(numsamples);
@@ -822,8 +823,8 @@ class SoundBufferConvertFloatToPCM16 : public iSoundBufferConvertToPCM16 {
 class SoundBufferConvertPCM24ToPCM16 : public iSoundBufferConvertToPCM16 {
     std::vector<char> buffer;
 
-    virtual void Decode(void *dest, tjs_uint samples, tjs_uint &written,
-                        tTVPWaveSegmentQueue &segments) {
+    void Decode(void *dest, tjs_uint samples, tjs_uint &written,
+                tTVPWaveSegmentQueue &segments) override {
         tjs_uint numsamples = samples * OutputFormat.Channels;
         if(buffer.size() < numsamples * 3)
             buffer.resize(numsamples * 3);
@@ -842,8 +843,8 @@ class SoundBufferConvertPCM24ToPCM16 : public iSoundBufferConvertToPCM16 {
 class SoundBufferConvertPCM32ToPCM16 : public iSoundBufferConvertToPCM16 {
     std::vector<int32_t> buffer;
 
-    virtual void Decode(void *dest, tjs_uint samples, tjs_uint &written,
-                        tTVPWaveSegmentQueue &segments) {
+    void Decode(void *dest, tjs_uint samples, tjs_uint &written,
+                tTVPWaveSegmentQueue &segments) override {
         tjs_uint numsamples = samples * OutputFormat.Channels;
         if(buffer.size() < numsamples)
             buffer.resize(numsamples);

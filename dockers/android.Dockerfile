@@ -4,20 +4,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # ---------- 系统依赖 ----------
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        ca-certificates gnupg wget curl unzip git python3 bison nasm \
+        wget curl unzip git python3 bison nasm \
         openjdk-17-jdk-headless \
     && rm -rf /var/lib/apt/lists/*
-
-# ---------- Mono ----------
-RUN apt-get update && apt-get install -y mono-complete
-
-# ---------- .NET 8 ----------
-RUN wget https://dot.net/v1/dotnet-install.sh -O /tmp/dotnet-install.sh \
- && chmod +x /tmp/dotnet-install.sh \
- && /tmp/dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet \
- && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
- && rm /tmp/dotnet-install.sh
-ENV PATH="/usr/share/dotnet:$PATH"
 
 # ---------- Android SDK/NDK ----------
 ARG ANDROID_SDK_ROOT=/opt/android-sdk
@@ -58,11 +47,14 @@ RUN git clone https://github.com/microsoft/vcpkg.git $VCPKG_ROOT \
 WORKDIR /workspace
 
 # ---------- 源码 ----------
-COPY . .
-
-# ---------- ccache ----------
-RUN apt-get update && apt-get install -y ccache && rm -rf /var/lib/apt/lists/*
+COPY .. .
 
 # ---------- 构建 ----------
 # 默认任务：assembleDebug；可根据需要改为 assembleRelease
 CMD ["./gradlew", "assembleDebug"]
+
+
+# 添加元数据
+LABEL description="Android build environment for Krkr2 project" \
+      version="1.0"
+#      maintainer="your-email@example.com" \

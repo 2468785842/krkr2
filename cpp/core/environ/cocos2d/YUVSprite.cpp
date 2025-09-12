@@ -153,7 +153,7 @@ TVPYUVSprite::~TVPYUVSprite() {
 }
 
 TVPYUVSprite *TVPYUVSprite::create() {
-    TVPYUVSprite *sprite = new TVPYUVSprite;
+    auto *sprite = new TVPYUVSprite;
     sprite->init();
     sprite->autorelease();
     return sprite;

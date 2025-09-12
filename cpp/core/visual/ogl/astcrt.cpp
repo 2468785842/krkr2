@@ -371,7 +371,7 @@ namespace ASTCRealTimeCodec {
                                uint8_t &low) {
         DCHECK(i < 8);
 
-        uint8_t low_mask = static_cast<uint8_t>((1 << i) - 1);
+        auto low_mask = static_cast<uint8_t>((1 << i) - 1);
 
         low = n & low_mask;
         high = static_cast<uint8_t>(n >> i);
@@ -394,7 +394,7 @@ namespace ASTCRealTimeCodec {
             bitoffset_ += bitcount;
         }
 
-        size_t offset() const { return bitoffset_; }
+        [[nodiscard]] size_t offset() const { return bitoffset_; }
 
     private:
         uint8_t *ptr_;
@@ -2058,7 +2058,7 @@ namespace ASTCRealTimeCodec {
         size_t m = l0;
 
         for(size_t i = 0; i < BLOCK_TEXEL_COUNT; ++i) {
-            size_t t = static_cast<size_t>(texels[i]);
+            auto t = static_cast<size_t>(texels[i]);
             weights[i] = quantize_weight(quant, project(k, m, t));
         }
     }
@@ -2210,7 +2210,7 @@ namespace ASTCRealTimeCodec {
 
     struct mat3x3f_t {
     public:
-        mat3x3f_t() {}
+        mat3x3f_t() = default;
 
         mat3x3f_t(float m00, float m01, float m02, float m10, float m11,
                   float m12, float m20, float m21, float m22) {
@@ -2219,10 +2219,12 @@ namespace ASTCRealTimeCodec {
             m[2] = vec3f_t(m20, m21, m22);
         }
 
-        const vec3f_t &row(size_t i) const { return m[i]; }
+        [[nodiscard]] const vec3f_t &row(size_t i) const { return m[i]; }
 
         float &at(size_t i, size_t j) { return m[i].components[j]; }
-        const float &at(size_t i, size_t j) const { return m[i].components[j]; }
+        [[nodiscard]] const float &at(size_t i, size_t j) const {
+            return m[i].components[j];
+        }
 
     private:
         vec3f_t m[3];
@@ -2377,12 +2379,12 @@ namespace ASTCRealTimeCodec {
 
     void compress_texture_4x4(const uint8_t *src, uint8_t *dst, int width_int,
                               int height_int) {
-        const unorm8_t *data = reinterpret_cast<const unorm8_t *>(src);
+        const auto *data = reinterpret_cast<const unorm8_t *>(src);
 
-        size_t width = static_cast<size_t>(width_int);
-        size_t height = static_cast<size_t>(height_int);
+        auto width = static_cast<size_t>(width_int);
+        auto height = static_cast<size_t>(height_int);
 
-        PhysicalBlock *dst_re = reinterpret_cast<PhysicalBlock *>(dst);
+        auto *dst_re = reinterpret_cast<PhysicalBlock *>(dst);
 
         for(size_t ypos = 0; ypos < height; ypos += BLOCK_WIDTH) {
             for(size_t xpos = 0; xpos < width; xpos += BLOCK_HEIGHT) {

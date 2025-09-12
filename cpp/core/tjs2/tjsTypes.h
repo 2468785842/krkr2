@@ -157,7 +157,7 @@ s = sign,  negative if this is 1, otherwise positive.
 
 /* double related constants */
 #define TJS_IEEE_D_EXP_MAX 1023
-#define TJS_IEEE_D_EXP_MIN -1022
+#define TJS_IEEE_D_EXP_MIN (-1022)
 #define TJS_IEEE_D_SIGNIFICAND_BITS 52
 
 #define TJS_IEEE_D_EXP_BIAS 1023
@@ -168,16 +168,16 @@ s = sign,  negative if this is 1, otherwise positive.
 #define TJS_IEEE_D_SIGNIFICAND_MASK (TJS_UI64_VAL(0x000fffffffffffff))
 #define TJS_IEEE_D_SIGNIFICAND_MSB_MASK (TJS_UI64_VAL(0x0008000000000000))
 
-#define TJS_IEEE_D_GET_SIGN(x) (0 != (x & TJS_IEEE_D_SIGN_MASK))
+#define TJS_IEEE_D_GET_SIGN(x) (0 != ((x) & TJS_IEEE_D_SIGN_MASK))
 #define TJS_IEEE_D_GET_EXP(x)                                                  \
-    ((tjs_int)(((x & TJS_IEEE_D_EXP_MASK) >> TJS_IEEE_D_SIGNIFICAND_BITS) -    \
+    ((tjs_int)((((x) & TJS_IEEE_D_EXP_MASK) >> TJS_IEEE_D_SIGNIFICAND_BITS) -  \
                TJS_IEEE_D_EXP_BIAS))
-#define TJS_IEEE_D_GET_SIGNIFICAND(x) (x & TJS_IEEE_D_SIGNIFICAND_MASK)
+#define TJS_IEEE_D_GET_SIGNIFICAND(x) ((x) & TJS_IEEE_D_SIGNIFICAND_MASK)
 
 /* component composition */
 #define TJS_IEEE_D_MAKE_SIGN(x)                                                \
     ((x) ? TJS_UI64_VAL(0x8000000000000000) : TJS_UI64_VAL(0))
-#define TJS_IEEE_D_MAKE_EXP(x) ((tjs_uint64)(x + TJS_IEEE_D_EXP_BIAS) << 52)
+#define TJS_IEEE_D_MAKE_EXP(x) ((tjs_uint64)((x) + TJS_IEEE_D_EXP_BIAS) << 52)
 #define TJS_IEEE_D_MAKE_SIGNIFICAND(x) ((tjs_uint64)(x))
 
 /* special expression */

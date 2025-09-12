@@ -153,7 +153,7 @@ namespace TJS {
     //---------------------------------------------------------------------------
     tjs_int tTJSScriptBlock::SrcPosToLine(tjs_int pos) const {
         tjs_uint s = 0;
-        tjs_uint e = (tjs_uint)LineVector.size();
+        auto e = (tjs_uint)LineVector.size();
         while(true) {
             if(e - s <= 1)
                 return s + LineOffset; // LineOffset is added

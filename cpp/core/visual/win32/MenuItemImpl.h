@@ -37,53 +37,54 @@ class tTJSNI_MenuItem : public tTJSNI_BaseMenuItem {
 public:
     tTJSNI_MenuItem();
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
-                        iTJSDispatch2 *tjs_obj);
-    void Invalidate();
+                        iTJSDispatch2 *tjs_obj) override;
+    void Invalidate() override;
 
 private:
     void MenuItemClick();
 
 protected:
-    bool CanDeliverEvents() const;
+    [[nodiscard]] bool CanDeliverEvents() const override;
     // tTJSNI_BaseMenuItem::CanDeliverEvents override
 
 public:
-    void Add(tTJSNI_MenuItem *item);
-    void Insert(tTJSNI_MenuItem *item, tjs_int index);
-    void Remove(tTJSNI_MenuItem *item);
+    void Add(tTJSNI_MenuItem *item) override;
+    void Insert(tTJSNI_MenuItem *item, tjs_int index) override;
+    void Remove(tTJSNI_MenuItem *item) override;
 
     void SetCaption(const ttstr &caption);
     void GetCaption(ttstr &caption) const;
 
     void SetChecked(bool b);
-    bool GetChecked() const;
+    [[nodiscard]] bool GetChecked() const;
 
     void SetEnabled(bool b);
-    bool GetEnabled() const;
+    [[nodiscard]] bool GetEnabled() const;
 
     void SetGroup(tjs_int g);
-    tjs_int GetGroup() const;
+    [[nodiscard]] tjs_int GetGroup() const;
 
     void SetRadio(bool b);
-    bool GetRadio() const;
+    [[nodiscard]] bool GetRadio() const;
 
     void SetShortcut(const ttstr &shortcut);
     void GetShortcut(ttstr &shortcut) const;
 
     void SetVisible(bool b);
-    bool GetVisible() const;
+    [[nodiscard]] bool GetVisible() const;
 
-    tjs_int GetIndex() const;
+    [[nodiscard]] tjs_int GetIndex() const;
     void SetIndex(tjs_int newIndex);
 
-    tjs_int TrackPopup(tjs_uint32 flags, tjs_int x, tjs_int y) const;
+    [[nodiscard]] tjs_int TrackPopup(tjs_uint32 flags, tjs_int x,
+                                     tjs_int y) const;
 
-    const ObjectVector<tTJSNI_BaseMenuItem> &GetChildren() const {
+    [[nodiscard]] const ObjectVector<tTJSNI_BaseMenuItem> &GetChildren() const {
         return Children;
     }
 
     //-- interface to plugin
-    /*HMENU*/ void *GetMenuItemHandleForPlugin() const;
+    /*HMENU*/ [[nodiscard]] void *GetMenuItemHandleForPlugin() const;
 };
 //---------------------------------------------------------------------------
 

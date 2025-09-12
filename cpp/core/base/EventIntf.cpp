@@ -138,7 +138,7 @@ public:
 
     tTVPWinUpdateEvent(const tTVPWinUpdateEvent &ref) { Window = ref.Window; }
 
-    ~tTVPWinUpdateEvent() {}
+    ~tTVPWinUpdateEvent() = default;
 
     void Deliver() const {
         if(static_cast<tTJSNI_Window *>(Window)->GetVisible())
