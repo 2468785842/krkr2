@@ -278,7 +278,6 @@ void layerex::FontInfo::setFamilyName(const tjs_char *fName) {
 
     //    spdlog::get("plugin")->error(
     //        "can't load gdi+ font: rollback custom draw string");
-    clear();
     gdiPlusUnsupportedFont = true;
     this->familyName = fName;
     const std::unique_ptr<tTJSBinaryStream> stream{ TVPCreateFontStream(

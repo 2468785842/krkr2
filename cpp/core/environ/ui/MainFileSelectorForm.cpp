@@ -132,37 +132,19 @@ void TVPMainFileSelectorForm::bindBodyController(const Node *allNodes) {
 int TVPCheckArchive(const ttstr &localname);
 
 void TVPMainFileSelectorForm::runFromPath(const std::string &path) {
-    // 判断是否为目录
-    bool isDir = false;
-#if defined(_WIN32)
-    DWORD attr = GetFileAttributesA(path.c_str());
-    isDir =
-        (attr != INVALID_FILE_ATTRIBUTES) && (attr & FILE_ATTRIBUTE_DIRECTORY);
-#elif defined(__linux__)
-    struct stat st;
-    if(stat(path.c_str(), &st) == 0)
-        isDir = S_ISDIR(st.st_mode);
-    else
-        isDir = false;
-#else
-    isDir = FileUtils::getInstance()->isDirectoryExist(path);
-#endif
-
     int archiveType;
-    if(isDir) {
-        if(CheckDir(path)) {
-            startup(path);
-        } else if((archiveType = TVPCheckArchive(path)) == 1) {
-            spdlog::info("Opening archive: {}", path);
-            startup(path);
-        } else if(archiveType == 0 &&
-                  TVPCheckIsVideoFile(path.c_str())) {
-            spdlog::info("Opening video file: {}", path);
-            SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
-            TVPMainScene::GetInstance()->addChild(player,
-                                                  10); // pushUIForm(player);
-            player->PlayFile(path);
-        }
+    if(CheckDir(path)) {
+        startup(path);
+    } else if((archiveType = TVPCheckArchive(path)) == 1) {
+        spdlog::info("Opening archive: {}", path);
+        startup(path);
+    } else if(archiveType == 0 &&
+              TVPCheckIsVideoFile(path.c_str())) {
+        spdlog::info("Opening video file: {}", path);
+        SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
+        TVPMainScene::GetInstance()->addChild(player,
+                                              10); // pushUIForm(player);
+        player->PlayFile(path);
     }
 }
 
