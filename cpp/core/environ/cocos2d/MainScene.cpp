@@ -1956,7 +1956,7 @@ bool TVPMainScene::startupFrom(const std::string &path) {
     // 		GameNode->setRotation(90);
     // 	}
 
-    scheduleOnce([this, &path](float delay) { doStartup(delay, path); }, 0,
+    scheduleOnce([this, path](float delay) { doStartup(delay, path); }, 0,
                  "startup");
 
     return true;
