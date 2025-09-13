@@ -1,7 +1,6 @@
 #include "PSBFile.h"
 
 #include <memory>
-#include <filesystem>
 #include "ncbind.hpp"
 
 #define LOGGER spdlog::get("plugin")

@@ -707,7 +707,6 @@ void TVPExecuteStorage(const ttstr &name, tTJSVariant *result,
                        bool isexpression, const tjs_char *modestr) {
     TVPExecuteStorage(name, nullptr, result, isexpression, modestr);
 }
-#include <filesystem>
 #include <fstream>
 #include <tjsByteCodeLoader.h>
 //---------------------------------------------------------------------------

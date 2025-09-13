@@ -135,20 +135,18 @@ void TVPMainFileSelectorForm::bindBodyController(const Node *allNodes) {
 int TVPCheckArchive(const ttstr &localname);
 
 void TVPMainFileSelectorForm::runFromPath(const std::string &path) {
-    int archiveType;
+    // int archiveType;
     if(checkStartupTjsScript(path)) {
-        spdlog::info("Opening dir: {}", path);
-        startup(path);
-    } else if((archiveType = TVPCheckArchive(path)) == 1) {
-        spdlog::info("Opening archive: {}", path);
-        startup(path);
-    } else if(archiveType == 0 && TVPCheckIsVideoFile(path.c_str())) {
+        doStartup(path);
+    } else if((/*archiveType = */TVPCheckArchive(ttstr{path})) == 1) {
+        doStartup(path);
+    } /*else if(archiveType == 0 && TVPCheckIsVideoFile(path.c_str())) {
         spdlog::info("Opening video file: {}", path);
         SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
         TVPMainScene::GetInstance()->addChild(player,
                                               10); // pushUIForm(player);
         player->PlayFile(path);
-    }
+    }*/
 }
 
 
@@ -176,11 +174,11 @@ void TVPMainFileSelectorForm::show() {
     ListDir(lastpath);
 }
 
-static const std::string str_startup_tjs(u8"startup.tjs");
+static const std::string str_startup_tjs("startup.tjs");
 
 bool TVPMainFileSelectorForm::checkStartupTjsScript(const std::string &path) {
 #if _WIN32
-    auto p = std::filesystem::u8path(path);
+    auto p = std::filesystem::u8path(path); // windows 上有兼容性问题必须使u8path
 #else
     auto p = std::filesystem::path(path);
 #endif
