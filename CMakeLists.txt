@@ -137,7 +137,7 @@ if(NOT ANDROID)
 endif()
 
 if(MSVC)
-  target_compile_options(${PROJECT_NAME} PUBLIC "/ZI")
+  target_compile_options(${PROJECT_NAME} PUBLIC "/MP")
   target_link_options(${PROJECT_NAME} PUBLIC "/INCREMENTAL")
 endif()
 

@@ -77,14 +77,14 @@ public:
     virtual void __stdcall SetAudioVolume(long volume) = 0;
     virtual void __stdcall GetAudioVolume(long *volume) = 0;
 
-    virtual void __stdcall
-    GetNumberOfAudioStream(unsigned long *streamCount) = 0;
+    virtual void __stdcall GetNumberOfAudioStream(
+        unsigned long *streamCount) = 0;
     virtual void __stdcall SelectAudioStream(unsigned long num) = 0;
     virtual void __stdcall GetEnableAudioStreamNum(long *num) = 0;
     virtual void __stdcall DisableAudioStream() = 0;
 
-    virtual void __stdcall
-    GetNumberOfVideoStream(unsigned long *streamCount) = 0;
+    virtual void __stdcall GetNumberOfVideoStream(
+        unsigned long *streamCount) = 0;
     virtual void __stdcall SelectVideoStream(unsigned long num) = 0;
     virtual void __stdcall GetEnableVideoStreamNum(long *num) = 0;
 

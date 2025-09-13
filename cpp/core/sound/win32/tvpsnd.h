@@ -116,7 +116,7 @@ typedef struct ITSSMediaBaseInfoVtbl {
     HRESULT(STDMETHODCALLTYPE __RPC_FAR *QueryInterface)
     (ITSSMediaBaseInfo __RPC_FAR *This,
      /* [in] */ REFIID riid,
-     /* [iid_is][out] */ void __RPC_FAR * __RPC_FAR * ppvObject);
+     /* [iid_is][out] */ void __RPC_FAR *__RPC_FAR *ppvObject);
 
     ULONG(STDMETHODCALLTYPE __RPC_FAR *AddRef)
     (ITSSMediaBaseInfo __RPC_FAR *This);
@@ -193,13 +193,13 @@ interface ITSSMediaBaseInfo {
 #endif /* C style interface */
 
 /* [helpstring][id] */
-HRESULT __stdcall
-ITSSMediaBaseInfo_GetMediaType_Proxy(ITSSMediaBaseInfo __RPC_FAR
+HRESULT __stdcall ITSSMediaBaseInfo_GetMediaType_Proxy(
+    ITSSMediaBaseInfo __RPC_FAR
 
-                                         *This,
-                                     /* [in] */ LPWSTR shortname,
-                                     /* [in] */ LPWSTR descbuf,
-                                     /* [in] */ unsigned long descbuflen);
+        *This,
+    /* [in] */ LPWSTR shortname,
+    /* [in] */ LPWSTR descbuf,
+    /* [in] */ unsigned long descbuflen);
 
 void __RPC_STUB ITSSMediaBaseInfo_GetMediaType_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
@@ -217,48 +217,48 @@ void __RPC_STUB ITSSMediaBaseInfo_GetLength_Stub(
     PRPC_MESSAGE _pRpcMessage, DWORD *_pdwStubPhase);
 
 /* [helpstring][id] */
-HRESULT __stdcall
-ITSSMediaBaseInfo_GetTitle_Proxy(ITSSMediaBaseInfo __RPC_FAR
+HRESULT __stdcall ITSSMediaBaseInfo_GetTitle_Proxy(
+    ITSSMediaBaseInfo __RPC_FAR
 
-                                     *This,
-                                 /* [in] */ LPWSTR buf,
-                                 /* [in] */ unsigned long buflen);
+        *This,
+    /* [in] */ LPWSTR buf,
+    /* [in] */ unsigned long buflen);
 
 void __RPC_STUB ITSSMediaBaseInfo_GetTitle_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
     PRPC_MESSAGE _pRpcMessage, DWORD *_pdwStubPhase);
 
 /* [helpstring][id] */
-HRESULT __stdcall
-ITSSMediaBaseInfo_GetCopyright_Proxy(ITSSMediaBaseInfo __RPC_FAR
+HRESULT __stdcall ITSSMediaBaseInfo_GetCopyright_Proxy(
+    ITSSMediaBaseInfo __RPC_FAR
 
-                                         *This,
-                                     /* [in] */ LPWSTR buf,
-                                     /* [in] */ unsigned long buflen);
+        *This,
+    /* [in] */ LPWSTR buf,
+    /* [in] */ unsigned long buflen);
 
 void __RPC_STUB ITSSMediaBaseInfo_GetCopyright_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
     PRPC_MESSAGE _pRpcMessage, DWORD *_pdwStubPhase);
 
 /* [helpstring][id] */
-HRESULT __stdcall
-ITSSMediaBaseInfo_GetComment_Proxy(ITSSMediaBaseInfo __RPC_FAR
+HRESULT __stdcall ITSSMediaBaseInfo_GetComment_Proxy(
+    ITSSMediaBaseInfo __RPC_FAR
 
-                                       *This,
-                                   /* [in] */ LPWSTR buf,
-                                   /* [in] */ unsigned long buflen);
+        *This,
+    /* [in] */ LPWSTR buf,
+    /* [in] */ unsigned long buflen);
 
 void __RPC_STUB ITSSMediaBaseInfo_GetComment_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
     PRPC_MESSAGE _pRpcMessage, DWORD *_pdwStubPhase);
 
 /* [helpstring][id] */
-HRESULT __stdcall
-ITSSMediaBaseInfo_GetArtist_Proxy(ITSSMediaBaseInfo __RPC_FAR
+HRESULT __stdcall ITSSMediaBaseInfo_GetArtist_Proxy(
+    ITSSMediaBaseInfo __RPC_FAR
 
-                                      *This,
-                                  /* [in] */ LPWSTR buf,
-                                  /* [in] */ unsigned long buflen);
+        *This,
+    /* [in] */ LPWSTR buf,
+    /* [in] */ unsigned long buflen);
 
 void __RPC_STUB ITSSMediaBaseInfo_GetArtist_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
@@ -284,14 +284,12 @@ public:
         /* [retval][out] */ IUnknown __RPC_FAR * __RPC_FAR * stream) = 0;
 
     virtual /* [helpstring][id] */
-        HRESULT __stdcall
-        GetStreamForWrite(
+        HRESULT __stdcall GetStreamForWrite(
             /* [in] */ LPWSTR url,
             /* [retval][out] */ IUnknown __RPC_FAR * __RPC_FAR * stream) = 0;
 
     virtual /* [helpstring][id] */
-        HRESULT __stdcall
-        GetStreamForUpdate(
+        HRESULT __stdcall GetStreamForUpdate(
             /* [in] */ LPWSTR url,
             /* [retval][out] */ IUnknown __RPC_FAR * __RPC_FAR * stream) = 0;
 };
@@ -304,7 +302,7 @@ typedef struct ITSSStorageProviderVtbl {
     HRESULT(STDMETHODCALLTYPE __RPC_FAR *QueryInterface)
     (ITSSStorageProvider __RPC_FAR *This,
      /* [in] */ REFIID riid,
-     /* [iid_is][out] */ void __RPC_FAR * __RPC_FAR * ppvObject);
+     /* [iid_is][out] */ void __RPC_FAR *__RPC_FAR *ppvObject);
 
     ULONG(STDMETHODCALLTYPE __RPC_FAR *AddRef)
     (ITSSStorageProvider __RPC_FAR *This);
@@ -315,17 +313,17 @@ typedef struct ITSSStorageProviderVtbl {
     /* [helpstring][id] */ HRESULT(__stdcall __RPC_FAR *GetStreamForRead)(
         ITSSStorageProvider __RPC_FAR *This,
         /* [in] */ LPWSTR url,
-        /* [retval][out] */ IUnknown __RPC_FAR * __RPC_FAR * stream);
+        /* [retval][out] */ IUnknown __RPC_FAR *__RPC_FAR *stream);
 
     /* [helpstring][id] */ HRESULT(__stdcall __RPC_FAR *GetStreamForWrite)(
         ITSSStorageProvider __RPC_FAR *This,
         /* [in] */ LPWSTR url,
-        /* [retval][out] */ IUnknown __RPC_FAR * __RPC_FAR * stream);
+        /* [retval][out] */ IUnknown __RPC_FAR *__RPC_FAR *stream);
 
     /* [helpstring][id] */ HRESULT(__stdcall __RPC_FAR *GetStreamForUpdate)(
         ITSSStorageProvider __RPC_FAR *This,
         /* [in] */ LPWSTR url,
-        /* [retval][out] */ IUnknown __RPC_FAR * __RPC_FAR * stream);
+        /* [retval][out] */ IUnknown __RPC_FAR *__RPC_FAR *stream);
 
     END_INTERFACE
 } ITSSStorageProviderVtbl;
@@ -362,7 +360,7 @@ HRESULT __stdcall ITSSStorageProvider_GetStreamForRead_Proxy(
 
         *This,
     /* [in] */ LPWSTR url,
-    /* [retval][out] */ IUnknown __RPC_FAR * __RPC_FAR * stream);
+    /* [retval][out] */ IUnknown __RPC_FAR *__RPC_FAR *stream);
 
 void __RPC_STUB ITSSStorageProvider_GetStreamForRead_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
@@ -374,7 +372,7 @@ HRESULT __stdcall ITSSStorageProvider_GetStreamForWrite_Proxy(
 
         *This,
     /* [in] */ LPWSTR url,
-    /* [retval][out] */ IUnknown __RPC_FAR * __RPC_FAR * stream);
+    /* [retval][out] */ IUnknown __RPC_FAR *__RPC_FAR *stream);
 
 void __RPC_STUB ITSSStorageProvider_GetStreamForWrite_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
@@ -386,7 +384,7 @@ HRESULT __stdcall ITSSStorageProvider_GetStreamForUpdate_Proxy(
 
         *This,
     /* [in] */ LPWSTR url,
-    /* [retval][out] */ IUnknown __RPC_FAR * __RPC_FAR * stream);
+    /* [retval][out] */ IUnknown __RPC_FAR *__RPC_FAR *stream);
 
 void __RPC_STUB ITSSStorageProvider_GetStreamForUpdate_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
@@ -408,14 +406,12 @@ MIDL_INTERFACE("A938D1A5-2980-498B-B051-99931D41895D")
 ITSSModule : public IUnknown {
 public:
     virtual /* [helpstring][id] */
-        HRESULT __stdcall
-        GetModuleCopyright(
+        HRESULT __stdcall GetModuleCopyright(
             /* [in] */ LPWSTR buffer,
             /* [in] */ unsigned long buflen) = 0;
 
     virtual /* [helpstring][id] */
-        HRESULT __stdcall
-        GetModuleDescription(
+        HRESULT __stdcall GetModuleDescription(
             /* [in] */ LPWSTR buffer,
             /* [in] */ unsigned long buflen) = 0;
 
@@ -445,7 +441,7 @@ typedef struct ITSSModuleVtbl {
     HRESULT(STDMETHODCALLTYPE __RPC_FAR *QueryInterface)
     (ITSSModule __RPC_FAR *This,
      /* [in] */ REFIID riid,
-     /* [iid_is][out] */ void __RPC_FAR * __RPC_FAR * ppvObject);
+     /* [iid_is][out] */ void __RPC_FAR *__RPC_FAR *ppvObject);
 
     ULONG(STDMETHODCALLTYPE __RPC_FAR *AddRef)
     (ITSSModule __RPC_FAR *This);
@@ -474,7 +470,7 @@ typedef struct ITSSModuleVtbl {
         ITSSModule __RPC_FAR *This,
         /* [in] */ LPWSTR url,
         /* [retval][out] */
-        ITSSMediaBaseInfo __RPC_FAR * __RPC_FAR * info);
+        ITSSMediaBaseInfo __RPC_FAR *__RPC_FAR *info);
 
     /* [helpstring][id] */ HRESULT(__stdcall __RPC_FAR *GetMediaSupport)(
         ITSSModule __RPC_FAR *This,
@@ -483,7 +479,7 @@ typedef struct ITSSModuleVtbl {
     /* [helpstring][id] */ HRESULT(__stdcall __RPC_FAR *GetMediaInstance)(
         ITSSModule __RPC_FAR *This,
         /* [in] */ LPWSTR url,
-        /* [retval][out] */ IUnknown __RPC_FAR * __RPC_FAR * instance);
+        /* [retval][out] */ IUnknown __RPC_FAR *__RPC_FAR *instance);
 
     END_INTERFACE
 } ITSSModuleVtbl;
@@ -522,38 +518,38 @@ interface ITSSModule { CONST_VTBL struct ITSSModuleVtbl __RPC_FAR *lpVtbl; };
 #endif /* C style interface */
 
 /* [helpstring][id] */
-HRESULT __stdcall
-ITSSModule_GetModuleCopyright_Proxy(ITSSModule __RPC_FAR
+HRESULT __stdcall ITSSModule_GetModuleCopyright_Proxy(
+    ITSSModule __RPC_FAR
 
-                                        *This,
-                                    /* [in] */ LPWSTR buffer,
-                                    /* [in] */ unsigned long buflen);
+        *This,
+    /* [in] */ LPWSTR buffer,
+    /* [in] */ unsigned long buflen);
 
 void __RPC_STUB ITSSModule_GetModuleCopyright_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
     PRPC_MESSAGE _pRpcMessage, DWORD *_pdwStubPhase);
 
 /* [helpstring][id] */
-HRESULT __stdcall
-ITSSModule_GetModuleDescription_Proxy(ITSSModule __RPC_FAR
+HRESULT __stdcall ITSSModule_GetModuleDescription_Proxy(
+    ITSSModule __RPC_FAR
 
-                                          *This,
-                                      /* [in] */ LPWSTR buffer,
-                                      /* [in] */ unsigned long buflen);
+        *This,
+    /* [in] */ LPWSTR buffer,
+    /* [in] */ unsigned long buflen);
 
 void __RPC_STUB ITSSModule_GetModuleDescription_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
     PRPC_MESSAGE _pRpcMessage, DWORD *_pdwStubPhase);
 
 /* [helpstring][id] */
-HRESULT __stdcall
-ITSSModule_GetSupportExts_Proxy(ITSSModule __RPC_FAR
+HRESULT __stdcall ITSSModule_GetSupportExts_Proxy(
+    ITSSModule __RPC_FAR
 
-                                    *This,
-                                /* [in] */ unsigned long index,
-                                /* [in] */ LPWSTR mediashortname,
-                                /* [in] */ LPWSTR buf,
-                                /* [in] */ unsigned long buflen);
+        *This,
+    /* [in] */ unsigned long index,
+    /* [in] */ LPWSTR mediashortname,
+    /* [in] */ LPWSTR buf,
+    /* [in] */ unsigned long buflen);
 
 void __RPC_STUB ITSSModule_GetSupportExts_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
@@ -565,7 +561,7 @@ HRESULT __stdcall ITSSModule_GetMediaInfo_Proxy(
 
         *This,
     /* [in] */ LPWSTR url,
-    /* [retval][out] */ ITSSMediaBaseInfo __RPC_FAR * __RPC_FAR * info);
+    /* [retval][out] */ ITSSMediaBaseInfo __RPC_FAR *__RPC_FAR *info);
 
 void __RPC_STUB ITSSModule_GetMediaInfo_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
@@ -587,7 +583,7 @@ HRESULT __stdcall ITSSModule_GetMediaInstance_Proxy(
 
         *This,
     /* [in] */ LPWSTR url,
-    /* [retval][out] */ IUnknown __RPC_FAR * __RPC_FAR * instance);
+    /* [retval][out] */ IUnknown __RPC_FAR *__RPC_FAR *instance);
 
 void __RPC_STUB ITSSModule_GetMediaInstance_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
@@ -633,7 +629,7 @@ typedef struct ITSSWaveDecoderVtbl {
     HRESULT(STDMETHODCALLTYPE __RPC_FAR *QueryInterface)
     (ITSSWaveDecoder __RPC_FAR *This,
      /* [in] */ REFIID riid,
-     /* [iid_is][out] */ void __RPC_FAR * __RPC_FAR * ppvObject);
+     /* [iid_is][out] */ void __RPC_FAR *__RPC_FAR *ppvObject);
 
     ULONG(STDMETHODCALLTYPE __RPC_FAR *AddRef)
     (ITSSWaveDecoder __RPC_FAR *This);
@@ -686,11 +682,11 @@ interface ITSSWaveDecoder {
 #endif /* C style interface */
 
 /* [helpstring][id] */
-HRESULT __stdcall
-ITSSWaveDecoder_GetFormat_Proxy(ITSSWaveDecoder __RPC_FAR
+HRESULT __stdcall ITSSWaveDecoder_GetFormat_Proxy(
+    ITSSWaveDecoder __RPC_FAR
 
-                                    *This,
-                                /* [in] */ TSSWaveFormat __RPC_FAR *format);
+        *This,
+    /* [in] */ TSSWaveFormat __RPC_FAR *format);
 
 void __RPC_STUB ITSSWaveDecoder_GetFormat_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
@@ -710,11 +706,11 @@ void __RPC_STUB ITSSWaveDecoder_Render_Stub(
     PRPC_MESSAGE _pRpcMessage, DWORD *_pdwStubPhase);
 
 /* [helpstring][id] */
-HRESULT __stdcall
-ITSSWaveDecoder_SetPosition_Proxy(ITSSWaveDecoder __RPC_FAR
+HRESULT __stdcall ITSSWaveDecoder_SetPosition_Proxy(
+    ITSSWaveDecoder __RPC_FAR
 
-                                      *This,
-                                  /* [in] */ unsigned __int64 samplepos);
+        *This,
+    /* [in] */ unsigned __int64 samplepos);
 
 void __RPC_STUB ITSSWaveDecoder_SetPosition_Stub(
     IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,

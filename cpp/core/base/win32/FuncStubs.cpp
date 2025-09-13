@@ -15,26 +15,23 @@
 #include "tjsString.h"
 #include "PluginImpl.h"
 
-static void __stdcall
-TVP_Stub_3d4b725f0b4234d79524822e7c34486b(tTJSVariant *_this,
-                                          iTJSDispatch2 *objthis) {
+static void __stdcall TVP_Stub_3d4b725f0b4234d79524822e7c34486b(
+    tTJSVariant *_this, iTJSDispatch2 *objthis) {
     return _this->ChangeClosureObjThis(objthis);
 }
 
-static void __stdcall
-TVP_Stub_3fc0c32ee41ea0c515f8fbb681e37982(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_3fc0c32ee41ea0c515f8fbb681e37982(
+    tTJSVariant *_this) {
     ::new(_this) tTJSVariant();
 }
 
-static void __stdcall
-TVP_Stub_e8dbd4fe012262d9da831e0735aa33b3(tTJSVariant *_this,
-                                          const tTJSVariant &ref) {
+static void __stdcall TVP_Stub_e8dbd4fe012262d9da831e0735aa33b3(
+    tTJSVariant *_this, const tTJSVariant &ref) {
     ::new(_this) tTJSVariant(ref);
 }
 
-static void __stdcall
-TVP_Stub_ace6cce1353865d7376caca1f2124216(tTJSVariant *_this,
-                                          iTJSDispatch2 *ref) {
+static void __stdcall TVP_Stub_ace6cce1353865d7376caca1f2124216(
+    tTJSVariant *_this, iTJSDispatch2 *ref) {
     ::new(_this) tTJSVariant(ref);
 }
 
@@ -43,132 +40,123 @@ static void __stdcall TVP_Stub_5055344aa8055bc238b79e5f88fc3300(
     ::new(_this) tTJSVariant(obj, objthis);
 }
 
-static void __stdcall
-TVP_Stub_8238c542b814acf1a83c00cced57ba26(tTJSVariant *_this,
-                                          const tjs_char *ref) {
+static void __stdcall TVP_Stub_8238c542b814acf1a83c00cced57ba26(
+    tTJSVariant *_this, const tjs_char *ref) {
     ::new(_this) tTJSVariant(ref);
 }
 
-static void __stdcall
-TVP_Stub_bd2a14ca8c345fd7f151b08d1792fb60(tTJSVariant *_this,
-                                          const tTJSString &ref) {
+static void __stdcall TVP_Stub_bd2a14ca8c345fd7f151b08d1792fb60(
+    tTJSVariant *_this, const tTJSString &ref) {
     ::new(_this) tTJSVariant(ref);
 }
 
-static void __stdcall
-TVP_Stub_16d432f9f86738a7688cbfc9b12441ec(tTJSVariant *_this,
-                                          const tjs_nchar *ref) {
+static void __stdcall TVP_Stub_16d432f9f86738a7688cbfc9b12441ec(
+    tTJSVariant *_this, const tjs_nchar *ref) {
     ::new(_this) tTJSVariant(ref);
 }
 
-static void __stdcall
-TVP_Stub_6dac00582b8ba529e548ef058c4e869e(tTJSVariant *_this,
-                                          const tjs_uint8 *ref, tjs_uint len) {
+static void __stdcall TVP_Stub_6dac00582b8ba529e548ef058c4e869e(
+    tTJSVariant *_this, const tjs_uint8 *ref, tjs_uint len) {
     ::new(_this) tTJSVariant(ref, len);
 }
 
-static void __stdcall
-TVP_Stub_9193ae470b5efdfe617b5e94cd8f5da6(tTJSVariant *_this, bool ref) {
+static void __stdcall TVP_Stub_9193ae470b5efdfe617b5e94cd8f5da6(
+    tTJSVariant *_this, bool ref) {
     ::new(_this) tTJSVariant(ref);
 }
 
-static void __stdcall
-TVP_Stub_ec455b6ef0f5da178063db3875973260(tTJSVariant *_this, tjs_int32 ref) {
+static void __stdcall TVP_Stub_ec455b6ef0f5da178063db3875973260(
+    tTJSVariant *_this, tjs_int32 ref) {
     ::new(_this) tTJSVariant(ref);
 }
 
-static void __stdcall
-TVP_Stub_a56aaf685bd171b63b0ef3c894d80ecf(tTJSVariant *_this, tjs_int64 ref) {
+static void __stdcall TVP_Stub_a56aaf685bd171b63b0ef3c894d80ecf(
+    tTJSVariant *_this, tjs_int64 ref) {
     ::new(_this) tTJSVariant(ref);
 }
 
-static void __stdcall
-TVP_Stub_9a5fe199cebb9841f94ac0bb7a4a3b6a(tTJSVariant *_this, tjs_real ref) {
+static void __stdcall TVP_Stub_9a5fe199cebb9841f94ac0bb7a4a3b6a(
+    tTJSVariant *_this, tjs_real ref) {
     ::new(_this) tTJSVariant(ref);
 }
 
-static void __stdcall
-TVP_Stub_2acb76a1f86e34afc5fe934d406c6c4c(tTJSVariant *_this,
-                                          const tjs_uint8 **src) {
+static void __stdcall TVP_Stub_2acb76a1f86e34afc5fe934d406c6c4c(
+    tTJSVariant *_this, const tjs_uint8 **src) {
     ::new(_this) tTJSVariant(src);
 }
 
-static void __stdcall
-TVP_Stub_3a4d914ca7d24989c236ad223c002d49(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_3a4d914ca7d24989c236ad223c002d49(
+    tTJSVariant *_this) {
     _this->~tTJSVariant();
 }
 
-static tTJSVariantType __stdcall
-TVP_Stub_8fca7d3a123df1eacf228ba89f6a02ff(tTJSVariant *_this) {
+static tTJSVariantType __stdcall TVP_Stub_8fca7d3a123df1eacf228ba89f6a02ff(
+    tTJSVariant *_this) {
     return _this->Type();
 }
 
-static void __stdcall
-TVP_Stub_58be195f96a36c158d638e3b0c79308b(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_58be195f96a36c158d638e3b0c79308b(
+    tTJSVariant *_this) {
     return _this->Clear();
 }
 
-static tTJSVariantClosure &__stdcall
-TVP_Stub_eaa4d5b1d186a807a63311ab6d5e16e4(tTJSVariant *_this) {
+static tTJSVariantClosure &__stdcall TVP_Stub_eaa4d5b1d186a807a63311ab6d5e16e4(
+    tTJSVariant *_this) {
     return _this->AsObjectClosure();
 }
 
-static void __stdcall
-TVP_Stub_246f30d208c1d3a4e2b558090f403734(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_246f30d208c1d3a4e2b558090f403734(
+    tTJSVariant *_this) {
     return _this->ToObject();
 }
 
-static iTJSDispatch2 *__stdcall
-TVP_Stub_3206ef9b7a8013d6572decdea49e7e2e(tTJSVariant *_this) {
+static iTJSDispatch2 *__stdcall TVP_Stub_3206ef9b7a8013d6572decdea49e7e2e(
+    tTJSVariant *_this) {
     return _this->operator iTJSDispatch2 *();
 }
 
-static void __stdcall
-TVP_Stub_c5a30d297c3a121879b1392bc6c604ef(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_c5a30d297c3a121879b1392bc6c604ef(
+    tTJSVariant *_this) {
     return _this->ToString();
 }
 
-static tjs_uint32 *__stdcall
-TVP_Stub_e398f5aef0ab92bc1323f3b094722fb1(tTJSVariant *_this) {
+static tjs_uint32 *__stdcall TVP_Stub_e398f5aef0ab92bc1323f3b094722fb1(
+    tTJSVariant *_this) {
     return _this->GetHint();
 }
 
-static void __stdcall
-TVP_Stub_0733b0ac80880897d327dc6f3b04ea9e(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_0733b0ac80880897d327dc6f3b04ea9e(
+    tTJSVariant *_this) {
     return _this->ToOctet();
 }
 
-static void __stdcall
-TVP_Stub_4cb055ed9d8ef71d1af10898965c940c(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_4cb055ed9d8ef71d1af10898965c940c(
+    tTJSVariant *_this) {
     return _this->ToInteger();
 }
 
-static void __stdcall
-TVP_Stub_ef8d198596b7d3143d02ed4450ccefa1(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_ef8d198596b7d3143d02ed4450ccefa1(
+    tTJSVariant *_this) {
     return _this->ToReal();
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_d48ea419e040ffe8c20c1e86d80c9a5f(tTJSVariant *_this,
-                                          const tTJSVariant &ref) {
+static tTJSVariant &__stdcall TVP_Stub_d48ea419e040ffe8c20c1e86d80c9a5f(
+    tTJSVariant *_this, const tTJSVariant &ref) {
     return _this->operator=(ref);
 }
 
-static void __stdcall
-TVP_Stub_679b215ff76a269871d5f325b981e561(tTJSVariant *_this,
-                                          const tTJSVariant &ref) {
+static void __stdcall TVP_Stub_679b215ff76a269871d5f325b981e561(
+    tTJSVariant *_this, const tTJSVariant &ref) {
     return _this->CopyRef(ref);
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_1039eff4a4443f9238438485a35a93a7(tTJSVariant *_this,
-                                          iTJSDispatch2 *ref) {
+static tTJSVariant &__stdcall TVP_Stub_1039eff4a4443f9238438485a35a93a7(
+    tTJSVariant *_this, iTJSDispatch2 *ref) {
     return _this->operator=(ref);
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_2f873b0ee1c6591ba28bc4b9c0e4c954(tTJSVariant *_this,
-                                          iTJSDispatch2 *ref) {
+static tTJSVariant &__stdcall TVP_Stub_2f873b0ee1c6591ba28bc4b9c0e4c954(
+    tTJSVariant *_this, iTJSDispatch2 *ref) {
     return _this->SetObject(ref);
 }
 
@@ -177,440 +165,393 @@ static tTJSVariant &__stdcall TVP_Stub_a583ffb56cdb2ede691e15053a8a165a(
     return _this->SetObject(object, objthis);
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_e09ed277802c1b117e1908421448886d(tTJSVariant *_this,
-                                          tTJSVariantClosure ref) {
+static tTJSVariant &__stdcall TVP_Stub_e09ed277802c1b117e1908421448886d(
+    tTJSVariant *_this, tTJSVariantClosure ref) {
     return _this->operator=(ref);
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_e76dfb9e00f4a9d491117d815f30db7f(tTJSVariant *_this,
-                                          tTJSVariantString *ref) {
+static tTJSVariant &__stdcall TVP_Stub_e76dfb9e00f4a9d491117d815f30db7f(
+    tTJSVariant *_this, tTJSVariantString *ref) {
     return _this->operator=(ref);
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_b000dd8934508d8ec6d6ef976a6ff49b(tTJSVariant *_this,
-                                          tTJSVariantOctet *ref) {
+static tTJSVariant &__stdcall TVP_Stub_b000dd8934508d8ec6d6ef976a6ff49b(
+    tTJSVariant *_this, tTJSVariantOctet *ref) {
     return _this->operator=(ref);
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_d98ab5c968ebfde4e924901d09190774(tTJSVariant *_this,
-                                          const tTJSString &ref) {
+static tTJSVariant &__stdcall TVP_Stub_d98ab5c968ebfde4e924901d09190774(
+    tTJSVariant *_this, const tTJSString &ref) {
     return _this->operator=(ref);
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_661e8c10d5d477e6823a840244937cd8(tTJSVariant *_this,
-                                          const tjs_char *ref) {
+static tTJSVariant &__stdcall TVP_Stub_661e8c10d5d477e6823a840244937cd8(
+    tTJSVariant *_this, const tjs_char *ref) {
     return _this->operator=(ref);
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_6b39e70ea89c4f883689f51289029b69(tTJSVariant *_this,
-                                          const tjs_nchar *ref) {
+static tTJSVariant &__stdcall TVP_Stub_6b39e70ea89c4f883689f51289029b69(
+    tTJSVariant *_this, const tjs_nchar *ref) {
     return _this->operator=(ref);
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_4a18b1c0afe37b84e2b35a7fc07c4e0f(tTJSVariant *_this, bool ref) {
+static tTJSVariant &__stdcall TVP_Stub_4a18b1c0afe37b84e2b35a7fc07c4e0f(
+    tTJSVariant *_this, bool ref) {
     return _this->operator=(ref);
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_48b85c8774d91ca40b2992f0e452f19e(tTJSVariant *_this, tjs_int32 ref) {
+static tTJSVariant &__stdcall TVP_Stub_48b85c8774d91ca40b2992f0e452f19e(
+    tTJSVariant *_this, tjs_int32 ref) {
     return _this->operator=(ref);
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_5ea8db9a9193fe6bab53baf2bee06b6b(tTJSVariant *_this,
-                                          const tTVInteger ref) {
+static tTJSVariant &__stdcall TVP_Stub_5ea8db9a9193fe6bab53baf2bee06b6b(
+    tTJSVariant *_this, const tTVInteger ref) {
     return _this->operator=(ref);
 }
 
-static tTJSVariant &__stdcall
-TVP_Stub_46b92626ff6894e993c4f193a129540b(tTJSVariant *_this, tjs_real ref) {
+static tTJSVariant &__stdcall TVP_Stub_46b92626ff6894e993c4f193a129540b(
+    tTJSVariant *_this, tjs_real ref) {
     return _this->operator=(ref);
 }
 
-static void __stdcall
-TVP_Stub_6efc1d1f66f0e01a81faf767d7576816(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_6efc1d1f66f0e01a81faf767d7576816(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->logicalorequal(rhs);
 }
 
-static void __stdcall
-TVP_Stub_4ededf58eae77c320b4a6f5f701acafb(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_4ededf58eae77c320b4a6f5f701acafb(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->logicalandequal(rhs);
 }
 
-static void __stdcall
-TVP_Stub_028d5fda2f4568f6ab14b49d89650a4d(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_028d5fda2f4568f6ab14b49d89650a4d(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator|=(rhs);
 }
 
-static void __stdcall
-TVP_Stub_11912984b8c094d2df26bf3c3677d096(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_11912984b8c094d2df26bf3c3677d096(
+    tTJSVariant *_this) {
     return _this->increment();
 }
 
-static void __stdcall
-TVP_Stub_6c0df790c33142e286aea9af6993d931(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_6c0df790c33142e286aea9af6993d931(
+    tTJSVariant *_this) {
     return _this->decrement();
 }
 
-static void __stdcall
-TVP_Stub_c27d85b695cd6e144210785bdfd446ce(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_c27d85b695cd6e144210785bdfd446ce(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator^=(rhs);
 }
 
-static void __stdcall
-TVP_Stub_8422ef7f42009be0ad58a09d64149051(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_8422ef7f42009be0ad58a09d64149051(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator&=(rhs);
 }
 
-static void __stdcall
-TVP_Stub_ee07e6522577952453206ede39cdf54c(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_ee07e6522577952453206ede39cdf54c(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator>>=(rhs);
 }
 
-static void __stdcall
-TVP_Stub_786a65424247e711f6ca31f0a10603d7(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_786a65424247e711f6ca31f0a10603d7(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->rbitshiftequal(rhs);
 }
 
-static void __stdcall
-TVP_Stub_995a222f2038dd2007f2c1f6429bd19e(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_995a222f2038dd2007f2c1f6429bd19e(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator<<=(rhs);
 }
 
-static void __stdcall
-TVP_Stub_da8c6e750d6a9c0557a56ef7f7fd8e88(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_da8c6e750d6a9c0557a56ef7f7fd8e88(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator%=(rhs);
 }
 
-static void __stdcall
-TVP_Stub_9cf7b0f119bcf3fa4564837ae25429b3(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_9cf7b0f119bcf3fa4564837ae25429b3(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator/=(rhs);
 }
 
-static void __stdcall
-TVP_Stub_17cbcacad2ed350215d7d700c676ea40(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_17cbcacad2ed350215d7d700c676ea40(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->idivequal(rhs);
 }
 
-static void __stdcall
-TVP_Stub_2bd375c0598e9148d88579a51b2f07a8(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_2bd375c0598e9148d88579a51b2f07a8(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator*=(rhs);
 }
 
-static void __stdcall
-TVP_Stub_4d2c157f8b0b49e57c3e9b5abc9deb0f(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_4d2c157f8b0b49e57c3e9b5abc9deb0f(
+    tTJSVariant *_this) {
     return _this->logicalnot();
 }
 
-static void __stdcall
-TVP_Stub_4b7eaccf64af0f3a4c4fe64f4e2dd3fd(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_4b7eaccf64af0f3a4c4fe64f4e2dd3fd(
+    tTJSVariant *_this) {
     return _this->bitnot();
 }
 
-static void __stdcall
-TVP_Stub_3a4d2602c392a8d1f4c38d537a8c95e0(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_3a4d2602c392a8d1f4c38d537a8c95e0(
+    tTJSVariant *_this) {
     return _this->tonumber();
 }
 
-static void __stdcall
-TVP_Stub_8d915d35ef8e857f245c5d46798618e4(tTJSVariant *_this) {
+static void __stdcall TVP_Stub_8d915d35ef8e857f245c5d46798618e4(
+    tTJSVariant *_this) {
     return _this->changesign();
 }
 
-static void __stdcall
-TVP_Stub_1e463482afa8ca30f5fa7bea4fa5741d(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_1e463482afa8ca30f5fa7bea4fa5741d(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator-=(rhs);
 }
 
-static void __stdcall
-TVP_Stub_fdf270e4080c986abd1649fa9fffdeab(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static void __stdcall TVP_Stub_fdf270e4080c986abd1649fa9fffdeab(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator+=(rhs);
 }
 
-static tTJSVariantType __stdcall
-TVP_Stub_972e0f9a6ec4648a9fb82bcf5d9095ff(tTJSVariant *_this) {
+static tTJSVariantType __stdcall TVP_Stub_972e0f9a6ec4648a9fb82bcf5d9095ff(
+    tTJSVariant *_this) {
     return _this->Type();
 }
 
-static bool __stdcall
-TVP_Stub_9d76731c37c4664d654db026644c64b4(tTJSVariant *_this,
-                                          const tTJSVariant &val2) {
+static bool __stdcall TVP_Stub_9d76731c37c4664d654db026644c64b4(
+    tTJSVariant *_this, const tTJSVariant &val2) {
     return _this->NormalCompare(val2);
 }
 
-static bool __stdcall
-TVP_Stub_4f1620cb699874b9c8cedf6e321c606e(tTJSVariant *_this,
-                                          const tTJSVariant &val2) {
+static bool __stdcall TVP_Stub_4f1620cb699874b9c8cedf6e321c606e(
+    tTJSVariant *_this, const tTJSVariant &val2) {
     return _this->DiscernCompare(val2);
 }
 
-static bool __stdcall
-TVP_Stub_ef1c6b2b601d1b0ff70272a4d447aa3c(tTJSVariant *_this,
-                                          const tTJSVariant &val2) {
+static bool __stdcall TVP_Stub_ef1c6b2b601d1b0ff70272a4d447aa3c(
+    tTJSVariant *_this, const tTJSVariant &val2) {
     return _this->DiscernCompareStrictReal(val2);
 }
 
-static bool __stdcall
-TVP_Stub_9b7872860c95cfdafb056ab30318e99c(tTJSVariant *_this,
-                                          const tTJSVariant &val2) {
+static bool __stdcall TVP_Stub_9b7872860c95cfdafb056ab30318e99c(
+    tTJSVariant *_this, const tTJSVariant &val2) {
     return _this->GreaterThan(val2);
 }
 
-static bool __stdcall
-TVP_Stub_53360f194a04fc142ddae2b9a3ab4c92(tTJSVariant *_this,
-                                          const tTJSVariant &val2) {
+static bool __stdcall TVP_Stub_53360f194a04fc142ddae2b9a3ab4c92(
+    tTJSVariant *_this, const tTJSVariant &val2) {
     return _this->LittlerThan(val2);
 }
 
-static bool __stdcall
-TVP_Stub_ce1dcb05e5e7c4cafbc4ed37f63b256e(tTJSVariant *_this,
-                                          const tjs_char *classname) {
+static bool __stdcall TVP_Stub_ce1dcb05e5e7c4cafbc4ed37f63b256e(
+    tTJSVariant *_this, const tjs_char *classname) {
     return _this->IsInstanceOf(classname);
 }
 
-static iTJSDispatch2 *__stdcall
-TVP_Stub_841ce4492b37321eea0c1b500de9b352(tTJSVariant *_this) {
+static iTJSDispatch2 *__stdcall TVP_Stub_841ce4492b37321eea0c1b500de9b352(
+    tTJSVariant *_this) {
     return _this->AsObject();
 }
 
-static iTJSDispatch2 *__stdcall
-TVP_Stub_61785de870894968cd9d95e17e88eafc(tTJSVariant *_this) {
+static iTJSDispatch2 *__stdcall TVP_Stub_61785de870894968cd9d95e17e88eafc(
+    tTJSVariant *_this) {
     return _this->AsObjectNoAddRef();
 }
 
-static iTJSDispatch2 *__stdcall
-TVP_Stub_ad3236e727398311c3b8e1ddd5f4b293(tTJSVariant *_this) {
+static iTJSDispatch2 *__stdcall TVP_Stub_ad3236e727398311c3b8e1ddd5f4b293(
+    tTJSVariant *_this) {
     return _this->AsObjectThis();
 }
 
-static iTJSDispatch2 *__stdcall
-TVP_Stub_80e0b7be488545ff9b8bc52c9ab5fba5(tTJSVariant *_this) {
+static iTJSDispatch2 *__stdcall TVP_Stub_80e0b7be488545ff9b8bc52c9ab5fba5(
+    tTJSVariant *_this) {
     return _this->AsObjectThisNoAddRef();
 }
 
-static tTJSVariantClosure &__stdcall
-TVP_Stub_4eaa3e4efb319707db6ef81db1c6f147(tTJSVariant *_this) {
+static tTJSVariantClosure &__stdcall TVP_Stub_4eaa3e4efb319707db6ef81db1c6f147(
+    tTJSVariant *_this) {
     return _this->AsObjectClosureNoAddRef();
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_693a0152f098caee7fc77f545dd3e954(tTJSVariant *_this) {
+static tTJSVariantString *__stdcall TVP_Stub_693a0152f098caee7fc77f545dd3e954(
+    tTJSVariant *_this) {
     return _this->AsString();
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_42840710f5fba9bb32b95290b1796a55(tTJSVariant *_this) {
+static tTJSVariantString *__stdcall TVP_Stub_42840710f5fba9bb32b95290b1796a55(
+    tTJSVariant *_this) {
     return _this->AsStringNoAddRef();
 }
 
-static const tjs_char *__stdcall
-TVP_Stub_adec3f9ef429aa9a284081f0fc6a1b5b(tTJSVariant *_this) {
+static const tjs_char *__stdcall TVP_Stub_adec3f9ef429aa9a284081f0fc6a1b5b(
+    tTJSVariant *_this) {
     return _this->GetString();
 }
 
-static tTJSVariantOctet *__stdcall
-TVP_Stub_674a7948152a1d7a49050b9d98796403(tTJSVariant *_this) {
+static tTJSVariantOctet *__stdcall TVP_Stub_674a7948152a1d7a49050b9d98796403(
+    tTJSVariant *_this) {
     return _this->AsOctet();
 }
 
-static tTJSVariantOctet *__stdcall
-TVP_Stub_aa6f132b2031c83062f6149c90f2df5f(tTJSVariant *_this) {
+static tTJSVariantOctet *__stdcall TVP_Stub_aa6f132b2031c83062f6149c90f2df5f(
+    tTJSVariant *_this) {
     return _this->AsOctetNoAddRef();
 }
 
-static tTVInteger __stdcall
-TVP_Stub_b52f446e22bb92d495f7e65ac71c9bf9(tTJSVariant *_this) {
+static tTVInteger __stdcall TVP_Stub_b52f446e22bb92d495f7e65ac71c9bf9(
+    tTJSVariant *_this) {
     return _this->AsInteger();
 }
 
-static void __stdcall
-TVP_Stub_d4899fd4a8beb06f192dcb1d300e3319(tTJSVariant *_this,
-                                          tTJSVariant &targ) {
+static void __stdcall TVP_Stub_d4899fd4a8beb06f192dcb1d300e3319(
+    tTJSVariant *_this, tTJSVariant &targ) {
     return _this->AsNumber(targ);
 }
 
-static tTVInteger __stdcall
-TVP_Stub_d3f5ec78464d29ee6988a1f90c2e3e1b(tTJSVariant *_this) {
+static tTVInteger __stdcall TVP_Stub_d3f5ec78464d29ee6988a1f90c2e3e1b(
+    tTJSVariant *_this) {
     return _this->operator tTVInteger();
 }
 
-static bool __stdcall
-TVP_Stub_a463ad6a757c3f04e09a72e288737d06(tTJSVariant *_this) {
+static bool __stdcall TVP_Stub_a463ad6a757c3f04e09a72e288737d06(
+    tTJSVariant *_this) {
     return _this->operator bool();
 }
 
-static tjs_int __stdcall
-TVP_Stub_27857bb89d35113183b682c3917d6c7a(tTJSVariant *_this) {
+static tjs_int __stdcall TVP_Stub_27857bb89d35113183b682c3917d6c7a(
+    tTJSVariant *_this) {
     return _this->operator tjs_int();
 }
 
-static tTVReal __stdcall
-TVP_Stub_a5f80951cfb882ac6a3e06c0b9a95807(tTJSVariant *_this) {
+static tTVReal __stdcall TVP_Stub_a5f80951cfb882ac6a3e06c0b9a95807(
+    tTJSVariant *_this) {
     return _this->AsReal();
 }
 
-static tTVReal __stdcall
-TVP_Stub_35aadb63079c8bd84ebc0389bae306e0(tTJSVariant *_this) {
+static tTVReal __stdcall TVP_Stub_35aadb63079c8bd84ebc0389bae306e0(
+    tTJSVariant *_this) {
     return _this->operator tTVReal();
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_fb6573df5887c2020ae58136f8342ed4(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_fb6573df5887c2020ae58136f8342ed4(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator||(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_86c67d2197c46824ab10f59e568ad13a(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_86c67d2197c46824ab10f59e568ad13a(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator&&(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_263a0c5b335b2c4d5bc1f55b51b8315e(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_263a0c5b335b2c4d5bc1f55b51b8315e(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator|(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_975c1099e57ab67122ddef0f44fd7dd5(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_975c1099e57ab67122ddef0f44fd7dd5(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator^(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_04493e5237a7ca97afd391cb7e831ba0(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_04493e5237a7ca97afd391cb7e831ba0(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator&(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_9996100acc7705cb2b0c904d6bad4401(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_9996100acc7705cb2b0c904d6bad4401(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator!=(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_5d91cff3b2a26ff7c0543e0f6d737117(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_5d91cff3b2a26ff7c0543e0f6d737117(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator==(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_ef1dedc2cb58dc4e1afc14238b6fc518(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_ef1dedc2cb58dc4e1afc14238b6fc518(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator<(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_f18397fe81c043ba2346e31b359f6a73(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_f18397fe81c043ba2346e31b359f6a73(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator>(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_2ee45ad60b0c06a8d0feebc3a6aad9e7(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_2ee45ad60b0c06a8d0feebc3a6aad9e7(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator<=(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_44500491c57e17032951fe6ed268ff1d(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_44500491c57e17032951fe6ed268ff1d(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator>=(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_056f5d278c75750df792bf8b081fbf7d(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_056f5d278c75750df792bf8b081fbf7d(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator>>(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_04233bc4f7d4df92c260d23110320afe(tTJSVariant *_this, tjs_int count) {
+static tTJSVariant __stdcall TVP_Stub_04233bc4f7d4df92c260d23110320afe(
+    tTJSVariant *_this, tjs_int count) {
     return _this->rbitshift(count);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_cdc475c4419e77c22508e337428c4074(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_cdc475c4419e77c22508e337428c4074(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator<<(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_06bacb2910308a47bbe27ff7efa1226d(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_06bacb2910308a47bbe27ff7efa1226d(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator%(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_521e053199a4aeb4e0f24d9f4a6cc682(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_521e053199a4aeb4e0f24d9f4a6cc682(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator/(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_02164e6fb4c925843ac774ec1e4c6e5d(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_02164e6fb4c925843ac774ec1e4c6e5d(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->idiv(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_5110cbbcddbd9688281ee5418e3f9023(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_5110cbbcddbd9688281ee5418e3f9023(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator*(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_1db54b61f00bf931452218c4a39e79ef(tTJSVariant *_this) {
+static tTJSVariant __stdcall TVP_Stub_1db54b61f00bf931452218c4a39e79ef(
+    tTJSVariant *_this) {
     return _this->operator!();
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_9d0edd8f51f155767301017bd3d256da(tTJSVariant *_this) {
+static tTJSVariant __stdcall TVP_Stub_9d0edd8f51f155767301017bd3d256da(
+    tTJSVariant *_this) {
     return _this->operator~();
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_8f744c5aa8df5471939b960bc759f12b(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_8f744c5aa8df5471939b960bc759f12b(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator-(rhs);
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_ba7ff7b0b4192bd2cc7f49c7b688ad57(tTJSVariant *_this) {
+static tTJSVariant __stdcall TVP_Stub_ba7ff7b0b4192bd2cc7f49c7b688ad57(
+    tTJSVariant *_this) {
     return _this->operator+();
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_7773ac921bb82c85de3be69ef86265fd(tTJSVariant *_this) {
+static tTJSVariant __stdcall TVP_Stub_7773ac921bb82c85de3be69ef86265fd(
+    tTJSVariant *_this) {
     return _this->operator-();
 }
 
-static tTJSVariant __stdcall
-TVP_Stub_114a781ed71edace31abb352a2671f41(tTJSVariant *_this,
-                                          const tTJSVariant &rhs) {
+static tTJSVariant __stdcall TVP_Stub_114a781ed71edace31abb352a2671f41(
+    tTJSVariant *_this, const tTJSVariant &rhs) {
     return _this->operator+(rhs);
 }
 
@@ -646,164 +587,149 @@ static void __stdcall TVP_Stub_438e27dcbb077284213eb4d7dcd43f8f(
     ::new(_this) tTJSVariantOctet(data1, len1, data2, len2);
 }
 
-static void __stdcall
-TVP_Stub_a98d712ca19a49afe07d0a7c5d064cef(tTJSVariantOctet *_this,
-                                          const tTJSVariantOctet *o1,
-                                          const tTJSVariantOctet *o2) {
+static void __stdcall TVP_Stub_a98d712ca19a49afe07d0a7c5d064cef(
+    tTJSVariantOctet *_this, const tTJSVariantOctet *o1,
+    const tTJSVariantOctet *o2) {
     ::new(_this) tTJSVariantOctet(o1, o2);
 }
 
-static void __stdcall
-TVP_Stub_08aef69683bcfe2a5c63d4c7866de8e9(tTJSVariantOctet *_this) {
+static void __stdcall TVP_Stub_08aef69683bcfe2a5c63d4c7866de8e9(
+    tTJSVariantOctet *_this) {
     _this->~tTJSVariantOctet();
 }
 
-static void __stdcall
-TVP_Stub_dbc9bc2e27068c8426b1c6a7f89424e0(tTJSVariantOctet *_this) {
+static void __stdcall TVP_Stub_dbc9bc2e27068c8426b1c6a7f89424e0(
+    tTJSVariantOctet *_this) {
     return _this->AddRef();
 }
 
-static void __stdcall
-TVP_Stub_5eeb98ca016123f57966457533bb639e(tTJSVariantOctet *_this) {
+static void __stdcall TVP_Stub_5eeb98ca016123f57966457533bb639e(
+    tTJSVariantOctet *_this) {
     return _this->Release();
 }
 
-static tjs_uint __stdcall
-TVP_Stub_98fdc846d0b4a83412f3521f65bb98b4(tTJSVariantOctet *_this) {
+static tjs_uint __stdcall TVP_Stub_98fdc846d0b4a83412f3521f65bb98b4(
+    tTJSVariantOctet *_this) {
     return _this->GetLength();
 }
 
-static const tjs_uint8 *__stdcall
-TVP_Stub_3309591d3c7f6f688e81588f169dba21(tTJSVariantOctet *_this) {
+static const tjs_uint8 *__stdcall TVP_Stub_3309591d3c7f6f688e81588f169dba21(
+    tTJSVariantOctet *_this) {
     return _this->GetData();
 }
 
-static void __stdcall
-TVP_Stub_d83a866389246d824efcc83303a04484(tTJSString *_this) {
+static void __stdcall TVP_Stub_d83a866389246d824efcc83303a04484(
+    tTJSString *_this) {
     ::new(_this) tTJSString();
 }
 
-static void __stdcall
-TVP_Stub_6cf6f332a6a14a15e8dce62301f5c840(tTJSString *_this,
-                                          const tTJSString &rhs) {
+static void __stdcall TVP_Stub_6cf6f332a6a14a15e8dce62301f5c840(
+    tTJSString *_this, const tTJSString &rhs) {
     ::new(_this) tTJSString(rhs);
 }
 
-static void __stdcall
-TVP_Stub_566eeea3c5f009b0fc6fa123ba30f496(tTJSString *_this,
-                                          tTJSVariantString *vstr) {
+static void __stdcall TVP_Stub_566eeea3c5f009b0fc6fa123ba30f496(
+    tTJSString *_this, tTJSVariantString *vstr) {
     ::new(_this) tTJSString(vstr);
 }
 
-static void __stdcall
-TVP_Stub_88806e38e35c73b36acadd4061a4fe0b(tTJSString *_this,
-                                          const tjs_char *str) {
+static void __stdcall TVP_Stub_88806e38e35c73b36acadd4061a4fe0b(
+    tTJSString *_this, const tjs_char *str) {
     ::new(_this) tTJSString(str);
 }
 
-static void __stdcall
-TVP_Stub_3bb69d3886159aaecc333b6ff17287bf(tTJSString *_this,
-                                          const tjs_nchar *str) {
+static void __stdcall TVP_Stub_3bb69d3886159aaecc333b6ff17287bf(
+    tTJSString *_this, const tjs_nchar *str) {
     ::new(_this) tTJSString(str);
 }
 
-static void __stdcall
-TVP_Stub_3e36278551a9c8b29cb2e8017db6af0d(tTJSString *_this,
-                                          const tTJSStringBufferLength len) {
+static void __stdcall TVP_Stub_3e36278551a9c8b29cb2e8017db6af0d(
+    tTJSString *_this, const tTJSStringBufferLength len) {
     ::new(_this) tTJSString(len);
 }
 
-static void __stdcall
-TVP_Stub_5de99d84f3dc902cb0812fb85a7d5c88(tTJSString *_this, tjs_char rch) {
+static void __stdcall TVP_Stub_5de99d84f3dc902cb0812fb85a7d5c88(
+    tTJSString *_this, tjs_char rch) {
     ::new(_this) tTJSString(rch);
 }
 
-static void __stdcall
-TVP_Stub_31e85cbc73f8fbd4cea895a751480059(tTJSString *_this,
-                                          const tTJSVariant &val) {
+static void __stdcall TVP_Stub_31e85cbc73f8fbd4cea895a751480059(
+    tTJSString *_this, const tTJSVariant &val) {
     ::new(_this) tTJSString(val);
 }
 
-static void __stdcall
-TVP_Stub_6ae29e405ede762f1a89a9dd526cb36e(tTJSString *_this,
-                                          const tTJSString &str, int n) {
+static void __stdcall TVP_Stub_6ae29e405ede762f1a89a9dd526cb36e(
+    tTJSString *_this, const tTJSString &str, int n) {
     ::new(_this) tTJSString(str, n);
 }
 
-static void __stdcall
-TVP_Stub_c95bd66d95c153cdac41b5243e555f5f(tTJSString *_this,
-                                          const tjs_char *str, int n) {
+static void __stdcall TVP_Stub_c95bd66d95c153cdac41b5243e555f5f(
+    tTJSString *_this, const tjs_char *str, int n) {
     ::new(_this) tTJSString(str, n);
 }
 
-static void __stdcall
-TVP_Stub_72a67e9c52fd27dbb66eded47efeea74(tTJSString *_this, tjs_int n) {
+static void __stdcall TVP_Stub_72a67e9c52fd27dbb66eded47efeea74(
+    tTJSString *_this, tjs_int n) {
     ::new(_this) tTJSString(n);
 }
 
-static void __stdcall
-TVP_Stub_fb13e41bda53e4e59403e3e14effccd6(tTJSString *_this) {
+static void __stdcall TVP_Stub_fb13e41bda53e4e59403e3e14effccd6(
+    tTJSString *_this) {
     _this->~tTJSString();
 }
 
-static tTJSString &__stdcall
-TVP_Stub_9a5c710e620e47f105752453ad5d6ab1(tTJSString *_this,
-                                          const tTJSString &rhs) {
+static tTJSString &__stdcall TVP_Stub_9a5c710e620e47f105752453ad5d6ab1(
+    tTJSString *_this, const tTJSString &rhs) {
     return _this->operator=(rhs);
 }
 
-static tTJSString &__stdcall
-TVP_Stub_18f1ad16c11429707cbf8ea4d1d4a21e(tTJSString *_this,
-                                          const tjs_char *rhs) {
+static tTJSString &__stdcall TVP_Stub_18f1ad16c11429707cbf8ea4d1d4a21e(
+    tTJSString *_this, const tjs_char *rhs) {
     return _this->operator=(rhs);
 }
 
-static tTJSString &__stdcall
-TVP_Stub_550f317b573a1256af00586890ae82f1(tTJSString *_this,
-                                          const tjs_nchar *rhs) {
+static tTJSString &__stdcall TVP_Stub_550f317b573a1256af00586890ae82f1(
+    tTJSString *_this, const tjs_nchar *rhs) {
     return _this->operator=(rhs);
 }
 
-static void __stdcall
-TVP_Stub_cd50da721dfb63f36c1ebb1226830428(tTJSString *_this,
-                                          const tTJSString &ref) {
+static void __stdcall TVP_Stub_cd50da721dfb63f36c1ebb1226830428(
+    tTJSString *_this, const tTJSString &ref) {
     return _this->operator+=(ref);
 }
 
-static void __stdcall
-TVP_Stub_fbba3dd6a087599d1277ae58f6cec18e(tTJSString *_this,
-                                          const tTJSVariantString *ref) {
+static void __stdcall TVP_Stub_fbba3dd6a087599d1277ae58f6cec18e(
+    tTJSString *_this, const tTJSVariantString *ref) {
     return _this->operator+=(ref);
 }
 
-static void __stdcall
-TVP_Stub_43cc5b5a61a6090af83333d115b5b868(tTJSString *_this,
-                                          const tjs_char *ref) {
+static void __stdcall TVP_Stub_43cc5b5a61a6090af83333d115b5b868(
+    tTJSString *_this, const tjs_char *ref) {
     return _this->operator+=(ref);
 }
 
-static void __stdcall
-TVP_Stub_616fb5060d81eb5bab58647596582df4(tTJSString *_this, tjs_char rch) {
+static void __stdcall TVP_Stub_616fb5060d81eb5bab58647596582df4(
+    tTJSString *_this, tjs_char rch) {
     return _this->operator+=(rch);
 }
 
-static void __stdcall
-TVP_Stub_168cf4c1b9ef70b98f2e0ab3695a4f3b(tTJSString *_this) {
+static void __stdcall TVP_Stub_168cf4c1b9ef70b98f2e0ab3695a4f3b(
+    tTJSString *_this) {
     return _this->Clear();
 }
 
-static tjs_char *__stdcall
-TVP_Stub_314573cca30a7c2aecc9166fbf5400c9(tTJSString *_this, tjs_uint len) {
+static tjs_char *__stdcall TVP_Stub_314573cca30a7c2aecc9166fbf5400c9(
+    tTJSString *_this, tjs_uint len) {
     return _this->AllocBuffer(len);
 }
 
-static tjs_char *__stdcall
-TVP_Stub_03da356426c038fad663c836c3e330ef(tTJSString *_this, tjs_uint len) {
+static tjs_char *__stdcall TVP_Stub_03da356426c038fad663c836c3e330ef(
+    tTJSString *_this, tjs_uint len) {
     return _this->AppendBuffer(len);
 }
 
-static void __stdcall
-TVP_Stub_31dbebdedc08d75e34a2cd564ce60586(tTJSString *_this) {
+static void __stdcall TVP_Stub_31dbebdedc08d75e34a2cd564ce60586(
+    tTJSString *_this) {
     return _this->FixLen();
 }
 
@@ -813,171 +739,158 @@ static void __stdcall TVP_Stub_d9224ad7a0de743a7eea15fdb2c5f934(
     return _this->Replace(from, to, forall);
 }
 
-static void __stdcall
-TVP_Stub_c01b0720b49ce4f792446d8965d2c31f(tTJSString *_this) {
+static void __stdcall TVP_Stub_c01b0720b49ce4f792446d8965d2c31f(
+    tTJSString *_this) {
     return _this->ToLowerCase();
 }
 
-static void __stdcall
-TVP_Stub_4af47e46a11e1357cb994f405289d13e(tTJSString *_this) {
+static void __stdcall TVP_Stub_4af47e46a11e1357cb994f405289d13e(
+    tTJSString *_this) {
     return _this->ToUpperCase();
 }
 
-static tjs_uint32 *__stdcall
-TVP_Stub_25b6dafa19bfa5bde1a8b519da248f82(tTJSString *_this) {
+static tjs_uint32 *__stdcall TVP_Stub_25b6dafa19bfa5bde1a8b519da248f82(
+    tTJSString *_this) {
     return _this->GetHint();
 }
 
-static tjs_char *__stdcall
-TVP_Stub_72425405819c900aec719491cbd90c6d(tTJSString *_this) {
+static tjs_char *__stdcall TVP_Stub_72425405819c900aec719491cbd90c6d(
+    tTJSString *_this) {
     return _this->Independ();
 }
 
-static const tjs_char *__stdcall
-TVP_Stub_a79942af73f33bff6e432c9fd808e469(tTJSString *_this) {
+static const tjs_char *__stdcall TVP_Stub_a79942af73f33bff6e432c9fd808e469(
+    tTJSString *_this) {
     return _this->c_str();
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_df106470a4141ebc7eda22160859ffdc(tTJSString *_this) {
+static tTJSVariantString *__stdcall TVP_Stub_df106470a4141ebc7eda22160859ffdc(
+    tTJSString *_this) {
     return _this->AsVariantStringNoAddRef();
 }
 
-static tjs_int64 __stdcall
-TVP_Stub_469bc225b0ecd9561aae5a46b85ded42(tTJSString *_this) {
+static tjs_int64 __stdcall TVP_Stub_469bc225b0ecd9561aae5a46b85ded42(
+    tTJSString *_this) {
     return _this->AsInteger();
 }
 
-static bool __stdcall
-TVP_Stub_a6663c078b3aa79b39ee2d09f3875765(tTJSString *_this,
-                                          const tTJSString &ref) {
+static bool __stdcall TVP_Stub_a6663c078b3aa79b39ee2d09f3875765(
+    tTJSString *_this, const tTJSString &ref) {
     return _this->operator==(ref);
 }
 
-static bool __stdcall
-TVP_Stub_efbe634ce4f13633e220cae167cf63fb(tTJSString *_this,
-                                          const tTJSString &ref) {
+static bool __stdcall TVP_Stub_efbe634ce4f13633e220cae167cf63fb(
+    tTJSString *_this, const tTJSString &ref) {
     return _this->operator!=(ref);
 }
 
-static tjs_int __stdcall
-TVP_Stub_57f4147bcc09e4e4442ffc9b0895727e(tTJSString *_this,
-                                          const tTJSString &ref) {
+static tjs_int __stdcall TVP_Stub_57f4147bcc09e4e4442ffc9b0895727e(
+    tTJSString *_this, const tTJSString &ref) {
     return _this->CompareIC(ref);
 }
 
-static bool __stdcall
-TVP_Stub_1fb2d2e44cf83aebef7b26fd6b20bc2b(tTJSString *_this,
-                                          const tjs_char *ref) {
+static bool __stdcall TVP_Stub_1fb2d2e44cf83aebef7b26fd6b20bc2b(
+    tTJSString *_this, const tjs_char *ref) {
     return _this->operator==(ref);
 }
 
-static bool __stdcall
-TVP_Stub_bd6aa777bac947f5cffd891e9c724794(tTJSString *_this,
-                                          const tjs_char *ref) {
+static bool __stdcall TVP_Stub_bd6aa777bac947f5cffd891e9c724794(
+    tTJSString *_this, const tjs_char *ref) {
     return _this->operator!=(ref);
 }
 
-static tjs_int __stdcall
-TVP_Stub_83c662330b75d616cdc8a4e11d7ababa(tTJSString *_this,
-                                          const tjs_char *ref) {
+static tjs_int __stdcall TVP_Stub_83c662330b75d616cdc8a4e11d7ababa(
+    tTJSString *_this, const tjs_char *ref) {
     return _this->CompareIC(ref);
 }
 
-static bool __stdcall
-TVP_Stub_bbde02fe30c8a6cadb7073174ea3a874(tTJSString *_this,
-                                          const tTJSString &ref) {
+static bool __stdcall TVP_Stub_bbde02fe30c8a6cadb7073174ea3a874(
+    tTJSString *_this, const tTJSString &ref) {
     return _this->operator<(ref);
 }
 
-static bool __stdcall
-TVP_Stub_cc1c14f63867f90bc883de03e9212cbc(tTJSString *_this,
-                                          const tTJSString &ref) {
+static bool __stdcall TVP_Stub_cc1c14f63867f90bc883de03e9212cbc(
+    tTJSString *_this, const tTJSString &ref) {
     return _this->operator>(ref);
 }
 
-static tTJSString __stdcall
-TVP_Stub_236e007b32bc2631b5f6dc1eda6be0a9(tTJSString *_this,
-                                          const tTJSString &ref) {
+static tTJSString __stdcall TVP_Stub_236e007b32bc2631b5f6dc1eda6be0a9(
+    tTJSString *_this, const tTJSString &ref) {
     return _this->operator+(ref);
 }
 
-static tTJSString __stdcall
-TVP_Stub_cfbb9809e0e6d954b2652856e935ced9(tTJSString *_this,
-                                          const tjs_char *ref) {
+static tTJSString __stdcall TVP_Stub_cfbb9809e0e6d954b2652856e935ced9(
+    tTJSString *_this, const tjs_char *ref) {
     return _this->operator+(ref);
 }
 
-static tTJSString __stdcall
-TVP_Stub_60ee96ae4a7704340bef20fb35ba6ade(tTJSString *_this, tjs_char rch) {
+static tTJSString __stdcall TVP_Stub_60ee96ae4a7704340bef20fb35ba6ade(
+    tTJSString *_this, tjs_char rch) {
     return _this->operator+(rch);
 }
 
-static tjs_char __stdcall
-TVP_Stub_564b37278b50f4e5597dff6540868d49(tTJSString *_this, tjs_uint i) {
+static tjs_char __stdcall TVP_Stub_564b37278b50f4e5597dff6540868d49(
+    tTJSString *_this, tjs_uint i) {
     return _this->operator[](i);
 }
 
-static void __stdcall
-TVP_Stub_890b3a4831b824653e919b4a5197358d(tTJSString *_this, tTJSString &dest) {
+static void __stdcall TVP_Stub_890b3a4831b824653e919b4a5197358d(
+    tTJSString *_this, tTJSString &dest) {
     return _this->AsLowerCase(dest);
 }
 
-static void __stdcall
-TVP_Stub_2dfa6c77c5051d160b8a06f540e0d68b(tTJSString *_this, tTJSString &dest) {
+static void __stdcall TVP_Stub_2dfa6c77c5051d160b8a06f540e0d68b(
+    tTJSString *_this, tTJSString &dest) {
     return _this->AsUpperCase(dest);
 }
 
-static void __stdcall
-TVP_Stub_05f88567d510fd84659ccbf493f647ed(tTJSString *_this, tTJSString &dest) {
+static void __stdcall TVP_Stub_05f88567d510fd84659ccbf493f647ed(
+    tTJSString *_this, tTJSString &dest) {
     return _this->EscapeC(dest);
 }
 
-static void __stdcall
-TVP_Stub_7166b8f7bb9688c980e4fa172f06f30c(tTJSString *_this, tTJSString &dest) {
+static void __stdcall TVP_Stub_7166b8f7bb9688c980e4fa172f06f30c(
+    tTJSString *_this, tTJSString &dest) {
     return _this->UnescapeC(dest);
 }
 
-static bool __stdcall
-TVP_Stub_b9456ecba8b7898d80d2e5caa64035c9(tTJSString *_this,
-                                          const tjs_char *string) {
+static bool __stdcall TVP_Stub_b9456ecba8b7898d80d2e5caa64035c9(
+    tTJSString *_this, const tjs_char *string) {
     return _this->StartsWith(string);
 }
 
-static bool __stdcall
-TVP_Stub_dd44464bd8430a5be5fef0cffcd97117(tTJSString *_this,
-                                          const tTJSString &string) {
+static bool __stdcall TVP_Stub_dd44464bd8430a5be5fef0cffcd97117(
+    tTJSString *_this, const tTJSString &string) {
     return _this->StartsWith(string);
 }
 
-static tjs_int __stdcall
-TVP_Stub_a57696ca0c157cd7d3cd4e58c1df957c(tTJSString *_this) {
+static tjs_int __stdcall TVP_Stub_a57696ca0c157cd7d3cd4e58c1df957c(
+    tTJSString *_this) {
     return _this->GetNarrowStrLen();
 }
 
-static void __stdcall
-TVP_Stub_1aea9f8a38bbb875b6d052f330da9178(tTJSString *_this, tjs_nchar *dest,
-                                          tjs_int destmaxlen) {
+static void __stdcall TVP_Stub_1aea9f8a38bbb875b6d052f330da9178(
+    tTJSString *_this, tjs_nchar *dest, tjs_int destmaxlen) {
     return _this->ToNarrowStr(dest, destmaxlen);
 }
 
-static bool __stdcall
-TVP_Stub_2d3b3d6e22ee139cda9eee47dc031945(tTJSString *_this) {
+static bool __stdcall TVP_Stub_2d3b3d6e22ee139cda9eee47dc031945(
+    tTJSString *_this) {
     return _this->IsEmpty();
 }
 
-static tjs_int __stdcall
-TVP_Stub_8ff49e56c3c4c566561dcdd5c9ecc4db(tTJSString *_this) {
+static tjs_int __stdcall TVP_Stub_8ff49e56c3c4c566561dcdd5c9ecc4db(
+    tTJSString *_this) {
     return _this->GetLen();
 }
 
-static tjs_int __stdcall
-TVP_Stub_490b547e93e40082d0b83312467104f9(tTJSString *_this) {
+static tjs_int __stdcall TVP_Stub_490b547e93e40082d0b83312467104f9(
+    tTJSString *_this) {
     return _this->length();
 }
 
-static tjs_char __stdcall
-TVP_Stub_2c1ef06748df47df52b586ac0fbc6a34(tTJSString *_this) {
+static tjs_char __stdcall TVP_Stub_2c1ef06748df47df52b586ac0fbc6a34(
+    tTJSString *_this) {
     return _this->GetLastChar();
 }
 
@@ -1002,13 +915,13 @@ static void *__stdcall TVP_Stub_80f111939c5694cbf43d07cf0ad1726c(size_t size,
     return tTJSString::operator new(size, buf);
 }
 
-static void __stdcall
-TVP_Stub_8dc9cef84191f79b38403a2070952fd4(tTJSVariantString *_this) {
+static void __stdcall TVP_Stub_8dc9cef84191f79b38403a2070952fd4(
+    tTJSVariantString *_this) {
     return _this->AddRef();
 }
 
-static void __stdcall
-TVP_Stub_1d42bd1e659b36886c20567497b7ee96(tTJSVariantString *_this) {
+static void __stdcall TVP_Stub_1d42bd1e659b36886c20567497b7ee96(
+    tTJSVariantString *_this) {
     return _this->Release();
 }
 
@@ -1017,138 +930,128 @@ static void __stdcall TVP_Stub_0848fbdc7eeddb12c80bcd9c31383a64(
     return _this->SetString(ref, maxlen);
 }
 
-static void __stdcall
-TVP_Stub_1f1123c906c28ab6d16b6bef3f7ae978(tTJSVariantString *_this,
-                                          const tjs_nchar *ref) {
+static void __stdcall TVP_Stub_1f1123c906c28ab6d16b6bef3f7ae978(
+    tTJSVariantString *_this, const tjs_nchar *ref) {
     return _this->SetString(ref);
 }
 
-static void __stdcall
-TVP_Stub_b84394e20cc73a90349cf5be4e783111(tTJSVariantString *_this,
-                                          tjs_uint len) {
+static void __stdcall TVP_Stub_b84394e20cc73a90349cf5be4e783111(
+    tTJSVariantString *_this, tjs_uint len) {
     return _this->AllocBuffer(len);
 }
 
-static void __stdcall
-TVP_Stub_76e0db3797851fe8ff90cf84780c50ad(tTJSVariantString *_this,
-                                          const tjs_char *ref) {
+static void __stdcall TVP_Stub_76e0db3797851fe8ff90cf84780c50ad(
+    tTJSVariantString *_this, const tjs_char *ref) {
     return _this->ResetString(ref);
 }
 
-static void __stdcall
-TVP_Stub_6616241156c22bced42cd9f2f647677e(tTJSVariantString *_this,
-                                          tjs_uint applen) {
+static void __stdcall TVP_Stub_6616241156c22bced42cd9f2f647677e(
+    tTJSVariantString *_this, tjs_uint applen) {
     return _this->AppendBuffer(applen);
 }
 
-static void __stdcall
-TVP_Stub_1ace346a3dd546c66ad115a33d8cf693(tTJSVariantString *_this,
-                                          const tjs_char *str) {
+static void __stdcall TVP_Stub_1ace346a3dd546c66ad115a33d8cf693(
+    tTJSVariantString *_this, const tjs_char *str) {
     return _this->Append(str);
 }
 
-static void __stdcall
-TVP_Stub_96fb9bbe33531d4268573355c658e165(tTJSVariantString *_this,
-                                          const tjs_char *str, tjs_int applen) {
+static void __stdcall TVP_Stub_96fb9bbe33531d4268573355c658e165(
+    tTJSVariantString *_this, const tjs_char *str, tjs_int applen) {
     return _this->Append(str, applen);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_c90b5737134c76f9ed0bb5da7cfaad8c(tTJSVariantString *_this) {
+static tTJSVariantString *__stdcall TVP_Stub_c90b5737134c76f9ed0bb5da7cfaad8c(
+    tTJSVariantString *_this) {
     return _this->FixLength();
 }
 
-static tjs_uint32 *__stdcall
-TVP_Stub_070ed05259a265cabdd82bfedabdd638(tTJSVariantString *_this) {
+static tjs_uint32 *__stdcall TVP_Stub_070ed05259a265cabdd82bfedabdd638(
+    tTJSVariantString *_this) {
     return _this->GetHint();
 }
 
-static const tjs_char *__stdcall
-TVP_Stub_008b7e3a4c5bb23ee991f684a5064737(tTJSVariantString *_this) {
+static const tjs_char *__stdcall TVP_Stub_008b7e3a4c5bb23ee991f684a5064737(
+    tTJSVariantString *_this) {
     return _this->operator const tjs_char *();
 }
 
-static tjs_int __stdcall
-TVP_Stub_b64741dc4544ed43c44ddb6d0eb838ea(tTJSVariantString *_this) {
+static tjs_int __stdcall TVP_Stub_b64741dc4544ed43c44ddb6d0eb838ea(
+    tTJSVariantString *_this) {
     return _this->GetLength();
 }
 
-static tTVInteger __stdcall
-TVP_Stub_5b83e28b2d9ab0f75d7c7f6f61b5ded6(tTJSVariantString *_this) {
+static tTVInteger __stdcall TVP_Stub_5b83e28b2d9ab0f75d7c7f6f61b5ded6(
+    tTJSVariantString *_this) {
     return _this->ToInteger();
 }
 
-static tTVReal __stdcall
-TVP_Stub_b948c9f43837efa489b0b91f3f675710(tTJSVariantString *_this) {
+static tTVReal __stdcall TVP_Stub_b948c9f43837efa489b0b91f3f675710(
+    tTJSVariantString *_this) {
     return _this->ToReal();
 }
 
-static void __stdcall
-TVP_Stub_eb83216f6f718245468ef48b97ab4c2d(tTJSVariantString *_this,
-                                          tTJSVariant &dest) {
+static void __stdcall TVP_Stub_eb83216f6f718245468ef48b97ab4c2d(
+    tTJSVariantString *_this, tTJSVariant &dest) {
     return _this->ToNumber(dest);
 }
 
-static tjs_int __stdcall
-TVP_Stub_c66ab4868b743de9c0ba8b26c67b23da(tTJSVariantString *_this) {
+static tjs_int __stdcall TVP_Stub_c66ab4868b743de9c0ba8b26c67b23da(
+    tTJSVariantString *_this) {
     return _this->GetRefCount();
 }
 
 #include "tjsTypes.h"
 #include "tjsConfig.h"
 
-static tjs_int __stdcall
-TVP_Stub_586e16d502a6ad98b08161bdb090f8b6(const tjs_char *s) {
+static tjs_int __stdcall TVP_Stub_586e16d502a6ad98b08161bdb090f8b6(
+    const tjs_char *s) {
     return TJS_atoi(s);
 }
 
-static tjs_char *__stdcall
-TVP_Stub_d8bc9c71c80b200c39b29167d795cad0(tjs_int value, tjs_char *string) {
+static tjs_char *__stdcall TVP_Stub_d8bc9c71c80b200c39b29167d795cad0(
+    tjs_int value, tjs_char *string) {
     return TJS_int_to_str(value, string);
 }
 
-static tjs_char *__stdcall
-TVP_Stub_85df4beb87f6503891e116ce046353c3(tjs_int64 value, tjs_char *string) {
+static tjs_char *__stdcall TVP_Stub_85df4beb87f6503891e116ce046353c3(
+    tjs_int64 value, tjs_char *string) {
     return TJS_tTVInt_to_str(value, string);
 }
 
-static tjs_int __stdcall
-TVP_Stub_35b6a7e1c73f257aae91e05fa9826e84(const tjs_char *s1,
-                                          const tjs_char *s2, size_t maxlen) {
+static tjs_int __stdcall TVP_Stub_35b6a7e1c73f257aae91e05fa9826e84(
+    const tjs_char *s1, const tjs_char *s2, size_t maxlen) {
     return TJS_strnicmp(s1, s2, maxlen);
 }
 
-static tjs_int __stdcall
-TVP_Stub_a25b46701e25030af1ed847e0df229eb(const tjs_char *s1,
-                                          const tjs_char *s2) {
+static tjs_int __stdcall TVP_Stub_a25b46701e25030af1ed847e0df229eb(
+    const tjs_char *s1, const tjs_char *s2) {
     return TJS_stricmp(s1, s2);
 }
 
-static void __stdcall
-TVP_Stub_c8906bf1efa5e86f9fddfab55a01c8f6(tjs_char *d, const tjs_char *s,
-                                          size_t len) {
+static void __stdcall TVP_Stub_c8906bf1efa5e86f9fddfab55a01c8f6(
+    tjs_char *d, const tjs_char *s, size_t len) {
     return TJS_strcpy_maxlen(d, s, len);
 }
 
-static void __stdcall
-TVP_Stub_8141059f613820f694608af28e20cbad(tjs_char *d, const tjs_char *s) {
+static void __stdcall TVP_Stub_8141059f613820f694608af28e20cbad(
+    tjs_char *d, const tjs_char *s) {
     return TJS_strcpy(d, s);
 }
 
-static size_t __stdcall
-TVP_Stub_cf2690e47099ac6378ed50df4a8a8e90(const tjs_char *d) {
+static size_t __stdcall TVP_Stub_cf2690e47099ac6378ed50df4a8a8e90(
+    const tjs_char *d) {
     return TJS_strlen(d);
 }
 
 #include "tjsVariantString.h"
 
-static tjs_char *__stdcall
-TVP_Stub_810c7054e44f535cf250f00707105417(tjs_uint len) {
+static tjs_char *__stdcall TVP_Stub_810c7054e44f535cf250f00707105417(
+    tjs_uint len) {
     return TJSVS_malloc(len);
 }
 
-static tjs_char *__stdcall
-TVP_Stub_52a9af7905ddc71d8b4e0ef7366eebdd(tjs_char *buf, tjs_uint len) {
+static tjs_char *__stdcall TVP_Stub_52a9af7905ddc71d8b4e0ef7366eebdd(
+    tjs_char *buf, tjs_uint len) {
     return TJSVS_realloc(buf, len);
 }
 
@@ -1156,46 +1059,43 @@ static void __stdcall TVP_Stub_1635dbae2d91b338ddfd0430f8aa7f10(tjs_char *buf) {
     return TJSVS_free(buf);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_30df0c29ad8f672f7fe0742b4b11cd7f(const tjs_char *ref1,
-                                          const tjs_char *ref2) {
+static tTJSVariantString *__stdcall TVP_Stub_30df0c29ad8f672f7fe0742b4b11cd7f(
+    const tjs_char *ref1, const tjs_char *ref2) {
     return TJSAllocVariantString(ref1, ref2);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_61c82dec644c58290a25f34a69478870(const tjs_char *ref, tjs_int n) {
+static tTJSVariantString *__stdcall TVP_Stub_61c82dec644c58290a25f34a69478870(
+    const tjs_char *ref, tjs_int n) {
     return TJSAllocVariantString(ref, n);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_f08e347d2d47dc5fc9a3cb59355b4fbb(const tjs_char *ref) {
+static tTJSVariantString *__stdcall TVP_Stub_f08e347d2d47dc5fc9a3cb59355b4fbb(
+    const tjs_char *ref) {
     return TJSAllocVariantString(ref);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_5c62e59c2062f658d4c79d5257a9a586(const tjs_nchar *ref) {
+static tTJSVariantString *__stdcall TVP_Stub_5c62e59c2062f658d4c79d5257a9a586(
+    const tjs_nchar *ref) {
     return TJSAllocVariantString(ref);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_259c72d8bfed1210ca71c54f24cacc7a(const tjs_uint8 **src) {
+static tTJSVariantString *__stdcall TVP_Stub_259c72d8bfed1210ca71c54f24cacc7a(
+    const tjs_uint8 **src) {
     return TJSAllocVariantString(src);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_801a92ace08eb7ed001406869a39a75f(tjs_uint len) {
+static tTJSVariantString *__stdcall TVP_Stub_801a92ace08eb7ed001406869a39a75f(
+    tjs_uint len) {
     return TJSAllocVariantStringBuffer(len);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_e22e647af4ded8e51b1e76c845b4c8e2(tTJSVariantString *str,
-                                          const tjs_char *app) {
+static tTJSVariantString *__stdcall TVP_Stub_e22e647af4ded8e51b1e76c845b4c8e2(
+    tTJSVariantString *str, const tjs_char *app) {
     return TJSAppendVariantString(str, app);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_12902221314df9bcf7f7cb74a5242fe0(tTJSVariantString *str,
-                                          const tTJSVariantString *app) {
+static tTJSVariantString *__stdcall TVP_Stub_12902221314df9bcf7f7cb74a5242fe0(
+    tTJSVariantString *str, const tTJSVariantString *app) {
     return TJSAppendVariantString(str, app);
 }
 
@@ -1206,24 +1106,23 @@ static tTJSVariantString *__stdcall TVP_Stub_b10feea1619ba8ac11237c12002cdb3e(
 
 #include "tjsUtils.h"
 
-static const tjs_char *__stdcall
-TVP_Stub_19755b50d241edcb477bdcac22663778(tTJSVariantType type) {
+static const tjs_char *__stdcall TVP_Stub_19755b50d241edcb477bdcac22663778(
+    tTJSVariantType type) {
     return TJSVariantTypeToTypeString(type);
 }
 
-static tTJSString __stdcall
-TVP_Stub_040a0ecf46963e094ee8ec32ab3f1962(const tTJSVariant &val,
-                                          tjs_int maxlen = 512) {
+static tTJSString __stdcall TVP_Stub_040a0ecf46963e094ee8ec32ab3f1962(
+    const tTJSVariant &val, tjs_int maxlen = 512) {
     return TJSVariantToReadableString(val, maxlen);
 }
 
-static tTJSString __stdcall
-TVP_Stub_525c529dc687b5d86424d775d00bdfce(const tTJSVariant &val) {
+static tTJSString __stdcall TVP_Stub_525c529dc687b5d86424d775d00bdfce(
+    const tTJSVariant &val) {
     return TJSVariantToExpressionString(val);
 }
 
-static void *__stdcall
-TVP_Stub_c96107b91e2a215f560a2612c6e85931(tjs_uint bytes, tjs_uint align_bits) {
+static void *__stdcall TVP_Stub_c96107b91e2a215f560a2612c6e85931(
+    tjs_uint bytes, tjs_uint align_bits) {
     return TJSAlignedAlloc(bytes, align_bits);
 }
 
@@ -1231,21 +1130,20 @@ static void __stdcall TVP_Stub_b8788eaa2ca495263c6ea2df264af5f5(void *ptr) {
     return TJSAlignedDealloc(ptr);
 }
 
-static tjs_uint32 __stdcall
-TVP_Stub_4c6494008c520d896d699f82aca30b25(tjs_real r) {
+static tjs_uint32 __stdcall TVP_Stub_4c6494008c520d896d699f82aca30b25(
+    tjs_real r) {
     return TJSGetFPClass(r);
 }
 
 #include "tjsString.h"
 
-static tTJSString __stdcall
-TVP_Stub_7d8f8d5e0832ecf248b19a89801ead0e(const tjs_char *lhs,
-                                          const tTJSString &rhs) {
+static tTJSString __stdcall TVP_Stub_7d8f8d5e0832ecf248b19a89801ead0e(
+    const tjs_char *lhs, const tTJSString &rhs) {
     return operator+(lhs, rhs);
 }
 
-static tTJSString __stdcall
-TVP_Stub_70849965060a6402f41b0b11ec2bb3a7(tjs_uint32 num, int zeropad = 8) {
+static tTJSString __stdcall TVP_Stub_70849965060a6402f41b0b11ec2bb3a7(
+    tjs_uint32 num, int zeropad = 8) {
     return TJSInt32ToHex(num, zeropad);
 }
 
@@ -1253,37 +1151,37 @@ TVP_Stub_70849965060a6402f41b0b11ec2bb3a7(tjs_uint32 num, int zeropad = 8) {
 #include "tjsErrorDefs.h"
 #include "tjsNative.h"
 
-static tjs_int32 __stdcall
-TVP_Stub_c72efa6b4efaa6664ae637a03e98e866(const tjs_char *name) {
+static tjs_int32 __stdcall TVP_Stub_c72efa6b4efaa6664ae637a03e98e866(
+    const tjs_char *name) {
     return TJSRegisterNativeClass(name);
 }
 
-static tjs_int32 __stdcall
-TVP_Stub_a250e46575d0df1166e1542613218a5c(const tjs_char *name) {
+static tjs_int32 __stdcall TVP_Stub_a250e46575d0df1166e1542613218a5c(
+    const tjs_char *name) {
     return TJSFindNativeClassID(name);
 }
 
-static const tjs_char *__stdcall
-TVP_Stub_a7bcff67b8d380c225b9d0d83921b3ae(tjs_int32 id) {
+static const tjs_char *__stdcall TVP_Stub_a7bcff67b8d380c225b9d0d83921b3ae(
+    tjs_int32 id) {
     return TJSFindNativeClassName(id);
 }
 
-static tTJSNativeClassMethod *__stdcall
-TVP_Stub_fb68a3aa16bd2eb7d7550283170321bf(
-    tTJSNativeClassMethodCallback callback) {
+static tTJSNativeClassMethod
+    *__stdcall TVP_Stub_fb68a3aa16bd2eb7d7550283170321bf(
+        tTJSNativeClassMethodCallback callback) {
     return TJSCreateNativeClassMethod(callback);
 }
 
-static tTJSNativeClassMethod *__stdcall
-TVP_Stub_35b4299ede11f511b331b713ba9f38a8(
-    tTJSNativeClassMethodCallback callback) {
+static tTJSNativeClassMethod
+    *__stdcall TVP_Stub_35b4299ede11f511b331b713ba9f38a8(
+        tTJSNativeClassMethodCallback callback) {
     return TJSCreateNativeClassConstructor(callback);
 }
 
-static tTJSNativeClassProperty *__stdcall
-TVP_Stub_efe52691cff20b2dfaa16e8e16caac0a(
-    tTJSNativeClassPropertyGetCallback get,
-    tTJSNativeClassPropertySetCallback set) {
+static tTJSNativeClassProperty
+    *__stdcall TVP_Stub_efe52691cff20b2dfaa16e8e16caac0a(
+        tTJSNativeClassPropertyGetCallback get,
+        tTJSNativeClassPropertySetCallback set) {
     return TJSCreateNativeClassProperty(get, set);
 }
 
@@ -1294,15 +1192,14 @@ static void __stdcall TVP_Stub_38eed43ef69251c34dc45695b8cf35c0(
     return TJSNativeClassRegisterNCM(cls, name, dsp, classname, type, flags);
 }
 
-static void __stdcall
-TVP_Stub_2058b65abdfb7598910f0d584d40a19d(tTJSNativeClass *cls,
-                                          tjs_int32 classid) {
+static void __stdcall TVP_Stub_2058b65abdfb7598910f0d584d40a19d(
+    tTJSNativeClass *cls, tjs_int32 classid) {
     return TJSNativeClassSetClassID(cls, classid);
 }
 
-static tTJSNativeClassForPlugin *__stdcall
-TVP_Stub_1ebecaefe2ffdc811fccbac42e67e544(
-    const ttstr &name, tTJSCreateNativeInstance createinstance) {
+static tTJSNativeClassForPlugin
+    *__stdcall TVP_Stub_1ebecaefe2ffdc811fccbac42e67e544(
+        const ttstr &name, tTJSCreateNativeInstance createinstance) {
     return TJSCreateNativeClassForPlugin(name, createinstance);
 }
 
@@ -1316,115 +1213,110 @@ static void __stdcall TVP_Stub_23d61eda3959b087b618e348471e2c36() {
     return TJSThrowDivideByZero();
 }
 
-static tTJSVariantOctet *__stdcall
-TVP_Stub_e99b22c79b5bf04f3382f959c7bb69ca(const tjs_uint8 *data,
-                                          tjs_uint length) {
+static tTJSVariantOctet *__stdcall TVP_Stub_e99b22c79b5bf04f3382f959c7bb69ca(
+    const tjs_uint8 *data, tjs_uint length) {
     return TJSAllocVariantOctet(data, length);
 }
 
-static tTJSVariantOctet *__stdcall
-TVP_Stub_9c4bb9ebee4db0fcebeae11c34950f97(const tjs_uint8 *data1, tjs_uint len1,
-                                          const tjs_uint8 *data2,
-                                          tjs_uint len2) {
+static tTJSVariantOctet *__stdcall TVP_Stub_9c4bb9ebee4db0fcebeae11c34950f97(
+    const tjs_uint8 *data1, tjs_uint len1, const tjs_uint8 *data2,
+    tjs_uint len2) {
     return TJSAllocVariantOctet(data1, len1, data2, len2);
 }
 
-static tTJSVariantOctet *__stdcall
-TVP_Stub_505a9563aeb1b0255cfcc8197bee7d9e(const tTJSVariantOctet *o1,
-                                          const tTJSVariantOctet *o2) {
+static tTJSVariantOctet *__stdcall TVP_Stub_505a9563aeb1b0255cfcc8197bee7d9e(
+    const tTJSVariantOctet *o1, const tTJSVariantOctet *o2) {
     return TJSAllocVariantOctet(o1, o2);
 }
 
-static tTJSVariantOctet *__stdcall
-TVP_Stub_f5ab80fc67ee04570330b9035144e760(const tjs_uint8 **src) {
+static tTJSVariantOctet *__stdcall TVP_Stub_f5ab80fc67ee04570330b9035144e760(
+    const tjs_uint8 **src) {
     return TJSAllocVariantOctet(src);
 }
 
-static void __stdcall
-TVP_Stub_af50188bbaa019ee88b19ecd931f7cce(tTJSVariantOctet *o) {
+static void __stdcall TVP_Stub_af50188bbaa019ee88b19ecd931f7cce(
+    tTJSVariantOctet *o) {
     return TJSDeallocVariantOctet(o);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_268c452e85a6ac75301a6132f4f5e38b(const tTJSVariantOctet *oct) {
+static tTJSVariantString *__stdcall TVP_Stub_268c452e85a6ac75301a6132f4f5e38b(
+    const tTJSVariantOctet *oct) {
     return TJSOctetToListString(oct);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_646770a19b1768b372c9991ef0d3de85(const tTJSVariantClosure &dsp) {
+static tTJSVariantString *__stdcall TVP_Stub_646770a19b1768b372c9991ef0d3de85(
+    const tTJSVariantClosure &dsp) {
     return TJSObjectToString(dsp);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_5ec88e04fcb8e1877752281e172173ed(tjs_int64 i) {
+static tTJSVariantString *__stdcall TVP_Stub_5ec88e04fcb8e1877752281e172173ed(
+    tjs_int64 i) {
     return TJSIntegerToString(i);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_923f8161f2d2ba0e883bc4edc2901960(tjs_real r) {
+static tTJSVariantString *__stdcall TVP_Stub_923f8161f2d2ba0e883bc4edc2901960(
+    tjs_real r) {
     return TJSRealToString(r);
 }
 
-static tTJSVariantString *__stdcall
-TVP_Stub_6f70cdb7586cbe571204f286f43c9780(tjs_real r) {
+static tTJSVariantString *__stdcall TVP_Stub_6f70cdb7586cbe571204f286f43c9780(
+    tjs_real r) {
     return TJSRealToHexString(r);
 }
 
-static tTVInteger __stdcall
-TVP_Stub_9a4eaa6a627038799015c093609bdde7(const tjs_char *str) {
+static tTVInteger __stdcall TVP_Stub_9a4eaa6a627038799015c093609bdde7(
+    const tjs_char *str) {
     return TJSStringToInteger(str);
 }
 
-static tTVReal __stdcall
-TVP_Stub_c8bb6590f4a7adc906d7b3e42d907267(const tjs_char *str) {
+static tTVReal __stdcall TVP_Stub_c8bb6590f4a7adc906d7b3e42d907267(
+    const tjs_char *str) {
     return TJSStringToReal(str);
 }
 
 #include "tjsArray.h"
 
-static iTJSDispatch2 *__stdcall
-TVP_Stub_8323d57f26876d87271dbfa257b7f7e2(iTJSDispatch2 **classout = nullptr) {
+static iTJSDispatch2 *__stdcall TVP_Stub_8323d57f26876d87271dbfa257b7f7e2(
+    iTJSDispatch2 **classout = nullptr) {
     return TJSCreateArrayObject(classout);
 }
 
-static tjs_int __stdcall
-TVP_Stub_4d6f148e8997e1ae0cc0006ec1bd9618(iTJSDispatch2 *dsp) {
+static tjs_int __stdcall TVP_Stub_4d6f148e8997e1ae0cc0006ec1bd9618(
+    iTJSDispatch2 *dsp) {
     return TJSGetArrayElementCount(dsp);
 }
 
-static tjs_int __stdcall
-TVP_Stub_7f03a4ddb254d0518642d15513eaea85(iTJSDispatch2 *dsp, tTJSVariant *dest,
-                                          tjs_uint start, tjs_int count) {
+static tjs_int __stdcall TVP_Stub_7f03a4ddb254d0518642d15513eaea85(
+    iTJSDispatch2 *dsp, tTJSVariant *dest, tjs_uint start, tjs_int count) {
     return TJSCopyArrayElementTo(dsp, dest, start, count);
 }
 
 #include "tjsDictionary.h"
 
-static iTJSDispatch2 *__stdcall
-TVP_Stub_4add3926c72ba9df9259be58b680de0d(iTJSDispatch2 **classout = nullptr) {
+static iTJSDispatch2 *__stdcall TVP_Stub_4add3926c72ba9df9259be58b680de0d(
+    iTJSDispatch2 **classout = nullptr) {
     return TJSCreateDictionaryObject(classout);
 }
 
 #include "tjs.h"
 #include "tjsMessage.h"
 
-static ttstr __stdcall
-TVP_Stub_075d42cff8dc0c1fbd99c7459a63e526(const tjs_char *name) {
+static ttstr __stdcall TVP_Stub_075d42cff8dc0c1fbd99c7459a63e526(
+    const tjs_char *name) {
     return TJSGetMessageMapMessage(name);
 }
 
 #include "tjsGlobalStringMap.h"
 
-static ttstr __stdcall
-TVP_Stub_b6bc45b28e194c7ac98bfdea88edee36(const ttstr &string) {
+static ttstr __stdcall TVP_Stub_b6bc45b28e194c7ac98bfdea88edee36(
+    const ttstr &string) {
     return TJSMapGlobalStringMap(string);
 }
 
 #include "tjsObject.h"
 
-static void __stdcall
-TVP_Stub_6dff6abb075da1a304520e60c011ef7b(tjs_int op, tTJSVariant &target,
-                                          const tTJSVariant *param) {
+static void __stdcall TVP_Stub_6dff6abb075da1a304520e60c011ef7b(
+    tjs_int op, tTJSVariant &target, const tTJSVariant *param) {
     return TJSDoVariantOperation(op, target, param);
 }
 
@@ -1446,33 +1338,33 @@ static ttstr __stdcall TVP_Stub_4b9c9ac2aafad07af4b16f34e9d4bba2() {
     return TVPGetAppPath();
 }
 
-static void __stdcall
-TVP_Stub_c2e423356d9ca3f26f9c1d294ee9b742(iTVPStorageMedia *media) {
+static void __stdcall TVP_Stub_c2e423356d9ca3f26f9c1d294ee9b742(
+    iTVPStorageMedia *media) {
     return TVPRegisterStorageMedia(media);
 }
 
-static void __stdcall
-TVP_Stub_c07314686fdf5815ce9b058020da942b(iTVPStorageMedia *media) {
+static void __stdcall TVP_Stub_c07314686fdf5815ce9b058020da942b(
+    iTVPStorageMedia *media) {
     return TVPUnregisterStorageMedia(media);
 }
 
-static bool __stdcall
-TVP_Stub_4a197be1985d45ee86d5672d24134560(const ttstr &name) {
+static bool __stdcall TVP_Stub_4a197be1985d45ee86d5672d24134560(
+    const ttstr &name) {
     return TVPIsExistentStorageNoSearch(name);
 }
 
-static bool __stdcall
-TVP_Stub_dec720a9c3cd2b378f195cf71a9ff8b0(const ttstr &name) {
+static bool __stdcall TVP_Stub_dec720a9c3cd2b378f195cf71a9ff8b0(
+    const ttstr &name) {
     return TVPIsExistentStorageNoSearchNoNormalize(name);
 }
 
-static ttstr __stdcall
-TVP_Stub_5726a5c7af641ebaa504dc9ec8380938(const ttstr &name) {
+static ttstr __stdcall TVP_Stub_5726a5c7af641ebaa504dc9ec8380938(
+    const ttstr &name) {
     return TVPNormalizeStorageName(name);
 }
 
-static void __stdcall
-TVP_Stub_1c53bc96ac9dfd483c2227bc5fa44825(const ttstr &name) {
+static void __stdcall TVP_Stub_1c53bc96ac9dfd483c2227bc5fa44825(
+    const ttstr &name) {
     return TVPSetCurrentDirectory(name);
 }
 
@@ -1480,43 +1372,43 @@ static void __stdcall TVP_Stub_1940c8fa03145aa029d0b7718ce0c809(ttstr &name) {
     return TVPGetLocalName(name);
 }
 
-static ttstr __stdcall
-TVP_Stub_b37f047c0f9bd143b34a2fc87ce5f16e(const ttstr &name) {
+static ttstr __stdcall TVP_Stub_b37f047c0f9bd143b34a2fc87ce5f16e(
+    const ttstr &name) {
     return TVPExtractStorageExt(name);
 }
 
-static ttstr __stdcall
-TVP_Stub_dec35fbd2a24fc32e5c220174d864cf4(const ttstr &name) {
+static ttstr __stdcall TVP_Stub_dec35fbd2a24fc32e5c220174d864cf4(
+    const ttstr &name) {
     return TVPExtractStorageName(name);
 }
 
-static ttstr __stdcall
-TVP_Stub_86fd45a126296891aee413388597203e(const ttstr &name) {
+static ttstr __stdcall TVP_Stub_86fd45a126296891aee413388597203e(
+    const ttstr &name) {
     return TVPExtractStoragePath(name);
 }
 
-static ttstr __stdcall
-TVP_Stub_603243e54f3508c37d993e8359b735dc(const ttstr &name) {
+static ttstr __stdcall TVP_Stub_603243e54f3508c37d993e8359b735dc(
+    const ttstr &name) {
     return TVPChopStorageExt(name);
 }
 
-static void __stdcall
-TVP_Stub_c3eadbd75b32dabe6faecebf492eb486(const ttstr &name) {
+static void __stdcall TVP_Stub_c3eadbd75b32dabe6faecebf492eb486(
+    const ttstr &name) {
     return TVPAddAutoPath(name);
 }
 
-static void __stdcall
-TVP_Stub_725e49de1d970ef04b179776666f2c34(const ttstr &name) {
+static void __stdcall TVP_Stub_725e49de1d970ef04b179776666f2c34(
+    const ttstr &name) {
     return TVPRemoveAutoPath(name);
 }
 
-static ttstr __stdcall
-TVP_Stub_55a9b73f877bfd4c6d8157e7b1c458df(const ttstr &name) {
+static ttstr __stdcall TVP_Stub_55a9b73f877bfd4c6d8157e7b1c458df(
+    const ttstr &name) {
     return TVPGetPlacedPath(name);
 }
 
-static bool __stdcall
-TVP_Stub_d070209f152dd22087e6e996e02c85cf(const ttstr &name) {
+static bool __stdcall TVP_Stub_d070209f152dd22087e6e996e02c85cf(
+    const ttstr &name) {
     return TVPIsExistentStorage(name);
 }
 
@@ -1526,9 +1418,8 @@ static void __stdcall TVP_Stub_308f905626bc51c7ef9b65b2c0ca34b2() {
 
 #include "TextStream.h"
 
-static iTJSTextReadStream *__stdcall
-TVP_Stub_95aab2a1ac9491e8026f4977e0918760(const ttstr &name,
-                                          const ttstr &modestr) {
+static iTJSTextReadStream *__stdcall TVP_Stub_95aab2a1ac9491e8026f4977e0918760(
+    const ttstr &name, const ttstr &modestr) {
     return TVPCreateTextStreamForRead(name, modestr);
 }
 
@@ -1537,14 +1428,13 @@ static iTJSTextReadStream *__stdcall TVP_Stub_e0ac94325eb783ca2fe7856a54444c90(
     return TVPCreateTextStreamForReadByEncoding(name, modestr, encoding);
 }
 
-static iTJSTextWriteStream *__stdcall
-TVP_Stub_0c99a79e866f08b4df3914e83fc203dc(const ttstr &name,
-                                          const ttstr &modestr) {
+static iTJSTextWriteStream *__stdcall TVP_Stub_0c99a79e866f08b4df3914e83fc203dc(
+    const ttstr &name, const ttstr &modestr) {
     return TVPCreateTextStreamForWrite(name, modestr);
 }
 
-static void __stdcall
-TVP_Stub_f2de531a016173057ff3540e47fed4e6(const ttstr &encoding) {
+static void __stdcall TVP_Stub_f2de531a016173057ff3540e47fed4e6(
+    const ttstr &encoding) {
     return TVPSetDefaultReadEncoding(encoding);
 }
 
@@ -1554,13 +1444,13 @@ static const tjs_char *__stdcall TVP_Stub_4224a9066d8d13d6d7e12f1ace6a5beb() {
 
 #include "CharacterSet.h"
 
-static tjs_int __stdcall
-TVP_Stub_900476efbc2031e643c042ca8e63a3d7(const tjs_char *in, char *out) {
+static tjs_int __stdcall TVP_Stub_900476efbc2031e643c042ca8e63a3d7(
+    const tjs_char *in, char *out) {
     return TVPWideCharToUtf8String(in, out);
 }
 
-static tjs_int __stdcall
-TVP_Stub_07dfce61d490cf671a2d5359d713d64a(const char *in, tjs_char *out) {
+static tjs_int __stdcall TVP_Stub_07dfce61d490cf671a2d5359d713d64a(
+    const char *in, tjs_char *out) {
     return TVPUtf8ToWideCharString(in, out);
 }
 
@@ -1618,8 +1508,8 @@ static void __stdcall TVP_Stub_efe14a197131b4813656d6669cc3475b(
     return TVPCancelEventsByTag(source, target, tag);
 }
 
-static void __stdcall
-TVP_Stub_ba4ecf60f872f757b69c84f457b3e941(iTJSDispatch2 *source) {
+static void __stdcall TVP_Stub_ba4ecf60f872f757b69c84f457b3e941(
+    iTJSDispatch2 *source) {
     return TVPCancelSourceEvents(source);
 }
 
@@ -1628,23 +1518,23 @@ static iTJSDispatch2 *__stdcall TVP_Stub_dffedabe32ce886e3b7e695b44ad3547(
     return TVPCreateEventObject(type, targthis, targ);
 }
 
-static void __stdcall
-TVP_Stub_f518c60b165658d19a0fadd8f69586aa(tTVPContinuousEventCallbackIntf *cb) {
+static void __stdcall TVP_Stub_f518c60b165658d19a0fadd8f69586aa(
+    tTVPContinuousEventCallbackIntf *cb) {
     return TVPAddContinuousEventHook(cb);
 }
 
-static void __stdcall
-TVP_Stub_6fefcb1c2ca01a876c301ab41dbdab9f(tTVPContinuousEventCallbackIntf *cb) {
+static void __stdcall TVP_Stub_6fefcb1c2ca01a876c301ab41dbdab9f(
+    tTVPContinuousEventCallbackIntf *cb) {
     return TVPRemoveContinuousEventHook(cb);
 }
 
-static void __stdcall
-TVP_Stub_df55083347df0483b4ca6ba1e4f0b9a0(tTVPCompactEventCallbackIntf *cb) {
+static void __stdcall TVP_Stub_df55083347df0483b4ca6ba1e4f0b9a0(
+    tTVPCompactEventCallbackIntf *cb) {
     return TVPAddCompactEventHook(cb);
 }
 
-static void __stdcall
-TVP_Stub_d8d28310f702714733c4c5dc850058df(tTVPCompactEventCallbackIntf *cb) {
+static void __stdcall TVP_Stub_d8d28310f702714733c4c5dc850058df(
+    tTVPCompactEventCallbackIntf *cb) {
     return TVPRemoveCompactEventHook(cb);
 }
 
@@ -1660,9 +1550,8 @@ static ttstr __stdcall TVP_Stub_f27f455c8f30cbaf1706faac3c7b8e02() {
 
 #include "SystemImpl.h"
 
-static bool __stdcall
-TVP_Stub_78ec453a50b2800bb01347e8ebbac000(tjs_uint keycode,
-                                          bool getcurrent = true) {
+static bool __stdcall TVP_Stub_78ec453a50b2800bb01347e8ebbac000(
+    tjs_uint keycode, bool getcurrent = true) {
     return TVPGetAsyncKeyState(keycode, getcurrent);
 }
 
@@ -1672,36 +1561,31 @@ static iTJSDispatch2 *__stdcall TVP_Stub_0936d0f6fc53339d255893e58bcc6699() {
     return TVPGetScriptDispatch();
 }
 
-static void __stdcall
-TVP_Stub_f4f7181b7fd679784c50b0cc7ba4c60e(const ttstr &content,
-                                          tTJSVariant *result = nullptr) {
+static void __stdcall TVP_Stub_f4f7181b7fd679784c50b0cc7ba4c60e(
+    const ttstr &content, tTJSVariant *result = nullptr) {
     return TVPExecuteScript(content, result);
 }
 
-static void __stdcall
-TVP_Stub_79816d7e5741c2416fefe2c2a8baef00(const ttstr &content,
-                                          iTJSDispatch2 *context,
-                                          tTJSVariant *result = nullptr) {
+static void __stdcall TVP_Stub_79816d7e5741c2416fefe2c2a8baef00(
+    const ttstr &content, iTJSDispatch2 *context,
+    tTJSVariant *result = nullptr) {
     return TVPExecuteScript(content, context, result);
 }
 
-static void __stdcall
-TVP_Stub_42a3d248fab928f16555abcceca62834(const ttstr &content,
-                                          tTJSVariant *result = nullptr) {
+static void __stdcall TVP_Stub_42a3d248fab928f16555abcceca62834(
+    const ttstr &content, tTJSVariant *result = nullptr) {
     return TVPExecuteExpression(content, result);
 }
 
-static void __stdcall
-TVP_Stub_926d6212b8b1b238e7bef9b17a3ee643(const ttstr &content,
-                                          iTJSDispatch2 *context,
-                                          tTJSVariant *result = nullptr) {
+static void __stdcall TVP_Stub_926d6212b8b1b238e7bef9b17a3ee643(
+    const ttstr &content, iTJSDispatch2 *context,
+    tTJSVariant *result = nullptr) {
     return TVPExecuteExpression(content, context, result);
 }
 
-static void __stdcall
-TVP_Stub_236e3d626784d80ca2cc5b2fe14cd9c6(const ttstr &content,
-                                          const ttstr &name, tjs_int lineofs,
-                                          tTJSVariant *result = nullptr) {
+static void __stdcall TVP_Stub_236e3d626784d80ca2cc5b2fe14cd9c6(
+    const ttstr &content, const ttstr &name, tjs_int lineofs,
+    tTJSVariant *result = nullptr) {
     return TVPExecuteScript(content, name, lineofs, result);
 }
 
@@ -1711,10 +1595,9 @@ static void __stdcall TVP_Stub_1bfac11a5f95c842f97a8bb57d4019de(
     return TVPExecuteScript(content, name, lineofs, context, result);
 }
 
-static void __stdcall
-TVP_Stub_198ce21c54b0cea4c1bf5eeba35349ab(const ttstr &content,
-                                          const ttstr &name, tjs_int lineofs,
-                                          tTJSVariant *result = nullptr) {
+static void __stdcall TVP_Stub_198ce21c54b0cea4c1bf5eeba35349ab(
+    const ttstr &content, const ttstr &name, tjs_int lineofs,
+    tTJSVariant *result = nullptr) {
     return TVPExecuteExpression(content, name, lineofs, result);
 }
 
@@ -1746,47 +1629,47 @@ static void __stdcall TVP_Stub_04e84aa7d8cf0477d55c700164544b38(
     return TVPExecuteBytecode(content, len, context, result, name);
 }
 
-static void __stdcall
-TVP_Stub_449039d3afbfbd52a63130a3b227a490(const ttstr &filename) {
+static void __stdcall TVP_Stub_449039d3afbfbd52a63130a3b227a490(
+    const ttstr &filename) {
     return TVPCreateMessageMapFile(filename);
 }
 
 #include "StorageImpl.h"
 
-static bool __stdcall
-TVP_Stub_347a4fa85af84e223c4b61d33ead694a(const ttstr &name) {
+static bool __stdcall TVP_Stub_347a4fa85af84e223c4b61d33ead694a(
+    const ttstr &name) {
     return TVPCheckExistentLocalFolder(name);
 }
 
-static bool __stdcall
-TVP_Stub_4ad1dd24b3b4769ee10149eea006af7a(const ttstr &name) {
+static bool __stdcall TVP_Stub_4ad1dd24b3b4769ee10149eea006af7a(
+    const ttstr &name) {
     return TVPCheckExistentLocalFile(name);
 }
 
-static bool __stdcall
-TVP_Stub_b246b17b62d273bdc04e9d9e827f5c74(const ttstr &folder) {
+static bool __stdcall TVP_Stub_b246b17b62d273bdc04e9d9e827f5c74(
+    const ttstr &folder) {
     return TVPCreateFolders(folder);
 }
 
-static IStream *__stdcall
-TVP_Stub_9974ebc6296f925cff55d8bcb2d52ce9(const ttstr &name, tjs_uint32 flags) {
+static IStream *__stdcall TVP_Stub_9974ebc6296f925cff55d8bcb2d52ce9(
+    const ttstr &name, tjs_uint32 flags) {
     return TVPCreateIStream(name, flags);
 }
 
-static tTJSBinaryStream *__stdcall
-TVP_Stub_0e0c9d9107d8c56b8bc4d4198ae9208a(IStream *refstream) {
+static tTJSBinaryStream *__stdcall TVP_Stub_0e0c9d9107d8c56b8bc4d4198ae9208a(
+    IStream *refstream) {
     return TVPCreateBinaryStreamAdapter(refstream);
 }
 
 #include "PluginImpl.h"
 
-static void __stdcall
-TVP_Stub_c23ece207f6ec2dd7c76ef873047aee3(const char *funcname) {
+static void __stdcall TVP_Stub_c23ece207f6ec2dd7c76ef873047aee3(
+    const char *funcname) {
     return TVPThrowPluginUnboundFunctionError(funcname);
 }
 
-static void __stdcall
-TVP_Stub_81507020bc646be2f53ab95b9430ba27(const tjs_char *funcname) {
+static void __stdcall TVP_Stub_81507020bc646be2f53ab95b9430ba27(
+    const tjs_char *funcname) {
     return TVPThrowPluginUnboundFunctionError(funcname);
 }
 
@@ -1825,20 +1708,18 @@ static int __stdcall TVP_Stub_d7687aa80dac10f88deac7aa7e70538a(
     return ZLIB_compress2(dest, destlen, source, sourcelen, level);
 }
 
-static void __stdcall
-TVP_Stub_b18b7259f98029f745c75291d6855ab1(TVP_md5_state_t *pms) {
+static void __stdcall TVP_Stub_b18b7259f98029f745c75291d6855ab1(
+    TVP_md5_state_t *pms) {
     return TVP_md5_init(pms);
 }
 
-static void __stdcall
-TVP_Stub_b79e5d877116025576ca1f76af124009(TVP_md5_state_t *pms,
-                                          const tjs_uint8 *data, int nbytes) {
+static void __stdcall TVP_Stub_b79e5d877116025576ca1f76af124009(
+    TVP_md5_state_t *pms, const tjs_uint8 *data, int nbytes) {
     return TVP_md5_append(pms, data, nbytes);
 }
 
-static void __stdcall
-TVP_Stub_8aea098dfe8a36c705cc2a9e1a189b84(TVP_md5_state_t *pms,
-                                          tjs_uint8 *digest) {
+static void __stdcall TVP_Stub_8aea098dfe8a36c705cc2a9e1a189b84(
+    TVP_md5_state_t *pms, tjs_uint8 *digest) {
     return TVP_md5_finish(pms, digest);
 }
 
@@ -1854,14 +1735,13 @@ static void __stdcall TVP_Stub_eba9b272d78a4b0cd7f9212e29a58607() {
     return TVPHandleApplicationMessage();
 }
 
-static bool __stdcall
-TVP_Stub_cfbe8ee9d43aa64ae4190eac91f7c55f(const tjs_char *name,
-                                          iTJSDispatch2 *dsp) {
+static bool __stdcall TVP_Stub_cfbe8ee9d43aa64ae4190eac91f7c55f(
+    const tjs_char *name, iTJSDispatch2 *dsp) {
     return TVPRegisterGlobalObject(name, dsp);
 }
 
-static bool __stdcall
-TVP_Stub_a4308a386968ef5d23025ab8a9e8c6db(const tjs_char *name) {
+static bool __stdcall TVP_Stub_a4308a386968ef5d23025ab8a9e8c6db(
+    const tjs_char *name) {
     return TVPRemoveGlobalObject(name);
 }
 
@@ -1871,18 +1751,16 @@ static void __stdcall TVP_Stub_5a4fcbe1e398e3d9690d571acbbbae9f(
     return TVPDoTryBlock(tryblock, catchblock, finallyblock, data);
 }
 
-static bool __stdcall
-TVP_Stub_5b62f504fe6d22428d7518d6c52d775d(const wchar_t *module_filename,
-                                          tjs_int &major, tjs_int &minor,
-                                          tjs_int &release, tjs_int &build) {
+static bool __stdcall TVP_Stub_5b62f504fe6d22428d7518d6c52d775d(
+    const wchar_t *module_filename, tjs_int &major, tjs_int &minor,
+    tjs_int &release, tjs_int &build) {
     return TVPGetFileVersionOf(module_filename, major, minor, release, build);
 }
 
 #include "SysInitIntf.h"
 
-static bool __stdcall
-TVP_Stub_fb3b405f8747b54f26c332b9e6af81cd(const tjs_char *name,
-                                          tTJSVariant *value = nullptr) {
+static bool __stdcall TVP_Stub_fb3b405f8747b54f26c332b9e6af81cd(
+    const tjs_char *name, tTJSVariant *value = nullptr) {
     return TVPGetCommandLine(name, value);
 }
 
@@ -1890,9 +1768,8 @@ static tjs_int __stdcall TVP_Stub_b7ccd11d130f186883c109d2ba17b598() {
     return TVPGetCommandLineArgumentGeneration();
 }
 
-static void __stdcall
-TVP_Stub_cf8ab6c24f25993ccc7663e572ac2991(const tjs_char *name,
-                                          const ttstr &value) {
+static void __stdcall TVP_Stub_cf8ab6c24f25993ccc7663e572ac2991(
+    const tjs_char *name, const ttstr &value) {
     return TVPSetCommandLine(name, value);
 }
 
@@ -1917,9 +1794,8 @@ static void __stdcall TVP_Stub_3243a4c32d4f674f1bbc8d3895257568(tjs_int num) {
     return TVPBeginThreadTask(num);
 }
 
-static void __stdcall
-TVP_Stub_78390a3d08879903ee9558e9df68db4d(TVP_THREAD_TASK_FUNC func,
-                                          TVP_THREAD_PARAM param) {
+static void __stdcall TVP_Stub_78390a3d08879903ee9558e9df68db4d(
+    TVP_THREAD_TASK_FUNC func, TVP_THREAD_PARAM param) {
     return TVPExecThreadTask(func, param);
 }
 
@@ -1929,20 +1805,20 @@ static void __stdcall TVP_Stub_58e9454d7096a52808f9a83b9ce25ff0() {
 
 #include "DebugIntf.h"
 
-static void __stdcall
-TVP_Stub_cdefadd0c3bf15b4639b2f0338a40585(const ttstr &line) {
+static void __stdcall TVP_Stub_cdefadd0c3bf15b4639b2f0338a40585(
+    const ttstr &line) {
     return TVPAddLog(line);
 }
 
-static void __stdcall
-TVP_Stub_4bf80e9bac16b9e3f9bf385b2fbce657(const ttstr &line) {
+static void __stdcall TVP_Stub_4bf80e9bac16b9e3f9bf385b2fbce657(
+    const ttstr &line) {
     return TVPAddImportantLog(line);
 }
 
 #include "Random.h"
 
-static void __stdcall
-TVP_Stub_51aeacf2b6ef9deb01c3b3db201d6bf9(const void *buf, tjs_int bufsize) {
+static void __stdcall TVP_Stub_51aeacf2b6ef9deb01c3b3db201d6bf9(
+    const void *buf, tjs_int bufsize) {
     return TVPPushEnvironNoise(buf, bufsize);
 }
 
@@ -1952,13 +1828,13 @@ static void __stdcall TVP_Stub_9ed5432d73448da47991df9577ee97bc(void *dest) {
 
 #include "ClipboardIntf.h"
 
-static bool __stdcall
-TVP_Stub_cf1d02d1cc1aff0aae6c038c95dac80f(tTVPClipboardFormat format) {
+static bool __stdcall TVP_Stub_cf1d02d1cc1aff0aae6c038c95dac80f(
+    tTVPClipboardFormat format) {
     return TVPClipboardHasFormat(format);
 }
 
-static void __stdcall
-TVP_Stub_ddb0e05c72c0692e78af885ac7ec82dc(const ttstr &text) {
+static void __stdcall TVP_Stub_ddb0e05c72c0692e78af885ac7ec82dc(
+    const ttstr &text) {
     return TVPClipboardSetText(text);
 }
 
@@ -1974,38 +1850,33 @@ static tjs_uint64 __stdcall TVP_Stub_2d90871c6bc15a9e8d97d24c29e78e3b() {
 
 #include "MsgIntf.h"
 
-static ttstr __stdcall
-TVP_Stub_0af6744e35e38276d6a98c1f382b1519(const tjs_char *msg,
-                                          const ttstr &p1) {
+static ttstr __stdcall TVP_Stub_0af6744e35e38276d6a98c1f382b1519(
+    const tjs_char *msg, const ttstr &p1) {
     return TVPFormatMessage(msg, p1);
 }
 
-static ttstr __stdcall
-TVP_Stub_ad40567a051208757642e5e087f3e741(const tjs_char *msg, const ttstr &p1,
-                                          const ttstr &p2) {
+static ttstr __stdcall TVP_Stub_ad40567a051208757642e5e087f3e741(
+    const tjs_char *msg, const ttstr &p1, const ttstr &p2) {
     return TVPFormatMessage(msg, p1, p2);
 }
 
-static void __stdcall
-TVP_Stub_6a15185daab9b274963fe5ef46305775(const tjs_char *msg) {
+static void __stdcall TVP_Stub_6a15185daab9b274963fe5ef46305775(
+    const tjs_char *msg) {
     return TVPThrowExceptionMessage(msg);
 }
 
-static void __stdcall
-TVP_Stub_073a2332a8ab3ed31ab81daea3d3f2c4(const tjs_char *msg, const ttstr &p1,
-                                          tjs_int num) {
+static void __stdcall TVP_Stub_073a2332a8ab3ed31ab81daea3d3f2c4(
+    const tjs_char *msg, const ttstr &p1, tjs_int num) {
     return TVPThrowExceptionMessage(msg, p1, num);
 }
 
-static void __stdcall
-TVP_Stub_01216e91225e06c7422bef0c2febc0cc(const tjs_char *msg,
-                                          const ttstr &p1) {
+static void __stdcall TVP_Stub_01216e91225e06c7422bef0c2febc0cc(
+    const tjs_char *msg, const ttstr &p1) {
     return TVPThrowExceptionMessage(msg, p1);
 }
 
-static void __stdcall
-TVP_Stub_16ce22ad500a5bdfd5d5743c847a28b6(const tjs_char *msg, const ttstr &p1,
-                                          const ttstr &p2) {
+static void __stdcall TVP_Stub_16ce22ad500a5bdfd5d5743c847a28b6(
+    const tjs_char *msg, const ttstr &p1, const ttstr &p2) {
     return TVPThrowExceptionMessage(msg, p1, p2);
 }
 
@@ -2021,24 +1892,21 @@ static ttstr __stdcall TVP_Stub_bc77a1e312ff7827d90387fb92f0f5b0() {
     return TVPGetVersionString();
 }
 
-static void __stdcall
-TVP_Stub_2090afd7ae8bcb021ec4d04947d0d845(tjs_int &major, tjs_int &minor,
-                                          tjs_int &release, tjs_int &build) {
+static void __stdcall TVP_Stub_2090afd7ae8bcb021ec4d04947d0d845(
+    tjs_int &major, tjs_int &minor, tjs_int &release, tjs_int &build) {
     return TVPGetSystemVersion(major, minor, release, build);
 }
 
-static void __stdcall
-TVP_Stub_3a0f858bdf86199dc2d00b583a3b915f(tjs_int &major, tjs_int &minor,
-                                          tjs_int &release) {
+static void __stdcall TVP_Stub_3a0f858bdf86199dc2d00b583a3b915f(
+    tjs_int &major, tjs_int &minor, tjs_int &release) {
     return TVPGetTJSVersion(major, minor, release);
 }
 
 #include "WaveIntf.h"
 
-static void __stdcall
-TVP_Stub_0d316a141f7a502ff8d9ffe2d38d25a8(tjs_int16 *output, const void *input,
-                                          const tTVPWaveFormat &format,
-                                          tjs_int count, bool downmix) {
+static void __stdcall TVP_Stub_0d316a141f7a502ff8d9ffe2d38d25a8(
+    tjs_int16 *output, const void *input, const tTVPWaveFormat &format,
+    tjs_int count, bool downmix) {
     return TVPConvertPCMTo16bits(output, input, format, count, downmix);
 }
 
@@ -2057,10 +1925,9 @@ static void __stdcall TVP_Stub_d9b1c73516daea6a9c6564e2b731615a(
                                 bitspersample, isfloat, count);
 }
 
-static void __stdcall
-TVP_Stub_003f9d3de568fcd71dd532f33d38839c(float *output, const void *input,
-                                          const tTVPWaveFormat &format,
-                                          tjs_int count) {
+static void __stdcall TVP_Stub_003f9d3de568fcd71dd532f33d38839c(
+    float *output, const void *input, const tTVPWaveFormat &format,
+    tjs_int count) {
     return TVPConvertPCMToFloat(output, input, format, count);
 }
 
@@ -2105,18 +1972,18 @@ static void __stdcall TVP_Stub_5b1fa785e397e643dd09cb43c2f2f4db() {
 #include "ComplexRect.h"
 #include "LayerIntf.h"
 
-static tjs_uint32 __stdcall
-TVP_Stub_29af78765c764c566e6adc77e0ea7041(tjs_uint32 col) {
+static tjs_uint32 __stdcall TVP_Stub_29af78765c764c566e6adc77e0ea7041(
+    tjs_uint32 col) {
     return TVPToActualColor(col);
 }
 
-static tjs_uint32 __stdcall
-TVP_Stub_9e0df54e4c24ee28d5517c1743faa3a3(tjs_uint32 col) {
+static tjs_uint32 __stdcall TVP_Stub_9e0df54e4c24ee28d5517c1743faa3a3(
+    tjs_uint32 col) {
     return TVPFromActualColor(col);
 }
 
-static iTJSDispatch2 *__stdcall
-TVP_Stub_d3aaa55d66777d7308ffa7a348c84841(tTJSNI_BaseLayer *layer) {
+static iTJSDispatch2 *__stdcall TVP_Stub_d3aaa55d66777d7308ffa7a348c84841(
+    tTJSNI_BaseLayer *layer) {
     return TVPGetObjectFrom_NI_BaseLayer(layer);
 }
 
@@ -2157,35 +2024,35 @@ static IDirect3D9 *__stdcall TVP_Stub_5fd8dfd2816a2cfd4a51cab41053d575() {
 #include "VideoOvlIntf.h"
 #include "TransIntf.h"
 
-static iTVPScanLineProvider *__stdcall
-TVP_Stub_9982ebedc12d343cb098e2a7b25bdef1(const ttstr &name, tjs_int bpp,
-                                          tjs_uint32 key, tjs_uint w,
-                                          tjs_uint h) {
+static iTVPScanLineProvider
+    *__stdcall TVP_Stub_9982ebedc12d343cb098e2a7b25bdef1(const ttstr &name,
+                                                         tjs_int bpp,
+                                                         tjs_uint32 key,
+                                                         tjs_uint w,
+                                                         tjs_uint h) {
     return TVPSLPLoadImage(name, bpp, key, w, h);
 }
 
-static void __stdcall
-TVP_Stub_81eeacbed5ee6129bef4b370e28b5d10(iTVPTransHandlerProvider *pro) {
+static void __stdcall TVP_Stub_81eeacbed5ee6129bef4b370e28b5d10(
+    iTVPTransHandlerProvider *pro) {
     return TVPAddTransHandlerProvider(pro);
 }
 
-static void __stdcall
-TVP_Stub_6ed1088905d99012d2fb5827ea19527e(iTVPTransHandlerProvider *pro) {
+static void __stdcall TVP_Stub_6ed1088905d99012d2fb5827ea19527e(
+    iTVPTransHandlerProvider *pro) {
     return TVPRemoveTransHandlerProvider(pro);
 }
 
 #include "transhandler.h"
 #include "tvpgl.h"
 
-static void __stdcall
-TVP_Stub_b4d6c64cc0004ffaba804f0e8f02ab9b(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_b4d6c64cc0004ffaba804f0e8f02ab9b(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPAlphaBlend(dest, src, len);
 }
 
-static void __stdcall
-TVP_Stub_2c3e08b8df93ec50451edd916c707030(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_2c3e08b8df93ec50451edd916c707030(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPAlphaBlend_HDA(dest, src, len);
 }
 
@@ -2199,15 +2066,13 @@ static void __stdcall TVP_Stub_ee474537852ce5eb165cb1761950faba(
     return TVPAlphaBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_eed221c603243522667e2f1c6ace3ba4(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_eed221c603243522667e2f1c6ace3ba4(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPAlphaBlend_d(dest, src, len);
 }
 
-static void __stdcall
-TVP_Stub_1f973c5e3cfaf00fa752b7e22d7ba481(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_1f973c5e3cfaf00fa752b7e22d7ba481(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPAlphaBlend_a(dest, src, len);
 }
 
@@ -2221,21 +2086,18 @@ static void __stdcall TVP_Stub_aedbd2eda61145de808e295331884245(
     return TVPAlphaBlend_ao(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_ce0f184e84752eb279e4f900d8b53c18(tjs_uint32 *dest,
-                                          const tjs_uint32 color, tjs_int len) {
+static void __stdcall TVP_Stub_ce0f184e84752eb279e4f900d8b53c18(
+    tjs_uint32 *dest, const tjs_uint32 color, tjs_int len) {
     return TVPAlphaColorMat(dest, color, len);
 }
 
-static void __stdcall
-TVP_Stub_0217d49393163b80897d044c1d93092f(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_0217d49393163b80897d044c1d93092f(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPAdditiveAlphaBlend(dest, src, len);
 }
 
-static void __stdcall
-TVP_Stub_5bbd9d5b364840e9615af35a62f69d7d(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_5bbd9d5b364840e9615af35a62f69d7d(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPAdditiveAlphaBlend_HDA(dest, src, len);
 }
 
@@ -2249,9 +2111,8 @@ static void __stdcall TVP_Stub_bb0706a78e9066944bfbffd1406be2d4(
     return TVPAdditiveAlphaBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_770e67c91215292980b88cc6efb9f2a5(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_770e67c91215292980b88cc6efb9f2a5(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPAdditiveAlphaBlend_a(dest, src, len);
 }
 
@@ -2270,17 +2131,15 @@ static void __stdcall TVP_Stub_11d9804ae4db32d731af69c397769cbf(tjs_uint32 *buf,
     return TVPConvertAlphaToAdditiveAlpha(buf, len);
 }
 
-static void __stdcall
-TVP_Stub_421f5aa6dbaaaf946f74942c77aac9bc(tjs_uint32 *dest, tjs_int len,
-                                          const tjs_uint32 *src,
-                                          tjs_int srcstart, tjs_int srcstep) {
+static void __stdcall TVP_Stub_421f5aa6dbaaaf946f74942c77aac9bc(
+    tjs_uint32 *dest, tjs_int len, const tjs_uint32 *src, tjs_int srcstart,
+    tjs_int srcstep) {
     return TVPStretchAlphaBlend(dest, len, src, srcstart, srcstep);
 }
 
-static void __stdcall
-TVP_Stub_563ee9dcb14a2914fc246e64679f42b5(tjs_uint32 *dest, tjs_int len,
-                                          const tjs_uint32 *src,
-                                          tjs_int srcstart, tjs_int srcstep) {
+static void __stdcall TVP_Stub_563ee9dcb14a2914fc246e64679f42b5(
+    tjs_uint32 *dest, tjs_int len, const tjs_uint32 *src, tjs_int srcstart,
+    tjs_int srcstep) {
     return TVPStretchAlphaBlend_HDA(dest, len, src, srcstart, srcstep);
 }
 
@@ -2296,17 +2155,15 @@ static void __stdcall TVP_Stub_c90c8bbd18a7190636ae4269c36ad005(
     return TVPStretchAlphaBlend_HDA_o(dest, len, src, srcstart, srcstep, opa);
 }
 
-static void __stdcall
-TVP_Stub_03c54a8e8c86e171f868a624e490691f(tjs_uint32 *dest, tjs_int len,
-                                          const tjs_uint32 *src,
-                                          tjs_int srcstart, tjs_int srcstep) {
+static void __stdcall TVP_Stub_03c54a8e8c86e171f868a624e490691f(
+    tjs_uint32 *dest, tjs_int len, const tjs_uint32 *src, tjs_int srcstart,
+    tjs_int srcstep) {
     return TVPStretchAlphaBlend_d(dest, len, src, srcstart, srcstep);
 }
 
-static void __stdcall
-TVP_Stub_30b63f3cc59b39f1a71829bbbdf6e45d(tjs_uint32 *dest, tjs_int len,
-                                          const tjs_uint32 *src,
-                                          tjs_int srcstart, tjs_int srcstep) {
+static void __stdcall TVP_Stub_30b63f3cc59b39f1a71829bbbdf6e45d(
+    tjs_uint32 *dest, tjs_int len, const tjs_uint32 *src, tjs_int srcstart,
+    tjs_int srcstep) {
     return TVPStretchAlphaBlend_a(dest, len, src, srcstart, srcstep);
 }
 
@@ -2322,10 +2179,9 @@ static void __stdcall TVP_Stub_5c627d080007e455b0393a9b4457cd4d(
     return TVPStretchAlphaBlend_ao(dest, len, src, srcstart, srcstep, opa);
 }
 
-static void __stdcall
-TVP_Stub_72a64cecd44d80f95fc93faf0d239e32(tjs_uint32 *dest, tjs_int len,
-                                          const tjs_uint32 *src,
-                                          tjs_int srcstart, tjs_int srcstep) {
+static void __stdcall TVP_Stub_72a64cecd44d80f95fc93faf0d239e32(
+    tjs_uint32 *dest, tjs_int len, const tjs_uint32 *src, tjs_int srcstart,
+    tjs_int srcstep) {
     return TVPStretchAdditiveAlphaBlend(dest, len, src, srcstart, srcstep);
 }
 
@@ -2337,10 +2193,9 @@ static void __stdcall TVP_Stub_ef838904712bfdc614dbc689fbe7fb18(
                                               blend_y, srcstart, srcstep);
 }
 
-static void __stdcall
-TVP_Stub_acc97936adc40656e824cfdf7a34e20c(tjs_uint32 *dest, tjs_int len,
-                                          const tjs_uint32 *src,
-                                          tjs_int srcstart, tjs_int srcstep) {
+static void __stdcall TVP_Stub_acc97936adc40656e824cfdf7a34e20c(
+    tjs_uint32 *dest, tjs_int len, const tjs_uint32 *src, tjs_int srcstart,
+    tjs_int srcstep) {
     return TVPStretchAdditiveAlphaBlend_HDA(dest, len, src, srcstart, srcstep);
 }
 
@@ -2366,10 +2221,9 @@ static void __stdcall TVP_Stub_f8ab11c930782ce058e517d0440ec87f(
                                               opa);
 }
 
-static void __stdcall
-TVP_Stub_b8157e369d53c2d944b76494980ced7b(tjs_uint32 *dest, tjs_int len,
-                                          const tjs_uint32 *src,
-                                          tjs_int srcstart, tjs_int srcstep) {
+static void __stdcall TVP_Stub_b8157e369d53c2d944b76494980ced7b(
+    tjs_uint32 *dest, tjs_int len, const tjs_uint32 *src, tjs_int srcstart,
+    tjs_int srcstep) {
     return TVPStretchAdditiveAlphaBlend_a(dest, len, src, srcstart, srcstep);
 }
 
@@ -2492,9 +2346,8 @@ static void __stdcall TVP_Stub_6f6f73b75cffe40a28566d1832ae1224(
                                             stepy, srcpitch, opa);
 }
 
-static void __stdcall
-TVP_Stub_7adc5aad39e459e01543d07c239efe57(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_7adc5aad39e459e01543d07c239efe57(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPCopyOpaqueImage(dest, src, len);
 }
 
@@ -2518,10 +2371,9 @@ static void __stdcall TVP_Stub_989769d4eb8e42e9c9bbe721b296406c(
     return TVPConstAlphaBlend_a(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_cc1ac928b5c31570dfba7ed8f565be4b(tjs_uint32 *dest, tjs_int destlen,
-                                          const tjs_uint32 *src,
-                                          tjs_int srcstart, tjs_int srcstep) {
+static void __stdcall TVP_Stub_cc1ac928b5c31570dfba7ed8f565be4b(
+    tjs_uint32 *dest, tjs_int destlen, const tjs_uint32 *src, tjs_int srcstart,
+    tjs_int srcstep) {
     return TVPStretchCopyOpaqueImage(dest, destlen, src, srcstart, srcstep);
 }
 
@@ -2618,21 +2470,18 @@ static void __stdcall TVP_Stub_cac02dfd62ba94abf6a346bef0bf3ab9(
     return TVPConstAlphaBlend_SD_d(dest, src1, src2, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_68eeb36d76d88ff00014f04b23454254(tjs_uint32 *table, tjs_int phase,
-                                          tjs_int vague) {
+static void __stdcall TVP_Stub_68eeb36d76d88ff00014f04b23454254(
+    tjs_uint32 *table, tjs_int phase, tjs_int vague) {
     return TVPInitUnivTransBlendTable(table, phase, vague);
 }
 
-static void __stdcall
-TVP_Stub_65e03b1c849b6e9cb5c478024aa9a5b7(tjs_uint32 *table, tjs_int phase,
-                                          tjs_int vague) {
+static void __stdcall TVP_Stub_65e03b1c849b6e9cb5c478024aa9a5b7(
+    tjs_uint32 *table, tjs_int phase, tjs_int vague) {
     return TVPInitUnivTransBlendTable_d(table, phase, vague);
 }
 
-static void __stdcall
-TVP_Stub_7670c0c5630625ee6a73b7b9ee093650(tjs_uint32 *table, tjs_int phase,
-                                          tjs_int vague) {
+static void __stdcall TVP_Stub_7670c0c5630625ee6a73b7b9ee093650(
+    tjs_uint32 *table, tjs_int phase, tjs_int vague) {
     return TVPInitUnivTransBlendTable_a(table, phase, vague);
 }
 
@@ -2683,10 +2532,9 @@ static void __stdcall TVP_Stub_96fd614457f06499a430b0c6e0e8a941(
     return TVPApplyColorMap(dest, src, len, color);
 }
 
-static void __stdcall
-TVP_Stub_d6e36d304ff7253088ab4bc1aaf13a98(tjs_uint32 *dest,
-                                          const tjs_uint8 *src, tjs_int len,
-                                          tjs_uint32 color, tjs_int opa) {
+static void __stdcall TVP_Stub_d6e36d304ff7253088ab4bc1aaf13a98(
+    tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color,
+    tjs_int opa) {
     return TVPApplyColorMap_o(dest, src, len, color, opa);
 }
 
@@ -2695,10 +2543,9 @@ static void __stdcall TVP_Stub_eddacf49735189e23d9d49831851ffdb(
     return TVPApplyColorMap65(dest, src, len, color);
 }
 
-static void __stdcall
-TVP_Stub_20275a5de4aef464b85d3f6db2800063(tjs_uint32 *dest,
-                                          const tjs_uint8 *src, tjs_int len,
-                                          tjs_uint32 color, tjs_int opa) {
+static void __stdcall TVP_Stub_20275a5de4aef464b85d3f6db2800063(
+    tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color,
+    tjs_int opa) {
     return TVPApplyColorMap65_o(dest, src, len, color, opa);
 }
 
@@ -2707,10 +2554,9 @@ static void __stdcall TVP_Stub_872d1c626e6d4e3d5e86a257f0b14536(
     return TVPApplyColorMap_HDA(dest, src, len, color);
 }
 
-static void __stdcall
-TVP_Stub_a7ebb70cdec339f26c2ea7fd9a471b88(tjs_uint32 *dest,
-                                          const tjs_uint8 *src, tjs_int len,
-                                          tjs_uint32 color, tjs_int opa) {
+static void __stdcall TVP_Stub_a7ebb70cdec339f26c2ea7fd9a471b88(
+    tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color,
+    tjs_int opa) {
     return TVPApplyColorMap_HDA_o(dest, src, len, color, opa);
 }
 
@@ -2719,10 +2565,9 @@ static void __stdcall TVP_Stub_d748ffef5cde2a6a3333e75b7fa3fb49(
     return TVPApplyColorMap65_HDA(dest, src, len, color);
 }
 
-static void __stdcall
-TVP_Stub_15e1fe0e6230e7b60e216e266f927f7b(tjs_uint32 *dest,
-                                          const tjs_uint8 *src, tjs_int len,
-                                          tjs_uint32 color, tjs_int opa) {
+static void __stdcall TVP_Stub_15e1fe0e6230e7b60e216e266f927f7b(
+    tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color,
+    tjs_int opa) {
     return TVPApplyColorMap65_HDA_o(dest, src, len, color, opa);
 }
 
@@ -2746,61 +2591,52 @@ static void __stdcall TVP_Stub_e0163a6ca3397c2e71715132cccefa1d(
     return TVPApplyColorMap65_a(dest, src, len, color);
 }
 
-static void __stdcall
-TVP_Stub_2c3ea1ea88799dfde81025bf1959333a(tjs_uint32 *dest,
-                                          const tjs_uint8 *src, tjs_int len,
-                                          tjs_uint32 color, tjs_int opa) {
+static void __stdcall TVP_Stub_2c3ea1ea88799dfde81025bf1959333a(
+    tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color,
+    tjs_int opa) {
     return TVPApplyColorMap_do(dest, src, len, color, opa);
 }
 
-static void __stdcall
-TVP_Stub_a6bb56b3f4b7a89fe78d63956a0f444c(tjs_uint32 *dest,
-                                          const tjs_uint8 *src, tjs_int len,
-                                          tjs_uint32 color, tjs_int opa) {
+static void __stdcall TVP_Stub_a6bb56b3f4b7a89fe78d63956a0f444c(
+    tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color,
+    tjs_int opa) {
     return TVPApplyColorMap65_do(dest, src, len, color, opa);
 }
 
-static void __stdcall
-TVP_Stub_09a81ac18a121d8fbb67285a081bf9c6(tjs_uint32 *dest,
-                                          const tjs_uint8 *src, tjs_int len,
-                                          tjs_uint32 color, tjs_int opa) {
+static void __stdcall TVP_Stub_09a81ac18a121d8fbb67285a081bf9c6(
+    tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color,
+    tjs_int opa) {
     return TVPApplyColorMap_ao(dest, src, len, color, opa);
 }
 
-static void __stdcall
-TVP_Stub_46fdfe0f5369bf234c3ed60a43947d9d(tjs_uint32 *dest,
-                                          const tjs_uint8 *src, tjs_int len,
-                                          tjs_uint32 color, tjs_int opa) {
+static void __stdcall TVP_Stub_46fdfe0f5369bf234c3ed60a43947d9d(
+    tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len, tjs_uint32 color,
+    tjs_int opa) {
     return TVPApplyColorMap65_ao(dest, src, len, color, opa);
 }
 
-static void __stdcall
-TVP_Stub_d866cb6c8a47444bbac60eeffbfc6d96(tjs_uint32 *dest, tjs_int len,
-                                          tjs_uint32 color, tjs_int opa) {
+static void __stdcall TVP_Stub_d866cb6c8a47444bbac60eeffbfc6d96(
+    tjs_uint32 *dest, tjs_int len, tjs_uint32 color, tjs_int opa) {
     return TVPConstColorAlphaBlend(dest, len, color, opa);
 }
 
-static void __stdcall
-TVP_Stub_7b5718fc67458089c685dbb900126890(tjs_uint32 *dest, tjs_int len,
-                                          tjs_uint32 color, tjs_int opa) {
+static void __stdcall TVP_Stub_7b5718fc67458089c685dbb900126890(
+    tjs_uint32 *dest, tjs_int len, tjs_uint32 color, tjs_int opa) {
     return TVPConstColorAlphaBlend_d(dest, len, color, opa);
 }
 
-static void __stdcall
-TVP_Stub_5713dfe9525662357d3819229e0204c2(tjs_uint32 *dest, tjs_int len,
-                                          tjs_uint32 color, tjs_int opa) {
+static void __stdcall TVP_Stub_5713dfe9525662357d3819229e0204c2(
+    tjs_uint32 *dest, tjs_int len, tjs_uint32 color, tjs_int opa) {
     return TVPConstColorAlphaBlend_a(dest, len, color, opa);
 }
 
-static void __stdcall
-TVP_Stub_8954a6b4a7f8b378c2af16a00d5059b0(tjs_uint32 *dest, tjs_int len,
-                                          tjs_int strength) {
+static void __stdcall TVP_Stub_8954a6b4a7f8b378c2af16a00d5059b0(
+    tjs_uint32 *dest, tjs_int len, tjs_int strength) {
     return TVPRemoveConstOpacity(dest, len, strength);
 }
 
-static void __stdcall
-TVP_Stub_2ed4faa38db6f3dee0dea18ebe973d35(tjs_uint32 *dest,
-                                          const tjs_uint8 *src, tjs_int len) {
+static void __stdcall TVP_Stub_2ed4faa38db6f3dee0dea18ebe973d35(
+    tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len) {
     return TVPRemoveOpacity(dest, src, len);
 }
 
@@ -2809,9 +2645,8 @@ static void __stdcall TVP_Stub_d0338dedb0af532d22f2075a85373548(
     return TVPRemoveOpacity_o(dest, src, len, strength);
 }
 
-static void __stdcall
-TVP_Stub_583d57c3bb9491f8f9904c266d3f52e8(tjs_uint32 *dest,
-                                          const tjs_uint8 *src, tjs_int len) {
+static void __stdcall TVP_Stub_583d57c3bb9491f8f9904c266d3f52e8(
+    tjs_uint32 *dest, const tjs_uint8 *src, tjs_int len) {
     return TVPRemoveOpacity65(dest, src, len);
 }
 
@@ -2820,15 +2655,13 @@ static void __stdcall TVP_Stub_8ac206da43e322eb8e34fce2b0959656(
     return TVPRemoveOpacity65_o(dest, src, len, strength);
 }
 
-static void __stdcall
-TVP_Stub_14f5f97d90bd8da89b68d035367f4ba4(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_14f5f97d90bd8da89b68d035367f4ba4(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPAddBlend(dest, src, len);
 }
 
-static void __stdcall
-TVP_Stub_ac3b21181ef4c1be73cf5e0edb4e1a8f(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_ac3b21181ef4c1be73cf5e0edb4e1a8f(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPAddBlend_HDA(dest, src, len);
 }
 
@@ -2842,15 +2675,13 @@ static void __stdcall TVP_Stub_c4033f54a99517783b8d6ad23c90aeed(
     return TVPAddBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_f19e38d48755c971fc35408ac65562fa(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_f19e38d48755c971fc35408ac65562fa(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPSubBlend(dest, src, len);
 }
 
-static void __stdcall
-TVP_Stub_e01204e226d8aa9520b3620b68da6196(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_e01204e226d8aa9520b3620b68da6196(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPSubBlend_HDA(dest, src, len);
 }
 
@@ -2864,15 +2695,13 @@ static void __stdcall TVP_Stub_c55f38b1a7623646aa5cc45d4f4f479b(
     return TVPSubBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_983d270549ec0e83e2a863b43e1e6f70(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_983d270549ec0e83e2a863b43e1e6f70(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPMulBlend(dest, src, len);
 }
 
-static void __stdcall
-TVP_Stub_b48d779dc6a881c67c5f8fa12655aa28(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_b48d779dc6a881c67c5f8fa12655aa28(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPMulBlend_HDA(dest, src, len);
 }
 
@@ -2886,15 +2715,13 @@ static void __stdcall TVP_Stub_6b6f416b5725a7cafb4774ffc3a00f10(
     return TVPMulBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_bc7fc5dfa228152a09d2230823c2fe71(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_bc7fc5dfa228152a09d2230823c2fe71(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPColorDodgeBlend(dest, src, len);
 }
 
-static void __stdcall
-TVP_Stub_a1cb941317b947beb88e29fa8d46a2be(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_a1cb941317b947beb88e29fa8d46a2be(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPColorDodgeBlend_HDA(dest, src, len);
 }
 
@@ -2908,15 +2735,13 @@ static void __stdcall TVP_Stub_4b7b264b61ee0eea68213934217f5865(
     return TVPColorDodgeBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_e872f12593d6853ebdffebbb5d003c10(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_e872f12593d6853ebdffebbb5d003c10(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPDarkenBlend(dest, src, len);
 }
 
-static void __stdcall
-TVP_Stub_e86fcf60fa658129d937de3728d3c432(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_e86fcf60fa658129d937de3728d3c432(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPDarkenBlend_HDA(dest, src, len);
 }
 
@@ -2930,15 +2755,13 @@ static void __stdcall TVP_Stub_3b5a3e187077b0b5eac9a040c99dd9e7(
     return TVPDarkenBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_2d9b2bb2cd57220048fe170f1e960cb7(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_2d9b2bb2cd57220048fe170f1e960cb7(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPLightenBlend(dest, src, len);
 }
 
-static void __stdcall
-TVP_Stub_260624e275a20115e8861eb7b0383971(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_260624e275a20115e8861eb7b0383971(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPLightenBlend_HDA(dest, src, len);
 }
 
@@ -2952,15 +2775,13 @@ static void __stdcall TVP_Stub_ff652293eef07b5a7ec4f372e5504e2c(
     return TVPLightenBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_99b773033e9a2c631b483d4d0e3881f8(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_99b773033e9a2c631b483d4d0e3881f8(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPScreenBlend(dest, src, len);
 }
 
-static void __stdcall
-TVP_Stub_3787960fc29b8545629d894ff46d4641(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_3787960fc29b8545629d894ff46d4641(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPScreenBlend_HDA(dest, src, len);
 }
 
@@ -2974,10 +2795,9 @@ static void __stdcall TVP_Stub_292ee2eeb8131e34368ba9ee144b737a(
     return TVPScreenBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_ec144655bc61bfa2c6e9505cc1a0a298(tjs_uint32 *dest, tjs_int destlen,
-                                          const tjs_uint32 *src,
-                                          tjs_int srcstart, tjs_int srcstep) {
+static void __stdcall TVP_Stub_ec144655bc61bfa2c6e9505cc1a0a298(
+    tjs_uint32 *dest, tjs_int destlen, const tjs_uint32 *src, tjs_int srcstart,
+    tjs_int srcstep) {
     return TVPStretchCopy(dest, destlen, src, srcstart, srcstep);
 }
 
@@ -2989,29 +2809,25 @@ static void __stdcall TVP_Stub_230218bdabfc34178a8306a54276a3c8(
                                 srcstep);
 }
 
-static void __stdcall
-TVP_Stub_617dfb046aaf40078ee76715fa4756af(tjs_uint32 *dest, tjs_int destlen,
-                                          const tjs_uint32 *src) {
+static void __stdcall TVP_Stub_617dfb046aaf40078ee76715fa4756af(
+    tjs_uint32 *dest, tjs_int destlen, const tjs_uint32 *src) {
     return TVPFastLinearInterpH2F(dest, destlen, src);
 }
 
-static void __stdcall
-TVP_Stub_8116bb2b26dcafd9fefca76e9f1d9b24(tjs_uint32 *dest, tjs_int destlen,
-                                          const tjs_uint32 *src) {
+static void __stdcall TVP_Stub_8116bb2b26dcafd9fefca76e9f1d9b24(
+    tjs_uint32 *dest, tjs_int destlen, const tjs_uint32 *src) {
     return TVPFastLinearInterpH2B(dest, destlen, src);
 }
 
-static void __stdcall
-TVP_Stub_12962f857563cd39b3cb1f9894775cc7(tjs_uint32 *dest, tjs_int destlen,
-                                          const tjs_uint32 *src0,
-                                          const tjs_uint32 *src1) {
+static void __stdcall TVP_Stub_12962f857563cd39b3cb1f9894775cc7(
+    tjs_uint32 *dest, tjs_int destlen, const tjs_uint32 *src0,
+    const tjs_uint32 *src1) {
     return TVPFastLinearInterpV2(dest, destlen, src0, src1);
 }
 
-static void __stdcall
-TVP_Stub_50c0d25cd9af311a5fb0aca78f691c3b(tjs_uint32 *dest, tjs_int destlen,
-                                          const tjs_uint32 *src,
-                                          tjs_int srcstart, tjs_int srcstep) {
+static void __stdcall TVP_Stub_50c0d25cd9af311a5fb0aca78f691c3b(
+    tjs_uint32 *dest, tjs_int destlen, const tjs_uint32 *src, tjs_int srcstart,
+    tjs_int srcstep) {
     return TVPStretchColorCopy(dest, destlen, src, srcstart, srcstep);
 }
 
@@ -3035,51 +2851,43 @@ static void __stdcall TVP_Stub_487ee86557f94113db9a981e08d29caa(
                                 srcpitch);
 }
 
-static void __stdcall
-TVP_Stub_dfdfe0e494845bf484612cc97145f85c(tjs_uint32 *dest, tjs_int len,
-                                          tjs_uint32 key) {
+static void __stdcall TVP_Stub_dfdfe0e494845bf484612cc97145f85c(
+    tjs_uint32 *dest, tjs_int len, tjs_uint32 key) {
     return TVPMakeAlphaFromKey(dest, len, key);
 }
 
-static void __stdcall
-TVP_Stub_e74dc11dbd56fb450eed1388a65d3102(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_e74dc11dbd56fb450eed1388a65d3102(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPCopyMask(dest, src, len);
 }
 
-static void __stdcall
-TVP_Stub_6981c02247de5799ea7dfbd79fdc208d(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_6981c02247de5799ea7dfbd79fdc208d(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPCopyColor(dest, src, len);
 }
 
-static void __stdcall
-TVP_Stub_7c559043315f6ecd7a86ec7d8d820f6d(tjs_uint32 *main,
-                                          const tjs_uint8 *mask, tjs_int len) {
+static void __stdcall TVP_Stub_7c559043315f6ecd7a86ec7d8d820f6d(
+    tjs_uint32 *main, const tjs_uint8 *mask, tjs_int len) {
     return TVPBindMaskToMain(main, mask, len);
 }
 
-static void __stdcall
-TVP_Stub_3a8b6aca73c83d6fc9ce813661ec734d(tjs_uint32 *dest, tjs_int len,
-                                          tjs_uint32 value) {
+static void __stdcall TVP_Stub_3a8b6aca73c83d6fc9ce813661ec734d(
+    tjs_uint32 *dest, tjs_int len, tjs_uint32 value) {
     return TVPFillARGB(dest, len, value);
 }
 
-static void __stdcall
-TVP_Stub_20d7ce65e240b745b10616bb5da1f897(tjs_uint32 *dest, tjs_int len,
-                                          tjs_uint32 value) {
+static void __stdcall TVP_Stub_20d7ce65e240b745b10616bb5da1f897(
+    tjs_uint32 *dest, tjs_int len, tjs_uint32 value) {
     return TVPFillARGB_NC(dest, len, value);
 }
 
-static void __stdcall
-TVP_Stub_f4d1217249674ac9274d358c381afc0b(tjs_uint32 *dest, tjs_int len,
-                                          tjs_uint32 color) {
+static void __stdcall TVP_Stub_f4d1217249674ac9274d358c381afc0b(
+    tjs_uint32 *dest, tjs_int len, tjs_uint32 color) {
     return TVPFillColor(dest, len, color);
 }
 
-static void __stdcall
-TVP_Stub_ca77323bbe361f88f68536018fa94c50(tjs_uint32 *dest, tjs_int len,
-                                          tjs_uint32 mask) {
+static void __stdcall TVP_Stub_ca77323bbe361f88f68536018fa94c50(
+    tjs_uint32 *dest, tjs_int len, tjs_uint32 mask) {
     return TVPFillMask(dest, len, mask);
 }
 
@@ -3131,65 +2939,58 @@ static void __stdcall TVP_Stub_607ee0956cbb16b2afb7cb2227aa6267(
     return TVPDoBoxBlurAvg32_d(dest, sum, add, sub, n, len);
 }
 
-static void __stdcall
-TVP_Stub_816d84c86e86d5e7c0018d551e741e4f(tjs_uint8 *line1, tjs_uint8 *line2,
-                                          tjs_int len) {
+static void __stdcall TVP_Stub_816d84c86e86d5e7c0018d551e741e4f(
+    tjs_uint8 *line1, tjs_uint8 *line2, tjs_int len) {
     return TVPSwapLine8(line1, line2, len);
 }
 
-static void __stdcall
-TVP_Stub_985fcda0141eb3b4c6bd8342e947f130(tjs_uint32 *line1, tjs_uint32 *line2,
-                                          tjs_int len) {
+static void __stdcall TVP_Stub_985fcda0141eb3b4c6bd8342e947f130(
+    tjs_uint32 *line1, tjs_uint32 *line2, tjs_int len) {
     return TVPSwapLine32(line1, line2, len);
 }
 
-static void __stdcall
-TVP_Stub_d00e4f9e493334d2f65ea379ff03d717(tjs_uint8 *pixels, tjs_int len) {
+static void __stdcall TVP_Stub_d00e4f9e493334d2f65ea379ff03d717(
+    tjs_uint8 *pixels, tjs_int len) {
     return TVPReverse8(pixels, len);
 }
 
-static void __stdcall
-TVP_Stub_0c246e6c7c8798e4c10d2bbfc66326c9(tjs_uint32 *pixels, tjs_int len) {
+static void __stdcall TVP_Stub_0c246e6c7c8798e4c10d2bbfc66326c9(
+    tjs_uint32 *pixels, tjs_int len) {
     return TVPReverse32(pixels, len);
 }
 
-static void __stdcall
-TVP_Stub_501015843a83368b3ff1c7c9ef5f3bcb(tjs_uint32 *dest, tjs_int len) {
+static void __stdcall TVP_Stub_501015843a83368b3ff1c7c9ef5f3bcb(
+    tjs_uint32 *dest, tjs_int len) {
     return TVPDoGrayScale(dest, len);
 }
 
-static void __stdcall
-TVP_Stub_61d5fc5a060f346752a3a8b6886d17bc(tTVPGLGammaAdjustTempData *temp,
-                                          const tTVPGLGammaAdjustData *data) {
+static void __stdcall TVP_Stub_61d5fc5a060f346752a3a8b6886d17bc(
+    tTVPGLGammaAdjustTempData *temp, const tTVPGLGammaAdjustData *data) {
     return TVPInitGammaAdjustTempData(temp, data);
 }
 
-static void __stdcall
-TVP_Stub_0debe3e1caf0f57572a59917851676d3(tTVPGLGammaAdjustTempData *temp) {
+static void __stdcall TVP_Stub_0debe3e1caf0f57572a59917851676d3(
+    tTVPGLGammaAdjustTempData *temp) {
     return TVPUninitGammaAdjustTempData(temp);
 }
 
-static void __stdcall
-TVP_Stub_ee3a36682f48639166ba04a19fe1b332(tjs_uint32 *dest, tjs_int len,
-                                          tTVPGLGammaAdjustTempData *temp) {
+static void __stdcall TVP_Stub_ee3a36682f48639166ba04a19fe1b332(
+    tjs_uint32 *dest, tjs_int len, tTVPGLGammaAdjustTempData *temp) {
     return TVPAdjustGamma(dest, len, temp);
 }
 
-static void __stdcall
-TVP_Stub_4d99b9e38121251b40a90cd2bd5fea63(tjs_uint32 *dest, tjs_int len,
-                                          tTVPGLGammaAdjustTempData *temp) {
+static void __stdcall TVP_Stub_4d99b9e38121251b40a90cd2bd5fea63(
+    tjs_uint32 *dest, tjs_int len, tTVPGLGammaAdjustTempData *temp) {
     return TVPAdjustGamma_a(dest, len, temp);
 }
 
-static void __stdcall
-TVP_Stub_f1509827696ebf5627bee1a45d675fb8(tjs_uint8 *dest, const tjs_uint8 *src,
-                                          tjs_int len, tjs_int level) {
+static void __stdcall TVP_Stub_f1509827696ebf5627bee1a45d675fb8(
+    tjs_uint8 *dest, const tjs_uint8 *src, tjs_int len, tjs_int level) {
     return TVPChBlurMulCopy65(dest, src, len, level);
 }
 
-static void __stdcall
-TVP_Stub_bbb625e23229350453161810c41419dd(tjs_uint8 *dest, const tjs_uint8 *src,
-                                          tjs_int len, tjs_int level) {
+static void __stdcall TVP_Stub_bbb625e23229350453161810c41419dd(
+    tjs_uint8 *dest, const tjs_uint8 *src, tjs_int len, tjs_int level) {
     return TVPChBlurAddMulCopy65(dest, src, len, level);
 }
 
@@ -3201,15 +3002,13 @@ static void __stdcall TVP_Stub_489a6aae30de0feff5d3c5fbd42ae325(
                            srcpitch, srcwidth, srcheight, blurwidth, blurlevel);
 }
 
-static void __stdcall
-TVP_Stub_6b9a349305f8c689dcfdbcea2566769c(tjs_uint8 *dest, const tjs_uint8 *src,
-                                          tjs_int len, tjs_int level) {
+static void __stdcall TVP_Stub_6b9a349305f8c689dcfdbcea2566769c(
+    tjs_uint8 *dest, const tjs_uint8 *src, tjs_int len, tjs_int level) {
     return TVPChBlurMulCopy(dest, src, len, level);
 }
 
-static void __stdcall
-TVP_Stub_6320d208ce1a570aca52c3cdf7421f7c(tjs_uint8 *dest, const tjs_uint8 *src,
-                                          tjs_int len, tjs_int level) {
+static void __stdcall TVP_Stub_6320d208ce1a570aca52c3cdf7421f7c(
+    tjs_uint8 *dest, const tjs_uint8 *src, tjs_int len, tjs_int level) {
     return TVPChBlurAddMulCopy(dest, src, len, level);
 }
 
@@ -3221,135 +3020,114 @@ static void __stdcall TVP_Stub_0f83f0459badd1cd352041b9243d712f(
                          srcwidth, srcheight, blurwidth, blurlevel);
 }
 
-static void __stdcall
-TVP_Stub_186a94b2fed609ed2d2a7ac1a2bed87f(tjs_uint8 *dest, const tjs_uint8 *buf,
-                                          tjs_int len, const tjs_uint32 *pal) {
+static void __stdcall TVP_Stub_186a94b2fed609ed2d2a7ac1a2bed87f(
+    tjs_uint8 *dest, const tjs_uint8 *buf, tjs_int len, const tjs_uint32 *pal) {
     return TVPBLExpand1BitTo8BitPal(dest, buf, len, pal);
 }
 
-static void __stdcall
-TVP_Stub_bde8efb9971664f2b52fe912745e2791(tjs_uint8 *dest, const tjs_uint8 *buf,
-                                          tjs_int len) {
+static void __stdcall TVP_Stub_bde8efb9971664f2b52fe912745e2791(
+    tjs_uint8 *dest, const tjs_uint8 *buf, tjs_int len) {
     return TVPBLExpand1BitTo8Bit(dest, buf, len);
 }
 
-static void __stdcall
-TVP_Stub_386d6fa5cb73e3519b62d20470e5414b(tjs_uint32 *dest,
-                                          const tjs_uint8 *buf, tjs_int len,
-                                          const tjs_uint32 *pal) {
+static void __stdcall TVP_Stub_386d6fa5cb73e3519b62d20470e5414b(
+    tjs_uint32 *dest, const tjs_uint8 *buf, tjs_int len,
+    const tjs_uint32 *pal) {
     return TVPBLExpand1BitTo32BitPal(dest, buf, len, pal);
 }
 
-static void __stdcall
-TVP_Stub_c61f97ec3d99bdbb23afe93870001bbf(tjs_uint8 *dest, const tjs_uint8 *buf,
-                                          tjs_int len, const tjs_uint32 *pal) {
+static void __stdcall TVP_Stub_c61f97ec3d99bdbb23afe93870001bbf(
+    tjs_uint8 *dest, const tjs_uint8 *buf, tjs_int len, const tjs_uint32 *pal) {
     return TVPBLExpand4BitTo8BitPal(dest, buf, len, pal);
 }
 
-static void __stdcall
-TVP_Stub_f92821f2b23662c6f1256511a626cd3f(tjs_uint8 *dest, const tjs_uint8 *buf,
-                                          tjs_int len) {
+static void __stdcall TVP_Stub_f92821f2b23662c6f1256511a626cd3f(
+    tjs_uint8 *dest, const tjs_uint8 *buf, tjs_int len) {
     return TVPBLExpand4BitTo8Bit(dest, buf, len);
 }
 
-static void __stdcall
-TVP_Stub_76b0732e3e2886897d5f26b4b0545dee(tjs_uint32 *dest,
-                                          const tjs_uint8 *buf, tjs_int len,
-                                          const tjs_uint32 *pal) {
+static void __stdcall TVP_Stub_76b0732e3e2886897d5f26b4b0545dee(
+    tjs_uint32 *dest, const tjs_uint8 *buf, tjs_int len,
+    const tjs_uint32 *pal) {
     return TVPBLExpand4BitTo32BitPal(dest, buf, len, pal);
 }
 
-static void __stdcall
-TVP_Stub_903ed11ef3863850e837bd4b3b1d61a1(tjs_uint8 *dest, const tjs_uint8 *buf,
-                                          tjs_int len, const tjs_uint32 *pal) {
+static void __stdcall TVP_Stub_903ed11ef3863850e837bd4b3b1d61a1(
+    tjs_uint8 *dest, const tjs_uint8 *buf, tjs_int len, const tjs_uint32 *pal) {
     return TVPBLExpand8BitTo8BitPal(dest, buf, len, pal);
 }
 
-static void __stdcall
-TVP_Stub_2661124b39595ffafe2fb0bfb7bd2efc(tjs_uint32 *dest,
-                                          const tjs_uint8 *buf, tjs_int len,
-                                          const tjs_uint32 *pal) {
+static void __stdcall TVP_Stub_2661124b39595ffafe2fb0bfb7bd2efc(
+    tjs_uint32 *dest, const tjs_uint8 *buf, tjs_int len,
+    const tjs_uint32 *pal) {
     return TVPBLExpand8BitTo32BitPal(dest, buf, len, pal);
 }
 
-static void __stdcall
-TVP_Stub_d0b7170e54398c2f9d27dcc513c4cf46(tjs_uint32 *dest,
-                                          const tjs_uint8 *buf, tjs_int len) {
+static void __stdcall TVP_Stub_d0b7170e54398c2f9d27dcc513c4cf46(
+    tjs_uint32 *dest, const tjs_uint8 *buf, tjs_int len) {
     return TVPExpand8BitTo32BitGray(dest, buf, len);
 }
 
-static void __stdcall
-TVP_Stub_31bdd2a1eed3785c1422fab5ea6b3ce7(tjs_uint8 *dest,
-                                          const tjs_uint16 *buf, tjs_int len) {
+static void __stdcall TVP_Stub_31bdd2a1eed3785c1422fab5ea6b3ce7(
+    tjs_uint8 *dest, const tjs_uint16 *buf, tjs_int len) {
     return TVPBLConvert15BitTo8Bit(dest, buf, len);
 }
 
-static void __stdcall
-TVP_Stub_dbc300d1dadc1a60cb0dcadfb92f1aee(tjs_uint32 *dest,
-                                          const tjs_uint16 *buf, tjs_int len) {
+static void __stdcall TVP_Stub_dbc300d1dadc1a60cb0dcadfb92f1aee(
+    tjs_uint32 *dest, const tjs_uint16 *buf, tjs_int len) {
     return TVPBLConvert15BitTo32Bit(dest, buf, len);
 }
 
-static void __stdcall
-TVP_Stub_1d4d9f8bdf55bd4c78abd90656af0364(tjs_uint8 *dest, const tjs_uint8 *buf,
-                                          tjs_int len) {
+static void __stdcall TVP_Stub_1d4d9f8bdf55bd4c78abd90656af0364(
+    tjs_uint8 *dest, const tjs_uint8 *buf, tjs_int len) {
     return TVPBLConvert24BitTo8Bit(dest, buf, len);
 }
 
-static void __stdcall
-TVP_Stub_5c7049e712e84b40ac05942421202de5(tjs_uint32 *dest,
-                                          const tjs_uint8 *buf, tjs_int len) {
+static void __stdcall TVP_Stub_5c7049e712e84b40ac05942421202de5(
+    tjs_uint32 *dest, const tjs_uint8 *buf, tjs_int len) {
     return TVPBLConvert24BitTo32Bit(dest, buf, len);
 }
 
-static void __stdcall
-TVP_Stub_5dca8992bb340d70ba65ddab65c28371(tjs_uint32 *dest,
-                                          const tjs_uint8 *buf, tjs_int len) {
+static void __stdcall TVP_Stub_5dca8992bb340d70ba65ddab65c28371(
+    tjs_uint32 *dest, const tjs_uint8 *buf, tjs_int len) {
     return TVPConvert24BitTo32Bit(dest, buf, len);
 }
 
-static void __stdcall
-TVP_Stub_85f1f38f783ebfcf638f3c443bc9b204(tjs_uint8 *dest,
-                                          const tjs_uint32 *buf, tjs_int len) {
+static void __stdcall TVP_Stub_85f1f38f783ebfcf638f3c443bc9b204(
+    tjs_uint8 *dest, const tjs_uint32 *buf, tjs_int len) {
     return TVPBLConvert32BitTo8Bit(dest, buf, len);
 }
 
-static void __stdcall
-TVP_Stub_7d61d143884bfa4b6c50dae11c2b659f(tjs_uint32 *dest,
-                                          const tjs_uint32 *buf, tjs_int len) {
+static void __stdcall TVP_Stub_7d61d143884bfa4b6c50dae11c2b659f(
+    tjs_uint32 *dest, const tjs_uint32 *buf, tjs_int len) {
     return TVPBLConvert32BitTo32Bit_NoneAlpha(dest, buf, len);
 }
 
-static void __stdcall
-TVP_Stub_793a2ad7ad3411be3670576a8e6ddcf8(tjs_uint32 *dest,
-                                          const tjs_uint32 *buf, tjs_int len) {
+static void __stdcall TVP_Stub_793a2ad7ad3411be3670576a8e6ddcf8(
+    tjs_uint32 *dest, const tjs_uint32 *buf, tjs_int len) {
     return TVPBLConvert32BitTo32Bit_MulAddAlpha(dest, buf, len);
 }
 
-static void __stdcall
-TVP_Stub_68d8eec33254f1684e53bbc0aa8b2466(tjs_uint32 *dest,
-                                          const tjs_uint32 *buf, tjs_int len) {
+static void __stdcall TVP_Stub_68d8eec33254f1684e53bbc0aa8b2466(
+    tjs_uint32 *dest, const tjs_uint32 *buf, tjs_int len) {
     return TVPBLConvert32BitTo32Bit_AddAlpha(dest, buf, len);
 }
 
-static void __stdcall
-TVP_Stub_b09652d2197b29f7d38aff0298c69f17(tjs_uint16 *dest,
-                                          const tjs_uint32 *src, tjs_int len,
-                                          tjs_int xofs, tjs_int yofs) {
+static void __stdcall TVP_Stub_b09652d2197b29f7d38aff0298c69f17(
+    tjs_uint16 *dest, const tjs_uint32 *src, tjs_int len, tjs_int xofs,
+    tjs_int yofs) {
     return TVPDither32BitTo16Bit565(dest, src, len, xofs, yofs);
 }
 
-static void __stdcall
-TVP_Stub_be7db03ddcf1886cb7233e58f19c8c77(tjs_uint16 *dest,
-                                          const tjs_uint32 *src, tjs_int len,
-                                          tjs_int xofs, tjs_int yofs) {
+static void __stdcall TVP_Stub_be7db03ddcf1886cb7233e58f19c8c77(
+    tjs_uint16 *dest, const tjs_uint32 *src, tjs_int len, tjs_int xofs,
+    tjs_int yofs) {
     return TVPDither32BitTo16Bit555(dest, src, len, xofs, yofs);
 }
 
-static void __stdcall
-TVP_Stub_b4c8fedc1ffbe30d9703cb2b8d3c0e7b(tjs_uint8 *dest,
-                                          const tjs_uint32 *src, tjs_int len,
-                                          tjs_int xofs, tjs_int yofs) {
+static void __stdcall TVP_Stub_b4c8fedc1ffbe30d9703cb2b8d3c0e7b(
+    tjs_uint8 *dest, const tjs_uint32 *src, tjs_int len, tjs_int xofs,
+    tjs_int yofs) {
     return TVPDither32BitTo8Bit(dest, src, len, xofs, yofs);
 }
 
@@ -3365,10 +3143,9 @@ static void __stdcall TVP_Stub_0e55187bde599d6585eaabd2c4ac3f02(
     return TVPTLG5ComposeColors4To4(outp, upper, buf, width);
 }
 
-static tjs_int __stdcall
-TVP_Stub_f72e3fc3b97a9141b6f516f5e53bf9b8(tjs_uint8 *out, const tjs_uint8 *in,
-                                          tjs_int insize, tjs_uint8 *text,
-                                          tjs_int initialr) {
+static tjs_int __stdcall TVP_Stub_f72e3fc3b97a9141b6f516f5e53bf9b8(
+    tjs_uint8 *out, const tjs_uint8 *in, tjs_int insize, tjs_uint8 *text,
+    tjs_int initialr) {
     return TVPTLG5DecompressSlide(out, in, insize, text, initialr);
 }
 
@@ -3400,9 +3177,8 @@ static void __stdcall TVP_Stub_be3a1844ea6af533bd4e7b0a76c826a1(
                              skipblockbytes, in, initialp, oddskip, dir);
 }
 
-static void __stdcall
-TVP_Stub_aa531d2c3c87f456e48a14722faa1c1f(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_aa531d2c3c87f456e48a14722faa1c1f(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsAlphaBlend(dest, src, len);
 }
 
@@ -3411,9 +3187,8 @@ static void __stdcall TVP_Stub_6889cd886e1c2e7faf541528636c16c3(
     return TVPPsAlphaBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_5d9266e6a8a154fe4ba80b0995e109ab(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_5d9266e6a8a154fe4ba80b0995e109ab(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsAlphaBlend_HDA(dest, src, len);
 }
 
@@ -3422,9 +3197,8 @@ static void __stdcall TVP_Stub_a7dc19b023737979ad1ae1ae01d560d2(
     return TVPPsAlphaBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_d20444b7a6243d668a0d3956d95af510(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_d20444b7a6243d668a0d3956d95af510(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsAddBlend(dest, src, len);
 }
 
@@ -3433,9 +3207,8 @@ static void __stdcall TVP_Stub_1458dec9eee36816c8002d4049840355(
     return TVPPsAddBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_21137ff5351245b1611852301b7f5796(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_21137ff5351245b1611852301b7f5796(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsAddBlend_HDA(dest, src, len);
 }
 
@@ -3444,9 +3217,8 @@ static void __stdcall TVP_Stub_c07fc4e45fc2dc44d839c5e012d0be60(
     return TVPPsAddBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_6815b962a3122ae967284239932cc656(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_6815b962a3122ae967284239932cc656(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsSubBlend(dest, src, len);
 }
 
@@ -3455,9 +3227,8 @@ static void __stdcall TVP_Stub_e96cccbe1f16b0fb74673f2ec3343ff8(
     return TVPPsSubBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_e8cd7494f919b18a992cb8c2722b2bf0(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_e8cd7494f919b18a992cb8c2722b2bf0(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsSubBlend_HDA(dest, src, len);
 }
 
@@ -3466,9 +3237,8 @@ static void __stdcall TVP_Stub_990fdefcafc0de5e8e1f502c1b341e44(
     return TVPPsSubBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_de5d83ba307e822825062377fb76c2ba(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_de5d83ba307e822825062377fb76c2ba(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsMulBlend(dest, src, len);
 }
 
@@ -3477,9 +3247,8 @@ static void __stdcall TVP_Stub_5e28bcc0f5ad6a038eb5a6535b56386c(
     return TVPPsMulBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_e33419e8ede4bb501ab1787cf17c7ca5(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_e33419e8ede4bb501ab1787cf17c7ca5(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsMulBlend_HDA(dest, src, len);
 }
 
@@ -3488,9 +3257,8 @@ static void __stdcall TVP_Stub_1cd7cb9580c0cf723dea402b85a720b1(
     return TVPPsMulBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_d18ca17fad389ff60ce3caa769083798(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_d18ca17fad389ff60ce3caa769083798(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsScreenBlend(dest, src, len);
 }
 
@@ -3499,9 +3267,8 @@ static void __stdcall TVP_Stub_0a959a5ff02530a8eb122e7e1f8ceed3(
     return TVPPsScreenBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_a4774ea559e64b4667b3845f8540d207(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_a4774ea559e64b4667b3845f8540d207(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsScreenBlend_HDA(dest, src, len);
 }
 
@@ -3510,9 +3277,8 @@ static void __stdcall TVP_Stub_52eae3e8106494bfa604c15492ecb9f4(
     return TVPPsScreenBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_882f458df5e05bb9ab2222e79f6c81cf(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_882f458df5e05bb9ab2222e79f6c81cf(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsOverlayBlend(dest, src, len);
 }
 
@@ -3521,9 +3287,8 @@ static void __stdcall TVP_Stub_6069a18bf7d3f394c230cdcf2f574ef4(
     return TVPPsOverlayBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_75b60565caf44027cc52b2b5cf6b0ea3(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_75b60565caf44027cc52b2b5cf6b0ea3(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsOverlayBlend_HDA(dest, src, len);
 }
 
@@ -3532,9 +3297,8 @@ static void __stdcall TVP_Stub_9d735149c3ad586363895f76645abf2e(
     return TVPPsOverlayBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_ea5168fae254acdd8c8db6f1f3d2da03(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_ea5168fae254acdd8c8db6f1f3d2da03(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsHardLightBlend(dest, src, len);
 }
 
@@ -3543,9 +3307,8 @@ static void __stdcall TVP_Stub_f5a42bd5239e1a0be29f92eb838d2c8c(
     return TVPPsHardLightBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_7cc8cd9f415b183b42c546635aeade7f(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_7cc8cd9f415b183b42c546635aeade7f(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsHardLightBlend_HDA(dest, src, len);
 }
 
@@ -3554,9 +3317,8 @@ static void __stdcall TVP_Stub_ad2fefa53e05528f9c1fe29d27db0f37(
     return TVPPsHardLightBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_f3e06fed4c82a9bd1b53252abaf50847(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_f3e06fed4c82a9bd1b53252abaf50847(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsSoftLightBlend(dest, src, len);
 }
 
@@ -3565,9 +3327,8 @@ static void __stdcall TVP_Stub_960db7ea36202bf7ec3bf6b767cc045e(
     return TVPPsSoftLightBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_7bf5d357eb52dd206a269b54c8136e0e(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_7bf5d357eb52dd206a269b54c8136e0e(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsSoftLightBlend_HDA(dest, src, len);
 }
 
@@ -3576,9 +3337,8 @@ static void __stdcall TVP_Stub_ba1c9b771c5cdb725128de684af3c9ca(
     return TVPPsSoftLightBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_69cc6311196adc134fd153c4c5346bc5(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_69cc6311196adc134fd153c4c5346bc5(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsColorDodgeBlend(dest, src, len);
 }
 
@@ -3587,9 +3347,8 @@ static void __stdcall TVP_Stub_8ed68f8e79efe1c767f92e7d92eb8b54(
     return TVPPsColorDodgeBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_60da1e9ec15b251ff18ddcdf8a3e93e0(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_60da1e9ec15b251ff18ddcdf8a3e93e0(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsColorDodgeBlend_HDA(dest, src, len);
 }
 
@@ -3598,9 +3357,8 @@ static void __stdcall TVP_Stub_ef47304bad87a036e38f0319b48c1f6e(
     return TVPPsColorDodgeBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_182d19020e4e2d5cd1462d7c8ef24d1f(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_182d19020e4e2d5cd1462d7c8ef24d1f(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsColorDodge5Blend(dest, src, len);
 }
 
@@ -3609,9 +3367,8 @@ static void __stdcall TVP_Stub_9e1fa429a92a5c99d397a06c20fd6705(
     return TVPPsColorDodge5Blend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_74ac7c291299eb928aa4c2899df5567e(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_74ac7c291299eb928aa4c2899df5567e(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsColorDodge5Blend_HDA(dest, src, len);
 }
 
@@ -3620,9 +3377,8 @@ static void __stdcall TVP_Stub_fb645d9ec0ef3fd2aba2b762ef6b9a15(
     return TVPPsColorDodge5Blend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_f988626275257574050ac789f9060a3b(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_f988626275257574050ac789f9060a3b(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsColorBurnBlend(dest, src, len);
 }
 
@@ -3631,9 +3387,8 @@ static void __stdcall TVP_Stub_1831064ed23493cef407648763ba4d69(
     return TVPPsColorBurnBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_305390c94750daa7124db3ff6e77931c(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_305390c94750daa7124db3ff6e77931c(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsColorBurnBlend_HDA(dest, src, len);
 }
 
@@ -3642,9 +3397,8 @@ static void __stdcall TVP_Stub_4fb384a391bfcf6a3a2932661d3051aa(
     return TVPPsColorBurnBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_305537c4820e23cf217a15efb56dba1c(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_305537c4820e23cf217a15efb56dba1c(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsLightenBlend(dest, src, len);
 }
 
@@ -3653,9 +3407,8 @@ static void __stdcall TVP_Stub_aacf83677ca7df75117f7bafa7a53791(
     return TVPPsLightenBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_d14b922fefc6c07aa536b94762579fe5(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_d14b922fefc6c07aa536b94762579fe5(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsLightenBlend_HDA(dest, src, len);
 }
 
@@ -3664,9 +3417,8 @@ static void __stdcall TVP_Stub_00fd650a79c603bdeb2f8e36f667a782(
     return TVPPsLightenBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_a36ee133c07c30185b0bbc6375954e88(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_a36ee133c07c30185b0bbc6375954e88(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsDarkenBlend(dest, src, len);
 }
 
@@ -3675,9 +3427,8 @@ static void __stdcall TVP_Stub_dc657ecacf8e578870314427216864d9(
     return TVPPsDarkenBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_e79d02b58a8bfdee439bc0694d7edd6d(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_e79d02b58a8bfdee439bc0694d7edd6d(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsDarkenBlend_HDA(dest, src, len);
 }
 
@@ -3686,9 +3437,8 @@ static void __stdcall TVP_Stub_6b7537b66b71d27384bea45bc2bf24b4(
     return TVPPsDarkenBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_b3456dbad652b52f5bce1889b6f4d0ef(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_b3456dbad652b52f5bce1889b6f4d0ef(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsDiffBlend(dest, src, len);
 }
 
@@ -3697,9 +3447,8 @@ static void __stdcall TVP_Stub_9a50803a03e1ccb60120dff8b92ecdcd(
     return TVPPsDiffBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_0f6b3940dc72e3e56cd15216b53b9126(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_0f6b3940dc72e3e56cd15216b53b9126(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsDiffBlend_HDA(dest, src, len);
 }
 
@@ -3708,9 +3457,8 @@ static void __stdcall TVP_Stub_23b647f1c825e214a7465de3ebe9968d(
     return TVPPsDiffBlend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_8ec96bc7b777180f23e1a2e43bf9a413(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_8ec96bc7b777180f23e1a2e43bf9a413(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsDiff5Blend(dest, src, len);
 }
 
@@ -3719,9 +3467,8 @@ static void __stdcall TVP_Stub_cffd45014652659638d59abe11daf3be(
     return TVPPsDiff5Blend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_a784285a35b1bc76bb367305b5099e35(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_a784285a35b1bc76bb367305b5099e35(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsDiff5Blend_HDA(dest, src, len);
 }
 
@@ -3730,9 +3477,8 @@ static void __stdcall TVP_Stub_03773751329896facf2003ab79bbc475(
     return TVPPsDiff5Blend_HDA_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_923884216edf134d07d8e70f8f57e827(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_923884216edf134d07d8e70f8f57e827(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsExclusionBlend(dest, src, len);
 }
 
@@ -3741,9 +3487,8 @@ static void __stdcall TVP_Stub_e48798dc69498f80b6633bb405eda6eb(
     return TVPPsExclusionBlend_o(dest, src, len, opa);
 }
 
-static void __stdcall
-TVP_Stub_998a5e1aa5cd85689795348fc540a655(tjs_uint32 *dest,
-                                          const tjs_uint32 *src, tjs_int len) {
+static void __stdcall TVP_Stub_998a5e1aa5cd85689795348fc540a655(
+    tjs_uint32 *dest, const tjs_uint32 *src, tjs_int len) {
     return TVPPsExclusionBlend_HDA(dest, src, len);
 }
 
