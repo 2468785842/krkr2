@@ -46,7 +46,7 @@ namespace PSB {
     }
 
     void PSBMedia::GetLocallyAccessibleName(ttstr &name) {
-        LOGGER->error("TODO: PSBMedia GetLocallyAccessibleName");
+        LOGGER->error("can't get GetLocallyAccessibleName from {}!", name.AsStdString());
     }
 
     void PSBMedia::add(const std::string &name,
