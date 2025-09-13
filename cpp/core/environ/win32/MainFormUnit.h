@@ -163,7 +163,7 @@ extern bool TVPMainFormAlive;
 #include "inifiles.hpp"
 class tTVPProfileHolder : public TMemIniFile {
 public:
-    __fastcall tTVPProfileHolder(const AnsiString &fn) : TMemIniFile(fn) {};
+    __fastcall tTVPProfileHolder(const AnsiString &fn) : TMemIniFile(fn){};
     __fastcall ~tTVPProfileHolder(){};
 
     void __fastcall WriteStrings(const AnsiString &section,
