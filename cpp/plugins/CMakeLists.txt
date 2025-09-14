@@ -54,13 +54,14 @@ target_link_libraries(${PROJECT_NAME} PUBLIC krkr2core)
 add_subdirectory(psdfile)
 add_subdirectory(psbfile)
 add_subdirectory(layerex_draw)
+add_subdirectory(motionplayer)
 
 #add_subdirectory(json)
 #add_subdirectory(fstat)
 #add_subdirectory(steam)
 #add_subdirectory(DrawDeviceForSteam)
 # add_subdirectory(KAGParserEx)
-target_link_libraries(${PROJECT_NAME} PUBLIC psdfile psbfile layerExDraw)
+target_link_libraries(${PROJECT_NAME} PUBLIC psdfile psbfile layerExDraw motionplayer)
 
 #target_link_libraries(${PROJECT_NAME} PUBLIC fstat json steam DrawDeviceForSteam
 ##         KAGParserEx

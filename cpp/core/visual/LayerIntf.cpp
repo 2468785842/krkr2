@@ -14,9 +14,10 @@
 
 #include "tjsCommHead.h"
 
-#include <math.h>
+#include <cmath>
 #include <cstdlib>
 #include <cmath>
+#include <spdlog/spdlog.h>
 
 #include "tjsArray.h"
 #include "LayerIntf.h"
@@ -4452,7 +4453,7 @@ void tTJSNI_BaseLayer::DrawGlyph(tjs_int x, tjs_int y, iTJSDispatch2 *glyph,
     // draw text
     if(!MainImage)
         TVPThrowExceptionMessage(TVPNotDrawableLayerType);
-    tTVPBBBltMethod met;
+    tTVPBBBltMethod met = bmCopy;
 
     switch(DrawFace) {
         case dfAlpha:
@@ -6503,13 +6504,13 @@ void tTJSNI_BaseLayer::CopySelf(iTVPBaseBitmap *dest, tjs_int destx,
 }
 
 //---------------------------------------------------------------------------
-void tTJSNI_BaseLayer::EffectImage(iTVPBaseBitmap *dest,
-                                   const tTVPRect &destrect) {
-    if(Type == ltFilter) {
-        // TODO: do filtering
-    } else if(Type == ltEffect) {
-        // TODO: do effect
-    }
+void tTJSNI_BaseLayer::EffectImage(iTVPBaseBitmap *_dest,
+                                   const tTVPRect &_destrect) {
+    // if(Type == ltFilter) {
+    //     // TODO: do filtering
+    // } else if(Type == ltEffect) {
+    //     // TODO: do effect
+    // }
 }
 
 void tTJSNI_BaseLayer::Draw_GPU(tTVPDrawable *target, int x, int y,
@@ -8326,12 +8327,11 @@ tTJSNC_Layer::tTJSNC_Layer() : tTJSNativeClass(TJS_W("Layer")) {
                                 /*var. type*/ tTJSNI_Layer);
         if(numparams < 5)
             return TJS_E_BADPARAMCOUNT;
-        tjs_int x, y;
-        x = *param[0];
-        y = *param[1];
+        tjs_int x = *param[0];
+        tjs_int y = *param[1];
         _this->FillRect(
             tTVPRect(x, y, x + (tjs_int)*param[2], y + (tjs_int)*param[3]),
-            static_cast<tjs_uint32>((tjs_int64)*param[4]));
+            static_cast<tjs_uint32>(static_cast<tjs_int64>(*param[4])));
         return TJS_S_OK;
     }
     TJS_END_NATIVE_METHOD_DECL(/*func. name*/ fillRect)

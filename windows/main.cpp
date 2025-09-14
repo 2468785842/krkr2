@@ -23,7 +23,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     if(argc > 1) {
         std::wstring xp3Path = argv[1];
-        std::string xp3PathUtf8 = boost::locale::conv::utf_to_utf<char>(xp3Path);
+        std::string xp3PathUtf8 =
+            boost::locale::conv::utf_to_utf<char>(xp3Path);
         spdlog::info("XP3 文件路径: {}", xp3PathUtf8);
         TVPMainFileSelectorForm::filePath = xp3PathUtf8;
     }
