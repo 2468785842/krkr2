@@ -104,6 +104,7 @@ public:
     tjs_uint64 GetSize() override { return Size; }
 
     // non-tTJSBinaryStream based methods
+    [[nodiscard]] void *GetInternalBuffer() { return Block; }
     [[nodiscard]] void *GetInternalBuffer() const { return Block; }
 
     void Clear();

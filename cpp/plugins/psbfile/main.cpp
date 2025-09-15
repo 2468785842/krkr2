@@ -1,7 +1,8 @@
 //
 // Created by lidong on 2025/1/31.
 // TODO: implement psbfile.dll plugin
-// reference https://github.com/UlyssesWu/FreeMote
+// ref: https://github.com/number201724/psbfile
+// ref: https://github.com/UlyssesWu/FreeMote
 //
 #include <spdlog/spdlog.h>
 #include <cassert>

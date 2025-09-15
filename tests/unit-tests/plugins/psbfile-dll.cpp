@@ -11,7 +11,7 @@
 
 TEST_CASE("read psbfile title.psb") {
     PSB::PSBFile f;
-    REQUIRE(f.loadPSBFile(TEST_FILES_PATH "/title.psb"));
+    REQUIRE(f.loadPSBFile(TEST_FILES_PATH "/emote/title.psb"));
     const PSB::PSBHeader &header = f.getPSBHeader();
     REQUIRE(f.getType() == PSB::PSBType::PSB);
     CAPTURE(header.version, f.getType());
@@ -19,7 +19,7 @@ TEST_CASE("read psbfile title.psb") {
 
 TEST_CASE("read psbfile ezsave.pimg") {
     PSB::PSBFile f;
-    REQUIRE(f.loadPSBFile(TEST_FILES_PATH "/ezsave.pimg"));
+    REQUIRE(f.loadPSBFile(TEST_FILES_PATH "/emote/ezsave.pimg"));
     const PSB::PSBHeader &header = f.getPSBHeader();
     REQUIRE(f.getType() == PSB::PSBType::Pimg);
     CAPTURE(header.version, f.getType());
@@ -209,4 +209,12 @@ TEST_CASE("read psbfile ezsave.pimg") {
             REQUIRE(imgMetadata != nullptr);
         }
     }
+}
+
+TEST_CASE("read psbfile e-mote3.0 psb") {
+    int key = 742877301;
+    PSB::PSBFile f;
+    f.setSeed(key);
+    REQUIRE(
+        f.loadPSBFile(TEST_FILES_PATH "/emote/e-mote3.0バニラパジャマa.psb"));
 }

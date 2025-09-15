@@ -1,6 +1,9 @@
 #include "PSBFile.h"
 
 #include <memory>
+#include <json/memorystream.h>
+
+#include "EMoteCTX.h"
 #include "ncbind.hpp"
 
 #define LOGGER spdlog::get("plugin")
@@ -324,36 +327,20 @@ namespace PSB {
 
     bool PSBFile::loadPSBFile(const ttstr &filePath) {
         LOGGER->info("PSBFile::load path: {}", filePath.AsStdString());
-        const std::unique_ptr<TJS::tTJSBinaryStream> stream{ TVPCreateStream(
-            filePath) };
-        if(!stream) {
-            return false;
-        }
+        auto *s = TVPCreateStream(
+            filePath);
+        if(!s) return false;
 
-        //==== Debug ====//
-        // auto *buff = new tjs_uint8[static_cast<unsigned
-        // int>(stream->GetSize())]; stream->Read(buff,
-        // static_cast<tjs_uint>(stream->GetSize()));
-        //
-        // auto tmpPlace = filePath.AsStdString();
-        // std::filesystem::path absoluteScriptPath{ "D:/" };
-        // absoluteScriptPath /= tmpPlace;
-        // std::filesystem::create_directories(absoluteScriptPath.parent_path());
-        //
-        // FILE *f = fopen(absoluteScriptPath.string().c_str(), "wb");
-        // fwrite(buff, sizeof(tjs_uint8), stream->GetSize(), f);
-        // fclose(f);
-        // stream->SetPosition(0);
-        //==== Debug ====//
+        const size_t readSize = s->GetSize();
+        if(readSize < 9) return false;
 
-        const size_t readSize = stream->GetSize();
-        if(readSize < 9) {
-            return false;
-        }
+        tTVPMemoryStream stream{nullptr, readSize};
+        s->Read(stream.GetInternalBuffer(), readSize);
+        delete s;
 
         constexpr int signSize = 4;
         char sign[signSize];
-        stream->Read(sign, signSize);
+        stream.Read(sign, signSize);
 
         if(10 < readSize && std::strcmp(sign, "MDF") == 0) {
             // auto originalLen = readSize - 8;
@@ -368,13 +355,59 @@ namespace PSB {
             // }
             LOGGER->info("PSBFile::load MDF not implement!");
         }
-        stream->SetPosition(0);
-        _header = PSB::parsePSBHeader(stream.get());
+
+        stream.SetPosition(0);
+        _header = PSB::parsePSBHeader(&stream);
+
+        if(_seed > 0) {
+            // decrypt
+
+            uint32_t key[4];
+
+            key[0] = 0x075BCD15;
+            key[1] = 0x159A55E5;
+            key[2] = 0x1F123BB5;
+            key[3] = _seed;
+            EMoteCTX emoteCtx{};
+            init_emote_ctx(&emoteCtx, key);
+
+            if(_header.isEncrypted() && _header.GetHeaderLength() > stream.GetSize()) {
+
+                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetEncrypt), 4);
+                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetNames), 4);
+                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetStrings), 4);
+                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetStringsData), 4);
+                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetChunkOffsets), 4);
+                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetChunkLengths), 4);
+                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetChunkData), 4);
+                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetEntries), 4);
+
+                if (_header.version > 2) {
+                    emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.checksum), 4);
+                }
+
+                if (_header.version > 3) {
+                    emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetExtraChunkOffsets), 4);
+                    emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetExtraChunkLengths), 4);
+                    emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetExtraChunkData), 4);
+                }
+            }
+
+            if(_header.version == 2) {
+                emote_decrypt(
+                    &emoteCtx, &static_cast<std::uint8_t *>(stream.GetInternalBuffer())[_header.offsetEncrypt],
+                    _header.offsetChunkOffsets - _header.offsetEncrypt
+                );
+
+            }
+
+        }
+
         if(std::strcmp(_header.signature, PSB::PsbSignature) != 0) {
             return false;
         }
 
-        if(_header.isEncrypted()) {
+        if(_header.isEncrypted() && _header.GetHeaderLength() > stream.GetSize() && _seed == 0) {
             LOGGER->critical("psb file is encrypted");
             return false;
         }
@@ -385,72 +418,72 @@ namespace PSB {
         }
 
         // Pre Load Strings
-        stream->SetPosition(_header.offsetStrings);
+        stream.SetPosition(_header.offsetStrings);
         stringOffsets = PSB::PSBArray(
-            stream->ReadI8LE() -
+            stream.ReadI8LE() -
                 static_cast<std::uint8_t>(PSB::PSBObjType::ArrayN1) + 1,
-            stream.get());
+            &stream);
 
         // Load Names
         if(_header.version == 1) {
             // don't believe HeaderLength
-            if(_header.length >= stream->GetSize()) {
-                _header.length = _header.GetHeaderLength();
+            if(_header.offsetEncrypt >= stream.GetSize()) {
+                _header.offsetEncrypt = _header.GetHeaderLength();
             }
-            stream->SetPosition(_header.length);
+            stream.SetPosition(_header.offsetEncrypt);
             nameIndexes = PSB::PSBArray(
-                stream->ReadI8LE() -
+                stream.ReadI8LE() -
                     static_cast<std::uint8_t>(PSB::PSBObjType::ArrayN1) + 1,
-                stream.get());
-            loadKeys(stream.get());
+                &stream);
+            loadKeys(&stream);
         } else {
-            stream->SetPosition(_header.offsetNames);
+            stream.SetPosition(_header.offsetNames);
             charset = PSB::PSBArray(
-                stream->ReadI8LE() -
+                stream.ReadI8LE() -
                     static_cast<std::uint8_t>(PSB::PSBObjType::ArrayN1) + 1,
-                stream.get());
+                &stream);
             namesData = PSB::PSBArray(
-                stream->ReadI8LE() -
+                stream.ReadI8LE() -
                     static_cast<std::uint8_t>(PSB::PSBObjType::ArrayN1) + 1,
-                stream.get());
+                &stream);
             nameIndexes = PSB::PSBArray(
-                stream->ReadI8LE() -
+                stream.ReadI8LE() -
                     static_cast<std::uint8_t>(PSB::PSBObjType::ArrayN1) + 1,
-                stream.get());
+                &stream);
             loadNames();
         }
 
         // Pre Load Resources (Chunks)
-        stream->SetPosition(_header.offsetChunkOffsets);
+        stream.SetPosition(_header.offsetChunkOffsets);
         chunkOffsets = PSB::PSBArray(
-            stream->ReadI8LE() -
+            stream.ReadI8LE() -
                 static_cast<std::uint8_t>(PSB::PSBObjType::ArrayN1) + 1,
-            stream.get());
-        stream->SetPosition(_header.offsetChunkLengths);
+            &stream);
+        stream.SetPosition(_header.offsetChunkLengths);
         chunkLengths = PSB::PSBArray(
-            stream->ReadI8LE() -
+            stream.ReadI8LE() -
                 static_cast<std::uint8_t>(PSB::PSBObjType::ArrayN1) + 1,
-            stream.get());
+            &stream);
 
         resources.reserve(chunkLengths.value.size());
 
         if(_header.version >= 4) {
             // Pre Load Extra Resources (Chunks)
-            stream->SetPosition(_header.offsetExtraChunkOffsets);
+            stream.SetPosition(_header.offsetExtraChunkOffsets);
             extraChunkOffsets = PSB::PSBArray(
-                stream->ReadI8LE() -
+                stream.ReadI8LE() -
                     static_cast<std::uint8_t>(PSB::PSBObjType::ArrayN1) + 1,
-                stream.get());
-            stream->SetPosition(_header.offsetExtraChunkLengths);
+                &stream);
+            stream.SetPosition(_header.offsetExtraChunkLengths);
             extraChunkLengths = PSB::PSBArray(
-                stream->ReadI8LE() -
+                stream.ReadI8LE() -
                     static_cast<std::uint8_t>(PSB::PSBObjType::ArrayN1) + 1,
-                stream.get());
+                &stream);
             extraResources.reserve(extraChunkLengths.value.size());
         }
         // Load Entries
-        stream->SetPosition(_header.offsetEntries);
-        auto obj = unpack(stream.get());
+        stream.SetPosition(_header.offsetEntries);
+        auto obj = unpack(&stream);
         if(!obj) {
             LOGGER->error("Can not parse objects");
         }
@@ -458,12 +491,12 @@ namespace PSB {
         _root = std::move(obj);
         // Load Resource
         for(auto &res : resources) {
-            loadResource(*res, stream.get());
+            loadResource(*res, &stream);
         }
 
         if(_header.version >= 4) {
             for(auto &res : extraResources) {
-                loadExtraResource(*res, stream.get());
+                loadExtraResource(*res, &stream);
             }
         }
 

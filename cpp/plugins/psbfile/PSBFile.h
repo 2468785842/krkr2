@@ -31,6 +31,9 @@ namespace PSB {
 
         void loadKeys(TJS::tTJSBinaryStream *stream);
         void loadNames();
+
+        void setSeed(int seed) { this->_seed = seed; }
+
         /**
          * file type: *.PIMG
          * @param filePath
@@ -87,6 +90,7 @@ namespace PSB {
         PSBType getType() const { return _type; }
 
     private:
+        int _seed;
         PSBHeader _header{};
         std::shared_ptr<IPSBValue> _root{};
         PSBType _type = PSBType::PSB;
