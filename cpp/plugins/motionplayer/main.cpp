@@ -5,41 +5,30 @@
 #include <spdlog/spdlog.h>
 #include "tjs.h"
 #include "ncbind.hpp"
+#include "psbfile/PSBFile.h"
+
+#include "ResourceManager.h"
+#include "EmotePlayer.h"
+#include "Player.h"
+#include "SeparateLayerAdaptor.h"
+
+using namespace motion;
 
 #define NCB_MODULE_NAME TJS_W("emoteplayer.dll")
-
 #define LOGGER spdlog::get("plugin")
-class Player {};
+
+NCB_REGISTER_SUBCLASS_DELAY(SeparateLayerAdaptor) { NCB_CONSTRUCTOR(()); }
 
 NCB_REGISTER_SUBCLASS_DELAY(Player) { NCB_CONSTRUCTOR(()); }
 
-class EmotePlayer {};
+NCB_REGISTER_SUBCLASS_DELAY(EmotePlayer) {
+    NCB_CONSTRUCTOR((ResourceManager));
+    NCB_PROPERTY(useD3D, getUseD3D, setUseD3D);
+}
 
-NCB_REGISTER_SUBCLASS_DELAY(EmotePlayer) { NCB_CONSTRUCTOR(()); }
-
-class ResourceManager {
-public:
-    explicit ResourceManager() = default;
-    explicit ResourceManager(tTJSVariant v1, tTJSVariant v2) {
-        assert(v1.Type() == tvtObject && v2.Type() == tvtInteger);
-    }
-    static tjs_error setEmotePSBDecryptSeed(tTJSVariant *r, tjs_int n,
-                                            tTJSVariant **p,
-                                            iTJSDispatch2 *obj) {
-        LOGGER->info("setEmotePSBDecryptSeed: {}", static_cast<tjs_int>(*p[0]));
-        return TJS_S_OK;
-    }
-
-    static tjs_error setEmotePSBDecryptFunc(tTJSVariant *r, tjs_int n,
-                                            tTJSVariant **p,
-                                            iTJSDispatch2 *obj) {
-        // LOGGER->info("setEmotePSBDecryptFunc: {}", a);
-        return TJS_S_OK;
-    }
-};
-
-NCB_REGISTER_SUBCLASS_DELAY(ResourceManager) {
-    NCB_CONSTRUCTOR((tTJSVariant, tTJSVariant));
+NCB_REGISTER_SUBCLASS(ResourceManager) {
+    NCB_CONSTRUCTOR((iTJSDispatch2 *, tjs_int));
+    NCB_METHOD(load);
     NCB_METHOD_RAW_CALLBACK(setEmotePSBDecryptSeed,
                             &ResourceManager::setEmotePSBDecryptSeed,
                             TJS_STATICMEMBER);
@@ -48,12 +37,34 @@ NCB_REGISTER_SUBCLASS_DELAY(ResourceManager) {
                             TJS_STATICMEMBER);
 }
 
-class Motion {};
+class Motion {
+public:
+    static tjs_error setEnableD3D(tTJSVariant *, tjs_int count,
+                                  tTJSVariant **p, iTJSDispatch2 *) {
+        if(count == 1 && (*p)->Type() == tvtInteger) {
+            _enableD3D = static_cast<bool>(**p);
+            return TJS_S_OK;
+        }
+        return TJS_E_INVALIDPARAM;
+    }
+
+    static tjs_error getEnableD3D(tTJSVariant *r, tjs_int ,
+                                  tTJSVariant **, iTJSDispatch2 *) {
+        *r = tTJSVariant{ _enableD3D };
+        return TJS_S_OK;
+    }
+
+private:
+    inline static bool _enableD3D;
+};
 
 NCB_REGISTER_CLASS(Motion) {
+    NCB_PROPERTY_RAW_CALLBACK(enableD3D, Motion::getEnableD3D,
+                              Motion::setEnableD3D, TJS_STATICMEMBER);
     NCB_SUBCLASS(ResourceManager, ResourceManager);
     NCB_SUBCLASS(Player, Player);
     NCB_SUBCLASS(EmotePlayer, EmotePlayer);
+    NCB_SUBCLASS(SeparateLayerAdaptor, SeparateLayerAdaptor);
 }
 
 static void PreRegistCallback() {}

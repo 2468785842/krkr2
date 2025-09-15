@@ -13,7 +13,7 @@ TEST_CASE("read psbfile title.psb") {
     PSB::PSBFile f;
     REQUIRE(f.loadPSBFile(TEST_FILES_PATH "/emote/title.psb"));
     const PSB::PSBHeader &header = f.getPSBHeader();
-    REQUIRE(f.getType() == PSB::PSBType::PSB);
+    REQUIRE(f.getType() == PSB::PSBType::Motion);
     CAPTURE(header.version, f.getType());
 }
 
@@ -217,4 +217,5 @@ TEST_CASE("read psbfile e-mote3.0 psb") {
     f.setSeed(key);
     REQUIRE(
         f.loadPSBFile(TEST_FILES_PATH "/emote/e-mote3.0バニラパジャマa.psb"));
+    REQUIRE(f.getType() == PSB::PSBType::Motion);
 }

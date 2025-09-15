@@ -20,7 +20,7 @@
 #include "MsgImpl.h"
 #include "SysInitIntf.h"
 
-#include "tjsHashSearch.h"
+#include "../../../plugins/KAGParser/tjsHashSearch.h"
 #include "EventIntf.h"
 #include "TransIntf.h"
 #include "tjsArray.h"

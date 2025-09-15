@@ -327,14 +327,15 @@ namespace PSB {
 
     bool PSBFile::loadPSBFile(const ttstr &filePath) {
         LOGGER->info("PSBFile::load path: {}", filePath.AsStdString());
-        auto *s = TVPCreateStream(
-            filePath);
-        if(!s) return false;
+        auto *s = TVPCreateStream(filePath);
+        if(!s)
+            return false;
 
         const size_t readSize = s->GetSize();
-        if(readSize < 9) return false;
+        if(readSize < 9)
+            return false;
 
-        tTVPMemoryStream stream{nullptr, readSize};
+        tTVPMemoryStream stream{ nullptr, readSize };
         s->Read(stream.GetInternalBuffer(), readSize);
         delete s;
 
@@ -371,43 +372,78 @@ namespace PSB {
             EMoteCTX emoteCtx{};
             init_emote_ctx(&emoteCtx, key);
 
-            if(_header.isEncrypted() && _header.GetHeaderLength() > stream.GetSize()) {
+            if(_header.isEncrypted() &&
+               _header.GetHeaderLength() > stream.GetSize()) {
 
-                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetEncrypt), 4);
-                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetNames), 4);
-                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetStrings), 4);
-                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetStringsData), 4);
-                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetChunkOffsets), 4);
-                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetChunkLengths), 4);
-                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetChunkData), 4);
-                emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetEntries), 4);
+                emote_decrypt(
+                    &emoteCtx,
+                    reinterpret_cast<std::uint8_t *>(&_header.offsetEncrypt),
+                    4);
+                emote_decrypt(
+                    &emoteCtx,
+                    reinterpret_cast<std::uint8_t *>(&_header.offsetNames), 4);
+                emote_decrypt(
+                    &emoteCtx,
+                    reinterpret_cast<std::uint8_t *>(&_header.offsetStrings),
+                    4);
+                emote_decrypt(&emoteCtx,
+                              reinterpret_cast<std::uint8_t *>(
+                                  &_header.offsetStringsData),
+                              4);
+                emote_decrypt(&emoteCtx,
+                              reinterpret_cast<std::uint8_t *>(
+                                  &_header.offsetChunkOffsets),
+                              4);
+                emote_decrypt(&emoteCtx,
+                              reinterpret_cast<std::uint8_t *>(
+                                  &_header.offsetChunkLengths),
+                              4);
+                emote_decrypt(
+                    &emoteCtx,
+                    reinterpret_cast<std::uint8_t *>(&_header.offsetChunkData),
+                    4);
+                emote_decrypt(
+                    &emoteCtx,
+                    reinterpret_cast<std::uint8_t *>(&_header.offsetEntries),
+                    4);
 
-                if (_header.version > 2) {
-                    emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.checksum), 4);
+                if(_header.version > 2) {
+                    emote_decrypt(
+                        &emoteCtx,
+                        reinterpret_cast<std::uint8_t *>(&_header.checksum), 4);
                 }
 
-                if (_header.version > 3) {
-                    emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetExtraChunkOffsets), 4);
-                    emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetExtraChunkLengths), 4);
-                    emote_decrypt(&emoteCtx, reinterpret_cast<std::uint8_t*>(&_header.offsetExtraChunkData), 4);
+                if(_header.version > 3) {
+                    emote_decrypt(&emoteCtx,
+                                  reinterpret_cast<std::uint8_t *>(
+                                      &_header.offsetExtraChunkOffsets),
+                                  4);
+                    emote_decrypt(&emoteCtx,
+                                  reinterpret_cast<std::uint8_t *>(
+                                      &_header.offsetExtraChunkLengths),
+                                  4);
+                    emote_decrypt(&emoteCtx,
+                                  reinterpret_cast<std::uint8_t *>(
+                                      &_header.offsetExtraChunkData),
+                                  4);
                 }
             }
 
             if(_header.version == 2) {
                 emote_decrypt(
-                    &emoteCtx, &static_cast<std::uint8_t *>(stream.GetInternalBuffer())[_header.offsetEncrypt],
-                    _header.offsetChunkOffsets - _header.offsetEncrypt
-                );
-
+                    &emoteCtx,
+                    &static_cast<std::uint8_t *>(
+                        stream.GetInternalBuffer())[_header.offsetEncrypt],
+                    _header.offsetChunkOffsets - _header.offsetEncrypt);
             }
-
         }
 
         if(std::strcmp(_header.signature, PSB::PsbSignature) != 0) {
             return false;
         }
 
-        if(_header.isEncrypted() && _header.GetHeaderLength() > stream.GetSize() && _seed == 0) {
+        if(_header.isEncrypted() &&
+           _header.GetHeaderLength() > stream.GetSize() && _seed == 0) {
             LOGGER->critical("psb file is encrypted");
             return false;
         }

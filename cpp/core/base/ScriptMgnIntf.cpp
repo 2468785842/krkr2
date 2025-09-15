@@ -29,7 +29,7 @@
 #include "MenuItemIntf.h"
 #include "ClipboardIntf.h"
 #include "MsgIntf.h"
-#include "KAGParser.h"
+#include "../../plugins/KAGParser/KAGParser.h"
 #include "VideoOvlIntf.h"
 #include "PadIntf.h"
 #include "TextStream.h"

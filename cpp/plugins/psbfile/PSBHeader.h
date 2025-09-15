@@ -25,7 +25,8 @@ namespace PSB {
 
         [[nodiscard]] bool isEncrypted() const {
             return offsetEncrypt > MAX_LENGTH + 16 || offsetNames == 0 ||
-                (version > 1 && offsetEncrypt != offsetNames && offsetEncrypt != 0);
+                (version > 1 && offsetEncrypt != offsetNames &&
+                 offsetEncrypt != 0);
         }
 
         static std::uint32_t GetHeaderLength(std::uint16_t version) {

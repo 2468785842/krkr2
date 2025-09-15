@@ -24,7 +24,7 @@
 #include "tjsInterCodeExec.h"
 #include "tjsScriptCache.h"
 #include "tjsLex.h"
-#include "tjsHashSearch.h"
+#include "../../plugins/KAGParser/tjsHashSearch.h"
 #include "tjsRandomGenerator.h"
 #include "tjsGlobalStringMap.h"
 #include "tjsDebug.h"

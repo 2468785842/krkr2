@@ -17,14 +17,9 @@
 
 #include "tjs.h"
 #include "tjsNative.h"
-#include "ScriptMgnIntf.h"
 #include "tjsArray.h"
-#include "tjsDictionary.h"
-#include "DebugIntf.h"
 #include "StorageImpl.h"
-#include "TextStream.h"
 #include "MsgIntf.h"
-#include "PluginImpl.h"
 #include "CharacterSet.h"
 #include "TransIntf.h"
 #include "tjsHashSearch.h"
@@ -208,7 +203,6 @@ private:
             MacroArgStackDepth(macroargstackdepth),
             ExcludeLevelStack(excludelevelstack), ExcludeLevel(excludelevel),
             IfLevelExecutedStack(iflevelexecutedstack), IfLevel(iflevel) {
-            ;
         }
     };
 
@@ -349,21 +343,5 @@ public:
 
 extern iTJSDispatch2 *TVPCreateNativeClass_KAGParser();
 
-#if 0
-//---------------------------------------------------------------------------
-// tTJSNC_KAGParser
-//---------------------------------------------------------------------------
-class tTJSNC_KAGParser : public tTJSNativeClass
-{
-public:
-    tTJSNC_KAGParser();
-
-    static tjs_uint32 ClassID;
-
-private:
-    iTJSNativeInstance *CreateNativeInstance();
-};
-//---------------------------------------------------------------------------
-#endif
 
 #endif

@@ -21,7 +21,8 @@ inline void init_emote_ctx(EMoteCTX *ctx, const std::uint32_t key[4]) {
 }
 
 
-inline void emote_decrypt(EMoteCTX *ctx, std::uint8_t *data, std::uint32_t size) {
+inline void emote_decrypt(EMoteCTX *ctx, std::uint8_t *data,
+                          std::uint32_t size) {
     for(std::uint32_t i = 0; i < size; i++) {
         if(!ctx->v) {
             std::uint32_t b = ctx->key[3];

@@ -12,7 +12,7 @@
 
 #include <algorithm>
 #include "tjsDebug.h"
-#include "tjsHashSearch.h"
+#include "../../plugins/KAGParser/tjsHashSearch.h"
 #include "tjsInterCodeGen.h"
 #include "tjsGlobalStringMap.h"
 
