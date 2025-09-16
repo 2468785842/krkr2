@@ -1,5 +1,6 @@
 #include "PSBFile.h"
 
+#include <iostream>
 #include <memory>
 #include <json/memorystream.h>
 
@@ -23,23 +24,39 @@ namespace PSB {
         const size_t len = nameIndexes.value.size();
         names.reserve(len);
         for(int i = 0; i < len; i++) {
-            std::vector<char> list;
+            std::vector<std::uint32_t> codepoints;
             const auto index = nameIndexes[i];
             auto chr = namesData[index];
-            while(chr != 0) {
+            while(chr != u'\0') {
                 const auto code = namesData[chr];
                 const auto d = charset[code];
                 const auto realChr = chr - d;
+                codepoints.push_back(realChr);
+
                 chr = code;
-                list.push_back(realChr);
             }
 
-            list.resize(list.size());
-            std::reverse(list.begin(), list.end()); // little endian
-            auto str = std::string(
-                list.data(),
-                list.size()); // That's why we don't use StringBuilder here.
-            names.push_back(str);
+            std::reverse(codepoints.begin(), codepoints.end()); // little endian
+            std::string str;
+            for (std::uint32_t cp : codepoints) {
+                // Unicode 转成 UTF-8
+                if (cp <= 0x7F) {
+                    str.push_back(static_cast<char>(cp));
+                } else if (cp <= 0x7FF) {
+                    str.push_back(static_cast<char>(0xC0 | ((cp >> 6) & 0x1F)));
+                    str.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+                } else if (cp <= 0xFFFF) {
+                    str.push_back(static_cast<char>(0xE0 | ((cp >> 12) & 0x0F)));
+                    str.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+                    str.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+                } else {
+                    str.push_back(static_cast<char>(0xF0 | ((cp >> 18) & 0x07)));
+                    str.push_back(static_cast<char>(0x80 | ((cp >> 12) & 0x3F)));
+                    str.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+                    str.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+                }
+            }
+            names.push_back(std::move(str));
         }
     }
 
@@ -51,10 +68,6 @@ namespace PSB {
             strings.begin(), strings.end(),
             [idx](const PSB::PSBString &s) { return s.index == idx; });
 
-        /*if (refStr != strings.end() && Consts.FastMode) {
-            str = refStr;
-            return;
-        }*/
         stream->SetPosition(_header.offsetStringsData +
                             stringOffsets[static_cast<int>(idx.value())]);
         auto strValue = PSB::Extension::readStringZeroTrim(stream);
@@ -70,7 +83,7 @@ namespace PSB {
         }
 
         str->value = strValue;
-        strings.emplace_back(*str); // FIXED
+        strings.emplace_back(*str);
     }
 
     std::shared_ptr<PSB::PSBList>

@@ -5,12 +5,12 @@ var isFaild = true;
 function simpleCall() { isFaild = false; }
 simpleCall();
 if( isFaild ) {
-	Debug.message("faild: function simpleCall()");
+	throw new Exception("faild: function simpleCall()");
 }
 
 function argMul( a, b ) { return a * b; }
 if( argMul(2,3) != 6 ) {
-	Debug.message("faild: function argMul( a, b )");
+	throw new Exception("faild: function argMul( a, b )");
 	isFaild = true;
 }
 function blankCall( a, b ) {
@@ -22,7 +22,7 @@ function blankCall( a, b ) {
 }
 isFaild = !blankCall(,5);
 if( isFaild ) {
-	Debug.message("faild: function blankCall(a,b)");
+	throw new Exception("faild: function blankCall(a,b)");
 }
 function afterBlankCall( a, b ) {
 	if( a == 5 && b === void ) {
@@ -33,7 +33,7 @@ function afterBlankCall( a, b ) {
 }
 isFaild = !afterBlankCall(5);
 if( isFaild ) {
-	Debug.message("faild: function afterBlankCall(a,b)");
+	throw new Exception("faild: function afterBlankCall(a,b)");
 }
 
 function defaultArg( a = 1, b = 2 ) {
@@ -45,7 +45,7 @@ function defaultArg( a = 1, b = 2 ) {
 }
 isFaild = !defaultArg();
 if( isFaild ) {
-	Debug.message("faild: function defaultArg(a,b)");
+	throw new Exception("faild: function defaultArg(a,b)");
 }
 function defaultArg2( a = 1, b = 2 ) {
 	if( a == 5 && b == 2 ) {
@@ -56,25 +56,25 @@ function defaultArg2( a = 1, b = 2 ) {
 }
 isFaild = !defaultArg2(5);
 if( isFaild ) {
-	Debug.message("faild: function defaultArg2(a,b)");
+	throw new Exception("faild: function defaultArg2(a,b)");
 }
 function argressFunc {
 	return true;
 }
 isFaild = !argressFunc();
 if( isFaild ) {
-	Debug.message("faild: function argressFunc()");
+	throw new Exception("faild: function argressFunc()");
 }
 
 var funcVar = function(i) { return i*5; };
 if( funcVar(5) != 25 ) {
-	Debug.message("faild: function funcVar");
+	throw new Exception("faild: function funcVar");
 }
 function argThrough() {
 	return argMul(...);
 }
 if( argThrough(5,3) != 15 ) {
-	Debug.message("faild: function argThrough()");
+	throw new Exception("faild: function argThrough()");
 	isFaild = true;
 }
 function arrayArg( a* ) {
@@ -86,7 +86,7 @@ function arrayArg( a* ) {
 }
 isFaild = !arrayArg(1,2,3,4);
 if( isFaild ) {
-	Debug.message("faild: function arrayArg()");
+	throw new Exception("faild: function arrayArg()");
 }
 function arrayArg2( x, a* ) {
 	if( x == 0, a[0] == 1 && a[1] == 2 && a[2] == 3 && a[3] == 4 ) {
@@ -97,7 +97,7 @@ function arrayArg2( x, a* ) {
 }
 isFaild = !arrayArg2(0,1,2,3,4);
 if( isFaild ) {
-	Debug.message("faild: function arrayArg2()");
+	throw new Exception("faild: function arrayArg2()");
 }
 function arrayArg3( x, a* ) {
 	if( x == 0 && a[0] == 1 && a[1] == 2 && a[2] == 3 && a[3] == 4 ) {
@@ -108,32 +108,32 @@ function arrayArg3( x, a* ) {
 }
 isFaild = !arrayArg3(0,1,2,3,4);
 if( isFaild ) {
-	Debug.message("faild: function arrayArg3()");
+	throw new Exception("faild: function arrayArg3()");
 }
 
 var argsArray = [1, 2, 3, 4];
 isFaild = !arrayArg(argsArray*);
 if( isFaild ) {
-	Debug.message("faild: function arrayArg(argsArray*)");
+	throw new Exception("faild: function arrayArg(argsArray*)");
 }
 argsArray = [ 2, 3 ];
 isFaild = !arrayArg(1,argsArray*,4);
 if( isFaild ) {
-	Debug.message("faild: function arrayArg(1,argsArray*,4)");
+	throw new Exception("faild: function arrayArg(1,argsArray*,4)");
 }
 
 function argThrough2(*) {
 	return argMul(*);
 }
 if( argThrough2(4,3) != 12 ) {
-	Debug.message("faild: function argThrough2(*)");
+	throw new Exception("faild: function argThrough2(*)");
 	isFaild = true;
 }
 function argThrough3(ar*) {
 	return argMul(ar*);
 }
 if( argThrough3(4,6) != 24 ) {
-	Debug.message("faild: function argThrough3(*)");
+	throw new Exception("faild: function argThrough3(*)");
 	isFaild = true;
 }
 
@@ -141,6 +141,6 @@ function argThrough4(a,*) {
 	return argMul(a,*);
 }
 if( argThrough4(4,5) != 20 ) {
-	Debug.message("faild: function argThrough4(*)");
+	throw new Exception("faild: function argThrough4(*)");
 	isFaild = true;
 }

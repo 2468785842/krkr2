@@ -48,8 +48,8 @@ namespace PSB::Extension {
                 break;
 
             for(size_t j = 0; j < bytes_read; ++j) {
-                unsigned char uc = temp[j]; // std::isspace Cannot be negative
-                if(uc == '\0' || std::isspace(uc)) {
+                unsigned char uc = temp[j];
+                if(uc == '\0') {
                     name.append(temp, j);
                     return std::move(name);
                 }

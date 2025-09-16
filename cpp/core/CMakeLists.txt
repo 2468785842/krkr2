@@ -111,6 +111,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
 # cocos2dx
 find_package(cocos2dx CONFIG REQUIRED)
 
+find_package(uchardet CONFIG REQUIRED)
+
 # Link libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC
     ${FFMPEG_LIBRARIES}
@@ -152,4 +154,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 
     # spdlog
     spdlog::spdlog
+
+    uchardet::libuchardet
 )

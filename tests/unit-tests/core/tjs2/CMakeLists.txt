@@ -3,6 +3,7 @@ project(TestPlugins LANGUAGES CXX)
 
 set(SOURCES
         tjs.cpp
+        tjsString.cpp
 )
 
 string(REPLACE ".cpp" "" BASENAMES_SOURCES "${SOURCES}")

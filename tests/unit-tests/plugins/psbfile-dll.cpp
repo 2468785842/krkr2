@@ -55,7 +55,7 @@ TEST_CASE("read psbfile ezsave.pimg") {
 
             std::vector widths = { 27, 27, 36, 34, 41,   41, 40, 36, 36, 36, 36,
                                    36, 36, 36, 36, 36,   36, 36, 36, 36, 40, 27,
-                                   27, 36, 72, 80, 1280, 0,  0,  0,  0 };
+                                   27, 36, 72, 80, 1280, 0,  0,  0,  0,  0 };
 
             std::vector names = { "@pageup:over",
                                   "@pageup:off",
@@ -90,10 +90,10 @@ TEST_CASE("read psbfile ezsave.pimg") {
                                   "pagedown",
                                   "範囲情報" };
 
-            std::vector layer_ids = { 3092, 308,  -1,   -1,   2168, 216,  -1,
+            std::vector layer_ids = { 3092, 3087,  -1,   -1,   2168, 2164,  -1,
                                       2157, 2156, 2155, 2154, 2153, 2152, 2151,
-                                      2150, 2149, 2148, 2147, 2146, 214,  -1,
-                                      2139, 213,  -1,   -1,   -1,   2036, 3093,
+                                      2150, 2149, 2148, 2147, 2146, 2145,  -1,
+                                      2139, 2138,  -1,   -1,   -1,   2036, 3093,
                                       2174, 2158, 2142, 2135 };
 
             std::vector layer_types = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -131,71 +131,71 @@ TEST_CASE("read psbfile ezsave.pimg") {
 
                 // height width opacity name layer_id layer_type left top type
                 // visible  same_image
-                SECTION("group_layer_ids") {
+                {
                     auto group_layer_id =
                         std::dynamic_pointer_cast<PSB::PSBNumber>(
                             (*layer)["group_layer_id"]);
-                    if(group_layer_id == nullptr && group_layer_ids[i] == 0)
-                        continue;
-                    REQUIRE(static_cast<int>(*group_layer_id) ==
-                            group_layer_ids[i]);
+                    if(!(group_layer_id == nullptr && group_layer_ids[i] == 0)) {
+                        REQUIRE(static_cast<int>(*group_layer_id) ==
+                                group_layer_ids[i]);
+                    }
                 }
-                SECTION("heights") {
+                {
                     auto height = std::dynamic_pointer_cast<PSB::PSBNumber>(
                         (*layer)["height"]);
                     REQUIRE(static_cast<int>(*height) == heights[i]);
                 }
-                SECTION("widths") {
+                {
                     auto width = std::dynamic_pointer_cast<PSB::PSBNumber>(
                         (*layer)["width"]);
                     REQUIRE(static_cast<int>(*width) == widths[i]);
                 }
-                SECTION("opacities") {
+                {
                     auto opacity = std::dynamic_pointer_cast<PSB::PSBNumber>(
                         (*layer)["opacity"]);
                     REQUIRE(static_cast<int>(*opacity) == 255);
                 }
-                SECTION("names") {
+                {
                     auto name = std::dynamic_pointer_cast<PSB::PSBString>(
                         (*layer)["name"]);
                     REQUIRE(name->value == names[i]);
                 }
-                SECTION("layer_ids") {
+                {
                     auto layer_id = std::dynamic_pointer_cast<PSB::PSBNumber>(
                         (*layer)["layer_id"]);
                     REQUIRE(static_cast<int>(*layer_id) == layer_ids[i]);
                 }
-                SECTION("layer_types") {
+                {
                     auto layer_type = std::dynamic_pointer_cast<PSB::PSBNumber>(
                         (*layer)["layer_type"]);
                     REQUIRE(static_cast<int>(*layer_type) == layer_types[i]);
                 }
-                SECTION("left") {
+                {
                     auto left = std::dynamic_pointer_cast<PSB::PSBNumber>(
                         (*layer)["left"]);
                     REQUIRE(static_cast<int>(*left) == lefts[i]);
                 }
-                SECTION("top") {
+                {
                     auto top = std::dynamic_pointer_cast<PSB::PSBNumber>(
                         (*layer)["top"]);
                     REQUIRE(static_cast<int>(*top) == tops[i]);
                 }
-                SECTION("type") {
+                {
                     auto type = std::dynamic_pointer_cast<PSB::PSBNumber>(
                         (*layer)["type"]);
                     REQUIRE(static_cast<int>(*type) == 13);
                 }
-                SECTION("visible") {
+                {
                     auto visible = std::dynamic_pointer_cast<PSB::PSBNumber>(
                         (*layer)["visible"]);
                     REQUIRE(static_cast<int>(*visible) == visibles[i]);
                 }
-                SECTION("same_image") {
+                {
                     auto same_image = std::dynamic_pointer_cast<PSB::PSBNumber>(
                         (*layer)["same_image"]);
-                    if(same_image == nullptr && same_images[i] == 0)
-                        continue;
-                    REQUIRE(static_cast<int>(*same_image) == same_images[i]);
+                    if(!(same_image == nullptr && same_images[i] == 0)) {
+                        REQUIRE(static_cast<int>(*same_image) == same_images[i]);
+                    }
                 }
             }
         }

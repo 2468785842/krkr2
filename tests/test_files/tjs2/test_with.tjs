@@ -14,7 +14,7 @@ class withTestClass {
 	function method() {
 		if( member == 1 && member1 == 1 && member2 == 2 && member3 == 1 ) {
 		} else {
-			Debug.message( "faild: withTestClass.method" );
+			throw new Exception( "faild: withTestClass.method" );
 		}
 	}
 	function test() {
@@ -40,5 +40,5 @@ obj.test();
 
 .gvarl = 7;
 if( gvarl != 7 ) {
-	Debug.message( "faild: gvarl != 7" );
+	throw new Exception( "faild: gvarl != 7" );
 }

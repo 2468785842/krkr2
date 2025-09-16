@@ -9,7 +9,7 @@
 // Text read/write stream
 //---------------------------------------------------------------------------
 #include "tjsCommHead.h"
-
+#include <uchardet.h>
 #include <zlib.h>
 #include "TextStream.h"
 #include "MsgIntf.h"
@@ -281,6 +281,13 @@ public:
                     BufferPtr = Buffer;
                 }
             } else {
+
+                // SHIFT_JIS many be is cp932
+                // uchardet_t ud = uchardet_new();
+                // uchardet_handle_data(ud, )
+                // uchardet_data_end(ud);
+                // uchardet_delete(ud);
+
                 // check UTF-8 BOM
                 if(mark[0] == 0xef && mark[1] == 0xbb && mark[2] == 0xbf) {
                     // UTF-8 BOM

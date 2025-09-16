@@ -890,7 +890,7 @@ namespace TJS {
     tjs_int
     tTJSInterCodeContext::ExecuteCode(tTJSVariant *ra_org, tjs_int startip,
                                       tTJSVariant **args, tjs_int numargs,
-                                      tTJSVariant *result, bool tryCatch) {
+                                      tTJSVariant *result) {
         // execute VM codes
         tjs_int32 *codesave;
         try {
@@ -1289,7 +1289,6 @@ namespace TJS {
                         return (tjs_int)(code + 1 - CodeArea);
 
                     case VM_ENTRY:
-                        tryCatch = true;
                         code = CodeArea +
                             ExecuteCodeInTryBlock(
                                    ra, (tjs_int)(code - CodeArea + 3), args,
@@ -1300,7 +1299,6 @@ namespace TJS {
                         break;
 
                     case VM_EXTRY:
-                        tryCatch = false;
                         return (tjs_int)(code + 1 - CodeArea); // same as ret
 
                     case VM_THROW:
@@ -1358,33 +1356,21 @@ namespace TJS {
             throw;
         } catch(eTJS &e) {
             // DEBUGGER_EXCEPTION_HOOK;
-            if(!tryCatch) {
-                DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
-                                              ra_org);
-                TJS_eTJSScriptError(e.GetMessage(), this,
-                                    (tjs_int)(codesave - CodeArea));
-            } else {
-                spdlog::get("tjs2")->error("{}", e.GetMessage().AsStdString());
-            }
+            DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
+                                          ra_org);
+            TJS_eTJSScriptError(e.GetMessage(), this,
+                                (tjs_int)(codesave - CodeArea));
         } catch(exception &e) {
             // DEBUGGER_EXCEPTION_HOOK;
-            if(!tryCatch) {
-                DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
-                                              ra_org);
-                TJS_eTJSScriptError(e.what(), this,
-                                    (tjs_int)(codesave - CodeArea));
-            } else {
-                spdlog::get("tjs2")->error("{}", e.what());
-            }
+            DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
+                                          ra_org);
+            TJS_eTJSScriptError(e.what(), this,
+                                (tjs_int)(codesave - CodeArea));
         } catch(const char *text) {
             // DEBUGGER_EXCEPTION_HOOK;
-            if(!tryCatch) {
-                DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
-                                              ra_org);
-                TJS_eTJSScriptError(text, this, (tjs_int)(codesave - CodeArea));
-            } else {
-                spdlog::get("tjs2")->error("{}", text);
-            }
+            DisplayExceptionGeneratedCode((tjs_int)(codesave - CodeArea),
+                                          ra_org);
+            TJS_eTJSScriptError(text, this, (tjs_int)(codesave - CodeArea));
         }
         // #undef DEBUGGER_EXCEPTION_HOOK
 
@@ -1402,7 +1388,7 @@ namespace TJS {
                 TJSStackTracerPush(this, true);
             tjs_int ret;
             try {
-                ret = ExecuteCode(ra, startip, args, numargs, result, true);
+                ret = ExecuteCode(ra, startip, args, numargs, result);
             } catch(...) {
                 if(TJSStackTracerEnabled())
                     TJSStackTracerPop();

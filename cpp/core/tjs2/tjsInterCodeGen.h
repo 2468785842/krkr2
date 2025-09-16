@@ -676,7 +676,7 @@ namespace TJS {
 
         tjs_int ExecuteCode(tTJSVariant *ra, tjs_int startip,
                             tTJSVariant **args, tjs_int numargs,
-                            tTJSVariant *result, bool tryCatch = false);
+                            tTJSVariant *result);
 
         tjs_int ExecuteCodeInTryBlock(tTJSVariant *ra, tjs_int startip,
                                       tTJSVariant **args, tjs_int numargs,

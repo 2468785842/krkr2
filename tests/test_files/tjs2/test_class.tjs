@@ -21,13 +21,13 @@ property property1
 property1=5;
 property1++;
 if( property1 != 6 ) {
-	Debug.message( "faild: property1" );
+	throw new Exception( "faild: property1" );
 }
 function proptest() {
 	var p = &property1;
 	*p = 30;
 	if( (*p) != 30 ) {
-		Debug.message( "faild: &property1" );
+		throw new Exception( "faild: &property1" );
 	}
 }
 proptest();
@@ -38,7 +38,7 @@ class test {
 	function test() {
 		variable = 0;
 		if( variable != 0 ) {
-			Debug.message( "faild: class test::test," + variable );
+			throw new Exception( "faild: class test::test," + variable );
 		}
 	}
 
@@ -48,7 +48,7 @@ class test {
 
 	function method1() {
 		if( variable != 5 ) {
-			Debug.message( "faild: class test::method1," + variable );
+			throw new Exception( "faild: class test::method1," + variable );
 		}
 	}
 	function method2() {
@@ -68,7 +68,7 @@ class test {
 var tmp = new test();
 tmp.variable = 6;
 if( tmp.prop != 6 ) {
-	Debug.message( "faild: class test::prop" );
+	throw new Exception( "faild: class test::prop" );
 }
 tmp.prop = 4;
 tmp.prop++;
@@ -79,23 +79,23 @@ objmethod();
 var t2 = new test();
 objmethod = tmp.getVal;
 if( (objmethod incontextof tmp)() != 5 ) {
-	Debug.message( "faild: class test incontextof" );
+	throw new Exception( "faild: class test incontextof" );
 }
 if( (objmethod incontextof t2)() != 0 ) {
-	Debug.message( "faild: class test incontextof" );
+	throw new Exception( "faild: class test incontextof" );
 }
 function classproptest() {
 	var p = &property1;
 	&tmp.addProp = p; // p を tmp の addProp として登録する
 	tmp.addProp = 20;
 	if( tmp.addProp != 20 ) {
-		Debug.message( "faild: tmp.addProp" );
+		throw new Exception( "faild: tmp.addProp" );
 	}
 	if( (*p) != 20 ) {
-		Debug.message( "faild: &property1" );
+		throw new Exception( "faild: &property1" );
 	}
 	if( property1 != 20 ) {
-		Debug.message( "faild: &property1" );
+		throw new Exception( "faild: &property1" );
 	}
 }
 classproptest();
@@ -107,7 +107,7 @@ class arg2Class {
 	function arg2Class( a, b ) {
 		if( a == 5 && b == 6 ) {
 		} else {
-			Debug.message("faild: arg2Class");
+			throw new Exception("faild: arg2Class");
 		}
 		this.a = a;
 		this.b = b;
@@ -125,7 +125,7 @@ class testInherited extends test {
 	function testInherited() {
 		super.test();
 		if( variable != 0 ) {
-			Debug.message( "faild: class testInherited::testInherited," + variable );
+			throw new Exception( "faild: class testInherited::testInherited," + variable );
 		}
 	}
 	function finalize() {
@@ -134,7 +134,7 @@ class testInherited extends test {
 	function method2() {
 		var t = super.method2();
 		if( t != 5 ) {
-			Debug.message( "faild: class testInherited::method2" );
+			throw new Exception( "faild: class testInherited::method2" );
 		}
 		return t;
 	}
@@ -160,7 +160,7 @@ class ClassB {
 		b = 20;
 	}
 	function finalize() {
-		Debug.message("success: class ClassB::finalize");
+		throw new Exception("success: class ClassB::finalize");
 	}
 }
 class SubClass extends ClassA, ClassB {
@@ -175,7 +175,7 @@ class SubClass extends ClassA, ClassB {
 }
 var sub = new SubClass();
 if( sub.a != 10 || sub.b != 20 ) {
-	Debug.message( "faild: class SubClass" );
+	throw new Exception( "faild: class SubClass" );
 }
 
 

@@ -25,7 +25,7 @@ if( tl[1].number == 1 && tl[1].line == 7 ) {
 	result = false;
 }
 if( result == false ) {
-	Debug.message( "faild: dic assign" );
+	throw new Exception( "faild: dic assign" );
 }
 
 // 16進数実数値テスト
@@ -33,15 +33,15 @@ var testRealVal = (const) %[
  "quakeEndTick" => 0x1.07CC000000000p14 /* 16883.0 */
 ];
 if( testRealVal.quakeEndTick != 16883.0 ) {
-	Debug.message("faild: quakeEndTick => 0x1.07CC000000000p14");
+	throw new Exception("faild: quakeEndTick => 0x1.07CC000000000p14");
 }
 if( 0b1.1 != 1.5 ) {
-	Debug.message("faild: 0b1.1 != 1.5");
+	throw new Exception("faild: 0b1.1 != 1.5");
 }
 if( 0x2.f != 2.9375 ) {
-	Debug.message("faild: 0x2.f != 2.9375");
+	throw new Exception("faild: 0x2.f != 2.9375");
 }
 if( 0x1p8 != 256.0 ) {
-	Debug.message("faild: 0x2.f != 2.9375");
+	throw new Exception("faild: 0x2.f != 2.9375");
 }
 
