@@ -55,7 +55,7 @@ namespace TJS {
             if(!TJS_strcmp(name, TJS_W("length"))) {
                 // get string length
                 const tTJSVariantString *s = str->AsStringNoAddRef();
-                    *result = tTVInteger(s->GetLength());
+                *result = tTVInteger(s->GetLength());
                 return;
             }
             if(name[0] >= TJS_W('0') && name[0] <= TJS_W('9')) {
@@ -226,13 +226,9 @@ namespace TJS {
         iTJSDispatch2 *Dispatch2;
 
     public:
-        tjs_uint AddRef() override {
-            return 1;
-        }
+        tjs_uint AddRef() override { return 1; }
 
-        tjs_uint Release() override {
-            return 1;
-        }
+        tjs_uint Release() override { return 1; }
 
 #define OBJ1 ((objthis) ? (objthis) : (Dispatch1))
 #define OBJ2 ((objthis) ? (objthis) : (Dispatch2))
@@ -628,8 +624,7 @@ namespace TJS {
     void TJSVariantArrayStackCompact() { TJSCompactVariantArrayMagic++; }
 
     //---------------------------------------------------------------------------
-    void TJSVariantArrayStackCompactNow() {
-    }
+    void TJSVariantArrayStackCompactNow() {}
     //---------------------------------------------------------------------------
     //---------------------------------------------------------------------------
 
@@ -1256,22 +1251,21 @@ namespace TJS {
                         return code + 1 - CodeArea;
 
                     case VM_ENTRY:
-                        code = CodeArea +
+                        code =
+                            CodeArea +
                             ExecuteCodeInTryBlock(
-                                   ra, code - CodeArea + 3, args,
-                                   numargs, result,
-                                   TJS_FROM_VM_CODE_ADDR(code[1]) +
-                                   code - CodeArea,
-                                   TJS_FROM_VM_REG_ADDR(code[2]));
+                                ra, code - CodeArea + 3, args, numargs, result,
+                                TJS_FROM_VM_CODE_ADDR(code[1]) + code -
+                                    CodeArea,
+                                TJS_FROM_VM_REG_ADDR(code[2]));
                         break;
 
                     case VM_EXTRY:
                         return code + 1 - CodeArea; // same as ret
 
                     case VM_THROW:
-                        ThrowScriptException(
-                            TJS_GET_VM_REG(ra, code[1]), Block,
-                            CodePosToSrcPos(code - CodeArea));
+                        ThrowScriptException(TJS_GET_VM_REG(ra, code[1]), Block,
+                                             CodePosToSrcPos(code - CodeArea));
                         code += 2; // actually here not proceed...
                         break;
 
@@ -1309,34 +1303,28 @@ namespace TJS {
             }
         } catch(eTJSSilent &) {
             throw;
-        }
-        catch(eTJSScriptError &e) {
+        } catch(eTJSScriptError &e) {
             e.AddTrace(this, codesave - CodeArea);
             throw;
         } catch(eTJS &e) {
             if(tryCatch) {
                 spdlog::get("tjs2")->debug(e.GetMessage().AsStdString());
             } else {
-                DisplayExceptionGeneratedCode(codesave - CodeArea,
-                                              ra_org);
+                DisplayExceptionGeneratedCode(codesave - CodeArea, ra_org);
             }
-            TJS_eTJSScriptError(e.GetMessage(), this,
-                                codesave - CodeArea);
+            TJS_eTJSScriptError(e.GetMessage(), this, codesave - CodeArea);
         } catch(exception &e) {
             if(tryCatch) {
                 spdlog::get("tjs2")->debug(e.what());
             } else {
-                DisplayExceptionGeneratedCode(codesave - CodeArea,
-                                              ra_org);
+                DisplayExceptionGeneratedCode(codesave - CodeArea, ra_org);
             }
-            TJS_eTJSScriptError(e.what(), this,
-                                codesave - CodeArea);
+            TJS_eTJSScriptError(e.what(), this, codesave - CodeArea);
         } catch(const char *text) {
             if(tryCatch) {
                 spdlog::get("tjs2")->debug(text);
             } else {
-                DisplayExceptionGeneratedCode(codesave - CodeArea,
-                                              ra_org);
+                DisplayExceptionGeneratedCode(codesave - CodeArea, ra_org);
             }
             TJS_eTJSScriptError(text, this, codesave - CodeArea);
         }
@@ -1374,19 +1362,22 @@ namespace TJS {
             if(exobjreg) {
                 tTJSVariant msg(e.GetMessage());
                 tTJSVariant trace(e.GetTrace());
-                TJSGetExceptionObject(Block->GetTJS(), ra + exobjreg, msg, &trace);
+                TJSGetExceptionObject(Block->GetTJS(), ra + exobjreg, msg,
+                                      &trace);
             }
             return catchip;
         } catch(eTJS &e) {
             if(exobjreg) {
                 tTJSVariant msg(e.GetMessage());
-                TJSGetExceptionObject(Block->GetTJS(), ra + exobjreg, msg, nullptr);
+                TJSGetExceptionObject(Block->GetTJS(), ra + exobjreg, msg,
+                                      nullptr);
             }
             return catchip;
         } catch(std::exception &e) {
             if(exobjreg) {
                 tTJSVariant msg(e.what());
-                TJSGetExceptionObject(Block->GetTJS(), ra + exobjreg, msg, nullptr);
+                TJSGetExceptionObject(Block->GetTJS(), ra + exobjreg, msg,
+                                      nullptr);
             }
             return catchip;
         } catch(...) {
@@ -1426,9 +1417,10 @@ namespace TJS {
 
         tTJSVariantClosure clo = ra_code2->AsObjectClosureNoAddRef();
         tTJSVariant *name = TJS_GET_VM_REG_ADDR(DataArea, code[3]);
-        tjs_error hr = clo.PropGet(flags, name->GetString(), name->GetHint(),
-                                   TJS_GET_VM_REG_ADDR(ra, code[1]),
-                                   clo.ObjThis ? clo.ObjThis : ra[-1].AsObjectNoAddRef());
+        tjs_error hr =
+            clo.PropGet(flags, name->GetString(), name->GetHint(),
+                        TJS_GET_VM_REG_ADDR(ra, code[1]),
+                        clo.ObjThis ? clo.ObjThis : ra[-1].AsObjectNoAddRef());
         if(TJS_FAILED(hr))
             TJSThrowFrom_tjs_error(
                 hr, TJS_GET_VM_REG(DataArea, code[3]).GetString());
@@ -1474,8 +1466,9 @@ namespace TJS {
         // ra[code[1]] = * ra[code[2]]
         tTJSVariantClosure clo =
             TJS_GET_VM_REG_ADDR(ra, code[2])->AsObjectClosureNoAddRef();
-        tjs_error hr = clo.PropGet(0, nullptr, nullptr, TJS_GET_VM_REG_ADDR(ra, code[1]),
-                                   clo.ObjThis ? clo.ObjThis : ra[-1].AsObjectNoAddRef());
+        tjs_error hr =
+            clo.PropGet(0, nullptr, nullptr, TJS_GET_VM_REG_ADDR(ra, code[1]),
+                        clo.ObjThis ? clo.ObjThis : ra[-1].AsObjectNoAddRef());
         if(TJS_FAILED(hr))
             TJSThrowFrom_tjs_error(hr, nullptr);
     }
@@ -1486,8 +1479,9 @@ namespace TJS {
         // * ra[code[1]] = ra[code[2]]
         tTJSVariantClosure clo =
             TJS_GET_VM_REG_ADDR(ra, code[1])->AsObjectClosureNoAddRef();
-        tjs_error hr = clo.PropSet(0, nullptr, nullptr, TJS_GET_VM_REG_ADDR(ra, code[2]),
-                                   clo.ObjThis ? clo.ObjThis : ra[-1].AsObjectNoAddRef());
+        tjs_error hr =
+            clo.PropSet(0, nullptr, nullptr, TJS_GET_VM_REG_ADDR(ra, code[2]),
+                        clo.ObjThis ? clo.ObjThis : ra[-1].AsObjectNoAddRef());
         if(TJS_FAILED(hr))
             TJSThrowFrom_tjs_error(hr, nullptr);
     }
@@ -1515,7 +1509,7 @@ namespace TJS {
         tTJSVariantClosure clo = ra_code2->AsObjectClosureNoAddRef();
         tTJSVariant *ra_code3 = TJS_GET_VM_REG_ADDR(ra, code[3]);
         if(ra_code3->Type() != tvtInteger) {
-            tTJSVariantString* str = ra_code3->AsString();
+            tTJSVariantString *str = ra_code3->AsString();
 
             try {
                 // TODO: verify here needs hint holding
@@ -1595,11 +1589,10 @@ namespace TJS {
         } else {
 
             try {
-                tjs_error hr = clo.PropSetByNum(flags, (tjs_int)ra_code2->AsInteger(),
-                                                TJS_GET_VM_REG_ADDR(ra, code[3]),
-                                                clo.ObjThis
-                                                ? clo.ObjThis
-                                                : ra[-1].AsObjectNoAddRef());
+                tjs_error hr = clo.PropSetByNum(
+                    flags, (tjs_int)ra_code2->AsInteger(),
+                    TJS_GET_VM_REG_ADDR(ra, code[3]),
+                    clo.ObjThis ? clo.ObjThis : ra[-1].AsObjectNoAddRef());
                 if(TJS_FAILED(hr))
                     ThrowFrom_tjs_error_num(hr, (tjs_int)ra_code2->AsInteger());
             } catch(...) {
@@ -1848,10 +1841,9 @@ namespace TJS {
         }
 
         try {
-            tjs_error hr = clo.DeleteMember(0, *str, nullptr,
-                                            clo.ObjThis
-                                            ? clo.ObjThis
-                                            : ra[-1].AsObjectNoAddRef());
+            tjs_error hr = clo.DeleteMember(
+                0, *str, nullptr,
+                clo.ObjThis ? clo.ObjThis : ra[-1].AsObjectNoAddRef());
             if(code[1]) {
                 if(TJS_FAILED(hr))
                     TJS_GET_VM_REG(ra, code[1]) = false;

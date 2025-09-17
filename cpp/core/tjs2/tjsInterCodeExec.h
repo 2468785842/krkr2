@@ -47,7 +47,6 @@ namespace TJS {
         void Deallocate(tjs_int num, tTJSVariant *ptr);
 
         void Compact() { InternalCompact(); }
-
     };
     //---------------------------------------------------------------------------
 } // namespace TJS

@@ -8,12 +8,14 @@
 /*---------------------------------------------------------------------------*/
 /* "TJS2" type definitions */
 /*---------------------------------------------------------------------------*/
+#pragma once
 
-#ifndef __TJSTYPES_H__
-#define __TJSTYPES_H__
-
-#include <stdint.h>
+#include <cstdint>
 #include <stddef.h> // ptrdiff_t
+
+#if !defined(_WIN32)
+#include <sys/types.h>
+#endif
 
 /* Functions that needs to be exported ( for non-class-member
  * functions ) */
@@ -30,75 +32,14 @@
 #define TJS_METHOD_RET_EMPTY
 #define TJS_METHOD_RET(type)
 
-#if defined(_WIN32)
-
-typedef __int8 tjs_int8;
-typedef unsigned __int8 tjs_uint8;
-typedef __int16 tjs_int16;
-typedef unsigned __int16 tjs_uint16;
-typedef __int32 tjs_int32;
-typedef unsigned __int32 tjs_uint32;
-typedef __int64 tjs_int64;
-typedef unsigned __int64 tjs_uint64;
-typedef int tjs_int; /* at least 32bits */
-typedef unsigned int tjs_uint; /* at least 32bits */
-
-#ifdef __cplusplus
-typedef char16_t tjs_char;
-#else
-typedef unsigned short tjs_char;
-#endif
-
-#define TJS_W(X) u##X
-#define TJS_N(X) X
-
-typedef char tjs_nchar;
-typedef double tjs_real;
-
-#define TJS_HOST_IS_BIG_ENDIAN 0
-#define TJS_HOST_IS_LITTLE_ENDIAN 1
-
-#define TJS_USERENTRY __cdecl
-
-#define TJS_I64_VAL(x) ((tjs_int64)(x##i64))
-#define TJS_UI64_VAL(x) ((tjs_uint64)(x##i64))
-
-#ifdef _M_X64
-#define TJS_64BIT_OS /* 64bit windows */
-#endif
-
-typedef intptr_t tjs_intptr_t;
-typedef uintptr_t tjs_uintptr_t;
-
-#if defined(_MSC_VER)
-#include <BaseTsd.h>
-typedef SSIZE_T ssize_t;
-#endif
-
-#else
-
-#include <sys/types.h>
-#include <stdint.h>
-
-#if defined(__linux__)
-typedef int8_t tjs_int8;
-typedef u_int8_t tjs_uint8;
-typedef int16_t tjs_int16;
-typedef u_int16_t tjs_uint16;
-typedef int32_t tjs_int32;
-typedef u_int32_t tjs_uint32;
-typedef int64_t tjs_int64;
-typedef u_int64_t tjs_uint64;
-#elif defined(__GNUC__)
-typedef int8_t tjs_int8;
-typedef uint8_t tjs_uint8;
-typedef int16_t tjs_int16;
-typedef uint16_t tjs_uint16;
-typedef int32_t tjs_int32;
-typedef uint32_t tjs_uint32;
-typedef int64_t tjs_int64;
-typedef uint64_t tjs_uint64;
-#endif
+typedef std::int8_t tjs_int8;
+typedef std::uint8_t tjs_uint8;
+typedef std::int16_t tjs_int16;
+typedef std::uint16_t tjs_uint16;
+typedef std::int32_t tjs_int32;
+typedef std::uint32_t tjs_uint32;
+typedef std::int64_t tjs_int64;
+typedef std::uint64_t tjs_uint64;
 
 typedef char16_t tjs_char;
 #define TJS_W(X) u##X
@@ -113,23 +54,6 @@ typedef unsigned int tjs_uint;
 typedef intptr_t tjs_intptr_t;
 typedef uintptr_t tjs_uintptr_t;
 
-#define TJS_I64_VAL(x) ((tjs_int64)(x##LL))
-#define TJS_UI64_VAL(x) ((tjs_uint64)(x##LL))
-
-#ifdef WORDS_BIGENDIAN
-#define TJS_HOST_IS_BIG_ENDIAN 1
-#define TJS_HOST_IS_LITTLE_ENDIAN 0
-#else
-#define TJS_HOST_IS_BIG_ENDIAN 0
-#define TJS_HOST_IS_LITTLE_ENDIAN 1
-#endif
-
-#define TJS_USERENTRY
-
-#endif /* end of defined(_WIN32) && !defined(__GNUC__) */
-
-/*[*/
-
 typedef tjs_int32 tjs_error;
 
 typedef tjs_int64 tTVInteger;
@@ -137,6 +61,40 @@ typedef tjs_real tTVReal;
 
 typedef size_t tjs_size;
 typedef ptrdiff_t tjs_offset;
+
+#ifdef WORDS_BIGENDIAN
+#define TJS_HOST_IS_BIG_ENDIAN 1
+#define TJS_HOST_IS_LITTLE_ENDIAN 0
+#else
+#define TJS_HOST_IS_BIG_ENDIAN 0
+#define TJS_HOST_IS_LITTLE_ENDIAN 1
+
+#if defined(_WIN32)
+
+#define TJS_USERENTRY __cdecl
+
+#define TJS_I64_VAL(x) ((tjs_int64)(x##i64))
+#define TJS_UI64_VAL(x) ((tjs_uint64)(x##i64))
+
+#ifdef _M_X64
+#define TJS_64BIT_OS /* 64bit windows */
+#endif
+
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+
+#else
+
+#define TJS_I64_VAL(x) ((tjs_int64)(x##LL))
+#define TJS_UI64_VAL(x) ((tjs_uint64)(x##LL))
+
+#endif
+
+#define TJS_USERENTRY
+
+#endif
 
 /* IEEE double manipulation support
  (TJS requires IEEE double(64-bit float) native support on machine or
@@ -150,8 +108,6 @@ typedef ptrdiff_t tjs_offset;
 +-+-----------+---------------------------+
 
 s = sign,  negative if this is 1, otherwise positive.
-
-
 
 */
 
@@ -199,7 +155,3 @@ s = sign,  negative if this is 1, otherwise positive.
 #define TJS_IEEE_D_IS_INF(x)                                                   \
     (((TJS_IEEE_D_EXP_MASK & (x)) == TJS_IEEE_D_EXP_MASK) &&                   \
      (!((x) & TJS_IEEE_D_SIGNIFICAND_MASK)))
-
-/*]*/
-
-#endif
