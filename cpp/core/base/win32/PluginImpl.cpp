@@ -14,17 +14,18 @@
 #include <functional>
 #include "ScriptMgnIntf.h"
 #include "PluginImpl.h"
+
+#include <spdlog/spdlog.h>
+
 #include "StorageImpl.h"
-#include "GraphicsLoaderImpl.h"
 
 #include "MsgImpl.h"
 #include "SysInitIntf.h"
 
-#include "../../../plugins/KAGParser/tjsHashSearch.h"
+#include "KAGParser/tjsHashSearch.h"
 #include "EventIntf.h"
 #include "TransIntf.h"
 #include "tjsArray.h"
-#include "tjsDictionary.h"
 #include "DebugIntf.h"
 #include "FuncStubs.h"
 #include "tjs.h"
@@ -449,11 +450,13 @@ bool TVPLoadInternalPlugin(const ttstr &_name);
 extern std::set<ttstr> TVPRegisteredPlugins;
 
 void TVPLoadPlugin(const ttstr &name) {
-    bool success = TVPLoadInternalPlugin(name);
-    std::string msg = fmt::format("Loading Plugin: {} {}", name.AsStdString(),
-                                  success ? "Success" : "Failed");
-    const tjs_char *out = TJS::tTJSString(msg).c_str();
-    TJS::TVPConsoleLog(out);
+    const bool success = TVPLoadInternalPlugin(name);
+    std::string pluginName = name.AsStdString();
+    if(success) {
+        spdlog::debug("Loading Plugin: {} Success", pluginName);
+    } else {
+        spdlog::error("Loading Plugin: {} Failed", pluginName);
+    }
 }
 
 //---------------------------------------------------------------------------

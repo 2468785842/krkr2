@@ -351,7 +351,7 @@ namespace PSB {
         if(readSize < 9)
             return false;
 
-        tTVPMemoryStream stream{ nullptr, readSize };
+        tTVPMemoryStream stream{ nullptr, static_cast<tjs_uint>(readSize) };
         s->Read(stream.GetInternalBuffer(), readSize);
         delete s;
 
