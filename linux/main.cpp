@@ -4,7 +4,6 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-#include "tjsString.h"
 #include "environ/cocos2d/AppDelegate.h"
 
 #include "environ/ui/MainFileSelectorForm.h"
@@ -18,7 +17,7 @@ int main(int argc, char **argv) {
     static auto plugin_logger = spdlog::stdout_color_mt("plugin");
     // 将输入的参数也就是输入文件转为wstring
     if(argc > 1) {
-        TVPMainFileSelectorForm::filePath = TJS::ttstr{ argv[1] }.AsStdString();
+        TVPMainFileSelectorForm::filePath = argv[1];
     }
     spdlog::set_default_logger(core_logger);
 

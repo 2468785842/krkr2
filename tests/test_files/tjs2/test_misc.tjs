@@ -9,31 +9,31 @@ function testMisc() {
 
 	// if statement、variant でだいたいテスト済みになっているはず
 	if( int5 == int10 ) {
-		Debug.message("faild: if ");
+		throw new Exception("faild: if ");
 	}
 	if( int5 == int10 )
-		Debug.message("faild: if no block");
+		throw new Exception("faild: if no block");
 
 	if( int5 < int10 )
 		if( int5 == int10 )
-			Debug.message("faild: if nest");
+			throw new Exception("faild: if nest");
 		else
 			Debug.message("success: if nest");
 	else
-		Debug.message("faild: if nest");
+		throw new Exception("faild: if nest");
 
 	var i = 0;
 	while( i < 5 ) {
 		i++;
 	}
-	if( i != 5 ) Debug.message("faild: while loop");
+	if( i != 5 ) throw new Exception("faild: while loop");
 
 	i = 0;
 	while(true) {
 		i++;
 		if( i >= 5 ) break;
 	}
-	if( i != 5 ) Debug.message("faild: while loop-break;");
+	if( i != 5 ) throw new Exception("faild: while loop-break;");
 
 
 	var j = 0;
@@ -43,19 +43,19 @@ function testMisc() {
 		if( (i%2) ) continue;
 		j++;
 	}
-	if( j != 2 ) Debug.message("faild: while loop-continue");
+	if( j != 2 ) throw new Exception("faild: while loop-continue");
 
 	var i = 0;
 	do {
 		i++;
 	} while( i < 5 );
-	if( i != 5 ) Debug.message("faild: do while loop");
+	if( i != 5 ) throw new Exception("faild: do while loop");
 
 	j = 0;
 	for( i = 0; i < 5; i++ ) {
 		j++;
 	}
-	if( j != 5 ) Debug.message("faild: for loop");
+	if( j != 5 ) throw new Exception("faild: for loop");
 
 
 	j = 0;
@@ -63,44 +63,44 @@ function testMisc() {
 		j++;
 		if( i >= 5 ) break;
 	}
-	if( j != 6 ) Debug.message("faild: for loop-break");
+	if( j != 6 ) throw new Exception("faild: for loop-break");
 
 	j = 0;
 	for( i = 0; i < 5; i++ ) {
 		if( (i%2) ) continue;
 		j++;
 	}
-	if( j != 3 ) Debug.message("faild: for loop");
+	if( j != 3 ) throw new Exception("faild: for loop");
 
 	isSuccess = false;
 	i = 2;
 	switch(i) {
 	case 0:
-		Debug.message("faild: switch");
+		throw new Exception("faild: switch");
 		break;
 	case 1:
-		Debug.message("faild: switch");
+		throw new Exception("faild: switch");
 		break;
 	case 2:
 		Debug.message("success: switch");
 		isSuccess = true;
 		break;
 	default:
-		Debug.message("faild: switch");
+		throw new Exception("faild: switch");
 		break;
 	}
 	if( isSuccess == false ) {
-		Debug.message("faild: switch");
+		throw new Exception("faild: switch");
 	}
 	isSuccess = false;
 
 	i = "システム";
 	switch(i)  {
 	case "テスト":
-		Debug.message("faild: switch");
+		throw new Exception("faild: switch");
 		break;
 	case "アプリ":
-		Debug.message("faild: switch");
+		throw new Exception("faild: switch");
 		break;
 	default:
 		Debug.message("success: switch");
@@ -109,7 +109,7 @@ function testMisc() {
 	}
 
 	if( isSuccess == false ) {
-		Debug.message("faild: switch");
+		throw new Exception("faild: switch");
 	}
 	isSuccess = false;
 
@@ -120,11 +120,11 @@ function testMisc() {
 		isSuccess = true;
 		break;
 	case "アプリ":
-		Debug.message("faild: switch");
+		throw new Exception("faild: switch");
 		break;
 	}
 	if( isSuccess == false ) {
-		Debug.message("faild: switch");
+		throw new Exception("faild: switch");
 	}
 	isSuccess = false;
 
@@ -136,11 +136,11 @@ function testMisc() {
 		isSuccess = true;
 		break;
 	default:
-		Debug.message("faild: switch");
+		throw new Exception("faild: switch");
 		break;
 	}
 	if( isSuccess == false ) {
-		Debug.message("faild: switch");
+		throw new Exception("faild: switch");
 	}
 	isSuccess = false;
 	try {
@@ -152,7 +152,7 @@ function testMisc() {
 		isSuccess = true;
 	}
 	if( isSuccess == false ) {
-		Debug.message("faild: try-catch");
+		throw new Exception("faild: try-catch");
 	}
 	isFaild = false;
 	try {
@@ -161,7 +161,7 @@ function testMisc() {
 		isFaild = true;
 	}
 	if( isFaild ) {
-		Debug.message("faild: try-catch");
+		throw new Exception("faild: try-catch");
 	}
 
 	isSuccess = false;
@@ -173,7 +173,7 @@ function testMisc() {
 		isSuccess = true;
 	}
 	if( isSuccess == false ) {
-		Debug.message("faild: try-catch");
+		throw new Exception("faild: try-catch");
 	}
 }
 
@@ -194,5 +194,5 @@ function testthrow() {
 	return true;
 }
 if( testthrow() ) {
-	Debug.message("faild: try-catch");
+	throw new Exception("faild: try-catch");
 }

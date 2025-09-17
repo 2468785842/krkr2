@@ -23,10 +23,6 @@ namespace PSB {
 
     void PSBMedia::NormalizePathName(ttstr &name) {
         // province(_p), mask(_m)
-        // tjs_int extIndex = name.IndexOf(TJS_W("_m"));
-        // if(extIndex == -1) return;
-        // name = name.SubString(0, extIndex) + name.SubString(extIndex + 2,
-        // name.GetLen());
     }
 
     bool PSBMedia::CheckExistentStorage(const ttstr &name) {
@@ -46,7 +42,8 @@ namespace PSB {
     }
 
     void PSBMedia::GetLocallyAccessibleName(ttstr &name) {
-        LOGGER->error("TODO: PSBMedia GetLocallyAccessibleName");
+        LOGGER->error("can't get GetLocallyAccessibleName from {}!",
+                      name.AsStdString());
     }
 
     void PSBMedia::add(const std::string &name,

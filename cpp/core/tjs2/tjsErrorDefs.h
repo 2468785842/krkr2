@@ -8,17 +8,15 @@
 //---------------------------------------------------------------------------
 // return values as tjs_error
 //---------------------------------------------------------------------------
+#pragma once
 
-#ifndef tjsErrorDefsH
-#define tjsErrorDefsH
-
+#include "tjsTypes.h"
 namespace TJS {
 
 // #define TJS_STRICT_ERROR_CODE_CHECK
 // defining this enables strict error code checking,
 // for debugging.
 
-/*[*/
 //---------------------------------------------------------------------------
 // return values as tjs_error
 //---------------------------------------------------------------------------
@@ -55,7 +53,7 @@ namespace TJS {
 #endif
 #define TJS_SUCCEEDED(x) (!TJS_FAILED(x))
 
-    static inline bool TJSIsObjectValid(tjs_error hr) {
+    inline bool TJSIsObjectValid(tjs_error hr) {
         // checks object validity by returning value of
         // iTJSDispatch2::IsValid
 
@@ -68,8 +66,4 @@ namespace TJS {
         return false; // otherwise the object is not valid
     }
 
-    /*]*/
-
 } // namespace TJS
-
-#endif

@@ -862,7 +862,7 @@ void TVPDeleteAcceleratorKeyTable( HWND hWnd ) {
 }
 #endif
 
-void TVPInitWindowOptions() { ; }
+void TVPInitWindowOptions() {}
 
 std::string ExtractFileDir(const std::string &FileName) {
     return av_dirname((char *)FileName.c_str());

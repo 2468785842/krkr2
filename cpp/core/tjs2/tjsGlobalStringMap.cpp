@@ -11,7 +11,7 @@
 #include "tjsCommHead.h"
 
 #include "tjsGlobalStringMap.h"
-#include "tjsHashSearch.h"
+#include "../../plugins/KAGParser/tjsHashSearch.h"
 #include <mutex>
 
 /*

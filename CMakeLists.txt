@@ -41,8 +41,6 @@ set(KRKR2CORE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/core)
 set(KRKR2PLUGIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/plugins)
 if(MSVC)
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/EHsc>")
-endif()
-if(MSVC)
     add_link_options("/ignore:4099")
     # set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
@@ -51,7 +49,7 @@ if(ANDROID)
 elseif(LINUX)
     add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/linux/main.cpp)
 elseif(WINDOWS)
-    add_executable(${PROJECT_NAME} 
+    add_executable(${PROJECT_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/main.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/game.rc
     )

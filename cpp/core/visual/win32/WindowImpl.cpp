@@ -20,7 +20,7 @@
 #include "LayerIntf.h"
 // #include "WindowFormUnit.h"
 #include "SysInitIntf.h"
-#include "tjsHashSearch.h"
+#include "../../../plugins/KAGParser/tjsHashSearch.h"
 #include "StorageIntf.h"
 #include "VideoOvlIntf.h"
 #include "DebugIntf.h"

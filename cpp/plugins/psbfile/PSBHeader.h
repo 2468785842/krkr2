@@ -8,7 +8,7 @@ namespace PSB {
         char signature[4];
         std::uint16_t version;
         std::uint16_t encrypt;
-        std::uint32_t length;
+        std::uint32_t offsetEncrypt;
         std::uint32_t offsetNames;
         std::uint32_t offsetStrings;
         std::uint32_t offsetStringsData;
@@ -24,10 +24,10 @@ namespace PSB {
         static constexpr int MAX_LENGTH = 56;
 
         [[nodiscard]] bool isEncrypted() const {
-            return length > MAX_LENGTH + 16 || offsetNames == 0 ||
-                (version > 1 && length != offsetNames && length != 0);
+            return offsetEncrypt > MAX_LENGTH + 16 || offsetNames == 0 ||
+                (version > 1 && offsetEncrypt != offsetNames &&
+                 offsetEncrypt != 0);
         }
-
 
         static std::uint32_t GetHeaderLength(std::uint16_t version) {
             if(version < 3)
@@ -52,7 +52,7 @@ namespace PSB {
         stream->ReadBuffer(header.signature, 4);
         stream->ReadBuffer(&header.version, 2);
         stream->ReadBuffer(&header.encrypt, 2);
-        stream->ReadBuffer(&header.length, 4);
+        stream->ReadBuffer(&header.offsetEncrypt, 4);
         stream->ReadBuffer(&header.offsetNames, 4);
 
         if(std::strcmp(header.signature, MdfSignature) == 0 ||

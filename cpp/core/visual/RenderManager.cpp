@@ -24,7 +24,7 @@ extern "C" {
 #include "Platform.h"
 #include "ConfigManager/IndividualConfigManager.h"
 #include "xxhash/xxhash.h"
-#include "tjsHashSearch.h"
+#include "../../plugins/KAGParser/tjsHashSearch.h"
 #include "EventIntf.h"
 #include "lz4.h"
 
@@ -3892,7 +3892,7 @@ public:
         tTVPAffineFunction Func;
 
     public:
-        tTVPAffineFunctionObject(tTVPAffineFunction func) : Func(func) { ; }
+        tTVPAffineFunctionObject(tTVPAffineFunction func) : Func(func) {}
         void operator()(tjs_uint32 *dest, tjs_int len, const tjs_uint32 *src,
                         tjs_int sx, tjs_int sy, tjs_int stepx, tjs_int stepy,
                         tjs_int srcpitch) {
@@ -4228,7 +4228,7 @@ public:
         tTVPStretchFunction Func;
 
     public:
-        tTVPStretchFunctionObject(tTVPStretchFunction func) : Func(func) { ; }
+        tTVPStretchFunctionObject(tTVPStretchFunction func) : Func(func) {}
         void operator()(tjs_uint32 *dest, tjs_int len, const tjs_uint32 *src,
                         tjs_int srcstart, tjs_int srcstep) {
             Func(dest, len, src, srcstart, srcstep);

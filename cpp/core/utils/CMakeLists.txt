@@ -4,8 +4,6 @@ set(UTILS_PATH ${CMAKE_CURRENT_LIST_DIR})
 set(UTILS_SOURCE_FILES
     ${UTILS_PATH}/ClipboardIntf.cpp
     ${UTILS_PATH}/DebugIntf.cpp
-    ${UTILS_PATH}/KAGParser.cpp
-    ${UTILS_PATH}/KAGParser.cpp
     ${UTILS_PATH}/MathAlgorithms_Default.cpp
     ${UTILS_PATH}/md5.c
     ${UTILS_PATH}/MiscUtility.cpp

@@ -64,6 +64,7 @@
       "default-features": false
     },
     "spdlog",
+    "uchardet",
     "unrar",
     {
       "name": "vcpkg-cmake",

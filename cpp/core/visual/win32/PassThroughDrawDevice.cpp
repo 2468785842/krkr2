@@ -147,13 +147,13 @@ public:
     // 		tTVPBaseTexture *bmp,
     // 		const tTVPRect &cliprect) = 0;
     virtual void EndBitmapCompletion(iTVPBaseBitmap *bmp) = 0;
-    virtual void Show() { ; }
+    virtual void Show() {}
     virtual void SetShowUpdateRect(bool b) { DrawUpdateRectangle = b; }
     virtual int GetInterpolationCapability() { return 3; }
     // bit 0 for point-on-point, bit 1 for bilinear interpolation
 
-    virtual void InitTimings() { ; } // notifies begining of benchmark
-    virtual void ReportTimings() { ; } // notifies end of benchmark
+    virtual void InitTimings() {} // notifies begining of benchmark
+    virtual void ReportTimings() {} // notifies end of benchmark
 
     virtual void Clear() = 0;
 };

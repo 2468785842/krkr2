@@ -182,7 +182,7 @@ namespace TJS {
         // tTJSVariantClosure has no responsibility for them )
 
     public:
-        tTJSVariantClosure() { ; } // note that default constructor does nothing
+        tTJSVariantClosure() {} // note that default constructor does nothing
 
         tTJSVariantClosure(iTJSDispatch2 *obj,
                            iTJSDispatch2 *objthis = nullptr) {

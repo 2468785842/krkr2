@@ -1,39 +1,14 @@
-//---------------------------------------------------------------------------
-/*
-        TVP2 ( T Visual Presenter 2 )  A script authoring tool
-        Copyright (C) 2000 W.Dee <dee@kikyou.info> and contributors
-
-        See details of license at "license.txt"
-*/
-//---------------------------------------------------------------------------
-// Text read/write stream
-//---------------------------------------------------------------------------
-#ifndef TextStreamH
-#define TextStreamH
-
+#pragma once
 #include "StorageIntf.h"
 
-//---------------------------------------------------------------------------
-// TextStream Functions
-//---------------------------------------------------------------------------
-TJS_EXP_FUNC_DEF(iTJSTextReadStream *, TVPCreateTextStreamForRead,
-                 (const ttstr &name, const ttstr &modestr));
+iTJSTextReadStream *TVPCreateTextStreamForRead(const ttstr &name,
+                                               const ttstr &mode);
+iTJSTextWriteStream *TVPCreateTextStreamForWrite(const ttstr &name,
+                                                 const ttstr &mode);
 
-TJS_EXP_FUNC_DEF(iTJSTextWriteStream *, TVPCreateTextStreamForWrite,
-                 (const ttstr &name, const ttstr &modestr));
+std::string checkTextEncoding(const void *buf, size_t size,
+                              std::uint8_t &bomSize);
 
-TJS_EXP_FUNC_DEF(void, TVPSetDefaultReadEncoding, (const ttstr &encoding));
+void TVPSetDefaultReadEncoding(const ttstr &encoding);
 
-TJS_EXP_FUNC_DEF(const tjs_char *, TVPGetDefaultReadEncoding, ());
-
-bool TVPStringDecode(const void *p, int len, ttstr &result,
-                     ttstr encoding = "utf8");
-
-bool TVPStringEncode(const ttstr &s, std::string &result,
-                     ttstr encoding = "utf8");
-//---------------------------------------------------------------------------
-
-ttstr TVPLoadText(const ttstr &name, const ttstr &modestr);
-void TVPSaveText(const ttstr &name, const ttstr &text, const ttstr &modestr);
-
-#endif
+const tjs_char *TVPGetDefaultReadEncoding();

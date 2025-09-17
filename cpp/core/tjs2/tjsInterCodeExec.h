@@ -8,23 +8,15 @@
 //---------------------------------------------------------------------------
 // Intermediate Code Execution
 //---------------------------------------------------------------------------
-
-#ifndef tjsInterCodeExecH
-#define tjsInterCodeExecH
+#pragma once
 
 namespace TJS {
-//---------------------------------------------------------------------------
-#if 0
-    extern void TJSVariantArrayStackAddRef();
-    extern void TJSVariantArrayStackRelease();
-#endif
 
     extern void TJSVariantArrayStackCompact();
 
     extern void TJSVariantArrayStackCompactNow();
 
     class tTJSVariantArrayStack {
-        //	tTJSCriticalSection CS;
 
         struct tVariantArray {
             tTJSVariant *Array;
@@ -55,9 +47,6 @@ namespace TJS {
         void Deallocate(tjs_int num, tTJSVariant *ptr);
 
         void Compact() { InternalCompact(); }
-
-    } /* *TJSVariantArrayStack = nullptr*/;
+    };
     //---------------------------------------------------------------------------
 } // namespace TJS
-
-#endif

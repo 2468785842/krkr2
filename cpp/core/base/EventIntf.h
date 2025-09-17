@@ -178,7 +178,7 @@ class tTVPUniqueTagForInputEvent // a class for getting unique tag per
 public:
     tjs_int Tag;
 
-    tTVPUniqueTagForInputEvent() : Tag(++TVPInputEventTagMax) { ; }
+    tTVPUniqueTagForInputEvent() : Tag(++TVPInputEventTagMax) {}
 
     operator tjs_int() const { return Tag; }
 };

@@ -31,6 +31,9 @@ namespace PSB {
 
         void loadKeys(TJS::tTJSBinaryStream *stream);
         void loadNames();
+
+        void setSeed(int seed) { this->_seed = seed; }
+
         /**
          * file type: *.PIMG
          * @param filePath
@@ -75,11 +78,10 @@ namespace PSB {
         [[nodiscard]] IPSBType *getTypeHandler() const {
             auto handler = TypeHandlers.find(_type);
             if(handler != TypeHandlers.end()) {
-                return handler->second;
+                return handler->second.get();
             }
 
-            // return new MotionType();
-            return nullptr;
+            return TypeHandlers.at(PSBType::Motion).get();
         }
 
         PSBHeader getPSBHeader() const { return this->_header; }
@@ -87,29 +89,20 @@ namespace PSB {
         PSBType getType() const { return _type; }
 
     private:
+        int _seed;
         PSBHeader _header{};
         std::shared_ptr<IPSBValue> _root{};
-        PSBType _type = PSBType::PSB;
+        PSBType _type{ PSBType::PSB };
 
         PSBType inferType() {
             for(const auto &[type, handler] : TypeHandlers) {
                 if(handler->isThisType(*this)) {
                     this->_type = type;
-                    return this->_type;
+                    break;
                 }
             }
 
-            // foreach (var handler in FreeMount._.SpecialTypes)
-            // {
-            //     if (handler.Value.IsThisType(this))
-            //     {
-            //         TypeId = handler.Key;
-            //         Type = PsbType.PSB;
-            //         return PsbType.PSB;
-            //     }
-            // }
-
-            return PSBType::PSB;
+            return this->_type;
         }
     };
 } // namespace PSB

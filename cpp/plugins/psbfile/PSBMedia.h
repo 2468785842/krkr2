@@ -11,7 +11,7 @@ namespace PSB {
     public:
         PSBMedia() { _ref = 1; }
 
-        ~PSBMedia() override {}
+        ~PSBMedia() override = default;
 
         void AddRef() override { _ref++; }
 

@@ -17,7 +17,8 @@ class TVPMainFileSelectorForm : public TVPBaseFileSelectorForm {
     typedef TVPBaseFileSelectorForm inherit;
 
 public:
-    static std::string filePath;
+    inline static std::string filePath = "";
+
     void bindBodyController(const Node *allNodes) override;
 
     void show();
@@ -36,7 +37,7 @@ protected:
 
     void onEnter() override;
 
-    bool CheckDir(const std::string &path);
+    bool checkStartupTjsScript(const std::string &path);
 
     void onCellClicked(int idx) override;
 

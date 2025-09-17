@@ -201,7 +201,7 @@ namespace PSB {
         explicit PSBArray() = default;
         explicit PSBArray(int n, TJS::tTJSBinaryStream *stream) {
             if(n < 0 || n > 8) {
-                throw std::runtime_error("bad length type size");
+                throw std::runtime_error("PSBArray bad length type size");
             }
 
             std::uint32_t count{};

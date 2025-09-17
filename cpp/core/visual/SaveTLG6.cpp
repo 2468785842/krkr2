@@ -627,7 +627,7 @@ public:
 
     TryCompressGolomb(const TryCompressGolomb &ref) { Copy(ref); }
 
-    ~TryCompressGolomb() { ; }
+    ~TryCompressGolomb() {}
 
     void Copy(const TryCompressGolomb &ref) {
         TotalBits = ref.TotalBits;

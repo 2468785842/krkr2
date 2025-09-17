@@ -13,7 +13,7 @@
 #define tjsScriptCacheH
 
 #include "tjsConfig.h"
-#include "tjsHashSearch.h"
+#include "../../plugins/KAGParser/tjsHashSearch.h"
 #include "tjsUtils.h"
 
 namespace TJS {

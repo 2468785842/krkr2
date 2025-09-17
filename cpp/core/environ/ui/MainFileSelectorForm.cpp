@@ -38,7 +38,6 @@ const char *const FileName_RecentPathListXML = "recentpath.xml";
 bool TVPIsFirstLaunch = false;
 
 std::deque<std::string> _HistoryPath;
-std::string TVPMainFileSelectorForm::filePath = "";
 
 static void _AskExit() {
     if(TVPShowSimpleMessageBoxYesNo(
@@ -136,20 +135,18 @@ void TVPMainFileSelectorForm::bindBodyController(const Node *allNodes) {
 int TVPCheckArchive(const ttstr &localname);
 
 void TVPMainFileSelectorForm::runFromPath(const std::string &path) {
-    int archiveType;
-    if(CheckDir(path)) {
-        spdlog::info("Opening dir: {}", path);
-        startup(path);
-    } else if((archiveType = TVPCheckArchive(path)) == 1) {
-        spdlog::info("Opening archive: {}", path);
-        startup(path);
-    } else if(archiveType == 0 && TVPCheckIsVideoFile(path.c_str())) {
+    // int archiveType;
+    if(checkStartupTjsScript(path)) {
+        doStartup(path);
+    } else if((/*archiveType = */ TVPCheckArchive(ttstr{ path })) == 1) {
+        doStartup(path);
+    } /*else if(archiveType == 0 && TVPCheckIsVideoFile(path.c_str())) {
         spdlog::info("Opening video file: {}", path);
         SimpleMediaFilePlayer *player = SimpleMediaFilePlayer::create();
         TVPMainScene::GetInstance()->addChild(player,
                                               10); // pushUIForm(player);
         player->PlayFile(path);
-    }
+    }*/
 }
 
 
@@ -177,11 +174,19 @@ void TVPMainFileSelectorForm::show() {
     ListDir(lastpath);
 }
 
-static const std::string str_startup_tjs(u8"startup.tjs");
+static const std::string str_startup_tjs("startup.tjs");
 
-bool TVPMainFileSelectorForm::CheckDir(const std::string &path) {
-    auto startup_file = std::filesystem::path(path) / str_startup_tjs;
-    return std::filesystem::exists(startup_file);
+bool TVPMainFileSelectorForm::checkStartupTjsScript(const std::string &path) {
+#if _WIN32
+    auto p =
+        std::filesystem::u8path(path); // windows 上有兼容性问题必须使u8path
+#else
+    auto p = std::filesystem::path(path);
+#endif
+    if(std::filesystem::is_directory(p)) {
+        return std::filesystem::exists(p / str_startup_tjs);
+    }
+    return false;
 }
 
 void TVPMainFileSelectorForm::onCellClicked(int idx) {
@@ -469,49 +474,64 @@ void TVPMainFileSelectorForm::onShowPreferenceConfigAt(
 void TVPMainFileSelectorForm::ListHistory() {
     if(!_historyList)
         return;
+
     _historyList->removeAllChildren();
-    auto *nullcell = new HistoryCell();
-    nullcell->init();
-    cocos2d::Size cellsize = _historyList->getContentSize();
-    cellsize.height = 100;
-    nullcell->setContentSize(cellsize);
-    _historyList->pushBackCustomItem(nullcell);
+
+    auto createEmptyCell = [this]() -> HistoryCell * {
+        auto *cell = new HistoryCell();
+        cell->init();
+        cocos2d::Size cellSize = _historyList->getContentSize();
+        cellSize.height = 100;
+        cell->setContentSize(cellSize);
+        return cell;
+    };
+
+    // 添加顶部空白 cell
+    _historyList->pushBackCustomItem(createEmptyCell());
+
     for(auto it = _HistoryPath.begin(); it != _HistoryPath.end();) {
-        const std::string &fullpath = *it;
-        HistoryCell *cell;
-        if(TVPCheckExistentLocalFile(fullpath) ||
-           TVPCheckExistentLocalFolder(fullpath)) {
-            std::pair<std::string, std::string> split_path =
-                pathSplit(fullpath);
-            std::string lastname = split_path.second;
-            std::string path = split_path.first;
-            split_path = pathSplit(path);
-            cell = HistoryCell::create(fullpath, split_path.first + "/",
-                                       split_path.second, "/" + lastname);
-            Widget::ccWidgetClickCallback funcConf;
-            if(TVPCheckExistentLocalFile(path + "/Kirikiroid2Preference.xml"))
-                funcConf = [this, path](Ref *) {
-                    onShowPreferenceConfigAt(path);
-                };
-            cell->initFunction(
-                [this, cell](auto &&PH1) {
-                    RemoveHistoryCell(std::forward<decltype(PH1)>(PH1), cell);
-                },
-                [this, path](Ref *) { ListDir(path); }, funcConf,
-                [this, fullpath](Ref *) { startup(fullpath); });
-            cocos2d::Size cellsize = cell->getContentSize();
-            cellsize.width = _historyList->getContentSize().width;
-            cell->setContentSize(cellsize);
-            _historyList->pushBackCustomItem(cell);
-            ++it;
-        } else {
+        const std::string &fullPath = *it;
+
+        if(!(TVPCheckExistentLocalFile(fullPath) ||
+             TVPCheckExistentLocalFolder(fullPath))) {
             it = _HistoryPath.erase(it);
+            continue;
         }
+
+        auto fullPathSpt = pathSplit(fullPath);
+        auto parentPath = fullPathSpt.first;
+        auto lastName = fullPathSpt.second;
+
+        auto parentPathSpt = pathSplit(parentPath);
+        auto grandParentPath = parentPathSpt.first;
+        auto parentName = parentPathSpt.second;
+
+        HistoryCell *cell = HistoryCell::create(fullPath, grandParentPath + "/",
+                                                parentName, "/" + lastName);
+
+        Widget::ccWidgetClickCallback funcConf;
+        if(TVPCheckExistentLocalFile(parentPath +
+                                     "/Kirikiroid2Preference.xml")) {
+            funcConf = [this, parentPath](Ref *) {
+                onShowPreferenceConfigAt(parentPath);
+            };
+        }
+
+        cell->initFunction(
+            [this, cell](Ref *ref) { RemoveHistoryCell(ref, cell); },
+            [this, parentPath](Ref *) { ListDir(parentPath); }, funcConf,
+            [this, fullPath](Ref *) { startup(fullPath); });
+
+        cocos2d::Size cellSize = cell->getContentSize();
+        cellSize.width = _historyList->getContentSize().width;
+        cell->setContentSize(cellSize);
+
+        _historyList->pushBackCustomItem(cell);
+        ++it;
     }
-    nullcell = new HistoryCell();
-    nullcell->init();
-    nullcell->setContentSize(cellsize);
-    _historyList->pushBackCustomItem(nullcell);
+
+    // 添加底部空白 cell
+    _historyList->pushBackCustomItem(createEmptyCell());
 }
 
 void TVPMainFileSelectorForm::RemoveHistoryCell(cocos2d::Ref *btn,

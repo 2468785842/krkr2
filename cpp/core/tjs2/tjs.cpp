@@ -24,7 +24,7 @@
 #include "tjsInterCodeExec.h"
 #include "tjsScriptCache.h"
 #include "tjsLex.h"
-#include "tjsHashSearch.h"
+#include "../../plugins/KAGParser/tjsHashSearch.h"
 #include "tjsRandomGenerator.h"
 #include "tjsGlobalStringMap.h"
 #include "tjsDebug.h"
@@ -181,7 +181,6 @@ namespace TJS {
             dsp->Release();
             Global->PropSet(TJS_MEMBERENSURE, TJS_W("Exception"), nullptr, &val,
                             Global);
-#ifndef TJS_NO_REGEXP
             // RegExp
             dsp = TJSCreateRegExpClass(); // the body is implemented
                                           // in tjsRegExp.cpp
@@ -189,7 +188,6 @@ namespace TJS {
             dsp->Release();
             Global->PropSet(TJS_MEMBERENSURE, TJS_W("RegExp"), nullptr, &val,
                             Global);
-#endif
         } catch(...) {
             Cleanup();
 

@@ -13,18 +13,6 @@
 #define NCB_WARN_2(a,b) TVPAddLog(ttstr(a) + ttstr(b))
 #define NCB_WARN_W(str) NCB_WARN(TJS_W(str))
 
-#if (defined(DEBUG) || defined(_DEBUG))
-#define NCB_LOG(n)     NCB_WARN(n)
-#define NCB_LOG_2(a,b) NCB_WARN_2(a,b)
-#define NCB_LOG_W(str) NCB_WARN_W(str)
-#else
-#define NCB_LOG_VOID   ((void)0)
-#define NCB_LOG(n)     NCB_LOG_VOID
-#define NCB_LOG_2(a,b) NCB_LOG_VOID
-#define NCB_LOG_W(str) NCB_LOG_VOID
-#endif
-
-
 ////////////////////////////////////////
 // 共通型定義
 struct ncbTypedefs {
@@ -437,7 +425,6 @@ struct ncbNarrowCharConvertor {
 	struct ToVariant {
 		template <typename SRC>
 		inline void operator()(tTJSVariant &dst, SRC const &src) const {
-//			NCB_LOG_2("ncbNCharToVariatTo::operator() : ", src);
 			dst = tTJSString(src);
 		}
 	};
@@ -1859,8 +1846,6 @@ struct ncbRegistNativeClass : public ncbRegistNativeClassBase {
 	ncbRegistNativeClass(NameT n) : BaseT(n), _classobj(0), _hasCtor(false) {}
 
 	void RegistBegin() override {
-		NCB_LOG_2(TJS_W("BeginRegistClass: "), _className);
-
 		// クラスオブジェクトを生成
 		_classobj = TJSCreateNativeClassForPlugin(_className, AdaptorT::CreateEmptyAdaptor);
 
@@ -1885,7 +1870,6 @@ struct ncbRegistNativeClass : public ncbRegistNativeClassBase {
 	}
 
 	void RegistItem(NameT name, ItemT item) override {
-		NCB_LOG_2(TJS_W("  RegistItem: "), name);
 		if (name == _className) {
 			if (_hasCtor) TVPAddLog(tTJSString(TJS_W("Multiple constructors.(")) + _className + TJS_W(")"));
 			_hasCtor = true;
@@ -1931,7 +1915,6 @@ struct ncbRegistNativeClass : public ncbRegistNativeClassBase {
 		//val.Clear();
 		// …のだがローカルスコープで自動的に消去されるので必要ない
 
-		NCB_LOG_2(TJS_W("EndRegistClass: "), _className);
 	}
 
 	/// プラグイン開放時にクラスオブジェクトをリリースする
@@ -1942,11 +1925,9 @@ struct ncbRegistNativeClass : public ncbRegistNativeClassBase {
 			global->Release();
 		}
 		_RemoveClassInfo();
-		NCB_LOG_2(TJS_W("EndUnregistClass: "), _className);
 	}
 
 	void UnregistBegin() override {
-		NCB_LOG_2(TJS_W("BeginUnregistClass: "), _className);
 	}
 
 private:
@@ -1966,7 +1947,6 @@ protected:
 												 _className, nitMethod);
 	}
 	void _RemoveClassInfo() const {
-		NCB_LOG_2(TJS_W("  RemoveClassInfo: "), _className);
 		ClassInfoT::Clear();
 	}
 };
@@ -1978,11 +1958,9 @@ struct ncbRegistSubClass : public ncbRegistNativeClass<CLASS> {
 	ncbRegistSubClass(typename BaseT::NameT n) : BaseT(n) {}
 	void RegistEnd() {
 		BaseT::_AddDummyConstructor();
-		NCB_LOG_2(TJS_W("EndSubClass: "), BaseT::_className);
 	}
 	void UnregistEnd() {
 		BaseT::_RemoveClassInfo();
-		NCB_LOG_2(TJS_W("EndUnregistSubClass: "), BaseT::_className);
 	}
 };
 
@@ -2029,7 +2007,6 @@ struct ncbAttachTJS2Class : public ncbRegistNativeClassBase {
 	ncbAttachTJS2Class(NameT nativeClass, NameT tjs2Class) : BaseT(nativeClass), _tjs2ClassName(tjs2Class) {}
 
 	void RegistBegin() override {
-		NCB_LOG_2(TJS_W("BeginAttachTJS2Class: "), _className);
 
 		// TJS のグローバルオブジェクトを取得する
 		_global = TVPGetScriptDispatch();
@@ -2037,7 +2014,6 @@ struct ncbAttachTJS2Class : public ncbRegistNativeClassBase {
 
 		// クラスIDを生成
 		IdentT id  = TJSRegisterNativeClass(_className);
-		NCB_LOG_2(TJS_W("  ID: "), (tjs_int)id);
 
 		// ncbClassInfoに登録
 		if (!ClassInfoT::Set(_className, id, 0)) {
@@ -2050,7 +2026,6 @@ struct ncbAttachTJS2Class : public ncbRegistNativeClassBase {
 	}
 
 	void RegistItem(NameT name, ItemT item) override {
-		NCB_LOG_2(TJS_W("  RegistItem: "), name);
 		if (!item) return;
 		if (name == _className) {
 			TVPThrowExceptionMessage(TJS_W("Constructor attached: "), ttstr(_className));
@@ -2065,13 +2040,11 @@ struct ncbAttachTJS2Class : public ncbRegistNativeClassBase {
 
 	void RegistEnd() override {
 		if (_global) _global->Release();
-		_global = 0;
-		NCB_LOG_2(TJS_W("EndAttachClass: "), _className);
+		_global = nullptr;
 		// _tjs2ClassObj は NoAddRef なので Release 不要
 	}
 
 	void UnregistBegin() override {
-		NCB_LOG_2(TJS_W("BeginDetach: "), _className);
 		// クラスオブジェクトを取得
 		iTJSDispatch2 *global = TVPGetScriptDispatch();
 		if (global) {
@@ -2082,14 +2055,12 @@ struct ncbAttachTJS2Class : public ncbRegistNativeClassBase {
 		}
 	}
 	void UnregistItem(NameT name) override {
-		NCB_LOG_2(TJS_W("DetachItem: "), name);
 		if (_tjs2ClassObj) {
 			_tjs2ClassObj->DeleteMember(0, name, 0, _tjs2ClassObj);
 		}
 	}
 	void UnregistEnd() override {
 		ClassInfoT::Clear();
-		NCB_LOG_2(TJS_W("EndDetach: "), _className);
 		// _tjs2ClassObj は NoAddRef なので Release 不要
 	}
 protected:
@@ -2133,9 +2104,6 @@ struct ncbAutoRegister {
 	ncbAutoRegister(NameT name, LineT line) : modulename(name), _next(_top[line]) { _top[line] = this; }
 
 	static void AllRegist(  LineT line) {
-#ifdef _DEBUG
-		NCB_LOG_2(TJS_W("AllRegist:"), line);
-#endif
 		for (ThisClassT const* p = _top[line]; p; p = p->_next) {
 			ttstr name = p->modulename;
 			name.ToLowerCase();
@@ -2143,9 +2111,6 @@ struct ncbAutoRegister {
 		}
 	}
 	static void AllUnregist(LineT line) {
-#ifdef _DEBUG
-		NCB_LOG_2(TJS_W("AllUnregist:"), line);
-#endif
 		for (ThisClassT const* p = _top[line]; p; p = p->_next)
 			p->Unregist();
 	}
@@ -2229,8 +2194,6 @@ struct  ncbRequireClassAutoRegister : public ncbAutoRegister {
 	typedef ncbClassInfo<T> ClassInfoT;
 protected:
 	void Regist()   const override {
-		NCB_LOG_2(TJS_W("RequireClass: "), _className);
-
 		// クラスオブジェクト取得
 		tTJSVariant val;
 		TVPExecuteExpression(ttstr(_expName ? _expName : _className), &val);
