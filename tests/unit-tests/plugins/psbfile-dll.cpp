@@ -90,10 +90,10 @@ TEST_CASE("read psbfile ezsave.pimg") {
                                   "pagedown",
                                   "範囲情報" };
 
-            std::vector layer_ids = { 3092, 3087,  -1,   -1,   2168, 2164,  -1,
+            std::vector layer_ids = { 3092, 3087, -1,   -1,   2168, 2164, -1,
                                       2157, 2156, 2155, 2154, 2153, 2152, 2151,
-                                      2150, 2149, 2148, 2147, 2146, 2145,  -1,
-                                      2139, 2138,  -1,   -1,   -1,   2036, 3093,
+                                      2150, 2149, 2148, 2147, 2146, 2145, -1,
+                                      2139, 2138, -1,   -1,   -1,   2036, 3093,
                                       2174, 2158, 2142, 2135 };
 
             std::vector layer_types = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -135,7 +135,8 @@ TEST_CASE("read psbfile ezsave.pimg") {
                     auto group_layer_id =
                         std::dynamic_pointer_cast<PSB::PSBNumber>(
                             (*layer)["group_layer_id"]);
-                    if(!(group_layer_id == nullptr && group_layer_ids[i] == 0)) {
+                    if(!(group_layer_id == nullptr &&
+                         group_layer_ids[i] == 0)) {
                         REQUIRE(static_cast<int>(*group_layer_id) ==
                                 group_layer_ids[i]);
                     }
@@ -194,7 +195,8 @@ TEST_CASE("read psbfile ezsave.pimg") {
                     auto same_image = std::dynamic_pointer_cast<PSB::PSBNumber>(
                         (*layer)["same_image"]);
                     if(!(same_image == nullptr && same_images[i] == 0)) {
-                        REQUIRE(static_cast<int>(*same_image) == same_images[i]);
+                        REQUIRE(static_cast<int>(*same_image) ==
+                                same_images[i]);
                     }
                 }
             }

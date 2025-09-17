@@ -39,8 +39,8 @@ NCB_REGISTER_SUBCLASS(ResourceManager) {
 
 class Motion {
 public:
-    static tjs_error setEnableD3D(tTJSVariant *, tjs_int count,
-                                  tTJSVariant **p, iTJSDispatch2 *) {
+    static tjs_error setEnableD3D(tTJSVariant *, tjs_int count, tTJSVariant **p,
+                                  iTJSDispatch2 *) {
         if(count == 1 && (*p)->Type() == tvtInteger) {
             _enableD3D = static_cast<bool>(**p);
             return TJS_S_OK;
@@ -48,8 +48,8 @@ public:
         return TJS_E_INVALIDPARAM;
     }
 
-    static tjs_error getEnableD3D(tTJSVariant *r, tjs_int ,
-                                  tTJSVariant **, iTJSDispatch2 *) {
+    static tjs_error getEnableD3D(tTJSVariant *r, tjs_int, tTJSVariant **,
+                                  iTJSDispatch2 *) {
         *r = tTJSVariant{ _enableD3D };
         return TJS_S_OK;
     }

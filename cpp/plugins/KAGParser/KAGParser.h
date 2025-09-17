@@ -202,8 +202,7 @@ private:
             MacroArgStackBase(macroargstackbase),
             MacroArgStackDepth(macroargstackdepth),
             ExcludeLevelStack(excludelevelstack), ExcludeLevel(excludelevel),
-            IfLevelExecutedStack(iflevelexecutedstack), IfLevel(iflevel) {
-        }
+            IfLevelExecutedStack(iflevelexecutedstack), IfLevel(iflevel) {}
     };
 
     std::vector<tCallStackData> CallStack;

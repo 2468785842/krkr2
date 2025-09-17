@@ -92,7 +92,7 @@ namespace PSB {
         int _seed;
         PSBHeader _header{};
         std::shared_ptr<IPSBValue> _root{};
-        PSBType _type{PSBType::PSB};
+        PSBType _type{ PSBType::PSB };
 
         PSBType inferType() {
             for(const auto &[type, handler] : TypeHandlers) {

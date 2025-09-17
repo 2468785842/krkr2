@@ -112,9 +112,6 @@ void tTVPScenarioCacheItem::LoadScenario(const ttstr &name, bool isstring) {
 
         try {
             stream = TVPCreateTextStreamForRead(name, TJS_W(""));
-            //			stream =
-            // TVPCreateTextStreamForReadByEncoding(name, TJS_W(""),
-            // TJS_W("Shift_JIS"));
             ttstr tmp;
             if(stream) {
                 stream->Read(tmp, 0);
