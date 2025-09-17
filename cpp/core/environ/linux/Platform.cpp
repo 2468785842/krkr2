@@ -55,13 +55,13 @@ void TVPGetMemoryInfo(TVPMemoryInfo &m) {
 #include <sched.h>
 void TVPRelinquishCPU() { sched_yield(); }
 
-void TVP_utime(const char *name, time_t modtime) {
+bool TVP_utime(const char *name, time_t modtime) {
     timeval mt[2];
     mt[0].tv_sec = modtime;
     mt[0].tv_usec = 0;
     mt[1].tv_sec = modtime;
     mt[1].tv_usec = 0;
-    utimes(name, mt);
+    return utimes(name, mt) == 0;
 }
 
 #ifdef LINUX

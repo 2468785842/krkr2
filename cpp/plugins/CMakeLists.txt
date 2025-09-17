@@ -58,7 +58,7 @@ add_subdirectory(motionplayer)
 add_subdirectory(KAGParser)
 
 #add_subdirectory(json)
-#add_subdirectory(fstat)
+add_subdirectory(fstat)
 #add_subdirectory(steam)
 #add_subdirectory(DrawDeviceForSteam)
 target_link_libraries(${PROJECT_NAME} PUBLIC
@@ -67,7 +67,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         layerExDraw
         motionplayer
         KAGParser
-#        fstat json steam DrawDeviceForSteam
+        fstat
+#        json steam DrawDeviceForSteam
 )
 
 find_package(fmt CONFIG REQUIRED)

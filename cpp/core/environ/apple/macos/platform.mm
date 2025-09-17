@@ -446,12 +446,12 @@ bool TVP_stat(const tjs_char *name, tTVP_stat &s) {
     return TVP_stat(ttstr{ name }.AsStdString().c_str(), s);
 }
 
-void TVP_utime(const char *name, time_t modtime) {
+bool TVP_utime(const char *name, time_t modtime) {
     timeval mt[2];
     mt[0].tv_sec = modtime;
     mt[0].tv_usec = 0;
     mt[1].tv_sec = modtime;
     mt[1].tv_usec = 0;
-    utimes(name, mt);
+    return utimes(name, mt) == 0;
 }
 
