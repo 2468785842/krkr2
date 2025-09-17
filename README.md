@@ -1,24 +1,31 @@
-# KrKr2 模拟器
+# KrKr2 Emulator
 
-KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里引擎（也称为 T Visual Presenter）制作的游戏。该模拟器支持在 Android、Windows 和 Linux 等多个平台上运行，帮助用户在不同设备上体验吉里吉里引擎制作的游戏。
+This repository contains the **KrKr2 Emulator**, a cross-platform emulator designed to run games made with the **KiriKiri engine** (also known as T Visual Presenter).  
+It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriKiri engine games on multiple platforms.  
 
-## 目录
+**语言 / Language**: [中文](README_CN.md) | English
 
-- [KrKr2 模拟器](#krkr2-模拟器)
-  - [目录](#目录)
-  - [支持平台](#支持平台)
-  - [依赖构建工具](#依赖构建工具)
-  - [编译环境配置](#编译环境配置)
-    - [环境变量](#环境变量)
-    - [编译步骤](#编译步骤)
-  - [可执行文件位置](#可执行文件位置)
-  - [代码格式化](#代码格式化)
-  - [支持的游戏](#支持的游戏列表)
-  - [插件资源](#插件资源)
-  - [贡献指南](#贡献指南)
-  - [许可证](#许可证)
+---
 
-## 支持平台
+## KrKr2 Emulator
+
+### Table of Contents
+
+- [KrKr2 Emulator](#krkr2-emulator)
+  - [Supported Platforms](#supported-platforms)
+  - [Build Tools](#build-tools)
+  - [Build Environment Setup](#build-environment-setup)
+    - [Environment Variables](#environment-variables)
+    - [Build Steps](#build-steps)
+  - [Executable Location](#executable-location)
+  - [Code Formatting](#code-formatting)
+  - [Supported Games](#supported-games)
+  - [Plugin Resources](#plugin-resources)
+  - [License](#license)
+
+---
+
+## Supported Platforms
 
 - **Android**:
   - `arm64-v8a`
@@ -30,7 +37,9 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 - **MacOS**:
   - arm64
 
-## 依赖构建工具
+---
+
+## Build Tools
 
 - **Android**:
   - [ninja@latest](https://github.com/ninja-build/ninja/releases)
@@ -61,107 +70,119 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - `YASM`
 - **MacOS**:
   - Xcode
+  - `vcpkg@latest`
+  - [ninja@latest](https://github.com/ninja-build/ninja/releases)
+  - [cmake@3.31.1+](https://cmake.org/download/)
   - [ninja@latest](https://github.com/ninja-build/ninja/releases)
   - `bison@3.8.2+`
   - `python3`
   - `NASM@latest`
 
-## 编译环境配置
+---
 
-### 环境变量
+## Build Environment Setup
 
-请根据所使用的平台配置以下环境变量：
-
-- **Android**:
-  - `VCPKG_ROOT`: `/path/to/vcpkg`
-  - `ANDROID_SDK`: `/path/to/androidsdk`
-  - `ANDROID_NDK`: `/path/to/androidndk`
-- **Windows**:
-  - `VCPKG_ROOT`: `D:/vcpkg`（注意使用正斜杠 `/` 或双反斜杠 `\\`）
-  - 将 `winflexbison` 的路径添加到 `PATH` 环境变量中。
-- **Linux OR MacOS**:
-  - `VCPKG_ROOT`: `/path/to/vcpkg`
-
-> **注意**: 在 Windows 上，环境变量路径必须使用 `/` 或 `\\`，避免使用单一的 `\`。例如：
->
-> - **错误示例**: `D:\vcpkg`（cmake 不转义 `\`，导致路径错误）
-> - **正确示例**: `D:/vcpkg`
-
-### 编译步骤
+### Environment Variables
 
 - **Android**:
-  - 在 Windows 上运行: `./gradlew.bat assemble`
-    - 如果遇到`glib`无法安装查看[FAQ#安装glib失败](./doc/FAQ.md#安装glib失败)
-  - 在 Linux 上运行: `./gradlew assemble`
-  
+  - `VCPKG_ROOT=/path/to/vcpkg`
+  - `ANDROID_SDK=/path/to/androidsdk`
+  - `ANDROID_NDK=/path/to/androidndk`
 - **Windows**:
-  - 运行: `./scripts/build-windows.bat`
-  
-- **Linux**:
-  - 运行: `./scripts/build-linux.sh`
+  - `VCPKG_ROOT=D:/vcpkg`
+  - Add `winflexbison` path to `PATH`.
+- **Linux / MacOS**:
+  - `VCPKG_ROOT=/path/to/vcpkg`
 
-- **MacOS**:
-  - 运行:
+> **Note**: On Windows, use `/` or `\\` instead of a single `\` in paths.
+
+---
+
+### Build Steps
+
+- **Android**:
+  ```bash
+  ./gradlew assemble      # Windows or Linux
   ```
-    cmake --preset="MacOS Debug Config"
-    cmake --build --preset="MacOS Debug Build"
+
+  > If you encounter `glib` installation issues, see [FAQ#安装glib失败](./doc/FAQ.md#安装glib失败)
+
+* **Windows**:
+
+  ```powershell
+  ./scripts/build-windows.bat
   ```
-  
-- **使用Docker容器**:
-  - Android: `docker build -f dockers/android.Dockerfile -t android-builder .`
-  - Linux: `docker build -f dockers/linux.Dockerfile -t linux-builder .`
 
-## 可执行文件位置
+* **Linux**:
 
-- **Android**:
-  - Debug 版本: `out/android/app/outputs/apk/debug/*.apk`
-  - Release 版本: `out/android/app/outputs/apk/release/*.apk`
-- **Windows**:
-  - 可执行文件: `out/windows/debug/bin/krkr2/krkr2.exe`
+  ```bash
+  ./scripts/build-linux.sh
+  ```
+
+* **MacOS**:
+
+  ```bash
+  cmake --preset="MacOS Debug Config"
+  cmake --build --preset="MacOS Debug Build"
+  ```
+
+* **Using Docker**:
+
+  ```bash
+  docker build -f dockers/android.Dockerfile -t android-builder .
+  docker build -f dockers/linux.Dockerfile -t linux-builder .
+  ```
+
+---
+
+## Executable Location
+
+* **Android**:
+
+  * Debug: `out/android/app/outputs/apk/debug/*.apk`
+  * Release: `out/android/app/outputs/apk/release/*.apk`
+* **Windows**: `out/windows/debug/bin/krkr2/krkr2.exe`
+* **Linux**: `out/linux/debug/bin/krkr2/krkr2`
+* **MacOS**: `out/macos/debug/bin/krkr2/krkr2.app`
+
+---
+
+## Code Formatting
+- **clang-format@20**
 - **Linux**:
-  - 可执行文件: `out/linux/debug/bin/krkr2/krkr2`
-- **MacOS**:
-  - 可执行文件: `out/macos/debug/bin/krkr2/krkr2.app`
-
-## 代码格式化
-- `clang-format@20`
-- **Linux**:
-  - 使用 `clang-format` 进行代码格式化:
     ```bash
     clang-format -i --verbose $(find ./cpp ./linux ./windows ./android/cpp ./apple ./tests -regex ".+\.\(cpp\|cc\|h\|hpp\|inc\)")
     ```
 
 - **MacOS**:
-  - 使用 `clang-format` 进行代码格式化:
     ```bash
     clang-format -i --verbose $(find ./cpp ./linux ./windows ./android/cpp ./apple ./tests -name "*.cpp" -o -name "*.cc" -o -name "*.h" -o -name "*.hpp" -o -name "*.inc")
     ```
 
 - **Windows**:
-  - 使用 `clang-format` 进行代码格式化:
     ```powershell
     Get-ChildItem -Path ./cpp, ./linux, ./windows, ./android/cpp, ./apple, ./tests -Recurse -File | 
     Where-Object { $_.Name -match '\.(cpp|cc|h|hpp|inc)$' } | 
     ForEach-Object { clang-format -i --verbose $_.FullName }
     ```
 
-## 支持的游戏列表
-- [games](./doc/support_games.txt)
 
-## 插件资源
+---
 
-您可以在 [wamsoft 的 GitHub 仓库](https://github.com/orgs/wamsoft/repositories?type=all) 中找到相关的插件和工具库。
+## Supported Games
 
-## 贡献指南
+* See [games list](./doc/support_games.txt)
 
-欢迎对 KrKr2 模拟器项目提出建议、报告问题或提交代码贡献。请遵循以下步骤：
+---
 
-1. Fork 本仓库。
-2. 创建一个新的分支：`git checkout -b feature-branch`
-3. 提交您的更改：`git commit -m '添加新功能'`
-4. 推送到分支：`git push origin feature-branch`
-5. 创建一个 Pull Request。
+## Plugin Resources
 
-## 许可证
+* Available at [wamsoft GitHub repositories](https://github.com/orgs/wamsoft/repositories?type=all)
 
-此项目遵循 MIT 许可证。详细信息请参阅 [LICENSE](./LICENSE) 文件。
+---
+
+## License
+
+MIT License. See [LICENSE](./LICENSE) for details.
+
+---

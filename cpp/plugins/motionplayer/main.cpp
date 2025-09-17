@@ -14,7 +14,7 @@
 
 using namespace motion;
 
-#define NCB_MODULE_NAME TJS_W("emoteplayer.dll")
+#define NCB_MODULE_NAME TJS_W("motionplayer.dll")
 #define LOGGER spdlog::get("plugin")
 
 NCB_REGISTER_SUBCLASS_DELAY(SeparateLayerAdaptor) { NCB_CONSTRUCTOR(()); }
