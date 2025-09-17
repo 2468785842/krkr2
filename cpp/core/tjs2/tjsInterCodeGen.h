@@ -676,7 +676,7 @@ namespace TJS {
 
         tjs_int ExecuteCode(tTJSVariant *ra, tjs_int startip,
                             tTJSVariant **args, tjs_int numargs,
-                            tTJSVariant *result);
+                            tTJSVariant *result, bool tryCatch = false);
 
         tjs_int ExecuteCodeInTryBlock(tTJSVariant *ra, tjs_int startip,
                                       tTJSVariant **args, tjs_int numargs,
@@ -686,10 +686,10 @@ namespace TJS {
         static void ContinuousClear(tTJSVariant *ra, const tjs_int32 *code);
 
         void GetPropertyDirect(tTJSVariant *ra, const tjs_int32 *code,
-                               tjs_uint32 flags);
+                               tjs_uint32 flags) const;
 
         void SetPropertyDirect(tTJSVariant *ra, const tjs_int32 *code,
-                               tjs_uint32 flags);
+                               tjs_uint32 flags) const;
 
         static void GetProperty(tTJSVariant *ra, const tjs_int32 *code);
 
@@ -702,7 +702,7 @@ namespace TJS {
                                         tjs_uint32 flags);
 
         void OperatePropertyDirect(tTJSVariant *ra, const tjs_int32 *code,
-                                   tjs_uint32 ope);
+                                   tjs_uint32 ope) const;
 
         static void OperatePropertyIndirect(tTJSVariant *ra,
                                             const tjs_int32 *code,
@@ -712,7 +712,7 @@ namespace TJS {
                                     tjs_uint32 ope);
 
         void OperatePropertyDirect0(tTJSVariant *ra, const tjs_int32 *code,
-                                    tjs_uint32 ope);
+                                    tjs_uint32 ope) const;
 
         static void OperatePropertyIndirect0(tTJSVariant *ra,
                                              const tjs_int32 *code,
@@ -727,7 +727,7 @@ namespace TJS {
                                          const tjs_int32 *code);
 
         void TypeOfMemberDirect(tTJSVariant *ra, const tjs_int32 *code,
-                                tjs_uint32 flags);
+                                tjs_uint32 flags) const;
 
         static void TypeOfMemberIndirect(tTJSVariant *ra, const tjs_int32 *code,
                                          tjs_uint32 flags);

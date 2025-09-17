@@ -98,7 +98,7 @@ namespace TJS {
         ttstr Type; // object type ("class Array" etc)
         tjs_uint32 Flags;
 
-        tTJSObjectHashMapRecord() : Flags(TJS_OHMF_EXIST) { ; }
+        tTJSObjectHashMapRecord() : Flags(TJS_OHMF_EXIST) {}
 
         void StoreLog() {
             // store the object into log stream

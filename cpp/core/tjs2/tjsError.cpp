@@ -70,8 +70,8 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     eTJSScriptError::tScriptBlockHolder::tScriptBlockHolder(
-        const tScriptBlockHolder &Holder) {
-        Block = Holder.Block;
+        const tScriptBlockHolder &holder) {
+        Block = holder.Block;
         Block->AddRef();
     }
 
@@ -296,9 +296,5 @@ namespace TJS {
     //---------------------------------------------------------------------------
 } // namespace TJS
 
-#define TJS_DECL_MESSAGE_BODY
 #undef tjsErrorH
 #undef __TJS_ERROR_INC_H__
-
-#include "tjsError.h"
-//---------------------------------------------------------------------------

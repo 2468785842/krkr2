@@ -41,11 +41,11 @@ namespace TJS {
             return TJS_S_OK;
         }
 
-        void Invalidate() override { ; }
+        void Invalidate() override {}
 
         void Destruct() override { delete this; }
 
-        virtual ~tTJSNativeInstance() { ; };
+        virtual ~tTJSNativeInstance() {};
     };
     //---------------------------------------------------------------------------
 

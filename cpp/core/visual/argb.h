@@ -43,7 +43,7 @@ struct tTVPARGB {
 
     typedef base_type base_int_type;
 
-    tTVPARGB() { ; }
+    tTVPARGB() {}
 
     //	tTVPARGB(const tTVPARGB & rhs)
     //		{ this->operator =(rhs); }

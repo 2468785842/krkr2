@@ -190,9 +190,9 @@ public: // new and delete
     }
 
 public: // constructors and destructor
-    tTVPRegionRect() { ; };
-    tTVPRegionRect(const tTVPRect &r) : tTVPRect(r) { ; };
-    ~tTVPRegionRect() { ; };
+    tTVPRegionRect() {};
+    tTVPRegionRect(const tTVPRect &r) : tTVPRect(r) {};
+    ~tTVPRegionRect() {};
 
 public: // link operations
     void LinkAfter(tTVPRegionRect *r) {
@@ -234,7 +234,7 @@ public: // iterator
         const tTVPRegionRect *Current;
 
     public: // constructor and destructor
-        tIterator() : Head(nullptr), Current(nullptr) { ; }
+        tIterator() : Head(nullptr), Current(nullptr) {}
         tIterator(const tTVPRegionRect *head) : Head(head), Current(nullptr) {
             ;
         }

@@ -1,6 +1,7 @@
 // generated from gentext.pl Messages.xlsx
-#ifndef __TJS_ERROR_INC_H__
-#define __TJS_ERROR_INC_H__
+#pragma once
+
+#include "tjsMessage.h"
 TJS_MSG_DECL(TJSInternalError, TJS_W("Internal error"))
 TJS_MSG_DECL(TJSWarning, TJS_W("Warning: "))
 TJS_MSG_DECL(TJSWarnEvalOperator,
@@ -106,4 +107,3 @@ TJS_MSG_DECL(TJSNotSupportedUuencode, TJS_W("Not supported uuencode"))
 TJS_MSG_DECL(TJSNotSupportedBER, TJS_W("Not supported BER"))
 TJS_MSG_DECL(TJSNotSupportedUnpackLP, TJS_W("Not supported unpack 'lp'"))
 TJS_MSG_DECL(TJSNotSupportedUnpackP, TJS_W("Not supported unpack 'p'"))
-#endif

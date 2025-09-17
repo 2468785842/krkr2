@@ -8,33 +8,18 @@
 //---------------------------------------------------------------------------
 // TJS2's C++ exception class and exception message
 //---------------------------------------------------------------------------
-
-#ifndef tjsErrorH
-#define tjsErrorH
+#pragma once
 
 #ifndef TJS_DECL_MESSAGE_BODY
 
-#include <stdexcept>
 #include <string>
+#include "tjs.h"
 #include "tjsVariant.h"
 #include "tjsString.h"
-#include "tjsMessage.h"
 
 namespace TJS {
     //---------------------------------------------------------------------------
     extern ttstr TJSNonamedException;
-
-//---------------------------------------------------------------------------
-// macro
-//---------------------------------------------------------------------------
-#ifdef TJS_SUPPORT_VCL
-#define TJS_CONVERT_TO_TJS_EXCEPTION_ADDITIONAL                                \
-    catch(const Exception &e) {                                                \
-        TJS_eTJSError(e.Message.c_str());                                      \
-    }
-#else
-#define TJS_CONVERT_TO_TJS_EXCEPTION_ADDITIONAL
-#endif
 
 #define TJS_CONVERT_TO_TJS_EXCEPTION                                           \
     catch(const eTJSSilent &e) {                                               \
@@ -60,79 +45,14 @@ namespace TJS {
     }                                                                          \
     catch(const char *text) {                                                  \
         TJS_eTJSError(text);                                                   \
-    }                                                                          \
-    TJS_CONVERT_TO_TJS_EXCEPTION_ADDITIONAL
-    //---------------------------------------------------------------------------
+    }
 
     //---------------------------------------------------------------------------
     // TJSGetExceptionObject : retrieves TJS 'Exception' object
     //---------------------------------------------------------------------------
     extern void
-    TJSGetExceptionObject(class tTJS *tjs, tTJSVariant *res, tTJSVariant &msg,
+    TJSGetExceptionObject(tTJS *tjs, tTJSVariant *res, tTJSVariant &msg,
                           tTJSVariant *trace /* trace is optional */ = nullptr);
-    //---------------------------------------------------------------------------
-
-#ifdef TJS_SUPPORT_VCL
-#define TJS_CONVERT_TO_TJS_EXCEPTION_OBJECT_ADDITIONAL(                        \
-    _tjs, _result_condition, _result_addr, _before_catched, _when_catched)     \
-    catch(EAccessViolation & e) {                                              \
-        _before_catched;                                                       \
-        if(_result_condition) {                                                \
-            tTJSVariant msg(e.Message.c_str());                                \
-            TJSGetExceptionObject((_tjs), (_result_addr), msg, nullptr);       \
-        }                                                                      \
-        _when_catched;                                                         \
-    }                                                                          \
-    catch(Exception & e) {                                                     \
-        _before_catched;                                                       \
-        if(_result_condition) {                                                \
-            tTJSVariant msg(e.Message.c_str());                                \
-            TJSGetExceptionObject((_tjs), (_result_addr), msg, nullptr);       \
-        }                                                                      \
-        _when_catched;                                                         \
-    }
-#else
-#define TJS_CONVERT_TO_TJS_EXCEPTION_OBJECT_ADDITIONAL(                        \
-    _tjs, _result_condition, _result_addr, _before_catched, _when_catched)
-#endif
-
-#define TJS_CONVERT_TO_TJS_EXCEPTION_OBJECT(                                   \
-    tjs, result_condition, result_addr, before_catched, when_catched)          \
-    catch(eTJSSilent & e) {                                                    \
-        throw e;                                                               \
-    }                                                                          \
-    catch(eTJSScriptException & e) {                                           \
-        before_catched if(result_condition) * (result_addr) = e.GetValue();    \
-        when_catched;                                                          \
-    }                                                                          \
-    catch(eTJSScriptError & e) {                                               \
-        before_catched if(result_condition) {                                  \
-            tTJSVariant msg(e.GetMessage());                                   \
-            tTJSVariant trace(e.GetTrace());                                   \
-            TJSGetExceptionObject((tjs), (result_addr), msg, &trace);          \
-        }                                                                      \
-        when_catched;                                                          \
-    }                                                                          \
-    catch(eTJS & e) {                                                          \
-        before_catched if(result_condition) {                                  \
-            tTJSVariant msg(e.GetMessage());                                   \
-            TJSGetExceptionObject((tjs), (result_addr), msg, nullptr);         \
-        }                                                                      \
-        when_catched;                                                          \
-    }                                                                          \
-    catch(exception & e) {                                                     \
-        before_catched if(result_condition) {                                  \
-            tTJSVariant msg(e.what());                                         \
-            TJSGetExceptionObject((tjs), (result_addr), msg, nullptr);         \
-        }                                                                      \
-        when_catched;                                                          \
-    }                                                                          \
-    TJS_CONVERT_TO_TJS_EXCEPTION_OBJECT_ADDITIONAL(                            \
-        tjs, result_condition, result_addr, before_catched, when_catched)      \
-    catch(...) {                                                               \
-        before_catched if(result_condition)(result_addr)->Clear();             \
-        when_catched;                                                          \
-    }
 
     //---------------------------------------------------------------------------
     // eTJSxxxxx
@@ -144,13 +64,13 @@ namespace TJS {
     //---------------------------------------------------------------------------
     class eTJS {
     public:
-        eTJS() { ; }
+        eTJS() {}
 
-        eTJS(const eTJS &) { ; }
+        eTJS(const eTJS &) {}
 
         eTJS &operator=(const eTJS &e) = default;
 
-        virtual ~eTJS() { ; }
+        virtual ~eTJS() {}
 
         [[nodiscard]] virtual const ttstr &GetMessage() const {
             return TJSNonamedException;
@@ -163,7 +83,7 @@ namespace TJS {
     //---------------------------------------------------------------------------
     class eTJSError : public eTJS, public std::exception {
     public:
-        eTJSError(const ttstr &Msg) : Message(Msg) { ; }
+        eTJSError(const ttstr &Msg) : Message(Msg) {}
 
         const char *what() const noexcept override {
             cachedStr = Message.AsStdString();
@@ -186,9 +106,9 @@ namespace TJS {
     //---------------------------------------------------------------------------
     class eTJSVariantError : public eTJSError {
     public:
-        eTJSVariantError(const ttstr &Msg) : eTJSError(Msg) { ; }
+        eTJSVariantError(const ttstr &Msg) : eTJSError(Msg) {}
 
-        eTJSVariantError(const eTJSVariantError &ref) : eTJSError(ref) { ; }
+        eTJSVariantError(const eTJSVariantError &ref) : eTJSError(ref) {}
     };
 
     //---------------------------------------------------------------------------
@@ -218,7 +138,7 @@ namespace TJS {
         ttstr Trace;
 
     public:
-        tTJSScriptBlock *GetBlockNoAddRef() { return Block.Block; }
+        tTJSScriptBlock *GetBlockNoAddRef() const { return Block.Block; }
 
         tjs_int GetPosition() const { return Position; }
 
@@ -289,11 +209,9 @@ namespace TJS {
     public:
         eTJSCompileError(const ttstr &Msg, tTJSScriptBlock *block,
                          tjs_int pos) : eTJSScriptError(Msg, block, pos) {
-            ;
         }
 
         eTJSCompileError(const eTJSCompileError &ref) : eTJSScriptError(ref) {
-            ;
         }
     };
 
@@ -319,28 +237,9 @@ namespace TJS {
 //---------------------------------------------------------------------------
 #endif // #ifndef TJS_DECL_MESSAGE_BODY
 
-//---------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------
-// messages
-//---------------------------------------------------------------------------
-namespace TJS {
-#ifdef TJS_DECL_MESSAGE_BODY
-#define TJS_MSG_DECL(name, msg) tTJSMessageHolder name(TJS_W(#name), msg);
-#define TJS_MSG_DECL_NULL(name) tTJSMessageHolder name(TJS_W(#name), nullptr);
-#else
-#define TJS_MSG_DECL(name, msg) extern tTJSMessageHolder name;
-#define TJS_MSG_DECL_NULL(name) extern tTJSMessageHolder name;
-#endif
-    //---------------------------------------------------------------------------
-
+#define TJS_MSG_DECL(name, msg) inline TJS::tTJSMessageHolder name(TJS_W(#name), msg);
+#define TJS_MSG_DECL_NULL(name) inline TJS::tTJSMessageHolder name(TJS_W(#name), nullptr);
 #include "tjsErrorInc.h"
 
 #undef TJS_MSG_DECL
 #undef TJS_MSG_DECL_NULL
-    //---------------------------------------------------------------------------
-
-} // namespace TJS
-//---------------------------------------------------------------------------
-
-#endif // #ifndef tjsErrorH

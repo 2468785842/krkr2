@@ -23,9 +23,9 @@ namespace TJS {
         tjs_uint RefCount{};
 
     public:
-        tTJSMessageMapper() { ; }
+        tTJSMessageMapper() {}
 
-        ~tTJSMessageMapper() { ; }
+        ~tTJSMessageMapper() {}
 
         void Register(const tjs_char *name, tTJSMessageHolder *holder) {
             Hash.Add(ttstr(name), holder);
