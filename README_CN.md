@@ -130,17 +130,17 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 - `clang-format@20`
 - **Linux**:
     ```bash
-    clang-format -i --verbose $(find ./cpp ./linux ./windows ./android/cpp ./apple ./tests -regex ".+\.\(cpp\|cc\|h\|hpp\|inc\)")
+    clang-format -i --verbose $(find ./cpp ./linux ./windows ./android/cpp ./apple ./tests ./tools -regex ".+\.\(cpp\|cc\|h\|hpp\|inc\)")
     ```
 
 - **MacOS**:
     ```bash
-    clang-format -i --verbose $(find ./cpp ./linux ./windows ./android/cpp ./apple ./tests -name "*.cpp" -o -name "*.cc" -o -name "*.h" -o -name "*.hpp" -o -name "*.inc")
+    clang-format -i --verbose $(find ./cpp ./linux ./windows ./android/cpp ./apple ./tests ./tools -name "*.cpp" -o -name "*.cc" -o -name "*.h" -o -name "*.hpp" -o -name "*.inc")
     ```
 
 - **Windows**:
     ```powershell
-    Get-ChildItem -Path ./cpp, ./linux, ./windows, ./android/cpp, ./apple, ./tests -Recurse -File | 
+    Get-ChildItem -Path ./cpp, ./linux, ./windows, ./android/cpp, ./apple, ./tests, ./tools -Recurse -File | 
     Where-Object { $_.Name -match '\.(cpp|cc|h|hpp|inc)$' } | 
     ForEach-Object { clang-format -i --verbose $_.FullName }
     ```

@@ -692,10 +692,11 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
             }
             delete data.bmpForMask;
             data.bmpForMask = nullptr;
-            std::unique_ptr<iTJSDispatch2> meta{TJSCreateDictionaryObject()};
+            std::unique_ptr<iTJSDispatch2> meta{ TJSCreateDictionaryObject() };
             for(const auto &[k, v] : data.metainfo) {
-		        tTJSVariant var{v};
-                meta->PropSet(TJS_MEMBERENSURE, k.c_str(), nullptr, &var, meta.get());
+                tTJSVariant var{ v };
+                meta->PropSet(TJS_MEMBERENSURE, k.c_str(), nullptr, &var,
+                              meta.get());
             }
             tTVPMemoryStream memstr;
             auto *bmp =
@@ -707,8 +708,7 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
                              meta.get());
             } else {
                 // convert to tlg5 for better performance
-                TVPSaveAsTLG(nullptr, &memstr, bmp, TJS_W("tlg5"),
-                             meta.get());
+                TVPSaveAsTLG(nullptr, &memstr, bmp, TJS_W("tlg5"), meta.get());
             }
             delete bmp;
             memstr.SetPosition(0);

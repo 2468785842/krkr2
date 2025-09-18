@@ -51,7 +51,6 @@ std::string normalizePath(const std::string& path) {
         }
     }
 
-    // 2. 展开环境变量（Windows 常见情况）
 #if defined(_WIN32)
     // 处理类似 %APPDATA% 的路径
     size_t start = expanded.find('%');
@@ -100,13 +99,12 @@ int main(int argc, char *argv[]) {
 
     static auto core_logger = spdlog::stdout_color_mt("core");
     static auto tjs2_logger = spdlog::stdout_color_mt("tjs2");
-    static auto plugin_logger = spdlog::stdout_color_mt("plugin");
     spdlog::set_pattern("%^%v%$");
     spdlog::set_default_logger(core_logger);
 
     std::string output_dir = "./";
     if(program.is_used("-o")) {
-        output_dir = program.get<std::string>("--output");
+        output_dir = program.get<std::string>("-o");
     }
 
     const auto input_files = program.get<std::vector<std::string>>("files");
