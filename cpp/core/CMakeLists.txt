@@ -20,10 +20,12 @@ add_library(${PROJECT_NAME} STATIC
     ${MSG_SOURCE_FILES}
     ${SOUND_SOURCE_FILES}
     ${VISUAL_SOURCE_FILES}
+    plugin/ncbind.cpp
 )
 
 # Common include directories
 target_include_directories(${PROJECT_NAME} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${BASE_HEADERS_DIR}
     ${UTILS_HEADERS_DIR}
     ${ENVIRON_HEADERS_DIR}
@@ -32,8 +34,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${MSG_HEADERS_DIR}
     ${SOUND_HEADERS_DIR}
     ${VISUAL_HEADERS_DIR}
-    ${KRKR2CORE_PATH}/
-    ${KRKR2CORE_PATH}/../plugins
+    ${CMAKE_CURRENT_SOURCE_DIR}/plugin
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC
@@ -113,6 +114,8 @@ find_package(cocos2dx CONFIG REQUIRED)
 
 find_package(uchardet CONFIG REQUIRED)
 
+find_package(zstd CONFIG REQUIRED)
+
 # Link libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC
     ${FFMPEG_LIBRARIES}
@@ -133,6 +136,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     opencv_core
 
     # archive
+    zstd::libzstd
     7zip::7zip
     unrar::unrar
     lz4::lz4

@@ -1,4 +1,4 @@
-#include "ncbind/ncbind.hpp"
+#include "ncbind.hpp"
 #include "XP3Archive.h"
 #include "SystemIntf.h"
 #include "tjsNative.h"
@@ -6,10 +6,11 @@
 #include <list>
 #include "tjsDebug.h"
 #include "xp3filter.h"
-#include "SysInitIntf.h"
 #include "ThreadIntf.h"
 #include <memory>
 #include <thread>
+
+#include "TextStream.h"
 
 #define NCB_MODULE_NAME TJS_W("xp3filter.dll")
 

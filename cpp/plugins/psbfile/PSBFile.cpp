@@ -24,7 +24,7 @@ namespace PSB {
         const size_t len = nameIndexes.value.size();
         names.reserve(len);
         for(int i = 0; i < len; i++) {
-            std::vector<std::uint32_t> codepoints;
+            std::string codepoints;
             const auto index = nameIndexes[i];
             auto chr = namesData[index];
             while(chr != u'\0') {
@@ -37,29 +37,7 @@ namespace PSB {
             }
 
             std::reverse(codepoints.begin(), codepoints.end()); // little endian
-            std::string str;
-            for(std::uint32_t cp : codepoints) {
-                // Unicode 转成 UTF-8
-                if(cp <= 0x7F) {
-                    str.push_back(static_cast<char>(cp));
-                } else if(cp <= 0x7FF) {
-                    str.push_back(static_cast<char>(0xC0 | ((cp >> 6) & 0x1F)));
-                    str.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
-                } else if(cp <= 0xFFFF) {
-                    str.push_back(
-                        static_cast<char>(0xE0 | ((cp >> 12) & 0x0F)));
-                    str.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
-                    str.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
-                } else {
-                    str.push_back(
-                        static_cast<char>(0xF0 | ((cp >> 18) & 0x07)));
-                    str.push_back(
-                        static_cast<char>(0x80 | ((cp >> 12) & 0x3F)));
-                    str.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
-                    str.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
-                }
-            }
-            names.push_back(std::move(str));
+            names.push_back(std::move(codepoints));
         }
     }
 

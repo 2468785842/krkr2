@@ -1,5 +1,5 @@
 #include "tp_stub.h"
-#include "ncbind/ncbind.hpp"
+#include "ncbind.hpp"
 #include <sstream>
 #include <locale>
 

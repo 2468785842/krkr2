@@ -20,7 +20,7 @@
 #include "MsgIntf.h"
 #include "ComplexRect.h"
 #include "tvpgl.h"
-#include "../../../plugins/KAGParser/tjsHashSearch.h"
+#include "../../tjs2/tjsHashSearch.h"
 #include "EventIntf.h"
 #include "SysInitImpl.h"
 #include "StorageIntf.h"

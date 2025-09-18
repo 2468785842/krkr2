@@ -29,6 +29,9 @@ set(APP_NAME krkr2)
 
 project(${APP_NAME})
 
+option(ENABLE_TESTS "enable tests execute build(exclude android)" ON)
+option(BUILD_TOOLS "build tools execute build(exclude android ios)" ON)
+
 if(APPLE)
     enable_language(OBJC OBJCXX)
 endif()
@@ -139,7 +142,11 @@ if(MSVC)
   target_link_options(${PROJECT_NAME} PUBLIC "/INCREMENTAL")
 endif()
 
-if(NOT DISABLE_TEST AND NOT ANDROID)
+if(ENABLE_TESTS AND NOT ANDROID)
     enable_testing()
     add_subdirectory(tests)
-endif ()
+endif()
+
+if(BUILD_TOOLS AND NOT (IOS OR ANDROID))
+    add_subdirectory(tools)
+endif()

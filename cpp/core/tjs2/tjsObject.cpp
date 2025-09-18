@@ -13,7 +13,7 @@
 #include "tjsObject.h"
 #include "tjsUtils.h"
 #include "tjsNative.h"
-#include "../../plugins/KAGParser/tjsHashSearch.h"
+#include "tjsHashSearch.h"
 #include "tjsGlobalStringMap.h"
 #include "tjsDebug.h"
 

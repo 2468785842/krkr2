@@ -4,6 +4,10 @@
   "version-string": "1.5.0",
   "dependencies": [
     "7zip",
+    {
+      "name": "argparse",
+      "platform": "linux | windows | osx"
+    },
     "boost-iostreams",
     {
       "name": "boost-locale",
@@ -69,7 +73,8 @@
     {
       "name": "vcpkg-cmake",
       "host": true
-    }
+    },
+    "zstd"
   ],
   "overrides": [
     {

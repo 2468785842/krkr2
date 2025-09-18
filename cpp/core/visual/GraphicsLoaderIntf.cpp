@@ -17,7 +17,7 @@
 #include "LayerIntf.h"
 #include "StorageIntf.h"
 #include "MsgIntf.h"
-#include "../../plugins/KAGParser/tjsHashSearch.h"
+#include "../tjs2/tjsHashSearch.h"
 #include "EventIntf.h"
 #include "SysInitIntf.h"
 #include "DebugIntf.h"

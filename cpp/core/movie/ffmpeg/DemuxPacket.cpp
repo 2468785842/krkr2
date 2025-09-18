@@ -1,7 +1,7 @@
 #include "DemuxPacket.h"
 #include <memory>
-#include "tp_stub.h"
 #include "Clock.h"
+#include "tjsUtils.h"
 
 extern "C" {
 #include "libavcodec/avcodec.h"
@@ -24,8 +24,6 @@ void DemuxPacket::Free(DemuxPacket *pPacket) {
 
 DemuxPacket *DemuxPacket::Allocate(int iDataSize /*= 0*/) {
     auto *pPacket = new DemuxPacket;
-    if(!pPacket)
-        return nullptr;
 
     try {
         memset(pPacket, 0, sizeof(DemuxPacket));

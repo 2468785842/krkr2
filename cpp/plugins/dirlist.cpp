@@ -2,7 +2,7 @@
 // #include <windows.h>
 // #include "tp_stub.h"
 #include "tp_stub.h"
-#include "ncbind/ncbind.hpp"
+#include "ncbind.hpp"
 //---------------------------------------------------------------------------
 
 #define NCB_MODULE_NAME TJS_W("dirlist.dll")

@@ -22,7 +22,7 @@ foreach(name ${ALL_TARGETS})
         PRIVATE
             Catch2::Catch2
         PUBLIC
-            krkr2plugin krkr2core
+            krkr2core
     )
     target_include_directories(${name} PRIVATE "${TEST_CONFIG_DIR}")
     catch_discover_tests(${name})

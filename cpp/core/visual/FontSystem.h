@@ -4,7 +4,7 @@
 
 #include "tjsCommHead.h"
 #include "tvpfontstruc.h"
-#include "../../plugins/KAGParser/tjsHashSearch.h"
+#include "../tjs2/tjsHashSearch.h"
 #include <string>
 
 class tTVPWStringHash {

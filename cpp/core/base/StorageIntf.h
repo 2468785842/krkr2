@@ -12,7 +12,7 @@
 #define StorageIntfH
 
 #include "tjsNative.h"
-#include "../../plugins/KAGParser/tjsHashSearch.h"
+#include "../tjs2/tjsHashSearch.h"
 #include <vector>
 
 //---------------------------------------------------------------------------

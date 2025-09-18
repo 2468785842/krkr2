@@ -14,6 +14,7 @@ set(BASE_SOURCE_FILES
     ${BASE_PATH}/UtilStreams.cpp
     ${BASE_PATH}/XP3Archive.cpp
     ${BASE_PATH}/ZIPArchive.cpp
+    ${BASE_PATH}/KAGParser.cpp
 
     ${BASE_PATH}/win32/EventImpl.cpp
     ${BASE_PATH}/win32/FileSelector.cpp

@@ -5,7 +5,6 @@ add_library(${PROJECT_NAME} STATIC)
 
 target_sources(${PROJECT_NAME} PUBLIC
     scriptsEx.cpp
-    InternalPlugins.cpp
     win32dialog.cpp
     dirlist.cpp
     csvParser.cpp
@@ -21,7 +20,6 @@ target_sources(${PROJECT_NAME} PUBLIC
     fftgraph.cpp
     LayerExBase.cpp
     xp3filter.cpp
-    ncbind/ncbind.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -48,14 +46,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 add_definitions(-D__STDC_CONSTANT_MACROS -DTJS_TEXT_OUT_CRLF)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH} ${KRKR2PLUGIN_PATH}/ncbind ${KRKR2PLUGIN_PATH}/simplebinder})
+target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH} ${KRKR2PLUGIN_PATH}/simplebinder})
 target_link_libraries(${PROJECT_NAME} PUBLIC krkr2core)
 
 add_subdirectory(psdfile)
 add_subdirectory(psbfile)
 add_subdirectory(layerex_draw)
 add_subdirectory(motionplayer)
-add_subdirectory(KAGParser)
 
 #add_subdirectory(json)
 add_subdirectory(fstat)
@@ -66,7 +63,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         psbfile
         layerExDraw
         motionplayer
-        KAGParser
         fstat
 #        json steam DrawDeviceForSteam
 )

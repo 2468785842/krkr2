@@ -65,7 +65,6 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - `vcpkg@latest`
   - [ninja@latest](https://github.com/ninja-build/ninja/releases)
   - [cmake@3.31.1+](https://cmake.org/download/)
-  - [ninja@latest](https://github.com/ninja-build/ninja/releases)
   - `bison@3.8.2+`
   - `python3`
   - `NASM@latest`

@@ -2,10 +2,11 @@
 // Created by Li_Dong on 2024/12/9.
 // source url: https://github.com/wamsoft/scriptsEx/blob
 //
-#include "ncbind/ncbind.hpp"
+#include "ncbind.hpp"
 #include <vector>
 #include <algorithm>
 #include "PluginImpl.h"
+#include "TextStream.h"
 
 #define NCB_MODULE_NAME TJS_W("ScriptsEx.dll")
 

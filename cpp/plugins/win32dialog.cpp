@@ -1,5 +1,5 @@
 
-#include "ncbind/ncbind.hpp"
+#include "ncbind.hpp"
 
 #define NCB_MODULE_NAME TJS_W("win32dialog.dll")
 

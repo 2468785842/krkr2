@@ -73,7 +73,6 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
   - `vcpkg@latest`
   - [ninja@latest](https://github.com/ninja-build/ninja/releases)
   - [cmake@3.31.1+](https://cmake.org/download/)
-  - [ninja@latest](https://github.com/ninja-build/ninja/releases)
   - `bison@3.8.2+`
   - `python3`
   - `NASM@latest`

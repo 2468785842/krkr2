@@ -13,7 +13,7 @@
 #include "TransIntf.h"
 #include "LayerIntf.h"
 #include "GraphicsLoaderIntf.h"
-#include "../../plugins/KAGParser/tjsHashSearch.h"
+#include "../tjs2/tjsHashSearch.h"
 #include "MsgIntf.h"
 #include "SysInitIntf.h"
 #include "tvpgl.h"

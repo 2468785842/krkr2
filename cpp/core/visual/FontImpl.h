@@ -1,6 +1,6 @@
 #pragma once
 #include "tjs.h"
-#include "../../plugins/KAGParser/tjsHashSearch.h"
+#include "../tjs2/tjsHashSearch.h"
 #include <functional>
 
 void TVPInitFontNames();

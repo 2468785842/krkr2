@@ -29,7 +29,7 @@
 #include "MenuItemIntf.h"
 #include "ClipboardIntf.h"
 #include "MsgIntf.h"
-#include "../../plugins/KAGParser/KAGParser.h"
+#include "KAGParser.h"
 #include "VideoOvlIntf.h"
 #include "PadIntf.h"
 #include "TextStream.h"
@@ -592,8 +592,7 @@ tTJS *TVPGetScriptEngine() { return TVPScriptEngine; }
 iTJSDispatch2 *TVPGetScriptDispatch() {
     if(TVPScriptEngine)
         return TVPScriptEngine->GetGlobal();
-    else
-        return nullptr;
+    return nullptr;
 }
 //---------------------------------------------------------------------------
 
