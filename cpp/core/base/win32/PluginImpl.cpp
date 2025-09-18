@@ -46,12 +46,15 @@
 bool TVPLoadInternalPlugin(const ttstr &_name);
 
 void TVPLoadPlugin(const ttstr &name) {
-    const bool success = TVPLoadInternalPlugin(name);
-    std::string pluginName = name.AsStdString();
-    if(success) {
-        spdlog::debug("Loading Plugin: {} Success", pluginName);
+    auto pluginName = name;
+    // motionplayer.dll and emoteplayer.dll may be same?
+    if(name == TJS_W("emoteplayer.dll"))
+        pluginName = "motionplayer.dll";
+
+    if(TVPLoadInternalPlugin(pluginName)) {
+        spdlog::debug("Loading Plugin: {} Success", name.AsStdString());
     } else {
-        spdlog::error("Loading Plugin: {} Failed", pluginName);
+        spdlog::error("Loading Plugin: {} Failed", name.AsStdString());
     }
 }
 
