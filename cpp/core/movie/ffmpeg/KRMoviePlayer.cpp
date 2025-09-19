@@ -4,7 +4,7 @@ extern "C" {
 #include "libswscale/swscale.h"
 }
 
-#include "cocos2d.h"
+#include <cocos2d.h>
 #include "KRMoviePlayer.h"
 #include "VideoCodec.h"
 #include "CodecUtils.h"

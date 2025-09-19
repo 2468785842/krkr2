@@ -7,15 +7,9 @@
 extern "C" {
 #include <libbpg.h>
 }
-
-extern void TVPInitLibAVCodec();
-
 struct CBPGDecoderContext {
     BPGDecoderContext *ctx;
-    CBPGDecoderContext() {
-        TVPInitLibAVCodec();
-        ctx = bpg_decoder_open();
-    }
+    CBPGDecoderContext() { ctx = bpg_decoder_open(); }
     ~CBPGDecoderContext() { bpg_decoder_close(ctx); }
     BPGDecoderContext *get() { return ctx; }
 };

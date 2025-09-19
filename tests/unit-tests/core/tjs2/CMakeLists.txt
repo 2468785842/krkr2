@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(TestPlugins LANGUAGES CXX)
+project(TestTjs2 LANGUAGES CXX)
 
 set(SOURCES
         tjs.cpp

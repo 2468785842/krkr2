@@ -33,7 +33,6 @@
       "platform": "linux | windows | osx"
     },
     "libarchive",
-    "libbpg",
     {
       "name": "libgdiplus",
       "platform": "!windows"
@@ -48,6 +47,7 @@
     "lz4",
     "oniguruma",
     "openal-soft",
+    "libwebp",
     {
       "name": "opencv4",
       "default-features": false,

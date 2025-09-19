@@ -4,13 +4,12 @@
 #endif
 #include "cocos2d.h"
 #include "StorageIntf.h"
-#include "SysInitIntf.h"
 #include "ui/UIButton.h"
 #include "ui/UIText.h"
 #include "ui/UISlider.h"
 #include "cocos2d/MainScene.h"
 #include "cocos/ui/UIHelper.h"
-#include "movie/ffmpeg/KRMoviePlayer.h"
+#include "ffmpeg/KRMoviePlayer.h"
 #include "StorageImpl.h"
 #include "csd/CsdUIFactory.h"
 

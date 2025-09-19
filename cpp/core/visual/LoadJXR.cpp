@@ -10,7 +10,7 @@
 #include "tjsDictionary.h"
 #include "ScriptMgnIntf.h"
 
-#include "JXRGlue.h"
+#include <jxrlib/JXRGlue.h>
 
 static tjs_uint32 GetStride(const tjs_uint32 width, const tjs_uint32 bitCount) {
     const tjs_uint32 byteCount = bitCount / 8;

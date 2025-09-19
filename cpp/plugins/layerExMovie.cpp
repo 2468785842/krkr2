@@ -10,7 +10,6 @@
 #include "Application.h"
 #include "LayerBitmapIntf.h"
 #include <algorithm>
-#include "krmovie.h"
 #include "movie/ffmpeg/KRMovieLayer.h"
 
 #define NCB_MODULE_NAME TJS_W("layerExMovie.dll")

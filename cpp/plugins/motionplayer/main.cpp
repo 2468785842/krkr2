@@ -59,6 +59,7 @@ private:
 };
 
 NCB_REGISTER_CLASS(Motion) {
+    // Variant("MaskModeAlpha", static_cast<int>(MaskMode::MaskModeAlpha));
     NCB_PROPERTY_RAW_CALLBACK(enableD3D, Motion::getEnableD3D,
                               Motion::setEnableD3D, TJS_STATICMEMBER);
     NCB_SUBCLASS(ResourceManager, ResourceManager);

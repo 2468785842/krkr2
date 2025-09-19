@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.19)
+project(core_environ_module LANGUAGES CXX)
+
 set(ENVIRON_PATH ${CMAKE_CURRENT_LIST_DIR})
 set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/Application.cpp
@@ -57,8 +60,6 @@ set(ENVIRON_SOURCE_FILES
 #    ${ENVIRON_PATH}/win32/VersionFormUnit.cpp
 #    ${ENVIRON_PATH}/win32/WindowFormUnit.cpp
 #    ${ENVIRON_PATH}/win32/WindowsUtil.cpp
-
-    PARENT_SCOPE
 )
 
 set(ENVIRON_HEADERS_DIR
@@ -66,5 +67,19 @@ set(ENVIRON_HEADERS_DIR
     ${ENVIRON_PATH}/win32
     $<$<BOOL:${ANDROID}>:${ENVIRON_PATH}/android>
     ${ENVIRON_PATH}/sdl
-    PARENT_SCOPE
+)
+
+add_library(${PROJECT_NAME} STATIC ${ENVIRON_SOURCE_FILES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${ENVIRON_HEADERS_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE tjs2 core_base_module core_visual_module core_sound_module core_movie_module core_utils_module)
+
+find_package(cocos2dx CONFIG REQUIRED)
+find_package(7zip CONFIG REQUIRED)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        cocos2dx::cocos2d
+        $<$<BOOL:${ANDROID}>:$<LINK_LIBRARY:WHOLE_ARCHIVE,cocos2dx::cpp_android_spec>>
+
+        7zip::7zip
+        minizip
 )

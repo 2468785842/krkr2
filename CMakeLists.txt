@@ -93,6 +93,9 @@ if (WINDOWS OR MACOS OR LINUX)
     find_package(glfw3 CONFIG REQUIRED)
 endif ()
 
+# external lib
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cpp/external)
+
 # build library
 add_subdirectory(${KRKR2CORE_PATH})
 add_subdirectory(${KRKR2PLUGIN_PATH})

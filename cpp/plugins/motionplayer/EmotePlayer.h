@@ -7,7 +7,7 @@
 
 namespace motion {
 
-    enum MaskMode { MaskModeAlpha };
+    enum class MaskMode { MaskModeAlpha };
 
     class EmotePlayer {
     public:

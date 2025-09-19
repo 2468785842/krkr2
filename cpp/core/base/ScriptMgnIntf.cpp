@@ -25,7 +25,7 @@
 #include "TimerIntf.h"
 #include "EventIntf.h"
 #include "SystemIntf.h"
-#include "PluginIntf.h"
+#include "../plugin/PluginIntf.h"
 #include "MenuItemIntf.h"
 #include "ClipboardIntf.h"
 #include "MsgIntf.h"
@@ -40,7 +40,6 @@
 #include "BasicDrawDevice.h"
 #include "BinaryStream.h"
 #include "SysInitImpl.h"
-#include "SystemControl.h"
 #include "Application.h"
 
 #include "RectItf.h"

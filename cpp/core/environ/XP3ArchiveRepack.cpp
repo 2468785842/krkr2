@@ -14,7 +14,6 @@ extern "C" {
 #include <cassert>
 #include <thread>
 #include <fcntl.h>
-#include "win32io.h"
 #include "GraphicsLoaderIntf.h"
 #include <unordered_map>
 #include "LayerIntf.h"

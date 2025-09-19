@@ -1,17 +1,15 @@
-#include "network/HttpRequest.h"
-#include "network/HttpClient.h"
-#include "base/CCDirector.h"
-#include "base/CCScheduler.h"
-#include "base/base64.h"
-#include "Platform.h"
-#include "SysInitIntf.h"
-#include "ConfigManager/LocaleConfigManager.h"
-#include "StorageImpl.h"
 #include <ioapi.h>
 #include <minizip/zip.h>
+#include <cocos/base/base64.h>
 #include <sstream>
 #include <iomanip>
 #include <condition_variable>
+#include <map>
+#include <cocos/network/HttpRequest.h>
+#include <cocos/network/HttpClient.h>
+#include "Platform.h"
+#include "ConfigManager/LocaleConfigManager.h"
+#include "StorageImpl.h"
 
 static void ClearDumps(const std::string &dumpdir,
                        std::vector<std::string> &allDumps) {

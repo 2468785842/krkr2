@@ -8,7 +8,7 @@
 #include "DebugIntf.h"
 #include "StorageImpl.h"
 #include "TextStream.h"
-#include "MsgIntf.h"
+#include "../core/base/MsgIntf.h"
 #include "PluginImpl.h"
 #include "CharacterSet.h"
 #include "TransIntf.h"

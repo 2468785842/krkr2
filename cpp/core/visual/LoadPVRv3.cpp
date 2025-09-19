@@ -1,3 +1,4 @@
+#include <cocos/base/pvr.h>
 #include "tjsCommHead.h"
 #include "GraphicsLoaderIntf.h"
 #include "tjsDictionary.h"
@@ -7,7 +8,6 @@
 #include "UtilStreams.h"
 #include "RenderManager.h"
 #include "tvpgl.h"
-#include "base/pvr.h"
 #include "LayerBitmapIntf.h"
 
 // pvr format only used as normal picture or univ trans rule ( not as

@@ -14,7 +14,7 @@
 #include "MessageBox.h"
 #include "platform/CCDevice.h"
 #include "base/CCScheduler.h"
-#include "utils/TickCount.h"
+#include "TickCount.h"
 #include <condition_variable>
 #include <filesystem>
 

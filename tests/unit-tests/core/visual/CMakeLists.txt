@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(TestPlugins LANGUAGES CXX)
+project(TestVisualModule LANGUAGES CXX)
 
 set(SOURCES
         fonts.cpp

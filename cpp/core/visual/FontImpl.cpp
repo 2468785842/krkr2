@@ -15,7 +15,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#include "platform/CCFileUtils.h"
+#include <cocos/platform/CCFileUtils.h>
 #include "StorageImpl.h"
 #include "BinaryStream.h"
 
