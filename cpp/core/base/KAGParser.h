@@ -22,7 +22,7 @@
 #include "MsgIntf.h"
 #include "CharacterSet.h"
 #include "TransIntf.h"
-#include "../tjs2/tjsHashSearch.h"
+#include "tjsHashSearch.h"
 #include <vector>
 
 using namespace TJS;

@@ -24,7 +24,7 @@ extern "C" {
 #include "Platform.h"
 #include "ConfigManager/IndividualConfigManager.h"
 #include "xxhash/xxhash.h"
-#include "../tjs2/tjsHashSearch.h"
+#include "tjsHashSearch.h"
 #include "EventIntf.h"
 #include "lz4.h"
 

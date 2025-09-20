@@ -12,7 +12,7 @@
 #include "tjsCommHead.h"
 
 #include <algorithm>
-#include "../../base/MsgIntf.h"
+#include "MsgIntf.h"
 #include "VideoOvlImpl.h"
 #include "DebugIntf.h"
 #include "LayerIntf.h"
@@ -20,7 +20,7 @@
 #include "SysInitIntf.h"
 #include "StorageImpl.h"
 #include "krmovie.h"
-#include "../../plugin/PluginImpl.h"
+#include "PluginImpl.h"
 #include "WaveImpl.h" // for DirectSound attenuate <-> TVP volume
 // #include <evcode.h>
 

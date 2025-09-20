@@ -49,7 +49,8 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
 #endif
     }
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID ||                              \
+     CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     // Set the design resolution
     cocos2d::Size screenSize = glview->getFrameSize();
     if(screenSize.width < screenSize.height) {

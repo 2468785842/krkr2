@@ -62,7 +62,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     cocos2dx::cocos2d
-    $<$<BOOL:${ANDROID}>:$<LINK_LIBRARY:WHOLE_ARCHIVE,cocos2dx::cpp_android_spec>>
 
     ${FFMPEG_LIBRARIES}
 )

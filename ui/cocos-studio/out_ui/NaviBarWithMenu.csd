@@ -56,7 +56,7 @@
                     <DisabledFileData Type="Normal" Path="img/empty.png" Plist="" />
                     <TextColor A="255" B="199" G="199" R="199" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                   </AbstractNodeData>
                 </Children>

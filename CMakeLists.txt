@@ -32,10 +32,6 @@ project(${APP_NAME})
 option(ENABLE_TESTS "enable tests execute build(exclude android)" ON)
 option(BUILD_TOOLS "build tools execute build(exclude android ios)" ON)
 
-if(APPLE)
-    enable_language(OBJC OBJCXX)
-endif()
-
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -48,13 +44,13 @@ if(MSVC)
     # set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 if(ANDROID)
-    add_library(${PROJECT_NAME} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/android/cpp/krkr2_android.cpp)
+    add_library(${PROJECT_NAME} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/platforms/android/cpp/krkr2_android.cpp)
 elseif(LINUX)
-    add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/linux/main.cpp)
+    add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/platforms/linux/main.cpp)
 elseif(WINDOWS)
     add_executable(${PROJECT_NAME}
-        ${CMAKE_CURRENT_SOURCE_DIR}/windows/main.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/windows/game.rc
+        ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows/main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows/game.rc
     )
 elseif(APPLE)
     if(IOS)
@@ -76,12 +72,12 @@ elseif(APPLE)
 #        )
     elseif(MACOS)
         set(APP_UI_RES
-                ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Icon.icns
-                ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Info.plist
+                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Icon.icns
+                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Info.plist
         )
         add_executable(${PROJECT_NAME}
-                ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/main.cpp
-                ${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Prefix.pch
+                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/main.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Prefix.pch
                 ${APP_UI_RES}
         )
 endif()
@@ -89,9 +85,23 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
 
+###### cocos2dx
 if (WINDOWS OR MACOS OR LINUX)
     find_package(glfw3 CONFIG REQUIRED)
 endif ()
+
+if(ANDROID)
+    find_package(Ogg CONFIG REQUIRED)
+    find_package(Vorbis CONFIG REQUIRED)
+
+    find_package(unofficial-breakpad CONFIG REQUIRED)
+
+    target_link_libraries(${PROJECT_NAME} PUBLIC
+            unofficial::breakpad::libbreakpad_client
+    )
+endif()
+#####
+
 
 # external lib
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cpp/external)
@@ -145,7 +155,7 @@ if(MSVC)
   target_link_options(${PROJECT_NAME} PUBLIC "/INCREMENTAL")
 endif()
 
-if(ENABLE_TESTS AND NOT ANDROID)
+if(ENABLE_TESTS AND NOT (IOS OR ANDROID))
     enable_testing()
     add_subdirectory(tests)
 endif()

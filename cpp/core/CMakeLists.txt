@@ -54,12 +54,6 @@ if(ANDROID)
     )
 endif()
 
-# oboe
-if(ANDROID)
-    find_package (oboe CONFIG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} INTERFACE oboe::oboe)
-endif()
-
 # cocos2dx
 find_package(cocos2dx CONFIG REQUIRED)
 
@@ -67,4 +61,5 @@ find_package(cocos2dx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} INTERFACE
     # cocos2d
     cocos2dx::cocos2d
+    $<$<BOOL:${ANDROID}>:$<LINK_LIBRARY:WHOLE_ARCHIVE,cocos2dx::cpp_android_spec>>
 )

@@ -4,7 +4,7 @@
 
 #include "tjsCommHead.h"
 #include "tvpfontstruc.h"
-#include "../tjs2/tjsHashSearch.h"
+#include "tjsHashSearch.h"
 #include <string>
 
 class tTVPWStringHash {

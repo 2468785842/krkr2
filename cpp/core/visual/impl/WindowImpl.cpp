@@ -24,7 +24,7 @@
 #include "StorageIntf.h"
 #include "VideoOvlIntf.h"
 #include "DebugIntf.h"
-#include "../../plugin/PluginImpl.h"
+#include "PluginImpl.h"
 #include "LayerManager.h"
 #include "EventImpl.h"
 

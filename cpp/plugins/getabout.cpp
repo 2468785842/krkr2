@@ -1,5 +1,5 @@
 #include "ncbind.hpp"
-#include "../core/base/MsgIntf.h"
+#include "MsgIntf.h"
 
 #define NCB_MODULE_NAME TJS_W("getabout.dll")
 NCB_ATTACH_FUNCTION(getAboutString, System, TVPGetAboutString);

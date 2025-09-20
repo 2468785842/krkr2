@@ -21,7 +21,6 @@ inline std::set<ttstr> TVPRegisteredPlugins;
 // ログ出力用マクロ
 
 #define NCB_WARN(n)     TVPAddLog(ttstr(n))
-#define NCB_WARN_2(a,b) TVPAddLog(ttstr(a) + ttstr(b))
 #define NCB_WARN_W(str) NCB_WARN(TJS_W(str))
 
 ////////////////////////////////////////
@@ -51,11 +50,11 @@ struct ncbTypedefs {
 
 	// インスタンスに変換して渡すコールバック
 	template <class T> 
-	struct CallbackWithInstance {
+	struct [[maybe_unused]] CallbackWithInstance {
 		typedef tjs_error (    *Type)(tTJSVariant *result, tjs_int numparams, tTJSVariant **param, T *nativeInstance);
 	};
 
-	template <typename A, typename B> struct TypeEqual       { enum { NotEqual, Result = false }; };
+	template <typename A, typename B> struct TypeEqual       { enum { NotEqual [[maybe_unused]], Result = false }; };
 	template <typename A>             struct TypeEqual<A, A> { enum {    Equal, Result = true  }; };
 	template <bool F, int A,      int B>      struct IntSelect              { enum { Result = B }; };
 	template <        int A,      int B>      struct IntSelect< true, A, B> { enum { Result = A }; };
@@ -102,7 +101,7 @@ struct ncbClassInfo {
 	}
 private:
 	typedef struct info {
-		info() : initialized(false), name(0), id(0), obj(0) {}
+		info() : initialized(false), name(nullptr), id(0), obj(nullptr) {}
 
 		bool initialized;
 		NameT name;
@@ -124,7 +123,7 @@ struct ncbInstanceAdaptor : public tTJSNativeInstance {
 	typedef ncbClassInfo<NativeClassT>       ClassInfoT;
 
 	/*constructor*/ ncbInstanceAdaptor() : _instance(0), _sticky(false) {}
-	/*destructor*/ ~ncbInstanceAdaptor() { _deleteInstance(); }
+	/*destructor*/ ~ncbInstanceAdaptor() override { _deleteInstance(); }
 
 	// TJS2 オブジェクトが作成されるときに呼ばれる
 	//tjs_error Construct(tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *tjs_obj);
@@ -132,7 +131,7 @@ struct ncbInstanceAdaptor : public tTJSNativeInstance {
 	// 上記マクロを使用せずに独自実装しているここでは使用しない(⇒ncbNativeClassConstructor)
 
 	/// オブジェクトが無効化されるときに呼ばれる
-	void Invalidate() { _deleteInstance(); }
+	void Invalidate() override { _deleteInstance(); }
 
 private:
 	/// 実インスタンスへのポインタ
@@ -156,7 +155,7 @@ public:
 
 	/// iTJSDispatch2 から Adaptor を取得
 	static AdaptorT *GetAdaptor(iTJSDispatch2 *obj, bool err = false) {
-		iTJSNativeInstance* adp = 0;
+		iTJSNativeInstance* adp = nullptr;
 		if (!obj) {
 			if (err) TVPThrowExceptionMessage(TJS_W("No instance."));
 			return 0;
@@ -192,7 +191,7 @@ public:
 			return false;
 		}
 		adp->_instance = instance;
-		iTJSNativeInstance *ni = static_cast<iTJSNativeInstance*>(adp);
+		auto *ni = static_cast<iTJSNativeInstance*>(adp);
 		if (TJS_FAILED(obj->NativeInstanceSupport(TJS_NIS_REGISTER, ClassInfoT::GetID(), &ni))) {
 			if (err) TVPThrowExceptionMessage(TJS_W("Adaptor registration failed."));
 			return false;
@@ -242,9 +241,9 @@ struct ncbTypeConvertor {
 	private:
 		typedef char OK;
 		typedef struct { char ng[2]; } NG;
-		static OK check(TO);
-		static NG check(...);
-		static FROM wrap();
+		static OK check(TO) {};
+		static NG check(...) {};
+		static FROM wrap() {};
 	public:
 		enum {
 			Exists = (sizeof(check(wrap())) == sizeof(OK)),
@@ -278,14 +277,14 @@ struct ncbTypeConvertor {
 	template <typename T> struct ToTarget<T*>         { static T* Get(T *t) { return  t; } };
 
 	/// const外し
-	template <typename T> struct NonConst             { typedef T  Type; };
-	template <typename T> struct NonConst<const T>    { typedef T  Type; };
-	template <typename T> struct NonConst<const T&>   { typedef T& Type; };
-	template <typename T> struct NonConst<const T*>   { typedef T* Type; };
+	template <typename T> struct [[maybe_unused]] NonConst             { typedef T  Type; };
+	template <typename T> struct [[maybe_unused]] NonConst<const T>    { typedef T  Type; };
+	template <typename T> struct [[maybe_unused]] NonConst<const T&>   { typedef T& Type; };
+	template <typename T> struct [[maybe_unused]] NonConst<const T*>   { typedef T* Type; };
 
 	/// reference 外し
-	template <typename T> struct NonReference         { typedef T Type; };
-	template <typename T> struct NonReference<T&>     { typedef T Type; };
+	template <typename T> struct [[maybe_unused]] NonReference         { typedef T Type; };
+	template <typename T> struct [[maybe_unused]] NonReference<T&>     { typedef T Type; };
 
 	// 直コピー動作
 	struct DirectCopy {
@@ -335,7 +334,7 @@ struct ncbTypeConvertor {
 		template <typename T> struct wrap { typedef T Type; };
 
 		template <typename SRC, typename DST>
-		struct directSelect {
+		struct [[maybe_unused]] directSelect {
 			typedef typename ifelse<Conversion<SRC, DST>::Exists, DirectCopy, NCB_COMPILE_ERROR_NoImplement>::Type Type;
 		};
 	};
@@ -347,7 +346,7 @@ struct ncbTypeConvertor {
 		typedef hasSpecial<SRC, true > SrcSpecialT;
 		typedef hasSpecial<DST, false> DstSpecialT;
 
-		struct specialSelect {
+		struct [[maybe_unused]] specialSelect {
 			typedef typename ifelse<DstSpecialT::Exists, typename DstSpecialT::Type, typename SrcSpecialT::Type>::Type Type;
 		};
 		typedef typename ifelse<
@@ -409,13 +408,10 @@ struct ncbNarrowCharConvertor {
 	/// 一時的にバッファを確保してそこに NarrowStr として書き込む
 	struct ToNChar {
 		/// Constructor (メソッドが呼ばれる前)
-		ToNChar() : _nstr(0) {}
+		ToNChar() : _nstr(nullptr) {}
 		/// Destructor (メソッドが呼ばれた後)
 		~ToNChar() {
-			if (_nstr) {
-				//				NCB_LOG_W("~ncbVariatToNChar > delete[]");
-				delete[] _nstr;
-			}
+            delete[] _nstr;
 		}
 		/// 引き数を受け渡すためのファンクタ
 		template <typename DST>
@@ -488,7 +484,7 @@ struct ncbStringConvertor {
 	}
 	inline void set(tTJSString const &str, DefsT::NumTag<sizeof(tjs_nchar)>) { // for Narrow char
 		tjs_int len = str.GetNarrowStrLen();
-		tjs_nchar *tmp = new tjs_nchar[len+1];
+		auto *tmp = new tjs_nchar[len+1];
 		str.ToNarrowStr(tmp, len+1);
 		_temp.assign(tmp, len);
         delete []tmp;
@@ -619,14 +615,14 @@ struct ncbPropAccessor {
 		if (addref) _obj->AddRef();
 	}
 	ncbPropAccessor(ncbPropAccessor const &ref) : _obj(ref._obj) { _obj->AddRef(); }
-	ncbPropAccessor(tTJSVariant var) : _obj(var.AsObject()) {
+	ncbPropAccessor(const tTJSVariant& var) : _obj(var.AsObject()) {
 		//_obj->AddRef();
 	}
     ncbPropAccessor(NameT name) {
 	    tTJSVariant val;
 	    iTJSDispatch2 *global = TVPGetScriptDispatch();
 	    if (global) {
-	        global->PropGet(0, name, 0, &val, global);
+	        global->PropGet(0, name, nullptr, &val, global);
 		}
 	    _obj = val.AsObject();
 	}
@@ -635,12 +631,12 @@ struct ncbPropAccessor {
 		    _obj->Release();
 		}
 	}
-	CountT GetCount() const {
+	[[nodiscard]] CountT GetCount() const {
 		CountT sz;
 		ErrorT r = _obj->GetCount(&sz, nullptr, nullptr, _obj);
 		return (r == TJS_S_OK) ? sz : 0;
 	}
-	CountT GetArrayCount() const {
+	[[nodiscard]] CountT GetArrayCount() const {
 		VariantT var;
 		_obj->PropGet(0, TJS_W("count"), nullptr, &var, _obj);
 		return (CountT)var;
@@ -679,13 +675,13 @@ struct ncbPropAccessor {
 		}
 	}
 	template <typename TargetT>
-	TargetT GetValue(KeyT key, DefsT::Tag<TargetT> const &tag, FlagsT f = 0, HintT hint = 0) {
+	TargetT GetValue(KeyT key, DefsT::Tag<TargetT> const &tag, FlagsT f = 0, HintT hint = nullptr) {
 		VariantT var;
 		_obj->PropGet(f, key, hint, &var, _obj);
 		return _toTarget(var, tag);
 	}
 	template <typename TargetT>
-	TargetT GetValue(iTJSDispatch2* obj, KeyT key, DefsT::Tag<TargetT> const &tag, FlagsT f = 0, HintT hint = 0) {
+	TargetT GetValue(iTJSDispatch2* obj, KeyT key, DefsT::Tag<TargetT> const &tag, FlagsT f = 0, HintT hint = nullptr) {
 		VariantT var;
 		_obj->PropGet(f, key, hint, &var, obj);
 		return _toTarget(var, tag);
@@ -715,27 +711,27 @@ struct ncbPropAccessor {
 		return TJS_SUCCEEDED(_obj->PropGetByNum(TJS_MEMBERMUSTEXIST, ofs, &var, _obj));
 	}
 	bool checkVariant(KeyT key, VariantT &var) {
-		return TJS_SUCCEEDED(_obj->PropGet(TJS_MEMBERMUSTEXIST, key, 0, &var, _obj));
+		return TJS_SUCCEEDED(_obj->PropGet(TJS_MEMBERMUSTEXIST, key, nullptr, &var, _obj));
 	}
-	bool HasValue(IndexT ofs, tTJSVariantType *type = 0) {
+	bool HasValue(IndexT ofs, tTJSVariantType *type = nullptr) {
 		VariantT var;
 		bool ret = TJS_SUCCEEDED(_obj->PropGetByNum(TJS_MEMBERMUSTEXIST, ofs, &var, _obj));
 		if (ret && type) *type = var.Type();
 		return ret;
 	}
-	bool HasValue(iTJSDispatch2 *obj, IndexT ofs, tTJSVariantType *type = 0) {
+	bool HasValue(iTJSDispatch2 *obj, IndexT ofs, tTJSVariantType *type = nullptr) {
 		VariantT var;
 		bool ret = TJS_SUCCEEDED(_obj->PropGetByNum(TJS_MEMBERMUSTEXIST, ofs, &var, obj));
 		if (ret && type) *type = var.Type();
 		return ret;
 	}
-	bool HasValue(KeyT key, HintT hint = 0, tTJSVariantType *type = 0) {
+	bool HasValue(KeyT key, HintT hint = nullptr, tTJSVariantType *type = nullptr) {
 		VariantT var;
 		bool ret = TJS_SUCCEEDED(_obj->PropGet(TJS_MEMBERMUSTEXIST, key, hint, &var, _obj));
 		if (ret && type) *type = var.Type();
 		return ret;
 	}
-	bool HasValue(iTJSDispatch2 *obj, KeyT key, HintT hint = 0, tTJSVariantType *type = 0) {
+	bool HasValue(iTJSDispatch2 *obj, KeyT key, HintT hint = nullptr, tTJSVariantType *type = nullptr) {
 		VariantT var;
 		bool ret = TJS_SUCCEEDED(_obj->PropGet(TJS_MEMBERMUSTEXIST, key, hint, &var, obj));
 		if (ret && type) *type = var.Type();
@@ -754,19 +750,19 @@ struct ncbPropAccessor {
 		return (_obj->PropSetByNum(f, ofs, &var, obj) == TJS_S_OK);
 	}
 	template <typename TargetT>
-	bool SetValue(KeyT key, TargetT const &val, FlagsT f = TJS_MEMBERENSURE, HintT hint = 0) {
+	bool SetValue(KeyT key, TargetT const &val, FlagsT f = TJS_MEMBERENSURE, HintT hint = nullptr) {
 		VariantT var;
 		_toVariant(var, val);
 		return (_obj->PropSet(f, key, hint, &var, _obj) == TJS_S_OK);
 	}
 	template <typename TargetT>
-	bool SetValue(iTJSDispatch2 *obj, KeyT key, TargetT const &val, FlagsT f = TJS_MEMBERENSURE, HintT hint = 0) {
+	bool SetValue(iTJSDispatch2 *obj, KeyT key, TargetT const &val, FlagsT f = TJS_MEMBERENSURE, HintT hint = nullptr) {
 		VariantT var;
 		_toVariant(var, val);
 		return (_obj->PropSet(f, key, hint, &var, obj) == TJS_S_OK);
 	}
-	bool IsValid() const { return _obj != 0; }
-	iTJSDispatch2* GetDispatch() const { return _obj; }
+	[[nodiscard]] bool IsValid() const { return _obj != nullptr; }
+	[[nodiscard]] iTJSDispatch2* GetDispatch() const { return _obj; }
 	operator iTJSDispatch2*   () const { return _obj; }
 
 #undef  FOREACH_START
@@ -794,10 +790,10 @@ struct ncbPropAccessor {
 #undef  FCALL_SET_EXT
 	// 引数なしの場合だけ特殊
 	tjs_error FuncCall(tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint, tTJSVariant *result) {
-		return _obj->FuncCall(flag, membername, hint, result, 0, NULL, _obj);
+		return _obj->FuncCall(flag, membername, hint, result, 0, nullptr, _obj);
 	}
 	tjs_error FuncCall(iTJSDispatch2 *obj, tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint, tTJSVariant *result) {
-		return _obj->FuncCall(flag, membername, hint, result, 0, NULL, obj);
+		return _obj->FuncCall(flag, membername, hint, result, 0, nullptr, obj);
 	}
 protected:
 	iTJSDispatch2 *_obj;
@@ -841,9 +837,9 @@ struct ncbIMethodObject {
 	typedef ncbTypedefs::FlagsT        FlagsT;
 	typedef ncbTypedefs::InstanceTypeT TypesT;
 
-	virtual DispatchT GetDispatch() const = 0;
-	virtual FlagsT    GetFlags()    const = 0;
-	virtual TypesT    GetType()     const = 0;
+	[[nodiscard]] virtual DispatchT GetDispatch() const = 0;
+	[[nodiscard]] virtual FlagsT    GetFlags()    const = 0;
+	[[nodiscard]] virtual TypesT    GetType()     const = 0;
 	virtual void      Release()     const = 0;
 };
 
@@ -861,7 +857,7 @@ struct ncbNativeClassMethodBase : public tTJSDispatch {
 	typedef tTJSNativeInstanceType   MethodTypeT;
 
 	/// constructor
-	ncbNativeClassMethodBase(MethodTypeT t) : _type(t), _name(0) {
+	ncbNativeClassMethodBase(MethodTypeT t) : _type(t), _name(nullptr) {
 		_imethod = this;
 		switch (t) { // タイプ名を設定
 //		case nitClass:    _name = TJS_W("Class");    break; // クラスになることはありえない
@@ -874,7 +870,7 @@ struct ncbNativeClassMethodBase : public tTJSDispatch {
 	/// IsInstanceOf 実装
 	tjs_error IsInstanceOf(
 		tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint, 
-		const tjs_char *classname, iTJSDispatch2 *objthis)
+		const tjs_char *classname, iTJSDispatch2 *objthis) override
 	{
 		// 自分自身(membername==0)で比較クラス名が_nameならTRUE，それ以外は丸投げ
 		return (!membername && _name && !TJS_stricmp(classname, _name)) ? TJS_S_TRUE
@@ -890,26 +886,26 @@ private:
 
 	//--------------------------------------
 	/// TJSNativeClassRegisterNCM に渡すタイプ
-	virtual TypesT GetType() const { return _type; }
+	[[nodiscard]] virtual TypesT GetType() const { return _type; }
 
 	/// TJSNativeClassRegisterNCM に渡すフラグ
-	virtual FlagsT GetFlags() const { return 0; }
+	[[nodiscard]] virtual FlagsT GetFlags() const { return 0; }
 
 	/// IMethod 実装
 	struct iMethod : public ncbIMethodObject {
 		typedef ncbNativeClassMethodBase MethodObjectT;
-		void operator = (MethodObjectT *mo) { _this = mo; }
-		DispatchT GetDispatch() const { return static_cast<DispatchT>(_this); }
-		FlagsT    GetFlags()    const { return _this->GetFlags(); }
-		TypesT    GetType()     const { return _this->GetType(); }
-		void      Release()     const {}
+        iMethod& operator = (MethodObjectT *mo) { _this = mo; return *this; }
+		[[nodiscard]] DispatchT GetDispatch() const override { return static_cast<DispatchT>(_this); }
+		[[nodiscard]] FlagsT    GetFlags()    const override { return _this->GetFlags(); }
+		[[nodiscard]] TypesT    GetType()     const override { return _this->GetType(); }
+		void      Release()     const override {}
 	private:
-		MethodObjectT *_this;
+		MethodObjectT *_this{};
 	} _imethod;
 
 protected:
 	/// IMethod 取得
-	iMethodT GetIMethod() const { return &_imethod; }
+	[[nodiscard]] iMethodT GetIMethod() const { return &_imethod; }
 
 
 
@@ -1051,10 +1047,10 @@ private:
 			SetError(TJS_S_OK);
 			return AdaptorT::SetAdaptorWithNativeInstance(objthis, obj);
 		}
-		inline ErrorT  GetError() const   { return _error; }
+		[[nodiscard]] inline ErrorT  GetError() const   { return _error; }
 		inline void    SetError(ErrorT e) { _error = e; }
 
-		/// デフォルト動作
+        /// デフォルト動作
 		inline ClassT* Get(DispatchT objthis) { return GetNativeInstance(objthis); }
 	private:
 		ErrorT _error;
@@ -1077,7 +1073,7 @@ private:
 	};
 
 	// ダミー用
-	typedef struct dummyGetter { dummyGetter() {} } const noInstanceGetter;
+	typedef struct dummyGetter { dummyGetter() = default; } const noInstanceGetter;
 
 	//--------------------------------------
 protected:
@@ -1093,17 +1089,17 @@ protected:
 		enum { Hook = true };
 		enum { ivsMethod, ivsProxy, ivsConstructor, ivsFactory };
 
-		typedef tTJSVariant  * RetT;
-		typedef tjs_int        NumT;
-		typedef tTJSVariant ** ArgsT;
-		typedef iTJSDispatch2            *ObjT;
+		using  RetT  = tTJSVariant  * const;
+		using  NumT  = tjs_int        const;
+		using  ArgsT = tTJSVariant ** const;
+		using  ObjT  = iTJSDispatch2 * const;
 		doInvokeBase(RetT r, NumT n, ArgsT p, ObjT o)
 			: _result(r), _numparams(n), _param(p), _objthis(o) { if (r) r->Clear(); }
 	protected:
-		RetT  const _result;
-		NumT  const _numparams;
-		ArgsT const _param;
-		ObjT  const _objthis;
+		RetT  _result;
+		NumT  _numparams;
+		ArgsT _param;
+		ObjT  _objthis;
 
 		// 通常メソッド
 		template <typename MethodT, class ClassT, class FunctorT>
@@ -1112,12 +1108,12 @@ protected:
 		}
 		// Proxy 用
 		template <typename MethodT, class ClassT, class FunctorT>
-		ResultT CallInvoke(MethodT const &m, ClassT *inst, DefsT::Tag<FunctorT>, DefsT::NumTag<ivsProxy>) const {
+        [[maybe_unused]] ResultT CallInvoke(MethodT const &m, ClassT *inst, DefsT::Tag<FunctorT>, DefsT::NumTag<ivsProxy>) const {
 			return CallerT::Invoke(FunctorT(_result, _numparams, _param, inst), m, inst) ? TJS_S_OK : TJS_E_FAIL;
 		}
 		// コンストラクタ用
 		template <typename MethodT, class ClassT, class FunctorT>
-		ResultT CallInvoke(MethodT const &,  ClassT *inst, DefsT::Tag<FunctorT>, DefsT::NumTag<ivsConstructor>) const {
+        [[maybe_unused]] ResultT CallInvoke(MethodT const &,  ClassT *inst, DefsT::Tag<FunctorT>, DefsT::NumTag<ivsConstructor>) const {
 			try {
 				FunctorT fnct(_result, _numparams, _param);
 				if (!(inst = CallerT::Factory(fnct, CallerT::tTypeTag<ClassT>(), CallerT::tTypeTag<typename FunctorT::TraitsT::ArgsT>()))) {
@@ -1190,7 +1186,7 @@ protected:
 			// インスタンスを渡してクラスメソッドを実行
 			return CallInvoke(_m, inst, DefsT::Tag<FunctorT>(), DefsT::NumTag<SelectorT::InvokeSelect>());
 		}
-		inline ResultT Invoke() const {
+		[[nodiscard]] inline ResultT Invoke() const {
 			return invokeHookClass<RefClassT>::Do(*this);
 		}
 	private:
@@ -1358,7 +1354,7 @@ protected:
 
 private:
 	/// TJSNativeClassRegisterNCMフラグ
-	FlagsT GetFlags() const override { return CommandT::Flags; }
+	[[nodiscard]] FlagsT GetFlags() const override { return CommandT::Flags; }
 };
 
 ////////////////////////////////////////
@@ -1411,7 +1407,7 @@ struct ncbNativeClassFactory : public ncbNativeClassMethodBase {
 	/// FuncCall実装
 	tjs_error  FuncCall(
 		tjs_uint32 flag, const tjs_char * membername, tjs_uint32 *hint, 
-		tTJSVariant *result, tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis)
+		tTJSVariant *result, tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis) override
 	{
 		// 自分自身が呼ばれたのではない場合は丸投げ
 		if (membername) return BaseT::FuncCall(flag, membername, hint, result, numparams, param, objthis);
@@ -1456,7 +1452,7 @@ struct ncbNativeClassProperty : public ncbNativeClassMethodBase {
 	/// PropGet 実装
 	tjs_error PropGet(
 		tjs_uint32 flag, const tjs_char * membername, tjs_uint32 *hint, 
-		tTJSVariant *result, iTJSDispatch2 *objthis)
+		tTJSVariant *result, iTJSDispatch2 *objthis) override
 	{
 		// 自分自身が呼ばれたのではない場合は丸投げ
 		if (membername) return BaseT::PropGet(flag, membername, hint, result, objthis);
@@ -1472,7 +1468,7 @@ struct ncbNativeClassProperty : public ncbNativeClassMethodBase {
 	/// PropSet 実装
 	tjs_error PropSet(
 		tjs_uint32 flag, const tjs_char *membername, tjs_uint32 *hint, 
-		const tTJSVariant *param, iTJSDispatch2 *objthis)
+		const tTJSVariant *param, iTJSDispatch2 *objthis) override
 	{
 		// 自分自身が呼ばれたのではない場合は丸投げ
 		if (membername) return BaseT::PropSet(flag, membername, hint, param, objthis);
@@ -1491,7 +1487,7 @@ struct ncbNativeClassProperty : public ncbNativeClassMethodBase {
 
 private:
 	/// TJSNativeClassRegisterNCMフラグ
-	FlagsT GetFlags() const { return GetCommandT::Flags; }
+	[[nodiscard]] FlagsT GetFlags() const override { return GetCommandT::Flags; }
 
 protected:
 	/// プロパティメソッドへのポインタ
@@ -1525,7 +1521,7 @@ struct ncbRawCallbackMethod<
 	/// FuncCall実装
 	tjs_error  FuncCall(
 		tjs_uint32 flag, const tjs_char * membername, tjs_uint32 *hint, 
-		tTJSVariant *result, tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis)
+		tTJSVariant *result, tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis) override
 	{
 		// 自分自身が呼ばれたのではない場合は丸投げ
 		if (membername) return BaseT::FuncCall(flag, membername, hint, result, numparams, param, objthis);
@@ -1554,7 +1550,7 @@ protected:
 	FlagsT    const _flag;
 
 private:
-	FlagsT    GetFlags()    const { return _flag; }
+	[[nodiscard]] FlagsT    GetFlags()    const override { return _flag; }
 };
 
 /// 従来の TJSCreateNativeClassMethod用 ncbIMethodObjectラッパ
@@ -1566,9 +1562,9 @@ struct ncbRawCallbackMethod<tTJSNativeClassMethodCallback> : public ncbIMethodOb
 
 	ncbRawCallbackMethod(CallbackT m, FlagsT f) : _dispatch(TJSCreateNativeClassMethod(m)), _flags(f) {}
 
-	DispatchT GetDispatch() const override { return _dispatch; }
-	FlagsT    GetFlags()    const override { return _flags; }
-	TypesT    GetType()     const override { return nitMethod; }
+	[[nodiscard]] DispatchT GetDispatch() const override { return _dispatch; }
+	[[nodiscard]] FlagsT    GetFlags()    const override { return _flags; }
+	[[nodiscard]] TypesT    GetType()     const override { return nitMethod; }
 	void      Release()     const override { delete this; }
 
 	/// PropertyからFuncCallが直接呼ばれるのでラップ
@@ -1580,9 +1576,9 @@ struct ncbRawCallbackMethod<tTJSNativeClassMethodCallback> : public ncbIMethodOb
 	}
 
 	/// factory
-	static iMethodT Create(CallbackT cb, FlagsT f, bool create = true) { return !create ? 0 : (new ThisClassT(cb, f)); }
+	static iMethodT Create(CallbackT cb, FlagsT f, bool create = true) { return !create ? nullptr : (new ThisClassT(cb, f)); }
 private:
-	DispatchT const _dispatch;
+    const DispatchT _dispatch;
 	FlagsT    const _flags;
 };
 
@@ -1600,8 +1596,8 @@ struct ncbRawCallbackPropertySelector<int> {
 	typedef struct AccessDenied {
 		AccessDenied(int, ncbNativeClassMethodBase::FlagsT) {}
 		tjs_error  FuncCall(
-			tjs_uint32 flag, const tjs_char * membername, tjs_uint32 *hint, 
-			tTJSVariant *result, tjs_int numparams, tTJSVariant **param, iTJSDispatch2 *objthis)
+			tjs_uint32 , const tjs_char * , tjs_uint32 *,
+			tTJSVariant *, tjs_int , tTJSVariant **, iTJSDispatch2 *)
 		{
 			return TJS_E_ACCESSDENYED;
 		}
@@ -1646,7 +1642,7 @@ struct ncbRawCallbackProperty : public ncbNativeClassMethodBase {
 	}
 
 	/// TJSNativeClassRegisterNCMフラグ
-	FlagsT GetFlags() const override { return _flag; }
+	[[nodiscard]] FlagsT GetFlags() const override { return _flag; }
 
 	/// factory
 	static iMethodT Create(GetCallbackT get, SetCallbackT set, FlagsT f, bool create = true) { return !create ? 0 : (new ThisClassT(get, set, f))->GetIMethod(); }
@@ -1749,7 +1745,7 @@ public:
 		DoItem(GetName(), ncbNativeClassConstructor< InvokeCommand<ClassT, MethodT, ivtCtor> >::Create(0, _isRegist));
 	}
 	// デフォルトコンストラクタの登録
-	void Constructor(int dummy = 0) { Constructor(TypeWrap<void (_ClassT::*)()>()); }
+	void Constructor() { Constructor(TypeWrap<void (_ClassT::*)()>()); }
 #undef  FOREACH_START
 #define FOREACH_START 1
 #undef  FOREACH_END
@@ -1839,7 +1835,7 @@ struct ncbRegistNativeClassBase {
 
     virtual void   RegistVariant(NameT, tTJSVariant const &, FlagsT) {}
 
-	NameT  GetName() const {return _className; }
+	[[nodiscard]] NameT  GetName() const {return _className; }
 protected:
 	NameT const _className;
 };
@@ -1981,9 +1977,9 @@ struct ncbSubClassItem : public ncbIMethodObject {
 	typedef ncbNativeClassMethodBase::iMethodT iMethodT;
 	typedef ncbClassInfo<T> ClassInfoT;
 
-	DispatchT GetDispatch() const override { return static_cast<DispatchT>(ClassInfoT::GetClassObject()); }
-	FlagsT    GetFlags()    const override { return TJS_STATICMEMBER; }
-	TypesT    GetType()     const override { return nitClass; }
+	[[nodiscard]] DispatchT GetDispatch() const override { return static_cast<DispatchT>(ClassInfoT::GetClassObject()); }
+	[[nodiscard]] FlagsT    GetFlags()    const override { return TJS_STATICMEMBER; }
+	[[nodiscard]] TypesT    GetType()     const override { return nitClass; }
 	void      Release()     const override { delete this; }
 
 	/// factory
@@ -2033,7 +2029,7 @@ struct ncbAttachTJS2Class : public ncbRegistNativeClassBase {
 	}
 
 	void RegistVariant(NameT name, const TJS::tTJSVariant &val, FlagsT flg) override {
-		_tjs2ClassObj->PropSet(TJS_MEMBERENSURE | flg, name, 0, &val, ((flg & TJS_STATICMEMBER) ? _global : _tjs2ClassObj));
+		_tjs2ClassObj->PropSet(TJS_MEMBERENSURE | flg, name, nullptr, &val, ((flg & TJS_STATICMEMBER) ? _global : _tjs2ClassObj));
 	}
 
 	void RegistItem(NameT name, ItemT item) override {
@@ -2067,7 +2063,7 @@ struct ncbAttachTJS2Class : public ncbRegistNativeClassBase {
 	}
 	void UnregistItem(NameT name) override {
 		if (_tjs2ClassObj) {
-			_tjs2ClassObj->DeleteMember(0, name, 0, _tjs2ClassObj);
+			_tjs2ClassObj->DeleteMember(0, name, nullptr, _tjs2ClassObj);
 		}
 	}
 	void UnregistEnd() override {
@@ -2076,13 +2072,13 @@ struct ncbAttachTJS2Class : public ncbRegistNativeClassBase {
 	}
 protected:
 	NameT const    _tjs2ClassName;
-	iTJSDispatch2* _tjs2ClassObj;	//< クラスオブジェクト
-	iTJSDispatch2* _global;
+	iTJSDispatch2* _tjs2ClassObj{};	//< クラスオブジェクト
+	iTJSDispatch2* _global{};
 
 	// クラスオブジェクトを取得
 	static iTJSDispatch2* GetGlobalObject(NameT name, iTJSDispatch2 *global) {
 		tTJSVariant val;
-		if (global) global->PropGet(0, name, 0, &val, global);
+		if (global) global->PropGet(0, name, nullptr, &val, global);
 		else {
 			NCB_WARN_W("No Global Dispatch.");
 			TVPExecuteExpression(name, &val);
@@ -2112,6 +2108,7 @@ struct ncbAutoRegister {
 		LINE_COUNT };
 #define NCB_INNER_AUTOREGISTER_LINES_INSTANCE { 0, 0, 0 }
 	NameT modulename;
+    ncbAutoRegister() = delete;
 	ncbAutoRegister(NameT name, LineT line) : modulename(name), _next(_top[line]) { _top[line] = this; }
 
 	static void AllRegist(  LineT line) {
@@ -2133,7 +2130,6 @@ protected:
 	virtual void Regist()   const = 0;
 	virtual void Unregist() const = 0;
 private:
-	ncbAutoRegister();
 	/****/ ThisClassT const* _next;
 	static ThisClassT const* _top[LINE_COUNT];
 
@@ -2200,7 +2196,7 @@ private:
 ////////////////////////////////////////
 template <class T>
 struct  ncbRequireClassAutoRegister : public ncbAutoRegister {
-	/**/ncbRequireClassAutoRegister(NameT modulename, NameT name, NameT sub = 0) : ncbAutoRegister(modulename, ClassRegist), _className(name), _expName(sub) {}
+	/**/ncbRequireClassAutoRegister(NameT modulename, NameT name, NameT sub = nullptr) : ncbAutoRegister(modulename, ClassRegist), _className(name), _expName(sub) {}
 
 	typedef ncbClassInfo<T> ClassInfoT;
 protected:
@@ -2308,7 +2304,7 @@ protected:
 		if (mobj) {
 			tTJSVariant val(mobj);
 			mobj->Release();
-			dsp->PropSet(TJS_MEMBERENSURE, name, 0, &val, dsp);
+			dsp->PropSet(TJS_MEMBERENSURE, name, nullptr, &val, dsp);
 		}
 		dsp->Release();
 	}
@@ -2316,7 +2312,7 @@ protected:
 	static void UnregistFunction(NameT name, NameT attach) {
 		iTJSDispatch2 *dsp = GetDispatch(attach);
 		if (!dsp) return;
-		dsp->DeleteMember(0, name, 0, dsp);
+		dsp->DeleteMember(0, name, nullptr, dsp);
 		dsp->Release();
 	}
 
@@ -2333,7 +2329,7 @@ private:
 			while (*p) if (*p++ == TJS_W('.')) break;
 			if (!*p) {
 				// global直下
-				global->PropGet(0, attach, 0, &val, global);
+				global->PropGet(0, attach, nullptr, &val, global);
 			} else {
 				// 複数階層奥の場合は面倒なのでevalで誤魔化す
 				TVPExecuteExpression(ttstr(attach), &val);

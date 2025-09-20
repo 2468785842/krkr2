@@ -216,6 +216,8 @@ target_link_directories(${PROJECT_NAME} PUBLIC
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
+    INTERFACE
+        $<INSTALL_INTERFACE:include>
 )
 
 configure_file(config.h.in config.h)

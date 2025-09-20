@@ -15,7 +15,7 @@
 #include "MsgIntf.h"
 #include "ScriptMgnIntf.h"
 #include "tjsError.h"
-#include "../plugin/PluginImpl.h"
+#include "PluginImpl.h"
 #include "SystemIntf.h"
 
 #include "Exception.h"

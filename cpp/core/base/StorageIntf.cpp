@@ -347,12 +347,12 @@ ttstr tTVPStorageMediaManager::NormalizeStorageName(const ttstr &name,
         media = TVPCurrentMedia;
     } else {
         // normalize media name ( make them all small )
-        tjs_char *p = media.Independ();
-        while(*p) {
-            if(*p >= TJS_W('A') && *p <= TJS_W('Z'))
-                *p += (TJS_W('a') - TJS_W('A'));
-            p++;
-        }
+        //        tjs_char *p = media.Independ();
+        //        while(*p) {
+        //            if(*p >= TJS_W('A') && *p <= TJS_W('Z'))
+        //                *p += (TJS_W('a') - TJS_W('A'));
+        //            p++;
+        //        }
     }
 
     tMediaRecord *mediarec = GetMediaRecord(media);

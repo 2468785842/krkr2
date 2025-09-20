@@ -76,7 +76,7 @@ set(VISUAL_HEADERS_DIR
 
 add_library(${PROJECT_NAME} STATIC ${VISUAL_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${VISUAL_HEADERS_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE tjs2 core_base_module core_environ_module core_sound_module core_utils_module)
+target_link_libraries(${PROJECT_NAME} PRIVATE tjs2 core_base_module core_environ_module core_plugin_module core_sound_module core_utils_module)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE libbpg)
 
@@ -86,7 +86,6 @@ target_link_libraries(${PROJECT_NAME} INTERFACE WebP::webp WebP::webpdecoder Web
 find_package(cocos2dx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         cocos2dx::cocos2d
-        $<$<BOOL:${ANDROID}>:$<LINK_LIBRARY:WHOLE_ARCHIVE,cocos2dx::cpp_android_spec>>
 )
 
 find_package(JXR REQUIRED)

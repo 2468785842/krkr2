@@ -25,7 +25,7 @@
 #include "TimerIntf.h"
 #include "EventIntf.h"
 #include "SystemIntf.h"
-#include "../plugin/PluginIntf.h"
+#include "PluginIntf.h"
 #include "MenuItemIntf.h"
 #include "ClipboardIntf.h"
 #include "MsgIntf.h"

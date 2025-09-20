@@ -9,7 +9,7 @@
 
 #include "Platform.h"
 #include "typedefine.h"
-#include "../../core/plugin/PluginImpl.h"
+#include "PluginImpl.h"
 #include "StorageImpl.h"
 
 namespace fs = std::filesystem;
@@ -47,8 +47,6 @@ global.FILE_ATTRIBUTE_DIRECTORY = 0x00000010,
 global.FILE_ATTRIBUTE_ARCHIVE = 0x00000020,
 global.FILE_ATTRIBUTE_NORMAL = 0x00000080,
 global.FILE_ATTRIBUTE_TEMPORARY = 0x00000100;)");
-
-NCB_TYPECONV_CAST_INTEGER(tjs_uint64);
 
 namespace helper {
 
@@ -329,16 +327,16 @@ public:
      * @param target 対象
      * @param time 時間（64bit FILETIME数）
      */
-    static tjs_uint64 getLastModifiedFileTime(ttstr target) {
+    static tjs_int64 getLastModifiedFileTime(ttstr target) {
         ttstr filename = TVPNormalizeStorageName(target);
         getLocalName(filename);
         tTVP_stat stat{};
         if(TVP_stat(filename.c_str(), stat)) {
             return 0;
         }
-        return stat.st_mtime;
+        return static_cast<tjs_int64>(stat.st_mtime);
     }
-    static bool setLastModifiedFileTime(ttstr target, tjs_uint64 time) {
+    static bool setLastModifiedFileTime(ttstr target, tjs_int64 time) {
         ttstr filename = TVPNormalizeStorageName(target);
         getLocalName(filename);
         return TVP_utime(filename.AsNarrowStdString().c_str(), time);

@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">KrKr2</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="request_storage_permission">app need storage permission</string>
+    <string name="request_storage_permission_title">request permission</string>
+</resources>

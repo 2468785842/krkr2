@@ -320,7 +320,7 @@ namespace PSB {
     }
 
     bool PSBFile::loadPSBFile(const ttstr &filePath) {
-        LOGGER->info("PSBFile::load path: {}", filePath.AsStdString());
+        LOGGER->debug("load psb file: {}", filePath.AsStdString());
         auto *s = TVPCreateStream(filePath);
         if(!s)
             return false;

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.KR2" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>

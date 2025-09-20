@@ -1,0 +1,21 @@
+plugins {
+    id 'com.android.application' version '8.7.3' apply false
+    id 'com.android.library' version '8.7.3' apply false
+
+    id 'org.jetbrains.kotlin.android' version '1.9.22' apply false
+}
+
+subprojects {
+    layout.buildDirectory.set(file("${rootDir}/out/android/${project.name}"))
+
+    configurations.configureEach {
+        resolutionStrategy {
+            force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.22'
+            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22'
+        }
+    }
+}
+
+tasks.register('clean', Delete) {
+    delete "${rootDir}/out/android"
+}

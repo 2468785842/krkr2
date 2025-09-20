@@ -12,7 +12,7 @@
 
 #include "MsgIntf.h"
 #include "MsgImpl.h"
-#include "../../plugin/PluginImpl.h"
+#include "PluginImpl.h"
 
 #include "CharacterSet.h"
 // #include "resource.h"

@@ -116,10 +116,30 @@ if (LINUX)
 endif ()
 
 if (ANDROID)
+
+    find_package(Ogg CONFIG REQUIRED)
+    find_package(Vorbis CONFIG REQUIRED)
+
     add_subdirectory(android-specific/cpufeatures)
     add_subdirectory(android-specific/pvmp3dec)
-    add_subdirectory(android-specific/tremolo)
-    target_link_libraries(external INTERFACE ext_cpufeatures ext_pvmp3dec ext_tremolo)
+#    add_subdirectory(android-specific/tremolo)
+    target_link_libraries(external INTERFACE
+            ext_cpufeatures ext_pvmp3dec
+            Ogg::ogg
+            Vorbis::vorbis
+            Vorbis::vorbisfile
+            Vorbis::vorbisenc
+            #[[ext_tremolo]])
+
+    install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/android-specific/tremolo"
+            DESTINATION "include/Tremolo"
+            FILES_MATCHING PATTERN "ivorbisfile.h"
+    )
+
+    target_include_directories(external
+            INTERFACE
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/android-specific/tremolo>
+                $<INSTALL_INTERFACE:include>)
 endif ()
 
 if (WINDOWS)

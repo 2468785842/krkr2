@@ -5,7 +5,7 @@
 #include "ncbind.hpp"
 #include <vector>
 #include <algorithm>
-#include "../core/plugin/PluginImpl.h"
+#include "PluginImpl.h"
 #include "TextStream.h"
 
 #define NCB_MODULE_NAME TJS_W("ScriptsEx.dll")

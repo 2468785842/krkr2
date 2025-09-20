@@ -41,6 +41,16 @@ find_package(Vorbis CONFIG REQUIRED)
 find_package(Opus CONFIG REQUIRED)
 find_package(OpusFile CONFIG REQUIRED)
 
+if(ANDROID)
+    find_package(oboe CONFIG REQUIRED)
+
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        oboe::oboe
+    )
+endif()
+
+find_package(OpenAL CONFIG REQUIRED)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Vorbis::vorbis
     Vorbis::vorbisfile
@@ -48,4 +58,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
     Opus::opus
     OpusFile::opusfile
+    OpenAL::OpenAL
 )

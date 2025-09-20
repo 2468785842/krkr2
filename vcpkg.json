@@ -17,9 +17,14 @@
     "boost-spirit",
     {
       "name": "breakpad",
+      "platform": "android",
       "default-features": false
     },
-    "catch2",
+    {
+      "name": "catch2",
+      "platform": "!android & !ios",
+      "default-features": false
+    },
     "cocos2dx",
     {
       "name": "dirent",
@@ -38,7 +43,10 @@
       "platform": "!windows"
     },
     "libjpeg-turbo",
-    "libogg",
+    {
+      "name": "libogg",
+      "platform": "android"
+    },
     {
       "name": "libpng",
       "platform": "!linux"

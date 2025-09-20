@@ -1,23 +1,11 @@
 //
 // Created by lidong on 2025/1/7.
 //
-
-#ifndef KRKR2_GDIP_CXX_BRUSH_H
-#define KRKR2_GDIP_CXX_BRUSH_H
-
+#pragma once
 #include "gdip_cxx.h"
+#include "gdip_dt.h"
+
 namespace libgdiplus {
-
-    extern "C" {
-
-#include <libgdiplus/gdiplus-private.h>
-#include <libgdiplus/brush-private.h>
-#include <libgdiplus/solidbrush-private.h>
-#include <libgdiplus/hatchbrush-private.h>
-#include <libgdiplus/texturebrush-private.h>
-#include <libgdiplus/pathgradientbrush-private.h>
-#include <libgdiplus/lineargradientbrush-private.h>
-    }
 
     class [[nodiscard]] BrushBase {
     public:
@@ -324,5 +312,3 @@ namespace libgdiplus {
         GpLineGradient *_gpLG{ nullptr };
     };
 } // namespace libgdiplus
-
-#endif // KRKR2_GDIP_CXX_BRUSH_H

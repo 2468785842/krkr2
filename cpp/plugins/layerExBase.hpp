@@ -1,7 +1,7 @@
 #pragma once
 
 #include "LayerImpl.h"
-#include "../core/base/MsgIntf.h"
+#include "MsgIntf.h"
 #include "RenderManager.h"
 #include "ScriptMgnIntf.h"
 

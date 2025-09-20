@@ -20,7 +20,7 @@
 #include "MsgIntf.h"
 #include "ComplexRect.h"
 #include "tvpgl.h"
-#include "../../tjs2/tjsHashSearch.h"
+#include "tjsHashSearch.h"
 #include "EventIntf.h"
 #include "SysInitImpl.h"
 #include "StorageIntf.h"

@@ -7,7 +7,7 @@
 #include "DebugIntf.h"
 #include "MsgIntf.h"
 #include <map>
-#include <math.h>
+#include <cmath>
 #include "Application.h"
 #include "Platform.h"
 #include "ConfigManager/IndividualConfigManager.h"
@@ -28,8 +28,11 @@ void TVPGetAllFontList(std::vector<ttstr> &list) {
         list.push_back(it.GetKey());
     }
 }
+
 static FT_Library TVPFontLibrary;
-FT_Library &TVPGetFontLibrary() {
+
+const FT_Library TVPGetFontLibrary() {
+
     if(!TVPFontLibrary) {
         FT_Error error = FT_Init_FreeType(&TVPFontLibrary);
         if(error)
@@ -41,6 +44,7 @@ FT_Library &TVPGetFontLibrary() {
     }
     return TVPFontLibrary;
 }
+
 void TVPReleaseFontLibrary() {
     if(TVPFontLibrary) {
         FT_Done_FreeType(TVPFontLibrary);
@@ -70,9 +74,9 @@ static int TVPInternalEnumFonts(
         if(FT_IS_SCALABLE(fontface)) {
             FT_UInt namecount = FT_Get_Sfnt_Name_Count(fontface);
             int addCount = 0;
-            for(FT_UInt i = 0; i < namecount; ++i) {
+            for(FT_UInt j = 0; j < namecount; ++j) {
                 FT_SfntName name;
-                if(FT_Get_Sfnt_Name(fontface, i, &name)) {
+                if(FT_Get_Sfnt_Name(fontface, j, &name)) {
                     continue;
                 }
                 if(name.name_id != TT_NAME_ID_FONT_FAMILY) {
@@ -99,9 +103,9 @@ static int TVPInternalEnumFonts(
                     std::vector<tjs_char> tmp;
                     int namelen = name.string_len / 2;
                     tmp.resize(namelen + 1);
-                    for(int j = 0; j < namelen; ++j) {
-                        tmp[j] = (name.string[j * 2] << 8) |
-                            (name.string[j * 2 + 1]);
+                    for(int k = 0; k < namelen; ++k) {
+                        tmp[k] = (name.string[k * 2] << 8) |
+                            (name.string[k * 2 + 1]);
                     }
                     fontname = &tmp.front();
                 } else {
@@ -109,7 +113,7 @@ static int TVPInternalEnumFonts(
                 }
                 TVPFontNamePathInfo info;
                 info.Path = FontPath;
-                info.Index = i;
+                info.Index = j;
                 info.Getter = getter;
                 TVPFontNames.Add(fontname, info);
                 addCount = 1;
@@ -130,6 +134,11 @@ static int TVPInternalEnumFonts(
     return faceCount;
 }
 
+/**
+ *  only support little word!!!
+ * @param FontPath font path str
+ * @return load failed return 0, otherwise > 0
+ */
 int TVPEnumFontsProc(const ttstr &FontPath) {
     if(!TVPIsExistentStorageNoSearch(FontPath)) {
         return 0;
@@ -202,48 +211,33 @@ void TVPInitFontNames() {
 
         if(TVPEnumFontsProc(Android_GetInternalStoragePath() + "/default.ttf"))
             break;
+#elif defined(WIN32)
+        if(TVPEnumFontsProc(TJS_W("file://./c/Windows/Fonts/msyh.ttf")))
+            break;
+        if(TVPEnumFontsProc(TJS_W("file://./c/Windows/Fonts/simhei.ttf")))
+            break;
+#endif
 
         { // from internal storage
             auto data = cocos2d::FileUtils::getInstance()->getDataFromFile(
-                "DroidSansFallback.ttf");
+                "NotoSansCJK-Regular.ttc");
+            if(data.isNull()) {
+                spdlog::critical("can't found internal font file!");
+                exit(-1);
+            }
             if(TVPInternalEnumFonts(
-                   data.getBytes(), data.getSize(), "DroidSansFallback.ttf",
+                   data.getBytes(), data.getSize(), "NotoSansCJK-Regular.ttc",
                    [](TVPFontNamePathInfo *info) -> tTJSBinaryStream * {
                        auto data =
                            cocos2d::FileUtils::getInstance()->getDataFromFile(
                                info->Path.AsStdString());
-                       tTVPMemoryStream *ret = new tTVPMemoryStream();
+                       auto *ret = new tTVPMemoryStream();
                        ret->WriteBuffer(data.getBytes(), data.getSize());
                        ret->SetPosition(0);
                        return ret;
                    }))
                 break;
         }
-        // 中日韩字体 有衬字体： Noto Serif CJK SC
-
-        if(TVPEnumFontsProc(
-               TJS_W("file://./system/fonts/DroidSansFallback.ttf")))
-            break;
-        if(TVPEnumFontsProc(
-               TJS_W("file://./system/fonts/NotoSansHans-Regular.otf")))
-            break;
-        if(TVPEnumFontsProc(TJS_W("file://./system/fonts/DroidSans.ttf")))
-            break;
-#elif defined(WIN32)
-        if(TVPEnumFontsProc(TJS_W("file://./c/Windows/Fonts/msyh.ttf")))
-            break;
-        if(TVPEnumFontsProc(TJS_W("file://./c/Windows/Fonts/simhei.ttf")))
-            break;
-#elif TARGET_OS_MAC
-        if(TVPEnumFontsProc(TJS_W("file://./Library/Fonts/Arial Unicode.ttf")))
-            break;
-#endif
-
-        std::string fullPath =
-            cocos2d::FileUtils::getInstance()->fullPathForFilename(
-                "DroidSansFallback.ttf");
-        if(TVPEnumFontsProc(fullPath))
-            break;
     } while(false);
     if(TVPFontNames.GetCount() > 0) {
         // set default fontface name

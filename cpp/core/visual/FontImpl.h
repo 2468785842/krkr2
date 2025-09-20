@@ -1,7 +1,10 @@
 #pragma once
 #include "tjs.h"
-#include "../tjs2/tjsHashSearch.h"
+#include "tjsHashSearch.h"
 #include <functional>
+#include <freetype/freetype.h>
+
+const FT_Library TVPGetFontLibrary();
 
 void TVPInitFontNames();
 int TVPEnumFontsProc(const ttstr &FontPath);

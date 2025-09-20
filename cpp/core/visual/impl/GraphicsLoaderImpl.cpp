@@ -12,7 +12,7 @@
 
 #include "GraphicsLoaderImpl.h"
 #include "GraphicsLoaderIntf.h"
-#include "../../tjs2/tjsHashSearch.h"
+#include "tjsHashSearch.h"
 #include "StorageImpl.h"
 #include "MsgIntf.h"
 #include "tjsUtils.h"

@@ -1,5 +1,5 @@
 #include "ncbind.hpp"
-#include "../core/plugin/PluginIntf.h"
+#include "PluginIntf.h"
 
 #define NCB_MODULE_NAME TJS_W("saveStruct.dll")
 

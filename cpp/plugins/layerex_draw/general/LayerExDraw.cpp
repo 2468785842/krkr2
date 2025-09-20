@@ -5,17 +5,13 @@
 #include "common/Defer.h"
 #include "ncbind.hpp"
 #include "LayerExDraw.hpp"
-
+#include "FontImpl.h"
 #include <freetype/freetype.h>
 
 #include "FontImpl.h"
 
 using namespace layerex;
 using namespace libgdiplus;
-
-static u_char *G_FontFamilyData{};
-
-static FT_Library ftLibrary;
 
 // GDI+ 基本情報
 static GdiplusStartupInput gdiplusStartupInput;
@@ -32,38 +28,10 @@ void initGdiPlus() {
     gdiplusStartupInput.SuppressBackgroundThread = FALSE;
     gdiplusStartupInput.SuppressExternalCodecs = FALSE;
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
-    FT_Init_FreeType(&ftLibrary);
-    // FIXME: 加载系统字体到gdiplus, 目前无法正常绘制字符,
-    // 需要更新libgdiplus到6.x.x!!
-    //    privateFontCollection = new PrivateFontCollection; //
-    //    目前无用! auto font_collection =
-    //    privateFontCollection->getFontCollection(); FcObjectSet *os
-    //    = FcObjectSetBuild(FC_FAMILY, FC_FOUNDRY, FC_FILE, NULL);
-    //    FcPattern *pat = FcPatternCreate();
-    //
-    //    FcConfigAppFontAddDir(font_collection->config,
-    //                          reinterpret_cast<const FcChar8
-    //                          *>("/system/fonts"));
-    //
-    //    FcFontSet *col = FcFontList(font_collection->config, pat,
-    //    os);
-    //
-    //    if (font_collection->fontset)
-    //        FcFontSetDestroy(font_collection->fontset);
-    //
-    //    FcPatternDestroy(pat);
-    //    FcObjectSetDestroy(os);
-    //
-    //    font_collection->fontset = col;
 }
 
 // GDI+ 終了
-void deInitGdiPlus() {
-    //    delete privateFontCollection;
-    free(G_FontFamilyData);
-    FT_Done_FreeType(ftLibrary);
-    GdiplusShutdown(gdiplusToken);
-}
+void deInitGdiPlus() { GdiplusShutdown(gdiplusToken); }
 
 /**
  * 画像読み込み処理
@@ -218,10 +186,7 @@ layerex::FontInfo::FontInfo(const FontInfo &orig) {
     if(!orig.ftFace)
         return;
 
-    const FT_Open_Args args{ .flags = FT_OPEN_PATHNAME,
-                             .pathname = ftFace->family_name };
-
-    FT_Open_Face(ftLibrary, &args, 0, &this->ftFace);
+    FT_New_Face(TVPGetFontLibrary(), ftFace->family_name, 0, &this->ftFace);
 
     int dpi = gdip_get_display_dpi();
     FT_Set_Char_Size(this->ftFace, 0, emSize * 64, dpi, dpi);
@@ -258,34 +223,23 @@ void layerex::FontInfo::setFamilyName(const tjs_char *fName) {
         this->familyName = fName;
         return;
     }
-    if(!fName)
+    if(!fName || this->familyName == fName)
         return;
-    clear();
-    // FIXME: 目前gdiplus无法正常绘制字符不知道为什么！
-    // WCHAR* wDefaultFamily = g_utf8_to_utf16(defaultFamily, -1,
-    // nullptr, nullptr, nullptr); auto status =
-    // GdipCreateFontFamilyFromName(
-    //         wDefaultFamily,
-    //         privateFontCollection->getFontCollection(),
-    //         &this->fontFamily
-    // );
-    //
-    // g_free(wDefaultFamily);
-    //  if (status == Ok) {
-    //      this->familyName = fName;
-    //      return;
-    //  }
 
-    //    spdlog::get("plugin")->error(
-    //        "can't load gdi+ font: rollback custom draw string");
+    clear();
     gdiPlusUnsupportedFont = true;
     this->familyName = fName;
+
     const std::unique_ptr<tTJSBinaryStream> stream{ TVPCreateFontStream(
         TVPGetDefaultFontName()) };
     const auto bufferSize = static_cast<FT_Long>(stream->GetSize());
-    const auto buffer = std::make_unique<FT_Byte[]>(bufferSize);
+
+    buffer = std::make_unique<FT_Byte[]>(bufferSize);
     stream->ReadBuffer(buffer.get(), bufferSize);
-    FT_New_Memory_Face(ftLibrary, buffer.get(), bufferSize, 0, &this->ftFace);
+
+    FT_New_Memory_Face(TVPGetFontLibrary(), buffer.get(), bufferSize, 0,
+                       &this->ftFace);
+
     const float dpi = gdip_get_display_dpi();
     FT_Set_Char_Size(this->ftFace, 0, emSize * 64, dpi, dpi);
 }
@@ -543,7 +497,7 @@ void commonBrushParameter(ncbPropAccessor &info, T *brush) {
     }
     // SetGammaCorrection
     if(info.checkVariant(TJS_W("useGammaCorrection"), var)) {
-        brush->SetGammaCorrection((libgdiplus::BOOL)var);
+        brush->SetGammaCorrection((bool)var);
     }
     // SetInterpolationColors
     if(info.checkVariant(TJS_W("interpolationColors"), var)) {
@@ -837,7 +791,7 @@ bool Appearance::getLineCap(tTJSVariant &in, GpLineCap &cap,
                 width = (REAL)(tjs_real)var;
             if(info.checkVariant(TJS_W("height"), var))
                 height = (REAL)(tjs_real)var;
-            libgdiplus::BOOL filled = info.getIntValue(TJS_W("filled"), 1);
+            bool filled = info.getIntValue(TJS_W("filled"), 1);
             GpAdjustableArrowCap *arrow{};
             GdipCreateAdjustableArrowCap(height, width, filled, &arrow);
             if(info.checkVariant(TJS_W("middleInset"), var))

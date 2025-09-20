@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KrKr2</string>
+
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="request_storage_permission">应用需要读写权限</string>
+    <string name="request_storage_permission_title">请求权限</string>
+</resources>

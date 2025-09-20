@@ -37,7 +37,7 @@
             <Position X="360" Y="952" />
             <Scale ScaleX="1" ScaleY="1" />
             <CColor A="255" B="192" G="192" R="192" />
-            <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+            <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
             <OutlineColor A="255" B="0" G="0" R="255" />
             <ShadowColor A="255" B="110" G="110" R="110" />
           </AbstractNodeData>
@@ -94,7 +94,7 @@
                     <Position X="96" Y="46" />
                     <Scale ScaleX="1" ScaleY="1" />
                     <CColor A="255" B="192" G="192" R="192" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                   </AbstractNodeData>
@@ -211,7 +211,7 @@
                     <Position X="96" Y="46" />
                     <Scale ScaleX="1" ScaleY="1" />
                     <CColor A="255" B="192" G="192" R="192" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                   </AbstractNodeData>
@@ -374,7 +374,7 @@
                     <Position X="96" Y="46" />
                     <Scale ScaleX="1" ScaleY="1" />
                     <CColor A="255" B="192" G="192" R="192" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                   </AbstractNodeData>
@@ -540,7 +540,7 @@
                     <Position X="96" Y="46" />
                     <Scale ScaleX="1" ScaleY="1" />
                     <CColor A="255" B="192" G="192" R="192" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                   </AbstractNodeData>
@@ -578,7 +578,7 @@
                     <Position X="96" Y="46" />
                     <Scale ScaleX="1" ScaleY="1" />
                     <CColor A="255" B="192" G="192" R="192" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                   </AbstractNodeData>
@@ -690,7 +690,7 @@
                     <Position X="96" Y="46" />
                     <Scale ScaleX="1" ScaleY="1" />
                     <CColor A="255" B="192" G="192" R="192" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                   </AbstractNodeData>
@@ -700,7 +700,7 @@
                     <Position X="45.523602" Y="48" />
                     <Scale ScaleX="1.4" ScaleY="1.4" />
                     <CColor A="255" B="192" G="192" R="192" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                   </AbstractNodeData>
@@ -796,7 +796,7 @@
                     <Position X="96" Y="46" />
                     <Scale ScaleX="1" ScaleY="1" />
                     <CColor A="255" B="192" G="192" R="192" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                   </AbstractNodeData>
@@ -806,7 +806,7 @@
                     <Position X="51.1423" Y="25.3389" />
                     <Scale ScaleX="0.6" ScaleY="0.6" />
                     <CColor A="255" B="255" G="144" R="30" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                     <Children>
@@ -816,7 +816,7 @@
                         <Position X="10" Y="42" />
                         <Scale ScaleX="1" ScaleY="1" />
                         <CColor A="255" B="255" G="144" R="30" />
-                        <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                        <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                         <OutlineColor A="255" B="0" G="0" R="255" />
                         <ShadowColor A="255" B="110" G="110" R="110" />
                       </AbstractNodeData>
@@ -826,7 +826,7 @@
                         <Position X="-0.0007" Y="71" />
                         <Scale ScaleX="1" ScaleY="1" />
                         <CColor A="255" B="229" G="229" R="229" />
-                        <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                        <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                         <OutlineColor A="255" B="0" G="0" R="255" />
                         <ShadowColor A="255" B="110" G="110" R="110" />
                         <Children>
@@ -836,7 +836,7 @@
                             <Position X="0" Y="1.4067" />
                             <Scale ScaleX="1" ScaleY="1" />
                             <CColor A="255" B="187" G="187" R="187" />
-                            <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                            <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                             <OutlineColor A="255" B="0" G="0" R="255" />
                             <ShadowColor A="255" B="110" G="110" R="110" />
                           </AbstractNodeData>
@@ -948,7 +948,7 @@
                     <Position X="96" Y="46" />
                     <Scale ScaleX="1" ScaleY="1" />
                     <CColor A="255" B="192" G="192" R="192" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                   </AbstractNodeData>
@@ -1067,7 +1067,7 @@
                     <Position X="96" Y="46" />
                     <Scale ScaleX="1" ScaleY="1" />
                     <CColor A="255" B="192" G="192" R="192" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                   </AbstractNodeData>
