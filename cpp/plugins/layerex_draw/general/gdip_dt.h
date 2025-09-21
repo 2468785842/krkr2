@@ -8,7 +8,7 @@
 
 #if TARGET_OS_MAC || TARGET_OS_IPHONE
 #define _WAPI_UGLIFY_H_
-#define HANDLE void*
+#define HANDLE void *
 #define BOOL bool
 #define CONST const
 #define VOID void

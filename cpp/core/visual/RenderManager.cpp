@@ -2003,19 +2003,6 @@ void TVPDoBoxBlurAvg<tTVPARGB_AA<tjs_uint32>, tjs_uint32>(
     const tjs_uint32 *sub, tjs_int n, tjs_int len) {
     TVPDoBoxBlurAvg32_d(dest, sum, add, sub, n, len);
 }
-namespace TJS {
-    void TVPConsoleLog(const tjs_nchar *format, ...);
-}
-static void _log_ptr(const char *n, void *_p, uint l) {
-    unsigned char *p = (unsigned char *)_p;
-    TVPConsoleLog("%s %p: %02X %02X %02X %02X %02X %02X %02X %02X ... %p: %02X "
-                  "%02X %02X "
-                  "%02X ... %p: %02X %02X %02X %02X %02X %02X %02X %02X",
-                  n, p - 8, p[-8], p[-7], p[-6], p[-5], p[-4], p[-3], p[-2],
-                  p[-1], p, p[0], p[1], p[2], p[3], p + l, p[l + 0], p[l + 1],
-                  p[l + 2], p[l + 3], p[l + 4], p[l + 5], p[l + 6], p[l + 7],
-                  p[l + 8]);
-}
 
 template <typename tARGB>
 struct TDoBoxBlurLoop {

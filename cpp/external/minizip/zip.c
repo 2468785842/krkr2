@@ -40,7 +40,7 @@
 #endif
 
 #ifndef NOCRYPT
-#  include "crypt.h"
+#  include "unzip/crypt.h"
 #endif
 
 #define SIZEDATA_INDATABLOCK        (4096-(4*4))

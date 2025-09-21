@@ -72,8 +72,8 @@ jobs:
 
       - name: Build Windows
         run: |
-          cmake --preset="Windows Debug Config" -DENABLE_TESTS=OFF -DBUILD_TOOLS=OFF
-          cmake --build --preset="Windows Debug Build"
+          cmake --preset="Windows Release Config" -DENABLE_TESTS=OFF -DBUILD_TOOLS=OFF
+          cmake --build --preset="Windows Release Build"
 
       - name: Upload artifacts
         if: ${{ !env.ACT && success() }}
@@ -81,4 +81,4 @@ jobs:
         with:
           name: windows-binaries
           path: |
-            out/windows/debug/bin/krkr2/**
+            out/windows/release/bin/krkr2/**

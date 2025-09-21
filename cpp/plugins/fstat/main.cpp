@@ -18,7 +18,7 @@ using namespace std;
 #define LOGGER spdlog::get("plugin")
 #define NCB_MODULE_NAME TJS_W("fstat.dll")
 
-
+#ifndef _WIN32
 #define FILE_ATTRIBUTE_READONLY 0x0001
 #define FILE_ATTRIBUTE_HIDDEN 0x0002
 #define FILE_ATTRIBUTE_SYSTEM 0x0004
@@ -33,6 +33,7 @@ using namespace std;
 #define FILE_ATTRIBUTE_OFFLINE 0x1000
 #define FILE_ATTRIBUTE_NOT_CONTENT_INDEXED 0x2000
 #define FILE_ATTRIBUTE_ENCRYPTED 0x4000
+#endif
 
 // Date クラスメンバ
 static iTJSDispatch2 *dateClass = nullptr; // Date のクラスオブジェクト

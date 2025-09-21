@@ -101,7 +101,7 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
 
 - **Android**:
   ```bash
-  ./gradlew assemble      # Windows or Linux
+  cd platforms/android && ./gradlew assemble
   ```
 
   > If you encounter `glib` installation issues, see [FAQ#安装glib失败](./doc/FAQ.md#安装glib失败)
@@ -126,18 +126,14 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
   ```
 
 * **Using Docker**:
-
-  ```bash
-  docker build -f dockers/android.Dockerfile -t android-builder .
-  docker build -f dockers/linux.Dockerfile -t linux-builder .
-  ```
+* Build Linux: `docker build -f dockers/linux.Dockerfile -t linux-builder .`
+* Build Android: `docker build -f dockers/android.Dockerfile -t android-builder .`
 
 ---
 
 ## Executable Location
 
 * **Android**:
-
   * Debug: `out/android/app/outputs/apk/debug/*.apk`
   * Release: `out/android/app/outputs/apk/release/*.apk`
 * **Windows**: `out/windows/debug/bin/krkr2/krkr2.exe`
@@ -150,17 +146,17 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
 - **clang-format@20**
 - **Linux**:
     ```bash
-    clang-format -i --verbose $(find ./cpp ./linux ./windows ./android/cpp ./apple ./tests ./tools -regex ".+\.\(cpp\|cc\|h\|hpp\|inc\)")
+    clang-format -i --verbose $(find ./cpp ./platforms ./tests ./tools -regex ".+\.\(cpp\|cc\|h\|hpp\|inc\)")
     ```
 
 - **MacOS**:
     ```bash
-    clang-format -i --verbose $(find ./cpp ./linux ./windows ./android/cpp ./apple ./tests ./tools -name "*.cpp" -o -name "*.cc" -o -name "*.h" -o -name "*.hpp" -o -name "*.inc")
+    clang-format -i --verbose $(find ./cpp ./platforms ./tests ./tools -name "*.cpp" -o -name "*.cc" -o -name "*.h" -o -name "*.hpp" -o -name "*.inc")
     ```
 
 - **Windows**:
     ```powershell
-    Get-ChildItem -Path ./cpp, ./linux, ./windows, ./android/cpp, ./apple, ./tests, ./tools -Recurse -File | 
+    Get-ChildItem -Path ./cpp, ./platforms, ./tests, ./tools -Recurse -File | 
     Where-Object { $_.Name -match '\.(cpp|cc|h|hpp|inc)$' } | 
     ForEach-Object { clang-format -i --verbose $_.FullName }
     ```

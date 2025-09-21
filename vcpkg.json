@@ -17,13 +17,13 @@
     "boost-spirit",
     {
       "name": "breakpad",
-      "platform": "android",
-      "default-features": false
+      "default-features": false,
+      "platform": "android"
     },
     {
       "name": "catch2",
-      "platform": "!android & !ios",
-      "default-features": false
+      "default-features": false,
+      "platform": "!android & !ios"
     },
     "cocos2dx",
     {
@@ -32,11 +32,11 @@
     },
     "ffmpeg",
     "fmt",
-    "jxrlib",
     {
       "name": "glfw3",
       "platform": "linux | windows | osx"
     },
+    "jxrlib",
     "libarchive",
     {
       "name": "libgdiplus",
@@ -52,10 +52,10 @@
       "platform": "!linux"
     },
     "libvorbis",
+    "libwebp",
     "lz4",
     "oniguruma",
     "openal-soft",
-    "libwebp",
     {
       "name": "opencv4",
       "default-features": false,

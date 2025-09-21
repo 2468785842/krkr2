@@ -13,6 +13,11 @@
 
 #include "tjsObjectExtendable.h"
 
+// 和Windows系统宏冲突了
+#ifdef GetClassName
+#undef GetClassName
+#endif
+
 namespace TJS {
     //---------------------------------------------------------------------------
     TJS_EXP_FUNC_DEF(tjs_int32, TJSRegisterNativeClass, (const tjs_char *name));

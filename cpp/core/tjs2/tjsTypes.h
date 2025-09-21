@@ -71,8 +71,6 @@ typedef ptrdiff_t tjs_offset;
 
 #if defined(_WIN32)
 
-#define TJS_USERENTRY __cdecl
-
 #define TJS_I64_VAL(x) ((tjs_int64)(x##i64))
 #define TJS_UI64_VAL(x) ((tjs_uint64)(x##i64))
 

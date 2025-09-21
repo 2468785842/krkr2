@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 #ifndef _ZLIBIOAPI_H
-#  include "ioapi.h"
+#  include "unzip/ioapi.h"
 #endif
 
 #ifdef HAVE_BZIP2

@@ -85,22 +85,6 @@ if (BUILD_EXT_MD5)
     target_link_libraries(external INTERFACE ext_md5)
 endif (BUILD_EXT_MD5)
 
-# use lua/js specific libs by property to prevent conflict
-if (BUILD_JS_LIBS)
-    add_subdirectory(spidermonkey)
-    set_property(TARGET external APPEND PROPERTY
-        CC_JS_DEPEND ext_spidermonkey
-    )
-endif ()
-if (BUILD_LUA_LIBS)
-    add_subdirectory(lua/luajit)
-    add_subdirectory(lua/tolua)
-    add_subdirectory(lua/luasocket)
-    set_property(TARGET external APPEND PROPERTY
-        CC_LUA_DEPEND ext_luajit ext_tolua ext_luasocket
-    )
-endif ()
-
 if (BUILD_EXT_CURL)
     find_package(CURL REQUIRED)
     target_link_libraries(external INTERFACE CURL::libcurl)

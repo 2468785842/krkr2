@@ -2,6 +2,7 @@
 #include <windows.h>
 #endif
 
+#include <spdlog/spdlog.h>
 #include <thread>
 #include "krmovie.h"
 
@@ -17,8 +18,6 @@ extern "C" {
 #include "VideoOvlImpl.h"
 #include "KRMoviePlayer.h"
 #include "KRMovieLayer.h"
-
-#include "spdlog/spdlog.h"
 
 extern std::thread::id TVPMainThreadID;
 
