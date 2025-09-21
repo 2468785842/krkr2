@@ -43,7 +43,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y bison python3 nasm openssl
+          sudo apt-get install -y bison python3 nasm
           
           wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
           chmod +x dotnet-install.sh
@@ -126,9 +126,9 @@ jobs:
 
       - name: Generate keystore
         run: |
-          KEYSTORE_PASSWORD=$(openssl rand -base64 16)
+          KEY_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 24)
           KEY_ALIAS="ci-key"
-          KEY_PASSWORD=$(openssl rand -base64 16)
+          KEYSTORE_PASSWORD=$KEY_PASSWORD
           echo "Generated passwords:"
           echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
           echo "KEY_ALIAS=$KEY_ALIAS"
