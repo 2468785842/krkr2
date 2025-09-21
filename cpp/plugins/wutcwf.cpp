@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-#include "ncbind/ncbind.hpp"
+#include "ncbind.hpp"
 #include <stdio.h>
 #include "WaveIntf.h"
 // #include "typedefine.h"

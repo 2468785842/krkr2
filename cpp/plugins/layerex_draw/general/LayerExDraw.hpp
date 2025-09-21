@@ -110,6 +110,9 @@ namespace layerex {
         REAL getDescentLeading() const;
 
         REAL getLineSpacing() const;
+
+    private:
+        std::unique_ptr<FT_Byte[]> buffer{};
     };
 
     /**

@@ -6,11 +6,10 @@
 #include "tjsCommHead.h"
 #include "EventIntf.h"
 #include "layerExBase.hpp"
-#include "ncbind/ncbind.hpp"
+#include "ncbind.hpp"
 #include "Application.h"
 #include "LayerBitmapIntf.h"
 #include <algorithm>
-#include "krmovie.h"
 #include "movie/ffmpeg/KRMovieLayer.h"
 
 #define NCB_MODULE_NAME TJS_W("layerExMovie.dll")

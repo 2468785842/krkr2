@@ -20,7 +20,7 @@ static const char *copyright =
     "purpose.\n"
     "----- AntiGrainGeometry Copyright END -----\n";
 
-#include "ncbind/ncbind.hpp"
+#include "ncbind.hpp"
 
 #include "LayerExBase.h"
 #include "LayerImpl.h"

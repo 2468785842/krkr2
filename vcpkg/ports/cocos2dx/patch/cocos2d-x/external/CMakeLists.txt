@@ -85,22 +85,6 @@ if (BUILD_EXT_MD5)
     target_link_libraries(external INTERFACE ext_md5)
 endif (BUILD_EXT_MD5)
 
-# use lua/js specific libs by property to prevent conflict
-if (BUILD_JS_LIBS)
-    add_subdirectory(spidermonkey)
-    set_property(TARGET external APPEND PROPERTY
-        CC_JS_DEPEND ext_spidermonkey
-    )
-endif ()
-if (BUILD_LUA_LIBS)
-    add_subdirectory(lua/luajit)
-    add_subdirectory(lua/tolua)
-    add_subdirectory(lua/luasocket)
-    set_property(TARGET external APPEND PROPERTY
-        CC_LUA_DEPEND ext_luajit ext_tolua ext_luasocket
-    )
-endif ()
-
 if (BUILD_EXT_CURL)
     find_package(CURL REQUIRED)
     target_link_libraries(external INTERFACE CURL::libcurl)
@@ -116,10 +100,30 @@ if (LINUX)
 endif ()
 
 if (ANDROID)
+
+    find_package(Ogg CONFIG REQUIRED)
+    find_package(Vorbis CONFIG REQUIRED)
+
     add_subdirectory(android-specific/cpufeatures)
     add_subdirectory(android-specific/pvmp3dec)
-    add_subdirectory(android-specific/tremolo)
-    target_link_libraries(external INTERFACE ext_cpufeatures ext_pvmp3dec ext_tremolo)
+#    add_subdirectory(android-specific/tremolo)
+    target_link_libraries(external INTERFACE
+            ext_cpufeatures ext_pvmp3dec
+            Ogg::ogg
+            Vorbis::vorbis
+            Vorbis::vorbisfile
+            Vorbis::vorbisenc
+            #[[ext_tremolo]])
+
+    install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/android-specific/tremolo"
+            DESTINATION "include/Tremolo"
+            FILES_MATCHING PATTERN "ivorbisfile.h"
+    )
+
+    target_include_directories(external
+            INTERFACE
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/android-specific/tremolo>
+                $<INSTALL_INTERFACE:include>)
 endif ()
 
 if (WINDOWS)

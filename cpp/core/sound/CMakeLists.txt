@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.19)
+project(core_sound_module LANGUAGES CXX)
+
 set(SOUND_PATH ${CMAKE_CURRENT_LIST_DIR})
 set(SOUND_SOURCE_FILES
     ${SOUND_PATH}/CDDAIntf.cpp
@@ -23,11 +26,37 @@ set(SOUND_SOURCE_FILES
 #    ${SOUND_PATH}/win32/tvpsnd.idl
     ${SOUND_PATH}/win32/WaveImpl.cpp
     ${SOUND_PATH}/win32/WaveMixer.cpp
-    PARENT_SCOPE
 )
 
 set(SOUND_HEADERS_DIR
     ${SOUND_PATH}/
     ${SOUND_PATH}/win32
-    PARENT_SCOPE
+)
+
+add_library(${PROJECT_NAME} STATIC ${SOUND_SOURCE_FILES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${SOUND_HEADERS_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE tjs2 core_base_module core_movie_module core_utils_module core_environ_module)
+
+find_package(Vorbis CONFIG REQUIRED)
+find_package(Opus CONFIG REQUIRED)
+find_package(OpusFile CONFIG REQUIRED)
+
+if(ANDROID)
+    find_package(oboe CONFIG REQUIRED)
+
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        oboe::oboe
+    )
+endif()
+
+find_package(OpenAL CONFIG REQUIRED)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    Vorbis::vorbis
+    Vorbis::vorbisfile
+    Vorbis::vorbisenc
+
+    Opus::opus
+    OpusFile::opusfile
+    OpenAL::OpenAL
 )

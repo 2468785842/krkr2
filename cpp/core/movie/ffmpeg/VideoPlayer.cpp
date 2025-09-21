@@ -14,6 +14,7 @@
 #include <iterator>
 #include "platform/CCPlatformConfig.h"
 #include "AEStream.h"
+#include "krffmpeg.h"
 #include "WaveMixer.h"
 
 #ifdef HAS_OMXPLAYER
@@ -21,8 +22,6 @@
 #include "../omxplayer/OMXPlayerVideo.h"
 #include "../omxplayer/OMXHelper.h"
 #endif
-
-void TVPInitLibAVCodec();
 
 NS_KRMOVIE_BEGIN
 
@@ -191,18 +190,6 @@ BasePlayer::BasePlayer(CBaseRenderer *renderer) :
     m_streamPlayerSpeed = DVD_PLAYSPEED_NORMAL;
     m_caching = CACHESTATE_DONE;
     memset(&m_SpeedState, 0, sizeof(m_SpeedState));
-#if 0
-        ::Application->RegisterActiveEvent(this, [](void* p, eTVPActiveEvent ev){
-            switch (ev) {
-            case eTVPActiveEvent::onActive:
-                static_cast<BasePlayer*>(p)->OnActive();
-                break;
-            case eTVPActiveEvent::onDeactive:
-                static_cast<BasePlayer*>(p)->OnDeactive();
-                break;
-            }
-        });
-#endif
 }
 
 BasePlayer::~BasePlayer() {

@@ -129,11 +129,13 @@ jobs:
 
       - name: Build Android
         run: |
-          ./gradlew assembleDebug
+          pushd ./platforms/android
+          ./gradlew assemble
+          popd
 
       - name: Upload artifacts
         if: ${{ !env.ACT && success() }}
         uses: actions/upload-artifact@v4
         with:
           name: android-apks
-          path: out/android/app/outputs/apk/debug/*.apk
+          path: out/android/app/outputs/apk/release/*.apk

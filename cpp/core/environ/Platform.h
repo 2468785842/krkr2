@@ -47,10 +47,16 @@ void TVPHideIME();
 void TVPRelinquishCPU();
 void TVPPrintLog(const char *str);
 
-// FIXME: 宏定义冲突 sys/stat.h
+// 宏定义冲突 sys/stat.h
+#ifdef st_atime
 #undef st_atime
+#endif
+#ifdef st_mtime
 #undef st_mtime
+#endif
+#ifdef st_ctime
 #undef st_ctime
+#endif
 
 struct tTVP_stat {
     uint16_t st_mode;
@@ -62,6 +68,6 @@ struct tTVP_stat {
 
 bool TVP_stat(const tjs_char *name, tTVP_stat &s);
 bool TVP_stat(const char *name, tTVP_stat &s);
-void TVP_utime(const char *name, time_t modtime);
+bool TVP_utime(const char *name, time_t modtime);
 
 void TVPSendToOtherApp(const std::string &filename);

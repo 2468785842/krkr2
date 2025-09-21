@@ -1,6 +1,8 @@
+cmake_minimum_required(VERSION 3.19)
+project(core_movie_module LANGUAGES CXX)
+
 set(MOVIE_PATH ${CMAKE_CURRENT_LIST_DIR})
 set(MOVIE_SOURCE_FILES
-    ${MOVIE_PATH}/krmovie.cpp
 
     ${MOVIE_PATH}/ffmpeg/AEChannelInfo.cpp
     ${MOVIE_PATH}/ffmpeg/AEFactory.cpp
@@ -36,12 +38,30 @@ set(MOVIE_SOURCE_FILES
     ${MOVIE_PATH}/ffmpeg/VideoPlayerVideo.cpp
     ${MOVIE_PATH}/ffmpeg/VideoReferenceClock.cpp
     ${MOVIE_PATH}/ffmpeg/VideoRenderer.cpp
-
-    PARENT_SCOPE
 )
 
 set(MOVIE_HEADERS_DIR
     ${MOVIE_PATH}/
     ${MOVIE_PATH}/ffmpeg
-    PARENT_SCOPE
+)
+
+add_library(${PROJECT_NAME} STATIC ${MOVIE_SOURCE_FILES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${MOVIE_HEADERS_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE tjs2 core_base_module core_sound_module core_utils_module core_environ_module core_visual_module)
+
+find_package(FFMPEG COMPONENTS
+        avutil
+        avfilter
+        avcodec
+        swscale
+        swresample REQUIRED
+)
+find_package(cocos2dx CONFIG REQUIRED)
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    cocos2dx::cocos2d
+
+    ${FFMPEG_LIBRARIES}
 )

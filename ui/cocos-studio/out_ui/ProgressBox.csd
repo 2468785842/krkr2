@@ -93,7 +93,7 @@
                             <Position X="268" Y="32" />
                             <Scale ScaleX="1" ScaleY="1" />
                             <CColor A="255" B="255" G="255" R="255" />
-                            <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                            <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                             <OutlineColor A="255" B="77" G="77" R="77" />
                             <ShadowColor A="255" B="110" G="110" R="110" />
                           </AbstractNodeData>
@@ -125,7 +125,7 @@
                             <Position X="268" Y="32" />
                             <Scale ScaleX="1" ScaleY="1" />
                             <CColor A="255" B="255" G="255" R="255" />
-                            <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                            <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                             <OutlineColor A="255" B="77" G="77" R="77" />
                             <ShadowColor A="255" B="110" G="110" R="110" />
                           </AbstractNodeData>
@@ -138,7 +138,7 @@ line2" IsCustomSize="True" OutlineSize="1" ShadowOffsetX="2" ShadowOffsetY="-2" 
                         <Position X="2" Y="0" />
                         <Scale ScaleX="1" ScaleY="1" />
                         <CColor A="255" B="255" G="255" R="255" />
-                        <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                        <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                         <OutlineColor A="255" B="0" G="0" R="255" />
                         <ShadowColor A="255" B="110" G="110" R="110" />
                       </AbstractNodeData>
@@ -150,7 +150,7 @@ line2" IsCustomSize="True" OutlineSize="1" ShadowOffsetX="2" ShadowOffsetY="-2" 
                     <Position X="288" Y="590" />
                     <Scale ScaleX="1" ScaleY="1" />
                     <CColor A="255" B="255" G="255" R="255" />
-                    <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                    <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                     <OutlineColor A="255" B="0" G="0" R="255" />
                     <ShadowColor A="255" B="110" G="110" R="110" />
                   </AbstractNodeData>
@@ -201,7 +201,7 @@ line2" IsCustomSize="True" OutlineSize="1" ShadowOffsetX="2" ShadowOffsetY="-2" 
                                 <DisabledFileData Type="Normal" Path="img/gray.png" Plist="" />
                                 <TextColor A="255" B="0" G="0" R="0" />
                                 <OutlineColor A="255" B="0" G="0" R="255" />
-                                <FontResource Type="Normal" Path="DroidSansFallback.ttf" Plist="" />
+                                <FontResource Type="Normal" Path="NotoSansCJK-Regular.ttc" Plist="" />
                                 <ShadowColor A="255" B="110" G="110" R="110" />
                               </AbstractNodeData>
                             </Children>

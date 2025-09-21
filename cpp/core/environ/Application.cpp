@@ -293,7 +293,6 @@ tTVPApplication::~tTVPApplication() {
     delete image_load_thread_;
 }
 
-extern void tvpLoadPlugins();
 bool tTVPApplication::StartApplication(ttstr path) {
     //	_set_se_translator(se_translator_function);
 

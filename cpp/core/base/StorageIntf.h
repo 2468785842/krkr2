@@ -12,7 +12,7 @@
 #define StorageIntfH
 
 #include "tjsNative.h"
-#include "../../plugins/KAGParser/tjsHashSearch.h"
+#include "tjsHashSearch.h"
 #include <vector>
 
 //---------------------------------------------------------------------------
@@ -174,34 +174,33 @@ void TVPPreNormalizeStorageName(ttstr &name);
 
 iTVPStorageMedia *TVPCreateFileMedia();
 // create basic default "file:" storage media
-/*
-extern void TVPPreNormalizeStorageName(ttstr &name);
-
-extern tTJSBinaryStream * TVPOpenStream(const ttstr & name, tjs_uint32
-flags);
-        // open a storage and return a tTJSBinaryStream instance.
-        // name does not contain in-archive storage name but
-        // is normalized.
-
-extern bool TVPCheckExistentStorage(const ttstr &name);
-        // check file existence
-
-extern void TVPGetStorageListAt(const ttstr &name, std::vector<ttstr>
-& list);
-
-extern ttstr TVPGetMediaCurrent(const ttstr & name);
-extern void TVPSetMediaCurrent(const ttstr & name, const ttstr & dir);
-
-extern ttstr TVPGetNativeName(const ttstr &name);
-        // retrieve OS native name
-
-extern ttstr TVPGetLocallyAccessibleName(const ttstr &name);
-        // check wether given name is easily accessible from local OS
-filesystem.
-        // if true, returns local OS native name. otherwise returns an
-empty string.
-
-*/
+// /*
+// extern void TVPPreNormalizeStorageName(ttstr &name);
+//
+tTJSBinaryStream *TVPOpenStream(const ttstr &name, tjs_uint32 flags);
+//         // open a storage and return a tTJSBinaryStream instance.
+//         // name does not contain in-archive storage name but
+//         // is normalized.
+//
+// extern bool TVPCheckExistentStorage(const ttstr &name);
+//         // check file existence
+//
+// extern void TVPGetStorageListAt(const ttstr &name, std::vector<ttstr>
+// & list);
+//
+// extern ttstr TVPGetMediaCurrent(const ttstr & name);
+// extern void TVPSetMediaCurrent(const ttstr & name, const ttstr & dir);
+//
+// extern ttstr TVPGetNativeName(const ttstr &name);
+//         // retrieve OS native name
+//
+// extern ttstr TVPGetLocallyAccessibleName(const ttstr &name);
+//         // check wether given name is easily accessible from local OS
+// filesystem.
+//         // if true, returns local OS native name. otherwise returns an
+// empty string.
+//
+// */
 extern bool TVPRemoveFile(const ttstr &name);
 
 // remove local file ( "name" is a local *native* name )

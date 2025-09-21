@@ -1,4 +1,5 @@
-add_subdirectory(minizip)
+cmake_minimum_required(VERSION 3.19)
+project(core_utils_module LANGUAGES CXX)
 
 set(UTILS_PATH ${CMAKE_CURRENT_LIST_DIR})
 set(UTILS_SOURCE_FILES
@@ -24,12 +25,14 @@ set(UTILS_SOURCE_FILES
     ${UTILS_PATH}/win32/ThreadImpl.cpp
     ${UTILS_PATH}/win32/TimerImpl.cpp
     ${UTILS_PATH}/win32/TVPTimer.cpp
-    PARENT_SCOPE
 )
 
 set(UTILS_HEADERS_DIR
     ${UTILS_PATH}/
     ${UTILS_PATH}/iconv/
     ${UTILS_PATH}/win32/
-    PARENT_SCOPE
 )
+
+add_library(${PROJECT_NAME} STATIC ${UTILS_SOURCE_FILES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${UTILS_HEADERS_DIR})
+target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 PRIVATE core_base_module core_environ_module)

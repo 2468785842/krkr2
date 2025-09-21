@@ -1,0 +1,140 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    ndkVersion '28.0.13004108'
+    compileSdk PROP_COMPILE_SDK_VERSION.toInteger()
+    namespace 'org.github.krkr2'
+
+    defaultConfig {
+        applicationId 'org.github.krkr2'
+        minSdkVersion PROP_MIN_SDK_VERSION
+        targetSdkVersion PROP_TARGET_SDK_VERSION
+
+        ndk {
+            jobs Runtime.runtime.availableProcessors()
+            abiFilters 'arm64-v8a', 'x86_64' //, 'armeabi-v7a'
+        }
+
+        externalNativeBuild {
+            cmake {
+                targets 'krkr2'
+                cppFlags '-fsigned-char'
+                arguments '-DANDROID_STL=c++_shared', '-DANDROID=ON'
+            }
+        }
+        versionCode Integer.parseInt(new Date().format('yyyyMMddHH'))
+        versionName '1.5.0'
+    }
+
+    externalNativeBuild {
+        cmake {
+            version '3.31.1'
+            buildStagingDirectory '../../../out/android/cmake-build'
+            path '../../../CMakeLists.txt'
+        }
+    }
+
+    signingConfigs {
+        release {
+            def signPropsFile = file('sign.properties')
+            if (signPropsFile.exists()) {
+                def signProps = new Properties()
+                signProps.load(new FileInputStream(signPropsFile))
+
+                keyAlias = signProps['SIGN_KEY_ALIAS']
+                keyPassword = signProps['SIGN_KEY_PASS']
+                storePassword = signProps['SIGN_STORE_PASS']
+                storeFile = file('sign.keystore')
+            }
+        }
+    }
+
+    // OpenCV 并行加速需要openML, 这里解压so文件不然找不到
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
+    buildTypes {
+        release {
+            debuggable false
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+
+        debug {
+            debuggable true
+        }
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['java']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['../../../ui/cocos-studio']
+        }
+
+    }
+
+    buildFeatures {
+        prefab true
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.15"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    splits {
+        abi {
+            enable = true           // 启用 ABI 分包
+            reset()               // 清除默认支持的 ABI
+            include 'arm64-v8a', 'x86_64' // 'armeabi-v7a', 'x86' // 指定支持的 ABI
+            universalApk = true
+        }
+    }
+
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach {
+            def ver = defaultConfig.versionName
+            def abi = filters.find { it.filterType == "ABI" }?.identifier ?: "all"
+            outputFileName = "${rootProject.name}-$ver-${abi}.apk"
+        }
+    }
+}
+
+dependencies {
+    //implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':sdl')
+    implementation project(':cocos2dx')
+
+    implementation 'com.google.oboe:oboe:1.9.3'
+
+    //noinspection GradleDependency
+    implementation 'com.google.android.material:material:1.12.0'
+
+    //noinspection GradleDependency
+    implementation 'androidx.activity:activity-ktx:1.9.3'
+    //noinspection GradleDependency
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    //noinspection GradleDependency
+    implementation 'androidx.fragment:fragment-ktx:1.8.5'
+
+    //noinspection GradleDependency
+    implementation 'androidx.core:core-ktx:1.13.1'
+}

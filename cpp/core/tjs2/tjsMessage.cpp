@@ -11,7 +11,7 @@
 #include "tjsCommHead.h"
 
 #include "tjsMessage.h"
-#include "../../plugins/KAGParser/tjsHashSearch.h"
+#include "tjsHashSearch.h"
 
 namespace TJS {
 

@@ -47,14 +47,21 @@ RUN git clone https://github.com/microsoft/vcpkg.git $VCPKG_ROOT \
 WORKDIR /workspace
 
 # ---------- 源码 ----------
-COPY .. .
+COPY ../cmake ./cmake
+COPY ../cpp ./cpp
+COPY ../platforms/android ./platforms/android
+COPY ../ui ./ui
+COPY ../vcpkg ./vcpkg
+COPY ../CMakeLists.txt ./CMakeLists.txt
+COPY ../CMakePresets.json ./CMakePresets.json
+COPY ../vcpkg.json ./vcpkg.json
+COPY ../vcpkg-configuration.json ./vcpkg-configuration.json
 
 # ---------- 构建 ----------
 # 默认任务：assembleDebug；可根据需要改为 assembleRelease
-CMD ["./gradlew", "assembleDebug"]
-
+WORKDIR /workspace/platforms/android
+CMD [".gradlew", "assembleDebug"]
 
 # 添加元数据
 LABEL description="Android build environment for Krkr2 project" \
       version="1.0"
-#      maintainer="your-email@example.com" \

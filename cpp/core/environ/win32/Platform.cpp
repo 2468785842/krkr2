@@ -389,12 +389,12 @@ bool TVP_stat(const char *name, tTVP_stat &s) {
     return TVP_stat(filename.c_str(), s);
 }
 
-void TVP_utime(const char *name, time_t modtime) {
+bool TVP_utime(const char *name, time_t modtime) {
     _utimbuf utb;
     utb.modtime = modtime;
     utb.actime = modtime;
     ttstr filename(name);
-    _wutime(filename.toWString().c_str(), &utb);
+    return _wutime(filename.toWString().c_str(), &utb) == 0;
 }
 
 int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,

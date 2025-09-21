@@ -22,12 +22,12 @@ vcpkg_extract_source_archive(
     ARCHIVE "${ARCHIVE}"
     SOURCE_BASE "${COCOS2D_VERSION}"
     PATCHES
-        patch/0001-fix-external-api-invoke.patch
         patch/0001-add-cstdint-header.patch
         patch/fix-iconv-cast.patch
         patch/fix-mac-audio-build.patch
         patch/fix-mac-glew.patch
         patch/fix-mac-glfw3.patch
+        patch/fix-unzip.patch
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/cocos2dx-config.cmake.in" DESTINATION "${SOURCE_PATH}")

@@ -1,6 +1,6 @@
 #include "PluginStub.h"
 #include <string>
-#include "ncbind/ncbind.hpp"
+#include "ncbind.hpp"
 
 #define NCB_MODULE_NAME TJS_W("csvParser.dll")
 using namespace std;

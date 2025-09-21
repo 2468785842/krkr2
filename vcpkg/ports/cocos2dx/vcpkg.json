@@ -38,6 +38,14 @@
     "libpng",
     "libwebp",
     {
+      "name": "libvorbis",
+      "platform": "android"
+    },
+    {
+      "name": "libogg",
+      "platform": "android"
+    },
+    {
       "name": "openal-soft",
       "platform": "windows"
     },

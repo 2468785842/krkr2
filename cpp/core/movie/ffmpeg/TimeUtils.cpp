@@ -5,7 +5,6 @@
 #endif
 
 #include <ctime>
-#include "tp_stub.h"
 #include "TickCount.h"
 
 NS_KRMOVIE_BEGIN

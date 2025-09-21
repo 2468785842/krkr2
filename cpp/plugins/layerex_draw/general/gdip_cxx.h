@@ -3,31 +3,12 @@
 // more:
 // https://learn.microsoft.com/en-us/windows/win32/api/gdiplusheaders
 //
-
-#ifndef KRKR2_GDIP_CXX_H
-#define KRKR2_GDIP_CXX_H
+#pragma once
 #include <cassert>
-
-namespace libgdiplus {
-    extern "C" {
-#include <libgdiplus/gdiplus-private.h>
-#include <libgdiplus/gdipenums.h>
-#include <libgdiplus/bitmap-private.h>
-#include <libgdiplus/graphics-private.h>
-#include <libgdiplus/graphics-path-private.h>
-#include <libgdiplus/customlinecap-private.h>
-#include <libgdiplus/matrix-private.h>
-#include <libgdiplus/image-private.h>
-#include <libgdiplus/pen-private.h>
-#include <libgdiplus/customlinecap-private.h>
-#include <libgdiplus/fontfamily-private.h>
-#include <libgdiplus/fontcollection-private.h>
-#include <libgdiplus/font-private.h>
-#include <libgdiplus/adjustablearrowcap-private.h>
-    }
-
+#include "gdip_dt.h"
 #include <win32_dt.h>
 
+namespace libgdiplus {
     class PointFClass : public PointF {
     public:
         PointFClass() = default;
@@ -214,9 +195,16 @@ namespace libgdiplus {
         [[nodiscard]] GpStatus GetLastStatus() const { return this->_gpStatus; }
 
         [[nodiscard]] bool IsInvertible() const {
-            BOOL r = false;
+
+#if TARGET_OS_MAC || TARGET_OS_IPHONE
+            bool r = false;
             this->_gpStatus = GdipIsMatrixInvertible(this->_gpMatrix, &r);
             return r;
+#else
+            BOOL r = FALSE;
+            this->_gpStatus = GdipIsMatrixInvertible(this->_gpMatrix, &r);
+            return r != FALSE;
+#endif
         }
 
         GpStatus Invert() {
@@ -225,9 +213,15 @@ namespace libgdiplus {
         }
 
         [[nodiscard]] bool IsIdentity() const {
-            BOOL r = false;
+#if TARGET_OS_MAC || TARGET_OS_IPHONE
+            bool r = false;
             this->_gpStatus = GdipIsMatrixIdentity(_gpMatrix, &r);
             return r;
+#else
+            BOOL r = FALSE;
+            this->_gpStatus = GdipIsMatrixIdentity(_gpMatrix, &r);
+            return r != FALSE;
+#endif
         }
 
         GpStatus Multiply(MatrixClass *matrix,
@@ -568,4 +562,3 @@ namespace libgdiplus {
                                            { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e,
                                              0xf3, 0x2e } };
 } // namespace libgdiplus
-#endif // KRKR2_GDIP_CXX_H

@@ -43,7 +43,7 @@ void TVPConsoleWindow::visit(Renderer *renderer, const Mat4 &parentTransform,
                 cocos2d::Size dim(getContentSize());
                 dim.height = 0;
                 label = cocos2d::Label::createWithTTF(
-                    "", "DroidSansFallback.ttf", _fontSize, dim);
+                    "", "NotoSansCJK-Regular.ttc", _fontSize, dim);
                 label->setAnchorPoint(Vec2::ZERO);
                 addChild(label);
             } else {

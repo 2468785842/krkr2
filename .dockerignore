@@ -1,10 +1,18 @@
 dockers/
-doc/
-out/
-.github/
 ui/cocos-studio/out_ui/
+doc/
 tests/
+tools/
 
-README.md
+out/
+
+# for ide
+.idea/
+.vscode/
+.vs/
+.gradle/
+.act/
+
+README_*.md
 .actrc
 .gitignore

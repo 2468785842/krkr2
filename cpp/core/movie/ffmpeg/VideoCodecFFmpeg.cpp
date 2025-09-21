@@ -1,5 +1,7 @@
 #include "VideoCodecFFmpeg.h"
 
+#include "ThreadIntf.h"
+
 #ifndef TARGET_POSIX
 #define RINT(x) ((x) >= 0 ? ((int)((x) + 0.5)) : ((int)((x) - 0.5)))
 #else
@@ -35,7 +37,6 @@ extern "C" {
 
 #include "Clock.h"
 #include "CodecUtils.h"
-#include "tp_stub.h"
 #include <cstdlib>
 #include <algorithm>
 

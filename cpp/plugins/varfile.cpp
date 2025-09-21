@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "ncbind/ncbind.hpp"
+#include "ncbind.hpp"
 #include <map>
 
 #define NCB_MODULE_NAME TJS_W("varfile.dll")

@@ -15,7 +15,7 @@ typedef unsigned long ULONG_PTR;
 #endif
 
 #include "win32_dt.h"
-#include "ncbind/ncbind.hpp"
+#include "ncbind.hpp"
 #include "DetectCPU.h"
 #include "GraphicsLoaderIntf.h"
 #include "EventIntf.h"

@@ -4,6 +4,7 @@
 #include "DebugIntf.h"
 #include "SysInitIntf.h"
 #include "BinaryStream.h"
+#include "krffmpeg.h"
 
 extern "C" {
 #ifndef __STDC_CONSTANT_MACROS
@@ -95,8 +96,6 @@ static int64_t AVSeekFunc(void *opaque, int64_t offset, int whence) {
             return stream->Seek(offset, whence & 0xFF);
     }
 }
-
-void TVPInitLibAVCodec();
 
 tTVPWaveDecoder *FFWaveDecoderCreator::Create(const ttstr &storagename,
                                               const ttstr &extension) {

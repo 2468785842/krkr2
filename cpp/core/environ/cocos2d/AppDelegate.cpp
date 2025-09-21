@@ -1,19 +1,18 @@
+#include <spdlog/spdlog.h>
 #include "AppDelegate.h"
 
 #include "MainScene.h"
-#include "environ/Application.h"
-#include "environ/Platform.h"
-#include "environ/ui/MessageBox.h"
-#include "environ/ui/GlobalPreferenceForm.h"
-#include "environ/ui/MainFileSelectorForm.h"
-#include "environ/ui/extension/UIExtension.h"
-#include "environ/ConfigManager/LocaleConfigManager.h"
-#include "environ/ConfigManager/GlobalConfigManager.h"
+#include "Application.h"
+#include "Platform.h"
+#include "ui/GlobalPreferenceForm.h"
+#include "ui/MainFileSelectorForm.h"
+#include "ui/extension/UIExtension.h"
+#include "ConfigManager/LocaleConfigManager.h"
 
-extern "C" void SDL_SetMainReady();
+static cocos2d::Size designSize(960, 640);
 extern std::thread::id TVPMainThreadID;
 
-static cocos2d::Size designSize(960, 640); // 960, 640
+extern "C" void SDL_SetMainReady();
 
 bool TVPCheckStartupArg();
 
@@ -32,7 +31,7 @@ void TVPAppDelegate::applicationDidEnterBackground() {
 bool TVPAppDelegate::applicationDidFinishLaunching() {
     SDL_SetMainReady();
     TVPMainThreadID = std::this_thread::get_id();
-    cocos2d::log("applicationDidFinishLaunching");
+    spdlog::debug("App Finish Launching");
     // initialize director
     auto director = cocos2d::Director::getInstance();
     auto glview = director->getOpenGLView();
@@ -50,26 +49,8 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
 #endif
     }
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) ||                               \
-    (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX) ||                               \
-    (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
-    //    initWindow(glview);
-    // 2. 获取设备实际屏幕尺寸
-    const cocos2d::Size screenSize = glview->getFrameSize();
-
-    // 3. 设置设计分辨率，选择合适的适配策略
-    glview->setDesignResolutionSize(designSize.width, designSize.height,
-                                    ResolutionPolicy::SHOW_ALL);
-
-    // 4. 根据设备屏幕比例调整内容缩放
-    const float scaleX = screenSize.width / designSize.width;
-    const float scaleY = screenSize.height / designSize.height;
-    const float scale = std::max(scaleX, scaleY);
-
-    // 设置导演类的内容缩放
-    director->setContentScaleFactor(scale);
-    glview->setFrameSize(screenSize.width, screenSize.height);
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID ||                              \
+     CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     // Set the design resolution
     cocos2d::Size screenSize = glview->getFrameSize();
     if(screenSize.width < screenSize.height) {
@@ -80,7 +61,8 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     glview->setDesignResolutionSize(screenSize.width, screenSize.height,
                                     ResolutionPolicy::EXACT_FIT);
 #else
-    CCLOG("This Plafrom don not support");
+    glview->setDesignResolutionSize(designSize.width, designSize.height,
+                                    ResolutionPolicy::FIXED_WIDTH);
 #endif
 
     std::vector<std::string> searchPath;

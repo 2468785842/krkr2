@@ -124,9 +124,11 @@ target_include_directories(${PROJECT_NAME}
 find_package(Boost COMPONENTS locale REQUIRED NO_MODULE)
 find_package(fmt CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
+find_package(oniguruma CONFIG REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     Boost::locale
     fmt::fmt
     spdlog::spdlog
+    oniguruma::onig
 )

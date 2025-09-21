@@ -8,7 +8,7 @@
 #include <cassert>
 
 extern "C" {
-#include "libavutil/channel_layout.h"
+#include <libavutil/channel_layout.h>
 }
 NS_KRMOVIE_BEGIN
 /* declare the rng seed and initialize it */

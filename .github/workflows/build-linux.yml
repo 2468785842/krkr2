@@ -85,11 +85,11 @@ jobs:
 
       - name: Build Linux
         run: |
-          cmake --preset="Linux Debug Config" -D DISABLE_TEST=ON
-          cmake --build --preset="Linux Debug Build"
+          cmake --preset="Linux Release Config" -DENABLE_TESTS=OFF -DBUILD_TOOLS=OFF
+          cmake --build --preset="Linux Release Build"
           
-          cp $(find out/linux/debug/ -name libfmod.so) out/linux/debug/bin/krkr2
-          cp $(find out/linux/debug/ -name libfmodL.so) out/linux/debug/bin/krkr2
+          cp $(find out/linux/release/ -name libfmod.so) out/linux/release/bin/krkr2
+          cp $(find out/linux/release/ -name libfmodL.so) out/linux/release/bin/krkr2
 
       - name: Upload artifacts
         if: ${{ !env.ACT && success() }}
@@ -97,4 +97,4 @@ jobs:
         with:
           name: linux-binaries
           path: |
-            out/linux/debug/bin/krkr2/**
+            out/linux/release/bin/krkr2/**

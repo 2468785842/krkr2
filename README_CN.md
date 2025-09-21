@@ -65,7 +65,6 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - `vcpkg@latest`
   - [ninja@latest](https://github.com/ninja-build/ninja/releases)
   - [cmake@3.31.1+](https://cmake.org/download/)
-  - [ninja@latest](https://github.com/ninja-build/ninja/releases)
   - `bison@3.8.2+`
   - `python3`
   - `NASM@latest`
@@ -94,9 +93,8 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 ### 编译步骤
 
 - **Android**:
-  - 在 Windows 上运行: `./gradlew.bat assemble`
-    - 如果遇到`glib`无法安装查看[FAQ#安装glib失败](./doc/FAQ.md#安装glib失败)
-  - 在 Linux 上运行: `./gradlew assemble`
+  - 运行: `cd platforms/android && ./gradlew assemble`
+> 如果遇到`glib`无法安装查看[FAQ#安装glib失败](./doc/FAQ.md#安装glib失败)
   
 - **Windows**:
   - 运行: `./scripts/build-windows.bat`
@@ -112,8 +110,8 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   ```
   
 - **使用Docker容器**:
-  - Android: `docker build -f dockers/android.Dockerfile -t android-builder .`
-  - Linux: `docker build -f dockers/linux.Dockerfile -t linux-builder .`
+  - Build Android: `docker build -f dockers/android.Dockerfile -t android-builder .`
+  - Build Linux: `docker build -f dockers/linux.Dockerfile -t linux-builder .`
 
 ## 可执行文件位置
 
@@ -131,17 +129,17 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 - `clang-format@20`
 - **Linux**:
     ```bash
-    clang-format -i --verbose $(find ./cpp ./linux ./windows ./android/cpp ./apple ./tests -regex ".+\.\(cpp\|cc\|h\|hpp\|inc\)")
+    clang-format -i --verbose $(find ./cpp ./platforms ./tests ./tools -regex ".+\.\(cpp\|cc\|h\|hpp\|inc\)")
     ```
 
 - **MacOS**:
     ```bash
-    clang-format -i --verbose $(find ./cpp ./linux ./windows ./android/cpp ./apple ./tests -name "*.cpp" -o -name "*.cc" -o -name "*.h" -o -name "*.hpp" -o -name "*.inc")
+    clang-format -i --verbose $(find ./cpp ./platforms ./tests ./tools -name "*.cpp" -o -name "*.cc" -o -name "*.h" -o -name "*.hpp" -o -name "*.inc")
     ```
 
 - **Windows**:
     ```powershell
-    Get-ChildItem -Path ./cpp, ./linux, ./windows, ./android/cpp, ./apple, ./tests -Recurse -File | 
+    Get-ChildItem -Path ./cpp, ./platforms, ./tests, ./tools -Recurse -File | 
     Where-Object { $_.Name -match '\.(cpp|cc|h|hpp|inc)$' } | 
     ForEach-Object { clang-format -i --verbose $_.FullName }
     ```

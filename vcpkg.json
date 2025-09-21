@@ -4,6 +4,10 @@
   "version-string": "1.5.0",
   "dependencies": [
     "7zip",
+    {
+      "name": "argparse",
+      "platform": "linux | windows | osx"
+    },
     "boost-iostreams",
     {
       "name": "boost-locale",
@@ -13,9 +17,14 @@
     "boost-spirit",
     {
       "name": "breakpad",
-      "default-features": false
+      "default-features": false,
+      "platform": "android"
     },
-    "catch2",
+    {
+      "name": "catch2",
+      "default-features": false,
+      "platform": "!android & !ios"
+    },
     "cocos2dx",
     {
       "name": "dirent",
@@ -23,24 +32,27 @@
     },
     "ffmpeg",
     "fmt",
-    "jxrlib",
     {
       "name": "glfw3",
       "platform": "linux | windows | osx"
     },
+    "jxrlib",
     "libarchive",
-    "libbpg",
     {
       "name": "libgdiplus",
       "platform": "!windows"
     },
     "libjpeg-turbo",
-    "libogg",
+    {
+      "name": "libogg",
+      "platform": "android"
+    },
     {
       "name": "libpng",
       "platform": "!linux"
     },
     "libvorbis",
+    "libwebp",
     "lz4",
     "oniguruma",
     "openal-soft",
@@ -69,7 +81,8 @@
     {
       "name": "vcpkg-cmake",
       "host": true
-    }
+    },
+    "zstd"
   ],
   "overrides": [
     {

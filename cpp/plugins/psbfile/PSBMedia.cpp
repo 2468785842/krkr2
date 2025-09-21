@@ -2,8 +2,6 @@
 // Created by LiDon on 2025/9/11.
 //
 
-#pragma once
-
 #include <spdlog/spdlog.h>
 
 #include "PSBMedia.h"

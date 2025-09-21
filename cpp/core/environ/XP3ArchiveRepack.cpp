@@ -1,7 +1,10 @@
 #include "XP3ArchiveRepack.h"
+#include <map>
 #include <functional>
 #include <7zip/Archive/7z/7zOut.h>
 #include <7zip/Common/StreamObjects.h>
+#include "tjsDictionary.h"
+
 extern "C" {
 #include <7zCrc.h>
 }
@@ -11,14 +14,12 @@ extern "C" {
 #include <cassert>
 #include <thread>
 #include <fcntl.h>
-#include "win32io.h"
 #include "GraphicsLoaderIntf.h"
 #include <unordered_map>
 #include "LayerIntf.h"
 #include "MsgIntf.h"
 #include "DetectCPU.h"
 #include <set>
-#include "ncbind/ncbind.hpp"
 
 #ifdef _WIN32
 #include <io.h>
@@ -514,7 +515,7 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
 
         // filter image files <idx, mask_img_idx>, img_mask = -1 means
         // no mask available or normal file
-        std::map<tjs_uint, tjs_uint> imglist;
+        std::map<tjs_uint, tjs_uint> imglist{};
         std::vector<tjs_uint> filelist; // normal files
         {
             std::unordered_multimap<ttstr, const tTVPXP3Archive::tArchiveItem *,
@@ -690,9 +691,11 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
             }
             delete data.bmpForMask;
             data.bmpForMask = nullptr;
-            ncbDictionaryAccessor meta;
-            for(const auto &it : data.metainfo) {
-                meta.SetValue(it.first.c_str(), it.second);
+            std::unique_ptr<iTJSDispatch2> meta{ TJSCreateDictionaryObject() };
+            for(const auto &[k, v] : data.metainfo) {
+                tTJSVariant var{ v };
+                meta->PropSet(TJS_MEMBERENSURE, k.c_str(), nullptr, &var,
+                              meta.get());
             }
             tTVPMemoryStream memstr;
             auto *bmp =
@@ -701,11 +704,10 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
 
             if(OptionUsingETC2) {
                 TVPSavePVRv3(nullptr, &memstr, bmp, TJS_W("ETC2_RGBA"),
-                             meta.GetDispatch());
+                             meta.get());
             } else {
                 // convert to tlg5 for better performance
-                TVPSaveAsTLG(nullptr, &memstr, bmp, TJS_W("tlg5"),
-                             meta.GetDispatch());
+                TVPSaveAsTLG(nullptr, &memstr, bmp, TJS_W("tlg5"), meta.get());
             }
             delete bmp;
             memstr.SetPosition(0);
@@ -781,22 +783,6 @@ void XP3ArchiveRepackAsyncImpl::DoConv() {
                     if(data.fmt != gpfRGB || data.fmt != gpfRGBA) {
                         isImage = false;
                     }
-                }
-                if(isImage) {
-                    tTVPBaseBitmap *bmp = new tTVPBaseBitmap(
-                        data.bmp->GetWidth(), data.bmp->GetHeight());
-                    bmp->AssignBitmap(data.bmp);
-                    s.reset(new tTVPMemoryStream);
-                    ncbDictionaryAccessor meta;
-                    for(const auto &it : data.metainfo) {
-                        meta.SetValue(it.first.c_str(), it.second);
-                    }
-                    TVPSavePVRv3(nullptr, s.get(), bmp,
-                                 data.fmt == gpfRGB ? TJS_W("ETC2_RGB")
-                                                    : TJS_W("ETC2_RGBA"),
-                                 meta.GetDispatch());
-                    delete bmp;
-                    s->SetPosition(0);
                 }
             }
             HRESULT ret = AddTo7zArchive(s.get(), item.Name);

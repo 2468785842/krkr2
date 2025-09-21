@@ -1,6 +1,6 @@
 #include "CustomFileUtils.h"
-#include "base/win32/StorageImpl.h"
-#include "environ/ConfigManager/LocaleConfigManager.h"
+#include "StorageImpl.h"
+#include "ConfigManager/LocaleConfigManager.h"
 
 static bool TVPCopyFolder(const std::string &from, const std::string &to) {
     if(!TVPCheckExistentLocalFolder(to) && !TVPCreateFolders(to)) {

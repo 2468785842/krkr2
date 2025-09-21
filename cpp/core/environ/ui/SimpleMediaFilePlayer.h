@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseForm.h"
 #include "tjsCommHead.h"
-#include "movie/ffmpeg/VideoPlayer.h"
+#include "ffmpeg/VideoPlayer.h"
 
 namespace cocos2d {
     class Sprite;

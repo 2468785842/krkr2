@@ -3,18 +3,11 @@
 // more:
 // https://learn.microsoft.com/en-us/windows/win32/api/gdipluspen
 //
-
-#ifndef KRKR2_GDIP_CXX_PEN_H
-#define KRKR2_GDIP_CXX_PEN_H
-namespace libgdiplus {
-
-    extern "C" {
-
-#include <libgdiplus/gdiplus-private.h>
-#include <libgdiplus/pen-private.h>
-    }
+#pragma once
+#include "gdip_dt.h"
 
 #include "gdip_cxx_brush.h"
+namespace libgdiplus {
 
     class Pen {
     public:
@@ -110,5 +103,3 @@ namespace libgdiplus {
         mutable GpStatus _gpStatus{};
     };
 } // namespace libgdiplus
-
-#endif // KRKR2_GDIP_CXX_PEN_H

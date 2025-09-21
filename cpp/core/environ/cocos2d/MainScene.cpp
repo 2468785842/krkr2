@@ -24,13 +24,13 @@
 #include "ui/DebugViewLayerForm.h"
 #include "Application.h"
 #include "ScriptMgnIntf.h"
-#include "win32/TVPWindow.h"
+#include "TVPWindow.h"
 #include "VelocityTracker.h"
 #include "SystemImpl.h"
 #include "RenderManager.h"
 #include "VideoOvlIntf.h"
 #include "Exception.h"
-#include "win32/SystemControl.h"
+#include "SystemControl.h"
 #include "ui/UIButton.h"
 #include "ui/csd/CsdUIFactory.h"
 
@@ -2001,7 +2001,7 @@ void TVPMainScene::doStartup(float dt, std::string path) {
 
     if(pGlobalCfgMgr->GetValue<bool>("showfps", false)) {
         _fpsLabel =
-            cocos2d::Label::createWithTTF("", "DroidSansFallback.ttf", 16);
+            cocos2d::Label::createWithTTF("", "NotoSansCJK-Regular.ttc", 16);
         _fpsLabel->setAnchorPoint(Vec2(0, 1));
         _fpsLabel->setPosition(Vec2(0, GameNode->getContentSize().height));
         _fpsLabel->setColor(Color3B::WHITE);

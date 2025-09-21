@@ -1,59 +1,52 @@
 cmake_minimum_required(VERSION 3.28)
 project(krkr2core)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/common)
+
+add_library(${PROJECT_NAME} INTERFACE)
+
+add_subdirectory(tjs2)
 add_subdirectory(base)
 add_subdirectory(environ)
+add_subdirectory(extension)
+add_subdirectory(plugin)
 add_subdirectory(movie)
-add_subdirectory(msg)
 add_subdirectory(sound)
 add_subdirectory(visual)
-add_subdirectory(tjs2)
 add_subdirectory(utils)
 
-# Create the static library
-add_library(${PROJECT_NAME} STATIC
-    ${BASE_SOURCE_FILES}
-    ${UTILS_SOURCE_FILES}
-    ${ENVIRON_SOURCE_FILES}
-    ${KRKR2CORE_PATH}/extension/Extension.cpp
-    ${MOVIE_SOURCE_FILES}
-    ${MSG_SOURCE_FILES}
-    ${SOUND_SOURCE_FILES}
-    ${VISUAL_SOURCE_FILES}
+target_link_libraries(${PROJECT_NAME} INTERFACE
+        tjs2
+        core_base_module
+        core_environ_module
+        core_extension_module
+        core_plugin_module
+        core_movie_module
+        core_sound_module
+        core_visual_module
+        core_utils_module
 )
 
-# Common include directories
-target_include_directories(${PROJECT_NAME} PUBLIC
-    ${BASE_HEADERS_DIR}
-    ${UTILS_HEADERS_DIR}
-    ${ENVIRON_HEADERS_DIR}
-    ${KRKR2CORE_PATH}/extension
-    ${MOVIE_HEADERS_DIR}
-    ${MSG_HEADERS_DIR}
-    ${SOUND_HEADERS_DIR}
-    ${VISUAL_HEADERS_DIR}
-    ${KRKR2CORE_PATH}/
-    ${KRKR2CORE_PATH}/../plugins
+target_include_directories(${PROJECT_NAME} INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC
+target_compile_definitions(${PROJECT_NAME} INTERFACE
     -DTJS_TEXT_OUT_CRLF
     -D__STDC_CONSTANT_MACROS
     -DUSE_UNICODE_FSTRING
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 minizip)
-
 if(NOT APPLE)
     # 启用 OpenMP 支持
     find_package(OpenMP REQUIRED)
 
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
-    target_compile_options(${PROJECT_NAME} PRIVATE ${OpenMP_CXX_FLAGS})
+    target_link_libraries(${PROJECT_NAME} INTERFACE OpenMP::OpenMP_CXX)
+    target_compile_options(${PROJECT_NAME} INTERFACE ${OpenMP_CXX_FLAGS})
 endif ()
 
 if(ANDROID)
-    target_link_libraries(${PROJECT_NAME} PUBLIC
+    target_link_libraries(${PROJECT_NAME} INTERFACE
         log
         android
         EGL
@@ -63,97 +56,12 @@ if(ANDROID)
     )
 endif()
 
-# oboe
-if(ANDROID)
-    find_package (oboe CONFIG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC oboe::oboe)
-endif()
-
-find_package(unofficial-breakpad CONFIG REQUIRED)
-
-# JXR library
-find_package(JXR REQUIRED)
-target_compile_definitions(${PROJECT_NAME} PUBLIC -D__ANSI__)
-target_include_directories(${PROJECT_NAME} PUBLIC ${JXR_INCLUDE_DIRS})
-
-find_package(JPEG REQUIRED)
-find_package(libjpeg-turbo CONFIG REQUIRED)
-find_package(oniguruma CONFIG REQUIRED)
-find_package(libbpg CONFIG REQUIRED)
-find_package(unrar CONFIG REQUIRED)
-find_package(7zip CONFIG REQUIRED)
-find_package(Opus CONFIG REQUIRED)
-find_package(Ogg CONFIG REQUIRED)
-find_package(Vorbis CONFIG REQUIRED)
-find_package(OpusFile CONFIG REQUIRED)
-find_package(lz4 CONFIG REQUIRED)
-
-find_package(SDL2 CONFIG REQUIRED)
-
-find_package(LibArchive REQUIRED)
-
-find_package(OpenAL CONFIG REQUIRED)
-
-find_package(spdlog CONFIG REQUIRED)
-
-set(OpenCV_ROOT "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/opencv4")
-find_package(OpenCV REQUIRED)
-
-find_package(FFMPEG COMPONENTS
-    avutil
-    avfilter
-    avcodec
-    swscale
-    swresample REQUIRED
-)
-target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
-
 # cocos2dx
 find_package(cocos2dx CONFIG REQUIRED)
 
-find_package(uchardet CONFIG REQUIRED)
-
-# Link libraries
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    ${FFMPEG_LIBRARIES}
-
-    # audio
-    Ogg::ogg
-    Opus::opus
-    Vorbis::vorbis
-    Vorbis::vorbisfile
-    Vorbis::vorbisenc
-    OpusFile::opusfile
-    OpenAL::OpenAL
-
-    # image
-    JPEG::JPEG
-    $<IF:$<TARGET_EXISTS:libjpeg-turbo::turbojpeg>,libjpeg-turbo::turbojpeg,libjpeg-turbo::turbojpeg-static>
-    opencv_imgproc
-    opencv_core
-
-    # archive
-    7zip::7zip
-    unrar::unrar
-    lz4::lz4
-    LibArchive::LibArchive
-    libbpg::libbpg
-    ${JXR_LIBRARIES}
-
-    # others
-    oniguruma::onig
-    unofficial::breakpad::libbreakpad_client
-
-    # framework
-    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
-
+## Link libraries
+target_link_libraries(${PROJECT_NAME} INTERFACE
     # cocos2d
     cocos2dx::cocos2d
     $<$<BOOL:${ANDROID}>:$<LINK_LIBRARY:WHOLE_ARCHIVE,cocos2dx::cpp_android_spec>>
-
-    # spdlog
-    spdlog::spdlog
-
-    uchardet::libuchardet
 )

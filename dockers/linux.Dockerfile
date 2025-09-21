@@ -3,10 +3,11 @@ FROM ubuntu:22.04 AS build-tools
 ENV DEBIAN_FRONTEND=noninteractive
 
 # ---------- 系统工具 ----------
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        ca-certificates gnupg wget curl git zip unzip tar\
+RUN apt update && apt install -y --no-install-recommends \
+        ca-certificates \
+        wget curl git zip unzip tar \
         # 编译链 \
-        build-essential gcc g++ ninja-build nasm yasm python3 python3-jinja2 \
+        build-essential gcc g++ ninja-build nasm yasm python3 python3-jinja2 bison \
         autoconf automake libtool pkg-config libltdl-dev \
         # X11 / OpenGL / 其它三方库头文件 \
         libxft-dev libxext-dev libxxf86vm-dev libx11-dev libxmu-dev \
@@ -15,73 +16,52 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libssl-dev libgtk-3-dev binutils \
         # ccache \
         ccache \
-        # Mono \
-        # mono-complete \
+    && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
-
-# ---------- Mono 官方源 ----------
-# 已经在 apt install mono-complete 里包含，若需最新版可放开下面几行
-# RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF \
-#  && echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" \
-#     > /etc/apt/sources.list.d/mono-official-stable.list \
-#  && apt-get update && apt-get install -y mono-complete
-
-# ---------- .NET 8 ----------
-# RUN wget https://dot.net/v1/dotnet-install.sh -O /tmp/dotnet-install.sh \
-#  && chmod +x /tmp/dotnet-install.sh \
-#  && /tmp/dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet \
-#  && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
-#  && rm /tmp/dotnet-install.sh
-# ENV PATH="/usr/share/dotnet:${PATH}"
-
-
-# --------- bison3.8.2 ----------
-RUN wget -q https://ftp.gnu.org/gnu/bison/bison-3.8.2.tar.xz && \
-    tar -xf bison-3.8.2.tar.xz && cd bison-3.8.2 && \
-    ./configure --prefix=/usr/local && make -j$(nproc) && make install && \
-    cd .. && rm -rf bison-3.8.2*
 
 # ---------- CMake 3.31 ----------
 # 官方预编译 tarball
 ARG CMAKE_VER=3.31.6
-RUN wget -q https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz \
- && tar -xf cmake-${CMAKE_VER}-linux-x86_64.tar.gz -C /opt \
- && ln -sf /opt/cmake-${CMAKE_VER}-linux-x86_64/bin/* /usr/local/bin \
- && rm cmake-${CMAKE_VER}-linux-x86_64.tar.gz
+RUN set -eux; \
+  mkdir -p /opt; \
+  wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz; \
+  ls -lh cmake-${CMAKE_VER}-linux-x86_64.tar.gz; \
+  tar -xf cmake-${CMAKE_VER}-linux-x86_64.tar.gz -C /opt; \
+  ln -sf /opt/cmake-${CMAKE_VER}-linux-x86_64/bin/* /usr/local/bin; \
+  rm cmake-${CMAKE_VER}-linux-x86_64.tar.gz
 
 # ---------- vcpkg ----------
 ENV VCPKG_ROOT=/opt/vcpkg
-# ENV VCPKG_BINARY_SOURCES="clear;nuget,https://nuget.pkg.github.com/<OWNER>/index.json,readwrite"
 ENV VCPKG_INSTALL_OPTIONS="--debug"
 RUN git clone https://github.com/microsoft/vcpkg.git ${VCPKG_ROOT} \
- && ${VCPKG_ROOT}/bootstrap-vcpkg.sh
+    && ${VCPKG_ROOT}/bootstrap-vcpkg.sh
 
-# ---------- NuGet 源（可选） ----------
-# 如果要用 GitHub Packages 缓存，把 <OWNER> 与 <TOKEN> 换成真实值
-# ARG GH_OWNER
-# ARG GH_TOKEN
-# RUN mono `${VCPKG_ROOT}/vcpkg fetch nuget | tail -n1` \
-#       sources add -Source "https://nuget.pkg.github.com/${GH_OWNER}/index.json" \
-#       -StorePasswordInClearText -Name GitHubPackages \
-#       -UserName "${GH_OWNER}" -Password "${GH_TOKEN}" \
-#  && mono `${VCPKG_ROOT}/vcpkg fetch nuget | tail -n1` \
-#       setapikey "${GH_TOKEN}" -Source "https://nuget.pkg.github.com/${GH_OWNER}/index.json"
-
-# ---------- 源码 ----------
+FROM build-tools AS generate
 WORKDIR /workspace
-COPY .. .
+# ---------- 源码 ----------
+COPY ../cmake ./cmake
+COPY ../cpp ./cpp
+COPY ../platforms/linux ./platforms/linux
+COPY ../ui ./ui
+COPY ../vcpkg ./vcpkg
+COPY ../CMakeLists.txt ./CMakeLists.txt
+COPY ../CMakePresets.json ./CMakePresets.json
+COPY ../vcpkg.json ./vcpkg.json
+COPY ../vcpkg-configuration.json ./vcpkg-configuration.json
 
 # ---------- 构建 ----------
-FROM build-tools AS generate 
-RUN cmake --preset="Linux Debug Config" -DDISABLE_TEST=ON
-FROM build AS build
-RUN cmake --build --preset="Linux Debug Build" 
-
+RUN --mount=type=cache,target=/opt/vcpkg/buildtrees \
+    --mount=type=cache,target=/opt/vcpkg/downloads \
+    --mount=type=cache,target=/opt/vcpkg/installed \
+    --mount=type=cache,target=/opt/vcpkg/packages \
+    --mount=type=cache,target=/workspace/out \
+    cmake --preset="Linux Debug Config" -DENABLE_TESTS=OFF -DBUILD_TOOLS=OFF \
+    && cmake --build --preset="Linux Debug Build"
 # ---------- 收集产物 ----------
-RUN mkdir -p /opt/krkr2 \
- && cp -r out/linux/debug/bin/krkr2 /opt/krkr2/ \
- && cp $(find out/linux/debug -name 'libfmod*.so') /opt/krkr2/ 
-
+RUN --mount=type=cache,target=/workspace/out \
+    cp -r ./out/linux/debug/bin/krkr2/ /opt/ \
+ && cp $(find ./out/linux/debug/ -name 'libfmod*.so') /opt/krkr2/ \
+ && mv /opt/krkr2/libfmod.so /opt/krkr2/libfmod.so.6
 # ---------- 运行入口 ----------
 WORKDIR /opt/krkr2
 CMD ["bash"]
@@ -89,4 +69,3 @@ CMD ["bash"]
 # 添加元数据
 LABEL description="Linux build environment for Krkr2 project" \
       version="1.0"
-#      maintainer="your-email@example.com" \

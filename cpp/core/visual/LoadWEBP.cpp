@@ -1,10 +1,10 @@
+#include <webp/decode.h>
 #include "tjsCommHead.h"
 #include "GraphicsLoaderIntf.h"
 #include "MsgIntf.h"
 #include "tjsDictionary.h"
 #include <memory>
 
-#include "decode.h"
 void TVPLoadWEBP(void *formatdata, void *callbackdata,
                  tTVPGraphicSizeCallback sizecallback,
                  tTVPGraphicScanLineCallback scanlinecallback,

@@ -22,7 +22,6 @@
 #include "MsgIntf.h"
 #include "StorageIntf.h"
 #include "WaveImpl.h"
-#include "PluginImpl.h"
 #include "SysInitIntf.h"
 #include "ThreadIntf.h"
 #include "Random.h"

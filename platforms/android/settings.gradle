@@ -1,0 +1,24 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'krkr2'
+
+include ':sdl'
+project(':sdl').projectDir = file('libsdl')
+include ':cocos2dx'
+project(':cocos2dx').projectDir = file('libcocos2dx')
+include ':app'
+project(':app').projectDir = file('app')
