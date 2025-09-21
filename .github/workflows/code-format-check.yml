@@ -33,6 +33,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DoozyX/clang-format-lint-action@v0.20
         with:
-          source: 'cpp linux windows android/cpp'
+          source: 'cpp platforms'
           extensions: 'cpp,cc,h,hpp,inc'
           clangFormatVersion: 20
