@@ -1,0 +1,52 @@
+diff --git a/cocos/base/ZipUtils.cpp b/cocos/base/ZipUtils.cpp
+index 7ee1d64..8b24a11 100644
+--- a/cocos/base/ZipUtils.cpp
++++ b/cocos/base/ZipUtils.cpp
+@@ -29,7 +29,7 @@
+ #ifdef MINIZIP_FROM_SYSTEM
+ #include <minizip/unzip.h>
+ #else // from our embedded sources
+-#include "unzip.h"
++#include "unzip/unzip.h"
+ #endif
+ 
+ #include <zlib.h>
+diff --git a/cocos/platform/CCFileUtils.cpp b/cocos/platform/CCFileUtils.cpp
+index a8508d6..eef9e50 100644
+--- a/cocos/platform/CCFileUtils.cpp
++++ b/cocos/platform/CCFileUtils.cpp
+@@ -38,7 +38,7 @@ THE SOFTWARE.
+ #ifdef MINIZIP_FROM_SYSTEM
+ #include <minizip/unzip.h>
+ #else // from our embedded sources
+-#include "unzip.h"
++#include "unzip/unzip.h"
+ #endif
+ #include <sys/stat.h>
+ 
+diff --git a/extensions/assets-manager/AssetsManager.cpp b/extensions/assets-manager/AssetsManager.cpp
+index 488a043..f0ec6d6 100644
+--- a/extensions/assets-manager/AssetsManager.cpp
++++ b/extensions/assets-manager/AssetsManager.cpp
+@@ -35,7 +35,7 @@
+ #ifdef MINIZIP_FROM_SYSTEM
+ #include <minizip/unzip.h>
+ #else // from our embedded sources
+-#include "unzip.h"
++#include "unzip/unzip.h"
+ #endif
+ 
+ NS_CC_EXT_BEGIN;
+diff --git a/extensions/assets-manager/AssetsManagerEx.cpp b/extensions/assets-manager/AssetsManagerEx.cpp
+index fe4f923..e9bfd0e 100644
+--- a/extensions/assets-manager/AssetsManagerEx.cpp
++++ b/extensions/assets-manager/AssetsManagerEx.cpp
+@@ -32,7 +32,7 @@
+ #ifdef MINIZIP_FROM_SYSTEM
+ #include <minizip/unzip.h>
+ #else // from our embedded sources
+-#include "unzip.h"
++#include "unzip/unzip.h"
+ #endif
+ #include "base/CCAsyncTaskPool.h"
+ 
