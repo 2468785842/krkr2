@@ -4,40 +4,26 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'android/**'
       - 'cmake/**'
       - 'cpp/**'
-      - 'linux/**'
-      - 'windows/**'
+      - 'platforms/**'
       - 'vcpkg/**'
       - 'CMakeLists.txt'
       - 'CMakePresets.json'
       - 'vcpkg.json'
       - 'vcpkg-configuration.json'
-      - 'build.gradle'
-      - 'gradle.properties'
-      - 'settings.gradle'
-      - 'build-linux.sh'
-      - 'build-windows.bat'
       - '.github/workflows/**'
   pull_request:
     branches: [ main ]
     paths:
-      - 'android/**'
       - 'cmake/**'
       - 'cpp/**'
-      - 'linux/**'
-      - 'windows/**'
+      - 'platforms/**'
       - 'vcpkg/**'
       - 'CMakeLists.txt'
       - 'CMakePresets.json'
       - 'vcpkg.json'
       - 'vcpkg-configuration.json'
-      - 'build.gradle'
-      - 'gradle.properties'
-      - 'settings.gradle'
-      - 'build-linux.sh'
-      - 'build-windows.bat'
       - '.github/workflows/**'
 
 jobs:
