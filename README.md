@@ -101,7 +101,7 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
 
 - **Android**:
   ```bash
-  cd platforms/android && ./gradlew assemble
+  ./platforms/android/gradlew -p ./platforms/android assembleDebug
   ```
 
   > If you encounter `glib` installation issues, see [FAQ#安装glib失败](./doc/FAQ.md#安装glib失败)

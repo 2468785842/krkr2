@@ -16,6 +16,8 @@
 #include <string>
 #include <cwchar>
 
+#include "tjsTypes.h"
+
 namespace TJS {
     //---------------------------------------------------------------------------
 
@@ -28,10 +30,6 @@ namespace TJS {
             configuration about Critical Section for multithreading
        support is there in tjsUtils.cpp/h.
     */
-
-    // TODO: autoconf integration
-
-#include "tjsTypes.h"
 
     TJS_EXP_FUNC_DEF(tjs_int, TJS_atoi, (const tjs_char *s));
 

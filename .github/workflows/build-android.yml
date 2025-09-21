@@ -43,7 +43,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y bison python3 nasm
+          sudo apt-get install -y bison python3 nasm openssl
           
           wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
           chmod +x dotnet-install.sh
@@ -124,14 +124,35 @@ jobs:
         with:
           key: ${{ github.job }}-${{ matrix.os }}
 
+      - name: Generate keystore
+        run: |
+          KEYSTORE_PASSWORD=$(openssl rand -base64 16)
+          KEY_ALIAS="ci-key"
+          KEY_PASSWORD=$(openssl rand -base64 16)
+          echo "Generated passwords:"
+          echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+          echo "KEY_ALIAS=$KEY_ALIAS"
+          echo "KEY_PASSWORD=$KEY_PASSWORD"
+          
+          keytool -genkeypair -v \
+          -keystore ./platforms/android/app/sign.keystore \
+          -alias $KEY_ALIAS \
+          -keyalg RSA -keysize 2048 \
+          -validity 10000 \
+          -storepass $KEYSTORE_PASSWORD \
+          -keypass $KEY_PASSWORD \
+          -dname "CN=CI, OU=Dev, O=Company, L=City, ST=State, C=CN"
+          
+          echo "SIGN_STORE_PASS=$KEYSTORE_PASSWORD" >> ./platforms/android/app/sign.properties
+          echo "SIGN_KEY_ALIAS=$KEY_ALIAS" >> ./platforms/android/app/sign.properties
+          echo "SIGN_KEY_PASS=$KEY_PASSWORD" >> ./platforms/android/app/sign.properties
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build Android
         run: |
-          pushd ./platforms/android
-          ./gradlew assemble
-          popd
+          ./platforms/android/gradlew -p ./platforms/android assemble
 
       - name: Upload artifacts
         if: ${{ !env.ACT && success() }}

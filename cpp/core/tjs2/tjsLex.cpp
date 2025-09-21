@@ -10,7 +10,6 @@
 //---------------------------------------------------------------------------
 #include "tjsCommHead.h"
 
-#include <cmath>
 #include "tjsInterCodeGen.h"
 #include "tjs.tab.hpp"
 #include "tjsLex.h"

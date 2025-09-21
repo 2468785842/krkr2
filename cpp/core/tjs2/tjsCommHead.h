@@ -30,28 +30,17 @@
 #define TJS_CRTDBG_MAP_ALLOC
 #endif // _DEBUG
 
-/*
-#ifndef DEBUG_NEW
-#ifdef  _DEBUG
-#define DEBUG_NEW   ::new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#else   // _DEBUG
-#define DEBUG_NEW   new
-#endif  // _DEBUG
-#endif  // DEBUG_NEW
-#define new DEBUG_NEW
-*/
-
 #endif
 
-#include <string.h>
+#include <cstring>
 
 #ifndef __USE_UNIX98
 #define __USE_UNIX98
 #endif
 
-#include <wchar.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cwchar>
+#include <cstdlib>
+#include <cstdio>
 #include <memory>
 
 #include <vector>

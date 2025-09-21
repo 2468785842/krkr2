@@ -16,3 +16,5 @@ out/
 README_*.md
 .actrc
 .gitignore
+
+local.properties

@@ -93,7 +93,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 ### 编译步骤
 
 - **Android**:
-  - 运行: `cd platforms/android && ./gradlew assemble`
+  - 运行: `./platforms/android/gradlew -p ./platforms/android assembleDebug`
 > 如果遇到`glib`无法安装查看[FAQ#安装glib失败](./doc/FAQ.md#安装glib失败)
   
 - **Windows**:
