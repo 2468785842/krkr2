@@ -17,4 +17,4 @@ README_*.md
 .actrc
 .gitignore
 
-local.properties
+/**/local.properties

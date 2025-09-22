@@ -82,7 +82,7 @@ jobs:
           
           ${{ env.ANDROID_SDK_ROOT }}/cmdline-tools/latest/bin/sdkmanager --sdk_root=${{ env.ANDROID_SDK_ROOT }} \
             "platform-tools" \
-            "platforms;android-33" \
+            "platforms;android-34" \
             "build-tools;34.0.0" \
             "cmake;3.31.1" \
             "ndk;${{ env.ANDROID_NDK_VERSION }}"

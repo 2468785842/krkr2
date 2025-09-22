@@ -6,30 +6,28 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates dos2unix \
         wget curl zip unzip tar git python3 bison nasm \
-        openjdk-17-jdk-headless \
+        gcc g++ build-essential pkgconf autoconf automake libtool openjdk-17-jdk-headless \
     && rm -rf /var/lib/apt/lists/*
 
 # ---------- Android SDK/NDK ----------
-ARG ANDROID_SDK_ROOT=/opt/android-sdk
 ARG ANDROID_NDK_VERSION=28.0.13004108
-ENV ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT
+ENV ANDROID_SDK_ROOT=/opt/android-sdk
 ENV ANDROID_NDK=$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION
 ENV ANDROID_HOME=$ANDROID_SDK_ROOT
-ENV PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH"
 
 # 1) 安装命令行工具
 RUN mkdir -p $ANDROID_SDK_ROOT \
- && wget -q https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip \
- && unzip -q ./commandlinetools-linux-10406996_latest.zip \
- && mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest \
- && mv ./cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/ \
- && rm ./commandlinetools-linux-10406996_latest.zip
+    && wget -q https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip \
+    && unzip -q ./commandlinetools-linux-10406996_latest.zip \
+    && mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest \
+    && mv ./cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/ \
+    && rm ./commandlinetools-linux-10406996_latest.zip
 
 # 2) 接受许可证并安装组件
 RUN yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses
-RUN $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install \
+RUN $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
         "platform-tools" \
-        "platforms;android-33" \
+        "platforms;android-34" \
         "build-tools;34.0.0" \
         "cmake;3.31.1" \
         "ndk;$ANDROID_NDK_VERSION"
@@ -59,6 +57,7 @@ RUN --mount=type=cache,target=/opt/vcpkg/buildtrees \
     --mount=type=cache,target=/opt/vcpkg/installed \
     --mount=type=cache,target=/opt/vcpkg/packages \
     --mount=type=cache,target=/workspace/out \
+    --mount=type=cache,target=/root/.gradle \
     dos2unix ./platforms/android/gradlew \
     && chmod +x ./platforms/android/gradlew \
     && ./platforms/android/gradlew -p ./platforms/android assembleDebug
