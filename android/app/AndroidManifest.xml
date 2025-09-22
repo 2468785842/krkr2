@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:versionCode="64"
-    android:versionName="1.4.3">
+    android:versionName="1.4.4">
 
     <!-- OpenGL ES 2.0 -->
     <uses-feature
