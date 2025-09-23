@@ -134,8 +134,8 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
 ## Executable Location
 
 * **Android**:
-  * Debug: `out/android/app/outputs/apk/debug/*.apk`
-  * Release: `out/android/app/outputs/apk/release/*.apk`
+  * Debug: `platforms/android/out/android/app/outputs/apk/debug/*.apk`
+  * Release: `platforms/android/out/android/app/outputs/apk/release/*.apk`
 * **Windows**: `out/windows/debug/bin/krkr2/krkr2.exe`
 * **Linux**: `out/linux/debug/bin/krkr2/krkr2`
 * **MacOS**: `out/macos/debug/bin/krkr2/krkr2.app`

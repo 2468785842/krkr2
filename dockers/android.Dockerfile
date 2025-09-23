@@ -62,9 +62,10 @@ RUN --mount=type=cache,target=/opt/vcpkg/buildtrees \
     && chmod +x ./platforms/android/gradlew \
     && ./platforms/android/gradlew -p ./platforms/android assembleDebug
 RUN --mount=type=cache,target=/workspace/out \
-    cp -r ./out/android/app/outputs/apk/debug/*.apk /opt/
+    mkdir /opt/krkr2 \
+    cp ./platforms/android/out/android/app/outputs/apk/debug/*.apk /opt/krkr2
 
-WORKDIR /opt
+WORKDIR /opt/krkr2
 CMD ["bash"]
 
 # 添加元数据

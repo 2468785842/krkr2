@@ -116,8 +116,8 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 ## 可执行文件位置
 
 - **Android**:
-  - Debug 版本: `out/android/app/outputs/apk/debug/*.apk`
-  - Release 版本: `out/android/app/outputs/apk/release/*.apk`
+  - Debug 版本: `platforms/android/out/android/app/outputs/apk/debug/*.apk`
+  - Release 版本: `platforms/android/out/android/app/outputs/apk/release/*.apk`
 - **Windows**:
   - 可执行文件: `out/windows/debug/bin/krkr2/krkr2.exe`
 - **Linux**:
