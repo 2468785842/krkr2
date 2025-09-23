@@ -12,4 +12,4 @@ set(EXTENSION_HEADERS_DIR
 
 add_library(${PROJECT_NAME} STATIC ${EXTENSION_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${EXTENSION_HEADERS_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE tjs2)
+target_link_libraries(${PROJECT_NAME} PUBLIC tjs2)

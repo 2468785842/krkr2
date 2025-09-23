@@ -47,7 +47,7 @@ set(MOVIE_HEADERS_DIR
 
 add_library(${PROJECT_NAME} STATIC ${MOVIE_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${MOVIE_HEADERS_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE tjs2 core_base_module core_sound_module core_utils_module core_environ_module core_visual_module)
+target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 PRIVATE core_base_module core_sound_module core_utils_module core_environ_module core_visual_module)
 
 find_package(FFMPEG COMPONENTS
         avutil

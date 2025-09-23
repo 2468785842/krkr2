@@ -6,24 +6,27 @@ include(./cmake/CocosExternalConfig.cmake)
 add_library(external INTERFACE)
 
 if (BUILD_EXT_BOX2D)
-    add_subdirectory(Box2D)
-    target_link_libraries(external INTERFACE ext_box2d)
+    find_package(box2d CONFIG REQUIRED)
+    target_link_libraries(external INTERFACE box2d::box2d)
 endif (BUILD_EXT_BOX2D)
 if (BUILD_EXT_CHIPMUNK)
-    add_subdirectory(chipmunk)
-    target_link_libraries(external INTERFACE ext_chipmunk)
+    find_package(unofficial-chipmunk CONFIG REQUIRED)
+
+    target_link_libraries(external INTERFACE
+            unofficial::chipmunk::chipmunk
+    )
 endif (BUILD_EXT_CHIPMUNK)
 if (BUILD_EXT_FREETYPE2)
     find_package(Freetype REQUIRED)
     target_link_libraries(external INTERFACE Freetype::Freetype)
 endif (BUILD_EXT_FREETYPE2)
 if (BUILD_EXT_RECAST)
-    add_subdirectory(recast)
+    add_subdirectory(recast) # source code
     target_link_libraries(external INTERFACE ext_recast)
 endif (BUILD_EXT_RECAST)
 if (BUILD_EXT_BULLET)
-    add_subdirectory(bullet)
-    target_link_libraries(external INTERFACE ext_bullet)
+    find_package(Bullet CONFIG REQUIRED)
+    target_link_libraries(external INTERFACE BulletDynamics BulletCollision LinearMath)
 endif (BUILD_EXT_BULLET)
 if (BUILD_EXT_JPEG)
     find_package(JPEG REQUIRED)
@@ -41,47 +44,48 @@ if (BUILD_EXT_TIFF)
     target_link_libraries(external INTERFACE TIFF::TIFF)
 endif (BUILD_EXT_TIFF)
 if (BUILD_EXT_UV)
-    add_subdirectory(uv)
-    target_link_libraries(external INTERFACE ext_uv)
+    find_package(libuv CONFIG REQUIRED)
+    target_link_libraries(external INTERFACE $<IF:$<TARGET_EXISTS:libuv::uv_a>,libuv::uv_a,libuv::uv>)
 endif (BUILD_EXT_UV)
 if (BUILD_EXT_WEBP)
     find_package(WebP CONFIG REQUIRED)
     target_link_libraries(external INTERFACE WebP::webp WebP::webpdecoder WebP::webpdemux)
 endif (BUILD_EXT_WEBP)
 if (BUILD_EXT_WEBSOCKETS)
-    add_subdirectory(websockets)
-    target_link_libraries(external INTERFACE ext_websockets)
+    find_package(libwebsockets CONFIG REQUIRED)
+    target_include_directories(external INTERFACE ${LIBWEBSOCKETS_INCLUDE_DIRS})
+    target_link_libraries(external INTERFACE websockets)
 endif (BUILD_EXT_WEBSOCKETS)
 if (BUILD_EXT_TINYXML2)
-    add_subdirectory(tinyxml2)
+    add_subdirectory(tinyxml2) # source code
     target_link_libraries(external INTERFACE ext_tinyxml2)
 endif (BUILD_EXT_TINYXML2)
 if (BUILD_EXT_XXHASH)
-    add_subdirectory(xxhash)
+    add_subdirectory(xxhash) # source code
     target_link_libraries(external INTERFACE ext_xxhash)
 endif (BUILD_EXT_XXHASH)
 if (BUILD_EXT_XXTEA)
-    add_subdirectory(xxtea)
+    add_subdirectory(xxtea) # source code
     target_link_libraries(external INTERFACE ext_xxtea)
 endif (BUILD_EXT_XXTEA)
 if (BUILD_EXT_CLIPPER)
-    add_subdirectory(clipper)
+    add_subdirectory(clipper) # source code
     target_link_libraries(external INTERFACE ext_clipper)
 endif (BUILD_EXT_CLIPPER)
 if (BUILD_EXT_EDTAA3FUNC)
-    add_subdirectory(edtaa3func)
+    add_subdirectory(edtaa3func) # source code
     target_link_libraries(external INTERFACE ext_edtaa3func)
 endif (BUILD_EXT_EDTAA3FUNC)
 if (BUILD_EXT_CONVERTUTF)
-    add_subdirectory(ConvertUTF)
+    add_subdirectory(ConvertUTF) # source code
     target_link_libraries(external INTERFACE ext_convertUTF)
 endif (BUILD_EXT_CONVERTUTF)
 if (BUILD_EXT_POLY2TRI)
-    add_subdirectory(poly2tri)
+    add_subdirectory(poly2tri) # source code
     target_link_libraries(external INTERFACE ext_poly2tri)
 endif (BUILD_EXT_POLY2TRI)
 if (BUILD_EXT_MD5)
-    add_subdirectory(md5)
+    add_subdirectory(md5) # source code
     target_link_libraries(external INTERFACE ext_md5)
 endif (BUILD_EXT_MD5)
 
@@ -96,7 +100,7 @@ target_link_libraries(external INTERFACE PNG::PNG)
 
 if (LINUX)
     add_subdirectory(linux-specific/fmod)
-    target_link_libraries(external INTERFACE ext_fmod)
+    target_link_libraries(external INTERFACE ext_fmod) # will replace
 endif ()
 
 if (ANDROID)
@@ -104,16 +108,14 @@ if (ANDROID)
     find_package(Ogg CONFIG REQUIRED)
     find_package(Vorbis CONFIG REQUIRED)
 
-    add_subdirectory(android-specific/cpufeatures)
-    add_subdirectory(android-specific/pvmp3dec)
-#    add_subdirectory(android-specific/tremolo)
+    add_subdirectory(android-specific/cpufeatures) # source code
+    add_subdirectory(android-specific/pvmp3dec) # source code
     target_link_libraries(external INTERFACE
             ext_cpufeatures ext_pvmp3dec
             Ogg::ogg
             Vorbis::vorbis
             Vorbis::vorbisfile
-            Vorbis::vorbisenc
-            #[[ext_tremolo]])
+            Vorbis::vorbisenc)
 
     install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/android-specific/tremolo"
             DESTINATION "include/Tremolo"
@@ -136,15 +138,14 @@ if (WINDOWS)
     find_package(GLEW REQUIRED)
     find_package(Iconv)
     find_package(OpenAL CONFIG REQUIRED)
-
-    add_subdirectory(win32-specific/MP3Decoder)
-    add_subdirectory(win32-specific/OggDecoder)
+    find_package(mpg123 CONFIG REQUIRED)
+    find_package(Ogg CONFIG REQUIRED)
 
     target_link_libraries(external INTERFACE
             GLEW::GLEW
             Iconv::Iconv
-            ext_MP3Decoder
-            ext_OggDecoder
+            MPG123::libmpg123
+            Ogg::ogg
             OpenAL::OpenAL
     )
 
@@ -163,6 +164,6 @@ endif (BUILD_EXT_ZLIB)
 
 # unzip depend on zlib
 if (BUILD_EXT_UNZIP)
-    add_subdirectory(unzip)
+    add_subdirectory(unzip) # source code
     target_link_libraries(external INTERFACE ext_unzip)
 endif (BUILD_EXT_UNZIP)
