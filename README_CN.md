@@ -15,7 +15,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
     - [编译步骤](#编译步骤)
   - [可执行文件位置](#可执行文件位置)
   - [代码格式化](#代码格式化)
-  - [支持的游戏](#支持的游戏列表)
+  - [支持的游戏列表](#支持的游戏列表)
   - [插件资源](#插件资源)
   - [许可证](#许可证)
 
@@ -110,8 +110,8 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   ```
   
 - **使用Docker容器**:
-  - Build Android: `docker build -f dockers/android.Dockerfile -t android-builder .`
-  - Build Linux: `docker build -f dockers/linux.Dockerfile -t linux-builder .`
+  - Build Android: `docker build -f .devcontainer/android.Dockerfile -t android-builder .`
+  - Build Linux: `docker build -f .devcontainer/linux.Dockerfile -t linux-builder .`
 
 ## 可执行文件位置
 

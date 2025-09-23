@@ -57,15 +57,6 @@ RUN --mount=type=cache,target=/opt/vcpkg/buildtrees \
     --mount=type=cache,target=/workspace/out \
     cmake --preset="Linux Debug Config" -DENABLE_TESTS=OFF -DBUILD_TOOLS=OFF \
     && cmake --build --preset="Linux Debug Build"
-# ---------- 收集产物 ----------
-RUN --mount=type=cache,target=/workspace/out \
-    cp -r ./out/linux/debug/bin/krkr2/ /opt/ \
- && cp $(find ./out/linux/debug/ -name 'libfmod*.so') /opt/krkr2/ \
- && mv /opt/krkr2/libfmod.so /opt/krkr2/libfmod.so.6
-# ---------- 运行入口 ----------
-WORKDIR /opt/krkr2
-CMD ["bash"]
-
 # 添加元数据
 LABEL description="Linux build environment for Krkr2 project" \
       version="1.0"

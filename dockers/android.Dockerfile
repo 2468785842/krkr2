@@ -56,17 +56,11 @@ RUN --mount=type=cache,target=/opt/vcpkg/buildtrees \
     --mount=type=cache,target=/opt/vcpkg/downloads \
     --mount=type=cache,target=/opt/vcpkg/installed \
     --mount=type=cache,target=/opt/vcpkg/packages \
-    --mount=type=cache,target=/workspace/out \
+    --mount=type=cache,target=/workspace/platforms/android/out \
     --mount=type=cache,target=/root/.gradle \
     dos2unix ./platforms/android/gradlew \
     && chmod +x ./platforms/android/gradlew \
     && ./platforms/android/gradlew -p ./platforms/android assembleDebug
-RUN --mount=type=cache,target=/workspace/out \
-    mkdir /opt/krkr2 \
-    cp ./platforms/android/out/android/app/outputs/apk/debug/*.apk /opt/krkr2
-
-WORKDIR /opt/krkr2
-CMD ["bash"]
 
 # 添加元数据
 LABEL description="Android build environment for Krkr2 project" \
