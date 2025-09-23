@@ -22,9 +22,15 @@ void extractArchive(const std::string &file, const std::string &destDir) {
         const std::unique_ptr<tTJSBinaryStream> src{ arc->CreateStreamByIndex(
             i) };
         const ttstr &destFile = ttstr{ destDir } + name;
-        fs::create_directories(
-            fs::path(destFile.AsNarrowStdString()).parent_path());
-        std::ofstream ofs(destFile.AsNarrowStdString(), std::ios::binary);
+
+#ifdef _WIN32
+        fs::path destFilePath = fs::u8path(destFile.AsNarrowStdString());
+#else
+        fs::path destFilePath = fs::path(destFile.AsNarrowStdString());
+#endif
+
+        fs::create_directories(destFilePath.parent_path());
+        std::ofstream ofs(destFilePath, std::ios::binary);
         auto buffer =
             std::make_unique<tjs_uint8[]>(TVP_LOCAL_TEMP_COPY_BLOCK_SIZE);
 
@@ -124,9 +130,8 @@ int main(int argc, char *argv[]) {
             std::cerr << "Skipping invalid file: " << input << std::endl;
             continue;
         }
-        output_dir =
-            normalizePath(output_dir) / fs::path(file.stem().string()) / "";
-        extractArchive(file.string(), output_dir);
+
+        extractArchive(file.string(), fs::path(normalizePath(output_dir) / fs::path(file.stem().string()) / "").string());
     }
 
     return 0;
