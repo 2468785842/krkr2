@@ -13,6 +13,7 @@
       "name": "boost-locale",
       "default-features": false
     },
+    "bullet3",
     "boost-phoenix",
     "boost-spirit",
     {

@@ -36,13 +36,17 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(KRKR2CORE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/core)
 set(KRKR2PLUGIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/plugins)
+
 if(MSVC)
-    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/EHsc>" "/utf-8")
-    add_link_options("/ignore:4099" "/MP" "/INCREMENTAL" "/DEBUG:FASTLINK")
+    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/EHsc>" "/MP" "/utf-8")
+    add_link_options("/ignore:4099" "/INCREMENTAL" "/DEBUG:FASTLINK")
     # set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
+
 if(ANDROID)
     add_library(${PROJECT_NAME} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/platforms/android/cpp/krkr2_android.cpp)
+    find_package(unofficial-breakpad CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::breakpad::libbreakpad_client)
 elseif(LINUX)
     add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/platforms/linux/main.cpp)
 elseif(WINDOWS)
@@ -50,8 +54,7 @@ elseif(WINDOWS)
         ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows/main.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows/game.rc
     )
-elseif(APPLE)
-    if(IOS)
+elseif(IOS)
 #        list(APPEND GAME_HEADER
 #                proj.ios_mac/ios/AppController.h
 #                proj.ios_mac/ios/RootViewController.h
@@ -68,38 +71,19 @@ elseif(APPLE)
 #                proj.ios_mac/ios/Prefix.pch
 #                ${APP_UI_RES}
 #        )
-    elseif(MACOS)
-        set(APP_UI_RES
-                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Icon.icns
-                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Info.plist
-        )
-        add_executable(${PROJECT_NAME}
-                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/main.cpp
-                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Prefix.pch
-                ${APP_UI_RES}
-        )
-endif()
+elseif(MACOS)
+    set(APP_UI_RES
+            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Icon.icns
+            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Info.plist
+    )
+    add_executable(${PROJECT_NAME}
+            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/main.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Prefix.pch
+            ${APP_UI_RES}
+    )
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
-
-###### cocos2dx
-if (WINDOWS OR MACOS OR LINUX)
-    find_package(glfw3 CONFIG REQUIRED)
-endif ()
-
-if(ANDROID)
-    find_package(Ogg CONFIG REQUIRED)
-    find_package(Vorbis CONFIG REQUIRED)
-
-    find_package(unofficial-breakpad CONFIG REQUIRED)
-
-    target_link_libraries(${PROJECT_NAME} PUBLIC
-            unofficial::breakpad::libbreakpad_client
-    )
-endif()
-#####
-
 
 # external lib
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cpp/external)
@@ -112,6 +96,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     krkr2plugin krkr2core
 )
 
+## resources
 if(NOT ANDROID)
     include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CocosBuildHelpers.cmake")
 

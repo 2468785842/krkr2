@@ -1,13 +1,8 @@
 @PACKAGE_INIT@
 
-# Compute the installation prefix relative to this file.
-get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_FILE}" PATH)
-get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
-get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
-if(_IMPORT_PREFIX STREQUAL "/")
-  set(_IMPORT_PREFIX "")
-endif()
+include(CMakeFindDependencyMacro)
 
+# Platform detection
 if(@IOS@)
     set(platform_name ios)
     set(platform_spec_path ios)
@@ -25,206 +20,61 @@ elseif(@LINUX@)
     set(platform_spec_path linux/64-bit)
 endif()
 
+# External dependencies
+if(@BUILD_EXT_BOX2D@)
+    find_dependency(box2d CONFIG)
+endif()
+
+if(@BUILD_EXT_CHIPMUNK@)
+    find_dependency(unofficial-chipmunk CONFIG)
+endif()
+
+if(@BUILD_EXT_BULLET@)
+    find_dependency(Bullet CONFIG)
+endif()
+
 if(@BUILD_EXT_FREETYPE2@)
-    find_package(Freetype REQUIRED)
+    find_dependency(Freetype)
 endif()
 
 if(@BUILD_EXT_JPEG@)
-    find_package(JPEG REQUIRED)
+    find_dependency(JPEG)
 endif()
 
 if(@BUILD_EXT_OPENSSL@)
-    find_package(OpenSSL REQUIRED)
+    find_dependency(OpenSSL)
     add_library(ext_ssl ALIAS OpenSSL::SSL)
     add_library(ext_crypto ALIAS OpenSSL::Crypto)
 endif()
 
 if(@BUILD_EXT_TIFF@)
-    find_package(TIFF REQUIRED)
+    find_dependency(TIFF)
 endif()
 
 if(@BUILD_EXT_WEBP@)
-    find_package(WebP CONFIG REQUIRED)
+    find_dependency(WebP CONFIG)
 endif()
 
-find_package(PNG REQUIRED)
+find_dependency(PNG)
 
 if(@BUILD_EXT_ZLIB@)
-    find_package(ZLIB REQUIRED)
+    find_dependency(ZLIB)
     add_library(ext_zlib ALIAS ZLIB::ZLIB)
 endif()
 
-if(@BUILD_EXT_BOX2D@)
-
-    add_library(ext_box2d STATIC IMPORTED)
-
-    set_target_properties(ext_box2d PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/Box2D/include"
-    )
-
-    if(@WINDOWS@)
-      set_target_properties(ext_box2d PROPERTIES
-        # need use absolutely path
-        IMPORTED_LOCATION_DEBUG "${CMAKE_CURRENT_LIST_DIR}/Box2D/prebuilt/${platform_spec_path}/debug/libbox2d.lib"
-        IMPORTED_LOCATION_RELEASE "${CMAKE_CURRENT_LIST_DIR}/Box2D/prebuilt/${platform_spec_path}/release/libbox2d.lib"
-      )
-      set_target_properties(ext_box2d PROPERTIES
-        MAP_IMPORTED_CONFIG_MINSIZEREL Release
-        MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
-      )
-    else()
-      set_target_properties(ext_box2d PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/Box2D/prebuilt/${platform_spec_path}/libbox2d.a"
-      )
-    endif()
-endif()
-
-if(@BUILD_EXT_CHIPMUNK@)
-    add_library(ext_chipmunk STATIC IMPORTED)
-
-    set_target_properties(ext_chipmunk PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/chipmunk/include"
-    )
-    if(@WINDOWS@)
-      set_target_properties(ext_chipmunk PROPERTIES
-        IMPORTED_LOCATION_DEBUG "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/debug-lib/libchipmunk.lib"
-        IMPORTED_LOCATION_RELEASE "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/release-lib/libchipmunk.lib"
-      )
-      set_target_properties(ext_chipmunk PROPERTIES
-        MAP_IMPORTED_CONFIG_MINSIZEREL Release
-        MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
-      )
-    else()
-      set_target_properties(ext_chipmunk PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/chipmunk/prebuilt/${platform_spec_path}/libchipmunk.a"
-      )
-    endif()
-endif()
-
-if(@BUILD_EXT_BULLET@)
-
-    add_library(ext_bullet STATIC IMPORTED)
-
-    set_property(TARGET ext_bullet APPEND PROPERTY
-      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/bullet/include"
-    )
-    set_property(TARGET ext_bullet APPEND PROPERTY
-      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/bullet/include/bullet"
-    )
-
-    if(@WINDOWS@)
-      set_target_properties(ext_bullet PROPERTIES
-        IMPORTED_LOCATION_DEBUG "${CMAKE_CURRENT_LIST_DIR}/bullet/prebuilt/${platform_spec_path}/debug/libbullet.lib"
-        IMPORTED_LOCATION_RELEASE "${CMAKE_CURRENT_LIST_DIR}/bullet/prebuilt/${platform_spec_path}/release/libbullet.lib"
-      )
-      set_target_properties(ext_bullet PROPERTIES
-        MAP_IMPORTED_CONFIG_MINSIZEREL Release
-        MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
-      )
-    else()
-      set_target_properties(ext_bullet PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/bullet/prebuilt/${platform_spec_path}/libLinearMath.a"
-      )
-
-      # multi libs
-      add_library(bulletcollision STATIC IMPORTED)
-      set_target_properties(bulletcollision PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/bullet/prebuilt/${platform_spec_path}/libBulletCollision.a"
-      )
-      add_library(bulletdynamics STATIC IMPORTED)
-      set_target_properties(bulletdynamics PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/bullet/prebuilt/${platform_spec_path}/libBulletDynamics.a"
-      )
-      add_library(bulletmultithreaded STATIC IMPORTED)
-      set_target_properties(bulletmultithreaded PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/bullet/prebuilt/${platform_spec_path}/libBulletMultiThreaded.a"
-      )
-      add_library(minicl STATIC IMPORTED)
-      set_target_properties(minicl PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/bullet/prebuilt/${platform_spec_path}/libMiniCL.a"
-      )
-      add_library(linearmath STATIC IMPORTED)
-      set_target_properties(linearmath PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/bullet/prebuilt/${platform_spec_path}/libLinearMath.a"
-      )
-
-      # internal link depend
-      set_property(TARGET bulletcollision APPEND PROPERTY INTERFACE_LINK_LIBRARIES "linearmath")
-      set_property(TARGET bulletdynamics APPEND PROPERTY INTERFACE_LINK_LIBRARIES "bulletcollision")
-
-      # mark multi libs link into single one: "ext_bullet"
-      set_property(TARGET ext_bullet APPEND PROPERTY
-        INTERFACE_LINK_LIBRARIES "bulletcollision"
-      )
-      set_property(TARGET ext_bullet APPEND PROPERTY
-        INTERFACE_LINK_LIBRARIES "bulletdynamics"
-      )
-      set_property(TARGET ext_bullet APPEND PROPERTY
-        INTERFACE_LINK_LIBRARIES "bulletmultithreaded"
-      )
-      set_property(TARGET ext_bullet APPEND PROPERTY
-        INTERFACE_LINK_LIBRARIES "minicl"
-      )
-    endif()
-endif()
-
-
 if(@BUILD_EXT_UV@)
-    if(@WINDOWS@)
-      add_library(ext_uv SHARED IMPORTED)
-    else()
-      add_library(ext_uv STATIC IMPORTED)
-    endif()
-
-    set_target_properties(ext_uv PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/uv/include"
-    )
-    if(@WINDOWS@)
-      set_target_properties(ext_uv PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/uv/prebuilt/${platform_spec_path}/uv.dll"
-        IMPORTED_IMPLIB "${CMAKE_CURRENT_LIST_DIR}/uv/prebuilt/${platform_spec_path}/uv_a.lib"
-      )
-    else()
-      set_target_properties(ext_uv PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/uv/prebuilt/${platform_spec_path}/libuv_a.a"
-      )
-    endif()
+    find_dependency(libuv CONFIG)
 endif()
 
 if(@BUILD_EXT_WEBSOCKETS@)
-    if(@WINDOWS@)
-      add_library(ext_websockets SHARED IMPORTED)
-    else()
-      add_library(ext_websockets STATIC IMPORTED)
-    endif()
-
-    set_target_properties(ext_websockets PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/websockets/include/${platform_name}"
-    )
-    set_target_properties(ext_websockets PROPERTIES
-      INTERFACE_COMPILE_DEFINITIONS "LWS_WITH_LIBUV"
-    )
-
-    set_property(TARGET ext_websockets APPEND PROPERTY INTERFACE_LINK_LIBRARIES "ext_ssl")
-    set_property(TARGET ext_websockets APPEND PROPERTY INTERFACE_LINK_LIBRARIES "ext_crypto")
-    set_property(TARGET ext_websockets APPEND PROPERTY INTERFACE_LINK_LIBRARIES "ext_uv")
-
-    if(@WINDOWS@)
-      set_target_properties(ext_websockets PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/websockets/prebuilt/${platform_spec_path}/websockets.dll"
-        IMPORTED_IMPLIB "${CMAKE_CURRENT_LIST_DIR}/websockets/prebuilt/${platform_spec_path}/websockets.lib"
-      )
-    else()
-      set_target_properties(ext_websockets PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/websockets/prebuilt/${platform_spec_path}/libwebsockets.a"
-      )
-    endif()
+    find_dependency(libwebsockets CONFIG)
 endif()
 
 if(@BUILD_EXT_CURL@)
-    find_package(CURL REQUIRED)
+    find_dependency(CURL)
 endif()
 
+# Linux-specific
 if(@LINUX@)
     add_library(ext_fmod SHARED IMPORTED)
 
@@ -232,86 +82,41 @@ if(@LINUX@)
         INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/linux-specific/fmod/include"
         IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/linux-specific/fmod/prebuilt/64-bit/libfmod.so"
     )
-    find_package(Fontconfig REQUIRED)
-    find_package(TIFF REQUIRED)
-    find_package(Freetype REQUIRED)
-    find_package(BZip2 REQUIRED)
-    find_package(PNG REQUIRED)
 
-    find_package(GLEW REQUIRED)
-    find_package(OpenGL REQUIRED)
-    find_package(unofficial-sqlite3 CONFIG REQUIRED)
+    find_dependency(Fontconfig)
+    find_dependency(TIFF)
+    find_dependency(Freetype)
+    find_dependency(BZip2)
+    find_dependency(PNG)
+    find_dependency(GLEW)
+    find_dependency(OpenGL)
+    find_dependency(unofficial-sqlite3)
 endif()
 
-if (@WINDOWS@)
-    # sqlite3 prebuilt only existed at windows
-    if (@BUILD_EXT_SQLITE@)
-        find_package(unofficial-sqlite3 CONFIG REQUIRED)
-    endif ()
-
-    find_package(GLEW REQUIRED)
-    find_package(Iconv)
-    find_package(OpenAL CONFIG REQUIRED)
-
-    add_library(ext_MP3Decoder SHARED IMPORTED)
-
-    set_target_properties(ext_MP3Decoder PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/win32-specific/MP3Decoder/include
-    )
-
-    set_target_properties(ext_MP3Decoder PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/win32-specific/MP3Decoder/prebuilt/libmpg123.dll"
-        IMPORTED_IMPLIB "${CMAKE_CURRENT_LIST_DIR}/win32-specific/MP3Decoder/prebuilt/libmpg123.lib"
-    )
-
-    add_library(ext_OggDecoder SHARED IMPORTED)
-
-    set_target_properties(ext_OggDecoder PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/include
-    )
-
-    set_target_properties(ext_OggDecoder PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/prebuilt/libvorbis.dll"
-        IMPORTED_IMPLIB "${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/prebuilt/libvorbis.lib"
-    )
-
-    # internal link depend
-    set_property(TARGET ext_OggDecoder APPEND PROPERTY
-        INTERFACE_LINK_LIBRARIES "${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/prebuilt/libvorbis.lib"
-    )
-    set_property(TARGET ext_OggDecoder APPEND PROPERTY
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/prebuilt/libvorbis.dll"
-    )
-    set_property(TARGET ext_OggDecoder APPEND PROPERTY
-        INTERFACE_LINK_LIBRARIES "${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/prebuilt/libvorbisfile.lib"
-    )
-    set_property(TARGET ext_OggDecoder APPEND PROPERTY
-        IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/win32-specific/OggDecoder/prebuilt/libvorbisfile.dll"
-    )
+if (ANDROID)
+    find_dependency(Ogg CONFIG)
+    find_dependency(Vorbis CONFIG)
 endif ()
 
-if("@WINDOWS@" OR "@MACOSX@" OR "@LINUX@")
-    
-    add_library(ext_glfw3 STATIC IMPORTED)
-
-    set_target_properties(ext_glfw3 PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/glfw3/include/${platform_name}"
-    )
-    if(@LINUX@)
-        set_target_properties(ext_glfw3 PROPERTIES
-            IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/glfw3/prebuilt/linux/libglfw3.a"
-        )
-    elseif(@WINDOWS@)
-        set_target_properties(ext_glfw3 PROPERTIES
-            IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/glfw3/prebuilt/${platform_spec_path}/glfw3.lib"
-        )
-    else()
-        set_target_properties(ext_glfw3 PROPERTIES
-            IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/glfw3/prebuilt/${platform_spec_path}/libglfw3.a"
-        )
+# Windows-specific
+if(@WINDOWS@)
+    if(@BUILD_EXT_SQLITE@) # sqlite3 prebuilt only exists on Windows
+        find_dependency(unofficial-sqlite3 CONFIG)
     endif()
+
+    find_dependency(GLEW)
+    find_dependency(Iconv)
+    find_dependency(OpenAL CONFIG)
+    find_dependency(mpg123 CONFIG)
+    find_dependency(Ogg CONFIG)
 endif()
 
+# Desktop platforms
+if("@WINDOWS@" OR "@MACOSX@" OR "@LINUX@")
+    find_dependency(glfw3 CONFIG)
+endif()
+
+# Import targets
 include("${CMAKE_CURRENT_LIST_DIR}/cocos2dx-targets.cmake")
 
 check_required_components(cocos2d)

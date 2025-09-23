@@ -31,9 +31,9 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
   - `arm64-v8a`
   - `x86_64`
 - **Windows**:
-  - Win32
+  - x86_64
 - **Linux**:
-  - x64
+  - x86_64
 - **MacOS**:
   - arm64
 

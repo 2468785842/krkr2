@@ -1,7 +1,7 @@
 {
   "name": "cocos2dx",
   "version-string": "3.17.2",
-  "port-version": 4,
+  "port-version": 5,
   "description": "Cocos2d-x is a suite of open-source, cross-platform, game-development tools utilized by millions of developers across the globe.",
   "homepage": "http://www.cocos2d-x.org/",
   "license": null,
@@ -10,6 +10,19 @@
     {
       "name": "bzip2",
       "platform": "linux"
+    },
+    "box2d",
+    "bullet3",
+    "chipmunk",
+    "libuv",
+    "libwebsockets",
+    {
+      "name": "mpg123",
+      "platform": "windows"
+    },
+    {
+      "name": "libogg",
+      "platform": "windows"
     },
     "curl",
     {
