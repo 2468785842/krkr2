@@ -140,6 +140,7 @@ if (WINDOWS)
     find_package(OpenAL CONFIG REQUIRED)
     find_package(mpg123 CONFIG REQUIRED)
     find_package(Ogg CONFIG REQUIRED)
+    find_package(Vorbis CONFIG REQUIRED)
 
     target_link_libraries(external INTERFACE
             GLEW::GLEW
@@ -147,6 +148,9 @@ if (WINDOWS)
             MPG123::libmpg123
             Ogg::ogg
             OpenAL::OpenAL
+            Vorbis::vorbis
+            Vorbis::vorbisfile
+            Vorbis::vorbisenc
     )
 
 endif ()

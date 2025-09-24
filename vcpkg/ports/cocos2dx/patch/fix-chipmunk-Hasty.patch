@@ -1,0 +1,14 @@
+﻿diff --git a/cocos/physics/CCPhysicsWorld.cpp b/cocos/physics/CCPhysicsWorld.cpp
+index cd6effd..0b3ab96 100644
+--- a/cocos/physics/CCPhysicsWorld.cpp
++++ b/cocos/physics/CCPhysicsWorld.cpp
+@@ -29,6 +29,9 @@
+ #include <climits>
+ 
+ #include "chipmunk/chipmunk_private.h"
++#if !(CC_TARGET_PLATFORM == CC_PLATFORM_WINRT || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
++    #include "chipmunk/cpHastySpace.h"
++#endif
+ #include "physics/CCPhysicsBody.h"
+ #include "physics/CCPhysicsShape.h"
+ #include "physics/CCPhysicsContact.h"

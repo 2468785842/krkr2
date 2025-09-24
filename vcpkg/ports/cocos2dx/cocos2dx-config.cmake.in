@@ -109,6 +109,7 @@ if(@WINDOWS@)
     find_dependency(OpenAL CONFIG)
     find_dependency(mpg123 CONFIG)
     find_dependency(Ogg CONFIG)
+    find_dependency(Vorbis CONFIG)
 endif()
 
 # Desktop platforms

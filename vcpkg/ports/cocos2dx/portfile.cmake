@@ -28,6 +28,8 @@ vcpkg_extract_source_archive(
         patch/fix-mac-glew.patch
         patch/fix-mac-glfw3.patch
         patch/fix-unzip.patch
+        patch/fix-chipmunk-Hasty.patch
+        patch/fix-win64.patch
         patch/fix-bullet-spell.patch
         patch/fix-chipmunk.patch
 )
