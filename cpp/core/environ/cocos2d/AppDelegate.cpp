@@ -9,7 +9,10 @@
 #include "ui/extension/UIExtension.h"
 #include "ConfigManager/LocaleConfigManager.h"
 
-static cocos2d::Size designSize(960, 640);
+#include "audio/include/AudioEngine.h"
+
+static cocos2d::Size designResolutionSize(960, 640);
+
 extern std::thread::id TVPMainThreadID;
 
 extern "C" void SDL_SetMainReady();
@@ -36,11 +39,19 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     auto director = cocos2d::Director::getInstance();
     auto glview = director->getOpenGLView();
     if(!glview) {
-        glview = cocos2d::GLViewImpl::create("krkr2");
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) ||                               \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) ||                                 \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+        glview = cocos2d::GLViewImpl::createWithRect(
+            "krkr2",
+            cocos2d::Rect(0, 0, designResolutionSize.width,
+                          designResolutionSize.height));
+#else
+        glview = GLViewImpl::create("krkr2");
+#endif
         director->setOpenGLView(glview);
 #if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
-        HWND hwnd = glview->getWin32Window();
-        if(hwnd) {
+        if(HWND hwnd = glview->getWin32Window()) {
             // 添加可调节边框和最大化按钮
             LONG style = GetWindowLong(hwnd, GWL_STYLE);
             style |= WS_THICKFRAME | WS_MAXIMIZEBOX;
@@ -56,23 +67,21 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     if(screenSize.width < screenSize.height) {
         std::swap(screenSize.width, screenSize.height);
     }
-    cocos2d::Size ds = designSize;
+    cocos2d::Size ds = designResolutionSize;
     ds.height = ds.width * screenSize.height / screenSize.width;
     glview->setDesignResolutionSize(screenSize.width, screenSize.height,
                                     ResolutionPolicy::EXACT_FIT);
 #else
-    glview->setDesignResolutionSize(designSize.width, designSize.height,
-                                    ResolutionPolicy::FIXED_WIDTH);
+    // Set the design resolution
+    glview->setDesignResolutionSize(designResolutionSize.width,
+                                    designResolutionSize.height,
+                                    ResolutionPolicy::SHOW_ALL);
+    glview->setFrameSize(designResolutionSize.width * 1.5f,
+                                    designResolutionSize.height * 1.5f);
 #endif
 
     std::vector<std::string> searchPath;
 
-    // In this demo, we select resource according to the frame's
-    // height. If the resource size is different from design
-    // resolution size, you need to set contentScaleFactor. We use the
-    // ratio of resource's height to the height of design resolution,
-    // this can make sure that the resource's height could fit for the
-    // height of design resolution.
     searchPath.emplace_back("res");
 
     // set searching path

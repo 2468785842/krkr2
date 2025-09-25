@@ -131,7 +131,10 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        extractArchive(file.string(), fs::path(normalizePath(output_dir) / fs::path(file.stem().string()) / "").string());
+        extractArchive(file.string(),
+                       fs::path(normalizePath(output_dir) /
+                                fs::path(file.stem().string()) / "")
+                           .string());
     }
 
     return 0;

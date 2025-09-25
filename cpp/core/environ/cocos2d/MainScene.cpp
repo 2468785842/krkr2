@@ -439,14 +439,10 @@ public:
         PrimaryLayerArea->addChild(DrawSprite);
         setAnchorPoint(cocos2d::Size::ZERO);
         EventListenerMouse *evmouse = EventListenerMouse::create();
-        evmouse->onMouseScroll = std::bind(&TVPWindowLayer::onMouseScroll, this,
-                                           std::placeholders::_1);
-        evmouse->onMouseDown = std::bind(&TVPWindowLayer::onMouseDownEvent,
-                                         this, std::placeholders::_1);
-        evmouse->onMouseUp = std::bind(&TVPWindowLayer::onMouseUpEvent, this,
-                                       std::placeholders::_1);
-        evmouse->onMouseMove = std::bind(&TVPWindowLayer::onMouseMoveEvent,
-                                         this, std::placeholders::_1);
+        evmouse->onMouseScroll = [this](Event *e) { onMouseScroll(e); };
+        evmouse->onMouseDown = [this](Event *e) { onMouseDownEvent(e); };
+        evmouse->onMouseUp = [this](Event *e) { onMouseUpEvent(e); };
+        evmouse->onMouseMove = [this](Event *e) { onMouseMoveEvent(e); };
         _eventDispatcher->addEventListenerWithSceneGraphPriority(evmouse, this);
         setTouchEnabled(false);
         setVisible(false);
@@ -845,7 +841,6 @@ public:
             TVPControlAdDialog(0x10002, 0,
                                0); // ensure to close banner ad
         }
-        Director *director = Director::getInstance();
         modal_result_ = 0;
         while(this == _currentWindowLayer && !modal_result_) {
             int remain = TVPDrawSceneOnce(30); // 30 fps
