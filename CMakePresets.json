@@ -12,7 +12,7 @@
       "hidden": true,
       "cacheVariables": {
         "WINDOWS": true,
-        "VCPKG_TARGET_TRIPLET": "x86-windows-static-md",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-md",
         "CMAKE_EXPORT_COMPILE_COMMANDS": true
       },
       "condition": {
@@ -20,18 +20,13 @@
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       },
-      "toolset": {
-        "value": "host=x86",
-        "strategy": "external"
-      },
       "architecture": {
-        "value": "x86",
+        "value": "x64",
         "strategy": "external"
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [ "Windows" ],
-          "intelliSenseMode": "windows-msvc-x86"
+          "hostOS": [ "Windows" ]
         }
       }
     },

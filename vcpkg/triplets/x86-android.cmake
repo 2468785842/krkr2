@@ -4,5 +4,6 @@ set(VCPKG_LIBRARY_LINKAGE static)
 set(VCPKG_CMAKE_SYSTEM_NAME Android)
 set(VCPKG_MAKE_BUILD_TRIPLET "--host=i686-linux-android")
 set(VCPKG_CMAKE_CONFIGURE_OPTIONS -DANDROID_ABI=x86)
+set(VCPKG_CMAKE_SYSTEM_VERSION 28)
 
 include(${CMAKE_CURRENT_LIST_DIR}/android-dynamic-libs.cmake)

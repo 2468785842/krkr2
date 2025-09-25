@@ -52,7 +52,7 @@
     "libwebp",
     {
       "name": "libvorbis",
-      "platform": "android"
+      "platform": "android | windows"
     },
     {
       "name": "libogg",
