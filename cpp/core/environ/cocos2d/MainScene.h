@@ -42,7 +42,7 @@ public:
 
     void addLayer(TVPWindowLayer *lay);
     cocos2d::Size getUINodeSize();
-    cocos2d::Size getGameNodeSize() { return GameNode->getContentSize(); }
+    cocos2d::Size getGameNodeSize() const { return GameNode->getContentSize(); }
     void rotateUI();
 
     bool startupFrom(const std::string &path);
@@ -70,8 +70,8 @@ private:
                        cocos2d::Event *event);
 
     bool onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event);
-    void onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *event);
-    void onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *event);
+    void onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *event) const;
+    void onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *event) const;
     void onTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *event);
 
     void onAxisEvent(cocos2d::Controller *ctrl, int code, cocos2d::Event *e);

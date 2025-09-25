@@ -11,7 +11,7 @@
 #include "tjsCommHead.h"
 
 #include "EventImpl.h"
-#include "SystemControl.h"
+#include "../../environ/impl/SystemControl.h"
 #include "ThreadIntf.h"
 #include "TickCount.h"
 #include "TimerIntf.h"

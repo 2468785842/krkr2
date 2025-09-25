@@ -144,7 +144,7 @@ public:
     virtual iTJSDispatch2 *GetWindowDispatch() = 0;
 
     // add by ZeaS
-    [[nodiscard]] virtual iWindowLayer *GetForm() const = 0;
+    [[nodiscard]] virtual iWindowLayer *getForm() const = 0;
 };
 //---------------------------------------------------------------------------
 /*]*/

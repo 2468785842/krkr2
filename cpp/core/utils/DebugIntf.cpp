@@ -24,7 +24,7 @@
 #endif // ENABLE_DEBUGGER
 
 #include "Application.h"
-#include "SystemControl.h"
+#include "../environ/impl/SystemControl.h"
 
 //---------------------------------------------------------------------------
 // global variables

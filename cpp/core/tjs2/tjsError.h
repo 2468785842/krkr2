@@ -35,7 +35,7 @@ namespace TJS {
         throw e;                                                               \
     }                                                                          \
     catch(const eTJS &e) {                                                     \
-        TJS_eTJSError(e.GetMessage());                                         \
+        TJS_eTJSError(e.getMessage());                                         \
     }                                                                          \
     catch(const std::exception &e) {                                           \
         TJS_eTJSError(e.what());                                               \
@@ -72,7 +72,7 @@ namespace TJS {
 
         virtual ~eTJS() = default;
 
-        [[nodiscard]] virtual const ttstr &GetMessage() const {
+        [[nodiscard]] virtual const ttstr &getMessage() const {
             return TJSNonamedException;
         }
     };
@@ -89,7 +89,7 @@ namespace TJS {
             cachedStr = Message.AsStdString();
             return cachedStr.c_str();
         }
-        const ttstr &GetMessage() const override { return Message; }
+        const ttstr &getMessage() const override { return Message; }
 
         void AppendMessage(const ttstr &msg) { Message += msg; }
 

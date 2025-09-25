@@ -10,7 +10,7 @@
 //---------------------------------------------------------------------------
 #include "tjsCommHead.h"
 
-#include "SystemControl.h"
+#include "../../environ/impl/SystemControl.h"
 #include "WindowIntf.h"
 #include "ScriptMgnIntf.h"
 #include "MsgIntf.h"

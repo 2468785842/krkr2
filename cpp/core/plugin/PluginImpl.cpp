@@ -271,7 +271,7 @@ void TVPDoTryBlock(tTVPTryBlockFunction tryblock,
             finallyblock(data);
         tTVPExceptionDesc desc;
         desc.type = TJS_W("eTJS");
-        desc.message = e.GetMessage();
+        desc.message = e.getMessage();
         if(catchblock(data, desc))
             throw;
         return;

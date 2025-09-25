@@ -77,7 +77,7 @@ void TVPFireOnApplicationActivateEvent(bool activate_or_deactivate) {
         // the system should not throw exceptions during retrieving
         // the function
         TVPAddLog(TVPFormatMessage(
-            TVPErrorInRetrievingSystemOnActivateOnDeactivate, e.GetMessage()));
+            TVPErrorInRetrievingSystemOnActivateOnDeactivate, e.getMessage()));
         return;
     }
 

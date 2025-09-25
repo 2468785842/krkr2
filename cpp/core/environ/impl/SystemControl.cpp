@@ -12,7 +12,7 @@
 #include "WindowIntf.h"
 #include "WindowImpl.h"
 #include "StorageIntf.h"
-#include "EmergencyExit.h" // for TVPCPUClock
+#include "EmergencyExit.h"
 #include "DebugIntf.h"
 // #include "VersionFormUnit.h"
 #include "WaveImpl.h"

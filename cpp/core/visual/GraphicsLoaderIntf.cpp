@@ -2386,7 +2386,7 @@ void TVPTouchImages(const std::vector<ttstr> &storages, tjs_int64 limit,
                                     nullptr); // load image
         } catch(eTJS &e) {
             statusstr += TJS_W("(error!:");
-            statusstr += e.GetMessage();
+            statusstr += e.getMessage();
             statusstr += TJS_W(")");
         } catch(...) {
             // ignore all errors

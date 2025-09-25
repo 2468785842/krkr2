@@ -31,6 +31,7 @@
 #include "Application.h"
 #include "TVPScreen.h"
 #include "tjsDictionary.h"
+#include "TVPWindow.h"
 // #include "VSyncTimingThread.h"
 // #include "MouseCursor.h"
 
@@ -893,7 +894,7 @@ void TVPSwitchToFullScreen(HWND window, tjs_int w, tjs_int h, iTVPDrawDevice* dr
 		}
 		catch(eTJS &e)
 		{
-			TVPAddLog(e.GetMessage());
+			TVPAddLog(e.getMessage());
 			TVPUseChangeDisplaySettings = true;
 		}
 		catch(...)
@@ -1099,7 +1100,7 @@ HWND TVPGetModalWindowOwnerHandle()
 tTJSNI_Window::tTJSNI_Window() {
     // TVPEnsureVSyncTimingThread();
     //	VSyncTimingThread = nullptr;
-    Form = nullptr;
+    _form = nullptr;
 }
 //---------------------------------------------------------------------------
 tjs_error tTJSNI_Window::Construct(tjs_int numparams, tTJSVariant **param,
@@ -1119,12 +1120,12 @@ tjs_error tTJSNI_Window::Construct(tjs_int numparams, tTJSVariant **param,
                 TVPThrowExceptionMessage(TVPSpecifyWindow);
         }
 #if 0
-		Form = new TTVPWindowForm(Application, this, win);
+		_form = new TTVPWindowForm(Application, this, win);
 	} else {
-		Form = new TTVPWindowForm(Application, this);
+		_form = new TTVPWindowForm(Application, this);
 #endif
     }
-    Form = TVPCreateAndAddWindow(this);
+    _form = TVPCreateAndAddWindow(this);
     return TJS_S_OK;
 }
 //---------------------------------------------------------------------------
@@ -1137,9 +1138,9 @@ void tTJSNI_Window::Invalidate() {
 		VSyncTimingThread = nullptr;
 	}
 #endif
-    if(Form) {
-        Form->InvalidateClose();
-        Form = nullptr;
+    if(_form) {
+        _form->InvalidateClose();
+        _form = nullptr;
     }
 
     // remove all events
@@ -1151,44 +1152,44 @@ void tTJSNI_Window::Invalidate() {
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::CanDeliverEvents() const {
-    if(!Form)
+    if(!_form)
         return false;
-    return GetVisible() && Form->GetFormEnabled();
+    return GetVisible() && _form->GetFormEnabled();
 }
 //---------------------------------------------------------------------------
-void tTJSNI_Window::NotifyWindowClose() { Form = nullptr; }
+void tTJSNI_Window::NotifyWindowClose() { _form = nullptr; }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SendCloseMessage() {
-    if(Form)
-        Form->SendCloseMessage();
+    if(_form)
+        _form->SendCloseMessage();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::TickBeat() {
-    if(Form)
-        Form->TickBeat();
+    if(_form)
+        _form->TickBeat();
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetWindowActive() {
-    if(Form)
-        return Form->GetWindowActive();
+    if(_form)
+        return _form->GetWindowActive();
     return false;
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::ResetDrawDevice() {
-    if(Form)
-        Form->ResetDrawDevice();
+    if(_form)
+        _form->ResetDrawDevice();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::FullScreenGuard() const {
-    if(Form) {
-        if(Form->GetFullScreenMode())
+    if(_form) {
+        if(_form->GetFullScreenMode())
             TVPThrowExceptionMessage(TVPInvalidPropertyInFullScreen);
     }
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::PostInputEvent(const ttstr &name, iTJSDispatch2 *params) {
     // posts input event
-    if(!Form)
+    if(!_form)
         return;
 
     static ttstr key_name(TJS_W("key"));
@@ -1234,11 +1235,11 @@ void tTJSNI_Window::PostInputEvent(const ttstr &name, iTJSDispatch2 *params) {
 
         uint16_t vcl_key = key;
         if(type == etOnKeyDown)
-            Form->InternalKeyDown(key, shift);
+            _form->InternalKeyDown(key, shift);
         else if(type == etOnKeyUp)
             // Form->OnKeyUp(Form, vcl_key,
             // TVP_TShiftState_From_uint32(shift));
-            Form->OnKeyUp(vcl_key, TVP_TShiftState_From_uint32(shift));
+            _form->OnKeyUp(vcl_key, TVP_TShiftState_From_uint32(shift));
     } else if(type == etOnKeyPress) {
         // this needs param, "key"
         if(params == nullptr)
@@ -1256,7 +1257,7 @@ void tTJSNI_Window::PostInputEvent(const ttstr &name, iTJSDispatch2 *params) {
 
         char vcl_key = key;
         // Form->OnKeyPress(Form, vcl_key);
-        Form->OnKeyPress(vcl_key, 0, false, false);
+        _form->OnKeyPress(vcl_key, 0, false, false);
     }
 }
 
@@ -1268,32 +1269,32 @@ void tTJSNI_Window::NotifySrcResize() {
     // ( or from TWindowForm to reset paint box's size )
     tjs_int w, h;
     DrawDevice->GetSrcSize(w, h);
-    if(Form)
-        Form->SetPaintBoxSize(w, h);
+    if(_form)
+        _form->SetPaintBoxSize(w, h);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetDefaultMouseCursor() {
     // set window mouse cursor to default
-    if(Form)
-        Form->SetDefaultMouseCursor();
+    if(_form)
+        _form->SetDefaultMouseCursor();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetMouseCursor(tjs_int handle) {
     // set window mouse cursor
-    if(Form)
-        Form->SetMouseCursor(handle);
+    if(_form)
+        _form->SetMouseCursor(handle);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::GetCursorPos(tjs_int &x, tjs_int &y) {
     // get cursor pos in primary layer's coordinates
-    if(Form)
-        Form->GetCursorPos(x, y);
+    if(_form)
+        _form->GetCursorPos(x, y);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetCursorPos(tjs_int x, tjs_int y) {
     // set cursor pos in primar layer's coordinates
-    if(Form)
-        Form->SetCursorPos(x, y);
+    if(_form)
+        _form->SetCursorPos(x, y);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::WindowReleaseCapture() {
@@ -1302,14 +1303,14 @@ void tTJSNI_Window::WindowReleaseCapture() {
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetHintText(iTJSDispatch2 *sender, const ttstr &text) {
     // set hint text to window
-    if(Form)
-        Form->SetHintText(sender, text);
+    if(_form)
+        _form->SetHintText(sender, text);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetAttentionPoint(tTJSNI_BaseLayer *layer, tjs_int l,
                                       tjs_int t) {
     // set attention point to window
-    if(Form) {
+    if(_form) {
         // class TFont * font = nullptr;
         const tTVPFont *font = nullptr;
         if(layer) {
@@ -1322,41 +1323,41 @@ void tTJSNI_Window::SetAttentionPoint(tTJSNI_BaseLayer *layer, tjs_int l,
             }
         }
 
-        Form->SetAttentionPoint(l, t, font);
+        _form->SetAttentionPoint(l, t, font);
     }
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::DisableAttentionPoint() {
     // disable attention point
-    if(Form)
-        Form->DisableAttentionPoint();
+    if(_form)
+        _form->DisableAttentionPoint();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetImeMode(tTVPImeMode mode) {
     // set ime mode
-    if(Form)
-        Form->SetImeMode(mode);
+    if(_form)
+        _form->SetImeMode(mode);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetDefaultImeMode(tTVPImeMode mode) {
     // set default ime mode
-    if(Form) {
+    if(_form) {
         //		Form->SetDefaultImeMode(mode,
         // LayerManager->GetFocusedLayer() == nullptr);
     }
 }
 //---------------------------------------------------------------------------
 tTVPImeMode tTJSNI_Window::GetDefaultImeMode() const {
-    if(Form)
-        return Form->GetDefaultImeMode();
+    if(_form)
+        return _form->GetDefaultImeMode();
     return ::imDisable;
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::ResetImeMode() {
     // set default ime mode ( default mode is imDisable; IME is
     // disabled )
-    if(Form)
-        Form->ResetImeMode();
+    if(_form)
+        _form->ResetImeMode();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::BeginUpdate(const tTVPComplexRect &rects) {
@@ -1368,37 +1369,37 @@ void tTJSNI_Window::EndUpdate() { tTJSNI_BaseWindow::EndUpdate(); }
 #if 0
 HWND tTJSNI_Window::GetSurfaceWindowHandle()
 {
-	if(!Form) return nullptr;
-	return Form->GetSurfaceWindowHandle();
+	if(!_form) return nullptr;
+	return _form->GetSurfaceWindowHandle();
 }
 #endif
 //---------------------------------------------------------------------------
 void tTJSNI_Window::ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right,
                                   tjs_int &bottom) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->ZoomRectangle(left, top, right, bottom);
+    _form->ZoomRectangle(left, top, right, bottom);
 }
 //---------------------------------------------------------------------------
 #if 0
 HWND tTJSNI_Window::GetWindowHandle()
 {
-	if(!Form) return nullptr;
-	return Form->GetWindowHandle();
+	if(!_form) return nullptr;
+	return _form->GetWindowHandle();
 }
 #endif
 //---------------------------------------------------------------------------
 void tTJSNI_Window::GetVideoOffset(tjs_int &ofsx, tjs_int &ofsy) {
-    if(!Form) {
+    if(!_form) {
         ofsx = 0;
         ofsy = 0;
     } else {
-        Form->GetVideoOffset(ofsx, ofsy);
+        _form->GetVideoOffset(ofsx, ofsy);
     }
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::ReadjustVideoRect() {
-    if(!Form)
+    if(!_form)
         return;
 
     // re-adjust video rectangle.
@@ -1452,355 +1453,355 @@ void tTJSNI_Window::DetachVideoOverlay() {
 #if 0
 HWND tTJSNI_Window::GetWindowHandleForPlugin()
 {
-	if(!Form) return nullptr;
-	return Form->GetWindowHandleForPlugin();
+	if(!_form) return nullptr;
+	return _form->GetWindowHandleForPlugin();
 }
 #endif
 //---------------------------------------------------------------------------
 void tTJSNI_Window::RegisterWindowMessageReceiver(tTVPWMRRegMode mode,
                                                   void *proc,
                                                   const void *userdata) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->RegisterWindowMessageReceiver(mode, proc, userdata);
+    _form->RegisterWindowMessageReceiver(mode, proc, userdata);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::Close() {
-    if(Form)
-        Form->Close();
+    if(_form)
+        _form->Close();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::OnCloseQueryCalled(bool b) {
-    if(Form)
-        Form->OnCloseQueryCalled(b);
+    if(_form)
+        _form->OnCloseQueryCalled(b);
 }
 //---------------------------------------------------------------------------
 #ifdef USE_OBSOLETE_FUNCTIONS
 void tTJSNI_Window::BeginMove() {
     FullScreenGuard();
-    if(Form)
-        Form->BeginMove();
+    if(_form)
+        _form->BeginMove();
 }
 #endif
 //---------------------------------------------------------------------------
 void tTJSNI_Window::BringToFront() {
-    if(Form)
-        Form->BringToFront();
+    if(_form)
+        _form->BringToFront();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::Update(tTVPUpdateType type) {
-    if(Form)
-        Form->UpdateWindow(type);
+    if(_form)
+        _form->UpdateWindow(type);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::ShowModal() {
     FullScreenGuard();
-    if(Form) {
+    if(_form) {
         TVPClearAllWindowInputEvents();
         // cancel all input events that can cause delayed operation
-        Form->ShowWindowAsModal();
+        _form->ShowWindowAsModal();
     }
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::HideMouseCursor() {
-    if(Form)
-        Form->HideMouseCursor();
+    if(_form)
+        _form->HideMouseCursor();
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetVisible() const {
-    if(!Form)
+    if(!_form)
         return false;
-    return Form->GetVisible();
+    return _form->GetVisible();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetVisible(bool s) {
     FullScreenGuard();
-    if(Form)
-        Form->SetVisibleFromScript(s);
+    if(_form)
+        _form->SetVisibleFromScript(s);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::GetCaption(ttstr &v) const {
-    if(Form)
-        v = Form->GetCaption();
+    if(_form)
+        v = _form->GetCaption();
     else
         v.Clear();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetCaption(const ttstr &v) {
-    if(Form)
-        Form->SetCaption(v.AsStdString());
+    if(_form)
+        _form->SetCaption(v.AsStdString());
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetWidth(tjs_int w) {
     FullScreenGuard();
-    if(Form)
-        Form->SetWidth(w);
+    if(_form)
+        _form->SetWidth(w);
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_Window::GetWidth() const {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetWidth();
+    return _form->GetWidth();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetHeight(tjs_int h) {
     FullScreenGuard();
-    if(Form)
-        Form->SetHeight(h);
+    if(_form)
+        _form->SetHeight(h);
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_Window::GetHeight() const {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetHeight();
+    return _form->GetHeight();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetLeft(tjs_int l) {
     FullScreenGuard();
-    if(Form)
-        Form->SetLeft(l);
+    if(_form)
+        _form->SetLeft(l);
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_Window::GetLeft() const {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetLeft();
+    return _form->GetLeft();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetTop(tjs_int t) {
     FullScreenGuard();
-    if(Form)
-        Form->SetTop(t);
+    if(_form)
+        _form->SetTop(t);
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_Window::GetTop() const {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetTop();
+    return _form->GetTop();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetSize(tjs_int w, tjs_int h) {
     FullScreenGuard();
-    if(Form)
-        Form->SetSize(w, h);
+    if(_form)
+        _form->SetSize(w, h);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetMinWidth(int v) {
     FullScreenGuard();
-    if(Form)
-        Form->SetMinWidth(v);
+    if(_form)
+        _form->SetMinWidth(v);
 }
 //---------------------------------------------------------------------------
 int tTJSNI_Window::GetMinWidth() const {
-    if(Form)
-        return Form->GetMinWidth();
+    if(_form)
+        return _form->GetMinWidth();
     else
         return 0;
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetMinHeight(int v) {
     FullScreenGuard();
-    if(Form)
-        Form->SetMinHeight(v);
+    if(_form)
+        _form->SetMinHeight(v);
 }
 //---------------------------------------------------------------------------
 int tTJSNI_Window::GetMinHeight() const {
-    if(Form)
-        return Form->GetMinHeight();
+    if(_form)
+        return _form->GetMinHeight();
     else
         return 0;
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetMinSize(int w, int h) {
     FullScreenGuard();
-    if(Form)
-        Form->SetMinSize(w, h);
+    if(_form)
+        _form->SetMinSize(w, h);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetMaxWidth(int v) {
     FullScreenGuard();
-    if(Form)
-        Form->SetMaxWidth(v);
+    if(_form)
+        _form->SetMaxWidth(v);
 }
 //---------------------------------------------------------------------------
 int tTJSNI_Window::GetMaxWidth() const {
-    if(Form)
-        return Form->GetMaxWidth();
+    if(_form)
+        return _form->GetMaxWidth();
     else
         return 0;
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetMaxHeight(int v) {
     FullScreenGuard();
-    if(Form)
-        Form->SetMaxHeight(v);
+    if(_form)
+        _form->SetMaxHeight(v);
 }
 //---------------------------------------------------------------------------
 int tTJSNI_Window::GetMaxHeight() const {
-    if(Form)
-        return Form->GetMaxHeight();
+    if(_form)
+        return _form->GetMaxHeight();
     else
         return 0;
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetMaxSize(int w, int h) {
     FullScreenGuard();
-    if(Form)
-        Form->SetMaxSize(w, h);
+    if(_form)
+        _form->SetMaxSize(w, h);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetPosition(tjs_int l, tjs_int t) {
     FullScreenGuard();
-    if(Form)
-        Form->SetPosition(l, t);
+    if(_form)
+        _form->SetPosition(l, t);
 }
 //---------------------------------------------------------------------------
 #ifdef USE_OBSOLETE_FUNCTIONS
 void tTJSNI_Window::SetLayerLeft(tjs_int l) {
-    if(Form)
-        Form->SetLayerLeft(l);
+    if(_form)
+        _form->SetLayerLeft(l);
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_Window::GetLayerLeft() const {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetLayerLeft();
+    return _form->GetLayerLeft();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetLayerTop(tjs_int t) {
-    if(Form)
-        Form->SetLayerTop(t);
+    if(_form)
+        _form->SetLayerTop(t);
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_Window::GetLayerTop() const {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetLayerTop();
+    return _form->GetLayerTop();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetLayerPosition(tjs_int l, tjs_int t) {
-    if(Form)
-        Form->SetLayerPosition(l, t);
+    if(_form)
+        _form->SetLayerPosition(l, t);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetInnerSunken(bool b) {
     FullScreenGuard();
-    if(Form)
-        Form->SetInnerSunken(b);
+    if(_form)
+        _form->SetInnerSunken(b);
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetInnerSunken() const {
-    if(!Form)
+    if(!_form)
         return true;
-    return Form->GetInnerSunken();
+    return _form->GetInnerSunken();
 }
 #endif
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetInnerWidth(tjs_int w) {
     FullScreenGuard();
-    if(Form)
-        Form->SetInnerWidth(w);
+    if(_form)
+        _form->SetInnerWidth(w);
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_Window::GetInnerWidth() const {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetInnerWidth();
+    return _form->GetInnerWidth();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetInnerHeight(tjs_int h) {
     FullScreenGuard();
-    if(Form)
-        Form->SetInnerHeight(h);
+    if(_form)
+        _form->SetInnerHeight(h);
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_Window::GetInnerHeight() const {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetInnerHeight();
+    return _form->GetInnerHeight();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetInnerSize(tjs_int w, tjs_int h) {
     FullScreenGuard();
-    if(Form)
-        Form->SetInnerSize(w, h);
+    if(_form)
+        _form->SetInnerSize(w, h);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetBorderStyle(tTVPBorderStyle st) {
     FullScreenGuard();
-    if(Form)
-        Form->SetBorderStyle(st);
+    if(_form)
+        _form->SetBorderStyle(st);
 }
 //---------------------------------------------------------------------------
 tTVPBorderStyle tTJSNI_Window::GetBorderStyle() const {
-    if(!Form)
+    if(!_form)
         return (tTVPBorderStyle)0;
-    return Form->GetBorderStyle();
+    return _form->GetBorderStyle();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetStayOnTop(bool b) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetStayOnTop(b);
+    _form->SetStayOnTop(b);
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetStayOnTop() const {
-    if(!Form)
+    if(!_form)
         return false;
-    return Form->GetStayOnTop();
+    return _form->GetStayOnTop();
 }
 //---------------------------------------------------------------------------
 #ifdef USE_OBSOLETE_FUNCTIONS
 void tTJSNI_Window::SetShowScrollBars(bool b) {
-    if(Form)
-        Form->SetShowScrollBars(b);
+    if(_form)
+        _form->SetShowScrollBars(b);
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetShowScrollBars() const {
-    if(!Form)
+    if(!_form)
         return true;
-    return Form->GetShowScrollBars();
+    return _form->GetShowScrollBars();
 }
 #endif
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetFullScreen(bool b) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetFullScreenMode(b);
+    _form->SetFullScreenMode(b);
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetFullScreen() const {
-    if(!Form)
+    if(!_form)
         return false;
-    return Form->GetFullScreenMode();
+    return _form->GetFullScreenMode();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetUseMouseKey(bool b) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetUseMouseKey(b);
+    _form->SetUseMouseKey(b);
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetUseMouseKey() const {
-    if(!Form)
+    if(!_form)
         return false;
-    return Form->GetUseMouseKey();
+    return _form->GetUseMouseKey();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetTrapKey(bool b) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetTrapKey(b);
+    _form->SetTrapKey(b);
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetTrapKey() const {
-    if(!Form)
+    if(!_form)
         return false;
-    return Form->GetTrapKey();
+    return _form->GetTrapKey();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetMaskRegion(tjs_int threshold) {
-    if(!Form)
+    if(!_form)
         return;
 
     if(!DrawDevice)
@@ -1813,178 +1814,178 @@ void tTJSNI_Window::SetMaskRegion(tjs_int threshold) {
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::RemoveMaskRegion() {
-    if(!Form)
+    if(!_form)
         return;
-    Form->RemoveMaskRegion();
+    _form->RemoveMaskRegion();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetMouseCursorState(tTVPMouseCursorState mcs) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetMouseCursorState(mcs);
+    _form->SetMouseCursorState(mcs);
 }
 //---------------------------------------------------------------------------
 tTVPMouseCursorState tTJSNI_Window::GetMouseCursorState() const {
-    if(!Form)
+    if(!_form)
         return mcsVisible;
-    return Form->GetMouseCursorState();
+    return _form->GetMouseCursorState();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetFocusable(bool b) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetFocusable(b);
+    _form->SetFocusable(b);
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetFocusable() {
-    if(!Form)
+    if(!_form)
         return true;
-    return Form->GetFocusable();
+    return _form->GetFocusable();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetZoom(tjs_int numer, tjs_int denom) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetZoom(numer, denom);
+    _form->SetZoom(numer, denom);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetZoomNumer(tjs_int n) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetZoomNumer(n);
+    _form->SetZoomNumer(n);
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_Window::GetZoomNumer() const {
-    if(!Form)
+    if(!_form)
         return 1;
-    return Form->GetZoomNumer();
+    return _form->GetZoomNumer();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetZoomDenom(tjs_int n) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetZoomDenom(n);
+    _form->SetZoomDenom(n);
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_Window::GetZoomDenom() const {
-    if(!Form)
+    if(!_form)
         return 1;
-    return Form->GetZoomDenom();
+    return _form->GetZoomDenom();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetTouchScaleThreshold(tjs_real threshold) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetTouchScaleThreshold(threshold);
+    _form->SetTouchScaleThreshold(threshold);
 }
 //---------------------------------------------------------------------------
 tjs_real tTJSNI_Window::GetTouchScaleThreshold() const {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetTouchScaleThreshold();
+    return _form->GetTouchScaleThreshold();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetTouchRotateThreshold(tjs_real threshold) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetTouchRotateThreshold(threshold);
+    _form->SetTouchRotateThreshold(threshold);
 }
 //---------------------------------------------------------------------------
 tjs_real tTJSNI_Window::GetTouchRotateThreshold() const {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetTouchRotateThreshold();
+    return _form->GetTouchRotateThreshold();
 }
 //---------------------------------------------------------------------------
 tjs_real tTJSNI_Window::GetTouchPointStartX(tjs_int index) {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetTouchPointStartX(index);
+    return _form->GetTouchPointStartX(index);
 }
 //---------------------------------------------------------------------------
 tjs_real tTJSNI_Window::GetTouchPointStartY(tjs_int index) {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetTouchPointStartY(index);
+    return _form->GetTouchPointStartY(index);
 }
 //---------------------------------------------------------------------------
 tjs_real tTJSNI_Window::GetTouchPointX(tjs_int index) {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetTouchPointX(index);
+    return _form->GetTouchPointX(index);
 }
 //---------------------------------------------------------------------------
 tjs_real tTJSNI_Window::GetTouchPointY(tjs_int index) {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetTouchPointY(index);
+    return _form->GetTouchPointY(index);
 }
 //---------------------------------------------------------------------------
 tjs_real tTJSNI_Window::GetTouchPointID(tjs_int index) {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetTouchPointID(index);
+    return _form->GetTouchPointID(index);
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_Window::GetTouchPointCount() {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetTouchPointCount();
+    return _form->GetTouchPointCount();
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetTouchVelocity(tjs_int id, float &x, float &y,
                                      float &speed) const {
-    if(!Form)
+    if(!_form)
         return false;
-    return Form->GetTouchVelocity(id, x, y, speed);
+    return _form->GetTouchVelocity(id, x, y, speed);
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetMouseVelocity(float &x, float &y, float &speed) const {
-    if(!Form)
+    if(!_form)
         return false;
-    return Form->GetMouseVelocity(x, y, speed);
+    return _form->GetMouseVelocity(x, y, speed);
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::ResetMouseVelocity() {
-    if(!Form)
+    if(!_form)
         return;
-    return Form->ResetMouseVelocity();
+    return _form->ResetMouseVelocity();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetHintDelay(tjs_int delay) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetHintDelay(delay);
+    _form->SetHintDelay(delay);
 }
 //---------------------------------------------------------------------------
 tjs_int tTJSNI_Window::GetHintDelay() const {
-    if(!Form)
+    if(!_form)
         return 0;
-    return Form->GetHintDelay();
+    return _form->GetHintDelay();
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetEnableTouch(bool b) {
-    if(!Form)
+    if(!_form)
         return;
-    Form->SetEnableTouch(b);
+    _form->SetEnableTouch(b);
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::GetEnableTouch() const {
-    if(!Form)
+    if(!_form)
         return false;
-    return Form->GetEnableTouch();
+    return _form->GetEnableTouch();
 }
 //---------------------------------------------------------------------------
 int tTJSNI_Window::GetDisplayOrientation() {
-    if(!Form)
+    if(!_form)
         return orientUnknown;
-    return Form->GetDisplayOrientation();
+    return _form->GetDisplayOrientation();
 }
 //---------------------------------------------------------------------------
 int tTJSNI_Window::GetDisplayRotate() {
-    if(!Form)
+    if(!_form)
         return -1;
-    return Form->GetDisplayRotate();
+    return _form->GetDisplayRotate();
 }
 //---------------------------------------------------------------------------
 bool tTJSNI_Window::WaitForVBlank(tjs_int *in_vblank, tjs_int *delayed) {
@@ -2102,8 +2103,8 @@ void tTJSNI_Window::ResetImeMode(class iTVPLayerManager *manager) {
 void tTJSNI_Window::OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
                               tjs_uint32 id) {
     tTJSNI_BaseWindow::OnTouchUp(x, y, cx, cy, id);
-    if(Form) {
-        Form->ResetTouchVelocity(id);
+    if(_form) {
+        _form->ResetTouchVelocity(id);
     }
 }
 //---------------------------------------------------------------------------

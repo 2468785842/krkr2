@@ -11,7 +11,7 @@
 
 #ifndef __TVPINPUTDEFS_H__
 #define __TVPINPUTDEFS_H__
-
+#include "tjsTypes.h"
 /*[*/
 //---------------------------------------------------------------------------
 // mouse button

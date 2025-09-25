@@ -270,7 +270,7 @@ void tTVPPassThroughDrawDevice::CreateDrawer(tDrawerType type) {
             tTVPRect(0, 0, DestRect.get_width(), DestRect.get_height()));
     } catch(const eTJS &e) {
         TVPAddImportantLog(TJS_W("Passthrough: Failed to create drawer: ") +
-                           e.GetMessage());
+                           e.getMessage());
         DestroyDrawer();
     } catch(...) {
         TVPAddImportantLog(

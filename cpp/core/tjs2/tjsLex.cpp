@@ -1667,7 +1667,7 @@ namespace TJS {
             try {
                 PreProcess();
             } catch(eTJSCompileError &e) {
-                _yyerror(e.GetMessage().c_str(), Block, e.GetPosition());
+                _yyerror(e.getMessage().c_str(), Block, e.GetPosition());
                 return 0;
             }
             Current = Script;
@@ -1839,13 +1839,13 @@ namespace TJS {
                                              (tjs_int)(Current - Script));
                 }
             } catch(eTJSCompileError &e) {
-                _yyerror(e.GetMessage().c_str(), Block);
+                _yyerror(e.getMessage().c_str(), Block);
                 return 0;
             } catch(eTJSScriptError &e) {
-                _yyerror(e.GetMessage().c_str(), Block);
+                _yyerror(e.getMessage().c_str(), Block);
                 return 0;
             } catch(eTJS &e) {
-                _yyerror(e.GetMessage().c_str(), Block);
+                _yyerror(e.getMessage().c_str(), Block);
                 return 0;
             }
 #ifdef TJS_SUPPORT_VCL

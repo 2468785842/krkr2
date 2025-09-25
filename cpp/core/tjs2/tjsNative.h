@@ -8,15 +8,8 @@
 //---------------------------------------------------------------------------
 // Support for C++ native class/method/property definitions
 //---------------------------------------------------------------------------
-#ifndef tjsNativeH
-#define tjsNativeH
-
+#pragma once
 #include "tjsObjectExtendable.h"
-
-// 和Windows系统宏冲突了
-#ifdef GetClassName
-#undef GetClassName
-#endif
 
 namespace TJS {
     //---------------------------------------------------------------------------
@@ -219,7 +212,7 @@ namespace TJS {
                                tjs_uint32 *hint, const tjs_char *classname,
                                iTJSDispatch2 *objthis) override;
 
-        [[nodiscard]] const ttstr &GetClassName() const { return ClassName; }
+        [[nodiscard]] const ttstr &getClassName() const { return ClassName; }
 
         void SetClassID(tjs_int32 classid) { _ClassID = classid; }
     };
@@ -369,13 +362,13 @@ namespace TJS {
     TJS_END_NATIVE_METHOD_DECL_INT                                             \
     TJSNativeClassRegisterNCM((object), TJS_W(#name),                          \
                               TJSCreateNativeClassMethod(NCM_##name::Process), \
-                              (object)->GetClassName().c_str(), nitMethod);
+                              (object)->getClassName().c_str(), nitMethod);
 
 #define TJS_END_NATIVE_STATIC_METHOD_DECL_OUTER(object, name)                  \
     TJS_END_NATIVE_METHOD_DECL_INT                                             \
     TJSNativeClassRegisterNCM((object), TJS_W(#name),                          \
                               TJSCreateNativeClassMethod(NCM_##name::Process), \
-                              (object)->GetClassName().c_str(), nitMethod,     \
+                              (object)->getClassName().c_str(), nitMethod,     \
                               TJS_STATICMEMBER);
 
 #define TJS_DECL_EMPTY_FINALIZE_METHOD                                         \
@@ -436,7 +429,7 @@ namespace TJS {
     TJSNativeClassRegisterNCM(                                                 \
         (object), TJS_W(#name),                                                \
         TJSCreateNativeClassProperty(NCM_##name::Get, NCM_##name::Set),        \
-        (object)->GetClassName().c_str(), nitProperty);
+        (object)->getClassName().c_str(), nitProperty);
 
 #define TJS_END_NATIVE_STATIC_PROP_DECL(name)                                  \
     ;                                                                          \
@@ -450,7 +443,7 @@ namespace TJS {
     TJSNativeClassRegisterNCM(                                                 \
         (object), TJS_W(#name),                                                \
         TJSCreateNativeClassProperty(NCM_##name::Get, NCM_##name::Set),        \
-        (object)->GetClassName().c_str(), nitProperty, TJS_STATICMEMBER);
+        (object)->getClassName().c_str(), nitProperty, TJS_STATICMEMBER);
 
 #define TJS_BEGIN_NATIVE_PROP_GETTER                                           \
     static tjs_error Get(tTJSVariant *result, iTJSDispatch2 *objthis) {
@@ -509,5 +502,3 @@ namespace TJS {
     };
     //---------------------------------------------------------------------------
 } // namespace TJS
-
-#endif

@@ -14,9 +14,10 @@
 
 // #include <myWindows/StdAfx.h>
 #include "WindowIntf.h"
-#include "TVPWindow.h"
 
 #define WM_USER 0x0400
+
+enum tTVPWMRRegMode { wrmRegister = 0, wrmUnregister = 1 };
 
 /*[*/
 //---------------------------------------------------------------------------
@@ -224,7 +225,7 @@ typedef iWindowLayer TTVPWindowForm;
 class iTVPDrawDevice;
 class tTJSNI_BaseLayer;
 class tTJSNI_Window : public tTJSNI_BaseWindow {
-    TTVPWindowForm *Form;
+    TTVPWindowForm *_form;
     //	class tTVPVSyncTimingThread *VSyncTimingThread;
 
 public:
@@ -232,14 +233,14 @@ public:
     tjs_error Construct(tjs_int numparams, tTJSVariant **param,
                         iTJSDispatch2 *tjs_obj) override;
     void Invalidate() override;
-    bool CloseFlag;
+    bool closeFlag;
 
 public:
     [[nodiscard]] bool CanDeliverEvents()
         const override; // tTJSNI_BaseWindow::CanDeliverEvents override
 
 public:
-    [[nodiscard]] TTVPWindowForm *GetForm() const override { return Form; }
+    [[nodiscard]] TTVPWindowForm *getForm() const { return _form; }
     void NotifyWindowClose();
     void SendCloseMessage();
     void TickBeat();

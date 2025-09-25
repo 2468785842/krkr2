@@ -181,7 +181,7 @@ public:
 //---------------------------------------------------------------------------
 // Utility functionss
 //---------------------------------------------------------------------------
-bool TVPGetJoyPadAsyncState(tjs_uint keycode, bool getcurrent);
+// bool TVPGetJoyPadAsyncState(tjs_uint keycode, bool getcurrent);
 //---------------------------------------------------------------------------
 
 #endif

@@ -26,6 +26,7 @@
 #include "etcpak.h"
 #include "pvrtc.h"
 #include "pvr.h"
+#include "RenderUtils.h"
 
 // #define TEST_SHADER_ENABLED
 #ifndef GL_ETC1_RGB8_OES
@@ -2408,7 +2409,6 @@ const void *tTVPOGLTexture2D::GetScanLineForRead(tjs_uint l) {
 #define TEST_SHADER_IGNORE_ALPHA(...)
 #endif
 
-void TVPSetPostUpdateEvent(void (*f)());
 static iTVPTexture2D *(*_CreateStaticTexture2D)(const void *dib, tjs_uint tw,
                                                 tjs_uint th, tjs_int pitch,
                                                 TVPTextureFormat::e fmt,

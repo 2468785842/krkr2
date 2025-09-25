@@ -46,7 +46,7 @@
 #include "ImageFunction.h"
 #include "BitmapIntf.h"
 #include "tjsScriptBlock.h"
-#include "ApplicationSpecialPath.h"
+#include "../environ/impl/ApplicationSpecialPath.h"
 #include "SystemImpl.h"
 #include "BitmapLayerTreeOwner.h"
 #include "Extension.h"
@@ -905,7 +905,7 @@ void TVPExecuteStartupScript() {
             TVPExecuteStorage(patch);
     } catch(const TJS::eTJSScriptError &e) {
         ttstr &msg = strPatchError;
-        msg += e.GetMessage();
+        msg += e.getMessage();
         const tjs_char *pszBlockName = e.GetBlockName();
         if(pszBlockName && *pszBlockName) {
             msg += TJS_W("\n@line(");
@@ -918,7 +918,7 @@ void TVPExecuteStartupScript() {
         msg += e.GetTrace();
     } catch(const TJS::eTJS &e) {
         if(!TVPSystemUninitCalled)
-            strPatchError = e.GetMessage();
+            strPatchError = e.getMessage();
     } catch(const std::exception &e) {
         strPatchError = e.what();
     } catch(const char *e) {
@@ -1083,7 +1083,7 @@ bool TVPProcessUnhandledException(eTJSScriptError &e) {
 
         // execute clo
         tTJSVariant obj;
-        tTJSVariant msg(e.GetMessage());
+        tTJSVariant msg(e.getMessage());
         tTJSVariant trace(e.GetTrace());
         TJSGetExceptionObject(engine, &obj, msg, &trace);
 
@@ -1128,7 +1128,7 @@ bool TVPProcessUnhandledException(eTJS &e) {
 
         // execute clo
         tTJSVariant obj;
-        tTJSVariant msg(e.GetMessage());
+        tTJSVariant msg(e.getMessage());
         TJSGetExceptionObject(engine, &obj, msg);
 
         tTJSVariant *pval[] = { &obj };
@@ -1184,9 +1184,9 @@ void TVPShowScriptException(eTJS &e) {
 
     if(!TVPSystemUninitCalled) {
         ttstr errstr =
-            (ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e.GetMessage());
+            (ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e.getMessage());
         TVPAddLog(ttstr(TVPScriptExceptionRaised) + TJS_W("\n") +
-                  e.GetMessage());
+                  e.getMessage());
         TVPShowSimpleMessageBox(errstr, TVPGetErrorDialogTitle());
         // Application->MessageDlg( errstr.AsStdString(),
         // std::wstring(), mtError, mbOK );
@@ -1201,9 +1201,9 @@ void TVPShowScriptException(eTJSScriptError &e) {
 
     if(!TVPSystemUninitCalled) {
         ttstr errstr =
-            (ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e.GetMessage());
+            (ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e.getMessage());
         TVPAddLog(ttstr(TVPScriptExceptionRaised) + TJS_W("\n") +
-                  e.GetMessage());
+                  e.getMessage());
         if(e.GetTrace().GetLen() != 0)
             TVPAddLog(ttstr(TJS_W("trace : ")) + e.GetTrace());
         TVPShowSimpleMessageBox(errstr, TVPGetErrorDialogTitle());

@@ -20,7 +20,7 @@
 
 #include "Exception.h"
 // #include "Resource.h"
-#include "SystemControl.h"
+#include "impl/SystemControl.h"
 // #include "MouseCursor.h"
 #include "SystemImpl.h"
 #include "WaveImpl.h"
@@ -365,7 +365,7 @@ bool tTVPApplication::StartApplication(ttstr path) {
                 msg += title_;
                 msg += "\n";
             }
-            msg += e.GetMessage();
+            msg += e.getMessage();
             const tjs_char *pszBlockName = e.GetBlockName();
             if(pszBlockName && *pszBlockName) {
                 msg += TJS_W("\n@line(");
@@ -381,7 +381,7 @@ bool tTVPApplication::StartApplication(ttstr path) {
     } catch(const TJS::eTJS &e) {
         TVPOnError();
         if(!TVPSystemUninitCalled)
-            ShowException(e.GetMessage());
+            ShowException(e.getMessage());
     } catch(const std::exception &e) {
         ShowException(e.what());
     } catch(const char *e) {

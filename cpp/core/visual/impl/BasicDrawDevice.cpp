@@ -18,6 +18,8 @@
 // #include <mmsystem.h>
 #include <algorithm>
 
+#include "TVPWindow.h"
+
 //---------------------------------------------------------------------------
 // オプション
 //---------------------------------------------------------------------------
@@ -330,7 +332,7 @@ void tTVPBasicDrawDevice::EnsureDevice()
 				InvalidateAll();
 			}
 		} catch(const eTJS & e) {
-			TVPAddImportantLog( TVPFormatMessage(TVPBasicDrawDeviceFailedToCreateDirect3DDevice,e.GetMessage()) );
+			TVPAddImportantLog( TVPFormatMessage(TVPBasicDrawDeviceFailedToCreateDirect3DDevice,e.getMessage()) );
 			DestroyD3DDevice();
 		} catch(...) {
 			TVPAddImportantLog( (const tjs_char*)TVPBasicDrawDeviceFailedToCreateDirect3DDeviceUnknownReason );
@@ -513,7 +515,7 @@ void tTVPBasicDrawDevice::SetDestRectangle(const tTVPRect &rect) {
 		try {
 			EnsureDevice();
 		} catch(const eTJS & e) {
-			TVPAddImportantLog( TVPFormatMessage(TVPBasicDrawDeviceFailedToCreateDirect3DDevices,e.GetMessage() ) );
+			TVPAddImportantLog( TVPFormatMessage(TVPBasicDrawDeviceFailedToCreateDirect3DDevices,e.getMessage() ) );
 			success = false;
 		} catch(...) {
 			TVPAddImportantLog( (const tjs_char*)TVPBasicDrawDeviceFailedToCreateDirect3DDevicesUnknownReason );
@@ -537,7 +539,7 @@ void tTVPBasicDrawDevice::NotifyLayerResize(iTVPLayerManager *manager) {
 //---------------------------------------------------------------------------
 void tTVPBasicDrawDevice::Show() {
     if(Window) {
-        iWindowLayer *form = Window->GetForm();
+        iWindowLayer *form = Window->getForm();
         if(form && !Managers.empty()) {
             iTVPBaseBitmap *buf = Managers.back()->GetDrawBuffer();
             if(buf)

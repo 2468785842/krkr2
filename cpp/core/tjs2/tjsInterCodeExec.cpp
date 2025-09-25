@@ -1308,11 +1308,11 @@ namespace TJS {
             throw;
         } catch(eTJS &e) {
             if(tryCatch) {
-                spdlog::get("tjs2")->debug(e.GetMessage().AsStdString());
+                spdlog::get("tjs2")->debug(e.getMessage().AsStdString());
             } else {
                 DisplayExceptionGeneratedCode(codesave - CodeArea, ra_org);
             }
-            TJS_eTJSScriptError(e.GetMessage(), this, codesave - CodeArea);
+            TJS_eTJSScriptError(e.getMessage(), this, codesave - CodeArea);
         } catch(exception &e) {
             if(tryCatch) {
                 spdlog::get("tjs2")->debug(e.what());
@@ -1360,7 +1360,7 @@ namespace TJS {
             return catchip;
         } catch(eTJSScriptError &e) {
             if(exobjreg) {
-                tTJSVariant msg(e.GetMessage());
+                tTJSVariant msg(e.getMessage());
                 tTJSVariant trace(e.GetTrace());
                 TJSGetExceptionObject(Block->GetTJS(), ra + exobjreg, msg,
                                       &trace);
@@ -1368,7 +1368,7 @@ namespace TJS {
             return catchip;
         } catch(eTJS &e) {
             if(exobjreg) {
-                tTJSVariant msg(e.GetMessage());
+                tTJSVariant msg(e.getMessage());
                 TJSGetExceptionObject(Block->GetTJS(), ra + exobjreg, msg,
                                       nullptr);
             }

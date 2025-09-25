@@ -17,7 +17,7 @@
 
 #include <math.h>
 #include <algorithm>
-#include "SystemControl.h"
+#include "../../environ/impl/SystemControl.h"
 #include "DebugIntf.h"
 #include "MsgIntf.h"
 #include "StorageIntf.h"
@@ -2152,7 +2152,7 @@ void tTJSNI_WaveSoundBuffer::CreateSoundBuffer() {
                 TryCreateSoundBuffer(use3d);
             } catch(eTJSError &e) {
                 failed = true;
-                msg = e.GetMessage();
+                msg = e.getMessage();
             }
 
             if(failed || !SoundBuffer) {
@@ -2165,7 +2165,7 @@ void tTJSNI_WaveSoundBuffer::CreateSoundBuffer() {
                     firstformat = TVPGetSoundBufferFormatString(InputFormat);
                     failed = true;
                     firstfailed = true;
-                    msg = e.GetMessage();
+                    msg = e.getMessage();
                 }
             }
 
@@ -2178,7 +2178,7 @@ void tTJSNI_WaveSoundBuffer::CreateSoundBuffer() {
                     TryCreateSoundBuffer(use3d);
                 } catch(eTJSError &e) {
                     failed = true;
-                    msg = e.GetMessage();
+                    msg = e.getMessage();
                 }
                 if(!failed)
                     forcemode = 1;
@@ -2193,7 +2193,7 @@ void tTJSNI_WaveSoundBuffer::CreateSoundBuffer() {
                     TryCreateSoundBuffer(use3d);
                 } catch(eTJSError &e) {
                     failed = true;
-                    msg = e.GetMessage();
+                    msg = e.getMessage();
                 }
                 if(!failed)
                     forcemode = 2;

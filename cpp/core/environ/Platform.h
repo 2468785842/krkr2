@@ -71,3 +71,8 @@ bool TVP_stat(const char *name, tTVP_stat &s);
 bool TVP_utime(const char *name, time_t modtime);
 
 void TVPSendToOtherApp(const std::string &filename);
+
+void TVPControlAdDialog(int adType, int arg1, int arg2);
+void TVPProcessInputEvents();
+void TVPForceSwapBuffer();
+tjs_uint32 TVPGetRoughTickCount32();

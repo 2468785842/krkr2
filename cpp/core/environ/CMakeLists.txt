@@ -50,25 +50,13 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/ui/extension/ActionExtension.cpp
     ${ENVIRON_PATH}/ui/extension/UIExtension.cpp
 
-    ${ENVIRON_PATH}/win32/SystemControl.cpp
-#    ${ENVIRON_PATH}/win32/CompatibleNativeFuncs.cpp
-#    ${ENVIRON_PATH}/win32/ConfigFormUnit.cpp
-#    ${ENVIRON_PATH}/win32/DetectCPU.cpp
-#    ${ENVIRON_PATH}/win32/EmergencyExit.cpp
-#    ${ENVIRON_PATH}/win32/HitWindow.cpp
-#    ${ENVIRON_PATH}/win32/MouseCursor.cpp
-#    ${ENVIRON_PATH}/win32/my_HintWindow.cpp
-#    ${ENVIRON_PATH}/win32/Platform.cpp
-#    ${ENVIRON_PATH}/win32/TouchPoint.cpp
-#    ${ENVIRON_PATH}/win32/TVPWindow.cpp
-#    ${ENVIRON_PATH}/win32/VersionFormUnit.cpp
-#    ${ENVIRON_PATH}/win32/WindowFormUnit.cpp
-#    ${ENVIRON_PATH}/win32/WindowsUtil.cpp
+    ${ENVIRON_PATH}/impl/SystemControl.cpp
+    ${ENVIRON_PATH}/impl/TVPWindow.cpp
 )
 
 set(ENVIRON_HEADERS_DIR
     ${ENVIRON_PATH}/
-    ${ENVIRON_PATH}/win32
+    ${ENVIRON_PATH}/impl
     $<$<BOOL:${ANDROID}>:${ENVIRON_PATH}/android>
     ${ENVIRON_PATH}/sdl
 )

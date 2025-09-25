@@ -407,11 +407,11 @@ static XP3FilterDecoder *AddXP3Decoder() {
     tTJSNativeClass *cls = TVPCreateNativeClass_Storages();
     TJSNativeClassRegisterNCM(cls, TJS_W("setXP3ArchiveExtractionFilter"),
                               new XP3FilterRegister(decoder),
-                              cls->GetClassName().c_str(), nitMethod,
+                              cls->getClassName().c_str(), nitMethod,
                               TJS_STATICMEMBER);
     TJSNativeClassRegisterNCM(cls, TJS_W("setXP3ArchiveContentFilter"),
                               new XP3ContentFilterRegister(decoder),
-                              cls->GetClassName().c_str(), nitMethod,
+                              cls->getClassName().c_str(), nitMethod,
                               TJS_STATICMEMBER);
     REGISTER_OBJECT(Storages, cls);
 

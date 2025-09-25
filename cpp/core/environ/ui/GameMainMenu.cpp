@@ -12,6 +12,7 @@
 #include "base/CCDirector.h"
 #include "platform/CCGLView.h"
 #include "Platform.h"
+#include "TVPWindow.h"
 
 using namespace cocos2d;
 using namespace cocos2d::ui;
@@ -35,7 +36,7 @@ TVPGameMainMenu *TVPGameMainMenu::create(GLubyte opa) {
 }
 
 iTJSDispatch2 *TVPGetMenuDispatch(tTVInteger hWnd);
-tTJSNI_Window *TVPGetActiveWindow();
+// tTJSNI_Window *TVPGetActiveWindow();
 
 bool TVPGameMainMenu::init() {
     bool ret = Node::init();
@@ -86,7 +87,7 @@ bool TVPGameMainMenu::init() {
 
     reader.findWidget("btn_gamemenu")->addClickEventListener([this](Ref *) {
         iTJSDispatch2 *menuobj =
-            TVPGetMenuDispatch((tjs_intptr_t)TVPGetActiveWindow());
+            TVPGetMenuDispatch((tjs_intptr_t)TVPWindowLayer::TVPGetActiveWindow());
         if(!menuobj)
             return;
         tTJSNI_MenuItem *menu;
@@ -126,7 +127,7 @@ bool TVPGameMainMenu::init() {
     });
 
     reader.findWidget("btn_exit")->addClickEventListener([this](Ref *) {
-        Application->PostUserMessage([]() { TVPGetActiveWindow()->Close(); });
+        Application->PostUserMessage([]() { TVPWindowLayer::TVPGetActiveWindow()->Close(); });
         shrink();
     });
 
