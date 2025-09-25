@@ -17,9 +17,9 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     env:
-      VCPKG_ROOT: /mnt/vcpkg
-      ANDROID_SDK_ROOT: /mnt/android-sdk
-      ANDROID_NDK: /mnt/android-ndk
+      VCPKG_ROOT: ${{ github.workspace }}/.act/vcpkg
+      ANDROID_SDK_ROOT: ${{ github.workspace }}/.act/android-sdk
+      ANDROID_NDK: ${{ github.workspace }}/.act/android-ndk
     steps:
       - uses: actions/checkout@v4
         with:
