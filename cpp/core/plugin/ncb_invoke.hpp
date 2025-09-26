@@ -16,16 +16,6 @@ struct MethodCaller {
 	template <template <typename> class Templ, class ArgsT, int N> struct tArgsExtract; // { typedef Templ<ArgsT::Arg[n]Type>::Type T[n];  T[n] t[n]; ... (n=1-N) }
 	template <class ArgsExtT, int N>                               struct tArgsSelect;  // { static inline ArgsExtT::T[N] &Get(ArgsExtT &arg) { return arg.t[N]; } };
 
-#if 0 // userdefined Functor sample
-	struct      ResultAndParamsHolderExample {
-		// get params operator method
-		template <int N, typename T> T operator ()(tNumTag<N> index, tTypeTag<T> dummy) const;
-		// set result operator method
-		template <typename T> bool operator ()(T result, tTypeTag<T> dummy);
-		/*                  */bool operator ()(); // if result is void
-	};
-#endif
-
 /**
 	Usage:
 
@@ -92,7 +82,7 @@ public:
 	}
 private:
 	template <class FncT, typename MethodT>               static bool invokeSelect(FncT io, MethodT const &m, void*&)       { return Invoke(io, m); } // for static method
-	template <class FncT, typename MethodT, class ClassT> static bool invokeSelect(FncT io, MethodT const &m, ClassT *inst) { return (inst != 0) && MCIMPL_TEMPL::Invoke(io, m, inst); } // for class method
+	template <class FncT, typename MethodT, class ClassT> static bool invokeSelect(FncT io, MethodT const &m, ClassT *inst) { return inst != nullptr && MCIMPL_TEMPL::Invoke(io, m, inst); } // for class method
 public:
 	template <class FncT, typename MethodT> 
 	static bool Invoke(FncT io, MethodT const &m, typename tMethodTraits<MethodT>::ClassWithConstType *inst) {
@@ -320,4 +310,4 @@ template <>           struct MC::tMethodHasResult<void> { enum { HasResult = fal
 #undef  MCAST_PRM_EXT
 #undef  MCAST_ARG_EXT
 
-template <typename T> static inline T method_cast(T method) { return method; }
+template <typename T> static T method_cast(T method) { return method; }

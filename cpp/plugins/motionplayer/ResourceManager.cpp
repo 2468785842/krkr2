@@ -9,15 +9,16 @@
 
 #define LOGGER spdlog::get("plugin")
 
-motion::ResourceManager::ResourceManager(iTJSDispatch2 *kag,
-                                         tjs_int cacheSize) {
-    LOGGER->info("kag: {}, cacheSize: {}", static_cast<void *>(kag), cacheSize);
+emote::ResourceManager::ResourceManager(iTJSDispatch2 *window,
+                                        tjs_int cacheSize) {
+    this->_window = window;
+    this->_cacheSize = cacheSize;
 }
 
-tjs_error motion::ResourceManager::setEmotePSBDecryptSeed(tTJSVariant *,
-                                                          tjs_int count,
-                                                          tTJSVariant **p,
-                                                          iTJSDispatch2 *) {
+tjs_error emote::ResourceManager::setEmotePSBDecryptSeed(tTJSVariant *,
+                                                         tjs_int count,
+                                                         tTJSVariant **p,
+                                                         iTJSDispatch2 *) {
     if(count != 1 && (*p)->Type() == tvtInteger) {
         return TJS_E_BADPARAMCOUNT;
     }
@@ -26,15 +27,15 @@ tjs_error motion::ResourceManager::setEmotePSBDecryptSeed(tTJSVariant *,
     return TJS_S_OK;
 }
 
-tjs_error motion::ResourceManager::setEmotePSBDecryptFunc(tTJSVariant *r,
-                                                          tjs_int n,
-                                                          tTJSVariant **p,
-                                                          iTJSDispatch2 *obj) {
+tjs_error emote::ResourceManager::setEmotePSBDecryptFunc(tTJSVariant *r,
+                                                         tjs_int n,
+                                                         tTJSVariant **p,
+                                                         iTJSDispatch2 *obj) {
     LOGGER->critical("setEmotePSBDecryptFunc no implement!");
     return TJS_S_OK;
 }
 
-tTJSVariant motion::ResourceManager::load(ttstr path) const {
+tTJSVariant emote::ResourceManager::load(ttstr path) const {
     PSB::PSBFile f;
     f.setSeed(_decryptSeed);
     if(!f.loadPSBFile(path)) {

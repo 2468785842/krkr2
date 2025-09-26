@@ -86,8 +86,8 @@ bool TVPGameMainMenu::init() {
     _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, _root);
 
     reader.findWidget("btn_gamemenu")->addClickEventListener([this](Ref *) {
-        iTJSDispatch2 *menuobj =
-            TVPGetMenuDispatch((tjs_intptr_t)TVPWindowLayer::TVPGetActiveWindow());
+        iTJSDispatch2 *menuobj = TVPGetMenuDispatch(
+            (tjs_intptr_t)TVPWindowLayer::TVPGetActiveWindow());
         if(!menuobj)
             return;
         tTJSNI_MenuItem *menu;
@@ -127,7 +127,8 @@ bool TVPGameMainMenu::init() {
     });
 
     reader.findWidget("btn_exit")->addClickEventListener([this](Ref *) {
-        Application->PostUserMessage([]() { TVPWindowLayer::TVPGetActiveWindow()->Close(); });
+        Application->PostUserMessage(
+            []() { TVPWindowLayer::TVPGetActiveWindow()->Close(); });
         shrink();
     });
 

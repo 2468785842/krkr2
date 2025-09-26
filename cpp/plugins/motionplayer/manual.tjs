@@ -1,0 +1,411 @@
+/**
+ * TJSレイヤドライバの擬似コードによるマニュアル
+ ****/
+
+
+/*------------------------------
+ * ユーティリティ
+ ------------------------------*/
+class Motion
+{
+  /**
+   * 必要なDLLがインストールされておりDirect3DによるGPU描画が可能かどうか判定する。
+   * @return GPU描画が利用可能かどうか
+   */
+  static function getD3DAvailable();
+};
+
+/*------------------------------
+ * リソースマネージャー
+ ------------------------------*/
+class Motion.ResourceManager
+{
+  /**
+   * リソースマネージャーのコンストラクト
+   * @param window キャッシュレイヤをぶら下げるwindow
+   * @param cacheSize キャッシュの最大サイズ
+   */
+  function ResourceManager(window, cacheSize);
+
+  /**
+   * リソースのロード
+   * @param filename ファイル名
+   * @return ロードしたリソースのリファレンス
+   */
+  function load(filename);
+  
+  /**
+   * リソースのアンロード
+   * @param filename ファイル名
+   */
+  function unload(filename);
+  
+  /**
+   * 全てのリソースをアンロード
+   */
+  void unloadAll();
+};
+
+
+/*------------------------------
+ * 分離レイヤアダプタ
+ ------------------------------*/
+class Motion.SeparateLayerAdaptor
+{
+  /*------------------------------
+   * 分離レイヤアダプタのコンストラクト
+   * @param targetLayer ターゲットレイヤ
+   ------------------------------*/
+  function SeparateLayerAdaptor(targetLayer);
+
+  /*------------------------------
+   * ターゲットレイヤ
+   ------------------------------*/
+  property targetLayer;
+
+  /*------------------------------
+   * レイヤのクリア
+   ------------------------------*/
+  function clear(void);
+
+  /*------------------------------
+   * 他のアダプタの内容をそのまま割り当て
+   * @param anotherAdaptor
+   ------------------------------*/
+  function assign(anotherAdaptor);
+
+  /*------------------------------
+   * レイヤのインデックス
+   ------------------------------*/
+  property absolute;
+};
+  
+
+/*------------------------------
+ * エモートプレイヤ
+ ------------------------------*/
+class Motion.EmotePlayer
+{
+  // 定数
+  TimelinePlayFlagParallel; // タイムライン再生フラグ・並列
+  TimelinePlayFlagDifference; // タイムライン再生フラグ・差分
+
+
+  /*------------------------------
+   * エモートプレイヤのコンストラクト
+   * @parma resourceManager リソースマネージャ
+   ------------------------------*/
+  function EmotePlayer(resourceManager);
+
+  /*------------------------------
+   * キャラ名
+   ------------------------------*/
+  property chara;
+
+  /*------------------------------
+   * モーション名
+   ------------------------------*/
+  property motion;
+
+  /*------------------------------
+   * 補完メソッド。
+   * E-moteでは常に ltFastLinear 推奨。
+   ------------------------------*/
+  property completionType;
+
+  /*------------------------------
+   * モーションキー。
+   * ロードしたリソースをそのまま代入（後述)
+   ------------------------------*/
+  property motionKey;
+
+  /*------------------------------
+   * マスクモード
+   * E-moteでは常にαマスクモード推奨。
+   ------------------------------*/
+  property maskMode;
+   
+  
+  /*------------------------------
+   * キューイング。
+   * obsolete仕様なので false のままでよい。
+   ------------------------------*/
+  propery queuing;
+
+  /*------------------------------
+   * 座標設定
+   * @param x X座標
+   * @param y Y座標
+   * @param time 遷移時間(ms)
+   * @param easing イージング（負の値でイーズイン、正の値でイーズアウト）
+   ------------------------------*/
+  function setCoord(x, y, time = 0, easing = 0);
+
+  /*------------------------------
+   * スケール設定
+   * @param scale スケール
+   * @param time 遷移時間(ms)
+   * @param easing イージング（負の値でイーズイン、正の値でイーズアウト）
+   ------------------------------*/
+  function setScale(scale, time = 0, easing = 0);
+
+  /*------------------------------
+   * 回転設定
+   * @param rotate 回転角(rad)
+   * @param time 遷移時間(ms)
+   * @param easing イージング（負の値でイーズイン、正の値でイーズアウト）
+   ------------------------------*/
+  function setRotate(rotate, time = 0, easing = 0);
+  
+  /*------------------------------
+   * DIFFUSEカラー設定
+   * @param color DIFFUSEカラー(0xAARRGGBB)
+   * @param time 遷移時間(ms)
+   * @param easing イージング（負の値でイーズイン、正の値でイーズアウト）
+   ------------------------------*/
+  function setColor(color, time = 0, easing = 0);
+
+  /*------------------------------
+   * 変数設定
+   * @param name 変数名
+   * @param value 変数値
+   * @param time 遷移時間(ms)
+   * @param easing イージング（負の値でイーズイン、正の値でイーズアウト）
+   ------------------------------*/
+  function setVariable(name, value, time = 0, easing = 0);
+
+  /*------------------------------
+   * 変数取得
+   * @param name 変数名
+   * @return 変数の値
+   ------------------------------*/
+  function getVariable(name);
+
+  /*------------------------------
+   * 外力設定
+   * @param name 外力カテゴリ名
+   * @param ofx X方向変位
+   * @param ofy Y方向変位
+   * @param time 遷移時間(ms)
+   * @param easing イージング（負の値でイーズイン、正の値でイーズアウト）
+   ------------------------------*/
+  function setOuterForce(name, ofx, ofy, time = 0, easing = 0);
+
+  /*------------------------------
+   * アニメーション中かどうか判定
+   * @return アニメーション中ならtrue
+   ------------------------------*/
+  property animating;
+
+  /*------------------------------
+   * アフィン変換設定
+   * @param a 係数a
+   * @param b 係数b
+   * @param c 係数c
+   * @param d 係数d
+   * @param tx トランスレートx
+   * @param ty トランスレートy
+   ------------------------------*/
+  function setDrawAffineTranslateMatrix(a, b, c, d, tx, ty);
+
+  /*------------------------------
+   * メッシュ分割率
+   ------------------------------*/
+  property meshDivisionRatio;
+
+  /*------------------------------
+   * 描画にDirect3Dを使うか？
+   ------------------------------*/
+  property useD3D;
+
+  /*------------------------------
+   * アニメーション進行
+   * @param tickStep 進行時間(ms)
+   ------------------------------*/
+  function progress(tickStep);
+
+  
+  /*------------------------------
+   * 描画
+   * @param layer 描画対象レイヤ、もしくは SeparateLayerAdaptor を指定。
+   ------------------------------*/
+  function draw(layer);
+
+  /*------------------------------
+   * 風開始
+   * @param start 開始座標
+   * @param end 終了座標
+   * @param speed 速度
+   * @param powMin 最小強度
+   * @param powMax 最大強度
+   ------------------------------*/
+  function startWind(start, goal, speed, powMin, powMax);
+
+  /*------------------------------
+   * 風停止
+   ------------------------------*/
+  function stopWind();
+
+  /*------------------------------
+   * 髪揺れスケール
+   ------------------------------*/
+  property hairScale;
+
+  /*------------------------------
+   * 胸揺れスケール
+   ------------------------------*/
+  property bustScale;
+
+  /*------------------------------
+   * パーツ揺れスケール
+   ------------------------------*/
+  property partsScale;
+  
+  /*------------------------------
+   * スキップ
+   ------------------------------*/
+  function skip();
+
+  /*------------------------------
+   * パス(経時スキップ)
+   ------------------------------*/
+  function pass();
+
+  /*------------------------------
+   * シリアライズ
+   * @return シリアライズされたステート
+   ------------------------------*/
+  function serialize();
+
+  /*------------------------------
+   * デシリアライズ
+   * @param data シリアライズされたステート
+   ------------------------------*/
+  function unserialize(data);
+
+  /*------------------------------
+   * 物理挙動初期化
+   * @param rule 物理ルール
+   ------------------------------*/
+  function initPhysics(rule);
+  
+  /*------------------------------
+   * タイムライン再生開始
+   * @param name タイムライン名
+   * @param flags フラグ
+   ------------------------------*/
+  function playTimeline(name, flags = 0);
+  
+  /*------------------------------
+   * タイムライン再生停止
+   * @param name タイムライン名
+   ------------------------------*/
+  function stopTimeline(name = "");
+
+  /*------------------------------
+   * タイムライン再生中か判定
+   * @param name タイムライン名
+   * @return 再生中ならtrue
+   ------------------------------*/
+  function getTimelinePlaying(name = "");
+
+  /*------------------------------
+   * タイムラインがループタイムラインかどうか判定
+   * @param name タイムライン名
+   * @return ループタイムラインならtrue
+   ------------------------------*/
+  function getLoopTimeline(name);
+
+  /*------------------------------
+   * タイムラインの総再生フレーム数を取得
+   * @param name タイムライン名
+   * @return 総再生フレーム数
+   ------------------------------*/
+  function getTimelineTotalFrameCount(name);
+
+  /*------------------------------
+   * メインタイムライン名の一覧取得
+   * @return タイムライン名一覧の配列
+   ------------------------------*/
+  function getMainTimelineLabelList();
+
+  /*------------------------------
+   * 差分タイムライン名の一覧取得
+   * @return タイムライン名一覧の配列
+   ------------------------------*/
+  function getDiffTimelineLabelList();
+  
+  /*------------------------------
+   * 差分タイムラインブレンド比率変更
+   * @param name タイムライン名
+   * @param ratio ブレンド率(デフォルト1)
+   * @param time 遷移時間(ms)
+   * @param easing イージング（負の値でイーズイン、正の値でイーズアウト）
+   * @param stopWhenBlendDone 遷移終了時にタイムラインを停止させる？
+   ------------------------------*/
+  function setTimelineBlendRatio(name, ratio, time = 0, easing = 0, stopWhenBlendDone = false);
+  
+  /*------------------------------
+   * 差分タイムラインをフェードインさせる
+   * @param name タイムライン名
+   * @param time 遷移時間(ms)
+   * @param easing イージング（負の値でイーズイン、正の値でイーズアウト）
+   ------------------------------*/
+  function fadeInTimeline(name, time = 0, easing = 0);
+
+  /*------------------------------
+   * 差分タイムラインをフェードアウトさせる
+   * @param name タイムライン名
+   * @param time 遷移時間(ms)
+   * @param easing イージング（負の値でイーズイン、正の値でイーズアウト）
+   ------------------------------*/
+  function fadeOutTimeline(name, time = 0, easing = 0);
+
+  /*------------------------------
+   * 再生中のタイムライン情報の一覧を取得する
+   * @return タイムライン名の配列
+   * 　個々の配列要素は %[ label: タイムライン名, flags: 再生フラグ, blendRatio: ブレンド率 ] の形式になっている。
+   *   flagsは元の指定にかかわらず TimelinePlayFlagParallel が入った状態で戻る
+   ------------------------------*/
+  function getPlayingTimelineInfoList();
+};
+
+
+/*----------------------------------------------------------------------
+ * セットアップの手順（ほとんどおまじないに近い
+ ----------------------------------------------------------------------*/
+
+// リソースマネージャ生成
+var resourceManager = new Motion.ResourceManager(window, 20 * 1024 * 1024);
+// PSBファイルのパス
+var path = "emote_test.psb";
+// リソースロード
+var data = resourceManager.load(path);
+// E-moteプレイヤセットアップ
+var player = new Motion.EmotePlayer(resourceManager);
+player.motionKey = Storages.getPlacedPath(path);
+player.chara = data.metadata.base.chara;
+player.play(data.metadata.base.motion, Motion.PlayFlagForce);
+player.initPhysics(data.metadata);
+player.completionType = stFastLinear;
+player.maskMode = Motion.MaskModeAlpha;
+
+  // アニメーション進行
+var prevTick = System.getTickCount();
+for (;;) {
+  var curTick = System.getTickCount();
+  var diffTick = curTick - prevTick;
+  prevTick = curTick;
+  player.progress(diffTick);
+}
+
+// 直接描画(重いので非推奨)
+player.draw(layer);
+
+// アダプタ経由描画（推奨）
+var adaptor = new Motion.SeparateLayerAdaptor(layer);
+player.draw(adaptor);
+
+// Direct3Dを使った描画 (選択式にした上で強く推奨)
+player.useD3D = true;
+player.draw(layer);

@@ -3,7 +3,7 @@
 //
 #pragma once
 
-namespace motion {
+namespace emote {
 
     class SeparateLayerAdaptor {};
-} // namespace motion
+} // namespace emote

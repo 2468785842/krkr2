@@ -5,7 +5,7 @@
 class ApplicationSpecialPath {
 public:
     static ttstr ReplaceStringAll(ttstr src, const ttstr &target,
-                                         const ttstr &dest) {
+                                  const ttstr &dest) {
         src.Replace(target, dest);
         return src;
     }

@@ -11,7 +11,7 @@
 #include "tjsCommHead.h"
 
 #include "EventImpl.h"
-#include "../../environ/impl/SystemControl.h"
+#include "impl/SystemControl.h"
 #include "ThreadIntf.h"
 #include "TickCount.h"
 #include "TimerIntf.h"
@@ -23,6 +23,7 @@
 #include "Application.h"
 #include "NativeEventQueue.h"
 #include "UserEvent.h"
+#include "impl/ThreadImpl.h"
 
 //---------------------------------------------------------------------------
 // TVPInvokeEvents

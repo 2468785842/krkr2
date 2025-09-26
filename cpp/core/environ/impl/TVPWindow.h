@@ -187,7 +187,6 @@ public:
 class TVPWindowLayer : public cocos2d::extension::ScrollView,
                        public iWindowLayer {
 public:
-
     static inline TVPWindowManagerOverlay *_windowMgrOverlay = nullptr;
     static inline TVPWindowLayer *_lastWindowLayer, *_currentWindowLayer;
     static inline TVPConsoleWindow *_consoleWin = nullptr;
@@ -297,13 +296,17 @@ public:
 
     void onMouseScroll(cocos2d::Event *_e);
 
-    bool onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *unused_event) override;
+    bool onTouchBegan(cocos2d::Touch *touch,
+                      cocos2d::Event *unused_event) override;
 
-    void onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *unused_event) override;
+    void onTouchMoved(cocos2d::Touch *touch,
+                      cocos2d::Event *unused_event) override;
 
-    void onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *unused_event) override;
+    void onTouchEnded(cocos2d::Touch *touch,
+                      cocos2d::Event *unused_event) override;
 
-    void onTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *unused_event) override;
+    void onTouchCancelled(cocos2d::Touch *touch,
+                          cocos2d::Event *unused_event) override;
 
     void onMouseDown(const cocos2d::Vec2 &pt);
 
@@ -429,7 +432,7 @@ public:
 
     void InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) override;
 
-    void InternalKeyUp(tjs_uint16 key, tjs_uint32 shift) ;
+    void InternalKeyUp(tjs_uint16 key, tjs_uint32 shift);
 
     void OnKeyUp(tjs_uint16 vk, int shift) override {
         tjs_uint32 s = shift;
@@ -446,7 +449,7 @@ public:
 
     void OnClose(CloseAction &action);
 
-    bool OnCloseQuery() ;
+    bool OnCloseQuery();
 
     void Close() override;
 
@@ -464,9 +467,7 @@ public:
         }
     }
 
-    void SetVisibleFromScript(bool b) override {
-        SetVisible(b);
-    }
+    void SetVisibleFromScript(bool b) override { SetVisible(b); }
 
     void SetUseMouseKey(bool b) override;
 

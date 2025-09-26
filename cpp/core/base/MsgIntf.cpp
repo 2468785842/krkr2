@@ -23,7 +23,6 @@
 
 #include "MsgIntf.h"
 #include "DebugIntf.h"
-#include "../environ/impl/ApplicationSpecialPath.h"
 
 //---------------------------------------------------------------------------
 // TVPFormatMessage

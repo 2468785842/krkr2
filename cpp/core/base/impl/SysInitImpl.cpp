@@ -21,7 +21,7 @@
 #include "StorageImpl.h"
 #include "MsgIntf.h"
 #include "GraphicsLoaderIntf.h"
-#include "../../environ/impl/SystemControl.h"
+#include "impl/SystemControl.h"
 #include "DebugIntf.h"
 #include "tjsLex.h"
 #include "LayerIntf.h"
@@ -31,7 +31,7 @@
 
 #include "BinaryStream.h"
 #include "Application.h"
-#include "../../environ/impl/ApplicationSpecialPath.h"
+#include "impl/ApplicationSpecialPath.h"
 #include "TickCount.h"
 
 #ifdef IID

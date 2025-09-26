@@ -10,14 +10,9 @@
 //---------------------------------------------------------------------------
 #include "tjsCommHead.h"
 
-#if 0
-#include <mmsystem.h>
-#include <mmreg.h>
-#endif
-
 #include <math.h>
 #include <algorithm>
-#include "../../environ/impl/SystemControl.h"
+#include "impl/SystemControl.h"
 #include "DebugIntf.h"
 #include "MsgIntf.h"
 #include "StorageIntf.h"

@@ -2,15 +2,17 @@
 // Created by LiDon on 2025/9/15.
 //
 #pragma once
-#include "tjs.h"
 
-namespace motion {
+#include "tjs.h"
+#include "WindowImpl.h"
+
+namespace emote {
 
     class ResourceManager {
     public:
         explicit ResourceManager() = default;
 
-        explicit ResourceManager(iTJSDispatch2 *kag, tjs_int cacheSize);
+        explicit ResourceManager(iTJSDispatch2 *window, tjs_int cacheSize);
 
         tTJSVariant load(ttstr path) const;
 
@@ -23,6 +25,8 @@ namespace motion {
                                                 iTJSDispatch2 *obj);
 
     private:
+        iTJSDispatch2 *_window; // tTJSNC_Window
+        tjs_int _cacheSize;
         inline static int _decryptSeed;
     };
-} // namespace motion
+} // namespace emote

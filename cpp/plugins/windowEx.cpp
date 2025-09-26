@@ -1,6 +1,6 @@
 //
 // Created by Li_Dong on 2024/12/9.
-// source code url: https://github.com/wamsoft/windowEx/blob
+// source code url: https://github.com/wamsoft/windowEx
 //
 #include <cstdint>
 

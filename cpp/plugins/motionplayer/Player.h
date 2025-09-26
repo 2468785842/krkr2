@@ -3,8 +3,8 @@
 //
 #pragma once
 
-namespace motion {
+namespace emote {
 
     class Player {};
 
-} // namespace motion
+} // namespace emote
