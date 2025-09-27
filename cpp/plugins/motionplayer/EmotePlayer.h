@@ -77,7 +77,11 @@ namespace emote {
 
         void draw(tTJSVariant layer) {}
 
-        tTJSVariant getMainTimelineLabelList();
+        tTJSVariant getTimelineLabelList(const std::function<bool(int)> &diffFilter) const;
+
+        tTJSVariant getDiffTimelineLabelList() const;
+
+        tTJSVariant getMainTimelineLabelList() const;
 
         void setCompletionType(tTVPBBStretchType completionType) {
             this->_completionType = completionType;

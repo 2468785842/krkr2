@@ -12,9 +12,20 @@ emote::EmotePlayer::EmotePlayer(ResourceManager resManager) :
 }
 
 
-void emote::EmotePlayer::initPhysics(tTJSVariant rule) {}
+void emote::EmotePlayer::initPhysics(tTJSVariant rule) {
+    // "metadata"
 
-tTJSVariant emote::EmotePlayer::getMainTimelineLabelList() {
+}
+
+tTJSVariant emote::EmotePlayer::getDiffTimelineLabelList() const {
+    return getTimelineLabelList([](int diff) -> bool { return diff != 0; });
+}
+
+tTJSVariant emote::EmotePlayer::getMainTimelineLabelList() const {
+    return getTimelineLabelList([](int diff) -> bool { return diff == 0; });
+}
+
+tTJSVariant emote::EmotePlayer::getTimelineLabelList(const std::function<bool(int)> &diffFilter) const {
     iTJSDispatch2 *array = TJSCreateArrayObject();
     auto objs = this->_resManager.getPSBFile()->getObjects();
     auto metadata = std::dynamic_pointer_cast<PSB::PSBDictionary>((*objs)["metadata"]);
@@ -22,7 +33,9 @@ tTJSVariant emote::EmotePlayer::getMainTimelineLabelList() {
     for(auto v : *timelineControls) {
         auto timelineControl = std::dynamic_pointer_cast<PSB::PSBDictionary>(v);
         auto diff = std::dynamic_pointer_cast<PSB::PSBNumber>((*timelineControl)["diff"]);
-        if(diff && diff->getValue<int>() != 0) continue;
+
+        if(diffFilter(!diff ? 0 : diff->getValue<int>())) continue;
+
         auto label = (*timelineControl)["label"]->toTJSVal();
         tTJSVariant *args[] = { &label };
         static tjs_uint addHint = 0;

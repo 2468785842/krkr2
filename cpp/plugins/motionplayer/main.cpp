@@ -44,6 +44,76 @@ NCB_REGISTER_SUBCLASS_DELAY(EmotePlayer) {
     NCB_METHOD(play);
     NCB_METHOD(initPhysics);
     NCB_METHOD(draw);
+    // progress(tjs_int tickStep)
+    // frameProgress
+    // startWind
+    // stopWind
+    // setVariable getVariable
+    // setCoord
+    // setScale
+    // setRotate
+    // setColor
+    // setOuterForce
+    // setDrawAffineTranslateMatrix
+    // convergePendControl
+    // convergeHairControl
+    // convergePartsControl
+    // convergeBustControl
+    // convergeEyeControl
+    // convergeLoopControl
+    // convergeClampControl
+    // convergeSelectorControl
+    // serialize
+    // unserialize
+    // setHairScale
+    // setPartsScale
+    // setBustScale
+
+    // ----------properties----------
+    // lastTime
+    // motion
+    // project
+    // hairScale
+    // bustScale
+    // partsScale
+    // outline
+    // debugPrint
+    // queuing
+    // frameLastTime
+    // frameLoopTime
+    // lastTime
+
+    // ----------methods----------
+
+    // setMirror
+    // modifyRoot
+    // skip
+    // pass
+    // meshDivisionRatio
+
+    // loopTime
+    // bounds
+    // processedMeshVerticesNum
+    // directEdit
+    // selectorEnabled
+    // playTimeline
+    // stopTimeline
+    // getTimelinePlaying
+    // setTimelineBlendRatio
+    // fadeInTimeline
+    // fadeOutTimeline
+    // fadeInTimeline
+    // getVariableRange
+    // variableKeys
+    // getVariableFrameList
+    // priorDraw
+    // animating
+    // getTimelineTotalFrameCount
+    // getPlayingTimelineInfoList
+    // activateSelectorTarget
+    // deactivateSelectorTarget(ttstr)
+    // pixelateDivision
+    NCB_METHOD(getDiffTimelineLabelList);
     NCB_METHOD(getMainTimelineLabelList);
 }
 
