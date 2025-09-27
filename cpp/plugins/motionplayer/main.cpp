@@ -44,6 +44,7 @@ NCB_REGISTER_SUBCLASS_DELAY(EmotePlayer) {
     NCB_METHOD(play);
     NCB_METHOD(initPhysics);
     NCB_METHOD(draw);
+    NCB_METHOD(getMainTimelineLabelList);
 }
 
 NCB_REGISTER_SUBCLASS(ResourceManager) {

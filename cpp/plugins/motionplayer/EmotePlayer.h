@@ -88,7 +88,7 @@ namespace emote {
         }
 
         void setMaskMode(MaskModeType maskMode) { this->_maskMode = maskMode; }
-        MaskModeType getMaskMode() const { return this->_maskMode; }
+        [[nodiscard]] MaskModeType getMaskMode() const { return this->_maskMode; }
 
         void setChara(ttstr chara) { this->_chara = chara; }
         [[nodiscard]] ttstr getChara() const { return _chara; }

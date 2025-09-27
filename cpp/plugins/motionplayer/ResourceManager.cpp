@@ -22,7 +22,7 @@ tjs_error emote::ResourceManager::setEmotePSBDecryptSeed(tTJSVariant *,
     if(count != 1 && (*p)->Type() == tvtInteger) {
         return TJS_E_BADPARAMCOUNT;
     }
-    _decryptSeed = static_cast<tjs_int>(*p[0]);
+    _decryptSeed = static_cast<tjs_int>(**p);
     LOGGER->info("setEmotePSBDecryptSeed: {}", _decryptSeed);
     return TJS_S_OK;
 }
@@ -35,15 +35,14 @@ tjs_error emote::ResourceManager::setEmotePSBDecryptFunc(tTJSVariant *r,
     return TJS_S_OK;
 }
 
-tTJSVariant emote::ResourceManager::load(ttstr path) const {
-    PSB::PSBFile f;
-    f.setSeed(_decryptSeed);
-    if(!f.loadPSBFile(path)) {
+tTJSVariant emote::ResourceManager::load(ttstr path) {
+    this->_psbFile.setSeed(_decryptSeed);
+    if(!this->_psbFile.loadPSBFile(path)) {
         LOGGER->error("emote load file: {} failed", path.AsStdString());
     }
 
     iTJSDispatch2 *dic = TJSCreateCustomObject();
-    auto objs = f.getObjects();
+    auto objs = this->_psbFile.getObjects();
     if(objs != nullptr) {
         for(const auto &[k, v] : *objs) {
             tTJSVariant tmp = v->toTJSVal();

@@ -4,6 +4,8 @@
 
 #include "EmotePlayer.h"
 
+#include "ncbind.hpp"
+
 emote::EmotePlayer::EmotePlayer(ResourceManager resManager) :
     _resManager(resManager), _useD3D(false), _maskMode(MaskModeType::Alpha),
     _completionType(stNearest) {
@@ -13,22 +15,21 @@ emote::EmotePlayer::EmotePlayer(ResourceManager resManager) :
 void emote::EmotePlayer::initPhysics(tTJSVariant rule) {}
 
 tTJSVariant emote::EmotePlayer::getMainTimelineLabelList() {
-    // TODO:
     iTJSDispatch2 *array = TJSCreateArrayObject();
+    auto objs = this->_resManager.getPSBFile()->getObjects();
+    auto metadata = std::dynamic_pointer_cast<PSB::PSBDictionary>((*objs)["metadata"]);
+    auto timelineControls = std::dynamic_pointer_cast<PSB::PSBList>((*metadata)["timelineControl"]);
+    for(auto v : *timelineControls) {
+        auto timelineControl = std::dynamic_pointer_cast<PSB::PSBDictionary>(v);
+        auto diff = std::dynamic_pointer_cast<PSB::PSBNumber>((*timelineControl)["diff"]);
+        if(diff && diff->getValue<int>() != 0) continue;
+        auto label = (*timelineControl)["label"]->toTJSVal();
+        tTJSVariant *args[] = { &label };
+        static tjs_uint addHint = 0;
+        array->FuncCall(0, TJS_W("add"), &addHint, nullptr, 1, args, array);
+    }
 
-    // 0:sample_全自動_test
-    // 1:sample_全自動_test2
-    // 2:sample_00
-    // 3:sample_01
-    // 4:sample_02
-    // 5:sample_03
-    // 6:sample_04
-    // 7:sample_05
-    // 8:首横振り
-    // 9:挨拶
-    // 10:ピョン
-    // 11:下ピョン
-    // 12:びっくり
-    // 13:困り
-    return array;
+    tTJSVariant result(array, array);
+    array->Release();
+    return result;
 }
