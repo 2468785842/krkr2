@@ -126,8 +126,8 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
   ```
 
 * **Using Docker**:
-* Build Linux: `docker build -f dockers/linux.Dockerfile -t linux-builder .`
-* Build Android: `docker build -f dockers/android.Dockerfile -t android-builder .`
+* Build Linux: `docker buildx build -f dockers/linux.Dockerfile -t linux-builder .`
+* Build Android: `docker buildx build -f dockers/android.Dockerfile -t android-builder .`
 
 ---
 
