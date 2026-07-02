@@ -2,10 +2,10 @@
 
 <p align="center">
   <a href="https://github.com/2468785842/krkr2/actions/workflows/ci.yml"><img src="https://github.com/2468785842/krkr2/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI 状态"></a>
-  <a href="https://github.com/2468785842/krkr2/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/2468785842/krkr2/ci.yml?branch=main&label=format-check&logo=githubactions" alt="格式检查"></a>
-  <a href="https://github.com/2468785842/krkr2/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/2468785842/krkr2/ci.yml?branch=main&label=linux&logo=githubactions" alt="Linux 构建"></a>
-  <a href="https://github.com/2468785842/krkr2/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/2468785842/krkr2/ci.yml?branch=main&label=windows&logo=githubactions" alt="Windows 构建"></a>
-  <a href="https://github.com/2468785842/krkr2/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/2468785842/krkr2/ci.yml?branch=main&label=android&logo=githubactions" alt="Android 构建"></a>
+  <a href="https://github.com/2468785842/krkr2/actions/workflows/code-format-check.yml"><img src="https://img.shields.io/github/actions/workflow/status/2468785842/krkr2/code-format-check.yml?branch=main&label=format-check&logo=githubactions" alt="格式检查"></a>
+  <a href="https://github.com/2468785842/krkr2/actions/workflows/build-linux.yml"><img src="https://img.shields.io/github/actions/workflow/status/2468785842/krkr2/build-linux.yml?branch=main&label=linux&logo=githubactions" alt="Linux 构建"></a>
+  <a href="https://github.com/2468785842/krkr2/actions/workflows/build-windows.yml"><img src="https://img.shields.io/github/actions/workflow/status/2468785842/krkr2/build-windows.yml?branch=main&label=windows&logo=githubactions" alt="Windows 构建"></a>
+  <a href="https://github.com/2468785842/krkr2/actions/workflows/build-android.yml"><img src="https://img.shields.io/github/actions/workflow/status/2468785842/krkr2/build-android.yml?branch=main&label=android&logo=githubactions" alt="Android 构建"></a>
 </p>
 
 KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里引擎（也称为 T Visual Presenter）制作的游戏。该模拟器支持在 Android、Windows 和 Linux 等多个平台上运行，帮助用户在不同设备上体验吉里吉里引擎制作的游戏。
