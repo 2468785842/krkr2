@@ -13,6 +13,8 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
 
 **语言 / Language**: [中文](README_CN.md) | English
 
+Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](docs/README.md) · [Architecture](docs/architecture.md) · [Build and validation](docs/building.md) · [Backend modernization](docs/backend-modernization.md). These developer guides are maintained in Chinese.
+
 ---
 
 ## KrKr2 Emulator

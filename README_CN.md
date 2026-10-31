@@ -12,6 +12,8 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 
 **语言 / Language**: 中文 | [English](README.md)
 
+开发与 AI 协作入口：[开发约定](AGENTS.md) · [文档索引](docs/README.md) · [当前架构](docs/architecture.md) · [构建与验证](docs/building.md) · [后端精简路线](docs/backend-modernization.md)。
+
 ## 目录
 
 - [KrKr2 模拟器](#krkr2-模拟器)
