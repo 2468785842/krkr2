@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.19)
-project(krkr2plugin)
+project(krkr2plugin_impl)
 
 add_library(${PROJECT_NAME} STATIC)
 
-target_sources(${PROJECT_NAME} PUBLIC
+target_sources(${PROJECT_NAME} PRIVATE
     KAGParser/kagparserex.cpp
     EmotePlayer.cpp
     TextRender.cpp
@@ -58,7 +58,15 @@ add_definitions(-D__STDC_CONSTANT_MACROS -DTJS_TEXT_OUT_CRLF)
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH})
 target_link_libraries(${PROJECT_NAME} PUBLIC krkr2core)
 
-add_subdirectory(psdfile)
+add_library(krkr2plugin_api INTERFACE)
+get_target_property(plugin_include_dirs ${PROJECT_NAME} INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(krkr2plugin_api INTERFACE ${plugin_include_dirs})
+target_link_libraries(krkr2plugin_api INTERFACE krkr2core)
+
+if(KRKR2_ENABLE_PSD)
+    add_subdirectory(psdfile)
+    target_link_libraries(${PROJECT_NAME} PUBLIC "$<LINK_LIBRARY:WHOLE_ARCHIVE,psdfile>")
+endif()
 add_subdirectory(psbfile)
 add_subdirectory(layerex_draw)
 add_subdirectory(motionplayer)
@@ -68,13 +76,10 @@ add_subdirectory(fstat)
 #add_subdirectory(steam)
 #add_subdirectory(DrawDeviceForSteam)
 target_link_libraries(${PROJECT_NAME} PUBLIC
-        psdfile
-        psbfile
-        layerExDraw
-        motionplayer
-        fstat
-#        json steam DrawDeviceForSteam
+    "$<LINK_LIBRARY:WHOLE_ARCHIVE,psbfile,layerExDraw,motionplayer,fstat>"
 )
+add_library(krkr2plugin INTERFACE)
+target_link_libraries(krkr2plugin INTERFACE "$<LINK_LIBRARY:WHOLE_ARCHIVE,krkr2plugin_impl>")
 
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)

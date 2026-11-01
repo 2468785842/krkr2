@@ -25,6 +25,11 @@ add_library(core_storage_archive STATIC ${CORE_STORAGE_ARCHIVE_SOURCES})
 target_include_directories(core_storage_archive PUBLIC ${STORAGE_PUBLIC_INCLUDES})
 target_link_libraries(core_storage_archive PUBLIC tjs2 core_io core_msg archive_xp3)
 
+# XP3 extraction only needs the shared archive primitives.
+if(NOT KRKR2_BUILD_APP AND (NOT ENABLE_TESTS OR KRKR2_TEST_SCOPE STREQUAL "strings"))
+    return()
+endif()
+
 # 完整存储：StorageIntf、TVPCreateStream、FileMedia
 set(CORE_STORAGE_SOURCE_FILES
     ${BASE_PATH}/StorageIntf.cpp

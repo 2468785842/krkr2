@@ -9,6 +9,7 @@ add_executable(${PROJECT_NAME}
     ${XP3_PATH}/main.cpp
     ${XP3_PATH}/tool/StdFileBackend.cpp
     ${XP3_PATH}/tool/StorageStubs.cpp
+    ${XP3_PATH}/tool/CreateStream.cpp
     ${XP3_PATH}/tool/ToolRuntimeStubs.cpp
 )
 
@@ -26,7 +27,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
     argparse::argparse
     core_log
-    core_storage
+    core_storage_archive
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE

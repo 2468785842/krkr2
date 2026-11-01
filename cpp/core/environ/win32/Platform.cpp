@@ -95,8 +95,10 @@ bool TVPCheckStartupArg() {
     const std::u16string argv = boost::locale::conv::utf_to_utf<char16_t>(
         *CommandLineToArgvW(GetCommandLineW(), &argc));
     //	__wgetmainargs(&argc, &argv, &env, 0, &info);
+#if KRKR2_ENABLE_CRASH_UPLOAD
     TVPCheckAndSendDumps(TVPGetDefaultFileDir() + "/dumps", "win32-test",
                          "test");
+#endif
     if(argc > 1) {
         if(TVPCheckExistentLocalFile(argv[1])) {
             if(TVPCheckArchive(argv[1]) == 1) {

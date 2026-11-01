@@ -6,7 +6,6 @@
 #include "Platform.h"
 #include "ui/GlobalPreferenceForm.h"
 #include "ui/MainFileSelectorForm.h"
-#include "ui/extension/UIExtension.h"
 #include "ConfigManager/LocaleConfigManager.h"
 
 #include "audio/include/AudioEngine.h"
@@ -99,8 +98,6 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
 
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0f / 60);
-
-    TVPInitUIExtension();
 
     // initialize something
     LocaleConfigManager::GetInstance()->Initialize(TVPGetCurrentLanguage());

@@ -57,9 +57,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 
 find_package(uchardet CONFIG REQUIRED)
 find_package(unrar CONFIG REQUIRED)
-find_package(LibXml2 REQUIRED)
-include_directories(${LIBXML2_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBXML2_LIBRARIES})
+find_package(LibXml2 CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
 find_package(LibArchive REQUIRED)
 find_package(zstd CONFIG REQUIRED)
 find_package(cocos2dx CONFIG REQUIRED)

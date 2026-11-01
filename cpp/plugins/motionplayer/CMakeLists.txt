@@ -4,9 +4,8 @@ project(motionplayer)
 add_library(${PROJECT_NAME} STATIC)
 
 target_sources(${PROJECT_NAME}
-    PUBLIC
-        main.cpp
     PRIVATE
+        main.cpp
         EmotePlayer.cpp
         PlayerCore.cpp
         PlayerFrameProgress.cpp
@@ -38,4 +37,4 @@ target_sources(${PROJECT_NAME}
         SeparateLayerAdaptor.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE krkr2plugin)
+target_link_libraries(${PROJECT_NAME} PRIVATE krkr2plugin_api)

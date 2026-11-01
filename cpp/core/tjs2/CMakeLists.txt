@@ -17,7 +17,7 @@ endif()
 #===============================================================#
 #======================= generate parser =======================#
 #===============================================================#
-find_program(BISON_EXECUTABLE NAMES win_bison.exe bison.exe bison)
+find_program(BISON_EXECUTABLE NAMES win_bison.exe bison.exe bison REQUIRED)
 
 set(BISON_FILES
     ${CMAKE_CURRENT_LIST_DIR}/bison/tjs.y
@@ -28,13 +28,6 @@ set(PARSE_TAB_CPP_FILES)
 foreach(BISON_FILE ${BISON_FILES})
     get_filename_component(FILE_NAME ${BISON_FILE} NAME_WE)
 
-    execute_process(
-        TIMEOUT 5000
-        COMMAND ${BISON_EXECUTABLE} ${BISON_FILE}
-        WORKING_DIRECTORY ${GEN_CODE_BINARY_DIR}
-        COMMAND_ECHO STDOUT
-    )
-
     add_custom_command(
         OUTPUT
             ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.cpp
@@ -43,6 +36,7 @@ foreach(BISON_FILE ${BISON_FILES})
         COMMAND ${BISON_EXECUTABLE} ${BISON_FILE}
         WORKING_DIRECTORY ${GEN_CODE_BINARY_DIR}
         COMMENT "Generate Bison File From ${BISON_FILE}"
+        VERBATIM
     )
 
     list(APPEND PARSE_TAB_CPP_FILES ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.cpp)
@@ -59,14 +53,18 @@ install(DIRECTORY "${GEN_CODE_BINARY_DIR}/"
 #===============================================================#
 #==================== generate date word =======================#
 #===============================================================#
-find_package(Python3)
-
-execute_process(
-    TIMEOUT 5000
-    COMMAND ${Python3_EXECUTABLE} create_world_map.py ${GEN_CODE_BINARY_DIR}/tjsDateWordMap.inc
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+add_custom_command(
+    OUTPUT ${GEN_CODE_BINARY_DIR}/tjsDateWordMap.inc
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/script/create_world_map.py
+        ${GEN_CODE_BINARY_DIR}/tjsDateWordMap.inc
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/script/create_world_map.py
+        ${CMAKE_CURRENT_LIST_DIR}/script/dp_word_table.txt
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/script
-    COMMAND_ECHO STDOUT
+    VERBATIM
 )
+add_custom_target(GENERATE_TJS_DATE_WORDS DEPENDS ${GEN_CODE_BINARY_DIR}/tjsDateWordMap.inc)
+add_dependencies(${PROJECT_NAME} GENERATE_TJS_DATE_WORDS)
 
 target_sources(${PROJECT_NAME} PRIVATE
     ${PARSE_TAB_CPP_FILES}

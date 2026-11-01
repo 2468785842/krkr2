@@ -8,6 +8,7 @@
 | 代码与依赖地图 | [当前架构](architecture.md) | 依据当前源码，含历史文档修正 |
 | 编译与验证 | [构建与验证](building.md) · [FAQ](FAQ.md) | 可执行命令、测试边界、基线记录 |
 | 后端精简 | [迁移路线与任务](backend-modernization.md) | 提案及验收；尚未实现新后端 |
+| 依赖瘦身 | [依赖审计与替代方案](dependency-slimming.md) · [实施记录](dependency-slimming-implementation.md) | dev 源码证据、优先级、候选库与测量要求 |
 | 外部研究 | [参考资料与适用边界](references.md) | 教程、二开与原版资料 |
 | 既有存储解耦 | [Core 模块分析](CORE_MODULE_DECOUPLING.md) | 历史分析；部分内容已落地，以当前架构为准 |
 | 插件 | [插件说明](KRKR_PLUGINS.md) · [motionplayer 索引](../cpp/plugins/motionplayer/docs/README.md) | 插件专属契约与排错 |

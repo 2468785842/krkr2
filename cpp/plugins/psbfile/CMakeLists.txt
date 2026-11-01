@@ -3,7 +3,7 @@ project(psbfile)
 
 add_library(${PROJECT_NAME} STATIC)
 
-target_sources(${PROJECT_NAME} PUBLIC
+target_sources(${PROJECT_NAME} PRIVATE
     main.cpp
     PSBValue.cpp
     PSBFile.cpp
@@ -23,7 +23,7 @@ target_sources(${PROJECT_NAME} PUBLIC
     resources/ImageMetadata.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE krkr2plugin)
+target_link_libraries(${PROJECT_NAME} PRIVATE krkr2plugin_api)
 
 find_package(ZLIB REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE ZLIB::ZLIB)

@@ -14,6 +14,36 @@ add_compile_definitions(
         $<$<NOT:$<CONFIG:Debug>>:NDEBUG>
 )
 
+option(KRKR2_BUILD_APP "Build the game runtime and bundled plugins" ON)
+option(ENABLE_TESTS "Build engine tests (desktop only)" ON)
+option(BUILD_TOOLS "Build command-line tools (desktop only)" ON)
+set(KRKR2_TEST_SCOPE "full" CACHE STRING "Test scope: full or strings")
+set_property(CACHE KRKR2_TEST_SCOPE PROPERTY STRINGS full strings)
+if(NOT KRKR2_TEST_SCOPE MATCHES "^(full|strings)$")
+    message(FATAL_ERROR "KRKR2_TEST_SCOPE must be full or strings")
+endif()
+option(KRKR2_ENABLE_PSD "Build the PSD plugin" ON)
+option(KRKR2_ENABLE_CRASH_UPLOAD "Build optional crash report upload" OFF)
+
+# vcpkg installs dependencies during project(), before targets are configured.
+set(VCPKG_MANIFEST_NO_DEFAULT_FEATURES ON)
+if(KRKR2_BUILD_APP OR (ENABLE_TESTS AND KRKR2_TEST_SCOPE STREQUAL "full"))
+    list(APPEND VCPKG_MANIFEST_FEATURES engine)
+    if(KRKR2_ENABLE_PSD)
+        list(APPEND VCPKG_MANIFEST_FEATURES psd)
+    endif()
+    if(KRKR2_ENABLE_CRASH_UPLOAD)
+        list(APPEND VCPKG_MANIFEST_FEATURES crash-upload)
+    endif()
+endif()
+if(ENABLE_TESTS AND NOT (ANDROID OR IOS))
+    list(APPEND VCPKG_MANIFEST_FEATURES tests)
+endif()
+if(BUILD_TOOLS AND NOT (ANDROID OR IOS))
+    list(APPEND VCPKG_MANIFEST_FEATURES tools)
+endif()
+list(REMOVE_DUPLICATES VCPKG_MANIFEST_FEATURES)
+
 if(ANDROID)
     set(VCPKG_TARGET_ANDROID ON)
     set(ENV{ANDROID_NDK_HOME} "$ENV{ANDROID_NDK}")
@@ -26,9 +56,6 @@ endif()
 set(APP_NAME krkr2)
 
 project(${APP_NAME})
-
-option(ENABLE_TESTS "enable tests execute build(exclude android)" ON)
-option(BUILD_TOOLS "build tools execute build(exclude android ios)" ON)
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 17)
@@ -43,47 +70,77 @@ if(MSVC)
     # set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
-if(ANDROID)
-    add_library(${PROJECT_NAME} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/platforms/android/cpp/krkr2_android.cpp)
-    find_package(unofficial-breakpad CONFIG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::breakpad::libbreakpad_client)
-elseif(LINUX)
-    add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/platforms/linux/main.cpp)
-elseif(WINDOWS)
-    add_executable(${PROJECT_NAME}
-        ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows/main.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows/game.rc
-    )
-elseif(IOS)
-#        list(APPEND GAME_HEADER
-#                proj.ios_mac/ios/AppController.h
-#                proj.ios_mac/ios/RootViewController.h
-#        )
-#        set(APP_UI_RES
-#                proj.ios_mac/ios/LaunchScreen.storyboard
-#                proj.ios_mac/ios/LaunchScreenBackground.png
-#                proj.ios_mac/ios/Images.xcassets
-#        )
-#        list(APPEND GAME_SOURCE
-#                proj.ios_mac/ios/main.m
-#                proj.ios_mac/ios/AppController.mm
-#                proj.ios_mac/ios/RootViewController.mm
-#                proj.ios_mac/ios/Prefix.pch
-#                ${APP_UI_RES}
-#        )
-elseif(MACOS)
-    set(APP_UI_RES
-            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Icon.icns
-            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Info.plist
-    )
-    add_executable(${PROJECT_NAME}
-            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/main.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Prefix.pch
-            ${APP_UI_RES}
-    )
+# A tools-only configuration never enters the engine dependency graph.
+if(NOT KRKR2_BUILD_APP AND (NOT ENABLE_TESTS OR KRKR2_TEST_SCOPE STREQUAL "strings"))
+    if((NOT BUILD_TOOLS AND NOT ENABLE_TESTS) OR ANDROID OR IOS)
+        message(FATAL_ERROR "No supported build targets selected")
+    endif()
+    include(cmake/KrKr2Modules.cmake)
+    include_directories(${KRKR2CORE_PATH}/common)
+    add_compile_definitions(TJS_TEXT_OUT_CRLF __STDC_CONSTANT_MACROS USE_UNICODE_FSTRING)
+    add_subdirectory(cpp/core/log)
+    add_subdirectory(cpp/core/tjs2)
+    if(BUILD_TOOLS)
+        add_subdirectory(cpp/core/msg)
+        add_subdirectory(cpp/core/io)
+        add_subdirectory(cpp/core/archive/xp3)
+        add_subdirectory(cpp/core/storage)
+        add_subdirectory(tools)
+    endif()
+    if(ENABLE_TESTS)
+        enable_testing()
+        find_package(Catch2 3 REQUIRED)
+        include(Catch)
+        set(TEST_CONFIG_DIR ${CMAKE_CURRENT_BINARY_DIR})
+        add_subdirectory(tests/unit-tests/core/tjs2)
+    endif()
+    return()
 endif()
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
+if(KRKR2_BUILD_APP)
+    if(ANDROID)
+        add_library(${PROJECT_NAME} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/platforms/android/cpp/krkr2_android.cpp)
+        find_package(unofficial-breakpad CONFIG REQUIRED)
+        target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::breakpad::libbreakpad_client)
+    elseif(LINUX)
+        add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/platforms/linux/main.cpp)
+    elseif(WINDOWS)
+        add_executable(${PROJECT_NAME}
+            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows/main.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows/game.rc
+        )
+    elseif(IOS)
+    #        list(APPEND GAME_HEADER
+    #                proj.ios_mac/ios/AppController.h
+    #                proj.ios_mac/ios/RootViewController.h
+    #        )
+    #        set(APP_UI_RES
+    #                proj.ios_mac/ios/LaunchScreen.storyboard
+    #                proj.ios_mac/ios/LaunchScreenBackground.png
+    #                proj.ios_mac/ios/Images.xcassets
+    #        )
+    #        list(APPEND GAME_SOURCE
+    #                proj.ios_mac/ios/main.m
+    #                proj.ios_mac/ios/AppController.mm
+    #                proj.ios_mac/ios/RootViewController.mm
+    #                proj.ios_mac/ios/Prefix.pch
+    #                ${APP_UI_RES}
+    #        )
+    elseif(MACOS)
+        set(APP_UI_RES
+                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Icon.icns
+                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Info.plist
+        )
+        add_executable(${PROJECT_NAME}
+                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/main.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Prefix.pch
+                ${APP_UI_RES}
+        )
+    endif()
+
+    target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
+
+endif()
 
 # external lib
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cpp/external)
@@ -92,46 +149,49 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cpp/external)
 add_subdirectory(${KRKR2CORE_PATH})
 add_subdirectory(${KRKR2PLUGIN_PATH})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    krkr2plugin krkr2core
-)
+if(KRKR2_BUILD_APP)
+    target_link_libraries(${PROJECT_NAME} PUBLIC
+        krkr2plugin krkr2core
+    )
 
-## resources
-if(NOT ANDROID)
-    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CocosBuildHelpers.cmake")
+    ## resources
+    if(NOT ANDROID)
+        include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CocosBuildHelpers.cmake")
 
-    set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
+        set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
 
-    if(WINDOWS OR APPLE)
-        cocos_mark_multi_resources(common_res_files RES_TO "Resources" FOLDERS ${GAME_RES_FOLDER})
-    endif()
-
-    # mark app resources
-    setup_cocos_app_config(${APP_NAME})
-
-    if(APPLE)
-        set_target_properties(${APP_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
-        target_sources(${APP_NAME} PRIVATE ${common_res_files})
-        if(MACOSX)
-            set_target_properties(${APP_NAME} PROPERTIES
-                    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Info.plist"
-            )
-        elseif(IOS)
-#            cocos_pak_xcode(${APP_NAME} INFO_PLIST "iOSBundleInfo.plist.in")
-#            set_xcode_property(${APP_NAME} ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon")
-#            set_xcode_property(${APP_NAME} DEVELOPMENT_TEAM "")
-#            set_xcode_property(${APP_NAME} CODE_SIGN_IDENTITY "iPhone Developer")
+        if(WINDOWS OR APPLE)
+            cocos_mark_multi_resources(common_res_files RES_TO "Resources" FOLDERS ${GAME_RES_FOLDER})
         endif()
-    elseif(WINDOWS)
-        target_sources(${PROJECT_NAME} PRIVATE ${common_res_files})
-        cocos_copy_target_dll(${APP_NAME})
+
+        # mark app resources
+        setup_cocos_app_config(${APP_NAME})
+
+        if(APPLE)
+            set_target_properties(${APP_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
+            target_sources(${APP_NAME} PRIVATE ${common_res_files})
+            if(MACOSX)
+                set_target_properties(${APP_NAME} PROPERTIES
+                        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Info.plist"
+                )
+            elseif(IOS)
+    #            cocos_pak_xcode(${APP_NAME} INFO_PLIST "iOSBundleInfo.plist.in")
+    #            set_xcode_property(${APP_NAME} ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon")
+    #            set_xcode_property(${APP_NAME} DEVELOPMENT_TEAM "")
+    #            set_xcode_property(${APP_NAME} CODE_SIGN_IDENTITY "iPhone Developer")
+            endif()
+        elseif(WINDOWS)
+            target_sources(${PROJECT_NAME} PRIVATE ${common_res_files})
+            cocos_copy_target_dll(${APP_NAME})
+        endif()
+
+        if(LINUX OR WINDOWS)
+            cocos_get_resource_path(APP_RES_DIR ${APP_NAME})
+            cocos_copy_target_res(${APP_NAME} LINK_TO ${APP_RES_DIR} FOLDERS ${GAME_RES_FOLDER})
+        endif()
     endif()
 
-    if(LINUX OR WINDOWS)
-        cocos_get_resource_path(APP_RES_DIR ${APP_NAME})
-        cocos_copy_target_res(${APP_NAME} LINK_TO ${APP_RES_DIR} FOLDERS ${GAME_RES_FOLDER})
-    endif()
-endif()
+endif() # KRKR2_BUILD_APP
 
 if(ENABLE_TESTS AND NOT (IOS OR ANDROID))
     enable_testing()

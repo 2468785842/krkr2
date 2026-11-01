@@ -1,11 +1,7 @@
 #include "UIExtension.h"
-#include "base/ObjectFactory.h"
-#include "ui/UIWidget.h"
-#include "cocostudio/WidgetReader/NodeReader/NodeReader.h"
 #include "base/CCEventDispatcher.h"
 
 USING_NS_CC;
-using namespace cocos2d::ui;
 
 #define XKPAGEVIEW_TAG 10086
 
@@ -233,26 +229,4 @@ void XKPageView::setCurPageIndex(ssize_t idx) {
     }
 
     this->setContentOffset(vec);
-}
-
-class WidgetNodeReader : public cocostudio::NodeReader {
-public:
-    cocos2d::Node *
-    createNodeWithFlatBuffers(const flatbuffers::Table *nodeOptions) override {
-        Widget *node = Widget::create();
-
-        setPropsWithFlatBuffers(node, nodeOptions);
-
-        return node;
-    }
-    static WidgetNodeReader *getInstance() {
-        static WidgetNodeReader *instance = new WidgetNodeReader;
-        return instance;
-    }
-    static cocos2d::Ref *createInstance() { return getInstance(); }
-};
-
-void TVPInitUIExtension() {
-    static cocos2d::ObjectFactory::TInfo __Type(
-        "NodeReader", WidgetNodeReader::createInstance);
 }

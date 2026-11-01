@@ -18,7 +18,8 @@
 #include "base/CCEventType.h"
 #include "Platform.h"
 #include "ConfigManager/IndividualConfigManager.h"
-#include "opencv2/opencv.hpp"
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
 #include <deque>
 #include <algorithm>
 #include <unordered_set>

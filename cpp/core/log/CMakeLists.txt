@@ -16,4 +16,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${LOG_PATH})
 find_package(fmt CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
-target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
+# Several consumers include spdlog headers directly. They must use the same
+# compiled-library mode as the sink implementation to avoid duplicate symbols.
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog)

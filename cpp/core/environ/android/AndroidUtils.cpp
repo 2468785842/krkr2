@@ -694,8 +694,10 @@ void TVPCheckAndSendDumps(const std::string &dumpdir,
                           const std::string &versionStr);
 bool TVPCheckStartupArg() {
     // check dump
+#if KRKR2_ENABLE_CRASH_UPLOAD
     TVPCheckAndSendDumps(Android_GetDumpStoragePath(), GetPackageName(),
                          TVPGetPackageVersionString());
+#endif
 
     // register event dispatcher
     cocos2d::Director *director = cocos2d::Director::getInstance();

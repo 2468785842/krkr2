@@ -45,5 +45,3 @@ public:
     void addPage(Node *node);
     cocos2d::Node *getPageAtIndex(int index);
 };
-
-void TVPInitUIExtension();

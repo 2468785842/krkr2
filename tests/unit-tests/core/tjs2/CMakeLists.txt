@@ -6,6 +6,13 @@ set(SOURCES
         tjsString.cpp
 )
 
+if(KRKR2_TEST_SCOPE STREQUAL "strings")
+    set(SOURCES tjsString.cpp)
+    set(TJS_TEST_LIBRARY tjs2)
+else()
+    set(TJS_TEST_LIBRARY krkr2core)
+endif()
+
 string(REPLACE ".cpp" "" BASENAMES_SOURCES "${SOURCES}")
 set(TARGETS ${BASENAMES_SOURCES})
 
@@ -18,12 +25,15 @@ set(ALL_TARGETS
 )
 
 foreach(name ${ALL_TARGETS})
+    if(KRKR2_TEST_SCOPE STREQUAL "strings")
+        target_compile_definitions(${name} PRIVATE KRKR2_TEST_STANDALONE_TJS)
+    endif()
     target_link_libraries(${name}
         PRIVATE
             Catch2::Catch2
         PUBLIC
-            krkr2core
+            ${TJS_TEST_LIBRARY}
     )
-    target_include_directories(${name} PRIVATE "${TEST_CONFIG_DIR}")
+    target_include_directories(${name} PRIVATE "${TEST_CONFIG_DIR}" "${KRKR2CORE_PATH}")
     catch_discover_tests(${name})
 endforeach()

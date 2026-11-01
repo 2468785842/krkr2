@@ -3,99 +3,134 @@
   "name": "krkr2",
   "version-string": "1.5.0",
   "dependencies": [
-    "7zip",
-    {
-      "name": "argparse",
-      "platform": "linux | windows | osx"
-    },
-    {
-      "name": "blend2d",
-      "platform": "!windows"
-    },
-    "boost-iostreams",
     {
       "name": "boost-locale",
       "default-features": false
     },
-    "boost-phoenix",
-    "boost-spirit",
-    {
-      "name": "breakpad",
-      "default-features": false,
-      "platform": "android"
-    },
-    {
-      "name": "catch2",
-      "default-features": false,
-      "platform": "!android & !ios"
-    },
-    {
-      "name": "cocos2dx",
-      "default-features": false,
-      "features": [
-        "ui",
-        "archive",
-        "network",
-        "extensions",
-        "cocostudio",
-        "desktop"
-      ]
-    },
-    {
-      "name": "dirent",
-      "platform": "windows"
-    },
-    "ffmpeg",
     "fmt",
-    "glm",
-    "jxrlib",
-    "libarchive",
-    "libjpeg-turbo",
-    {
-      "name": "libogg",
-      "platform": "android"
-    },
-    {
-      "name": "libpng",
-      "platform": "!linux"
-    },
-    "libvorbis",
-    "libwebp",
-    "lz4",
-    {
-      "name": "miniaudio",
-      "platform": "android"
-    },
     "oniguruma",
-    "openal-soft",
-    {
-      "name": "opencv4",
-      "default-features": false,
-      "features": [
-        "openmp"
-      ]
-    },
-    {
-      "name": "opus",
-      "platform": "android"
-    },
-    {
-      "name": "opusfile",
-      "default-features": false
-    },
-    "spdlog",
-    "uchardet",
-    "unrar",
-    {
-      "name": "vcpkg-cmake",
-      "host": true
-    },
-    "zstd"
+    "spdlog"
   ],
   "overrides": [
     {
       "name": "opencv4",
       "version": "4.7.0#6"
     }
-  ]
+  ],
+  "features": {
+    "engine": {
+      "description": "Complete runtime and bundled plugins",
+      "dependencies": [
+        "7zip",
+        {
+          "name": "blend2d",
+          "platform": "!windows"
+        },
+        {
+          "name": "breakpad",
+          "default-features": false,
+          "platform": "android"
+        },
+        {
+          "name": "cocos2dx",
+          "default-features": false,
+          "features": [
+            "ui",
+            "archive",
+            "extensions",
+            "desktop"
+          ]
+        },
+        "ffmpeg",
+        "glm",
+        "jxrlib",
+        "libarchive",
+        "libxml2",
+        "libjpeg-turbo",
+        {
+          "name": "libogg",
+          "platform": "android"
+        },
+        {
+          "name": "libpng",
+          "platform": "!linux"
+        },
+        "libvorbis",
+        "libwebp",
+        "lz4",
+        {
+          "name": "miniaudio",
+          "platform": "android"
+        },
+        "openal-soft",
+        {
+          "name": "opencv4",
+          "default-features": false,
+          "features": [
+            "openmp"
+          ]
+        },
+        {
+          "name": "opus",
+          "platform": "android"
+        },
+        {
+          "name": "opusfile",
+          "default-features": false
+        },
+        "uchardet",
+        "unrar",
+        {
+          "name": "vcpkg-cmake",
+          "host": true
+        },
+        "zstd",
+        {
+          "name": "dirent",
+          "platform": "windows"
+        },
+        "zlib"
+      ]
+    },
+    "tests": {
+      "description": "Desktop Catch2 test framework",
+      "dependencies": [
+        {
+          "name": "catch2",
+          "default-features": false,
+          "platform": "!android & !ios"
+        }
+      ]
+    },
+    "tools": {
+      "description": "Command-line tools",
+      "dependencies": [
+        {
+          "name": "argparse",
+          "platform": "linux | windows | osx"
+        },
+        "zlib"
+      ]
+    },
+    "psd": {
+      "description": "PSD layered image plugin",
+      "dependencies": [
+        "boost-iostreams",
+        "boost-phoenix",
+        "boost-spirit"
+      ]
+    },
+    "crash-upload": {
+      "description": "Optional crash report upload via cocos networking",
+      "dependencies": [
+        {
+          "name": "cocos2dx",
+          "default-features": false,
+          "features": [
+            "network"
+          ]
+        }
+      ]
+    }
+  }
 }

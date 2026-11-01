@@ -12,7 +12,6 @@
 #ifndef tjsStringH
 #define tjsStringH
 
-#include <boost/locale.hpp>
 #include <fmt/printf.h>
 
 #include <string>
@@ -40,6 +39,8 @@ namespace TJS {
     };
 
     class tTJSString : protected tTJSString_S {
+        static std::u16string ToUtf16(const std::string &text);
+
     public:
         tTJSString() : tTJSString_S{ nullptr } {}
 
@@ -104,10 +105,7 @@ namespace TJS {
             return AsNarrowStdString();
         }
 
-        [[nodiscard]] std::wstring toWString() const {
-            return boost::locale::conv::utf_to_utf<wchar_t>(
-                AsNarrowStdString());
-        }
+        [[nodiscard]] std::wstring toWString() const;
 
         [[nodiscard]] std::string AsStdString() const {
             if(!Ptr)
@@ -356,8 +354,7 @@ namespace TJS {
         template <typename... T>
         size_t printf(const char *format, const T &...args) {
             std::u16string utf16_string =
-                boost::locale::conv::utf_to_utf<char16_t>(
-                    fmt::sprintf(format, args...));
+                ToUtf16(fmt::sprintf(format, args...));
             size_t len = utf16_string.length();
             AllocBuffer(len);
             TJS_strcpy(const_cast<tjs_char *>(c_str()), utf16_string.c_str());

@@ -1,3 +1,10 @@
+# Android uses its native downloader for JNI startup even without curl.
+if(NOT BUILD_EXT_CURL AND NOT ANDROID AND NOT BUILD_EXT_WEBSOCKETS)
+    set(COCOS_NETWORK_SRC "")
+    set(COCOS_NETWORK_HEADER "")
+    return()
+endif()
+
 set(COCOS_NETWORK_SRC "")
 set(COCOS_NETWORK_HEADER
     network/CCDownloader-curl.h

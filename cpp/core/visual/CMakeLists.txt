@@ -105,7 +105,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 )
 
 set(OpenCV_ROOT "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/opencv4")
-find_package(OpenCV REQUIRED)
+find_package(OpenCV REQUIRED COMPONENTS core imgproc)
 target_link_libraries(${PROJECT_NAME} PUBLIC
     opencv_imgproc
     opencv_core

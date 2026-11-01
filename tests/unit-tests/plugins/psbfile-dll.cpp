@@ -11,6 +11,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "psbfile/PSBFile.h"
+#include "psbfile/resources/ImageMetadata.h"
 #include "test_config.h"
 
 TEST_CASE("read psbfile ezsave.pimg") {
@@ -218,4 +219,24 @@ TEST_CASE("read psbfile e-mote3.0 psb") {
     REQUIRE(f.getType() == PSB::PSBType::Motion);
     auto objs = f.getObjects();
     REQUIRE(objs != nullptr);
+}
+
+TEST_CASE("texture index parsing preserves digit and overflow behavior",
+          "[texture-index]") {
+    const auto parse = [](const std::string &name) {
+        PSB::ImageMetadata metadata;
+        metadata.setPart(name);
+        return metadata.getTextureIndex();
+    };
+    REQUIRE(parse("prefixtex") == 0);
+    REQUIRE(parse("tex#000") == 0);
+    REQUIRE(parse("tex000") == 0);
+    REQUIRE(parse("tex#001") == 1);
+    REQUIRE(parse("tex-no-digits-42-tail") == 42);
+    REQUIRE(parse("tex12tex7") == 7);
+    REQUIRE(parse("tex4294967295") == UINT32_MAX);
+    REQUIRE_FALSE(parse("tex4294967296"));
+    REQUIRE_FALSE(parse("tex999999999999999999999"));
+    REQUIRE_FALSE(parse("tex-without-digits"));
+    REQUIRE_FALSE(parse("other123"));
 }

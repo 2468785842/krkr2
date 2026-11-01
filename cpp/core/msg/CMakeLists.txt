@@ -15,15 +15,6 @@ find_package(Python3 REQUIRED)
 
 set(TVP_MESSAGES_DECL_H ${GEN_CODE_BINARY_DIR}/TVPMessages.decl.h)
 
-execute_process(
-    TIMEOUT 5000
-    COMMAND ${Python3_EXECUTABLE}
-        ${MSG_PATH}/script/create_messages.py
-        ${TVP_MESSAGES_DECL_H}
-    WORKING_DIRECTORY ${MSG_PATH}/script
-    COMMAND_ECHO STDOUT
-)
-
 add_custom_command(
     OUTPUT ${TVP_MESSAGES_DECL_H}
     COMMAND ${Python3_EXECUTABLE}
@@ -34,6 +25,7 @@ add_custom_command(
         ${MSG_PATH}/script/messages.json
         ${MSG_PATH}/script/create_messages.py
     COMMENT "Generate TVPMessages.decl.h from messages.json"
+    VERBATIM
 )
 
 add_custom_target(GENERATE_MSG_FILES DEPENDS ${TVP_MESSAGES_DECL_H})

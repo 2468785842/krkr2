@@ -58,6 +58,7 @@ krkr2_target_include_environ_headers(${PROJECT_NAME})
 
 find_package(FFMPEG COMPONENTS
         avutil
+        avformat
         avfilter
         avcodec
         swscale

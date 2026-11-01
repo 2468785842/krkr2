@@ -2,6 +2,7 @@
 #include <vector>
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 #include "combase.h"
 #include "ncbind.hpp"
 

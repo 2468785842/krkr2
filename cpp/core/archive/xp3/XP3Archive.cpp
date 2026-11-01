@@ -19,6 +19,7 @@
 
 #include <zlib.h>
 #include <algorithm>
+#include <memory>
 
 bool TVPAllowExtractProtectedStorage = true;
 

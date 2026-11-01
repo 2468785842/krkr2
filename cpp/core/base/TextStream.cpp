@@ -5,7 +5,8 @@
 
 #include "TextStream.h"
 
-#include <opencv2/core/hal/interface.h>
+#include <boost/locale/encoding.hpp>
+#include <boost/locale/encoding_utf.hpp>
 #include "TVPLog.h"
 
 #include "MsgIntf.h"

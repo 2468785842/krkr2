@@ -11,7 +11,6 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/EnvironFileBackendInit.cpp
     ${ENVIRON_PATH}/DialogBackend.cpp
     ${ENVIRON_PATH}/DetectCPU.cpp
-    ${ENVIRON_PATH}/DumpSend.cpp
     ${ENVIRON_PATH}/XP3ArchiveRepack.cpp
 
     $<$<BOOL:${ANDROID}>:${ENVIRON_PATH}/android/AndroidUtils.cpp>
@@ -72,7 +71,12 @@ if(ANDROID OR IOS)
     )
 endif()
 
+if(KRKR2_ENABLE_CRASH_UPLOAD)
+    list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/DumpSend.cpp)
+endif()
 add_library(${PROJECT_NAME} STATIC ${ENVIRON_SOURCE_FILES})
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    KRKR2_ENABLE_CRASH_UPLOAD=$<BOOL:${KRKR2_ENABLE_CRASH_UPLOAD}>)
 target_include_directories(${PROJECT_NAME} PUBLIC ${ENVIRON_HEADERS_DIR})
 
 # 组合根：对外 PUBLIC 链齐运行时栈（foundation + base + domain）
