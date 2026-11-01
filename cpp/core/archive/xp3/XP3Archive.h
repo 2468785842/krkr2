@@ -109,8 +109,11 @@ public:
 
     std::vector<tArchiveItem> ItemVector;
 
+    // 直接构造及重打包子类沿用 Init 接管输入、成功或失败均关闭的契约。
     void Init(tTJSBinaryStream *st, tjs_int64 offset,
               bool normalizeName = true);
+    // 注册器借用输入；解析失败时不能销毁调用方持有的流。
+    void ReadIndex(tTJSBinaryStream *st, tjs_int64 offset, bool normalizeName);
 
 public:
     tTVPXP3Archive(const ttstr &name, int) : tTVPArchive(name) {}

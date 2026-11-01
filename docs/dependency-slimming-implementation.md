@@ -64,3 +64,34 @@ cocos 裁剪验证在 `out/windows/cocos-slim-source` 的隔离副本应用 over
 ## 仍需独立迁移的工作
 
 SDL3/Sokol 平台层、完整 OpenCV 像素算法替换、PSD 解析器重写、音频设备统一及归档格式合并尚未实施。它们需要像素/事件/格式语料与移动真机验收，不能因本轮构建瘦身通过就删除旧功能。
+
+## 归档模块隔离续批
+
+基线为 dev `f4d3e2a`。将共享句柄缓存迁到 `storage/impl/ArchiveHandleCache.*`，保留 8 槽缓存、
+退出回调和 XP3 compact 清理；关闭后归还的句柄会释放，重复关闭安全。ZIP 析构会清除其缓存条目。
+`core_storage_archive` 不再链接 XP3，四个格式目标改为依赖共享层；工具显式链接 `archive_xp3`。
+ZIP 的格式类型及流读取实现独立于 cocos 头，解码算法保持原实现；现有 `cpp/external/minizip` 主要是写入器，未作为 ZIP 读取替代。
+
+注册器在所有创建器拒绝或抛异常时释放输入。成功返回才转移所有权；XP3、ZIP、7z、TAR 的失败路径同步遵循此契约。
+XP3 直接构造和重打包子类的 `Init` 仍接管输入；注册器改走借用输入的索引解析。
+归档名称转换改为检查实际转换结果，非法序列不再悄悄截成前缀。测试宿主记录错误和退出回调，不修改引擎 UI 行为。
+Linux XP3 工具同时修复 stat 时间成员在取消宏后应访问 `st_*tim.tv_sec` 的编译问题。
+
+新增 `archives` 最小配置、跨平台 headless CI 及 foundation 依赖检查。检查器只守护显式基础层边界，
+不把 domain 环或传递包含判为已解决；完整应用仍需要 cocos、OpenCV、FFmpeg 等库。
+具体测试命令及覆盖边界见[独立归档测试](building.md#独立归档测试)。
+
+本机验证为 Debian 13、GCC 14.2、CMake 3.31.6、Bison 3.8.2、Debug；仅在临时目录解包
+真实 Debian 依赖，未改全局工具链。Boost 1.83/fmt 10.1/spdlog 1.15/Oniguruma 6.9.9/Catch2 3.7.1
+不同于固定 vcpkg 基线，不能替代 CI 的全新 manifest 安装。
+
+| 检查 | 本机结果 |
+|---|---|
+| strings-only 回归 | 2 项通过 |
+| 独立 ZIP/TAR | 7 项通过；生成图无 XP3、完整存储、cocos、OpenCV、FFmpeg 或 unrar/LibArchive，61 条编译记录无重复 |
+| 加入 XP3 的联合验证 | 9 项 CTest 通过（8 个 Catch2 用例/41 个断言及 XP3 raw/zlib smoke） |
+| ASan/UBSan | 8 个归档用例通过，启用泄漏检测和 UBSan 首错退出 |
+| 依赖守卫 | 9 目标通过；注入 cocos/完整存储依赖的负向检查被拒绝 |
+
+新增三平台 headless CI 使用仓库 vcpkg 基线，其结果以远端运行记录为准。
+本机未编译完整应用、7z 或 Android，也未验证真实游戏，未测量体积或耗时收益。

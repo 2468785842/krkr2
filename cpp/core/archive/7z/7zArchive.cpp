@@ -1,5 +1,6 @@
 #include "base/UtilStreams.h"
 #include <algorithm>
+#include <memory>
 
 extern "C" {
 #include <7zip/C/7z.h>
@@ -174,12 +175,16 @@ tTVPArchive *TVPOpen7ZArchive(const ttstr &name, tTJSBinaryStream *st,
     st->SetPosition(pos);
     if(!checkZIP)
         return nullptr;
-    SevenZipArchive *arc = new SevenZipArchive(name, st);
+    auto reject = [](SevenZipArchive *archive) {
+        archive->_stream = nullptr; // 失败时输入仍属于注册器。
+        delete archive;
+    };
+    std::unique_ptr<SevenZipArchive, decltype(reject)> arc(
+        new SevenZipArchive(name, st), reject);
     if(!arc->Open(normalizeFileName)) {
-        delete arc;
         return nullptr;
     }
-    return arc;
+    return arc.release();
 }
 
 #if 0

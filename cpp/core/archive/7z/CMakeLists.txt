@@ -8,7 +8,7 @@ add_library(${PROJECT_NAME} STATIC
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${KRKR2_CORE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC core_storage)
+target_link_libraries(${PROJECT_NAME} PUBLIC core_storage_archive)
 
 find_package(7zip CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE 7zip::7zip)

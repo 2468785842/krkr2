@@ -12,7 +12,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${KRKR2_CORE_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 core_msg)
+target_link_libraries(${PROJECT_NAME} PUBLIC core_storage_archive)
 
 find_package(ZLIB REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE ZLIB::ZLIB)

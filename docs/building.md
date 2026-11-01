@@ -64,6 +64,30 @@ ctest --test-dir out/windows/strings --output-on-failure --no-tests=error
 `KRKR2_ENABLE_CRASH_UPLOAD` 默认 OFF，保留本地崩溃文件；开启时同时选择 crash-upload manifest feature 并编译上报代码。其开关不控制 Android 的本地 Breakpad 捕获。
 CocoStudio reader 残留已移除；管理 UI 继续使用现有 C++ 工厂和 cocos UI。插件实现只编译在自己的静态库中，krkr2plugin 接口通过 WHOLE_ARCHIVE 保留静态注册对象，不能用普通静态链接替代而丢失注册。
 
+## 独立归档测试
+
+```sh
+cmake -S . -B out/archive-tests -G Ninja -DCMAKE_BUILD_TYPE=Debug -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=archives
+cmake --build out/archive-tests --target archive_tests
+ctest --test-dir out/archive-tests -N
+ctest --test-dir out/archive-tests --output-on-failure --no-tests=error
+python scripts/check_core_module_deps.py
+```
+
+该模式配置日志、TJS2、消息、IO、共享归档、ZIP/TAR 和 Catch2，不添加 XP3、完整存储、插件或图像/媒体目标。
+vcpkg 选择 tests/archives features；基础依赖仍含 Boost.Locale、fmt、spdlog 和 Oniguruma，archives 提供 zlib。
+启用 `BUILD_TOOLS=ON` 并构建 `archive_tests xp3` 时，再添加 XP3 所有权回归及解包 smoke。
+独立归档测试也登记在默认 full 测试中；它们提供测试宿主回调，不能证明完整引擎事件或 UI 已隔离。
+
+测试语料由 `tests/unit-tests/core/archive/make_fixtures.py` 在构建期生成，覆盖存储/deflate、UTF-8 名称、
+小文件的 ZIP64 本地头、TAR、随机访问、归档持有、拒绝/异常输入释放和退出后归还句柄。
+这不是大于 4 GiB、全部 ZIP 压缩方法、CP932、加密或真实游戏验收。
+非法名称会报告错误并抛异常，修复了原转换长度查询只截断前缀的问题；没有替换 TJS 编码转换器。
+
+根 CMake 尊重显式 `CMAKE_TOOLCHAIN_FILE`；未指定工具链且设置 `VCPKG_ROOT` 时才自动选 vcpkg。
+也可用 `CMAKE_PREFIX_PATH` 提供已安装的真实依赖，Linux 验证使用此方式，未修改全局工具链。
+三平台无窗口 CI 见 `.github/workflows/headless-tests.yml`，保留 CTest、编译清单和 vcpkg status 附件。
+
 ## 按改动选择验证
 
 | 改动 | 最低相关验证 |

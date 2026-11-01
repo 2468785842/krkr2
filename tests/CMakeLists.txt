@@ -8,6 +8,11 @@ include(Catch)
 
 set(TEST_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
+add_subdirectory(unit-tests/core/archive)
+if(KRKR2_TEST_SCOPE STREQUAL "archives")
+    return()
+endif()
+
 add_subdirectory(unit-tests/core/movie)
 add_subdirectory(unit-tests/core/visual)
 add_subdirectory(unit-tests/core/tjs2)

@@ -131,6 +131,12 @@
           ]
         }
       ]
+    },
+    "archives": {
+      "description": "Headless ZIP archive validation",
+      "dependencies": [
+        "zlib"
+      ]
     }
   }
 }

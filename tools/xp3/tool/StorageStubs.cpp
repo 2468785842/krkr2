@@ -42,10 +42,14 @@ static bool TVP_stat_impl(const char *name, tTVP_stat &s) {
     s.st_atime = static_cast<uint64_t>(t.st_atimespec.tv_sec);
     s.st_mtime = static_cast<uint64_t>(t.st_mtimespec.tv_sec);
     s.st_ctime = static_cast<uint64_t>(t.st_ctimespec.tv_sec);
-#else
+#elif defined(_WIN32)
     s.st_atime = static_cast<uint64_t>(t.st_atime);
     s.st_mtime = static_cast<uint64_t>(t.st_mtime);
     s.st_ctime = static_cast<uint64_t>(t.st_ctime);
+#else
+    s.st_atime = static_cast<uint64_t>(t.st_atim.tv_sec);
+    s.st_mtime = static_cast<uint64_t>(t.st_mtim.tv_sec);
+    s.st_ctime = static_cast<uint64_t>(t.st_ctim.tv_sec);
 #endif
     return true;
 }

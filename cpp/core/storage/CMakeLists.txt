@@ -17,16 +17,17 @@ set(CORE_STORAGE_ARCHIVE_SOURCES
     ${STORAGE_PATH}/impl/ArchiveRegistry.cpp
     ${STORAGE_PATH}/impl/ArchiveFilename.cpp
     ${STORAGE_PATH}/impl/ArchiveStream.cpp
+    ${STORAGE_PATH}/impl/ArchiveHandleCache.cpp
     ${STORAGE_PATH}/impl/StorageGlobals.cpp
     ${STORAGE_PATH}/impl/MemoryStream.cpp
 )
 
 add_library(core_storage_archive STATIC ${CORE_STORAGE_ARCHIVE_SOURCES})
 target_include_directories(core_storage_archive PUBLIC ${STORAGE_PUBLIC_INCLUDES})
-target_link_libraries(core_storage_archive PUBLIC tjs2 core_io core_msg archive_xp3)
+target_link_libraries(core_storage_archive PUBLIC tjs2 core_io core_msg)
 
-# XP3 extraction only needs the shared archive primitives.
-if(NOT KRKR2_BUILD_APP AND (NOT ENABLE_TESTS OR KRKR2_TEST_SCOPE STREQUAL "strings"))
+# 工具和归档测试只需要共享归档基础层，不配置完整存储介质。
+if(NOT KRKR2_BUILD_APP AND (NOT ENABLE_TESTS OR NOT KRKR2_TEST_SCOPE STREQUAL "full"))
     return()
 endif()
 

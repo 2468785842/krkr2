@@ -1,9 +1,8 @@
 #include "storage/impl/ArchiveFilename.h"
 #include <algorithm>
+#include <memory>
 
-void TVPFreeArchiveHandlePoolByPointer(void *pointer);
-
-void TVPReleaseCachedArchiveHandle(void *pointer, tTJSBinaryStream *stream);
+#include "storage/impl/ArchiveHandleCache.h"
 
 //---------------------------------------------------------------------------
 // tar archive
@@ -137,10 +136,9 @@ tTJSBinaryStream *TARArchive::CreateStreamByIndex(tjs_uint idx) {
 
 tTVPArchive *TVPOpenTARArchive(const ttstr &name, tTJSBinaryStream *st,
                                bool normalizeFileName) {
-    auto *arc = new TARArchive(name);
+    auto arc = std::make_unique<TARArchive>(name);
     if(!arc->init(st, normalizeFileName)) {
-        delete arc;
         return nullptr;
     }
-    return arc;
+    return arc.release();
 }

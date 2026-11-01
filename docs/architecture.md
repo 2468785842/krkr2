@@ -43,12 +43,18 @@ Windows 入口 `platforms/windows/main.cpp` 创建 TVPAppDelegate；脚本入口
 
 ## 已有解耦与剩余边界
 
-`tools/xp3/CMakeLists.txt` 当前链接 `core_log`、`core_storage_archive` 及 argparse，
+`tools/xp3/CMakeLists.txt` 当前链接 `core_log`、`core_storage_archive`、`archive_xp3` 及 argparse，
 通过 `tools/xp3/tool/CreateStream.cpp` 只读重开本地 XP3，不再链接完整 `core_storage`。
 根 CMake 的 `KRKR2_BUILD_APP=OFF`、`ENABLE_TESTS=OFF`、`BUILD_TOOLS=ON` 组合
 只配置日志、TJS2、消息、IO、XP3 和共享归档基础层；vcpkg 同步选择 tools feature。
 完整引擎和 full 测试仍配置全部域模块；strings 测试范围只添加日志、TJS2 和 Catch2。操作见 [构建与验证](building.md)。
 
-旧依赖检查脚本 `scripts/check_core_module_deps.py` 已在 dev 删除，不能继续作为当前可执行验证入口。
+归档格式目标统一链接 `core_storage_archive`，不再反向链接完整 `core_storage`。
+共享句柄缓存已从 XP3 迁到 `storage/impl/ArchiveHandleCache.*`；基础归档层不再链接 XP3。
+ZIP 读取器使用自身格式类型及 zlib，不再包含 cocos 的 minizip 头。完整应用的其他 cocos/archive 消费者仍保留。
+`archives` 测试范围可独立配置 ZIP/TAR；同时开启工具时增加 XP3 回归，见[构建指南](building.md#独立归档测试)。
+
+`scripts/check_core_module_deps.py` 已恢复，检查 9 个 foundation 目标的显式 CMake 链接及直接平台包含。
+它不解析所有生成表达式或传递头，也不代表 domain 层既有环已消除。
 
 现有测试由 `tests/CMakeLists.txt` 添加 movie、visual、tjs2 和插件子目录；核对时 visual 的 SOURCES 为空。不能把这个目录的存在当作已有图像兼容回归。

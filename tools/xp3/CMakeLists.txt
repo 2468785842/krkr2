@@ -28,6 +28,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     argparse::argparse
     core_log
     core_storage_archive
+    archive_xp3
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
