@@ -1,4 +1,5 @@
 #include "GameMainMenu.h"
+#include "csd/CsdUIFactory.h"
 #include "cocos2d/MainScene.h"
 #include "Application.h"
 #include "WindowIntf.h"
@@ -41,8 +42,6 @@ iTJSDispatch2 *TVPGetMenuDispatch(tTVInteger hWnd);
 bool TVPGameMainMenu::init() {
     bool ret = Node::init();
 
-    CSBReader reader;
-    _root = reader.Load("ui/GameMenu.csb");
     cocos2d::Size size = TVPMainScene::GetInstance()->getGameNodeSize();
     float scale;
     if(size.width > size.height) {
@@ -52,6 +51,8 @@ bool TVPGameMainMenu::init() {
     }
     setScale(scale);
     size.width /= scale;
+    _root = Csd::createGameMenu(cocos2d::Size(size.width, 130.f), 1.f);
+    NodeMap reader("", _root);
     size.height = _root->getContentSize().height;
     _root->setContentSize(size);
     ui::Helper::doLayout(_root);

@@ -5,10 +5,9 @@
 #include "../PSBFile.h"
 #include "ScnType.h"
 
+#include "log/TVPLog.h"
+
 namespace PSB {
-
-#define LOGGER spdlog::get("plugin")
-
     bool ScnType::isThisType(const PSBFile &psb) {
         const auto objects = psb.getObjects();
         if(psb.getObjects() == nullptr) {
@@ -32,7 +31,7 @@ namespace PSB {
     ScnType::collectResources(const PSBFile &psb, bool deDuplication) {
         std::vector<std::unique_ptr<IResourceMetadata>> resourceList;
         // TODO:
-        LOGGER->critical("TODO: ScnType::collectResources(...)");
+        G_PluginLog.critical("TODO: ScnType::collectResources(...)");
         return resourceList;
     }
 } // namespace PSB

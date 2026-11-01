@@ -10,7 +10,7 @@
 #include "ncbind.hpp"
 #include "xp3filter.h"
 
-#define LOGGER spdlog::get("plugin")
+#include "log/TVPLog.h"
 
 namespace PSB {
 
@@ -66,7 +66,7 @@ namespace PSB {
         }
 
         if(refStr != strings.end()) {
-            LOGGER->info("{} does not match {}", refStr->value, strValue);
+            G_PluginLog.info("{} does not match {}", refStr->value, strValue);
         }
 
         str->value = strValue;
@@ -133,9 +133,10 @@ namespace PSB {
         for(size_t i = 0; i < names.size(); i++) {
             const auto nameIdx = names[i];
             if(nameIdx >= PSBFile::names.size()) {
-                LOGGER->warn("Bad PSB format: at position:{}, name index {} >= "
-                             "Names count ({}), skipping.",
-                             pos, nameIdx, PSBFile::names.size());
+                G_PluginLog.warn(
+                    "Bad PSB format: at position:{}, name index {} >= "
+                    "Names count ({}), skipping.",
+                    pos, nameIdx, PSBFile::names.size());
                 continue;
             }
             auto name = PSBFile::names[nameIdx];
@@ -146,9 +147,10 @@ namespace PSB {
                 stream->SetPosition(pos + offset);
                 obj = unpack(stream, lazyLoad);
             } else {
-                LOGGER->warn("Bad PSB format: at position:{}, offset index {} "
-                             ">= offsets count ({}), skipping.",
-                             pos, i, offsets.size());
+                G_PluginLog.warn(
+                    "Bad PSB format: at position:{}, offset index {} "
+                    ">= offsets count ({}), skipping.",
+                    pos, i, offsets.size());
             }
 
             if(obj != nullptr) {
@@ -320,7 +322,7 @@ namespace PSB {
                 return _header.version != 1 ? loadObjects(stream, lazyLoad)
                                             : loadObjectsV1(stream, lazyLoad);
             default:
-                LOGGER->error("unknown psbObjType");
+                G_PluginLog.error("unknown psbObjType");
                 return nullptr;
         }
     }
@@ -433,12 +435,12 @@ namespace PSB {
 
         if(_header.isEncrypted() &&
            _header.GetHeaderLength() > stream->GetSize() && _seed == 0) {
-            LOGGER->critical("psb file is encrypted");
+            G_PluginLog.critical("psb file is encrypted");
             return false;
         }
 
         if(_header.version > 3) {
-            LOGGER->critical("not support psb file format version > 3");
+            G_PluginLog.critical("not support psb file format version > 3");
             return false;
         }
 
@@ -507,7 +509,7 @@ namespace PSB {
         stream->SetPosition(_header.offsetEntries);
         auto obj = unpack(stream);
         if(!obj) {
-            LOGGER->error("Can not parse objects");
+            G_PluginLog.error("Can not parse objects");
             return false;
         }
 
@@ -527,7 +529,7 @@ namespace PSB {
     }
 
     bool PSBFile::loadPSBFile(const ttstr &filePath) {
-        LOGGER->debug("load psb file: {}", filePath.AsStdString());
+        G_PluginLog.debug("load psb file: {}", filePath.AsStdString());
         auto *rawStream = TVPCreateStream(filePath);
         if(!rawStream) {
             return false;
@@ -536,7 +538,7 @@ namespace PSB {
         try {
             _stream = openDecompressedStream(rawStream);
         } catch(const std::exception &ex) {
-            LOGGER->error("failed to decompress psb stream: {}", ex.what());
+            G_PluginLog.error("failed to decompress psb stream: {}", ex.what());
             delete rawStream;
             return false;
         }

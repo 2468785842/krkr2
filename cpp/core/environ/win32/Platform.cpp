@@ -13,7 +13,7 @@
 #include "RenderManager.h"
 #include <sys/utime.h>
 #include <boost/locale.hpp>
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 
 #pragma comment(lib, "psapi.lib")
 
@@ -400,8 +400,7 @@ bool TVP_utime(const char *name, time_t modtime) {
 int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,
                           const ttstr &prompt,
                           const std::vector<ttstr> &vecButtons) {
-    spdlog::get("core")->warn(
-        "windows platform simple input box not implement");
+    G_CoreLog.warn("windows platform simple input box not implement");
     return 0;
 }
 

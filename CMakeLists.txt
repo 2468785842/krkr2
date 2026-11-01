@@ -100,7 +100,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 if(NOT ANDROID)
     include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CocosBuildHelpers.cmake")
 
-    set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/ui/cocos-studio")
+    set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
 
     if(WINDOWS OR APPLE)
         cocos_mark_multi_resources(common_res_files RES_TO "Resources" FOLDERS ${GAME_RES_FOLDER})

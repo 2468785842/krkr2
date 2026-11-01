@@ -2,7 +2,7 @@
 #include <windows.h>
 #endif
 
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 #include <thread>
 #include "krmovie.h"
 
@@ -124,12 +124,12 @@ bool TVPCheckIsVideoFile(const char *uri) {
     try {
         tTJSBinaryStream *rawStream = TVPCreateStream(uri, TJS_BS_READ);
         if(!rawStream) {
-            spdlog::error("TVPCreateStream returned nullptr for {}", uri);
+            G_CoreLog.error("TVPCreateStream returned nullptr for {}", uri);
             return false;
         }
         stream.reset(rawStream);
     } catch(eTJSError &e) {
-        spdlog::error("Error opening video file: {}", e.what());
+        G_CoreLog.error("Error opening video file: {}", e.what());
         return false;
     }
 

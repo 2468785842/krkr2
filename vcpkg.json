@@ -24,23 +24,29 @@
       "default-features": false,
       "platform": "android"
     },
-    "bullet3",
     {
       "name": "catch2",
       "default-features": false,
       "platform": "!android & !ios"
     },
-    "cocos2dx",
+    {
+      "name": "cocos2dx",
+      "default-features": false,
+      "features": [
+        "ui",
+        "archive",
+        "network",
+        "extensions",
+        "cocostudio",
+        "desktop"
+      ]
+    },
     {
       "name": "dirent",
       "platform": "windows"
     },
     "ffmpeg",
     "fmt",
-    {
-      "name": "glfw3",
-      "platform": "linux | windows | osx"
-    },
     "glm",
     "jxrlib",
     "libarchive",

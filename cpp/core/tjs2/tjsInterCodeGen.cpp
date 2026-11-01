@@ -11,7 +11,7 @@
 #include "tjsCommHead.h"
 
 #include <algorithm>
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 #include "tjsInterCodeGen.h"
 #include "tjsScriptBlock.h"
 #include "tjsGlobalStringMap.h"
@@ -44,9 +44,7 @@ namespace TJS // following is in the namespace
         return t;
     }
 
-    void parser::error(const std::string &msg) {
-        spdlog::get("tjs2")->critical(msg);
-    }
+    void parser::error(const std::string &msg) { G_Tjs2Log.critical(msg); }
 
     //---------------------------------------------------------------------------
     int _yyerror(const tjs_char *msg, tTJSScriptBlock *pm, tjs_int pos) {

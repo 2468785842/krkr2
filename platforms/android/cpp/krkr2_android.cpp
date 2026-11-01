@@ -7,6 +7,7 @@
 #include "environ/cocos2d/MainScene.h"
 #include "environ/ConfigManager/GlobalConfigManager.h"
 #include "environ/Application.h"
+#include "log/TVPInitLog.h"
 
 /*******************************************************************************
                  Functions called by JNI
@@ -14,8 +15,6 @@
 #include <cstring>
 #include <condition_variable>
 #include <mutex>
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/android_sink.h>
 #include <client/linux/handler/exception_handler.h>
 #include <client/linux/handler/minidump_descriptor.h>
 
@@ -35,17 +34,9 @@ static bool DumpFilter(void *data) {
 
 [[maybe_unused]] void cocos_android_app_init(JNIEnv *env) { // for cocos3.10+
 
-    spdlog::set_pattern("%v");
-    spdlog::set_level(spdlog::level::info);
-
-    static auto core_logger =
-        spdlog::android_logger_mt("core", "KrKr2NativeCore");
-    static auto tjs2_logger =
-        spdlog::android_logger_mt("tjs2", "KrKr2NativeTjs2");
-    static auto plugin_logger =
-        spdlog::android_logger_mt("plugin", "KrKr2NativePlugin");
-
-    spdlog::set_default_logger(core_logger);
+    TVPLoggingOptions options;
+    options.pattern = "%v";
+    TVPInitLogging(options);
 
     static std::unique_ptr<TVPAppDelegate> pAppDelegate =
         std::make_unique<TVPAppDelegate>();

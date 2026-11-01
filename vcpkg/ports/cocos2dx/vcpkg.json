@@ -1,80 +1,25 @@
 {
   "name": "cocos2dx",
   "version-string": "3.17.2",
-  "port-version": 6,
+  "port-version": 9,
   "description": "Cocos2d-x is a suite of open-source, cross-platform, game-development tools utilized by millions of developers across the globe.",
   "homepage": "http://www.cocos2d-x.org/",
   "license": null,
   "supports": "android | linux | windows | osx",
   "dependencies": [
-    {
-      "name": "bzip2",
-      "platform": "linux"
-    },
-    "box2d",
-    "bullet3",
-    "chipmunk",
-    "libuv",
-    "libwebsockets",
-    {
-      "name": "mpg123",
-      "platform": "windows"
-    },
-    {
-      "name": "libogg",
-      "platform": "windows"
-    },
-    "curl",
-    {
-      "name": "curl",
-      "platform": "linux"
-    },
-    {
-      "name": "fontconfig",
-      "platform": "linux"
-    },
-    "freetype",
-    {
-      "name": "glfw3",
-      "platform": "linux | windows | osx"
-    },
-    {
-      "name": "glew",
-      "platform": "linux | windows"
-    },
-    {
-      "name": "gtk3",
-      "platform": "linux"
-    },
-    "libiconv",
-    "libjpeg-turbo",
     "libpng",
-    "libwebp",
-    {
-      "name": "libvorbis",
-      "platform": "android | windows"
-    },
     {
       "name": "libogg",
       "platform": "android"
     },
     {
-      "name": "openal-soft",
-      "platform": "windows"
+      "name": "libvorbis",
+      "platform": "android"
     },
     {
-      "name": "opengl",
-      "platform": "linux"
+      "name": "zlib",
+      "platform": "android"
     },
-    {
-      "name": "openssl",
-      "default-features": false
-    },
-    {
-      "name": "sqlite3",
-      "platform": "linux | windows"
-    },
-    "tiff",
     {
       "name": "vcpkg-cmake",
       "host": true
@@ -82,10 +27,146 @@
     {
       "name": "vcpkg-cmake-config",
       "host": true
-    },
-    {
-      "name": "zlib",
-      "platform": "osx | android | windows"
     }
-  ]
+  ],
+  "default-features": [
+    "ui",
+    "archive",
+    "extensions",
+    "cocostudio",
+    "network",
+    "desktop"
+  ],
+  "features": {
+    "ui": {
+      "description": "Font and bitmap image decoders (Label/UI textures).",
+      "dependencies": [
+        "freetype",
+        "libjpeg-turbo",
+        "libwebp",
+        "tiff"
+      ]
+    },
+    "archive": {
+      "description": "zlib and zip support for FileUtils.",
+      "dependencies": [
+        {
+          "name": "zlib",
+          "platform": "linux | osx | windows"
+        }
+      ]
+    },
+    "network": {
+      "description": "HTTP client (cocos network/HttpClient; used by crash report upload).",
+      "dependencies": [
+        "curl",
+        {
+          "name": "openssl",
+          "default-features": false
+        }
+      ]
+    },
+    "extensions": {
+      "description": "cocos2d-x extensions (ScrollView, TableView, PageView)."
+    },
+    "cocostudio": {
+      "description": "CocoStudio NodeReader (WidgetReader; no CocosBuilder/Spine)."
+    },
+    "desktop": {
+      "description": "Desktop windowing (GLFW) and platform-specific system libraries.",
+      "dependencies": [
+        {
+          "name": "glfw3",
+          "platform": "linux | windows | osx"
+        },
+        {
+          "name": "glew",
+          "platform": "linux | windows"
+        },
+        {
+          "name": "opengl",
+          "platform": "linux"
+        },
+        {
+          "name": "gtk3",
+          "platform": "linux"
+        },
+        {
+          "name": "fontconfig",
+          "platform": "linux"
+        },
+        {
+          "name": "bzip2",
+          "platform": "linux"
+        },
+        {
+          "name": "sqlite3",
+          "platform": "linux | windows"
+        },
+        {
+          "name": "openal-soft",
+          "platform": "windows"
+        },
+        {
+          "name": "mpg123",
+          "platform": "windows"
+        },
+        {
+          "name": "libogg",
+          "platform": "windows"
+        },
+        {
+          "name": "libvorbis",
+          "platform": "windows"
+        },
+        {
+          "name": "libiconv",
+          "platform": "windows"
+        }
+      ]
+    },
+    "physics2d": {
+      "description": "2D physics (Box2D, Chipmunk). Not used by krkr2.",
+      "dependencies": [
+        "box2d",
+        "chipmunk"
+      ]
+    },
+    "physics3d": {
+      "description": "3D physics (Bullet). Not used by krkr2.",
+      "dependencies": [
+        "bullet3"
+      ]
+    },
+    "navmesh": {
+      "description": "Recast/Detour navmesh (bundled sources)."
+    },
+    "websockets": {
+      "description": "WebSocket client support.",
+      "dependencies": [
+        "libwebsockets"
+      ]
+    },
+    "uv": {
+      "description": "libuv async I/O.",
+      "dependencies": [
+        "libuv"
+      ]
+    },
+    "spine": {
+      "description": "Spine editor/runtime support."
+    },
+    "cocosbuilder": {
+      "description": "CocosBuilder editor support."
+    },
+    "sqlite": {
+      "description": "SQLite on Windows (optional; Linux always links sqlite via platform deps).",
+      "dependencies": [
+        {
+          "name": "sqlite3",
+          "platform": "windows"
+        }
+      ]
+    }
+  }
 }

@@ -2,15 +2,13 @@
 // Created by LiDon on 2025/9/11.
 //
 
-#include <spdlog/spdlog.h>
-
 #include "PSBMedia.h"
 
 #include "UtilStreams.h"
 
-namespace PSB {
-#define LOGGER spdlog::get("plugin")
+#include "log/TVPLog.h"
 
+namespace PSB {
     void PSBMedia::NormalizeDomainName(ttstr &name) {
         tjs_int dotIndex = name.IndexOf(TJS_W('.'));
         if(dotIndex == -1)
@@ -36,12 +34,12 @@ namespace PSB {
     }
 
     void PSBMedia::GetListAt(const ttstr &name, iTVPStorageLister *lister) {
-        LOGGER->error("TODO: PSBMedia GetListAt");
+        G_PluginLog.error("TODO: PSBMedia GetListAt");
     }
 
     void PSBMedia::GetLocallyAccessibleName(ttstr &name) {
-        LOGGER->error("can't get GetLocallyAccessibleName from {}!",
-                      name.AsStdString());
+        G_PluginLog.error("can't get GetLocallyAccessibleName from {}!",
+                          name.AsStdString());
     }
 
     void PSBMedia::add(const std::string &name,

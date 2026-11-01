@@ -9,6 +9,7 @@ set(ENVIRON_PATH ${CMAKE_CURRENT_LIST_DIR})
 set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/Application.cpp
     ${ENVIRON_PATH}/EnvironFileBackendInit.cpp
+    ${ENVIRON_PATH}/DialogBackend.cpp
     ${ENVIRON_PATH}/DetectCPU.cpp
     ${ENVIRON_PATH}/DumpSend.cpp
     ${ENVIRON_PATH}/XP3ArchiveRepack.cpp
@@ -31,8 +32,9 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/ConfigManager/GlobalConfigManager.cpp
     ${ENVIRON_PATH}/ConfigManager/IndividualConfigManager.cpp
     ${ENVIRON_PATH}/ConfigManager/LocaleConfigManager.cpp
-    ${ENVIRON_PATH}/sdl/tvpsdl.cpp
 
+    ${ENVIRON_PATH}/ui/csd/CsdUIFactory.cpp
+    ${ENVIRON_PATH}/ui/csd/CsdUIWidgets.cpp
     ${ENVIRON_PATH}/ui/BaseForm.cpp
     ${ENVIRON_PATH}/ui/ConsoleWindow.cpp
     ${ENVIRON_PATH}/ui/DebugViewLayerForm.cpp
@@ -57,9 +59,10 @@ set(ENVIRON_SOURCE_FILES
 
 set(ENVIRON_HEADERS_DIR
     ${ENVIRON_PATH}/
+    ${ENVIRON_PATH}/ui
+    ${ENVIRON_PATH}/ui/csd
     ${ENVIRON_PATH}/impl
     $<$<BOOL:${ANDROID}>:${ENVIRON_PATH}/android>
-    ${ENVIRON_PATH}/sdl
 )
 
 if(ANDROID OR IOS)
@@ -71,7 +74,17 @@ endif()
 
 add_library(${PROJECT_NAME} STATIC ${ENVIRON_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${ENVIRON_HEADERS_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 PRIVATE core_base_module core_io core_visual_module core_sound_module core_plugin_module core_movie_module core_utils_module)
+
+# 组合根：对外 PUBLIC 链齐运行时栈（foundation + base + domain）
+krkr2_target_link_foundation(${PROJECT_NAME} PUBLIC)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+    core_base_module
+    core_visual_module
+    core_sound_module
+    core_plugin_module
+    core_movie_module
+    core_utils_module
+)
 
 if(ANDROID OR IOS)
     target_compile_definitions(${PROJECT_NAME} PRIVATE TVP_HAS_MOBILE_FILE_BACKEND)

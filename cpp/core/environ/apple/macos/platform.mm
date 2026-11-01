@@ -27,6 +27,7 @@
 #include "StorageImpl.h"
 #include "EventIntf.h"
 #include "Platform.h"
+#include "TVPLog.h"
 #include "tjsString.h"
 
 //bool initWindow(cocos2d::GLView* glView) {
@@ -336,7 +337,7 @@ int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,
                           const ttstr &prompt,
                           const std::vector<ttstr> &vecButtons) {
     // TODO
-    spdlog::get("core")->warn("macos platform simple input box not implement");
+    G_CoreLog.warn("macos platform simple input box not implement");
     return 0;
 }
 

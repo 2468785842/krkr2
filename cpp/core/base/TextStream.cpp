@@ -6,7 +6,7 @@
 #include "TextStream.h"
 
 #include <opencv2/core/hal/interface.h>
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 
 #include "MsgIntf.h"
 #include "UtilStreams.h"
@@ -187,7 +187,7 @@ public:
                 encoding);
             _buffer = boost::locale::conv::utf_to_utf<char16_t>(wide);
         } catch(const std::exception &e) {
-            spdlog::error(e.what());
+            G_CoreLog.error(e.what());
             TVPThrowExceptionMessage(TJSNarrowToWideConversionError);
         }
     }

@@ -8,4 +8,3 @@ using TVPArchiveCreatorFn = tTVPArchive *(*)(const ttstr &name,
 
 void TVPRegisterArchiveCreator(TVPArchiveCreatorFn creator);
 void TVPClearArchiveCreators();
-void TVPInitToolArchiveCreators();

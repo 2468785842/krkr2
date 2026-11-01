@@ -4,7 +4,6 @@
 // ref: https://github.com/number201724/psbfile
 // ref: https://github.com/UlyssesWu/FreeMote
 //
-#include <spdlog/spdlog.h>
 #include <cassert>
 
 #include "tjs.h"
@@ -17,7 +16,7 @@
 
 #define NCB_MODULE_NAME TJS_W("psbfile.dll")
 
-#define LOGGER spdlog::get("plugin")
+#include "log/TVPLog.h"
 
 using namespace PSB;
 static PSBMedia *psbMedia = nullptr;
@@ -54,7 +53,7 @@ static tjs_error load(tTJSVariant *r, tjs_int count, tTJSVariant **p,
     if((*p)->Type() == tvtString) {
         ttstr path{ **p };
         if(!self->loadPSBFile(path)) {
-            LOGGER->info("cannot load psb file : {}", path.AsStdString());
+            G_PluginLog.info("cannot load psb file : {}", path.AsStdString());
             loadSuccess = false;
         }
         auto objs = self->getObjects();
@@ -68,7 +67,7 @@ static tjs_error load(tTJSVariant *r, tjs_int count, tTJSVariant **p,
             psbMedia->add((path + TJS_W("/") + pathN).AsStdString(), res);
         }
     } else if((*p)->Type() == tvtOctet) {
-        LOGGER->critical("PSBFile::load stream no implement!");
+        G_PluginLog.critical("PSBFile::load stream no implement!");
         loadSuccess = false;
     } else {
         return TJS_E_INVALIDPARAM;

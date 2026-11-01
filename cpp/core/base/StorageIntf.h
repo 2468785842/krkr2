@@ -41,7 +41,7 @@ public:
         RefCount = 1;
     }
 
-    virtual ~tTVPArchive() {}
+    virtual ~tTVPArchive() = default;
 
     //-- AddRef and Release
     void AddRef() { RefCount++; }

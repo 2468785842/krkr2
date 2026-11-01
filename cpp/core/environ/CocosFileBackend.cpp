@@ -43,5 +43,8 @@ CocosFileBackend::OpenRead(const ttstr &path) {
 
 //---------------------------------------------------------------------------
 bool CocosFileBackend::Exists(const ttstr &path) {
-    return cocos2d::FileUtils::getInstance()->isFileExist(ResolvePath(path));
+    auto *fileUtils = cocos2d::FileUtils::getInstance();
+    const std::string resolved = ResolvePath(path);
+    return fileUtils->isFileExist(resolved) ||
+        fileUtils->isDirectoryExist(resolved);
 }

@@ -13,7 +13,7 @@
 // #include <cderr.h>
 // #include <commdlg.h>
 
-#include "../MsgIntf.h"
+#include "MsgIntf.h"
 #include "StorageImpl.h"
 #include "WindowImpl.h"
 #include "SysInitIntf.h"

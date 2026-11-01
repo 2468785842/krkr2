@@ -35,7 +35,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y perl gcc g++ bison python3 yasm nasm ninja-build
+          sudo apt-get install -y perl gcc g++ bison python3 yasm ninja-build
           
           sudo apt install -y libxft-dev libxext-dev
           sudo apt install -y libxxf86vm-dev libx11-dev libxmu-dev libglu1-mesa-dev libgl2ps-dev libxi-dev libzip-dev libpng-dev libcurl4-gnutls-dev libfontconfig1-dev libsqlite3-dev libglew-dev libssl-dev libgtk-3-dev binutils

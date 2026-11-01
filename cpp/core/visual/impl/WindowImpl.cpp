@@ -29,6 +29,7 @@
 #include "EventImpl.h"
 
 #include "Application.h"
+#include "MsgIntf.h"
 #include "TVPScreen.h"
 #include "tjsDictionary.h"
 #include "TVPWindow.h"

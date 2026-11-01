@@ -60,7 +60,6 @@ Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](
   - [JDK@17](https://jdk.java.net/archive/)
   - `bison@3.8.2+`
   - `python3`
-  - `NASM@latest`
   - `YASM@latest`
 - **Windows**:
   - [ninja@latest](https://github.com/ninja-build/ninja/releases)
@@ -69,7 +68,7 @@ Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](
   - [cmake@3.31.1+](https://cmake.org/download/)
   - [winflexbison@2.5.25](https://github.com/lexxmark/winflexbison)
   - `python3`
-  - `NASM@latest`
+  - `YASM@latest`
 - **Linux**:
   - [ninja@latest](https://github.com/ninja-build/ninja/releases)
   - `GCC`
@@ -77,7 +76,6 @@ Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](
   - [cmake@3.31.1+](https://cmake.org/download/)
   - `bison@3.8.2+`
   - `python3`
-  - `NASM@latest`
   - `YASM@latest`
 - **MacOS**:
   - Xcode
@@ -86,7 +84,6 @@ Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](
   - [cmake@3.31.1+](https://cmake.org/download/)
   - `bison@3.8.2+`
   - `python3`
-  - `NASM@latest`
   - `YASM@latest`
 
 ---

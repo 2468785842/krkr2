@@ -1,18 +1,42 @@
 #include <filesystem>
 #include <fstream>
+#include <iostream>
+#include <memory>
 #include <argparse/argparse.hpp>
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
 
-#include "StorageIntf.h"
+#include "log/TVPInitLog.h"
+#include "log/TVPDialog.h"
+#include "XP3Archive.h"
+#include "IFileBackend.h"
+#include "StdFileBackend.h"
 
 namespace fs = std::filesystem;
 
 static constexpr size_t TVP_LOCAL_TEMP_COPY_BLOCK_SIZE = 65536 * 2;
 
 void extractArchive(const std::string &file, const std::string &destDir) {
-    const std::unique_ptr<tTVPArchive> arc{ TVPOpenArchive(ttstr{ file },
-                                                           false) };
+    const ttstr path(file);
+
+    IFileBackend *backend = TVPGetFileBackend();
+    if(!backend) {
+        std::cerr << "Storage not initialized" << std::endl;
+        return;
+    }
+
+    auto stream = backend->OpenRead(path);
+    if(!stream) {
+        std::cerr << "Cannot open: " << file << std::endl;
+        return;
+    }
+
+    tTVPArchive *raw = tTVPXP3Archive::Create(path, stream.get(), false);
+    if(!raw) {
+        std::cerr << "Not an XP3 archive: " << file << std::endl;
+        return;
+    }
+    stream.release();
+
+    const std::unique_ptr<tTVPArchive> arc(raw);
     const tjs_uint count = arc->GetCount();
     for(tjs_int i = 0; i < count; i++) {
         ttstr name = arc->GetName(i);
@@ -101,6 +125,8 @@ int main(int argc, char *argv[]) {
         .nargs(argparse::nargs_pattern::at_least_one);
 
     program.add_argument("-o", "--output").help("output dir path");
+    program.add_argument("-l", "--loglevel")
+        .help("log level spec, e.g. debug or tjs2:debug,core:info");
 
     try {
         program.parse_args(argc, argv);
@@ -110,12 +136,18 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    spdlog::set_level(spdlog::level::debug);
+    TVPLoggingOptions log_options;
+    log_options.level = TVPLogInitLevel::Debug;
+    log_options.pattern = "%^%v%$";
+    std::string loglevel_spec;
+    if(program.is_used("--loglevel")) {
+        loglevel_spec = program.get<std::string>("--loglevel");
+        log_options.log_level = loglevel_spec.c_str();
+    }
+    TVPInitLogging(log_options);
+    TVPSetDialogBackend(nullptr);
 
-    static auto core_logger = spdlog::stdout_color_mt("core");
-    static auto tjs2_logger = spdlog::stdout_color_mt("tjs2");
-    spdlog::set_pattern("%^%v%$");
-    spdlog::set_default_logger(core_logger);
+    TVPSetFileBackend(std::make_unique<StdFileBackend>());
 
     std::string output_dir = "./";
     if(program.is_used("-o")) {

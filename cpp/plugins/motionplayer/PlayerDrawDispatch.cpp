@@ -230,7 +230,7 @@ namespace motion {
 #if defined(KRKR2_WASMTIME_HEADLESS)
             renderTrace.setRoute("prepare_empty");
 #endif
-            LOGGER->warn(
+            G_PluginLog.warn(
                 "Player::drawCompat: prepareRenderItems returned empty for "
                 "path={} nodes={}",
                 motionPath, _runtime ? _runtime->nodes.size() : 0);

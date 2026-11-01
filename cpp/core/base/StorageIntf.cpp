@@ -14,6 +14,7 @@
 #include <stdexcept>
 #include <memory>
 #include "StorageIntf.h"
+#include "StorageEngineAccess.h"
 #include "tjsUtils.h"
 #include "MsgIntf.h"
 #include "EventIntf.h"
@@ -31,9 +32,7 @@
 //---------------------------------------------------------------------------
 // current media ( ex. "http" "ftp" "file" )
 ttstr TVPCurrentMedia;
-// archive delimiter
-// this changes '>' from '#' since 2.19 beta 14
-tjs_char TVPArchiveDelimiter = '>';
+// TVPArchiveDelimiter — 见 storage/impl/StorageGlobals.cpp
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -42,41 +41,7 @@ tjs_char TVPArchiveDelimiter = '>';
 static tTJSStaticCriticalSection TVPCreateStreamCS;
 //---------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
-// utilities
-//---------------------------------------------------------------------------
-ttstr TVPStringFromBMPUnicode(const tjs_uint16 *src, tjs_int maxlen) {
-    // convert to ttstr from BMP unicode
-    if(sizeof(tjs_char) == 2) {
-        // sizeof(tjs_char) is 2 (windows native)
-        if(maxlen == -1)
-            return ttstr((const tjs_char *)src);
-        else
-            return ttstr((const tjs_char *)src, maxlen);
-    } else if(sizeof(tjs_char) == 4) {
-        // sizeof(tjs_char) is 4 (UCS32)
-        // FIXME: NOT TESTED CODE
-        tjs_int len = 0;
-        const tjs_uint16 *p = src;
-        while(*p)
-            len++, p++;
-        if(maxlen != -1 && len > maxlen)
-            len = maxlen;
-        ttstr ret((tTJSStringBufferLength)(len));
-        tjs_char *dest = ret.Independ();
-        p = src;
-        while(len && *p) {
-            *dest = *p;
-            dest++;
-            p++;
-            len--;
-        }
-        *dest = 0;
-        ret.FixLen();
-        return ret;
-    }
-    return (const tjs_char *)TVPTjsCharMustBeTwoOrFour;
-}
+// TVPStringFromBMPUnicode — 见 storage/impl/StorageGlobals.cpp
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -560,124 +525,7 @@ ttstr TVPGetLocallyAccessibleName(const ttstr &name) {
 }
 //---------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
-// tTVPArchive
-//---------------------------------------------------------------------------
-void tTVPArchive::NormalizeInArchiveStorageName(ttstr &name) {
-    // normalization of in-archive storage name does :
-    if(name.IsEmpty())
-        return;
-
-    // make all characters small
-    // change '\\' to '/'
-    tjs_char *ptr = name.Independ();
-    while(*ptr) {
-        if(*ptr >= TJS_W('A') && *ptr <= TJS_W('Z'))
-            *ptr += TJS_W('a') - TJS_W('A');
-        else if(*ptr == TJS_W('\\'))
-            *ptr = TJS_W('/');
-        ptr++;
-    }
-
-    // eliminate duplicated slashes
-    ptr = name.Independ();
-    tjs_char *org_ptr = ptr;
-    tjs_char *dest = ptr;
-    while(*ptr) {
-        if(*ptr != TJS_W('/')) {
-            *dest = *ptr;
-            ptr++;
-            dest++;
-        } else {
-            if(ptr != org_ptr) {
-                *dest = *ptr;
-                ptr++;
-                dest++;
-            }
-            while(*ptr == TJS_W('/'))
-                ptr++;
-        }
-    }
-    *dest = 0;
-
-    name.FixLen();
-}
-
-//---------------------------------------------------------------------------
-void tTVPArchive::AddToHash() {
-    // enter all names to the hash table
-    tjs_uint Count = GetCount();
-    tjs_uint i;
-    for(i = 0; i < Count; i++) {
-        ttstr name = GetName(i);
-        NormalizeInArchiveStorageName(name);
-        Hash.Add(name, i);
-    }
-}
-
-//---------------------------------------------------------------------------
-tTJSBinaryStream *tTVPArchive::CreateStream(const ttstr &name) {
-    if(name.IsEmpty())
-        return nullptr;
-
-    if(!Init) {
-        Init = true;
-        AddToHash();
-    }
-
-    tjs_uint *p = Hash.Find(name);
-    if(!p)
-        TVPThrowExceptionMessage(TVPStorageInArchiveNotFound, name,
-                                 ArchiveName);
-
-    return CreateStreamByIndex(*p);
-}
-
-//---------------------------------------------------------------------------
-bool tTVPArchive::IsExistent(const ttstr &name) {
-    if(name.IsEmpty())
-        return false;
-
-    if(!Init) {
-        Init = true;
-        AddToHash();
-    }
-
-    return Hash.Find(name) != nullptr;
-}
-
-//---------------------------------------------------------------------------
-tjs_int tTVPArchive::GetFirstIndexStartsWith(const ttstr &prefix) {
-    // returns first index which have 'prefix' at start of the name.
-    // returns -1 if the target is not found.
-    // the item must be sorted by ttstr::operator < , otherwise this
-    // function will not work propertly.
-    tjs_uint total_count = GetCount();
-    tjs_int s = 0, e = total_count;
-    while(e - s > 1) {
-        tjs_int m = (e + s) / 2;
-        if(!(GetName(m) < prefix)) {
-            // m is after or at the target
-            e = m;
-        } else {
-            // m is before the target
-            s = m;
-        }
-    }
-
-    // at this point, s or s+1 should point the target.
-    // be certain.
-    if(s >= (tjs_int)total_count)
-        return -1; // out of the index
-    if(GetName(s).StartsWith(prefix))
-        return s;
-    s++;
-    if(s >= (tjs_int)total_count)
-        return -1; // out of the index
-    if(GetName(s).StartsWith(prefix))
-        return s;
-    return -1;
-}
+// tTVPArchive 基类 — 见 storage/impl/ArchiveBase.cpp
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -724,6 +572,16 @@ public:
 
 private:
 } TVPArchiveCache;
+
+tTJSStaticCriticalSection &TVP_GetCreateStreamCS() { return TVPCreateStreamCS; }
+
+tTVPArchive *TVP_ArchiveCacheGet(const ttstr &name) {
+    return TVPArchiveCache.Get(name);
+}
+
+tTJSBinaryStream *TVP_StorageMediaOpen(const ttstr &name, tjs_uint32 flags) {
+    return TVPStorageMediaManager.Open(name, flags);
+}
 
 static void TVPClearArchiveCache() { TVPArchiveCache.Clear(); }
 
@@ -1125,99 +983,7 @@ bool TVPIsExistentStorage(const ttstr &name) {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// TVPCreateStream
-//---------------------------------------------------------------------------
-static tTJSBinaryStream *_TVPCreateStream(const ttstr &_name,
-                                          tjs_uint32 flags) {
-    tTJSCriticalSectionHolder cs_holder(TVPCreateStreamCS);
-
-    ttstr name;
-
-    tjs_uint32 access = flags & TJS_BS_ACCESS_MASK;
-    if(access == TJS_BS_WRITE)
-        name = TVPNormalizeStorageName(_name);
-    else
-        name = TVPGetPlacedPath(_name); // file must exist
-
-    if(name.IsEmpty()) {
-        if(access >= 1)
-            TVPRemoveFromStorageCache(_name);
-        TVPThrowExceptionMessage(TVPCannotOpenStorage, _name);
-    }
-
-    // does name contain > ?
-    const tjs_char *sharp_pos = TJS_strchr(name.c_str(), TVPArchiveDelimiter);
-    if(sharp_pos) {
-        // this storagename indicates a file in an archive
-        if((flags & TJS_BS_ACCESS_MASK) != TJS_BS_READ)
-            TVPThrowExceptionMessage(TVPCannotWriteToArchive);
-
-        ttstr arcname(name, (int)(sharp_pos - name.c_str()));
-
-        tTVPArchive *arc;
-        tTJSBinaryStream *stream;
-        arc = TVPArchiveCache.Get(arcname);
-        try {
-            ttstr in_arc_name(sharp_pos + 1);
-            tTVPArchive::NormalizeInArchiveStorageName(in_arc_name);
-            stream = arc->CreateStream(in_arc_name);
-        } catch(...) {
-            arc->Release();
-            if(access >= 1)
-                TVPRemoveFromStorageCache(_name);
-            throw;
-        }
-        if(access >= 1)
-            TVPRemoveFromStorageCache(_name);
-        arc->Release();
-        return stream;
-    }
-
-    tTJSBinaryStream *stream;
-    try {
-        stream = TVPStorageMediaManager.Open(name, flags);
-    } catch(...) {
-        if(access >= 1)
-            TVPRemoveFromStorageCache(_name);
-        throw;
-    }
-    if(access >= 1)
-        TVPRemoveFromStorageCache(_name);
-    return stream;
-}
-
-tTJSBinaryStream *TVPCreateStream(const ttstr &_name, tjs_uint32 flags) {
-    try {
-        return _TVPCreateStream(_name, flags);
-    } catch(eTJSScriptException &e) {
-        if(TJS_strchr(_name.c_str(), '#'))
-            e.AppendMessage(
-                TJS_W("[") +
-                TVPFormatMessage(TVPFilenameContainsSharpWarn, _name) +
-                TJS_W("]"));
-        throw;
-    } catch(eTJSScriptError &e) {
-        if(TJS_strchr(_name.c_str(), '#'))
-            e.AppendMessage(
-                TJS_W("[") +
-                TVPFormatMessage(TVPFilenameContainsSharpWarn, _name) +
-                TJS_W("]"));
-        throw;
-    } catch(eTJSError &e) {
-        if(TJS_strchr(_name.c_str(), '#'))
-            e.AppendMessage(
-                TJS_W("[") +
-                TVPFormatMessage(TVPFilenameContainsSharpWarn, _name) +
-                TJS_W("]"));
-        throw;
-    } catch(...) {
-        // check whether the filename contains '#' (former delimiter
-        // for archive filename before 2.19 beta 14)
-        if(TJS_strchr(_name.c_str(), '#'))
-            TVPAddLog(TVPFormatMessage(TVPFilenameContainsSharpWarn, _name));
-        throw;
-    }
-}
+// TVPCreateStream — 见 storage/impl/CreateStream.cpp（引擎版）
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------

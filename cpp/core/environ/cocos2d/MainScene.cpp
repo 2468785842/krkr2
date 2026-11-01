@@ -27,6 +27,7 @@
 
 #include "CCKeyCodeConv.h"
 #include "RenderUtils.h"
+#include "TVPLog.h"
 
 USING_NS_CC;
 
@@ -282,7 +283,8 @@ public:
     static TVPWindowManagerOverlay *create() {
         auto *ret = new TVPWindowManagerOverlay();
         ret->autorelease();
-        ret->initFromFile(nullptr, Csd::createWinMgrOverlay(), nullptr);
+        ret->initUILayout(Csd::NodeBuilderFn{}, Csd::createWinMgrOverlay,
+                          Csd::NodeBuilderFn{});
         return ret;
     }
 
@@ -1332,17 +1334,16 @@ void TVPConsoleLog(const ttstr &l, bool important) {
             l, important ? Color3B::YELLOW : Color3B::GRAY);
         TVPDrawSceneOnce(100); // force update in 10fps
     }
-    spdlog::get("tjs2")->info("{}", l.AsStdString());
+    // Console text is mirrored via TVPAddLog → TVPLog("engine"); avoid
+    // duplicate.
 }
 
 namespace TJS {
-    void TVPConsoleLog(const ttstr &str) {
-        spdlog::get("tjs2")->info("{}", str.AsStdString());
-    }
+    void TVPConsoleLog(const ttstr &str) { G_Tjs2Log.info(str.AsStdString()); }
 
     template <typename... Args>
-    void TVPConsoleLog(spdlog::format_string_t<Args...> fmt, Args &&...args) {
-        spdlog::get("tjs2")->info(fmt, std::forward<Args>(args)...);
+    void TVPConsoleLog(fmt::format_string<Args...> fmt, Args &&...args) {
+        G_Tjs2Log.info(fmt, std::forward<Args>(args)...);
     }
 } // namespace TJS
 

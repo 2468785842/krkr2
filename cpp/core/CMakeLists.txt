@@ -1,13 +1,19 @@
 cmake_minimum_required(VERSION 3.28)
 project(krkr2core)
 
+include(${CMAKE_SOURCE_DIR}/cmake/KrKr2Modules.cmake)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/common)
 
 add_library(${PROJECT_NAME} INTERFACE)
 
 add_subdirectory(tjs2)
+add_subdirectory(log)
 add_subdirectory(io)
 add_subdirectory(msg)
+add_subdirectory(sysinit)
+add_subdirectory(script)
+add_subdirectory(event)
+add_subdirectory(kag)
 add_subdirectory(archive)
 add_subdirectory(storage)
 add_subdirectory(base)
@@ -19,16 +25,10 @@ add_subdirectory(sound)
 add_subdirectory(visual)
 add_subdirectory(utils)
 
+# environ 为组合根：PUBLIC 链齐 foundation + base + domain
 target_link_libraries(${PROJECT_NAME} INTERFACE
-        tjs2
-        core_base_module
         core_environ_module
         core_extension_module
-        core_plugin_module
-        core_movie_module
-        core_sound_module
-        core_visual_module
-        core_utils_module
 )
 
 target_include_directories(${PROJECT_NAME} INTERFACE

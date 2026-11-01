@@ -8,6 +8,7 @@
 #include <cocos/network/HttpRequest.h>
 #include <cocos/network/HttpClient.h>
 #include "Platform.h"
+#include "TVPDialog.h"
 #include "ConfigManager/LocaleConfigManager.h"
 #include "StorageImpl.h"
 
@@ -246,7 +247,7 @@ void TVPCheckAndSendDumps(const std::string &dumpdir,
             LocaleConfigManager::GetInstance()->GetText("crash_report_msg");
         char buf[256];
         sprintf(buf, msgfmt.c_str(), allDumps.size());
-        if(TVPShowSimpleMessageBoxYesNo(buf, title) == 0) {
+        if(TVPShowDialogYesNo(buf, title) == 0) {
             static std::thread dumpthread;
             dumpthread =
                 std::thread([dumpdir, allDumps, packageName, versionStr] {

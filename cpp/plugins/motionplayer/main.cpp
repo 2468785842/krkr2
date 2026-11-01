@@ -2,7 +2,6 @@
 // Created by LiDon on 2025/9/13.
 // Reverse-engineered from libkrkr2.so emoteplayer.dll + motionplayer.dll
 //
-#include <spdlog/spdlog.h>
 #include "tjs.h"
 #include "ncbind.hpp"
 #include "psbfile/PSBFile.h"
@@ -18,7 +17,7 @@
 using namespace motion;
 
 #define NCB_MODULE_NAME TJS_W("motionplayer.dll")
-#define LOGGER spdlog::get("plugin")
+#include "log/TVPLog.h"
 
 // ============================================================
 // Subclass registrations (used as Motion.XXX)

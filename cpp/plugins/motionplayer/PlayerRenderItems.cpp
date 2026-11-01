@@ -335,7 +335,7 @@ namespace motion {
                 return;
             }
             if(gActivePrepareRenderPlayers.count(child) != 0) {
-                LOGGER->warn(
+                G_PluginLog.warn(
                     "appendPreparedRenderItems: skip cyclic child Player "
                     "motion={}",
                     child->_runtime->activeMotion
@@ -357,7 +357,7 @@ namespace motion {
             entries.insert(entries.end(),
                            std::make_move_iterator(childEntries.begin()),
                            std::make_move_iterator(childEntries.end()));
-            LOGGER->debug(
+            G_PluginLog.debug(
                 "appendPreparedRenderItems: merged {} child render items "
                 "(foreign nodeIndex space; 参考 sdl3 子 motion 独立渲染上下文)",
                 childEntries.size());
@@ -1063,9 +1063,10 @@ namespace motion {
                 const detail::MotionNode *candidateNode =
                     tryGetLocalNode(candidate.nodeIndex);
                 if(!candidateNode) {
-                    LOGGER->warn("prepareRenderItems: skip composite candidate "
-                                 "nodeIndex={} (nodes.size={})",
-                                 candidate.nodeIndex, _runtime->nodes.size());
+                    G_PluginLog.warn(
+                        "prepareRenderItems: skip composite candidate "
+                        "nodeIndex={} (nodes.size={})",
+                        candidate.nodeIndex, _runtime->nodes.size());
                     continue;
                 }
                 if(candidateNode->nodeType == 0) {

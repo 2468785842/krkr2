@@ -1,6 +1,6 @@
 #include "ArchiveRegistry.h"
 
-#include "XP3Archive.h"
+#include "IFileBackend.h"
 
 #include <vector>
 
@@ -16,20 +16,13 @@ void TVPRegisterArchiveCreator(TVPArchiveCreatorFn creator) {
 void TVPClearArchiveCreators() { g_archiveCreators.clear(); }
 
 //---------------------------------------------------------------------------
-void TVPInitToolArchiveCreators() {
-    TVPClearArchiveCreators();
-    TVPRegisterArchiveCreator(tTVPXP3Archive::Create);
-}
-
-//---------------------------------------------------------------------------
 tTVPArchive *TVPOpenArchive(const ttstr &name, bool normalizeFileName) {
     if(g_archiveCreators.empty())
-        TVPInitToolArchiveCreators();
+        return nullptr;
 
     tTJSBinaryStream *st = TVPCreateStream(name);
     if(!st)
         return nullptr;
-
     for(auto creator : g_archiveCreators) {
         tTVPArchive *archive = creator(name, st, normalizeFileName);
         if(archive)
@@ -37,6 +30,5 @@ tTVPArchive *TVPOpenArchive(const ttstr &name, bool normalizeFileName) {
         st->SetPosition(0);
     }
 
-    delete st;
     return nullptr;
 }

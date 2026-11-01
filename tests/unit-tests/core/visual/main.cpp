@@ -4,12 +4,10 @@
 
 #include <catch2/catch_session.hpp>
 
-#include <spdlog/sinks/stdout_color_sinks.h>
+#include "log/TVPInitLog.h"
 
 int main(int argc, char *argv[]) {
-
-    static auto core_logger = spdlog::stdout_color_mt("core");
-    static auto tjs2_logger = spdlog::stdout_color_mt("tjs2");
+    TVPInitLogging();
 
     int result = Catch::Session().run(argc, argv);
 

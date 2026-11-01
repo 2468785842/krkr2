@@ -76,7 +76,13 @@ set(VISUAL_HEADERS_DIR
 
 add_library(${PROJECT_NAME} STATIC ${VISUAL_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${VISUAL_HEADERS_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 PRIVATE core_base_module core_environ_module core_plugin_module core_sound_module core_utils_module)
+krkr2_target_link_foundation(${PROJECT_NAME} PUBLIC)
+target_link_libraries(${PROJECT_NAME} PRIVATE core_sound_module core_utils_module)
+krkr2_target_include_base_headers(${PROJECT_NAME})
+krkr2_target_include_environ_headers(${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${KRKR2_CORE_DIR}/plugin
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE libbpg)
 

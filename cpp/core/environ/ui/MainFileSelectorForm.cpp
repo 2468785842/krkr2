@@ -3,11 +3,8 @@
 #include <filesystem>
 
 #include "cocos2d.h"
-#include "cocostudio/CocoLoader.h"
-#include "cocostudio/CCSSceneReader.h"
 #include "Application.h"
 #include "Platform.h"
-#include "cocostudio/ActionTimeline/CCActionTimeline.h"
 #include "ui/UIText.h"
 #include "ui/UIHelper.h"
 #include "ui/UIButton.h"
@@ -24,6 +21,8 @@
 #include "TipsHelpForm.h"
 #include "XP3RepackForm.h"
 #include "csd/CsdUIFactory.h"
+#include "csd/CsdUILayout.h"
+#include "TVPLog.h"
 
 using namespace cocos2d;
 using namespace cocos2d::ui;
@@ -193,8 +192,8 @@ void TVPMainFileSelectorForm::onCellClicked(int idx) {
     FileInfo info = CurrentDirList[idx];
     TVPBaseFileSelectorForm::onCellClicked(idx);
 
-    spdlog::debug("Selected file: {}, FullPath: {}", info.NameForDisplay,
-                  info.FullPath);
+    G_CoreLog.debug("Selected file: {}, FullPath: {}", info.NameForDisplay,
+                    info.FullPath);
     runFromPath(info.FullPath);
 }
 
@@ -228,7 +227,7 @@ void TVPMainFileSelectorForm::initFromWidget() {
     _historyList = root->getChildByName<ListView *>("recentList");
     // TODO new node
     _fileOperateMenuNode = _historyList;
-    inherit::initFromFile(Csd::createNaviBarWithMenu, Csd::createTableView,
+    inherit::initUILayout(Csd::createNaviBarWithMenu, Csd::createTableView,
                           Csd::createEmpty, _fileList);
 }
 
@@ -258,9 +257,20 @@ void TVPOpenPatchLibUrl();
 
 void TVPMainFileSelectorForm::showMenu(Ref *) {
     if(!_menu) {
-        cocos2d::Size uiSize = getContentSize();
-        CSBReader reader;
-        _menu = reader.Load("ui/MenuList.csb");
+        const cocos2d::Size uiSize = getContentSize();
+        cocos2d::Size menuTargetW = uiSize;
+        if(uiSize.width > uiSize.height) {
+            menuTargetW.width /= 3;
+        } else {
+            menuTargetW.width *= 0.6f;
+        }
+        // MenuList.csb 设计宽 720；拉伸高度使缩放后恰好铺满屏幕高度
+        const float menuScale = menuTargetW.width / Csd::kCanvasMenuListW;
+        const cocos2d::Size menuDesignSize(Csd::kCanvasMenuListW,
+                                           uiSize.height / menuScale);
+
+        _menu = Csd::createMenuList(menuDesignSize, 1.f);
+        NodeMap reader("", _menu);
         _menu->setAnchorPoint(Vec2::ZERO);
         _menu->setPosition(Vec2(uiSize.width, 0));
         _mask = LayerColor::create(Color4B::BLACK, uiSize.width, uiSize.height);
@@ -275,16 +285,7 @@ void TVPMainFileSelectorForm::showMenu(Ref *) {
         _mask->addChild(_touchHideMenu);
         addChild(_mask);
         addChild(_menu);
-        if(uiSize.width > uiSize.height) {
-            uiSize.width /= 3;
-        } else {
-            uiSize.width *= 0.6f;
-        }
-        cocos2d::Size menuSize = _menu->getContentSize();
-        float scale = uiSize.width / menuSize.width;
-        menuSize.height = uiSize.height / scale;
-        _menu->setScale(scale);
-        _menu->setContentSize(menuSize);
+        _menu->setScale(menuScale);
         ui::Helper::doLayout(_menu);
 
         newLocalPref = reader.findController("newLocalPref");
@@ -573,8 +574,8 @@ void TVPMainFileSelectorForm::HistoryCell::initInfo(
     const std::string &pathname, const std::string &filename) {
     _fullpath = fullpath;
 
-    CSBReader reader;
-    _root = reader.Load("ui/RecentListItem.csb");
+    _root = Csd::createRecentListItem(getContentSize(), 1);
+    NodeMap reader("", _root);
     _scrollview = static_cast<cocos2d::ui::ScrollView *>(
         reader.findController("scrollview"));
     _btn_delete =

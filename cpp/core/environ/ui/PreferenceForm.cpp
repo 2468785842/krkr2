@@ -34,7 +34,8 @@ void TVPPreferenceForm::initPref(const tPreferenceScreen *config) {
 }
 
 void TVPPreferenceForm::bindBodyController(const Node *allNodes) {
-    PrefList = static_cast<ListView *>(allNodes->getChildByName("list"));
+    PrefList = static_cast<ListView *>(
+        findNamedNode(const_cast<Node *>(allNodes), "list"));
     if(NaviBar.Left) {
         NaviBar.Left->addClickEventListener([this](cocos2d::Ref *) {
             TVPMainScene::GetInstance()->popUIForm(this);
@@ -57,13 +58,14 @@ void tPreferenceScreen::clear() {
 void iPreferenceItem::initFromInfo(int idx, cocos2d::Size size,
                                    const std::string &title) {
     init();
-    CSBReader reader;
-    Node *root = reader.Load(getUIFileName());
+    Widget *root = getNodeBuilder()(Size(size.width, 0),
+                                    TVPMainScene::GetInstance()->getUIScale());
     size.height = root->getContentSize().height;
     setContentSize(size);
     root->setContentSize(size);
     ui::Helper::doLayout(root);
     addChild(root);
+    NodeMap reader("", root);
     _title = static_cast<Text *>(reader.findController("title"));
     if(!title.empty())
         _title->setString(title);
@@ -100,8 +102,8 @@ void tPreferenceItemCheckBox::initController(const NodeMap &allNodes) {
     });
 }
 
-const char *tPreferenceItemCheckBox::getUIFileName() const {
-    return "ui/comctrl/CheckBoxItem.csb";
+Csd::NodeBuilderFn tPreferenceItemCheckBox::getNodeBuilder() const {
+    return Csd::createCheckBoxItem;
 }
 
 void tPreferenceItemCheckBox::onPressStateChangedToNormal() {
@@ -147,8 +149,8 @@ void tPreferenceItemConstant::initController(const NodeMap &allNodes) {
     setContentSize(sizeTmp);
 }
 
-const char *tPreferenceItemSubDir::getUIFileName() const {
-    return "ui/comctrl/SubDirItem.csb";
+Csd::NodeBuilderFn tPreferenceItemSubDir::getNodeBuilder() const {
+    return Csd::createSubDirItem;
 }
 
 void tPreferenceItemWithHighlight::initController(const NodeMap &allNodes) {
@@ -177,8 +179,8 @@ void tPreferenceItemSelectList::initController(const NodeMap &allNodes) {
         [this](auto &&PH1) { showForm(std::forward<decltype(PH1)>(PH1)); });
 }
 
-const char *tPreferenceItemSelectList::getUIFileName() const {
-    return "ui/comctrl/SelectListItem.csb";
+Csd::NodeBuilderFn tPreferenceItemSelectList::getNodeBuilder() const {
+    return Csd::createComctrlSelectListItem;
 }
 
 void tPreferenceItemSelectList::showForm(cocos2d::Ref *) {
@@ -243,8 +245,8 @@ void tPreferenceItemKeyValPair::initController(const NodeMap &allNodes) {
         [this](auto &&PH1) { showInput(std::forward<decltype(PH1)>(PH1)); });
 }
 
-const char *tPreferenceItemKeyValPair::getUIFileName() const {
-    return "ui/comctrl/SelectListItem.csb";
+Csd::NodeBuilderFn tPreferenceItemKeyValPair::getNodeBuilder() const {
+    return Csd::createComctrlSelectListItem;
 }
 
 void tPreferenceItemKeyValPair::onPressStateChangedToNormal() {
@@ -284,14 +286,16 @@ TVPCustomPreferenceForm *TVPCustomPreferenceForm::create(
     const std::function<void(int, const std::pair<std::string, std::string> &)>
         &setter) {
     TVPCustomPreferenceForm *ret = new TVPCustomPreferenceForm;
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initUILayout(Csd::createNaviBar, Csd::createListView,
+                      Csd::NodeBuilderFn{});
     ret->initFromInfo(tid_title, count, getter, setter);
     ret->autorelease();
     return ret;
 }
 
 void TVPCustomPreferenceForm::bindBodyController(const Node *allNodes) {
-    _listview = static_cast<ListView *>(allNodes->getChildByName("list"));
+    _listview = static_cast<ListView *>(
+        findNamedNode(const_cast<Node *>(allNodes), "list"));
     if(NaviBar.Left) {
         NaviBar.Left->addClickEventListener([this](cocos2d::Ref *) {
             TVPMainScene::GetInstance()->popUIForm(this);
@@ -318,7 +322,6 @@ void TVPCustomPreferenceForm::initFromInfo(
         return;
     _listview->removeAllItems();
     cocos2d::Size size = _listview->getContentSize();
-    CSBReader reader;
     for(int i = 0; i < count; ++i) {
         tPreferenceItemKeyValPair *item = new tPreferenceItemKeyValPair;
         item->_getter = [=]() -> std::pair<std::string, std::string> {
@@ -383,8 +386,8 @@ void tPreferenceItemCursorSlider::initController(const NodeMap &allNodes) {
     });
 }
 
-const char *tPreferenceItemCursorSlider::getUIFileName() const {
-    return "ui/comctrl/SliderIconItem.csb";
+Csd::NodeBuilderFn tPreferenceItemCursorSlider::getNodeBuilder() const {
+    return Csd::createSliderIconItem;
 }
 
 void tPreferenceItemCursorSlider::onEnter() {
@@ -396,8 +399,8 @@ void tPreferenceItemCursorSlider::onEnter() {
     _cursor->setScale(_cursor->getScale() / scale);
 }
 
-const char *tPreferenceItemTextSlider::getUIFileName() const {
-    return "ui/comctrl/SliderTextItem.csb";
+Csd::NodeBuilderFn tPreferenceItemTextSlider::getNodeBuilder() const {
+    return Csd::createSliderTextItem;
 }
 
 void tPreferenceItemTextSlider::initController(const NodeMap &allNodes) {
@@ -428,8 +431,8 @@ void tPreferenceItemFileSelect::initController(const NodeMap &allNodes) {
         [this](auto &&PH1) { showForm(std::forward<decltype(PH1)>(PH1)); });
 }
 
-const char *tPreferenceItemFileSelect::getUIFileName() const {
-    return "ui/comctrl/SelectListItem.csb";
+Csd::NodeBuilderFn tPreferenceItemFileSelect::getNodeBuilder() const {
+    return Csd::createComctrlSelectListItem;
 }
 
 void tPreferenceItemFileSelect::onPressStateChangedToNormal() {
@@ -514,7 +517,8 @@ void KeyMapPreferenceForm::initData() {
 KeyMapPreferenceForm *KeyMapPreferenceForm::create(iSysConfigManager *mgr) {
     KeyMapPreferenceForm *ret = new KeyMapPreferenceForm(mgr);
     ret->autorelease();
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initUILayout(Csd::createNaviBar, Csd::createListView,
+                      Csd::NodeBuilderFn{});
     ret->initData();
     return ret;
 }
@@ -536,8 +540,8 @@ void tPreferenceItemDeletable::initController(const NodeMap &allNodes) {
     });
 }
 
-const char *tPreferenceItemDeletable::getUIFileName() const {
-    return "ui/comctrl/DeletableItem.csb";
+Csd::NodeBuilderFn tPreferenceItemDeletable::getNodeBuilder() const {
+    return Csd::createDeletableItem;
 }
 
 void tPreferenceItemDeletable::onTouchEvent(

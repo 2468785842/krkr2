@@ -8,7 +8,7 @@
 //---------------------------------------------------------------------------
 // Conditional Compile Control
 //---------------------------------------------------------------------------
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 #include "tjsCommHead.h"
 #include "tjsCompileControl.h"
 #include "tjsLex.h"
@@ -28,9 +28,7 @@ namespace TJSPP {
         return n;
     }
 
-    void parser::error(const std::string &msg) {
-        spdlog::get("tjs2")->critical(msg);
-    }
+    void parser::error(const std::string &msg) { G_Tjs2Log.critical(msg); }
     //---------------------------------------------------------------------------
     // TJS_iswspace
     static bool inline TJS_iswspace(tjs_char ch) {

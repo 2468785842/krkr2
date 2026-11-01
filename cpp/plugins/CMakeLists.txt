@@ -28,7 +28,13 @@ target_sources(${PROJECT_NAME} PUBLIC
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${KRKR2CORE_PATH}/
     ${KRKR2CORE_PATH}/base
+    ${KRKR2CORE_PATH}/base/impl
     ${KRKR2CORE_PATH}/base/win32
+    ${KRKR2CORE_PATH}/event
+    ${KRKR2CORE_PATH}/event/impl
+    ${KRKR2CORE_PATH}/sysinit
+    ${KRKR2CORE_PATH}/sysinit/impl
+    ${KRKR2CORE_PATH}/kag
     ${KRKR2CORE_PATH}/environ
     ${KRKR2CORE_PATH}/environ/win32
     ${KRKR2CORE_PATH}/environ/android
@@ -49,7 +55,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 add_definitions(-D__STDC_CONSTANT_MACROS -DTJS_TEXT_OUT_CRLF)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH} ${KRKR2PLUGIN_PATH}/simplebinder})
+target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH})
 target_link_libraries(${PROJECT_NAME} PUBLIC krkr2core)
 
 add_subdirectory(psdfile)
@@ -72,6 +78,3 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
-
-find_package(spdlog CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)

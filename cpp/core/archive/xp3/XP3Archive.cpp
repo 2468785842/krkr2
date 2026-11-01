@@ -9,14 +9,13 @@
 // XP3 virtual file system support
 //---------------------------------------------------------------------------
 
-#include "tjsCommHead.h"
-
 #include "XP3Archive.h"
-#include "MsgIntf.h"
-#include "DebugIntf.h"
-#include "EventIntf.h"
-#include "UtilStreams.h"
-#include "SysInitIntf.h"
+
+#include "base/UtilStreams.h"
+#include "event/EventIntf.h"
+#include "msg/MsgIntf.h"
+#include "sysinit/SysInitIntf.h"
+#include "utils/DebugIntf.h"
 
 #include <zlib.h>
 #include <algorithm>
@@ -60,7 +59,7 @@ tTJSBinaryStream *TVPGetCachedArchiveHandle(void *pointer, const ttstr &name) {
     // get cached archive file handle from the pool
     if(TVPArchiveHandleCacheShutdown) {
         // the pool has shutdown
-        return TVPCreateStream(name);
+        return TVPCreateStream(name, TJS_BS_READ);
     }
 
     tTJSCriticalSectionHolder cs_holder(TVPArchiveHandleCacheCS);
@@ -91,7 +90,7 @@ tTJSBinaryStream *TVPGetCachedArchiveHandle(void *pointer, const ttstr &name) {
 
     // not found in the pool
     // simply create a stream and return it
-    return TVPCreateStream(name);
+    return TVPCreateStream(name, TJS_BS_READ);
 }
 //---------------------------------------------------------------------------
 /*static*/ void TVPReleaseCachedArchiveHandle(void *pointer,
@@ -307,10 +306,13 @@ bool TVPGetXP3ArchiveOffset(tTJSBinaryStream *st, const ttstr name,
 
 //---------------------------------------------------------------------------
 bool TVPIsXP3Archive(const ttstr &name) {
-    tTVPStreamHolder holder(name);
+    std::unique_ptr<tTJSBinaryStream> stream(
+        TVPCreateStream(name, TJS_BS_READ));
+    if(!stream)
+        return false;
     try {
         tjs_uint64 offset;
-        return TVPGetXP3ArchiveOffset(holder.Get(), name, offset, false);
+        return TVPGetXP3ArchiveOffset(stream.get(), name, offset, false);
     } catch(...) {
         return false;
     }
@@ -525,7 +527,7 @@ tTVPXP3Archive::tTVPXP3Archive(const ttstr &name, tTJSBinaryStream *st,
                                tjs_int64 offset, bool normalizeFileName) :
     tTVPArchive(name) {
     if(!st)
-        st = TVPCreateStream(name);
+        st = TVPCreateStream(name, TJS_BS_READ);
     Init(st, offset, normalizeFileName);
 }
 
@@ -536,7 +538,7 @@ tTVPArchive *tTVPXP3Archive::Create(const ttstr &name, tTJSBinaryStream *st,
                                     bool normalizeFileName) {
     bool refStream = st;
     if(!st) {
-        st = TVPCreateStream(name);
+        st = TVPCreateStream(name, TJS_BS_READ);
     }
     tjs_uint64 offset;
     if(!TVPGetXP3ArchiveOffset(st, name, offset, false)) {

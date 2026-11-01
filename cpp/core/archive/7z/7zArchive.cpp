@@ -1,6 +1,4 @@
-#include "tjsCommHead.h"
-#include "StorageIntf.h"
-#include "UtilStreams.h"
+#include "base/UtilStreams.h"
 #include <algorithm>
 
 extern "C" {

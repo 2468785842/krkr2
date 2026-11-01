@@ -47,7 +47,14 @@ set(MOVIE_HEADERS_DIR
 
 add_library(${PROJECT_NAME} STATIC ${MOVIE_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${MOVIE_HEADERS_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 PRIVATE core_base_module core_sound_module core_utils_module core_environ_module core_visual_module)
+krkr2_target_link_foundation(${PROJECT_NAME} PUBLIC)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    core_sound_module
+    core_visual_module
+    core_utils_module
+)
+krkr2_target_include_base_headers(${PROJECT_NAME})
+krkr2_target_include_environ_headers(${PROJECT_NAME})
 
 find_package(FFMPEG COMPONENTS
         avutil

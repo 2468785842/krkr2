@@ -1,11 +1,13 @@
 #include "RenderManager.h"
+
+#include "MsgIntf.h"
 #include "renderer/CCTexture2D.h"
 typedef cocos2d::Texture2D::PixelFormat CCPixelFormat;
 #include "MsgIntf.h"
 #include "LayerBitmapIntf.h"
 #include "SysInitIntf.h"
 #include "tvpgl.h"
-#include <assert.h>
+#include <cassert>
 #include <algorithm>
 #include "ThreadIntf.h"
 #include "argb.h"

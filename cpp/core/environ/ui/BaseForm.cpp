@@ -1,6 +1,5 @@
 #include "BaseForm.h"
 #include "cocos2d.h"
-#include "cocostudio/ActionTimeline/CSLoader.h"
 #include "Application.h"
 #include "ui/UIWidget.h"
 #include "cocos2d/MainScene.h"
@@ -8,8 +7,8 @@
 #include "ui/UIText.h"
 #include "ui/UIButton.h"
 #include "ui/UIListView.h"
+#include "ui/UILayout.h"
 #include "Platform.h"
-#include "cocostudio/ActionTimeline/CCActionTimeline.h"
 #include "extensions/GUI/CCScrollView/CCTableView.h"
 #include <fmt/format.h>
 
@@ -53,66 +52,80 @@ void NodeMap::onLoadError(const std::string &name) const {
         "Fail to load ui");
 }
 
-Node *CSBReader::Load(const char *filename) {
-    clear();
-    FileName = filename;
-    Node *ret = CSLoader::createNode(filename, [this](Ref *p) {
-        Node *node = dynamic_cast<Node *>(p);
-        std::string name = node->getName();
-        if(!name.empty())
-            operator[](name) = node;
-        int nAction = node->getNumberOfRunningActions();
-        if(nAction == 1) {
-            auto *action = dynamic_cast<cocostudio::timeline::ActionTimeline *>(
-                node->getActionByTag(node->getTag()));
-            if(action && action->IsAnimationInfoExists("autoplay")) {
-                action->play("autoplay", true);
-            }
-        }
-    });
-    if(!ret) {
-        TVPShowSimpleMessageBox(filename, "Fail to load ui file");
-    }
-    return ret;
-}
-
 iTVPBaseForm::~iTVPBaseForm() = default;
 
 void iTVPBaseForm::Show() {}
 
-bool iTVPBaseForm::initFromFile(const Csd::NodeBuilderFn &naviBarCall,
+bool iTVPBaseForm::initUILayout(const Csd::NodeBuilderFn &naviBarCall,
                                 const Csd::NodeBuilderFn &bodyCall,
                                 const Csd::NodeBuilderFn &bottomBarCall,
-                                Node *parent) {
+                                Node *layoutParent) {
 
     const bool ret = Node::init();
-    const auto scale = TVPMainScene::GetInstance()->getUIScale();
+    if(!bodyCall) {
+        return false;
+    }
 
-    auto *naviBar = naviBarCall(rearrangeHeaderSize(parent), scale);
-    auto *body = bodyCall(rearrangeBodySize(parent), scale);
-    auto *bottomBar = bottomBarCall(rearrangeFooterSize(parent), scale);
+    if(!layoutParent) {
+        layoutParent = this;
+    }
+
+    cocos2d::Size containerSize = layoutParent->getContentSize();
+    if(containerSize.equals(cocos2d::Size::ZERO) && layoutParent == this) {
+        containerSize = TVPMainScene::GetInstance()->getUINodeSize();
+        setContentSize(containerSize);
+    }
+
+    Node *attachParent = layoutParent;
+    cocos2d::ui::Layout *layoutShell = nullptr;
+    if(layoutParent == this) {
+        layoutShell = cocos2d::ui::Layout::create();
+        layoutShell->setLayoutType(cocos2d::ui::Layout::Type::VERTICAL);
+        layoutShell->setContentSize(containerSize);
+        layoutShell->setAnchorPoint(cocos2d::Vec2::ZERO);
+        layoutShell->setPosition(cocos2d::Vec2::ZERO);
+        addChild(layoutShell);
+        attachParent = layoutShell;
+    }
+
+    const auto scale = TVPMainScene::GetInstance()->getUIScale();
+    const bool hasHeader = static_cast<bool>(naviBarCall);
+    const bool hasFooter = static_cast<bool>(bottomBarCall);
+    const cocos2d::Size bodySize = (hasHeader || hasFooter)
+        ? rearrangeBodySize(containerSize)
+        : containerSize;
+
+    auto *naviBar = naviBarCall
+        ? naviBarCall(rearrangeHeaderSize(containerSize), scale)
+        : nullptr;
+    auto *body = bodyCall(bodySize, scale);
+    auto *bottomBar = bottomBarCall
+        ? bottomBarCall(rearrangeFooterSize(containerSize), scale)
+        : nullptr;
 
     RootNode = body;
     if(!RootNode) {
         return false;
     }
 
-    if(!parent) {
-        parent = this;
-    }
-
     LinearLayoutParameter *param = nullptr;
 
     if(naviBar) {
-        NaviBar.Root = naviBar->getChildByName("background");
-        NaviBar.Left = NaviBar.Root->getChildByName<Button *>("left");
-        NaviBar.Right = NaviBar.Root->getChildByName<Button *>("right");
+        auto *background = naviBar->getChildByName("background");
+        NaviBar.Root = background ? background : naviBar;
+        if(background) {
+            NaviBar.Left = NaviBar.Root->getChildByName<Button *>("left");
+            NaviBar.Right = NaviBar.Root->getChildByName<Button *>("right");
+        } else {
+            NaviBar.Left = nullptr;
+            NaviBar.Right = nullptr;
+        }
         bindHeaderController(NaviBar.Root);
 
         param = LinearLayoutParameter::create();
         param->setGravity(LinearLayoutParameter::LinearGravity::TOP);
         naviBar->setLayoutParameter(param);
-        parent->addChild(naviBar);
+        attachParent->addChild(naviBar);
     }
 
     if(bottomBar) {
@@ -122,15 +135,18 @@ bool iTVPBaseForm::initFromFile(const Csd::NodeBuilderFn &naviBarCall,
         param = LinearLayoutParameter::create();
         param->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
         bottomBar->setLayoutParameter(param);
-        parent->addChild(BottomBar.Root);
+        attachParent->addChild(BottomBar.Root);
     }
 
     param = LinearLayoutParameter::create();
     param->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
     body->setLayoutParameter(param);
-    parent->addChild(RootNode);
+    attachParent->addChild(RootNode);
 
     bindBodyController(RootNode);
+    if(layoutShell) {
+        ui::Helper::doLayout(layoutShell);
+    }
     return ret;
 }
 

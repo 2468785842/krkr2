@@ -15,6 +15,7 @@
 #include "tjsDebug.h"
 #include "tjsArray.h"
 #include "ScriptMgnIntf.h"
+#include "TVPLog.h"
 #include "StorageIntf.h"
 #include "DebugIntf.h"
 #include "WindowIntf.h"
@@ -50,6 +51,7 @@
 #include "SystemImpl.h"
 #include "BitmapLayerTreeOwner.h"
 #include "Extension.h"
+#include "MsgIntf.h"
 #include "Platform.h"
 #include "ConfigManager/LocaleConfigManager.h"
 
@@ -725,54 +727,6 @@ void TVPExecuteStorage(const ttstr &name, iTJSDispatch2 *context,
                 stream.get(), result, context, shortname.c_str());
 
             if(isbytecode) {
-                // save extract binary file for debug!
-                //                auto loader =
-                //                std::make_unique<tTJSByteCodeLoader>(); auto
-                //                *buff =
-                //                    new tjs_uint8[static_cast<unsigned
-                //                    int>(stream->GetSize())];
-                //                stream->Read(buff,
-                //                static_cast<tjs_uint>(stream->GetSize()));
-                //
-                //                std::unique_ptr<tTJSScriptBlock,
-                //                                std::function<void(tTJSScriptBlock
-                //                                *)>>
-                //                    blk{ loader->ReadByteCode(TVPScriptEngine,
-                //                    name.c_str(),
-                //                                              buff,
-                //                                              stream->GetSize()),
-                //                         [](auto *ptr) { ptr->Release(); } };
-                //                delete[] buff;
-                //                if(!blk)
-                //                    return;
-                //                auto tmpPlace = place.AsStdString();
-                //                tmpPlace.replace(tmpPlace.find(".xp3>"),
-                //                std::strlen(".xp3>"),
-                //                                 "_xp3/");
-                //                std::filesystem::path absoluteScriptPath{
-                //                tmpPlace.substr(
-                //                    std::strlen("file://.")) };
-                //                std::filesystem::create_directories(
-                //                    absoluteScriptPath.parent_path());
-                //                auto memoryStream =
-                //                std::make_unique<tTVPMemoryStream>();
-                //                blk->Dump(memoryStream.get());
-                //
-                //                std::vector<char16_t>
-                //                buffer(memoryStream->GetSize() /
-                //                                             sizeof(char16_t));
-                //
-                //                memoryStream->Seek(0, TJS_BS_SEEK_SET);
-                //                memoryStream->Read(buffer.data(),
-                //                memoryStream->GetSize()); FILE *f =
-                //                fopen(absoluteScriptPath.c_str(), "wb");
-                //                // 写入 UTF-16 LE BOM 小端
-                //                char16_t bom = 0xFEFF;
-                //                fwrite(&bom, sizeof(char16_t), 1, f);
-                //
-                //                fwrite(buffer.data(), sizeof(char16_t),
-                //                buffer.size(), f); fclose(f);
-                // end
                 return;
             }
         }
@@ -784,20 +738,6 @@ void TVPExecuteStorage(const ttstr &name, iTJSDispatch2 *context,
         place, modestr) };
     ttstr buffer;
     stream->Read(buffer, 0);
-
-    // save extract script file for debug!
-    //    auto tmpPlace = place.AsStdString();
-    //    auto i = tmpPlace.find(".xp3>");
-    //    if(i > -1) {
-    //        tmpPlace.replace(i, std::strlen(".xp3>"), "_xp3/");
-    //        std::filesystem::path absoluteScriptPath{ tmpPlace.substr(
-    //            std::strlen("file://.")) };
-    //        std::filesystem::create_directories(absoluteScriptPath.parent_path());
-    //        std::ofstream of{ absoluteScriptPath };
-    //        of << buffer.AsStdString() << std::endl;
-    //        of.close();
-    //    }
-    // end
 
     if(TVPScriptEngine) {
 
@@ -947,7 +887,7 @@ void TVPExecuteStartupScript() {
     try {
 
         ttstr place(TVPSearchPlacedPath(TVPStartupScriptName));
-        spdlog::info("Loading startup script: {}", place.AsStdString());
+        G_CoreLog.info("Loading startup script: {}", place.AsStdString());
         TVPStartupSuccess = false;
         try {
             iTJSTextReadStream *stream = TVPCreateTextStreamForRead(place, "");
@@ -965,7 +905,7 @@ void TVPExecuteStartupScript() {
             TVPExecuteStorage(TJS_W("system/Initialize.tjs"));
             TVPStartupSuccess = true;
         }
-        spdlog::info("Startup script ended.");
+        G_CoreLog.info("Startup script ended.");
         try {
             ttstr patch = TVPGetAppPath() + "AfterStartup.tjs";
             if(TVPIsExistentStorageNoSearch(patch))

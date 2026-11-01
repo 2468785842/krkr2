@@ -4,7 +4,7 @@
 //
 #pragma once
 
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 
 namespace motion {
 
@@ -35,7 +35,7 @@ namespace motion {
         static int getPixelateDivision() { return _pixelateDivision; }
 
         static void setMaxTextureSize(int w, int h) {
-            spdlog::get("plugin")->warn(
+            G_PluginLog.warn(
                 "D3DEmoteModule::setMaxTextureSize({}, {}) stub called", w, h);
         }
 

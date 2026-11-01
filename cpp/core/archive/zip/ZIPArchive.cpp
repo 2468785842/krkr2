@@ -1,7 +1,5 @@
-#include "tjsCommHead.h"
-#include "StorageIntf.h"
-#include "UtilStreams.h"
-#include "ArchiveFilename.h"
+#include "base/UtilStreams.h"
+#include "storage/impl/ArchiveFilename.h"
 #include <algorithm>
 
 #ifndef NOUNCRYPT
@@ -2107,7 +2105,7 @@ ZipArchive::~ZipArchive() {
 ZipArchive::ZipArchive(const ttstr &name, tTJSBinaryStream *st,
                        bool normalizeFileName) : tTVPArchive(name) {
     if(!st)
-        st = TVPCreateStream(name);
+        st = TVPCreateStream(name, TJS_BS_READ);
     _st = st;
     if((uf = unzOpenInternal(this, &zipfunc, 1)) != nullptr) {
         // unzGoToFirstFile64(uf, nullptr, nullptr, 0);

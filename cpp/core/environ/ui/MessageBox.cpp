@@ -37,7 +37,8 @@ void TVPMessageBoxForm::init(const std::string &caption,
                              const std::function<void(int)> &callback) {
     _callback = callback;
 
-    initFromFile(nullptr, Csd::createMessageBox(), nullptr);
+    initUILayout(Csd::NodeBuilderFn{}, Csd::createMessageBox,
+                 Csd::NodeBuilderFn{});
 
     if(_title)
         _title->setString(caption);
@@ -110,12 +111,13 @@ void TVPMessageBoxForm::init(const std::string &caption,
 }
 
 void TVPMessageBoxForm::bindBodyController(const Node *allNodes) {
-    _title = allNodes->getChildByName<Text *>("title");
-    _textContent = allNodes->getChildByName<Text *>("content");
-    _textContainer = allNodes->getChildByName<ScrollView *>("text");
+    Node *root = const_cast<Node *>(allNodes);
+    _title = static_cast<Text *>(findNamedNode(root, "title"));
+    _textContent = static_cast<Text *>(findNamedNode(root, "content"));
+    _textContainer = static_cast<ScrollView *>(findNamedNode(root, "text"));
 
-    _btnBody = allNodes->getChildByName<Button *>("btnBody");
-    _btnModel = allNodes->getChildByName<Widget *>("btn");
+    _btnBody = static_cast<Button *>(findNamedNode(root, "btnBody"));
+    _btnModel = static_cast<Widget *>(findNamedNode(root, "btn"));
     _btnList = _btnModel->getParent();
 }
 
@@ -130,7 +132,7 @@ void TVPMessageBoxForm::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
 TVPSimpleProgressForm *TVPSimpleProgressForm::create() {
     auto *form = new TVPSimpleProgressForm;
     form->autorelease();
-    form->initFromFile(Csd::createProgressBox());
+    form->initUILayout(Csd::createProgressBox);
     return form;
 }
 
@@ -206,14 +208,19 @@ void TVPSimpleProgressForm::setProgress2Visible(bool visible) {
 }
 
 void TVPSimpleProgressForm::bindBodyController(const Node *allNodes) {
-    _progressBar[0] = allNodes->getChildByName<LoadingBar *>("progrss_1");
-    _progressBar[1] = allNodes->getChildByName<LoadingBar *>("progrss_2");
-    _textProgress[0] = allNodes->getChildByName<Text *>("progress_text_1");
-    _textProgress[1] = allNodes->getChildByName<Text *>("progress_text_2");
-    _textContent = allNodes->getChildByName<Text *>("text");
-    _textTitle = allNodes->getChildByName<Text *>("title");
-    _btnContainer = allNodes->getChildByName("btnList");
-    _btnCell = allNodes->getChildByName<Widget *>("btnCell");
-    _btnButton = allNodes->getChildByName<Button *>("btn");
+    Node *root = const_cast<Node *>(allNodes);
+    _progressBar[0] =
+        static_cast<LoadingBar *>(findNamedNode(root, "progrss_1"));
+    _progressBar[1] =
+        static_cast<LoadingBar *>(findNamedNode(root, "progrss_2"));
+    _textProgress[0] =
+        static_cast<Text *>(findNamedNode(root, "progress_text_1"));
+    _textProgress[1] =
+        static_cast<Text *>(findNamedNode(root, "progress_text_2"));
+    _textContent = static_cast<Text *>(findNamedNode(root, "text"));
+    _textTitle = static_cast<Text *>(findNamedNode(root, "title"));
+    _btnContainer = findNamedNode(root, "btnList");
+    _btnCell = static_cast<Widget *>(findNamedNode(root, "btnCell"));
+    _btnButton = static_cast<Button *>(findNamedNode(root, "btn"));
     _btnCell->removeFromParentAndCleanup(false);
 }

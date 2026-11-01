@@ -1,7 +1,6 @@
 #include "UIExtension.h"
 #include "base/ObjectFactory.h"
 #include "ui/UIWidget.h"
-#include "cocostudio/ActionTimeline/CSLoader.h"
 #include "cocostudio/WidgetReader/NodeReader/NodeReader.h"
 #include "base/CCEventDispatcher.h"
 
@@ -254,7 +253,6 @@ public:
 };
 
 void TVPInitUIExtension() {
-    CSLoader::getInstance();
     static cocos2d::ObjectFactory::TInfo __Type(
         "NodeReader", WidgetNodeReader::createInstance);
 }

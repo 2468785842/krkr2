@@ -37,10 +37,6 @@ namespace cocos2d {
     }
 } // namespace cocos2d
 
-namespace cocostudio::timeline {
-    class ActionTimeline;
-}
-
 class NodeMap : public std::unordered_map<std::string, cocos2d::Node *> {
 protected:
     const char *FileName;
@@ -51,6 +47,10 @@ public:
     NodeMap();
 
     NodeMap(const char *filename, cocos2d::Node *node);
+
+    static NodeMap fromNode(cocos2d::Node *node, const char *debugName = "") {
+        return NodeMap(debugName, node);
+    }
 
     template <typename T = cocos2d::Node>
     [[nodiscard]] T *findController(const std::string &name,
@@ -75,10 +75,19 @@ template <>
 NodeMap::findController<cocos2d::Node>(const std::string &name,
                                        bool notice) const;
 
-class CSBReader : public NodeMap {
-public:
-    cocos2d::Node *Load(const char *filename);
-};
+inline cocos2d::Node *findNamedNode(cocos2d::Node *root,
+                                    const std::string &name) {
+    if(!root)
+        return nullptr;
+    if(root->getName() == name)
+        return root;
+    if(auto *direct = root->getChildByName(name))
+        return direct;
+    for(auto *child : root->getChildren())
+        if(auto *found = findNamedNode(child, name))
+            return found;
+    return nullptr;
+}
 
 class iTVPBaseForm : public cocos2d::Node {
 public:
@@ -94,40 +103,29 @@ public:
                               cocos2d::Event *event);
 
 protected:
-    bool initFromFile(const Csd::NodeBuilderFn &naviBarCall,
+    /** 用 Csd 工厂构建 header/body/footer 三段式 UI 并挂到 layoutParent（默认
+     * this） */
+    bool initUILayout(const Csd::NodeBuilderFn &naviBarCall,
                       const Csd::NodeBuilderFn &bodyCall,
                       const Csd::NodeBuilderFn &bottomBarCall,
-                      Node *parent = nullptr);
+                      Node *layoutParent = nullptr);
 
-    bool initFromFile(Node *naviBarCall, Node *bodyCall, Node *bottomBarCall,
-                      Node *parent = nullptr) {
-        return true;
+    bool initUILayout(const Csd::NodeBuilderFn &body) {
+        return initUILayout(Csd::NodeBuilderFn{}, body, Csd::NodeBuilderFn{});
     }
 
-    bool initFromFile(Node *body) {
-        return initFromFile(nullptr, body, nullptr);
+    static cocos2d::Size
+    rearrangeHeaderSize(const cocos2d::Size &containerSize) {
+        return { containerSize.width, containerSize.height * 0.1f };
     }
 
-    bool initFromFile(const Csd::NodeBuilderFn &body) {
-        return initFromFile(nullptr, body, nullptr);
+    static cocos2d::Size rearrangeBodySize(const cocos2d::Size &containerSize) {
+        return { containerSize.width, containerSize.height * 0.8f };
     }
 
-    // Screen Size 10%
-    static cocos2d::Size rearrangeHeaderSize(const Node *parent) {
-        const auto &pSize = parent->getContentSize();
-        return { pSize.width, pSize.height * 0.1f };
-    }
-
-    // Screen Size 80%
-    static cocos2d::Size rearrangeBodySize(const Node *parent) {
-        const auto &pSize = parent->getContentSize();
-        return { pSize.width, pSize.height * 0.8f };
-    }
-
-    // Screen Size 10%
-    static cocos2d::Size rearrangeFooterSize(const Node *parent) {
-        const auto &pSize = parent->getContentSize();
-        return { pSize.width, pSize.height * 0.1f };
+    static cocos2d::Size
+    rearrangeFooterSize(const cocos2d::Size &containerSize) {
+        return { containerSize.width, containerSize.height * 0.1f };
     }
 
     virtual void bindHeaderController(const Node *allNodes) = 0;

@@ -12,6 +12,8 @@
 #include "SysInitIntf.h"
 #include "SysInitImpl.h"
 #include "DebugIntf.h"
+#include "TVPLog.h"
+#include "TVPDialog.h"
 #include "MsgIntf.h"
 #include "ScriptMgnIntf.h"
 #include "tjsError.h"
@@ -32,6 +34,7 @@
 #include "StorageIntf.h"
 #include "EngineArchiveInit.h"
 #include "EnvironFileBackendInit.h"
+
 extern "C" {
 #include <libavutil/avstring.h>
 }
@@ -488,7 +491,9 @@ void tTVPApplication::BringToFront() {
 }
 #endif
 void tTVPApplication::ShowException(const ttstr &e) {
-    TVPShowSimpleMessageBox(e, TVPGetErrorDialogTitle());
+    G_ExceptionLog.error(e.AsStdString());
+    TVPShowDialogMessage(e.AsStdString(),
+                         TVPGetErrorDialogTitle().AsStdString());
     TVPSystemUninit();
     TVPExitApplication(0);
 }

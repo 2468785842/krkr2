@@ -2,6 +2,7 @@
 #include "PrerenderedFont.h"
 #include "BinaryStream.h"
 #include "MsgIntf.h"
+#include "MsgIntf.h"
 #include "tvpgl.h"
 
 extern tTJSHashTable<ttstr, tTVPPrerenderedFont *> TVPPrerenderedFonts;
