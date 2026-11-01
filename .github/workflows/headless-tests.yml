@@ -43,9 +43,10 @@ jobs:
       - name: Check module boundaries and configure headless build
         shell: bash
         run: |
+          export VCPKG_ROOT="$VCPKG_INSTALLATION_ROOT"
           python scripts/check_core_module_deps.py
           cmake -S . -B out/headless -G Ninja -D${{ matrix.platform }}=ON \
-            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
             -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DKRKR2_BUILD_APP=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=archives -DBUILD_TOOLS=ON
       - name: Build archives and XP3 tool

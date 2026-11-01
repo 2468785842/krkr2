@@ -54,6 +54,9 @@ def check(root):
 
 
 def main():
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, 'reconfigure'):
+            stream.reconfigure(encoding='utf-8')
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[1])
     errors = check(parser.parse_args().root.resolve())
