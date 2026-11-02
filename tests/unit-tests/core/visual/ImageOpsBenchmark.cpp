@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <charconv>
+#include <string_view>
 #include <iomanip>
 #include <iostream>
 #include <vector>
@@ -46,8 +48,19 @@ namespace {
     }
 } // namespace
 
-int main() {
-    cv::setNumThreads(1);
+int main(int argc, char **argv) {
+    int threads = 1;
+    if(argc > 2)
+        return 2;
+    if(argc == 2) {
+        const std::string_view argument(argv[1]);
+        const auto parsed = std::from_chars(
+            argument.data(), argument.data() + argument.size(), threads);
+        if(parsed.ec != std::errc{} ||
+           parsed.ptr != argument.data() + argument.size() || threads < 1)
+            return 2;
+    }
+    cv::setNumThreads(threads);
     constexpr int w = 320, h = 240, pitch = w * 4 + 16;
     std::vector<std::uint8_t> src(pitch * h), dst(pitch * h);
     for(std::size_t i = 0; i < src.size(); ++i)
@@ -59,8 +72,8 @@ int main() {
     cv::Mat oldScaled(157, 217, CV_8UC4, dst.data(), pitch);
     const ImageView scaled{ dst.data(), 217, 157, pitch, PixelFormat::RGBA8 };
     std::cout << std::fixed << std::setprecision(3) << "{\"opencv\":\""
-              << CV_VERSION
-              << "\",\"threads\":1,\"iterations\":100,\"rounds\":3,\"cases\":[";
+              << CV_VERSION << "\",\"threads\":" << threads
+              << ",\"iterations\":100,\"rounds\":3,\"cases\":[";
     compare(
         "resize_nearest_rgba",
         [&] {
@@ -133,6 +146,30 @@ int main() {
             auto output =
                 WarpPerspective(source, w, h, from, to, Interpolation::Linear);
             sink += output.data()[0];
+        },
+        true);
+    constexpr int bigW = 3840, bigH = 2160, bigPitch = bigW * 4 + 16;
+    std::vector<std::uint8_t> largeSource(bigPitch * bigH),
+        largeDestination((1920 * 4 + 16) * 1080);
+    for(std::size_t i = 0; i < largeSource.size(); ++i)
+        largeSource[i] = static_cast<std::uint8_t>(i * 31);
+    cv::Mat oldLargeSource(bigH, bigW, CV_8UC4, largeSource.data(), bigPitch),
+        oldLargeDestination(1080, 1920, CV_8UC4, largeDestination.data(),
+                            1920 * 4 + 16);
+    compare(
+        "resize_nearest_4k_to_1080p_rgba",
+        [&] {
+            cv::resize(oldLargeSource, oldLargeDestination, { 1920, 1080 }, 0,
+                       0, cv::INTER_NEAREST);
+            sink += largeDestination[0];
+        },
+        [&] {
+            Resize({ largeSource.data(), bigW, bigH, bigPitch,
+                     PixelFormat::RGBA8 },
+                   { largeDestination.data(), 1920, 1080, 1920 * 4 + 16,
+                     PixelFormat::RGBA8 },
+                   Interpolation::Nearest);
+            sink += largeDestination[0];
         },
         true);
     std::cout << "\n]}\n";

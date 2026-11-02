@@ -46,6 +46,16 @@ namespace TVPImageOps {
         }
     } // namespace
 
+    void detail::ForRows(int height, std::size_t pixels,
+                         const std::function<void(int, int)> &task) {
+        backend([&] {
+            cv::parallel_for_(
+                cv::Range(0, height),
+                [&](const cv::Range &rows) { task(rows.start, rows.end); },
+                static_cast<double>(pixels) / (1 << 16));
+        });
+    }
+
     void detail::ResizeFiltered(ConstImageView source, ImageView destination,
                                 Interpolation mode) {
         backend([&] {

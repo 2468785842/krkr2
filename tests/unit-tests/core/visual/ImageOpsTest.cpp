@@ -214,18 +214,26 @@ TEST_CASE("ImageOps nearest handles SIMD widths and multi-row images",
                              { 1001, 23, 1031, 31 },
                              { 1, 1, 8193, 3 },
                              { 8193, 3, 1, 1 } };
-    for(int channels : { 1, 4 }) {
-        for(const auto &size : sizes) {
-            CAPTURE(channels, size[0], size[1], size[2], size[3]);
-            Pixels source(size[0], size[1], channels);
-            source.pattern();
-            const auto original = source.bytes;
-            Pixels actual(size[2], size[3], channels, 17), expected = actual;
-            auto src = source.mat(), dst = expected.mat();
-            cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_NEAREST);
-            Resize(source.view(), actual.view(), Interpolation::Nearest);
-            REQUIRE(actual.bytes == expected.bytes);
-            REQUIRE(source.bytes == original);
+    struct RestoreThreads {
+        int previous = cv::getNumThreads();
+        ~RestoreThreads() { cv::setNumThreads(previous); }
+    } restoreThreads;
+    for(int threads : { 1, 3 }) {
+        cv::setNumThreads(threads);
+        for(int channels : { 1, 4 }) {
+            for(const auto &size : sizes) {
+                CAPTURE(threads, channels, size[0], size[1], size[2], size[3]);
+                Pixels source(size[0], size[1], channels);
+                source.pattern();
+                const auto original = source.bytes;
+                Pixels actual(size[2], size[3], channels, 17),
+                    expected = actual;
+                auto src = source.mat(), dst = expected.mat();
+                cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_NEAREST);
+                Resize(source.view(), actual.view(), Interpolation::Nearest);
+                REQUIRE(actual.bytes == expected.bytes);
+                REQUIRE(source.bytes == original);
+            }
         }
     }
 }

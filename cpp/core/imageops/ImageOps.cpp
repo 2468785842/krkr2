@@ -47,6 +47,34 @@ namespace TVPImageOps {
     } // namespace detail
 
     namespace {
+        template <int Channels>
+        void nearestRows(const std::uint8_t *source, std::uint8_t *destination,
+                         std::size_t sourcePitch, std::size_t destinationPitch,
+                         int width, int sourceHeight, double inverseY,
+                         const int *columns, int first, int last) {
+            for(int y = first; y < last; ++y) {
+                const int row =
+                    std::min(static_cast<int>(y * inverseY), sourceHeight - 1);
+                const auto *input = source + row * sourcePitch;
+                auto *output = destination + y * destinationPitch;
+                if constexpr(Channels == 1) {
+                    for(int x = 0; x < width; ++x)
+                        output[x] = input[columns[x]];
+                } else {
+                    for(int x = 0; x < width; ++x) {
+                        // 小块 memcpy 支持未对齐的 ROI/pitch。
+                        std::uint32_t pixel;
+                        std::memcpy(
+                            &pixel,
+                            input + static_cast<std::size_t>(columns[x]) * 4,
+                            sizeof(pixel));
+                        std::memcpy(output + static_cast<std::size_t>(x) * 4,
+                                    &pixel, sizeof(pixel));
+                    }
+                }
+            }
+        }
+
         void resizeNearest(ConstImageView source, ImageView destination) {
             const auto sourcePitch = detail::Step(source);
             const auto destinationPitch = detail::Step(destination);
@@ -74,28 +102,22 @@ namespace TVPImageOps {
                 columns[x] =
                     std::min(static_cast<int>(x * inverseX), source.width - 1);
 
-            for(int y = 0; y < destination.height; ++y) {
-                const int row =
-                    std::min(static_cast<int>(y * inverseY), source.height - 1);
-                const auto *input = source.data + row * sourcePitch;
-                auto *output = destination.data + y * destinationPitch;
-                if(channels == 1) {
-                    for(int x = 0; x < destination.width; ++x)
-                        output[x] = input[columns[x]];
-                } else {
-                    for(int x = 0; x < destination.width; ++x) {
-                        // 小块 memcpy 支持未对齐的 ROI/pitch，不解引用
-                        // uint32_t*。
-                        std::uint32_t pixel;
-                        std::memcpy(
-                            &pixel,
-                            input + static_cast<std::size_t>(columns[x]) * 4,
-                            sizeof(pixel));
-                        std::memcpy(output + static_cast<std::size_t>(x) * 4,
-                                    &pixel, sizeof(pixel));
-                    }
-                }
-            }
+            detail::ForRows(
+                destination.height,
+                static_cast<std::size_t>(destination.width) *
+                    destination.height,
+                [=, indices = columns.data()](int first, int last) {
+                    if(channels == 1)
+                        nearestRows<1>(source.data, destination.data,
+                                       sourcePitch, destinationPitch,
+                                       destination.width, source.height,
+                                       inverseY, indices, first, last);
+                    else
+                        nearestRows<4>(source.data, destination.data,
+                                       sourcePitch, destinationPitch,
+                                       destination.width, source.height,
+                                       inverseY, indices, first, last);
+                });
         }
     } // namespace
 
