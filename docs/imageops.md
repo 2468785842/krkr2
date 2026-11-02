@@ -47,6 +47,7 @@ CI 检查实际 vcpkg status 没有 Boost、日志、存储、cocos 与 FFmpeg�
 
 `tests/unit-tests/core/visual/ImageOpsTest.cpp` 有 9 个有效注册用例。测试中直接运行旧 OpenCV 调用作为参考，
 在同一后端/平台逐字节比较输出及 padding/保护区，不跨平台承诺不同 SIMD 实现的输出相同。
+macOS 的固定 vcpkg port 会禁用 OpenMP，测试仍使用相同本机后端对照，不将三平台视为同一并行配置。
 除旧实现对照外，还检查手工确定的最近邻像素、alpha 中间值、独立输出所有权和非法输入无写入。
 
 覆盖 1/4 通道、四种采样模式、放大/缩小/单像素/细长图、ROI/非紧密 pitch、奇偶与超大 blur 核、
