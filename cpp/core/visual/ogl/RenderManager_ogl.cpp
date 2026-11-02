@@ -176,11 +176,11 @@ namespace GL { // independ from global gl functions
         GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width,
         GLsizei height, GLsizei depth);
     static fCopyImageSubData *glCopyImageSubData;
-    typedef void(GLAPIENTRY fClearTexImage)(uint texture, int level,
+    typedef void(GLAPIENTRY fClearTexImage)(GLuint texture, int level,
                                             GLenum format, GLenum type,
                                             const void *data);
     static fClearTexImage *glClearTexImage;
-    typedef void(GLAPIENTRY fClearTexSubImage)(uint texture, int level,
+    typedef void(GLAPIENTRY fClearTexSubImage)(GLuint texture, int level,
                                                int xoffset, int yoffset,
                                                int zoffset, GLsizei width,
                                                GLsizei height, GLsizei depth,

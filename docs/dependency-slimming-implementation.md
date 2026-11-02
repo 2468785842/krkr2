@@ -103,7 +103,7 @@ Windows x64/MSVC、Linux x64/GCC 与 macOS ARM64/AppleClang 均已通过构建�
 ## ImageOps 接口与像素回归续批
 
 基线 dev `5e889a8`，实现提交 `6038329`。提取 `core_imageops`，软件/OpenGL 渲染器改用不暴露 OpenCV 的接口；
-OpenCV core/imgproc 保留为后端，删除 layerex_draw 未使用的总头。新增独立 imageops 测试范围，
+OpenCV core/imgproc 保留为后端，删除 layerex_draw 未使用的总头；消费者显式包含标准头，GL 清除纹理函数使用 GLuint，避免依赖 OpenCV 提供全局 uint 别名。新增独立 imageops 测试范围，
 并将 TJS/日志公共依赖归入 foundation feature，避免纯图像测试安装 Boost.Locale 等无关库。
 覆盖、命令及未验证边界见 [ImageOps](imageops.md)，同机微基准原始样本见该页报告链接。
 
