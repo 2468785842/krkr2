@@ -1,54 +1,17 @@
-#include "ImageOps.h"
+#include "ImageOps_internal.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
 #include <algorithm>
-#include <limits>
 #include <stdexcept>
 
 namespace TVPImageOps {
     namespace {
-        int channels(PixelFormat format) {
-            switch(format) {
-                case PixelFormat::Gray8:
-                    return 1;
-                case PixelFormat::RGBA8:
-                    return 4;
-            }
-            throw std::invalid_argument("ImageOps: unsupported pixel format");
-        }
-
-        std::size_t rowBytes(int width, PixelFormat format) {
-            if(width <= 0 ||
-               static_cast<std::size_t>(width) >
-                   static_cast<std::size_t>(
-                       std::numeric_limits<std::ptrdiff_t>::max()) /
-                       channels(format))
-                throw std::invalid_argument("ImageOps: invalid image width");
-            return static_cast<std::size_t>(width) * channels(format);
-        }
-
-        std::size_t step(ConstImageView image) {
-            const auto row = rowBytes(image.width, image.format);
-            if(!image.data || image.height <= 0 || image.pitch < 0)
-                throw std::invalid_argument("ImageOps: invalid image view");
-            const auto stride =
-                image.pitch ? static_cast<std::size_t>(image.pitch) : row;
-            if(stride < row ||
-               static_cast<std::size_t>(image.height - 1) >
-                   (static_cast<std::size_t>(
-                        std::numeric_limits<std::ptrdiff_t>::max()) -
-                    row) /
-                       stride)
-                throw std::invalid_argument("ImageOps: invalid image pitch");
-            return stride;
-        }
-
         cv::Mat matrix(ConstImageView image) {
-            const auto stride = step(image);
+            const auto stride = detail::Step(image);
             return { image.height, image.width,
-                     CV_MAKETYPE(CV_8U, channels(image.format)),
+                     CV_MAKETYPE(CV_8U, detail::Channels(image.format)),
                      const_cast<std::uint8_t *>(image.data), stride };
         }
 
@@ -83,32 +46,8 @@ namespace TVPImageOps {
         }
     } // namespace
 
-    ImageBuffer::ImageBuffer(int width, int height, PixelFormat format) :
-        width_(width), height_(height), format_(format) {
-        const auto row = rowBytes(width, format);
-        if(height <= 0 ||
-           static_cast<std::size_t>(height) >
-               static_cast<std::size_t>(
-                   std::numeric_limits<std::ptrdiff_t>::max()) /
-                   row)
-            throw std::invalid_argument("ImageOps: invalid image height");
-        pixels_.reset(new std::uint8_t[row * static_cast<std::size_t>(height)]);
-    }
-
-    std::ptrdiff_t ImageBuffer::pitch() const {
-        return static_cast<std::ptrdiff_t>(rowBytes(width_, format_));
-    }
-    ImageView ImageBuffer::view() {
-        return { data(), width_, height_, pitch(), format_ };
-    }
-    ConstImageView ImageBuffer::view() const {
-        return { data(), width_, height_, pitch(), format_ };
-    }
-
-    void Resize(ConstImageView source, ImageView destination,
-                Interpolation mode) {
-        if(source.format != destination.format)
-            throw std::invalid_argument("ImageOps: mismatched pixel formats");
+    void detail::ResizeFiltered(ConstImageView source, ImageView destination,
+                                Interpolation mode) {
         backend([&] {
             auto src = matrix(source), dst = matrix(destination);
             cv::resize(src, dst, dst.size(), 0, 0, interpolation(mode));

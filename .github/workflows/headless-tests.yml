@@ -117,7 +117,7 @@ jobs:
           assert not any(p.startswith('boost-') for p in ports), ports
           assert not ports.intersection({'cocos2dx', 'ffmpeg', 'fmt', 'spdlog', 'oniguruma', 'libarchive', 'unrar', 'argparse'}), ports
           commands = json.loads((root / 'compile_commands.json').read_text(encoding='utf-8'))
-          assert {pathlib.Path(c['file']).name for c in commands} == {'ImageOps_opencv.cpp', 'ImageOpsTest.cpp'}
+          assert {pathlib.Path(c['file']).name for c in commands} == {'ImageOps.cpp', 'ImageOps_opencv.cpp', 'ImageOpsTest.cpp'}
           print('ImageOps closure verified:', sorted(ports))
           PY
       - uses: actions/upload-artifact@v4

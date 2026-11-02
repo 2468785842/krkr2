@@ -129,6 +129,107 @@ TEST_CASE("ImageOps resize respects an ROI pointer and preserves surrounding "
     REQUIRE(actual.bytes == expected.bytes);
 }
 
+TEST_CASE(
+    "ImageOps nearest scaling matches legacy rounding across dimension pairs",
+    "[imageops][nearest]") {
+    for(int channels : { 1, 4 }) {
+        for(bool vertical : { false, true }) {
+            for(int from = 1; from <= 100; ++from) {
+                Pixels source(vertical ? 3 : from, vertical ? from : 3,
+                              channels);
+                source.pattern();
+                const auto original = source.bytes;
+                for(int to = 1; to <= 100; ++to) {
+                    CAPTURE(channels, vertical, from, to);
+                    Pixels actual(vertical ? 5 : to, vertical ? to : 5,
+                                  channels, 17),
+                        expected = actual;
+                    auto src = source.mat(), dst = expected.mat();
+                    cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_NEAREST);
+                    Resize(source.view(), actual.view(),
+                           Interpolation::Nearest);
+                    REQUIRE(actual.bytes == expected.bytes);
+                }
+                REQUIRE(source.bytes == original);
+            }
+        }
+    }
+}
+
+TEST_CASE("ImageOps nearest retains historical reciprocal-rounding pixels",
+          "[imageops][nearest]") {
+    const std::uint8_t source[] = { 10, 20, 30, 40, 50, 60 };
+    std::uint8_t horizontal[34]{}, vertical[34]{};
+    Resize({ source, 6, 1, 0, PixelFormat::Gray8 },
+           { horizontal, 34, 1, 0, PixelFormat::Gray8 },
+           Interpolation::Nearest);
+    Resize({ source, 1, 6, 0, PixelFormat::Gray8 },
+           { vertical, 1, 34, 0, PixelFormat::Gray8 }, Interpolation::Nearest);
+    // 旧 OpenCV 先算 double(34)/6 再取倒数，17*inverse 略小于 3。
+    REQUIRE(horizontal[17] == 30);
+    REQUIRE(vertical[17] == 30);
+    REQUIRE(horizontal[18] == 40);
+    REQUIRE(vertical[18] == 40);
+}
+
+TEST_CASE(
+    "ImageOps nearest preserves cropped unaligned views and identity copies",
+    "[imageops][nearest]") {
+    for(int channels : { 1, 4 }) {
+        Pixels source(17, 13, channels), actual(19, 15, channels, 19),
+            expected = actual;
+        source.pattern();
+        const auto original = source.bytes;
+        auto *input = source.data() + source.pitch + 2 * channels;
+        auto *output = actual.data() + actual.pitch + 3 * channels;
+        auto *reference = expected.data() + expected.pitch + 3 * channels;
+        const auto format = source.view().format;
+        cv::Mat src(7, 9, CV_MAKETYPE(CV_8U, channels), input, source.pitch),
+            dst(11, 13, CV_MAKETYPE(CV_8U, channels), reference,
+                expected.pitch);
+        cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_NEAREST);
+        Resize({ input, 9, 7, source.pitch, format },
+               { output, 13, 11, actual.pitch, format },
+               Interpolation::Nearest);
+        REQUIRE(actual.bytes == expected.bytes);
+        REQUIRE(source.bytes == original);
+        for(int padding : { 0, 17 }) {
+            Pixels copied(17, 13, channels, padding), referenceCopy = copied;
+            auto srcMatrix = source.mat(), dstMatrix = referenceCopy.mat();
+            cv::resize(srcMatrix, dstMatrix, dstMatrix.size(), 0, 0,
+                       cv::INTER_NEAREST);
+            Resize(source.view(), copied.view(), Interpolation::Nearest);
+            REQUIRE(copied.bytes == referenceCopy.bytes);
+            const auto snapshot = copied.bytes;
+            Resize(copied.view(), copied.view(), Interpolation::Nearest);
+            REQUIRE(copied.bytes == snapshot);
+        }
+    }
+}
+
+TEST_CASE("ImageOps nearest handles SIMD widths and multi-row images",
+          "[imageops][nearest]") {
+    const int sizes[][4] = { { 320, 240, 217, 157 },
+                             { 384, 257, 1025, 771 },
+                             { 1001, 23, 1031, 31 },
+                             { 1, 1, 8193, 3 },
+                             { 8193, 3, 1, 1 } };
+    for(int channels : { 1, 4 }) {
+        for(const auto &size : sizes) {
+            CAPTURE(channels, size[0], size[1], size[2], size[3]);
+            Pixels source(size[0], size[1], channels);
+            source.pattern();
+            const auto original = source.bytes;
+            Pixels actual(size[2], size[3], channels, 17), expected = actual;
+            auto src = source.mat(), dst = expected.mat();
+            cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_NEAREST);
+            Resize(source.view(), actual.view(), Interpolation::Nearest);
+            REQUIRE(actual.bytes == expected.bytes);
+            REQUIRE(source.bytes == original);
+        }
+    }
+}
+
 TEST_CASE("ImageOps box blur preserves even anchors and reflect borders "
           "including in-place use",
           "[imageops]") {
@@ -270,10 +371,18 @@ TEST_CASE("ImageOps rejects invalid views without writing the destination",
           PixelFormat::RGBA8 },
         { source.data(), 3, 3, 12, static_cast<PixelFormat>(2) }
     };
-    for(const auto &input : invalid)
-        REQUIRE_THROWS_AS(
-            Resize(input, destination.view(), Interpolation::Linear),
-            std::invalid_argument);
+    for(auto mode : { Interpolation::Nearest, Interpolation::Linear }) {
+        for(const auto &input : invalid) {
+            REQUIRE_THROWS_AS(Resize(input, destination.view(), mode),
+                              std::invalid_argument);
+            const ImageView badDestination{
+                const_cast<std::uint8_t *>(input.data), input.width,
+                input.height, input.pitch, input.format
+            };
+            REQUIRE_THROWS_AS(Resize(valid, badDestination, mode),
+                              std::invalid_argument);
+        }
+    }
     REQUIRE_THROWS_AS(
         Resize(valid, destination.view(), static_cast<Interpolation>(4)),
         std::invalid_argument);

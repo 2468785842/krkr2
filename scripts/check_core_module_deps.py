@@ -52,8 +52,10 @@ def check(root):
             for include in includes:
                 if include.startswith(('cocos/', 'unzip/', 'environ/', 'visual/', 'movie/', 'sound/', 'plugin/')) or 'cocos2d' in include:
                     errors.append(f'{source.relative_to(root)}: 反向包含 {include}')
-            if source.name == 'ImageOps.h' and ('opencv2/' in content or 'cv::' in content):
-                errors.append('ImageOps 公共接口不得暴露 OpenCV')
+            if target == 'core_imageops' and source.name != 'ImageOps_opencv.cpp':
+                active = re.sub(r'/\*.*?\*/|//[^\n]*', '', content, flags=re.S)
+                if re.search(r'#\s*include\s*[<"]opencv|\bcv::', active):
+                    errors.append(f'{source.relative_to(root)}: OpenCV 仅允许出现在后端实现')
     # 渲染器及插件只通过 ImageOps 使用图像算法，OpenCV 留在后端实现。
     for relative in ('visual', '../plugins'):
         for source in (root / 'cpp/core' / relative).rglob('*'):

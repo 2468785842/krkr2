@@ -62,6 +62,18 @@ int main() {
               << CV_VERSION
               << "\",\"threads\":1,\"iterations\":100,\"rounds\":3,\"cases\":[";
     compare(
+        "resize_nearest_rgba",
+        [&] {
+            cv::resize(oldSource, oldScaled, { 217, 157 }, 0, 0,
+                       cv::INTER_NEAREST);
+            sink += dst[0];
+        },
+        [&] {
+            Resize(source, scaled, Interpolation::Nearest);
+            sink += dst[0];
+        },
+        false);
+    compare(
         "resize_linear_rgba",
         [&] {
             cv::resize(oldSource, oldScaled, { 217, 157 }, 0, 0,
@@ -72,7 +84,7 @@ int main() {
             Resize(source, scaled, Interpolation::Linear);
             sink += dst[0];
         },
-        false);
+        true);
     compare(
         "box_9x9_rgba",
         [&] {
