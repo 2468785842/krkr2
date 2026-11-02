@@ -39,7 +39,8 @@ Boost.Locale、fmt、spdlog、Oniguruma 已归入默认 foundation feature；原
 由 CMake 显式选择它，直接执行 vcpkg 时默认行为也保留。复用旧全量构建或安装目录不能证明最小闭包。
 imageops 与工具同时开启仍会加入工具的基础依赖。
 
-独立目标只编译 `ImageOps_opencv.cpp`、`ImageOpsTest.cpp`；OpenCV 及其 port 所需系统库/host 工具仍存在。
+项目自身的独立目标只编译 `ImageOps_opencv.cpp`、`ImageOpsTest.cpp`；OpenCV 及其 port 所需系统库/host 工具仍存在。
+只链接 core/imgproc 不会自动裁剪 vcpkg port 内的其他 OpenCV 模块构建，本批尚未调整该 port。
 CI 检查实际 vcpkg status 没有 Boost、日志、存储、cocos 与 FFmpeg，并检查这两个编译源。
 默认 full 测试也登记相同用例；这不代表 full 应用已构建。
 

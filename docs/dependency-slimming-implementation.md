@@ -111,3 +111,10 @@ OpenCV core/imgproc 保留为后端，删除 layerex_draw 未使用的总头；�
 归档+XP3 9 项 CTest 回归通过。依赖守卫扩展至 10 个 foundation 目标，并阻止渲染器/插件重新直接包含或调用 OpenCV；注入公共头及渲染器泄漏的负向检查通过。
 新建本机构建目录的目标图无 TJS/日志/存储/图形壳/媒体目标，编译清单恰有模块与测试两个源；本机使用现有真实依赖，vcpkg 安装闭包另由 CI 检查。
 完整应用、Android 与真实游戏尚未验证；无构建时间/包体收益结论。
+
+三平台 [ImageOps/归档 CI](https://github.com/2468785842/krkr2/actions/runs/41370645981)（源码 `6038329`）
+共 6 个任务全部通过：Windows x64/MSVC、Linux x64/GCC、macOS ARM64/AppleClang 各通过 9 项图像 CTest
+及原 9 项归档/XP3 CTest。各平台图像任务均核对到恰有两个项目编译源；实际 vcpkg status
+仅含 catch2、opencv4、zlib 与三个 vcpkg host 构建辅助 port，无 Boost、日志、cocos 或 FFmpeg。
+这些元数据及 CTest 日志分别保存在 imageops-tests-* 与 headless-tests-* 六份附件中。
+固定 port 在 macOS 明确禁用 OpenMP，未把它当作三平台相同的并行后端；本轮也未裁剪 OpenCV port 的内部模块构建。
