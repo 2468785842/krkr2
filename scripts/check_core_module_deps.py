@@ -8,10 +8,12 @@ MODULES = {
     'core_log': 'log', 'tjs2': 'tjs2', 'core_msg': 'msg', 'core_io': 'io',
     'core_storage_archive': 'storage', 'archive_xp3': 'archive/xp3',
     'archive_zip': 'archive/zip', 'archive_7z': 'archive/7z', 'archive_tar': 'archive/tar',
+    'core_imageops': 'imageops',
 }
 ALLOWED = {
     'core_log': set(), 'tjs2': {'core_log'}, 'core_msg': {'tjs2'},
     'core_io': {'tjs2', 'core_msg'}, 'core_storage_archive': {'tjs2', 'core_io', 'core_msg'},
+    'core_imageops': set(),
     **{name: {'core_storage_archive'} for name in MODULES if name.startswith('archive_')},
 }
 
@@ -50,6 +52,16 @@ def check(root):
             for include in includes:
                 if include.startswith(('cocos/', 'unzip/', 'environ/', 'visual/', 'movie/', 'sound/', 'plugin/')) or 'cocos2d' in include:
                     errors.append(f'{source.relative_to(root)}: 反向包含 {include}')
+            if source.name == 'ImageOps.h' and ('opencv2/' in content or 'cv::' in content):
+                errors.append('ImageOps 公共接口不得暴露 OpenCV')
+    # 渲染器及插件只通过 ImageOps 使用图像算法，OpenCV 留在后端实现。
+    for relative in ('visual', '../plugins'):
+        for source in (root / 'cpp/core' / relative).rglob('*'):
+            if source.suffix not in ('.cpp', '.h', '.hpp'):
+                continue
+            content = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
+            if re.search(r'#\s*include\s*[<"]opencv|\bcv::', content):
+                errors.append(f'{source.relative_to(root)}: OpenCV 调用应放入 ImageOps 后端')
     return errors
 
 

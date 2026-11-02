@@ -13,6 +13,8 @@ permissions:
 
 jobs:
   archives:
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.act/vcpkg-cache
     strategy:
       fail-fast: false
       matrix:
@@ -23,6 +25,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: archives-vcpkg-${{ runner.os }}-${{ matrix.triplet }}-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}
+          restore-keys: archives-vcpkg-${{ runner.os }}-${{ matrix.triplet }}-
       - uses: ilammy/msvc-dev-cmd@v1
         if: runner.os == 'Windows'
       - name: Install Bison (Linux)
@@ -44,6 +51,7 @@ jobs:
         shell: bash
         run: |
           export VCPKG_ROOT="$VCPKG_INSTALLATION_ROOT"
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
           python scripts/check_core_module_deps.py
           cmake -S . -B out/headless -G Ninja -D${{ matrix.platform }}=ON \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
@@ -61,4 +69,63 @@ jobs:
             out/headless/Testing/Temporary/
             out/headless/compile_commands.json
             out/headless/vcpkg_installed/vcpkg/status
+          if-no-files-found: ignore
+
+  imageops:
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.act/vcpkg-cache
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, platform: LINUX, triplet: x64-linux}
+          - {os: windows-2022, platform: WINDOWS, triplet: x64-windows-static-md}
+          - {os: macos-15, platform: MACOS, triplet: arm64-osx}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: imageops-vcpkg-${{ runner.os }}-${{ matrix.triplet }}-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}
+          restore-keys: imageops-vcpkg-${{ runner.os }}-${{ matrix.triplet }}-
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+      - name: Configure isolated image operations
+        shell: bash
+        run: |
+          export VCPKG_ROOT="$VCPKG_INSTALLATION_ROOT"
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+          cmake -S . -B out/imageops -G Ninja -D${{ matrix.platform }}=ON \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=imageops
+      - name: Build and test image operations
+        shell: bash
+        run: |
+          cmake --build out/imageops --target imageops_tests --parallel 4
+          ctest --test-dir out/imageops -N
+          ctest --test-dir out/imageops --output-on-failure --no-tests=error
+      - name: Verify isolated dependency closure
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          root = pathlib.Path('out/imageops')
+          status = (root / 'vcpkg_installed/vcpkg/status').read_text(encoding='utf-8')
+          ports = {line.split(': ', 1)[1] for line in status.splitlines() if line.startswith('Package: ')}
+          assert not any(p.startswith('boost-') for p in ports), ports
+          assert not ports.intersection({'cocos2dx', 'ffmpeg', 'fmt', 'spdlog', 'oniguruma', 'libarchive', 'unrar', 'argparse'}), ports
+          commands = json.loads((root / 'compile_commands.json').read_text(encoding='utf-8'))
+          assert {pathlib.Path(c['file']).name for c in commands} == {'ImageOps_opencv.cpp', 'ImageOpsTest.cpp'}
+          print('ImageOps closure verified:', sorted(ports))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: imageops-tests-${{ matrix.platform }}
+          path: |
+            out/imageops/Testing/Temporary/
+            out/imageops/compile_commands.json
+            out/imageops/vcpkg_installed/vcpkg/status
           if-no-files-found: ignore

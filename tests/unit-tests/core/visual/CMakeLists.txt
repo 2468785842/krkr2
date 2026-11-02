@@ -1,27 +1,13 @@
-cmake_minimum_required(VERSION 3.16)
-project(TestVisualModule LANGUAGES CXX)
+find_package(OpenCV REQUIRED COMPONENTS core imgproc)
+set(SOURCES ImageOpsTest.cpp)
+add_executable(imageops_tests ${SOURCES})
+target_link_libraries(imageops_tests PRIVATE Catch2::Catch2WithMain core_imageops opencv_core opencv_imgproc)
+target_include_directories(imageops_tests PRIVATE ${OpenCV_INCLUDE_DIRS})
+catch_discover_tests(imageops_tests)
 
-set(SOURCES
-)
-
-string(REPLACE ".cpp" "" BASENAMES_SOURCES "${SOURCES}")
-set(TARGETS ${BASENAMES_SOURCES})
-
-foreach(name ${TARGETS})
-    add_executable(${name} ${name}.cpp main.cpp)
-endforeach()
-
-set(ALL_TARGETS
-        ${TARGETS}
-)
-
-foreach(name ${ALL_TARGETS})
-    target_link_libraries(${name}
-        PRIVATE
-            Catch2::Catch2
-        PUBLIC
-            krkr2core
-    )
-    target_include_directories(${name} PRIVATE "${TEST_CONFIG_DIR}")
-    catch_discover_tests(${name})
-endforeach()
+option(KRKR2_BUILD_IMAGEOPS_BENCHMARK "Build the direct-OpenCV/ImageOps comparison" OFF)
+if(KRKR2_BUILD_IMAGEOPS_BENCHMARK)
+    add_executable(imageops_benchmark ImageOpsBenchmark.cpp)
+    target_include_directories(imageops_benchmark PRIVATE ${OpenCV_INCLUDE_DIRS})
+    target_link_libraries(imageops_benchmark PRIVATE core_imageops opencv_core opencv_imgproc)
+endif()

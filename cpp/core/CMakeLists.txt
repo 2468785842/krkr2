@@ -22,6 +22,7 @@ add_subdirectory(extension)
 add_subdirectory(plugin)
 add_subdirectory(movie)
 add_subdirectory(sound)
+add_subdirectory(imageops)
 add_subdirectory(visual)
 add_subdirectory(utils)
 

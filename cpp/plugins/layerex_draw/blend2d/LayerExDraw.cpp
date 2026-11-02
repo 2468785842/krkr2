@@ -1,3 +1,8 @@
+#include <algorithm>
+#include <functional>
+#include <memory>
+#include <string>
+#include <cstring>
 #include "ncbind.hpp"
 #include "LayerExDraw.hpp"
 #include "log/TVPLog.h"
@@ -10,7 +15,11 @@
 #include <cmath>
 #include <freetype/freetype.h>
 
-#include <opencv2/opencv.hpp>
+
+namespace {
+    // 不依赖后端头提供非标准数学常量。
+    constexpr double kPi = 3.14159265358979323846;
+} // namespace
 
 #define NCB_MODULE_NAME TJS_W("layerExDraw.dll")
 
@@ -859,7 +868,7 @@ BLBrush *createBrush(const tTJSVariant colorOrBrush) {
                     RectF rect = getRect(var);
                     float angle = info.getRealValue(TJS_W("angle"), 0.0f);
 
-                    float rad = angle * M_PI / 180.0f;
+                    float rad = angle * kPi / 180.0f;
                     float cx = rect.x + rect.w / 2;
                     float cy = rect.y + rect.h / 2;
                     float length =
@@ -1148,8 +1157,8 @@ void Path::closeFigure() { path.close(); }
  */
 void Path::drawArc(tjs_real x, tjs_real y, tjs_real width, tjs_real height,
                    tjs_real startAngle, tjs_real sweepAngle) {
-    float startRad = startAngle * M_PI / 180.0f;
-    float sweepRad = sweepAngle * M_PI / 180.0f;
+    float startRad = startAngle * kPi / 180.0f;
+    float sweepRad = sweepAngle * kPi / 180.0f;
     float rx = width / 2.0f;
     float ry = height / 2.0f;
     float cx = x + rx;
@@ -1316,8 +1325,8 @@ void Path::drawPie(tjs_real x, tjs_real y, tjs_real width, tjs_real height,
     float cx = x + rx;
     float cy = y + ry;
 
-    float startRad = startAngle * M_PI / 180.0f;
-    float sweepRad = sweepAngle * M_PI / 180.0f;
+    float startRad = startAngle * kPi / 180.0f;
+    float sweepRad = sweepAngle * kPi / 180.0f;
     float endRad = startRad + sweepRad;
 
     // 移动到中心
@@ -1815,8 +1824,8 @@ RectF LayerExDraw::drawArc(const Appearance *app, tjs_real x, tjs_real y,
     float ry = height / 2.0f;
     float cx = x + rx;
     float cy = y + ry;
-    float startRad = startAngle * M_PI / 180.0f;
-    float sweepRad = sweepAngle * M_PI / 180.0f;
+    float startRad = startAngle * kPi / 180.0f;
+    float sweepRad = sweepAngle * kPi / 180.0f;
 
     path.moveTo(cx + rx * cos(startRad), cy + ry * sin(startRad));
     path.arcTo(cx, cy, rx, ry, startRad, sweepRad);
@@ -2000,8 +2009,8 @@ RectF LayerExDraw::drawPie(const Appearance *app, tjs_real x, tjs_real y,
     float ry = height / 2.0f;
     float cx = x + rx;
     float cy = y + ry;
-    float startRad = startAngle * M_PI / 180.0f;
-    float sweepRad = sweepAngle * M_PI / 180.0f;
+    float startRad = startAngle * kPi / 180.0f;
+    float sweepRad = sweepAngle * kPi / 180.0f;
 
     path.moveTo(cx, cy);
     path.lineTo(cx + rx * cos(startRad), cy + ry * sin(startRad));

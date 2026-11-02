@@ -104,12 +104,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     $<IF:$<TARGET_EXISTS:libjpeg-turbo::turbojpeg>,libjpeg-turbo::turbojpeg,libjpeg-turbo::turbojpeg-static>
 )
 
-set(OpenCV_ROOT "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/opencv4")
-find_package(OpenCV REQUIRED COMPONENTS core imgproc)
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    opencv_imgproc
-    opencv_core
-)
+target_link_libraries(${PROJECT_NAME} PRIVATE core_imageops)
 
 find_package(lz4 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC

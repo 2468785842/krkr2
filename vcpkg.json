@@ -2,19 +2,11 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "krkr2",
   "version-string": "1.5.0",
-  "dependencies": [
-    {
-      "name": "boost-locale",
-      "default-features": false
-    },
-    "fmt",
-    "oniguruma",
-    "spdlog"
-  ],
   "overrides": [
     {
       "name": "opencv4",
-      "version": "4.7.0#6"
+      "version": "4.7.0",
+      "port-version": 6
     }
   ],
   "features": {
@@ -137,6 +129,33 @@
       "dependencies": [
         "zlib"
       ]
+    },
+    "foundation": {
+      "description": "TJS, logging and shared archive foundations",
+      "dependencies": [
+        {
+          "name": "boost-locale",
+          "default-features": false
+        },
+        "fmt",
+        "oniguruma",
+        "spdlog"
+      ]
+    },
+    "imageops": {
+      "description": "CPU image operations without the runtime or window backend",
+      "dependencies": [
+        {
+          "name": "opencv4",
+          "default-features": false,
+          "features": [
+            "openmp"
+          ]
+        }
+      ]
     }
-  }
+  },
+  "default-features": [
+    "foundation"
+  ]
 }

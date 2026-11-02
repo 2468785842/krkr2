@@ -1,3 +1,12 @@
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
+#include <functional>
+#include <map>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 #include "RenderManager.h"
 
 #include "MsgIntf.h"
@@ -21,8 +30,7 @@ extern "C" {
 #endif
 #include "libswscale/swscale.h"
 };
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
+#include "imageops/ImageOps.h"
 #include "Application.h"
 #include "Platform.h"
 #include "ConfigManager/IndividualConfigManager.h"
@@ -32,7 +40,7 @@ extern "C" {
 #include "lz4.h"
 
 // #define USE_SWSCALE
-#define USE_CV_AFFINE
+#define USE_IMAGEOPS_AFFINE
 
 //---------------------------------------------------------------------------
 // heap allocation functions for bitmap bits
@@ -2327,10 +2335,10 @@ public:
             (uint8_t *)tar->GetScanLineForWrite(rcdst.top) + rcdst.left * 4;
         int dpitch = tar->GetPitch();
 
-        cv::Mat src_img(sh, sw, CV_8UC4, (void *)sdata, spitch);
-        cv::Mat dst_img(dh, dw, CV_8UC4, (void *)ddata, dpitch);
-        cv::Size areasize(area.get_width() + 1, area.get_height() + 1);
-        cv::boxFilter(src_img, dst_img, -1, areasize);
+        TVPImageOps::BoxBlur(
+            { sdata, sw, sh, spitch, TVPImageOps::PixelFormat::RGBA8 },
+            { ddata, dw, dh, dpitch, TVPImageOps::PixelFormat::RGBA8 },
+            area.get_width() + 1, area.get_height() + 1);
         // 		if (area_size < 256)
         // 			Func16::DoBoxBlurLoop(rctar, area,
         // _tar->GetWidth(), _tar->GetHeight(), (tjs_uint32*)line,
@@ -2608,13 +2616,6 @@ iTVPRenderManager::GetOrCompileRenderMethod(const char *name, uint32_t *hint,
         return it->second;
     return CompileRenderMethod(name, glsl_script, nTex, flags);
 }
-
-static int cvFlags[4] = {
-    cv::INTER_NEAREST, // stNearest
-    cv::INTER_AREA, // stFastLinear
-    cv::INTER_LINEAR, // stLinear
-    cv::INTER_CUBIC, // stCubic
-};
 
 static double tTVPPointD_distQ(const tTVPPointD &p0, const tTVPPointD &p1) {
     double dx = p0.x - p1.x, dy = p0.y - p1.y;
@@ -3021,12 +3022,9 @@ public:
     void SetParameterInt(int id, int Value) override {
         switch(id) {
             case eParameters::StretchType:
-                StretchType = (tTVPBBStretchType)Value;
-                if(StretchType > sizeof(cvFlags) / sizeof(cvFlags[0])) {
-                    StretchType = (tTVPBBStretchType)(sizeof(cvFlags) /
-                                                          sizeof(cvFlags[0]) -
-                                                      1);
-                }
+                // 软件采样路径仅有四种模式，包含上界 4 的旧检查会越界。
+                StretchType =
+                    static_cast<tTVPBBStretchType>(std::clamp(Value, 0, 3));
                 break;
             default:
                 break;
@@ -3095,10 +3093,10 @@ public:
             //  TODO multithreaded
             sws_scale(img_convert_ctx, &sdata, &spitch, 0, sh, &ddata, &dpitch);
 #else
-            cv::Size dsize(dw, dh);
-            cv::Mat src_img(sh, sw, CV_8UC4, (void *)sdata, spitch);
-            cv::Mat dst_img(dh, dw, CV_8UC4, (void *)ddata, dpitch);
-            cv::resize(src_img, dst_img, dsize, 0, 0, cvFlags[StretchType]);
+            TVPImageOps::Resize(
+                { sdata, sw, sh, spitch, TVPImageOps::PixelFormat::RGBA8 },
+                { ddata, dw, dh, dpitch, TVPImageOps::PixelFormat::RGBA8 },
+                static_cast<TVPImageOps::Interpolation>(StretchType));
 #endif
             tTVPRect rc(0, 0, dw, dh);
             ((tTVPRenderMethod_Software *)method)
@@ -3112,25 +3110,6 @@ public:
     void OperateRect(iTVPRenderMethod *method, iTVPTexture2D *tar,
                      iTVPTexture2D *reftar, const tTVPRect &rctar,
                      const tRenderTexRectArray &textures) override {
-#ifdef _DEBUG
-        static bool check = false;
-        cv::Mat _src[3], _tar;
-        if(check) {
-            for(int i = 0; i < textures.size(); ++i) {
-                iTVPTexture2D *tex = textures[i].first;
-                unsigned int fmt = tex->GetFormat() == TVPTextureFormat::RGBA
-                    ? CV_8UC4
-                    : CV_8UC1;
-                _src[i] = cv::Mat(tex->GetHeight(), tex->GetWidth(), fmt,
-                                  (void *)tex->GetPixelData(), tex->GetPitch());
-            }
-            unsigned int fmt =
-                tar->GetFormat() == TVPTextureFormat::RGBA ? CV_8UC4 : CV_8UC1;
-            _tar = cv::Mat(tar->GetHeight(), tar->GetWidth(), fmt,
-                           (void *)tar->GetPixelData(), tar->GetPitch());
-            _tar.type();
-        }
-#endif
 
         for(int i = 0; i < textures.size(); ++i) {
             textures[i].first->GetScanLineForRead(
@@ -3604,24 +3583,28 @@ public:
             sdata = (const uint8_t *)src->GetPixelData();
 
             // upper-left, upper-right, bottom-right, bottom-left
-            cv::Point2f pts_src[] = {
-                cv::Point2f(srcpt[0].x, srcpt[0].y),
-                cv::Point2f(srcpt[1].x + 1, srcpt[1].y),
-                cv::Point2f(srcpt[5].x + 1, srcpt[5].y + 1),
-                cv::Point2f(srcpt[2].x, srcpt[2].y + 1),
+            TVPImageOps::Quad pts_src = {
+                TVPImageOps::Point(srcpt[0].x, srcpt[0].y),
+                TVPImageOps::Point(srcpt[1].x + 1, srcpt[1].y),
+                TVPImageOps::Point(srcpt[5].x + 1, srcpt[5].y + 1),
+                TVPImageOps::Point(srcpt[2].x, srcpt[2].y + 1),
             };
-            cv::Point2f pts_dst[] = {
-                cv::Point2f(dstpt[0].x - rcclip.left, dstpt[0].y - rcclip.top),
-                cv::Point2f(dstpt[1].x - rcclip.left, dstpt[1].y - rcclip.top),
-                cv::Point2f(dstpt[5].x - rcclip.left, dstpt[5].y - rcclip.top),
-                cv::Point2f(dstpt[2].x - rcclip.left, dstpt[2].y - rcclip.top),
+            TVPImageOps::Quad pts_dst = {
+                TVPImageOps::Point(dstpt[0].x - rcclip.left,
+                                   dstpt[0].y - rcclip.top),
+                TVPImageOps::Point(dstpt[1].x - rcclip.left,
+                                   dstpt[1].y - rcclip.top),
+                TVPImageOps::Point(dstpt[5].x - rcclip.left,
+                                   dstpt[5].y - rcclip.top),
+                TVPImageOps::Point(dstpt[2].x - rcclip.left,
+                                   dstpt[2].y - rcclip.top),
             };
 
-            cv::Mat src_img;
+            TVPImageOps::ConstImageView src_img{};
             if(isSrcRect) {
                 tTVPRect rcsrc(0x7FFFFFFF, 0x7FFFFFFF, -1, -1);
                 for(int i = 0; i < 4; ++i) {
-                    const cv::Point2f &pt = pts_src[i];
+                    const TVPImageOps::Point &pt = pts_src[i];
                     tjs_int x = pt.x;
                     if(x < rcsrc.left)
                         rcsrc.left = x;
@@ -3635,7 +3618,7 @@ public:
                 }
                 sdata += rcsrc.top * spitch + rcsrc.left * 4;
                 for(int i = 0; i < 4; ++i) {
-                    cv::Point2f &pt = pts_src[i];
+                    TVPImageOps::Point &pt = pts_src[i];
                     pt.x -= rcsrc.left;
                     pt.y -= rcsrc.top;
                 }
@@ -3644,70 +3627,33 @@ public:
                     rcsrc.set_width(sw);
                 if(rcsrc.get_height() > sh)
                     rcsrc.set_height(sh);
-                src_img = cv::Mat(rcsrc.get_height(), rcsrc.get_width(),
-                                  CV_8UC4, (void *)sdata, spitch);
+                src_img = { sdata, rcsrc.get_width(), rcsrc.get_height(),
+                            spitch, TVPImageOps::PixelFormat::RGBA8 };
             } else {
-                src_img = cv::Mat(src->GetHeight(), src->GetWidth(), CV_8UC4,
-                                  (void *)sdata, spitch);
+                src_img = { sdata, static_cast<int>(src->GetWidth()),
+                            static_cast<int>(src->GetHeight()), spitch,
+                            TVPImageOps::PixelFormat::RGBA8 };
             }
 
-            cv::Mat dst_img;
-            cv::Size dst_size(rcclip.get_width(), rcclip.get_height());
-#ifdef USE_CV_AFFINE
-            if(isSrcRect && checkQuadSquared(dstpt)) {
-                // #ifdef _DEBUG
-                // 				printf("affine (%d, %d;%d, %d;%d,
-                // %d;%d, %d) ->
-                // (%d, %d;%d, %d;%d, %d;%d, %d)\n",
-                // (int)pts_src[0].x, (int)pts_src[0].y,
-                // (int)pts_src[1].x, (int)pts_src[1].y,
-                // (int)pts_src[2].x, (int)pts_src[2].y,
-                // (int)pts_src[3].x, (int)pts_src[3].y,
-                // (int)pts_dst[0].x, (int)pts_dst[0].y,
-                // (int)pts_dst[1].x, (int)pts_dst[1].y,
-                // (int)pts_dst[2].x, (int)pts_dst[2].y,
-                // (int)pts_dst[3].x, (int)pts_dst[3].y
-                // 					);
-                // #endif
-                cv::Mat affine_matrix =
-                    cv::getAffineTransform(pts_src, pts_dst);
-                // 				double affine_check[6] = {
-                // 					affine_matrix.at<double>(0,
-                // 0), 					affine_matrix.at<double>(0,
-                // 1), 					affine_matrix.at<double>(0,
-                // 2), affine_matrix.at<double>(1, 0),
-                // affine_matrix.at<double>(1, 1),
-                // affine_matrix.at<double>(1, 2)
-                // 				};
-                cv::warpAffine(src_img, dst_img, affine_matrix, dst_size,
-                               cvFlags[StretchType]);
-            } else
+            auto dst_img = [&] {
+#ifdef USE_IMAGEOPS_AFFINE
+                if(isSrcRect && checkQuadSquared(dstpt)) {
+                    return TVPImageOps::WarpAffine(
+                        src_img, rcclip.get_width(), rcclip.get_height(),
+                        pts_src, pts_dst,
+                        static_cast<TVPImageOps::Interpolation>(StretchType));
+                }
 #endif
-            {
-                // #ifdef _DEBUG
-                // 				printf("perspective (%d, %d;%d,
-                // %d;%d, %d;%d, %d)
-                // -> (%d, %d;%d, %d;%d, %d;%d, %d)\n",
-                // (int)pts_src[0].x, (int)pts_src[0].y,
-                // (int)pts_src[1].x, (int)pts_src[1].y,
-                // (int)pts_src[2].x, (int)pts_src[2].y,
-                // (int)pts_src[3].x, (int)pts_src[3].y,
-                // (int)pts_dst[0].x, (int)pts_dst[0].y,
-                // (int)pts_dst[1].x, (int)pts_dst[1].y,
-                // (int)pts_dst[2].x, (int)pts_dst[2].y,
-                // (int)pts_dst[3].x, (int)pts_dst[3].y
-                // 					);
-                // #endif
-                cv::Mat perspective_matrix =
-                    cv::getPerspectiveTransform(pts_src, pts_dst);
-                cv::warpPerspective(src_img, dst_img, perspective_matrix,
-                                    dst_size, cvFlags[StretchType]);
-            }
+                return TVPImageOps::WarpPerspective(
+                    src_img, rcclip.get_width(), rcclip.get_height(), pts_src,
+                    pts_dst,
+                    static_cast<TVPImageOps::Interpolation>(StretchType));
+            }();
 
             iTVPTexture2D *tmp = new tTVPSoftwareTexture2D_static(
-                dst_img.ptr(0), dst_img.step1(0), dst_size.width,
-                dst_size.height, TVPTextureFormat::RGBA);
-            tTVPRect rc(0, 0, dst_size.width, dst_size.height);
+                dst_img.data(), dst_img.pitch(), dst_img.width(),
+                dst_img.height(), TVPTextureFormat::RGBA);
+            tTVPRect rc(0, 0, dst_img.width(), dst_img.height());
             // 			if (rc.right > dst->GetWidth()) rc.right =
             // dst->GetWidth(); 			if (rc.bottom >
             // dst->GetHeight()) rc.bottom = dst->GetHeight();
@@ -4817,37 +4763,39 @@ public:
                 const uint8_t *sdata;
                 int spitch = src->GetPitch();
                 sdata = (const uint8_t *)src->GetPixelData();
-                cv::Mat src_img(src->GetHeight(), src->GetWidth(), CV_8UC4,
-                                (void *)sdata, spitch);
-                cv::Mat dst_img;
-                cv::Size dst_size(rcclip.get_width(), rcclip.get_height());
+                TVPImageOps::ConstImageView src_img{
+                    sdata, static_cast<int>(src->GetWidth()),
+                    static_cast<int>(src->GetHeight()), spitch,
+                    TVPImageOps::PixelFormat::RGBA8
+                };
 
                 // upper-left, upper-right, bottom-right, bottom-left
-                cv::Point2f pts_src[] = {
-                    cv::Point2f(srcpt[0].x, srcpt[0].y),
-                    cv::Point2f(srcpt[1].x + 1, srcpt[1].y),
-                    cv::Point2f(srcpt[3].x + 1, srcpt[3].y + 1),
-                    cv::Point2f(srcpt[2].x, srcpt[2].y + 1)
+                TVPImageOps::Quad pts_src = {
+                    TVPImageOps::Point(srcpt[0].x, srcpt[0].y),
+                    TVPImageOps::Point(srcpt[1].x + 1, srcpt[1].y),
+                    TVPImageOps::Point(srcpt[3].x + 1, srcpt[3].y + 1),
+                    TVPImageOps::Point(srcpt[2].x, srcpt[2].y + 1)
                 };
-                cv::Point2f pts_dst[] = { cv::Point2f(dstpt[0].x - rcclip.left,
-                                                      dstpt[0].y - rcclip.top),
-                                          cv::Point2f(dstpt[1].x - rcclip.left,
-                                                      dstpt[1].y - rcclip.top),
-                                          cv::Point2f(dstpt[3].x - rcclip.left,
-                                                      dstpt[3].y - rcclip.top),
-                                          cv::Point2f(dstpt[2].x - rcclip.left,
-                                                      dstpt[2].y -
-                                                          rcclip.top) };
+                TVPImageOps::Quad pts_dst = {
+                    TVPImageOps::Point(dstpt[0].x - rcclip.left,
+                                       dstpt[0].y - rcclip.top),
+                    TVPImageOps::Point(dstpt[1].x - rcclip.left,
+                                       dstpt[1].y - rcclip.top),
+                    TVPImageOps::Point(dstpt[3].x - rcclip.left,
+                                       dstpt[3].y - rcclip.top),
+                    TVPImageOps::Point(dstpt[2].x - rcclip.left,
+                                       dstpt[2].y - rcclip.top)
+                };
 
-                cv::Mat perspective_matrix =
-                    cv::getPerspectiveTransform(pts_src, pts_dst);
-                cv::warpPerspective(src_img, dst_img, perspective_matrix,
-                                    dst_size, cvFlags[StretchType]);
+                auto dst_img = TVPImageOps::WarpPerspective(
+                    src_img, rcclip.get_width(), rcclip.get_height(), pts_src,
+                    pts_dst,
+                    static_cast<TVPImageOps::Interpolation>(StretchType));
 
                 iTVPTexture2D *tmp = new tTVPSoftwareTexture2D_static(
-                    dst_img.ptr(0), dst_img.step1(0), dst_size.width,
-                    dst_size.height, TVPTextureFormat::RGBA);
-                tTVPRect rc(0, 0, dst_size.width, dst_size.height);
+                    dst_img.data(), dst_img.pitch(), dst_img.width(),
+                    dst_img.height(), TVPTextureFormat::RGBA);
+                tTVPRect rc(0, 0, dst_img.width(), dst_img.height());
 
                 ((tTVPRenderMethod_Software *)method)
                     ->DoRender(target, rcclip, target, rcclip, tmp, rc, nullptr,
