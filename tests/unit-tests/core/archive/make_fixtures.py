@@ -18,7 +18,12 @@ with zipfile.ZipFile(root / 'zip64.zip', 'w') as archive:
         entry.write(b'zip64 local header')
 (root / 'invalid.zip').write_bytes(b'not a zip file')
 (root / 'truncated.zip').write_bytes((root / 'mixed.zip').read_bytes()[:30])
-(root / 'invalid-name.zip').write_bytes((root / 'mixed.zip').read_bytes().replace(b'DIR\\Stored.TXT', b'\xffIR\\Stored.TXT'))
+# ZipInfo 在 Windows 会规范化反斜线；按实际名称修改本地头和中央目录。
+with zipfile.ZipFile(root / 'mixed.zip') as archive:
+    original_name = archive.namelist()[0].encode('utf-8')
+data = (root / 'mixed.zip').read_bytes()
+assert data.count(original_name) == 2
+(root / 'invalid-name.zip').write_bytes(data.replace(original_name, b'\xff' + original_name[1:]))
 with tarfile.open(root / 'plain.tar', 'w', format=tarfile.USTAR_FORMAT) as archive:
     entry = tarfile.TarInfo('folder/readme.txt')
     entry.size = 10
