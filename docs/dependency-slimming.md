@@ -2,7 +2,7 @@
 
 评估日期：2026-11-01。源码基线：合并后的 `853ec7d`，包含远端 dev `0a80f3f`。
 本文保留初始源码审计及迁移提案，实际实施见下方记录；未测得可归因于本轮的体积或构建耗时收益。
-后续实施：已加入 XP3/字符串/归档测试独立配置、依赖功能拆分、可选 PSD/上报、插件源去重与注册对象保留、CocoStudio 残留清理、公共头与生成规则优化；ZIP 读取器与共享句柄缓存也已脱离 cocos/XP3 的反向依赖。见 [实施记录](dependency-slimming-implementation.md)。下文审计表保留评估时的源码现状；平台与图像库替换仍为提案。
+后续实施：已加入 XP3/字符串/归档测试独立配置、依赖功能拆分、可选 PSD/上报、插件源去重与注册对象保留、CocoStudio 残留清理、公共头与生成规则优化；ZIP 读取器与共享句柄缓存也已脱离 cocos/XP3 的反向依赖。见 [实施记录](dependency-slimming-implementation.md)。下文审计表保留评估时的源码现状；ImageOps 接口及像素对照已落地，OpenCV 算法与平台后端替换仍待实施。
 原有路线见 [后端精简](backend-modernization.md)；本文补充具体依赖决策和构建边界。
 
 ## 建议结论
@@ -52,7 +52,7 @@ SDL3 不替代 Layer 混合、CPU 图像算法、字体排版和媒体解码；�
 | 仿射/透视 | 小矩阵求解 + 逆映射采样，复用裁剪与插值内核 | 奇异矩阵、透明边界、透视除法、CPU 可读回结果 |
 
 stb_image_resize2 只作为缩放候选，不能单独覆盖模糊、仿射和透视，插值也不保证与 OpenCV 逐像素相同。GPU 路径仍有 CPU 缩放/矩阵计算，不能只修改软件渲染器。
-现有 `tests/unit-tests/core/visual/CMakeLists.txt` 的 SOURCES 为空，替换前必须补有效注册的像素测试。
+当前已登记 `ImageOpsTest.cpp` 并提供独立 imageops 测试范围，具体覆盖与未验证项见 [ImageOps](imageops.md)。上述第三阶段算法替换尚未实施。
 
 ### FFmpeg 与格式库
 
@@ -74,7 +74,7 @@ JPEG/PNG/WebP/JXR/BPG、Vorbis/Opus 是格式能力，不建议统一换成 stb_
 
 ## 分批实施与验收
 
-下列开关名是拟议接口，当前不可直接用来构建。
+以下保留初始分批计划；已完成项见实施记录，可执行开关以构建指南为准。media/legacy-images 等尚未实现。
 
 1. **构建隔离**：增加 `KRKR2_BUILD_APP`、工具/测试/插件选项，在 `project()` 触发 vcpkg 前确定 features；基础 manifest 只留真正公共依赖。显式关闭 default features 后分别选择 app、tools、tests、psd、media、legacy-images、crash-upload 等能力。`ENABLE_TESTS=OFF` 本身不会阻止基础 manifest 安装 Catch2。
 2. **最小工具**：拆出 XP3 所需存储子集；当前 `tools/xp3` 链接完整 `core_storage`，仍要求 libarchive/unrar。还需移除其间接 cocos/ZIP 依赖和根级全量配置，不能只改最终 link 行。验收：空安装目录下只配置 XP3，不出现 cocos/OpenCV/FFmpeg 查找与安装，执行打包/解包及损坏输入验证。

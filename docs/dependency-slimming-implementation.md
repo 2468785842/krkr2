@@ -99,3 +99,15 @@ Windows x64/MSVC、Linux x64/GCC 与 macOS ARM64/AppleClang 均已通过构建�
 三平台远端的 vcpkg status 和编译清单已核对，不含 cocos2dx、OpenCV、FFmpeg、libarchive、unrar、7zip 或 libjpeg-turbo，
 每平台 67 条编译记录无重复；
 最小配置仍有 Boost.Locale，且间接安装 Boost.Regex 等子包，不能把 PSB 局部去 Boost 等同于全仓移除。
+
+## ImageOps 接口与像素回归续批
+
+基线 dev `5e889a8`，实现提交 `6038329`。提取 `core_imageops`，软件/OpenGL 渲染器改用不暴露 OpenCV 的接口；
+OpenCV core/imgproc 保留为后端，删除 layerex_draw 未使用的总头。新增独立 imageops 测试范围，
+并将 TJS/日志公共依赖归入 foundation feature，避免纯图像测试安装 Boost.Locale 等无关库。
+覆盖、命令及未验证边界见 [ImageOps](imageops.md)，同机微基准原始样本见该页报告链接。
+
+本机 Release：9 项 CTest/900 断言通过；ASan/UBSan Debug 同样通过，参考 OpenCV 库未启用 sanitizer。
+归档+XP3 9 项 CTest 回归通过。依赖守卫扩展至 10 个 foundation 目标，并阻止渲染器/插件重新直接包含或调用 OpenCV；注入公共头及渲染器泄漏的负向检查通过。
+新建本机构建目录的目标图无 TJS/日志/存储/图形壳/媒体目标，编译清单恰有模块与测试两个源；本机使用现有真实依赖，vcpkg 安装闭包另由 CI 检查。
+完整应用、Android 与真实游戏尚未验证；无构建时间/包体收益结论。

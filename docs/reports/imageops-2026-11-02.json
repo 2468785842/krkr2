@@ -1,0 +1,110 @@
+{
+  "date": "2026-11-02",
+  "implementation_commit": "603832959b55990c5a1b3196e473cec0dcfee209",
+  "reference": "与基线 5e889a8 渲染器等价的直接 OpenCV 调用；未构建完整基线应用",
+  "host": {
+    "os": "Debian 13 Linux x86_64",
+    "cpu": "AMD EPYC 9V74（容器可用 3 CPU）",
+    "compiler": "GCC 14.2",
+    "cmake": "3.31.6",
+    "build": "Release",
+    "catch2": "3.7.1"
+  },
+  "opencv": {
+    "version": "4.7.0",
+    "source_commit": "725e440d278aca07d35a5e8963ef990572b07316",
+    "modules": [
+      "core",
+      "imgproc"
+    ],
+    "link": "static",
+    "openmp": true,
+    "cpu_baseline": "SSE2",
+    "cpu_dispatch": "NONE",
+    "optional_backends": "IPP/ITT/OpenCL/LAPACK/Eigen/ADE、图像编解码与 GUI 关闭",
+    "package_note": "临时目录构建真实上游库；安装 Config 补充 OpenMP 链接声明，与 vcpkg 4.7.0#6 的导出处理一致。不是固定 vcpkg port 构建，不能替代 CI。"
+  },
+  "workload": {
+    "source": [
+      320,
+      240,
+      4
+    ],
+    "pitch_bytes": 1296,
+    "resize_destination": [
+      217,
+      157
+    ],
+    "blur_kernel": [
+      9,
+      9
+    ],
+    "warps": "轻微倾斜四点，320x240，含矩阵求解/输出分配",
+    "order": "预热，三轮交替先后，固定单线程"
+  },
+  "result": {
+    "opencv": "4.7.0",
+    "threads": 1,
+    "iterations": 100,
+    "rounds": 3,
+    "cases": [
+      {
+        "name": "resize_linear_rgba",
+        "direct_us": [
+          79.649,
+          77.454,
+          75.766
+        ],
+        "imageops_us": [
+          76.355,
+          79.672,
+          75.822
+        ]
+      },
+      {
+        "name": "box_9x9_rgba",
+        "direct_us": [
+          128.053,
+          126.297,
+          134.653
+        ],
+        "imageops_us": [
+          128.625,
+          128.292,
+          132.358
+        ]
+      },
+      {
+        "name": "warp_affine_rgba",
+        "direct_us": [
+          320.346,
+          313.202,
+          313.386
+        ],
+        "imageops_us": [
+          312.812,
+          323.312,
+          313.805
+        ]
+      },
+      {
+        "name": "warp_perspective_rgba",
+        "direct_us": [
+          409.471,
+          422.298,
+          409.591
+        ],
+        "imageops_us": [
+          410.882,
+          436.75,
+          395.065
+        ]
+      }
+    ]
+  },
+  "limits": [
+    "微基准，未测整帧或游戏",
+    "未测全量/冷构建或包体",
+    "共享容器样本可能受调度影响，不能声称提速"
+  ]
+}

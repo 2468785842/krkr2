@@ -36,7 +36,7 @@ Windows 入口 `platforms/windows/main.cpp` 创建 TVPAppDelegate；脚本入口
 - 根 CMake 使用 C++17。`cpp/core/CMakeLists.txt` 的 `krkr2core` 为 INTERFACE 聚合目标，不是单个已隔离实现库。
 - cocos2d 除窗口/绘制外，还被 UI、配置、文件后端、Android JNI 辅助及视频等路径使用；移除它不只是改启动函数。
 - `environ/impl/TVPWindow.h` 的接口仍返回 `cocos2d::Node*`。抽象层本身也需要去除后端类型。
-- OpenCV 的实际调用包括 boxFilter、resize、仿射和透视变换，见 `visual/RenderManager.cpp`；OpenGL 路径也有 resize。SDL 窗口库不负责替代这些算法。
+- CPU 图像操作已集中到 `imageops/ImageOps_opencv.cpp`；软件/OpenGL 渲染器通过不含 OpenCV 类型的 `ImageOps.h` 调用缩放、模糊、仿射、透视及矩阵求解。当前后端仍链接 OpenCV core/imgproc，算法尚未替换。
 - dev 已删除旧 `environ/sdl/tvpsdl.cpp`；当前没有 SDL 后端，vcpkg 清单也未声明 SDL。
 - 内建插件实现源只属于各自静态库，`krkr2plugin` 通过 WHOLE_ARCHIVE 保留注册对象；PSD 可选。崩溃上报默认关闭，CocoStudio reader 已移除，管理 UI 仍使用 cocos UI。
 - 标准库/图像库/编解码依赖以 `vcpkg.json`、`vcpkg-configuration.json` 和各模块 CMake 为准；overlay ports 也包含自定义补丁。
@@ -54,7 +54,7 @@ Windows 入口 `platforms/windows/main.cpp` 创建 TVPAppDelegate；脚本入口
 ZIP 读取器使用自身格式类型及 zlib，不再包含 cocos 的 minizip 头。完整应用的其他 cocos/archive 消费者仍保留。
 `archives` 测试范围可独立配置 ZIP/TAR；同时开启工具时增加 XP3 回归，见[构建指南](building.md#独立归档测试)。
 
-`scripts/check_core_module_deps.py` 已恢复，检查 9 个 foundation 目标的显式 CMake 链接及直接平台包含。
+`scripts/check_core_module_deps.py` 已恢复，检查 10 个 foundation 目标的显式 CMake 链接及直接平台包含。
 它不解析所有生成表达式或传递头，也不代表 domain 层既有环已消除。
 
-现有测试由 `tests/CMakeLists.txt` 添加 movie、visual、tjs2 和插件子目录；核对时 visual 的 SOURCES 为空。不能把这个目录的存在当作已有图像兼容回归。
+`imageops` 测试范围仅配置 `core_imageops` 与 Catch2，不添加 TJS、日志或平台目标；其 vcpkg features 为 tests/imageops，见 [ImageOps](imageops.md)。默认 full 测试也注册这组像素用例。依赖守卫额外拒绝渲染器/插件中的直接 OpenCV 调用；完整渲染路径与游戏画面仍需单独回归。

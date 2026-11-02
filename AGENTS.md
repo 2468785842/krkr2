@@ -11,6 +11,7 @@ KrKr2 是 C++17 的跨平台吉里吉里运行环境。先读 [README_CN.md](REA
 | `cpp/core/tjs2/` | TJS2 编译、字节码、值、对象、原生绑定与执行 |
 | `cpp/core/base/` | 脚本入口、事件、KAG、系统启动；部分存储实现仍在此目录 |
 | `cpp/core/io/` · `storage/` · `archive/` | 文件后端、存储、XP3/ZIP/7z/TAR 与工具专用存储 |
+| `cpp/core/imageops/` | 不暴露 OpenCV 类型的 CPU 图像接口与现有 OpenCV 后端 |
 | `cpp/core/visual/` | Layer/Bitmap、字体、渲染、混合、转场、窗口接口 |
 | `cpp/core/environ/` | 平台实现、cocos 应用壳、输入、窗口及模拟器 UI |
 | `cpp/core/sound/` · `movie/` | 音频、视频、FFmpeg 集成 |
