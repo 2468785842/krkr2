@@ -36,7 +36,7 @@ Windows 入口 `platforms/windows/main.cpp` 创建 TVPAppDelegate；脚本入口
 - 根 CMake 使用 C++17。`cpp/core/CMakeLists.txt` 的 `krkr2core` 为 INTERFACE 聚合目标，不是单个已隔离实现库。
 - cocos2d 除窗口/绘制外，还被 UI、配置、文件后端、Android JNI 辅助及视频等路径使用；移除它不只是改启动函数。
 - `environ/impl/TVPWindow.h` 的接口仍返回 `cocos2d::Node*`。抽象层本身也需要去除后端类型。
-- CPU 图像操作已集中到 `imageops/ImageOps_opencv.cpp`；软件/OpenGL 渲染器通过不含 OpenCV 类型的 `ImageOps.h` 调用缩放、模糊、仿射、透视及矩阵求解。当前后端仍链接 OpenCV core/imgproc，算法尚未替换。
+- CPU 图像操作已集中到 `imageops/ImageOps_opencv.cpp`；软件/OpenGL 渲染器通过不含 OpenCV 类型的 `ImageOps.h` 调用缩放、模糊、仿射、透视及矩阵求解。最近邻 resize 的像素采样已用原生 C++ 实现；其他算法及并行调度仍链接 OpenCV core/imgproc。
 - dev 已删除旧 `environ/sdl/tvpsdl.cpp`；当前没有 SDL 后端，vcpkg 清单也未声明 SDL。
 - 内建插件实现源只属于各自静态库，`krkr2plugin` 通过 WHOLE_ARCHIVE 保留注册对象；PSD 可选。崩溃上报默认关闭，CocoStudio reader 已移除，管理 UI 仍使用 cocos UI。
 - 标准库/图像库/编解码依赖以 `vcpkg.json`、`vcpkg-configuration.json` 和各模块 CMake 为准；overlay ports 也包含自定义补丁。

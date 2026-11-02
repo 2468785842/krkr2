@@ -1,0 +1,506 @@
+{
+  "date": "2026-11-02",
+  "host": {
+    "os": "Debian 13 Linux x86_64",
+    "cpu": "AMD EPYC 9V74（容器可用 3 CPU）",
+    "compiler": "GCC 14.2",
+    "cmake": "3.31.6",
+    "build": "Release",
+    "catch2": "3.7.1"
+  },
+  "opencv": {
+    "version": "4.7.0",
+    "source_commit": "725e440d278aca07d35a5e8963ef990572b07316",
+    "modules": [
+      "core",
+      "imgproc"
+    ],
+    "link": "static",
+    "openmp": true,
+    "cpu_baseline": "SSE2",
+    "cpu_dispatch": "NONE",
+    "optional_backends": "IPP/ITT/OpenCL/LAPACK/Eigen/ADE、图像编解码与 GUI 关闭",
+    "package_note": "临时目录构建真实上游库；安装 Config 补充 OpenMP 链接声明，与 vcpkg 4.7.0#6 的导出处理一致。不是固定 vcpkg port 构建，不能替代 CI。"
+  },
+  "implementation_commit": "5c646f407654952b4197aab204f951f1308ffe77",
+  "reference_commit": "4a4a6157fc16391868c95c95542ef218c3806edb",
+  "reference": "同进程直接 OpenCV 4.7.0 调用；不是完整应用前后构建或帧率比较",
+  "workload": {
+    "small": {
+      "source": [
+        320,
+        240,
+        4
+      ],
+      "pitch_bytes": 1296,
+      "resize_destination": [
+        217,
+        157
+      ],
+      "blur_kernel": [
+        9,
+        9
+      ],
+      "warps": "轻微倾斜四点，320x240，含矩阵求解/输出分配",
+      "order": "预热，三轮交替先后，固定单线程"
+    },
+    "large": {
+      "source": [
+        3840,
+        2160,
+        4
+      ],
+      "source_pitch_bytes": 15376,
+      "destination": [
+        1920,
+        1080,
+        4
+      ],
+      "destination_pitch_bytes": 7696
+    },
+    "threads": "传入 cv::setNumThreads 的配置参数，不代表所有平台实际调度线程数"
+  },
+  "serial_candidate": {
+    "status": "已弃用；仅作本轮选择依据",
+    "single_thread": {
+      "opencv": "4.7.0",
+      "threads": 1,
+      "iterations": 100,
+      "rounds": 3,
+      "cases": [
+        {
+          "name": "resize_nearest_rgba",
+          "direct_us": [
+            14.399,
+            14.435,
+            15.655
+          ],
+          "imageops_us": [
+            14.634,
+            15.203,
+            14.783
+          ]
+        },
+        {
+          "name": "resize_linear_rgba",
+          "direct_us": [
+            55.063,
+            54.106,
+            54.042
+          ],
+          "imageops_us": [
+            54.727,
+            59.217,
+            54.212
+          ]
+        },
+        {
+          "name": "box_9x9_rgba",
+          "direct_us": [
+            130.509,
+            129.513,
+            127.888
+          ],
+          "imageops_us": [
+            129.702,
+            127.095,
+            129.432
+          ]
+        },
+        {
+          "name": "warp_affine_rgba",
+          "direct_us": [
+            283.334,
+            284.334,
+            281.277
+          ],
+          "imageops_us": [
+            284.443,
+            278.3,
+            279.288
+          ]
+        },
+        {
+          "name": "warp_perspective_rgba",
+          "direct_us": [
+            376.375,
+            377.506,
+            425.805
+          ],
+          "imageops_us": [
+            406.091,
+            375.572,
+            424.266
+          ]
+        },
+        {
+          "name": "resize_nearest_4k_to_1080p_rgba",
+          "direct_us": [
+            1261.727,
+            1299.379,
+            1303.428
+          ],
+          "imageops_us": [
+            1436.014,
+            1337.222,
+            1276.717
+          ]
+        }
+      ]
+    },
+    "three_threads": {
+      "opencv": "4.7.0",
+      "threads": 3,
+      "iterations": 100,
+      "rounds": 3,
+      "cases": [
+        {
+          "name": "resize_nearest_rgba",
+          "direct_us": [
+            16.261,
+            19.462,
+            24.169
+          ],
+          "imageops_us": [
+            14.587,
+            14.668,
+            18.473
+          ]
+        },
+        {
+          "name": "resize_linear_rgba",
+          "direct_us": [
+            67.916,
+            68.788,
+            63.702
+          ],
+          "imageops_us": [
+            66.563,
+            65.39,
+            69.051
+          ]
+        },
+        {
+          "name": "box_9x9_rgba",
+          "direct_us": [
+            128.644,
+            135.334,
+            130.327
+          ],
+          "imageops_us": [
+            132.443,
+            131.886,
+            132.73
+          ]
+        },
+        {
+          "name": "warp_affine_rgba",
+          "direct_us": [
+            296.704,
+            283.02,
+            278.53
+          ],
+          "imageops_us": [
+            287.218,
+            283.858,
+            274.852
+          ]
+        },
+        {
+          "name": "warp_perspective_rgba",
+          "direct_us": [
+            386.472,
+            378.973,
+            378.233
+          ],
+          "imageops_us": [
+            379.441,
+            379.443,
+            378.548
+          ]
+        },
+        {
+          "name": "resize_nearest_4k_to_1080p_rgba",
+          "direct_us": [
+            539.534,
+            431.047,
+            417.761
+          ],
+          "imageops_us": [
+            1260.702,
+            1297.748,
+            1535.806
+          ]
+        }
+      ]
+    }
+  },
+  "current": {
+    "single_thread": {
+      "opencv": "4.7.0",
+      "threads": 1,
+      "iterations": 100,
+      "rounds": 3,
+      "cases": [
+        {
+          "name": "resize_nearest_rgba",
+          "direct_us": [
+            15.151,
+            16.144,
+            15.501
+          ],
+          "imageops_us": [
+            15.449,
+            15.689,
+            26.953
+          ]
+        },
+        {
+          "name": "resize_linear_rgba",
+          "direct_us": [
+            56.771,
+            56.969,
+            56.829
+          ],
+          "imageops_us": [
+            56.905,
+            56.52,
+            56.866
+          ]
+        },
+        {
+          "name": "box_9x9_rgba",
+          "direct_us": [
+            127.751,
+            126.541,
+            125.999
+          ],
+          "imageops_us": [
+            126.16,
+            126.075,
+            128.816
+          ]
+        },
+        {
+          "name": "warp_affine_rgba",
+          "direct_us": [
+            300.964,
+            306.096,
+            288.891
+          ],
+          "imageops_us": [
+            403.2,
+            308.585,
+            274.445
+          ]
+        },
+        {
+          "name": "warp_perspective_rgba",
+          "direct_us": [
+            370.46,
+            378.092,
+            370.382
+          ],
+          "imageops_us": [
+            373.214,
+            527.244,
+            378.369
+          ]
+        },
+        {
+          "name": "resize_nearest_4k_to_1080p_rgba",
+          "direct_us": [
+            1425.578,
+            1474.79,
+            1321.745
+          ],
+          "imageops_us": [
+            1373.108,
+            1463.218,
+            1373.474
+          ]
+        }
+      ]
+    },
+    "three_threads": {
+      "opencv": "4.7.0",
+      "threads": 3,
+      "iterations": 100,
+      "rounds": 3,
+      "cases": [
+        {
+          "name": "resize_nearest_rgba",
+          "direct_us": [
+            14.769,
+            15.134,
+            14.544
+          ],
+          "imageops_us": [
+            14.968,
+            16.34,
+            17.107
+          ]
+        },
+        {
+          "name": "resize_linear_rgba",
+          "direct_us": [
+            58.176,
+            54.715,
+            56.322
+          ],
+          "imageops_us": [
+            57.156,
+            55.777,
+            57.701
+          ]
+        },
+        {
+          "name": "box_9x9_rgba",
+          "direct_us": [
+            133.747,
+            134.892,
+            134.687
+          ],
+          "imageops_us": [
+            133.641,
+            139.467,
+            147.477
+          ]
+        },
+        {
+          "name": "warp_affine_rgba",
+          "direct_us": [
+            301.02,
+            290.04,
+            311.511
+          ],
+          "imageops_us": [
+            310.728,
+            288.03,
+            311.181
+          ]
+        },
+        {
+          "name": "warp_perspective_rgba",
+          "direct_us": [
+            406.818,
+            415.956,
+            388.671
+          ],
+          "imageops_us": [
+            392.167,
+            401.518,
+            390.356
+          ]
+        },
+        {
+          "name": "resize_nearest_4k_to_1080p_rgba",
+          "direct_us": [
+            447.435,
+            445.029,
+            830.192
+          ],
+          "imageops_us": [
+            599.47,
+            805.316,
+            804.521
+          ]
+        }
+      ]
+    },
+    "three_threads_repeat": {
+      "opencv": "4.7.0",
+      "threads": 3,
+      "iterations": 100,
+      "rounds": 3,
+      "cases": [
+        {
+          "name": "resize_nearest_rgba",
+          "direct_us": [
+            14.618,
+            14.409,
+            15.13
+          ],
+          "imageops_us": [
+            15.738,
+            16.483,
+            15.991
+          ]
+        },
+        {
+          "name": "resize_linear_rgba",
+          "direct_us": [
+            53.781,
+            55.661,
+            53.457
+          ],
+          "imageops_us": [
+            57.316,
+            55.139,
+            53.917
+          ]
+        },
+        {
+          "name": "box_9x9_rgba",
+          "direct_us": [
+            127.412,
+            126.213,
+            129.469
+          ],
+          "imageops_us": [
+            126.851,
+            126.577,
+            126.474
+          ]
+        },
+        {
+          "name": "warp_affine_rgba",
+          "direct_us": [
+            278.488,
+            280.732,
+            279.118
+          ],
+          "imageops_us": [
+            290.826,
+            275.977,
+            277.314
+          ]
+        },
+        {
+          "name": "warp_perspective_rgba",
+          "direct_us": [
+            375.996,
+            370.246,
+            373.766
+          ],
+          "imageops_us": [
+            378.267,
+            372.7,
+            374.514
+          ]
+        },
+        {
+          "name": "resize_nearest_4k_to_1080p_rgba",
+          "direct_us": [
+            573.159,
+            803.361,
+            824.086
+          ],
+          "imageops_us": [
+            445.899,
+            770.637,
+            440.87
+          ]
+        }
+      ]
+    }
+  },
+  "limits": [
+    "微基准，未测整帧或游戏",
+    "未测全量/冷构建或包体",
+    "共享容器样本可能受调度影响，不能声称提速",
+    "OpenCV 本机只用 SSE2，不能推断发行版 AVX2 或 macOS 后端性能",
+    "多线程样本明显波动，不宣称提速；保留全部样本",
+    "串行候选在大图相对并行参考约慢三倍，最终实现保留原后端任务调度"
+  ]
+}

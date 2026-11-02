@@ -66,10 +66,36 @@ jobs:
         with:
           key: ${{ github.job }}-${{ matrix.os }}
 
+      - name: Configure Windows
+        run: cmake --preset="Windows Release Config" -DENABLE_TESTS=OFF -DBUILD_TOOLS=OFF
+
       - name: Build Windows
+        run: cmake --build --preset="Windows Release Build"
+
+      - name: Verify renderer compilation scope
+        shell: bash
         run: |
-          cmake --preset="Windows Release Config" -DENABLE_TESTS=OFF -DBUILD_TOOLS=OFF
-          cmake --build --preset="Windows Release Build"
+          python - <<'PYTHON'
+          import json, pathlib
+          root = pathlib.Path('out/windows/release')
+          commands = json.loads((root / 'compile_commands.json').read_text(encoding='utf-8'))
+          files = [c['file'].replace('\\', '/') for c in commands]
+          for source in ('visual/RenderManager.cpp', 'visual/ogl/RenderManager_ogl.cpp',
+                         'imageops/ImageOps.cpp', 'imageops/ImageOps_opencv.cpp'):
+              matches = [p for p in files if p.endswith('/cpp/core/' + source)]
+              assert len(matches) == 1, (source, matches)
+          print('Full application includes both renderers and both ImageOps sources exactly once.')
+          PYTHON
+
+      - name: Upload build metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-metadata
+          path: |
+            out/windows/release/compile_commands.json
+            out/windows/release/vcpkg_installed/vcpkg/status
+          if-no-files-found: ignore
 
       - name: Upload artifacts
         if: ${{ !env.ACT && success() }}

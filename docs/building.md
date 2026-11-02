@@ -90,7 +90,7 @@ vcpkg 选择 foundation/tests/archives features；基础依赖仍含 Boost.Local
 
 ## 独立图像测试
 
-使用新目录及 `-DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=imageops`，构建 `imageops_tests` 后运行 CTest。该范围仅需 OpenCV core/imgproc 与 Catch2，不配置 TJS、日志、存储或 cocos。完整命令、像素对照和可选微基准见 [ImageOps](imageops.md)。
+使用新目录及 `-DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=imageops`，构建 `imageops_tests` 后运行 CTest。该范围仍需 OpenCV core/imgproc（其余算法及调度）与 Catch2，不配置 TJS、日志、存储或 cocos。完整命令、像素对照和可选微基准见 [ImageOps](imageops.md)。
 
 ## 按改动选择验证
 

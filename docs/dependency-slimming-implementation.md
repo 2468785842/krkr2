@@ -118,3 +118,24 @@ OpenCV core/imgproc 保留为后端，删除 layerex_draw 未使用的总头；�
 仅含 catch2、opencv4、zlib 与三个 vcpkg host 构建辅助 port，无 Boost、日志、cocos 或 FFmpeg。
 这些元数据及 CTest 日志分别保存在 imageops-tests-* 与 headless-tests-* 六份附件中。
 固定 port 在 macOS 明确禁用 OpenMP，未把它当作三平台相同的并行后端；本轮也未裁剪 OpenCV port 的内部模块构建。
+
+## 最近邻 resize 原生化续批
+
+基线 `4a4a615`，实现 `32a3009` 与并行修正 `5c646f4`。公共校验/缓冲区和最近邻像素采样迁入
+不包含 OpenCV 的 `ImageOps.cpp`，保留两次 double 除法舍入、Gray8/RGBA8、pitch、ROI、未对齐与恒等复制行为。
+内部行任务接口仍复用 OpenCV 同步调度；Area/Linear/Cubic、blur、warp 与矩阵算法尚未替换，vcpkg 依赖没有减少。
+依赖守卫额外拒绝原生源和内部头引入 OpenCV。
+
+本机 13 项图像用例、41,377 个断言通过，含 4 万组最近邻尺寸对照及请求 1/3 线程的大图用例；
+ASan/UBSan 启用泄漏检测也通过，参考 OpenCV 库未启用 sanitizer。原生源只使用标准头的 C++17 语法检查通过。
+微基准及限制见 [ImageOps](imageops.md)；串行大图回退促使本批保留并行调度，未宣称运行/包体收益。
+
+三平台 [最近邻 CI](https://github.com/2468785842/krkr2/actions/runs/41374071238)（`5c646f4`）六个任务均通过：
+各平台 13 项图像 CTest 和 9 项归档/XP3 CTest，图像任务核对到三个项目编译源；
+实际 vcpkg 清单仍是 catch2、opencv4、zlib 和三个 host 辅助 port，无额外引擎依赖。
+Windows 完整应用 workflow 拆分配置与编译步骤，成功链接后检查两个真实渲染器及两个 ImageOps 源各出现一次，
+并上传编译清单与依赖状态；该检查不把链接等同于脚本/游戏画面验收。
+
+另已启动基线 `4a4a615` 的 [Windows 完整构建](https://github.com/2468785842/krkr2/actions/runs/41372678650)。
+截至本条记录（2026-11-02 01:49 UTC）仍在旧 workflow 的 Build Windows 步骤，尚未取得配置/编译/链接结论；
+不计为完整引擎通过，也不能替代用本轮新提交重跑消费者与脚本画面对照。

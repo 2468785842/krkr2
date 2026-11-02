@@ -2,7 +2,7 @@
 
 评估日期：2026-11-01。源码基线：合并后的 `853ec7d`，包含远端 dev `0a80f3f`。
 本文保留初始源码审计及迁移提案，实际实施见下方记录；未测得可归因于本轮的体积或构建耗时收益。
-后续实施：已加入 XP3/字符串/归档测试独立配置、依赖功能拆分、可选 PSD/上报、插件源去重与注册对象保留、CocoStudio 残留清理、公共头与生成规则优化；ZIP 读取器与共享句柄缓存也已脱离 cocos/XP3 的反向依赖。见 [实施记录](dependency-slimming-implementation.md)。下文审计表保留评估时的源码现状；ImageOps 接口及像素对照已落地，OpenCV 算法与平台后端替换仍待实施。
+后续实施：已加入 XP3/字符串/归档测试独立配置、依赖功能拆分、可选 PSD/上报、插件源去重与注册对象保留、CocoStudio 残留清理、公共头与生成规则优化；ZIP 读取器与共享句柄缓存也已脱离 cocos/XP3 的反向依赖。见 [实施记录](dependency-slimming-implementation.md)。下文审计表保留评估时的源码现状；ImageOps 接口及像素对照已落地，最近邻 resize 采样已用原生 C++ 实现，其余 OpenCV 算法、调度与平台后端替换仍待实施。
 原有路线见 [后端精简](backend-modernization.md)；本文补充具体依赖决策和构建边界。
 
 ## 建议结论
@@ -52,7 +52,7 @@ SDL3 不替代 Layer 混合、CPU 图像算法、字体排版和媒体解码；�
 | 仿射/透视 | 小矩阵求解 + 逆映射采样，复用裁剪与插值内核 | 奇异矩阵、透明边界、透视除法、CPU 可读回结果 |
 
 stb_image_resize2 只作为缩放候选，不能单独覆盖模糊、仿射和透视，插值也不保证与 OpenCV 逐像素相同。GPU 路径仍有 CPU 缩放/矩阵计算，不能只修改软件渲染器。
-当前已登记 `ImageOpsTest.cpp` 并提供独立 imageops 测试范围，具体覆盖与未验证项见 [ImageOps](imageops.md)。上述第三阶段算法替换尚未实施。
+当前已登记 `ImageOpsTest.cpp` 并提供独立 imageops 测试范围，具体覆盖与未验证项见 [ImageOps](imageops.md)。第三阶段已实现最近邻 resize 采样，保留旧 double 舍入及后端并行调度；其他算法尚未替换。
 
 ### FFmpeg 与格式库
 
