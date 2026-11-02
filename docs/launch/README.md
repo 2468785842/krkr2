@@ -1,6 +1,6 @@
 # KrKr2 启动与命令行层
 
-> **状态：** 设计草案（待实现）  
+> **状态：** Desktop L1 已实现，其余为设计草案。实际可用语法、代码边界及验证见 [Desktop CLI](desktop-cli.md)。
 > **原则：** argparse 管外壳语法 · TVPGetCommandLine 管引擎运行时 · 适配器单向灌入 · Desktop CLI / Mobile Intent 共用 `apply()`
 
 ---
@@ -11,10 +11,10 @@ KrKr2 当前启动参数来源分散：
 
 | 来源 | 现状 | 问题 |
 |------|------|------|
-| `platforms/*/main.cpp` | `argv[1]` → `MainFileSelectorForm::filePath` | 各平台不一致 |
-| `TVPCheckStartupArg()` | 仅 Windows 较完整；Linux/macOS 恒 `false` | 无统一入口 |
+| `platforms/*/main.cpp` | Desktop 共用 PrepareDesktopLaunch，支持 --game / --xp3 / 位置参数 | 尚无 launch.json / Intent 适配 |
+| `TVPCheckStartupArg()` | Desktop 仅保留平台启动服务；移动端保留 | 命令行解析已移至 Launch 层 |
 | `TVPProgramArguments` | `TVPGetCommandLine` / `TVPSetCommandLine` | 吉里吉里兼容层，**不应删除** |
-| `PushAllCommandlineArguments()` | **空实现** | argv 未进 core |
+| `PushAllCommandlineArguments()` | 重放初始化前通过 TVPSetCommandLine 设置的启动参数 | 保持初始化重建参数后的值及优先级 |
 | `GlobalConfigManager` | tinyxml2 XML | 设置 UI 用，与 CLI 未统一 |
 
 新方向：

@@ -8,6 +8,8 @@
 | 代码与依赖地图 | [当前架构](architecture.md) | 依据当前源码，含历史文档修正 |
 | 编译与验证 | [构建与验证](building.md) · [FAQ](FAQ.md) | 可执行命令、测试边界、基线记录 |
 | 后端精简 | [迁移路线与任务](backend-modernization.md) | 提案及验收；尚未实现新后端 |
+| UI 与启动迁移 | [UI 方案](ui/README.md) · [游戏验证与审阅](ui/testing.md) · [管理界面开关](ui/optional-management-ui.md) | 目标架构草案及本地游戏插装工具 |
+| 桌面启动 | [Desktop CLI（L1）](launch/desktop-cli.md) | 目录/归档直启、兼容参数、错误退出码及独立测试 |
 | 依赖瘦身 | [依赖审计与替代方案](dependency-slimming.md) · [实施记录](dependency-slimming-implementation.md) | dev 源码证据、优先级、候选库与测量要求 |
 | 图像模块 | [ImageOps 接口与验证](imageops.md) | 独立构建、像素契约、微基准及剩余边界 |
 | 外部研究 | [参考资料与适用边界](references.md) | 教程、二开与原版资料 |

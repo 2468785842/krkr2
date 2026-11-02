@@ -139,3 +139,41 @@ Windows 完整应用 workflow 拆分配置与编译步骤，成功链接后检�
 另已启动基线 `4a4a615` 的 [Windows 完整构建](https://github.com/2468785842/krkr2/actions/runs/41372678650)。
 截至本条记录（2026-11-02 01:49 UTC）仍在旧 workflow 的 Build Windows 步骤，尚未取得配置/编译/链接结论；
 不计为完整引擎通过，也不能替代用本轮新提交重跑消费者与脚本画面对照。
+
+## Boost.Locale 包含范围续批（2026-11-02）
+
+基于同步后的 `267112e`。`cpp/core/tjs2/tjsConfig.cpp` 与
+`cpp/core/environ/win32/Platform.cpp` 只调用 UTF 转换，改为直接包含
+`boost/locale/encoding_utf.hpp`；`cpp/plugins/psbfile/PSBEnums.h` 和
+`PSBExtension.h` 的大小写转换改为包含 `boost/locale/conversion.hpp`。
+`PSBEnums.h` 显式包含自身使用的 `<string_view>`。函数、默认 locale、
+错误处理和链接依赖均保持原样，未用 ASCII 转换替代 Unicode 大小写语义。
+当前 `cpp/` 已无 `boost/locale.hpp` 总头，Boost.Locale 库仍有消费者。
+
+同机 MSVC 19.44、C++17、仓库现有 x64-windows-static-md 依赖，对只含一个
+include 的独立翻译单元执行 `cl /nologo /std:c++17 /utf-8 /showIncludes /Zs`
+（`/I` 指向 `out/windows/debug/vcpkg_installed/x64-windows-static-md/include`）：
+总头报告 232 条包含，UTF 子头 114 条，conversion 子头 139 条，三者均通过语法检查。
+这是独立头文件的解析范围对照，不能相加当作完整翻译单元的收益，也不代表编译耗时、
+包体或运行性能提升。原始日志在 `out/windows/locale-header-audit/`。
+
+完整应用验证另外发现 `cpp/core/base/StorageIntf.cpp` 在归档解耦后仍通过
+`XP3Archive.h` 调用 `TVPClearXP3SegmentCache`，而完整存储目标未声明 XP3 依赖，
+MSVC 报 C1083。为完整 `core_storage` 补充 PRIVATE `archive_xp3` 链接，
+提供头文件路径和缓存清理符号；共享 `core_storage_archive` 不依赖格式读取器，
+工具与无窗口测试的精简边界保持不变。
+
+验证：`cmake --build out/windows/strings-only --target tjsString -j 6` 通过，
+`ctest --test-dir out/windows/strings-only -N` 确认 2 项，
+`ctest --test-dir out/windows/strings-only --output-on-failure --no-tests=error` 2/2 通过。
+首次在链接完成前启动 CTest 遇到文件锁，链接结束后重跑通过。
+clang-format 20.1.8 检查四个 Boost 包含修改文件、`git diff --check` 和
+`python scripts/check_core_module_deps.py` 通过；依赖检查仅覆盖其声明范围。
+
+完整验证命令为 `cmake --build out/windows/engine-config-check --target krkr2 psbfile-dll -j 6`。
+另为 `core_kag` 添加私有核心头路径，以显式满足 `utils/DebugIntf.h` 的包含；
+`PSBValue.h` 添加直接使用的 `<cassert>`，不再依赖 Boost 总头间接提供 assert。
+重试确认 StorageIntf、KAGParser、ImageOps、软件/OpenGL 渲染器及 Windows Platform 源编译通过。
+随后 PSB 编译遇到现有依赖安装目录缺失 `spdlog/common.h`（实际检查目录亦不存在），
+完整应用/PSB 最终链接及 PSB 测试未完成。日志见 `out/windows/header-slim-final.log`。
+未修改全局工具链或重新安装依赖；Linux/macOS/Android 和实际游戏未验证。

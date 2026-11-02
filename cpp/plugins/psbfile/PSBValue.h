@@ -3,6 +3,7 @@
 //
 #pragma once
 
+#include <cassert>
 #include <optional>
 #include <utility>
 #include <unordered_map>

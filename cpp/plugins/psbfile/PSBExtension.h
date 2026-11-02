@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <vector>
-#include <boost/locale.hpp>
+#include <boost/locale/conversion.hpp>
 #include "tjs.h"
 
 #include "PSBEnums.h"

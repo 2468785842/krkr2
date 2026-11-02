@@ -12,7 +12,6 @@
 #include <shellapi.h>
 #include "RenderManager.h"
 #include <sys/utime.h>
-#include <boost/locale.hpp>
 #include "TVPLog.h"
 
 #pragma comment(lib, "psapi.lib")
@@ -86,60 +85,14 @@ std::string TVPGetDefaultFileDir() {
     return converter.to_bytes(buf);
 }
 
-int TVPCheckArchive(const ttstr &localname);
 void TVPCheckAndSendDumps(const std::string &dumpdir,
                           const std::string &packageName,
                           const std::string &versionStr);
 bool TVPCheckStartupArg() {
-    int argc;
-    const std::u16string argv = boost::locale::conv::utf_to_utf<char16_t>(
-        *CommandLineToArgvW(GetCommandLineW(), &argc));
-    //	__wgetmainargs(&argc, &argv, &env, 0, &info);
 #if KRKR2_ENABLE_CRASH_UPLOAD
     TVPCheckAndSendDumps(TVPGetDefaultFileDir() + "/dumps", "win32-test",
                          "test");
 #endif
-    if(argc > 1) {
-        if(TVPCheckExistentLocalFile(argv[1])) {
-            if(TVPCheckArchive(argv[1]) == 1) {
-                TVPMainScene::GetInstance()->startupFrom(
-                    converter.to_bytes(argv[1]));
-                return true;
-            }
-            return false;
-        }
-        bool bootable = false;
-        TVPListDir(converter.to_bytes(argv[1]),
-                   [&](const std::string &_name, int mask) {
-                       if(mask & (S_IFREG)) {
-                           std::string name(_name);
-                           std::transform(name.begin(), name.end(),
-                                          name.begin(), [](int c) -> int {
-                                              if(c <= 'Z' && c >= 'A')
-                                                  return c - ('A' - 'a');
-                                              return c;
-                                          });
-                           if(name == "startup.tjs") {
-                               bootable = true;
-                           }
-                       }
-                   });
-        for(int i = 2; i < argc; ++i) {
-            std::u16string str{ argv[i] };
-            size_t pos = str.find(u'=');
-            if(pos == str.npos) {
-                TVPSetCommandLine(ttstr{ argv[i] }.c_str(), "yes"_tss);
-            } else {
-                ttstr val = str.c_str() + pos + 1;
-                TVPSetCommandLine(str.substr(0, pos).c_str(), val);
-            }
-        }
-        if(bootable) {
-            TVPMainScene::GetInstance()->startupFrom(
-                converter.to_bytes(argv[1]));
-            return true;
-        }
-    }
     return false;
 }
 

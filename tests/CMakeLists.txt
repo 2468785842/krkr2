@@ -8,6 +8,15 @@ include(Catch)
 
 set(TEST_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
+if(KRKR2_TEST_SCOPE STREQUAL "launch")
+    add_subdirectory(unit-tests/core/launch)
+    return()
+endif()
+
+if(KRKR2_TEST_SCOPE STREQUAL "full")
+    add_subdirectory(unit-tests/core/launch)
+endif()
+
 if(KRKR2_TEST_SCOPE STREQUAL "imageops")
     add_subdirectory(unit-tests/core/visual)
     return()

@@ -2,6 +2,10 @@
 
 [← 索引](README.md)
 
+当前 L1 使用独立 C++17 解析库，实际支持 `--game`、`--xp3`、位置参数及引擎参数，
+详见 [已实现的 Desktop CLI](desktop-cli.md)。以下 argparse/config/version 骨架仍是提案，
+不是当前可执行选项表。
+
 ---
 
 ## 1. 依赖

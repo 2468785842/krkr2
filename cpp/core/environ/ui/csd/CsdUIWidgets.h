@@ -24,8 +24,12 @@ namespace Csd {
     cocos2d::ui::Widget *createListViewPopup(const cocos2d::Size &size,
                                              float scale);
     cocos2d::ui::Widget *createGameMenu(const cocos2d::Size &size, float scale);
+#if KRKR2_USE_COCOS_UI
     cocos2d::ui::Widget *createMenuList(const cocos2d::Size &size, float scale);
+#endif
+#if KRKR2_USE_COCOS_UI
     cocos2d::ui::Widget *createRecentListItem(const cocos2d::Size &size,
                                               float scale);
+#endif
 
 } // namespace Csd

@@ -3,6 +3,10 @@
 > **状态：** 设计草案（已修订）  
 > **原则：** 引擎 CLI 化 · 外壳 UI 可选且分离 · Mobile 设置与游戏分 Activity · 渐进替换 Cocos2d-x
 
+Desktop 已完成 [L1 启动入口](../launch/desktop-cli.md)：指定游戏直接启动，省略目标仍保留选择器。
+U1 已提供 [可选管理界面](optional-management-ui.md)：Desktop 可关闭选择器和设置页，游戏 UI 保留。
+下文 Launcher、RN、launch.json 与 krkr2-render 仍为目标架构。
+
 ---
 
 ## 背景
@@ -48,6 +52,8 @@ Cocos UI 已停更且表现力不足。**修订后的目标架构：**
 ---
 
 ## 阅读顺序
+
+实施前先看 [游戏测试与方案审阅](testing.md)：当前代码边界、隔离样本、脚本插装与画面验收。
 
 | 顺序 | 文档 | 内容 |
 |:----:|------|------|

@@ -94,6 +94,10 @@ vcpkg 选择 foundation/tests/archives features；基础依赖仍含 Boost.Local
 
 ## 按改动选择验证
 
+Desktop 启动层另有 `KRKR2_TEST_SCOPE=launch`，只构建 C++17 参数/路径解析与 Catch2，
+无需 Bison、TJS 或图形/媒体依赖。完整命令、真实进程错误检查和游戏回归见
+[Desktop CLI](launch/desktop-cli.md#自动验证)。
+
 | 改动 | 最低相关验证 |
 |---|---|
 | 文档 | 本地链接/路径、代码块中的预设与开关、`git diff --check` |
@@ -118,3 +122,10 @@ TJS 的 Bison、日期词表以及消息头统一在构建期生成；日期词�
 
 保留命令、退出码和最早的有效错误，区分依赖安装/配置/编译/链接/测试/游戏回归阶段。
 不要把“环境缺库”写成源码测试失败，也不要把未运行写成通过。本文建立时只核对命令与源码，未重新执行全平台完整构建。
+
+## 可选 Desktop 管理界面
+
+`KRKR2_USE_COCOS_UI` 默认 `ON`；配置为 `OFF` 可省略启动选择器和全局/游戏设置页面，
+通过 CLI 指定游戏。游戏内菜单及脚本对话框保留，Cocos 依赖仍存在。
+资源清单随开关同步；详细边界及验证见 [U1 管理界面开关](ui/optional-management-ui.md)。
+Android/iOS 暂不支持关闭。

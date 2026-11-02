@@ -225,6 +225,7 @@ namespace Csd {
 
     Widget *createEmpty(const cocos2d::Size &, float) { return nullptr; }
 
+#if KRKR2_USE_COCOS_UI
     Widget *createMainFileSelector(const cocos2d::Size &size, float scale) {
 
         const cocos2d::Size midLineSize(8 * scale, size.height);
@@ -271,6 +272,7 @@ namespace Csd {
 
         return root;
     }
+#endif
 
     Widget *createTableView(const cocos2d::Size &size, float) {
         const auto root = Widget::create();

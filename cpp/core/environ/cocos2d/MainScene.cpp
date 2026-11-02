@@ -16,7 +16,7 @@
 #include "ConfigManager/IndividualConfigManager.h"
 #include "Platform.h"
 #include "ui/ConsoleWindow.h"
-#include "ui/FileSelectorForm.h"
+#include <filesystem>
 #include "ui/DebugViewLayerForm.h"
 #include "Application.h"
 #include "ScriptMgnIntf.h"
@@ -607,7 +607,7 @@ bool TVPMainScene::startupFrom(const std::string &path) {
     IndividualConfigManager *pGlobalCfgMgr =
         IndividualConfigManager::GetInstance();
     pGlobalCfgMgr->UsePreferenceAt(
-        TVPBaseFileSelectorForm::pathSplit(path).first);
+        std::filesystem::u8path(path).parent_path().u8string());
     if(UINode->getChildrenCount()) {
         popUIForm(nullptr);
     }

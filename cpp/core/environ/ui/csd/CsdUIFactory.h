@@ -14,8 +14,10 @@ namespace Csd {
 
     cocos2d::ui::Widget *createEmpty(const cocos2d::Size &size, float scale);
 
+#if KRKR2_USE_COCOS_UI
     cocos2d::ui::Widget *createMainFileSelector(const cocos2d::Size &size,
                                                 float scale);
+#endif
     cocos2d::ui::Widget *createTableView(const cocos2d::Size &size,
                                          float scale);
     cocos2d::ui::Widget *createNaviBarWithMenu(const cocos2d::Size &size,

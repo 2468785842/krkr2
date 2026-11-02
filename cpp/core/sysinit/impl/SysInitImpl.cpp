@@ -159,7 +159,13 @@ void TVPBeforeSystemInit() {
     if(TVPGetCommandLine(TJS_W("-arcdelim"), &v))
         TVPArchiveDelimiter = ttstr(v)[0];
 
-    if(TVPIsExistentStorageNoSearchNoNormalize(TVPProjectDir)) {
+    // FileMedia's existence check also accepts directories. Do not treat a
+    // local project folder as an archive just because it exists.
+    if(TVPCheckExistentLocalFolder(TVPNativeProjectDir)) {
+        if(TVPProjectDir.IsEmpty() ||
+           TVPProjectDir[TVPProjectDir.length() - 1] != TJS_W('/'))
+            TVPProjectDir += TJS_W("/");
+    } else if(TVPIsExistentStorageNoSearchNoNormalize(TVPProjectDir)) {
         TVPProjectDir += TVPArchiveDelimiter;
     } else {
         TVPProjectDir += TJS_W("/");
@@ -456,6 +462,9 @@ static ttstr TVPParseCommandLineOne(const ttstr &i) {
 
 //---------------------------------------------------------------------------
 std::vector<ttstr> TVPProgramArguments;
+// Desktop adapters may set options before the first TVPGetCommandLine call.
+// Retain them while initialization rebuilds the stock in priority order.
+static std::vector<ttstr> TVPStartupProgramArguments;
 static bool TVPProgramArgumentsInit = false;
 static tjs_int TVPCommandLineArgumentGeneration = 0;
 static bool TVPDataPathDirectoryEnsured = false;
@@ -484,7 +493,11 @@ void TVPEnsureDataPathDirectory() {
 }
 
 //---------------------------------------------------------------------------
-static void PushAllCommandlineArguments() {}
+static void PushAllCommandlineArguments() {
+    TVPProgramArguments.insert(TVPProgramArguments.end(),
+                               TVPStartupProgramArguments.begin(),
+                               TVPStartupProgramArguments.end());
+}
 
 static void TVPApplyProgramLogLevelOption() {
     for(const auto &arg : TVPProgramArguments) {
@@ -616,29 +629,27 @@ bool TVPGetCommandLine(const tjs_char *name, tTJSVariant *value) {
 }
 
 //---------------------------------------------------------------------------
-void TVPSetCommandLine(const tjs_char *name, const ttstr &value) {
-    //	TVPInitProgramArgumentsAndDataPath(false);
-
-    tjs_int namelen = (tjs_int)TJS_strlen(name);
-    for(auto &TVPProgramArgument : TVPProgramArguments) {
-        if(!TJS_strncmp(TVPProgramArgument.c_str(), name, namelen)) {
-            if(TVPProgramArgument.c_str()[namelen] == TJS_W('=') ||
-               TVPProgramArgument.c_str()[namelen] == 0) {
-                // value found
-                TVPProgramArgument =
-                    ttstr(TVPProgramArgument.c_str(), namelen) + TJS_W("=") +
-                    value;
-                TVPCommandLineArgumentGeneration++;
-                if(TVPCommandLineArgumentGeneration == 0)
-                    TVPCommandLineArgumentGeneration = 1;
-                return;
-            }
+static void TVPStoreCommandLine(std::vector<ttstr> &arguments,
+                                const tjs_char *name, const ttstr &value) {
+    const tjs_int namelen = static_cast<tjs_int>(TJS_strlen(name));
+    for(auto &argument : arguments) {
+        if(!TJS_strncmp(argument.c_str(), name, namelen) &&
+           (argument.c_str()[namelen] == TJS_W('=') ||
+            argument.c_str()[namelen] == 0)) {
+            argument = ttstr(name) + TJS_W("=") + value;
+            return;
         }
     }
+    arguments.insert(arguments.begin(), ttstr(name) + TJS_W("=") + value);
+}
 
-    // value not found; insert argument into front
-    TVPProgramArguments.insert(TVPProgramArguments.begin(),
-                               ttstr(name) + TJS_W("=") + value);
+void TVPSetCommandLine(const tjs_char *name, const ttstr &value) {
+    // Own both inputs before replacing an entry that they may refer to.
+    const ttstr key(name), storedValue(value);
+    if(!TVPProgramArgumentsInit)
+        TVPStoreCommandLine(TVPStartupProgramArguments, key.c_str(),
+                            storedValue);
+    TVPStoreCommandLine(TVPProgramArguments, key.c_str(), storedValue);
     TVPCommandLineArgumentGeneration++;
     if(TVPCommandLineArgumentGeneration == 0)
         TVPCommandLineArgumentGeneration = 1;

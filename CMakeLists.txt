@@ -14,20 +14,25 @@ add_compile_definitions(
         $<$<NOT:$<CONFIG:Debug>>:NDEBUG>
 )
 
+option(KRKR2_USE_COCOS_UI "Build the optional Cocos launcher and preference pages" ON)
+if(NOT KRKR2_USE_COCOS_UI AND (ANDROID OR IOS))
+    message(FATAL_ERROR "KRKR2_USE_COCOS_UI=OFF currently requires a desktop CLI entry point")
+endif()
+
 option(KRKR2_BUILD_APP "Build the game runtime and bundled plugins" ON)
 option(ENABLE_TESTS "Build engine tests (desktop only)" ON)
 option(BUILD_TOOLS "Build command-line tools (desktop only)" ON)
-set(KRKR2_TEST_SCOPE "full" CACHE STRING "Test scope: full, strings, archives or imageops")
-set_property(CACHE KRKR2_TEST_SCOPE PROPERTY STRINGS full strings archives imageops)
-if(NOT KRKR2_TEST_SCOPE MATCHES "^(full|strings|archives|imageops)$")
-    message(FATAL_ERROR "KRKR2_TEST_SCOPE must be full, strings, archives or imageops")
+set(KRKR2_TEST_SCOPE "full" CACHE STRING "Test scope: full, strings, archives, imageops or launch")
+set_property(CACHE KRKR2_TEST_SCOPE PROPERTY STRINGS full strings archives imageops launch)
+if(NOT KRKR2_TEST_SCOPE MATCHES "^(full|strings|archives|imageops|launch)$")
+    message(FATAL_ERROR "KRKR2_TEST_SCOPE must be full, strings, archives, imageops or launch")
 endif()
 option(KRKR2_ENABLE_PSD "Build the PSD plugin" ON)
 option(KRKR2_ENABLE_CRASH_UPLOAD "Build optional crash report upload" OFF)
 
 # vcpkg installs dependencies during project(), before targets are configured.
 set(VCPKG_MANIFEST_NO_DEFAULT_FEATURES ON)
-if(KRKR2_BUILD_APP OR BUILD_TOOLS OR (ENABLE_TESTS AND NOT KRKR2_TEST_SCOPE STREQUAL "imageops"))
+if(KRKR2_BUILD_APP OR BUILD_TOOLS OR (ENABLE_TESTS AND NOT KRKR2_TEST_SCOPE MATCHES "^(imageops|launch)$"))
     list(APPEND VCPKG_MANIFEST_FEATURES foundation)
 endif()
 if(KRKR2_BUILD_APP OR (ENABLE_TESTS AND KRKR2_TEST_SCOPE STREQUAL "full"))
@@ -86,9 +91,12 @@ if(NOT KRKR2_BUILD_APP AND (NOT ENABLE_TESTS OR NOT KRKR2_TEST_SCOPE STREQUAL "f
     include(cmake/KrKr2Modules.cmake)
     include_directories(${KRKR2CORE_PATH}/common)
     add_compile_definitions(TJS_TEXT_OUT_CRLF __STDC_CONSTANT_MACROS USE_UNICODE_FSTRING)
-    if(BUILD_TOOLS OR NOT KRKR2_TEST_SCOPE STREQUAL "imageops")
+    if(BUILD_TOOLS OR NOT KRKR2_TEST_SCOPE MATCHES "^(imageops|launch)$")
         add_subdirectory(cpp/core/log)
         add_subdirectory(cpp/core/tjs2)
+    endif()
+    if(ENABLE_TESTS AND KRKR2_TEST_SCOPE STREQUAL "launch")
+        add_subdirectory(cpp/core/environ/launch)
     endif()
     if(ENABLE_TESTS AND KRKR2_TEST_SCOPE STREQUAL "imageops")
         add_subdirectory(cpp/core/imageops)
@@ -115,6 +123,8 @@ if(NOT KRKR2_BUILD_APP AND (NOT ENABLE_TESTS OR NOT KRKR2_TEST_SCOPE STREQUAL "f
         set(TEST_CONFIG_DIR ${CMAKE_CURRENT_BINARY_DIR})
         if(KRKR2_TEST_SCOPE STREQUAL "archives")
             add_subdirectory(tests/unit-tests/core/archive)
+        elseif(KRKR2_TEST_SCOPE STREQUAL "launch")
+            add_subdirectory(tests/unit-tests/core/launch)
         elseif(KRKR2_TEST_SCOPE STREQUAL "imageops")
             add_subdirectory(tests/unit-tests/core/visual)
         else()
@@ -187,8 +197,9 @@ if(KRKR2_BUILD_APP)
 
         set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
 
+        include(cmake/RuntimeAssets.cmake)
         if(WINDOWS OR APPLE)
-            cocos_mark_multi_resources(common_res_files RES_TO "Resources" FOLDERS ${GAME_RES_FOLDER})
+            cocos_mark_resources(FILES ${common_res_files} BASEDIR ${GAME_RES_FOLDER} RESOURCEBASE "Resources")
         endif()
 
         # mark app resources
@@ -214,7 +225,12 @@ if(KRKR2_BUILD_APP)
 
         if(LINUX OR WINDOWS)
             cocos_get_resource_path(APP_RES_DIR ${APP_NAME})
-            cocos_copy_target_res(${APP_NAME} LINK_TO ${APP_RES_DIR} FOLDERS ${GAME_RES_FOLDER})
+            add_custom_command(TARGET SYNC_RESOURCE-${APP_NAME} POST_BUILD
+                COMMAND ${Python_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_runtime_assets.py"
+                    --source "${GAME_RES_FOLDER}" --destination "${APP_RES_DIR}"
+                    --all "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-all.txt"
+                    --selected "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-selected.txt"
+                VERBATIM)
         endif()
     endif()
 

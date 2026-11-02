@@ -16,6 +16,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 )
 krkr2_target_include_base_headers(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PRIVATE
+    ${KRKR2_CORE_DIR}
     ${KRKR2_CORE_DIR}/visual
     ${KRKR2_CORE_DIR}/visual/impl
 )

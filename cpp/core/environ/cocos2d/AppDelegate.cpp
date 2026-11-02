@@ -4,8 +4,10 @@
 #include "MainScene.h"
 #include "Application.h"
 #include "Platform.h"
-#include "ui/GlobalPreferenceForm.h"
+#if KRKR2_USE_COCOS_UI
 #include "ui/MainFileSelectorForm.h"
+#endif
+#include "ConfigManager/PreferenceDefaults.h"
 #include "ConfigManager/LocaleConfigManager.h"
 
 #include "audio/include/AudioEngine.h"
@@ -13,6 +15,11 @@
 #include "EnvironFileBackendInit.h"
 #include "EngineArchiveInit.h"
 #include "DialogBackend.h"
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) ||                               \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) ||                                 \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+#include "launch/DesktopLaunch.h"
+#endif
 
 static cocos2d::Size designResolutionSize(960, 640);
 
@@ -110,10 +117,25 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     scene->scheduleOnce(
         [](float dt) {
             TVPMainScene::GetInstance()->unschedule("launch");
-            TVPGlobalPreferenceForm::Initialize();
+            TVPInitializeRuntimePreferences();
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) ||                               \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) ||                                 \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+            // Retain platform startup services (for example optional dump
+            // upload).
+            TVPCheckStartupArg();
+            const auto &target = krkr::launch::DesktopTarget();
+            if(!target.empty()) {
+                G_CoreLog.info("Direct game startup: {}", target);
+                TVPMainScene::GetInstance()->startupFrom(target);
+            } else {
+#else
             if(!TVPCheckStartupArg()) {
+#endif
+#if KRKR2_USE_COCOS_UI
                 TVPMainScene::GetInstance()->pushUIForm(
                     TVPMainFileSelectorForm::create());
+#endif
             }
         },
         0, "launch");

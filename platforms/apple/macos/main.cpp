@@ -3,7 +3,7 @@
 
 #include "environ/cocos2d/AppDelegate.h"
 #include "log/TVPInitLog.h"
-#include "ui/MainFileSelectorForm.h"
+#include "environ/launch/DesktopLaunch.h"
 
 USING_NS_CC;
 
@@ -12,11 +12,13 @@ int main(int argc, char *argv[]) {
     log_options.log_level = TVPExtractLogLevelFromArgv(argc, argv);
     TVPInitLogging(log_options);
 
-    if(argc > 1) {
-        TVPMainFileSelectorForm::filePath = argv[1];
-    }
+    const int launch = krkr::launch::PrepareDesktopLaunch(argc, argv);
+    if(launch >= 0)
+        return launch;
 
     static std::unique_ptr<TVPAppDelegate> pAppDelegate =
         std::make_unique<TVPAppDelegate>();
-    return pAppDelegate->run();
+    const int result = pAppDelegate->run();
+    return krkr::launch::DesktopExitCode() ? krkr::launch::DesktopExitCode()
+                                           : result;
 }

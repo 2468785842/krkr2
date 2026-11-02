@@ -15,6 +15,9 @@ platforms 启动 → environ/cocos2d 应用壳、UI 与窗口
 ```
 
 这是职责示意，当前模块链接仍有互依赖，不是已经实现的单向分层。
+Desktop 启动先经过 `environ/launch/` 的纯参数/路径解析与引擎适配；指定目标时
+适配器在 GTK/GL 初始化前校验归档，`AppDelegate` 在场景就绪后直调 `MainScene::startupFrom`，
+无目标仍保留原选择器。现状及命令见 [Desktop CLI](launch/desktop-cli.md)。移动端启动路径未迁移。
 Windows 入口 `platforms/windows/main.cpp` 创建 TVPAppDelegate；脚本入口在
 `cpp/core/base/ScriptMgnIntf.cpp`，包含源码执行、表达式、字节码加载及存储加载。
 
@@ -58,3 +61,7 @@ ZIP 读取器使用自身格式类型及 zlib，不再包含 cocos 的 minizip �
 它不解析所有生成表达式或传递头，也不代表 domain 层既有环已消除。
 
 `imageops` 测试范围仅配置 `core_imageops` 与 Catch2，不添加 TJS、日志或平台目标；其 vcpkg features 为 tests/imageops，见 [ImageOps](imageops.md)。默认 full 测试也注册这组像素用例。依赖守卫额外拒绝渲染器/插件中的直接 OpenCV 调用；完整渲染路径与游戏画面仍需单独回归。
+
+Desktop 管理界面可通过 `KRKR2_USE_COCOS_UI=OFF` 裁剪，
+运行时默认配置初始化独立于设置页面；游戏窗口、菜单及脚本对话框仍使用 Cocos。
+实现边界见 [U1 管理界面开关](ui/optional-management-ui.md)。

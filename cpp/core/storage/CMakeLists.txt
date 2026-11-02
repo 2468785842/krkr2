@@ -45,7 +45,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${UTILS_PATH}
     ${CMAKE_SOURCE_DIR}/cpp/core/environ
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC core_storage_archive)
+# 完整存储清理 XP3 段缓存；格式读取器仍只依赖共享归档基础层。
+target_link_libraries(${PROJECT_NAME} PUBLIC core_storage_archive PRIVATE archive_xp3)
 
 find_package(unrar CONFIG REQUIRED)
 find_package(LibArchive REQUIRED)

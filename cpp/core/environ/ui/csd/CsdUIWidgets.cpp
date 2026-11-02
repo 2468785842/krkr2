@@ -43,6 +43,7 @@ namespace Csd {
             return panel;
         }
 
+#if KRKR2_USE_COCOS_UI
         Layout *createMenuListRow(const LayoutCtx &ctx, const char *panelName,
                                   const char *btnName, const char *titleName,
                                   const char *titleText, const char *iconPath) {
@@ -81,6 +82,7 @@ namespace Csd {
 
             return panel;
         }
+#endif
 
         Layout *createFileManageMenuRow(const LayoutCtx &ctx,
                                         const char *panelName,
@@ -587,6 +589,7 @@ namespace Csd {
         return root;
     }
 
+#if KRKR2_USE_COCOS_UI
     Widget *createMenuList(const Size &size, float scale) {
         // 与 MenuList.csd 一致：宽 720，高度由 showMenu 按屏高换算后传入
         LayoutCtx ctx{ size.width > 0.f ? size : Size(kCanvasMenuListW, 0.f),
@@ -647,7 +650,9 @@ namespace Csd {
 
         return root;
     }
+#endif
 
+#if KRKR2_USE_COCOS_UI
     Widget *createRecentListItem(const Size &size, float scale) {
         LayoutCtx ctx{ size, scale };
         const float itemH = ctx.rowH(120, kCanvasRecentItemW);
@@ -753,5 +758,6 @@ namespace Csd {
 
         return root;
     }
+#endif
 
 } // namespace Csd

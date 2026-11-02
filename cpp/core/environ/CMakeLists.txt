@@ -28,6 +28,7 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/cocos2d/MainScene.cpp
     ${ENVIRON_PATH}/cocos2d/YUVSprite.cpp
 
+    ${ENVIRON_PATH}/ConfigManager/PreferenceDefaults.cpp
     ${ENVIRON_PATH}/ConfigManager/GlobalConfigManager.cpp
     ${ENVIRON_PATH}/ConfigManager/IndividualConfigManager.cpp
     ${ENVIRON_PATH}/ConfigManager/LocaleConfigManager.cpp
@@ -39,9 +40,6 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/ui/DebugViewLayerForm.cpp
     ${ENVIRON_PATH}/ui/FileSelectorForm.cpp
     ${ENVIRON_PATH}/ui/GameMainMenu.cpp
-    ${ENVIRON_PATH}/ui/GlobalPreferenceForm.cpp
-    ${ENVIRON_PATH}/ui/IndividualPreferenceForm.cpp
-    ${ENVIRON_PATH}/ui/MainFileSelectorForm.cpp
     ${ENVIRON_PATH}/ui/InGameMenuForm.cpp
     ${ENVIRON_PATH}/ui/MessageBox.cpp
     ${ENVIRON_PATH}/ui/PreferenceForm.cpp
@@ -55,6 +53,13 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/impl/SystemControl.cpp
     ${ENVIRON_PATH}/impl/TVPWindow.cpp
 )
+
+if(KRKR2_USE_COCOS_UI)
+    list(APPEND ENVIRON_SOURCE_FILES
+        ${ENVIRON_PATH}/ui/GlobalPreferenceForm.cpp
+        ${ENVIRON_PATH}/ui/IndividualPreferenceForm.cpp
+        ${ENVIRON_PATH}/ui/MainFileSelectorForm.cpp)
+endif()
 
 set(ENVIRON_HEADERS_DIR
     ${ENVIRON_PATH}/
@@ -74,8 +79,16 @@ endif()
 if(KRKR2_ENABLE_CRASH_UPLOAD)
     list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/DumpSend.cpp)
 endif()
+if(NOT (ANDROID OR IOS))
+    add_subdirectory(launch)
+    list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/launch/DesktopLaunch.cpp)
+endif()
 add_library(${PROJECT_NAME} STATIC ${ENVIRON_SOURCE_FILES})
+if(NOT (ANDROID OR IOS))
+    target_link_libraries(${PROJECT_NAME} PRIVATE core_launch)
+endif()
 target_compile_definitions(${PROJECT_NAME} PRIVATE
+    KRKR2_USE_COCOS_UI=$<BOOL:${KRKR2_USE_COCOS_UI}>
     KRKR2_ENABLE_CRASH_UPLOAD=$<BOOL:${KRKR2_ENABLE_CRASH_UPLOAD}>)
 target_include_directories(${PROJECT_NAME} PUBLIC ${ENVIRON_HEADERS_DIR})
 

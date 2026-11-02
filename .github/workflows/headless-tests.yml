@@ -3,7 +3,7 @@ name: Headless foundation tests
 on:
   push:
     branches: [main, dev]
-    paths: ['cpp/core/**', 'cpp/plugins/**', 'tests/**', 'tools/xp3/**', 'scripts/check_core_module_deps.py', 'cmake/**', 'CMakeLists.txt', 'vcpkg*.json', '.github/workflows/headless-tests.yml']
+    paths: ['cpp/core/**', 'cpp/plugins/**', 'tests/**', 'tools/xp3/**', 'tools/game-smoke/**', 'scripts/check_core_module_deps.py', 'cmake/**', 'CMakeLists.txt', 'vcpkg*.json', '.github/workflows/headless-tests.yml']
   pull_request:
     branches: [main, dev]
   workflow_dispatch:
@@ -128,4 +128,67 @@ jobs:
             out/imageops/Testing/Temporary/
             out/imageops/compile_commands.json
             out/imageops/vcpkg_installed/vcpkg/status
+          if-no-files-found: ignore
+
+  launch:
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.act/vcpkg-cache
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, platform: LINUX, triplet: x64-linux}
+          - {os: windows-2022, platform: WINDOWS, triplet: x64-windows-static-md}
+          - {os: macos-15, platform: MACOS, triplet: arm64-osx}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: launch-vcpkg-${{ runner.os }}-${{ matrix.triplet }}-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}
+          restore-keys: launch-vcpkg-${{ runner.os }}-${{ matrix.triplet }}-
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+      - name: Configure isolated launch parser
+        shell: bash
+        run: |
+          export VCPKG_ROOT="$VCPKG_INSTALLATION_ROOT"
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+          cmake -S . -B out/launch -G Ninja -D${{ matrix.platform }}=ON \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=launch
+      - name: Build and test launch parser and controller
+        shell: bash
+        run: |
+          cmake --build out/launch --target launch_tests --parallel 4
+          ctest --test-dir out/launch -N
+          ctest --test-dir out/launch --output-on-failure --no-tests=error
+          python -m unittest discover -s tools/game-smoke -p "test_*.py" -v
+      - name: Verify isolated launch dependency closure
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          root = pathlib.Path('out/launch')
+          status = (root / 'vcpkg_installed/vcpkg/status').read_text(encoding='utf-8')
+          ports = {line.split(': ', 1)[1] for line in status.splitlines() if line.startswith('Package: ')}
+          assert not any(p.startswith('boost-') for p in ports), ports
+          assert not ports.intersection({'cocos2dx', 'opencv4', 'ffmpeg', 'fmt', 'spdlog', 'oniguruma', 'libarchive', 'unrar', 'argparse'}), ports
+          commands = json.loads((root / 'compile_commands.json').read_text(encoding='utf-8'))
+          assert {pathlib.Path(c['file']).name for c in commands} == {'LaunchOptions.cpp', 'LaunchOptionsTest.cpp', 'PreferenceDefaultsTest.cpp'}
+          print('Launch parser closure verified:', sorted(ports))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: launch-tests-${{ matrix.platform }}
+          path: |
+            out/launch/Testing/Temporary/
+            out/launch/compile_commands.json
+            out/launch/vcpkg_installed/vcpkg/status
           if-no-files-found: ignore

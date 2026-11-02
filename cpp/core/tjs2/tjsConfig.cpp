@@ -13,7 +13,7 @@
 #include <clocale>
 
 #include <cassert>
-#include <boost/locale.hpp>
+#include <boost/locale/encoding_utf.hpp>
 #include "TVPLog.h"
 
 #ifdef _WIN32
