@@ -1,6 +1,6 @@
 # Core 模块解耦与 xp3 工具重构分析
 
-> 历史分析说明（2026-10-31 补充）：部分拆分已落地，当前 XP3 工具链接 `core_storage_tool`，不再直接链接 `core_base_module`。下文保留当时分析和阶段计划；当前结构以 [架构导航](architecture.md) 与模块 CMake 为准，后续工作见 [后端精简路线](backend-modernization.md)。
+> 历史分析说明（2026-11-02 更新）：部分拆分已落地，当前 XP3 工具显式链接 `core_storage_archive`、`archive_xp3`，不再链接 `core_base_module`。下文保留当时分析和阶段计划；当前结构以[架构导航](architecture.md)与模块 CMake 为准，后续工作见[后端精简路线](backend-modernization.md)。
 
 > **文档版本：** 2026-06-09  
 > **相关路径：** `cpp/core/`、`tools/xp3/`  

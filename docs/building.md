@@ -38,8 +38,8 @@ python tools/xp3/smoke_test.py tools/bin/win/dbg/xp3.exe
 使用新的构建目录可核实独立依赖安装；不要复用全量引擎的安装目录来证明最小闭包。此模式只添加日志、TJS2、消息、IO、XP3 和共享归档基础层，不配置 cocos/OpenCV/FFmpeg，也不需要 libarchive/unrar。Boost.Locale、fmt、spdlog、Oniguruma、zlib 和 argparse 等依赖仍存在。直接使用 vcpkg 命令时须显式选择 `--x-feature=engine` 等功能；CMake 会自动按构建开关选择。
 工具仅解包本地 XP3；工具专用 `TVPCreateStream` 通过文件后端重开只读归档句柄，不支持引擎存储介质、嵌套归档或写入，错误会抛出异常。共享引擎存储实现未改变。smoke 脚本生成原始及 zlib 索引/数据段，验证解包内容并检查无效签名行为；不等于全游戏兼容测试。
 
-2026-11-01 验证：Windows/MSVC 19.44、Debug、x64-windows-static-md，以上独立配置、`cmake --build out/windows/xp3 --target xp3 -j 6` 及 smoke 命令通过；再次构建输出 `ninja: no work to do`。独立 vcpkg 安装状态中没有 cocos2dx、opencv4、ffmpeg、catch2、libarchive、unrar，compile_commands 中没有 visual/movie/plugins 源码且没有重复源文件。首次安装使用部分本地缓存，未测量同机全量基线，不能据此宣称耗时缩减比例。
-完整引擎另用 `out/windows/engine-config-check`、`VCPKG_MANIFEST_INSTALL=OFF` 和现有 `out/windows/debug/vcpkg_installed` 检查配置，在 `cpp/core/base/CMakeLists.txt:60` 因 `Could NOT find LibXml2 (missing: LIBXML2_LIBRARY LIBXML2_INCLUDE_DIR)` 停止；后续已在隔离目录补齐 LibXml2，改用导入目标，并完成使用新裁剪 cocos 的应用链接，详见 [实施记录](dependency-slimming-implementation.md)。未重新安装整套引擎依赖。`python scripts/check_core_module_deps.py` 因 dev 已删除该文件而无法执行。Linux/macOS/Android 未验证。
+首批（2026-11-01）Windows 验证：MSVC 19.44、Debug、x64-windows-static-md，以上独立配置、`cmake --build out/windows/xp3 --target xp3 -j 6` 及 smoke 命令通过；再次构建输出 `ninja: no work to do`。独立 vcpkg 安装状态中没有 cocos2dx、opencv4、ffmpeg、catch2、libarchive、unrar，compile_commands 中没有 visual/movie/plugins 源码且没有重复源文件。首次安装使用部分本地缓存，未测量同机全量基线，不能据此宣称耗时缩减比例。
+完整引擎另用 `out/windows/engine-config-check`、`VCPKG_MANIFEST_INSTALL=OFF` 和现有 `out/windows/debug/vcpkg_installed` 检查配置，在 `cpp/core/base/CMakeLists.txt:60` 因 `Could NOT find LibXml2 (missing: LIBXML2_LIBRARY LIBXML2_INCLUDE_DIR)` 停止；后续已在隔离目录补齐 LibXml2，改用导入目标，并完成使用新裁剪 cocos 的应用链接，详见 [实施记录](dependency-slimming-implementation.md)。未重新安装整套引擎依赖。`python scripts/check_core_module_deps.py` 因 dev 已删除该文件而无法执行。该批尚未验证 Linux/macOS/Android；归档续批的独立验证见实施记录。
 
 Android 使用 README 所列 JDK/SDK/NDK，在对应平台运行 `platforms/android/gradlew`，例如：
 

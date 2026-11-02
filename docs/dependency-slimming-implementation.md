@@ -93,5 +93,9 @@ Linux XP3 工具同时修复 stat 时间成员在取消宏后应访问 `st_*tim.
 | ASan/UBSan | 8 个归档用例通过，启用泄漏检测和 UBSan 首错退出 |
 | 依赖守卫 | 9 目标通过；注入 cocos/完整存储依赖的负向检查被拒绝 |
 
-新增三平台 headless CI 使用仓库 vcpkg 基线，其结果以远端运行记录为准。
+三平台 [headless CI](https://github.com/2468785842/krkr2/actions/runs/41365411170) 使用仓库 vcpkg 基线，
+Windows x64/MSVC、Linux x64/GCC 与 macOS ARM64/AppleClang 均已通过构建及 9 项 CTest。
 本机未编译完整应用、7z 或 Android，也未验证真实游戏，未测量体积或耗时收益。
+三平台远端的 vcpkg status 和编译清单已核对，不含 cocos2dx、OpenCV、FFmpeg、libarchive、unrar、7zip 或 libjpeg-turbo，
+每平台 67 条编译记录无重复；
+最小配置仍有 Boost.Locale，且间接安装 Boost.Regex 等子包，不能把 PSB 局部去 Boost 等同于全仓移除。
