@@ -58,9 +58,57 @@ fixture SHA256：`6800308e31d8921fe76583f94b56d96b231f3d5a09d74898e64e6a809d97bc
 反向场景 `out/linux/sdl3-focus-x11-negative-01` 只把失焦背景改错，程序仍退出 0，
 验证器退出 1、passed=false、未强停，报告 `unfocused.bmp(10,10): 203040 != 102030`。
 
+## 后续 CI 与系统输入验证
+
+`6df41e8` 的 CI [41736796911](https://github.com/2468785842/krkr2/actions/runs/41736796911)
+三平台 platform、archives、imageops、launch 共 12 个 job 全部通过，含每平台 12 项平台契约及闭包检查。
+Linux SDL 原型 job 链接失败：`SDL_ime.c` 引用的 `SDL_IBus_*` 未定义。
+SDL 3.4.8 的 `SDL_ibus.c` 实现在 `HAVE_IBUS_IBUS_H && SDL_USE_LIBDBUS` 下，
+而调用方只检查前者；vcpkg 默认启用 ibus 却未启用 dbus。
+后续修正为 Linux 显式选择 SDL3 dbus feature，保留默认 IBus/Wayland/X11 能力，等待新 CI 复核；
+未通过关闭 IME 或空函数消除链接错误。
+
+### X11 系统输入探针与关闭修复
+
+队列自测通过后，另用 X server 的实际焦点和 XTest 键盘注入调查原型；没有直接投递 SDL 事件。
+`out/linux/sdl3-x11-os-focus-01` 暴露关闭缺陷：第一次 WM_DELETE_WINDOW 即触发
+`close-accepted:0`、`close-accepted:1` 并退出 0，没有等待第二次 OS 关闭。
+SDL 3.4.8 的 `src/events/SDL_windowevents.c` 在最后一个窗口请求关闭后默认追加全局 QUIT，
+导致脚本被查询两次；此前 SDL_PushEvent 自测不经过这条生成路径。
+
+正式探针 `tools/sdl3-prototype/verify_x11.py` 按 PID 查找窗口，经 XSetInputFocus、
+XTestFakeKeyEvent、WM_DELETE_WINDOW 操作，按本轮事件确认推进；首次否决后观测 200 ms，
+检查进程仍存活且未接受，再提交第二次关闭。20 秒全局截止，超时保存失败并明确标出强停。
+`sdl3-os-close-baseline-01` 仅增加日志即时刷新，应用 SHA256 为
+`51ceacf942a2047a767b9b4258bc65b6c7e52a3fc633dc5d2f18a2d4fa65e962`，
+探针实际失败：`First OS close bypassed the script veto`，程序退出 0、未强停。
+
+修复为以 override 优先级关闭 SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE，
+独立的应用 QUIT 事件仍执行脚本查询。开启环境变量 `SDL_QUIT_ON_LAST_WINDOW_CLOSE=1`
+验证应用契约不受默认 hint 优先级影响，执行：
+
+```sh
+xvfb-run -a python tools/sdl3-prototype/verify_x11.py out/linux/sdl3-focus/tools/sdl3-prototype/krkr2_sdl3_prototype out/linux/sdl3-os-close-fixed-01
+xvfb-run -a python tools/sdl3-prototype/verify.py out/linux/sdl3-focus/tools/sdl3-prototype/krkr2_sdl3_prototype out/linux/sdl3-close-fixed-queue-01
+```
+
+两项退出 0、passed=true、未强停；应用 SHA256 为
+`1719a45f55ec0dc51fe4fefc853d329a394335b59ebb1cba806a276d1cb75904`。
+系统探针观察到 SDL 在失焦通知前已自动释放 A，synthetic_releases=0，
+两次按下/抬起、一次失焦/恢复与两次独立关闭顺序正确，没有重复 key-up。
+队列自测仍为七帧，显式合成释放一次；两条路径分别验收，不能要求系统探针也合成一次释放。
+Linux CI 增加同一 X11 探针并保存证据。
+
+同步后的完整 Windows 应用基线 `bfeb707` 在
+[41734855326](https://github.com/2468785842/krkr2/actions/runs/41734855326) 构建成功，
+两个渲染器及两个 ImageOps 编译源检查通过并生成二进制附件。
+旧 `4a4a615` 的 Bison 生成失败未在这次重跑复现，没有据此推断根因或修改语法/工具链；
+该 full 结果对应基线，不冒充本批最终提交或游戏交互验收。
+
 ## 未验证与下一步
 
-本批 Windows/macOS 原型尚未运行；三平台平台契约和 Linux 原型 CI 待推送后核对结果。
+本批 Windows/macOS 原型尚未运行；DBus 修正与新增系统探针的 CI 待推送后核对结果。
 SDL_PushEvent 不更新物理设备状态，自测从模拟聚焦开始；X11 窗口并不意味着实际 OS 切焦/键盘验收。
+系统探针另覆盖 X server 切焦与 XTest 虚拟键盘，不是物理设备、IME 或现有 Cocos 验收。
 继续按[平台契约](../../proposed/architecture/2026-11-03-platform-contracts.md)建立现有 Cocos 的真实失焦基线，
 再迁移键盘/鼠标/手柄释放和 System 停用事件；坐标/DPI/IME、暂停恢复与销毁仍待处理。

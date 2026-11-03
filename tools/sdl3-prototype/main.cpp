@@ -157,6 +157,11 @@ namespace {
         struct Quit {
             ~Quit() { SDL_Quit(); }
         } quit;
+        // SDL otherwise adds QUIT after the last window's close request,
+        // asking the script twice and defeating its first veto. Genuine
+        // application QUIT events (menu/signal) still use the query below.
+        check(SDL_SetHintWithPriority(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE, "0",
+                                      SDL_HINT_OVERRIDE));
         SDL_Window *rawWindow = nullptr;
         SDL_Renderer *rawRenderer = nullptr;
         const auto caption =
@@ -183,6 +188,8 @@ namespace {
         check(SDL_SetRenderLogicalPresentation(
             renderer.get(), width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX));
         std::ofstream events(output / "events.txt");
+        events << std::unitbuf; // Allow an external OS-input probe to await
+                                // callbacks.
         const auto windowID = SDL_GetWindowID(window.get());
         auto &state = krkr::input::sharedState();
         bool running = true;

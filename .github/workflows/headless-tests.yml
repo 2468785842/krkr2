@@ -111,6 +111,10 @@ jobs:
         env:
           SDL_VIDEO_DRIVER: x11
         run: xvfb-run -a python tools/sdl3-prototype/verify.py out/sdl3-prototype/build/tools/sdl3-prototype/krkr2_sdl3_prototype out/sdl3-prototype/run
+      - name: Verify X11 focus, XTest keys and real window close veto
+        env:
+          SDL_QUIT_ON_LAST_WINDOW_CLOSE: "1"
+        run: xvfb-run -a python tools/sdl3-prototype/verify_x11.py out/sdl3-prototype/build/tools/sdl3-prototype/krkr2_sdl3_prototype out/sdl3-prototype/os-input-run
       - name: Reject incorrect focus rendering even when the process succeeds
         env:
           SDL_VIDEO_DRIVER: x11
@@ -148,6 +152,7 @@ jobs:
           path: |
             out/sdl3-prototype/run/
             out/sdl3-prototype/wrong-focus-run/
+            out/sdl3-prototype/os-input-run/
             out/sdl3-prototype/build/compile_commands.json
             out/sdl3-prototype/build/vcpkg_installed/vcpkg/status
           if-no-files-found: ignore

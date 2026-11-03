@@ -20,6 +20,7 @@ python tools/sdl3-prototype/verify.py out/sdl3-prototype/build/tools/sdl3-protot
 ```
 
 仓库 pin 的 vcpkg baseline 提供 SDL3 3.4.8#1；没有更改全局工具链。
+Linux 显式选择 SDL3 的 dbus feature，满足默认 IBus 路径的实现依赖；不能通过关闭 IME 掩盖链接失败。
 测试输出目录必须全新；程序正常退出、脚本计数、事件顺序和七帧 BMP 指定像素都符合条件才通过。
 `verification.json` 保存 exe/脚本/截图哈希，`report.json` 是原型自身的观察，二者含义不同。
 去掉验证器直接运行 `exe fixture.tjs NEW_OUTPUT_DIR` 可手工按 A、关闭窗口两次。
@@ -37,6 +38,19 @@ SDL 明确说明该 API 不更新物理设备状态，本原型也不查询 SDL 
 验证器检查释放早于失焦通知、失焦背景、恢复后无旧键按下以及正常退出。
 交互模式以 SDL 的初始窗口焦点状态为准。Linux CI 在 Xvfb 的 X11 窗口运行同一自测，
 不是实际 OS 切焦、后台挂起或物理键盘验收。
+
+另有 Linux/X11 输入探针，需 Xvfb、xauth、libX11、libXtst：
+
+```sh
+xvfb-run -a python tools/sdl3-prototype/verify_x11.py out/sdl3-prototype/build/tools/sdl3-prototype/krkr2_sdl3_prototype out/sdl3-prototype/os-input-01
+```
+
+该探针按进程 PID 查找窗口，用 `XSetInputFocus`、`XTestFakeKeyEvent` 和 `WM_DELETE_WINDOW`
+经过 X server 验证按住 A 切焦、抬起、恢复、重新按键及两次独立关闭；按本轮事件确认逐步操作，
+第一次关闭后继续观测事件泵，确保否决有效，再发送第二次关闭并等待正常退出。
+不使用 `SDL_PushEvent`，也不代表物理键盘或生产 Cocos 后端验收。
+原型关闭 SDL 的“最后一个窗口请求关闭时自动追加 QUIT”行为，避免一次 OS 关闭触发两次脚本查询；
+独立的应用退出事件仍经过关闭查询。
 
 键码仅映射字母、数字、空格、回车、Escape 和方向键，其他键会记录 unsupported-key。
 鼠标/触摸/手柄、IME、DPI、后台挂起、媒体、菜单、存储及完整窗口契约均未接入。

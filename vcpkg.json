@@ -12,7 +12,17 @@
   "features": {
     "sdl3-prototype": {
       "description": "Separate SDL3/TJS desktop shell experiment",
-      "dependencies": ["sdl3"]
+      "dependencies": [
+        {
+          "name": "sdl3",
+          "platform": "!linux"
+        },
+        {
+          "name": "sdl3",
+          "platform": "linux",
+          "features": ["dbus"]
+        }
+      ]
     },
     "engine": {
       "description": "Complete runtime and bundled plugins",
