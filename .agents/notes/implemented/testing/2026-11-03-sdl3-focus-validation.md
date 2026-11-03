@@ -67,6 +67,10 @@ SDL 3.4.8 的 `SDL_ibus.c` 实现在 `HAVE_IBUS_IBUS_H && SDL_USE_LIBDBUS` 下�
 而调用方只检查前者；vcpkg 默认启用 ibus 却未启用 dbus。
 后续修正为 Linux 显式选择 SDL3 dbus feature，保留默认 IBus/Wayland/X11 能力，等待新 CI 复核；
 未通过关闭 IME 或空函数消除链接错误。
+`ca05f3c` 的后续 [41737820166](https://github.com/2468785842/krkr2/actions/runs/41737820166)
+在依赖安装阶段失败：DBus 传递依赖 libxcrypt 的 autoreconf 检查要求
+`autoconf autoconf-archive automake libtoolize`。补齐 CI 宿主 Autotools 后继续复核，
+不把这一阶段的失败归为原型源码或输入测试失败。
 
 ### X11 系统输入探针与关闭修复
 

@@ -93,7 +93,8 @@ jobs:
       - name: Install Bison and virtual display
         run: |
           sudo apt-get update
-          sudo apt-get install -y bison xvfb xauth libx11-dev libxext-dev libxrandr-dev \
+          sudo apt-get install -y bison xvfb xauth autoconf autoconf-archive automake libtool \
+            libx11-dev libxext-dev libxrandr-dev \
             libxcursor-dev libxi-dev libxfixes-dev libxrender-dev libxss-dev libxtst-dev \
             libxft-dev libibus-1.0-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev \
             wayland-protocols libdecor-0-dev

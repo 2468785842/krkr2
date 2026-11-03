@@ -21,6 +21,8 @@ python tools/sdl3-prototype/verify.py out/sdl3-prototype/build/tools/sdl3-protot
 
 仓库 pin 的 vcpkg baseline 提供 SDL3 3.4.8#1；没有更改全局工具链。
 Linux 显式选择 SDL3 的 dbus feature，满足默认 IBus 路径的实现依赖；不能通过关闭 IME 掩盖链接失败。
+Linux 宿主还需 Autoconf、autoconf-archive、Automake、Libtool，以及窗口/IBus/Wayland 开发包，
+Ubuntu 的实际安装列表见[无窗口 CI](../../.github/workflows/headless-tests.yml)的 SDL3 job。
 测试输出目录必须全新；程序正常退出、脚本计数、事件顺序和七帧 BMP 指定像素都符合条件才通过。
 `verification.json` 保存 exe/脚本/截图哈希，`report.json` 是原型自身的观察，二者含义不同。
 去掉验证器直接运行 `exe fixture.tjs NEW_OUTPUT_DIR` 可手工按 A、关闭窗口两次。
