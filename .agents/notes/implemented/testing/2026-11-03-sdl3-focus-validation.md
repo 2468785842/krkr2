@@ -71,6 +71,10 @@ SDL 3.4.8 的 `SDL_ibus.c` 实现在 `HAVE_IBUS_IBUS_H && SDL_USE_LIBDBUS` 下�
 在依赖安装阶段失败：DBus 传递依赖 libxcrypt 的 autoreconf 检查要求
 `autoconf autoconf-archive automake libtoolize`。补齐 CI 宿主 Autotools 后继续复核，
 不把这一阶段的失败归为原型源码或输入测试失败。
+随后 `f99c4f5` 的 [41738577151](https://github.com/2468785842/krkr2/actions/runs/41738577151)
+通过上述程序检查后停在同一 helper 的下一项 ltdl 开发文件检查；补齐 `libltdl-dev`，
+并核对 vcpkg-make 的检查源码，没有屏蔽检查或修改依赖实现。
+SDL job 的二进制缓存回退还复用 Linux archives 已验证的同 ABI foundation 包，减少失败重试的重复编译。
 
 ### X11 系统输入探针与关闭修复
 
