@@ -125,7 +125,21 @@ Linux CI 增加同一 X11 探针并保存证据。
 
 ## 未验证与下一步
 
-本批 Windows/macOS 原型尚未运行；Linux DBus 构建已验证，窗口就绪修正后的系统探针 CI 待核对。
+最终代码 `d988b61` 在
+[41740383291](https://github.com/2468785842/krkr2/actions/runs/41740383291) 的 13 个 job 全部通过：
+
+- Windows/Linux/macOS 各自的 platform、archives、imageops、launch，共 12 个 job；
+  每个平台实际注册并通过 12 项输入/帧契约，依赖与编译源闭包检查通过。
+- Linux SDL3 完整依赖安装、构建、七帧像素、原生窗口就绪回归、X11 系统输入/关闭否决、
+  错误像素拒绝及安装闭包均通过，完整二进制缓存成功保存。
+- 两种正向运行均退出 0、未强停；错误像素场景程序退出 0、验证器退出 1，符合预期。
+
+CI 原型应用 SHA256 为 `b3d4b46baf69c868db52241021923b2e9892b030b15dcf4c896b98b8d1fcb419`，
+fixture SHA256 仍为 `6800308e31d8921fe76583f94b56d96b231f3d5a09d74898e64e6a809d97bc6d`。
+SDL 安装树没有 Cocos/OpenCV/FFmpeg/Catch2，仍含 TJS foundation 和 DBus 的 libsystemd 等传递依赖；
+这不是已完成全部依赖精简或 IME 验收的结论。
+
+本批 Windows/macOS 原型尚未运行；只在这些平台运行了通用契约等独立测试。
 SDL_PushEvent 不更新物理设备状态，自测从模拟聚焦开始；X11 窗口并不意味着实际 OS 切焦/键盘验收。
 系统探针另覆盖 X server 切焦与 XTest 虚拟键盘，不是物理设备、IME 或现有 Cocos 验收。
 继续按[平台契约](../../proposed/architecture/2026-11-03-platform-contracts.md)建立现有 Cocos 的真实失焦基线，

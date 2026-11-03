@@ -34,7 +34,7 @@
 - [文件交互访问冲突](notes/proposed/bug-fix/2026-11-03-ui-contract-access-violation.md)：连续复现与 CDB 取证工具已验证，原故障根因仍待调查。
 - [B2 后续契约](notes/proposed/architecture/2026-11-03-platform-contracts.md)：已提取输入状态、共享帧钩子与宿主通知；DPI/IME、失焦及完整暂停恢复仍待验证。
 - [子批次与 SDL3 实验结果](notes/implemented/testing/2026-11-03-platform-contracts-and-sdl3-probe.md)：独立 9 项测试与脚本/像素验证通过；实验尚未接入生产 Window/Layer 或 KAG。
-- [SDL3 失焦释放](notes/implemented/testing/2026-11-03-sdl3-focus-validation.md)：共享状态扩至 12 项平台测试；Linux X11 原型七帧及错误像素拒绝通过，现有 Cocos 真实失焦迁移仍待验收。
+- [SDL3 失焦释放](notes/implemented/testing/2026-11-03-sdl3-focus-validation.md)：三平台各 12 项契约、Linux X11 系统输入/关闭否决、七帧及反向像素检查通过，13 个 CI job 全绿；现有 Cocos 真实失焦迁移仍待验收。
 
 其他方案按需浏览 `notes/proposed/architecture/`，不因为文件已存在就视为已实现。
 历史测量与验证放 `notes/implemented/`，早期失效分析放 `notes/archived/`。
