@@ -22,6 +22,7 @@
 #include "ScriptMgnIntf.h"
 #include "impl/TVPWindow.h"
 #include "InputState.h"
+#include "InputModifiers.h"
 #include "RenderManager.h"
 #include "ui/UIButton.h"
 #include "ui/csd/CsdUIFactory.h"
@@ -1385,23 +1386,13 @@ const std::string &TVPGetInternalPreferencePath() {
     return ret;
 }
 
-tjs_uint32 TVPGetCurrentShiftKeyState() {
-    tjs_uint32 f = 0;
-
-    if(krkr::input::sharedState().isDown(VK_SHIFT))
-        f |= ssShift;
-    if(krkr::input::sharedState().isDown(VK_MENU))
-        f |= ssAlt;
-    if(krkr::input::sharedState().isDown(VK_CONTROL))
-        f |= ssCtrl;
-    if(krkr::input::sharedState().isDown(VK_LBUTTON))
-        f |= ssLeft;
-    if(krkr::input::sharedState().isDown(VK_RBUTTON))
-        f |= ssRight;
-    // if (_scancode[VK_MBUTTON] & 1) f |= TVP_SS_MIDDLE;
-
-    return f;
-}
+// Keep the shared virtual-key ABI aligned with the existing host definitions.
+static_assert(krkr::input::key::shift == VK_SHIFT);
+static_assert(krkr::input::key::control == VK_CONTROL);
+static_assert(krkr::input::key::alt == VK_MENU);
+static_assert(krkr::input::key::leftMouse == VK_LBUTTON);
+static_assert(krkr::input::key::rightMouse == VK_RBUTTON);
+static_assert(krkr::input::key::middleMouse == VK_MBUTTON);
 
 ttstr TVPGetPlatformName() {
     switch(cocos2d::Application::getInstance()->getTargetPlatform()) {

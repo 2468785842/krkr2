@@ -37,16 +37,18 @@ def pixel(path, x, y):
 
 def verify(directory):
     report = json.loads((directory / "report.json").read_text(encoding="utf-8"))
-    expected = {"completed": True, "renderer": "software", "self_test": True, "frames": 7, "key_downs": 2,
-                "key_ups": 2, "close_vetoes": 1, "width": 640, "height": 480,
+    expected = {"completed": True, "renderer": "software", "self_test": True, "frames": 7, "key_downs": 5,
+                "key_ups": 5, "close_vetoes": 1, "width": 640, "height": 480,
                 "focus_losses": 1, "focus_gains": 1, "ignored_keys": 2,
-                "synthetic_releases": 1, "foreign_events": 3}
+                "synthetic_releases": 4, "foreign_events": 3}
     for name, value in expected.items():
         if report.get(name) != value:
             raise ValueError(f"{name}: {report.get(name)} != {value}")
     events = (directory / "events.txt").read_text(encoding="utf-8").splitlines()
-    if events != ["key:65:1:1:0", "key:65:0:0:0", "focus:0", "unfocused-key:65:1",
-                  "unfocused-key:65:0", "focus:1", "key:65:1:1:0", "key:65:0:0:0",
+    if events != ["key:16:1:1:0:1", "key:17:1:1:0:5", "key:18:1:1:0:7", "key:65:1:1:0:7",
+                  "key:16:0:0:0:0", "key:17:0:0:0:0", "key:18:0:0:0:0", "key:65:0:0:0:0",
+                  "focus:0", "unfocused-key:65:1",
+                  "unfocused-key:65:0", "focus:1", "key:65:1:1:0:0", "key:65:0:0:0:0",
                   "close-accepted:0", "close-accepted:1"]:
         raise ValueError(f"Unexpected event sequence: {events}")
     samples = [("initial.bmp", 10, 10, 0x203040), ("initial.bmp", 100, 120, 0xd08030),

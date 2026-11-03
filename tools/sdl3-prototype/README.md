@@ -35,7 +35,7 @@ SDL 明确说明该 API 不更新物理设备状态，本原型也不查询 SDL 
 每帧重新绘制，再[呈现](https://wiki.libsdl.org/SDL3/SDL_RenderPresent)；BMP 来自 SDL 渲染器读回。
 这里使用软件 renderer，不验证现有 OpenGL 渲染器或 GL context。
 
-自测从模拟的已聚焦状态开始，依次投递 A 按下、失焦、失焦期间重复/抬起、恢复、
+自测从模拟的已聚焦状态开始，依次投递 Shift/Ctrl/Alt+A 按下、失焦、失焦期间重复/抬起、恢复、
 再次按下/抬起及两次关闭，还插入其他窗口的抬起/关闭事件。
 验证器检查释放早于失焦通知、失焦背景、恢复后无旧键按下以及正常退出。
 交互模式以 SDL 的初始窗口焦点状态为准。Linux CI 在 Xvfb 的 X11 窗口运行同一自测，
@@ -56,7 +56,13 @@ xvfb-run -a python tools/sdl3-prototype/verify_x11.py out/sdl3-prototype/build/t
 `test_verify_x11.py` 在真实 X server 上检查带 PID 的未映射窗口不会被当作已就绪；
 CI 将它与系统输入探针一起运行。
 
-键码仅映射字母、数字、空格、回车、Escape 和方向键，其他键会记录 unsupported-key。
+`onKey(key, down, current, pending, shift)` 的最后一个参数来自共享修饰键快照，
+不使用 SDL 的设备状态查询伪装脚本状态。队列自测验证组合键标记为 7，失焦合成释放时全部归零；
+X11 探针实际按住 Ctrl+A 切焦，验证 SDL 自动抬起的顺序及恢复后的 A 不再带 Ctrl。
+虚拟键用 scancode 查询去除修饰键后的键码，Shift/Ctrl+A 均保持 VK_A，字符与 IME 输入另行处理。
+
+键码映射字母、数字、空格、回车、Escape、方向键和左右 Shift/Ctrl/Alt，其他键记录 unsupported-key。
+左右修饰键沿用现有 Cocos 的合并虚拟键规则，尚不独立跟踪同时按住两侧再抬起一侧的状态。
 鼠标/触摸/手柄、IME、DPI、后台挂起、媒体、菜单、存储及完整窗口契约均未接入。
 失焦批量释放尚未接入现有 Cocos 游戏适配器；原型的 `onFocus` 也不是生产 System 激活事件。
 SDL3 能力实验不能作为 B2 全部完成或 B3 游戏兼容验收通过的依据。

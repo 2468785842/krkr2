@@ -66,6 +66,9 @@ def check(root):
             if re.search(r'#\s*include\s*[<"]opencv|\bcv::', content):
                 errors.append(f'{source.relative_to(root)}: OpenCV 调用应放入 ImageOps 后端')
     # Generic window consumers must not import the Cocos implementation header.
+    host = root / 'cpp/core/environ/cocos2d/MainScene.cpp'
+    if re.search(r'^\s*tjs_uint32\s+TVPGetCurrentShiftKeyState\s*\(', host.read_text(encoding='utf-8'), re.M):
+        errors.append('MainScene.cpp: 修饰键查询实现应属于 System/共享输入层')
     for relative in ('visual/impl/WindowImpl.cpp', 'visual/impl/BasicDrawDevice.cpp',
                      'movie/ffmpeg/KRMoviePlayer.cpp', 'visual/WindowLayer.h',
                      'base/impl/SystemImpl.cpp', 'environ/HostLifecycle.h',

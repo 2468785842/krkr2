@@ -6,7 +6,7 @@ if(KRKR2_TEST_SCOPE STREQUAL "full")
     catch_discover_tests(cocos_window_tests)
 endif()
 
-set(INPUT_SOURCES InputStateTest.cpp)
+set(INPUT_SOURCES InputStateTest.cpp InputModifiersTest.cpp)
 add_executable(input_state_tests ${INPUT_SOURCES})
 target_link_libraries(input_state_tests PRIVATE Catch2::Catch2WithMain core_input)
 catch_discover_tests(input_state_tests)

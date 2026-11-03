@@ -118,8 +118,8 @@ class X11:
         self.library.XSetInputFocus(self.display, window, 1, 0)
         self.sync()
 
-    def key(self, down):
-        keycode = self.library.XKeysymToKeycode(self.display, ord("a"))
+    def key(self, down, keysym=ord("a")):
+        keycode = self.library.XKeysymToKeycode(self.display, keysym)
         if not keycode or not self.test.XTestFakeKeyEvent(self.display, keycode, down, 0):
             raise RuntimeError("XTest keyboard injection failed")
         self.sync()
@@ -167,18 +167,21 @@ def probe(engine, script, output, report):
 
             window = wait_for(lambda: x11.process_window(process.pid))
             x11.focus(window)
+            x11.key(True, 0xffe3)  # XK_Control_L
+            wait_for(lambda: "key:17:1:1:0:4" in events())
             x11.key(True)
-            wait_for(lambda: events().count("key:65:1:1:0") == 1)
+            wait_for(lambda: "key:65:1:1:0:4" in events())
             x11.focus(helper)
             wait_for(lambda: "focus:0" in events())
             x11.key(False)
+            x11.key(False, 0xffe3)
             previous_gains = events().count("focus:1")
             x11.focus(window)
             wait_for(lambda: events().count("focus:1") == previous_gains + 1)
             x11.key(True)
-            wait_for(lambda: events().count("key:65:1:1:0") == 2)
+            wait_for(lambda: "key:65:1:1:0:0" in events())
             x11.key(False)
-            wait_for(lambda: events().count("key:65:0:0:0") == 2)
+            wait_for(lambda: "key:65:0:0:0:0" in events())
             x11.request_close(window)
             wait_for(lambda: "close-accepted:0" in events())
             # Let the event pump settle after a veto, before sending another
@@ -193,11 +196,12 @@ def probe(engine, script, output, report):
             observed = json.loads((output / "run/report.json").read_text(encoding="utf-8"))
             sequence = events()
             expected = {"completed": True, "self_test": False, "video_driver": "x11",
-                        "key_downs": 2, "key_ups": 2, "focus_losses": 1, "close_vetoes": 1}
+                        "key_downs": 3, "key_ups": 3, "focus_losses": 1, "close_vetoes": 1}
             if result != 0 or any(observed.get(key) != value for key, value in expected.items()):
                 raise RuntimeError(f"Unexpected exit or event counts: {result}, {observed}")
-            expected_sequence = ["key:65:1:1:0", "key:65:0:0:0", "focus:0", "focus:1",
-                                 "key:65:1:1:0", "key:65:0:0:0", "close-accepted:0", "close-accepted:1"]
+            expected_sequence = ["key:17:1:1:0:4", "key:65:1:1:0:4", "key:65:0:0:0:4",
+                                 "key:17:0:0:0:0", "focus:0", "focus:1",
+                                 "key:65:1:1:0:0", "key:65:0:0:0:0", "close-accepted:0", "close-accepted:1"]
             # An initially unfocused X11 window can first receive focus gain.
             if sequence and sequence[0] == "focus:1":
                 sequence = sequence[1:]

@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include "InputState.h"
+#include "InputModifiers.h"
 #include "tjs.h"
 #include "tjsError.h"
 #include "TVPInitLog.h"
@@ -42,12 +43,25 @@ namespace {
         }
     };
 
-    int virtualKey(SDL_Keycode key) {
+    int virtualKey(const SDL_KeyboardEvent &event) {
+        // Virtual keys describe keys, not composed/shifted text. In particular
+        // Ctrl/Shift+A must still reach the engine as VK_A.
+        const auto key =
+            SDL_GetKeyFromScancode(event.scancode, SDL_KMOD_NONE, true);
         if(key >= SDLK_A && key <= SDLK_Z)
             return 'A' + (key - SDLK_A);
         if(key >= SDLK_0 && key <= SDLK_9)
             return '0' + (key - SDLK_0);
         switch(key) {
+            case SDLK_LSHIFT:
+            case SDLK_RSHIFT:
+                return krkr::input::key::shift;
+            case SDLK_LCTRL:
+            case SDLK_RCTRL:
+                return krkr::input::key::control;
+            case SDLK_LALT:
+            case SDLK_RALT:
+                return krkr::input::key::alt;
             case SDLK_ESCAPE:
                 return 0x1b;
             case SDLK_RETURN:
@@ -82,6 +96,22 @@ namespace {
 
     void push(SDL_WindowID window, unsigned stage) {
         SDL_Event event{};
+        if(stage == 0) {
+            const SDL_Scancode modifiers[] = { SDL_SCANCODE_LSHIFT,
+                                               SDL_SCANCODE_LCTRL,
+                                               SDL_SCANCODE_LALT };
+            for(auto scancode : modifiers) {
+                event = {};
+                event.type = SDL_EVENT_KEY_DOWN;
+                event.key.windowID = window;
+                event.key.scancode = scancode;
+                event.key.key =
+                    SDL_GetKeyFromScancode(scancode, SDL_KMOD_NONE, true);
+                event.key.down = true;
+                check(SDL_PushEvent(&event));
+            }
+            event = {};
+        }
         if(stage == 0 || stage == 3 || stage == 4) {
             event.type = stage == 4 ? SDL_EVENT_KEY_UP : SDL_EVENT_KEY_DOWN;
             event.key.windowID = window;
@@ -201,14 +231,16 @@ namespace {
         unsigned focusLosses = 0, focusGains = 0, ignoredKeys = 0;
         unsigned syntheticReleases = 0, foreignEvents = 0;
         const auto keyCallback = [&](int key, bool down) {
+            const auto shift = krkr::input::legacyShiftFlags(state);
             const bool current = state.query(key, true);
             const bool pending = state.query(key, false);
             script.execute("onKey(" + std::to_string(key) + "," +
                            (down ? "true" : "false") + "," +
                            (current ? "true" : "false") + "," +
-                           (pending ? "true" : "false") + ");");
+                           (pending ? "true" : "false") + "," +
+                           std::to_string(shift) + ");");
             events << "key:" << key << ':' << down << ':' << current << ':'
-                   << pending << '\n';
+                   << pending << ':' << shift << '\n';
         };
         const auto started = SDL_GetTicks();
         while(running) {
@@ -222,7 +254,7 @@ namespace {
                         ++foreignEvents;
                         continue;
                     }
-                    const auto key = virtualKey(event.key.key);
+                    const auto key = virtualKey(event.key);
                     if(!key) {
                         events << "unsupported-key:" << event.key.key << '\n';
                         continue;
@@ -308,10 +340,12 @@ namespace {
             SDL_Delay(16);
         }
         if(selfTest &&
-           (keyDowns != 2 || keyUps != 2 || vetoes != 1 || focusLosses != 1 ||
-            focusGains != 1 || ignoredKeys != 2 || syntheticReleases != 1 ||
+           (keyDowns != 5 || keyUps != 5 || vetoes != 1 || focusLosses != 1 ||
+            focusGains != 1 || ignoredKeys != 2 || syntheticReleases != 4 ||
             foreignEvents != 3 || script.integer("keyDownCount") != 2 ||
             script.integer("keyUpCount") != 2 ||
+            script.integer("modifierDownCount") != 3 ||
+            script.integer("modifierUpCount") != 3 ||
             script.integer("focusLossCount") != 1 ||
             script.integer("focusGainCount") != 1 ||
             script.integer("closeCount") != 2))

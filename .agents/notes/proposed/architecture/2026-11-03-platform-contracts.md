@@ -73,6 +73,10 @@ compact 和 System 事件排队未改变，没有提前接线旧 `OnExit` 或更
 
 ## 剩余工作
 
+修饰键快照已提到共享输入模块，导出实现移到 System 层，保持旧中键省略及标记不消费规则；
+SDL 队列与 X11 的组合键释放/恢复验证见[子批次记录](../../implemented/testing/2026-11-03-shared-input-modifiers.md)。
+这不改变 Cocos 激活与失焦路径，也不表示完成 IME 或物理设备验证。
+
 独立 SDL3 原型已使用共享状态的 `releaseAll()`，验证先释放后通知失焦、重复通知、
 失焦输入忽略及恢复后的新按键，Linux Xvfb/X11 七帧像素与反向场景通过，见
 [失焦子批次](../../implemented/testing/2026-11-03-sdl3-focus-validation.md)。

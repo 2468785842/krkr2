@@ -6,8 +6,15 @@ var rectangleColor = 0xd08030;
 var rectangleX = 80, rectangleY = 100, rectangleWidth = 480, rectangleHeight = 280;
 var keyDownCount = 0, keyUpCount = 0, closeCount = 0;
 var focusLossCount = 0, focusGainCount = 0;
+var modifierDownCount = 0, modifierUpCount = 0;
 
-function onKey(key, down, current, pending) {
+function onKey(key, down, current, pending, shift) {
+    if(key == 16 || key == 17 || key == 18) {
+        if(current != down || pending)
+            throw new Exception("Unexpected modifier query state");
+        if(down) ++modifierDownCount; else ++modifierUpCount;
+        return;
+    }
     if(key != 65) return;
     if(down) {
         if(!current || pending) throw new Exception("Unexpected down query state");
@@ -26,7 +33,7 @@ function onFocus(focused) {
         ++focusGainCount;
         backgroundColor = 0x203040;
     } else {
-        if(keyUpCount != keyDownCount)
+        if(keyUpCount != keyDownCount || modifierUpCount != modifierDownCount)
             throw new Exception("Focus lost before held keys were released");
         ++focusLossCount;
         backgroundColor = 0x102030;

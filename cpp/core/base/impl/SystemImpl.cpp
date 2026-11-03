@@ -27,11 +27,21 @@
 #include "tjsArray.h"
 #include "Platform.h"
 #include "InputState.h"
+#include "InputModifiers.h"
 
 //---------------------------------------------------------------------------
 static ttstr TVPAppTitle;
 static bool TVPAppTitleInit = false;
 //---------------------------------------------------------------------------
+
+tjs_uint32 TVPGetCurrentShiftKeyState() {
+    static_assert(krkr::input::modifier::shift == TVP_SS_SHIFT);
+    static_assert(krkr::input::modifier::alt == TVP_SS_ALT);
+    static_assert(krkr::input::modifier::control == TVP_SS_CTRL);
+    static_assert(krkr::input::modifier::leftMouse == TVP_SS_LEFT);
+    static_assert(krkr::input::modifier::rightMouse == TVP_SS_RIGHT);
+    return krkr::input::legacyShiftFlags(krkr::input::sharedState());
+}
 
 //---------------------------------------------------------------------------
 // TVPGetAsyncKeyState

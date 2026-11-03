@@ -59,12 +59,12 @@ jobs:
           assert ports == {'catch2', 'vcpkg-cmake', 'vcpkg-cmake-config'}, ports
           commands = json.loads((root / 'compile_commands.json').read_text(encoding='utf-8'))
           assert sorted(pathlib.Path(c['file']).name for c in commands) == sorted([
-              'InputState.cpp', 'InputStateTest.cpp', 'PostUpdateEvent.cpp',
+              'InputState.cpp', 'InputModifiers.cpp', 'InputStateTest.cpp', 'InputModifiersTest.cpp', 'PostUpdateEvent.cpp',
               'PostUpdateTest.cpp', 'PostUpdateRegistration.cpp'])
           tests = json.loads(subprocess.check_output([
               'ctest', '--test-dir', str(root), '--show-only=json-v1']))
-          assert len(tests['tests']) == 12, tests['tests']
-          print('Platform contracts: 12 tests; closure verified:', sorted(ports))
+          assert len(tests['tests']) == 15, tests['tests']
+          print('Platform contracts: 15 tests; closure verified:', sorted(ports))
           PY
       - uses: actions/upload-artifact@v4
         if: always()
