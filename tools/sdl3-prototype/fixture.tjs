@@ -5,6 +5,7 @@ var backgroundColor = 0x203040;
 var rectangleColor = 0xd08030;
 var rectangleX = 80, rectangleY = 100, rectangleWidth = 480, rectangleHeight = 280;
 var keyDownCount = 0, keyUpCount = 0, closeCount = 0;
+var focusLossCount = 0, focusGainCount = 0;
 
 function onKey(key, down, current, pending) {
     if(key != 65) return;
@@ -17,6 +18,19 @@ function onKey(key, down, current, pending) {
         ++keyUpCount;
         rectangleX = 120;
         rectangleWidth = 400;
+    }
+}
+
+function onFocus(focused) {
+    if(focused) {
+        ++focusGainCount;
+        backgroundColor = 0x203040;
+    } else {
+        if(keyUpCount != keyDownCount)
+            throw new Exception("Focus lost before held keys were released");
+        ++focusLossCount;
+        backgroundColor = 0x102030;
+        rectangleColor = 0xd08030;
     }
 }
 

@@ -17,12 +17,18 @@
 修饰键组合使用不消耗标记的 `isDown()`。
 这些行为保持原 `TVPWindowLayer::_scancode` 的实现，未改成独立的边沿查询。
 
+`releaseAll()` 先释放所有当前按下的键，再按虚拟键码升序返回这些键，
+供宿主逐个发送 key-up。与单键释放相同，保留尚未查询的按下标记和已释放的鼠标短点；
+重复调用返回空集合。适配器负责在这些释放回调之后通知失焦，恢复焦点不会自动按回旧键。
+目前只有独立 SDL3 原型使用此入口，现有 Cocos 焦点路径尚未迁移。
+
 ## 适配边界与验证
 
 Cocos 键码转换、坐标与 DPI、IME、触摸判定、焦点变化以及 TJS 事件排队仍使用原路径；
 本批次只迁移状态所有权，不能据此声称完成全部输入后端替换。
-`tests/unit-tests/core/environ/InputStateTest.cpp` 的六项测试在 full 范围登记，
-覆盖标记消费、释放、重复、鼠标短点和键码边界。
+`tests/unit-tests/core/environ/InputStateTest.cpp` 的九项测试在 full/platform 范围登记，
+覆盖标记消费、释放、重复、鼠标短点、键码边界和失焦时的批量释放。
+独立构建命令见[构建指南](../guides/building.md#独立平台契约与-sdl3-原型)。
 
 交互工具的 `--keyboard-probe` 在 Cocos EventDispatcher 投递分开的 A 键按下和抬起，
 等待真实 Window 回调记录查询值；它不等同于操作系统键盘设备测试。

@@ -73,6 +73,11 @@ compact 和 System 事件排队未改变，没有提前接线旧 `OnExit` 或更
 
 ## 剩余工作
 
+独立 SDL3 原型已使用共享状态的 `releaseAll()`，验证先释放后通知失焦、重复通知、
+失焦输入忽略及恢复后的新按键，Linux Xvfb/X11 七帧像素与反向场景通过，见
+[失焦子批次](../../implemented/testing/2026-11-03-sdl3-focus-validation.md)。
+这只建立原型的队列/脚本契约，没有接线 Cocos；不能替代上一节要求的真实 OS 失焦证据。
+
 本页仍为 proposed：坐标/DPI/IME、焦点丢失释放、平台事件泵、完整暂停恢复和销毁路径尚未抽离。
 下一批应在实际失焦/后台与恢复场景建立证据，避免仅靠接口声明推断跨平台行为。
 独立 SDL3/TJS 壳实验的可用范围另见 `tools/sdl3-prototype/README.md`，不作为 B2 全完成或 KAG 后端迁移验收。

@@ -132,8 +132,11 @@ ctest --test-dir out/platform-tests -N
 ctest --test-dir out/platform-tests --output-on-failure --no-tests=error
 ```
 
-预期 6 个输入状态用例与 3 个帧钩子用例，不能替代窗口、IME 或设备交互验收。
+预期 9 个输入状态用例与 3 个帧钩子用例，三平台无窗口 CI 检查实际数量、编译源和依赖闭包；
+不能替代窗口、IME 或设备交互验收。
 独立 SDL3/TJS 壳实验使用另一显式开关，构建和验证见[原型工具](../../tools/sdl3-prototype/README.md)。
+Linux CI 另用 Xvfb/X11 创建窗口，验证 SDL 队列、TJS 回调及七帧像素；输入与焦点事件仍由
+`SDL_PushEvent` 注入，不能据此声称完成 OS 设备输入或实际窗口切焦验收。
 
 ## 编译提速的基线
 

@@ -3,7 +3,7 @@ name: Headless foundation tests
 on:
   push:
     branches: [main, dev]
-    paths: ['cpp/core/**', 'cpp/plugins/**', 'tests/**', 'tools/xp3/**', 'tools/game-smoke/**', 'scripts/check_core_module_deps.py', 'cmake/**', 'CMakeLists.txt', 'vcpkg*.json', '.github/workflows/headless-tests.yml']
+    paths: ['cpp/core/**', 'cpp/plugins/**', 'tests/**', 'tools/xp3/**', 'tools/game-smoke/**', 'tools/sdl3-prototype/**', 'scripts/check_core_module_deps.py', 'cmake/**', 'CMakeLists.txt', 'vcpkg*.json', '.github/workflows/headless-tests.yml']
   pull_request:
     branches: [main, dev]
   workflow_dispatch:
@@ -12,6 +12,146 @@ permissions:
   contents: read
 
 jobs:
+  platform:
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.act/vcpkg-cache
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, platform: LINUX, triplet: x64-linux}
+          - {os: windows-2022, platform: WINDOWS, triplet: x64-windows-static-md}
+          - {os: macos-15, platform: MACOS, triplet: arm64-osx}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: platform-vcpkg-${{ runner.os }}-${{ matrix.triplet }}-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}
+          restore-keys: platform-vcpkg-${{ runner.os }}-${{ matrix.triplet }}-
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+      - name: Configure isolated platform contracts
+        shell: bash
+        run: |
+          export VCPKG_ROOT="$VCPKG_INSTALLATION_ROOT"
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+          python scripts/check_core_module_deps.py
+          cmake -S . -B out/platform -G Ninja -D${{ matrix.platform }}=ON \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=platform
+      - name: Build and test platform contracts
+        shell: bash
+        run: |
+          cmake --build out/platform --target input_state_tests frame_hook_tests --parallel 4
+          ctest --test-dir out/platform -N
+          ctest --test-dir out/platform --output-on-failure --no-tests=error
+      - name: Verify isolated platform dependency closure
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, pathlib, subprocess
+          root = pathlib.Path('out/platform')
+          status = (root / 'vcpkg_installed/vcpkg/status').read_text(encoding='utf-8')
+          ports = {line.split(': ', 1)[1] for line in status.splitlines() if line.startswith('Package: ')}
+          assert ports == {'catch2', 'vcpkg-cmake', 'vcpkg-cmake-config'}, ports
+          commands = json.loads((root / 'compile_commands.json').read_text(encoding='utf-8'))
+          assert sorted(pathlib.Path(c['file']).name for c in commands) == sorted([
+              'InputState.cpp', 'InputStateTest.cpp', 'PostUpdateEvent.cpp',
+              'PostUpdateTest.cpp', 'PostUpdateRegistration.cpp'])
+          tests = json.loads(subprocess.check_output([
+              'ctest', '--test-dir', str(root), '--show-only=json-v1']))
+          assert len(tests['tests']) == 12, tests['tests']
+          print('Platform contracts: 12 tests; closure verified:', sorted(ports))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: platform-tests-${{ matrix.platform }}
+          path: |
+            out/platform/Testing/Temporary/
+            out/platform/compile_commands.json
+            out/platform/vcpkg_installed/vcpkg/status
+          if-no-files-found: ignore
+
+  sdl3-prototype:
+    runs-on: ubuntu-24.04
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.act/vcpkg-cache
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: sdl3-prototype-vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}
+          restore-keys: sdl3-prototype-vcpkg-${{ runner.os }}-
+      - name: Install Bison and virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bison xvfb xauth libx11-dev libxext-dev libxrandr-dev \
+            libxcursor-dev libxi-dev libxfixes-dev libxrender-dev libxss-dev libxtst-dev \
+            libxft-dev libibus-1.0-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev \
+            wayland-protocols libdecor-0-dev
+      - name: Configure and build separate SDL3 shell
+        shell: bash
+        run: |
+          export VCPKG_ROOT="$VCPKG_INSTALLATION_ROOT"
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+          cmake -S . -B out/sdl3-prototype/build -G Ninja -DLINUX=ON \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=OFF -DKRKR2_BUILD_SDL3_PROTOTYPE=ON
+          cmake --build out/sdl3-prototype/build --target krkr2_sdl3_prototype --parallel 4
+      - name: Verify SDL queue, TJS callbacks and renderer readback
+        env:
+          SDL_VIDEO_DRIVER: x11
+        run: xvfb-run -a python tools/sdl3-prototype/verify.py out/sdl3-prototype/build/tools/sdl3-prototype/krkr2_sdl3_prototype out/sdl3-prototype/run
+      - name: Reject incorrect focus rendering even when the process succeeds
+        env:
+          SDL_VIDEO_DRIVER: x11
+        run: |
+          python - <<'PY'
+          import json, pathlib, subprocess
+          root = pathlib.Path('out/sdl3-prototype')
+          fixture = root / 'wrong-focus.tjs'
+          original = pathlib.Path('tools/sdl3-prototype/fixture.tjs').read_text(encoding='utf-8')
+          assert original.count('backgroundColor = 0x102030;') == 1
+          fixture.write_text(original.replace('backgroundColor = 0x102030;', 'backgroundColor = 0x203040;'), encoding='utf-8')
+          result = subprocess.run(['xvfb-run', '-a', 'python', 'tools/sdl3-prototype/verify.py',
+              str(root / 'build/tools/sdl3-prototype/krkr2_sdl3_prototype'),
+              str(root / 'wrong-focus-run'), '--script', str(fixture)])
+          report = json.loads((root / 'wrong-focus-run/verification.json').read_text(encoding='utf-8'))
+          assert result.returncode == 1 and report['exit_code'] == 0, report
+          assert report['passed'] is False and report['forced_stop'] is False, report
+          assert 'unfocused.bmp' in report['failure'], report
+          print('Incorrect focus pixels were rejected after normal process exit.')
+          PY
+      - name: Verify prototype dependency closure
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          status = Path('out/sdl3-prototype/build/vcpkg_installed/vcpkg/status').read_text(encoding='utf-8')
+          ports = {line.split(': ', 1)[1] for line in status.splitlines() if line.startswith('Package: ')}
+          assert 'sdl3' in ports, ports
+          assert not ports.intersection({'cocos2dx', 'opencv4', 'ffmpeg', 'catch2', 'libarchive', 'unrar'}), ports
+          print('SDL3/TJS prototype closure verified:', sorted(ports))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdl3-prototype-LINUX
+          path: |
+            out/sdl3-prototype/run/
+            out/sdl3-prototype/wrong-focus-run/
+            out/sdl3-prototype/build/compile_commands.json
+            out/sdl3-prototype/build/vcpkg_installed/vcpkg/status
+          if-no-files-found: ignore
+
   archives:
     env:
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.act/vcpkg-cache

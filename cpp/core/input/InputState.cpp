@@ -19,6 +19,17 @@ namespace krkr::input {
         return wasDown;
     }
 
+    std::vector<std::uint32_t> KeyState::releaseAll() {
+        std::vector<std::uint32_t> released;
+        for(std::uint32_t key = 0; key < state.size(); ++key) {
+            if(isDown(key))
+                released.push_back(key);
+        }
+        for(auto key : released)
+            release(key);
+        return released;
+    }
+
     void KeyState::latchReleasedPress(std::uint32_t key) {
         if(key < state.size())
             state[key] = pendingPress;

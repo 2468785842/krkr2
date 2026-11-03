@@ -82,17 +82,61 @@ namespace {
 
     void push(SDL_WindowID window, unsigned stage) {
         SDL_Event event{};
-        if(stage <= 1) {
-            event.type = stage == 0 ? SDL_EVENT_KEY_DOWN : SDL_EVENT_KEY_UP;
+        if(stage == 0 || stage == 3 || stage == 4) {
+            event.type = stage == 4 ? SDL_EVENT_KEY_UP : SDL_EVENT_KEY_DOWN;
             event.key.windowID = window;
             event.key.key = SDLK_A;
             event.key.scancode = SDL_SCANCODE_A;
-            event.key.down = stage == 0;
+            event.key.down = stage != 4;
+        } else if(stage == 1 || stage == 2) {
+            if(stage == 2) {
+                // A repeat and a late physical release while unfocused must
+                // not re-arm the key or send a second script key-up.
+                event.type = SDL_EVENT_KEY_DOWN;
+                event.key.windowID = window;
+                event.key.key = SDLK_A;
+                event.key.scancode = SDL_SCANCODE_A;
+                event.key.down = true;
+                event.key.repeat = true;
+                check(SDL_PushEvent(&event));
+                event.type = SDL_EVENT_KEY_UP;
+                event.key.down = false;
+                event.key.repeat = false;
+                check(SDL_PushEvent(&event));
+                event = {};
+            }
+            event.type = stage == 1 ? SDL_EVENT_WINDOW_FOCUS_LOST
+                                    : SDL_EVENT_WINDOW_FOCUS_GAINED;
+            event.window.windowID = window;
         } else {
             event.type = SDL_EVENT_WINDOW_CLOSE_REQUESTED;
             event.window.windowID = window;
         }
         check(SDL_PushEvent(&event));
+        if(stage == 1) {
+            check(SDL_PushEvent(&event)); // Duplicate loss is idempotent.
+            event.type = SDL_EVENT_WINDOW_FOCUS_GAINED;
+            event.window.windowID = 0;
+            check(SDL_PushEvent(&event)); // Foreign focus cannot reactivate us.
+        } else if(stage == 2) {
+            check(SDL_PushEvent(&event)); // Duplicate gain is idempotent.
+            event = {};
+            event.type = SDL_EVENT_KEY_UP;
+            event.key.windowID = window;
+            event.key.key = SDLK_A;
+            event.key.scancode = SDL_SCANCODE_A;
+            check(SDL_PushEvent(&event)); // Late release after recovery.
+        }
+        if(stage == 0) {
+            // An unrelated window must not release our held A or close us.
+            event.key.windowID = 0;
+            event.type = SDL_EVENT_KEY_UP;
+            event.key.down = false;
+            check(SDL_PushEvent(&event));
+            event = {};
+            event.type = SDL_EVENT_WINDOW_CLOSE_REQUESTED;
+            check(SDL_PushEvent(&event));
+        }
     }
 
     int run(const fs::path &source, const fs::path &output, bool selfTest) {
@@ -142,7 +186,23 @@ namespace {
         const auto windowID = SDL_GetWindowID(window.get());
         auto &state = krkr::input::sharedState();
         bool running = true;
+        // Self-test starts with virtual focus, just like its injected keys;
+        // interactive use starts with the actual window's focus state.
+        bool focused = selfTest ||
+            (SDL_GetWindowFlags(window.get()) & SDL_WINDOW_INPUT_FOCUS) != 0;
         unsigned stage = 0, frames = 0, keyDowns = 0, keyUps = 0, vetoes = 0;
+        unsigned focusLosses = 0, focusGains = 0, ignoredKeys = 0;
+        unsigned syntheticReleases = 0, foreignEvents = 0;
+        const auto keyCallback = [&](int key, bool down) {
+            const bool current = state.query(key, true);
+            const bool pending = state.query(key, false);
+            script.execute("onKey(" + std::to_string(key) + "," +
+                           (down ? "true" : "false") + "," +
+                           (current ? "true" : "false") + "," +
+                           (pending ? "true" : "false") + ");");
+            events << "key:" << key << ':' << down << ':' << current << ':'
+                   << pending << '\n';
+        };
         const auto started = SDL_GetTicks();
         while(running) {
             if(selfTest && SDL_GetTicks() - started > 10000)
@@ -151,34 +211,69 @@ namespace {
             while(SDL_PollEvent(&event)) {
                 if(event.type == SDL_EVENT_KEY_DOWN ||
                    event.type == SDL_EVENT_KEY_UP) {
+                    if(event.key.windowID != windowID) {
+                        ++foreignEvents;
+                        continue;
+                    }
                     const auto key = virtualKey(event.key.key);
                     if(!key) {
                         events << "unsupported-key:" << event.key.key << '\n';
                         continue;
                     }
                     const bool down = event.type == SDL_EVENT_KEY_DOWN;
+                    if(!focused) {
+                        ++ignoredKeys;
+                        events << "unfocused-key:" << key << ':' << down
+                               << '\n';
+                        continue;
+                    }
                     if(down) {
                         state.press(key);
                         ++keyDowns;
                     } else {
-                        state.release(key);
+                        if(!state.release(key))
+                            continue;
                         ++keyUps;
                     }
-                    const bool current = state.query(key, true);
-                    const bool pending = state.query(key, false);
-                    script.execute("onKey(" + std::to_string(key) + "," +
-                                   (down ? "true" : "false") + "," +
-                                   (current ? "true" : "false") + "," +
-                                   (pending ? "true" : "false") + ");");
-                    events << "key:" << key << ':' << down << ':' << current
-                           << ':' << pending << '\n';
+                    keyCallback(key, down);
+                } else if(event.type == SDL_EVENT_WINDOW_FOCUS_LOST ||
+                          event.type == SDL_EVENT_WINDOW_FOCUS_GAINED) {
+                    if(event.window.windowID != windowID) {
+                        ++foreignEvents;
+                        continue;
+                    }
+                    const bool gained =
+                        event.type == SDL_EVENT_WINDOW_FOCUS_GAINED;
+                    if(focused == gained)
+                        continue;
+                    focused = gained;
+                    if(!focused) {
+                        ++focusLosses;
+                        for(auto key : state.releaseAll()) {
+                            ++keyUps;
+                            ++syntheticReleases;
+                            keyCallback(key, false);
+                        }
+                    } else {
+                        ++focusGains;
+                    }
+                    script.execute(focused ? "onFocus(true);"
+                                           : "onFocus(false);");
+                    events << "focus:" << focused << '\n';
                 } else if(event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED ||
                           event.type == SDL_EVENT_QUIT) {
+                    if(event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED &&
+                       event.window.windowID != windowID) {
+                        ++foreignEvents;
+                        continue;
+                    }
                     running = static_cast<tjs_int>(
                                   script.evaluate("onCloseQuery()")) == 0;
                     events << "close-accepted:" << !running << '\n';
                     if(running)
                         ++vetoes;
+                    else
+                        break;
                 }
             }
             if(!running)
@@ -192,29 +287,40 @@ namespace {
                                  float(script.integer("rectangleHeight")) };
             check(SDL_RenderFillRect(renderer.get(), &rectangle));
             if(selfTest) {
-                const char *names[] = { "initial.bmp", "pressed.bmp",
-                                        "released.bmp", "veto.bmp" };
-                if(stage < 4)
+                const char *names[] = { "initial.bmp",   "pressed.bmp",
+                                        "unfocused.bmp", "restored.bmp",
+                                        "repressed.bmp", "released.bmp",
+                                        "veto.bmp" };
+                if(stage < 7)
                     capture(renderer.get(), output / names[stage]);
             }
             check(SDL_RenderPresent(renderer.get()));
             ++frames;
-            if(selfTest && stage < 4)
+            if(selfTest && stage < 7)
                 push(windowID, stage++);
             SDL_Delay(16);
         }
         if(selfTest &&
-           (keyDowns != 1 || keyUps != 1 || vetoes != 1 ||
-            script.integer("keyDownCount") != 1 ||
-            script.integer("keyUpCount") != 1 ||
+           (keyDowns != 2 || keyUps != 2 || vetoes != 1 || focusLosses != 1 ||
+            focusGains != 1 || ignoredKeys != 2 || syntheticReleases != 1 ||
+            foreignEvents != 3 || script.integer("keyDownCount") != 2 ||
+            script.integer("keyUpCount") != 2 ||
+            script.integer("focusLossCount") != 1 ||
+            script.integer("focusGainCount") != 1 ||
             script.integer("closeCount") != 2))
             throw std::runtime_error("Self-test event or script counts differ");
         std::ofstream report(output / "report.json");
         report << "{\"completed\":true,\"renderer\":\"software\",\"self_test\":"
-               << (selfTest ? "true" : "false")
+               << (selfTest ? "true" : "false") << ",\"video_driver\":\""
+               << SDL_GetCurrentVideoDriver() << '"'
                << ",\"sdl_version\":" << SDL_GetVersion()
                << ",\"frames\":" << frames << ",\"key_downs\":" << keyDowns
                << ",\"key_ups\":" << keyUps << ",\"close_vetoes\":" << vetoes
+               << ",\"focus_losses\":" << focusLosses
+               << ",\"focus_gains\":" << focusGains
+               << ",\"ignored_keys\":" << ignoredKeys
+               << ",\"synthetic_releases\":" << syntheticReleases
+               << ",\"foreign_events\":" << foreignEvents
                << ",\"width\":" << width << ",\"height\":" << height << "}\n";
         return 0;
     }

@@ -15,7 +15,7 @@ description: 为 KrKr2 的 C++、CMake 或后端改动选择并执行构建与�
   只有 `--target` 不会缩小配置期依赖；独立闭包结论需要独立配置依据。
 - 改窗口适配或 UI，构建应用，并查阅[窗口接口](../../../docs/subsystems/window-interface.md)的交互验收范围。
   `cocos_window_tests` 只在 full 范围注册，需要实际构建才会发现 Catch2 用例。
-- 输入状态与帧钩子可选 `platform` 范围，预期分别 6、3 项用例，无 TJS/Cocos 依赖；
+- 输入状态与帧钩子可选 `platform` 范围，预期分别 9、3 项用例，无 TJS/Cocos 依赖；
   SDL3 实验另用显式原型开关和 `tools/sdl3-prototype/verify.py`，不等同于游戏后端验收。
 - 文档或技能调整只做相应路径、元数据与 diff 检查；新脚本验证实际行为。
 - 基础模块依赖改动执行 `python scripts/check_core_module_deps.py`，其成功范围以工具输出为准。
