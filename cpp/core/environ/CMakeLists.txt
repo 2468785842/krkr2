@@ -7,6 +7,7 @@ endif()
 
 set(ENVIRON_PATH ${CMAKE_CURRENT_LIST_DIR})
 set(ENVIRON_SOURCE_FILES
+    ${ENVIRON_PATH}/RenderUtils.cpp
     ${ENVIRON_PATH}/Application.cpp
     ${ENVIRON_PATH}/EnvironFileBackendInit.cpp
     ${ENVIRON_PATH}/DialogBackend.cpp
@@ -90,6 +91,7 @@ if(NOT (ANDROID OR IOS))
     list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/launch/DesktopLaunch.cpp)
 endif()
 add_library(${PROJECT_NAME} STATIC ${ENVIRON_SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} PRIVATE core_input)
 if(NOT (ANDROID OR IOS))
     target_link_libraries(${PROJECT_NAME} PRIVATE core_launch)
 endif()

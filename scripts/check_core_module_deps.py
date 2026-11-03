@@ -8,12 +8,12 @@ MODULES = {
     'core_log': 'log', 'tjs2': 'tjs2', 'core_msg': 'msg', 'core_io': 'io',
     'core_storage_archive': 'storage', 'archive_xp3': 'archive/xp3',
     'archive_zip': 'archive/zip', 'archive_7z': 'archive/7z', 'archive_tar': 'archive/tar',
-    'core_imageops': 'imageops',
+    'core_imageops': 'imageops', 'core_input': 'input',
 }
 ALLOWED = {
     'core_log': set(), 'tjs2': {'core_log'}, 'core_msg': {'tjs2'},
     'core_io': {'tjs2', 'core_msg'}, 'core_storage_archive': {'tjs2', 'core_io', 'core_msg'},
-    'core_imageops': set(),
+    'core_imageops': set(), 'core_input': set(),
     **{name: {'core_storage_archive'} for name in MODULES if name.startswith('archive_')},
 }
 
@@ -32,7 +32,8 @@ def check(root):
             text = text.replace('${PROJECT_NAME}', project[1])
         links = [body.split()[1:] for body in re.findall(r'target_link_libraries\s*\((.*?)\)', text, re.S | re.I)
                  if body.split() and body.split()[0] == target]
-        if not links:
+        # core_input uses only the standard library and has no link dependencies.
+        if not links and target != 'core_input':
             errors.append(f'{target}: 未找到显式链接声明')
         for dependency in (token.strip('"') for link in links for token in link):
             internal = dependency == 'tjs2' or dependency.startswith(('core_', 'archive_'))
@@ -66,13 +67,18 @@ def check(root):
                 errors.append(f'{source.relative_to(root)}: OpenCV 调用应放入 ImageOps 后端')
     # Generic window consumers must not import the Cocos implementation header.
     for relative in ('visual/impl/WindowImpl.cpp', 'visual/impl/BasicDrawDevice.cpp',
-                     'movie/ffmpeg/KRMoviePlayer.cpp', 'visual/WindowLayer.h'):
+                     'movie/ffmpeg/KRMoviePlayer.cpp', 'visual/WindowLayer.h',
+                     'base/impl/SystemImpl.cpp', 'environ/HostLifecycle.h',
+                     'environ/RenderUtils.h', 'event/PostUpdateEvent.h'):
         source = root / 'cpp/core' / relative
         active = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
         if re.search(r'#\s*include\s*[<"](?:[^">]*/)?TVPWindow\.h[">]', active):
             errors.append(f'{source.relative_to(root)}: 不得包含 Cocos 窗口实现头')
         if relative == 'visual/WindowLayer.h' and re.search(r'\bcocos2d\b|cocos[-/]|ui/Cocos', active, re.I):
             errors.append(f'{source.relative_to(root)}: 通用窗口接口不得暴露 Cocos 类型')
+        if relative in ('environ/HostLifecycle.h', 'environ/RenderUtils.h', 'event/PostUpdateEvent.h'):
+            if re.search(r'\bcocos2d\b|cocos[-/]|\btjs\w*', active, re.I):
+                errors.append(f'{source.relative_to(root)}: 宿主通知与帧入口不得暴露 Cocos/TJS 类型')
     return errors
 
 

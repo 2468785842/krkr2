@@ -20,6 +20,7 @@ set(BASE_SOURCE_FILES
 )
 
 add_library(${PROJECT_NAME} STATIC ${BASE_SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} PRIVATE core_input)
 target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2_CORE_API_INCLUDE_DIRS})
 # 域模块仅头文件依赖；链接在 krkr2core / environ 组合根完成（Phase 4 去环）
 target_include_directories(${PROJECT_NAME} PRIVATE

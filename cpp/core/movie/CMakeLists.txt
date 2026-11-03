@@ -19,6 +19,7 @@ set(MOVIE_SOURCE_FILES
     ${MOVIE_PATH}/ffmpeg/DemuxFFmpeg.cpp
     ${MOVIE_PATH}/ffmpeg/DemuxPacket.cpp
     ${MOVIE_PATH}/ffmpeg/FactoryCodec.cpp
+    ${MOVIE_PATH}/ffmpeg/FFmpegInit.cpp
     ${MOVIE_PATH}/ffmpeg/InputStream.cpp
     ${MOVIE_PATH}/ffmpeg/krffmpeg.cpp
     ${MOVIE_PATH}/ffmpeg/KRMovieLayer.cpp

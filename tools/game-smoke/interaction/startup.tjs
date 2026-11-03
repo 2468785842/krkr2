@@ -1,8 +1,16 @@
 // Self-contained UI contract fixture; never installed in a commercial game.
 global.events = [];
+global.inputProbe = false;
+global.lifecycleProbe = false;
 global.record = function(text) {
     events.add(text);
     events.save(System.exePath + "interaction-events.txt");
+};
+System.onActivate = function() {
+    if(lifecycleProbe) record("lifecycle:activate");
+};
+System.onDeactivate = function() {
+    if(lifecycleProbe) record("lifecycle:deactivate");
 };
 class ContractWindow extends Window {
     var allowClose = false;
@@ -20,6 +28,18 @@ class ContractWindow extends Window {
     }
     function onKeyDown(key, shift) {
         record("key:" + string key);
+        if(inputProbe) {
+            var current = System.getKeyState(key, true);
+            var pressed = System.getKeyState(key, false);
+            record("input:key-down:" + string key + ":" + string shift + ":" + string current + ":" + string pressed);
+        }
+    }
+    function onKeyUp(key, shift) {
+        if(inputProbe) {
+            var current = System.getKeyState(key, true);
+            var pressed = System.getKeyState(key, false);
+            record("input:key-up:" + string key + ":" + string shift + ":" + string current + ":" + string pressed);
+        }
     }
 }
 class ContractMenu extends MenuItem {
@@ -47,7 +67,19 @@ global.driver = new Timer(function() {
         if(!command.count || command[0] == lastCommand) return;
         lastCommand = command[0];
         record("command:" + lastCommand);
-        if(lastCommand == "inform") {
+        if(lastCommand == "lifecycle-probe") {
+            lifecycleProbe = true;
+            record("lifecycle-probe-ready");
+        } else if(lastCommand == "lifecycle-probe-end") {
+            lifecycleProbe = false;
+            record("lifecycle-probe-done");
+        } else if(lastCommand == "keyboard-probe") {
+            inputProbe = true;
+            record("keyboard-probe-ready");
+        } else if(lastCommand == "keyboard-probe-end") {
+            inputProbe = false;
+            record("keyboard-probe-done");
+        } else if(lastCommand == "inform") {
             var answer = System.inform("Acknowledge the window contract test.", "KrKr2 contract message", ["OK"]);
             record("inform-return:" + string answer);
         } else if(lastCommand == "select-cancel" || lastCommand == "select-accept") {

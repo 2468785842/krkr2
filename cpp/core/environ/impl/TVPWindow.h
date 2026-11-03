@@ -23,28 +23,11 @@ public:
     static inline cocos2d::Node *_mouseCursor;
     static inline int _touchBeginTick;
     static inline bool _virutalMouseMode = false;
-    static inline tjs_uint8 _scancode[0x200];
 
     bool Closing = false, ProgramClosing = false, CanCloseWork = false;
     bool in_mode_ = false; // is modal
     int modal_result_ = 0;
     enum CloseAction { caNone, caHide, caFree, caMinimize };
-
-    static bool TVPGetJoyPadAsyncState(tjs_uint keycode, bool getcurrent) {
-        if(keycode >= std::size(_scancode))
-            return false;
-        tjs_uint8 code = _scancode[keycode];
-        _scancode[keycode] &= 1;
-        return code & (getcurrent ? 1 : 0x10);
-    }
-
-    static bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent) {
-        if(keycode >= std::size(_scancode))
-            return false;
-        tjs_uint8 code = _scancode[keycode];
-        _scancode[keycode] &= 1;
-        return code & (getcurrent ? 1 : 0x10);
-    }
 
     static void _refadeMouseCursor() {
         _mouseCursor->stopAllActions();

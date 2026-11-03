@@ -17,6 +17,7 @@
 | [Desktop 启动](subsystems/desktop-cli.md) | `--game` / `--xp3`、参数兼容及错误退出码 |
 | [可选管理界面](subsystems/management-ui.md) | Desktop 管理页面开关、资源与默认配置边界 |
 | [窗口接口](subsystems/window-interface.md) | 通用窗口接口与现有 Cocos 适配边界 |
+| [虚拟按键状态](subsystems/input-state.md) | 共享状态、查询消费行为及 Cocos 输入适配边界 |
 | [ImageOps](subsystems/imageops.md) | CPU 图像契约、独立测试与微基准 |
 
 ## 参考与工具

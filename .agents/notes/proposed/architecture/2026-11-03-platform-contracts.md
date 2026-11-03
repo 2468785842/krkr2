@@ -12,8 +12,8 @@ SDL3 已选作后续平台壳，尚未完成迁移，见[选型](2026-11-03-ui-p
 
 ## 建议与下一步
 
-先完成[测试链接闭包](../testing/2026-11-03-ffmpeg-test-link-closure.md)调查，
-并保留[访问冲突](../bug-fix/2026-11-03-ui-contract-access-violation.md)的诊断能力。
+已完成[初始化测试链接闭包](../../implemented/testing/2026-11-03-ffmpeg-test-link-closure.md)修复，
+继续保留[访问冲突](../bug-fix/2026-11-03-ui-contract-access-violation.md)的诊断能力。
 随后从 `TVPWindow.*`、`WindowImpl.*`、`EventIntf.*` 和 `MainScene.*`
 列出事件生产者、排队、脚本分发及销毁回调的调用链，确定下一项最小可独立验证的接口。
 输入批次先定义坐标空间、DPI、按下/释放及焦点丢失顺序；
@@ -29,3 +29,50 @@ SDL3 已选作后续平台壳，尚未完成迁移，见[选型](2026-11-03-ui-p
 
 直接在一次改动中换窗口、输入和渲染会使回归原因难以区分，采用分接口批次。
 本提案尚未确定新的函数签名；先依据调用链和测试定义契约，避免为未来后端堆积空接口。
+
+## 输入状态子批次调查
+
+现有 `SystemImpl.cpp` 为读取异步按键而直接包含 Cocos 窗口实现头。
+键盘、鼠标和手柄适配器共同维护 `TVPWindowLayer::_scancode[0x200]`：
+低位表示当前按下，0x10 表示待查询的按下；释放保留未消费的按下位。
+`getcurrent=true` 的查询也清除 0x10，这是现有脚本可见行为，不能顺手改成常见的独立边沿查询。
+鼠标短点另有直接写入“已释放但待查询”的状态路径，重复 key-down 会重新置位按下标记。
+
+已接入纯标准 C++ 的 `core_input` 状态模块，System 查询不再包含 `TVPWindow.h`。
+六个状态契约测试通过，依赖检查扩至 11 个基础目标。
+迁移前 `input-state-baseline-01` 完成一轮交互并正常退出，
+opt-in 驱动在 Cocos EventDispatcher 投递分开的 A-key down/up，
+真实 Window 回调分别记录 `input:key-down:65:0:1:0`、`input:key-up:65:0:0:0`。
+基线应用 SHA256 为 `03253e42a8d0e7a00d0dee35cffee040462f07766ad3a571dc2a259a7a3b2995`。
+接入后 `input-frame-migrated-01` 以相同脚本完成三轮交互与正常退出，
+A-key 的两条记录与基线完全一致；应用 SHA256 为
+`a0a7a510a751fa15ce93ce618ef6ca75ef39c70ebfc403054469c87b237e6824`。
+CDB 附加轮退出 0，无访问冲突标记或 dump。full 配置实际注册、运行输入/帧钩子共 9 项，全部通过。
+键码翻译、坐标/DPI 变换、TJS 输入事件类和排队/合并策略仍由现有路径承担。
+
+主循环调查另发现 `RenderUtils.h` 的 post-update 回调存储带内部链接，
+设置者在 OpenGL 渲染器、读取者在 MainScene 与模态绘制路径。
+提取原定义的双编译单元实验实际得到调用 0 次（期望 1 次），
+证据在 `out/frame-hook-validation/baseline.log`、`source.json`。
+已将唯一存储移至 `event/PostUpdateEvent.cpp`，三个跨单元/替换/注销测试通过；
+`RenderUtils.h` 不再包含 Cocos 或平台头，绘制与 swap 实现在 environ 的 cpp 中。
+普通更新和模态绘制均经同一调用入口，保持原有相对顺序与计时公式。
+上述三轮也覆盖此改动，实际检查文件/菜单截图；这不是原访问冲突的根因结论。
+
+## 生命周期子批次
+
+`environ/HostLifecycle.h` 提供不含 Cocos/TJS 类型的前台/后台通知。
+Cocos AppDelegate 在通知引擎后再启停动画，保持原顺序；Application 中音量、混音锁、
+compact 和 System 事件排队未改变，没有提前接线旧 `OnExit` 或更改销毁顺序。
+
+`lifecycle-migrated-01` 启用 `--keyboard-probe --lifecycle-probe`，真实 System 回调依次记录
+`lifecycle:deactivate`、`lifecycle:activate`，随后一轮完整交互及关闭退出 0，未强停。
+应用 SHA256 为 `49bb28ee8aa874d105934ea72f8206f228bfbf7a62a76a4a2298c2864be4f003`。
+该测试只发引擎通知，未停止 Cocos 泵，不证明 OS 挂起、移动端 surface 重建或恢复帧行为。
+事件生产/分发之间仍按原实现合并同类激活事件，并检查当前激活状态，不能要求每次快速切换都产生回调。
+
+## 剩余工作
+
+本页仍为 proposed：坐标/DPI/IME、焦点丢失释放、平台事件泵、完整暂停恢复和销毁路径尚未抽离。
+下一批应在实际失焦/后台与恢复场景建立证据，避免仅靠接口声明推断跨平台行为。
+独立 SDL3/TJS 壳实验的可用范围另见 `tools/sdl3-prototype/README.md`，不作为 B2 全完成或 KAG 后端迁移验收。

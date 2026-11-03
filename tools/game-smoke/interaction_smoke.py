@@ -40,7 +40,7 @@ def prepare(destination):
     (destination / "interaction-fixture.json").write_text('{"version":1}', encoding="utf-8")
 
 
-def run(engine, directory, seconds, launch_style="game", component_input=False):
+def run(engine, directory, seconds, launch_style="game", component_input=False, automation=None):
     engine, directory = engine.resolve(strict=True), directory.resolve(strict=True)
     if not (directory / "interaction-fixture.json").is_file():
         raise ValueError("Prepare a private fixture first")
@@ -48,9 +48,10 @@ def run(engine, directory, seconds, launch_style="game", component_input=False):
         raise ValueError("Run requires a fresh fixture")
     if not 5 <= seconds <= 600:
         raise ValueError("Duration must be 5..600 seconds")
-    report = {"engine": str(engine), "engine_sha256": hashlib.file_digest(engine.open("rb"), "sha256").hexdigest(),
-              "fixture_sha256": hashlib.file_digest((directory / "startup.tjs").open("rb"), "sha256").hexdigest(),
-              "forced_stop": False}
+    with engine.open("rb") as binary, (directory / "startup.tjs").open("rb") as fixture:
+        report = {"engine": str(engine), "engine_sha256": hashlib.file_digest(binary, "sha256").hexdigest(),
+                  "fixture_sha256": hashlib.file_digest(fixture, "sha256").hexdigest(),
+                  "forced_stop": False}
     with (directory / "interaction-process.log").open("wb") as log:
         command = [str(engine)]
         if launch_style == "game":
@@ -63,10 +64,15 @@ def run(engine, directory, seconds, launch_style="game", component_input=False):
         process = subprocess.Popen(command, cwd=engine.parent, stdout=log, stderr=subprocess.STDOUT)
         report["pid"] = process.pid
         print(f"Fixture PID {process.pid}; requests: {directory / 'interaction-command.txt'}", flush=True)
+        deadline = time.monotonic() + seconds
         try:
-            process.wait(timeout=seconds)
+            if automation is not None:
+                automation(process, directory, deadline, report)
+            process.wait(timeout=max(0, deadline - time.monotonic()))
         except subprocess.TimeoutExpired:
             report["forced_stop"] = True
+        except Exception as error:
+            report.setdefault("automation_failures", []).append(f"automation:{type(error).__name__}: {error}")
         finally:
             if process.poll() is None:
                 report["forced_stop"] = True
@@ -79,6 +85,7 @@ def run(engine, directory, seconds, launch_style="game", component_input=False):
             report["exit_code"] = process.returncode
             report["events"] = read_events(directory)
             report["failures"] = failures(report["events"])
+            report["failures"].extend(report.get("automation_failures", []))
             driver_log = directory / "ui-driver-events.txt"
             report["driver_events"] = driver_log.read_text(encoding="utf-8").splitlines() if driver_log.exists() else []
             if component_input:

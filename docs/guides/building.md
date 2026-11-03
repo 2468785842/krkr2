@@ -107,7 +107,33 @@ Desktop 启动层另有 `KRKR2_TEST_SCOPE=launch`，只构建 C++17 参数/路�
 | 音视频 | 播放/暂停/seek/结束、音画同步、异常文件、线程及资源释放 |
 
 新增测试要在对应子目录 CMake 的 SOURCES 中登记。先 `ctest -N` 确认注册，再运行；visual 已登记 `ImageOpsTest.cpp` 的像素对照用例。CI 部分构建关闭测试，构建徽章不代表全量测试通过。
+
+full 范围的 `ffmpeg` 目标测试真实 FFmpeg 初始化、codec/demuxer/filter 注册及重复调用，
+不创建窗口或播放媒体。先构建目标，再检查和运行用例：
+
+```sh
+cmake --build out/windows/debug --target ffmpeg
+ctest --test-dir out/windows/debug -N -R "^init ffmpeg$"
+ctest --test-dir out/windows/debug -R "^init ffmpeg$" --output-on-failure --no-tests=error
+```
+
+这是 full 配置内的定向测试，并非独立的最小 FFmpeg 配置，也不能替代播放集成验证。
+链接边界与本地结果见[初始化测试记录](../../.agents/notes/implemented/testing/2026-11-03-ffmpeg-test-link-closure.md)。
 后端改动还需实际游戏或可分发的自制 TJS/KAG fixture。报告资源版本/哈希、输入步骤、平台和结果；不把仅能启动当作兼容完成。
+
+## 独立平台契约与 SDL3 原型
+
+输入状态与帧钩子可以用 `platform` 范围独立配置，只需 Catch2，不配置 TJS、Cocos、OpenCV 或 FFmpeg：
+
+```powershell
+cmake -S . -B out/platform-tests -G Ninja -DWINDOWS=ON -DCMAKE_BUILD_TYPE=Debug -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=platform -DVCPKG_TARGET_TRIPLET=x64-windows-static-md
+cmake --build out/platform-tests --target input_state_tests frame_hook_tests
+ctest --test-dir out/platform-tests -N
+ctest --test-dir out/platform-tests --output-on-failure --no-tests=error
+```
+
+预期 6 个输入状态用例与 3 个帧钩子用例，不能替代窗口、IME 或设备交互验收。
+独立 SDL3/TJS 壳实验使用另一显式开关，构建和验证见[原型工具](../../tools/sdl3-prototype/README.md)。
 
 ## 编译提速的基线
 

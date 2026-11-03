@@ -10,6 +10,10 @@
     }
   ],
   "features": {
+    "sdl3-prototype": {
+      "description": "Separate SDL3/TJS desktop shell experiment",
+      "dependencies": ["sdl3"]
+    },
     "engine": {
       "description": "Complete runtime and bundled plugins",
       "dependencies": [

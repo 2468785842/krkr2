@@ -64,3 +64,39 @@ python tools/game-smoke/interaction_smoke.py run out/windows/debug/bin/krkr2/krk
 目标未找到/不唯一会写 error，组件模式的最终报告会据此失败。
 这验证场景内组件交互，不能替代操作系统鼠标、触摸设备、DPI 或输入法验收。
 原生消息框仍需人工或系统 UI 自动化确认。
+
+## 连续复现与取证
+
+测试驱动构建可用下列命令自动准备新场景、执行三轮文件/菜单操作，再测试关闭否决与接受：
+
+```powershell
+python tools/game-smoke/interaction_repro.py out/windows/debug/bin/krkr2/krkr2.exe out/game-smoke/repro-01 --rounds 3 --seconds 300
+```
+
+原生消息框弹出后仍需实际确认；工具等待其真实返回，超时失败。
+每轮以事件计数和唯一请求序号确认新结果，不接受上一轮的同名事件；截图也等待保存确认。
+第二次菜单点击后通过实际返回按钮关闭该菜单，再进入下一轮，避免累积同名可见控件。
+操作轨迹在 `repro-trace.json`，每轮图片独立命名；最终判定仍由 `interaction_smoke.py` 写入原格式报告。
+自动操作超时或异常也计入失败，完整脚本事件不能覆盖操作驱动失败。
+
+若本机已有 CDB，可附加到控制器启动的进程：
+
+```powershell
+python tools/game-smoke/interaction_repro.py out/windows/debug/bin/krkr2/krkr2.exe out/game-smoke/repro-debug-01 --cdb "D:/Windows Kits/10/Debuggers/x64/cdb.exe"
+```
+
+`evidence/` 保留启动时的 exe 和可用 PDB 副本及 SHA256，CDB 模式要求 PDB 存在；
+复制前后哈希不一致会失败。建议使用完整 PDB；FASTLINK PDB 还依赖原对象文件，复制本身不能保证符号完整。
+`cdb.log` 包含符号加载、模块信息及访问冲突的异常栈，dump 写入本次目录。
+根据实际符号加载结果判断是否匹配，不将旧 RVA 套用到新构建。
+控制器仍读取原进程退出码；观察到访问冲突或调试器异常退出时报告失败。
+成功重复运行不能关闭没有根因的偶发崩溃调查。
+
+增加 `--keyboard-probe` 可在打开消息框前检查 A 键按下/抬起的脚本回调及
+`System.getKeyState` 的旧查询消费行为。驱动仅接受 `key-down A`、`key-up A`，
+经 Cocos EventDispatcher 和原输入队列分发；每步等待脚本确认，不代表系统设备输入验收。
+对应证据为 `interaction-events.txt`、`keyboard-probe.png` 和 `repro-trace.json`。
+
+`--lifecycle-probe` 检查共享宿主通知入口经原事件队列到达 `System.onDeactivate`、
+`System.onActivate`，分别等到脚本确认后再继续。驱动不停止 Cocos 动画泵，
+所以该探针不证明 OS 挂起、后台计时、GL context 恢复或移动端 surface 生命周期。

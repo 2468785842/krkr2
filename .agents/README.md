@@ -30,9 +30,10 @@
 
 ## 当前后端工作的顺序
 
-- [FFmpeg 测试链接闭包](notes/proposed/testing/2026-11-03-ffmpeg-test-link-closure.md)：取得链接行和符号归属，恢复真实测试目标。
-- [文件交互访问冲突](notes/proposed/bug-fix/2026-11-03-ui-contract-access-violation.md)：整理可重复操作与匹配符号，保留异常栈和 dump。
-- [B2 后续契约](notes/proposed/architecture/2026-11-03-platform-contracts.md)：逐项处理输入、主循环和生命周期，再推进平台壳原型。
+- [FFmpeg 测试链接闭包](notes/implemented/testing/2026-11-03-ffmpeg-test-link-closure.md)：已恢复初始化测试的真实链接边界，1 个用例、6 个断言通过；播放集成仍单独验收。
+- [文件交互访问冲突](notes/proposed/bug-fix/2026-11-03-ui-contract-access-violation.md)：连续复现与 CDB 取证工具已验证，原故障根因仍待调查。
+- [B2 后续契约](notes/proposed/architecture/2026-11-03-platform-contracts.md)：已提取输入状态、共享帧钩子与宿主通知；DPI/IME、失焦及完整暂停恢复仍待验证。
+- [子批次与 SDL3 实验结果](notes/implemented/testing/2026-11-03-platform-contracts-and-sdl3-probe.md)：独立 9 项测试与脚本/像素验证通过；实验尚未接入生产 Window/Layer 或 KAG。
 
 其他方案按需浏览 `notes/proposed/architecture/`，不因为文件已存在就视为已实现。
 历史测量与验证放 `notes/implemented/`，早期失效分析放 `notes/archived/`。

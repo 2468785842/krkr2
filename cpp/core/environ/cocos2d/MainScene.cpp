@@ -21,6 +21,7 @@
 #include "Application.h"
 #include "ScriptMgnIntf.h"
 #include "impl/TVPWindow.h"
+#include "InputState.h"
 #include "RenderManager.h"
 #include "ui/UIButton.h"
 #include "ui/csd/CsdUIFactory.h"
@@ -706,8 +707,7 @@ void TVPMainScene::update(float delta) {
     // TVPWindowLayer::_currentWindowLayer->UpdateOverlay();
     iTVPTexture2D::RecycleProcess();
     //_ResotreGLStatues();
-    if(_postUpdate)
-        _postUpdate();
+    TVPInvokePostUpdateEvent();
     if(_fpsLabel) {
         unsigned int drawCount;
         uint64_t vmemsize;
@@ -865,7 +865,7 @@ void TVPMainScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event *event) {
         return;
     code = _keymap[code];
 
-    TVPWindowLayer::_scancode[code] = 0x11;
+    krkr::input::sharedState().press(code);
     if(TVPWindowLayer::_currentWindowLayer) {
         TVPWindowLayer::_currentWindowLayer->InternalKeyDown(
             code, TVPGetCurrentShiftKeyState());
@@ -923,8 +923,7 @@ void TVPMainScene::onKeyReleased(EventKeyboard::KeyCode keyCode, Event *event) {
     if(!code || code >= 0x200)
         return;
     code = _keymap[code];
-    bool isPressed = TVPWindowLayer::_scancode[code] & 1;
-    TVPWindowLayer::_scancode[code] &= 0x10;
+    bool isPressed = krkr::input::sharedState().release(code);
     if(isPressed && TVPWindowLayer::TVPWindowLayer::_currentWindowLayer) {
         TVPWindowLayer::TVPWindowLayer::_currentWindowLayer->OnKeyUp(
             code, TVPGetCurrentShiftKeyState());
@@ -1286,7 +1285,7 @@ void TVPMainScene::onPadKeyDown(cocos2d::Controller *ctrl, int keyCode,
     if(!code || code >= 0x200)
         return;
     code = _keymap[code];
-    TVPWindowLayer::_scancode[code] = 0x11;
+    krkr::input::sharedState().press(code);
     if(TVPWindowLayer::_currentWindowLayer) {
         TVPWindowLayer::_currentWindowLayer->InternalKeyDown(
             code, TVPGetCurrentShiftKeyState());
@@ -1299,8 +1298,7 @@ void TVPMainScene::onPadKeyUp(cocos2d::Controller *ctrl, int keyCode,
     if(!code || code >= 0x200)
         return;
     code = _keymap[code];
-    bool isPressed = TVPWindowLayer::_scancode[code] & 1;
-    TVPWindowLayer::_scancode[code] &= 0x10;
+    bool isPressed = krkr::input::sharedState().release(code);
     if(isPressed && TVPWindowLayer::_currentWindowLayer) {
         TVPWindowLayer::_currentWindowLayer->OnKeyUp(
             code, TVPGetCurrentShiftKeyState());
@@ -1390,15 +1388,15 @@ const std::string &TVPGetInternalPreferencePath() {
 tjs_uint32 TVPGetCurrentShiftKeyState() {
     tjs_uint32 f = 0;
 
-    if(TVPWindowLayer::_scancode[VK_SHIFT] & 1)
+    if(krkr::input::sharedState().isDown(VK_SHIFT))
         f |= ssShift;
-    if(TVPWindowLayer::_scancode[VK_MENU] & 1)
+    if(krkr::input::sharedState().isDown(VK_MENU))
         f |= ssAlt;
-    if(TVPWindowLayer::_scancode[VK_CONTROL] & 1)
+    if(krkr::input::sharedState().isDown(VK_CONTROL))
         f |= ssCtrl;
-    if(TVPWindowLayer::_scancode[VK_LBUTTON] & 1)
+    if(krkr::input::sharedState().isDown(VK_LBUTTON))
         f |= ssLeft;
-    if(TVPWindowLayer::_scancode[VK_RBUTTON] & 1)
+    if(krkr::input::sharedState().isDown(VK_RBUTTON))
         f |= ssRight;
     // if (_scancode[VK_MBUTTON] & 1) f |= TVP_SS_MIDDLE;
 

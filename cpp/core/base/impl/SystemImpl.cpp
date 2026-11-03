@@ -26,14 +26,12 @@
 #include "ScriptMgnIntf.h"
 #include "tjsArray.h"
 #include "Platform.h"
-#include "TVPWindow.h"
+#include "InputState.h"
 
 //---------------------------------------------------------------------------
 static ttstr TVPAppTitle;
 static bool TVPAppTitleInit = false;
 //---------------------------------------------------------------------------
-
-// bool TVPGetKeyMouseAsyncState(tjs_uint keycode, bool getcurrent);
 
 //---------------------------------------------------------------------------
 // TVPGetAsyncKeyState
@@ -44,12 +42,8 @@ bool TVPGetAsyncKeyState(tjs_uint keycode, bool getcurrent) {
     // otherwise, return whether the key is pushed during previous
     // call of TVPGetAsyncKeyState at the same keycode.
 
-    if(keycode >= VK_PAD_FIRST && keycode <= VK_PAD_LAST) {
-        // JoyPad related keys are treated in DInputMgn.cpp
-        return TVPWindowLayer::TVPGetJoyPadAsyncState(keycode, getcurrent);
-    }
-
-    return TVPWindowLayer::TVPGetKeyMouseAsyncState(keycode, getcurrent);
+    // Keyboard, pointer and controller adapters share the virtual-key state.
+    return krkr::input::sharedState().query(keycode, getcurrent);
 #if 0
     if(keycode == VK_LBUTTON || keycode == VK_RBUTTON)
     {

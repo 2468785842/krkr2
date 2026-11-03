@@ -23,6 +23,11 @@ description: 在 KrKr2 中用隔离游戏副本、TJS 插装、实际截图和 C
 区分像素观察、脚本回调、组件分发和系统设备输入各自能证明的范围。
 原生消息框仍使用可用的系统 UI 工具或人工确认，不能由组件驱动伪造结果。
 
+连续文件/菜单复现优先使用 `tools/game-smoke/interaction_repro.py` 的全新目录，
+可加 `--cdb` 保存匹配 exe/PDB、异常栈和 dump；原进程退出码仍由控制器判断。
+`--keyboard-probe` 与 `--lifecycle-probe` 分别验证组件输入和引擎激活通知，
+不能将它们当作系统键盘、OS 挂起或图形上下文恢复验证。
+
 ## 崩溃调查与验收
 
 使用用户已授权的 CLion debugger 或本机已有 CDB；保存匹配构建的 PDB、

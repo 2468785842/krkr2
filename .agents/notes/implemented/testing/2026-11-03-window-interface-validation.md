@@ -91,8 +91,8 @@ python tools/game-smoke/game_smoke.py run out/windows/debug/bin/krkr2/krkr2.exe 
 失败构建身份、证据和下一步集中维护在[访问冲突 note](../../proposed/bug-fix/2026-11-03-ui-contract-access-violation.md)。
 重复交互调试的第三次菜单点击因两个可见同名节点被驱动拒绝，也不作为完整通过报告。
 
-完整 Debug 的 ffmpeg 测试目标仍链接失败，符号归属调查见
-[测试闭包 note](../../proposed/testing/2026-11-03-ffmpeg-test-link-closure.md)；
-上述定向 CTest 不能代表全套测试通过。
+本记录阶段完整 Debug 的 ffmpeg 测试目标曾链接失败；随后初始化测试的链接和实际用例已通过，见
+[测试闭包修复](2026-11-03-ffmpeg-test-link-closure.md)。
+本记录中的定向 CTest 本身不能代表全套测试通过。
 Linux/macOS/Android、视频节点借用的实际媒体播放、多窗口、IME、存读档及完整剧情兼容尚未验收。
 B2 的输入、主循环及生命周期契约仍是[后续批次](../../proposed/architecture/2026-11-03-platform-contracts.md)，SDL3 未在本批实现。

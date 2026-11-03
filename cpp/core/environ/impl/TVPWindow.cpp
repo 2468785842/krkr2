@@ -1,4 +1,5 @@
 #include "TVPWindow.h"
+#include "InputState.h"
 #include "cocos2d/CocosWindowAccess.h"
 #include <cocos2d.h>
 #include <cocos-ext.h>
@@ -173,7 +174,8 @@ void TVPWindowLayer::onTouchMoved(cocos2d::Touch *touch,
                 TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(
                     tjsNativeInstance, _LastMouseX, _LastMouseY,
                     TVPGetCurrentShiftKeyState()));
-                _scancode[TVPConvertMouseBtnToVKCode(_mouseBtn)] = 0x11;
+                krkr::input::sharedState().press(
+                    TVPConvertMouseBtnToVKCode(_mouseBtn));
                 TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
                     tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
                     TVPGetCurrentShiftKeyState()));
@@ -220,7 +222,8 @@ void TVPWindowLayer::onTouchEnded(cocos2d::Touch *touch,
                     TVPPostInputEvent(new tTVPOnClickInputEvent(
                         tjsNativeInstance, _LastMouseX, _LastMouseY));
                 }
-                _scancode[TVPConvertMouseBtnToVKCode(_mouseBtn)] = 0x10;
+                krkr::input::sharedState().latchReleasedPress(
+                    TVPConvertMouseBtnToVKCode(_mouseBtn));
                 TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
                     tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
                     TVPGetCurrentShiftKeyState()));
@@ -232,7 +235,8 @@ void TVPWindowLayer::onTouchEnded(cocos2d::Touch *touch,
     if(_touches.size() == 0) {
         _dragging = false;
         _touchMoved = false;
-        _scancode[TVPConvertMouseBtnToVKCode(_mouseBtn)] &= 0x10;
+        krkr::input::sharedState().release(
+            TVPConvertMouseBtnToVKCode(_mouseBtn));
     }
 }
 
@@ -265,7 +269,7 @@ void TVPWindowLayer::onMouseDown(const cocos2d::Vec2 &pt) {
     cocos2d::Vec2 nsp = PrimaryLayerArea->convertToNodeSpace(pt);
     _LastMouseX = nsp.x,
     _LastMouseY = PrimaryLayerArea->getContentSize().height - nsp.y;
-    _scancode[TVPConvertMouseBtnToVKCode(_mouseBtn)] = 0x11;
+    krkr::input::sharedState().press(TVPConvertMouseBtnToVKCode(_mouseBtn));
     TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
         tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
         TVPGetCurrentShiftKeyState()));
@@ -275,7 +279,7 @@ void TVPWindowLayer::onMouseUp(const cocos2d::Vec2 &pt) {
     cocos2d::Vec2 nsp = PrimaryLayerArea->convertToNodeSpace(pt);
     _LastMouseX = nsp.x,
     _LastMouseY = PrimaryLayerArea->getContentSize().height - nsp.y;
-    _scancode[TVPConvertMouseBtnToVKCode(_mouseBtn)] &= 0x10;
+    krkr::input::sharedState().release(TVPConvertMouseBtnToVKCode(_mouseBtn));
     TVPPostInputEvent(
         new tTVPOnMouseUpInputEvent(tjsNativeInstance, _LastMouseX, _LastMouseY,
                                     _mouseBtn, TVPGetCurrentShiftKeyState()));
@@ -301,7 +305,8 @@ void TVPWindowLayer::onMouseClick(const cocos2d::Vec2 &pt) {
                           tjsNativeInstance, _LastMouseX, _LastMouseY,
                           TVPGetCurrentShiftKeyState()),
                       TVP_EPT_DISCARDABLE);
-    _scancode[TVPConvertMouseBtnToVKCode(_mouseBtn)] = 0x10;
+    krkr::input::sharedState().latchReleasedPress(
+        TVPConvertMouseBtnToVKCode(_mouseBtn));
     TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
         tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
         TVPGetCurrentShiftKeyState()));
@@ -571,15 +576,15 @@ void TVPWindowLayer::GenerateMouseEvent(bool fl, bool fr, bool fu, bool fd) {
             return;
     }
 
-    bool shift = 0 != (TVPGetKeyMouseAsyncState(VK_SHIFT, true));
-    bool left = fl || TVPGetKeyMouseAsyncState(VK_LEFT, true) ||
-        TVPGetJoyPadAsyncState(VK_PADLEFT, true);
-    bool right = fr || TVPGetKeyMouseAsyncState(VK_RIGHT, true) ||
-        TVPGetJoyPadAsyncState(VK_PADRIGHT, true);
-    bool up = fu || TVPGetKeyMouseAsyncState(VK_UP, true) ||
-        TVPGetJoyPadAsyncState(VK_PADUP, true);
-    bool down = fd || TVPGetKeyMouseAsyncState(VK_DOWN, true) ||
-        TVPGetJoyPadAsyncState(VK_PADDOWN, true);
+    bool shift = 0 != (krkr::input::sharedState().query(VK_SHIFT, true));
+    bool left = fl || krkr::input::sharedState().query(VK_LEFT, true) ||
+        krkr::input::sharedState().query(VK_PADLEFT, true);
+    bool right = fr || krkr::input::sharedState().query(VK_RIGHT, true) ||
+        krkr::input::sharedState().query(VK_PADRIGHT, true);
+    bool up = fu || krkr::input::sharedState().query(VK_UP, true) ||
+        krkr::input::sharedState().query(VK_PADUP, true);
+    bool down = fd || krkr::input::sharedState().query(VK_DOWN, true) ||
+        krkr::input::sharedState().query(VK_PADDOWN, true);
 
     uint32_t flags = 0;
     if(left || right || up || down)

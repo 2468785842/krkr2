@@ -5,6 +5,7 @@
 #include "launch/DesktopLaunch.h"
 #include "SysInitIntf.h"
 #include "tjsString.h"
+#include "HostLifecycle.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -104,6 +105,20 @@ void TVPStartUIContractDriver(cocos2d::Scene *scene) {
                                              : " error:capture\n");
                         },
                         path);
+                } else if(action == "activate" || action == "deactivate") {
+                    if(action == "activate")
+                        TVPOnHostForeground();
+                    else
+                        TVPOnHostBackground();
+                } else if(action == "key-down" || action == "key-up") {
+                    if(selector != "A")
+                        throw std::runtime_error(
+                            "Only the A-key probe is supported");
+                    EventKeyboard event(EventKeyboard::KeyCode::KEY_A,
+                                        action == "key-down");
+                    Director::getInstance()
+                        ->getEventDispatcher()
+                        ->dispatchEvent(&event);
                 } else if(action == "click-name" || action == "click-text") {
                     std::vector<Node *> matches;
                     collect(scene, selector, action == "click-text", matches);

@@ -2,7 +2,7 @@
 #include "AppDelegate.h"
 
 #include "MainScene.h"
-#include "Application.h"
+#include "HostLifecycle.h"
 #include "Platform.h"
 #if KRKR2_USE_COCOS_UI
 #include "ui/MainFileSelectorForm.h"
@@ -30,12 +30,12 @@ bool TVPCheckStartupArg();
 std::string TVPGetCurrentLanguage();
 
 void TVPAppDelegate::applicationWillEnterForeground() {
-    ::Application->OnActivate();
+    TVPOnHostForeground();
     cocos2d::Director::getInstance()->startAnimation();
 }
 
 void TVPAppDelegate::applicationDidEnterBackground() {
-    ::Application->OnDeactivate();
+    TVPOnHostBackground();
     cocos2d::Director::getInstance()->stopAnimation();
 }
 

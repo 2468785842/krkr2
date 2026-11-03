@@ -9,6 +9,7 @@
 #include "tjsDebug.h"
 
 #include "Application.h"
+#include "HostLifecycle.h"
 #include "SysInitIntf.h"
 #include "SysInitImpl.h"
 #include "DebugIntf.h"
@@ -744,6 +745,10 @@ void tTVPApplication::FilterUserMessage(
     std::lock_guard<std::mutex> cs(m_msgQueueLock);
     func(m_lstUserMsg);
 }
+
+void TVPOnHostForeground() { Application->OnActivate(); }
+
+void TVPOnHostBackground() { Application->OnDeactivate(); }
 
 void tTVPApplication::OnActivate() {
     application_activating_ = true;

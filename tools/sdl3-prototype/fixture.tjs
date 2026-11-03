@@ -1,0 +1,30 @@
+// Prototype globals, not the production Window/Layer/System API.
+var windowWidth = 640, windowHeight = 480;
+var windowCaption = "KrKr2 SDL3 / TJS experiment";
+var backgroundColor = 0x203040;
+var rectangleColor = 0xd08030;
+var rectangleX = 80, rectangleY = 100, rectangleWidth = 480, rectangleHeight = 280;
+var keyDownCount = 0, keyUpCount = 0, closeCount = 0;
+
+function onKey(key, down, current, pending) {
+    if(key != 65) return;
+    if(down) {
+        if(!current || pending) throw new Exception("Unexpected down query state");
+        ++keyDownCount;
+        rectangleColor = 0x30c070;
+    } else {
+        if(current || pending) throw new Exception("Unexpected up query state");
+        ++keyUpCount;
+        rectangleX = 120;
+        rectangleWidth = 400;
+    }
+}
+
+function onCloseQuery() {
+    ++closeCount;
+    if(closeCount == 1) {
+        backgroundColor = 0x403020;
+        return false;
+    }
+    return true;
+}
