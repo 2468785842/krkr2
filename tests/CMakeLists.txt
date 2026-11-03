@@ -14,6 +14,7 @@ if(KRKR2_TEST_SCOPE STREQUAL "launch")
 endif()
 
 if(KRKR2_TEST_SCOPE STREQUAL "full")
+    add_subdirectory(unit-tests/core/environ)
     add_subdirectory(unit-tests/core/launch)
 endif()
 

@@ -61,6 +61,12 @@ if(KRKR2_USE_COCOS_UI)
         ${ENVIRON_PATH}/ui/MainFileSelectorForm.cpp)
 endif()
 
+if(KRKR2_ENABLE_UI_TEST_DRIVER)
+    list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/cocos2d/UIContractDriver.cpp)
+    set_property(SOURCE ${ENVIRON_PATH}/cocos2d/MainScene.cpp APPEND PROPERTY
+        COMPILE_DEFINITIONS KRKR2_ENABLE_UI_TEST_DRIVER=1)
+endif()
+
 set(ENVIRON_HEADERS_DIR
     ${ENVIRON_PATH}/
     ${ENVIRON_PATH}/ui

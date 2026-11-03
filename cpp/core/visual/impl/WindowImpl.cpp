@@ -32,7 +32,8 @@
 #include "MsgIntf.h"
 #include "TVPScreen.h"
 #include "tjsDictionary.h"
-#include "TVPWindow.h"
+#include "WindowLayer.h"
+#include "WindowImpl.h"
 // #include "VSyncTimingThread.h"
 // #include "MouseCursor.h"
 

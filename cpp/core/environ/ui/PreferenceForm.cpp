@@ -63,6 +63,8 @@ void iPreferenceItem::initFromInfo(int idx, cocos2d::Size size,
     size.height = root->getContentSize().height;
     setContentSize(size);
     root->setContentSize(size);
+    // The row owns a full-size child in its local [0, size] coordinates.
+    root->setAnchorPoint(Vec2::ZERO);
     ui::Helper::doLayout(root);
     addChild(root);
     NodeMap reader("", root);

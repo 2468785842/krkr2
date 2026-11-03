@@ -91,9 +91,12 @@ bool iTVPBaseForm::initUILayout(const Csd::NodeBuilderFn &naviBarCall,
     const auto scale = TVPMainScene::GetInstance()->getUIScale();
     const bool hasHeader = static_cast<bool>(naviBarCall);
     const bool hasFooter = static_cast<bool>(bottomBarCall);
-    const cocos2d::Size bodySize = (hasHeader || hasFooter)
-        ? rearrangeBodySize(containerSize)
-        : containerSize;
+    const auto headerSize = rearrangeHeaderSize(containerSize);
+    const auto footerSize = rearrangeFooterSize(containerSize);
+    const cocos2d::Size bodySize(containerSize.width,
+                                 containerSize.height -
+                                     (hasHeader ? headerSize.height : 0) -
+                                     (hasFooter ? footerSize.height : 0));
 
     auto *naviBar = naviBarCall
         ? naviBarCall(rearrangeHeaderSize(containerSize), scale)
@@ -135,13 +138,15 @@ bool iTVPBaseForm::initUILayout(const Csd::NodeBuilderFn &naviBarCall,
         param = LinearLayoutParameter::create();
         param->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
         bottomBar->setLayoutParameter(param);
-        attachParent->addChild(BottomBar.Root);
     }
 
     param = LinearLayoutParameter::create();
     param->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
     body->setLayoutParameter(param);
     attachParent->addChild(RootNode);
+    // Vertical layouts place children in insertion order, top to bottom.
+    if(bottomBar)
+        attachParent->addChild(BottomBar.Root);
 
     bindBodyController(RootNode);
     if(layoutShell) {

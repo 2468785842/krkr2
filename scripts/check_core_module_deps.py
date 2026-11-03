@@ -64,6 +64,15 @@ def check(root):
             content = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
             if re.search(r'#\s*include\s*[<"]opencv|\bcv::', content):
                 errors.append(f'{source.relative_to(root)}: OpenCV 调用应放入 ImageOps 后端')
+    # Generic window consumers must not import the Cocos implementation header.
+    for relative in ('visual/impl/WindowImpl.cpp', 'visual/impl/BasicDrawDevice.cpp',
+                     'movie/ffmpeg/KRMoviePlayer.cpp', 'visual/WindowLayer.h'):
+        source = root / 'cpp/core' / relative
+        active = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
+        if re.search(r'#\s*include\s*[<"](?:[^">]*/)?TVPWindow\.h[">]', active):
+            errors.append(f'{source.relative_to(root)}: 不得包含 Cocos 窗口实现头')
+        if relative == 'visual/WindowLayer.h' and re.search(r'\bcocos2d\b|cocos[-/]|ui/Cocos', active, re.I):
+            errors.append(f'{source.relative_to(root)}: 通用窗口接口不得暴露 Cocos 类型')
     return errors
 
 
@@ -78,7 +87,7 @@ def main():
         print(error, file=sys.stderr)
     if errors:
         return 1
-    print(f'{len(MODULES)} 个 foundation 目标的显式链接及直接平台包含检查通过；未检查 domain 环或传递头文件。')
+    print(f'{len(MODULES)} 个 foundation 目标的显式链接、直接平台包含及窗口接口约束检查通过；未检查 domain 环或传递头文件。')
     return 0
 
 

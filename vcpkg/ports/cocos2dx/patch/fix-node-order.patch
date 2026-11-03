@@ -1,0 +1,18 @@
+--- a/cocos/2d/CCNode.h
++++ b/cocos/2d/CCNode.h
+@@ -946,13 +946,9 @@
+     static void sortNodes(cocos2d::Vector<_T*>& nodes)
+     {
+         static_assert(std::is_base_of<Node, _T>::value, "Node::sortNodes: Only accept derived of Node!");
+-#if CC_64BITS
+-        std::sort(std::begin(nodes), std::end(nodes), [](_T* n1, _T* n2) {
+-            return (n1->_localZOrder$Arrival < n2->_localZOrder$Arrival);
+-        });
+-#else
++        // Compare fields directly: the packed key depends on byte order.
++        // CC_LITTLE_ENDIAN in 3.17.2 does not recognize MSVC x64.
+         std::sort(std::begin(nodes), std::end(nodes), [](_T* n1, _T* n2) {
+             return (n1->_localZOrder == n2->_localZOrder && n1->_orderOfArrival < n2->_orderOfArrival) || n1->_localZOrder < n2->_localZOrder;
+         });
+-#endif
+     }

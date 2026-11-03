@@ -29,6 +29,7 @@ vcpkg_extract_source_archive(
         patch/fix-unzip.patch
         patch/fix-chipmunk-Hasty.patch
         patch/fix-win64.patch
+        patch/fix-node-order.patch
         patch/fix-bullet-spell.patch
         patch/fix-chipmunk.patch
 )

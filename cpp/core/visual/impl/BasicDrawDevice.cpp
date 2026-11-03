@@ -21,7 +21,7 @@
 
 #include <algorithm>
 
-#include "TVPWindow.h"
+#include "WindowLayer.h"
 
 //---------------------------------------------------------------------------
 // オプション

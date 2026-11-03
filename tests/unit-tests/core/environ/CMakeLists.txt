@@ -1,0 +1,5 @@
+find_package(cocos2dx CONFIG REQUIRED)
+set(SOURCES NodeOrderTest.cpp)
+add_executable(cocos_window_tests ${SOURCES})
+target_link_libraries(cocos_window_tests PRIVATE Catch2::Catch2WithMain cocos2dx::cocos2d)
+catch_discover_tests(cocos_window_tests)

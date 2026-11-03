@@ -12,7 +12,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 
 **语言 / Language**: 中文 | [English](README.md)
 
-开发与 AI 协作入口：[开发约定](AGENTS.md) · [文档索引](docs/README.md) · [当前架构](docs/architecture.md) · [构建与验证](docs/building.md) · [后端精简路线](docs/backend-modernization.md)。
+开发与 AI 协作入口：[开发约定](AGENTS.md) · [文档索引](docs/README.md) · [当前架构](docs/architecture.md) · [构建与验证](docs/guides/building.md) · [后端精简路线](.agents/notes/proposed/architecture/2026-11-03-backend-modernization.md)。
 
 ## 目录
 
@@ -25,7 +25,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
     - [编译步骤](#编译步骤)
   - [可执行文件位置](#可执行文件位置)
   - [代码格式化](#代码格式化)
-  - [支持的游戏列表](#支持的游戏列表)
+  - [游戏验证范围](#游戏验证范围)
   - [插件资源](#插件资源)
   - [许可证](#许可证)
 
@@ -103,7 +103,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 
 - **Android**:
   - 运行: `./platforms/android/gradlew -p ./platforms/android assembleDebug`
-> 如果遇到`glib`无法安装查看[FAQ#安装glib失败](./docs/FAQ.md#安装glib失败)
+> 旧版 `glib` 安装问题可参考[历史排错记录](.agents/notes/proposed/bug-fix/2026-11-03-android-glib-install-path.md#安装glib失败)，先核对当前工具版本与实际错误。
   
 - **Windows**:
   - 运行: `./scripts/build-windows.bat`
@@ -149,8 +149,9 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
     ForEach-Object { clang-format -i --verbose $_.FullName }
     ```
 
-## 支持的游戏列表
-- [games](./docs/support_games.txt)
+## 游戏验证范围
+
+见[本地样本与验证边界](docs/reference/game-compatibility.md)。
 
 ## 插件资源
 
@@ -158,4 +159,4 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 
 ## 许可证
 
-此项目遵循 MIT 许可证。详细信息请参阅 [LICENSE](./LICENSE) 文件。
+此项目遵循 MIT 许可证。详细信息请参阅 [LICENSE](LICENSE) 文件。

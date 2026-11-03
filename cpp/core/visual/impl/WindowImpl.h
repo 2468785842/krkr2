@@ -17,7 +17,6 @@
 
 #define WM_USER 0x0400
 
-enum tTVPWMRRegMode { wrmRegister = 0, wrmUnregister = 1 };
 
 /*[*/
 //---------------------------------------------------------------------------

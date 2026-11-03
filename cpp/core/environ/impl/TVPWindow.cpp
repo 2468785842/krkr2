@@ -1,4 +1,5 @@
 #include "TVPWindow.h"
+#include "cocos2d/CocosWindowAccess.h"
 #include <cocos2d.h>
 #include <cocos-ext.h>
 
@@ -917,4 +918,7 @@ void TVPWindowLayer::OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate,
             return;
         TVPPostInputEvent(new tTVPOnKeyPressInputEvent(tjsNativeInstance, vk));
     }
+}
+cocos2d::Node *TVPGetCocosWindowPrimaryArea(iWindowLayer &window) {
+    return dynamic_cast<TVPWindowLayer &>(window).GetPrimaryArea();
 }

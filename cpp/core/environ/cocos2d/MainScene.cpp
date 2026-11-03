@@ -598,6 +598,10 @@ void TVPMainScene::popUIForm(cocos2d::Node *form, eLeaveAni ani) {
     }
 }
 
+#ifdef KRKR2_ENABLE_UI_TEST_DRIVER
+void TVPStartUIContractDriver(cocos2d::Scene *scene);
+#endif
+
 bool TVPMainScene::startupFrom(const std::string &path) {
     // startup from dir
     if(!TVPCheckStartupPath(path)) {
@@ -685,6 +689,9 @@ void TVPMainScene::doStartup(float dt, std::string path) {
     }
     int fps = pGlobalCfgMgr->GetValue<int>("fps_limit", 60);
     cocos2d::Director::getInstance()->setAnimationInterval(1.0f / fps);
+#ifdef KRKR2_ENABLE_UI_TEST_DRIVER
+    TVPStartUIContractDriver(this);
+#endif
 }
 
 extern ttstr TVPGetErrorDialogTitle();

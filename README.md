@@ -13,7 +13,7 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
 
 **语言 / Language**: [中文](README_CN.md) | English
 
-Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](docs/README.md) · [Architecture](docs/architecture.md) · [Build and validation](docs/building.md) · [Backend modernization](docs/backend-modernization.md). These developer guides are maintained in Chinese.
+Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](docs/README.md) · [Architecture](docs/architecture.md) · [Build and validation](docs/guides/building.md) · [Backend modernization](.agents/notes/proposed/architecture/2026-11-03-backend-modernization.md). These developer guides are maintained in Chinese.
 
 ---
 
@@ -29,7 +29,7 @@ Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](
     - [Build Steps](#build-steps)
   - [Executable Location](#executable-location)
   - [Code Formatting](#code-formatting)
-  - [Supported Games](#supported-games)
+  - [Game Validation](#game-validation)
   - [Plugin Resources](#plugin-resources)
   - [License](#license)
 
@@ -113,7 +113,7 @@ Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](
   ./platforms/android/gradlew -p ./platforms/android assembleDebug
   ```
 
-  > If you encounter `glib` installation issues, see [FAQ#安装glib失败](./docs/FAQ.md#安装glib失败)
+  > For older `glib` installation failures, see the [historical investigation](.agents/notes/proposed/bug-fix/2026-11-03-android-glib-install-path.md#安装glib失败); confirm the current tool version and error first.
 
 * **Windows**:
 
@@ -169,9 +169,9 @@ Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](
 
 ---
 
-## Supported Games
+## Game Validation
 
-* See [games list](./docs/support_games.txt)
+See [local samples and validation limits](docs/reference/game-compatibility.md).
 
 ---
 
@@ -183,6 +183,6 @@ Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](
 
 ## License
 
-MIT License. See [LICENSE](./LICENSE) for details.
+MIT License. See [LICENSE](LICENSE) for details.
 
 ---

@@ -33,6 +33,8 @@ extern void TVPClearAllWindowInputEvents();
 //---------------------------------------------------------------------------
 // Window related constants
 //---------------------------------------------------------------------------
+enum tTVPWMRRegMode { wrmRegister = 0, wrmUnregister = 1 };
+
 enum tTVPUpdateType {
     utNormal, // only needed region
     utEntire // entire of window

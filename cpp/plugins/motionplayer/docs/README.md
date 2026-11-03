@@ -3,7 +3,7 @@
 > **代码路径：** `cpp/plugins/motionplayer/`  
 > **样本资产：** [`tests/test_files/emote/e-mote3.0バニラパジャマa.json`](../../../../tests/test_files/emote/e-mote3.0バニラパジャマa.json)（同名 `.psb` 的运行时格式）  
 > **官方 API 伪代码：** [`../manual.tjs`](../manual.tjs)  
-> **生产脚本：** [`data/system/AffineSourceMotion.tjs`](../../../../data/system/AffineSourceMotion.tjs)
+> **生产脚本：** `data/system/AffineSourceMotion.tjs`（游戏侧示例，未随仓库分发）
 
 KrKr2 将原版 `motionplayer.dll` + `emoteplayer.dll` 合并为静态插件，同时支持 **E-mote 立绘（`.PSB`）** 与 **Motion 场景（`.MTN`）**。本文档目录说明如何阅读各专题文档。
 
@@ -114,16 +114,16 @@ flowchart TB
 
 | 文档 | 说明 |
 |------|------|
-| [`docs/rust/README.md`](../../../../docs/rust/README.md) | Rust 层架构、FFI 选型、迁移索引 |
-| [`docs/rust/modules/psbfile.md`](../../../../docs/rust/modules/psbfile.md) | psbfile 首个 Rust 迁移模块 |
+| [Rust 迁移方案](../../../../.agents/notes/proposed/architecture/2026-11-03-rust-overview.md) | Rust 层架构、FFI 选型、迁移索引 |
+| [psbfile 迁移提案](../../../../.agents/notes/proposed/architecture/2026-11-03-rust-psbfile.md) | psbfile Rust 迁移提案 |
 
 ## 外部资源
 
 | 资源 | 说明 |
 |------|------|
 | [`manual.tjs`](../manual.tjs) | M2 官方 API 伪代码（日文） |
-| [`data/system/motion.tjs`](../../../../data/system/motion.tjs) | 插件 `Plugins.link` |
-| [`data/system/AffineSourceMotion.tjs`](../../../../data/system/AffineSourceMotion.tjs) | 立绘 `drawAffine` 生产链 |
+| `data/system/motion.tjs`（游戏侧示例，未随仓库分发） | 插件 `Plugins.link` |
+| `data/system/AffineSourceMotion.tjs`（游戏侧示例，未随仓库分发） | 立绘 `drawAffine` 生产链 |
 | `tests/unit-tests/plugins/motionplayer-dll.cpp` | 离屏 `drawToBitmap` 回归 |
 | `tests/test_files/render/run.sh` | 一键编译 / 窗口 / 单测 |
 

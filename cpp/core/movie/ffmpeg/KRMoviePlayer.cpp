@@ -1,6 +1,6 @@
 #include <thread>
 
-#include "TVPWindow.h"
+#include "cocos2d/CocosWindowAccess.h"
 
 extern "C" {
 #include "libswscale/swscale.h"
@@ -317,7 +317,8 @@ MoviePlayerOverlay::~MoviePlayerOverlay() {
 void MoviePlayerOverlay::SetWindow(tTJSNI_Window *window) {
     ClearNode();
     m_pOwnerWindow = window;
-    cocos2d::Node *parent = m_pOwnerWindow->getForm()->GetPrimaryArea();
+    cocos2d::Node *parent =
+        TVPGetCocosWindowPrimaryArea(*m_pOwnerWindow->getForm());
     parent->addChild((m_pRootNode = cocos2d::Node::create()));
     m_pRootNode->setContentSize(cocos2d::Size::ZERO);
     const static std::string sckey("update video");

@@ -24,13 +24,27 @@ KrKr2 是 C++17 的跨平台吉里吉里运行环境。先读 [README_CN.md](REA
 
 1. 开始先看 `git status --short`，保留已有改动。按任务读接口、调用方、实现和对应测试，不做全仓格式化。
 2. 明确要保持的脚本可观察行为及最小复现。性能或后端替换先记录同机基线。
-3. 小步实现、验证、更新相关专题；新增专题加入 `docs/README.md`。文档使用中文，事实引用仓库路径；明确区分现状、提案和历史记录。
+3. 小步实现、验证、更新相关专题。当前实现与操作指南放 `docs/` 并更新索引；AI 流程、问题、提案和历史验证放 `.agents/`。文档使用中文，事实引用仓库路径；明确区分现状、提案和历史记录。
 4. 交付说明改动、验证命令/结果、未验证平台及剩余问题。编译通过不等于游戏兼容；零测试不等于测试通过。
+
+## AI 工作记录与技能
+
+组织方式与实施顺序见 [AI 协作方案](.agents/README.md)。接续任务先按主题查找
+[活动 notes](.agents/notes/README.md)，读取相关记录中的证据和下一步；无需加载全部笔记。
+问题调查更新原 note，完成后同步专题文档和生命周期；未复现不能作为修复结论。
+
+项目技能按任务读取，不要求每次运行全部流程：
+
+- [krkr-verify](.agents/skills/krkr-verify/SKILL.md)：选择构建/测试范围，检查实际注册与结果证据。
+- [krkr-game-debug](.agents/skills/krkr-game-debug/SKILL.md)：隔离游戏插装、截图交互、异常栈和兼容边界。
+
+技能正文保存在仓库；是否自动发现由当前宿主决定，未发现时直接按上述路径读取。
+日志、截图、dump、临时脚本放在忽略的 `out/`，notes 保留必要摘要和定位信息。
 
 ## 构建与验证
 
 设置 `VCPKG_ROOT`，Windows 使用 MSVC x64 开发环境和 PATH 内的 win_bison。
-完整准备及 Linux/macOS/Android 命令见 [构建与验证](docs/building.md)。Windows 示例：
+完整准备及 Linux/macOS/Android 命令见 [构建与验证](docs/guides/building.md)。Windows 示例：
 
 ```sh
 cmake --preset "Windows Debug Config" -DENABLE_TESTS=ON
@@ -62,8 +76,8 @@ python scripts/check_core_module_deps.py
 
 ## 后端精简约束
 
-目标是隔离并逐步替换 cocos2d/OpenCV，减小依赖及编译范围，见 [后端精简路线](docs/backend-modernization.md)。
+目标是隔离并逐步替换 cocos2d/OpenCV，减小依赖及编译范围，见 [后端精简路线](.agents/notes/proposed/architecture/2026-11-03-backend-modernization.md)。
 SDL3/Sokol/GLFW 尚未在本仓库完成迁移；不要把 `environ/sdl/tvpsdl.cpp` 的目录名当作有效 SDL 后端。
 平台替换与 Ciallang/TJS2 替换分开验收。保持现有 TJS、Layer、存储及插件行为；移除依赖须同时处理 CMake、vcpkg、资源/平台打包与消费者，不用空实现静默吞掉游戏功能。
 
-外部实现的借鉴范围和已发现差异见 [参考资料](docs/references.md)。引用代码时记录来源提交、具体文件及原许可/版权；外部 README 的能力声明不等于本仓库已验证能力。
+外部实现的借鉴范围和已发现差异见 [参考资料](docs/reference/upstream.md)。引用代码时记录来源提交、具体文件及原许可/版权；外部 README 的能力声明不等于本仓库已验证能力。

@@ -1,0 +1,81 @@
+// Self-contained UI contract fixture; never installed in a commercial game.
+global.events = [];
+global.record = function(text) {
+    events.add(text);
+    events.save(System.exePath + "interaction-events.txt");
+};
+class ContractWindow extends Window {
+    var allowClose = false;
+    var closeQueries = 0;
+    function ContractWindow() {
+        super.Window();
+        caption = "KrKr2 window contract";
+        setSize(640, 480);
+        visible = true;
+    }
+    function onCloseQuery() {
+        ++closeQueries;
+        record("close-query:" + string allowClose);
+        super.onCloseQuery(allowClose);
+    }
+    function onKeyDown(key, shift) {
+        record("key:" + string key);
+    }
+}
+class ContractMenu extends MenuItem {
+    function ContractMenu(owner) {
+        super.MenuItem(owner, "Contract toggle");
+    }
+    function onClick() {
+        checked = !checked;
+        record("menu-click:" + string checked);
+    }
+}
+global.win = new ContractWindow();
+global.primary = new Layer(win, null);
+primary.setSize(640, 480);
+primary.fillRect(0, 0, 640, 480, 0xff304050);
+primary.visible = true;
+global.entry = new ContractMenu(win);
+win.menu.add(entry);
+global.lastCommand = "";
+global.driver = new Timer(function() {
+    try {
+        if(!Storages.isExistentStorage(System.exePath + "interaction-command.txt")) return;
+        var command = [];
+        command.load(System.exePath + "interaction-command.txt");
+        if(!command.count || command[0] == lastCommand) return;
+        lastCommand = command[0];
+        record("command:" + lastCommand);
+        if(lastCommand == "inform") {
+            var answer = System.inform("Acknowledge the window contract test.", "KrKr2 contract message", ["OK"]);
+            record("inform-return:" + string answer);
+        } else if(lastCommand == "select-cancel" || lastCommand == "select-accept") {
+            var params = %[title:"KrKr2 contract file", initialDir:System.exePath, name:"fixture.txt", save:false];
+            var accepted = Storages.selectFile(params);
+            record(lastCommand + "-return:" + string accepted);
+            record(lastCommand + "-name:" + string params.name);
+        } else if(lastCommand == "menu-open" || lastCommand == "menu-open-again") {
+            win.menu.popup(0, 0, 0);
+            record("menu-opened");
+        } else if(lastCommand == "veto") {
+            win.allowClose = false;
+            win.close();
+            if(win.closeQueries != 1 || !win.visible) throw new Exception("Veto did not preserve window");
+            record("veto-preserved");
+        } else if(lastCommand == "accept") {
+            win.allowClose = true;
+            win.close();
+            record("close-returned");
+        } else if(lastCommand == "finish") {
+            record("fixture-finished");
+            System.exit();
+        }
+    } catch(e) {
+        record("error:" + e.message);
+        driver.enabled = false;
+    }
+}, "");
+driver.interval = 300;
+driver.enabled = true;
+record("ready");

@@ -1,21 +1,36 @@
-# 开发文档索引
+# 开发文档
 
-新参与者与 AI 从根 [AGENTS.md](../AGENTS.md) 开始，再按任务选择专题。
+这里维护当前实现、可执行的操作指南和使用边界。项目概览见[中文 README](../README_CN.md)，
+代码职责见[当前架构](architecture.md)。文档中的命令默认在仓库根目录执行。
 
-| 主题 | 入口 | 状态/用途 |
-|---|---|---|
-| 项目概览 | [中文 README](../README_CN.md) · [English](../README.md) | 平台、依赖准备、使用入口 |
-| 代码与依赖地图 | [当前架构](architecture.md) | 依据当前源码，含历史文档修正 |
-| 编译与验证 | [构建与验证](building.md) · [FAQ](FAQ.md) | 可执行命令、测试边界、基线记录 |
-| 后端精简 | [迁移路线与任务](backend-modernization.md) | 提案及验收；尚未实现新后端 |
-| UI 与启动迁移 | [UI 方案](ui/README.md) · [游戏验证与审阅](ui/testing.md) · [管理界面开关](ui/optional-management-ui.md) | 目标架构草案及本地游戏插装工具 |
-| 桌面启动 | [Desktop CLI（L1）](launch/desktop-cli.md) | 目录/归档直启、兼容参数、错误退出码及独立测试 |
-| 依赖瘦身 | [依赖审计与替代方案](dependency-slimming.md) · [实施记录](dependency-slimming-implementation.md) | dev 源码证据、优先级、候选库与测量要求 |
-| 图像模块 | [ImageOps 接口与验证](imageops.md) | 独立构建、像素契约、微基准及剩余边界 |
-| 外部研究 | [参考资料与适用边界](references.md) | 教程、二开与原版资料 |
-| 既有存储解耦 | [Core 模块分析](CORE_MODULE_DECOUPLING.md) | 历史分析；部分内容已落地，以当前架构为准 |
-| 插件 | [插件说明](KRKR_PLUGINS.md) · [motionplayer 索引](../cpp/plugins/motionplayer/docs/README.md) | 插件专属契约与排错 |
-| Rust | [Rust 专题](rust/README.md) · [早期说明](RUST_LAYER.md) | 设计及迁移资料，不代表整个引擎已迁移 |
-| 命令行工具 | [工具](../tools/README.md) · [XP3](../tools/xp3/README.md) | 工具构建与使用 |
+## 操作指南
 
-维护原则：现状写架构，操作写指南，待实现任务写路线，排错写 FAQ，原始测量写报告；不要在多个文档复制同一份状态清单。专题更新时同步真实入口和链接。
+| 文档 | 内容 |
+|---|---|
+| [构建与验证](guides/building.md) | 平台预设、独立构建、测试范围与测量方法 |
+| [游戏与交互测试](guides/game-testing.md) | 隔离样本、TJS 插装、截图、事件与退出验证 |
+
+## 已实现的子系统
+
+| 文档 | 内容 |
+|---|---|
+| [Desktop 启动](subsystems/desktop-cli.md) | `--game` / `--xp3`、参数兼容及错误退出码 |
+| [可选管理界面](subsystems/management-ui.md) | Desktop 管理页面开关、资源与默认配置边界 |
+| [窗口接口](subsystems/window-interface.md) | 通用窗口接口与现有 Cocos 适配边界 |
+| [ImageOps](subsystems/imageops.md) | CPU 图像契约、独立测试与微基准 |
+
+## 参考与工具
+
+| 文档 | 内容 |
+|---|---|
+| [插件来源](reference/plugins.md) | 插件原始资料；不表示全部内建或兼容 |
+| [游戏验证范围](reference/game-compatibility.md) | 本地样本、已有证据与未验证能力 |
+| [外部实现参考](reference/upstream.md) | 资料关系、适用范围与平台库入口 |
+| [仓库工具](../tools/README.md) · [XP3 工具](../tools/xp3/README.md) | 实际工具的构建和使用 |
+| [motionplayer](../cpp/plugins/motionplayer/docs/README.md) | 模块专属实现与契约 |
+
+AI 工作流程和技能在 [.agents](../.agents/README.md)，
+问题调查、待实现方案及历史验证在 [notes](../.agents/notes/README.md)。
+UI 外壳、Launch 配置和 Rust 迁移草案不作为当前可用功能说明。
+
+新增稳定指南或实现说明时更新本页；新提案和问题记录按 notes 约定归档。

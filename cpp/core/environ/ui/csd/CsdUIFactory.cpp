@@ -336,7 +336,8 @@ namespace Csd {
         titleBtn->setContentSize(titleSize);
         titleBtn->setPosition(Vec2(titleX, yCenter));
         titleBtn->setAnchorPoint(Vec2(0, 0.5f));
-        titleBtn->setTitleFontSize(ctx.fontSize(64, CW));
+        titleBtn->setTitleFontSize(std::min(
+            ctx.fontSize(64, CW), static_cast<int>(titleSize.height * 0.65f)));
         titleBtn->setTitleAlignment(TextHAlignment::CENTER,
                                     TextVAlignment::CENTER);
         titleBtn->setTouchEnabled(true);
@@ -396,7 +397,8 @@ namespace Csd {
         titleBtn->setContentSize(titleSize);
         titleBtn->setPosition(cocos2d::Vec2(titleX, yCenter));
         titleBtn->setAnchorPoint(cocos2d::Vec2(0, 0.5));
-        titleBtn->setTitleFontSize(ctx.fontSize(64, CW));
+        titleBtn->setTitleFontSize(std::min(
+            ctx.fontSize(64, CW), static_cast<int>(titleSize.height * 0.65f)));
         titleBtn->setTitleAlignment(cocos2d::TextHAlignment::CENTER,
                                     cocos2d::TextVAlignment::CENTER);
         titleBtn->setTouchEnabled(true);
@@ -440,8 +442,10 @@ namespace Csd {
         root->setPosition(cocos2d::Vec2(margin, margin));
         root->setContentSize(rootSize);
 
-        const auto filename = Text::create("", "NotoSansCJK-Regular.ttc",
-                                           ctx.fontSize(64, kCanvasFileItemW));
+        const auto filename = Text::create(
+            "", "NotoSansCJK-Regular.ttc",
+            std::min(ctx.fontSize(64, kCanvasFileItemW),
+                     static_cast<int>(filenameSize.height * 0.65f)));
         filename->setName("filename");
         filename->setContentSize(filenameSize);
         filename->setSwallowTouches(false);
@@ -558,12 +562,17 @@ namespace Csd {
         panel14_9->setTouchEnabled(true);
         panel4->addChild(panel14_9);
 
-        auto *input = TextField::create("Touch to input", "Arial",
-                                        ctx.fontSize(72, kCanvasBottomBarW));
+        auto *input = TextField::create(
+            "Touch to input", "Arial",
+            std::min(ctx.fontSize(72, kCanvasBottomBarW),
+                     static_cast<int>(inputSize.height * 0.65f)));
         input->setName("input");
+        input->ignoreContentAdaptWithSize(false);
         input->setContentSize(inputSize);
         input->setMaxLengthEnabled(true);
-        input->setMaxLength(10);
+        // File names must survive the edit box; the old demo limit of 10
+        // truncated them and made OK silently do nothing for missing files.
+        input->setMaxLength(255);
         input->setTextColor(Color4B::BLACK);
         input->setAnchorPoint(Vec2(0.5f, 0.5f));
         input->setPosition(
@@ -575,7 +584,9 @@ namespace Csd {
             Button::create("img/gray.png", "img/white.png", "img/gray.png");
         cancelBtn->setName("cancel");
         cancelBtn->setTitleText("Cancel");
-        cancelBtn->setTitleFontSize(ctx.fontSize(72, kCanvasBottomBarW));
+        cancelBtn->setTitleFontSize(
+            std::min(ctx.fontSize(72, kCanvasBottomBarW),
+                     static_cast<int>(btnSize.height * 0.65f)));
         cancelBtn->setTitleColor(Color3B::BLACK);
         cancelBtn->setContentSize(btnSize);
         cancelBtn->setScale9Enabled(true);
@@ -587,7 +598,9 @@ namespace Csd {
             Button::create("img/gray.png", "img/white.png", "img/gray.png");
         okBtn->setName("ok");
         okBtn->setTitleText("OK");
-        okBtn->setTitleFontSize(ctx.fontSize(72, kCanvasBottomBarW));
+        okBtn->setTitleFontSize(
+            std::min(ctx.fontSize(72, kCanvasBottomBarW),
+                     static_cast<int>(btnSize.height * 0.65f)));
         okBtn->setTitleColor(Color3B::BLACK);
         okBtn->setContentSize(btnSize);
         okBtn->setScale9Enabled(true);

@@ -55,6 +55,7 @@ bool TVPGameMainMenu::init() {
     NodeMap reader("", _root);
     size.height = _root->getContentSize().height;
     _root->setContentSize(size);
+    _root->setAnchorPoint(Vec2::ZERO);
     ui::Helper::doLayout(_root);
     addChild(_root);
 
