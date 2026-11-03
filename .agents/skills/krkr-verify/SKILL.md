@@ -18,6 +18,7 @@ description: 为 KrKr2 的 C++、CMake 或后端改动选择并执行构建与�
 - 输入状态与帧钩子可选 `platform` 范围，预期分别 9、3 项用例，无 TJS/Cocos 依赖；
   SDL3 实验另用显式原型开关和 `tools/sdl3-prototype/verify.py`；Linux 的 `verify_x11.py`
   经 X server/XTest 检查切焦与关闭否决，不能用直接投递的 SDL 事件替代。两者不等同于游戏后端验收。
+  OS 探针应等待窗口已映射及本轮回调确认，PID 属性出现或固定延迟不等于窗口就绪。
 - 文档或技能调整只做相应路径、元数据与 diff 检查；新脚本验证实际行为。
 - 基础模块依赖改动执行 `python scripts/check_core_module_deps.py`，其成功范围以工具输出为准。
 

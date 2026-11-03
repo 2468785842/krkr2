@@ -29,6 +29,19 @@ class XEvent(C.Union):
     _fields_ = [("client", ClientMessage), ("padding", C.c_long * 24)]
 
 
+class WindowAttributes(C.Structure):
+    _fields_ = [("x", C.c_int), ("y", C.c_int), ("width", C.c_int), ("height", C.c_int),
+                ("border_width", C.c_int), ("depth", C.c_int), ("visual", C.c_void_p),
+                ("root", C.c_ulong), ("window_class", C.c_int), ("bit_gravity", C.c_int),
+                ("win_gravity", C.c_int), ("backing_store", C.c_int),
+                ("backing_planes", C.c_ulong), ("backing_pixel", C.c_ulong),
+                ("save_under", C.c_int), ("colormap", C.c_ulong),
+                ("map_installed", C.c_int), ("map_state", C.c_int),
+                ("all_event_masks", C.c_long), ("your_event_mask", C.c_long),
+                ("do_not_propagate_mask", C.c_long), ("override_redirect", C.c_int),
+                ("screen", C.c_void_p)]
+
+
 class X11:
     def __init__(self):
         self.library = C.CDLL("libX11.so.6")
@@ -40,6 +53,7 @@ class X11:
             ("XCreateSimpleWindow", window, [pointer, window, integer, integer,
                                            C.c_uint, C.c_uint, C.c_uint, window, window]),
             ("XMapWindow", integer, [pointer, window]),
+            ("XGetWindowAttributes", integer, [pointer, window, C.POINTER(WindowAttributes)]),
             ("XSetInputFocus", integer, [pointer, window, integer, window]),
             ("XSync", integer, [pointer, integer]),
             ("XKeysymToKeycode", C.c_ubyte, [pointer, window]),
@@ -88,7 +102,10 @@ class X11:
                 try:
                     if status == 0 and kind.value == 6 and bits.value == 32 and size.value == 1 and data:
                         if C.cast(data, C.POINTER(C.c_ulong))[0] == pid:
-                            return children[index]
+                            attributes = WindowAttributes()
+                            if (self.library.XGetWindowAttributes(self.display, children[index], C.byref(attributes))
+                                    and attributes.map_state == 2):  # IsViewable
+                                return children[index]
                 finally:
                     if data:
                         self.library.XFree(data)

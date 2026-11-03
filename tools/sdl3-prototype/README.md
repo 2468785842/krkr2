@@ -47,12 +47,14 @@ SDL 明确说明该 API 不更新物理设备状态，本原型也不查询 SDL 
 xvfb-run -a python tools/sdl3-prototype/verify_x11.py out/sdl3-prototype/build/tools/sdl3-prototype/krkr2_sdl3_prototype out/sdl3-prototype/os-input-01
 ```
 
-该探针按进程 PID 查找窗口，用 `XSetInputFocus`、`XTestFakeKeyEvent` 和 `WM_DELETE_WINDOW`
+该探针按进程 PID 查找窗口并等待 `IsViewable`，用 `XSetInputFocus`、`XTestFakeKeyEvent` 和 `WM_DELETE_WINDOW`
 经过 X server 验证按住 A 切焦、抬起、恢复、重新按键及两次独立关闭；按本轮事件确认逐步操作，
 第一次关闭后继续观测事件泵，确保否决有效，再发送第二次关闭并等待正常退出。
 不使用 `SDL_PushEvent`，也不代表物理键盘或生产 Cocos 后端验收。
 原型关闭 SDL 的“最后一个窗口请求关闭时自动追加 QUIT”行为，避免一次 OS 关闭触发两次脚本查询；
 独立的应用退出事件仍经过关闭查询。
+`test_verify_x11.py` 在真实 X server 上检查带 PID 的未映射窗口不会被当作已就绪；
+CI 将它与系统输入探针一起运行。
 
 键码仅映射字母、数字、空格、回车、Escape 和方向键，其他键会记录 unsupported-key。
 鼠标/触摸/手柄、IME、DPI、后台挂起、媒体、菜单、存储及完整窗口契约均未接入。

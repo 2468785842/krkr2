@@ -85,7 +85,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
+        id: sdl3-cache
         with:
           path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
           key: sdl3-prototype-vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}
@@ -101,6 +102,7 @@ jobs:
             libxft-dev libibus-1.0-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev \
             wayland-protocols libdecor-0-dev
       - name: Configure and build separate SDL3 shell
+        id: build-sdl3
         shell: bash
         run: |
           export VCPKG_ROOT="$VCPKG_INSTALLATION_ROOT"
@@ -117,7 +119,9 @@ jobs:
       - name: Verify X11 focus, XTest keys and real window close veto
         env:
           SDL_QUIT_ON_LAST_WINDOW_CLOSE: "1"
-        run: xvfb-run -a python tools/sdl3-prototype/verify_x11.py out/sdl3-prototype/build/tools/sdl3-prototype/krkr2_sdl3_prototype out/sdl3-prototype/os-input-run
+        run: |
+          xvfb-run -a python -m unittest discover -s tools/sdl3-prototype -p "test_*.py" -v
+          xvfb-run -a python tools/sdl3-prototype/verify_x11.py out/sdl3-prototype/build/tools/sdl3-prototype/krkr2_sdl3_prototype out/sdl3-prototype/os-input-run
       - name: Reject incorrect focus rendering even when the process succeeds
         env:
           SDL_VIDEO_DRIVER: x11
@@ -159,6 +163,11 @@ jobs:
             out/sdl3-prototype/build/compile_commands.json
             out/sdl3-prototype/build/vcpkg_installed/vcpkg/status
           if-no-files-found: ignore
+      - uses: actions/cache/save@v4
+        if: always() && steps.build-sdl3.outcome == 'success' && steps.sdl3-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: ${{ steps.sdl3-cache.outputs.cache-primary-key }}
 
   archives:
     env:

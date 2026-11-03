@@ -75,6 +75,16 @@ SDL 3.4.8 的 `SDL_ibus.c` 实现在 `HAVE_IBUS_IBUS_H && SDL_USE_LIBDBUS` 下�
 通过上述程序检查后停在同一 helper 的下一项 ltdl 开发文件检查；补齐 `libltdl-dev`，
 并核对 vcpkg-make 的检查源码，没有屏蔽检查或修改依赖实现。
 SDL job 的二进制缓存回退还复用 Linux archives 已验证的同 ABI foundation 包，减少失败重试的重复编译。
+`f797129` 的 [41739165557](https://github.com/2468785842/krkr2/actions/runs/41739165557)
+其余 12 个 job 全部通过，SDL3 完整依赖安装、原型构建和七帧像素也通过；
+应用 SHA256 为 `71c60a186279862563bb201a9db370e60dab12628ac7b0c66ac8ad77a2db5a04`。
+系统输入探针随后因 `X_SetInputFocus` 的 BadMatch（opcode 42）失败：
+PID 属性已出现，但窗口尚未完成映射；这次原生 Xlib 错误直接退出探针，没有生成验证 JSON。
+修正为 `XGetWindowAttributes.map_state == IsViewable` 才返回就绪窗口，沿用全局截止时间，
+不以固定延迟代替就绪条件。真实 X11 回归覆盖未映射→已映射→再次隐藏，共 1 项、3 个断言通过；
+ctypes 的 XWindowAttributes 大小 136、map_state 偏移 92 与本机 Xlib C 头编译结果一致。
+本地系统输入全场景 `sdl3-os-close-viewable-01` 再次正常退出 0、未强停。
+CI 在依赖构建成功后保存完整二进制缓存，即使后续行为测试失败也不必再次冷编译依赖。
 
 ### X11 系统输入探针与关闭修复
 
@@ -115,7 +125,7 @@ Linux CI 增加同一 X11 探针并保存证据。
 
 ## 未验证与下一步
 
-本批 Windows/macOS 原型尚未运行；DBus 修正与新增系统探针的 CI 待推送后核对结果。
+本批 Windows/macOS 原型尚未运行；Linux DBus 构建已验证，窗口就绪修正后的系统探针 CI 待核对。
 SDL_PushEvent 不更新物理设备状态，自测从模拟聚焦开始；X11 窗口并不意味着实际 OS 切焦/键盘验收。
 系统探针另覆盖 X server 切焦与 XTest 虚拟键盘，不是物理设备、IME 或现有 Cocos 验收。
 继续按[平台契约](../../proposed/architecture/2026-11-03-platform-contracts.md)建立现有 Cocos 的真实失焦基线，
