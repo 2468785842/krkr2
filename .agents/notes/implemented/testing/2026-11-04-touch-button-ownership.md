@@ -78,6 +78,7 @@ job `126405482245` 成功：实际编译 InputState.cpp、MainScene.cpp、TVPWin
 [Headless 运行](https://github.com/2468785842/krkr2/actions/runs/41778825990)已通过三平台各 26 项、13 源闭包、
 SDL 全部正向/反向检查及其他已结束范围。截至 2026-11-04 05:31 UTC 为 12/13；
 Windows ImageOps 仍在配置依赖，尚无失败结论，不把整条工作流写成全通过。
+收尾复核同一运行，Windows ImageOps 已成功，全部 13 个 job 均通过。
 后续仅更新记录，无 C++ 或工作流改动。
 
 ## 未验证与下一步
