@@ -4,7 +4,7 @@ Status: implemented
 
 ## 问题与实现
 
-基于 `6d5a163` 加本批改动。此前 GLView 的普通焦点事件没有接入游戏输入，
+实现提交 `1c7b877`（基于 `6d5a163`）。此前 GLView 的普通焦点事件没有接入游戏输入，
 AppDelegate 只经最小化通知前后台；不能直接以后台入口替代普通切焦。
 现有模拟鼠标的 InternalKeyUp 会生成点击，且 GetMouseButtonState 会消费待查询标记，
 因此不能直接拿它补发取消抬起。
@@ -41,9 +41,15 @@ python scripts/check_core_module_deps.py
 
 Cocos full 范围新增 4 项，使用真实 EventDispatcher 和 GLView 事件名，显式启用测试 dispatcher：
 全部状态先释放再回调；重复失焦与恢复；没有 held VK 的延后手势仍取消；销毁订阅后不影响其他监听器。
-这些测试尚待完整 Windows 构建运行，不将本地 21 项当作 Cocos 编译或交互证据。
+这些测试在下述完整 Windows 构建实际运行，不将本地 21 项当作 Cocos 编译或交互证据。
 Windows 工作流预期实际发现 9 项（节点 2、坐标 3、焦点 4）；三平台独立范围预期 21 项与 11 个项目源。
-远端结果在推送后补充。
+该提交的[Headless CI](https://github.com/2468785842/krkr2/actions/runs/41773291275)全部 13 个 job 已通过，
+包含三平台各 21 项平台契约、11 个源与 Catch2 依赖闭包检查，以及既有 SDL3 队列/原生探针/像素回归。
+同一提交的[完整 Windows 构建](https://github.com/2468785842/krkr2/actions/runs/41773298528)
+job `126387751412` 已成功。Release、ENABLE_TESTS=ON、BUILD_TOOLS=OFF，
+实际编译 InputCancellation.cpp、MainScene.cpp、TVPWindow.cpp、CocosInputFocusTest.cpp，
+应用及 cocos_window_tests 成功链接；实际发现并通过全部 9 项（约 0.65 秒），其中焦点 4 项分别通过。
+两个渲染器编译范围、元数据及应用二进制上传亦通过。
 
 ## 未覆盖及后续
 

@@ -90,12 +90,15 @@ SDL 队列与 X11 的组合键释放/恢复验证见[子批次记录](../../impl
 另有 X11 切焦/XTest 键盘探针，验证了原型的系统事件路径并修复 OS 关闭绕过脚本否决的问题。
 上述 SDL 证据不能替代上一节要求的现有后端真实失焦交互。
 
-本页仍为 proposed：OS 坐标/DPI/IME、焦点丢失释放、平台事件泵、完整暂停恢复和销毁路径尚未抽离。
+本页仍为 proposed：OS 坐标/DPI/IME、真实切焦与后台验收、平台事件泵、完整暂停恢复和销毁路径尚未完成。
 桌面 Cocos 3.17.2 的 `cocos/platform/desktop/CCGLViewImpl-desktop.cpp` 将焦点通知
 分发为 `EVENT_WINDOW_FOCUSED/UNFOCUSED`；最小化/恢复才调用 AppDelegate 的后台/前台入口。
 MainScene 现已订阅这两个焦点事件，使用共享释放及取消分类，抑制失焦期间的游戏输入；
 实现及验证边界见[桌面焦点子批次](../../implemented/testing/2026-11-04-cocos-input-focus.md)。
 普通焦点不调用 HostLifecycle，最小化/恢复保持原入口；不能把订阅测试当作真实 OS 切焦验收。
 后续仍需分别验证普通切焦、最小化和触摸取消，特别是多游戏窗口、移动端与输入法组合场景。
+另有明确的按钮归属缺口：`TVPWindow.h` 中的 `static _mouseBtn` 在 MainScene.cpp 与
+TVPWindow.cpp 各有独立副本，虚拟光标设置的按钮与窗口实际读取的按钮可能不同。
+下一步应先复现双指右键与跨窗口手势，再迁为明确的窗口/手势状态；本批取消按实际已按下的 VK 分类，未修正该静态变量。
 下一批应在实际失焦/后台与恢复场景建立证据，避免仅靠接口声明推断跨平台行为。
 独立 SDL3/TJS 壳实验的可用范围另见 `tools/sdl3-prototype/README.md`，不作为 B2 全完成或 KAG 后端迁移验收。
