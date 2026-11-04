@@ -41,6 +41,27 @@ class FocusEvidenceTest(unittest.TestCase):
         for event in ("error:stuck input", "lifecycle:deactivate"):
             self.assertTrue(probe.failures(self.events() + [event]))
 
+    def test_minimize_requires_restore_notification_and_all_input_checks(self):
+        for lifecycle in (["lifecycle:activate"],
+                          ["lifecycle:deactivate", "lifecycle:activate"]):
+            events = self.events() + lifecycle
+            self.assertEqual(probe.failures(events, minimized=True), [])
+            events.remove(probe.CANCELLED[0])
+            self.assertTrue(probe.failures(events, minimized=True))
+
+    def test_minimize_does_not_claim_ordinary_unfocused_input_checks(self):
+        events = self.events() + ["lifecycle:activate"]
+        events.remove("state:unfocused-check")
+        self.assertEqual(probe.failures(events, minimized=True), [])
+        self.assertTrue(probe.failures(events))
+
+    def test_minimize_rejects_missing_duplicate_reversed_or_unknown_lifecycle(self):
+        for lifecycle in ([], ["lifecycle:deactivate"],
+                          ["lifecycle:activate", "lifecycle:activate"],
+                          ["lifecycle:activate", "lifecycle:deactivate"],
+                          ["lifecycle:unknown"]):
+            self.assertTrue(probe.failures(self.events() + lifecycle, minimized=True))
+
 
 if __name__ == "__main__":
     unittest.main()

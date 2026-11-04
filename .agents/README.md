@@ -37,6 +37,7 @@
 - [SDL3 失焦释放](notes/implemented/testing/2026-11-03-sdl3-focus-validation.md)：三平台各 12 项契约、Linux X11 系统输入/关闭否决、七帧及反向像素检查通过，13 个 CI job 全绿；现有 Cocos 真实失焦迁移仍待验收。
 - [共享修饰键](notes/implemented/testing/2026-11-03-shared-input-modifiers.md)：引擎快照实现移出 Cocos 壳，三平台各 15 项契约、SDL 组合键及 Windows 完整应用构建通过。
 - [指针坐标](notes/implemented/testing/2026-11-04-pointer-coordinates.md)：鼠标/触摸转换收敛，修复光标缓存坐标空间；三平台各 18 项契约、Windows 完整应用及 5 项真实 Cocos 节点用例通过。
+- [Windows 最小化恢复](notes/implemented/testing/2026-11-04-windows-minimize-recovery.md)：原生最小化/恢复、一秒脚本请求暂停、取消与新输入、填充层像素已验证；IME、音视频与移动端生命周期仍未验收。
 
 其他方案按需浏览 `notes/proposed/architecture/`，不因为文件已存在就视为已实现。
 历史测量与验证放 `notes/implemented/`，早期失效分析放 `notes/archived/`。

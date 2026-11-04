@@ -101,7 +101,7 @@ gh workflow run build-windows.yml --ref dev -f pointer_contracts=true
 
 可手动开启 Windows CI 的 `pointer_contracts` 输入；默认关闭。
 该模式构建显式测试驱动，在独立运行目录放置固定版本并校验 SHA256 的 Mesa 软件 OpenGL，
-执行单窗口、双窗口和下述 Windows 原生焦点探针。测试二进制使用独立 artifact 名称，不安装系统显卡驱动，
+执行单窗口、双窗口和下述 Windows 原生焦点、最小化探针。测试二进制使用独立 artifact 名称，不安装系统显卡驱动，
 不修改系统 OpenGL。报告、真实脚本轨迹、exe/PDB 与截图在 `windows-pointer-contracts` artifact；
 仅查看报告和图片可下载体积较小的 `windows-pointer-contract-reports`。
 两个指针探针的回调通过也不代表画面、原生 OS 焦点或物理设备验收通过。
@@ -127,7 +127,27 @@ A 键走 Windows `SendInput` → 原生窗口/GLFW → 引擎路径；触摸走�
 Windows CI 的 `pointer_contracts=true` 同时运行此探针；报告目录为 `native-focus`，
 与两个指针探针一起上传到完整/轻量 artifact。原生前台窗口变化记录在 `repro-trace.json`，
 exe/PDB 哈希、回调、正常退出及未强停要求沿用原控制器。
-不最小化窗口，不验证后台停泵、移动端暂停恢复、IME、高 DPI 或音视频。
+默认模式只验证普通切焦。最小化/恢复使用另一个全新目录：
+
+```powershell
+python tools/game-smoke/focus_repro.py out/windows/debug/bin/krkr2/krkr2.exe out/ui-game-smoke/native-minimize-01 --minimize
+```
+
+该模式用 `ShowWindowAsync` 请求 OS 最小化/恢复并等待 `IsIconic` 状态确认。
+最小化后提交脚本请求，持续一秒检查它未被 Timer 处理；恢复后要求请求得到确认，
+取消不生成点击、恢复后的迟到原生 A-up/组件抬起不产生回调，新按键和拖动仍需通过。
+普通切焦时的输入抑制由默认模式单独验收；最小化模式不创建辅助窗口。
+`SystemImpl.cpp` 会替换待分发的同类激活事件，所以允许仅收到一次 activate，
+或依次收到 deactivate、activate；缺失恢复通知、重复或逆序通知均失败。
+这不修改生产通知顺序，也不要求停止动画泵期间继续执行脚本。
+CI 同时执行该模式，独立报告目录 `native-minimize` 随完整/轻量 artifact 上传。
+恢复前后的 PNG 中心像素必须等于本场景的 RGB `(48,64,80)`，缺图、CRC 错误或黑色中心像素失败。
+仍需实际查看截图；中心采样不覆盖完整画面、移动端 surface 重建、IME、高 DPI 或音视频恢复。
+
+若输入法过滤原生 A 键，可显式加 `--us-keyboard-layout`，向自有引擎窗口线程请求
+已安装的 US English 布局，等待实际布局确认并写入轨迹；不安装布局或修改系统默认设置。
+每次原生发键也记录接收窗口的布局。此模式不构成输入法兼容验收。
+最小化模式为标题栏操作临时置顶自有引擎窗口，使用 NOACTIVATE 保留真实点击激活和前台核对。
 
 ## 连续复现与取证
 

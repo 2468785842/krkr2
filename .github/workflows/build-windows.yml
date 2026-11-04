@@ -142,7 +142,9 @@ jobs:
           $multiple = $LASTEXITCODE
           python tools/game-smoke/focus_repro.py "$probe/runtime/krkr2.exe" "$probe/native-focus"
           $focus = $LASTEXITCODE
-          if ($single -ne 0 -or $multiple -ne 0 -or $focus -ne 0) { exit 1 }
+          python tools/game-smoke/focus_repro.py "$probe/runtime/krkr2.exe" "$probe/native-minimize" --minimize
+          $minimize = $LASTEXITCODE
+          if ($single -ne 0 -or $multiple -ne 0 -or $focus -ne 0 -or $minimize -ne 0) { exit 1 }
 
       - name: Upload pointer contract evidence
         if: always() && inputs.pointer_contracts
@@ -154,6 +156,7 @@ jobs:
             out/windows/pointer-contracts/single-window/**
             out/windows/pointer-contracts/two-windows/**
             out/windows/pointer-contracts/native-focus/**
+            out/windows/pointer-contracts/native-minimize/**
           if-no-files-found: warn
 
       - name: Upload small pointer reports and screenshots
@@ -166,6 +169,7 @@ jobs:
             out/windows/pointer-contracts/single-window/**
             out/windows/pointer-contracts/two-windows/**
             out/windows/pointer-contracts/native-focus/**
+            out/windows/pointer-contracts/native-minimize/**
             !out/windows/pointer-contracts/*/evidence/**
           if-no-files-found: warn
 

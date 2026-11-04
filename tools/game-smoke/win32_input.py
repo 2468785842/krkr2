@@ -28,11 +28,17 @@ class Desktop:
             "GetAncestor": ([wintypes.HWND, wintypes.UINT], wintypes.HWND),
             "GetForegroundWindow": ([], wintypes.HWND),
             "GetSystemMetrics": ([ctypes.c_int], ctypes.c_int),
+            "GetKeyboardLayout": ([wintypes.DWORD], wintypes.HANDLE),
+            "GetKeyboardLayoutList": ([ctypes.c_int, ctypes.POINTER(wintypes.HANDLE)], ctypes.c_int),
+            "PostMessageW": ([wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM], wintypes.BOOL),
             "CreateWindowExW": ([wintypes.DWORD, wintypes.LPCWSTR, wintypes.LPCWSTR,
                                  wintypes.DWORD, ctypes.c_int, ctypes.c_int, ctypes.c_int,
                                  ctypes.c_int, wintypes.HWND, wintypes.HMENU,
                                  wintypes.HINSTANCE, wintypes.LPVOID], wintypes.HWND),
             "ShowWindow": ([wintypes.HWND, ctypes.c_int], wintypes.BOOL),
+            "ShowWindowAsync": ([wintypes.HWND, ctypes.c_int], wintypes.BOOL),
+            "SetWindowPos": ([wintypes.HWND, wintypes.HWND, ctypes.c_int, ctypes.c_int,
+                              ctypes.c_int, ctypes.c_int, wintypes.UINT], wintypes.BOOL),
             "DestroyWindow": ([wintypes.HWND], wintypes.BOOL),
             "PeekMessageW": ([ctypes.POINTER(wintypes.MSG), wintypes.HWND,
                               wintypes.UINT, wintypes.UINT, wintypes.UINT], wintypes.BOOL),
@@ -187,6 +193,41 @@ class Desktop:
 
     def foreground(self):
         return self.user.GetForegroundWindow()
+
+    def iconic(self, window):
+        return bool(self.user.IsIconic(window))
+
+    def keyboard_layout(self, window):
+        thread = self.user.GetWindowThreadProcessId(window, None)
+        return self.user.GetKeyboardLayout(thread)
+
+    def request_installed_us_layout(self, window):
+        layouts = (wintypes.HANDLE * self.user.GetKeyboardLayoutList(0, None))()
+        count = self.user.GetKeyboardLayoutList(len(layouts), layouts)
+        if count <= 0:
+            raise RuntimeError("Could not enumerate installed keyboard layouts")
+        english = next((layout for layout in layouts[:count] if layout & 0xffff == 0x409), None)
+        if english is None:
+            raise RuntimeError("No installed US English keyboard layout")
+        # WM_INPUTLANGCHANGEREQUEST affects the owned engine thread only. Do
+        # not install a layout or change the user's default/global setting.
+        if not self.user.PostMessageW(window, 0x50, 0, english):
+            raise ctypes.WinError(ctypes.get_last_error())
+        return english
+
+    def raise_without_activation(self, window):
+        # Only the owned engine/helper are passed here. Keep their caption
+        # accessible while leaving activation to the actual SendInput click.
+        if not self.user.SetWindowPos(window, -1, 0, 0, 0, 0, 0x13):
+            raise ctypes.WinError(ctypes.get_last_error())
+
+    def minimize(self, window):
+        if not self.user.ShowWindowAsync(window, 6):  # SW_MINIMIZE
+            raise RuntimeError("Could not request native minimization")
+
+    def restore(self, window):
+        if not self.user.ShowWindowAsync(window, 9):  # SW_RESTORE
+            raise RuntimeError("Could not request native restore")
 
     def close(self):
         for key in list(self.keys):
