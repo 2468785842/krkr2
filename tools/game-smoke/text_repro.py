@@ -16,7 +16,7 @@ NATIVE_TEXT = "A\u4e2d\u3042\u00e9e\u0301\U0001f642"
 NATIVE = [65, 20013, 12354, 233, 101, 769, 55357, 56898]
 RECOVERED = [90, 55357, 56898]
 EXPECTED = ([f"text:native:1:{unit}" for unit in NATIVE] +
-            ["text:component:1:65", "text:component:0:-1", "text:component:1:20013"] +
+            ["text:component:1:65", "text:component:1:20013"] +
             [f"text:recovered:1:{unit}" for unit in RECOVERED])
 MARKERS = ["ready", "phase:native", "phase:component", "phase:component-done",
            "phase:unfocused", "phase:unfocused-done", "phase:recovered", "fixture-finished"]
@@ -73,7 +73,9 @@ class TextProbe(FocusProbe):
             self.capture("native-focus-ready.png")
 
             before = self.phase("component")
-            self.ui("text-hex 4100e4b8ad")  # preserve legacy empty key for NUL
+            # The decoder preserves NUL, but TVPWindowLayer::OnKeyPress ignores
+            # unit zero. The following CJK unit must still reach the script.
+            self.ui("text-hex 4100e4b8ad")
             self.script_event("text:component:1:20013", before)
             for invalid in ("41eda080", "41c080", "41f4908080", "41e4b8"):
                 self.ui("text-hex " + invalid)  # reject the entire commit

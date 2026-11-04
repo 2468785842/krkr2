@@ -21,11 +21,12 @@ class TextEvidenceTest(unittest.TestCase):
         for extra in ("text:component:1:65", "text:unfocused:1:20013"):
             self.assertTrue(probe.failures(self.events() + [extra]))
 
-    def test_normalization_or_missing_empty_key_is_rejected(self):
-        for removed in ("text:native:1:769", "text:component:0:-1"):
+    def test_normalization_or_missing_text_after_NUL_is_rejected(self):
+        for removed in ("text:native:1:769", "text:component:1:20013"):
             events = self.events()
             events.remove(removed)
             self.assertTrue(probe.failures(events))
+        self.assertTrue(probe.failures(self.events() + ["text:component:0:-1"]))
 
     def test_missing_checkpoint_or_error_is_rejected(self):
         events = self.events()
