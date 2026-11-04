@@ -49,7 +49,17 @@ fixture SHA256 为 `0bf158f43d51a3520fc53e183df1e243ef984116c5a183fbf69d82e5b8dc
 
 ## 验收边界与下一步
 
-三平台独立 CI 与完整 Windows 应用构建待推送后核对，不能用 Linux 独立测试冒充完整应用验收。
+代码提交 `6848453` 的[独立 CI](https://github.com/2468785842/krkr2/actions/runs/41742721335)
+已通过 Windows/Linux/macOS 各 15 项平台契约、Linux SDL3 队列与 X11 组合键、
+窗口就绪原生回归、关闭否决、错误像素拒绝及闭包检查。
+CI SDL 原型 SHA256 为 `e4396a8c4cab60f67efe67e1744acbc12015dddb3bfc821f2f792ee49205c6a2`，
+fixture SHA256 与上述本地记录相同；两条正向路径均正常退出，反向像素场景按预期失败。
+
+同一代码的[完整 Windows 应用构建](https://github.com/2468785842/krkr2/actions/runs/41742741239)
+已成功，包含两个渲染器编译范围检查与二进制上传；确认导出移动后可编译、链接，未出现重复/缺失符号。
+截至本批收尾，独立 CI 其余任务已通过，仅未修改的 Windows ImageOps 仍在配置依赖，
+因此不把整条独立工作流描述为已全部完成。
+
 仍保留现有 Cocos 将左右修饰键合并到一个 VK 的规则，未补齐同时按住两侧再释放一侧的独立跟踪。
 System 导出与旧宿主的实际游戏回调尚需交互对照；本批不更改 Cocos 事件顺序、激活、捕获或销毁。
 后续继续按[平台契约](../../proposed/architecture/2026-11-03-platform-contracts.md)建立生产后端真实失焦基线，
