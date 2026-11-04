@@ -121,9 +121,11 @@ jobs:
           $probe = 'out/windows/pointer-contracts'
           New-Item -ItemType Directory -Force $probe | Out-Null
           $archive = "$probe/mesa.7z"
-          Invoke-WebRequest 'https://github.com/pal1000/mesa-dist-win/releases/download/26.2.6/mesa3d-26.2.6-release-msvc.7z' -OutFile $archive
+          # 26.2.6 MSVC lacks OpenGL because of an upstream d3d12 build
+          # regression; the release notes recommend the MinGW x64 package.
+          Invoke-WebRequest 'https://github.com/pal1000/mesa-dist-win/releases/download/26.2.6/mesa3d-26.2.6-release-mingw.7z' -OutFile $archive
           $hash = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($hash -ne 'b2e00615feaba45942343c265cc8c5f576142ca682c1ac6661922d4b72492877') { throw 'Mesa archive SHA256 mismatch' }
+          if ($hash -ne 'da0f71d9181b672c1918f3c342f11118c687f6059a46b16502845160733cc388') { throw 'Mesa archive SHA256 mismatch' }
           7z x $archive "-o$probe/mesa" -y
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           # Keep Mesa local to an isolated runtime; never modify system OpenGL
