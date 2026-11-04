@@ -159,4 +159,7 @@ job `126398720863` 在负向像素检查失败：验证报告为 engine exit=0�
 显示服务仅在整组之后清理，基础设施失败仍会使 CI 失败，并用 -e /dev/stderr 保留诊断。
 这修正退出码判定边界，不宣称解决 xvfb-run 的全部清理问题，也没有放宽像素检查。
 本地实际运行同一 YAML 命令：两项验证器均退出 1、引擎均退出 0、无强停，原因分别为 unfocused.bmp 与 pointer-down.bmp；
-整组 Xvfb 正常退出 0。日志在 `out/linux/negative-shared-display-02.log`，新 CI 结果在完成后补充。
+整组 Xvfb 正常退出 0。日志在 `out/linux/negative-shared-display-02.log`。
+修正 `f462876` 的[Headless 复核](https://github.com/2468785842/krkr2/actions/runs/41777478572)已全部 13 个 job 通过，
+SDL job `126401095137` 的两项负向检查、依赖闭包与产物上传全部通过；并未放宽验证器/引擎退出码或像素断言。
+后续 `bdbe78a` 的 SDL job 亦通过，该运行余下 Windows ImageOps 依赖配置状态另见[触摸记录](2026-11-04-touch-button-ownership.md)。

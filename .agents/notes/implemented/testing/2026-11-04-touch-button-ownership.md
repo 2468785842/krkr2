@@ -4,8 +4,9 @@ Status: implemented
 
 ## 基线复现
 
-首批实现 `d648dff`（基于 `01a509b`），`TVPWindow.h` 含 `static tTVPMouseButton _mouseBtn;`，
-MainScene.cpp 和 TVPWindow.cpp 分别写读自己的副本；改成单个全局变量仍会让多个窗口/设备互相覆盖。
+基线 `01a509b` 的 `TVPWindow.h` 含 `static tTVPMouseButton _mouseBtn;`，
+MainScene.cpp 和 TVPWindow.cpp 分别写读自己的副本；首批修正为 `d648dff`。
+改成单个全局变量仍会让多个窗口/设备互相覆盖。
 从原头文件逐字提取声明，包含真实 `tvpinputdefs.h`，用两个编译单元分别设置右键和读取按钮：
 
 ```sh
@@ -71,7 +72,13 @@ job `126398753688` 成功：实际编译 MainScene.cpp / TVPWindow.cpp、链接�
 避免将旧窗口的 Enter/Space 抬起变成新窗口点击；没有新增逐键所有者追踪。
 新增契约用例后，本地重新构建并实际发现、通过 26 项；13 个编译源及无 TJS/Cocos 依赖保持不变。
 新用例检查所有指针均释放、Ctrl/Shift/Alt/普通键/Pad 状态与未读标记保留、重复释放幂等。
-这次 C++ 范围修正的 Windows 与三平台 CI 结果在运行后补充。
+最终 C++ 提交 `bdbe78a` 的[完整 Windows 构建](https://github.com/2468785842/krkr2/actions/runs/41778850301)
+job `126405482245` 成功：实际编译 InputState.cpp、MainScene.cpp、TVPWindow.cpp，应用与 cocos_window_tests 链接成功，
+实际发现并通过全部 9 项（约 0.66 秒），两个渲染器范围检查和二进制上传通过。
+[Headless 运行](https://github.com/2468785842/krkr2/actions/runs/41778825990)已通过三平台各 26 项、13 源闭包、
+SDL 全部正向/反向检查及其他已结束范围。截至 2026-11-04 05:31 UTC 为 12/13；
+Windows ImageOps 仍在配置依赖，尚无失败结论，不把整条工作流写成全通过。
+后续仅更新记录，无 C++ 或工作流改动。
 
 ## 未验证与下一步
 
