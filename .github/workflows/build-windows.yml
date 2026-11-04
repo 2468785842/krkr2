@@ -84,16 +84,16 @@ jobs:
       - name: Verify Cocos window, pointer and focus contracts
         shell: bash
         run: |
-          ctest --test-dir out/windows/release -N -R '^cocos (window|pointer|focus)'
+          ctest --test-dir out/windows/release -N -R '^cocos (window|pointer|focus|text)'
           python - <<'PY'
           import json, subprocess
           tests = json.loads(subprocess.check_output([
               'ctest', '--test-dir', 'out/windows/release', '--show-only=json-v1',
-              '-R', '^cocos (window|pointer|focus)']))['tests']
-          assert len(tests) == 9, tests
-          print('Registered 2 Cocos node-order, 3 pointer-coordinate and 4 focus contracts.')
+              '-R', '^cocos (window|pointer|focus|text)']))['tests']
+          assert len(tests) == 11, tests
+          print('Registered 2 node-order, 3 pointer, 4 focus and 2 text compatibility contracts.')
           PY
-          ctest --test-dir out/windows/release -R '^cocos (window|pointer|focus)' --output-on-failure --no-tests=error
+          ctest --test-dir out/windows/release -R '^cocos (window|pointer|focus|text)' --output-on-failure --no-tests=error
 
       - name: Verify renderer compilation scope
         shell: bash
@@ -144,7 +144,9 @@ jobs:
           $focus = $LASTEXITCODE
           python tools/game-smoke/focus_repro.py "$probe/runtime/krkr2.exe" "$probe/native-minimize" --minimize
           $minimize = $LASTEXITCODE
-          if ($single -ne 0 -or $multiple -ne 0 -or $focus -ne 0 -or $minimize -ne 0) { exit 1 }
+          python tools/game-smoke/text_repro.py "$probe/runtime/krkr2.exe" "$probe/native-text"
+          $text = $LASTEXITCODE
+          if ($single -ne 0 -or $multiple -ne 0 -or $focus -ne 0 -or $minimize -ne 0 -or $text -ne 0) { exit 1 }
 
       - name: Upload pointer contract evidence
         if: always() && inputs.pointer_contracts
@@ -157,6 +159,7 @@ jobs:
             out/windows/pointer-contracts/two-windows/**
             out/windows/pointer-contracts/native-focus/**
             out/windows/pointer-contracts/native-minimize/**
+            out/windows/pointer-contracts/native-text/**
           if-no-files-found: warn
 
       - name: Upload small pointer reports and screenshots
@@ -170,6 +173,7 @@ jobs:
             out/windows/pointer-contracts/two-windows/**
             out/windows/pointer-contracts/native-focus/**
             out/windows/pointer-contracts/native-minimize/**
+            out/windows/pointer-contracts/native-text/**
             !out/windows/pointer-contracts/*/evidence/**
           if-no-files-found: warn
 

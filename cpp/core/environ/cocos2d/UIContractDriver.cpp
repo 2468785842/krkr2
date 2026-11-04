@@ -15,6 +15,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <sstream>
+#include <charconv>
 
 namespace {
     namespace fs = std::filesystem;
@@ -108,6 +109,23 @@ void TVPStartUIContractDriver(cocos2d::Scene *scene) {
                                              : " error:capture\n");
                         },
                         path);
+                } else if(action == "text-hex") {
+                    if(selector.empty() || selector.size() > 128 ||
+                       selector.size() % 2 != 0)
+                        throw std::runtime_error(
+                            "Expected 1..64 UTF8 bytes in hex");
+                    std::string text;
+                    for(std::size_t i = 0; i < selector.size(); i += 2) {
+                        unsigned value;
+                        const auto *start = selector.data() + i;
+                        const auto result =
+                            std::from_chars(start, start + 2, value, 16);
+                        if(result.ec != std::errc{} || result.ptr != start + 2)
+                            throw std::runtime_error("Invalid text hex byte");
+                        text.push_back(static_cast<char>(value));
+                    }
+                    IMEDispatcher::sharedDispatcher()->dispatchInsertText(
+                        text.data(), text.size());
                 } else if(action == "activate" || action == "deactivate") {
                     if(action == "activate")
                         TVPOnHostForeground();

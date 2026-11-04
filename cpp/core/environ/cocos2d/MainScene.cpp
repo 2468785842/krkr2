@@ -23,6 +23,7 @@
 #include "impl/TVPWindow.h"
 #include "InputState.h"
 #include "InputModifiers.h"
+#include "TextInput.h"
 #include "RenderManager.h"
 #include "ui/UIButton.h"
 #include "ui/csd/CsdUIFactory.h"
@@ -1306,11 +1307,9 @@ void TVPMainScene::onTextInput(const std::string &text) {
     auto *window = TVPWindowLayer::_currentWindowLayer;
     if(!window)
         return;
-    std::u16string buf;
-    if(StringUtils::UTF8ToUTF16(text, buf)) {
-        for(int i = 0; i < buf.size(); ++i) {
-            window->OnKeyPress(buf[i], 0, false, false);
-        }
+    if(auto units = krkr::input::decodeTextInput(text)) {
+        for(auto unit : *units)
+            window->OnKeyPress(unit, 0, false, false);
     }
 }
 

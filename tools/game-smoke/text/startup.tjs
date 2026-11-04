@@ -1,0 +1,49 @@
+// Committed-text fixture; composition and candidate UI are separate contracts.
+global.events = [];
+global.phase = "setup";
+global.record = function(text) {
+    events.add(text);
+    events.save(System.exePath + "interaction-events.txt");
+};
+class TextWindow extends Window {
+    function TextWindow() {
+        super.Window();
+        caption = "KrKr2 committed text contract";
+        setSize(640, 480);
+        visible = true;
+        imeMode = imOpen;
+    }
+    function onKeyPress(key) {
+        var unit = key.length ? #key : -1;
+        record("text:" + phase + ":" + string key.length + ":" + string unit);
+    }
+}
+global.win = new TextWindow();
+global.primary = new Layer(win, null);
+primary.setSize(640, 480);
+primary.fillRect(0, 0, 640, 480, 0xff304050);
+primary.visible = true;
+global.lastCommand = "";
+global.driver = new Timer(function() {
+    try {
+        if(!Storages.isExistentStorage(System.exePath + "interaction-command.txt")) return;
+        var request = [];
+        request.load(System.exePath + "interaction-command.txt");
+        if(!request.count || request[0] == lastCommand) return;
+        lastCommand = request[0];
+        record("command:" + lastCommand);
+        if(lastCommand == "finish") {
+            record("fixture-finished");
+            System.exit();
+        } else {
+            phase = lastCommand;
+            record("phase:" + phase);
+        }
+    } catch(e) {
+        record("error:" + e.message);
+        driver.enabled = false;
+    }
+}, "");
+driver.interval = 150;
+driver.enabled = true;
+record("ready");

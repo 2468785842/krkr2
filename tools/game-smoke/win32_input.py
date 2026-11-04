@@ -156,6 +156,18 @@ class Desktop:
         else:
             self.keys.discard(key)
 
+    def unicode_text(self, text):
+        # VK_PACKET delivers UTF-16 units through the native character path;
+        # this commits text without claiming to exercise IME composition.
+        encoded = text.encode("utf-16-le")
+        events = []
+        for index in range(0, len(encoded), 2):
+            unit = int.from_bytes(encoded[index:index + 2], "little")
+            events.extend([self.Input(1, self.Payload(keyboard=self.Keyboard(0, unit, 4, 0, 0))),
+                           self.Input(1, self.Payload(keyboard=self.Keyboard(0, unit, 6, 0, 0)))])
+        if events:
+            self.send(events)
+
     def click_caption(self, window):
         rectangle = self.rectangle(window)
         origin = wintypes.POINT(0, 0)
