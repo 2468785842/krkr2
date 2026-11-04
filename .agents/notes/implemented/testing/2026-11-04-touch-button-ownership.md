@@ -32,6 +32,8 @@ c++ -std=c++17 -Icpp/core/visual -Icpp/core/tjs2 out/linux/touch-button-baseline
 - 复查发现 InvalidateClose 原先只移除节点；autorelease/外部引用可使节点晚于原生实例销毁。
   补充修正让 InvalidateClose 立即清除原生指针、撤销当前接收者，析构复用同一注销逻辑；
   后继选择和显式激活均拒绝已失效节点。此寿命路径依据代码与 Cocos 引用机制修正，尚无真实 TJS 场景复现。
+- 原生 OnReleaseCapture 受 CanDeliverEvents 可见性检查约束；现在正常切换统一释放旧窗口捕获，
+  隐藏窗口前先注销输入，避免先隐藏后排队抬起和释放捕获均被拒绝。失效/析构仍走无原生回调的丢弃路径。
 - 手势自己的 held 标记参与取消分类，即使共享状态已被其他路径释放，也按原按钮补全配对；同按钮仍合并。
 
 稳定规则见[共享输入](../../../../docs/subsystems/input-state.md#触摸按钮与窗口切换)。

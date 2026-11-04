@@ -460,6 +460,8 @@ void TVPWindowLayer::SetCurrentWindow(TVPWindowLayer *window) {
     if(_currentWindowLayer == window || (window && !window->tjsNativeInstance))
         return;
     TVPMainScene::CancelGameInput();
+    if(_currentWindowLayer && _currentWindowLayer->tjsNativeInstance)
+        _currentWindowLayer->tjsNativeInstance->OnReleaseCapture();
     _currentWindowLayer = window;
 }
 
@@ -470,7 +472,6 @@ void TVPWindowLayer::BringToFront() {
         if(_currentWindowLayer) {
             const cocos2d::Size &size = _currentWindowLayer->getViewSize();
             _currentWindowLayer->setPosition(cocos2d::Vec2(size.width, 0));
-            _currentWindowLayer->tjsNativeInstance->OnReleaseCapture();
         }
         SetCurrentWindow(this);
     }
@@ -505,15 +506,14 @@ void TVPWindowLayer::ShowWindowAsModal() {
 }
 
 void TVPWindowLayer::SetVisible(bool bVisible) {
+    // OnReleaseCapture checks visibility: revoke capture before hiding, or
+    // queued ups and the capture release would both be rejected as inactive.
+    if(!bVisible && _currentWindowLayer == this)
+        SetCurrentWindow(_prevWindow ? _prevWindow : _nextWindow);
     Visible = bVisible;
     setVisible(bVisible);
-    if(bVisible) {
+    if(bVisible)
         BringToFront();
-    } else {
-        if(_currentWindowLayer == this) {
-            SetCurrentWindow(_prevWindow ? _prevWindow : _nextWindow);
-        }
-    }
 }
 
 void TVPWindowLayer::ResetDrawSprite() const {
