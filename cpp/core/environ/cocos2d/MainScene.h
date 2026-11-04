@@ -4,7 +4,9 @@
 #include "ui/UIWidget.h"
 #include "base/CCIMEDelegate.h"
 #include "CocosInputFocus.h"
+#include "TouchButton.h"
 #include <memory>
+#include <set>
 
 namespace cocos2d {
     class Controller;
@@ -24,6 +26,8 @@ public:
     static TVPMainScene *GetInstance();
     static TVPMainScene *CreateInstance();
     static bool AcceptsGameInput();
+    // Window switches cancel the old gesture before changing its recipient.
+    static void CancelGameInput(bool notifyWindow = true);
 
     static void setMaskLayTouchBegain(
         const std::function<bool(cocos2d::Touch *, cocos2d::Event *)> &func);
@@ -68,7 +72,15 @@ public:
     static float convertCursorScale(float val /*0 ~ 1*/);
 
 private:
-    void cancelGameInput(const std::vector<std::uint32_t> &released);
+    void cancelGameInput(const std::vector<std::uint32_t> &released,
+                         bool notifyWindow = true);
+    void pressVirtualMouse(const cocos2d::Vec2 &point);
+    float _mouseCursorScale = 1;
+    cocos2d::Vec2 _mouseTouchPoint, _mouseBeginPoint;
+    std::set<cocos2d::Touch *> _mouseTouches;
+    bool _mouseMoved = false;
+    std::uint32_t virtualTouchBeginTick = 0;
+    krkr::input::TouchButton virtualTouchButton;
     std::unique_ptr<krkr::cocosinput::InputFocus> inputFocus;
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
                       cocos2d::Event *event);
@@ -76,8 +88,8 @@ private:
                        cocos2d::Event *event);
 
     bool onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event);
-    void onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *event) const;
-    void onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *event) const;
+    void onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *event);
+    void onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *event);
     void onTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *event);
 
     void onAxisEvent(cocos2d::Controller *ctrl, int code, cocos2d::Event *e);

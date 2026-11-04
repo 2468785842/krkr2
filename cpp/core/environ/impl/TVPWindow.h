@@ -6,13 +6,12 @@
 #include <cocos-ext.h>
 
 #include "WindowLayer.h"
+#include "TouchButton.h"
 #include "WindowImpl.h"
 #include "VelocityTracker.h"
 #include "ui/ConsoleWindow.h"
 
 class TVPWindowManagerOverlay;
-
-static tTVPMouseButton _mouseBtn;
 
 class TVPWindowLayer : public cocos2d::extension::ScrollView,
                        public iWindowLayer {
@@ -23,7 +22,6 @@ public:
 
     static inline float _touchMoveThresholdSq;
     static inline cocos2d::Node *_mouseCursor;
-    static inline int _touchBeginTick;
     static inline bool _virutalMouseMode = false;
 
     bool Closing = false, ProgramClosing = false, CanCloseWork = false;
@@ -39,6 +37,7 @@ public:
     }
 
     static tTJSNI_Window *TVPGetActiveWindow();
+    static void SetCurrentWindow(TVPWindowLayer *window);
 
     static constexpr int TVP_MOUSE_MAX_ACCEL = 30;
     static constexpr int TVP_MOUSE_SHIFT_ACCEL = 40;
@@ -60,6 +59,9 @@ private:
     friend class TVPMainScene;
 
     int _LastMouseX = 0, _LastMouseY = 0;
+    int _touchBeginTick = 0;
+    krkr::input::TouchButton touchButton;
+    static tTVPMouseButton MouseButtonForKey(std::uint32_t key);
     std::string _caption;
     //	std::map<tTJSNI_BaseVideoOverlay*, Sprite*> _AllOverlay;
     float _drawSpriteScaleX = 1.0f, _drawSpriteScaleY = 1.0f;
@@ -121,13 +123,13 @@ public:
     void onTouchCancelled(cocos2d::Touch *touch,
                           cocos2d::Event *unused_event) override;
 
-    void onMouseDown(const cocos2d::Vec2 &pt);
+    void onMouseDown(const cocos2d::Vec2 &pt, tTVPMouseButton button);
 
-    void onMouseUp(const cocos2d::Vec2 &pt);
+    void onMouseUp(const cocos2d::Vec2 &pt, tTVPMouseButton button);
 
     void onMouseMove(const cocos2d::Vec2 &pt);
 
-    void onMouseClick(const cocos2d::Vec2 &pt);
+    void onMouseClick(const cocos2d::Vec2 &pt, tTVPMouseButton button);
 
     // Shared state is already released; cancel gestures and enqueue ups only.
     void CancelInput(const std::vector<std::uint32_t> &released);

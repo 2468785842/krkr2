@@ -6,6 +6,7 @@
 #include "cocos2d/CocosWindowAccess.h"
 #include <cocos2d.h>
 #include <cocos-ext.h>
+#include <stdexcept>
 
 #include "cocos2d/MainScene.h"
 #include "Application.h"
@@ -44,6 +45,8 @@ TVPWindowLayer::~TVPWindowLayer() {
             anotherWin->setPosition(0, 0);
             // anotherWin->setVisible(true);
         }
+        // Native instances may already be invalid during node destruction.
+        TVPMainScene::CancelGameInput(false);
         _currentWindowLayer = anotherWin;
     }
 }
@@ -70,17 +73,15 @@ bool TVPWindowLayer::init() {
 }
 
 void TVPWindowLayer::onMouseDownEvent(cocos2d::Event *_e) {
-    if(!TVPMainScene::AcceptsGameInput())
+    if(!TVPMainScene::AcceptsGameInput() || _currentWindowLayer != this)
         return;
     auto *e = dynamic_cast<cocos2d::EventMouse *>(_e);
     switch(e->getMouseButton()) {
         case cocos2d::EventMouse::MouseButton::BUTTON_RIGHT:
-            _mouseBtn = mbRight;
-            onMouseDown(e->getLocation());
+            onMouseDown(e->getLocation(), mbRight);
             break;
         case cocos2d::EventMouse::MouseButton::BUTTON_MIDDLE:
-            _mouseBtn = mbMiddle;
-            onMouseDown(e->getLocation());
+            onMouseDown(e->getLocation(), mbMiddle);
             break;
         default:
             break;
@@ -88,17 +89,19 @@ void TVPWindowLayer::onMouseDownEvent(cocos2d::Event *_e) {
 }
 
 void TVPWindowLayer::onMouseUpEvent(cocos2d::Event *_e) {
-    if(!TVPMainScene::AcceptsGameInput())
+    if(!TVPMainScene::AcceptsGameInput() || _currentWindowLayer != this)
         return;
     auto *e = dynamic_cast<cocos2d::EventMouse *>(_e);
+    // Native ups can arrive after focus/window cancellation. Gesture-owned ups
+    // are paired by TouchButton instead of testing another device's state.
     switch(e->getMouseButton()) {
         case cocos2d::EventMouse::MouseButton::BUTTON_RIGHT:
-            _mouseBtn = mbRight;
-            onMouseUp(e->getLocation());
+            if(krkr::input::sharedState().isDown(VK_RBUTTON))
+                onMouseUp(e->getLocation(), mbRight);
             break;
         case cocos2d::EventMouse::MouseButton::BUTTON_MIDDLE:
-            _mouseBtn = mbMiddle;
-            onMouseUp(e->getLocation());
+            if(krkr::input::sharedState().isDown(VK_MBUTTON))
+                onMouseUp(e->getLocation(), mbMiddle);
             break;
         default:
             break;
@@ -116,7 +119,7 @@ void TVPWindowLayer::onMouseMoveEvent(cocos2d::Event *_e) {
 }
 
 void TVPWindowLayer::onMouseScroll(cocos2d::Event *_e) {
-    if(!TVPMainScene::AcceptsGameInput())
+    if(!TVPMainScene::AcceptsGameInput() || _currentWindowLayer != this)
         return;
     auto *e = dynamic_cast<cocos2d::EventMouse *>(_e);
     if(!_windowMgrOverlay) {
@@ -143,25 +146,20 @@ bool TVPWindowLayer::onTouchBegan(cocos2d::Touch *touch,
                                   cocos2d::Event *unused_event) {
     if(_windowMgrOverlay)
         return inherit::onTouchBegan(touch, unused_event);
-    if(std::find(_touches.begin(), _touches.end(), touch) == _touches.end()) {
-        _touches.push_back(touch);
-    }
+    if(std::find(_touches.begin(), _touches.end(), touch) != _touches.end())
+        return true;
+    _touches.push_back(touch);
+    touchButton.selectForContacts(_touches.size());
     switch(_touches.size()) {
         case 1:
             _touchPoint = touch->getLocation();
             _touchMoved = false;
             _touchLength = 0.0f;
             _touchBeginTick = TVPGetRoughTickCount32();
-            _mouseBtn = ::mbLeft;
             break;
         case 2:
-            _mouseBtn = ::mbRight;
             _touchPoint = (_touchPoint + touch->getLocation()) / 2;
             break;
-        case 3:
-            _mouseBtn = ::mbMiddle;
-            //_touchPoint = (_touchPoint + touch->getLocation()) /
-            // 2;
         default:
             break;
     }
@@ -172,6 +170,8 @@ void TVPWindowLayer::onTouchMoved(cocos2d::Touch *touch,
                                   cocos2d::Event *unused_event) {
     if(_windowMgrOverlay)
         return inherit::onTouchMoved(touch, unused_event);
+    if(std::find(_touches.begin(), _touches.end(), touch) == _touches.end())
+        return;
     if(tjsNativeInstance) {
         if(_touches.size() == 1) {
             if(!_touchMoved &&
@@ -185,11 +185,13 @@ void TVPWindowLayer::onTouchMoved(cocos2d::Touch *touch,
                 TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(
                     tjsNativeInstance, _LastMouseX, _LastMouseY,
                     TVPGetCurrentShiftKeyState()));
-                krkr::input::sharedState().press(
-                    TVPConvertMouseBtnToVKCode(_mouseBtn));
-                TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
-                    tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
-                    TVPGetCurrentShiftKeyState()));
+                if(auto button = touchButton.press()) {
+                    krkr::input::sharedState().press(*button);
+                    TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
+                        tjsNativeInstance, _LastMouseX, _LastMouseY,
+                        MouseButtonForKey(*button),
+                        TVPGetCurrentShiftKeyState()));
+                }
                 _touchMoved = true;
             } else if(_touchMoved) {
                 const auto position = krkr::cocosinput::layerPosition(
@@ -218,6 +220,7 @@ void TVPWindowLayer::onTouchEnded(cocos2d::Touch *touch,
     if(touchIter == _touches.end())
         return; // Ignore a late release/cancel from a discarded gesture.
 
+    const auto button = touchButton.value();
     if(_touches.size() == 1) {
         if(tjsNativeInstance) {
             const auto position = krkr::cocosinput::layerPosition(
@@ -232,15 +235,14 @@ void TVPWindowLayer::onTouchEnded(cocos2d::Touch *touch,
                     *PrimaryLayerArea, _touchPoint);
                 TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
                     tjsNativeInstance, downPosition.x, downPosition.y,
-                    _mouseBtn, TVPGetCurrentShiftKeyState()));
+                    MouseButtonForKey(button), TVPGetCurrentShiftKeyState()));
                 TVPPostInputEvent(new tTVPOnClickInputEvent(
                     tjsNativeInstance, _LastMouseX, _LastMouseY));
             }
-            krkr::input::sharedState().latchReleasedPress(
-                TVPConvertMouseBtnToVKCode(_mouseBtn));
+            krkr::input::sharedState().latchReleasedPress(button);
             TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
-                tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
-                TVPGetCurrentShiftKeyState()));
+                tjsNativeInstance, _LastMouseX, _LastMouseY,
+                MouseButtonForKey(button), TVPGetCurrentShiftKeyState()));
         }
     }
     _touches.erase(touchIter);
@@ -248,8 +250,8 @@ void TVPWindowLayer::onTouchEnded(cocos2d::Touch *touch,
     if(_touches.size() == 0) {
         _dragging = false;
         _touchMoved = false;
-        krkr::input::sharedState().release(
-            TVPConvertMouseBtnToVKCode(_mouseBtn));
+        touchButton.finish();
+        krkr::input::sharedState().release(button);
     }
 }
 
@@ -262,48 +264,36 @@ void TVPWindowLayer::onTouchCancelled(cocos2d::Touch *touch,
         return; // Ignore a late release/cancel from a discarded gesture.
     _touches.erase(touchIter);
 
-    if(_touches.size() == 0) {
+    if(_touches.empty()) {
         _dragging = false;
         _touchMoved = false;
-        // Cancellation ends the drag just like a release, without a click.
-        // Clear held state before taking the script's modifier snapshot.
-        krkr::input::sharedState().release(
-            TVPConvertMouseBtnToVKCode(_mouseBtn));
-
-        if(tjsNativeInstance) {
-            const auto position = krkr::cocosinput::layerPosition(
-                *PrimaryLayerArea, touch->getLocation());
-            _LastMouseX = position.x;
-            _LastMouseY = position.y;
-            TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
-                tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
-                TVPGetCurrentShiftKeyState()));
-        }
+        if(auto button = touchButton.finish())
+            onMouseUp(touch->getLocation(), MouseButtonForKey(*button));
     }
 }
 
-void TVPWindowLayer::onMouseDown(const cocos2d::Vec2 &pt) {
+void TVPWindowLayer::onMouseDown(const cocos2d::Vec2 &pt,
+                                 tTVPMouseButton button) {
     const auto position =
         krkr::cocosinput::layerPosition(*PrimaryLayerArea, pt);
     _LastMouseX = position.x;
     _LastMouseY = position.y;
-    krkr::input::sharedState().press(TVPConvertMouseBtnToVKCode(_mouseBtn));
+    krkr::input::sharedState().press(TVPConvertMouseBtnToVKCode(button));
     TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
-        tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
+        tjsNativeInstance, _LastMouseX, _LastMouseY, button,
         TVPGetCurrentShiftKeyState()));
 }
 
-void TVPWindowLayer::onMouseUp(const cocos2d::Vec2 &pt) {
-    if(!krkr::input::sharedState().release(
-           TVPConvertMouseBtnToVKCode(_mouseBtn)))
-        return; // Focus cancellation may already have sent the matching up.
+void TVPWindowLayer::onMouseUp(const cocos2d::Vec2 &pt,
+                               tTVPMouseButton button) {
+    krkr::input::sharedState().release(TVPConvertMouseBtnToVKCode(button));
     const auto position =
         krkr::cocosinput::layerPosition(*PrimaryLayerArea, pt);
     _LastMouseX = position.x;
     _LastMouseY = position.y;
     TVPPostInputEvent(
         new tTVPOnMouseUpInputEvent(tjsNativeInstance, _LastMouseX, _LastMouseY,
-                                    _mouseBtn, TVPGetCurrentShiftKeyState()));
+                                    button, TVPGetCurrentShiftKeyState()));
 }
 
 void TVPWindowLayer::onMouseMove(const cocos2d::Vec2 &pt) {
@@ -320,7 +310,8 @@ void TVPWindowLayer::onMouseMove(const cocos2d::Vec2 &pt) {
     TVPPushEnvironNoise(&pos, sizeof(pos));
 }
 
-void TVPWindowLayer::onMouseClick(const cocos2d::Vec2 &pt) {
+void TVPWindowLayer::onMouseClick(const cocos2d::Vec2 &pt,
+                                  tTVPMouseButton button) {
     const auto position =
         krkr::cocosinput::layerPosition(*PrimaryLayerArea, pt);
     _LastMouseX = position.x;
@@ -330,15 +321,15 @@ void TVPWindowLayer::onMouseClick(const cocos2d::Vec2 &pt) {
                           TVPGetCurrentShiftKeyState()),
                       TVP_EPT_DISCARDABLE);
     krkr::input::sharedState().latchReleasedPress(
-        TVPConvertMouseBtnToVKCode(_mouseBtn));
+        TVPConvertMouseBtnToVKCode(button));
     TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
-        tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
+        tjsNativeInstance, _LastMouseX, _LastMouseY, button,
         TVPGetCurrentShiftKeyState()));
     TVPPostInputEvent(
         new tTVPOnClickInputEvent(tjsNativeInstance, _LastMouseX, _LastMouseY));
     TVPPostInputEvent(
         new tTVPOnMouseUpInputEvent(tjsNativeInstance, _LastMouseX, _LastMouseY,
-                                    _mouseBtn, TVPGetCurrentShiftKeyState()));
+                                    button, TVPGetCurrentShiftKeyState()));
 }
 
 
@@ -346,13 +337,17 @@ void TVPWindowLayer::CancelInput(const std::vector<std::uint32_t> &released) {
     static_assert(VK_RETURN == 0x0d && VK_SPACE == 0x20 && VK_ESCAPE == 0x1b &&
                       VK_PAD1 == 0x1c0 && VK_PAD2 == 0x1c1,
                   "Shared mouse-key bindings must preserve the engine VK ABI");
+    auto keys = released;
+    if(touchButton.pressed())
+        keys.push_back(touchButton.value());
     const auto plan = krkr::input::planInputCancellation(
-        released,
+        keys,
         { UseMouseKey, MouseLeftButtonEmulatedPushed,
           MouseRightButtonEmulatedPushed });
     for(auto *touch : _touches)
         TouchVelocityTracker.end(touch->getID());
     _touches.clear();
+    touchButton.reset();
     _dragging = false;
     _touchMoved = false;
     MouseLeftButtonEmulatedPushed = MouseRightButtonEmulatedPushed = false;
@@ -439,6 +434,26 @@ void TVPWindowLayer::ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right,
     bottom = static_cast<tjs_int64>(bottom) * ActualZoomNumer / ActualZoomDenom;
 }
 
+tTVPMouseButton TVPWindowLayer::MouseButtonForKey(std::uint32_t key) {
+    switch(key) {
+        case krkr::input::key::leftMouse:
+            return mbLeft;
+        case krkr::input::key::rightMouse:
+            return mbRight;
+        case krkr::input::key::middleMouse:
+            return mbMiddle;
+        default:
+            throw std::invalid_argument("Unsupported touch mouse button");
+    }
+}
+
+void TVPWindowLayer::SetCurrentWindow(TVPWindowLayer *window) {
+    if(_currentWindowLayer == window)
+        return;
+    TVPMainScene::CancelGameInput();
+    _currentWindowLayer = window;
+}
+
 void TVPWindowLayer::BringToFront() {
     if(_currentWindowLayer != this) {
         if(_currentWindowLayer) {
@@ -446,7 +461,7 @@ void TVPWindowLayer::BringToFront() {
             _currentWindowLayer->setPosition(cocos2d::Vec2(size.width, 0));
             _currentWindowLayer->tjsNativeInstance->OnReleaseCapture();
         }
-        _currentWindowLayer = this;
+        SetCurrentWindow(this);
     }
 }
 
@@ -485,7 +500,7 @@ void TVPWindowLayer::SetVisible(bool bVisible) {
         BringToFront();
     } else {
         if(_currentWindowLayer == this) {
-            _currentWindowLayer = _prevWindow ? _prevWindow : _nextWindow;
+            SetCurrentWindow(_prevWindow ? _prevWindow : _nextWindow);
         }
     }
 }
