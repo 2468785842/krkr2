@@ -23,6 +23,8 @@ REQUIRED = ["ready", "state:held", "state:unfocused", "state:unfocused-check",
 def failures(events):
     errors = [event for event in events if event.startswith(("error:", "lifecycle:"))]
     held = [event for event in events if event.startswith("focus:held:")]
+    # GLFW can synthesize A-up before its focus notification. Both up callbacks
+    # must see fully released state; their order is not the contract under test.
     if held[:2] != HELD_DOWN or Counter(held[2:]) != Counter(CANCELLED):
         errors.append(f"Held/cancelled callbacks mismatch: {held!r}")
     recovered = [event for event in events if event.startswith("focus:recovered:")]
@@ -47,6 +49,12 @@ class FocusProbe(Reproducer):
         self.desktop.click_caption(window)
         self.wait(lambda: self.desktop.foreground() == window, label)
         self.record("native-foreground", target=label, hwnd=window)
+
+    def key(self, window, down):
+        if self.desktop.foreground() != window:
+            raise RuntimeError("Native key target lost foreground")
+        self.desktop.key(65, down)
+        self.record("native-key", hwnd=window, key=65, down=down)
 
     def __call__(self, process, directory, deadline, report):
         self.process, self.root, self.deadline = process, directory, deadline
@@ -75,7 +83,7 @@ class FocusProbe(Reproducer):
             self.ui("touch-begin 1 0.5 0.5")
             self.ui("touch-move 1 0.6 0.5")
             self.script_event(HELD_DOWN[0], before)
-            self.desktop.key(65, True)
+            self.key(engine_window, True)
             self.script_event(HELD_DOWN[1], before)
 
             self.foreground(helper, "helper-unfocused")
@@ -83,7 +91,7 @@ class FocusProbe(Reproducer):
                 self.script_event(event, before)
             before = self.command("unfocused")
             self.script_event("state:unfocused", before)
-            self.desktop.key(65, False)  # native up goes to the helper
+            self.key(helper, False)  # native up goes to the helper
             self.ui("key-down A")
             self.ui("key-up A")
             self.ui("touch-move 1 0.65 0.5")
@@ -102,9 +110,9 @@ class FocusProbe(Reproducer):
             self.ui("key-up A")
             before = self.command("recovered-check")
             self.script_event("state:recovered-empty", before)
-            self.desktop.key(65, True)
+            self.key(engine_window, True)
             self.script_event(RECOVERED[0], before)
-            self.desktop.key(65, False)
+            self.key(engine_window, False)
             self.script_event(RECOVERED[1], before)
             self.ui("touch-begin 3 0.5 0.5")
             self.ui("touch-move 3 0.6 0.5")
