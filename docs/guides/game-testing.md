@@ -64,6 +64,11 @@ python tools/game-smoke/interaction_smoke.py run out/windows/debug/bin/krkr2/krk
 Windows CI 可手动开启 `pointer_contracts`，用独立目录的 Mesa 软件 OpenGL 运行应用，
 操作、artifact 和验收边界见[交互场景说明](../../tools/game-smoke/interaction/README.md#跨帧触摸回调探针)。
 
+Windows 的 `tools/game-smoke/focus_repro.py` 另使用原生辅助窗口与 `SendInput`，
+实际切换前台窗口并核对取消/恢复后的 TJS 输入状态；A 键走系统路径，触摸仍走 GLView。
+该探针与默认文件/菜单场景分开判定，不覆盖最小化或完整暂停恢复。
+操作及平台要求见[原生焦点探针](../../tools/game-smoke/interaction/README.md#windows-原生焦点探针)。
+
 ## 验收范围
 
 按改动选择标题、剧情推进、相同位置画面、菜单/脚本对话框、存读档、关闭、音视频、

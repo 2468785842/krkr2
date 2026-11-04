@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       pointer_contracts:
-        description: 'Run GLView/TJS pointer probes with local Mesa software OpenGL (test binary)'
+        description: 'Run pointer and native Win32 focus probes with local Mesa (test binary)'
         type: boolean
         default: false
 

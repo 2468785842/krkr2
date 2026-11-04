@@ -101,10 +101,33 @@ gh workflow run build-windows.yml --ref dev -f pointer_contracts=true
 
 可手动开启 Windows CI 的 `pointer_contracts` 输入；默认关闭。
 该模式构建显式测试驱动，在独立运行目录放置固定版本并校验 SHA256 的 Mesa 软件 OpenGL，
-执行单窗口和双窗口探针。测试二进制使用独立 artifact 名称，不安装系统显卡驱动，
+执行单窗口、双窗口和下述 Windows 原生焦点探针。测试二进制使用独立 artifact 名称，不安装系统显卡驱动，
 不修改系统 OpenGL。报告、真实脚本轨迹、exe/PDB 与截图在 `windows-pointer-contracts` artifact；
 仅查看报告和图片可下载体积较小的 `windows-pointer-contract-reports`。
-软件 OpenGL 回调通过也不代表画面、原生 OS 焦点或物理设备验收通过。
+两个指针探针的回调通过也不代表画面、原生 OS 焦点或物理设备验收通过。
+
+## Windows 原生焦点探针
+
+```powershell
+python tools/game-smoke/focus_repro.py out/windows/debug/bin/krkr2/krkr2.exe out/ui-game-smoke/native-focus-01
+```
+
+需要 Windows 桌面和显式测试驱动构建。探针复制独立的 `tools/game-smoke/focus/startup.tjs`，
+按进程 PID 查找唯一可见引擎窗口，创建自己的辅助窗口，再用 `SendInput` 点击两者标题栏切换焦点。
+每次都核对 `GetForegroundWindow`；找不到唯一窗口、前台切换失败或输入被系统拒绝均判失败。
+辅助窗口在测试期间置顶；点击前核对 `WindowFromPoint` 的实际命中目标，避免标题栏被其他窗口遮住。
+它不直接投递引擎的 focused/unfocused 通知。
+
+A 键走 Windows `SendInput` → 原生窗口/GLFW → 引擎路径；触摸走已有 GLView 驱动。
+按住 A 和触摸拖动时切到辅助窗口，真实 TJS 回调检查两者状态均已释放且没有点击；
+失焦期间送入的组件按键/触摸必须被抑制。恢复后旧触点和旧抬起不得产生新回调，
+再分别验证新 A 键与新拖动。普通切焦也不得产生 System 前后台通知。
+这些是系统输入注入与组件触摸证据，不等同于物理键盘、触摸屏或原生鼠标捕获验收。
+
+Windows CI 的 `pointer_contracts=true` 同时运行此探针；报告目录为 `native-focus`，
+与两个指针探针一起上传到完整/轻量 artifact。原生前台窗口变化记录在 `repro-trace.json`，
+exe/PDB 哈希、回调、正常退出及未强停要求沿用原控制器。
+不最小化窗口，不验证后台停泵、移动端暂停恢复、IME、高 DPI 或音视频。
 
 ## 连续复现与取证
 

@@ -51,9 +51,97 @@ job `126387751412` 已成功。Release、ENABLE_TESTS=ON、BUILD_TOOLS=OFF，
 应用及 cocos_window_tests 成功链接；实际发现并通过全部 9 项（约 0.65 秒），其中焦点 4 项分别通过。
 两个渲染器编译范围、元数据及应用二进制上传亦通过。
 
+## Windows 原生焦点探针补验
+
+接续 `69d0c37`；`4e0c432` 增加独立的 `tools/game-smoke/focus/startup.tjs`、
+`focus_repro.py` 与 `win32_input.py`，不修改生产 C++。
+Windows UI 测试驱动仍默认关闭，手动 `pointer_contracts=true` 模式同时运行第三个场景。
+
+Win32 helper 创建自己的标准窗口，按子进程 PID 查找唯一可见引擎 HWND；
+用 `SendInput` 点击标题栏，并实际检查 `GetForegroundWindow`。
+A 键也通过 SendInput；触摸 begin/move/end 仍经 GLView，而不是物理设备。
+没有直接分发 Cocos 的焦点通知、调用取消函数或伪造脚本回调。
+标题栏点击不制造游戏点击；退出清理自己按下的键与辅助窗口。
+
+场景检查 A 和拖动同时按住时切走：抬起回调查询 A/左键均为 false，取消不得点击；
+失焦期间组件按键/触摸忽略；恢复后旧触点结束及旧 A-up 不产生新输入，
+然后新原生 A 键和新 GLView 拖动正常。普通切焦不得产生 System 前后台回调。
+先验证完整回调与新确认，最后要求正常退出、未强停；截图只来自 Cocos 帧缓冲。
+
+```sh
+python -m unittest discover -s tools/game-smoke -p 'test_*.py' -v
+python -m py_compile tools/game-smoke/focus_repro.py tools/game-smoke/win32_input.py
+/tmp/krkr-dev-tools/bin/actionlint -shellcheck= .github/workflows/build-windows.yml
+git diff --check
+```
+
+Linux 本机 30 项 Python 检查全通过，其中新增 6 项只验证报告拒绝错误证据，未运行 Win32。
+Windows 手动验收首次两次 dispatch 返回 502；确认没有运行后，以 workflow 文件名路径提交成功，
+运行 `41813851043`，job `126519518400` 的应用、9 项 Cocos、30 项 Python、原有单/双窗口场景通过，
+新原生焦点探针失败：`automation:TimeoutError: helper-unfocused`，进程退出 1、forced_stop=true。
+真实脚本只收到 `focus:held:mouse-down:0:0:1` 与 `focus:held:key-down:65:1:1`，
+未收到取消；不能计为原生切焦或恢复通过，也不足以判断生产焦点订阅有缺陷。
+轻量 artifact `13314360583`，SHA256
+`20a9cc894d399e4c33e6517dfcfef58a9ecc6fda93c71cebb34d3fe15e7f4889`，
+已下载到 `out/windows-ci/41813851043/` 并核对报告、轨迹和进程日志。
+失败轮 exe SHA256 `253f32b366cd82d86333665c45ac48da1ee7956f4aeaf9e9e289760073e87748`，
+PDB `5995fd4eec1c9d4d928b008266096628a6f109356a3bfde9fb9242bc4c191177`，
+fixture `21ebba88583564de9926218dda51582ba07b9e37bea6a272fca3460797a6f960`。
+
+`327fd28` 补了发键前的前台归属检查与逐次键盘轨迹，其 Headless `41814333242` 全部 13 项通过。
+手动应用运行 `41814353662` 在发现旧 helper 切焦失败后主动取消，不计为应用测试结果。
+怀疑辅助窗口标题栏被前台引擎遮住；首轮没记录命中点，不能断言具体原因。
+`ef2e260` 使自有 helper 保持 TOPMOST，改为从实际 client 原点计算非客户区点击点，
+点击前通过 `WindowFromPoint` / `GetAncestor` 检查实际命中自己的目标窗口；
+记录矩形、client 原点、桌面范围、点击点及前台 HWND，再交由 OS 输入并确认前台切换。
+这不直接注入引擎焦点通知，仍需新的实际运行验收。
+
+`ef2e260` 的 Windows `41815105064` / job `126523753183` 中，原有场景仍通过，
+新焦点探针仍因 `helper-unfocused` 超时失败，退出 1、forced_stop=true。
+已收到两条取消回调 `focus:held:mouse-up:0:0:0` / `focus:held:key-up:65:0:0`；
+前台 HWND 严格确认没有完成，不能计为整条原生验收通过。
+记录表明虚拟桌面为 1024×768，helper 矩形 `[644,538,1004,738]`，点击点 `[824,557]`，
+`WindowFromPoint` 的 root 确实等于 helper；首轮可能遮挡的位置也落在引擎矩形
+`[48,89,1024,768]` 内。这次不能再以遮挡解释失败，进一步改掉 STATIC 控件的激活语义。
+轻量 artifact `13314800588` SHA256
+`de9aa1a40674a17bed607f97ca569c6181c7407726d49f305bb234268d76ca7d`，
+已下载核对到 `out/windows-ci/41815105064/`。
+exe `1739801a1205fe0c5e8bec46c61000939b6a185732021cdb0674791d9e77c8bb`，
+PDB `b5556b2add26669638bf38a1b176f001b379025ee29abe1769e91e12603ac635`，fixture 与首轮相同。
+其 Headless `41815063265` 13/13 job 已通过。
+
+`b017747` 将 helper 改为 RegisterClassW 注册的普通顶层窗口，使用原生 DefWindowProcW，
+保留真实 SendInput、命中与前台确认；结束时 DestroyWindow / UnregisterClassW。
+同时记录清理前的前台 HWND，实际复验结果如下。
+
+`b017747` 的 [Windows 运行](https://github.com/2468785842/krkr2/actions/runs/41816119830)
+job `126527193672` 全部成功：Release/full/app/tests/测试驱动=ON、管理 UI 默认 ON，
+应用构建、9 项 Cocos CPU 用例（约 0.64 秒）、渲染器范围检查、30 项 Python 均通过。
+单/双窗口指针场景和新原生焦点场景均 passed=true、退出 0、未强停。
+原生场景实际轨迹核对为 engine HWND `590156` → helper `393288` → engine `590156`，
+三个点击点的实际命中 root 都等于目标；native A-down 发给 engine，切走后的 A-up 发给 helper，
+恢复后新的 A-down/up 都发给 engine。触摸仍是 GLView 输入，没有把它记成物理设备。
+
+TJS 完整记录了按住阶段的 mouse/key down、两条全释放的取消 up，
+失焦期间没有新增输入回调；恢复时旧触点结束与旧 A-up 没有回调，新 A 键与新拖动正常。
+没有额外 click 或 System 前后台事件。代码未降低失败判定，没有修改生产 C++ 来配合测试。
+普通顶层窗口替换通过实际前台检查；前两轮 STATIC helper 的失败仍保留为失败证据。
+
+exe SHA256 `f4efa513995f605cecdde81b4e62f4ef31a5d63ce24fdaa667b1e70b2107175d`，
+PDB `1b8b4d1e696efc2bf4e91226028acf272a16d2c7881a5ceb92a9f78fe8d632c5`，
+focus fixture `21ebba88583564de9926218dda51582ba07b9e37bea6a272fca3460797a6f960`。
+轻量 artifact `13315196483` SHA256
+`ad9af0b602d2a0ccf28d84ae7b1230ce6ae6f4b86db4a178e7db38c33ddd383e`，
+已下载核对至 `out/windows-ci/41816119830/`，实际查看 ready/recovered 两张截图，
+自制蓝灰层中心 `(480,320)` 都为 RGB `(48,64,80)`；只说明该填充层，不作为完整画面回归。
+截图来自 Cocos 帧缓冲，不含外部 helper，原生切焦证据来自 HWND/命中点/SendInput 轨迹与真实回调。
+同提交 [Headless 运行](https://github.com/2468785842/krkr2/actions/runs/41816118316)
+最终 13/13 job 全通过，包含三平台各 26 项平台契约、30 项 Python 与现有 SDL3 正反向检查。
+
 ## 未覆盖及后续
 
-未实际执行原生 OS 切焦、最小化、多游戏窗口路由、触摸设备/手柄或输入法交互。
+Windows 单宿主窗口的普通 OS 切焦已完成上述验收；Linux/macOS 原生切焦、最小化、
+多游戏窗口与 OS 切焦组合、物理触摸设备/手柄或输入法交互仍未验证。
 焦点订阅初始沿用已聚焦假定；普通事件通过当前游戏窗口分发，不实现每个物理按下的多窗口所有者跟踪。
 Cocos CPU 订阅用例不创建 OS/GL 窗口，也不执行真实 TJS Window 回调；不能宣称全游戏或完整 B2 通过。
 后续按[平台契约](../../proposed/architecture/2026-11-03-platform-contracts.md)建立上述场景的原生输入轨迹，

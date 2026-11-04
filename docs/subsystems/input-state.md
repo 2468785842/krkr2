@@ -59,7 +59,10 @@ Cocos 的常规按下/抬起也使用该映射，修正了旧右键模拟误发�
 
 普通焦点通知不调用 HostLifecycle，不改变 System 激活通知、音量或动画泵；
 最小化/恢复仍沿用 AppDelegate 的原有前后台入口。
-初始状态沿用已聚焦假定，后续由 GLView 通知更新；实际 OS 切焦与多窗口路由仍需交互验收。
+初始状态沿用已聚焦假定，后续由 GLView 通知更新。
+Windows 原生切焦探针已通过真实前台窗口切换与 A 键 SendInput 验证取消、失焦输入抑制和恢复；
+触摸仍通过 GLView 注入。多游戏窗口与系统切焦组合、其他平台焦点及最小化仍需分别验收，
+用法见[原生焦点探针](../../tools/game-smoke/interaction/README.md#windows-原生焦点探针)。
 
 ## 修饰键快照
 
