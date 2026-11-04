@@ -255,6 +255,10 @@ void TVPWindowLayer::onTouchCancelled(cocos2d::Touch *touch,
     if(_touches.size() == 0) {
         _dragging = false;
         _touchMoved = false;
+        // Cancellation ends the drag just like a release, without a click.
+        // Clear held state before taking the script's modifier snapshot.
+        krkr::input::sharedState().release(
+            TVPConvertMouseBtnToVKCode(_mouseBtn));
 
         if(tjsNativeInstance) {
             const auto position = krkr::cocosinput::layerPosition(

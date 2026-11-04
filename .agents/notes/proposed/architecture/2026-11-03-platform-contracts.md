@@ -91,5 +91,9 @@ SDL 队列与 X11 的组合键释放/恢复验证见[子批次记录](../../impl
 没有接线 Cocos；不能替代上一节要求的现有后端真实失焦证据。
 
 本页仍为 proposed：OS 坐标/DPI/IME、焦点丢失释放、平台事件泵、完整暂停恢复和销毁路径尚未抽离。
+桌面 Cocos 3.17.2 的 `cocos/platform/desktop/CCGLViewImpl-desktop.cpp` 将焦点通知
+分发为 `EVENT_WINDOW_FOCUSED/UNFOCUSED`；最小化/恢复才调用 AppDelegate 的后台/前台入口。
+当前 MainScene 未订阅这两个焦点事件，不能把已有 HostLifecycle 通知当作桌面切焦接入。
+后续需分别验证普通切焦、最小化和触摸取消，避免为处理切焦直接停止动画泵或误发点击。
 下一批应在实际失焦/后台与恢复场景建立证据，避免仅靠接口声明推断跨平台行为。
 独立 SDL3/TJS 壳实验的可用范围另见 `tools/sdl3-prototype/README.md`，不作为 B2 全完成或 KAG 后端迁移验收。

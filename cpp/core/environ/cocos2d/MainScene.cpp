@@ -1212,16 +1212,19 @@ void TVPMainScene::insertText(const char *text, size_t len) {
 }
 
 void TVPMainScene::onCharInput(int keyCode) {
-    TVPWindowLayer::_currentWindowLayer->OnKeyPress((tjs_char)keyCode, 0, false,
-                                                    false);
+    if(auto *window = TVPWindowLayer::_currentWindowLayer)
+        window->OnKeyPress((tjs_char)keyCode, 0, false, false);
 }
 
 void TVPMainScene::onTextInput(const std::string &text) {
+    // Native/IME input can arrive after the last game window was destroyed.
+    auto *window = TVPWindowLayer::_currentWindowLayer;
+    if(!window)
+        return;
     std::u16string buf;
     if(StringUtils::UTF8ToUTF16(text, buf)) {
         for(int i = 0; i < buf.size(); ++i) {
-            TVPWindowLayer::_currentWindowLayer->OnKeyPress(buf[i], 0, false,
-                                                            false);
+            window->OnKeyPress(buf[i], 0, false, false);
         }
     }
 }
