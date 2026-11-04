@@ -26,8 +26,8 @@ public:
     static TVPMainScene *GetInstance();
     static TVPMainScene *CreateInstance();
     static bool AcceptsGameInput();
-    // Window switches cancel the old gesture before changing its recipient.
-    static void CancelGameInput(bool notifyWindow = true);
+    // Internal switches cancel pointers, preserving keyboard/controller state.
+    static void CancelPointerInput(bool notifyWindow = true);
 
     static void setMaskLayTouchBegain(
         const std::function<bool(cocos2d::Touch *, cocos2d::Event *)> &func);

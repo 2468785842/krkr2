@@ -43,7 +43,7 @@ void TVPWindowLayer::leaveCurrentWindow() {
     if(_currentWindowLayer != this)
         return;
     // No script callbacks: invalidation can precede the node's destruction.
-    TVPMainScene::CancelGameInput(false);
+    TVPMainScene::CancelPointerInput(false);
     auto *another = _lastWindowLayer;
     while(another &&
           (another == this || !another->isVisible() ||
@@ -368,7 +368,10 @@ void TVPWindowLayer::CancelInput(const std::vector<std::uint32_t> &released) {
 
     // Do not route through InternalKeyUp: mouse-key release can generate a
     // click there. Direct posts also avoid consuming unread press markers via
-    // GetMouseButtonState(), after the focus owner has released all VKs.
+    // GetMouseButtonState(). Pointer-only cancellation keeps keyboard
+    // modifiers.
+    const auto shift =
+        krkr::input::legacyShiftFlags(krkr::input::sharedState());
     for(auto button : plan.pointerUps) {
         auto mouseButton = mbMiddle;
         if(button == krkr::input::key::leftMouse)
@@ -376,10 +379,11 @@ void TVPWindowLayer::CancelInput(const std::vector<std::uint32_t> &released) {
         else if(button == krkr::input::key::rightMouse)
             mouseButton = mbRight;
         TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
-            tjsNativeInstance, _LastMouseX, _LastMouseY, mouseButton, 0));
+            tjsNativeInstance, _LastMouseX, _LastMouseY, mouseButton, shift));
     }
     for(auto key : plan.keyUps)
-        TVPPostInputEvent(new tTVPOnKeyUpInputEvent(tjsNativeInstance, key, 0));
+        TVPPostInputEvent(
+            new tTVPOnKeyUpInputEvent(tjsNativeInstance, key, shift));
 }
 
 void TVPWindowLayer::TickBeat() {
@@ -459,7 +463,7 @@ tTVPMouseButton TVPWindowLayer::MouseButtonForKey(std::uint32_t key) {
 void TVPWindowLayer::SetCurrentWindow(TVPWindowLayer *window) {
     if(_currentWindowLayer == window || (window && !window->tjsNativeInstance))
         return;
-    TVPMainScene::CancelGameInput();
+    TVPMainScene::CancelPointerInput();
     if(_currentWindowLayer && _currentWindowLayer->tjsNativeInstance)
         _currentWindowLayer->tjsNativeInstance->OnReleaseCapture();
     _currentWindowLayer = window;
@@ -824,6 +828,12 @@ void TVPWindowLayer::InternalKeyUp(tjs_uint16 key, tjs_uint32 shift) {
     if(tjsNativeInstance) {
         if(UseMouseKey /*&& PaintBox*/) {
             if(const auto button = krkr::input::mouseKeyButton(key)) {
+                if((button == krkr::input::key::leftMouse &&
+                    !MouseLeftButtonEmulatedPushed) ||
+                   (button == krkr::input::key::rightMouse &&
+                    !MouseRightButtonEmulatedPushed))
+                    return; // Cancelled in this window, or pressed in another
+                            // window.
                 cocos2d::Vec2 p(_LastMouseX, _LastMouseY);
                 cocos2d::Size size = PrimaryLayerArea->getContentSize();
                 if(p.x >= 0 && p.y >= 0 && p.x < size.width &&

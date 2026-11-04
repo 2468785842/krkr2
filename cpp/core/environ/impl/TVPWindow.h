@@ -132,7 +132,8 @@ public:
 
     void onMouseClick(const cocos2d::Vec2 &pt, tTVPMouseButton button);
 
-    // Shared state is already released; cancel gestures and enqueue ups only.
+    // The caller released the relevant VKs; cancel gestures and enqueue ups
+    // only.
     void CancelInput(const std::vector<std::uint32_t> &released);
 
     tTJSNI_Window *getWindow() { return tjsNativeInstance; }

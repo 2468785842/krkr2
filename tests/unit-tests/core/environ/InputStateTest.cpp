@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include "InputState.h"
+#include "InputModifiers.h"
 #include <limits>
 
 TEST_CASE("input state keeps a held key after its press is consumed",
@@ -114,4 +115,26 @@ TEST_CASE("input focus loss covers the complete virtual-key range", "[input]") {
         REQUIRE_FALSE(state.query(key, true));
         REQUIRE_FALSE(state.query(key, false));
     }
+}
+
+TEST_CASE("input pointer cancellation preserves keyboard and controller state",
+          "[input]") {
+    krkr::input::KeyState state;
+    for(auto key : { 1u, 2u, 4u, 16u, 17u, 18u, 65u, 0x1c0u })
+        state.press(key);
+    state.latchReleasedPress(66);
+    REQUIRE(state.releasePointers() == std::vector<std::uint32_t>{ 1, 2, 4 });
+    REQUIRE(krkr::input::legacyShiftFlags(state) == 7);
+    for(auto key : { 1u, 2u, 4u }) {
+        REQUIRE_FALSE(state.isDown(key));
+        REQUIRE(state.query(key, false));
+    }
+    for(auto key : { 16u, 17u, 18u, 65u, 0x1c0u }) {
+        REQUIRE(state.isDown(key));
+        REQUIRE(state.query(key, false));
+    }
+    REQUIRE(state.query(66, false));
+    REQUIRE(state.releasePointers().empty());
+    REQUIRE(state.releaseAll() ==
+            std::vector<std::uint32_t>{ 16, 17, 18, 65, 0x1c0 });
 }

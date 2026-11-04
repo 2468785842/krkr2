@@ -434,8 +434,8 @@ bool TVPMainScene::AcceptsGameInput() {
         (!_instance->inputFocus || _instance->inputFocus->acceptsInput());
 }
 
-void TVPMainScene::CancelGameInput(bool notifyWindow) {
-    const auto released = krkr::input::sharedState().releaseAll();
+void TVPMainScene::CancelPointerInput(bool notifyWindow) {
+    const auto released = krkr::input::sharedState().releasePointers();
     if(_instance)
         _instance->cancelGameInput(released, notifyWindow);
 }
@@ -987,7 +987,7 @@ void TVPMainScene::showWindowManagerOverlay(bool bVisible) {
             if(TVPWindowLayer::TVPWindowLayer::_currentWindowLayer &&
                TVPWindowLayer::TVPWindowLayer::_currentWindowLayer->in_mode_)
                 return;
-            CancelGameInput();
+            CancelPointerInput();
             TVPWindowLayer::_windowMgrOverlay =
                 TVPWindowManagerOverlay::create();
             GameNode->addChild(TVPWindowLayer::_windowMgrOverlay,
@@ -996,7 +996,7 @@ void TVPMainScene::showWindowManagerOverlay(bool bVisible) {
         }
     } else {
         if(TVPWindowLayer::_windowMgrOverlay) {
-            CancelGameInput();
+            CancelPointerInput();
             TVPWindowLayer::_windowMgrOverlay->removeFromParent();
             TVPWindowLayer::_windowMgrOverlay = nullptr;
             _gameMenu->setVisible(true);
@@ -1039,7 +1039,7 @@ Sprite *TVPCreateCUR() {
 
 void TVPMainScene::showVirtualMouseCursor(bool bVisible) {
     if(TVPWindowLayer::_virutalMouseMode != bVisible)
-        CancelGameInput();
+        CancelPointerInput();
     if(!bVisible) {
         if(TVPWindowLayer::TVPWindowLayer::_mouseCursor)
             TVPWindowLayer::TVPWindowLayer::_mouseCursor->setVisible(false);

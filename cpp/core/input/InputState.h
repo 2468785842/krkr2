@@ -16,6 +16,9 @@ namespace krkr::input {
         // presses, just like release(); return keys in virtual-key order so the
         // adapter can send matching key-up events after all state is updated.
         std::vector<std::uint32_t> releaseAll();
+        // Internal window/mode changes cancel pointer gestures, while the
+        // process-wide keyboard/controller state must remain unchanged.
+        std::vector<std::uint32_t> releasePointers();
         void latchReleasedPress(std::uint32_t key);
         bool isDown(std::uint32_t key) const;
         bool query(std::uint32_t key, bool current);

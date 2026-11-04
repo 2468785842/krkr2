@@ -1,4 +1,5 @@
 #include "InputState.h"
+#include "InputModifiers.h"
 
 namespace krkr::input {
     namespace {
@@ -27,6 +28,18 @@ namespace krkr::input {
         }
         for(auto key : released)
             release(key);
+        return released;
+    }
+
+    std::vector<std::uint32_t> KeyState::releasePointers() {
+        std::vector<std::uint32_t> released;
+        for(auto pointer :
+            { key::leftMouse, key::rightMouse, key::middleMouse }) {
+            if(isDown(pointer))
+                released.push_back(pointer);
+        }
+        for(auto pointer : released)
+            release(pointer);
         return released;
     }
 
