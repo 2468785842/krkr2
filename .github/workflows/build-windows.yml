@@ -153,6 +153,18 @@ jobs:
             out/windows/pointer-contracts/two-windows/**
           if-no-files-found: warn
 
+      - name: Upload small pointer reports and screenshots
+        if: always() && inputs.pointer_contracts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-pointer-contract-reports
+          path: |
+            out/windows/pointer-contracts/mesa-identity.txt
+            out/windows/pointer-contracts/single-window/**
+            out/windows/pointer-contracts/two-windows/**
+            !out/windows/pointer-contracts/*/evidence/**
+          if-no-files-found: warn
+
       - name: Upload build metadata
         if: always()
         uses: actions/upload-artifact@v4

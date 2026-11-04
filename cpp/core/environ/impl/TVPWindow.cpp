@@ -479,6 +479,7 @@ void TVPWindowLayer::BringToFront() {
             _currentWindowLayer->setPosition(cocos2d::Vec2(size.width, 0));
         }
         SetCurrentWindow(this);
+        setPosition(cocos2d::Vec2::ZERO);
     }
 }
 
@@ -523,6 +524,8 @@ void TVPWindowLayer::SetVisible(bool bVisible) {
                 next = next->_nextWindow;
         }
         SetCurrentWindow(next);
+        if(next)
+            next->setPosition(cocos2d::Vec2::ZERO);
     }
     Visible = bVisible;
     setVisible(bVisible);

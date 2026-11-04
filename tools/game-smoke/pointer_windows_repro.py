@@ -12,6 +12,7 @@ EXPECTED = [
     "pointer:a:down:0", "pointer:a:up:0",  # switching cancels A's drag
     "pointer:b:down:0", "pointer:b:up:0",  # old A touch cannot release B
     "pointer:b:down:0", "pointer:b:click", "pointer:b:up:0",
+    "pointer:a:down:0", "pointer:a:click", "pointer:a:up:0",  # hiding B restores A
     "pointer:b:down:0",  # invalidation removes callbacks to B
     "pointer:a:down:0", "pointer:a:up:0",  # old B touch cannot release A
     "pointer:a:down:0", "pointer:a:click", "pointer:a:up:0",
@@ -23,9 +24,23 @@ def failures(events):
     actual = [line for line in events if line.startswith("pointer:")]
     if actual != EXPECTED:
         errors.append(f"Window pointer callback mismatch: expected {EXPECTED!r}, got {actual!r}")
+    positions = [line for line in events if line.startswith("pointer-position:")]
+    expected_positions = [line.split(":")[1:3] for line in EXPECTED if ":click" not in line]
+    if len(positions) != len(expected_positions):
+        errors.append("Missing or extra Window pointer coordinates")
+    for event, expected in zip(positions, expected_positions):
+        parts = event.split(":")
+        try:
+            valid = (len(parts) == 5 and parts[1:3] == expected and
+                     0 <= int(parts[3]) < 640 and 0 <= int(parts[4]) < 480)
+        except ValueError:
+            valid = False
+        if not valid:
+            errors.append(f"Invalid Window pointer coordinates: {event}")
     for event in ("ready", "pointer-windows-ready", "pointer-window-b",
                   "pointer-window-b-held", "pointer-window-b-invalidated",
-                  "pointer-window-a-held", "fixture-finished"):
+                  "pointer-window-a-held", "pointer-window-b-hidden",
+                  "pointer-window-b-shown", "fixture-finished"):
         if events.count(event) != 1:
             errors.append(f"Expected exactly one {event}")
     return errors
@@ -49,6 +64,7 @@ class WindowPointerProbe(Reproducer):
             switched = self.command("pointer-switch-b")
             self.script_event("pointer-window-b", switched)
             self.script_event("pointer:a:up:0", before)
+            self.capture("window-b.png")
 
             before = self.command("pointer-b-drag")
             self.ui("touch-begin 2 0.5 0.5")
@@ -63,6 +79,14 @@ class WindowPointerProbe(Reproducer):
             self.ui("touch-begin 3 0.5 0.5")
             self.ui("touch-end 3 0.5 0.5")
             self.script_event("pointer:b:up:0", before)
+
+            before = self.command("pointer-hide-b")
+            self.script_event("pointer-window-b-hidden", before)
+            self.ui("touch-begin 7 0.5 0.5")
+            self.ui("touch-end 7 0.5 0.5")
+            self.script_event("pointer:a:up:0", before)
+            before = self.command("pointer-show-b")
+            self.script_event("pointer-window-b-shown", before)
 
             before = self.command("pointer-b-invalidate-drag")
             self.ui("touch-begin 4 0.5 0.5")

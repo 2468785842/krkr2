@@ -47,10 +47,12 @@ class ContractWindow extends Window {
     function onMouseDown(x, y, button, shift) {
         pointerHeld = true;
         if(pointerProbe) record("pointer:" + pointerName + "down:" + string button);
+        if(pointerProbe && pointerName != "") record("pointer-position:" + pointerName + "down:" + string x + ":" + string y);
     }
     function onMouseUp(x, y, button, shift) {
         pointerHeld = false;
         if(pointerProbe) record("pointer:" + pointerName + "up:" + string button);
+        if(pointerProbe && pointerName != "") record("pointer-position:" + pointerName + "up:" + string x + ":" + string y);
     }
     function onClick(x, y) {
         if(pointerProbe) record("pointer:" + pointerName + "click");
@@ -98,6 +100,12 @@ global.driver = new Timer(function() {
         } else if(lastCommand == "pointer-switch-b") {
             peer.bringToFront();
             record("pointer-window-b");
+        } else if(lastCommand == "pointer-hide-b") {
+            peer.visible = false;
+            record("pointer-window-b-hidden");
+        } else if(lastCommand == "pointer-show-b") {
+            peer.visible = true;
+            record("pointer-window-b-shown");
         } else if(lastCommand == "pointer-invalidate-b") {
             invalidate peer;
             record("pointer-window-b-invalidated");
