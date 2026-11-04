@@ -1,6 +1,7 @@
 """Win32 desktop input for an owned test process; no engine event injection."""
 import ctypes
 from ctypes import wintypes
+import os
 import sys
 
 
@@ -13,6 +14,8 @@ class Desktop:
         self.helper = None
         self.keys = set()
         self.last_caption = None
+        self.class_name = None
+        self.instance = None
         self.enum_callback = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
         definitions = {
             "EnumWindows": ([self.enum_callback, wintypes.LPARAM], wintypes.BOOL),
@@ -36,6 +39,8 @@ class Desktop:
             "TranslateMessage": ([ctypes.POINTER(wintypes.MSG)], wintypes.BOOL),
             "DispatchMessageW": ([ctypes.POINTER(wintypes.MSG)], wintypes.LPARAM),
             "SetProcessDPIAware": ([], wintypes.BOOL),
+            "DefWindowProcW": ([wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM], wintypes.LPARAM),
+            "UnregisterClassW": ([wintypes.LPCWSTR, wintypes.HINSTANCE], wintypes.BOOL),
         }
         for name, (arguments, result) in definitions.items():
             function = getattr(self.user, name)
@@ -101,13 +106,31 @@ class Desktop:
         x, y, width, height = (self.user.GetSystemMetrics(index) for index in (76, 77, 78, 79))
         if width < 640 or height < 480:
             raise RuntimeError("Native focus probe needs a desktop of at least 640x480")
-        # The built-in STATIC class supplies its own native window procedure.
+        class WindowClass(ctypes.Structure):
+            _fields_ = [("style", wintypes.UINT), ("procedure", ctypes.c_void_p),
+                        ("class_extra", ctypes.c_int), ("window_extra", ctypes.c_int),
+                        ("instance", wintypes.HINSTANCE), ("icon", wintypes.HANDLE),
+                        ("cursor", wintypes.HANDLE), ("background", wintypes.HBRUSH),
+                        ("menu", wintypes.LPCWSTR), ("name", wintypes.LPCWSTR)]
+
+        self.user.RegisterClassW.argtypes = [ctypes.POINTER(WindowClass)]
+        self.user.RegisterClassW.restype = wintypes.WORD
+        self.instance = self.kernel.GetModuleHandleW(None)
+        self.class_name = f"Krkr2NativeFocusProbe{os.getpid()}"
+        window_class = WindowClass(
+            0, ctypes.cast(self.user.DefWindowProcW, ctypes.c_void_p).value,
+            0, 0, self.instance, None, None, 6, None, self.class_name)
+        if not self.user.RegisterClassW(ctypes.byref(window_class)):
+            self.class_name = None
+            raise ctypes.WinError(ctypes.get_last_error())
+        # A regular top-level class uses the native default window procedure;
+        # built-in STATIC controls do not provide normal activation semantics.
         # TOPMOST keeps its caption clickable even on small desktops where the
         # foreground engine would otherwise obscure the helper.
         self.helper = self.user.CreateWindowExW(
-            8, "STATIC", "KrKr2 focus probe helper", 0x00CF0000,
+            8, self.class_name, "KrKr2 focus probe helper", 0x00CF0000,
             x + width - 380, y + height - 230, 360, 200,
-            None, None, self.kernel.GetModuleHandleW(None), None)
+            None, None, self.instance, None)
         if not self.helper:
             raise ctypes.WinError(ctypes.get_last_error())
         self.user.ShowWindow(self.helper, 4)  # SW_SHOWNOACTIVATE
@@ -171,3 +194,6 @@ class Desktop:
         if self.helper:
             self.user.DestroyWindow(self.helper)
             self.helper = None
+        if self.class_name:
+            self.user.UnregisterClassW(self.class_name, self.instance)
+            self.class_name = None

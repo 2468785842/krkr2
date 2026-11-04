@@ -124,6 +124,7 @@ class FocusProbe(Reproducer):
             self.command("finish")
         finally:
             report.setdefault("native_focus", {})["last_caption_input"] = self.desktop.last_caption
+            report["native_focus"]["foreground_at_end"] = self.desktop.foreground()
             try:
                 self.desktop.close()
             finally:
