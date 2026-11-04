@@ -110,7 +110,7 @@ jobs:
           print('Full application includes both renderers and both ImageOps sources exactly once.')
           PYTHON
 
-      - name: Run real Window pointer contracts with software OpenGL
+      - name: Run real Window pointer and native focus contracts with software OpenGL
         if: inputs.pointer_contracts
         shell: pwsh
         timeout-minutes: 10
@@ -140,7 +140,9 @@ jobs:
           $single = $LASTEXITCODE
           python tools/game-smoke/pointer_windows_repro.py "$probe/runtime/krkr2.exe" "$probe/two-windows"
           $multiple = $LASTEXITCODE
-          if ($single -ne 0 -or $multiple -ne 0) { exit 1 }
+          python tools/game-smoke/focus_repro.py "$probe/runtime/krkr2.exe" "$probe/native-focus"
+          $focus = $LASTEXITCODE
+          if ($single -ne 0 -or $multiple -ne 0 -or $focus -ne 0) { exit 1 }
 
       - name: Upload pointer contract evidence
         if: always() && inputs.pointer_contracts
@@ -151,6 +153,7 @@ jobs:
             out/windows/pointer-contracts/mesa-identity.txt
             out/windows/pointer-contracts/single-window/**
             out/windows/pointer-contracts/two-windows/**
+            out/windows/pointer-contracts/native-focus/**
           if-no-files-found: warn
 
       - name: Upload small pointer reports and screenshots
@@ -162,6 +165,7 @@ jobs:
             out/windows/pointer-contracts/mesa-identity.txt
             out/windows/pointer-contracts/single-window/**
             out/windows/pointer-contracts/two-windows/**
+            out/windows/pointer-contracts/native-focus/**
             !out/windows/pointer-contracts/*/evidence/**
           if-no-files-found: warn
 
