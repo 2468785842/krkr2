@@ -1,5 +1,7 @@
 #include "TVPWindow.h"
 #include "InputState.h"
+#include "InputCancellation.h"
+#include "InputModifiers.h"
 #include "cocos2d/CocosPointerCoordinates.h"
 #include "cocos2d/CocosWindowAccess.h"
 #include <cocos2d.h>
@@ -68,6 +70,8 @@ bool TVPWindowLayer::init() {
 }
 
 void TVPWindowLayer::onMouseDownEvent(cocos2d::Event *_e) {
+    if(!TVPMainScene::AcceptsGameInput())
+        return;
     auto *e = dynamic_cast<cocos2d::EventMouse *>(_e);
     switch(e->getMouseButton()) {
         case cocos2d::EventMouse::MouseButton::BUTTON_RIGHT:
@@ -84,6 +88,8 @@ void TVPWindowLayer::onMouseDownEvent(cocos2d::Event *_e) {
 }
 
 void TVPWindowLayer::onMouseUpEvent(cocos2d::Event *_e) {
+    if(!TVPMainScene::AcceptsGameInput())
+        return;
     auto *e = dynamic_cast<cocos2d::EventMouse *>(_e);
     switch(e->getMouseButton()) {
         case cocos2d::EventMouse::MouseButton::BUTTON_RIGHT:
@@ -100,6 +106,8 @@ void TVPWindowLayer::onMouseUpEvent(cocos2d::Event *_e) {
 }
 
 void TVPWindowLayer::onMouseMoveEvent(cocos2d::Event *_e) {
+    if(!TVPMainScene::AcceptsGameInput())
+        return;
     if(!_virutalMouseMode && _currentWindowLayer == this && !_touchMoved) {
         auto *e = dynamic_cast<cocos2d::EventMouse *>(_e);
         cocos2d::Vec2 pt(e->getCursorX(), e->getCursorY());
@@ -108,6 +116,8 @@ void TVPWindowLayer::onMouseMoveEvent(cocos2d::Event *_e) {
 }
 
 void TVPWindowLayer::onMouseScroll(cocos2d::Event *_e) {
+    if(!TVPMainScene::AcceptsGameInput())
+        return;
     auto *e = dynamic_cast<cocos2d::EventMouse *>(_e);
     if(!_windowMgrOverlay) {
         const auto position = krkr::cocosinput::layerPosition(*PrimaryLayerArea,
@@ -205,35 +215,35 @@ void TVPWindowLayer::onTouchEnded(cocos2d::Touch *touch,
     if(_windowMgrOverlay)
         return inherit::onTouchEnded(touch, unused_event);
     auto touchIter = std::find(_touches.begin(), _touches.end(), touch);
+    if(touchIter == _touches.end())
+        return; // Ignore a late release/cancel from a discarded gesture.
 
-    if(touchIter != _touches.end()) {
-        if(_touches.size() == 1) {
-            if(tjsNativeInstance) {
-                const auto position = krkr::cocosinput::layerPosition(
-                    *PrimaryLayerArea, touch->getLocation());
-                _LastMouseX = position.x;
-                _LastMouseY = position.y;
-                if(!_touchMoved) {
-                    TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(
-                        tjsNativeInstance, _LastMouseX, _LastMouseY,
-                        TVPGetCurrentShiftKeyState()));
-                    const auto downPosition = krkr::cocosinput::layerPosition(
-                        *PrimaryLayerArea, _touchPoint);
-                    TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
-                        tjsNativeInstance, downPosition.x, downPosition.y,
-                        _mouseBtn, TVPGetCurrentShiftKeyState()));
-                    TVPPostInputEvent(new tTVPOnClickInputEvent(
-                        tjsNativeInstance, _LastMouseX, _LastMouseY));
-                }
-                krkr::input::sharedState().latchReleasedPress(
-                    TVPConvertMouseBtnToVKCode(_mouseBtn));
-                TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
-                    tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
+    if(_touches.size() == 1) {
+        if(tjsNativeInstance) {
+            const auto position = krkr::cocosinput::layerPosition(
+                *PrimaryLayerArea, touch->getLocation());
+            _LastMouseX = position.x;
+            _LastMouseY = position.y;
+            if(!_touchMoved) {
+                TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(
+                    tjsNativeInstance, _LastMouseX, _LastMouseY,
                     TVPGetCurrentShiftKeyState()));
+                const auto downPosition = krkr::cocosinput::layerPosition(
+                    *PrimaryLayerArea, _touchPoint);
+                TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
+                    tjsNativeInstance, downPosition.x, downPosition.y,
+                    _mouseBtn, TVPGetCurrentShiftKeyState()));
+                TVPPostInputEvent(new tTVPOnClickInputEvent(
+                    tjsNativeInstance, _LastMouseX, _LastMouseY));
             }
+            krkr::input::sharedState().latchReleasedPress(
+                TVPConvertMouseBtnToVKCode(_mouseBtn));
+            TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
+                tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
+                TVPGetCurrentShiftKeyState()));
         }
-        _touches.erase(touchIter);
     }
+    _touches.erase(touchIter);
 
     if(_touches.size() == 0) {
         _dragging = false;
@@ -248,9 +258,9 @@ void TVPWindowLayer::onTouchCancelled(cocos2d::Touch *touch,
     if(_windowMgrOverlay)
         return inherit::onTouchCancelled(touch, unused_event);
     auto touchIter = std::find(_touches.begin(), _touches.end(), touch);
-    if(touchIter != _touches.end()) {
-        _touches.erase(touchIter);
-    }
+    if(touchIter == _touches.end())
+        return; // Ignore a late release/cancel from a discarded gesture.
+    _touches.erase(touchIter);
 
     if(_touches.size() == 0) {
         _dragging = false;
@@ -284,11 +294,13 @@ void TVPWindowLayer::onMouseDown(const cocos2d::Vec2 &pt) {
 }
 
 void TVPWindowLayer::onMouseUp(const cocos2d::Vec2 &pt) {
+    if(!krkr::input::sharedState().release(
+           TVPConvertMouseBtnToVKCode(_mouseBtn)))
+        return; // Focus cancellation may already have sent the matching up.
     const auto position =
         krkr::cocosinput::layerPosition(*PrimaryLayerArea, pt);
     _LastMouseX = position.x;
     _LastMouseY = position.y;
-    krkr::input::sharedState().release(TVPConvertMouseBtnToVKCode(_mouseBtn));
     TVPPostInputEvent(
         new tTVPOnMouseUpInputEvent(tjsNativeInstance, _LastMouseX, _LastMouseY,
                                     _mouseBtn, TVPGetCurrentShiftKeyState()));
@@ -329,6 +341,48 @@ void TVPWindowLayer::onMouseClick(const cocos2d::Vec2 &pt) {
                                     _mouseBtn, TVPGetCurrentShiftKeyState()));
 }
 
+
+void TVPWindowLayer::CancelInput(const std::vector<std::uint32_t> &released) {
+    static_assert(VK_RETURN == 0x0d && VK_SPACE == 0x20 && VK_ESCAPE == 0x1b &&
+                      VK_PAD1 == 0x1c0 && VK_PAD2 == 0x1c1,
+                  "Shared mouse-key bindings must preserve the engine VK ABI");
+    const auto plan = krkr::input::planInputCancellation(
+        released,
+        { UseMouseKey, MouseLeftButtonEmulatedPushed,
+          MouseRightButtonEmulatedPushed });
+    for(auto *touch : _touches)
+        TouchVelocityTracker.end(touch->getID());
+    _touches.clear();
+    _dragging = false;
+    _touchMoved = false;
+    MouseLeftButtonEmulatedPushed = MouseRightButtonEmulatedPushed = false;
+    MouseKeyXAccel = MouseKeyYAccel = 0;
+    LastMouseMoved = false;
+    MouseVelocityTracker.clear();
+    if(!tjsNativeInstance)
+        return;
+
+    // Do not route through InternalKeyUp: mouse-key release can generate a
+    // click there. Direct posts also avoid consuming unread press markers via
+    // GetMouseButtonState(), after the focus owner has released all VKs.
+    for(auto button : plan.pointerUps) {
+        auto mouseButton = mbMiddle;
+        if(button == krkr::input::key::leftMouse)
+            mouseButton = mbLeft;
+        else if(button == krkr::input::key::rightMouse)
+            mouseButton = mbRight;
+        TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
+            tjsNativeInstance, _LastMouseX, _LastMouseY, mouseButton, 0));
+    }
+    for(auto key : plan.keyUps)
+        TVPPostInputEvent(new tTVPOnKeyUpInputEvent(tjsNativeInstance, key, 0));
+}
+
+void TVPWindowLayer::TickBeat() {
+    if(UseMouseKey && _currentWindowLayer == this &&
+       TVPMainScene::AcceptsGameInput())
+        GenerateMouseEvent(false, false, false, false);
+}
 
 void TVPWindowLayer::SetCursorPos(tjs_int x, tjs_int y) {
     // Cached coordinates are always in the primary layer's top-left space.
@@ -674,19 +728,18 @@ void TVPWindowLayer::InternalKeyDown(tjs_uint16 key, tjs_uint32 shift) {
     TVPPushEnvironNoise(&shift, sizeof(shift));
 
     if(UseMouseKey) {
-        if(key == VK_RETURN || key == VK_SPACE || key == VK_ESCAPE ||
-           key == VK_PAD1 || key == VK_PAD2) {
+        if(const auto button = krkr::input::mouseKeyButton(key)) {
             cocos2d::Vec2 p(_LastMouseX, _LastMouseY);
             cocos2d::Size size = PrimaryLayerArea->getContentSize();
             if(p.x >= 0 && p.y >= 0 && p.x < size.width && p.y < size.height) {
-                if(key == VK_RETURN || key == VK_SPACE || key == VK_PAD1) {
+                if(button == krkr::input::key::leftMouse) {
                     MouseLeftButtonEmulatedPushed = true;
                     OnMouseDown(mbLeft, 0, p.x, p.y);
                 }
 
-                if(key == VK_ESCAPE || key == VK_PAD2) {
+                if(button == krkr::input::key::rightMouse) {
                     MouseRightButtonEmulatedPushed = true;
-                    OnMouseDown(mbLeft, 0, p.x, p.y);
+                    OnMouseDown(mbRight, 0, p.x, p.y);
                 }
             }
             return;
@@ -735,19 +788,18 @@ void TVPWindowLayer::InternalKeyUp(tjs_uint16 key, tjs_uint32 shift) {
     TVPPushEnvironNoise(&shift, sizeof(shift));
     if(tjsNativeInstance) {
         if(UseMouseKey /*&& PaintBox*/) {
-            if(key == VK_RETURN || key == VK_SPACE || key == VK_ESCAPE ||
-               key == VK_PAD1 || key == VK_PAD2) {
+            if(const auto button = krkr::input::mouseKeyButton(key)) {
                 cocos2d::Vec2 p(_LastMouseX, _LastMouseY);
                 cocos2d::Size size = PrimaryLayerArea->getContentSize();
                 if(p.x >= 0 && p.y >= 0 && p.x < size.width &&
                    p.y < size.height) {
-                    if(key == VK_RETURN || key == VK_SPACE || key == VK_PAD1) {
+                    if(button == krkr::input::key::leftMouse) {
                         OnMouseClick();
                         MouseLeftButtonEmulatedPushed = false;
                         OnMouseUp(mbLeft, 0, p.x, p.y);
                     }
 
-                    if(key == VK_ESCAPE || key == VK_PAD2) {
+                    if(button == krkr::input::key::rightMouse) {
                         MouseRightButtonEmulatedPushed = false;
                         OnMouseUp(mbRight, 0, p.x, p.y);
                     }

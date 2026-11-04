@@ -21,7 +21,25 @@ Cocos 最后一个触摸取消时也释放对应鼠标键，再采样抬起事�
 `releaseAll()` 先释放所有当前按下的键，再按虚拟键码升序返回这些键，
 供宿主逐个发送 key-up。与单键释放相同，保留尚未查询的按下标记和已释放的鼠标短点；
 重复调用返回空集合。适配器负责在这些释放回调之后通知失焦，恢复焦点不会自动按回旧键。
-目前只有独立 SDL3 原型使用此入口，现有 Cocos 焦点路径尚未迁移。
+独立 SDL3 原型和 Cocos 桌面焦点订阅使用此入口；移动端后台入口尚未接入批量释放。
+
+`InputCancellation.h` 将已释放的 VK 分为鼠标与键盘抬起，合并物理鼠标与键盘模拟鼠标的重复按钮。
+`mouseKeyButton()` 统一 Return/Space/Pad1 → 左键、Escape/Pad2 → 右键；
+Cocos 的常规按下/抬起也使用该映射，修正了旧右键模拟误发左键按下的问题。
+取消只产生抬起，未曾转为鼠标按下的模拟键不会凭空产生鼠标抬起。
+
+## Cocos 桌面焦点
+
+`environ/cocos2d/CocosInputFocus.h` 订阅 GLView 的 focused/unfocused 事件，
+在场景销毁时移除自己的监听器。首次失焦先禁止游戏输入、释放全部共享 VK，
+再由当前 `TVPWindowLayer::CancelInput` 清理手势、模拟按键与速度，并排队鼠标/键盘抬起。
+这条取消路径不调用会产生点击的常规模拟键抬起，也不消费未读按下标记。
+重复失焦不重复抬起；失焦期间忽略游戏键盘、鼠标、触摸、手柄与文本事件，恢复不自动按回旧键。
+旧手势的迟到结束/取消与无对应按下的鼠标抬起被忽略，虚拟光标的长按任务会取消。
+
+普通焦点通知不调用 HostLifecycle，不改变 System 激活通知、音量或动画泵；
+最小化/恢复仍沿用 AppDelegate 的原有前后台入口。
+初始状态沿用已聚焦假定，后续由 GLView 通知更新；实际 OS 切焦与多窗口路由仍需交互验收。
 
 ## 修饰键快照
 
@@ -46,18 +64,21 @@ Cocos 的 `environ/cocos2d/CocosPointerCoordinates.h` 先使用原 Node 世界�
 脚本设置光标时，缓存保存主图层左上角坐标，光标节点位置单独换算到其父节点；
 修复了旧 setter 把显示父节点坐标写入缓存、导致读回错位的问题。
 
-平台独立契约现为 18 项，另有 3 项真实 Cocos 节点测试覆盖缩放/旋转/锚点、
+平台独立契约现为 21 项，另有 3 项真实 Cocos 节点测试覆盖缩放/旋转/锚点、
 负坐标捕获与不同父节点下的光标放置；后者随 Windows 完整应用构建定向运行。
 独立 SDL3 原型另已验证鼠标事件、X11 窗口外拖动与调整大小，见[原型工具](../../tools/sdl3-prototype/README.md#鼠标与视口)。
 OS 高 DPI、多显示器及物理设备仍需单独验收。
 
 ## 适配边界与验证
 
-Cocos 仍承担键码转换、OS/窗口坐标与 DPI、IME、触摸判定、焦点变化及 TJS 事件排队；
+Cocos 仍承担键码转换、OS/窗口坐标与 DPI、IME、触摸判定及 TJS 事件排队；
 共享模块处理虚拟状态、修饰位和图层局部坐标规则，尚未完成全部输入后端替换。
 `tests/unit-tests/core/environ/InputStateTest.cpp` 的九项测试在 full/platform 范围登记，
 覆盖标记消费、释放、重复、鼠标短点、键码边界和失焦时的批量释放。
 `InputModifiersTest.cpp` 另覆盖全部 64 种键盘/鼠标组合、快照不消耗标记以及批量释放后的快照。
+`InputCancellationTest.cpp` 的 3 项检查键/鼠标分类、模拟映射及 32 种物理/模拟按钮组合。
+`CocosInputFocusTest.cpp` 的 4 项经真实 EventDispatcher 检查释放顺序、重复/恢复、
+无按下状态的手势取消及订阅销毁；不创建 OS/GL 窗口，不等于设备输入或真实 Window 回调验收。
 独立构建命令见[构建指南](../guides/building.md#独立平台契约与-sdl3-原型)。
 
 交互工具的 `--keyboard-probe` 在 Cocos EventDispatcher 投递分开的 A 键按下和抬起，

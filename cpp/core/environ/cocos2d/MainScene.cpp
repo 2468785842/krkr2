@@ -428,6 +428,31 @@ public:
 
 static TVPMainScene *_instance = nullptr;
 
+TVPMainScene::~TVPMainScene() {
+    inputFocus.reset();
+    if(_instance == this)
+        _instance = nullptr;
+}
+
+bool TVPMainScene::AcceptsGameInput() {
+    return _instance &&
+        (!_instance->inputFocus || _instance->inputFocus->acceptsInput());
+}
+
+void TVPMainScene::cancelGameInput(const std::vector<std::uint32_t> &released) {
+    const bool hadVirtualTouch = !_mouseTouches.empty();
+    _mouseTouches.clear();
+    _mouseMoved = false;
+    _mouseClickedDown = false;
+    if(hadVirtualTouch && TVPWindowLayer::_mouseCursor) {
+        TVPWindowLayer::_mouseCursor->setScale(_mouseCursorScale);
+        // Stop the pending long-press action before starting the fade.
+        TVPWindowLayer::_refadeMouseCursor();
+    }
+    if(auto *window = TVPWindowLayer::_currentWindowLayer)
+        window->CancelInput(released);
+}
+
 TVPMainScene *TVPMainScene::GetInstance() { return _instance; }
 
 TVPMainScene *TVPMainScene::CreateInstance() {
@@ -458,6 +483,15 @@ void TVPMainScene::initialize() {
     // GameNode->setRotation(-90);
     // GameNode->setPosition(getContentSize() / 2);
     addChild(GameNode, GAME_SCENE_ORDER);
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) ||                               \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) ||                                 \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+    inputFocus = std::make_unique<krkr::cocosinput::InputFocus>(
+        *_eventDispatcher, krkr::input::sharedState(),
+        GLViewImpl::EVENT_WINDOW_FOCUSED, GLViewImpl::EVENT_WINDOW_UNFOCUSED,
+        [this](const auto &released) { cancelGameInput(released); });
+#endif
 
     EventListenerKeyboard *keylistener = EventListenerKeyboard::create();
     keylistener->onKeyPressed = CC_CALLBACK_2(TVPMainScene::onKeyPressed, this);
@@ -812,6 +846,8 @@ float TVPMainScene::getUIScale() {
 }
 
 void TVPMainScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event *event) {
+    if(!AcceptsGameInput())
+        return;
     Vector<Node *> &uiChild = UINode->getChildren();
     if(!uiChild.empty()) {
         iTVPBaseForm *uiform = static_cast<iTVPBaseForm *>(uiChild.back());
@@ -874,6 +910,8 @@ void TVPMainScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event *event) {
 }
 
 void TVPMainScene::onKeyReleased(EventKeyboard::KeyCode keyCode, Event *event) {
+    if(!AcceptsGameInput())
+        return;
 #ifdef _DEBUG
     if(keyCode == EventKeyboard::KeyCode::KEY_PAUSE)
         return;
@@ -1024,6 +1062,8 @@ bool TVPMainScene::isVirtualMouseMode() const {
 }
 
 bool TVPMainScene::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event) {
+    if(!AcceptsGameInput())
+        return false;
     if(UINode->getChildrenCount())
         return false;
     if(!TVPWindowLayer::_currentWindowLayer)
@@ -1046,6 +1086,9 @@ bool TVPMainScene::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event) {
             TVPWindowLayer::_mouseCursor->runAction(
                 Sequence::createWithTwoActions(
                     DelayTime::create(1), CallFuncN::create([this](Node *p) {
+                        if(!AcceptsGameInput() ||
+                           !TVPWindowLayer::_currentWindowLayer)
+                            return;
                         p->setScale(_mouseCursorScale * 0.8f);
                         TVPWindowLayer::TVPWindowLayer::_currentWindowLayer
                             ->onMouseMove(GameNode->convertToWorldSpace(
@@ -1071,6 +1114,8 @@ bool TVPMainScene::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event) {
 
 void TVPMainScene::onTouchMoved(cocos2d::Touch *touch,
                                 cocos2d::Event *event) const {
+    if(!AcceptsGameInput())
+        return;
     if(!TVPWindowLayer::_currentWindowLayer)
         return;
     if(!TVPWindowLayer::_virutalMouseMode || TVPWindowLayer::_windowMgrOverlay)
@@ -1120,6 +1165,8 @@ void TVPMainScene::onTouchMoved(cocos2d::Touch *touch,
 
 void TVPMainScene::onTouchEnded(cocos2d::Touch *touch,
                                 cocos2d::Event *event) const {
+    if(!AcceptsGameInput())
+        return;
     if(!TVPWindowLayer::_currentWindowLayer)
         return;
     if(!TVPWindowLayer::_virutalMouseMode || TVPWindowLayer::_windowMgrOverlay)
@@ -1147,6 +1194,8 @@ void TVPMainScene::onTouchEnded(cocos2d::Touch *touch,
 
 void TVPMainScene::onTouchCancelled(cocos2d::Touch *touch,
                                     cocos2d::Event *event) {
+    if(!AcceptsGameInput())
+        return;
     if(!TVPWindowLayer::_currentWindowLayer)
         return;
     if(!TVPWindowLayer::_virutalMouseMode || TVPWindowLayer::_windowMgrOverlay)
@@ -1196,6 +1245,8 @@ bool TVPMainScene::canAttachWithIME() { return true; }
 bool TVPMainScene::canDetachWithIME() { return true; }
 
 void TVPMainScene::deleteBackward() {
+    if(!AcceptsGameInput())
+        return;
 #ifndef _WIN32
     if(TVPWindowLayer::_currentWindowLayer) {
         TVPWindowLayer::_currentWindowLayer->InternalKeyDown(
@@ -1212,11 +1263,15 @@ void TVPMainScene::insertText(const char *text, size_t len) {
 }
 
 void TVPMainScene::onCharInput(int keyCode) {
+    if(!AcceptsGameInput())
+        return;
     if(auto *window = TVPWindowLayer::_currentWindowLayer)
         window->OnKeyPress((tjs_char)keyCode, 0, false, false);
 }
 
 void TVPMainScene::onTextInput(const std::string &text) {
+    if(!AcceptsGameInput())
+        return;
     // Native/IME input can arrive after the last game window was destroyed.
     auto *window = TVPWindowLayer::_currentWindowLayer;
     if(!window)
@@ -1231,6 +1286,8 @@ void TVPMainScene::onTextInput(const std::string &text) {
 
 void TVPMainScene::onAxisEvent(cocos2d::Controller *ctrl, int keyCode,
                                cocos2d::Event *e) {
+    if(!AcceptsGameInput())
+        return;
     if(!TVPWindowLayer::_currentWindowLayer ||
        !TVPWindowLayer::_currentWindowLayer->PrimaryLayerArea)
         return;
@@ -1283,6 +1340,8 @@ void TVPMainScene::onAxisEvent(cocos2d::Controller *ctrl, int keyCode,
 
 void TVPMainScene::onPadKeyDown(cocos2d::Controller *ctrl, int keyCode,
                                 cocos2d::Event *e) {
+    if(!AcceptsGameInput())
+        return;
     if(!UINode->getChildren().empty())
         return;
     unsigned int code = TVPConvertPadKeyCodeToVKCode(keyCode);
@@ -1298,6 +1357,8 @@ void TVPMainScene::onPadKeyDown(cocos2d::Controller *ctrl, int keyCode,
 
 void TVPMainScene::onPadKeyUp(cocos2d::Controller *ctrl, int keyCode,
                               cocos2d::Event *e) {
+    if(!AcceptsGameInput())
+        return;
     unsigned int code = TVPConvertPadKeyCodeToVKCode(keyCode);
     if(!code || code >= 0x200)
         return;

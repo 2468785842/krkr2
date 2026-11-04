@@ -3,6 +3,8 @@
 #include "2d/CCScene.h"
 #include "ui/UIWidget.h"
 #include "base/CCIMEDelegate.h"
+#include "CocosInputFocus.h"
+#include <memory>
 
 namespace cocos2d {
     class Controller;
@@ -18,8 +20,10 @@ class TVPMainScene : public cocos2d::Scene, public cocos2d::IMEDelegate {
     friend class TVPAppDelegate;
 
 public:
+    ~TVPMainScene() override;
     static TVPMainScene *GetInstance();
     static TVPMainScene *CreateInstance();
+    static bool AcceptsGameInput();
 
     static void setMaskLayTouchBegain(
         const std::function<bool(cocos2d::Touch *, cocos2d::Event *)> &func);
@@ -64,6 +68,8 @@ public:
     static float convertCursorScale(float val /*0 ~ 1*/);
 
 private:
+    void cancelGameInput(const std::vector<std::uint32_t> &released);
+    std::unique_ptr<krkr::cocosinput::InputFocus> inputFocus;
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode,
                       cocos2d::Event *event);
     void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode,

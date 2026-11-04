@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <cstdint>
 #include <cocos-ext.h>
 
 #include "WindowLayer.h"
@@ -126,6 +128,9 @@ public:
     void onMouseMove(const cocos2d::Vec2 &pt);
 
     void onMouseClick(const cocos2d::Vec2 &pt);
+
+    // Shared state is already released; cancel gestures and enqueue ups only.
+    void CancelInput(const std::vector<std::uint32_t> &released);
 
     tTJSNI_Window *getWindow() { return tjsNativeInstance; }
 
@@ -300,11 +305,5 @@ public:
         return false;
     }
 
-    void TickBeat() override {
-        bool focused = _currentWindowLayer == this;
-        // mouse key
-        if(UseMouseKey && focused) {
-            GenerateMouseEvent(false, false, false, false);
-        }
-    }
+    void TickBeat() override;
 };

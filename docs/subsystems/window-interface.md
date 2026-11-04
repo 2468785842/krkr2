@@ -36,6 +36,7 @@
 `tests/unit-tests/core/environ/NodeOrderTest.cpp` 在 full 范围验证层级与同层顺序，不创建 GL 窗口。
 `CocosPointerCoordinatesTest.cpp` 另验证真实节点变换下的主图层坐标、越界位置及光标父节点坐标。
 两者共 5 项，由完整 Windows 工作流实际注册、运行。
+焦点订阅另有 4 项 EventDispatcher 用例；该工作流合计发现 9 项，不创建 OS/GL 窗口。
 
 ## 后续已拆分的边界
 
@@ -52,5 +53,6 @@ Cocos AppDelegate 先通知引擎，再启停动画；引擎的音量、混音�
 连续激活事件沿用原队列合并与分发时状态核对，不保证快速切换的每一边沿都通知脚本。
 此接口不拥有平台事件泵、GL context 或窗口销毁，不改变旧 `OnExit` 的接线与退出次序。
 
-这些子批次未完成 DPI、IME、失焦释放、移动端挂起恢复或完整生命周期迁移。
+Cocos 桌面已订阅独立焦点事件并取消游戏输入，见[输入状态](input-state.md#cocos-桌面焦点)。
+这些子批次未完成 DPI、IME、真实切焦交互、移动端挂起恢复或完整生命周期迁移。
 具体证据与剩余工作见[B2 后续记录](../../.agents/notes/proposed/architecture/2026-11-03-platform-contracts.md)。
