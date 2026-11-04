@@ -16,6 +16,7 @@ System.onDeactivate = function() {
 class ContractWindow extends Window {
     var allowClose = false;
     var closeQueries = 0;
+    var pointerName = "";
     function ContractWindow() {
         super.Window();
         caption = "KrKr2 window contract";
@@ -43,13 +44,13 @@ class ContractWindow extends Window {
         }
     }
     function onMouseDown(x, y, button, shift) {
-        if(pointerProbe) record("pointer:down:" + string button);
+        if(pointerProbe) record("pointer:" + pointerName + "down:" + string button);
     }
     function onMouseUp(x, y, button, shift) {
-        if(pointerProbe) record("pointer:up:" + string button);
+        if(pointerProbe) record("pointer:" + pointerName + "up:" + string button);
     }
     function onClick(x, y) {
-        if(pointerProbe) record("pointer:click");
+        if(pointerProbe) record("pointer:" + pointerName + "click");
     }
 }
 class ContractMenu extends MenuItem {
@@ -80,6 +81,23 @@ global.driver = new Timer(function() {
         if(lastCommand == "pointer-probe") {
             pointerProbe = true;
             record("pointer-probe-ready");
+        } else if(lastCommand == "pointer-windows") {
+            pointerProbe = true;
+            win.pointerName = "a:";
+            global.peer = new ContractWindow();
+            peer.pointerName = "b:";
+            global.peerLayer = new Layer(peer, null);
+            peerLayer.setSize(640, 480);
+            peerLayer.fillRect(0, 0, 640, 480, 0xff506030);
+            peerLayer.visible = true;
+            win.bringToFront();
+            record("pointer-windows-ready");
+        } else if(lastCommand == "pointer-switch-b") {
+            peer.bringToFront();
+            record("pointer-window-b");
+        } else if(lastCommand == "pointer-invalidate-b") {
+            invalidate peer;
+            record("pointer-window-b-invalidated");
         } else if(lastCommand == "pointer-hide") {
             win.visible = false;
             record("pointer-hidden");

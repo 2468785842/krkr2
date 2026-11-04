@@ -84,6 +84,22 @@ ID 为 1..10，x/y 是窗口帧左上角起的归一化坐标 `[0,1]`。
 开始必须使用未活动 ID，其他动作必须使用活动 ID；每次仍以唯一序号等待完成。
 这些操作验证组件分发，不证明物理触摸屏、多设备仲裁、真正多窗口切换或 OS 切焦。
 
+`pointer_windows_repro.py` 使用同一驱动创建两个真实 TJS Window，分别标记 A/B 回调。
+先在 A 拖动后通过 `bringToFront` 切到 B，验证 A 的取消抬起；保持 A 旧触点活动时在 B
+开始新拖动，再结束 A 的旧触点。随后在 B 按住期间执行 `invalidate`，验证回到 A 后
+B 的旧触点不会产生回调或释放 A 的新拖动，最后检查新点击与正常退出。
+
+```powershell
+python tools/game-smoke/pointer_windows_repro.py out/windows/engine-config-check/bin/krkr2/krkr2.exe out/ui-game-smoke/pointer-windows-01
+gh workflow run build-windows.yml --ref dev -f pointer_contracts=true
+```
+
+可手动开启 Windows CI 的 `pointer_contracts` 输入；默认关闭。
+该模式构建显式测试驱动，在独立运行目录放置固定版本并校验 SHA256 的 Mesa 软件 OpenGL，
+执行单窗口和双窗口探针。测试二进制使用独立 artifact 名称，不安装系统显卡驱动，
+不修改系统 OpenGL。报告、真实脚本轨迹、exe/PDB 与截图在 `windows-pointer-contracts` artifact。
+软件 OpenGL 回调通过也不代表画面、原生 OS 焦点或物理设备验收通过。
+
 ## 连续复现与取证
 
 测试驱动构建可用下列命令自动准备新场景、执行三轮文件/菜单操作，再测试关闭否决与接受：

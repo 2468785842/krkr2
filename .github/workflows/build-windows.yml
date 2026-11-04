@@ -3,6 +3,11 @@ name: Build Windows
 on:
   workflow_call:
   workflow_dispatch:
+    inputs:
+      pointer_contracts:
+        description: 'Run GLView/TJS pointer probes with local Mesa software OpenGL (test binary)'
+        type: boolean
+        default: false
 
 env:
   VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json,readwrite"
@@ -64,10 +69,14 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2.18
         with:
-          key: ${{ github.job }}-${{ matrix.os }}
+          key: ${{ github.job }}-${{ runner.os }}
 
       - name: Configure Windows
-        run: cmake --preset="Windows Release Config" -DENABLE_TESTS=ON -DBUILD_TOOLS=OFF
+        shell: pwsh
+        run: |
+          $driver = if ('${{ inputs.pointer_contracts }}' -eq 'true') { 'ON' } else { 'OFF' }
+          cmake --preset="Windows Release Config" -DENABLE_TESTS=ON -DBUILD_TOOLS=OFF "-DKRKR2_ENABLE_UI_TEST_DRIVER=$driver"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Build Windows
         run: cmake --build --preset="Windows Release Build" --target krkr2 cocos_window_tests
@@ -101,6 +110,47 @@ jobs:
           print('Full application includes both renderers and both ImageOps sources exactly once.')
           PYTHON
 
+      - name: Run real Window pointer contracts with software OpenGL
+        if: inputs.pointer_contracts
+        shell: pwsh
+        timeout-minutes: 10
+        env:
+          GALLIUM_DRIVER: llvmpipe
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          $probe = 'out/windows/pointer-contracts'
+          New-Item -ItemType Directory -Force $probe | Out-Null
+          $archive = "$probe/mesa.7z"
+          Invoke-WebRequest 'https://github.com/pal1000/mesa-dist-win/releases/download/26.2.6/mesa3d-26.2.6-release-msvc.7z' -OutFile $archive
+          $hash = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($hash -ne 'b2e00615feaba45942343c265cc8c5f576142ca682c1ac6661922d4b72492877') { throw 'Mesa archive SHA256 mismatch' }
+          7z x $archive "-o$probe/mesa" -y
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Keep Mesa local to an isolated runtime; never modify system OpenGL
+          # or add these libraries to the normal binary artifact.
+          Copy-Item 'out/windows/release/bin/krkr2' "$probe/runtime" -Recurse
+          Copy-Item "$probe/mesa/x64/*.dll" "$probe/runtime"
+          Get-FileHash "$probe/runtime/opengl32.dll", "$probe/runtime/libgallium_wgl.dll" -Algorithm SHA256 |
+            Format-List | Out-File "$probe/mesa-identity.txt"
+          python -m unittest discover -s tools/game-smoke -p 'test_*.py' -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tools/game-smoke/pointer_repro.py "$probe/runtime/krkr2.exe" "$probe/single-window"
+          $single = $LASTEXITCODE
+          python tools/game-smoke/pointer_windows_repro.py "$probe/runtime/krkr2.exe" "$probe/two-windows"
+          $multiple = $LASTEXITCODE
+          if ($single -ne 0 -or $multiple -ne 0) { exit 1 }
+
+      - name: Upload pointer contract evidence
+        if: always() && inputs.pointer_contracts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-pointer-contracts
+          path: |
+            out/windows/pointer-contracts/mesa-identity.txt
+            out/windows/pointer-contracts/single-window/**
+            out/windows/pointer-contracts/two-windows/**
+          if-no-files-found: warn
+
       - name: Upload build metadata
         if: always()
         uses: actions/upload-artifact@v4
@@ -115,6 +165,6 @@ jobs:
         if: ${{ !env.ACT && success() }}
         uses: actions/upload-artifact@v4
         with:
-          name: windows-binaries
+          name: ${{ inputs.pointer_contracts && 'windows-pointer-test-binaries' || 'windows-binaries' }}
           path: |
             out/windows/release/bin/krkr2/**
