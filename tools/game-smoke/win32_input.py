@@ -12,6 +12,7 @@ class Desktop:
         self.kernel = ctypes.WinDLL("kernel32", use_last_error=True)
         self.helper = None
         self.keys = set()
+        self.last_caption = None
         self.enum_callback = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
         definitions = {
             "EnumWindows": ([self.enum_callback, wintypes.LPARAM], wintypes.BOOL),
@@ -19,6 +20,9 @@ class Desktop:
             "IsWindowVisible": ([wintypes.HWND], wintypes.BOOL),
             "IsIconic": ([wintypes.HWND], wintypes.BOOL),
             "GetWindowRect": ([wintypes.HWND, ctypes.POINTER(wintypes.RECT)], wintypes.BOOL),
+            "ClientToScreen": ([wintypes.HWND, ctypes.POINTER(wintypes.POINT)], wintypes.BOOL),
+            "WindowFromPoint": ([wintypes.POINT], wintypes.HWND),
+            "GetAncestor": ([wintypes.HWND, wintypes.UINT], wintypes.HWND),
             "GetForegroundWindow": ([], wintypes.HWND),
             "GetSystemMetrics": ([ctypes.c_int], ctypes.c_int),
             "CreateWindowExW": ([wintypes.DWORD, wintypes.LPCWSTR, wintypes.LPCWSTR,
@@ -98,9 +102,10 @@ class Desktop:
         if width < 640 or height < 480:
             raise RuntimeError("Native focus probe needs a desktop of at least 640x480")
         # The built-in STATIC class supplies its own native window procedure.
-        # Keep its caption away from the engine caption used to refocus it.
+        # TOPMOST keeps its caption clickable even on small desktops where the
+        # foreground engine would otherwise obscure the helper.
         self.helper = self.user.CreateWindowExW(
-            0, "STATIC", "KrKr2 focus probe helper", 0x00CF0000,
+            8, "STATIC", "KrKr2 focus probe helper", 0x00CF0000,
             x + width - 380, y + height - 230, 360, 200,
             None, None, self.kernel.GetModuleHandleW(None), None)
         if not self.helper:
@@ -124,12 +129,26 @@ class Desktop:
 
     def click_caption(self, window):
         rectangle = self.rectangle(window)
+        origin = wintypes.POINT(0, 0)
+        if not self.user.ClientToScreen(window, ctypes.byref(origin)):
+            raise ctypes.WinError(ctypes.get_last_error())
         x = (rectangle.left + rectangle.right) // 2
-        y = (rectangle.top + self.user.GetSystemMetrics(33) +
-             self.user.GetSystemMetrics(92) + self.user.GetSystemMetrics(4) // 2)
+        caption_top = rectangle.top + max(1, origin.x - rectangle.left)
+        if origin.y - caption_top < 4:
+            raise RuntimeError("Native focus target has no usable caption")
+        y = (caption_top + origin.y) // 2
         origin_x, origin_y, width, height = (self.user.GetSystemMetrics(index) for index in (76, 77, 78, 79))
         if not (origin_x <= x < origin_x + width and origin_y <= y < origin_y + height):
             raise RuntimeError("Window caption lies outside the virtual desktop")
+        hit = self.user.WindowFromPoint(wintypes.POINT(x, y))
+        root = self.user.GetAncestor(hit, 2) if hit else None  # GA_ROOT
+        self.last_caption = {"target_hwnd": window, "hit_root": root, "point": [x, y],
+                             "rectangle": [rectangle.left, rectangle.top, rectangle.right, rectangle.bottom],
+                             "client_origin": [origin.x, origin.y],
+                             "desktop": [origin_x, origin_y, width, height],
+                             "foreground_before": self.foreground()}
+        if root != window:
+            raise RuntimeError(f"Native caption obscured: target {window}, hit {root}")
         # MOVE | ABSOLUTE | VIRTUALDESK; caption clicks avoid game callbacks.
         move = self.Mouse(round((x - origin_x) * 65535 / (width - 1)),
                           round((y - origin_y) * 65535 / (height - 1)), 0, 0xC001, 0, 0)
@@ -141,6 +160,7 @@ class Desktop:
             # A partial insertion may have sent down without up.
             self.send([up])
             raise
+        return self.last_caption
 
     def foreground(self):
         return self.user.GetForegroundWindow()

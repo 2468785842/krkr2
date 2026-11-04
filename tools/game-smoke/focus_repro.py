@@ -46,7 +46,8 @@ class FocusProbe(Reproducer):
         return super().wait(pumped, label, seconds)
 
     def foreground(self, window, label):
-        self.desktop.click_caption(window)
+        point = self.desktop.click_caption(window)
+        self.record("native-caption-input", target=label, **point)
         self.wait(lambda: self.desktop.foreground() == window, label)
         self.record("native-foreground", target=label, hwnd=window)
 
@@ -122,6 +123,7 @@ class FocusProbe(Reproducer):
             self.capture("native-focus-recovered.png")
             self.command("finish")
         finally:
+            report.setdefault("native_focus", {})["last_caption_input"] = self.desktop.last_caption
             try:
                 self.desktop.close()
             finally:
