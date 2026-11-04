@@ -135,8 +135,9 @@ ctest --test-dir out/platform-tests --output-on-failure --no-tests=error
 预期 9 个输入状态、3 个修饰键快照、3 个指针坐标和 3 个帧钩子用例，三平台无窗口 CI 检查实际数量、编译源和依赖闭包；
 不能替代窗口、IME 或设备交互验收。
 独立 SDL3/TJS 壳实验使用另一显式开关，构建和验证见[原型工具](../../tools/sdl3-prototype/README.md)。
-Linux CI 另用 Xvfb/X11 创建窗口，分别验证 `SDL_PushEvent` 队列/七帧像素，以及
-X server 切焦、XTest 虚拟键盘和两次 OS 关闭。后者按回调确认推进，验证第一次关闭否决仍有效；
+Linux CI 另用 Xvfb/X11 创建窗口，分别验证键盘/鼠标的 `SDL_PushEvent` 队列与像素，以及
+X server 切焦、XTest 虚拟键盘/鼠标、窗口外拖动、调整大小和两次 OS 关闭。
+后者按回调与视口确认推进，验证第一次关闭否决仍有效；
 两者都不能替代物理设备、IME 或现有 Cocos 的窗口交互验收。
 
 Windows 完整构建工作流开启 full 测试配置，但定向构建 `krkr2 cocos_window_tests`，

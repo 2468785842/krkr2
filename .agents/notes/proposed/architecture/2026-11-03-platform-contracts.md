@@ -75,7 +75,10 @@ compact 和 System 事件排队未改变，没有提前接线旧 `OnExit` 或更
 
 指针坐标子批次已抽出 Y 轴翻转/向零截断和 Cocos Node 适配，修复光标缓存混入父节点坐标；
 范围及验证见[指针契约](../../implemented/testing/2026-11-04-pointer-coordinates.md)。
-这尚未定义 OS DPI/屏幕坐标到世界坐标的转换，也不替代实际设备与捕获验证。
+独立 SDL3 原型已接入鼠标位置与视口换算、滚轮和共享按键状态，
+Linux XTest 验证窗口外拖动、调整大小和失焦恢复，见
+[鼠标子批次](../../implemented/testing/2026-11-04-sdl3-pointer-input.md)。
+这尚未定义生产 Cocos 的 OS DPI/屏幕坐标到世界坐标转换，也不替代高 DPI 与物理设备验证。
 
 修饰键快照已提到共享输入模块，导出实现移到 System 层，保持旧中键省略及标记不消费规则；
 SDL 队列与 X11 的组合键释放/恢复验证见[子批次记录](../../implemented/testing/2026-11-03-shared-input-modifiers.md)。

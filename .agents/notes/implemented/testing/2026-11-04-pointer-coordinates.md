@@ -55,7 +55,8 @@ Linux 额外以 `-fsanitize=undefined,float-cast-overflow -fno-sanitize-recover=
 编译坐标实现和对应 Catch2 测试，3 项用例、24 个断言通过，无 sanitizer 报告；
 产物为 `out/linux/pointer-validation/pointer_ubsan`，不是整个 Cocos 应用的 sanitizer 验收。
 
-截至记录收尾，独立 CI 12/13 个 job 通过，Windows ImageOps 仍在配置依赖；不把整条工作流描述为已完成。
+记录收尾时独立 CI 12/13 个 job 通过，Windows ImageOps 尚在配置依赖；
+后续复核同一运行，全部 13 个 job 已通过。
 脚本 Layer.setCursorPos 的交互读回、
 OS DPI/屏幕映射、设备输入、捕获生命周期及 SDL 鼠标事件尚未实测。
 不能用 CPU Node 测试宣称游戏画面、IME、GL 或 B2 已全部通过。

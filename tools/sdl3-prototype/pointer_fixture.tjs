@@ -1,0 +1,58 @@
+// Mouse experiment API; these are not production Window/Layer callbacks.
+var windowWidth = 800, windowHeight = 480;
+var canvasWidth = 640, canvasHeight = 480;
+var windowCaption = "KrKr2 SDL3 pointer experiment";
+var backgroundColor = 0x203040;
+var rectangleColor = 0xd08030;
+var rectangleX = 80, rectangleY = 100, rectangleWidth = 80, rectangleHeight = 60;
+var pointerDownCount = 0, pointerUpCount = 0, wheelCount = 0;
+var focusLossCount = 0, focusGainCount = 0, closeCount = 0;
+
+function onKey(key, down, current, pending, shift) {}
+
+function onPointer(kind, x, y, button, shift, current, pending, wheelX, wheelY, synthetic) {
+    if(kind == "down") {
+        if(!current || pending) throw new Exception("Unexpected pointer down state");
+        ++pointerDownCount;
+        rectangleX = x;
+        rectangleY = y;
+        rectangleColor = button == 1 ? 0x30c070 : 0x9030c0;
+    } else if(kind == "move") {
+        if(shift & 8) {
+            rectangleX = x;
+            rectangleY = y;
+        }
+    } else if(kind == "up") {
+        if(current || pending) throw new Exception("Unexpected pointer up state");
+        ++pointerUpCount;
+        rectangleColor = 0xd08030;
+    } else if(kind == "wheel") {
+        ++wheelCount;
+        rectangleX = x;
+        rectangleY = y;
+        rectangleColor = 0x3050d0;
+    } else {
+        throw new Exception("Unknown pointer event");
+    }
+}
+
+function onFocus(focused) {
+    if(focused) {
+        ++focusGainCount;
+        backgroundColor = 0x203040;
+    } else {
+        if(pointerDownCount != pointerUpCount)
+            throw new Exception("Focus lost before pointer release");
+        ++focusLossCount;
+        backgroundColor = 0x102030;
+    }
+}
+
+function onCloseQuery() {
+    ++closeCount;
+    if(closeCount == 1) {
+        backgroundColor = 0x403020;
+        return false;
+    }
+    return true;
+}

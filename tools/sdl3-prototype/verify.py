@@ -69,25 +69,32 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("engine", type=Path)
     parser.add_argument("destination", type=Path)
-    parser.add_argument("--script", type=Path, default=Path(__file__).with_name("fixture.tjs"))
+    parser.add_argument("--script", type=Path)
+    parser.add_argument("--pointer", action="store_true", help="Check letterboxed mouse input and pixels")
     args = parser.parse_args()
     engine = args.engine.resolve(strict=True)
-    script = args.script.resolve(strict=True)
+    script = (args.script or Path(__file__).with_name(
+        "pointer_fixture.tjs" if args.pointer else "fixture.tjs")).resolve(strict=True)
     output = args.destination.resolve()
     if output.exists():
         parser.error("Destination must be new")
     output.parent.mkdir(parents=True, exist_ok=True)
     report = {"engine": str(engine), "engine_sha256": digest(engine), "script_sha256": digest(script),
-              "passed": False, "forced_stop": False, "input_scope": "SDL_PushEvent, not OS keyboard"}
+              "passed": False, "forced_stop": False, "input_scope": "SDL_PushEvent, not OS devices"}
     try:
-        result = subprocess.run([str(engine), str(script), str(output), "--self-test"],
+        result = subprocess.run([str(engine), str(script), str(output),
+                                 "--pointer-test" if args.pointer else "--self-test"],
                                 cwd=engine.parent, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=30)
         report["exit_code"] = result.returncode
         output.mkdir(exist_ok=True)
         (output / "process.log").write_bytes(result.stdout)
         if result.returncode != 0:
             raise RuntimeError(f"Prototype exited {result.returncode}")
-        report["observations"] = verify(output)
+        if args.pointer:
+            from verify_pointer import verify as verify_input
+        else:
+            verify_input = verify
+        report["observations"] = verify_input(output)
         if digest(engine) != report["engine_sha256"] or digest(script) != report["script_sha256"]:
             raise RuntimeError("Executable or script changed during verification")
         report["captures"] = {path.name: digest(path) for path in sorted(output.glob("*.bmp"))}

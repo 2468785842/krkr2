@@ -116,32 +116,39 @@ jobs:
       - name: Verify SDL queue, TJS callbacks and renderer readback
         env:
           SDL_VIDEO_DRIVER: x11
-        run: xvfb-run -a python tools/sdl3-prototype/verify.py out/sdl3-prototype/build/tools/sdl3-prototype/krkr2_sdl3_prototype out/sdl3-prototype/run
-      - name: Verify X11 focus, XTest keys and real window close veto
+        run: |
+          xvfb-run -a python tools/sdl3-prototype/verify.py out/sdl3-prototype/build/tools/sdl3-prototype/krkr2_sdl3_prototype out/sdl3-prototype/run
+          xvfb-run -a python tools/sdl3-prototype/verify.py out/sdl3-prototype/build/tools/sdl3-prototype/krkr2_sdl3_prototype out/sdl3-prototype/pointer-run --pointer
+      - name: Verify X11 focus, XTest keyboard/mouse, capture, resize and close veto
         env:
           SDL_QUIT_ON_LAST_WINDOW_CLOSE: "1"
         run: |
           xvfb-run -a python -m unittest discover -s tools/sdl3-prototype -p "test_*.py" -v
           xvfb-run -a python tools/sdl3-prototype/verify_x11.py out/sdl3-prototype/build/tools/sdl3-prototype/krkr2_sdl3_prototype out/sdl3-prototype/os-input-run
-      - name: Reject incorrect focus rendering even when the process succeeds
+          xvfb-run -a python tools/sdl3-prototype/verify_x11.py out/sdl3-prototype/build/tools/sdl3-prototype/krkr2_sdl3_prototype out/sdl3-prototype/os-pointer-run --pointer
+      - name: Reject incorrect focus and pointer rendering after successful process exit
         env:
           SDL_VIDEO_DRIVER: x11
         run: |
           python - <<'PY'
           import json, pathlib, subprocess
           root = pathlib.Path('out/sdl3-prototype')
-          fixture = root / 'wrong-focus.tjs'
-          original = pathlib.Path('tools/sdl3-prototype/fixture.tjs').read_text(encoding='utf-8')
-          assert original.count('backgroundColor = 0x102030;') == 1
-          fixture.write_text(original.replace('backgroundColor = 0x102030;', 'backgroundColor = 0x203040;'), encoding='utf-8')
-          result = subprocess.run(['xvfb-run', '-a', 'python', 'tools/sdl3-prototype/verify.py',
-              str(root / 'build/tools/sdl3-prototype/krkr2_sdl3_prototype'),
-              str(root / 'wrong-focus-run'), '--script', str(fixture)])
-          report = json.loads((root / 'wrong-focus-run/verification.json').read_text(encoding='utf-8'))
-          assert result.returncode == 1 and report['exit_code'] == 0, report
-          assert report['passed'] is False and report['forced_stop'] is False, report
-          assert 'unfocused.bmp' in report['failure'], report
-          print('Incorrect focus pixels were rejected after normal process exit.')
+          cases = [('focus', 'fixture.tjs', 'backgroundColor = 0x102030;', 'backgroundColor = 0x203040;', 1, 'unfocused.bmp', []),
+                   ('pointer', 'pointer_fixture.tjs', 'rectangleX = x;', 'rectangleX = x + 16;', 3, 'pointer-down.bmp', ['--pointer'])]
+          for name, source, before, after, count, failed_image, flags in cases:
+              fixture = root / f'wrong-{name}.tjs'
+              original = pathlib.Path('tools/sdl3-prototype', source).read_text(encoding='utf-8')
+              assert original.count(before) == count
+              fixture.write_text(original.replace(before, after), encoding='utf-8')
+              destination = root / f'wrong-{name}-run'
+              result = subprocess.run(['xvfb-run', '-a', 'python', 'tools/sdl3-prototype/verify.py',
+                  str(root / 'build/tools/sdl3-prototype/krkr2_sdl3_prototype'), str(destination),
+                  '--script', str(fixture), *flags])
+              report = json.loads((destination / 'verification.json').read_text(encoding='utf-8'))
+              assert result.returncode == 1 and report['exit_code'] == 0, report
+              assert report['passed'] is False and report['forced_stop'] is False, report
+              assert failed_image in report['failure'], report
+              print(f'Incorrect {name} pixels were rejected after normal process exit.')
           PY
       - name: Verify prototype dependency closure
         run: |
@@ -160,6 +167,9 @@ jobs:
           path: |
             out/sdl3-prototype/run/
             out/sdl3-prototype/wrong-focus-run/
+            out/sdl3-prototype/pointer-run/
+            out/sdl3-prototype/wrong-pointer-run/
+            out/sdl3-prototype/os-pointer-run/
             out/sdl3-prototype/os-input-run/
             out/sdl3-prototype/build/compile_commands.json
             out/sdl3-prototype/build/vcpkg_installed/vcpkg/status

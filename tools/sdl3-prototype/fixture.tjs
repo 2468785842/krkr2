@@ -8,6 +8,9 @@ var keyDownCount = 0, keyUpCount = 0, closeCount = 0;
 var focusLossCount = 0, focusGainCount = 0;
 var modifierDownCount = 0, modifierUpCount = 0;
 
+// This fixture isolates the keyboard path; mouse checks have their own script.
+function onPointer(kind, x, y, button, shift, current, pending, wheelX, wheelY, synthetic) {}
+
 function onKey(key, down, current, pending, shift) {
     if(key == 16 || key == 17 || key == 18) {
         if(current != down || pending)
