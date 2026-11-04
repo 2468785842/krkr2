@@ -4,7 +4,7 @@ Status: implemented
 
 ## 范围与实现
 
-基于 `881554c` 加本批改动，仅扩展默认关闭的 `tools/sdl3-prototype`，
+实现提交 `d0537c5`（基于 `881554c`），仅扩展默认关闭的 `tools/sdl3-prototype`，
 没有替换生产 Window/Layer、Cocos 输入或渲染器。
 `SdlPointerInput` 将 SDL 鼠标事件转换为共享 VK 状态、修饰键快照与整数坐标；
 位置通过 SDL 的窗口到渲染坐标 API，再使用共享向零截断，不裁剪黑边或窗口外位置。
@@ -57,7 +57,14 @@ X11 窗口就绪 unittest 实际运行 1 项、3 个断言，通过。
 
 Headless 工作流加入鼠标队列、原生鼠标/调整大小、反向像素检查并上传产物；
 依赖闭包限制继续排除 Cocos/OpenCV/FFmpeg/Catch2/libarchive/unrar。
-远端本批结果在推送后补充。
+提交 `d0537c5` 的[Headless CI](https://github.com/2468785842/krkr2/actions/runs/41749387360)
+中 SDL3 job `126310388516` 已成功：实际安装依赖、构建、键盘/鼠标队列、
+X11 就绪回归 1 项、原生键盘/鼠标、两项反向像素、依赖闭包和产物上传全部通过。
+四项正向验证均 passed=true、退出 0、未强停；鼠标队列计数 2 down/2 up，
+原生计数 3 down/3 up，窗口与像素宽度从 800 变为 1200，逻辑宽度保持 640。
+该运行的全部 13 个 job 已通过，包含三平台各 18 项平台契约及归档、图像、启动范围。
+CI exe SHA256：`e5237f31ff736b300e095a75385cf63a213e31519ffde343a607e705017750db`。
+本批没有修改生产 Cocos，未重复完整 Windows 应用构建；上一批同路径验证见[指针契约记录](2026-11-04-pointer-coordinates.md)。
 
 本批不验证物理鼠标、高 DPI/多屏、Windows/macOS 鼠标、组合多设备、触摸、IME、
 捕获期间销毁或生产游戏兼容。窗口 1.5 倍调整只证明视口缩放，不能冒充高 DPI 设备证据。

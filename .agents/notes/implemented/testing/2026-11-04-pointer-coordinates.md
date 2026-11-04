@@ -60,4 +60,5 @@ Linux 额外以 `-fsanitize=undefined,float-cast-overflow -fno-sanitize-recover=
 脚本 Layer.setCursorPos 的交互读回、
 OS DPI/屏幕映射、设备输入、捕获生命周期及 SDL 鼠标事件尚未实测。
 不能用 CPU Node 测试宣称游戏画面、IME、GL 或 B2 已全部通过。
+后续 SDL3 鼠标、X11 窗口外拖动及调整大小已另批实现和验证，见[鼠标原型记录](2026-11-04-sdl3-pointer-input.md)。
 后续继续按[平台契约](../../proposed/architecture/2026-11-03-platform-contracts.md)推进实际输入基线与生产窗口接入。
