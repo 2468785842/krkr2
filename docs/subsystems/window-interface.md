@@ -38,6 +38,10 @@
 两者共 5 项，由完整 Windows 工作流实际注册、运行。
 焦点订阅另有 4 项 EventDispatcher 用例；该工作流合计发现 9 项，不创建 OS/GL 窗口。
 
+`tools/game-smoke/pointer_windows_repro.py` 通过显式测试驱动创建真实双 Window，
+检查切窗、隐藏和失效后的输入归属及局部坐标。正常切窗与隐藏回退会恢复目标 Cocos 节点的原点；
+管理 overlay 的动画仍使用原入口。运行方法和软件 OpenGL 边界见[交互场景](../../tools/game-smoke/interaction/README.md#跨帧触摸回调探针)。
+
 ## 后续已拆分的边界
 
 共享虚拟按键状态、修饰键快照及指针局部坐标规则迁至无后端依赖的 `core_input`，见[输入状态](input-state.md)。

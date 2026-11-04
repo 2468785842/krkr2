@@ -58,6 +58,12 @@ python tools/game-smoke/interaction_smoke.py run out/windows/debug/bin/krkr2/krk
 其 `tree`、`capture`、`click-name`、`click-text` 用法和完成确认见场景说明；原生消息框仍需系统输入。
 默认构建不编译该驱动。组件分发测试不能替代操作系统设备、DPI 或 IME 测试。
 
+指针验收可单独运行 `tools/game-smoke/pointer_repro.py`（取消、双指右键与隐藏/显示）
+和 `pointer_windows_repro.py`（双窗口切换、失效与旧触点隔离），无需原生消息框。
+两者各自使用全新目录并比较真实 TJS 回调序列；不能作为完整文件/菜单场景的通过证据。
+Windows CI 可手动开启 `pointer_contracts`，用独立目录的 Mesa 软件 OpenGL 运行应用，
+操作、artifact 和验收边界见[交互场景说明](../../tools/game-smoke/interaction/README.md#跨帧触摸回调探针)。
+
 ## 验收范围
 
 按改动选择标题、剧情推进、相同位置画面、菜单/脚本对话框、存读档、关闭、音视频、

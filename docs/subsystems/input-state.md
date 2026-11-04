@@ -107,3 +107,9 @@ Cocos 仍承担键码转换、OS/窗口坐标与 DPI、IME、触摸判定及 TJS
 用法见[交互场景](../../tools/game-smoke/interaction/README.md)。
 独立的 `pointer_repro.py` 经 GLView 分帧触摸操作核对真实 TJS Window 回调，
 覆盖拖动取消、双指右键短点及隐藏/显示后的旧触点隔离；它不替代 OS 或物理设备验收。
+`pointer_windows_repro.py` 另以两个真实 TJS Window 标记回调来源，检查切窗取消、
+旧触点与新拖动交错，以及当前窗口隐藏/失效后的回退路由；同时检查局部坐标位于场景范围。
+`BringToFront` 和隐藏后的回退会将目标节点恢复到原点，避免窗口仍停在屏幕外。
+Windows 手动工作流的
+`pointer_contracts=true` 可在显式驱动构建上运行这两个探针，说明及证据边界见
+[交互场景](../../tools/game-smoke/interaction/README.md#跨帧触摸回调探针)。

@@ -29,7 +29,7 @@ Set-Content -Encoding utf8 out/ui-game-smoke/interaction-01/interaction-command.
 最终报告在 `interaction-report.json`，包括 exe/脚本 SHA256、退出码、强停标志、缺失证据。
 控制器拒绝已有状态/请求的目录，每次测试应新建副本。
 UI 操作可由人工或系统 UI 自动化完成。请求文件不会直接调用 MenuItem.onClick，也不会替对话框生成返回值。
-本场景不验证像素、IME、多窗口、音视频或存读档。
+默认文件/菜单场景不验证像素、IME、多窗口、音视频或存读档；双窗口输入另由下述专用探针验收。
 
 ## 可选组件输入驱动
 
@@ -91,6 +91,8 @@ ID 为 1..10，x/y 是窗口帧左上角起的归一化坐标 `[0,1]`。
 B 的旧触点不会产生回调或释放 A 的新拖动，最后检查新点击与正常退出。
 每次结束旧触点后，脚本同时核对目标 Window 仍处于按住状态和共享左键状态，
 再等待新触点的抬起，避免把旧触点提前释放算作随后取消成功。
+场景另覆盖隐藏 B 后回到 A；所有 down/up 回调都记录图层局部坐标并检查位于
+本场景的 640×480 范围内，防止接收者虽已切换、节点仍留在屏幕外。
 
 ```powershell
 python tools/game-smoke/pointer_windows_repro.py out/windows/engine-config-check/bin/krkr2/krkr2.exe out/ui-game-smoke/pointer-windows-01
@@ -100,7 +102,8 @@ gh workflow run build-windows.yml --ref dev -f pointer_contracts=true
 可手动开启 Windows CI 的 `pointer_contracts` 输入；默认关闭。
 该模式构建显式测试驱动，在独立运行目录放置固定版本并校验 SHA256 的 Mesa 软件 OpenGL，
 执行单窗口和双窗口探针。测试二进制使用独立 artifact 名称，不安装系统显卡驱动，
-不修改系统 OpenGL。报告、真实脚本轨迹、exe/PDB 与截图在 `windows-pointer-contracts` artifact。
+不修改系统 OpenGL。报告、真实脚本轨迹、exe/PDB 与截图在 `windows-pointer-contracts` artifact；
+仅查看报告和图片可下载体积较小的 `windows-pointer-contract-reports`。
 软件 OpenGL 回调通过也不代表画面、原生 OS 焦点或物理设备验收通过。
 
 ## 连续复现与取证
