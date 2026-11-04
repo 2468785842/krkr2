@@ -508,8 +508,17 @@ void TVPWindowLayer::ShowWindowAsModal() {
 void TVPWindowLayer::SetVisible(bool bVisible) {
     // OnReleaseCapture checks visibility: revoke capture before hiding, or
     // queued ups and the capture release would both be rejected as inactive.
-    if(!bVisible && _currentWindowLayer == this)
-        SetCurrentWindow(_prevWindow ? _prevWindow : _nextWindow);
+    if(!bVisible && _currentWindowLayer == this) {
+        auto *next = _prevWindow;
+        while(next && (!next->isVisible() || !next->tjsNativeInstance))
+            next = next->_prevWindow;
+        if(!next) {
+            next = _nextWindow;
+            while(next && (!next->isVisible() || !next->tjsNativeInstance))
+                next = next->_nextWindow;
+        }
+        SetCurrentWindow(next);
+    }
     Visible = bVisible;
     setVisible(bVisible);
     if(bVisible)
