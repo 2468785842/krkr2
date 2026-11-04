@@ -37,7 +37,7 @@ python scripts/check_core_module_deps.py
 使用平移、缩放、旋转、锚点、负坐标及不同父节点，不创建 GL 窗口。
 典型场景请求 (17,37)：旧窗口父节点缓存为 (54,916)，新光标父节点显示位置为 (64,911)，
 显示位置转回主图层应为原请求；分别检查坐标空间，不能把显示位置当作脚本缓存。
-这些 Cocos 断言尚待远端运行，不能把本地纯 C++ 通过当作 Cocos 验收。
+这些 Cocos 断言在初轮本地尚未执行，后续远端结果见下。
 
 完整 Windows 工作流改为开启 full 测试配置，定向构建 krkr2/cocos_window_tests，
 检查实际发现 5 项窗口/坐标用例再运行；其他 full 测试不因配置成功而视为已通过。
@@ -45,7 +45,18 @@ python scripts/check_core_module_deps.py
 
 ## 剩余范围
 
-完整应用构建与真实 Cocos 变换断言待推送后核对。脚本 Layer.setCursorPos 的交互读回、
+代码 `f32b16c` 在[独立 CI](https://github.com/2468785842/krkr2/actions/runs/41745580188)
+通过三平台各 18 项平台契约及 Linux SDL3 既有队列/系统输入/像素回归。
+同一代码的[完整 Windows 构建](https://github.com/2468785842/krkr2/actions/runs/41745613429)
+已完成：应用及 cocos_window_tests 成功链接，实际发现并通过全部 5 项 Cocos 用例，
+两个渲染器编译范围及二进制上传亦通过。原始执行为 5/5，约 0.35 秒，无 GL 窗口。
+
+Linux 额外以 `-fsanitize=undefined,float-cast-overflow -fno-sanitize-recover=all`
+编译坐标实现和对应 Catch2 测试，3 项用例、24 个断言通过，无 sanitizer 报告；
+产物为 `out/linux/pointer-validation/pointer_ubsan`，不是整个 Cocos 应用的 sanitizer 验收。
+
+截至记录收尾，独立 CI 12/13 个 job 通过，Windows ImageOps 仍在配置依赖；不把整条工作流描述为已完成。
+脚本 Layer.setCursorPos 的交互读回、
 OS DPI/屏幕映射、设备输入、捕获生命周期及 SDL 鼠标事件尚未实测。
 不能用 CPU Node 测试宣称游戏画面、IME、GL 或 B2 已全部通过。
 后续继续按[平台契约](../../proposed/architecture/2026-11-03-platform-contracts.md)推进实际输入基线与生产窗口接入。

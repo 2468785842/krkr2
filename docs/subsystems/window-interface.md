@@ -34,10 +34,12 @@
 `vcpkg/ports/cocos2dx/patch/fix-node-order.patch` 直接比较 localZOrder 与 orderOfArrival，避免打包排序键的字节序依赖；更新 port 后需要重建依赖。
 共享 UI 按实际分配的行高限制文件名、标题与底栏字号，嵌入节点使用父级局部原点。
 `tests/unit-tests/core/environ/NodeOrderTest.cpp` 在 full 范围验证层级与同层顺序，不创建 GL 窗口。
+`CocosPointerCoordinatesTest.cpp` 另验证真实节点变换下的主图层坐标、越界位置及光标父节点坐标。
+两者共 5 项，由完整 Windows 工作流实际注册、运行。
 
 ## 后续已拆分的边界
 
-共享虚拟按键状态迁至无后端依赖的 `core_input`，见[输入状态](input-state.md)。
+共享虚拟按键状态、修饰键快照及指针局部坐标规则迁至无后端依赖的 `core_input`，见[输入状态](input-state.md)。
 `SystemImpl.cpp` 不再为查询状态包含具体 Cocos 窗口头。
 
 `event/PostUpdateEvent.h/.cpp` 保存唯一的 post-update 回调，供普通帧和模态绘制共同调用。

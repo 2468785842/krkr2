@@ -36,7 +36,7 @@
 - [子批次与 SDL3 实验结果](notes/implemented/testing/2026-11-03-platform-contracts-and-sdl3-probe.md)：独立 9 项测试与脚本/像素验证通过；实验尚未接入生产 Window/Layer 或 KAG。
 - [SDL3 失焦释放](notes/implemented/testing/2026-11-03-sdl3-focus-validation.md)：三平台各 12 项契约、Linux X11 系统输入/关闭否决、七帧及反向像素检查通过，13 个 CI job 全绿；现有 Cocos 真实失焦迁移仍待验收。
 - [共享修饰键](notes/implemented/testing/2026-11-03-shared-input-modifiers.md)：引擎快照实现移出 Cocos 壳，三平台各 15 项契约、SDL 组合键及 Windows 完整应用构建通过。
-- [指针坐标](notes/implemented/testing/2026-11-04-pointer-coordinates.md)：鼠标/触摸转换收敛，修复光标缓存坐标空间；独立契约扩至 18 项，增加 Cocos 真实节点变换验收。
+- [指针坐标](notes/implemented/testing/2026-11-04-pointer-coordinates.md)：鼠标/触摸转换收敛，修复光标缓存坐标空间；三平台各 18 项契约、Windows 完整应用及 5 项真实 Cocos 节点用例通过。
 
 其他方案按需浏览 `notes/proposed/architecture/`，不因为文件已存在就视为已实现。
 历史测量与验证放 `notes/implemented/`，早期失效分析放 `notes/archived/`。
