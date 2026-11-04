@@ -148,20 +148,6 @@ jobs:
           $text = $LASTEXITCODE
           if ($single -ne 0 -or $multiple -ne 0 -or $focus -ne 0 -or $minimize -ne 0 -or $text -ne 0) { exit 1 }
 
-      - name: Upload pointer contract evidence
-        if: always() && inputs.pointer_contracts
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-pointer-contracts
-          path: |
-            out/windows/pointer-contracts/mesa-identity.txt
-            out/windows/pointer-contracts/single-window/**
-            out/windows/pointer-contracts/two-windows/**
-            out/windows/pointer-contracts/native-focus/**
-            out/windows/pointer-contracts/native-minimize/**
-            out/windows/pointer-contracts/native-text/**
-          if-no-files-found: warn
-
       - name: Upload small pointer reports and screenshots
         if: always() && inputs.pointer_contracts
         uses: actions/upload-artifact@v4
@@ -169,6 +155,23 @@ jobs:
           name: windows-pointer-contract-reports
           path: |
             out/windows/pointer-contracts/mesa-identity.txt
+            out/windows/pointer-contracts/single-window/**
+            out/windows/pointer-contracts/two-windows/**
+            out/windows/pointer-contracts/native-focus/**
+            out/windows/pointer-contracts/native-minimize/**
+            out/windows/pointer-contracts/native-text/**
+            !out/windows/pointer-contracts/*/evidence/**
+          if-no-files-found: warn
+
+      - name: Upload pointer contract evidence
+        if: always() && inputs.pointer_contracts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-pointer-contracts
+          path: |
+            out/windows/pointer-contracts/mesa-identity.txt
+            out/windows/pointer-contracts/runtime/krkr2.exe
+            out/windows/pointer-contracts/runtime/krkr2.pdb
             out/windows/pointer-contracts/single-window/**
             out/windows/pointer-contracts/two-windows/**
             out/windows/pointer-contracts/native-focus/**
