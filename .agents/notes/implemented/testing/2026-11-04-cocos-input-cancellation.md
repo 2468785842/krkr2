@@ -34,8 +34,12 @@ python scripts/check_core_module_deps.py
 同一提交的[Headless CI](https://github.com/2468785842/krkr2/actions/runs/41770209637)
 全部 13 个 job 已通过，包含三平台各 18 项平台契约和 SDL3 原型全部回归。
 首次完整 Windows 构建在 Bison 并行生成阶段失败，尚未编译本批 C++；
-具体日志与隔离临时目录修正见[Bison 调查](../../proposed/bug-fix/2026-11-04-winbison-parallel-temp.md)。
-完整应用构建与 5 项 Cocos 节点/坐标测试待修正后补充。
+具体日志与隔离临时目录修正见[Bison 调查](../bug-fix/2026-11-04-winbison-parallel-temp.md)。
+修正提交 `1539229` 的[完整 Windows 构建](https://github.com/2468785842/krkr2/actions/runs/41770810072)
+已通过：重新编译 `TVPWindow.cpp`、`MainScene.cpp`，应用和 cocos_window_tests 成功链接，
+实际发现并通过全部 5 项 Cocos 节点/坐标用例，两个渲染器编译范围与二进制上传通过。
+同一修正提交的[Headless CI](https://github.com/2468785842/krkr2/actions/runs/41770801542)亦为 13/13。
+这些构建/节点用例仍不等于下节的原生触摸或 IME 场景实测。
 
 ## 未验证与后续
 
