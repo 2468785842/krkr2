@@ -213,7 +213,11 @@ public:
     void OnDoubleClick(tjs_int x, tjs_int y);
     void OnMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb,
                      tjs_uint32 flags);
-    void OnMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb, tjs_uint32 flags);
+    virtual bool CanDeliverInputCancellation() const {
+        return CanDeliverEvents();
+    }
+    void OnMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb, tjs_uint32 flags,
+                   bool cancellation = false);
     void OnMouseMove(tjs_int x, tjs_int y, tjs_uint32 flags);
     void OnReleaseCapture();
     void OnMouseOutOfWindow();
@@ -416,14 +420,17 @@ class tTVPOnMouseUpInputEvent : public tTVPBaseInputEvent {
     tjs_int Y;
     tTVPMouseButton Buttons;
     tjs_uint32 Flags;
+    bool Cancellation;
 
 public:
     tTVPOnMouseUpInputEvent(tTJSNI_BaseWindow *win, tjs_int x, tjs_int y,
-                            tTVPMouseButton buttons, tjs_uint32 flags) :
+                            tTVPMouseButton buttons, tjs_uint32 flags,
+                            bool cancellation = false) :
         tTVPBaseInputEvent(win, Tag), X(x), Y(y), Buttons(buttons),
-        Flags(flags) {};
+        Flags(flags), Cancellation(cancellation) {};
     void Deliver() const override {
-        ((tTJSNI_BaseWindow *)GetSource())->OnMouseUp(X, Y, Buttons, Flags);
+        ((tTJSNI_BaseWindow *)GetSource())
+            ->OnMouseUp(X, Y, Buttons, Flags, Cancellation);
     }
 };
 //---------------------------------------------------------------------------

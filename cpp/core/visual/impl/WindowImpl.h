@@ -235,6 +235,7 @@ public:
     bool closeFlag;
 
 public:
+    bool CanDeliverInputCancellation() const override;
     [[nodiscard]] bool CanDeliverEvents()
         const override; // tTJSNI_BaseWindow::CanDeliverEvents override
 

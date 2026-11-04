@@ -83,6 +83,53 @@ Windows ImageOps 仍在配置依赖，尚无失败结论，不把整条工作流
 
 ## 未验证与下一步
 
+### Windows 真实组件回调补验（2026-11-04）
+
+基于 `73cb801` 的本地 dirty 改动，新增 `tools/game-smoke/pointer_repro.py` 和
+GLView 跨帧触摸驱动，真实 TJS Window 记录 down/up/click，不直接调用脚本回调。
+独立报告的通过范围是回调契约，不能替代文件/菜单完整回归或物理设备验证。
+
+`pointer-contract-01` 复现隐藏窗口丢失取消抬起：拖动 down 后脚本设置 visible=false，
+CancelInput 虽在隐藏前排队，实际分发时 OnMouseUp 的 CanDeliverEvents 拒绝隐藏窗口。
+此前仅移动捕获释放时点不足以保证排队抬起到达脚本。
+exe SHA256 `1bf355b3e918dd9defe3c022ced2ef013d358d76d756976b5e30116a4f76af1c`。
+首版修正仍检查 GetFormEnabled，而 Cocos 此函数就是 isVisible，
+所以 `pointer-contract-02` 同样超时失败（exe `c595d82cbce5bbeacca6bbd5dd94feb40564503f62a03baef86b5307511efa8f`）。
+两轮均报告 `automation:TimeoutError: pointer:up:0`、forced_stop=true、进程退出 1；不能计为正常退出。
+
+最终仅给 CancelInput 生成的鼠标抬起添加 cancellation 标记；WindowIntf 分发时单独检查
+仍存在的 form 和 Owner，不要求可见。普通输入的门禁不变，Invalidate 仍撤销排队输入。
+没有同步清空全局事件队列或新增重入脚本分发。
+
+构建为 Debug、app/tests=ON、full、管理 UI=OFF、测试驱动=ON。
+本机 CLion 同时在配置 debug，首次构建在重新配置阶段等待；停止的仅是本次自己的构建进程。
+后续对 engine-config-check 使用 `-DVCPKG_MANIFEST_INSTALL=OFF` 复用已安装依赖；
+配置及最终应用构建均退出 0，没有更改全局工具链。
+命令及日志为 `out/windows/ffmpeg-link-closure/build-pointer.cmd`、
+`pointer-probe-local-build.log`、`pointer-fix-final-build.log`。
+
+```powershell
+python tools/game-smoke/pointer_repro.py out/windows/engine-config-check/bin/krkr2/krkr2.exe out/ui-game-smoke/pointer-contract-03
+python -m unittest discover -s tools/game-smoke
+ctest --test-dir out/windows/engine-config-check -N -R '^cocos (window|pointer|focus)'
+ctest --test-dir out/windows/engine-config-check --output-on-failure --no-tests=error -R '^cocos (window|pointer|focus)'
+python scripts/check_core_module_deps.py
+```
+
+03 完成完整轨迹，passed=true、退出 0、未强停：拖动 cancel 不点击、双指短点右键 down/click/up、
+隐藏后仍收到左键 up、显示后旧触点结束不点击，新手势 down/click/up 正常。
+exe SHA256 `e378edc603033cb4b05b78726fecaa69897d60d56d75919ab89d57d7e0d2c14e`，
+PDB SHA256 `7b0b24420e23aa65d0ac27e0954926f94f787df63ee8bb5764a7e0de618e4b5b`，
+脚本 SHA256 `83e452ffb6c47b924f9dfe135cf016cbd2b1a8399e32003b4461853a77d5026b`。
+Python 共 17 项通过（新增 4 项拒绝额外点击/抬起、错误按钮与不完整证据），
+Cocos 实际发现并运行 9 项全通过，11 个基础目标依赖检查通过。
+
+实际查看了 01 的起始截图及 03 的起始/结束截图：01 有蓝灰填充层，03 两张均黑底但宿主菜单图标可见。
+03 的回调通过不代表渲染通过；尚未确定黑底的原因或与本批改动的关系，需单独检查场景绘制与截图时点。
+同一 exe/脚本另以 `pointer-contract-04` 全新目录重复，回调再次 passed=true、退出 0、未强停；
+实际查看其结束截图有预期蓝灰填充层。两轮画面不同，尚不能以 04 覆盖 03 的黑底，采集/绘制稳定性继续待查。
+所有报告、逐步轨迹、截图及匹配二进制在 `out/ui-game-smoke/pointer-contract-01..04/`。
+
 未实际执行触摸屏双指/三指、物理鼠标交错、多游戏窗口或原生 OS 切焦交互。
 状态测试不运行真实 TJS Window 回调；完整应用编译不等于这些交互通过。
 全局 VK 状态仍不做逐物理设备引用计数，同一个 VK 的混合设备仲裁未完成；

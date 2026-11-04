@@ -378,8 +378,9 @@ void TVPWindowLayer::CancelInput(const std::vector<std::uint32_t> &released) {
             mouseButton = mbLeft;
         else if(button == krkr::input::key::rightMouse)
             mouseButton = mbRight;
-        TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
-            tjsNativeInstance, _LastMouseX, _LastMouseY, mouseButton, shift));
+        TVPPostInputEvent(
+            new tTVPOnMouseUpInputEvent(tjsNativeInstance, _LastMouseX,
+                                        _LastMouseY, mouseButton, shift, true));
     }
     for(auto key : plan.keyUps)
         TVPPostInputEvent(

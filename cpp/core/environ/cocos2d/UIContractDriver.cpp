@@ -11,6 +11,8 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <set>
+#include <cmath>
 #include <stdexcept>
 #include <sstream>
 
@@ -79,8 +81,9 @@ void TVPStartUIContractDriver(cocos2d::Scene *scene) {
             "UI driver requires an isolated interaction fixture");
 
     auto sequence = std::make_shared<std::string>();
+    auto touches = std::make_shared<std::set<intptr_t>>();
     scene->schedule(
-        [root, sequence, scene](float) {
+        [root, sequence, touches, scene](float) {
             std::ifstream request(root / "ui-action.txt");
             std::string id, action, selector;
             if(!(request >> id >> action) || id == *sequence)
@@ -119,6 +122,36 @@ void TVPStartUIContractDriver(cocos2d::Scene *scene) {
                     Director::getInstance()
                         ->getEventDispatcher()
                         ->dispatchEvent(&event);
+                } else if(action == "touch-begin" || action == "touch-move" ||
+                          action == "touch-end" || action == "touch-cancel") {
+                    std::istringstream args(selector);
+                    intptr_t touch;
+                    float x, y;
+                    std::string extra;
+                    if(!(args >> touch >> x >> y) || (args >> extra) ||
+                       touch < 1 || touch > 10 || !std::isfinite(x) ||
+                       !std::isfinite(y) || x < 0 || x > 1 || y < 0 || y > 1)
+                        throw std::runtime_error(
+                            "Expected touch ID(1..10) x y in [0,1]");
+                    const bool active = touches->count(touch) != 0;
+                    if((action == "touch-begin") == active)
+                        throw std::runtime_error("Invalid touch lifetime");
+                    auto *view = Director::getInstance()->getOpenGLView();
+                    const auto frame = view->getFrameSize();
+                    x *= frame.width;
+                    y *= frame.height;
+                    if(action == "touch-begin") {
+                        touches->insert(touch);
+                        view->handleTouchesBegin(1, &touch, &x, &y);
+                    } else if(action == "touch-move") {
+                        view->handleTouchesMove(1, &touch, &x, &y);
+                    } else {
+                        if(action == "touch-end")
+                            view->handleTouchesEnd(1, &touch, &x, &y);
+                        else
+                            view->handleTouchesCancel(1, &touch, &x, &y);
+                        touches->erase(touch);
+                    }
                 } else if(action == "click-name" || action == "click-text") {
                     std::vector<Node *> matches;
                     collect(scene, selector, action == "click-text", matches);

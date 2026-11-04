@@ -2,6 +2,7 @@
 global.events = [];
 global.inputProbe = false;
 global.lifecycleProbe = false;
+global.pointerProbe = false;
 global.record = function(text) {
     events.add(text);
     events.save(System.exePath + "interaction-events.txt");
@@ -41,6 +42,15 @@ class ContractWindow extends Window {
             record("input:key-up:" + string key + ":" + string shift + ":" + string current + ":" + string pressed);
         }
     }
+    function onMouseDown(x, y, button, shift) {
+        if(pointerProbe) record("pointer:down:" + string button);
+    }
+    function onMouseUp(x, y, button, shift) {
+        if(pointerProbe) record("pointer:up:" + string button);
+    }
+    function onClick(x, y) {
+        if(pointerProbe) record("pointer:click");
+    }
 }
 class ContractMenu extends MenuItem {
     function ContractMenu(owner) {
@@ -67,7 +77,16 @@ global.driver = new Timer(function() {
         if(!command.count || command[0] == lastCommand) return;
         lastCommand = command[0];
         record("command:" + lastCommand);
-        if(lastCommand == "lifecycle-probe") {
+        if(lastCommand == "pointer-probe") {
+            pointerProbe = true;
+            record("pointer-probe-ready");
+        } else if(lastCommand == "pointer-hide") {
+            win.visible = false;
+            record("pointer-hidden");
+        } else if(lastCommand == "pointer-show") {
+            win.visible = true;
+            record("pointer-shown");
+        } else if(lastCommand == "lifecycle-probe") {
             lifecycleProbe = true;
             record("lifecycle-probe-ready");
         } else if(lastCommand == "lifecycle-probe-end") {

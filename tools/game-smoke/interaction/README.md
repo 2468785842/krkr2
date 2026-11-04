@@ -65,6 +65,25 @@ python tools/game-smoke/interaction_smoke.py run out/windows/debug/bin/krkr2/krk
 这验证场景内组件交互，不能替代操作系统鼠标、触摸设备、DPI 或输入法验收。
 原生消息框仍需人工或系统 UI 自动化确认。
 
+## 跨帧触摸回调探针
+
+在开启测试驱动的应用上使用全新目录：
+
+```powershell
+python tools/game-smoke/pointer_repro.py out/windows/engine-config-check/bin/krkr2/krkr2.exe out/ui-game-smoke/pointer-01
+```
+
+探针通过 GLView 的 begin/move/end/cancel 路径输入，等待真实 TJS Window 的鼠标回调，
+检查拖动取消不点击、双指短点传递右键、隐藏窗口前取消抬起、显示后旧触点不点击，最后验证新手势。
+报告严格比较完整回调顺序，多余点击/抬起、错误按钮、脚本错误、驱动超时或强停均失败。
+保存启动 exe/PDB、哈希、逐步轨迹与两张截图；需实际查看图片确认场景。
+它独立于文件/菜单回归，不要求原生消息框，也不能替代完整交互回归。
+
+驱动新增 `touch-begin|touch-move|touch-end|touch-cancel ID x y`，
+ID 为 1..10，x/y 是窗口帧左上角起的归一化坐标 `[0,1]`。
+开始必须使用未活动 ID，其他动作必须使用活动 ID；每次仍以唯一序号等待完成。
+这些操作验证组件分发，不证明物理触摸屏、多设备仲裁、真正多窗口切换或 OS 切焦。
+
 ## 连续复现与取证
 
 测试驱动构建可用下列命令自动准备新场景、执行三轮文件/菜单操作，再测试关闭否决与接受：

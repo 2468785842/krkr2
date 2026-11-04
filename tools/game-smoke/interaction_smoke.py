@@ -40,7 +40,8 @@ def prepare(destination):
     (destination / "interaction-fixture.json").write_text('{"version":1}', encoding="utf-8")
 
 
-def run(engine, directory, seconds, launch_style="game", component_input=False, automation=None):
+def run(engine, directory, seconds, launch_style="game", component_input=False, automation=None,
+        evaluate=failures):
     engine, directory = engine.resolve(strict=True), directory.resolve(strict=True)
     if not (directory / "interaction-fixture.json").is_file():
         raise ValueError("Prepare a private fixture first")
@@ -84,7 +85,7 @@ def run(engine, directory, seconds, launch_style="game", component_input=False, 
                     process.wait(timeout=5)
             report["exit_code"] = process.returncode
             report["events"] = read_events(directory)
-            report["failures"] = failures(report["events"])
+            report["failures"] = evaluate(report["events"])
             report["failures"].extend(report.get("automation_failures", []))
             driver_log = directory / "ui-driver-events.txt"
             report["driver_events"] = driver_log.read_text(encoding="utf-8").splitlines() if driver_log.exists() else []
