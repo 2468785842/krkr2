@@ -101,9 +101,10 @@ gh workflow run build-windows.yml --ref dev -f pointer_contracts=true
 
 可手动开启 Windows CI 的 `pointer_contracts` 输入；默认关闭。
 该模式构建显式测试驱动，在独立运行目录放置固定版本并校验 SHA256 的 Mesa 软件 OpenGL，
-执行单窗口、双窗口和下述 Windows 原生焦点、最小化探针。测试二进制使用独立 artifact 名称，不安装系统显卡驱动，
-不修改系统 OpenGL。报告、真实脚本轨迹、exe/PDB 与截图在 `windows-pointer-contracts` artifact；
-仅查看报告和图片可下载体积较小的 `windows-pointer-contract-reports`。
+执行单窗口、双窗口和下述 Windows 原生焦点、最小化及提交文本探针。测试二进制使用独立 artifact 名称，不安装系统显卡驱动，
+不修改系统 OpenGL。报告、真实脚本轨迹与截图在 `windows-pointer-contracts` artifact；
+各场景使用同一构建，匹配报告哈希的 exe/PDB 共享保存在其中的 `runtime/`，避免重复打包。
+轻量 `windows-pointer-contract-reports` 优先上传；仅查看报告和图片时可下载此包。
 两个指针探针的回调通过也不代表画面、原生 OS 焦点或物理设备验收通过。
 
 ## Windows 原生焦点探针
@@ -148,6 +149,27 @@ CI 同时执行该模式，独立报告目录 `native-minimize` 随完整/轻量
 已安装的 US English 布局，等待实际布局确认并写入轨迹；不安装布局或修改系统默认设置。
 每次原生发键也记录接收窗口的布局。此模式不构成输入法兼容验收。
 最小化模式为标题栏操作临时置顶自有引擎窗口，使用 NOACTIVATE 保留真实点击激活和前台核对。
+
+## Windows 提交文本探针
+
+```powershell
+python tools/game-smoke/text_repro.py out/windows/debug/bin/krkr2/krkr2.exe out/ui-game-smoke/native-text-01
+```
+
+需要开启测试驱动。独立 `text/startup.tjs` 对主 Layer 设置 `imeMode=imOpen` 并获得逻辑焦点，
+沿现有编辑控件输入路径记录 Window `onKeyPress` 的字符串长度与
+UTF-16 首单元（TJS 的 `#key`），不把 Unicode 字符当成物理键码。
+原生 `SendInput` / VK_PACKET 覆盖 ASCII、中文、日文、重音、组合字符与 emoji；
+组件 IMEDispatcher 路径另检查窗口适配器忽略嵌入 NUL、继续分发后续字符的旧规则，
+以及无效 UTF-8 不泄漏前缀。
+通过真实原生窗口切焦，检查失焦期间的提交被忽略、恢复后新文本正常。
+完整顺序、检查点、正常退出与恢复前后固定填充层像素均参与最终判定。
+
+测试驱动新增 `text-hex HEX`，接收 1..64 字节的十六进制 UTF-8 提交，经实际 IMEDispatcher
+到 MainScene 适配器；格式错误会失败，不直接调用脚本回调。
+Windows 手动 `pointer_contracts=true` 同时运行本探针，证据目录为 `native-text`。
+VK_PACKET 是系统提交文本注入，不能证明中文/日文 IME 的预编辑、候选窗或真实设备交互。
+当前 `Window.imeMode` 的默认模式 setter 仍是空实现，不可用它代替 Layer 的输入启用路径。
 
 ## 连续复现与取证
 

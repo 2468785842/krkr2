@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       pointer_contracts:
-        description: 'Run pointer and native Win32 focus probes with local Mesa (test binary)'
+        description: 'Run input, committed text and lifecycle probes with local Mesa (test binary)'
         type: boolean
         default: false
 
@@ -81,7 +81,7 @@ jobs:
       - name: Build Windows
         run: cmake --build --preset="Windows Release Build" --target krkr2 cocos_window_tests
 
-      - name: Verify Cocos window, pointer and focus contracts
+      - name: Verify Cocos window, pointer, focus and text contracts
         shell: bash
         run: |
           ctest --test-dir out/windows/release -N -R '^cocos (window|pointer|focus|text)'
@@ -110,7 +110,7 @@ jobs:
           print('Full application includes both renderers and both ImageOps sources exactly once.')
           PYTHON
 
-      - name: Run real Window pointer and native focus contracts with software OpenGL
+      - name: Run real Window input, text and lifecycle contracts with software OpenGL
         if: inputs.pointer_contracts
         shell: pwsh
         timeout-minutes: 10

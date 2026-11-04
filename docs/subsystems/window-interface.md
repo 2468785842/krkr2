@@ -36,7 +36,8 @@
 `tests/unit-tests/core/environ/NodeOrderTest.cpp` 在 full 范围验证层级与同层顺序，不创建 GL 窗口。
 `CocosPointerCoordinatesTest.cpp` 另验证真实节点变换下的主图层坐标、越界位置及光标父节点坐标。
 两者共 5 项，由完整 Windows 工作流实际注册、运行。
-焦点订阅另有 4 项 EventDispatcher 用例；该工作流合计发现 9 项，不创建 OS/GL 窗口。
+焦点订阅另有 4 项 EventDispatcher 用例，提交文本另有 2 项真实 Cocos 转换对照；
+该工作流合计发现 11 项，不创建 OS/GL 窗口。
 
 `tools/game-smoke/pointer_windows_repro.py` 通过显式测试驱动创建真实双 Window，
 检查切窗、隐藏和失效后的输入归属及局部坐标。正常切窗与隐藏回退会恢复目标 Cocos 节点的原点；

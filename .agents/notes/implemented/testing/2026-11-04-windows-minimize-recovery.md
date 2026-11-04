@@ -82,6 +82,20 @@ engine HWND `8596044`，helper=null；实际收到 deactivate、activate，两�
 
 Windows 手动 `pointer_contracts=true` 已增加独立 `native-minimize` 调用和两类 artifact 路径；
 本轮没有提交、推送或触发远端 CI，不能将本地结果宣称为远端成功。
+
+## 同步后补充的远端验证
+
+上述本机批次随后以 `16f8468` 入库。同步后手动执行
+[Windows 运行](https://github.com/2468785842/krkr2/actions/runs/41930503911)，
+job `126925892312` 全部通过：完整 Release 应用构建、9 项 Cocos CPU 用例、
+36 项 Python、单/双窗口指针、普通焦点及独立最小化恢复场景均成功。
+四个报告均退出 0、未强停；最小化场景收到一次 activate，符合既有合并规则，不能要求必有 deactivate。
+exe SHA256 `23f13fedfdf64950b0370e368b3b16937547ae58a745f8d17571b616b5435d7d`，
+PDB `0b38703bbcabacaf1e32f10ae7e856a6fb0546aa245c981638c937da5f7d41a4`，
+focus fixture `21ebba88583564de9926218dda51582ba07b9e37bea6a272fca3460797a6f960`。
+该脚本身份与早期本机 08 的哈希不同，两轮分别保留，不把旧本机结果冒认为远端产物。
+同提交的 [Headless 运行](https://github.com/2468785842/krkr2/actions/runs/41831684168) 也已全部成功。
+
 仍未验证其他平台、IME、物理触摸/手柄、多游戏窗口与最小化组合、
 音视频恢复、GL context 丢失/重建或移动端 surface 生命周期。
 下一步按[平台契约](../../proposed/architecture/2026-11-03-platform-contracts.md)推进这些独立边界，

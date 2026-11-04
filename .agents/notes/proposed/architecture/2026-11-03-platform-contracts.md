@@ -116,3 +116,8 @@ Windows 新增 GLView/TJS 指针探针，实际复现并修正隐藏窗口丢弃
 另修复正常切窗/隐藏回退未恢复节点原点，双窗口坐标与固定填充层颜色复验通过；
 这些组件输入证据仍不能替代 OS 切焦、DPI/IME 或物理设备验收。
 独立 SDL3/TJS 壳实验的可用范围另见 `tools/sdl3-prototype/README.md`，不作为 B2 全完成或 KAG 后端迁移验收。
+
+提交文本解码另已移入无 Cocos 依赖的 core_input，保留严格 UTF-8、UTF-16 单元顺序与整段拒绝规则；
+独立平台范围增至 31 项，full 另通过 2 项旧 Cocos 转换对照，见
+[文本子批次](../../implemented/testing/2026-11-04-committed-text-input.md)。
+Windows 提交文本注入不等于 IME 组合验收；窗口默认模式 setter 和 Android 编码桥的缺口分别保留调查。
