@@ -130,9 +130,10 @@ jobs:
         env:
           SDL_VIDEO_DRIVER: x11
         run: |
-          python - <<'PY'
+          xvfb-run -a -e /dev/stderr python - <<'PY'
           import json, pathlib, subprocess
           root = pathlib.Path('out/sdl3-prototype')
+          # Keep Xvfb cleanup outside assertions about the verifier's exit code.
           cases = [('focus', 'fixture.tjs', 'backgroundColor = 0x102030;', 'backgroundColor = 0x203040;', 1, 'unfocused.bmp', []),
                    ('pointer', 'pointer_fixture.tjs', 'rectangleX = x;', 'rectangleX = x + 16;', 3, 'pointer-down.bmp', ['--pointer'])]
           for name, source, before, after, count, failed_image, flags in cases:
@@ -141,7 +142,7 @@ jobs:
               assert original.count(before) == count
               fixture.write_text(original.replace(before, after), encoding='utf-8')
               destination = root / f'wrong-{name}-run'
-              result = subprocess.run(['xvfb-run', '-a', 'python', 'tools/sdl3-prototype/verify.py',
+              result = subprocess.run(['python', 'tools/sdl3-prototype/verify.py',
                   str(root / 'build/tools/sdl3-prototype/krkr2_sdl3_prototype'), str(destination),
                   '--script', str(fixture), *flags])
               report = json.loads((destination / 'verification.json').read_text(encoding='utf-8'))

@@ -144,3 +144,19 @@ SDL_PushEvent 不更新物理设备状态，自测从模拟聚焦开始；X11 �
 系统探针另覆盖 X server 切焦与 XTest 虚拟键盘，不是物理设备、IME 或现有 Cocos 验收。
 继续按[平台契约](../../proposed/architecture/2026-11-03-platform-contracts.md)建立现有 Cocos 的真实失焦基线，
 再迁移键盘/鼠标/手柄释放和 System 停用事件；坐标/DPI/IME、暂停恢复与销毁仍待处理。
+
+
+## 反向检查的显示服务退出码
+
+`ee9a345` 的[Headless 运行](https://github.com/2468785842/krkr2/actions/runs/41776734661)
+job `126398720863` 在负向像素检查失败：验证报告为 engine exit=0、passed=false、forced_stop=false，
+正确识别 `unfocused.bmp(10,10)` 的错误颜色，但 xvfb-run 随后报告清理临时目录失败，
+使外层退出码不再是期望的验证器 1，原断言把两层退出混在一起。
+其余 12 个 job、SDL 构建及四项正向检查通过；鼠标负向检查因首项断言中止而未执行。
+没有底层 rm/xauth 错误详情，不推断清理失败的根因。
+
+工作流改为一台 Xvfb 包住两项负向检查，子进程直接运行验证器并保持严格 exit=1 / engine exit=0 / 像素原因断言；
+显示服务仅在整组之后清理，基础设施失败仍会使 CI 失败，并用 -e /dev/stderr 保留诊断。
+这修正退出码判定边界，不宣称解决 xvfb-run 的全部清理问题，也没有放宽像素检查。
+本地实际运行同一 YAML 命令：两项验证器均退出 1、引擎均退出 0、无强停，原因分别为 unfocused.bmp 与 pointer-down.bmp；
+整组 Xvfb 正常退出 0。日志在 `out/linux/negative-shared-display-02.log`，新 CI 结果在完成后补充。

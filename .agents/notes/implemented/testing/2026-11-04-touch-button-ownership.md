@@ -56,12 +56,21 @@ python scripts/check_core_module_deps.py
 平台闭包预期 13 个项目源，无 TJS/Cocos 依赖；11 个 foundation 目标约束检查通过。
 Cocos 生产路径本机未编译，完整 Windows 应用与既有 9 项 Cocos CPU 用例待推送后验证。
 首批提交的[Headless CI](https://github.com/2468785842/krkr2/actions/runs/41775574846)全部 13 个 job 已通过，
-包含三平台各 25 项及 13 个源/依赖闭包检查；完整 Windows 与补充失效处理的结果在运行后补充。
+包含三平台各 25 项及 13 个源/依赖闭包检查。
+C++ 最终提交 `ee9a345` 的[完整 Windows 构建](https://github.com/2468785842/krkr2/actions/runs/41776743865)
+job `126398753688` 成功：实际编译 MainScene.cpp / TVPWindow.cpp、链接应用与 cocos_window_tests，
+发现并通过 9 项 Cocos CPU 测试（约 0.65 秒），两个渲染器编译范围及二进制上传通过。
+中间提交 `68bfe8d` 的 Windows 与 Headless 亦均通过；未用它们替代上述最终 C++ 构建。
+该最终 C++ 提交的 Headless 为 12/13：SDL 负向检查的 Xvfb 包装器清理失败覆盖验证器退出码，
+报告明确已拒绝错误像素；CI 壳修正与复核见[SDL 记录](2026-11-03-sdl3-focus-validation.md#反向检查的显示服务退出码)。
+后续只调整工作流与记录，不修改已验证的 C++；新工作流结果在完成后补充。
 
 ## 未验证与下一步
 
 未实际执行触摸屏双指/三指、物理鼠标交错、多游戏窗口或原生 OS 切焦交互。
 状态测试不运行真实 TJS Window 回调；完整应用编译不等于这些交互通过。
 全局 VK 状态仍不做逐物理设备引用计数，同一个 VK 的混合设备仲裁未完成。
+保留了原短点的 generic onClick 规则；右/中键触摸短点与物理按钮的点击事件是否应完全一致，需用真实 TJS 轨迹确认，
+本批只修正按钮传递、配对与取消，不据纯状态测试改动该脚本事件规则。
 后续先用原生或真实组件输入轨迹核对取消不点击、双指右键、窗口切换后旧触点不影响新窗口，
 再按[平台契约](../../proposed/architecture/2026-11-03-platform-contracts.md)继续 DPI/IME 与完整生命周期工作。
