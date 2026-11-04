@@ -62,6 +62,7 @@ private:
     int _touchBeginTick = 0;
     krkr::input::TouchButton touchButton;
     static tTVPMouseButton MouseButtonForKey(std::uint32_t key);
+    void leaveCurrentWindow();
     std::string _caption;
     //	std::map<tTJSNI_BaseVideoOverlay*, Sprite*> _AllOverlay;
     float _drawSpriteScaleX = 1.0f, _drawSpriteScaleY = 1.0f;
@@ -229,14 +230,9 @@ public:
 
     void toggleFillScale();
 
-    void InvalidateClose() override {
-        // closing action by object invalidation;
-        // this will not cause any user confirmation of closing the
-        // window.
-
-        // TVPRemoveWindowLayer(this);
-        this->removeFromParent(); // and delete this
-    }
+    // Revoke input before a retained/autoreleased node can outlive its native
+    // instance.
+    void InvalidateClose() override;
 
     bool GetWindowActive() override { return _currentWindowLayer == this; }
 

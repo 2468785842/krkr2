@@ -36,19 +36,28 @@ TVPWindowLayer::~TVPWindowLayer() {
     if(_prevWindow)
         _prevWindow->_nextWindow = _nextWindow;
 
-    if(_currentWindowLayer == this) {
-        TVPWindowLayer *anotherWin = _lastWindowLayer;
-        while(anotherWin && !anotherWin->isVisible()) {
-            anotherWin = anotherWin->_prevWindow;
-        }
-        if(anotherWin && anotherWin->isVisible()) {
-            anotherWin->setPosition(0, 0);
-            // anotherWin->setVisible(true);
-        }
-        // Native instances may already be invalid during node destruction.
-        TVPMainScene::CancelGameInput(false);
-        _currentWindowLayer = anotherWin;
-    }
+    leaveCurrentWindow();
+}
+
+void TVPWindowLayer::leaveCurrentWindow() {
+    if(_currentWindowLayer != this)
+        return;
+    // No script callbacks: invalidation can precede the node's destruction.
+    TVPMainScene::CancelGameInput(false);
+    auto *another = _lastWindowLayer;
+    while(another &&
+          (another == this || !another->isVisible() ||
+           !another->tjsNativeInstance))
+        another = another->_prevWindow;
+    if(another)
+        another->setPosition(0, 0);
+    _currentWindowLayer = another;
+}
+
+void TVPWindowLayer::InvalidateClose() {
+    tjsNativeInstance = nullptr;
+    leaveCurrentWindow();
+    removeFromParent();
 }
 
 bool TVPWindowLayer::init() {
@@ -448,13 +457,15 @@ tTVPMouseButton TVPWindowLayer::MouseButtonForKey(std::uint32_t key) {
 }
 
 void TVPWindowLayer::SetCurrentWindow(TVPWindowLayer *window) {
-    if(_currentWindowLayer == window)
+    if(_currentWindowLayer == window || (window && !window->tjsNativeInstance))
         return;
     TVPMainScene::CancelGameInput();
     _currentWindowLayer = window;
 }
 
 void TVPWindowLayer::BringToFront() {
+    if(!tjsNativeInstance)
+        return;
     if(_currentWindowLayer != this) {
         if(_currentWindowLayer) {
             const cocos2d::Size &size = _currentWindowLayer->getViewSize();

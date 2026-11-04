@@ -4,7 +4,7 @@ Status: implemented
 
 ## 基线复现
 
-基于 `01a509b`，`TVPWindow.h` 含 `static tTVPMouseButton _mouseBtn;`，
+首批实现 `d648dff`（基于 `01a509b`），`TVPWindow.h` 含 `static tTVPMouseButton _mouseBtn;`，
 MainScene.cpp 和 TVPWindow.cpp 分别写读自己的副本；改成单个全局变量仍会让多个窗口/设备互相覆盖。
 从原头文件逐字提取声明，包含真实 `tvpinputdefs.h`，用两个编译单元分别设置右键和读取按钮：
 
@@ -29,6 +29,9 @@ c++ -std=c++17 -Icpp/core/visual -Icpp/core/tjs2 out/linux/touch-button-baseline
 - `SetCurrentWindow` 在改变接收者前取消旧窗口输入，窗口管理界面、虚拟模式切换同样清理旧手势。
   迟到且不属于新手势的 move/end/cancel 被忽略；析构阶段仅丢弃状态，避免访问可能已失效的原生实例。
   本批选择“切换时取消”，不把旧拖动转交新窗口，也不新增物理按键的逐设备所有者跟踪。
+- 复查发现 InvalidateClose 原先只移除节点；autorelease/外部引用可使节点晚于原生实例销毁。
+  补充修正让 InvalidateClose 立即清除原生指针、撤销当前接收者，析构复用同一注销逻辑；
+  后继选择和显式激活均拒绝已失效节点。此寿命路径依据代码与 Cocos 引用机制修正，尚无真实 TJS 场景复现。
 - 手势自己的 held 标记参与取消分类，即使共享状态已被其他路径释放，也按原按钮补全配对；同按钮仍合并。
 
 稳定规则见[共享输入](../../../../docs/subsystems/input-state.md#触摸按钮与窗口切换)。
@@ -50,6 +53,8 @@ python scripts/check_core_module_deps.py
 测试中的 1/2/4 是共享 VK，不是基线实验的 TJS 枚举值。
 平台闭包预期 13 个项目源，无 TJS/Cocos 依赖；11 个 foundation 目标约束检查通过。
 Cocos 生产路径本机未编译，完整 Windows 应用与既有 9 项 Cocos CPU 用例待推送后验证。
+首批提交的[Headless CI](https://github.com/2468785842/krkr2/actions/runs/41775574846)全部 13 个 job 已通过，
+包含三平台各 25 项及 13 个源/依赖闭包检查；完整 Windows 与补充失效处理的结果在运行后补充。
 
 ## 未验证与下一步
 
