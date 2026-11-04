@@ -4,7 +4,7 @@ Status: implemented
 
 ## 问题与修正
 
-基于 `7d8bf5a` 加本批改动，审查生产输入的取消与失焦路径时发现两处代码缺口：
+实现提交 `4a341e6`（基于 `7d8bf5a`），审查生产输入的取消与失焦路径时发现两处代码缺口：
 
 - `TVPWindowLayer::onTouchMoved` 在开始拖动时按下共享鼠标键；`onTouchEnded` 会释放，
   但 `onTouchCancelled` 原先只清理拖动标记并排队抬起，未释放共享键。
@@ -31,7 +31,11 @@ python scripts/check_core_module_deps.py
 实际注册并通过 18 项，包含单键释放保留未读按下标记、修饰位快照及批量释放。
 该范围没有编译生产 Cocos，不能将这 18 项描述为触摸取消或 IME 交互回归。
 仅对两个修改源执行 clang-format 20；diff 与 11 个 foundation 约束检查通过。
-完整 Windows 应用构建与 5 项 Cocos 节点/坐标测试在推送后补充。
+同一提交的[Headless CI](https://github.com/2468785842/krkr2/actions/runs/41770209637)
+全部 13 个 job 已通过，包含三平台各 18 项平台契约和 SDL3 原型全部回归。
+首次完整 Windows 构建在 Bison 并行生成阶段失败，尚未编译本批 C++；
+具体日志与隔离临时目录修正见[Bison 调查](../../proposed/bug-fix/2026-11-04-winbison-parallel-temp.md)。
+完整应用构建与 5 项 Cocos 节点/坐标测试待修正后补充。
 
 ## 未验证与后续
 

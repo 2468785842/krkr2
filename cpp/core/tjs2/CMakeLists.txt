@@ -27,13 +27,22 @@ set(BISON_FILES
 set(PARSE_TAB_CPP_FILES)
 foreach(BISON_FILE ${BISON_FILES})
     get_filename_component(FILE_NAME ${BISON_FILE} NAME_WE)
+    set(BISON_COMMAND "${BISON_EXECUTABLE}")
+    if(CMAKE_HOST_WIN32)
+        # WinFlexBison 2.5.25 uses non-atomic _tempnam/fopen for m4 files.
+        # Isolate concurrent parsers without serializing the whole build.
+        set(BISON_TEMP_DIR "${GEN_CODE_BINARY_DIR}/tmp/${FILE_NAME}")
+        file(MAKE_DIRECTORY "${BISON_TEMP_DIR}")
+        set(BISON_COMMAND "${CMAKE_COMMAND}" -E env
+            "TMP=${BISON_TEMP_DIR}" "TEMP=${BISON_TEMP_DIR}" "${BISON_EXECUTABLE}")
+    endif()
 
     add_custom_command(
         OUTPUT
             ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.cpp
             ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.hpp
         DEPENDS ${BISON_FILE}
-        COMMAND ${BISON_EXECUTABLE} ${BISON_FILE}
+        COMMAND ${BISON_COMMAND} ${BISON_FILE}
         WORKING_DIRECTORY ${GEN_CODE_BINARY_DIR}
         COMMENT "Generate Bison File From ${BISON_FILE}"
         VERBATIM
