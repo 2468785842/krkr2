@@ -7,7 +7,8 @@ import pointer_windows_repro as probe
 class WindowPointerEvidenceTest(unittest.TestCase):
     def events(self):
         return ["ready", "pointer-windows-ready", "pointer-window-b",
-                "pointer-window-b-invalidated", *probe.EXPECTED, "fixture-finished"]
+                "pointer-window-b-held", "pointer-window-b-invalidated",
+                "pointer-window-a-held", *probe.EXPECTED, "fixture-finished"]
 
     def test_complete_trace(self):
         self.assertEqual(probe.failures(self.events()), [])
@@ -25,7 +26,8 @@ class WindowPointerEvidenceTest(unittest.TestCase):
             self.assertTrue(probe.failures(events))
 
     def test_missing_release_or_invalidation_is_rejected(self):
-        for event in ("pointer:a:up:0", "pointer-window-b-invalidated", "fixture-finished"):
+        for event in ("pointer:a:up:0", "pointer-window-b-held", "pointer-window-a-held",
+                      "pointer-window-b-invalidated", "fixture-finished"):
             events = self.events()
             events.remove(event)
             self.assertTrue(probe.failures(events))

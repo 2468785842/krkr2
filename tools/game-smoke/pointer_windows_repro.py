@@ -24,7 +24,8 @@ def failures(events):
     if actual != EXPECTED:
         errors.append(f"Window pointer callback mismatch: expected {EXPECTED!r}, got {actual!r}")
     for event in ("ready", "pointer-windows-ready", "pointer-window-b",
-                  "pointer-window-b-invalidated", "fixture-finished"):
+                  "pointer-window-b-held", "pointer-window-b-invalidated",
+                  "pointer-window-a-held", "fixture-finished"):
         if events.count(event) != 1:
             errors.append(f"Expected exactly one {event}")
     return errors
@@ -54,6 +55,8 @@ class WindowPointerProbe(Reproducer):
             self.ui("touch-move 2 0.6 0.5")
             self.script_event("pointer:b:down:0", before)
             self.ui("touch-end 1 0.6 0.5")  # discarded A gesture, B still held
+            before = self.command("pointer-b-held")
+            self.script_event("pointer-window-b-held", before)
             self.ui("touch-cancel 2 0.6 0.5")
             self.script_event("pointer:b:up:0", before)
             before = self.command("pointer-b-tap")
@@ -73,6 +76,8 @@ class WindowPointerProbe(Reproducer):
             self.ui("touch-move 5 0.6 0.5")
             self.script_event("pointer:a:down:0", before)
             self.ui("touch-end 4 0.6 0.5")  # invalid B's old contact
+            before = self.command("pointer-a-held")
+            self.script_event("pointer-window-a-held", before)
             self.ui("touch-end 5 0.6 0.5")
             self.script_event("pointer:a:up:0", before)
             before = self.command("pointer-a-return-tap")

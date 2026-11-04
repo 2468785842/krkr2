@@ -17,6 +17,7 @@ class ContractWindow extends Window {
     var allowClose = false;
     var closeQueries = 0;
     var pointerName = "";
+    var pointerHeld = false;
     function ContractWindow() {
         super.Window();
         caption = "KrKr2 window contract";
@@ -44,9 +45,11 @@ class ContractWindow extends Window {
         }
     }
     function onMouseDown(x, y, button, shift) {
+        pointerHeld = true;
         if(pointerProbe) record("pointer:" + pointerName + "down:" + string button);
     }
     function onMouseUp(x, y, button, shift) {
+        pointerHeld = false;
         if(pointerProbe) record("pointer:" + pointerName + "up:" + string button);
     }
     function onClick(x, y) {
@@ -98,6 +101,14 @@ global.driver = new Timer(function() {
         } else if(lastCommand == "pointer-invalidate-b") {
             invalidate peer;
             record("pointer-window-b-invalidated");
+        } else if(lastCommand == "pointer-b-held") {
+            if(!peer.pointerHeld || !System.getKeyState(1, true))
+                throw new Exception("Old A touch released B drag");
+            record("pointer-window-b-held");
+        } else if(lastCommand == "pointer-a-held") {
+            if(!win.pointerHeld || !System.getKeyState(1, true))
+                throw new Exception("Old B touch released A drag");
+            record("pointer-window-a-held");
         } else if(lastCommand == "pointer-hide") {
             win.visible = false;
             record("pointer-hidden");

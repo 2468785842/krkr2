@@ -82,12 +82,15 @@ python tools/game-smoke/pointer_repro.py out/windows/engine-config-check/bin/krk
 驱动新增 `touch-begin|touch-move|touch-end|touch-cancel ID x y`，
 ID 为 1..10，x/y 是窗口帧左上角起的归一化坐标 `[0,1]`。
 开始必须使用未活动 ID，其他动作必须使用活动 ID；每次仍以唯一序号等待完成。
-这些操作验证组件分发，不证明物理触摸屏、多设备仲裁、真正多窗口切换或 OS 切焦。
+这些驱动操作自身只证明组件分发；窗口切换须使用下面的双窗口场景单独验收。
+它们不证明物理触摸屏、多设备仲裁或 OS 切焦。
 
 `pointer_windows_repro.py` 使用同一驱动创建两个真实 TJS Window，分别标记 A/B 回调。
 先在 A 拖动后通过 `bringToFront` 切到 B，验证 A 的取消抬起；保持 A 旧触点活动时在 B
 开始新拖动，再结束 A 的旧触点。随后在 B 按住期间执行 `invalidate`，验证回到 A 后
 B 的旧触点不会产生回调或释放 A 的新拖动，最后检查新点击与正常退出。
+每次结束旧触点后，脚本同时核对目标 Window 仍处于按住状态和共享左键状态，
+再等待新触点的抬起，避免把旧触点提前释放算作随后取消成功。
 
 ```powershell
 python tools/game-smoke/pointer_windows_repro.py out/windows/engine-config-check/bin/krkr2/krkr2.exe out/ui-game-smoke/pointer-windows-01
