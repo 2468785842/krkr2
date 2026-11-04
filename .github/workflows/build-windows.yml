@@ -67,10 +67,24 @@ jobs:
           key: ${{ github.job }}-${{ matrix.os }}
 
       - name: Configure Windows
-        run: cmake --preset="Windows Release Config" -DENABLE_TESTS=OFF -DBUILD_TOOLS=OFF
+        run: cmake --preset="Windows Release Config" -DENABLE_TESTS=ON -DBUILD_TOOLS=OFF
 
       - name: Build Windows
-        run: cmake --build --preset="Windows Release Build"
+        run: cmake --build --preset="Windows Release Build" --target krkr2 cocos_window_tests
+
+      - name: Verify Cocos window and pointer contracts
+        shell: bash
+        run: |
+          ctest --test-dir out/windows/release -N -R '^cocos (window|pointer)'
+          python - <<'PY'
+          import json, subprocess
+          tests = json.loads(subprocess.check_output([
+              'ctest', '--test-dir', 'out/windows/release', '--show-only=json-v1',
+              '-R', '^cocos (window|pointer)']))['tests']
+          assert len(tests) == 5, tests
+          print('Registered 2 Cocos node-order and 3 pointer-coordinate contracts.')
+          PY
+          ctest --test-dir out/windows/release -R '^cocos (window|pointer)' --output-on-failure --no-tests=error
 
       - name: Verify renderer compilation scope
         shell: bash

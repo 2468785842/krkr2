@@ -1,5 +1,6 @@
 #include "TVPWindow.h"
 #include "InputState.h"
+#include "cocos2d/CocosPointerCoordinates.h"
 #include "cocos2d/CocosWindowAccess.h"
 #include <cocos2d.h>
 #include <cocos-ext.h>
@@ -109,11 +110,11 @@ void TVPWindowLayer::onMouseMoveEvent(cocos2d::Event *_e) {
 void TVPWindowLayer::onMouseScroll(cocos2d::Event *_e) {
     auto *e = dynamic_cast<cocos2d::EventMouse *>(_e);
     if(!_windowMgrOverlay) {
-        cocos2d::Vec2 nsp =
-            PrimaryLayerArea->convertToNodeSpace(e->getLocation());
-        int X = nsp.x, Y = PrimaryLayerArea->getContentSize().height - nsp.y;
+        const auto position = krkr::cocosinput::layerPosition(*PrimaryLayerArea,
+                                                              e->getLocation());
         tjsNativeInstance->OnMouseWheel(TVPGetCurrentShiftKeyState(),
-                                        e->getScrollY() > 0 ? -120 : 120, X, Y);
+                                        e->getScrollY() > 0 ? -120 : 120,
+                                        position.x, position.y);
         return;
     }
     float scale = getZoomScale();
@@ -167,10 +168,10 @@ void TVPWindowLayer::onTouchMoved(cocos2d::Touch *touch,
                (TVPGetRoughTickCount32() - _touchBeginTick > 150 ||
                 _touchPoint.getDistanceSq(touch->getLocation()) >
                     _touchMoveThresholdSq)) {
-                cocos2d::Vec2 nsp =
-                    PrimaryLayerArea->convertToNodeSpace(_touchPoint);
-                _LastMouseX = nsp.x,
-                _LastMouseY = PrimaryLayerArea->getContentSize().height - nsp.y;
+                const auto position = krkr::cocosinput::layerPosition(
+                    *PrimaryLayerArea, _touchPoint);
+                _LastMouseX = position.x;
+                _LastMouseY = position.y;
                 TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(
                     tjsNativeInstance, _LastMouseX, _LastMouseY,
                     TVPGetCurrentShiftKeyState()));
@@ -181,16 +182,18 @@ void TVPWindowLayer::onTouchMoved(cocos2d::Touch *touch,
                     TVPGetCurrentShiftKeyState()));
                 _touchMoved = true;
             } else if(_touchMoved) {
-                cocos2d::Vec2 nsp =
-                    PrimaryLayerArea->convertTouchToNodeSpace(touch);
-                _LastMouseX = nsp.x,
-                _LastMouseY = PrimaryLayerArea->getContentSize().height - nsp.y;
+                const auto position = krkr::cocosinput::layerPosition(
+                    *PrimaryLayerArea, touch->getLocation());
+                _LastMouseX = position.x;
+                _LastMouseY = position.y;
                 TVPPostInputEvent(
                     new tTVPOnMouseMoveInputEvent(tjsNativeInstance,
                                                   _LastMouseX, _LastMouseY,
                                                   TVPGetCurrentShiftKeyState()),
                     TVP_EPT_DISCARDABLE);
-                int pos = (_LastMouseY << 16) + _LastMouseX;
+                const std::uint32_t pos =
+                    (static_cast<std::uint32_t>(_LastMouseY) << 16) +
+                    static_cast<std::uint32_t>(_LastMouseX);
                 TVPPushEnvironNoise(&pos, sizeof(pos));
             }
         }
@@ -206,18 +209,18 @@ void TVPWindowLayer::onTouchEnded(cocos2d::Touch *touch,
     if(touchIter != _touches.end()) {
         if(_touches.size() == 1) {
             if(tjsNativeInstance) {
-                cocos2d::Vec2 nsp =
-                    PrimaryLayerArea->convertTouchToNodeSpace(touch);
-                _LastMouseX = nsp.x,
-                _LastMouseY = PrimaryLayerArea->getContentSize().height - nsp.y;
+                const auto position = krkr::cocosinput::layerPosition(
+                    *PrimaryLayerArea, touch->getLocation());
+                _LastMouseX = position.x;
+                _LastMouseY = position.y;
                 if(!_touchMoved) {
                     TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(
                         tjsNativeInstance, _LastMouseX, _LastMouseY,
                         TVPGetCurrentShiftKeyState()));
-                    nsp = PrimaryLayerArea->convertToNodeSpace(_touchPoint);
+                    const auto downPosition = krkr::cocosinput::layerPosition(
+                        *PrimaryLayerArea, _touchPoint);
                     TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
-                        tjsNativeInstance, nsp.x,
-                        PrimaryLayerArea->getContentSize().height - nsp.y,
+                        tjsNativeInstance, downPosition.x, downPosition.y,
                         _mouseBtn, TVPGetCurrentShiftKeyState()));
                     TVPPostInputEvent(new tTVPOnClickInputEvent(
                         tjsNativeInstance, _LastMouseX, _LastMouseY));
@@ -254,10 +257,10 @@ void TVPWindowLayer::onTouchCancelled(cocos2d::Touch *touch,
         _touchMoved = false;
 
         if(tjsNativeInstance) {
-            cocos2d::Vec2 nsp =
-                PrimaryLayerArea->convertTouchToNodeSpace(touch);
-            _LastMouseX = nsp.x,
-            _LastMouseY = PrimaryLayerArea->getContentSize().height - nsp.y;
+            const auto position = krkr::cocosinput::layerPosition(
+                *PrimaryLayerArea, touch->getLocation());
+            _LastMouseX = position.x;
+            _LastMouseY = position.y;
             TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
                 tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
                 TVPGetCurrentShiftKeyState()));
@@ -266,9 +269,10 @@ void TVPWindowLayer::onTouchCancelled(cocos2d::Touch *touch,
 }
 
 void TVPWindowLayer::onMouseDown(const cocos2d::Vec2 &pt) {
-    cocos2d::Vec2 nsp = PrimaryLayerArea->convertToNodeSpace(pt);
-    _LastMouseX = nsp.x,
-    _LastMouseY = PrimaryLayerArea->getContentSize().height - nsp.y;
+    const auto position =
+        krkr::cocosinput::layerPosition(*PrimaryLayerArea, pt);
+    _LastMouseX = position.x;
+    _LastMouseY = position.y;
     krkr::input::sharedState().press(TVPConvertMouseBtnToVKCode(_mouseBtn));
     TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
         tjsNativeInstance, _LastMouseX, _LastMouseY, _mouseBtn,
@@ -276,9 +280,10 @@ void TVPWindowLayer::onMouseDown(const cocos2d::Vec2 &pt) {
 }
 
 void TVPWindowLayer::onMouseUp(const cocos2d::Vec2 &pt) {
-    cocos2d::Vec2 nsp = PrimaryLayerArea->convertToNodeSpace(pt);
-    _LastMouseX = nsp.x,
-    _LastMouseY = PrimaryLayerArea->getContentSize().height - nsp.y;
+    const auto position =
+        krkr::cocosinput::layerPosition(*PrimaryLayerArea, pt);
+    _LastMouseX = position.x;
+    _LastMouseY = position.y;
     krkr::input::sharedState().release(TVPConvertMouseBtnToVKCode(_mouseBtn));
     TVPPostInputEvent(
         new tTVPOnMouseUpInputEvent(tjsNativeInstance, _LastMouseX, _LastMouseY,
@@ -286,21 +291,24 @@ void TVPWindowLayer::onMouseUp(const cocos2d::Vec2 &pt) {
 }
 
 void TVPWindowLayer::onMouseMove(const cocos2d::Vec2 &pt) {
-    cocos2d::Vec2 nsp = PrimaryLayerArea->convertToNodeSpace(pt);
-    _LastMouseX = nsp.x,
-    _LastMouseY = PrimaryLayerArea->getContentSize().height - nsp.y;
+    const auto position =
+        krkr::cocosinput::layerPosition(*PrimaryLayerArea, pt);
+    _LastMouseX = position.x;
+    _LastMouseY = position.y;
     TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(
                           tjsNativeInstance, _LastMouseX, _LastMouseY,
                           TVPGetCurrentShiftKeyState()),
                       TVP_EPT_DISCARDABLE);
-    int pos = (_LastMouseY << 16) + _LastMouseX;
+    const std::uint32_t pos = (static_cast<std::uint32_t>(_LastMouseY) << 16) +
+        static_cast<std::uint32_t>(_LastMouseX);
     TVPPushEnvironNoise(&pos, sizeof(pos));
 }
 
 void TVPWindowLayer::onMouseClick(const cocos2d::Vec2 &pt) {
-    cocos2d::Vec2 nsp = PrimaryLayerArea->convertToNodeSpace(pt);
-    _LastMouseX = nsp.x,
-    _LastMouseY = PrimaryLayerArea->getContentSize().height - nsp.y;
+    const auto position =
+        krkr::cocosinput::layerPosition(*PrimaryLayerArea, pt);
+    _LastMouseX = position.x;
+    _LastMouseY = position.y;
     TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(
                           tjsNativeInstance, _LastMouseX, _LastMouseY,
                           TVPGetCurrentShiftKeyState()),
@@ -319,13 +327,17 @@ void TVPWindowLayer::onMouseClick(const cocos2d::Vec2 &pt) {
 
 
 void TVPWindowLayer::SetCursorPos(tjs_int x, tjs_int y) {
-    cocos2d::Vec2 worldPt = PrimaryLayerArea->convertToWorldSpace(
-        cocos2d::Vec2(x, PrimaryLayerArea->getContentSize().height - y));
-    cocos2d::Vec2 pt = getParent()->convertToNodeSpace(worldPt);
-    _LastMouseX = pt.x;
-    _LastMouseY = pt.y;
+    // Cached coordinates are always in the primary layer's top-left space.
+    // Presentation coordinates belong to the cursor's parent, never this cache.
+    _LastMouseX = x;
+    _LastMouseY = y;
     if(_mouseCursor) {
-        _mouseCursor->setPosition(pt);
+        auto *cursorParent = _mouseCursor->getParent();
+        if(!cursorParent)
+            cursorParent = getParent();
+        if(cursorParent)
+            _mouseCursor->setPosition(krkr::cocosinput::cursorPosition(
+                *PrimaryLayerArea, *cursorParent, { x, y }));
         _refadeMouseCursor();
     }
 }

@@ -73,6 +73,10 @@ compact 和 System 事件排队未改变，没有提前接线旧 `OnExit` 或更
 
 ## 剩余工作
 
+指针坐标子批次已抽出 Y 轴翻转/向零截断和 Cocos Node 适配，修复光标缓存混入父节点坐标；
+范围及验证见[指针契约](../../implemented/testing/2026-11-04-pointer-coordinates.md)。
+这尚未定义 OS DPI/屏幕坐标到世界坐标的转换，也不替代实际设备与捕获验证。
+
 修饰键快照已提到共享输入模块，导出实现移到 System 层，保持旧中键省略及标记不消费规则；
 SDL 队列与 X11 的组合键释放/恢复验证见[子批次记录](../../implemented/testing/2026-11-03-shared-input-modifiers.md)。
 这不改变 Cocos 激活与失焦路径，也不表示完成 IME 或物理设备验证。
