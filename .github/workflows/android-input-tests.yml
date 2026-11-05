@@ -29,6 +29,8 @@ jobs:
         run: sdkmanager 'platforms;android-34' 'build-tools;34.0.0' 'ndk;28.0.13004108' 'cmake;3.31.1'
       - name: Compile the production Android Java sources
         run: bash platforms/android/gradlew -p platforms/android --no-daemon --console=plain :app:compileDebugJavaWithJavac
+      - name: Build the isolated input APK and JNI tests before starting an emulator
+        run: bash platforms/android/gradlew -p tests/android-input --no-daemon --console=plain assembleDebug assembleDebugAndroidTest
       - name: Enable KVM for the test emulator
         run: sudo chmod a+rw /dev/kvm
       - name: Verify real InputConnection and JNI on Android
