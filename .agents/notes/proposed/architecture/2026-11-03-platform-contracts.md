@@ -122,4 +122,7 @@ Windows 新增 GLView/TJS 指针探针，实际复现并修正隐藏窗口丢弃
 [文本子批次](../../implemented/testing/2026-11-04-committed-text-input.md)。
 Windows 默认模式 setter、Layer 优先级、dontCare 和切窗恢复另已完成原生文本验收，见
 [模式修复](../../implemented/bug-fix/2026-11-04-window-default-ime-mode.md)。
-提交文本注入不等于 IME 组合验收；Android 编码桥仍保留独立调查。
+Android 编码桥的标准 UTF-8 转换、打印键去重与退格接线也已落地，独立 API 34 模拟器
+14 项 Framework/ART/JNI 契约通过，共享平台范围随后增至 34 项，见
+[验证记录](../../implemented/testing/2026-11-05-android-input-contracts.md)。
+提交文本或独立桥测试不等于 IME 组合验收；完整 Android 游戏 APK、TJS 回调、物理设备及生命周期仍保留独立调查。

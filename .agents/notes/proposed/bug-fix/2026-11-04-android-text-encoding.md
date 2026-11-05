@@ -22,3 +22,23 @@ Status: proposed
 消除重复文本后同时验证有效 BMP、代理项、空串、组合键、迟到输入、正常退出及现有游戏编辑控件。
 Gradle/NDK 编译和设备交互须单独记录，桌面 VK_PACKET 或 C++ 解码测试不能替代。
 IME preedit、候选窗和移动端 surface 恢复不自动包含在打印键修正中。
+
+## 2026-11-05 编码与 Java 接线子批次
+
+`b8069c8` 新增 core_input::encodeTextInput，将显式长度 UTF-16 编码为标准 UTF-8，
+保留 NUL/补充平面字符、整段拒绝未配对代理项；两条 Android 提交入口共用 RAII JNI 读取器。
+字符串在 JNI 调用返回前复制完毕，所有提交和按键经既有 Android 事件队列执行，
+不再捕获 scene/scheduler 指针或在回调中保留 JVM 字符地址。
+移除 nativeCharInput/onCharInput；硬件监听和 InputConnection 共用打印键处理，
+只在按下时提交一次文本，支持空格、多字符提交、死键和退格路径；Ctrl/Meta 不生成字母提交。
+`80b0f28` 补充重复死键和退格取消未提交重音，修正新 CI 的 SDK 包选择。
+
+本地 34 项平台 CTest、44 项 Python、15 源闭包和 11 个 foundation 依赖守卫通过。
+完整 Android Java 源由新 CI 的 :app:compileDebugJavaWithJavac 验证，
+独立 tests/android-input 工程在真实 API 34 模拟器上运行生产 InputConnection 和 JNI 读取器，
+不将普通 JVM 桩或纯 C++ 转换测试计作 Android Framework 通过。
+实际 14 项 Framework/ART 测试全通过（无跳过），结果与运行身份见[本次验证记录](../../implemented/testing/2026-11-05-android-input-contracts.md)；稳定链路和命令见[Android 输入桥](../../../../docs/subsystems/android-input.md)。
+
+此调查仍保持 proposed：独立桥测试不覆盖完整 Cocos/TJS APK 的链接与游戏内真实回调，
+原 note 中最小 TJS 场景、现有游戏编辑控件、迟到输入归属、焦点/销毁、ARM64、物理设备和正常退出条件尚未完成。
+下一步先完成完整应用 NDK 构建，再在最小 TJS 场景中检查 A/中文/emoji/退格的最终回调及生命周期。
