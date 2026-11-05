@@ -174,8 +174,6 @@ public class KR2Activity extends Cocos2dxActivity implements ActivityCompat.OnRe
 
     public static native boolean nativeKeyAction(final int keyCode, final boolean isPress);
 
-    public static native void nativeCharInput(final int keyCode);
-
     public static native void nativeCommitText(String text, int newCursorPosition);
 
     private static native void nativeInsertText(final String text);

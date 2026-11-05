@@ -9,4 +9,8 @@ namespace krkr::input {
     // input rejects the whole commit; no partially decoded prefix is emitted.
     // This does not represent IME composition, key codes, or focus routing.
     std::optional<std::u16string> decodeTextInput(std::string_view utf8);
+
+    // Java/JNI strings contain UTF-16, not standard UTF-8. Copy and validate
+    // the complete commit before queueing it; reject unpaired surrogates.
+    std::optional<std::string> encodeTextInput(std::u16string_view utf16);
 } // namespace krkr::input

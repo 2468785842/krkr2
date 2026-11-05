@@ -14,6 +14,7 @@ TEST_CASE("cocos text matches committed decoding for all Unicode scalars",
     std::u16string legacy;
     REQUIRE(cocos2d::StringUtils::UTF8ToUTF16(utf8, legacy));
     REQUIRE(krkr::input::decodeTextInput(utf8) == legacy);
+    REQUIRE(krkr::input::encodeTextInput(legacy) == utf8);
 }
 
 TEST_CASE("cocos text matches committed decoding for arbitrary bytes",

@@ -64,8 +64,8 @@ jobs:
               'PostUpdateTest.cpp', 'PostUpdateRegistration.cpp', 'TouchButtonTest.cpp', 'TouchButtonPeer.cpp', 'TextInputTest.cpp'])
           tests = json.loads(subprocess.check_output([
               'ctest', '--test-dir', str(root), '--show-only=json-v1']))
-          assert len(tests['tests']) == 31, tests['tests']
-          print('Platform contracts: 31 tests; closure verified:', sorted(ports))
+          assert len(tests['tests']) == 34, tests['tests']
+          print('Platform contracts: 34 tests; closure verified:', sorted(ports))
           PY
       - uses: actions/upload-artifact@v4
         if: always()

@@ -1,6 +1,7 @@
 /* Android JNI bridge for cocos2d-based KR2Activity */
 #include <memory>
 #include <jni.h>
+#include "AndroidTextInput.h"
 #include <cocos/platform/android/jni/JniHelper.h>
 
 #include "environ/cocos2d/AppDelegate.h"
@@ -253,54 +254,30 @@ JNIEXPORT jboolean JNICALL Java_org_tvp_kirikiri2_KR2Activity_nativeKeyAction(
 
 JNIEXPORT void JNICALL Java_org_tvp_kirikiri2_KR2Activity_nativeInsertText(
     JNIEnv *env, jclass cls, jstring text) {
-    const char *pszText = env->GetStringUTFChars(text, nullptr);
-    if(pszText && *pszText) {
-        std::string str = pszText;
+    if(auto value = krkr::androidinput::readCommittedText(env, text);
+       value && !value->empty()) {
+        const auto &str = *value;
         Android_PushEvents([str]() {
             cocos2d::IMEDispatcher::sharedDispatcher()->dispatchInsertText(
-                str.
-
-                c_str(),
-                str
-
-                    .
-
-                length()
-
-            );
+                str.data(), str.size());
         });
     }
-    env->ReleaseStringUTFChars(text, pszText);
 }
 
 JNIEXPORT void JNICALL Java_org_tvp_kirikiri2_KR2Activity_nativeDeleteBackward(
     JNIEnv *env, jclass cls) {
-    Android_PushEvents([capture0 = cocos2d::IMEDispatcher::sharedDispatcher()] {
-        capture0->
-
-            dispatchDeleteBackward();
+    Android_PushEvents([] {
+        cocos2d::IMEDispatcher::sharedDispatcher()->dispatchDeleteBackward();
     });
-}
-
-JNIEXPORT void JNICALL Java_org_tvp_kirikiri2_KR2Activity_nativeCharInput(
-    JNIEnv *env, jclass cls, jint keyCode) {
-    TVPMainScene *pScene = TVPMainScene::GetInstance();
-    if(!pScene)
-        return;
-    pScene->getScheduler()->performFunctionInCocosThread(
-        [keyCode] { TVPMainScene::onCharInput(keyCode); });
 }
 
 JNIEXPORT void JNICALL Java_org_tvp_kirikiri2_KR2Activity_nativeCommitText(
     JNIEnv *env, jclass cls, jstring text, jint newCursorPosition) {
-    TVPMainScene *pScene = TVPMainScene::GetInstance();
-    if(!pScene)
-        return;
-    const char *utftext = env->GetStringUTFChars(text, nullptr);
-    std::string str(utftext);
-    pScene->getScheduler()->performFunctionInCocosThread(
-        [str] { TVPMainScene::onTextInput(str); });
-    env->ReleaseStringUTFChars(text, utftext);
+    if(auto value = krkr::androidinput::readCommittedText(env, text);
+       value && !value->empty()) {
+        const auto &str = *value;
+        Android_PushEvents([str] { TVPMainScene::onTextInput(str); });
+    }
 }
 
 JNIEXPORT jboolean JNICALL

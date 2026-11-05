@@ -3,6 +3,43 @@
 #include <cstdint>
 
 namespace krkr::input {
+    std::optional<std::string> encodeTextInput(std::u16string_view utf16) {
+        std::string result;
+        result.reserve(utf16.size());
+        for(std::size_t offset = 0; offset < utf16.size(); ++offset) {
+            std::uint32_t scalar = utf16[offset];
+            if(scalar >= 0xd800 && scalar <= 0xdbff) {
+                if(++offset == utf16.size())
+                    return std::nullopt;
+                const std::uint32_t low = utf16[offset];
+                if(low < 0xdc00 || low > 0xdfff)
+                    return std::nullopt;
+                scalar = 0x10000 + ((scalar - 0xd800) << 10) + (low - 0xdc00);
+            } else if(scalar >= 0xdc00 && scalar <= 0xdfff) {
+                return std::nullopt;
+            }
+            if(scalar <= 0x7f) {
+                result.push_back(static_cast<char>(scalar));
+            } else if(scalar <= 0x7ff) {
+                result.push_back(static_cast<char>(0xc0 | (scalar >> 6)));
+                result.push_back(static_cast<char>(0x80 | (scalar & 0x3f)));
+            } else if(scalar <= 0xffff) {
+                result.push_back(static_cast<char>(0xe0 | (scalar >> 12)));
+                result.push_back(
+                    static_cast<char>(0x80 | ((scalar >> 6) & 0x3f)));
+                result.push_back(static_cast<char>(0x80 | (scalar & 0x3f)));
+            } else {
+                result.push_back(static_cast<char>(0xf0 | (scalar >> 18)));
+                result.push_back(
+                    static_cast<char>(0x80 | ((scalar >> 12) & 0x3f)));
+                result.push_back(
+                    static_cast<char>(0x80 | ((scalar >> 6) & 0x3f)));
+                result.push_back(static_cast<char>(0x80 | (scalar & 0x3f)));
+            }
+        }
+        return result;
+    }
+
     std::optional<std::u16string> decodeTextInput(std::string_view utf8) {
         std::u16string result;
         result.reserve(utf8.size());

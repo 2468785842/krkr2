@@ -66,7 +66,6 @@ public:
     bool attachWithIME() override;
     bool detachWithIME() override;
 
-    static void onCharInput(int keyCode);
     static void onTextInput(const std::string &text);
 
     static float convertCursorScale(float val /*0 ~ 1*/);

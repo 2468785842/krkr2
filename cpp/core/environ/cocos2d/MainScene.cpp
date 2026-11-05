@@ -1293,13 +1293,6 @@ void TVPMainScene::insertText(const char *text, size_t len) {
     onTextInput(utf8);
 }
 
-void TVPMainScene::onCharInput(int keyCode) {
-    if(!AcceptsGameInput())
-        return;
-    if(auto *window = TVPWindowLayer::_currentWindowLayer)
-        window->OnKeyPress((tjs_char)keyCode, 0, false, false);
-}
-
 void TVPMainScene::onTextInput(const std::string &text) {
     if(!AcceptsGameInput())
         return;

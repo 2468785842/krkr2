@@ -1,0 +1,34 @@
+plugins {
+    id 'com.android.application' version '8.7.3'
+}
+
+android {
+    namespace 'org.krkr2.inputcontracts'
+    compileSdk 34
+    ndkVersion '28.0.13004108'
+    defaultConfig {
+        applicationId 'org.krkr2.inputcontracts'
+        minSdk 29
+        targetSdk 34
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        ndk { abiFilters 'x86_64' }
+        externalNativeBuild { cmake { arguments '-DANDROID_STL=c++_shared' } }
+    }
+    sourceSets.main.java {
+        srcDirs 'src/main/java', '../../platforms/android/app/java'
+        include 'org/tvp/kirikiri2/SDLInputConnection.java', 'org/tvp/kirikiri2/NativeText.java'
+    }
+    externalNativeBuild.cmake {
+        path 'src/main/cpp/CMakeLists.txt'
+        version '3.31.1'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+}
