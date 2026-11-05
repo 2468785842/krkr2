@@ -21,6 +21,12 @@
 #include "TickCount.h"
 #include "DebugIntf.h"
 #include "LayerTreeOwner.h"
+#include "vkdefine.h"
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <iterator>
+#include <limits>
 
 //---------------------------------------------------------------------------
 // tTVPLayerManager
@@ -43,6 +49,10 @@ tTVPLayerManager::tTVPLayerManager(iTVPLayerTreeOwner *owner) {
     LastMouseMoveX = -1;
     LastMouseMoveY = -1;
     InNotifyingHintOrCursorChange = false;
+    tTJSVariant controllerFocus;
+    ControllerFocus =
+        TVPGetCommandLine(TJS_W("-controllerfocus"), &controllerFocus) &&
+        ttstr(controllerFocus) == TJS_W("yes");
 }
 //---------------------------------------------------------------------------
 tTVPLayerManager::~tTVPLayerManager() {
@@ -1007,7 +1017,94 @@ void tTVPLayerManager::NotifyNodeEnabledState() {
             Primary->NotifyNodeEnabledState();
 }
 //---------------------------------------------------------------------------
+bool tTVPLayerManager::FocusControllerButton(tjs_uint key) {
+    if(!ControllerFocus || !Primary ||
+       (key != VK_UP && key != VK_DOWN && key != VK_LEFT && key != VK_RIGHT))
+        return false;
+    struct Button {
+        tTJSNI_BaseLayer *layer;
+        double x, y;
+    };
+    std::vector<Button> buttons;
+    std::function<void(tTJSNI_BaseLayer *, double, double, double, double,
+                       double, double)>
+        visit;
+    visit = [&](tTJSNI_BaseLayer *layer, double px, double py, double cl,
+                double ct, double cr, double cb) {
+        if(!layer || !layer->GetVisible() || !layer->GetEnabled() ||
+           layer->GetOpacity() == 0)
+            return;
+        const double x = px + layer->GetLeft(), y = py + layer->GetTop();
+        const double left = std::max(cl, x), top = std::max(ct, y);
+        const double right = std::min(cr, x + layer->GetWidth());
+        const double bottom = std::min(cb, y + layer->GetHeight());
+        if(right <= left || bottom <= top)
+            return;
+        auto *owner = layer->GetOwnerNoAddRef();
+        if(owner && layer->GetNodeEnabled() && layer->GetJoinFocusChain() &&
+           owner->IsInstanceOf(0, nullptr, nullptr, TJS_W("ButtonLayer"),
+                               owner) == TJS_S_TRUE)
+            buttons.push_back(
+                { layer, (left + right) / 2, (top + bottom) / 2 });
+        for(tjs_uint i = 0; i < layer->GetCount(); ++i)
+            visit(layer->GetChildren(i), x, y, left, top, right, bottom);
+    };
+    visit(Primary, -Primary->GetLeft(), -Primary->GetTop(), 0, 0,
+          Primary->GetWidth(), Primary->GetHeight());
+    if(buttons.empty())
+        return false;
+    std::stable_sort(buttons.begin(), buttons.end(),
+                     [](const Button &a, const Button &b) {
+                         return a.y != b.y ? a.y < b.y : a.x < b.x;
+                     });
+    auto current =
+        std::find_if(buttons.begin(), buttons.end(),
+                     [&](const Button &b) { return b.layer == FocusedLayer; });
+    if(current == buttons.end() && FocusedLayer) {
+        bool containsButtons = false;
+        for(const auto &button : buttons) {
+            for(auto *parent = button.layer->GetParent(); parent;
+                parent = parent->GetParent()) {
+                if(parent == FocusedLayer)
+                    containsButtons = true;
+            }
+        }
+        if(!containsButtons)
+            return false;
+    }
+    const bool forward = key == VK_DOWN || key == VK_RIGHT;
+    auto target = forward ? buttons.begin() : std::prev(buttons.end());
+    if(current != buttons.end()) {
+        const auto index = static_cast<size_t>(current - buttons.begin());
+        target = buttons.begin() +
+            (forward ? (index + 1) % buttons.size()
+                     : (index + buttons.size() - 1) % buttons.size());
+        double best = std::numeric_limits<double>::infinity();
+        for(auto it = buttons.begin(); it != buttons.end(); ++it) {
+            const double dx = it->x - current->x, dy = it->y - current->y;
+            const bool vertical = key == VK_UP || key == VK_DOWN;
+            const double along = (vertical ? dy : dx) * (forward ? 1 : -1);
+            const double across = vertical ? dx : dy;
+            if(along <= 0 || std::abs(across) > along * 2)
+                continue;
+            const double score = along * along + 4 * across * across;
+            if(score < best) {
+                best = score;
+                target = it;
+            }
+        }
+    }
+    // Opt-in KAG compatibility: some mouse-oriented UIs disable ButtonLayer
+    // focus.
+    target->layer->SetFocusable(true);
+    SetFocusTo(target->layer, forward);
+    return true;
+}
+
 void tTVPLayerManager::PrimaryKeyDown(tjs_uint key, tjs_uint32 shift) {
+    if(!(shift & (TVP_SS_SHIFT | TVP_SS_ALT | TVP_SS_CTRL)) &&
+       FocusControllerButton(key))
+        return;
     if(FocusedLayer)
         FocusedLayer->FireKeyDown(key, shift);
     else if(Primary)

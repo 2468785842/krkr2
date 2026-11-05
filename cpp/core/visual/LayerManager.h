@@ -279,6 +279,8 @@ class tTVPLayerManager : public iTVPLayerManager, public tTVPDrawable {
     std::vector<tTJSNI_BaseLayer *> ModalLayerVector;
     // pointer to modal layer vector
     tTJSNI_BaseLayer *FocusedLayer; // pointer to current focused layer
+    bool ControllerFocus = false;
+    bool FocusControllerButton(tjs_uint key);
     tTJSNI_BaseLayer *Primary; // primary layer
     bool OverallOrderIndexValid;
     std::vector<tTJSNI_BaseLayer *> AllNodes;

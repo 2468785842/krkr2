@@ -303,4 +303,8 @@ if(KRKR2_ENABLE_X11_INPUT_SMOKE)
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/game-smoke/keyboard_x11.py"
                 --engine "$<TARGET_FILE:krkr2>" --xdotool "${KRKR2_XDOTOOL}")
     set_tests_properties(x11-keyboard-runtime PROPERTIES TIMEOUT 75 LABELS "integration;input;x11")
+    add_test(NAME x11-controller-focus-runtime
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/game-smoke/controller_focus_x11.py"
+                --engine "$<TARGET_FILE:krkr2>" --xdotool "${KRKR2_XDOTOOL}")
+    set_tests_properties(x11-controller-focus-runtime PROPERTIES TIMEOUT 75 LABELS "integration;input;x11")
 endif()

@@ -49,21 +49,17 @@ def wait_for(check, process, description):
     raise RuntimeError(f"Timed out waiting for {description}")
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--engine', type=Path, required=True)
-    parser.add_argument('--xdotool', required=True)
-    args = parser.parse_args()
-    engine = args.engine.resolve()
+def run(engine, xdotool, script, steps, options=()):
+    engine = engine.resolve()
     with tempfile.TemporaryDirectory(prefix='krkr-x11-keys-') as temp:
         game = Path(temp)
-        (game / 'startup.tjs').write_text(SCRIPT, encoding='utf-8')
+        (game / 'startup.tjs').write_text(script, encoding='utf-8')
         with (game / 'engine.log').open('wb') as log:
-            process = subprocess.Popen([str(engine), '--game=' + str(game)],
+            process = subprocess.Popen([str(engine), '--game=' + str(game), *options],
                                        cwd=engine.parent, stdout=log, stderr=subprocess.STDOUT)
             try:
                 def xdo(*arguments):
-                    return subprocess.run([args.xdotool, *arguments], check=True,
+                    return subprocess.run([xdotool, *arguments], check=True,
                                           capture_output=True, text=True, timeout=10).stdout.strip()
 
                 def events():
@@ -78,16 +74,15 @@ def main():
                     raise RuntimeError(f"Expected one mapped engine window, got {windows}")
                 xdo('windowfocus', '--sync', windows[0])
                 expected = ['ready']
-                for name, vk in [('Return', 13), ('KP_Enter', 13), ('Escape', 27),
-                                 ('Down', 40), ('Control_L', 17)]:
+                for name, records in steps:
                     xdo('key', '--clearmodifiers', name)
-                    expected += [f'down:{vk}', f'up:{vk}']
+                    expected += records
                     wait_for(lambda: events() == expected, process, f'{name} down/up; got {events()}')
-                    print(f'X11 key verified: {name} -> {vk}', flush=True)
+                    print(f'X11 key verified: {name} -> {records}', flush=True)
                 (game / 'done.txt').write_text('done', encoding='utf-8')
                 if process.wait(timeout=10) != 0:
                     raise RuntimeError(f"Engine exit: {process.returncode}")
-                print('X11_KEYBOARD_SMOKE_OK: Return, KP_Enter, Escape, Down, Control_L; normal exit')
+                print('X11 input sequence and normal exit verified')
             finally:
                 if process.poll() is None:
                     process.terminate()
@@ -98,6 +93,16 @@ def main():
                         process.wait()
                 log.flush()
                 print((game / 'engine.log').read_text(encoding='utf-8', errors='replace'))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--engine', type=Path, required=True)
+    parser.add_argument('--xdotool', required=True)
+    args = parser.parse_args()
+    steps = [(name, [f'down:{vk}', f'up:{vk}']) for name, vk in
+             [('Return', 13), ('KP_Enter', 13), ('Escape', 27), ('Down', 40), ('Control_L', 17)]]
+    run(args.engine, args.xdotool, SCRIPT, steps)
 
 
 if __name__ == '__main__':
