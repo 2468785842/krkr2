@@ -66,6 +66,7 @@ def generate(directory):
     nested = fixture('outer')[:-2] + b'\x20' + array([0]) + b'\x19\0'
     (directory / 'nested.pimg').write_bytes(nested)
     script = [
+        'Plugins.link("layerExDraw.dll");',
         'Plugins.link("psbfile.dll");',
         'function check(value, message) { if (!value) throw message; }',
         'var file = new PSBFile();',

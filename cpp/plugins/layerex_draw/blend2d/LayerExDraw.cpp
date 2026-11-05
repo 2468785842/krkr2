@@ -20,6 +20,19 @@
 namespace {
     // 不依赖后端头提供非标准数学常量。
     constexpr double kPi = 3.14159265358979323846;
+
+    BLResult loadFontData(BLFontData &font, tTJSBinaryStream &stream) {
+        BLArray<uint8_t> bytes;
+        uint8_t *buffer = nullptr;
+        BLResult result =
+            bytes.modifyOp(BL_MODIFY_OP_ASSIGN_FIT, stream.GetSize(), &buffer);
+        if(result != BL_SUCCESS)
+            return result;
+        stream.ReadBuffer(buffer, stream.GetSize());
+        // This overload retains the array storage; the raw-pointer overload
+        // only borrows it and must not outlive the source buffer.
+        return font.createFromData(bytes);
+    }
 } // namespace
 
 #define NCB_MODULE_NAME TJS_W("layerExDraw.dll")
@@ -35,13 +48,8 @@ void initGdiPlus() {
     const std::unique_ptr<tTJSBinaryStream> stream{ TVPCreateFontStream(
         TVPGetDefaultFontName()) };
     if(stream) {
-        tjs_uint8 *fileData = new tjs_uint8[stream->GetSize()];
-        stream->ReadBuffer(fileData, stream->GetSize());
-        // 读取fontdata
         BLFontData bl_font_data;
-        BLResult stat = bl_font_data.createFromData(fileData, stream->GetSize(),
-                                                    NULL, NULL);
-        delete[] fileData;
+        BLResult stat = loadFontData(bl_font_data, *stream);
         if(stat != BL_SUCCESS) {
             TVPThrowExceptionMessage(TJS_W("blend2d cannot load:%1"),
                                      TVPGetDefaultFontName());
@@ -103,17 +111,11 @@ BLImage loadImage(const tjs_char *name) // 以后应该要让krkr内核进行图
 void GdiPlus::addPrivateFont(const tjs_char *fontFileName) {
     ttstr filename = TVPGetPlacedPath(fontFileName);
     if(filename.length()) {
-        tTJSBinaryStream *in =
-            TVPCreateBinaryStreamForRead(filename, TJS_W(""));
+        std::unique_ptr<tTJSBinaryStream> in{ TVPCreateBinaryStreamForRead(
+            filename, TJS_W("")) };
         if(in) {
-            tjs_uint8 *fileData = new tjs_uint8[in->GetSize()];
-            in->ReadBuffer(fileData, in->GetSize());
-            // 读取fontdata
             BLFontData bl_font_data;
-            BLResult stat = bl_font_data.createFromData(fileData, in->GetSize(),
-                                                        NULL, NULL);
-            delete[] fileData;
-            delete in;
+            BLResult stat = loadFontData(bl_font_data, *in);
             if(stat != BL_SUCCESS) {
                 TVPThrowExceptionMessage(TJS_W("blend2d cannot load:%1"),
                                          fontFileName);
