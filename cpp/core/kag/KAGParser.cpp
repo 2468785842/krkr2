@@ -1790,11 +1790,20 @@ parse_start:
                             TVPExecuteExpression(exp, Owner, &val);
                             exp = val;
 
+                            // KAGParserEx allows generated scenario commands.
+                            // Attribute values (including &false) are strings.
+                            tTJSVariant escapeValue;
+                            DicObj->PropGet(0, TJS_W("escape"), nullptr,
+                                            &escapeValue, DicObj);
+                            const ttstr escapeText(escapeValue);
+                            const bool escape = escapeText != TJS_W("false") &&
+                                escapeText != TJS_W("0");
+
                             // count '['
                             const tjs_char *p = exp.c_str();
                             tjs_int r_count = 0;
                             while(*p) {
-                                if(*p == TJS_W('['))
+                                if(escape && *p == TJS_W('['))
                                     r_count++;
                                 p++;
                                 r_count++;
@@ -1818,7 +1827,7 @@ parse_start:
                             // escape '['
                             p = exp.c_str();
                             while(*p) {
-                                if(*p == TJS_W('[')) {
+                                if(escape && *p == TJS_W('[')) {
                                     *d = TJS_W('[');
                                     d++;
                                     *d = TJS_W('[');

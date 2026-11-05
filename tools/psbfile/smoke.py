@@ -65,9 +65,25 @@ def generate(directory):
     (directory / 'probe.pimg').write_bytes(good)
     nested = fixture('outer')[:-2] + b'\x20' + array([0]) + b'\x19\0'
     (directory / 'nested.pimg').write_bytes(nested)
+    for mode, attribute in [('raw', 'escape=false'), ('entity', 'escape=&false'),
+                            ('escaped', 'escape=true'), ('default', '')]:
+        (directory / (mode + '.ks')).write_text(
+            '[emb exp="\'[probe value=42]\'" ' + attribute + '][after]\n', encoding='utf-8')
     script = [
         'Plugins.link("layerExDraw.dll");',
         'Plugins.link("psbfile.dll");',
+        'function checkEmbed(name, raw) {',
+        ' var parser = new KAGParser(); parser.ignoreCR = true;',
+        ' parser.loadScenario(name + ".ks");',
+        ' var first = parser.getNextTag();',
+        ' check(first.tagname == (raw ? "probe" : "ch"), "embedded tag escaping " + name);',
+        ' if (raw) check(first.value == "42", "embedded attribute");',
+        ' var after = false;',
+        ' for (var i = 0; i < 64; ++i) { var tag = parser.getNextTag(); if (tag === void) break; if(tag.tagname == "after") { after = true; break; } }',
+        ' check(after, "suffix preserved after embedding");',
+        '}',
+        'checkEmbed("raw", true); checkEmbed("entity", true);',
+        'checkEmbed("escaped", false); checkEmbed("default", false);',
         'function check(value, message) { if (!value) throw message; }',
         'var file = new PSBFile();',
         'check(file.load("probe.pimg"), "file load");',
