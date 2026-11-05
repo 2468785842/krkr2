@@ -19,8 +19,6 @@ if(NOT KRKR2_USE_COCOS_UI AND (ANDROID OR IOS))
     message(FATAL_ERROR "KRKR2_USE_COCOS_UI=OFF currently requires a desktop CLI entry point")
 endif()
 
-
-
 option(KRKR2_ENABLE_UI_TEST_DRIVER "Build the opt-in desktop UI contract driver" OFF)
 if(KRKR2_ENABLE_UI_TEST_DRIVER AND (ANDROID OR IOS))
     message(FATAL_ERROR "The UI contract driver is desktop-only")

@@ -83,3 +83,12 @@ https://github.com/realRurichan/DroidDeck/actions/runs/42093925083 。
 KAG 心跳进入 title.ks 第 35 行。未发生先前的字体/PSB 崩溃。
 实际截图只保存在忽略的调试目录，未将商业素材加入仓库。
 手柄未响应属于 DroidDeck 会话输入适配问题，另在前端实现键鼠映射，不作为 PSB 修复的一部分。
+
+## 桌面 Enter 丢失
+
+DroidDeck 完成手柄键鼠映射后，独立蓝色图层场景收到 Down=40、Escape=27、Control=17
+及鼠标回调，但普通 Enter 没有回调；Android 系统直接注入 Enter 同样失败。
+Cocos 3.17.2 的 desktop GLView 将 GLFW_KEY_ENTER 转成 KEY_ENTER，
+而本仓库 CCKeyCodeConv.cpp 将该枚举置于 return 0 分支，仅 KEY_RETURN/KEY_KP_ENTER 生效。
+`63c6e33` 将 KEY_ENTER 合并到 VK_RETURN，并增加 opt-in X11 真按键 CTest。
+前端映射不需要改成模拟点击或小键盘回车绕过此问题。
