@@ -74,6 +74,25 @@ jobs:
         run: |
           bash platforms/android/gradlew -p platforms/android --no-daemon --console=plain --max-workers=2 \
             "-Pkrkr2.androidAbis=$KRKR2_ANDROID_ABI" ":app:configureCMakeDebug[$KRKR2_ANDROID_ABI]" 2>&1 | tee out/android-runtime/configure.log
+      - name: Compile all independent native sources
+        run: |
+          python - <<'PYBUILD' 2>&1 | tee out/android-runtime/native-build.log
+          import os, pathlib, subprocess
+          from scripts.check_android_runtime_apk import cache_values
+          root = pathlib.Path.cwd()
+          candidates = []
+          for cache in pathlib.Path('out/android/cmake-build').rglob('CMakeCache.txt'):
+              values = cache_values(cache)
+              if (values.get('ANDROID_ABI') == os.environ['KRKR2_ANDROID_ABI']
+                      and values.get('CMAKE_BUILD_TYPE') == 'Debug'
+                      and values.get('CMAKE_HOME_DIRECTORY') == str(root)):
+                  candidates.append(cache.parent)
+          if len(candidates) != 1:
+              raise SystemExit(f'Expected one native Debug build directory, got {candidates}')
+          # Ninja keeps compiling independent files, while retaining a failing exit status.
+          subprocess.run(['cmake', '--build', str(candidates[0]), '--target', 'krkr2',
+                          '--parallel', '4', '--', '-k', '0'], check=True)
+          PYBUILD
       - name: Build the complete Debug runtime
         run: |
           bash platforms/android/gradlew -p platforms/android --no-daemon --console=plain --max-workers=2 \
