@@ -13,15 +13,29 @@
 #include "log/TVPLog.h"
 
 namespace PSB {
+    namespace {
+        void seekChecked(TJS::tTJSBinaryStream *stream, std::uint64_t position,
+                         std::uint64_t length = 1) {
+            if(position > stream->GetSize() ||
+               length > stream->GetSize() - position)
+                throw std::runtime_error("PSB offset outside input");
+            stream->SetPosition(position);
+        }
+    } // namespace
+
 
     PSBFile::PSBFile() = default;
     PSBFile::~PSBFile() = default;
+    PSBFile::PSBFile(PSBFile &&) noexcept = default;
+    PSBFile &PSBFile::operator=(PSBFile &&) noexcept = default;
 
     void PSBFile::loadKeys(TJS::tTJSBinaryStream *stream) {
         const size_t len = nameIndexes.value.size();
         names.reserve(len);
         for(int i = 0; i < len; i++) {
-            stream->SetPosition(_header.offsetNames + nameIndexes[i]);
+            seekChecked(stream,
+                        static_cast<std::uint64_t>(_header.offsetNames) +
+                            nameIndexes[i]);
             names.push_back(PSB::Extension::readStringZeroTrim(stream));
         }
     }
@@ -33,7 +47,10 @@ namespace PSB {
             std::string codepoints;
             const auto index = nameIndexes[i];
             auto chr = namesData[index];
+            size_t remaining = namesData.value.size();
             while(chr != u'\0') {
+                if(remaining-- == 0)
+                    throw std::runtime_error("Cyclic PSB name table");
                 const auto code = namesData[chr];
                 const auto d = charset[code];
                 const auto realChr = chr - d;
@@ -55,8 +72,9 @@ namespace PSB {
             strings.begin(), strings.end(),
             [idx](const PSB::PSBString &s) { return s.index == idx; });
 
-        stream->SetPosition(_header.offsetStringsData +
-                            stringOffsets[static_cast<int>(idx.value())]);
+        seekChecked(stream,
+                    static_cast<std::uint64_t>(_header.offsetStringsData) +
+                        stringOffsets[static_cast<int>(idx.value())]);
         auto strValue = PSB::Extension::readStringZeroTrim(stream);
 
         // Strict value equal check
@@ -87,7 +105,7 @@ namespace PSB {
             maxOffset = *std::max_element(offsets.cbegin(), offsets.cend());
         }
         for(const auto offset : offsets) {
-            stream->SetPosition(pos + offset);
+            seekChecked(stream, static_cast<std::uint64_t>(pos) + offset);
             auto obj = unpack(stream);
             if(obj != nullptr) {
                 if(typeid(obj.get()) == typeid(PSB::IPSBChild)) {
@@ -144,7 +162,7 @@ namespace PSB {
             std::uint32_t offset = 0;
             if(i < offsets.size()) {
                 offset = offsets[i];
-                stream->SetPosition(pos + offset);
+                seekChecked(stream, static_cast<std::uint64_t>(pos) + offset);
                 obj = unpack(stream, lazyLoad);
             } else {
                 G_PluginLog.warn(
@@ -190,10 +208,14 @@ namespace PSB {
         auto endPos = pos;
         auto dictionary = std::make_shared<PSBDictionary>(offsets.size());
         for(const auto offset : offsets) {
-            stream->SetPosition(pos + offset);
-            PSBNumber nameIdx(static_cast<PSBObjType>(stream->ReadI8LE()),
-                              stream);
-            auto name = PSBFile::names[static_cast<int>(nameIdx)];
+            seekChecked(stream, static_cast<std::uint64_t>(pos) + offset);
+            const int width = stream->ReadI8LE() -
+                static_cast<int>(PSBObjType::KeyNameN1) + 1;
+            if(width < 1 || width > 4)
+                throw std::runtime_error("Invalid PSB v1 key type");
+            std::uint32_t nameIdx = 0;
+            stream->ReadBuffer(&nameIdx, width);
+            auto name = PSBFile::names.at(nameIdx);
             auto obj = unpack(stream, lazyLoad);
             if(obj != nullptr) {
 
@@ -223,6 +245,13 @@ namespace PSB {
     std::shared_ptr<PSB::IPSBValue>
     PSBFile::unpack(TJS::tTJSBinaryStream *stream, bool lazyLoad) {
 
+        if(_parseDepth >= 256)
+            throw std::runtime_error("PSB nesting limit exceeded");
+        struct DepthGuard {
+            unsigned &depth;
+            explicit DepthGuard(unsigned &value) : depth(value) { ++depth; }
+            ~DepthGuard() { --depth; }
+        } guard(_parseDepth);
         auto typeByte = stream->ReadI8LE();
 
         switch(auto type = static_cast<PSB::PSBObjType>(typeByte)) {
@@ -322,8 +351,7 @@ namespace PSB {
                 return _header.version != 1 ? loadObjects(stream, lazyLoad)
                                             : loadObjectsV1(stream, lazyLoad);
             default:
-                G_PluginLog.error("unknown psbObjType");
-                return nullptr;
+                throw std::runtime_error("Unknown PSB object type");
         }
     }
 
@@ -397,6 +425,9 @@ namespace PSB {
             }
 
             if(_header.version == 2) {
+                if(_header.offsetEncrypt > _header.offsetChunkOffsets ||
+                   _header.offsetChunkOffsets > stream->GetSize())
+                    return false;
                 auto *memStream = dynamic_cast<tTVPMemoryStream *>(stream);
                 if(memStream != nullptr) {
                     emote_decrypt(
@@ -439,12 +470,18 @@ namespace PSB {
             return false;
         }
 
-        if(_header.version > 3) {
+        if(_header.version < 1 || _header.version > 3) {
             G_PluginLog.critical("not support psb file format version > 3");
             return false;
         }
 
-        stream->SetPosition(_header.offsetStrings);
+        for(const auto offset :
+            { _header.offsetNames, _header.offsetStrings,
+              _header.offsetStringsData, _header.offsetChunkOffsets,
+              _header.offsetChunkLengths, _header.offsetChunkData,
+              _header.offsetEntries })
+            seekChecked(stream, offset, 0);
+        seekChecked(stream, _header.offsetStrings);
         stringOffsets = PSB::PSBArray(
             stream->ReadI8LE() -
                 static_cast<std::uint8_t>(PSB::PSBObjType::ArrayN1) + 1,
@@ -530,30 +567,32 @@ namespace PSB {
 
     bool PSBFile::loadPSBFile(const ttstr &filePath) {
         G_PluginLog.debug("load psb file: {}", filePath.AsStdString());
-        auto *rawStream = TVPCreateStream(filePath);
-        if(!rawStream) {
-            return false;
-        }
-
         try {
-            _stream = openDecompressedStream(rawStream);
+            std::unique_ptr<tTJSBinaryStream> stream(TVPCreateStream(filePath));
+            return loadPSBStream(stream.get());
         } catch(const std::exception &ex) {
-            G_PluginLog.error("failed to decompress psb stream: {}", ex.what());
-            delete rawStream;
+            G_PluginLog.error("failed to load psb file: {}", ex.what());
             return false;
         }
-        delete rawStream;
+    }
 
-        if(!_stream) {
+    bool PSBFile::loadPSBStream(TJS::tTJSBinaryStream *stream) {
+        if(!stream)
+            return false;
+        try {
+            PSBFile candidate;
+            candidate._seed = _seed;
+            candidate._decryptClo = _decryptClo;
+            candidate._stream = openDecompressedStream(stream);
+            if(!candidate._stream || candidate._stream->GetSize() < 40 ||
+               !candidate.loadFromStream(candidate._stream.get()))
+                return false;
+            *this = std::move(candidate);
+            return true;
+        } catch(const std::exception &ex) {
+            G_PluginLog.error("failed to load psb stream: {}", ex.what());
             return false;
         }
-
-        if(!loadFromStream(_stream.get())) {
-            _stream.reset();
-            return false;
-        }
-
-        return true;
     }
 
     void PSBFile::loadResource(PSBResource &res,
@@ -565,7 +604,10 @@ namespace PSB {
         auto index = static_cast<int>(res.index.value());
         auto offset = chunkOffsets[index];
         auto length = chunkLengths[index];
-        stream->SetPosition(_header.offsetChunkData + offset);
+        seekChecked(stream,
+                    static_cast<std::uint64_t>(_header.offsetChunkData) +
+                        offset,
+                    length);
         std::vector<std::uint8_t> tmp(length);
         stream->ReadBuffer(tmp.data(), length);
         res.data = std::move(tmp);
@@ -580,7 +622,10 @@ namespace PSB {
         auto index = static_cast<int>(res.index.value());
         auto offset = extraChunkOffsets[index];
         auto length = extraChunkLengths[index];
-        stream->SetPosition(_header.offsetExtraChunkData + offset);
+        seekChecked(stream,
+                    static_cast<std::uint64_t>(_header.offsetExtraChunkData) +
+                        offset,
+                    length);
         std::vector<std::uint8_t> tmp(length);
         stream->ReadBuffer(tmp.data(), length);
         res.data = std::move(tmp);

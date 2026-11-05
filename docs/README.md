@@ -14,6 +14,7 @@
 
 | 文档 | 内容 |
 |---|---|
+| [PSBFile](subsystems/psbfile.md) | 文件/Octet 加载、资源介质、格式边界与合成测试 |
 | [Desktop 启动](subsystems/desktop-cli.md) | `--game` / `--xp3`、参数兼容及错误退出码 |
 | [可选管理界面](subsystems/management-ui.md) | Desktop 管理页面开关、资源与默认配置边界 |
 | [窗口接口](subsystems/window-interface.md) | 通用窗口接口与现有 Cocos 适配边界 |

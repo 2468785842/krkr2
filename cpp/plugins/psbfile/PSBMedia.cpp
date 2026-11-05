@@ -5,6 +5,7 @@
 #include "PSBMedia.h"
 
 #include "UtilStreams.h"
+#include "MsgIntf.h"
 
 #include "log/TVPLog.h"
 
@@ -26,15 +27,28 @@ namespace PSB {
     }
 
     tTJSBinaryStream *PSBMedia::Open(const ttstr &name, tjs_uint32 flags) {
-        auto memoryStream = new tTVPMemoryStream();
-        auto res = _resources[name.AsStdString()];
+        const auto found = _resources.find(name.AsStdString());
+        if((flags & TJS_BS_ACCESS_MASK) != TJS_BS_READ ||
+           found == _resources.end())
+            TVPThrowExceptionMessage(TVPCannotOpenStorage, name);
+        auto memoryStream = std::make_unique<tTVPMemoryStream>();
+        const auto &res = found->second;
         memoryStream->WriteBuffer(res.data.data(), res.data.size());
         memoryStream->Seek(0, TJS_BS_SEEK_SET);
-        return memoryStream;
+        return memoryStream.release();
     }
 
     void PSBMedia::GetListAt(const ttstr &name, iTVPStorageLister *lister) {
-        G_PluginLog.error("TODO: PSBMedia GetListAt");
+        std::string prefix = name.AsStdString();
+        if(!prefix.empty() && prefix.back() != '/')
+            prefix += '/';
+        for(const auto &[key, resource] : _resources) {
+            if(key.compare(0, prefix.size(), prefix) != 0)
+                continue;
+            const auto leaf = key.substr(prefix.size());
+            if(!leaf.empty() && leaf.find('/') == std::string::npos)
+                lister->Add(ttstr{ leaf });
+        }
     }
 
     void PSBMedia::GetLocallyAccessibleName(ttstr &name) {
