@@ -35,3 +35,10 @@ git diff --check
 
 4 项实际 X server 用例全部通过，Python 编译与 diff 检查通过。
 Windows 默认模式子批次另行验证，不将此探针修复计作生产 SDL3/IME 能力。
+
+## 远端补充
+
+源提交 `8332194` 的 Headless [41941969717](https://github.com/2468785842/krkr2/actions/runs/41941969717)，
+SDL3 job `126964760491` 成功：Xvfb 下实际发现并通过上述 4 项，
+队列键盘/鼠标、原生 X11 键盘/鼠标、关闭否决及故意错误绘制的负向验证全部保留并通过。
+4 份正向报告均 passed=true、exit_code=0、forced_stop=false。

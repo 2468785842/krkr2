@@ -120,4 +120,6 @@ Windows 新增 GLView/TJS 指针探针，实际复现并修正隐藏窗口丢弃
 提交文本解码另已移入无 Cocos 依赖的 core_input，保留严格 UTF-8、UTF-16 单元顺序与整段拒绝规则；
 独立平台范围增至 31 项，full 另通过 2 项旧 Cocos 转换对照，见
 [文本子批次](../../implemented/testing/2026-11-04-committed-text-input.md)。
-Windows 提交文本注入不等于 IME 组合验收；窗口默认模式 setter 和 Android 编码桥的缺口分别保留调查。
+Windows 默认模式 setter、Layer 优先级、dontCare 和切窗恢复另已完成原生文本验收，见
+[模式修复](../../implemented/bug-fix/2026-11-04-window-default-ime-mode.md)。
+提交文本注入不等于 IME 组合验收；Android 编码桥仍保留独立调查。

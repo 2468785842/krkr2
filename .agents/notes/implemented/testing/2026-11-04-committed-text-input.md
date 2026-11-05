@@ -57,7 +57,7 @@ ZIP SHA256 `30b5ebe5adfdc16bd51b45b6835e3f03b77f8a5eea95968e45047002e1694c09`。
 
 源码确认 Window.imeMode setter 调用的 SetDefaultImeMode 为空，初版场景没有真正启用文本输入。
 `b284d43` 改用现有 Layer.imeMode + focus 路径，额外断言 focused；没有注入脚本回调或放宽字符序列。
-窗口默认模式接口缺口见[独立调查](../../proposed/bug-fix/2026-11-04-window-default-ime-mode.md)。
+当时的窗口默认模式接口缺口及后续修复见[实现记录](../bug-fix/2026-11-04-window-default-ime-mode.md)。
 同批将轻量报告改成优先上传，完整 artifact 只保存一份公共 runtime exe/PDB，
 五份场景报告仍各自保留启动/证据哈希；首轮完整 artifact 大小 635,648,867 字节，修正后大小待核对。
 `b284d43` 的 Windows `41932936280` / job `126934140261` 应用、11 项 Cocos 对照、41 项 Python
