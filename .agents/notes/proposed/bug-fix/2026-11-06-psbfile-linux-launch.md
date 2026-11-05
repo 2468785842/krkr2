@@ -104,3 +104,37 @@ https://github.com/realRurichan/DroidDeck/actions/runs/42100670826 。
 该哈希引擎安装到同一手机后，独立输入场景实测 DroidDeck 屏幕 A 键收到 down:13 / up:13，
 四个方向键分别收到 37/38/39/40 的按下和抬起；鼠标点击与 Esc 同样有脚本回调。
 实体手柄尚未在本轮实机验收；前端映射实现和单元测试在 DroidDeck 功能分支。
+
+## 通用 KAG 按钮导航
+
+方向键送达后，实际标题的 ButtonLayer 仍关闭 focusable，焦点停留在 MessageLayer，
+且图层创建顺序与画面顺序相反。只打开 focusable 后，原生 focusNext 仍会回到消息层。
+增加默认关闭的 `-controllerfocus=yes`：按实时位置在可见、可用的标准 ButtonLayer 间导航，
+过滤裁剪、父级状态、joinFocusChain 和模态范围。焦点在独立非按钮控件时保留方向键。
+不包含任何游戏名、按钮名或固定坐标；自绘菜单没有此接口时仍需鼠标或游戏自身导航。
+
+`6e093af` 与 `f9f9561` 两轮 ARM64 CI 都实际运行 3/3 CTest 并通过；后者还覆盖动态
+横向布局、循环和运行中隐藏/禁用按钮：
+https://github.com/realRurichan/DroidDeck/actions/runs/42107124875 。
+首轮二进制 SHA-256 `e2936c10abc0e35e8f1b04c82e2a2c7908e9bd3c01f5b9772f02726f50b53c4d`。
+手机独立副本移除临时强制焦点脚本后，实际上下输入得到 load → option → load，
+并有对应高亮。但 Enter 已进入按钮 down/up 回调，仍未打开设置，故未据合成测试宣称激活成功。
+
+官方 KAG [ButtonLayer](https://github.com/krkrz/kag3/blob/master/data/system/ButtonLayer.tjs)
+将鼠标 onExecute 与键盘 click 分开，鼠标型界面可能只接前者。`43d0dbe` 为导航模式下
+同一按钮的 Enter 按下/抬起使用原有命中测试与 mouse down/click/up 路径，取消重复的
+按钮键盘分发；焦点、可用性或命中对象变化时不点击。测试改为断言完整鼠标事件序列。
+该轮编译通过，但测试用了引擎不存在的 htRectangle 常量，在初始化时报错，尚未运行点击断言。
+`dcd5e98` 改用既有 htMask 的 hitThreshold=0 和明确图像尺寸，同时抑制确认期间的 Enter
+字符事件，避免支持控制字符的平台重复激活。
+商业脚本未修改，调试钩子只存在独立副本；无 AGPL 代码移植。
+
+`dcd5e98` 的 ARM64 CI 实际注册并通过 3/3 CTest，以及额外 TJS/XP3 回归：
+https://github.com/realRurichan/DroidDeck/actions/runs/42110695620 。
+空间导航测试含默认关闭、纵向/动态横向/循环、隐藏/禁用/透明/越界/不入焦点链过滤、
+独立文本控件、模态范围、Enter 的 down/click/up 序列和正常退出。
+二进制 SHA-256 `cb387ffe6e1942db2b5df3b0d96fdd781b5dba7b378f8e90b0b7549dfa4f06c3`。
+移除诊断脚本的焦点设置和按键包装，重新启动手机独立副本后，三次实际屏幕 Down 依次
+选中 start、load、option；实际 A 打开设置页面，B 返回标题，截图与只读焦点树一致。
+同哈希引擎及配套 APK 已覆盖安装到手机，安装器校验成功，恢复官方 HTTPS 下载配置。
+测试不写原游戏脚本或存档；实体手柄、多游戏样本及完整剧情仍未验收。
