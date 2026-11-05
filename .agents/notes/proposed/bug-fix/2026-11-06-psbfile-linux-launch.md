@@ -100,3 +100,7 @@ https://github.com/realRurichan/DroidDeck/actions/runs/42100670826 。
 前一轮已通过按键断言，但测试脚本错误地赋值 Timer.onTimer 导致退出等待超时；
 改为现有 Timer(action, "") 约定后重跑完整 CI 通过，没有放宽断言或接受强停。
 二进制 SHA-256 `9ed77f2c8e9d1950602474316a29ef7ea9615550cdeba0f6a7678feffe5f7f25`。
+
+该哈希引擎安装到同一手机后，独立输入场景实测 DroidDeck 屏幕 A 键收到 down:13 / up:13，
+四个方向键分别收到 37/38/39/40 的按下和抬起；鼠标点击与 Esc 同样有脚本回调。
+实体手柄尚未在本轮实机验收；前端映射实现和单元测试在 DroidDeck 功能分支。
