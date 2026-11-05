@@ -29,7 +29,7 @@ Octet 没有文件名，因此只通过 root 访问资源，不自动创建 URI�
 ## 格式与边界
 
 现有解析路径支持 PSB v1–v3、MDF 和 LZ4 包装；v4 尚未支持。
-本次合成测试覆盖 v1 和 MDF，实际 PIMG 路径另做游戏启动验证；并未据此宣称全部格式兼容。
+本次合成测试覆盖 v1–v3 和 MDF，实际 PIMG 路径另做游戏启动验证；并未据此宣称全部格式兼容。
 新增数组宽度、索引、资源范围、名称循环及对象嵌套深度检查；过深对象（超过 256 层）拒绝加载。
 这些检查不是完整模糊测试或不可信文件安全审计，旧的 LZ4/解密路径仍需单独验证。
 
@@ -42,7 +42,8 @@ LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a \
   python3 tools/psbfile/smoke.py --engine /absolute/path/to/krkr2
 ```
 
-覆盖文件/Octet 构造和加载、资源读取、缺失资源不污染注册表、MDF、失败保留旧数据、
+覆盖文件/Octet 构造和加载、嵌套资源读取、自动路径目录枚举、缺失资源不污染注册表、
+三种 PSB 版本、MDF、失败保留旧数据、
 成功替换数据、无 id/非字符串 id 的类型推断及十种无效输入。
 必须正常退出并输出 `PSBFILE_SMOKE_OK` 才判定成功。
 可配置 `-DKRKR2_ENABLE_PSBFILE_SMOKE=ON` 注册 `psbfile-runtime`，构建应用后执行：
