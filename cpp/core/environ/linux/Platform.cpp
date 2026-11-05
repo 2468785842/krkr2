@@ -223,7 +223,8 @@ static bool _TVPCreateFolders(const ttstr &folder) {
     if(!TVPCreateFolders(parent))
         return false;
 
-    return !std::filesystem::create_directory(folder.AsStdString().c_str());
+    return std::filesystem::create_directory(folder.AsStdString().c_str()) ||
+        TVPCheckExistentLocalFolder(folder);
 }
 
 int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,
