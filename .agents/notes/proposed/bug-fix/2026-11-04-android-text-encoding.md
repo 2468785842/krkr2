@@ -39,6 +39,8 @@ IME preedit、候选窗和移动端 surface 恢复不自动包含在打印键修
 不将普通 JVM 桩或纯 C++ 转换测试计作 Android Framework 通过。
 实际 14 项 Framework/ART 测试全通过（无跳过），结果与运行身份见[本次验证记录](../../implemented/testing/2026-11-05-android-input-contracts.md)；稳定链路和命令见[Android 输入桥](../../../../docs/subsystems/android-input.md)。
 
-此调查仍保持 proposed：独立桥测试不覆盖完整 Cocos/TJS APK 的链接与游戏内真实回调，
-原 note 中最小 TJS 场景、现有游戏编辑控件、迟到输入归属、焦点/销毁、ARM64、物理设备和正常退出条件尚未完成。
-下一步先完成完整应用 NDK 构建，再在最小 TJS 场景中检查 A/中文/emoji/退格的最终回调及生命周期。
+完整 Cocos/TJS Debug APK 已在 x86_64 和 ARM64 完成 NDK 编译、链接及包内 ELF 依赖验收，
+来源、失败轮次、哈希及限制见[完整运行时构建记录](../../implemented/testing/2026-11-05-android-runtime-build.md)。
+此调查仍保持 proposed：最小 TJS 场景、现有游戏编辑控件、迟到输入归属、焦点/销毁、
+ARM64 设备运行、物理设备和正常退出条件尚未完成。
+下一步在最小 TJS 场景中检查 A/中文/emoji/退格的最终回调及生命周期。

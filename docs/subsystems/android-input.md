@@ -72,4 +72,5 @@ CMake 显式关闭对应开关；PSD 和其余默认运行时功能保持开启�
 `scripts/check_android_runtime_apk.py` 核对实际 CMake 身份、JNI/编解码/两种渲染器编译源、
 完整依赖及单 ABI APK；逐个检查 ELF 架构与 DT_NEEDED，要求依赖来自 APK 或 Android API 29 系统库。
 APK、日志、CMakeCache、编译清单、安装闭包与 build-manifest.json 随 android-runtime-ABI artifact 保存。
-构建、链接和打包通过仍不代表游戏内 TJS 回调或设备兼容通过，具体结果保留在 notes。
+构建、链接和打包通过仍不代表游戏内 TJS 回调或设备兼容通过；
+两种 ABI 的成功产物、构建身份及限制见[完整运行时验证记录](../../.agents/notes/implemented/testing/2026-11-05-android-runtime-build.md)。

@@ -1,12 +1,12 @@
 # 完整 Android 运行时的原生构建与 APK 验证
 
-Status: proposed
+Status: implemented
 
 ## 目标
 
 接续 Android 输入桥子批次，实际构建完整默认功能的 Android Cocos/TJS APK，
 验证之前只通过桌面/独立 JNI 库时未覆盖的原生依赖、应用链接及打包闭包。
-第一批选择 x86_64 Debug；ARM64 和真实游戏回调仍分别验收。
+本批分别完成 x86_64 和 ARM64 Debug；真实游戏回调仍须后续独立验收。
 
 ## 改动
 
@@ -89,7 +89,41 @@ ARM64 artifact `13390921863`，ZIP SHA256：
 
 源 `d3a3692f731d55d75cef33f687009d10980a8997` 继续复验：
 x86_64 `41973600795` / job `127067248262`；ARM64 `41973605513` / job `127067254306`。
-结果待补充。
+两轮均成功完成原生编译/链接、assembleDebug 和 APK/ELF 验收。
+相同源的 headless CI `41973600115` 全部 13 项成功。
+
+## 完整 APK 成功产物
+
+构建源均为 `d3a3692f731d55d75cef33f687009d10980a8997`，NDK 28.0.13004108、
+API 29、Debug；APP/PSD/原 Cocos UI 开启，测试/工具/上传/桌面驱动关闭。
+两 ABI 各有 345 条项目编译记录；未用裁剪功能或空实现绕过链接。
+
+| ABI | 成功运行 | artifact | APK 大小（字节） |
+|---|---|---|---|
+| x86_64 | [41973600795](https://github.com/2468785842/krkr2/actions/runs/41973600795) | 13390389887 | 60202950 |
+| arm64-v8a | [41973605513](https://github.com/2468785842/krkr2/actions/runs/41973605513) | 13391056949 | 58524854 |
+
+x86_64：
+
+- artifact ZIP SHA256：`c2ca58de2363029f966437a26e838f022b9bcebdf93fb64c6f79f4bfd60890cf`
+- APK SHA256：`df3ec60e2d04a34d6d80f2e270f940d03594dbfb7b33fab73ab1fde1667d4ec8`
+- libkrkr2.so SHA256：`9cbdebbb620f665b8439574999b3501d1eed28687816dded2b37e6a28c7f201d`
+
+ARM64：
+
+- artifact ZIP SHA256：`9ddbd8477ee9889c0096518ece24c5a2f2659c090d1e4eaadaa6ef7e9b323410`
+- APK SHA256：`8b8aacf2172c299fa219bed0650c3a5020fddfb5ec68bf7dfa4fa64551817181`
+- libkrkr2.so SHA256：`949d0c504cc3d25f437825ac55e4a216c6be3f1b7c2037e03de9cd63000d7c2a`
+
+两包均包含且仅包含对应 ABI 的 libkrkr2.so、libc++_shared.so、liboboe.so 和 libomp.so；
+所有 ELF 的 DT_NEEDED 均由包内库或 NDK API 29 公共系统 stub 覆盖。
+下载到 `out/android-ci/<run-id>/` 后再次校验 artifact ZIP、APK 和每个包内库的 SHA256，均匹配。
+另用本机 readelf --dyn-syms 核对两包 JNI_OnLoad、Cocos Renderer nativeInit/nativeRender、
+Cocos Helper nativeSetContext、KR2Activity initDump/nativeCommitText/nativeKeyAction 共 7 个必要导出，均存在。
+完整清单及所有库的哈希/动态依赖在 artifact 的 out/android-runtime/build-manifest.json。
+
+此状态只完成所声明的完整原生构建与打包范围；未安装或运行游戏，
+不表示最小 TJS 输入回调、厂商 IME、ARM64 设备或 surface 生命周期通过。
 
 ## 缓存工具身份漂移
 
