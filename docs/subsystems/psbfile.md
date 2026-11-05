@@ -55,5 +55,7 @@ LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a \
   ctest --test-dir <build> -R '^psbfile-runtime$' --output-on-failure --no-tests=error
 ```
 
-Linux 游戏启动还依赖 TJS 空字符串检查、正确的目录创建返回值和 fstat 缺失文件处理。
+Linux 游戏启动还依赖 TJS 空字符串检查、正确的目录创建返回值、fstat 缺失文件处理
+和 layerExDraw 字体数据的有效生命周期。测试也覆盖 KAGParserEx 文档中的
+`emb escape=false`：动态生成的标签按命令执行；省略 escape 或设为 true 时仍按文字输出。
 这些启动修复与 PSB 格式支持分别验证，未加载全部游戏场景不能称为全程兼容。

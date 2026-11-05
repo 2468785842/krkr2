@@ -50,12 +50,12 @@ https://github.com/realRurichan/DroidDeck/actions/runs/42089412736
 二进制 SHA-256 `193321e8bf366a1a1b658acebf67031911d44ccdd31a6471d6a8d975d63d5198`。
 同一手机的 DroidDeck/Gamescope 路径已越过字体与 PSB 崩溃，实际加载两份 PIMG，
 AfterStartup 心跳持续递增，KAG 到达 title.ks 第 35 行（标题脚本等待输入处）。
-当前仍未显示标题内容，不能声明游戏已完整可玩；此现象继续调查，勿与已证实的崩溃混为一谈。
+该轮仍未显示标题内容；后续定位和修复结果见下文，勿与已证实的崩溃混为一谈。
 
 ## 下一步与完成条件
 
-继续定位标题内容未显示的原因；当前 PR 限定为已验证的 PSB/启动崩溃修复。
-通过后本 note 可标记 implemented，但保留未验证游戏场景的边界。
+标题初始化修复已加入 PR；完整剧情、音视频和存读档仍需独立验收。
+本记录保留 proposed，以免把当前启动回归的范围扩大为完整游戏兼容结论。
 
 ## Kirakira 设计参考
 
@@ -65,3 +65,21 @@ PSB 模块设计说明和测试名称。其 AGPL-3.0-or-later 代码没有被移
 据此复查本仓库，发现 root getter 用 TJSCreateCustomObject，而嵌套字典已有
 PSBDictionary::toTJSVal 原生转换；改为复用本仓库既有转换，并新增 Dictionary 类型身份断言。
 PSB 校验和、加密标志诊断与 PSBValueClass 接口仍需依据格式和独立样本单独验证，未照搬参考实现。
+
+## 标题初始化定位
+
+AfterStartup 的 KAG snapshot 也是全黑，说明不是单纯显示输出问题。
+createCallConfigFile("macro.ks") 实际返回 `[call storage=macro.ks]`，
+游戏通过 `[emb escape=false ...]` 插入该命令；现有 core/KAGParser 总是转义左方括号，
+所以宏和 custom 配置的加载命令变成文字，随后 title.ks 在等待状态保持空画面。
+仓库原有 `cpp/plugins/KAGParser/readme.txt` 已明确规定 escape=false 应执行生成标签，
+而插件入口只是“已内置”占位。`c938d5d` 据此给既有展开路径增加开关，保留默认转义。
+合成测试覆盖 false、&false、true 和省略参数，以及展开后的后续标签位置。
+
+`d937ebe` 原生 ARM64 Release CI 通过，包含上述 KAG 展开和 PSB 回归：
+https://github.com/realRurichan/DroidDeck/actions/runs/42093925083 。
+二进制 SHA-256 `35799800f7fdfad04887a01bd834a61950fdb949401dabaf4fbf03318f8eb6b2`。
+同一手机的独立副本实际显示品牌 Logo，随后显示带“新的开始”等按钮的完整标题菜单；
+KAG 心跳进入 title.ks 第 35 行。未发生先前的字体/PSB 崩溃。
+实际截图只保存在忽略的调试目录，未将商业素材加入仓库。
+手柄未响应属于 DroidDeck 会话输入适配问题，另在前端实现键鼠映射，不作为 PSB 修复的一部分。
