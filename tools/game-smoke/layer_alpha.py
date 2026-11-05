@@ -7,6 +7,7 @@ import tempfile
 
 
 SCRIPT = r'''
+try {
 function check(value, message) { if(!value) throw message; }
 Plugins.link("layerExBTOA.dll");
 global.win = new Window();
@@ -29,8 +30,8 @@ function reset() {
     src.fillRect(0, 0, 4, 3, 0x80000000);
 }
 function pixel(layer, x, y, alpha, rgb, label) {
-    check(layer.getMaskPixel(x, y) == alpha, label + " alpha");
-    check(layer.getMainPixel(x, y) == rgb, label + " RGB");
+    check(layer.getMaskPixel(x, y) == alpha, label + " alpha: " + layer.getMaskPixel(x, y) + " != " + alpha);
+    check(layer.getMainPixel(x, y) == rgb, label + " RGB: " + layer.getMainPixel(x, y) + " != " + rgb);
 }
 reset();
 src.setMaskPixel(0, 0, 0); src.setMaskPixel(2, 0, 255);
@@ -109,6 +110,9 @@ threw = false;
 try { dst.clipAlphaRect(0, 0); } catch(e) { threw = true; }
 check(threw, "missing arguments rejected");
 Debug.message("LAYER_ALPHA_SMOKE_OK");
+} catch(e) {
+    Debug.message("LAYER_ALPHA_SMOKE_FAILED: " + e.message);
+}
 System.exit();
 '''
 
@@ -128,9 +132,13 @@ def main():
     with tempfile.TemporaryDirectory(prefix='krkr-layer-alpha-') as temp:
         game = Path(temp)
         (game / 'startup.tjs').write_text(SCRIPT, encoding='utf-8')
-        result = subprocess.run([str(engine), '--game=' + str(game)],
-                                cwd=engine.parent, stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT, timeout=60)
+        try:
+            result = subprocess.run([str(engine), '--game=' + str(game)],
+                                    cwd=engine.parent, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT, timeout=60)
+        except subprocess.TimeoutExpired as error:
+            print((error.stdout or b'').decode('utf-8', errors='replace'))
+            raise
         output = result.stdout.decode('utf-8', errors='replace')
         print(output)
         if result.returncode or 'LAYER_ALPHA_SMOKE_OK' not in output:
