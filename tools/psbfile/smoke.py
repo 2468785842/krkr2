@@ -70,6 +70,7 @@ def generate(directory):
         (directory / (mode + '.ks')).write_text(
             '[emb exp="\'[probe value=42]\'" ' + attribute + '][after]\n', encoding='utf-8')
     script = [
+        'function check(value, message) { if (!value) throw message; }',
         'Plugins.link("layerExDraw.dll");',
         'Plugins.link("psbfile.dll");',
         'function checkEmbed(name, raw) {',
@@ -84,7 +85,6 @@ def generate(directory):
         '}',
         'checkEmbed("raw", true); checkEmbed("entity", true);',
         'checkEmbed("escaped", false); checkEmbed("default", false);',
-        'function check(value, message) { if (!value) throw message; }',
         'var file = new PSBFile();',
         'check(file.load("probe.pimg"), "file load");',
         'check(file.root instanceof "Dictionary", "root dictionary identity");',
