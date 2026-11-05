@@ -53,8 +53,11 @@ xvfb-run -a python tools/sdl3-prototype/verify_x11.py out/sdl3-prototype/build/t
 不使用 `SDL_PushEvent`，也不代表物理键盘或生产 Cocos 后端验收。
 原型关闭 SDL 的“最后一个窗口请求关闭时自动追加 QUIT”行为，避免一次 OS 关闭触发两次脚本查询；
 独立的应用退出事件仍经过关闭查询。
-`test_verify_x11.py` 在真实 X server 上检查带 PID 的未映射窗口不会被当作已就绪；
-CI 将它与系统输入探针一起运行。
+`test_verify_x11.py` 在真实 X server 上运行 4 项用例：未映射窗口不能当作已就绪，
+枚举后、属性读取后销毁窗口都必须安全跳过，其他 X11 错误仍须报告失败。
+窗口快照中的临时窗口可能在查询前被销毁；探针仅在单个候选查询期间接管错误处理，
+忽略对应窗口的 GetProperty/GetWindowAttributes BadWindow，随后恢复原处理器。
+CI 将这些用例与系统输入探针一起运行。
 
 `onKey(key, down, current, pending, shift)` 的最后一个参数来自共享修饰键快照，
 不使用 SDL 的设备状态查询伪装脚本状态。队列自测验证组合键标记为 7，失焦合成释放时全部归零；

@@ -4,6 +4,7 @@ Run in a private Xvfb display. This Linux-only probe does not use SDL_PushEvent
 and does not claim to exercise a physical keyboard or the Cocos game backend.
 """
 import argparse
+from contextlib import contextmanager
 import ctypes as C
 import json
 import os
@@ -27,6 +28,15 @@ class ClientMessage(C.Structure):
 
 class XEvent(C.Union):
     _fields_ = [("client", ClientMessage), ("padding", C.c_long * 24)]
+
+
+class XErrorEvent(C.Structure):
+    _fields_ = [("type", C.c_int), ("display", C.c_void_p), ("resourceid", C.c_ulong),
+                ("serial", C.c_ulong), ("error_code", C.c_ubyte),
+                ("request_code", C.c_ubyte), ("minor_code", C.c_ubyte)]
+
+
+ErrorHandler = C.CFUNCTYPE(C.c_int, C.c_void_p, C.POINTER(XErrorEvent))
 
 
 class WindowAttributes(C.Structure):
@@ -59,6 +69,7 @@ class X11:
             ("XTranslateCoordinates", integer, [pointer, window, window, integer, integer,
                                                C.POINTER(integer), C.POINTER(integer), C.POINTER(window)]),
             ("XSync", integer, [pointer, integer]),
+            ("XSetErrorHandler", pointer, [pointer]),
             ("XKeysymToKeycode", C.c_ubyte, [pointer, window]),
             ("XInternAtom", window, [pointer, C.c_char_p, integer]),
             ("XQueryTree", integer, [pointer, window, C.POINTER(window), C.POINTER(window),
@@ -93,6 +104,35 @@ class X11:
     def atom(self, name):
         return self.library.XInternAtom(self.display, name.encode(), 0)
 
+    @contextmanager
+    def window_query(self, window):
+        # XQueryTree is a snapshot: a sibling (e.g. SDL's startup helper) may
+        # disappear before its property/attributes reply. Xlib's default error
+        # handler exits the process, before Python can inspect the return code.
+        # This single-threaded probe scopes the process-wide handler to one
+        # candidate, drains replies, and restores it before the callback dies.
+        self.sync()
+        errors = []
+
+        @ErrorHandler
+        def handler(display, event):
+            e = event.contents
+            errors.append((display, e.error_code, e.request_code, e.resourceid))
+            return 0
+
+        previous = self.library.XSetErrorHandler(C.cast(handler, C.c_void_p))
+        try:
+            yield
+        finally:
+            try:
+                self.sync()
+            finally:
+                self.library.XSetErrorHandler(previous)
+        for display, code, request, resource in errors:
+            if not (display == self.display and code == 3 and resource == window
+                    and request in (3, 20)):  # BadWindow; GetWindowAttributes/GetProperty
+                raise RuntimeError(f"X11 query error {code}, request {request}, resource {resource:#x}")
+
     def process_window(self, pid):
         root, parent, count = C.c_ulong(), C.c_ulong(), C.c_uint()
         children = C.POINTER(C.c_ulong)()
@@ -101,21 +141,23 @@ class X11:
             raise RuntimeError("XQueryTree failed")
         try:
             for index in range(count.value):
-                kind, bits, size, remaining, data = C.c_ulong(), C.c_int(), C.c_ulong(), C.c_ulong(), C.c_void_p()
-                # XA_CARDINAL is 6. Xlib exposes format-32 property elements as unsigned long.
-                status = self.library.XGetWindowProperty(self.display, children[index],
-                    self.atom("_NET_WM_PID"), 0, 1, 0, 6, C.byref(kind), C.byref(bits),
-                    C.byref(size), C.byref(remaining), C.byref(data))
-                try:
-                    if status == 0 and kind.value == 6 and bits.value == 32 and size.value == 1 and data:
-                        if C.cast(data, C.POINTER(C.c_ulong))[0] == pid:
-                            attributes = WindowAttributes()
-                            if (self.library.XGetWindowAttributes(self.display, children[index], C.byref(attributes))
-                                    and attributes.map_state == 2):  # IsViewable
-                                return children[index]
-                finally:
-                    if data:
-                        self.library.XFree(data)
+                window = children[index]
+                with self.window_query(window):
+                    kind, bits, size, remaining, data = C.c_ulong(), C.c_int(), C.c_ulong(), C.c_ulong(), C.c_void_p()
+                    # XA_CARDINAL is 6. Xlib exposes format-32 elements as unsigned long.
+                    status = self.library.XGetWindowProperty(self.display, window,
+                        self.atom("_NET_WM_PID"), 0, 1, 0, 6, C.byref(kind), C.byref(bits),
+                        C.byref(size), C.byref(remaining), C.byref(data))
+                    try:
+                        if status == 0 and kind.value == 6 and bits.value == 32 and size.value == 1 and data:
+                            if C.cast(data, C.POINTER(C.c_ulong))[0] == pid:
+                                attributes = WindowAttributes()
+                                if (self.library.XGetWindowAttributes(self.display, window, C.byref(attributes))
+                                        and attributes.map_state == 2):  # IsViewable
+                                    return window
+                    finally:
+                        if data:
+                            self.library.XFree(data)
         finally:
             if children:
                 self.library.XFree(children)
