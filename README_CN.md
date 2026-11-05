@@ -86,8 +86,8 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 
 - **Android**:
   - `VCPKG_ROOT`: `/path/to/vcpkg`
-  - `ANDROID_SDK`: `/path/to/androidsdk`
-  - `ANDROID_NDK`: `/path/to/androidndk`
+  - `ANDROID_HOME`: `/path/to/androidsdk`
+  - `ANDROID_NDK`: `/path/to/androidsdk/ndk/28.0.13004108`
 - **Windows**:
   - `VCPKG_ROOT`: `D:/vcpkg`（注意使用正斜杠 `/` 或双反斜杠 `\\`）
   - `bison`: 将 `winflexbison` 的路径添加到 `PATH` 环境变量中。

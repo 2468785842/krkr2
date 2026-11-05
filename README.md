@@ -94,8 +94,8 @@ Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](
 
 - **Android**:
   - `VCPKG_ROOT=/path/to/vcpkg`
-  - `ANDROID_SDK=/path/to/androidsdk`
-  - `ANDROID_NDK=/path/to/androidndk`
+  - `ANDROID_HOME=/path/to/androidsdk`
+  - `ANDROID_NDK=/path/to/androidsdk/ndk/28.0.13004108`
 - **Windows**:
   - `VCPKG_ROOT=D:/vcpkg`
   - Add `winflexbison` path to `PATH`.

@@ -40,7 +40,16 @@ python tools/xp3/smoke_test.py tools/bin/win/dbg/xp3.exe
 
 首批本机测试与当时的配置问题见 [XP3 验证记录](../../.agents/notes/implemented/testing/2026-11-01-xp3-build-validation.md)。
 
-Android 使用 README 所列 JDK/SDK/NDK，在对应平台运行 `platforms/android/gradlew`，例如：
+Android 使用 README 所列 JDK/SDK/NDK。Gradle 通过 `ANDROID_HOME` 查找 SDK，
+原生工具链通过 `ANDROID_NDK` 与 `VCPKG_ROOT` 连接，例如：
+
+```sh
+export ANDROID_HOME=/path/to/androidsdk
+export ANDROID_NDK="$ANDROID_HOME/ndk/28.0.13004108"
+export VCPKG_ROOT=/path/to/vcpkg
+```
+
+在对应平台运行 `platforms/android/gradlew`，例如：
 
 ```sh
 ./platforms/android/gradlew -p ./platforms/android assembleDebug
@@ -164,3 +173,5 @@ TJS 的 Bison、日期词表以及消息头统一在构建期生成；日期词�
 Android/iOS 暂不支持关闭。
 
 Android 输入桥另有独立 Framework/ART 契约与模拟器 CI，命令和完整应用边界见[Android 输入桥](../subsystems/android-input.md#验证)。
+完整 Android Debug 运行时可用 Build Android 的 runtime_contracts 输入按 ABI 验证，
+会检查真实 APK 的 ELF 动态库闭包；命令见[完整运行时 APK 构建](../subsystems/android-input.md#完整运行时-apk-构建)。

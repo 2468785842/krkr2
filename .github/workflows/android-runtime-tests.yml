@@ -80,6 +80,21 @@ jobs:
             "-Pkrkr2.androidAbis=$KRKR2_ANDROID_ABI" :app:assembleDebug 2>&1 | tee out/android-runtime/build.log
       - name: Verify application, dependencies and packaged ABI
         run: python scripts/check_android_runtime_apk.py "$KRKR2_ANDROID_ABI" out/android-runtime/build-manifest.json
+      - name: Preserve native port diagnostics on failure
+        if: failure()
+        run: |
+          python - <<'PYLOG'
+          import os, pathlib, shutil
+          source = pathlib.Path(os.environ['VCPKG_ROOT']) / 'buildtrees'
+          output = pathlib.Path('out/android-runtime/port-logs')
+          if source.exists():
+              for port in source.iterdir():
+                  if port.is_dir():
+                      for log in port.glob('*.log'):
+                          destination = output / port.name / log.name
+                          destination.parent.mkdir(parents=True, exist_ok=True)
+                          shutil.copy2(log, destination)
+          PYLOG
       - uses: actions/cache/save@v4
         if: always() && steps.ports.outputs.cache-hit != 'true'
         with:

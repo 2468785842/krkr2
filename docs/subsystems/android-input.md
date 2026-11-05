@@ -48,3 +48,28 @@ bash platforms/android/gradlew -p tests/android-input --no-daemon connectedDebug
 这是独立测试 APK 的输入桥契约；Java 全量编译不等于生产游戏 APK 的 NDK 链接通过。
 它没有运行 Cocos/TJS 游戏、物理键盘、真实厂商输入法、ARM64 或移动 surface 生命周期。
 游戏内最终回调、退出和焦点恢复仍需自制 TJS 场景及完整 APK 独立验收。
+
+## 完整运行时 APK 构建
+
+完整 Cocos/TJS 运行器使用原 `platforms/android` 工程。默认仍构建 arm64-v8a 和 x86_64；
+可按 ABI 分开验证，减少单轮交叉编译范围：
+
+```sh
+bash platforms/android/gradlew -p platforms/android --no-daemon -Pkrkr2.androidAbis=x86_64 :app:assembleDebug
+# ARM64 改为 -Pkrkr2.androidAbis=arm64-v8a；逗号分隔可同时指定两个 ABI。
+gh workflow run build-android.yml --ref dev -f runtime_contracts=true -f abi=x86_64
+```
+
+ABI 由拆包规则统一选择，不与 ndk.abiFilters 重复配置。单 ABI 不额外生成通用 APK；
+默认双 ABI 保留两份拆包和通用 APK。Android 本身不构建桌面 Catch2/命令行工具，
+CMake 显式关闭对应开关；PSD 和其余默认运行时功能保持开启。
+
+该模式调用独立 android-runtime-tests 工作流，先配置完整原生依赖，再组装 Debug APK。
+使用既有 SDK、NDK 28 和 vcpkg 基线，以文件缓存保存已完成的依赖，不要求 NuGet 或临时发布签名。
+每轮缓存另存运行身份，以免一次失败保存的空缓存永久挡住后续更新。
+原有 Release 构建入口保持独立；此模式产出的是 Debug 验证包。
+
+`scripts/check_android_runtime_apk.py` 核对实际 CMake 身份、JNI/编解码/两种渲染器编译源、
+完整依赖及单 ABI APK；逐个检查 ELF 架构与 DT_NEEDED，要求依赖来自 APK 或 Android API 29 系统库。
+APK、日志、CMakeCache、编译清单、安装闭包与 build-manifest.json 随 android-runtime-ABI artifact 保存。
+构建、链接和打包通过仍不代表游戏内 TJS 回调或设备兼容通过，具体结果保留在 notes。
