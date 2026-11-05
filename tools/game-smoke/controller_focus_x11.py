@@ -31,7 +31,8 @@ class ButtonLayer extends Layer {
     function ButtonLayer(parent, label, y) {
         super.Layer(win, parent);
         name = label; left = 100; top = y; setSize(200, 40);
-        focusable = false; visible = true; hitType = htRectangle;
+        setImageSize(200, 40);
+        focusable = false; visible = true; hitThreshold = 0;
     }
     function onKeyUp(key, shift) { if(key == 13) record("unexpected-key:" + name); }
     function onMouseDown(x, y, button, shift) { record("down:" + name); }

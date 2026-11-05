@@ -1172,6 +1172,8 @@ void tTVPLayerManager::PrimaryKeyUp(tjs_uint key, tjs_uint32 shift) {
 }
 //---------------------------------------------------------------------------
 void tTVPLayerManager::PrimaryKeyPress(tjs_char key) {
+    if(ControllerConfirmDown && key == 13)
+        return;
     if(FocusedLayer)
         FocusedLayer->FireKeyPress(key);
     else if(Primary)
