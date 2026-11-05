@@ -14,6 +14,10 @@ on:
         options: [x86_64, arm64-v8a]
         default: x86_64
 
+concurrency:
+  group: android-runtime-${{ inputs.abi }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -59,8 +63,10 @@ jobs:
         id: ports
         with:
           path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-          key: android-runtime-${{ inputs.abi }}-ndk28-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}
-          restore-keys: android-runtime-${{ inputs.abi }}-ndk28-
+          key: android-runtime-${{ inputs.abi }}-ndk28-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            android-runtime-${{ inputs.abi }}-ndk28-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}-
+            android-runtime-${{ inputs.abi }}-ndk28-
       - uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: android-runtime-${{ inputs.abi }}
@@ -78,7 +84,7 @@ jobs:
         if: always() && steps.ports.outputs.cache-hit != 'true'
         with:
           path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-          key: android-runtime-${{ inputs.abi }}-ndk28-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}
+          key: android-runtime-${{ inputs.abi }}-ndk28-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
