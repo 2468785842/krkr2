@@ -64,6 +64,10 @@ jobs:
       - uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: android-runtime-${{ inputs.abi }}
+      - name: Configure the complete native dependency graph
+        run: |
+          bash platforms/android/gradlew -p platforms/android --no-daemon --console=plain --max-workers=2 \
+            "-Pkrkr2.androidAbis=$KRKR2_ANDROID_ABI" ":app:configureCMakeDebug[$KRKR2_ANDROID_ABI]" 2>&1 | tee out/android-runtime/configure.log
       - name: Build the complete Debug runtime
         run: |
           bash platforms/android/gradlew -p platforms/android --no-daemon --console=plain --max-workers=2 \
