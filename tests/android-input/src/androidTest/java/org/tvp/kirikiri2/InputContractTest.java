@@ -138,6 +138,25 @@ public class InputContractTest {
     }
 
     @Test @UiThreadTest
+    public void repeatedDeadKeyCommitsTheAccentOnce() {
+        KeyEvent accent = key(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_E, KeyEvent.META_ALT_ON);
+        connection.handleKeyEvent(accent);
+        connection.handleKeyEvent(accent);
+        assertEquals(Arrays.asList("\u00b4"), commits);
+    }
+
+    @Test @UiThreadTest
+    public void backspaceCancelsAnUncommittedAccentWithoutDeletingGameText() {
+        connection.handleKeyEvent(key(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_E, KeyEvent.META_ALT_ON));
+        connection.handleKeyEvent(key(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL, 0));
+        connection.handleKeyEvent(key(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL, 0));
+        assertTrue(keys.isEmpty());
+        assertTrue(commits.isEmpty());
+        connection.handleKeyEvent(key(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_E, 0));
+        assertEquals(Arrays.asList("e"), commits);
+    }
+
+    @Test @UiThreadTest
     public void jniRejectsInvalidUtf16AndRetainsNullAndEmptyDistinctions() {
         for (String text : Arrays.asList("\ud800", "prefix\udc00", "\ud800A", "\udc00\ud800"))
             assertNull(NativeText.read(text));

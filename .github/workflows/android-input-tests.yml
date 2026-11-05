@@ -22,6 +22,8 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
       - uses: gradle/actions/setup-gradle@v4
       - name: Install matching NDK and CMake
         run: sdkmanager 'platforms;android-34' 'build-tools;34.0.0' 'ndk;28.0.13004108' 'cmake;3.31.1'
@@ -33,7 +35,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
-          target: default
+          target: google_apis
           arch: x86_64
           profile: pixel_2
           disable-animations: true
@@ -46,9 +48,9 @@ jobs:
           reports = list(pathlib.Path('tests/android-input/build/outputs/androidTest-results/connected').rglob('TEST-*.xml'))
           assert reports, 'No Android instrumentation reports'
           suites = [ET.parse(p).getroot() for p in reports]
-          assert sum(int(s.attrib.get('tests', 0)) for s in suites) == 12, [s.attrib for s in suites]
+          assert sum(int(s.attrib.get('tests', 0)) for s in suites) == 14, [s.attrib for s in suites]
           assert not any(int(s.attrib.get(k, 0)) for s in suites for k in ('failures', 'errors', 'skipped')), [s.attrib for s in suites]
-          print('12 actual Android InputConnection/JNI contracts passed; this is an isolated test APK, not full game compatibility.')
+          print('14 actual Android InputConnection/JNI contracts passed; this is an isolated test APK, not full game compatibility.')
           PY
       - uses: actions/upload-artifact@v4
         if: always()

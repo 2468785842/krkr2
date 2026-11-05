@@ -13,6 +13,7 @@ public class SDLInputConnection extends BaseInputConnection {
 
     private final Sink sink;
     private int pendingAccent;
+    private boolean accentBackspace;
 
     public SDLInputConnection(View targetView, boolean fullEditor, Sink sink) {
         super(targetView, fullEditor);
@@ -31,7 +32,17 @@ public class SDLInputConnection extends BaseInputConnection {
         }
         if (action != KeyEvent.ACTION_DOWN && action != KeyEvent.ACTION_UP) return false;
         if (event.getKeyCode() == KeyEvent.KEYCODE_DEL) {
-            pendingAccent = 0;
+            if (action == KeyEvent.ACTION_DOWN) {
+                if (pendingAccent != 0) {
+                    pendingAccent = 0;
+                    accentBackspace = true;
+                    return true;
+                }
+                accentBackspace = false;
+            } else if (accentBackspace) {
+                accentBackspace = false;
+                return true;
+            }
             return sink.keyAction(KeyEvent.KEYCODE_DEL, action == KeyEvent.ACTION_DOWN);
         }
         if (event.isMetaPressed() || (event.isCtrlPressed() && !event.isAltPressed())) {
@@ -42,7 +53,16 @@ public class SDLInputConnection extends BaseInputConnection {
         if (action == KeyEvent.ACTION_UP) return true;
         int codePoint = event.getUnicodeChar();
         if ((codePoint & KeyCharacterMap.COMBINING_ACCENT) != 0) {
-            pendingAccent = codePoint & KeyCharacterMap.COMBINING_ACCENT_MASK;
+            int accent = codePoint & KeyCharacterMap.COMBINING_ACCENT_MASK;
+            if (pendingAccent != 0) {
+                int combined = KeyCharacterMap.getDeadChar(pendingAccent, accent);
+                if (combined != 0) {
+                    commitText(new String(Character.toChars(combined)), 1);
+                    return true;
+                }
+                commitText(new String(Character.toChars(pendingAccent)), 1);
+            }
+            pendingAccent = accent;
             return true;
         }
         if (codePoint <= 0 || !Character.isValidCodePoint(codePoint)
