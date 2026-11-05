@@ -28,10 +28,9 @@ global.layer = new Layer(win, null);
 layer.setSize(640, 480);
 layer.setImageSize(640, 480);
 layer.visible = true;
-global.timer = new Timer();
-timer.onTimer = function() {
+global.timer = new Timer(function() {
     if(Storages.isExistentStorage(System.exePath + "done.txt")) System.exit();
-};
+}, "");
 timer.interval = 50;
 timer.enabled = true;
 record("ready");
@@ -84,6 +83,7 @@ def main():
                     xdo('key', '--clearmodifiers', name)
                     expected += [f'down:{vk}', f'up:{vk}']
                     wait_for(lambda: events() == expected, process, f'{name} down/up; got {events()}')
+                    print(f'X11 key verified: {name} -> {vk}', flush=True)
                 (game / 'done.txt').write_text('done', encoding='utf-8')
                 if process.wait(timeout=10) != 0:
                     raise RuntimeError(f"Engine exit: {process.returncode}")
