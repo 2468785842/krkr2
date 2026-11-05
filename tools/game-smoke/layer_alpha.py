@@ -12,6 +12,7 @@ function check(value, message) { if(!value) throw message; }
 Plugins.link("layerExBTOA.dll");
 global.win = new Window();
 win.setSize(64, 64);
+win.visible = true;
 global.root = new Layer(win, null);
 root.setSize(64, 64);
 root.visible = true;
@@ -118,7 +119,12 @@ Debug.message("LAYER_ALPHA_SMOKE_OK");
 } catch(e) {
     Debug.message("LAYER_ALPHA_SMOKE_FAILED: " + (typeof e == "String" ? e : e.message));
 }
-System.exit();
+global.exitTimer = new Timer(function() {
+    exitTimer.enabled = false;
+    System.exit();
+}, "");
+exitTimer.interval = 100;
+exitTimer.enabled = true;
 '''
 
 

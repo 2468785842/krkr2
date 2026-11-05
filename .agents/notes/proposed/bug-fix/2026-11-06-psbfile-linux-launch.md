@@ -159,5 +159,15 @@ https://github.com/realRurichan/DroidDeck/actions/runs/42110695620 。
 RGB 读回值，并从已知偶数预乘通道推导半透明期望值，alpha/坐标/边界断言不变；
 同时处理 TJS 的字符串 throw，避免诊断自身访问不存在的 message 成员。
 c101f3a 诊断构建（引擎 SHA-256 dd616b88e31ac4eac9aaa5e5f43e763781843c070ece37a8b69eb34f60fd58d2）
-配校正后的完整测试在手机独立 Xvfb/softpipe 会话输出 LAYER_ALPHA_SMOKE_OK 并正常退出。
+配校正后的完整测试在手机独立 Xvfb/softpipe 会话输出 LAYER_ALPHA_SMOKE_OK。
+后续核对发现外层 timeout 的退出码未保留，不能据此认定正常退出。
 正式前端的实际剧情复测与新源提交 CI 仍待完成。
+
+754cdc8 的 CI 42117312619 全部像素断言成功，但 System.exit 在顶层隐藏窗口场景
+之后未结束进程，故整体仍失败；正在改为已映射窗口的事件循环内退出并保留退出码。
+手机实际 DroidDeck 新副本已越过原错误画面，并推进到后续双角色及街道场景，
+layerExBtoA.dll 加载成功，没有缺方法异常。只覆盖这些场景，不宣称通关。
+
+将合成窗口设为 visible，并在 100ms Timer 事件中调用 System.exit 后，手机同一
+诊断引擎完成全部像素断言，外层 timeout 明确返回 0（约 3 秒），不再等待 25 秒。
+未削弱超时和成功标记检查；这是测试启动/退出时机修正，生产图像实现未变。
