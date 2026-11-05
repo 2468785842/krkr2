@@ -147,3 +147,17 @@ https://github.com/realRurichan/DroidDeck/actions/runs/42110695620 。
 错误截图和会话 2026-11-06-36 日志保留在 DroidDeck 的忽略调试目录。
 按 layerExBTOA 的 API 补原生实现和独立合成像素测试，真实剧情待新构建复测。
 不修改原游戏脚本或存档；来源、行为与测试入口见 docs/reference/plugins.md。
+
+旧引擎独立新副本（无原存档）经标题 → 新的开始 → 语音选择 → Ctrl 快进，
+同样在 start.ks 第 23 行报缺少 clipAlphaRect，排除原存档损坏。
+首轮 2af302d ARM64 编译成功，CTest 的 PSB/键盘/焦点 3 项通过，新增像素测试
+60 秒超时，未发布或替换正式引擎。c101f3a 增加脚本异常与超时 stdout 诊断，
+保留成功标记判定；失败不会被 catch 后的正常退出误判为通过。
+
+第二轮日志明确为首个 RGB 断言：已有 OpenGL getMainPixel 将 0x123456 读回
+0x563412，旧发行引擎在手机也复现，非 clipAlphaRect 改色。测试改为比较裁剪前的
+RGB 读回值，并从已知偶数预乘通道推导半透明期望值，alpha/坐标/边界断言不变；
+同时处理 TJS 的字符串 throw，避免诊断自身访问不存在的 message 成员。
+c101f3a 诊断构建（引擎 SHA-256 dd616b88e31ac4eac9aaa5e5f43e763781843c070ece37a8b69eb34f60fd58d2）
+配校正后的完整测试在手机独立 Xvfb/softpipe 会话输出 LAYER_ALPHA_SMOKE_OK 并正常退出。
+正式前端的实际剧情复测与新源提交 CI 仍待完成。

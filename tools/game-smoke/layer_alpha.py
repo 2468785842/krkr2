@@ -34,56 +34,59 @@ function pixel(layer, x, y, alpha, rgb, label) {
     check(layer.getMainPixel(x, y) == rgb, label + " RGB: " + layer.getMainPixel(x, y) + " != " + rgb);
 }
 reset();
+// Compare RGB against the pre-operation readback: the existing OpenGL
+// getMainPixel exposes native R/B order, independently of this plugin.
+global.baseRGB = dst.getMainPixel(0, 0);
 src.setMaskPixel(0, 0, 0); src.setMaskPixel(2, 0, 255);
 dst.imageModified = false;
 dst.clipAlphaRect(0, 0, src, 0, 0, 4, 3);
-pixel(dst, 0, 0, 0, 0x123456, "zero");
-pixel(dst, 1, 0, 64, 0x123456, "half");
-pixel(dst, 2, 0, 128, 0x123456, "full");
-pixel(dst, 3, 2, 64, 0x123456, "last row/pitch");
+pixel(dst, 0, 0, 0, baseRGB, "zero");
+pixel(dst, 1, 0, 64, baseRGB, "half");
+pixel(dst, 2, 0, 128, baseRGB, "full");
+pixel(dst, 3, 2, 64, baseRGB, "last row/pitch");
 check(dst.imageModified, "modified flag");
 pixel(src, 1, 0, 128, 0, "source unchanged");
 
 reset(); dst.setClip(1, 1, 2, 1); src.setClip(3, 2, 1, 1);
 dst.face = dfMask; dst.holdAlpha = true;
 dst.clipAlphaRect(2, 1, src, 0, 0, 1, 1, 17);
-pixel(dst, 0, 1, 128, 0x123456, "outside clip");
-pixel(dst, 1, 1, 17, 0x123456, "clear inside clip");
-pixel(dst, 2, 1, 64, 0x123456, "ignore source clip and face");
-pixel(dst, 3, 1, 128, 0x123456, "outside clip right");
-pixel(dst, 1, 2, 128, 0x123456, "outside clip bottom");
+pixel(dst, 0, 1, 128, baseRGB, "outside clip");
+pixel(dst, 1, 1, 17, baseRGB, "clear inside clip");
+pixel(dst, 2, 1, 64, baseRGB, "ignore source clip and face");
+pixel(dst, 3, 1, 128, baseRGB, "outside clip right");
+pixel(dst, 1, 2, 128, baseRGB, "outside clip bottom");
 
 reset(); dst.clipAlphaRect(0, 0, src, -1, -1, 3, 3, 0);
-pixel(dst, 0, 0, 0, 0x123456, "negative source clear");
-pixel(dst, 1, 1, 64, 0x123456, "negative source alignment");
-pixel(dst, 3, 2, 0, 0x123456, "clear suffix");
+pixel(dst, 0, 0, 0, baseRGB, "negative source clear");
+pixel(dst, 1, 1, 64, baseRGB, "negative source alignment");
+pixel(dst, 3, 2, 0, baseRGB, "clear suffix");
 reset(); src.setMaskPixel(1, 1, 255);
 dst.clipAlphaRect(-1, -1, src, 0, 0, 3, 3);
-pixel(dst, 0, 0, 128, 0x123456, "negative destination alignment");
-pixel(dst, 1, 1, 64, 0x123456, "negative destination extent");
-pixel(dst, 2, 1, 128, 0x123456, "omitted clear");
+pixel(dst, 0, 0, 128, baseRGB, "negative destination alignment");
+pixel(dst, 1, 1, 64, baseRGB, "negative destination extent");
+pixel(dst, 2, 1, 128, baseRGB, "omitted clear");
 reset(); dst.clipAlphaRect(0, 0, src, 3, 2, 4, 3, 0);
-pixel(dst, 0, 0, 64, 0x123456, "source right/bottom bounds");
-pixel(dst, 1, 0, 0, 0x123456, "source right clipped");
-pixel(dst, 0, 1, 0, 0x123456, "source bottom clipped");
+pixel(dst, 0, 0, 64, baseRGB, "source right/bottom bounds");
+pixel(dst, 1, 0, 0, baseRGB, "source right clipped");
+pixel(dst, 0, 1, 0, baseRGB, "source bottom clipped");
 
 for(var clear = -1; clear <= 256; clear += 257) {
     reset(); dst.clipAlphaRect(1, 0, src, 0, 0, 1, 1, clear);
-    pixel(dst, 0, 0, 128, 0x123456, "out of range clear ignored");
+    pixel(dst, 0, 0, 128, baseRGB, "out of range clear ignored");
 }
 reset(); dst.clipAlphaRect(1, 0, src, 0, 0, 1, 1, void);
-pixel(dst, 0, 0, 128, 0x123456, "void clear ignored");
+pixel(dst, 0, 0, 128, baseRGB, "void clear ignored");
 dst.clipAlphaRect(2147483647, 2147483647, src, -2147483647-1, 0, 2147483647, 1, 23);
-pixel(dst, 3, 2, 23, 0x123456, "overflow-safe disjoint clear");
+pixel(dst, 3, 2, 23, baseRGB, "overflow-safe disjoint clear");
 dst.clipAlphaRect(-2147483647-1, 0, src, 0, 0, 2147483647, 1);
-pixel(dst, 0, 0, 23, 0x123456, "disjoint without clear");
+pixel(dst, 0, 0, 23, baseRGB, "disjoint without clear");
 
 reset(); dst.setMaskPixel(0, 0, 255);
 dst.clipAlphaRect(1, 0, dst, 0, 0, 3, 1, 0);
-pixel(dst, 0, 0, 0, 0x123456, "self-copy clear");
-pixel(dst, 1, 0, 128, 0x123456, "self-copy source before clear");
-pixel(dst, 2, 0, 64, 0x123456, "self-copy overlap");
-pixel(dst, 3, 0, 64, 0x123456, "self-copy not cascading");
+pixel(dst, 0, 0, 0, baseRGB, "self-copy clear");
+pixel(dst, 1, 0, 128, baseRGB, "self-copy source before clear");
+pixel(dst, 2, 0, 64, baseRGB, "self-copy overlap");
+pixel(dst, 3, 0, 64, baseRGB, "self-copy not cascading");
 reset(); dst.assignImages(src);
 dst.clipAlphaRect(0, 0, src, 0, 0, 4, 3);
 pixel(dst, 0, 0, 64, 0, "shared image destination");
@@ -91,12 +94,14 @@ pixel(src, 0, 0, 128, 0, "copy-on-write source");
 
 reset(); dst.type = ltAddAlpha; dst.face = dfAddAlpha;
 dst.fillRect(0, 0, 4, 3, 0x80402010);
+var addRGB = dst.getMainPixel(0, 0);
+var halfRGB = (addRGB >> 1) & 0x7f7f7f;
 src.setMaskPixel(0, 0, 255); src.setMaskPixel(2, 0, 0);
 dst.clipAlphaRect(0, 0, src, 0, 0, 3, 1, 128);
-pixel(dst, 0, 0, 128, 0x402010, "premultiplied full");
-pixel(dst, 1, 0, 64, 0x201008, "premultiplied half");
+pixel(dst, 0, 0, 128, addRGB, "premultiplied full");
+pixel(dst, 1, 0, 64, halfRGB, "premultiplied half");
 pixel(dst, 2, 0, 0, 0, "premultiplied zero");
-pixel(dst, 3, 2, 64, 0x201008, "premultiplied clear scales RGB");
+pixel(dst, 3, 2, 64, halfRGB, "premultiplied clear scales RGB");
 dst.clipAlphaRect(10, 10, src, 0, 0, 1, 1, 0);
 pixel(dst, 3, 2, 0, 0, "premultiplied disjoint clear");
 
@@ -111,7 +116,7 @@ try { dst.clipAlphaRect(0, 0); } catch(e) { threw = true; }
 check(threw, "missing arguments rejected");
 Debug.message("LAYER_ALPHA_SMOKE_OK");
 } catch(e) {
-    Debug.message("LAYER_ALPHA_SMOKE_FAILED: " + e.message);
+    Debug.message("LAYER_ALPHA_SMOKE_FAILED: " + (typeof e == "String" ? e : e.message));
 }
 System.exit();
 '''
