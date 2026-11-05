@@ -92,3 +92,11 @@ Cocos 3.17.2 的 desktop GLView 将 GLFW_KEY_ENTER 转成 KEY_ENTER，
 而本仓库 CCKeyCodeConv.cpp 将该枚举置于 return 0 分支，仅 KEY_RETURN/KEY_KP_ENTER 生效。
 `63c6e33` 将 KEY_ENTER 合并到 VK_RETURN，并增加 opt-in X11 真按键 CTest。
 前端映射不需要改成模拟点击或小键盘回车绕过此问题。
+
+`43bab23` 的 ARM64 CI 通过，实际注册并运行 `psbfile-runtime` 和
+`x11-keyboard-runtime` 两项测试，以及普通 TJS / XP3 启动和存档回归：
+https://github.com/realRurichan/DroidDeck/actions/runs/42100670826 。
+新键盘测试逐项验证 Return、KP_Enter、Escape、Down、Control_L 的 down/up，并正常退出。
+前一轮已通过按键断言，但测试脚本错误地赋值 Timer.onTimer 导致退出等待超时；
+改为现有 Timer(action, "") 约定后重跑完整 CI 通过，没有放宽断言或接受强停。
+二进制 SHA-256 `9ed77f2c8e9d1950602474316a29ef7ea9615550cdeba0f6a7678feffe5f7f25`。
