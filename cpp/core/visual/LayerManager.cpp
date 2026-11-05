@@ -1017,15 +1017,11 @@ void tTVPLayerManager::NotifyNodeEnabledState() {
             Primary->NotifyNodeEnabledState();
 }
 //---------------------------------------------------------------------------
-bool tTVPLayerManager::FocusControllerButton(tjs_uint key) {
-    if(!ControllerFocus || !Primary ||
-       (key != VK_UP && key != VK_DOWN && key != VK_LEFT && key != VK_RIGHT))
-        return false;
-    struct Button {
-        tTJSNI_BaseLayer *layer;
-        double x, y;
-    };
-    std::vector<Button> buttons;
+std::vector<tTVPLayerManager::ControllerButton>
+tTVPLayerManager::GetControllerButtons() {
+    std::vector<ControllerButton> buttons;
+    if(!ControllerFocus || !Primary)
+        return buttons;
     std::function<void(tTJSNI_BaseLayer *, double, double, double, double,
                        double, double)>
         visit;
@@ -1051,15 +1047,22 @@ bool tTVPLayerManager::FocusControllerButton(tjs_uint key) {
     };
     visit(Primary, -Primary->GetLeft(), -Primary->GetTop(), 0, 0,
           Primary->GetWidth(), Primary->GetHeight());
+    return buttons;
+}
+
+bool tTVPLayerManager::FocusControllerButton(tjs_uint key) {
+    if(key != VK_UP && key != VK_DOWN && key != VK_LEFT && key != VK_RIGHT)
+        return false;
+    auto buttons = GetControllerButtons();
     if(buttons.empty())
         return false;
     std::stable_sort(buttons.begin(), buttons.end(),
-                     [](const Button &a, const Button &b) {
+                     [](const ControllerButton &a, const ControllerButton &b) {
                          return a.y != b.y ? a.y < b.y : a.x < b.x;
                      });
-    auto current =
-        std::find_if(buttons.begin(), buttons.end(),
-                     [&](const Button &b) { return b.layer == FocusedLayer; });
+    auto current = std::find_if(
+        buttons.begin(), buttons.end(),
+        [&](const ControllerButton &b) { return b.layer == FocusedLayer; });
     if(current == buttons.end() && FocusedLayer) {
         bool containsButtons = false;
         for(const auto &button : buttons) {
@@ -1101,7 +1104,55 @@ bool tTVPLayerManager::FocusControllerButton(tjs_uint key) {
     return true;
 }
 
+bool tTVPLayerManager::ConfirmControllerButton(tjs_uint key, tjs_uint32 shift,
+                                               bool down) {
+    if(!ControllerFocus || key != VK_RETURN)
+        return false;
+    if(down && ControllerConfirmDown)
+        return true;
+    if(down && (shift & (TVP_SS_SHIFT | TVP_SS_ALT | TVP_SS_CTRL)))
+        return false;
+    if(!down && !ControllerConfirmDown)
+        return false;
+    auto buttons = GetControllerButtons();
+    auto selected = std::find_if(buttons.begin(), buttons.end(),
+                                 [&](const ControllerButton &button) {
+                                     return button.layer == FocusedLayer;
+                                 });
+    if(down) {
+        if(selected == buttons.end())
+            return false;
+        ControllerConfirmOwner =
+            tTJSVariant(selected->layer->GetOwnerNoAddRef());
+        ControllerConfirmDown = true;
+        return true;
+    }
+    ControllerConfirmDown = false;
+    tTJSVariant owner = ControllerConfirmOwner;
+    ControllerConfirmOwner.Clear();
+    if(selected == buttons.end() || CaptureOwner ||
+       selected->layer->GetOwnerNoAddRef() != owner.AsObjectNoAddRef())
+        return true;
+    const auto x = static_cast<tjs_int>(selected->x);
+    const auto y = static_cast<tjs_int>(selected->y);
+    // Mouse-oriented KAG buttons may implement onExecute rather than key
+    // clicks. Use the normal hit-tested click path, without also delivering
+    // Enter.
+    auto *hit = GetMostFrontChildAt(x, y);
+    if(hit != selected->layer)
+        return true;
+    PrimaryMouseDown(x, y, mbLeft, TVP_SS_LEFT);
+    if(CaptureOwner == hit) {
+        PrimaryClick(x, y);
+        if(CaptureOwner == hit)
+            PrimaryMouseUp(x, y, mbLeft, 0);
+    }
+    return true;
+}
+
 void tTVPLayerManager::PrimaryKeyDown(tjs_uint key, tjs_uint32 shift) {
+    if(ConfirmControllerButton(key, shift, true))
+        return;
     if(!(shift & (TVP_SS_SHIFT | TVP_SS_ALT | TVP_SS_CTRL)) &&
        FocusControllerButton(key))
         return;
@@ -1112,6 +1163,8 @@ void tTVPLayerManager::PrimaryKeyDown(tjs_uint key, tjs_uint32 shift) {
 }
 //---------------------------------------------------------------------------
 void tTVPLayerManager::PrimaryKeyUp(tjs_uint key, tjs_uint32 shift) {
+    if(ConfirmControllerButton(key, shift, false))
+        return;
     if(FocusedLayer)
         FocusedLayer->FireKeyUp(key, shift);
     else if(Primary)

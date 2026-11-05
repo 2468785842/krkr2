@@ -31,9 +31,12 @@ class ButtonLayer extends Layer {
     function ButtonLayer(parent, label, y) {
         super.Layer(win, parent);
         name = label; left = 100; top = y; setSize(200, 40);
-        focusable = false; visible = true;
+        focusable = false; visible = true; hitType = htRectangle;
     }
-    function onKeyUp(key, shift) { if(key == 13) record("click:" + name); }
+    function onKeyUp(key, shift) { if(key == 13) record("unexpected-key:" + name); }
+    function onMouseDown(x, y, button, shift) { record("down:" + name); }
+    function onClick(x, y) { record("click:" + name); }
+    function onMouseUp(x, y, button, shift) { record("up:" + name); }
 }
 class EditLayer extends Layer {
     function EditLayer() {
@@ -78,7 +81,7 @@ def main():
         ('Right', ['key:39:focus:bottom']),
         ('Up', ['key:38:focus:middle']),
         ('Left', ['key:37:focus:top']),
-        ('Return', ['key:13:focus:top', 'click:top']),
+        ('Return', ['key:13:focus:top', 'down:top', 'click:top', 'up:top']),
         ('h', ['key:72:focus:top']),
         ('Right', ['key:39:focus:middle']),
         ('Right', ['key:39:focus:bottom']),
@@ -92,7 +95,7 @@ def main():
         ('Down', ['key:40:focus:edit']),
         ('m', ['key:77:focus:dialog']),
         ('Down', ['key:40:focus:modal']),
-        ('Return', ['key:13:focus:modal', 'click:modal']),
+        ('Return', ['key:13:focus:modal', 'down:modal', 'click:modal', 'up:modal']),
     ], ['--', '-controllerfocus=yes'])
 
 
