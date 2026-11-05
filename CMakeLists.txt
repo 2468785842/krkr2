@@ -213,6 +213,11 @@ if(KRKR2_BUILD_APP)
     target_link_libraries(${PROJECT_NAME} PUBLIC
         krkr2plugin krkr2core
     )
+    if(ANDROID)
+        # The JNI bridge consumes the text codec directly; environ's PRIVATE
+        # dependency does not export its headers to this application target.
+        target_link_libraries(${PROJECT_NAME} PRIVATE core_input)
+    endif()
 
     ## resources
     if(NOT ANDROID)

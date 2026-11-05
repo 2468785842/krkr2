@@ -132,7 +132,7 @@ ctest --test-dir out/platform-tests -N
 ctest --test-dir out/platform-tests --output-on-failure --no-tests=error
 ```
 
-预期 10 个输入状态、3 个修饰键快照、3 个指针坐标、3 个取消分类、4 个触摸按钮和 3 个帧钩子用例，三平台无窗口 CI 检查实际数量、编译源和依赖闭包；
+预期 10 个输入状态、3 个修饰键快照、3 个指针坐标、3 个取消分类、4 个触摸按钮、8 个提交文本和 3 个帧钩子用例（共 34 项），三平台无窗口 CI 检查实际数量、编译源和依赖闭包；
 不能替代窗口、IME 或设备交互验收。
 独立 SDL3/TJS 壳实验使用另一显式开关，构建和验证见[原型工具](../../tools/sdl3-prototype/README.md)。
 Linux CI 另用 Xvfb/X11 创建窗口，分别验证键盘/鼠标的 `SDL_PushEvent` 队列与像素，以及
@@ -141,7 +141,7 @@ X server 切焦、XTest 虚拟键盘/鼠标、窗口外拖动、调整大小和�
 两者都不能替代物理设备、IME 或现有 Cocos 的窗口交互验收。
 
 Windows 完整构建工作流开启 full 测试配置，但定向构建 `krkr2 cocos_window_tests`，
-检查并执行 2 项节点排序、3 项指针变换与 4 项焦点订阅契约。其他 full 测试目标不会因此自动构建或通过。
+检查并执行 2 项节点排序、3 项指针变换、4 项焦点订阅与 2 项文本兼容契约（共 11 项）。其他 full 测试目标不会因此自动构建或通过。
 
 ## 编译提速的基线
 
@@ -162,3 +162,5 @@ TJS 的 Bison、日期词表以及消息头统一在构建期生成；日期词�
 通过 CLI 指定游戏。游戏内菜单及脚本对话框保留，Cocos 依赖仍存在。
 资源清单随开关同步；详细边界及验证见 [U1 管理界面开关](../subsystems/management-ui.md)。
 Android/iOS 暂不支持关闭。
+
+Android 输入桥另有独立 Framework/ART 契约与模拟器 CI，命令和完整应用边界见[Android 输入桥](../subsystems/android-input.md#验证)。

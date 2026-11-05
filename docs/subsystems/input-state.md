@@ -90,7 +90,7 @@ Cocos 的 `environ/cocos2d/CocosPointerCoordinates.h` 先使用原 Node 世界�
 脚本设置光标时，缓存保存主图层左上角坐标，光标节点位置单独换算到其父节点；
 修复了旧 setter 把显示父节点坐标写入缓存、导致读回错位的问题。
 
-平台独立契约现为 31 项，另有 3 项真实 Cocos 节点测试覆盖缩放/旋转/锚点、
+平台独立契约现为 34 项，另有 3 项真实 Cocos 节点测试覆盖缩放/旋转/锚点、
 负坐标捕获与不同父节点下的光标放置；后者随 Windows 完整应用构建定向运行。
 独立 SDL3 原型另已验证鼠标事件、X11 窗口外拖动与调整大小，见[原型工具](../../tools/sdl3-prototype/README.md#鼠标与视口)。
 OS 高 DPI、多显示器及物理设备仍需单独验收。
@@ -105,11 +105,11 @@ OS 高 DPI、多显示器及物理设备仍需单独验收。
 无效、截断、过长编码、代理项编码及超范围 UTF-8 整段拒绝，不发送有效前缀。
 焦点检查和当前窗口有效性检查仍由适配器承担。
 
-平台范围有 5 项解码测试；full 范围另用真实 Cocos 的旧转换函数对照所有合法标量与
+平台范围有 5 项 UTF-8 解码与 3 项 UTF-16 编码测试；full 范围另用真实 Cocos 的旧转换函数对照所有合法标量与
 10,000 组任意字节输入，不将纯解码测试计为 IME 或设备输入验收。
 Windows 的 `text_repro.py` 通过原生 VK_PACKET 和组件 UTF-8 分发核对真实 TJS 回调，
 用法见[提交文本探针](../../tools/game-smoke/interaction/README.md#windows-提交文本探针)。
-这里不定义 IME preedit、候选窗、组合键，也没有改变 Android 的键码/JNI 接口。
+共享编解码器不定义 IME preedit、候选窗或按键路由；Android 的接线见[输入桥](android-input.md)。
 
 Cocos 桌面字符回调的 GLFW 参数是 32 位码点；overlay port #12 修复了旧强转为 char16_t
 导致补充平面字符截断的问题，改为 UTF-32 → UTF-8 后进入上述提交路径。

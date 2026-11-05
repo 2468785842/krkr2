@@ -18,6 +18,7 @@
 | [可选管理界面](subsystems/management-ui.md) | Desktop 管理页面开关、资源与默认配置边界 |
 | [窗口接口](subsystems/window-interface.md) | 通用窗口接口与现有 Cocos 适配边界 |
 | [共享输入状态](subsystems/input-state.md) | 虚拟键、修饰键、指针坐标、提交文本及 Cocos 适配边界 |
+| [Android 输入桥](subsystems/android-input.md) | UTF-16/JNI、打印键去重、退格和独立模拟器测试 |
 | [ImageOps](subsystems/imageops.md) | CPU 图像契约、独立测试与微基准 |
 
 ## 参考与工具

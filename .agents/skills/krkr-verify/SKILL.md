@@ -16,11 +16,13 @@ description: 为 KrKr2 的 C++、CMake 或后端改动选择并执行构建与�
 - 改窗口适配或 UI，构建应用，并查阅[窗口接口](../../../docs/subsystems/window-interface.md)的交互验收范围。
   `cocos_window_tests` 只在 full 范围注册，需要实际构建才会发现 Catch2 用例。
   定向 `-R '^cocos (window|pointer|focus|text)'` 应发现 11 项节点/坐标/焦点/文本对照用例；不创建 OS/GL 窗口。
-- 输入状态/修饰键/坐标/取消/触摸按钮/提交文本与帧钩子可选 `platform` 范围，预期分别 28、3 项用例，无 TJS/Cocos 依赖；
+- 输入状态/修饰键/坐标/取消/触摸按钮/提交文本与帧钩子可选 `platform` 范围，预期分别 31、3 项用例，无 TJS/Cocos 依赖；
   SDL3 实验另用显式原型开关和 `tools/sdl3-prototype/verify.py`；Linux 的 `verify_x11.py`
   经 X server/XTest 检查切焦与关闭否决，`--pointer` 另检查黑边、窗口外拖动和调整大小。
   不能用直接投递的 SDL 事件替代。窗口缩放不等于高 DPI 设备验证，两者不等同于游戏后端验收。
   OS 探针应等待窗口已映射及本轮回调确认，PID 属性出现或固定延迟不等于窗口就绪。
+- Android 输入接线另查[输入桥指南](../../../docs/subsystems/android-input.md)：独立测试 APK
+  验证真实 Framework/ART 的 Java 与 JNI 契约，不替代生产 Cocos/TJS APK、ARM64 或物理设备验收。
 - 文档或技能调整只做相应路径、元数据与 diff 检查；新脚本验证实际行为。
 - 基础模块依赖改动执行 `python scripts/check_core_module_deps.py`，其成功范围以工具输出为准。
 
