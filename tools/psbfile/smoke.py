@@ -71,6 +71,7 @@ def generate(directory):
         'function check(value, message) { if (!value) throw message; }',
         'var file = new PSBFile();',
         'check(file.load("probe.pimg"), "file load");',
+        'check(file.root instanceof "Dictionary", "root dictionary identity");',
         'check(typeof file.root["pixel.tjs"] == "Octet", "resource octet");',
         'Scripts.execStorage("psb://probe.pimg/pixel.tjs");',
         'check(global.psbResourceRead == 42, "registered resource");',

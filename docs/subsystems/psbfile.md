@@ -18,7 +18,8 @@ var memoryCopy = new PSBFile(file.root.embeddedPsb);
 需要判断成功的调用方应使用返回布尔值的 `load(source)`。
 `load` 接受一个字符串或 Octet，参数数量/类型错误仍按 TJS 错误码报告。
 重复成功加载替换实例数据；加载失败返回 false，并保留上次成功的 root。
-`root` 中字典、数组、标量和资源转换为 TJS 值，资源 Octet 拥有自己的数据。
+`root` 本身是原生 TJS Dictionary；其中字典、数组、标量和资源转换为 TJS 值，
+资源 Octet 拥有自己的数据。
 
 文件加载通过共享 `PSBMediaRegistry` 注册资源，构造加载和 load 的行为一致。
 递归字典/数组资源使用键名/数字索引组成路径；资源注册后的数据独立于 PSBFile 实例。

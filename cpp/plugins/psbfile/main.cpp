@@ -31,17 +31,8 @@ static tjs_error getRoot(tTJSVariant *r, tjs_int n, tTJSVariant **p,
         return TJS_E_NATIVECLASSCRASH;
     if(!r)
         return TJS_S_OK;
-    iTJSDispatch2 *dic = TJSCreateCustomObject();
-    auto objs = self->getObjects();
-    if(objs != nullptr) {
-        for(const auto &[k, v] : *objs) {
-            tTJSVariant tmp = v->toTJSVal();
-            dic->PropSet(TJS_MEMBERENSURE, ttstr{ k }.c_str(), nullptr, &tmp,
-                         dic);
-        }
-    }
-    *r = tTJSVariant{ dic, dic };
-    dic->Release();
+    const auto objects = self->getObjects();
+    *r = objects ? objects->toTJSVal() : PSBDictionary{}.toTJSVal();
     return TJS_S_OK;
 }
 

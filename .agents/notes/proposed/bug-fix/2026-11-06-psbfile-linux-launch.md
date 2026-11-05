@@ -56,3 +56,12 @@ AfterStartup 心跳持续递增，KAG 到达 title.ks 第 35 行（标题脚本�
 
 继续定位标题内容未显示的原因；当前 PR 限定为已验证的 PSB/启动崩溃修复。
 通过后本 note 可标记 implemented，但保留未验证游戏场景的边界。
+
+## Kirakira 设计参考
+
+查看 liulifox233/Kirakira `c451918023477620ff9055a2eb8a6714b947d9c1` 的 README、许可证、
+PSB 模块设计说明和测试名称。其 AGPL-3.0-or-later 代码没有被移植、翻译或加入本仓库。
+参考的通用检查点是“解析成功应产生实际对象树”和“脚本端应保留字典/数组/Octet 类型”。
+据此复查本仓库，发现 root getter 用 TJSCreateCustomObject，而嵌套字典已有
+PSBDictionary::toTJSVal 原生转换；改为复用本仓库既有转换，并新增 Dictionary 类型身份断言。
+PSB 校验和、加密标志诊断与 PSBValueClass 接口仍需依据格式和独立样本单独验证，未照搬参考实现。
