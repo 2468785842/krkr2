@@ -115,6 +115,18 @@ Cocos 桌面字符回调的 GLFW 参数是 32 位码点；overlay port #12 修�
 导致补充平面字符截断的问题，改为 UTF-32 → UTF-8 后进入上述提交路径。
 采用修复时需重建 Cocos 依赖；只重建应用并继续链接旧 port #11 不会获得该修复。
 
+## 默认输入模式与 Layer 焦点
+
+`Window.imeMode` 保存窗口默认模式，初始为 `imDisable`。没有聚焦 Layer 时修改立即生效；
+有聚焦 Layer 时只更新默认属性，当前输入仍由该 Layer 的 `imeMode` 决定。
+将 `Window.focusedLayer` 清为 `null` 后，经既有焦点重置路径恢复窗口默认模式。
+`imDontCare` 保留该窗口最近的具体开关模式，不强制开启，也不表示继承默认属性。
+
+Cocos 的 IME delegate 由游戏窗口共享。非活动窗口的模式变化只保存，切到该窗口时应用；
+隐藏或失效回退到另一窗口时恢复目标窗口的模式，没有活动窗口则关闭提交入口。
+当前适配器仍将 `imDisable`/`imClose` 都映射为关闭，语言模式映射为开启；
+这不等于实现了 Windows IMM 的语言转换模式或真实 IME 组合/候选界面。
+
 ## 适配边界与验证
 
 Cocos 仍承担键码转换、OS/窗口坐标与 DPI、IME、触摸判定及 TJS 事件排队；

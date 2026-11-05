@@ -156,8 +156,10 @@ CI 同时执行该模式，独立报告目录 `native-minimize` 随完整/轻量
 python tools/game-smoke/text_repro.py out/windows/debug/bin/krkr2/krkr2.exe out/ui-game-smoke/native-text-01
 ```
 
-需要开启测试驱动。独立 `text/startup.tjs` 对主 Layer 设置 `imeMode=imOpen` 并获得逻辑焦点，
-沿现有编辑控件输入路径记录 Window `onKeyPress` 的字符串长度与
+需要开启测试驱动。独立 `text/startup.tjs` 先核对窗口默认 `imeMode` 属性与 Layer 焦点优先级，
+通过 13 个阶段验证无焦点时的默认开关、`imDontCare` 延续、Layer 覆盖、清除焦点恢复默认值，
+以及非活动窗口配置、切换、隐藏和失效后的恢复。关闭阶段同样发送原生字符，不能只看属性读回。
+随后主 Layer 设置 `imeMode=imOpen` 并获得逻辑焦点，记录 Window `onKeyPress` 的字符串长度与
 UTF-16 首单元（TJS 的 `#key`），不把 Unicode 字符当成物理键码。
 原生 `SendInput` / VK_PACKET 覆盖 ASCII、中文、日文、重音、组合字符与 emoji；
 组件 IMEDispatcher 路径另检查窗口适配器忽略嵌入 NUL、继续分发后续字符的旧规则，
@@ -169,7 +171,7 @@ UTF-16 首单元（TJS 的 `#key`），不把 Unicode 字符当成物理键码�
 到 MainScene 适配器；格式错误会失败，不直接调用脚本回调。
 Windows 手动 `pointer_contracts=true` 同时运行本探针，证据目录为 `native-text`。
 VK_PACKET 是系统提交文本注入，不能证明中文/日文 IME 的预编辑、候选窗或真实设备交互。
-当前 `Window.imeMode` 的默认模式 setter 仍是空实现，不可用它代替 Layer 的输入启用路径。
+当前后端只验证提交入口的开关；语言转换、IME 组合状态及候选窗仍需独立验收。
 
 ## 连续复现与取证
 
