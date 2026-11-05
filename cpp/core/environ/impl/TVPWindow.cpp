@@ -52,6 +52,7 @@ void TVPWindowLayer::leaveCurrentWindow() {
     if(another)
         another->setPosition(0, 0);
     _currentWindowLayer = another;
+    UpdateImeMode();
 }
 
 void TVPWindowLayer::InvalidateClose() {
@@ -410,31 +411,41 @@ void TVPWindowLayer::SetCursorPos(tjs_int x, tjs_int y) {
 }
 
 void TVPWindowLayer::SetImeMode(tTVPImeMode mode) {
+    // DontCare keeps the last concrete mode, including when this window is
+    // restored after another game window used the shared Cocos IME delegate.
+    if(mode == ::imDontCare)
+        return;
+    LastSetImeMode = mode;
+    if(_currentWindowLayer == this)
+        UpdateImeMode();
+}
+
+void TVPWindowLayer::UpdateImeMode() {
+    auto *scene = TVPMainScene::GetInstance();
+    if(!scene)
+        return;
+    auto *window = _currentWindowLayer;
+    const auto mode = window ? window->LastSetImeMode : ::imDisable;
     switch(mode) {
         case ::imDisable:
         case ::imClose:
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
             TVPHideIME();
 #else
-            // #ifdef _MSC_VER
-            TVPMainScene::GetInstance()->detachWithIME();
+            scene->detachWithIME();
 #endif
             break;
-        case ::imOpen:
-            // TVPMainScene::GetInstance()->attachWithIME();
-            // break;
         default:
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
         {
             cocos2d::Size screenSize = cocos2d::Director::getInstance()
                                            ->getOpenGLView()
                                            ->getFrameSize();
-            TVPShowIME(0, _textInputPosY, screenSize.width,
+            TVPShowIME(0, window->_textInputPosY, screenSize.width,
                        screenSize.height / 4);
         }
 #else
-            // #ifdef _MSC_VER
-            TVPMainScene::GetInstance()->attachWithIME();
+            scene->attachWithIME();
 #endif
         break;
     }
@@ -468,6 +479,7 @@ void TVPWindowLayer::SetCurrentWindow(TVPWindowLayer *window) {
     if(_currentWindowLayer && _currentWindowLayer->tjsNativeInstance)
         _currentWindowLayer->tjsNativeInstance->OnReleaseCapture();
     _currentWindowLayer = window;
+    UpdateImeMode();
 }
 
 void TVPWindowLayer::BringToFront() {

@@ -15,10 +15,28 @@ from frame_pixels import focus_frame_failures
 NATIVE_TEXT = "A\u4e2d\u3042\u00e9e\u0301\U0001f642"
 NATIVE = [65, 20013, 12354, 233, 101, 769, 55357, 56898]
 RECOVERED = [90, 55357, 56898]
-EXPECTED = ([f"text:native:1:{unit}" for unit in NATIVE] +
+# Expected default property and logical Layer focus after each transition.
+MODES = [
+    ("default-open", 2, 0, "D", 68),
+    ("default-close", 1, 0, "Q", None),
+    ("default-dontcare-closed", 3, 0, "Q", None),
+    ("layer-open", 1, 1, "L", 76),
+    ("layer-close", 2, 1, "Q", None),
+    ("layer-dontcare-closed", 2, 1, "Q", None),
+    ("reset-default", 2, 0, "R", 82),
+    ("default-dontcare-open", 3, 0, "C", 67),
+    ("inactive-window", 3, 0, "H", 72),
+    ("secondary-close", 3, 0, "Q", None),
+    ("secondary-hidden", 3, 0, "B", 66),
+    ("secondary-open", 0, 0, "S", 83),
+    ("secondary-invalidated", 0, 0, "Q", None),
+]
+MODE_TEXT = [f"text:{phase}:1:{unit}" for phase, _, _, _, unit in MODES if unit is not None]
+MODE_MARKERS = [f"mode:{phase}:{mode}:{focused}" for phase, mode, focused, _, _ in MODES]
+EXPECTED = (MODE_TEXT + [f"text:native:1:{unit}" for unit in NATIVE] +
             ["text:component:1:65", "text:component:1:20013"] +
             [f"text:recovered:1:{unit}" for unit in RECOVERED])
-MARKERS = ["ready", "phase:native", "phase:component", "phase:component-done",
+MARKERS = ["ready", *MODE_MARKERS, *["phase:" + mode[0] for mode in MODES], "phase:native", "phase:component", "phase:component-done",
            "phase:unfocused", "phase:unfocused-done", "phase:recovered", "fixture-finished"]
 
 
@@ -67,6 +85,15 @@ class TextProbe(FocusProbe):
                                     "native": "Win32 SendInput VK_PACKET",
                                     "component": "Cocos IMEDispatcher UTF8"}
             self.foreground(window, "text-engine-initial")
+            for name, _, _, text, unit in MODES:
+                before = self.phase(name)
+                self.native_text(window, text)
+                if unit is not None:
+                    self.script_event(f"text:{name}:1:{unit}", before)
+                else:
+                    # Read back a rendered frame after pumping native messages;
+                    # the final exact trace rejects any callback in this phase.
+                    self.capture("mode-" + name + ".png")
             before = self.phase("native")
             self.native_text(window, NATIVE_TEXT)
             self.script_event("text:native:1:56898", before)

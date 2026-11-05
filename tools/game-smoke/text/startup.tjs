@@ -6,26 +6,67 @@ global.record = function(text) {
     events.save(System.exePath + "interaction-events.txt");
 };
 class TextWindow extends Window {
-    function TextWindow() {
+    function TextWindow(show) {
         super.Window();
         caption = "KrKr2 committed text contract";
         setSize(640, 480);
-        visible = true;
+        visible = show;
     }
     function onKeyPress(key) {
         var unit = key.length ? #key : -1;
         record("text:" + phase + ":" + string key.length + ":" + string unit);
     }
 }
-global.win = new TextWindow();
+global.win = new TextWindow(true);
 global.primary = new Layer(win, null);
 primary.setSize(640, 480);
 primary.fillRect(0, 0, 640, 480, 0xff304050);
 primary.visible = true;
-primary.focusable = true;
-primary.imeMode = imOpen;
-primary.focus();
-if(!primary.focused) throw new Exception("Text layer did not receive focus");
+if(win.imeMode != imDisable || win.focusedLayer != null)
+    throw new Exception("Unexpected initial IME mode/focus");
+win.imeMode = imOpen;
+if(win.imeMode != imOpen) throw new Exception("Default IME mode was not saved");
+global.secondary = null;
+global.secondaryLayer = null;
+global.configure = function(name) {
+    if(name == "default-close") win.imeMode = imClose;
+    else if(name == "default-dontcare-closed") win.imeMode = imDontCare;
+    else if(name == "layer-open") {
+        primary.focusable = true;
+        primary.imeMode = imOpen;
+        primary.focus();
+        if(!primary.focused) throw new Exception("Text layer did not receive focus");
+        win.imeMode = imClose; // Must not override the focused Layer.
+    } else if(name == "layer-close") {
+        primary.imeMode = imClose;
+        win.imeMode = imOpen; // Saved until Layer focus is cleared.
+    } else if(name == "layer-dontcare-closed") primary.imeMode = imDontCare;
+    else if(name == "reset-default") {
+        win.focusedLayer = null;
+        if(primary.focused) throw new Exception("Layer focus was not cleared");
+    } else if(name == "default-dontcare-open") win.imeMode = imDontCare;
+    else if(name == "inactive-window") {
+        secondary = new TextWindow(false);
+        secondary.imeMode = imClose; // Must not detach the current window.
+        secondaryLayer = new Layer(secondary, null);
+        secondaryLayer.setSize(640, 480);
+        secondaryLayer.fillRect(0, 0, 640, 480, 0xff304050);
+        secondaryLayer.visible = true;
+    } else if(name == "secondary-close") secondary.visible = true;
+    else if(name == "secondary-hidden") secondary.visible = false;
+    else if(name == "secondary-open") {
+        secondary.visible = true;
+        secondary.imeMode = imOpen;
+        win.imeMode = imDisable; // Inactive updates must not steal the delegate.
+    } else if(name == "secondary-invalidated") invalidate secondary;
+    else if(name == "native") {
+        primary.imeMode = imOpen;
+        primary.focus();
+        win.imeMode = imDisable;
+        if(!primary.focused) throw new Exception("Layer focus did not recover");
+    }
+    record("mode:" + name + ":" + string win.imeMode + ":" + string (primary.focused ? 1 : 0));
+};
 global.lastCommand = "";
 global.driver = new Timer(function() {
     try {
@@ -40,6 +81,7 @@ global.driver = new Timer(function() {
             System.exit();
         } else {
             phase = lastCommand;
+            configure(phase);
             record("phase:" + phase);
         }
     } catch(e) {

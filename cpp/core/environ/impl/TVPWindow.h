@@ -63,6 +63,7 @@ private:
     krkr::input::TouchButton touchButton;
     static tTVPMouseButton MouseButtonForKey(std::uint32_t key);
     void leaveCurrentWindow();
+    static void UpdateImeMode();
     std::string _caption;
     //	std::map<tTJSNI_BaseVideoOverlay*, Sprite*> _AllOverlay;
     float _drawSpriteScaleX = 1.0f, _drawSpriteScaleY = 1.0f;
@@ -259,6 +260,12 @@ public:
                     bool convertkey) override;
 
     tTVPImeMode GetDefaultImeMode() const override { return DefaultImeMode; }
+
+    void SetDefaultImeMode(tTVPImeMode mode, bool reset) override {
+        DefaultImeMode = mode;
+        if(reset)
+            ResetImeMode();
+    }
 
     void ResetImeMode() override { SetImeMode(DefaultImeMode); }
 

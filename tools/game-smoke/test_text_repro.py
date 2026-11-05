@@ -28,6 +28,24 @@ class TextEvidenceTest(unittest.TestCase):
             self.assertTrue(probe.failures(events))
         self.assertTrue(probe.failures(self.events() + ["text:component:0:-1"]))
 
+    def test_closed_mode_or_inactive_window_leak_is_rejected(self):
+        for phase in ("default-close", "default-dontcare-closed", "layer-close",
+                      "layer-dontcare-closed", "secondary-close", "secondary-invalidated"):
+            self.assertTrue(probe.failures(self.events() + [f"text:{phase}:1:81"]))
+
+    def test_lost_layer_override_or_default_reset_is_rejected(self):
+        for removed in probe.MODE_TEXT:
+            events = self.events()
+            events.remove(removed)
+            self.assertTrue(probe.failures(events))
+
+    def test_wrong_default_readback_or_focus_is_rejected(self):
+        for marker in probe.MODE_MARKERS:
+            events = self.events()
+            events.remove(marker)
+            events.append(marker + "wrong")
+            self.assertTrue(probe.failures(events))
+
     def test_missing_checkpoint_or_error_is_rejected(self):
         events = self.events()
         events.remove("phase:unfocused-done")

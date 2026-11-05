@@ -1349,11 +1349,10 @@ void tTJSNI_Window::SetImeMode(tTVPImeMode mode) {
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetDefaultImeMode(tTVPImeMode mode) {
-    // set default ime mode
-    if(_form) {
-        //		Form->SetDefaultImeMode(mode,
-        // LayerManager->GetFocusedLayer() == nullptr);
-    }
+    // A focused Layer owns the effective mode until focus is cleared.
+    if(_form)
+        _form->SetDefaultImeMode(mode,
+                                 !DrawDevice || !DrawDevice->GetFocusedLayer());
 }
 //---------------------------------------------------------------------------
 tTVPImeMode tTJSNI_Window::GetDefaultImeMode() const {

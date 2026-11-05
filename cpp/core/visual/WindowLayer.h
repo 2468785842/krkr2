@@ -64,6 +64,7 @@ public:
     virtual void OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate,
                             bool convertkey) = 0;
     [[nodiscard]] virtual tTVPImeMode GetDefaultImeMode() const = 0;
+    virtual void SetDefaultImeMode(tTVPImeMode mode, bool reset) = 0;
     virtual void SetImeMode(tTVPImeMode mode) = 0;
     virtual void ResetImeMode() = 0;
     virtual void UpdateWindow(tTVPUpdateType type) = 0;
