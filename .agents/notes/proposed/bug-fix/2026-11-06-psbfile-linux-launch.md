@@ -171,3 +171,16 @@ layerExBtoA.dll 加载成功，没有缺方法异常。只覆盖这些场景，�
 将合成窗口设为 visible，并在 100ms Timer 事件中调用 System.exit 后，手机同一
 诊断引擎完成全部像素断言，外层 timeout 明确返回 0（约 3 秒），不再等待 25 秒。
 未削弱超时和成功标记检查；这是测试启动/退出时机修正，生产图像实现未变。
+
+最终源码 `72932a4` 的 ARM64 Release CI 通过：
+https://github.com/realRurichan/DroidDeck/actions/runs/42118453019 。
+实际注册并通过 psbfile-runtime、layer-alpha-runtime、x11-keyboard-runtime、
+x11-controller-focus-runtime 4/4，以及额外普通 TJS / XP3 / 存档回归。
+发行包 SHA-256 `be17fbc635f1671eb60651ef3f405f5ed3fd83dcea7c4ac42e7fe26088c29c32`，
+最终引擎 SHA-256 `f6a030e40f0adc8db688d53df83f1d4d6f85fe0da826fc1028880a7f05e7350e`。
+最终发行二进制在手机独立 Xvfb/softpipe 场景重新运行完整像素测试，
+输出 LAYER_ALPHA_SMOKE_OK，外层退出码 0；实际剧情截图属于前述 c101f3a 诊断构建，
+两者生产图像实现相同，后续只调整测试和诊断。实际游戏最后由外层强停，
+不作为正常退出证据；游戏退出行为及完整剧情仍未验收。
+发行引擎通过 DroidDeck 实际可选安装器覆盖到手机，包校验与安装后引擎哈希一致，
+标记更新为 72932a4-r1，并恢复正式 HTTPS 下载配置与原启动器；原游戏和存档未修改。
