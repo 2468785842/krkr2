@@ -289,6 +289,10 @@ if(KRKR2_ENABLE_PSBFILE_SMOKE)
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/psbfile/smoke.py"
                 --engine "$<TARGET_FILE:krkr2>")
     set_tests_properties(psbfile-runtime PROPERTIES TIMEOUT 75 LABELS "integration;psbfile")
+    add_test(NAME layer-alpha-runtime
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/game-smoke/layer_alpha.py"
+                --engine "$<TARGET_FILE:krkr2>")
+    set_tests_properties(layer-alpha-runtime PROPERTIES TIMEOUT 75 LABELS "integration;graphics;plugin")
 endif()
 
 option(KRKR2_ENABLE_X11_INPUT_SMOKE "Register X11 keyboard integration test" OFF)

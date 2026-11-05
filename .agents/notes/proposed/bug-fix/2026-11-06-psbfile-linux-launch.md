@@ -138,3 +138,12 @@ https://github.com/realRurichan/DroidDeck/actions/runs/42110695620 。
 选中 start、load、option；实际 A 打开设置页面，B 返回标题，截图与只读焦点树一致。
 同哈希引擎及配套 APK 已覆盖安装到手机，安装器校验成功，恢复官方 HTTPS 下载配置。
 测试不写原游戏脚本或存档；实体手柄、多游戏样本及完整剧情仍未验收。
+
+## 新场景的 clipAlphaRect 缺失
+
+手机原游戏在 start.ks 第 23 行进入 affinelayer.tjs 的 onPaint 后报
+`Member "clipAlphaRect" does not exist`，world.tjs 更新链调用 KAGLayer 的
+八参数方法，最后一个 clear 为 0。当前 dcd5e98 引擎 hash 与发行版一致。
+错误截图和会话 2026-11-06-36 日志保留在 DroidDeck 的忽略调试目录。
+按 layerExBTOA 的 API 补原生实现和独立合成像素测试，真实剧情待新构建复测。
+不修改原游戏脚本或存档；来源、行为与测试入口见 docs/reference/plugins.md。

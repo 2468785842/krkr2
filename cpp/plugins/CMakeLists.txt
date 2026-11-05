@@ -12,6 +12,7 @@ target_sources(${PROJECT_NAME} PRIVATE
     dirlist.cpp
     csvParser.cpp
     layerExMovie.cpp
+    layerExBTOA.cpp
     varfile.cpp
     saveStruct.cpp
     getabout.cpp

@@ -56,3 +56,24 @@
 | windowEx.dll           | https://github.com/wtnbgo/windowEx                                                                      |
 | wutcwf.dll             | https://github.com/krkrz/SamplePlugin/tree/master/wutcwf                                                |
 | xp3filter.dll          | nan                                                                                                     |
+
+## layerExBTOA 的 clipAlphaRect
+
+`cpp/plugins/layerExBTOA.cpp` 内建 `Layer.clipAlphaRect(dleft, dtop, src,
+sleft, stop, swidth, sheight, clear=void)`，只覆盖这个方法，不宣称整个插件完成。
+按源图 alpha 乘目标 alpha；普通图层保留 RGB，`ltAddAlpha` 同步缩放预乘 RGB。
+只修改目标 clip 与图像边界的交集，源 clip 不参与；clear 在 0–255 时处理交集内
+操作矩形以外的区域，省略/void/越界值保留原像素。普通图层 clear 直接设 alpha，
+预乘图层 clear 作为颜色和 alpha 的倍率。无交集时仍保持这一预乘契约。
+源 mask 在写入前快照，支持自身重叠与 assignImages 共享存储；坐标计算使用 64 位中间值。
+通过现有纹理读写接口处理 CPU/GPU 数据，并更新 imageModified 和对应显示区域。
+
+行为核对来源：[wamsoft/layerExBTOA](https://github.com/wamsoft/layerExBTOA/tree/a57e7a25a9e079f95b93cf9768949e0f8789f685)
+的 Main.cpp（clipAlphaRect、ClipAddAlpha）与 readme.txt，作者 わたなべごう；
+原 readme 声明插件许可遵循吉里吉里本体。本实现重新组织原生 Layer 访问、裁剪与
+快照流程，保留其整数透明度运算规则，没有引入 AGPL 项目代码。
+
+启用 `KRKR2_ENABLE_PSBFILE_SMOKE=ON` 时同时注册 `layer-alpha-runtime`，
+运行 `tools/game-smoke/layer_alpha.py` 的合成像素测试（需要显示服务）。
+覆盖透明度端点、部分透明、clip、clear、负坐标、源边界、极值坐标、重叠/共享、
+预乘颜色、错误参数与修改标志。真实游戏验收另记于活动 note。

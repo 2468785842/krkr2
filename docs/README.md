@@ -26,7 +26,7 @@
 
 | 文档 | 内容 |
 |---|---|
-| [插件来源](reference/plugins.md) | 插件原始资料；不表示全部内建或兼容 |
+| [插件来源](reference/plugins.md) | 插件原始资料与 clipAlphaRect 实现/测试边界 |
 | [游戏验证范围](reference/game-compatibility.md) | 本地样本、已有证据与未验证能力 |
 | [外部实现参考](reference/upstream.md) | 资料关系、适用范围与平台库入口 |
 | [仓库工具](../tools/README.md) · [XP3 工具](../tools/xp3/README.md) | 实际工具的构建和使用 |
