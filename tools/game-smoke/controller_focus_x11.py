@@ -17,9 +17,9 @@ class TestWindow extends Window {
         if(key == 69) { edit.visible = true; edit.focus(); }
         if(key == 77) { dialog.visible = true; dialog.setMode(); dialog.focus(); }
         if(key == 72) {
-            top.setSize(100, 40); middle.setSize(100, 40); bottom.setSize(100, 40);
-            top.left = 100; middle.left = 300; bottom.left = 500;
-            top.top = middle.top = bottom.top = 100;
+            global.top.setSize(100, 40); middle.setSize(100, 40); bottom.setSize(100, 40);
+            global.top.left = 100; middle.left = 300; bottom.left = 500;
+            global.top.top = middle.top = bottom.top = 100;
         }
         if(key == 86) { middle.visible = false; bottom.enabled = false; }
     }
