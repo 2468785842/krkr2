@@ -16,6 +16,12 @@ class TestWindow extends Window {
     function onKeyDown(key, shift) {
         if(key == 69) { edit.visible = true; edit.focus(); }
         if(key == 77) { dialog.visible = true; dialog.setMode(); dialog.focus(); }
+        if(key == 72) {
+            top.setSize(100, 40); middle.setSize(100, 40); bottom.setSize(100, 40);
+            top.left = 100; middle.left = 300; bottom.left = 500;
+            top.top = middle.top = bottom.top = 100;
+        }
+        if(key == 86) { middle.visible = false; bottom.enabled = false; }
     }
     function onKeyUp(key, shift) {
         record("key:" + key + ":focus:" + (focusedLayer == null ? "none" : focusedLayer.name));
@@ -43,6 +49,8 @@ global.middle = new ButtonLayer(root, "middle", 200);
 global.disabled = new ButtonLayer(root, "disabled", 150); disabled.enabled = false;
 global.top = new ButtonLayer(root, "top", 100);
 global.outside = new ButtonLayer(root, "outside", -100);
+global.transparent = new ButtonLayer(root, "transparent", 50); transparent.opacity = 0;
+global.unchained = new ButtonLayer(root, "unchained", 75); unchained.joinFocusChain = false;
 global.hidden = new Layer(win, root); hidden.visible = false;
 global.hiddenButton = new ButtonLayer(hidden, "hidden", 0);
 global.edit = new EditLayer();
@@ -71,6 +79,15 @@ def main():
         ('Up', ['key:38:focus:middle']),
         ('Left', ['key:37:focus:top']),
         ('Return', ['key:13:focus:top', 'click:top']),
+        ('h', ['key:72:focus:top']),
+        ('Right', ['key:39:focus:middle']),
+        ('Right', ['key:39:focus:bottom']),
+        ('Right', ['key:39:focus:top']),
+        ('Left', ['key:37:focus:bottom']),
+        ('Left', ['key:37:focus:middle']),
+        ('Left', ['key:37:focus:top']),
+        ('v', ['key:86:focus:top']),
+        ('Down', ['key:40:focus:top']),
         ('e', ['key:69:focus:edit']),
         ('Down', ['key:40:focus:edit']),
         ('m', ['key:77:focus:dialog']),
