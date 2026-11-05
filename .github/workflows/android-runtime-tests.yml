@@ -1,6 +1,11 @@
 name: Android runtime build
 
 on:
+  workflow_call:
+    inputs:
+      abi:
+        type: string
+        default: x86_64
   workflow_dispatch:
     inputs:
       abi:

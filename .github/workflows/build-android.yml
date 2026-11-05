@@ -2,7 +2,23 @@ name: Build Android
 
 on:
   workflow_call:
+    inputs:
+      runtime_contracts:
+        type: boolean
+        default: false
+      abi:
+        type: string
+        default: x86_64
   workflow_dispatch:
+    inputs:
+      runtime_contracts:
+        description: 'Build and verify an ABI-specific complete Debug runtime'
+        type: boolean
+        default: false
+      abi:
+        type: choice
+        options: [x86_64, arm64-v8a]
+        default: x86_64
 
 env:
   ANDROID_NDK_VERSION: "28.0.13004108"
@@ -10,7 +26,13 @@ env:
   VCPKG_INSTALL_OPTIONS: "--debug"
 
 jobs:
+  runtime-contracts:
+    if: inputs.runtime_contracts
+    uses: ./.github/workflows/android-runtime-tests.yml
+    with:
+      abi: ${{ inputs.abi }}
   build-android:
+    if: ${{ !inputs.runtime_contracts }}
     runs-on: ubuntu-latest
     env:
       VCPKG_ROOT: ${{ github.workspace }}/.act/vcpkg
