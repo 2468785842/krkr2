@@ -23,7 +23,6 @@ android {
 
         ndk {
             jobs Runtime.runtime.availableProcessors()
-            abiFilters(*runtimeAbis)
         }
 
         externalNativeBuild {
