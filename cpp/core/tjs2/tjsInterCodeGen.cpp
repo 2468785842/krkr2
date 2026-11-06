@@ -45,7 +45,10 @@ namespace TJS // following is in the namespace
     }
 
     void parser::error(const std::string &msg) {
-        spdlog::get("tjs2")->critical(msg);
+        // Keep Bison diagnostics on the same path as code-generation errors.
+        // Parse must see the error even when Bison recovers at a semicolon.
+        const ttstr message(msg);
+        _yyerror(message.c_str(), ptr);
     }
 
     //---------------------------------------------------------------------------
@@ -80,7 +83,7 @@ namespace TJS // following is in the namespace
         }
 
         sb->CompileErrorCount++;
-        str += { fmt::format(" at line {}", 1 + sb->SrcPosToLine(errpos)) };
+        str += TJS_W(" at ") + sb->GetLineDescriptionString(errpos);
         sb->GetTJS()->OutputToConsole(str.c_str());
 
         return 0;

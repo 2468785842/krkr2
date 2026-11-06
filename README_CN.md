@@ -22,6 +22,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
     - [环境变量](#环境变量)
     - [编译步骤](#编译步骤)
   - [可执行文件位置](#可执行文件位置)
+  - [文本脚本回归测试](#文本脚本回归测试)
   - [代码格式化](#代码格式化)
   - [支持的游戏列表](#支持的游戏列表)
   - [插件资源](#插件资源)
@@ -130,6 +131,30 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - 可执行文件: `out/linux/debug/bin/krkr2/krkr2`
 - **MacOS**:
   - 可执行文件: `out/macos/debug/bin/krkr2/krkr2.app`
+
+## 文本脚本回归测试
+
+`KRKR2_ENABLE_SCRIPT_SMOKE` 默认为 `OFF`，可在已有桌面构建中单独开启；
+无需开启全部 `ENABLE_TESTS`。两项测试运行真实引擎和自动生成的脚本，检查 mode 0/1
+文本读取、BOM 与读取边界，以及语法错误抛出异常、保留文件/行号诊断和错误后的继续执行。
+所有测试素材均由脚本生成，不包含商业游戏文件。
+
+文本格式对照本项目写入器及
+[Kirikiroid2 的读取器](https://github.com/zeas2/Kirikiroid2/blob/d1c2b1259423542c893e0b65eaeb46c848848f2b/src/core/base/TextStream.cpp)：
+`FE FE mode` 后跟 `FF FE`，UTF-16LE 正文从偏移 5 开始。修复沿用现有位变换，
+没有整体移植其文本流实现。Linux 完成上述依赖配置并安装 `xvfb`、`xauth` 后运行：
+
+```bash
+cmake --preset="Linux Release Config" -DENABLE_TESTS=OFF -DBUILD_TOOLS=OFF \
+  -DKRKR2_ENABLE_SCRIPT_SMOKE=ON
+cmake --build --preset="Linux Release Build" --target krkr2
+LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a \
+  ctest --test-dir out/linux/release -R '^(textstream|parser-error)-runtime$' \
+  --output-on-failure --no-tests=error
+```
+
+进程日志和 JSON 报告保存在构建目录 `script-smoke/`，每次运行使用独立子目录。
+这些回归覆盖文本与编译错误处理，不代表全部游戏、音视频或存读档兼容性。
 
 ## 代码格式化
 - `clang-format@20`
