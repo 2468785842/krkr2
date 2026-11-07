@@ -22,7 +22,9 @@ on:
 
 env:
   ANDROID_NDK_VERSION: "28.0.13004108"
-  VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json,readwrite"
+  # Fork pull requests cannot read repository secrets: fall back to plain
+  # source builds instead of the authenticated GitHub Packages nuget cache.
+  VCPKG_BINARY_SOURCES: ${{ secrets.NUGET_API_KEY != '' && format('clear;nuget,https://nuget.pkg.github.com/{0}/index.json,readwrite', github.repository_owner) || 'clear' }}
   VCPKG_INSTALL_OPTIONS: "--debug"
 
 jobs:
@@ -138,6 +140,7 @@ jobs:
           ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.sh
 
       - name: Add NuGet sources
+        if: ${{ secrets.NUGET_API_KEY != '' }}
         shell: bash
         run: |
           mono `${{ env.VCPKG_ROOT }}/vcpkg fetch nuget | tail -n 1` \
