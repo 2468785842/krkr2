@@ -1,6 +1,7 @@
 #include "ImageOps_internal.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <limits>
 #include <stdexcept>
@@ -121,6 +122,194 @@ namespace TVPImageOps {
         }
     } // namespace
 
+    namespace {
+        // OpenCV 4.7.0 的 cvRound：四舍六入五取偶（与 FP 环境舍入模式无关，
+        // 便于确定性复现）。本模块系数范围有限，减法精确，不会丢精度。
+        int roundEven(float value) {
+            const float lower = std::floor(value);
+            const float diff = value - lower;
+            const int base = static_cast<int>(lower);
+            if(diff > 0.5f)
+                return base + 1;
+            if(diff < 0.5f)
+                return base;
+            return base + (base & 1);
+        }
+
+        short satShort(float value) {
+            int v = roundEven(value);
+            if(v > 32767)
+                v = 32767;
+            if(v < -32768)
+                v = -32768;
+            return static_cast<short>(v);
+        }
+
+        std::uint8_t satUchar(std::int32_t value) {
+            if(value < 0)
+                return 0;
+            if(value > 255)
+                return 255;
+            return static_cast<std::uint8_t>(value);
+        }
+
+        int clipIndex(int value, int size) {
+            return value < 0 ? 0 : (value < size ? value : size - 1);
+        }
+
+        // 复刻 OpenCV 4.7.0 resize.cpp 的 8 位线性系数生成：坐标映射为
+        // double 计算后转 float，系数按 cvRound 变换为 Q11 定点数。垂直方向
+        // 不钳制系数（fy 可为负，对应行复制的外推），行索引另行钳制。
+        struct LinearPlan {
+            std::vector<int> offsets;
+            std::vector<short> coefficients;
+
+            LinearPlan(int sourceSize, int destinationSize, int channels,
+                       bool vertical) {
+                const double scale =
+                    static_cast<double>(sourceSize) / destinationSize;
+                offsets.resize(static_cast<std::size_t>(destinationSize) *
+                               (vertical ? 1 : channels));
+                coefficients.resize(
+                    static_cast<std::size_t>(vertical ? 2 : channels * 2) *
+                    destinationSize);
+                for(int out = 0; out < destinationSize; ++out) {
+                    float fraction =
+                        static_cast<float>((out + 0.5) * scale - 0.5);
+                    int base = static_cast<int>(std::floor(fraction));
+                    fraction -= base;
+                    if(!vertical) {
+                        // 水平方向按 OpenCV 的 xmin/xmax 边界钳制系数。
+                        if(base < 0)
+                            fraction = 0.f, base = 0;
+                        if(base >= sourceSize - 1)
+                            fraction = 0.f, base = sourceSize - 1;
+                    }
+                    const float weights[2] = { 1.f - fraction, fraction };
+                    if(vertical) {
+                        offsets[out] = base;
+                        for(int k = 0; k < 2; ++k)
+                            coefficients[static_cast<std::size_t>(out) * 2 +
+                                         k] = satShort(weights[k] * 2048.f);
+                    } else {
+                        for(int ch = 0; ch < channels; ++ch)
+                            offsets[static_cast<std::size_t>(out) * channels +
+                                    ch] = base * channels + ch;
+                        for(int ch = 0; ch < channels; ++ch)
+                            for(int k = 0; k < 2; ++k)
+                                coefficients[(static_cast<std::size_t>(out) *
+                                                  channels +
+                                              ch) *
+                                                 2 +
+                                             k] = satShort(weights[k] * 2048.f);
+                    }
+                }
+            }
+        };
+
+        // 垂直合成复刻 VResizeLinear<uchar,...> 的 8 位路径：全部输出像素
+        // （含 SIMD 与标量循环）都使用同一公式
+        //   ((S0>>4)*b0 >> 16 + (S1>>4)*b1 >> 16 + 2) >> 2
+        // 行缓冲的 Q11 定点和由 TResizeLinear 精确整数生成，无舍入损失。
+        void linearRows(const std::uint8_t *source, std::uint8_t *destination,
+                        std::size_t sourcePitch, std::size_t destinationPitch,
+                        int width, int sourceWidth, int sourceHeight,
+                        int channels, const LinearPlan &planX,
+                        const LinearPlan &planY, int first, int last) {
+            const auto *xofs = planX.offsets.data();
+            const auto *ialpha = planX.coefficients.data();
+            const int rowLanes = sourceWidth * channels;
+            for(int y = first; y < last; ++y) {
+                const int row0 = clipIndex(planY.offsets[y], sourceHeight);
+                const int row1 = clipIndex(planY.offsets[y] + 1, sourceHeight);
+                const short b0 = planY.coefficients[y * 2];
+                const short b1 = planY.coefficients[y * 2 + 1];
+                const auto *s0 =
+                    source + static_cast<std::size_t>(row0) * sourcePitch;
+                const auto *s1 =
+                    source + static_cast<std::size_t>(row1) * sourcePitch;
+                auto *out = destination +
+                    static_cast<std::size_t>(y) * destinationPitch;
+                for(int idx = 0; idx < width; ++idx) {
+                    const int sx = xofs[idx];
+                    // 边界区 a1 恒为 0，钳制仅用于避免越界读取。
+                    const int next =
+                        sx + channels < rowLanes ? sx + channels : sx;
+                    const short a0 = ialpha[idx * 2], a1 = ialpha[idx * 2 + 1];
+                    const std::int32_t left = s0[sx] * a0 + s0[next] * a1;
+                    const std::int32_t right = s1[sx] * a0 + s1[next] * a1;
+                    // 乘积有界：>>(4+16) 前因子不超过 32640*3072，int32
+                    // 不溢出。
+                    const std::int32_t sum = (((left >> 4) * b0) >> 16) +
+                        (((right >> 4) * b1) >> 16);
+                    out[idx] = satUchar((sum + 2) >> 2);
+                }
+            }
+        }
+
+        void resizeLinear(ConstImageView source, ImageView destination) {
+            const auto sourcePitch = detail::Step(source);
+            const auto destinationPitch = detail::Step(destination);
+            const int width =
+                destination.width * detail::Channels(source.format);
+            if(source.width == destination.width &&
+               source.height == destination.height) {
+                if(source.data == destination.data)
+                    return;
+                const auto bytes =
+                    detail::RowBytes(source.width, source.format);
+                for(int y = 0; y < source.height; ++y)
+                    std::memcpy(destination.data + y * destinationPitch,
+                                source.data + y * sourcePitch, bytes);
+                return;
+            }
+            // OpenCV 把恰好 2 倍的整数缩小交给了 INTER_AREA 的整数累加路径
+            // （该路径与线性插值位等价），此处直接按其 2x2 均值复刻。
+            if(source.width == 2 * destination.width &&
+               source.height == 2 * destination.height) {
+                const int channels = detail::Channels(source.format);
+                detail::ForRows(
+                    destination.height,
+                    static_cast<std::size_t>(width) * destination.height,
+                    [=](int first, int last) {
+                        for(int y = first; y < last; ++y) {
+                            const auto *top = source.data +
+                                static_cast<std::size_t>(2 * y) * sourcePitch;
+                            const auto *bottom = top + sourcePitch;
+                            auto *out = destination.data +
+                                static_cast<std::size_t>(y) * destinationPitch;
+                            for(int dx = 0; dx < destination.width; ++dx) {
+                                for(int ch = 0; ch < channels; ++ch) {
+                                    const int o = dx * 2 * channels + ch;
+                                    // OpenCV 的 fast_mode 2x2 用整数 (和+2)>>2
+                                    // 半入，不是浮点四舍六入五取偶。
+                                    const std::int32_t sum = top[o] +
+                                        top[o + channels] + bottom[o] +
+                                        bottom[o + channels];
+                                    out[dx * channels + ch] =
+                                        satUchar((sum + 2) >> 2);
+                                }
+                            }
+                        }
+                    });
+                return;
+            }
+
+            LinearPlan planX(source.width, destination.width,
+                             detail::Channels(source.format), false);
+            LinearPlan planY(source.height, destination.height, 1, true);
+            detail::ForRows(
+                destination.height,
+                static_cast<std::size_t>(width) * destination.height,
+                [=](int first, int last) {
+                    linearRows(source.data, destination.data, sourcePitch,
+                               destinationPitch, width, source.width,
+                               source.height, detail::Channels(source.format),
+                               planX, planY, first, last);
+                });
+        }
+    } // namespace
+
     ImageBuffer::ImageBuffer(int width, int height, PixelFormat format) :
         width_(width), height_(height), format_(format) {
         const auto row = detail::RowBytes(width, format);
@@ -151,8 +340,10 @@ namespace TVPImageOps {
             case Interpolation::Nearest:
                 resizeNearest(source, destination);
                 return;
-            case Interpolation::Area:
             case Interpolation::Linear:
+                resizeLinear(source, destination);
+                return;
+            case Interpolation::Area:
             case Interpolation::Cubic:
                 detail::ResizeFiltered(source, destination, mode);
                 return;

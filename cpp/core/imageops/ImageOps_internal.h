@@ -13,6 +13,7 @@ namespace TVPImageOps {
         // 暂沿用后端调度，保留线程数和大图分片行为，便于单独迁移像素算法。
         void ForRows(int height, std::size_t pixels,
                      const std::function<void(int, int)> &task);
+        // 仅剩 Area/Cubic 仍由 OpenCV 后端承担；Nearest 与 Linear 已原生。
         void ResizeFiltered(ConstImageView source, ImageView destination,
                             Interpolation mode);
     } // namespace detail

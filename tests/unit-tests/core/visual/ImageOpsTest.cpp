@@ -364,6 +364,42 @@ TEST_CASE(
                            source.data() + y * source.pitch));
 }
 
+TEST_CASE("ImageOps native linear matches the pinned OpenCV on wide images "
+          "and special scales",
+          "[imageops]") {
+    // 覆盖原生路径的各个区段：宽输出（mul_hi 全公式）、强放大（垂直系数
+    // 为负的行复制外推）、缩小（水平边界区）、恰好 2 倍整数缩小（均值
+    // 快路径）、恒等复制，以及奇数目标宽度的通道交错。
+    const int sizes[][4] = { { 104, 96, 118, 76 },   { 96, 104, 76, 118 },
+                             { 200, 150, 137, 111 }, { 40, 30, 15, 11 },
+                             { 30, 40, 11, 15 },     { 60, 44, 41, 33 },
+                             { 64, 64, 32, 32 },     { 6, 4, 3, 2 },
+                             { 5, 1, 9, 1 },         { 5, 7, 5, 7 } };
+    for(int channels : { 1, 4 }) {
+        for(const auto &size : sizes) {
+            Pixels source(size[0], size[1], channels);
+            source.pattern();
+            const auto original = source.bytes;
+            Pixels actual(size[2], size[3], channels, 17), expected = actual;
+            cv::Mat src = source.mat(), dst = expected.mat();
+            cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_LINEAR);
+            Resize(source.view(), actual.view(), Interpolation::Linear);
+            REQUIRE(actual.bytes == expected.bytes);
+            REQUIRE(source.bytes == original);
+        }
+    }
+}
+
+TEST_CASE("ImageOps native linear keeps in-place identity without touching "
+          "the source",
+          "[imageops]") {
+    Pixels image(7, 5, 4);
+    image.pattern();
+    const auto original = image.bytes;
+    Resize(image.view(), image.view(), Interpolation::Linear);
+    REQUIRE(image.bytes == original);
+}
+
 TEST_CASE("ImageOps rejects invalid views without writing the destination",
           "[imageops]") {
     Pixels source(3, 3, 4), destination(3, 3, 4);

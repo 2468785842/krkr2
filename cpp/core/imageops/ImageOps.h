@@ -56,7 +56,9 @@ namespace TVPImageOps {
 
     // 参数错误抛 std::invalid_argument，后端错误转换为 std::runtime_error。
     // Resize 保留既有 Nearest/Area/Linear/Cubic 映射及像素坐标、舍入语义。
-    // Nearest 为原生实现；输入输出缓冲区应独立，允许相同视图的原位恒等操作。
+    // Nearest 与 Linear 为原生实现（Linear 复刻 OpenCV 4.7.0 的 8 位定点
+    // 公式，含 2 倍整数缩小走均值快路径与恒等复制行为）；输入输出缓冲区
+    // 应独立，允许相同视图的原位恒等操作。
     void Resize(ConstImageView source, ImageView destination,
                 Interpolation mode);
 
