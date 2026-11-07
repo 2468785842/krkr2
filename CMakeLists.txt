@@ -312,3 +312,24 @@ if(KRKR2_ENABLE_X11_INPUT_SMOKE)
                 --engine "$<TARGET_FILE:krkr2>" --xdotool "${KRKR2_XDOTOOL}")
     set_tests_properties(x11-controller-focus-runtime PROPERTIES TIMEOUT 75 LABELS "integration;input;x11")
 endif()
+
+# Opt-in application tests for text stream decoding and parser error
+# propagation; both run the real engine with synthetic scripts only.
+option(KRKR2_ENABLE_SCRIPT_SMOKE "Register text stream and parser integration tests" OFF)
+if(KRKR2_ENABLE_SCRIPT_SMOKE)
+    if(NOT TARGET krkr2 OR ANDROID OR IOS)
+        message(FATAL_ERROR "Script smoke requires the desktop krkr2 application")
+    endif()
+    enable_testing()
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME textstream-runtime
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/game-smoke/textstream_repro.py"
+                --engine "$<TARGET_FILE:krkr2>"
+                --output-dir "${CMAKE_CURRENT_BINARY_DIR}/script-smoke/textstream")
+    add_test(NAME parser-error-runtime
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/game-smoke/parser_error_repro.py"
+                --engine "$<TARGET_FILE:krkr2>"
+                --output-dir "${CMAKE_CURRENT_BINARY_DIR}/script-smoke/parser-error")
+    set_tests_properties(textstream-runtime parser-error-runtime
+        PROPERTIES TIMEOUT 120 LABELS "integration;script")
+endif()
