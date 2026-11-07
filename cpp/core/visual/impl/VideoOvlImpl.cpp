@@ -25,6 +25,7 @@
 // #include <evcode.h>
 
 #include "Application.h"
+#include "MsgIntf.h"
 #include "combase.h"
 
 extern void GetVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin,

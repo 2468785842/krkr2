@@ -41,7 +41,14 @@ endif()
 
 add_library(${PROJECT_NAME} STATIC ${SOUND_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${SOUND_HEADERS_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 PRIVATE core_base_module core_movie_module core_utils_module core_environ_module)
+krkr2_target_link_foundation(${PROJECT_NAME} PUBLIC)
+target_link_libraries(${PROJECT_NAME} PRIVATE core_utils_module)
+krkr2_target_include_base_headers(${PROJECT_NAME})
+krkr2_target_include_environ_headers(${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${KRKR2_CORE_DIR}/movie
+    ${KRKR2_CORE_DIR}/movie/ffmpeg
+)
 
 find_package(Vorbis CONFIG REQUIRED)
 find_package(Opus CONFIG REQUIRED)

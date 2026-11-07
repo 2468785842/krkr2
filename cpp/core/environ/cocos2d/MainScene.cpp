@@ -16,17 +16,21 @@
 #include "ConfigManager/IndividualConfigManager.h"
 #include "Platform.h"
 #include "ui/ConsoleWindow.h"
-#include "ui/FileSelectorForm.h"
+#include <filesystem>
 #include "ui/DebugViewLayerForm.h"
 #include "Application.h"
 #include "ScriptMgnIntf.h"
 #include "impl/TVPWindow.h"
+#include "InputState.h"
+#include "InputModifiers.h"
+#include "TextInput.h"
 #include "RenderManager.h"
 #include "ui/UIButton.h"
 #include "ui/csd/CsdUIFactory.h"
 
 #include "CCKeyCodeConv.h"
 #include "RenderUtils.h"
+#include "TVPLog.h"
 
 USING_NS_CC;
 
@@ -43,11 +47,6 @@ const float UI_CHANGE_DURATION = 0.3f;
 class TVPWindowLayer;
 
 class TVPWindowManagerOverlay;
-
-static float _mouseCursorScale;
-static cocos2d::Vec2 _mouseTouchPoint, _mouseBeginPoint;
-static std::set<cocos2d::Touch *> _mouseTouches;
-static bool _mouseMoved, _mouseClickedDown;
 
 static tjs_uint16 _keymap[0x200];
 static cocos2d::Label *_fpsLabel = nullptr;
@@ -282,7 +281,8 @@ public:
     static TVPWindowManagerOverlay *create() {
         auto *ret = new TVPWindowManagerOverlay();
         ret->autorelease();
-        ret->initFromFile(nullptr, Csd::createWinMgrOverlay(), nullptr);
+        ret->initUILayout(Csd::NodeBuilderFn{}, Csd::createWinMgrOverlay,
+                          Csd::NodeBuilderFn{});
         return ret;
     }
 
@@ -321,8 +321,8 @@ public:
                         UI_CHANGE_DURATION, Vec2(size.width, 0))),
                     Sequence::createWithTwoActions(
                         Hide::create(), CallFunc::create(funcUpdate))));
-            TVPWindowLayer::_currentWindowLayer =
-                TVPWindowLayer::_currentWindowLayer->_prevWindow;
+            TVPWindowLayer::SetCurrentWindow(
+                TVPWindowLayer::_currentWindowLayer->_prevWindow);
             _left->setVisible(false);
             _right->setVisible(false);
         });
@@ -345,8 +345,8 @@ public:
                         UI_CHANGE_DURATION, Vec2(-size.width, 0))),
                     Sequence::createWithTwoActions(
                         Hide::create(), CallFunc::create(funcUpdate))));
-            TVPWindowLayer::_currentWindowLayer =
-                TVPWindowLayer::_currentWindowLayer->_nextWindow;
+            TVPWindowLayer::SetCurrentWindow(
+                TVPWindowLayer::_currentWindowLayer->_nextWindow);
             _left->setVisible(false);
             _right->setVisible(false);
         });
@@ -424,6 +424,43 @@ public:
 
 static TVPMainScene *_instance = nullptr;
 
+TVPMainScene::~TVPMainScene() {
+    inputFocus.reset();
+    if(_instance == this)
+        _instance = nullptr;
+}
+
+bool TVPMainScene::AcceptsGameInput() {
+    return _instance &&
+        (!_instance->inputFocus || _instance->inputFocus->acceptsInput());
+}
+
+void TVPMainScene::CancelPointerInput(bool notifyWindow) {
+    const auto released = krkr::input::sharedState().releasePointers();
+    if(_instance)
+        _instance->cancelGameInput(released, notifyWindow);
+}
+
+void TVPMainScene::cancelGameInput(const std::vector<std::uint32_t> &released,
+                                   bool notifyWindow) {
+    auto keys = released;
+    if(virtualTouchButton.pressed())
+        keys.push_back(virtualTouchButton.value());
+    virtualTouchButton.reset();
+    const bool hadVirtualTouch = !_mouseTouches.empty();
+    _mouseTouches.clear();
+    _mouseMoved = false;
+    if(hadVirtualTouch && TVPWindowLayer::_mouseCursor) {
+        TVPWindowLayer::_mouseCursor->setScale(_mouseCursorScale);
+        // Stop the pending long-press action before starting the fade.
+        TVPWindowLayer::_refadeMouseCursor();
+    }
+    if(notifyWindow) {
+        if(auto *window = TVPWindowLayer::_currentWindowLayer)
+            window->CancelInput(keys);
+    }
+}
+
 TVPMainScene *TVPMainScene::GetInstance() { return _instance; }
 
 TVPMainScene *TVPMainScene::CreateInstance() {
@@ -454,6 +491,15 @@ void TVPMainScene::initialize() {
     // GameNode->setRotation(-90);
     // GameNode->setPosition(getContentSize() / 2);
     addChild(GameNode, GAME_SCENE_ORDER);
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) ||                               \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) ||                                 \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+    inputFocus = std::make_unique<krkr::cocosinput::InputFocus>(
+        *_eventDispatcher, krkr::input::sharedState(),
+        GLViewImpl::EVENT_WINDOW_FOCUSED, GLViewImpl::EVENT_WINDOW_UNFOCUSED,
+        [this](const auto &released) { cancelGameInput(released); });
+#endif
 
     EventListenerKeyboard *keylistener = EventListenerKeyboard::create();
     keylistener->onKeyPressed = CC_CALLBACK_2(TVPMainScene::onKeyPressed, this);
@@ -596,6 +642,10 @@ void TVPMainScene::popUIForm(cocos2d::Node *form, eLeaveAni ani) {
     }
 }
 
+#ifdef KRKR2_ENABLE_UI_TEST_DRIVER
+void TVPStartUIContractDriver(cocos2d::Scene *scene);
+#endif
+
 bool TVPMainScene::startupFrom(const std::string &path) {
     // startup from dir
     if(!TVPCheckStartupPath(path)) {
@@ -605,7 +655,7 @@ bool TVPMainScene::startupFrom(const std::string &path) {
     IndividualConfigManager *pGlobalCfgMgr =
         IndividualConfigManager::GetInstance();
     pGlobalCfgMgr->UsePreferenceAt(
-        TVPBaseFileSelectorForm::pathSplit(path).first);
+        std::filesystem::u8path(path).parent_path().u8string());
     if(UINode->getChildrenCount()) {
         popUIForm(nullptr);
     }
@@ -683,6 +733,9 @@ void TVPMainScene::doStartup(float dt, std::string path) {
     }
     int fps = pGlobalCfgMgr->GetValue<int>("fps_limit", 60);
     cocos2d::Director::getInstance()->setAnimationInterval(1.0f / fps);
+#ifdef KRKR2_ENABLE_UI_TEST_DRIVER
+    TVPStartUIContractDriver(this);
+#endif
 }
 
 extern ttstr TVPGetErrorDialogTitle();
@@ -697,8 +750,7 @@ void TVPMainScene::update(float delta) {
     // TVPWindowLayer::_currentWindowLayer->UpdateOverlay();
     iTVPTexture2D::RecycleProcess();
     //_ResotreGLStatues();
-    if(_postUpdate)
-        _postUpdate();
+    TVPInvokePostUpdateEvent();
     if(_fpsLabel) {
         unsigned int drawCount;
         uint64_t vmemsize;
@@ -802,6 +854,8 @@ float TVPMainScene::getUIScale() {
 }
 
 void TVPMainScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event *event) {
+    if(!AcceptsGameInput())
+        return;
     Vector<Node *> &uiChild = UINode->getChildren();
     if(!uiChild.empty()) {
         iTVPBaseForm *uiform = static_cast<iTVPBaseForm *>(uiChild.back());
@@ -856,7 +910,7 @@ void TVPMainScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event *event) {
         return;
     code = _keymap[code];
 
-    TVPWindowLayer::_scancode[code] = 0x11;
+    krkr::input::sharedState().press(code);
     if(TVPWindowLayer::_currentWindowLayer) {
         TVPWindowLayer::_currentWindowLayer->InternalKeyDown(
             code, TVPGetCurrentShiftKeyState());
@@ -864,6 +918,8 @@ void TVPMainScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event *event) {
 }
 
 void TVPMainScene::onKeyReleased(EventKeyboard::KeyCode keyCode, Event *event) {
+    if(!AcceptsGameInput())
+        return;
 #ifdef _DEBUG
     if(keyCode == EventKeyboard::KeyCode::KEY_PAUSE)
         return;
@@ -914,8 +970,7 @@ void TVPMainScene::onKeyReleased(EventKeyboard::KeyCode keyCode, Event *event) {
     if(!code || code >= 0x200)
         return;
     code = _keymap[code];
-    bool isPressed = TVPWindowLayer::_scancode[code] & 1;
-    TVPWindowLayer::_scancode[code] &= 0x10;
+    bool isPressed = krkr::input::sharedState().release(code);
     if(isPressed && TVPWindowLayer::TVPWindowLayer::_currentWindowLayer) {
         TVPWindowLayer::TVPWindowLayer::_currentWindowLayer->OnKeyUp(
             code, TVPGetCurrentShiftKeyState());
@@ -933,6 +988,7 @@ void TVPMainScene::showWindowManagerOverlay(bool bVisible) {
             if(TVPWindowLayer::TVPWindowLayer::_currentWindowLayer &&
                TVPWindowLayer::TVPWindowLayer::_currentWindowLayer->in_mode_)
                 return;
+            CancelPointerInput();
             TVPWindowLayer::_windowMgrOverlay =
                 TVPWindowManagerOverlay::create();
             GameNode->addChild(TVPWindowLayer::_windowMgrOverlay,
@@ -941,6 +997,7 @@ void TVPMainScene::showWindowManagerOverlay(bool bVisible) {
         }
     } else {
         if(TVPWindowLayer::_windowMgrOverlay) {
+            CancelPointerInput();
             TVPWindowLayer::_windowMgrOverlay->removeFromParent();
             TVPWindowLayer::_windowMgrOverlay = nullptr;
             _gameMenu->setVisible(true);
@@ -982,6 +1039,8 @@ Sprite *TVPCreateCUR() {
 }
 
 void TVPMainScene::showVirtualMouseCursor(bool bVisible) {
+    if(TVPWindowLayer::_virutalMouseMode != bVisible)
+        CancelPointerInput();
     if(!bVisible) {
         if(TVPWindowLayer::TVPWindowLayer::_mouseCursor)
             TVPWindowLayer::TVPWindowLayer::_mouseCursor->setVisible(false);
@@ -1014,41 +1073,53 @@ bool TVPMainScene::isVirtualMouseMode() const {
         TVPWindowLayer::TVPWindowLayer::_mouseCursor->isVisible();
 }
 
+void TVPMainScene::pressVirtualMouse(const cocos2d::Vec2 &point) {
+    if(auto button = virtualTouchButton.press()) {
+        TVPWindowLayer::_currentWindowLayer->onMouseDown(
+            point, TVPWindowLayer::MouseButtonForKey(*button));
+        _mouseMoved = true;
+    }
+}
+
 bool TVPMainScene::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event) {
+    if(!AcceptsGameInput())
+        return false;
     if(UINode->getChildrenCount())
         return false;
     if(!TVPWindowLayer::_currentWindowLayer)
         return false;
     if(!TVPWindowLayer::_virutalMouseMode || TVPWindowLayer::_windowMgrOverlay)
         return TVPWindowLayer::_currentWindowLayer->onTouchBegan(touch, event);
-    _mouseTouches.insert(touch);
+    if(!_mouseTouches.insert(touch).second)
+        return true;
     switch(_mouseTouches.size()) {
         case 1:
             _mouseTouchPoint =
                 GameNode->convertToNodeSpace(touch->getLocation());
             _mouseBeginPoint = TVPWindowLayer::_mouseCursor->getPosition();
-            TVPWindowLayer::_touchBeginTick = TVPGetRoughTickCount32();
+            virtualTouchBeginTick = TVPGetRoughTickCount32();
             _mouseMoved = false;
-            _mouseClickedDown = false;
-            _mouseBtn = ::mbLeft;
+            virtualTouchButton.reset();
+            virtualTouchButton.selectForContacts(1);
             TVPWindowLayer::_mouseCursor->stopAllActions();
             TVPWindowLayer::_mouseCursor->setOpacity(255);
             TVPWindowLayer::_mouseCursor->setScale(_mouseCursorScale);
             TVPWindowLayer::_mouseCursor->runAction(
                 Sequence::createWithTwoActions(
                     DelayTime::create(1), CallFuncN::create([this](Node *p) {
+                        if(!AcceptsGameInput() ||
+                           !TVPWindowLayer::_currentWindowLayer)
+                            return;
                         p->setScale(_mouseCursorScale * 0.8f);
                         TVPWindowLayer::TVPWindowLayer::_currentWindowLayer
                             ->onMouseMove(GameNode->convertToWorldSpace(
                                 _mouseBeginPoint));
-                        TVPWindowLayer::_currentWindowLayer->onMouseDown(
+                        pressVirtualMouse(
                             GameNode->convertToWorldSpace(_mouseBeginPoint));
-                        _mouseClickedDown = true;
-                        _mouseMoved = true;
                     })));
             break;
         case 2:
-            _mouseBtn = ::mbRight;
+            virtualTouchButton.selectForContacts(2);
             _mouseTouchPoint =
                 (_mouseTouchPoint +
                  GameNode->convertToNodeSpace(touch->getLocation())) /
@@ -1060,12 +1131,15 @@ bool TVPMainScene::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event) {
     return true;
 }
 
-void TVPMainScene::onTouchMoved(cocos2d::Touch *touch,
-                                cocos2d::Event *event) const {
+void TVPMainScene::onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *event) {
+    if(!AcceptsGameInput())
+        return;
     if(!TVPWindowLayer::_currentWindowLayer)
         return;
     if(!TVPWindowLayer::_virutalMouseMode || TVPWindowLayer::_windowMgrOverlay)
         return TVPWindowLayer::_currentWindowLayer->onTouchMoved(touch, event);
+    if(!_mouseTouches.count(touch))
+        return;
     if(_mouseTouches.size()) {
         Vec2 pt, newpt;
         if(_mouseTouches.size() == 1) {
@@ -1074,6 +1148,8 @@ void TVPMainScene::onTouchMoved(cocos2d::Touch *touch,
             auto it = _mouseTouches.begin();
             pt = (*it)->getLocation();
             pt = (pt + (*++it)->getLocation()) / 2;
+        } else {
+            return; // Virtual cursor motion supports at most two contacts.
         }
         Vec2 moveDistance, newPoint;
         newPoint = GameNode->convertToNodeSpace(pt);
@@ -1094,12 +1170,8 @@ void TVPMainScene::onTouchMoved(cocos2d::Touch *touch,
         TVPWindowLayer::_currentWindowLayer->onMouseMove(
             GameNode->convertToWorldSpace(newpt));
         if(!_mouseMoved) {
-            if(TVPGetRoughTickCount32() - TVPWindowLayer::_touchBeginTick >
-               1000) {
-                TVPWindowLayer::_currentWindowLayer->onMouseDown(
-                    GameNode->convertToWorldSpace(newpt));
-                _mouseClickedDown = true;
-                _mouseMoved = true;
+            if(TVPGetRoughTickCount32() - virtualTouchBeginTick > 1000) {
+                pressVirtualMouse(GameNode->convertToWorldSpace(newpt));
             } else if(moveDistance.getLengthSq() >
                       TVPWindowLayer::_touchMoveThresholdSq) {
                 TVPWindowLayer::_mouseCursor->stopAllActions();
@@ -1109,27 +1181,32 @@ void TVPMainScene::onTouchMoved(cocos2d::Touch *touch,
     }
 }
 
-void TVPMainScene::onTouchEnded(cocos2d::Touch *touch,
-                                cocos2d::Event *event) const {
+void TVPMainScene::onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *event) {
+    if(!AcceptsGameInput())
+        return;
     if(!TVPWindowLayer::_currentWindowLayer)
         return;
     if(!TVPWindowLayer::_virutalMouseMode || TVPWindowLayer::_windowMgrOverlay)
         return TVPWindowLayer::_currentWindowLayer->onTouchEnded(touch, event);
+    if(!_mouseTouches.count(touch))
+        return;
     if(_mouseTouches.size() == 1) {
-        Vec2 pt = TVPWindowLayer::_mouseCursor->getPosition();
-        if(!_mouseClickedDown &&
-           TVPGetRoughTickCount32() - TVPWindowLayer::_touchBeginTick < 150) {
+        const auto button = virtualTouchButton.value();
+        const auto released = virtualTouchButton.finish();
+        Vec2 pt = GameNode->convertToWorldSpace(
+            TVPWindowLayer::_mouseCursor->getPosition());
+        if(!released &&
+           TVPGetRoughTickCount32() - virtualTouchBeginTick < 150) {
             TVPWindowLayer::_currentWindowLayer->onMouseClick(
-                GameNode->convertToWorldSpace(pt));
-        } else if(_mouseClickedDown) {
+                pt, TVPWindowLayer::MouseButtonForKey(button));
+        } else if(released) {
             TVPWindowLayer::_currentWindowLayer->onMouseUp(
-                GameNode->convertToWorldSpace(pt));
+                pt, TVPWindowLayer::MouseButtonForKey(*released));
         }
     }
     _mouseTouches.erase(touch);
     if(_mouseTouches.size() == 0) {
         _mouseMoved = false;
-        _mouseClickedDown = false;
         TVPWindowLayer::_refadeMouseCursor();
         TVPWindowLayer::_mouseCursor->setScale(_mouseCursorScale);
         TVPWindowLayer::_mouseCursor->stopAllActions();
@@ -1138,14 +1215,26 @@ void TVPMainScene::onTouchEnded(cocos2d::Touch *touch,
 
 void TVPMainScene::onTouchCancelled(cocos2d::Touch *touch,
                                     cocos2d::Event *event) {
+    if(!AcceptsGameInput())
+        return;
     if(!TVPWindowLayer::_currentWindowLayer)
         return;
     if(!TVPWindowLayer::_virutalMouseMode || TVPWindowLayer::_windowMgrOverlay)
         return TVPWindowLayer::_currentWindowLayer->onTouchCancelled(touch,
                                                                      event);
-    _mouseTouches.erase(touch);
-    _mouseMoved = false;
-    TVPWindowLayer::_refadeMouseCursor();
+    if(!_mouseTouches.erase(touch))
+        return;
+    if(_mouseTouches.empty()) {
+        if(auto button = virtualTouchButton.finish()) {
+            const auto point = GameNode->convertToWorldSpace(
+                TVPWindowLayer::_mouseCursor->getPosition());
+            TVPWindowLayer::_currentWindowLayer->onMouseUp(
+                point, TVPWindowLayer::MouseButtonForKey(*button));
+        }
+        _mouseMoved = false;
+        TVPWindowLayer::_mouseCursor->setScale(_mouseCursorScale);
+        TVPWindowLayer::_refadeMouseCursor();
+    }
 }
 
 bool TVPMainScene::attachWithIME() {
@@ -1187,6 +1276,8 @@ bool TVPMainScene::canAttachWithIME() { return true; }
 bool TVPMainScene::canDetachWithIME() { return true; }
 
 void TVPMainScene::deleteBackward() {
+    if(!AcceptsGameInput())
+        return;
 #ifndef _WIN32
     if(TVPWindowLayer::_currentWindowLayer) {
         TVPWindowLayer::_currentWindowLayer->InternalKeyDown(
@@ -1202,23 +1293,23 @@ void TVPMainScene::insertText(const char *text, size_t len) {
     onTextInput(utf8);
 }
 
-void TVPMainScene::onCharInput(int keyCode) {
-    TVPWindowLayer::_currentWindowLayer->OnKeyPress((tjs_char)keyCode, 0, false,
-                                                    false);
-}
-
 void TVPMainScene::onTextInput(const std::string &text) {
-    std::u16string buf;
-    if(StringUtils::UTF8ToUTF16(text, buf)) {
-        for(int i = 0; i < buf.size(); ++i) {
-            TVPWindowLayer::_currentWindowLayer->OnKeyPress(buf[i], 0, false,
-                                                            false);
-        }
+    if(!AcceptsGameInput())
+        return;
+    // Native/IME input can arrive after the last game window was destroyed.
+    auto *window = TVPWindowLayer::_currentWindowLayer;
+    if(!window)
+        return;
+    if(auto units = krkr::input::decodeTextInput(text)) {
+        for(auto unit : *units)
+            window->OnKeyPress(unit, 0, false, false);
     }
 }
 
 void TVPMainScene::onAxisEvent(cocos2d::Controller *ctrl, int keyCode,
                                cocos2d::Event *e) {
+    if(!AcceptsGameInput())
+        return;
     if(!TVPWindowLayer::_currentWindowLayer ||
        !TVPWindowLayer::_currentWindowLayer->PrimaryLayerArea)
         return;
@@ -1271,13 +1362,15 @@ void TVPMainScene::onAxisEvent(cocos2d::Controller *ctrl, int keyCode,
 
 void TVPMainScene::onPadKeyDown(cocos2d::Controller *ctrl, int keyCode,
                                 cocos2d::Event *e) {
+    if(!AcceptsGameInput())
+        return;
     if(!UINode->getChildren().empty())
         return;
     unsigned int code = TVPConvertPadKeyCodeToVKCode(keyCode);
     if(!code || code >= 0x200)
         return;
     code = _keymap[code];
-    TVPWindowLayer::_scancode[code] = 0x11;
+    krkr::input::sharedState().press(code);
     if(TVPWindowLayer::_currentWindowLayer) {
         TVPWindowLayer::_currentWindowLayer->InternalKeyDown(
             code, TVPGetCurrentShiftKeyState());
@@ -1286,12 +1379,13 @@ void TVPMainScene::onPadKeyDown(cocos2d::Controller *ctrl, int keyCode,
 
 void TVPMainScene::onPadKeyUp(cocos2d::Controller *ctrl, int keyCode,
                               cocos2d::Event *e) {
+    if(!AcceptsGameInput())
+        return;
     unsigned int code = TVPConvertPadKeyCodeToVKCode(keyCode);
     if(!code || code >= 0x200)
         return;
     code = _keymap[code];
-    bool isPressed = TVPWindowLayer::_scancode[code] & 1;
-    TVPWindowLayer::_scancode[code] &= 0x10;
+    bool isPressed = krkr::input::sharedState().release(code);
     if(isPressed && TVPWindowLayer::_currentWindowLayer) {
         TVPWindowLayer::_currentWindowLayer->OnKeyUp(
             code, TVPGetCurrentShiftKeyState());
@@ -1332,17 +1426,16 @@ void TVPConsoleLog(const ttstr &l, bool important) {
             l, important ? Color3B::YELLOW : Color3B::GRAY);
         TVPDrawSceneOnce(100); // force update in 10fps
     }
-    spdlog::get("tjs2")->info("{}", l.AsStdString());
+    // Console text is mirrored via TVPAddLog → TVPLog("engine"); avoid
+    // duplicate.
 }
 
 namespace TJS {
-    void TVPConsoleLog(const ttstr &str) {
-        spdlog::get("tjs2")->info("{}", str.AsStdString());
-    }
+    void TVPConsoleLog(const ttstr &str) { G_Tjs2Log.info(str.AsStdString()); }
 
     template <typename... Args>
-    void TVPConsoleLog(spdlog::format_string_t<Args...> fmt, Args &&...args) {
-        spdlog::get("tjs2")->info(fmt, std::forward<Args>(args)...);
+    void TVPConsoleLog(fmt::format_string<Args...> fmt, Args &&...args) {
+        G_Tjs2Log.info(fmt, std::forward<Args>(args)...);
     }
 } // namespace TJS
 
@@ -1379,23 +1472,13 @@ const std::string &TVPGetInternalPreferencePath() {
     return ret;
 }
 
-tjs_uint32 TVPGetCurrentShiftKeyState() {
-    tjs_uint32 f = 0;
-
-    if(TVPWindowLayer::_scancode[VK_SHIFT] & 1)
-        f |= ssShift;
-    if(TVPWindowLayer::_scancode[VK_MENU] & 1)
-        f |= ssAlt;
-    if(TVPWindowLayer::_scancode[VK_CONTROL] & 1)
-        f |= ssCtrl;
-    if(TVPWindowLayer::_scancode[VK_LBUTTON] & 1)
-        f |= ssLeft;
-    if(TVPWindowLayer::_scancode[VK_RBUTTON] & 1)
-        f |= ssRight;
-    // if (_scancode[VK_MBUTTON] & 1) f |= TVP_SS_MIDDLE;
-
-    return f;
-}
+// Keep the shared virtual-key ABI aligned with the existing host definitions.
+static_assert(krkr::input::key::shift == VK_SHIFT);
+static_assert(krkr::input::key::control == VK_CONTROL);
+static_assert(krkr::input::key::alt == VK_MENU);
+static_assert(krkr::input::key::leftMouse == VK_LBUTTON);
+static_assert(krkr::input::key::rightMouse == VK_RBUTTON);
+static_assert(krkr::input::key::middleMouse == VK_MBUTTON);
 
 ttstr TVPGetPlatformName() {
     switch(cocos2d::Application::getInstance()->getTargetPlatform()) {

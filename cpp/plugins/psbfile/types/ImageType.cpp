@@ -5,9 +5,9 @@
 #include "../PSBFile.h"
 #include "ImageType.h"
 
-namespace PSB {
-#define LOGGER spdlog::get("plugin")
+#include "log/TVPLog.h"
 
+namespace PSB {
     bool ImageType::isThisType(const PSBFile &psb) {
         const auto objects = psb.getObjects();
         if(psb.getObjects() == nullptr) {
@@ -17,17 +17,15 @@ namespace PSB {
         auto fdId = objects->find("id");
         if(fdId == objects->end())
             return false;
-        std::string id =
-            std::dynamic_pointer_cast<PSBString>(fdId->second)->value;
-
-        return id == "image";
+        auto id = std::dynamic_pointer_cast<PSBString>(fdId->second);
+        return id && id->value == "image";
     }
 
     std::vector<std::unique_ptr<IResourceMetadata>>
     ImageType::collectResources(const PSBFile &psb, bool deDuplication) {
         std::vector<std::unique_ptr<IResourceMetadata>> resourceList;
         // TODO:
-        LOGGER->critical("TODO: ImageType::collectResources(...)");
+        G_PluginLog.critical("TODO: ImageType::collectResources(...)");
         return resourceList;
     }
 } // namespace PSB

@@ -1,7 +1,5 @@
 #include "ncbind.hpp"
 
-#include <spdlog/spdlog.h>
-
 #define NCB_MODULE_NAME TJS_W("TextRender.dll")
 
 // #define dbg_print TVPAddLog
@@ -11,7 +9,7 @@
 #include "FontRasterizer.h"
 #include "LayerBitmapIntf.h"
 
-#define LOGGER spdlog::get("plugin")
+#include "log/TVPLog.h"
 
 extern FontRasterizer *GetCurrentRasterizer();
 
@@ -307,7 +305,7 @@ public:
     void clear();
     void done();
 
-    void newline() { LOGGER->warn("no support newline"); }
+    void newline() { G_PluginLog.warn("no support newline"); }
 
     void resetFont();
     void resetStyle();

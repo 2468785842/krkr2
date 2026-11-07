@@ -2,7 +2,23 @@ name: Build Android
 
 on:
   workflow_call:
+    inputs:
+      runtime_contracts:
+        type: boolean
+        default: false
+      abi:
+        type: string
+        default: x86_64
   workflow_dispatch:
+    inputs:
+      runtime_contracts:
+        description: 'Build and verify an ABI-specific complete Debug runtime'
+        type: boolean
+        default: false
+      abi:
+        type: choice
+        options: [x86_64, arm64-v8a]
+        default: x86_64
 
 env:
   ANDROID_NDK_VERSION: "28.0.13004108"
@@ -13,7 +29,13 @@ env:
   VCPKG_INSTALL_OPTIONS: "--debug"
 
 jobs:
+  runtime-contracts:
+    if: inputs.runtime_contracts
+    uses: ./.github/workflows/android-runtime-tests.yml
+    with:
+      abi: ${{ inputs.abi }}
   build-android:
+    if: ${{ !inputs.runtime_contracts }}
     # Pinned to 24.04: the mono-project repository only publishes focal
     # packages, which are uninstallable on 26.04 ("resolute") runner images.
     # Revisit when the nuget/mono dependency is removed or mono supports 26.04.
@@ -58,7 +80,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y bison python3 yasm nasm
+          sudo apt-get install -y bison python3 yasm
           
           wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
           chmod +x dotnet-install.sh
@@ -66,13 +88,12 @@ jobs:
           echo "$HOME/.dotnet" >> $GITHUB_PATH
 
       - name: Setup JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'zulu'
 
       - name: Download Android CommandLineTools
-        if: steps.commandlinetools-cache.outputs.cache-hit != 'true'
         run: |
           if [ ! -f "${{ github.workspace }}/.act/commandlinetools-linux-10406996_latest.zip" ]; then
             wget -P ${{ github.workspace }}/.act https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
@@ -137,7 +158,7 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2.18
         with:
-          key: ${{ github.job }}-${{ matrix.os }}
+          key: ${{ github.job }}-${{ runner.os }}
 
       - name: Generate keystore
         run: |

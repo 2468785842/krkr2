@@ -11,7 +11,7 @@
 #include "tjsCommHead.h"
 
 #include <ctime>
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 #include "tjsDateParser.h"
 
 #include "tjsError.h"
@@ -25,9 +25,7 @@ namespace TJSDate {
         return tok;
     }
 
-    void parser::error(const std::string &msg) {
-        spdlog::get("tjs2")->critical(msg);
-    }
+    void parser::error(const std::string &msg) { G_Tjs2Log.critical(msg); }
     //---------------------------------------------------------------------------
     // Character component classifications
     //---------------------------------------------------------------------------

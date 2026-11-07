@@ -11,7 +11,7 @@
 #include "tjsArray.h"
 #include "psbfile/PSBFile.h"
 
-#include <spdlog/spdlog.h>
+#include "log/TVPLog.h"
 #include <stdexcept>
 
 namespace motion::detail {
@@ -408,11 +408,9 @@ namespace motion::detail {
             }
         }
 
-        if(auto logger = spdlog::get("plugin")) {
-            logger->debug(
-                "buildNodeTree: clipLabel='{}', rootLayers={}, {} nodes built",
-                clipLabel, layerList->size(), runtime.nodes.size());
-        }
+        G_PluginLog.debug(
+            "buildNodeTree: clipLabel='{}', rootLayers={}, {} nodes built",
+            clipLabel, layerList->size(), runtime.nodes.size());
     }
 
 } // namespace motion::detail

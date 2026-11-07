@@ -1,12 +1,14 @@
 /* Android JNI bridge for cocos2d-based KR2Activity */
 #include <memory>
 #include <jni.h>
+#include "AndroidTextInput.h"
 #include <cocos/platform/android/jni/JniHelper.h>
 
 #include "environ/cocos2d/AppDelegate.h"
 #include "environ/cocos2d/MainScene.h"
 #include "environ/ConfigManager/GlobalConfigManager.h"
 #include "environ/Application.h"
+#include "log/TVPInitLog.h"
 
 /*******************************************************************************
                  Functions called by JNI
@@ -14,8 +16,6 @@
 #include <cstring>
 #include <condition_variable>
 #include <mutex>
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/android_sink.h>
 #include <client/linux/handler/exception_handler.h>
 #include <client/linux/handler/minidump_descriptor.h>
 
@@ -35,17 +35,9 @@ static bool DumpFilter(void *data) {
 
 [[maybe_unused]] void cocos_android_app_init(JNIEnv *env) { // for cocos3.10+
 
-    spdlog::set_pattern("%v");
-    spdlog::set_level(spdlog::level::info);
-
-    static auto core_logger =
-        spdlog::android_logger_mt("core", "KrKr2NativeCore");
-    static auto tjs2_logger =
-        spdlog::android_logger_mt("tjs2", "KrKr2NativeTjs2");
-    static auto plugin_logger =
-        spdlog::android_logger_mt("plugin", "KrKr2NativePlugin");
-
-    spdlog::set_default_logger(core_logger);
+    TVPLoggingOptions options;
+    options.pattern = "%v";
+    TVPInitLogging(options);
 
     static std::unique_ptr<TVPAppDelegate> pAppDelegate =
         std::make_unique<TVPAppDelegate>();
@@ -262,54 +254,30 @@ JNIEXPORT jboolean JNICALL Java_org_tvp_kirikiri2_KR2Activity_nativeKeyAction(
 
 JNIEXPORT void JNICALL Java_org_tvp_kirikiri2_KR2Activity_nativeInsertText(
     JNIEnv *env, jclass cls, jstring text) {
-    const char *pszText = env->GetStringUTFChars(text, nullptr);
-    if(pszText && *pszText) {
-        std::string str = pszText;
+    if(auto value = krkr::androidinput::readCommittedText(env, text);
+       value && !value->empty()) {
+        const auto &str = *value;
         Android_PushEvents([str]() {
             cocos2d::IMEDispatcher::sharedDispatcher()->dispatchInsertText(
-                str.
-
-                c_str(),
-                str
-
-                    .
-
-                length()
-
-            );
+                str.data(), str.size());
         });
     }
-    env->ReleaseStringUTFChars(text, pszText);
 }
 
 JNIEXPORT void JNICALL Java_org_tvp_kirikiri2_KR2Activity_nativeDeleteBackward(
     JNIEnv *env, jclass cls) {
-    Android_PushEvents([capture0 = cocos2d::IMEDispatcher::sharedDispatcher()] {
-        capture0->
-
-            dispatchDeleteBackward();
+    Android_PushEvents([] {
+        cocos2d::IMEDispatcher::sharedDispatcher()->dispatchDeleteBackward();
     });
-}
-
-JNIEXPORT void JNICALL Java_org_tvp_kirikiri2_KR2Activity_nativeCharInput(
-    JNIEnv *env, jclass cls, jint keyCode) {
-    TVPMainScene *pScene = TVPMainScene::GetInstance();
-    if(!pScene)
-        return;
-    pScene->getScheduler()->performFunctionInCocosThread(
-        [keyCode] { TVPMainScene::onCharInput(keyCode); });
 }
 
 JNIEXPORT void JNICALL Java_org_tvp_kirikiri2_KR2Activity_nativeCommitText(
     JNIEnv *env, jclass cls, jstring text, jint newCursorPosition) {
-    TVPMainScene *pScene = TVPMainScene::GetInstance();
-    if(!pScene)
-        return;
-    const char *utftext = env->GetStringUTFChars(text, nullptr);
-    std::string str(utftext);
-    pScene->getScheduler()->performFunctionInCocosThread(
-        [str] { TVPMainScene::onTextInput(str); });
-    env->ReleaseStringUTFChars(text, utftext);
+    if(auto value = krkr::androidinput::readCommittedText(env, text);
+       value && !value->empty()) {
+        const auto &str = *value;
+        Android_PushEvents([str] { TVPMainScene::onTextInput(str); });
+    }
 }
 
 JNIEXPORT jboolean JNICALL

@@ -11,8 +11,9 @@
 #include <set>
 #include <algorithm>
 #include <functional>
+#include <wctype.h>
 
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 
 #include "tjsCommHead.h"
 
@@ -48,9 +49,9 @@ bool TVPLoadInternalPlugin(const ttstr &_name);
 void TVPLoadPlugin(const ttstr &name) {
     auto pluginName = name;
     if(TVPLoadInternalPlugin(pluginName)) {
-        spdlog::debug("Loading Plugin: {} Success", name.AsStdString());
+        G_PluginLog.debug("Loading Plugin: {} Success", name.AsStdString());
     } else {
-        spdlog::error("Loading Plugin: {} Failed", name.AsStdString());
+        G_PluginLog.error("Loading Plugin: {} Failed", name.AsStdString());
     }
 }
 

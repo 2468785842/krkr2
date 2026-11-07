@@ -1,0 +1,51 @@
+plugins {
+    id 'com.android.application' version '8.7.3'
+}
+
+// Stage exactly the production connection; the Java compiler must not discover
+// unrelated Activity sources through a shared source directory/sourcepath.
+def inputSources = layout.buildDirectory.dir('generated/input-sources')
+def copyInputSources = tasks.register('copyProductionInputSource', Sync) {
+    from('../../platforms/android/app/java') {
+        include 'org/tvp/kirikiri2/SDLInputConnection.java'
+    }
+    into(inputSources)
+}
+
+android {
+    namespace 'org.krkr2.inputcontracts'
+    compileSdk 34
+    ndkVersion '28.0.13004108'
+    defaultConfig {
+        applicationId 'org.krkr2.inputcontracts'
+        minSdk 29
+        targetSdk 34
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        ndk { abiFilters 'x86_64' }
+        externalNativeBuild { cmake { arguments '-DANDROID_STL=c++_shared' } }
+    }
+    sourceSets.main.java.srcDir(inputSources)
+    externalNativeBuild.cmake {
+        path 'src/main/cpp/CMakeLists.txt'
+        version '3.31.1'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test:rules:1.6.1'
+}
+
+tasks.named('preBuild').configure { dependsOn(copyInputSources) }
+tasks.withType(JavaCompile).configureEach {
+    if (name == 'compileDebugJavaWithJavac') {
+        doFirst {
+            assert source.files.collect { it.name }.toSet() == ['SDLInputConnection.java', 'NativeText.java'].toSet()
+        }
+    }
+}

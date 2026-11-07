@@ -1,3 +1,5 @@
+#include "ConfigManager/PreferenceDefaults.h"
+
 extern void TVPInitTextureFormatList();
 extern bool TVPIsSupportTextureFormat(GLenum fmt);
 
@@ -161,8 +163,8 @@ namespace {
             Caption = cap;
         } // Key is useless
         static tPreferenceScreen *GetSubPreferenceInfo() {
-            std::string renderer =
-                PreferenceGetValueString("renderer", "software");
+            std::string renderer = PreferenceGetValueString(
+                "renderer", TVPPreferenceDefaults::value_renderer);
             if(renderer == "opengl")
                 return &OpenglOptPreference;
             else if(renderer == "software")
@@ -297,51 +299,64 @@ namespace {
             return;
         RootPreference.Title = "preference_title";
         RootPreference.Preferences = {
-            new tTVPPreferenceInfoCheckBox("preference_output_log", "outputlog",
-                                           true),
-            new tTVPPreferenceInfoCheckBox("preference_show_fps", "showfps",
-                                           false),
-            new tTVPPreferenceInfoSelectList("preference_fps_limit",
-                                             "fps_limit", "60",
-                                             { { "60", "60" },
-                                               { "45", "45" },
-                                               { "30", "30" },
-                                               { "15", "15" } }),
+            new tTVPPreferenceInfoCheckBox(
+                "preference_output_log", "outputlog",
+                TVPPreferenceDefaults::value_outputlog),
+            new tTVPPreferenceInfoCheckBox(
+                "preference_show_fps", "showfps",
+                TVPPreferenceDefaults::value_showfps),
             new tTVPPreferenceInfoSelectList(
-                "preference_select_renderer", "renderer", "software",
+                "preference_fps_limit", "fps_limit",
+                TVPPreferenceDefaults::value_fps_limit,
+                { { "60", "60" },
+                  { "45", "45" },
+                  { "30", "30" },
+                  { "15", "15" } }),
+            new tTVPPreferenceInfoSelectList(
+                "preference_select_renderer", "renderer",
+                TVPPreferenceDefaults::value_renderer,
                 { { "preference_opengl", "opengl" },
                   { "preference_software", "software" } }),
             new tTVPPreferenceInfoRendererSubPref("preference_renderer_opt"),
-            new tTVPPreferenceInfoSelectFile("preference_default_font",
-                                             "default_font", ""),
-            new tTVPPreferenceInfoCheckBox("preference_force_def_font",
-                                           "force_default_font", false),
+            new tTVPPreferenceInfoSelectFile(
+                "preference_default_font", "default_font",
+                TVPPreferenceDefaults::value_default_font),
+            new tTVPPreferenceInfoCheckBox(
+                "preference_force_def_font", "force_default_font",
+                TVPPreferenceDefaults::value_force_default_font),
 #ifdef CC_TARGET_OS_IPHONE
             new tTVPPreferenceInfoSelectList(
-                "preference_mem_limit", "memusage", "high",
+                "preference_mem_limit", "memusage",
+                TVPPreferenceDefaults::value_memusage,
                 {
 #else
             new tTVPPreferenceInfoSelectList(
-                "preference_mem_limit", "memusage", "unlimited",
+                "preference_mem_limit", "memusage",
+                TVPPreferenceDefaults::value_memusage,
                 {
 #endif
                     { "preference_mem_unlimited", "unlimited" },
                     { "preference_mem_high", "high" },
                     { "preference_mem_medium", "medium" },
                     { "preference_mem_low", "low" } }),
-            new tTVPPreferenceInfoCheckBox("preference_keep_screen_alive",
-                                           "keep_screen_alive", true),
-            new tTVPPreferenceInfoSliderIcon("preference_virtual_cursor_scale",
-                                             "vcursor_scale", 0.5f),
-            new tTVPPreferenceInfoSliderText("preference_menu_handler_opacity",
-                                             "menu_handler_opa", 0.15f),
+            new tTVPPreferenceInfoCheckBox(
+                "preference_keep_screen_alive", "keep_screen_alive",
+                TVPPreferenceDefaults::value_keep_screen_alive),
+            new tTVPPreferenceInfoSliderIcon(
+                "preference_virtual_cursor_scale", "vcursor_scale",
+                TVPPreferenceDefaults::value_vcursor_scale),
+            new tTVPPreferenceInfoSliderText(
+                "preference_menu_handler_opacity", "menu_handler_opa",
+                TVPPreferenceDefaults::value_menu_handler_opa),
             new tTVPPreferenceInfoKeyMap("preference_keymap"),
 #ifdef GLOBAL_PREFERENCE
-            new tTVPPreferenceInfoCheckBox("preference_remember_last_path",
-                                           "remember_last_path", true),
+            new tTVPPreferenceInfoCheckBox(
+                "preference_remember_last_path", "remember_last_path",
+                TVPPreferenceDefaults::value_remember_last_path),
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-            new tTVPPreferenceInfoCheckBox("preference_hide_android_sys_btn",
-                                           "hide_android_sys_btn", false),
+            new tTVPPreferenceInfoCheckBox(
+                "preference_hide_android_sys_btn", "hide_android_sys_btn",
+                TVPPreferenceDefaults::value_hide_android_sys_btn),
 #endif
             new tTVPPreferenceInfoResetDefaultSkin("preference_reset_def_skin"),
 
@@ -355,7 +370,8 @@ namespace {
         SoftRendererOptPreference.Title = "preference_soft_renderer_opt";
         SoftRendererOptPreference.Preferences = {
             new tTVPPreferenceInfoSelectList(
-                "preference_multi_draw_thread", "software_draw_thread", "0",
+                "preference_multi_draw_thread", "software_draw_thread",
+                TVPPreferenceDefaults::value_software_draw_thread,
                 { { "preference_draw_thread_auto", "0" },
                   { "preference_draw_thread_1", "1" },
                   { "preference_draw_thread_2", "2" },
@@ -367,7 +383,7 @@ namespace {
                   { "preference_draw_thread_8", "8" } }),
             new tTVPPreferenceInfoSelectList(
                 "preference_software_compress_tex", "software_compress_tex",
-                "none",
+                TVPPreferenceDefaults::value_software_compress_tex,
                 { { "preference_soft_compress_tex_none", "none" },
                   { "preference_soft_compress_tex_halfline", "halfline" },
                   { "lz4", "lz4" },
@@ -384,40 +400,57 @@ namespace {
 #ifdef CC_TARGET_OS_IPHONE
                     new tTVPPreferenceInfoCheckBox(
                         "GL_EXT_shader_framebuffer_fetch",
-                        "GL_EXT_shader_framebuffer_fetch", true),
+                        "GL_EXT_shader_framebuffer_fetch",
+                        TVPPreferenceDefaults::
+                            value_GL_EXT_shader_framebuffer_fetch),
 #else
                     new tTVPPreferenceInfoCheckBox(
                         "GL_EXT_shader_framebuffer_fetch",
-                        "GL_EXT_shader_framebuffer_fetch", false),
+                        "GL_EXT_shader_framebuffer_fetch",
+                        TVPPreferenceDefaults::
+                            value_GL_EXT_shader_framebuffer_fetch),
 #endif
                     new tTVPPreferenceInfoCheckBox(
                         "GL_ARM_shader_framebuffer_fetch",
-                        "GL_ARM_shader_framebuffer_fetch", true),
+                        "GL_ARM_shader_framebuffer_fetch",
+                        TVPPreferenceDefaults::
+                            value_GL_ARM_shader_framebuffer_fetch),
                     new tTVPPreferenceInfoCheckBox(
                         "GL_NV_shader_framebuffer_fetch",
-                        "GL_NV_shader_framebuffer_fetch", true),
-                    new tTVPPreferenceInfoCheckBox("GL_EXT_copy_image",
-                                                   "GL_EXT_copy_image", false),
-                    new tTVPPreferenceInfoCheckBox("GL_OES_copy_image",
-                                                   "GL_OES_copy_image", false),
-                    new tTVPPreferenceInfoCheckBox("GL_ARB_copy_image",
-                                                   "GL_ARB_copy_image", false),
-                    new tTVPPreferenceInfoCheckBox("GL_NV_copy_image",
-                                                   "GL_NV_copy_image", false),
+                        "GL_NV_shader_framebuffer_fetch",
+                        TVPPreferenceDefaults::
+                            value_GL_NV_shader_framebuffer_fetch),
                     new tTVPPreferenceInfoCheckBox(
-                        "GL_EXT_clear_texture", "GL_EXT_clear_texture", true),
+                        "GL_EXT_copy_image", "GL_EXT_copy_image",
+                        TVPPreferenceDefaults::value_GL_EXT_copy_image),
                     new tTVPPreferenceInfoCheckBox(
-                        "GL_ARB_clear_texture", "GL_ARB_clear_texture", true),
-                    new tTVPPreferenceInfoCheckBox("GL_QCOM_alpha_test",
-                                                   "GL_QCOM_alpha_test", true),
+                        "GL_OES_copy_image", "GL_OES_copy_image",
+                        TVPPreferenceDefaults::value_GL_OES_copy_image),
+                    new tTVPPreferenceInfoCheckBox(
+                        "GL_ARB_copy_image", "GL_ARB_copy_image",
+                        TVPPreferenceDefaults::value_GL_ARB_copy_image),
+                    new tTVPPreferenceInfoCheckBox(
+                        "GL_NV_copy_image", "GL_NV_copy_image",
+                        TVPPreferenceDefaults::value_GL_NV_copy_image),
+                    new tTVPPreferenceInfoCheckBox(
+                        "GL_EXT_clear_texture", "GL_EXT_clear_texture",
+                        TVPPreferenceDefaults::value_GL_EXT_clear_texture),
+                    new tTVPPreferenceInfoCheckBox(
+                        "GL_ARB_clear_texture", "GL_ARB_clear_texture",
+                        TVPPreferenceDefaults::value_GL_ARB_clear_texture),
+                    new tTVPPreferenceInfoCheckBox(
+                        "GL_QCOM_alpha_test", "GL_QCOM_alpha_test",
+                        TVPPreferenceDefaults::value_GL_QCOM_alpha_test),
                 }),
-            new tTVPPreferenceInfoCheckBox("preference_ogl_accurate_render",
-                                           "ogl_accurate_render", false),
+            new tTVPPreferenceInfoCheckBox(
+                "preference_ogl_accurate_render", "ogl_accurate_render",
+                TVPPreferenceDefaults::value_ogl_accurate_render),
             //		new
             // tTVPPreferenceInfoCheckBox("preference_opengl_dup_target",
             //"ogl_dup_target", true),
             new tTVPPreferenceInfoSelectList(
-                "preference_ogl_max_texsize", "ogl_max_texsize", "0",
+                "preference_ogl_max_texsize", "ogl_max_texsize",
+                TVPPreferenceDefaults::value_ogl_max_texsize,
                 { { "preference_ogl_texsize_auto", "0" },
                   { "preference_ogl_texsize_1024", "1024" },
                   { "preference_ogl_texsize_2048", "2048" },
@@ -425,7 +458,8 @@ namespace {
                   { "preference_ogl_texsize_8192", "8192" },
                   { "preference_ogl_texsize_16384", "16384" } }),
             new tTVPPreferenceInfoTextureCompressionSelectList(
-                "preference_ogl_compress_tex", "ogl_compress_tex", "none",
+                "preference_ogl_compress_tex", "ogl_compress_tex",
+                TVPPreferenceDefaults::value_ogl_compress_tex,
                 {
                     std::make_tuple("preference_ogl_compress_tex_none", "none",
                                     0),

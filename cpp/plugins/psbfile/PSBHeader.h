@@ -55,11 +55,11 @@ namespace PSB {
         stream->ReadBuffer(&header.offsetEncrypt, 4);
         stream->ReadBuffer(&header.offsetNames, 4);
 
-        if(std::strcmp(header.signature, MdfSignature) == 0 ||
-           std::strcmp(header.signature, MflSignature) == 0) {
+        if(std::memcmp(header.signature, MdfSignature, 4) == 0 ||
+           std::memcmp(header.signature, MflSignature, 4) == 0) {
             throw std::runtime_error("Maybe a MDF file");
         }
-        if(std::strcmp(header.signature, PsbSignature) != 0) {
+        if(std::memcmp(header.signature, PsbSignature, 4) != 0) {
             throw std::runtime_error("Not a valid PSB file");
         }
         if(header.offsetNames < stream->GetSize()) {

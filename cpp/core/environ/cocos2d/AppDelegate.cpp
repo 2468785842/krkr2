@@ -1,15 +1,25 @@
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 #include "AppDelegate.h"
 
 #include "MainScene.h"
-#include "Application.h"
+#include "HostLifecycle.h"
 #include "Platform.h"
-#include "ui/GlobalPreferenceForm.h"
+#if KRKR2_USE_COCOS_UI
 #include "ui/MainFileSelectorForm.h"
-#include "ui/extension/UIExtension.h"
+#endif
+#include "ConfigManager/PreferenceDefaults.h"
 #include "ConfigManager/LocaleConfigManager.h"
 
 #include "audio/include/AudioEngine.h"
+
+#include "EnvironFileBackendInit.h"
+#include "EngineArchiveInit.h"
+#include "DialogBackend.h"
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) ||                               \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) ||                                 \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+#include "launch/DesktopLaunch.h"
+#endif
 
 static cocos2d::Size designResolutionSize(960, 640);
 
@@ -20,18 +30,24 @@ bool TVPCheckStartupArg();
 std::string TVPGetCurrentLanguage();
 
 void TVPAppDelegate::applicationWillEnterForeground() {
-    ::Application->OnActivate();
+    TVPOnHostForeground();
     cocos2d::Director::getInstance()->startAnimation();
 }
 
 void TVPAppDelegate::applicationDidEnterBackground() {
-    ::Application->OnDeactivate();
+    TVPOnHostBackground();
     cocos2d::Director::getInstance()->stopAnimation();
 }
 
 bool TVPAppDelegate::applicationDidFinishLaunching() {
     TVPMainThreadID = std::this_thread::get_id();
-    spdlog::debug("App Finish Launching");
+    TVPInitNativeDialogBackend();
+    G_CoreLog.debug("App Finish Launching");
+
+    // 文件选择 / 命令行启动会在 StartApplication 之前调用 TVPCheckArchive
+    TVPInitEnvironFileBackends();
+    TVPInitEngineArchiveCreators();
+
     // initialize director
     auto director = cocos2d::Director::getInstance();
     auto glview = director->getOpenGLView();
@@ -90,8 +106,6 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0f / 60);
 
-    TVPInitUIExtension();
-
     // initialize something
     LocaleConfigManager::GetInstance()->Initialize(TVPGetCurrentLanguage());
     // create a scene. it's an autorelease object
@@ -103,10 +117,25 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
     scene->scheduleOnce(
         [](float dt) {
             TVPMainScene::GetInstance()->unschedule("launch");
-            TVPGlobalPreferenceForm::Initialize();
+            TVPInitializeRuntimePreferences();
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) ||                               \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) ||                                 \
+    (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+            // Retain platform startup services (for example optional dump
+            // upload).
+            TVPCheckStartupArg();
+            const auto &target = krkr::launch::DesktopTarget();
+            if(!target.empty()) {
+                G_CoreLog.info("Direct game startup: {}", target);
+                TVPMainScene::GetInstance()->startupFrom(target);
+            } else {
+#else
             if(!TVPCheckStartupArg()) {
+#endif
+#if KRKR2_USE_COCOS_UI
                 TVPMainScene::GetInstance()->pushUIForm(
                     TVPMainFileSelectorForm::create());
+#endif
             }
         },
         0, "launch");

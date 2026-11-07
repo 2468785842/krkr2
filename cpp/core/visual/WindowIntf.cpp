@@ -346,8 +346,8 @@ void tTJSNI_BaseWindow::OnMouseDown(tjs_int x, tjs_int y, tTVPMouseButton mb,
 }
 //---------------------------------------------------------------------------
 void tTJSNI_BaseWindow::OnMouseUp(tjs_int x, tjs_int y, tTVPMouseButton mb,
-                                  tjs_uint32 flags) {
-    if(!CanDeliverEvents())
+                                  tjs_uint32 flags, bool cancellation) {
+    if(!(cancellation ? CanDeliverInputCancellation() : CanDeliverEvents()))
         return;
     if(Owner) {
         tTJSVariant arg[4] = { x, y, (tjs_int)mb, (tjs_int)flags };

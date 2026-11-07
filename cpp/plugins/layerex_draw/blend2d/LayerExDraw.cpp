@@ -1,5 +1,12 @@
+#include <algorithm>
+#include <cassert>
+#include <functional>
+#include <memory>
+#include <string>
+#include <cstring>
 #include "ncbind.hpp"
 #include "LayerExDraw.hpp"
+#include "log/TVPLog.h"
 
 #include "BinaryStream.h"
 #include "FontImpl.h"
@@ -9,8 +16,24 @@
 #include <cmath>
 #include <freetype/freetype.h>
 
-#include <opencv2/opencv.hpp>
-#include <spdlog/spdlog.h>
+
+namespace {
+    // 不依赖后端头提供非标准数学常量。
+    constexpr double kPi = 3.14159265358979323846;
+
+    BLResult loadFontData(BLFontData &font, tTJSBinaryStream &stream) {
+        BLArray<uint8_t> bytes;
+        uint8_t *buffer = nullptr;
+        BLResult result =
+            bytes.modifyOp(BL_MODIFY_OP_ASSIGN_FIT, stream.GetSize(), &buffer);
+        if(result != BL_SUCCESS)
+            return result;
+        stream.ReadBuffer(buffer, stream.GetSize());
+        // This overload retains the array storage; the raw-pointer overload
+        // only borrows it and must not outlive the source buffer.
+        return font.createFromData(bytes);
+    }
+} // namespace
 
 #define NCB_MODULE_NAME TJS_W("layerExDraw.dll")
 
@@ -25,13 +48,8 @@ void initGdiPlus() {
     const std::unique_ptr<tTJSBinaryStream> stream{ TVPCreateFontStream(
         TVPGetDefaultFontName()) };
     if(stream) {
-        tjs_uint8 *fileData = new tjs_uint8[stream->GetSize()];
-        stream->ReadBuffer(fileData, stream->GetSize());
-        // 读取fontdata
         BLFontData bl_font_data;
-        BLResult stat = bl_font_data.createFromData(fileData, stream->GetSize(),
-                                                    NULL, NULL);
-        delete[] fileData;
+        BLResult stat = loadFontData(bl_font_data, *stream);
         if(stat != BL_SUCCESS) {
             TVPThrowExceptionMessage(TJS_W("blend2d cannot load:%1"),
                                      TVPGetDefaultFontName());
@@ -93,17 +111,11 @@ BLImage loadImage(const tjs_char *name) // 以后应该要让krkr内核进行图
 void GdiPlus::addPrivateFont(const tjs_char *fontFileName) {
     ttstr filename = TVPGetPlacedPath(fontFileName);
     if(filename.length()) {
-        tTJSBinaryStream *in =
-            TVPCreateBinaryStreamForRead(filename, TJS_W(""));
+        std::unique_ptr<tTJSBinaryStream> in{ TVPCreateBinaryStreamForRead(
+            filename, TJS_W("")) };
         if(in) {
-            tjs_uint8 *fileData = new tjs_uint8[in->GetSize()];
-            in->ReadBuffer(fileData, in->GetSize());
-            // 读取fontdata
             BLFontData bl_font_data;
-            BLResult stat = bl_font_data.createFromData(fileData, in->GetSize(),
-                                                        NULL, NULL);
-            delete[] fileData;
-            delete in;
+            BLResult stat = loadFontData(bl_font_data, *in);
             if(stat != BL_SUCCESS) {
                 TVPThrowExceptionMessage(TJS_W("blend2d cannot load:%1"),
                                          fontFileName);
@@ -859,7 +871,7 @@ BLBrush *createBrush(const tTJSVariant colorOrBrush) {
                     RectF rect = getRect(var);
                     float angle = info.getRealValue(TJS_W("angle"), 0.0f);
 
-                    float rad = angle * M_PI / 180.0f;
+                    float rad = angle * kPi / 180.0f;
                     float cx = rect.x + rect.w / 2;
                     float cy = rect.y + rect.h / 2;
                     float length =
@@ -1148,8 +1160,8 @@ void Path::closeFigure() { path.close(); }
  */
 void Path::drawArc(tjs_real x, tjs_real y, tjs_real width, tjs_real height,
                    tjs_real startAngle, tjs_real sweepAngle) {
-    float startRad = startAngle * M_PI / 180.0f;
-    float sweepRad = sweepAngle * M_PI / 180.0f;
+    float startRad = startAngle * kPi / 180.0f;
+    float sweepRad = sweepAngle * kPi / 180.0f;
     float rx = width / 2.0f;
     float ry = height / 2.0f;
     float cx = x + rx;
@@ -1316,8 +1328,8 @@ void Path::drawPie(tjs_real x, tjs_real y, tjs_real width, tjs_real height,
     float cx = x + rx;
     float cy = y + ry;
 
-    float startRad = startAngle * M_PI / 180.0f;
-    float sweepRad = sweepAngle * M_PI / 180.0f;
+    float startRad = startAngle * kPi / 180.0f;
+    float sweepRad = sweepAngle * kPi / 180.0f;
     float endRad = startRad + sweepRad;
 
     // 移动到中心
@@ -1815,8 +1827,8 @@ RectF LayerExDraw::drawArc(const Appearance *app, tjs_real x, tjs_real y,
     float ry = height / 2.0f;
     float cx = x + rx;
     float cy = y + ry;
-    float startRad = startAngle * M_PI / 180.0f;
-    float sweepRad = sweepAngle * M_PI / 180.0f;
+    float startRad = startAngle * kPi / 180.0f;
+    float sweepRad = sweepAngle * kPi / 180.0f;
 
     path.moveTo(cx + rx * cos(startRad), cy + ry * sin(startRad));
     path.arcTo(cx, cy, rx, ry, startRad, sweepRad);
@@ -2000,8 +2012,8 @@ RectF LayerExDraw::drawPie(const Appearance *app, tjs_real x, tjs_real y,
     float ry = height / 2.0f;
     float cx = x + rx;
     float cy = y + ry;
-    float startRad = startAngle * M_PI / 180.0f;
-    float sweepRad = sweepAngle * M_PI / 180.0f;
+    float startRad = startAngle * kPi / 180.0f;
+    float sweepRad = sweepAngle * kPi / 180.0f;
 
     path.moveTo(cx, cy);
     path.lineTo(cx + rx * cos(startRad), cy + ry * sin(startRad));
@@ -2532,15 +2544,14 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointF &offset,
         if(charcode < 0x20)
             return;
         // 不支持此字符
-        spdlog::get("plugin")->error(
-            "not find Unicode >> {} << in FontFamily",
-            ttstr{ (tjs_char)charcode }.AsNarrowStdString());
+        G_PluginLog.error("not find Unicode >> {} << in FontFamily",
+                          ttstr{ (tjs_char)charcode }.AsNarrowStdString());
     }
 
     FT_Int32 flags = FT_LOAD_DEFAULT | FT_LOAD_NO_BITMAP;
     if(FT_Load_Glyph(fontInfo->ftFace, glyphIndex, flags) != 0) {
         // 字形加载失败
-        spdlog::get("plugin")->error("FT Load Glyph Failed!");
+        G_PluginLog.error("FT Load Glyph Failed!");
         return;
     }
 
@@ -2550,7 +2561,7 @@ void LayerExDraw::getGlyphOutline(const FontInfo *fontInfo, PointF &offset,
     // 字形格式检查
     if(glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
         // 非矢量字形，无法处理
-        spdlog::get("plugin")->error("Not Vector Fonts Can't resolve!");
+        G_PluginLog.error("Not Vector Fonts Can't resolve!");
         return;
     }
 

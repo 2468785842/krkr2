@@ -11,7 +11,7 @@
 #include "tjsCommHead.h"
 
 #include <algorithm>
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 #include "tjsInterCodeGen.h"
 #include "tjsScriptBlock.h"
 #include "tjsGlobalStringMap.h"

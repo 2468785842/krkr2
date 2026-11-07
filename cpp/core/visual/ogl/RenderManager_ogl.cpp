@@ -1,3 +1,11 @@
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
+#include <map>
+#include <set>
+#include <utility>
+#include <vector>
 #include "renderer/CCTexture2D.h"
 #include "renderer/CCGLProgramCache.h"
 #include "renderer/CCGLProgram.h"
@@ -18,7 +26,7 @@
 #include "base/CCEventType.h"
 #include "Platform.h"
 #include "ConfigManager/IndividualConfigManager.h"
-#include "opencv2/opencv.hpp"
+#include "imageops/ImageOps.h"
 #include <deque>
 #include <algorithm>
 #include <unordered_set>
@@ -168,11 +176,11 @@ namespace GL { // independ from global gl functions
         GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width,
         GLsizei height, GLsizei depth);
     static fCopyImageSubData *glCopyImageSubData;
-    typedef void(GLAPIENTRY fClearTexImage)(uint texture, int level,
+    typedef void(GLAPIENTRY fClearTexImage)(GLuint texture, int level,
                                             GLenum format, GLenum type,
                                             const void *data);
     static fClearTexImage *glClearTexImage;
-    typedef void(GLAPIENTRY fClearTexSubImage)(uint texture, int level,
+    typedef void(GLAPIENTRY fClearTexSubImage)(GLuint texture, int level,
                                                int xoffset, int yoffset,
                                                int zoffset, GLsizei width,
                                                GLsizei height, GLsizei depth,
@@ -788,10 +796,12 @@ static tjs_uint8 *TVPShrink(tjs_uint *dpitch, const tjs_uint8 *src,
     }
     *dpitch = (dstw * 4 + 7) & ~7;
     tjs_uint8 *tmp = new tjs_uint8[*dpitch * dsth];
-    cv::Size dsize(dstw, dsth);
-    cv::Mat src_img(srch, srcw, CV_8UC4, (void *)src, spitch);
-    cv::Mat dst_img(dsth, dstw, CV_8UC4, (void *)tmp, *dpitch);
-    cv::resize(src_img, dst_img, dsize, 0, 0, cv::INTER_LINEAR);
+    TVPImageOps::Resize({ src, static_cast<int>(srcw), static_cast<int>(srch),
+                          spitch, TVPImageOps::PixelFormat::RGBA8 },
+                        { tmp, static_cast<int>(dstw), static_cast<int>(dsth),
+                          static_cast<std::ptrdiff_t>(*dpitch),
+                          TVPImageOps::PixelFormat::RGBA8 },
+                        TVPImageOps::Interpolation::Linear);
     return tmp;
 }
 
@@ -811,10 +821,12 @@ static tjs_uint8 *TVPShrink_8(tjs_uint *dpitch, const tjs_uint8 *src,
     }
     *dpitch = (dstw + 7) & ~7;
     tjs_uint8 *tmp = new tjs_uint8[*dpitch * dsth];
-    cv::Size dsize(dstw, dsth);
-    cv::Mat src_img(srch, srcw, CV_8UC1, (void *)src, spitch);
-    cv::Mat dst_img(dsth, dstw, CV_8UC1, (void *)tmp, *dpitch);
-    cv::resize(src_img, dst_img, dsize, 0, 0, cv::INTER_LINEAR);
+    TVPImageOps::Resize({ src, static_cast<int>(srcw), static_cast<int>(srch),
+                          spitch, TVPImageOps::PixelFormat::Gray8 },
+                        { tmp, static_cast<int>(dstw), static_cast<int>(dsth),
+                          static_cast<std::ptrdiff_t>(*dpitch),
+                          TVPImageOps::PixelFormat::Gray8 },
+                        TVPImageOps::Interpolation::Linear);
     return tmp;
 }
 
@@ -1355,12 +1367,15 @@ public:
         }
 
         unsigned char *tmp = new unsigned char[internalW * internalH * 4];
-        cv::Size dsize(internalW, internalH);
-        cv::Mat src_img(Bitmap->GetHeight(), Bitmap->GetWidth(), CV_8UC4,
-                        (void *)Bitmap->GetBits(), Bitmap->GetPitch());
-        cv::Mat dst_img(internalH, internalW, CV_8UC4, (void *)tmp,
-                        internalW * 4);
-        cv::resize(src_img, dst_img, dsize, 0, 0, cv::INTER_LINEAR);
+        TVPImageOps::Resize(
+            { static_cast<const std::uint8_t *>(Bitmap->GetBits()),
+              static_cast<int>(Bitmap->GetWidth()),
+              static_cast<int>(Bitmap->GetHeight()), Bitmap->GetPitch(),
+              TVPImageOps::PixelFormat::RGBA8 },
+            { tmp, static_cast<int>(internalW), static_cast<int>(internalH),
+              static_cast<std::ptrdiff_t>(internalW) * 4,
+              TVPImageOps::PixelFormat::RGBA8 },
+            TVPImageOps::Interpolation::Linear);
 
         Bitmap->Release(); // release here to relieve memory peak
         Bitmap = nullptr;
@@ -4852,33 +4867,30 @@ public:
         float dw = _tar->GetInternalWidth(), dh = _tar->GetInternalHeight();
 
         for(int i = 0; i < nQuads; ++i) {
-            cv::Point2f pts_src[] = {
-                cv::Point2f(srcpt[0].x / tw, srcpt[0].y / th),
-                cv::Point2f((srcpt[1].x + 1) / tw, srcpt[1].y / th),
-                cv::Point2f((srcpt[3].x + 1) / tw, (srcpt[3].y + 1) / th),
-                cv::Point2f(srcpt[2].x / tw, (srcpt[2].y + 1) / th)
+            TVPImageOps::Quad pts_src = {
+                TVPImageOps::Point(srcpt[0].x / tw, srcpt[0].y / th),
+                TVPImageOps::Point((srcpt[1].x + 1) / tw, srcpt[1].y / th),
+                TVPImageOps::Point((srcpt[3].x + 1) / tw,
+                                   (srcpt[3].y + 1) / th),
+                TVPImageOps::Point(srcpt[2].x / tw, (srcpt[2].y + 1) / th)
             };
-            cv::Point2f pts_dst[] = { cv::Point2f(dstpt[0].x * tar->_scaleW,
-                                                  dstpt[0].y * tar->_scaleH),
-                                      cv::Point2f(dstpt[1].x * tar->_scaleW,
-                                                  dstpt[1].y * tar->_scaleH),
-                                      cv::Point2f(dstpt[3].x * tar->_scaleW,
-                                                  dstpt[3].y * tar->_scaleH),
-                                      cv::Point2f(dstpt[2].x * tar->_scaleW,
-                                                  dstpt[2].y * tar->_scaleH) };
+            TVPImageOps::Quad pts_dst = {
+                TVPImageOps::Point(dstpt[0].x * tar->_scaleW,
+                                   dstpt[0].y * tar->_scaleH),
+                TVPImageOps::Point(dstpt[1].x * tar->_scaleW,
+                                   dstpt[1].y * tar->_scaleH),
+                TVPImageOps::Point(dstpt[3].x * tar->_scaleW,
+                                   dstpt[3].y * tar->_scaleH),
+                TVPImageOps::Point(dstpt[2].x * tar->_scaleW,
+                                   dstpt[2].y * tar->_scaleH)
+            };
 
-            cv::Mat perspective_matrix =
-                cv::getPerspectiveTransform(pts_dst, pts_src);
-            if(perspective_matrix.elemSize1() == 4) { // float
-                method->ApplyMatrix((float *)perspective_matrix.ptr());
-            } else {
-                float mtx[9];
-                double *ptr = perspective_matrix.ptr<double>();
-                for(int i = 0; i < 9; ++i) {
-                    mtx[i] = ptr[i];
-                }
-                method->ApplyMatrix(mtx);
-            }
+            const auto perspective_matrix =
+                TVPImageOps::PerspectiveTransform(pts_dst, pts_src);
+            float mtx[9];
+            for(int j = 0; j < 9; ++j)
+                mtx[j] = static_cast<float>(perspective_matrix[j]);
+            method->ApplyMatrix(mtx);
 
             // pass to OperateTriangles
             tTVPPointD pttar[6] =

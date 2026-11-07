@@ -174,7 +174,7 @@ namespace motion {
     Player::Player(ResourceManager rm, Player *parentPlayer) :
         _runtime(detail::makePlayerRuntime()),
         _resourceManagerNative(std::move(rm)), _parentPlayer(parentPlayer) {
-        LOGGER->debug("Motion.Player constructor called");
+        G_PluginLog.debug("Motion.Player constructor called");
         using ResourceManagerAdaptor = ncbInstanceAdaptor<ResourceManager>;
         if(auto *dispatch = ResourceManagerAdaptor::CreateAdaptor(
                new ResourceManager(_resourceManagerNative))) {
@@ -202,7 +202,7 @@ namespace motion {
             TVPExecuteExpression(TJS_W("new Math.RandomGenerator()"),
                                  &_tjsRandomGenerator);
         } catch(...) {
-            LOGGER->warn("Player: failed to create Math.RandomGenerator");
+            G_PluginLog.warn("Player: failed to create Math.RandomGenerator");
         }
     }
 
@@ -344,7 +344,7 @@ namespace motion {
         attached.push_back(std::move(snapshot));
         detail::mergeAttachedSnapshotResources(*_runtime->activeMotion,
                                                *attached.back());
-        LOGGER->debug(
+        G_PluginLog.debug(
             "Player::addEmoteFile({}): attached to primary path={} (count={})",
             attached.back()->path, _runtime->activeMotion->path,
             attached.size());
@@ -356,7 +356,7 @@ namespace motion {
         // Does NOT start playback — that is play()'s job.
         const auto loaded = _resourceManagerNative.findLoadedModule(storageKey);
         if(loaded.Type() != tvtObject) {
-            LOGGER->warn(
+            G_PluginLog.warn(
                 "Player::bindMotionModuleKey({}): module not in "
                 "ResourceManager cache; call ResourceManager.load() first",
                 storageKey.AsStdString());
@@ -366,7 +366,7 @@ namespace motion {
         _project = loaded;
         if(const auto snapshot = detail::lookupModuleSnapshot(loaded)) {
             loadFromSnapshot(snapshot);
-            LOGGER->debug(
+            G_PluginLog.debug(
                 "Player::bindMotionModuleKey({}): bound snapshot path={}",
                 storageKey.AsStdString(), snapshot->path);
             return;
@@ -377,13 +377,13 @@ namespace motion {
                resolveMotion(*_runtime, storageKey, &_resourceManagerNative)) {
             activateMotion(*_runtime, snapshot, &_resourceManagerNative);
             syncVariableKeysFromActiveMotion();
-            LOGGER->debug(
+            G_PluginLog.debug(
                 "Player::bindMotionModuleKey({}): resolved snapshot path={}",
                 storageKey.AsStdString(), snapshot->path);
             return;
         }
 
-        LOGGER->error(
+        G_PluginLog.error(
             "Player::bindMotionModuleKey({}): loaded object has no motion "
             "snapshot",
             storageKey.AsStdString());
@@ -720,7 +720,7 @@ namespace motion {
         _allplaying = true;
 
         if(_runtime->nodes.size() <= 1) {
-            LOGGER->warn(
+            G_PluginLog.warn(
                 "Player::initEmoteMotionLike_0x6B3A8C: node tree empty for "
                 "{} — check clip.layer[] index resolution (C-1)",
                 _runtime->activeMotion->path);
@@ -926,7 +926,7 @@ namespace motion {
             paramTableSample += fmt::format("{}={:.2f}", entry.id, entry.value);
         }
 
-        LOGGER->warn(
+        G_PluginLog.warn(
             "emote init diag: emoteMode={} path={} clip={} nodes={} "
             "layerList={} "
             "params={} paramNodes={} sourced={} stencil0={} "
@@ -938,7 +938,7 @@ namespace motion {
             stencilZeroCount, paramNodeEmptySrc, paramTableSample,
             paramNodeSample);
         if(_runtime->parameterEntries.empty()) {
-            LOGGER->warn(
+            G_PluginLog.warn(
                 "emote init diag: parameter table empty for {} — check "
                 "clip/root parameter[] (对照 sdl3 emotemotion::parameter)",
                 _runtime->activeMotion->path);
@@ -1050,14 +1050,14 @@ namespace motion {
             }
         }
 
-        LOGGER->warn(
+        G_PluginLog.warn(
             "emote first eval: emoteMode={} path={} clip={} paramNodes={} "
             "emptySrc={} hidden={} inactiveActive={} face=[{}] sample=[{}]",
             _runtime->isEmoteMode ? 1 : 0, _runtime->activeMotion->path,
             clip ? clip->label : std::string("<none>"), paramNodeCount,
             emptySrcCount, hiddenCount, inactiveActive, faceSample, sample);
         if(emptySrcCount > 0 || hiddenCount > 0) {
-            LOGGER->warn(
+            G_PluginLog.warn(
                 "emote first eval: {} param nodes missing src, {} hidden, {} "
                 "inactive accumulated.active (口/眼: delta.visibleOverride / "
                 "parent.visible / stencilType)",
@@ -1712,12 +1712,12 @@ namespace motion {
     void Player::modifyRoot(tTJSVariant data) { _project = data; }
 
     void Player::debugPrint() {
-        LOGGER->info("motionKey={}, motions={}, sources={}, timelines={}",
-                     _motionKey.AsStdString(), _runtime->motionsByKey.size(),
-                     _runtime->sourceCacheNative
-                         ? _runtime->sourceCacheNative->size()
-                         : 0,
-                     _runtime->timelines.size());
+        G_PluginLog.info(
+            "motionKey={}, motions={}, sources={}, timelines={}",
+            _motionKey.AsStdString(), _runtime->motionsByKey.size(),
+            _runtime->sourceCacheNative ? _runtime->sourceCacheNative->size()
+                                        : 0,
+            _runtime->timelines.size());
     }
 
 

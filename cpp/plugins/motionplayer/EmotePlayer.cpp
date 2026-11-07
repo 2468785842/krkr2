@@ -14,7 +14,7 @@
 #include "ncbind.hpp"
 #include "psbfile/PSBFile.h"
 
-#define LOGGER spdlog::get("plugin")
+#include "log/TVPLog.h"
 
 namespace {
 
@@ -602,9 +602,10 @@ namespace motion {
                                      tjs_int flags) {
         // 参考 sdl3：零时长 fadeIn 等价于 playTimeline
         if(duration <= 0.0) {
-            LOGGER->debug("EmotePlayer::fadeInTimeline({}, {}): zero-duration "
-                          "→ playTimeline",
-                          label.AsStdString(), duration);
+            G_PluginLog.debug(
+                "EmotePlayer::fadeInTimeline({}, {}): zero-duration "
+                "→ playTimeline",
+                label.AsStdString(), duration);
             playTimeline(label, flags);
             return;
         }
@@ -616,9 +617,10 @@ namespace motion {
                                       tjs_int flags) {
         // 参考 sdl3：零时长 fadeOut 等价于 stopTimeline
         if(duration <= 0.0) {
-            LOGGER->debug("EmotePlayer::fadeOutTimeline({}, {}): zero-duration "
-                          "→ stopTimeline",
-                          label.AsStdString(), duration);
+            G_PluginLog.debug(
+                "EmotePlayer::fadeOutTimeline({}, {}): zero-duration "
+                "→ stopTimeline",
+                label.AsStdString(), duration);
             stopTimeline(label);
             return;
         }
@@ -663,11 +665,11 @@ namespace motion {
                 const ttstr metaMotion =
                     readMetadataBaseField(module, TJS_W("motion"));
                 clipLookupLabel = !metaMotion.IsEmpty() ? metaMotion : label;
-                LOGGER->debug("EmotePlayer::play mode=MotionKey storageKey={} "
-                              "clipLookup={} playLabel={}",
-                              _storageKey.AsStdString(),
-                              clipLookupLabel.AsStdString(),
-                              label.AsStdString());
+                G_PluginLog.debug(
+                    "EmotePlayer::play mode=MotionKey storageKey={} "
+                    "clipLookup={} playLabel={}",
+                    _storageKey.AsStdString(), clipLookupLabel.AsStdString(),
+                    label.AsStdString());
             }
         }
 
@@ -683,7 +685,7 @@ namespace motion {
                     _module = entry.module;
                 }
                 clipLookupLabel = label;
-                LOGGER->debug(
+                G_PluginLog.debug(
                     "EmotePlayer::play mode=SingleCache key={} chara={} "
                     "clipLookup={}",
                     entry.key, _player.getChara().AsStdString(),
@@ -712,7 +714,7 @@ namespace motion {
                         _storageKey = ttstr(entry.key.c_str());
                         _module = entry.module;
                         clipLookupLabel = metaMotion;
-                        LOGGER->debug(
+                        G_PluginLog.debug(
                             "EmotePlayer::play mode=MultiCache primary key={} "
                             "chara={} motion={}",
                             entry.key, metaChara.AsStdString(),
@@ -728,7 +730,7 @@ namespace motion {
                             _player.addEmoteFile(snapshot);
                         }
                     }
-                    LOGGER->debug(
+                    G_PluginLog.debug(
                         "EmotePlayer::play mode=MultiCache: linked {} attached "
                         "snapshot(s)",
                         primarySnapshot->attachedSnapshots.size());
@@ -738,7 +740,7 @@ namespace motion {
 
         if(clipLookupLabel.IsEmpty()) {
             if(label.IsEmpty()) {
-                LOGGER->error(
+                G_PluginLog.error(
                     "EmotePlayer::play(): no module/motion resolved in any "
                     "EmotePlayer play mode");
                 throw std::runtime_error(
@@ -746,9 +748,10 @@ namespace motion {
                     "module");
             }
             clipLookupLabel = label;
-            LOGGER->warn("EmotePlayer::play: no play mode matched; fallback to "
-                         "playLabel={}",
-                         label.AsStdString());
+            G_PluginLog.warn(
+                "EmotePlayer::play: no play mode matched; fallback to "
+                "playLabel={}",
+                label.AsStdString());
         }
 
         _clipLabel = label;
@@ -763,7 +766,7 @@ namespace motion {
         const bool started =
             _player.playMotionLike_0x6B2284(clipLookupLabel, flags);
         if(!started && !label.IsEmpty() && clipLookupLabel != label) {
-            LOGGER->debug(
+            G_PluginLog.debug(
                 "EmotePlayer::play: clipLookup={} failed; retry playLabel={}",
                 clipLookupLabel.AsStdString(), label.AsStdString());
             const bool retryStarted =
@@ -799,8 +802,8 @@ namespace motion {
 
     void EmotePlayer::skip() {
         // libkrkr2.so sub_66EB8C；参考 sdl3 skipToSync（不编译）
-        LOGGER->debug("EmotePlayer::skip(): delegating to skipToSync() "
-                      "(参考 sdl3/emoteplayerclass.cpp，不编译)");
+        G_PluginLog.debug("EmotePlayer::skip(): delegating to skipToSync() "
+                          "(参考 sdl3/emoteplayerclass.cpp，不编译)");
         skipToSync();
     }
 
@@ -819,8 +822,8 @@ namespace motion {
 
     void EmotePlayer::progress(double dt) {
         if(dt < 0.0 || dt > 60000.0) {
-            LOGGER->warn("EmotePlayer::progress({}): clamping abnormal dt to 0",
-                         dt);
+            G_PluginLog.warn(
+                "EmotePlayer::progress({}): clamping abnormal dt to 0", dt);
             dt = 0.0;
         }
         _progress += dt;

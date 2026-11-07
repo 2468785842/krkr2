@@ -1,10 +1,8 @@
 //
 // Created by lidong on 2025/1/31.
-// TODO: implement psbfile.dll plugin
 // ref: https://github.com/number201724/psbfile
 // ref: https://github.com/UlyssesWu/FreeMote
 //
-#include <spdlog/spdlog.h>
 #include <cassert>
 
 #include "tjs.h"
@@ -14,13 +12,13 @@
 #include "PSBMedia.h"
 #include "PSBMediaRegistry.h"
 #include "PSBValue.h"
+#include "UtilStreams.h"
 
 #define NCB_MODULE_NAME TJS_W("psbfile.dll")
 
-#define LOGGER spdlog::get("plugin")
+#include "log/TVPLog.h"
 
 using namespace PSB;
-static PSBMedia *psbMedia = nullptr;
 
 void initPsbFile() { initPSBMedia(); }
 
@@ -29,17 +27,12 @@ void deInitPsbFile() { deInitPSBMedia(); }
 static tjs_error getRoot(tTJSVariant *r, tjs_int n, tTJSVariant **p,
                          iTJSDispatch2 *obj) {
     auto *self = ncbInstanceAdaptor<PSB::PSBFile>::GetNativeInstance(obj);
-    iTJSDispatch2 *dic = TJSCreateCustomObject();
-    auto objs = self->getObjects();
-    if(objs != nullptr) {
-        for(const auto &[k, v] : *objs) {
-            tTJSVariant tmp = v->toTJSVal();
-            dic->PropSet(TJS_MEMBERENSURE, ttstr{ k }.c_str(), nullptr, &tmp,
-                         dic);
-        }
-    }
-    *r = tTJSVariant{ dic, dic };
-    dic->Release();
+    if(!self)
+        return TJS_E_NATIVECLASSCRASH;
+    if(!r)
+        return TJS_S_OK;
+    const auto objects = self->getObjects();
+    *r = objects ? objects->toTJSVal() : PSBDictionary{}.toTJSVal();
     return TJS_S_OK;
 }
 
@@ -47,6 +40,8 @@ static tjs_error load(tTJSVariant *r, tjs_int count, tTJSVariant **p,
                       iTJSDispatch2 *obj) {
     bool loadSuccess = true;
     auto *self = ncbInstanceAdaptor<PSB::PSBFile>::GetNativeInstance(obj);
+    if(!self)
+        return TJS_E_NATIVECLASSCRASH;
     if(count != 1) {
         return TJS_E_BADPARAMCOUNT;
     }
@@ -54,22 +49,19 @@ static tjs_error load(tTJSVariant *r, tjs_int count, tTJSVariant **p,
     if((*p)->Type() == tvtString) {
         ttstr path{ **p };
         if(!self->loadPSBFile(path)) {
-            LOGGER->info("cannot load psb file : {}", path.AsStdString());
+            G_PluginLog.info("cannot load psb file : {}", path.AsStdString());
             loadSuccess = false;
         }
-        auto objs = self->getObjects();
-        for(const auto &[k, v] : *objs) {
-            const auto &res = std::dynamic_pointer_cast<PSBResource>(v);
-            if(res == nullptr)
-                continue;
-            ttstr pathN{ k };
-            psbMedia->NormalizeDomainName(path);
-            psbMedia->NormalizePathName(pathN);
-            psbMedia->add((path + TJS_W("/") + pathN).AsStdString(), res);
-        }
+        if(loadSuccess)
+            registerRootResources(path, *self);
     } else if((*p)->Type() == tvtOctet) {
-        LOGGER->critical("PSBFile::load stream no implement!");
-        loadSuccess = false;
+        const auto *octet = (*p)->AsOctetNoAddRef();
+        if(!octet) {
+            loadSuccess = false;
+        } else {
+            tTVPMemoryStream stream(octet->GetData(), octet->GetLength());
+            loadSuccess = self->loadPSBStream(&stream);
+        }
     } else {
         return TJS_E_INVALIDPARAM;
     }
@@ -78,13 +70,6 @@ static tjs_error load(tTJSVariant *r, tjs_int count, tTJSVariant **p,
         *r = tTJSVariant(loadSuccess);
     return TJS_S_OK;
 }
-
-// 因为有两种版本的psbfile插件调用方式不一样
-// TODO: 第一种（新) 实现有问题, 可能忽略了某些东西
-// var psbfile = new PSBFile();
-// psbfile.load("xxxx.PIMG");
-// 第二种（旧)
-// new PSBFile("xxxx.PIMG");
 
 template <typename T>
 class PSBFileConvertor {
@@ -118,17 +103,23 @@ NCB_SET_CONVERTOR(const PSBFile *, PSBFileConvertor<const PSBFile>);
 
 static tjs_error PSBFileFactory(PSBFile **result, tjs_int count,
                                 tTJSVariant **params, iTJSDispatch2 *_) {
-    PSBFile *psbFile = nullptr;
-    if(count == 0) {
-        psbFile = new PSBFile();
-    } else if(count == 1 && (*params)->Type() == tvtString) {
+    auto psbFile = std::make_unique<PSBFile>();
+    if(count > 1)
+        return TJS_E_BADPARAMCOUNT;
+    if(count == 1 && (*params)->Type() == tvtString) {
         ttstr path{ *params[0] };
-        psbFile = new PSBFile();
-        psbFile->loadPSBFile(path);
-    } else {
+        if(psbFile->loadPSBFile(path))
+            registerRootResources(path, *psbFile);
+    } else if(count == 1 && (*params)->Type() == tvtOctet) {
+        const auto *octet = (*params)->AsOctetNoAddRef();
+        if(octet) {
+            tTVPMemoryStream stream(octet->GetData(), octet->GetLength());
+            psbFile->loadPSBStream(&stream);
+        }
+    } else if(count != 0) {
         return TJS_E_INVALIDPARAM;
     }
-    *result = psbFile;
+    *result = psbFile.release();
     return TJS_S_OK;
 }
 

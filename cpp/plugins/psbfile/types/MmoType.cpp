@@ -5,9 +5,9 @@
 #include "../PSBFile.h"
 #include "MmoType.h"
 
-namespace PSB {
-#define LOGGER spdlog::get("plugin")
+#include "log/TVPLog.h"
 
+namespace PSB {
     bool MmoType::isThisType(const PSBFile &psb) {
         const auto objects = psb.getObjects();
         if(psb.getObjects() == nullptr) {
@@ -22,7 +22,7 @@ namespace PSB {
     MmoType::collectResources(const PSBFile &psb, bool deDuplication) {
         std::vector<std::unique_ptr<IResourceMetadata>> resourceList;
         // TODO:
-        LOGGER->critical("TODO: MmoType::collectResources(...)");
+        G_PluginLog.critical("TODO: MmoType::collectResources(...)");
         return resourceList;
     }
 } // namespace PSB

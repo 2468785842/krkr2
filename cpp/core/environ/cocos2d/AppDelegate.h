@@ -4,7 +4,7 @@
 // extern bool initWindow(cocos2d::GLView*);
 
 class TVPAppDelegate : public cocos2d::Application {
-
+public:
     void initGLContextAttrs() override;
 
     /**

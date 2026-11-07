@@ -34,13 +34,38 @@ set(COCOS2D_X_VERSION 3.17.1)
 
 set(COCOS_CORE_LIB cocos2d)
 
+# Optional engine modules (controlled by vcpkg port features via BUILD_EXT_*).
+if(BUILD_EXT_BOX2D OR BUILD_EXT_CHIPMUNK)
+    set(COCOS_USE_PHYSICS ON)
+else()
+    set(COCOS_USE_PHYSICS OFF)
+endif()
+
+if(BUILD_EXT_BULLET)
+    set(COCOS_USE_3D_PHYSICS ON)
+else()
+    set(COCOS_USE_3D_PHYSICS OFF)
+endif()
+
+if(BUILD_EXT_RECAST)
+    set(COCOS_USE_NAVMESH ON)
+else()
+    set(COCOS_USE_NAVMESH OFF)
+endif()
+
 include(2d/CMakeLists.txt)
 include(3d/CMakeLists.txt)
 include(platform/CMakeLists.txt)
-include(physics/CMakeLists.txt)
-include(physics3d/CMakeLists.txt)
+if(COCOS_USE_PHYSICS)
+    include(physics/CMakeLists.txt)
+endif()
+if(COCOS_USE_3D_PHYSICS)
+    include(physics3d/CMakeLists.txt)
+endif()
 include(math/CMakeLists.txt)
-include(navmesh/CMakeLists.txt)
+if(COCOS_USE_NAVMESH)
+    include(navmesh/CMakeLists.txt)
+endif()
 include(renderer/CMakeLists.txt)
 include(vr/CMakeLists.txt)
 include(base/CMakeLists.txt)
@@ -79,10 +104,7 @@ set(COCOS_HEADER cocos2d.h
     ${COCOS_2D_HEADER}
     ${COCOS_3D_HEADER}
     ${COCOS_PLATFORM_HEADER}
-    ${COCOS_PHYSICS_HEADER}
-    ${COCOS_PHYSICS3D_HEADER}
     ${COCOS_MATH_HEADER}
-    ${COCOS_NAVMESH_HEADER}
     ${COCOS_RENDERER_HEADER}
     ${COCOS_VR_HEADER}
     ${COCOS_BASE_HEADER}
@@ -99,10 +121,7 @@ set(COCOS_SRC cocos2d.cpp
     ${COCOS_2D_SRC}
     ${COCOS_3D_SRC}
     ${COCOS_PLATFORM_SRC}
-    ${COCOS_PHYSICS_SRC}
-    ${COCOS_PHYSICS3D_SRC}
     ${COCOS_MATH_SRC}
-    ${COCOS_NAVMESH_SRC}
     ${COCOS_RENDERER_SRC}
     ${COCOS_VR_SRC}
     ${COCOS_BASE_SRC}
@@ -115,6 +134,21 @@ set(COCOS_SRC cocos2d.cpp
     ${COCOS_STORAGE_SRC}
 )
 
+if(COCOS_USE_PHYSICS)
+    list(APPEND COCOS_HEADER ${COCOS_PHYSICS_HEADER})
+    list(APPEND COCOS_SRC ${COCOS_PHYSICS_SRC})
+endif()
+
+if(COCOS_USE_3D_PHYSICS)
+    list(APPEND COCOS_HEADER ${COCOS_PHYSICS3D_HEADER})
+    list(APPEND COCOS_SRC ${COCOS_PHYSICS3D_SRC})
+endif()
+
+if(COCOS_USE_NAVMESH)
+    list(APPEND COCOS_HEADER ${COCOS_NAVMESH_HEADER})
+    list(APPEND COCOS_SRC ${COCOS_NAVMESH_SRC})
+endif()
+
 list(APPEND COCOS_SRC ${COCOS_HEADER})
 
 add_library(cocos2d ${COCOS_SRC})
@@ -126,6 +160,30 @@ target_link_libraries(cocos2d PUBLIC external)
 # add base macro define and compile options
 use_cocos2dx_compile_define(cocos2d)
 use_cocos2dx_compile_options(cocos2d)
+
+# Override ccConfig.h defaults for disabled optional modules.
+if(NOT COCOS_USE_PHYSICS)
+    target_compile_definitions(cocos2d PUBLIC CC_USE_PHYSICS=0)
+else()
+    if(BUILD_EXT_CHIPMUNK)
+        target_compile_definitions(cocos2d PUBLIC CC_ENABLE_CHIPMUNK_INTEGRATION=1)
+    else()
+        target_compile_definitions(cocos2d PUBLIC CC_ENABLE_CHIPMUNK_INTEGRATION=0)
+    endif()
+    if(BUILD_EXT_BOX2D)
+        target_compile_definitions(cocos2d PUBLIC CC_ENABLE_BOX2D_INTEGRATION=1)
+    else()
+        target_compile_definitions(cocos2d PUBLIC CC_ENABLE_BOX2D_INTEGRATION=0)
+    endif()
+endif()
+
+if(NOT COCOS_USE_3D_PHYSICS)
+    target_compile_definitions(cocos2d PUBLIC CC_USE_3D_PHYSICS=0 CC_ENABLE_BULLET_INTEGRATION=0)
+endif()
+
+if(NOT COCOS_USE_NAVMESH)
+    target_compile_definitions(cocos2d PUBLIC CC_USE_NAVMESH=0)
+endif()
 
 # use all platform related system libs
 use_cocos2dx_libs_depend(cocos2d)

@@ -6,6 +6,7 @@
 #include "SysInitIntf.h"
 #include "EventIntf.h"
 #include "DebugIntf.h"
+#include "MsgIntf.h"
 
 class BasicAllocator : public iTVPMemoryAllocator {
 public:

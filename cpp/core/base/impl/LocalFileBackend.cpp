@@ -18,5 +18,5 @@ LocalFileBackend::OpenRead(const ttstr &path) {
 
 //---------------------------------------------------------------------------
 bool LocalFileBackend::Exists(const ttstr &path) {
-    return TVPCheckExistentLocalFile(path);
+    return TVPCheckExistentLocalPath(path);
 }

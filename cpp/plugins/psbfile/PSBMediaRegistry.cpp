@@ -1,15 +1,12 @@
 #include "PSBMediaRegistry.h"
 
-#include <spdlog/spdlog.h>
-
 #include "PSBMedia.h"
 #include "PSBValue.h"
 #include "StorageIntf.h"
 
+#include "log/TVPLog.h"
+
 namespace PSB {
-
-#define LOGGER spdlog::get("plugin")
-
     namespace {
         PSBMedia *psbMedia = nullptr;
 
@@ -85,7 +82,7 @@ namespace PSB {
         psbMedia = new PSBMedia();
         TVPRegisterStorageMedia(psbMedia);
         psbMedia->Release();
-        LOGGER->info("initPsbFile");
+        G_PluginLog.info("initPsbFile");
     }
 
     void deInitPSBMedia() {
@@ -93,7 +90,7 @@ namespace PSB {
             TVPUnregisterStorageMedia(psbMedia);
             psbMedia = nullptr;
         }
-        LOGGER->info("deInitPsbFile");
+        G_PluginLog.info("deInitPsbFile");
     }
 
     void

@@ -1,6 +1,8 @@
 
 #include "tjsCommHead.h"
 #include "BitmapInfomation.h"
+
+#include "MsgIntf.h"
 #include "MsgIntf.h"
 
 BitmapInfomation::BitmapInfomation(tjs_uint width, tjs_uint height, int bpp) {

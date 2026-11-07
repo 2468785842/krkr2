@@ -68,6 +68,9 @@ TJS_EXP_FUNC_DEF(bool, TVPCheckExistentLocalFolder, (const ttstr &name));
 TJS_EXP_FUNC_DEF(bool, TVPCheckExistentLocalFile, (const ttstr &name));
 /* name must be an OS's NATIVE file name */
 
+TJS_EXP_FUNC_DEF(bool, TVPCheckExistentLocalPath, (const ttstr &name));
+/* 本地路径存在（常规文件或目录） */
+
 TJS_EXP_FUNC_DEF(bool, TVPCreateFolders, (const ttstr &folder));
 /* make folders recursively, like mkdir -p. folder must be OS NATIVE
  * folder name

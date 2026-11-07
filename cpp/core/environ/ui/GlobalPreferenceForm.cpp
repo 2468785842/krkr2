@@ -24,7 +24,8 @@ TVPGlobalPreferenceForm::create(const tPreferenceScreen *config) {
         config = &RootPreference;
     auto *ret = new TVPGlobalPreferenceForm();
     ret->autorelease();
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initUILayout(Csd::createNaviBar, Csd::createListView,
+                      Csd::NodeBuilderFn{});
     PrefListSize = ret->PrefList->getContentSize();
     ret->initPref(config);
     ret->setOnExitCallback([capture0 = GlobalConfigManager::GetInstance()] {
@@ -33,33 +34,7 @@ TVPGlobalPreferenceForm::create(const tPreferenceScreen *config) {
     return ret;
 }
 
-static void WalkConfig(tPreferenceScreen *pref) {
-    for(iTVPPreferenceInfo *info : pref->Preferences) {
-        info->InitDefaultConfig();
-        tPreferenceScreen *subpref = info->GetSubScreenInfo();
-        if(subpref) {
-            WalkConfig(subpref);
-        }
-    }
-}
-
 void TVPGlobalPreferenceForm::Initialize() {
-    static bool Inited = false;
-    if(!Inited) {
-        Inited = true;
-        if(!GlobalConfigManager::GetInstance()->IsValueExist(
-               "GL_EXT_shader_framebuffer_fetch")) {
-            // disable GL_EXT_shader_framebuffer_fetch normally for
-            // adreno GPU
-            if(strstr((const char *)glGetString(GL_RENDERER), "Adreno")) {
-                GlobalConfigManager::GetInstance()->SetValueInt(
-                    "GL_EXT_shader_framebuffer_fetch", 0);
-            }
-        }
-
-        initAllConfig();
-        WalkConfig(&RootPreference);
-        WalkConfig(&SoftRendererOptPreference);
-        WalkConfig(&OpenglOptPreference);
-    }
+    TVPInitializeRuntimePreferences();
+    initAllConfig();
 }

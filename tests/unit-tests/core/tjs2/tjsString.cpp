@@ -20,3 +20,14 @@ TEST_CASE("string to tjsString") {
         REQUIRE(v1_tjs.AsStdString() == v1);
     }
 }
+
+TEST_CASE("string conversion preserves Unicode without public Boost headers") {
+    using namespace TJS;
+    const auto text = u8"日本語与中文";
+    const ttstr value(text);
+    REQUIRE(value.toWString() == L"日本語与中文");
+    ttstr formatted;
+    formatted.printf("%s:%d", text, 42);
+    REQUIRE(formatted.AsStdString() == std::string(text) + ":42");
+    REQUIRE(ttstr().toWString().empty());
+}

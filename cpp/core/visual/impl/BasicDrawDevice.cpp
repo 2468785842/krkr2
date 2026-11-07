@@ -16,9 +16,12 @@
 #define ZeroMemory(p, n) memset(p, 0, n);
 // #include <d3d9.h>
 // #include <mmsystem.h>
+#include "MsgIntf.h"
+
+
 #include <algorithm>
 
-#include "TVPWindow.h"
+#include "WindowLayer.h"
 
 //---------------------------------------------------------------------------
 // オプション

@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cstring>
 
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 
 #include "MsgIntf.h"
 #include "RenderManager.h"
@@ -16,10 +16,7 @@ namespace motion {
 
     tjs_error D3DAdaptor::factory(D3DAdaptor **result, tjs_int numparams,
                                   tTJSVariant **param, iTJSDispatch2 *) {
-        auto logger = spdlog::get("plugin");
-        if(logger) {
-            logger->warn("D3DAdaptor::factory called, numparams={}", numparams);
-        }
+        G_PluginLog.warn("D3DAdaptor::factory called, numparams={}", numparams);
         if(numparams < 5)
             return TJS_E_BADPARAMCOUNT;
         if(!result)
@@ -40,11 +37,9 @@ namespace motion {
                                      static_cast<int>(param[2]->AsInteger()),
                                      static_cast<int>(param[3]->AsInteger()),
                                      static_cast<int>(param[4]->AsInteger()));
-        if(logger) {
-            logger->warn("D3DAdaptor::factory OK, w={} h={} center=({}, {})",
+        G_PluginLog.warn("D3DAdaptor::factory OK, w={} h={} center=({}, {})",
                          obj->_width, obj->_height, obj->_centerX,
                          obj->_centerY);
-        }
         *result = obj;
         return TJS_S_OK;
     }

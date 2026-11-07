@@ -25,6 +25,7 @@
 #include "SysInitImpl.h"
 #include "StorageIntf.h"
 #include "DebugIntf.h"
+#include "MsgIntf.h"
 // #include "WindowFormUnit.h"
 void TVPInitWindowOptions();
 #include "UtilStreams.h"
