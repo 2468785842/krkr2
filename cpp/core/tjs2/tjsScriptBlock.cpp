@@ -431,7 +431,12 @@ namespace TJS {
             new tTJSLexicalAnalyzer(this, script, isexpr, resultneeded);
 
         try {
-            parser{ this }.parse();
+            const int parseResult = parser{ this }.parse();
+            if(parseResult != 0 && CompileErrorCount == 0) {
+                // A parser abort must never execute an incomplete context,
+                // even if it did not invoke the diagnostic callback.
+                _yyerror(TJSSyntaxError, this);
+            }
         } catch(...) {
             delete LexicalAnalyzer;
             LexicalAnalyzer = nullptr;
