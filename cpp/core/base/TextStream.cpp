@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <cstdint>
+#include <limits>
 #include <uchardet.h>
 #include <zlib.h>
 #include <optional>
@@ -74,23 +76,39 @@ public:
     tTVPTextReadStream(const ttstr &name, const ttstr &mode) {
         _stream.reset(TVPCreateStream(name, TJS_BS_READ));
         size_t ofs = parseModeNumber(mode.c_str(), TJS_W('o'), 255, 0).value();
+        const auto fileSize = _stream->GetSize();
+        if(ofs > fileSize ||
+           fileSize - ofs > std::numeric_limits<size_t>::max())
+            TVPThrowExceptionMessage(TVPReadError);
         _stream->SetPosition(ofs);
 
-        auto size = static_cast<size_t>(_stream->GetSize() - ofs);
+        auto size = static_cast<size_t>(fileSize - ofs);
+        if(size == 0)
+            return;
         std::vector<std::uint8_t> raw(size);
         _stream->ReadBuffer(raw.data(), size);
 
         // ---------- 检查是否加密/压缩 ----------
-        if(size >= 3 && raw[0] == 0xFE && raw[1] == 0xFE) {
+        if(size >= 2 && raw[0] == 0xFE && raw[1] == 0xFE) {
+            // The three-byte mode signature is followed by the UTF-16LE BOM,
+            // matching this file's writer and Kirikiroid2's text stream format.
+            constexpr size_t headerSize = 5;
+            if(size < headerSize || raw[3] != 0xff || raw[4] != 0xfe)
+                TVPThrowExceptionMessage(TVPUnsupportedCipherMode, name);
             std::uint8_t m = raw[2];
             if(m == 0 || m == 1) {
-                // 解密 UTF-16 数据
-                const auto *src =
-                    reinterpret_cast<const char16_t *>(raw.data() + 4);
-                size_t len = (size - 4) / 2;
+                if((size - headerSize) % 2 != 0)
+                    TVPThrowExceptionMessage(TVPUnsupportedCipherMode, name);
+                const size_t len = (size - headerSize) / 2;
                 _buffer.resize(len);
                 for(size_t i = 0; i < len; i++) {
-                    char16_t ch = src[i];
+                    // The payload starts at an odd offset; do not dereference
+                    // an unaligned char16_t pointer or depend on host byte
+                    // order.
+                    const size_t offset = headerSize + i * 2;
+                    char16_t ch = static_cast<char16_t>(
+                        raw[offset] |
+                        (static_cast<unsigned int>(raw[offset + 1]) << 8));
                     if(m == 0) {
                         if(ch >= 0x20)
                             ch ^= (((ch & 0xfe) << 8) ^ 1);
@@ -137,6 +155,9 @@ public:
         std::uint8_t bomSize = 0;
         std::string encoding = checkTextEncoding(raw.data(), size, bomSize);
         raw.erase(raw.begin(), raw.begin() + bomSize);
+        size = raw.size();
+        if(size == 0)
+            return;
 
         if(encoding.empty())
             encoding = G_DefaultReadEncoding; // 默认回退
@@ -203,7 +224,7 @@ public:
             return 0;
         }
         size_t remain = _buffer.size() - _pos;
-        size_t n = size ? size : remain;
+        size_t n = size ? std::min<size_t>(size, remain) : remain;
         tjs_char *buf = targ.AllocBuffer(n);
         std::copy_n(_buffer.data() + _pos, n, buf);
         buf[n] = 0;
