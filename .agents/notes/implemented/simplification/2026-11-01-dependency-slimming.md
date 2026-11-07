@@ -210,3 +210,16 @@ vcpkg installed OpenCV 4.7.0），最终零差异；过程中的错误公式版�
 cv::resize 对 8U 之外的 Area/Cubic 路径及 blur/warp 仍由 OpenCV 承担。
 另：本批期间修复 dev 全量 Linux 链接在 core_storage 的 libarchive zstd
 符号解析失败（`fb122e1`，见对应提交说明），该问题由 PR #57 首次暴露。
+
+### ARM 分派回退（2026-11-07，提交 dc11b24）
+
+三平台 CI 首跑显示 macOS/ARM64 上 8 位线性复刻与 pinned OpenCV 存在差异：
+15 用例中仅新增的大尺寸用例失败，结构化差异（测试改为打印前 8 个偏差 lane）
+集中在 104×96→118×76 cn=1，lane 16,151,286,421,556,691,826,961——按行推进
+17 的对角线模式，多数 +2、一处 −12，SIMD 区间内；标量尾区间无差异。NEON 的
+`v_mul_hi`/`v_rshr` 语义经源码核对与 SSE 一致，分歧最可能是 AppleClang 对
+OpenCV 系数生成循环的自动向量化/FMA 改变浮点求值。复刻编译器自动向量化
+不是可维护契约：`dc11b24` 在 `Resize` 分派上把 Linear 限定为 x86 原生
+（Windows/Linux，12.4M 像素零差异），ARM（macOS/Android）沿用 OpenCV 后端，
+`resizeLinear` 以预处理保护保留。ARM 原生化留待 B5 真机调试。线性在 ARM 上
+的行为与替换前完全一致（同一 OpenCV 调用），不属于回归。

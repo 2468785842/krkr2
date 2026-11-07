@@ -71,7 +71,10 @@ REFLECT_101 与原位 blur、仿射/透视/退化点/零边界，以及 float �
 最近邻新增 4 万组尺寸/通道/方向对照，覆盖浮点临界位置、未对齐裁剪、恒等复制、较大图与请求 1/3 线程的结果。
 线性新增大宽图（如 104×96→118×76）、垂直边界负系数外推、水平边界区、恰 2 倍整数缩小与恒等复制的
 逐字节对照；另有 12.4M 像素的随机尺寸离线扫描（Windows/MSVC、pinned OpenCV 4.7.0）零差异，
-不替代三平台 CI 结论。本机像素、sanitizer 与归档回归结果见 [ImageOps 验证记录](../../.agents/notes/implemented/testing/2026-11-02-imageops-validation.md)。
+不替代三平台 CI 结论。macOS/ARM64 上 pinned OpenCV 的系数生成与源码标量语义存在 ±LSB 级分歧
+（AppleClang 自动向量化改变浮点求值），Linear 在 ARM 分派回 OpenCV 后端，仅 x86（Windows/Linux）
+使用原生路径；ARM 原生化留待真机调试（见 [依赖瘦身记录](../../.agents/notes/implemented/simplification/2026-11-01-dependency-slimming.md)）。
+本机像素、sanitizer 与归档回归结果见 [ImageOps 验证记录](../../.agents/notes/implemented/testing/2026-11-02-imageops-validation.md)。
 
 完整软件/OpenGL 消费者构建及脚本画面对照尚待完成；Android 和真实游戏未验证。
 Windows 完整构建的具体进展见实施记录，不把独立图像测试作为完整引擎通过。后续继续按单算法替换；只有所有消费者和依赖声明都移除后，才能删除 OpenCV。
