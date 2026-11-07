@@ -122,6 +122,10 @@ namespace TVPImageOps {
         }
     } // namespace
 
+    // 线性插值原生复刻仅用于 x86：ARM 上的 OpenCV 系数生成受编译器自动
+    // 向量化/FMA 影响，无法按源码标量语义位精确匹配，见 Resize 的分派注释。
+#if !defined(__aarch64__) && !defined(__arm64__) && !defined(_M_ARM64)
+
     namespace {
         // OpenCV 4.7.0 的 cvRound：四舍六入五取偶（与 FP 环境舍入模式无关，
         // 便于确定性复现）。本模块系数范围有限，减法精确，不会丢精度。
@@ -310,6 +314,8 @@ namespace TVPImageOps {
         }
     } // namespace
 
+#endif // x86 原生线性插值
+
     ImageBuffer::ImageBuffer(int width, int height, PixelFormat format) :
         width_(width), height_(height), format_(format) {
         const auto row = detail::RowBytes(width, format);
@@ -341,7 +347,16 @@ namespace TVPImageOps {
                 resizeNearest(source, destination);
                 return;
             case Interpolation::Linear:
+#if defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64)
+                // macOS/ARM64 CI 实测 OpenCV 4.7.0 的系数生成与本模块按源码
+                // 标量语义的复刻存在 ±LSB 级分歧（AppleClang 对 OpenCV 系数
+                // 循环的自动向量化/FMA 改变了浮点求值；结构化差异见
+                // imageops 验证记录）。复刻编译器自动向量化不是可维护契约，
+                // ARM 上暂时保留 OpenCV 后端；x86 上已验证 12.4M 像素零差异。
+                detail::ResizeFiltered(source, destination, mode);
+#else
                 resizeLinear(source, destination);
+#endif
                 return;
             case Interpolation::Area:
             case Interpolation::Cubic:
