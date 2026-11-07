@@ -384,7 +384,25 @@ TEST_CASE("ImageOps native linear matches the pinned OpenCV on wide images "
             cv::Mat src = source.mat(), dst = expected.mat();
             cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_LINEAR);
             Resize(source.view(), actual.view(), Interpolation::Linear);
-            REQUIRE(actual.bytes == expected.bytes);
+            // 逐字节对比并输出结构化差异：整组字节展开会被 Catch2 截断，
+            // 无法在 CI 日志里定位跨平台（如 ARM NEON）的首个偏差。
+            std::size_t diffCount = 0;
+            for(std::size_t lane = 0; lane < actual.bytes.size(); ++lane) {
+                if(actual.bytes[lane] != expected.bytes[lane] &&
+                   diffCount < 8) {
+                    FAIL_CHECK("size " + std::to_string(size[0]) + "x" +
+                               std::to_string(size[1]) + "->" +
+                               std::to_string(size[2]) + "x" +
+                               std::to_string(size[3]) +
+                               " cn=" + std::to_string(channels) + " lane " +
+                               std::to_string(lane) + " actual " +
+                               std::to_string(actual.bytes[lane]) +
+                               " expected " +
+                               std::to_string(expected.bytes[lane]));
+                    ++diffCount;
+                }
+            }
+            REQUIRE(diffCount == 0);
             REQUIRE(source.bytes == original);
         }
     }
