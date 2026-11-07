@@ -181,3 +181,32 @@ clang-format 20.1.8 检查四个 Boost 包含修改文件、`git diff --check` �
 随后 PSB 编译遇到现有依赖安装目录缺失 `spdlog/common.h`（实际检查目录亦不存在），
 完整应用/PSB 最终链接及 PSB 测试未完成。日志见 `out/windows/header-slim-final.log`。
 未修改全局工具链或重新安装依赖；Linux/macOS/Android 和实际游戏未验证。
+
+## 线性 resize 原生化续批（2026-11-07）
+
+基线 dev `fb122e1`，实现提交 `1359b9f`。`Resize` 的 Linear 分支改为原生实现，
+Area/Cubic 仍走 OpenCV 后端；vcpkg 依赖没有减少。复刻按 pinned OpenCV 4.7.0
+`resize.cpp` 的 8 位路径：坐标 double 计算后转 float，系数 cvRound（五取偶）
+变 Q11 定点；垂直合成全部输出像素统一使用 `VResizeLinear<uchar>` 特化的
+`(S0>>4)*b0>>16 + (S1>>4)*b1>>16 + 2)>>2`（该特化的标量与 SIMD 循环同式，
+`FixedPtCast<...,22>` 对 8 位是死代码，不存在 SIMD/标量分块边界）；垂直系数
+不钳制（fy<0 时负权重配合行钳制实现边界复制外推），水平按 xmin/xmax 钳制；
+恰好 2 倍整数缩小按 `ResizeAreaFastVec` fast_mode 的整数 `(和+2)>>2` 半入
+（fast_mode 仅 cn 1/3/4，本模块 1/4 全覆盖）；恒等请求按复制处理。
+
+调查要点（修正三次错误假设，均有探针证据，位于 `out/linear-probe/`）：
+- 8 位垂直合成不走 `(P+2^21)>>22` 标量公式，全文统一 mul_hi 式
+  （`VResizeLinear<uchar>` 特化硬编码，行 1925-1936）；
+- 2x2 缩小用整数半入，不是 `sum*0.25f` 浮点取偶（`ResizeAreaFastVec` fast_mode）；
+- 垂直 beta 不钳制、行索引钳制，水平系数钳制——方向不对称。
+探针为 12,424,750 像素的 400 组随机尺寸/通道扫描（Windows MSVC Debug、
+vcpkg installed OpenCV 4.7.0），最终零差异；过程中的错误公式版本分别测得
+9.5%、1.5% 差异，未据此得出任何修复结论，以源码核对+零差异为准。
+
+验证：`out/windows/debug` 的 `imageops_tests` 15 用例 41,418 断言全部通过
+（新增大宽图/负系数/边界区/2x2/恒等对照 41 断言）；clang-format 20.1.8、
+`git diff --check`、`check_core_module_deps.py`（11 个 foundation 目标）通过。
+未运行 sanitizer 与归档回归；Linux/macOS/Android、完整应用与真实游戏未验证。
+cv::resize 对 8U 之外的 Area/Cubic 路径及 blur/warp 仍由 OpenCV 承担。
+另：本批期间修复 dev 全量 Linux 链接在 core_storage 的 libarchive zstd
+符号解析失败（`fb122e1`，见对应提交说明），该问题由 PR #57 首次暴露。

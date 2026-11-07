@@ -1,8 +1,8 @@
 # ImageOps 接口与验证
 
 图像算法集中到 `cpp/core/imageops/` 的 `core_imageops` 静态库。公共头只使用 C++17 类型。
-`ImageOps.cpp` 实现公共校验、输出缓冲区与最近邻 resize 的像素采样；`ImageOps_opencv.cpp`
-保留其他算法和并行行任务调度。最近邻 warp 仍由 OpenCV 执行，不能把 resize 的替换扩展为所有最近邻路径已替换。
+`ImageOps.cpp` 实现公共校验、输出缓冲区与最近邻、线性两种 resize 的像素采样；`ImageOps_opencv.cpp`
+保留其余算法（Area/Cubic、blur、warp）和并行行任务调度。最近邻 warp 仍由 OpenCV 执行，不能把 resize 的替换扩展为所有最近邻路径已替换。
 静态库的 PRIVATE 链接仍会进入最终链接闭包，不能据此宣称移除了 OpenCV。
 
 ## 调用边界
@@ -23,7 +23,13 @@
 合法模式仍依次映射 Nearest/Area/Linear/Cubic。最近邻 resize 保留旧版两次 double 除法的舍入，
 例如 6→34 的输出索引 17 仍取源索引 2，不能直接改为整数比例。四通道通过小块 memcpy 搬运，
 支持未对齐的 ROI/pitch；恒等复制只写有效行像素，相同数据地址的恒等操作保持旧行为。
-resize 的输入输出应使用独立缓冲区（相同视图恒等操作除外），不承诺部分重叠区域行为。
+线性 resize 位精确复刻 [OpenCV 4.7.0 resize.cpp](https://github.com/opencv/opencv/blob/725e440d278aca07d35a5e8963ef990572b07316/modules/imgproc/src/resize.cpp)
+的 8 位路径：坐标由 double 计算后转 float、系数按 cvRound（五取偶）变 Q11 定点数；
+垂直合成全部输出像素统一走 `VResizeLinear<uchar>` 的 `(S0>>4)*b0>>16 + (S1>>4)*b1>>16 + 2)>>2`
+公式（8 位特化不用 FixedPtCast），垂直系数不钳制（负系数按行复制外推），行索引另行钳制；
+恰好 2 倍整数缩小走 `ResizeAreaFastVec` fast_mode 的整数 `(和+2)>>2` 半入（不是浮点取偶）；
+恒等请求按复制语义处理。resize 的输入输出应使用独立缓冲区（相同视图恒等操作除外），
+不承诺部分重叠区域行为。
 
 原生采样仍通过内部同步行任务接口使用 OpenCV 调度，保留旧分片与线程设置；不保留回调及借用像素。
 纯串行大图版本曾测得回退，因此未采用。后续移除 OpenCV 前仍须迁移该调度接口，并完成其他算法替换。
@@ -53,7 +59,7 @@ CI 检查实际 vcpkg status 没有 Boost、日志、存储、cocos 与 FFmpeg�
 
 ## 像素对照
 
-`tests/unit-tests/core/visual/ImageOpsTest.cpp` 有 13 个有效注册用例。测试中直接运行旧 OpenCV 调用作为参考，
+`tests/unit-tests/core/visual/ImageOpsTest.cpp` 有 15 个有效注册用例。测试中直接运行旧 OpenCV 调用作为参考，
 在同一后端/平台逐字节比较输出及 padding/保护区，不跨平台承诺不同 SIMD 实现的输出相同。
 macOS 的固定 vcpkg port 会禁用 OpenMP，测试仍使用相同本机后端对照，不将三平台视为同一并行配置。
 除旧实现对照外，还检查手工确定的最近邻像素、alpha 中间值、独立输出所有权和非法输入无写入。
@@ -63,7 +69,9 @@ REFLECT_101 与原位 blur、仿射/透视/退化点/零边界，以及 float �
 这组测试为后续小型算法替换提供可重复基线，尚不覆盖所有游戏尺寸、字体、混合模式、GPU 读回或插件画面。
 
 最近邻新增 4 万组尺寸/通道/方向对照，覆盖浮点临界位置、未对齐裁剪、恒等复制、较大图与请求 1/3 线程的结果。
-本机像素、sanitizer 与归档回归结果见 [ImageOps 验证记录](../../.agents/notes/implemented/testing/2026-11-02-imageops-validation.md)。
+线性新增大宽图（如 104×96→118×76）、垂直边界负系数外推、水平边界区、恰 2 倍整数缩小与恒等复制的
+逐字节对照；另有 12.4M 像素的随机尺寸离线扫描（Windows/MSVC、pinned OpenCV 4.7.0）零差异，
+不替代三平台 CI 结论。本机像素、sanitizer 与归档回归结果见 [ImageOps 验证记录](../../.agents/notes/implemented/testing/2026-11-02-imageops-validation.md)。
 
 完整软件/OpenGL 消费者构建及脚本画面对照尚待完成；Android 和真实游戏未验证。
 Windows 完整构建的具体进展见实施记录，不把独立图像测试作为完整引擎通过。后续继续按单算法替换；只有所有消费者和依赖声明都移除后，才能删除 OpenCV。
