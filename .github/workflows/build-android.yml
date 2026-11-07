@@ -11,7 +11,10 @@ env:
 
 jobs:
   build-android:
-    runs-on: ubuntu-latest
+    # Pinned to 24.04: the mono-project repository only publishes focal
+    # packages, which are uninstallable on 26.04 ("resolute") runner images.
+    # Revisit when the nuget/mono dependency is removed or mono supports 26.04.
+    runs-on: ubuntu-24.04
     env:
       VCPKG_ROOT: ${{ github.workspace }}/.act/vcpkg
       ANDROID_SDK_ROOT: ${{ github.workspace }}/.act/android-sdk
