@@ -50,7 +50,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC core_storage_archive PRIVATE archiv
 
 find_package(unrar CONFIG REQUIRED)
 find_package(LibArchive REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE unrar::unrar LibArchive::LibArchive)
+find_package(zstd CONFIG REQUIRED)
+# libarchive 启用 zstd 过滤器时，其成员对象引用 ZSTD 符号；静态链接按需提取
+# 成员，zstd 必须紧跟本目标拉出的 libarchive 实例，否则 KrKr2 可执行文件最终
+# 链接无法解析（Windows 的配置传递与 Linux 不同，不能依赖隐式顺序）。
+target_link_libraries(${PROJECT_NAME} PRIVATE unrar::unrar LibArchive::LibArchive zstd::libzstd)
 
 # 兼容旧目标名
 add_library(core_storage_engine ALIAS ${PROJECT_NAME})
