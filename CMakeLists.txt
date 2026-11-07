@@ -276,3 +276,39 @@ endif()
 if(BUILD_TOOLS AND NOT (IOS OR ANDROID))
     add_subdirectory(tools)
 endif()
+
+# Opt-in application test; requires a desktop display (xvfb-run on Linux).
+option(KRKR2_ENABLE_PSBFILE_SMOKE "Register synthetic PSBFile TJS integration test" OFF)
+if(KRKR2_ENABLE_PSBFILE_SMOKE)
+    if(NOT TARGET krkr2 OR ANDROID OR IOS)
+        message(FATAL_ERROR "PSBFile smoke requires the desktop krkr2 application")
+    endif()
+    enable_testing()
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME psbfile-runtime
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/psbfile/smoke.py"
+                --engine "$<TARGET_FILE:krkr2>")
+    set_tests_properties(psbfile-runtime PROPERTIES TIMEOUT 75 LABELS "integration;psbfile")
+    add_test(NAME layer-alpha-runtime
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/game-smoke/layer_alpha.py"
+                --engine "$<TARGET_FILE:krkr2>")
+    set_tests_properties(layer-alpha-runtime PROPERTIES TIMEOUT 75 LABELS "integration;graphics;plugin")
+endif()
+
+option(KRKR2_ENABLE_X11_INPUT_SMOKE "Register X11 keyboard integration test" OFF)
+if(KRKR2_ENABLE_X11_INPUT_SMOKE)
+    if(NOT TARGET krkr2 OR NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" OR ANDROID)
+        message(FATAL_ERROR "X11 input smoke requires the Linux desktop krkr2 application")
+    endif()
+    enable_testing()
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    find_program(KRKR2_XDOTOOL xdotool REQUIRED)
+    add_test(NAME x11-keyboard-runtime
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/game-smoke/keyboard_x11.py"
+                --engine "$<TARGET_FILE:krkr2>" --xdotool "${KRKR2_XDOTOOL}")
+    set_tests_properties(x11-keyboard-runtime PROPERTIES TIMEOUT 75 LABELS "integration;input;x11")
+    add_test(NAME x11-controller-focus-runtime
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/game-smoke/controller_focus_x11.py"
+                --engine "$<TARGET_FILE:krkr2>" --xdotool "${KRKR2_XDOTOOL}")
+    set_tests_properties(x11-controller-focus-runtime PROPERTIES TIMEOUT 75 LABELS "integration;input;x11")
+endif()

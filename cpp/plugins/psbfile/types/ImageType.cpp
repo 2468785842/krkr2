@@ -17,10 +17,8 @@ namespace PSB {
         auto fdId = objects->find("id");
         if(fdId == objects->end())
             return false;
-        std::string id =
-            std::dynamic_pointer_cast<PSBString>(fdId->second)->value;
-
-        return id == "image";
+        auto id = std::dynamic_pointer_cast<PSBString>(fdId->second);
+        return id && id->value == "image";
     }
 
     std::vector<std::unique_ptr<IResourceMetadata>>

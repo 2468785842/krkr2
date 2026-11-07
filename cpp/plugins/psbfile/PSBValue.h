@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <optional>
+#include <memory>
 #include <utility>
 #include <unordered_map>
 
@@ -89,7 +90,7 @@ namespace PSB {
     class IPSBCollection;
     class IPSBChild : public IPSBValue {
     public:
-        std::shared_ptr<IPSBCollection> parent;
+        std::weak_ptr<IPSBCollection> parent;
 
         std::string path;
     };
@@ -108,7 +109,7 @@ namespace PSB {
 
     class IPSBSingleton {
     public:
-        std::vector<std::shared_ptr<IPSBCollection>> parents;
+        std::vector<std::weak_ptr<IPSBCollection>> parents;
     };
 
     struct PSBNull : IPSBValue {
@@ -201,31 +202,24 @@ namespace PSB {
         std::vector<std::uint32_t> value{};
         explicit PSBArray() = default;
         explicit PSBArray(int n, TJS::tTJSBinaryStream *stream) {
-            if(n < 0 || n > 8) {
-                throw std::runtime_error("PSBArray bad length type size");
-            }
-
+            if(n < 1 || n > 4)
+                throw std::runtime_error(
+                    "PSB array count width exceeds 32 bits");
             std::uint32_t count{};
             stream->ReadBuffer(&count, n);
-            if(count > INT32_MAX) {
-                throw std::runtime_error("Long array is not supported yet");
-            }
-
             entryLength = stream->ReadI8LE() -
                 static_cast<std::uint32_t>(PSBObjType::NumberN8);
+            if(entryLength < 1 || entryLength > 4 ||
+               stream->GetPosition() > stream->GetSize() ||
+               count >
+                   (stream->GetSize() - stream->GetPosition()) / entryLength)
+                throw std::runtime_error("Invalid or truncated PSB array");
             value.reserve(count);
-
-            const auto shouldBeLength = entryLength * static_cast<int>(count);
-            auto buffer = std::make_unique<std::uint8_t[]>(shouldBeLength);
-
-            stream->Read(buffer.get(),
-                         shouldBeLength); // WARN: the actual buffer.Length >=
-                                          // shouldBeLength
-            for(int i = 0; i < count; i++) {
+            for(std::uint32_t i = 0; i < count; ++i) {
                 std::uint32_t result = 0;
-                for(std::uint8_t j = 0; j < entryLength; ++j) {
-                    result |= buffer.get()[i * entryLength + j] << j * 8;
-                }
+                for(std::uint8_t j = 0; j < entryLength; ++j)
+                    result |= static_cast<std::uint32_t>(stream->ReadI8LE())
+                        << (j * 8);
                 value.push_back(result);
             }
         }
@@ -236,7 +230,7 @@ namespace PSB {
             return fmt::format("Array[{}]", value.size());
         }
 
-        std::uint32_t operator[](int index) const { return value[index]; }
+        std::uint32_t operator[](int index) const { return value.at(index); }
 
         [[nodiscard]] PSBObjType getType() const override {
             switch(Extension::getSize(value.size())) {
@@ -270,7 +264,7 @@ namespace PSB {
 
         explicit PSBString(int n, TJS::tTJSBinaryStream *stream) {
             std::uint32_t tmp{};
-            stream->Read(&tmp, n);
+            stream->ReadBuffer(&tmp, n);
             index = tmp;
         }
 
@@ -309,7 +303,7 @@ namespace PSB {
         explicit PSBResource() = default;
         explicit PSBResource(int n, TJS::tTJSBinaryStream *stream) {
             std::uint32_t tmp{};
-            stream->Read(&tmp, n);
+            stream->ReadBuffer(&tmp, n);
             index = tmp;
         }
 
@@ -456,37 +450,7 @@ namespace PSB {
 
         static std::vector<std::uint32_t>
         loadIntoList(int n, TJS::tTJSBinaryStream *stream) {
-            if(n < 0 || n > 8) {
-                throw std::runtime_error("Long array is not supported yet");
-            }
-
-            std::uint32_t count{};
-            stream->ReadBuffer(&count, n);
-            if(count > INT32_MAX) {
-                throw std::runtime_error("Long array is not supported yet");
-            }
-
-            const std::uint8_t entryLength = stream->ReadI8LE() -
-                static_cast<std::uint32_t>(PSBObjType::NumberN8);
-            std::vector<std::uint32_t> list;
-            list.reserve(count);
-
-            const auto shouldBeLength = entryLength * static_cast<int>(count);
-            const auto buffer =
-                std::make_unique<std::uint8_t[]>(shouldBeLength);
-
-            stream->Read(buffer.get(),
-                         shouldBeLength); // WARN: the actual buffer.Length >=
-                                          // shouldBeLength
-            for(int i = 0; i < count; i++) {
-                std::uint32_t result = 0;
-                for(std::uint8_t j = 0; j < entryLength; ++j) {
-                    result |= buffer.get()[i * entryLength + j] << j * 8;
-                }
-                list.push_back(result);
-            }
-
-            return list;
+            return PSBArray(n, stream).value;
         }
 
     private:

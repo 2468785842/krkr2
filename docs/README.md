@@ -14,9 +14,10 @@
 
 | 文档 | 内容 |
 |---|---|
+| [PSBFile](subsystems/psbfile.md) | 文件/Octet 加载、资源介质、格式边界与合成测试 |
 | [Desktop 启动](subsystems/desktop-cli.md) | `--game` / `--xp3`、参数兼容及错误退出码 |
 | [可选管理界面](subsystems/management-ui.md) | Desktop 管理页面开关、资源与默认配置边界 |
-| [窗口接口](subsystems/window-interface.md) | 通用窗口接口与现有 Cocos 适配边界 |
+| [窗口接口](subsystems/window-interface.md) | 通用窗口接口、可选 KAG 按钮导航与 Cocos 适配边界 |
 | [共享输入状态](subsystems/input-state.md) | 虚拟键、修饰键、指针坐标、提交文本及 Cocos 适配边界 |
 | [Android 输入桥](subsystems/android-input.md) | UTF-16/JNI、打印键去重、退格和独立模拟器测试 |
 | [ImageOps](subsystems/imageops.md) | CPU 图像契约、独立测试与微基准 |
@@ -25,7 +26,7 @@
 
 | 文档 | 内容 |
 |---|---|
-| [插件来源](reference/plugins.md) | 插件原始资料；不表示全部内建或兼容 |
+| [插件来源](reference/plugins.md) | 插件原始资料与 clipAlphaRect 实现/测试边界 |
 | [游戏验证范围](reference/game-compatibility.md) | 本地样本、已有证据与未验证能力 |
 | [外部实现参考](reference/upstream.md) | 资料关系、适用范围与平台库入口 |
 | [仓库工具](../tools/README.md) · [XP3 工具](../tools/xp3/README.md) | 实际工具的构建和使用 |

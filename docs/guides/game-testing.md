@@ -81,6 +81,18 @@ System 激活事件按 `base/impl/SystemImpl.cpp` 的同类替换与当前状态
 
 ## 验收范围
 
+Linux 桌面键盘回归可在配置应用时开启 `KRKR2_ENABLE_X11_INPUT_SMOKE=ON`，
+需要 Python 3、xdotool 和 X11 显示（无桌面环境可使用 Xvfb）。
+`ctest -N -R '^x11-keyboard-runtime$'` 应列出 1 项；随后执行：
+
+```sh
+xvfb-run -a ctest --test-dir <build> -R '^x11-keyboard-runtime$' --output-on-failure --no-tests=error
+```
+
+测试通过 XTest 向独立引擎窗口发送 Return、KP_Enter、Escape、Down、Control_L，
+逐项核对 TJS 的 key down/up 数值和顺序，并要求正常退出。
+它覆盖 X11→Cocos→TJS 键盘链路，不替代实体手柄、Wayland、IME 或商业游戏验收。
+
 按改动选择标题、剧情推进、相同位置画面、菜单/脚本对话框、存读档、关闭、音视频、
 DPI/IME/焦点和移动生命周期中的相关项，分别保存结果。
 已有本地记录见[游戏插装调查](../../.agents/notes/implemented/testing/2026-11-02-game-smoke-investigation.md)

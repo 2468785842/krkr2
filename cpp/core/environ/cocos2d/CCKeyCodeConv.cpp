@@ -138,6 +138,7 @@ int TVPConvertKeyCodeToVKCode(cocos2d::EventKeyboard::KeyCode keyCode) {
             return VK_MULTIPLY;
         case cocos2d::EventKeyboard::KeyCode::KEY_KP_DIVIDE:
             return VK_DIVIDE;
+        case cocos2d::EventKeyboard::KeyCode::KEY_ENTER:
         case cocos2d::EventKeyboard::KeyCode::KEY_KP_ENTER:
             return VK_RETURN;
         case cocos2d::EventKeyboard::KeyCode::KEY_KP_HOME:
@@ -232,7 +233,6 @@ int TVPConvertKeyCodeToVKCode(cocos2d::EventKeyboard::KeyCode keyCode) {
         case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_UP:
         case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_DOWN:
         case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_CENTER:
-        case cocos2d::EventKeyboard::KeyCode::KEY_ENTER:
         default:
             return 0;
     }

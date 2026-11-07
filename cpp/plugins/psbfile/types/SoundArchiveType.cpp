@@ -15,9 +15,10 @@ namespace PSB {
         }
 
         auto fdId = objects->find("id");
+        if(fdId == objects->end())
+            return false;
         auto str = std::dynamic_pointer_cast<PSBString>(fdId->second);
-        return fdId != objects->end() && str != nullptr &&
-            str->value == "sound_archive";
+        return str != nullptr && str->value == "sound_archive";
     }
 
     std::vector<std::unique_ptr<IResourceMetadata>>

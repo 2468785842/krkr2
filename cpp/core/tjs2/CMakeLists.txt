@@ -3,6 +3,10 @@ project(tjs2)
 
 add_library(${PROJECT_NAME} STATIC)
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:_DEBUG>)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # TJS represents empty strings with null pointers, including inline callers.
+    target_compile_options(${PROJECT_NAME} PUBLIC -fno-delete-null-pointer-checks)
+endif()
 
 set(GEN_CODE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 

@@ -37,6 +37,8 @@ namespace PSB {
 
         PSBFile();
         ~PSBFile();
+        PSBFile(PSBFile &&) noexcept;
+        PSBFile &operator=(PSBFile &&) noexcept;
 
         void loadKeys(TJS::tTJSBinaryStream *stream);
         void loadNames();
@@ -53,6 +55,7 @@ namespace PSB {
          * @param filePath
          */
         bool loadPSBFile(const ttstr &filePath);
+        bool loadPSBStream(TJS::tTJSBinaryStream *stream);
 
         // Offset-based readers used by emotefile / motionplayer.
         tTJSVariant readAllObjs(const ttstr &key, tjs_uint32 objOffset);
@@ -99,7 +102,8 @@ namespace PSB {
         }
 
         [[nodiscard]] PSBSpec getPlatform() const {
-            auto spec = (*getObjects())["spec"];
+            auto objects = getObjects();
+            auto spec = objects ? (*objects)["spec"] : nullptr;
             std::string specStr = !spec ? "" : spec->toString();
             if(specStr.empty()) {
                 return PSBSpec::None;
@@ -125,6 +129,7 @@ namespace PSB {
     private:
         bool loadFromStream(TJS::tTJSBinaryStream *stream);
 
+        unsigned _parseDepth = 0;
         int _seed = 0;
         PSBHeader _header{};
         std::unique_ptr<tTVPMemoryStream> _stream{};

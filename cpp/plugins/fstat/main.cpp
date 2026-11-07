@@ -380,7 +380,10 @@ public:
      */
     static bool deleteFile(const tjs_char *file) {
         bool r = false;
-        if(ttstr filename(TVPGetLocallyAccessibleName(TVPGetPlacedPath(file)));
+        const ttstr placed = TVPGetPlacedPath(file);
+        if(placed.IsEmpty())
+            return false;
+        if(ttstr filename(TVPGetLocallyAccessibleName(placed));
            filename.length()) {
             r = TVPDeleteFile(filename.AsNarrowStdString());
             if(!r) {

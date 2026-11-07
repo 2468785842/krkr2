@@ -11,6 +11,7 @@
 #include <set>
 #include <algorithm>
 #include <functional>
+#include <wctype.h>
 
 #include "TVPLog.h"
 

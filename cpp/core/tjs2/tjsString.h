@@ -410,7 +410,9 @@ namespace TJS {
             return InternalIndepend();
         }
 
-        [[nodiscard]] tjs_int GetLen() const { return Ptr->GetLength(); }
+        [[nodiscard]] tjs_int GetLen() const {
+            return Ptr ? Ptr->GetLength() : 0;
+        }
 
         [[nodiscard]] tjs_int length() const { return GetLen(); }
 
