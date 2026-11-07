@@ -3,6 +3,14 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+// Keep both production ABIs by default; CI may build one real runtime at a time.
+def runtimeAbis = providers.gradleProperty('krkr2.androidAbis')
+        .map { value -> value.split(',').collect { it.trim() }.unique() }
+        .getOrElse(['arm64-v8a', 'x86_64'])
+if (!runtimeAbis || runtimeAbis.any { !['arm64-v8a', 'x86_64'].contains(it) }) {
+    throw new GradleException('krkr2.androidAbis must contain arm64-v8a and/or x86_64')
+}
+
 android {
     ndkVersion '28.0.13004108'
     compileSdk PROP_COMPILE_SDK_VERSION.toInteger()
@@ -15,14 +23,14 @@ android {
 
         ndk {
             jobs Runtime.runtime.availableProcessors()
-            abiFilters 'arm64-v8a', 'x86_64' //, 'armeabi-v7a'
         }
 
         externalNativeBuild {
             cmake {
                 targets 'krkr2'
                 cppFlags '-fsigned-char'
-                arguments '-DANDROID_STL=c++_shared', '-DANDROID=ON'
+                arguments '-DANDROID_STL=c++_shared', '-DANDROID=ON',
+                        '-DENABLE_TESTS=OFF', '-DBUILD_TOOLS=OFF', '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON'
             }
         }
         versionCode Integer.parseInt(new Date().format('yyyyMMddHH'))
@@ -78,7 +86,7 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['java']
             res.srcDirs = ['res']
-            assets.srcDirs = ['../../../ui/cocos-studio']
+            assets.srcDirs = ['../../../assets']
         }
 
     }
@@ -104,8 +112,8 @@ android {
         abi {
             enable = true           // 启用 ABI 分包
             reset()               // 清除默认支持的 ABI
-            include 'arm64-v8a', 'x86_64' // 'armeabi-v7a', 'x86' // 指定支持的 ABI
-            universalApk = true
+            include(*runtimeAbis)
+            universalApk = runtimeAbis.size() > 1
         }
     }
 

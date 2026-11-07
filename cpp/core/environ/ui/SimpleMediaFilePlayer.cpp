@@ -101,9 +101,8 @@ SimpleMediaFilePlayer::~SimpleMediaFilePlayer() {
 SimpleMediaFilePlayer *SimpleMediaFilePlayer::create() {
     SimpleMediaFilePlayer *ret = new SimpleMediaFilePlayer;
     ret->autorelease();
-    ret->initFromFile(Csd::createMediaPlayerNavi(),
-                      Csd::createMediaPlayerBody(),
-                      Csd::createMediaPlayerFoot());
+    ret->initUILayout(Csd::createMediaPlayerNavi, Csd::createMediaPlayerBody,
+                      Csd::createMediaPlayerFoot);
     return ret;
 }
 
@@ -194,11 +193,12 @@ void SimpleMediaFilePlayer::rearrangeLayout() {
 }
 
 void SimpleMediaFilePlayer::bindBodyController(const Node *allNodes) {
-    OSD = allNodes->getChildByName("OSD");
+    Node *root = const_cast<Node *>(allNodes);
+    OSD = findNamedNode(root, "OSD");
     OSD->setVisible(false);
-    OSDText = static_cast<Text *>(allNodes->getChildByName("OSDText"));
+    OSDText = static_cast<Text *>(findNamedNode(root, "OSDText"));
 
-    Widget *overlay = allNodes->getChildByName<Widget *>("Overlay");
+    Widget *overlay = static_cast<Widget *>(findNamedNode(root, "Overlay"));
     _player->InitRootNode(overlay);
     overlay->addClickEventListener([this](Ref *) {
         if(!NaviBar->isVisible()) {
@@ -216,9 +216,10 @@ void SimpleMediaFilePlayer::bindBodyController(const Node *allNodes) {
 }
 
 void SimpleMediaFilePlayer::bindFooterController(const Node *allNodes) {
-    ControlBar = allNodes->getChildByName("ControlBar");
+    Node *root = const_cast<Node *>(allNodes);
+    ControlBar = findNamedNode(root, "ControlBar");
 
-    PlayBtn = allNodes->getChildByName<Widget *>("PlayBtn");
+    PlayBtn = static_cast<Widget *>(findNamedNode(root, "PlayBtn"));
     PlayBtn->addClickEventListener([this](Ref *) { TooglePlayOrPause(); });
     PlayBtn->addTouchEventListener([this](Ref *_p, Widget::TouchEventType ev) {
         cocos2d::ui::Widget *p = static_cast<Widget *>(_p);
@@ -239,12 +240,12 @@ void SimpleMediaFilePlayer::bindFooterController(const Node *allNodes) {
                 break;
         }
     });
-    PlayBtnNormal = allNodes->getChildByName("PlayBtnNormal");
-    PlayBtnPress = allNodes->getChildByName("PlayBtnPress");
-    PlayIconNormal = allNodes->getChildByName("PlayIconNormal");
-    PlayIconPress = allNodes->getChildByName("PlayIconPress");
-    PauseIconNormal = allNodes->getChildByName("PauseIconNormal");
-    PauseIconPress = allNodes->getChildByName("PauseIconPress");
+    PlayBtnNormal = findNamedNode(root, "PlayBtnNormal");
+    PlayBtnPress = findNamedNode(root, "PlayBtnPress");
+    PlayIconNormal = findNamedNode(root, "PlayIconNormal");
+    PlayIconPress = findNamedNode(root, "PlayIconPress");
+    PauseIconNormal = findNamedNode(root, "PauseIconNormal");
+    PauseIconPress = findNamedNode(root, "PauseIconPress");
     PlayBtnPress->setVisible(false);
     PlayIconPress->setVisible(false);
     PauseIconPress->setVisible(false);
@@ -254,15 +255,16 @@ void SimpleMediaFilePlayer::bindFooterController(const Node *allNodes) {
 }
 
 void SimpleMediaFilePlayer::bindHeaderController(const Node *allNodes) {
-    NaviBar = allNodes->getChildByName("NaviBar");
+    Node *root = const_cast<Node *>(allNodes);
+    NaviBar = findNamedNode(root, "NaviBar");
     cocos2d::ui::Button *Back =
-        static_cast<Button *>(allNodes->getChildByName("Back"));
+        static_cast<Button *>(findNamedNode(root, "Back"));
     Back->addClickEventListener([this](Ref *) { removeFromParent(); });
 
-    Title = static_cast<Text *>(allNodes->getChildByName("Title"));
-    PlayTime = static_cast<Text *>(allNodes->getChildByName("PlayTime"));
-    RemainTime = static_cast<Text *>(allNodes->getChildByName("RemainTime"));
-    Timeline = static_cast<Slider *>(allNodes->getChildByName("Timeline"));
+    Title = static_cast<Text *>(findNamedNode(root, "Title"));
+    PlayTime = static_cast<Text *>(findNamedNode(root, "PlayTime"));
+    RemainTime = static_cast<Text *>(findNamedNode(root, "RemainTime"));
+    Timeline = static_cast<Slider *>(findNamedNode(root, "Timeline"));
 
     Timeline->addEventListener(
         [this](Ref *, Slider::EventType ev) { onSliderChanged(); });

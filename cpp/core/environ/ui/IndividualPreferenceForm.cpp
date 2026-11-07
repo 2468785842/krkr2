@@ -35,7 +35,8 @@ IndividualPreferenceForm::create(const tPreferenceScreen *config) {
         config = &RootPreference;
     auto *ret = new IndividualPreferenceForm();
     ret->autorelease();
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initUILayout(Csd::createNaviBar, Csd::createListView,
+                      Csd::NodeBuilderFn{});
     PrefListSize = ret->PrefList->getContentSize();
     ret->initPref(config);
     ret->setOnExitCallback([capture0 = IndividualConfigManager::GetInstance()] {

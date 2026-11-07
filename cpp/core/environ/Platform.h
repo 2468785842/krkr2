@@ -2,7 +2,6 @@
 #include "tjsCommHead.h"
 #include <string>
 #include <vector>
-#include <spdlog/spdlog.h>
 
 struct TVPMemoryInfo { // all in kB
     unsigned long MemTotal;

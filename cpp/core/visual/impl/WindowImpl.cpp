@@ -29,9 +29,11 @@
 #include "EventImpl.h"
 
 #include "Application.h"
+#include "MsgIntf.h"
 #include "TVPScreen.h"
 #include "tjsDictionary.h"
-#include "TVPWindow.h"
+#include "WindowLayer.h"
+#include "WindowImpl.h"
 // #include "VSyncTimingThread.h"
 // #include "MouseCursor.h"
 
@@ -1156,6 +1158,13 @@ bool tTJSNI_Window::CanDeliverEvents() const {
         return false;
     return GetVisible() && _form->GetFormEnabled();
 }
+bool tTJSNI_Window::CanDeliverInputCancellation() const {
+    // A queued cancellation may arrive after SetVisible(false). Invalidated
+    // windows still reject it, and Invalidate removes their pending events.
+    // Cocos GetFormEnabled is itself an isVisible check, so it cannot gate
+    // cancellation delivery. Only a live form and script owner are required.
+    return _form && Owner;
+}
 //---------------------------------------------------------------------------
 void tTJSNI_Window::NotifyWindowClose() { _form = nullptr; }
 //---------------------------------------------------------------------------
@@ -1340,11 +1349,10 @@ void tTJSNI_Window::SetImeMode(tTVPImeMode mode) {
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::SetDefaultImeMode(tTVPImeMode mode) {
-    // set default ime mode
-    if(_form) {
-        //		Form->SetDefaultImeMode(mode,
-        // LayerManager->GetFocusedLayer() == nullptr);
-    }
+    // A focused Layer owns the effective mode until focus is cleared.
+    if(_form)
+        _form->SetDefaultImeMode(mode,
+                                 !DrawDevice || !DrawDevice->GetFocusedLayer());
 }
 //---------------------------------------------------------------------------
 tTVPImeMode tTJSNI_Window::GetDefaultImeMode() const {

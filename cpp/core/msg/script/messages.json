@@ -1,0 +1,1725 @@
+{
+  "version": 1,
+  "messages": [
+    {
+      "id": "TVPAbortedLimitByte",
+      "text": " ... aborted [limit bytes exceeded]",
+      "category": "core"
+    },
+    {
+      "id": "TVPAbortedTimeOut",
+      "text": " ... aborted [timed out]",
+      "category": "core"
+    },
+    {
+      "id": "TVPAllScreenModeError",
+      "text": "All screen mode has been tested, but no modes available at all.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPBasicDrawDeviceDoesNotSupporteLayerManagerMoreThanOne",
+      "text": "\"basic draw\" device does not support layer manager more than 1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPBasicDrawDeviceFailedToCreateDirect3DDevice",
+      "text": "BasicDrawDevice: Failed to create Direct3D Device: %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPBasicDrawDeviceFailedToCreateDirect3DDeviceUnknownReason",
+      "text": "BasicDrawDevice: Failed to create Direct3D Device: unknown reason",
+      "category": "platform"
+    },
+    {
+      "id": "TVPBasicDrawDeviceFailedToCreateDirect3DDevices",
+      "text": "BasicDrawDevice: Failed to create Direct3D devices: %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPBasicDrawDeviceFailedToCreateDirect3DDevicesUnknownReason",
+      "text": "BasicDrawDevice: Failed to create Direct3D devices: unknown reason",
+      "category": "platform"
+    },
+    {
+      "id": "TVPBasicDrawDeviceInfDirect3DDevicePresentFailed",
+      "text": "BasicDrawDevice: (inf) IDirect3DDevice::Present failed/HR=%1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPBasicDrawDeviceInfPolygonDrawingFailed",
+      "text": "BasicDrawDevice: (inf) Polygon drawing failed/HR=%1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPBasicDrawDeviceTextureHasAlreadyBeenLocked",
+      "text": "BasicDrawDevice: Texture has already been locked (StartBitmapCompletion() has been called twice without EndBitmapCompletion()),) unlocking the texture.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPBitFieldsNotSupported",
+      "text": "BITFIELDS not supported.",
+      "category": "core"
+    },
+    {
+      "id": "TVPBoxBlurAreaMustBeSmallerThan16Million",
+      "text": "Box blur area must be smaller than 16 million",
+      "category": "core"
+    },
+    {
+      "id": "TVPBoxBlurAreaMustContainCenterPixel",
+      "text": "Box blur area must contain center pixel",
+      "category": "core"
+    },
+    {
+      "id": "TVPCDDADriveNotFound",
+      "text": "CD-DA Drive not found",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannnotLinkPluginWhilePluginLinking",
+      "text": "Cannot link plugin while plugin linking",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannnotLocateUIDLLForFolderSelection",
+      "text": "Not found krdevui.dll",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotAcceptModeAuto",
+      "text": "Cannot accept omAuto mode",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotAllocateBitmapBits",
+      "text": "Cannot allocate memory for Bitmap : %1 (size=%2)",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotAllocateD3DOffScreenSurface",
+      "text": "Cannot allocate D3D off-screen surface/HR=%1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotChangeFocusInProcessingFocus",
+      "text": "Cannot change focus in processing focus",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotConnectMultipleWaveSoundBufferAtOnce",
+      "text": "Cannot connect multiple wave sound buffer at once",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotConvertLayerTypeUsingGivenDirection",
+      "text": "Cannot convert layer type using given direction",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotCreateDSSecondaryBuffer",
+      "text": "Cannot create DirectSound secondary buffer : %1/%2",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotCreateEmptyLayerImage",
+      "text": "Cannot create empty layer image",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotCreateInstance",
+      "text": "Cannot create instance",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotFindDisplayMode",
+      "text": "Cannot find display mode : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotFindStorage",
+      "text": "Cannot find storage %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotFindTransHander",
+      "text": "Cannot find transition handler %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotFindXP3Mark",
+      "text": "%1 is not XP3 archive or unsupported",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotGetLocalName",
+      "text": "Cannot get local name from %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotInitDirect3D",
+      "text": "Cannot initialize Direct3D : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotInitDirectSound",
+      "text": "DirectSound Initialize file : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotLoadCursor",
+      "text": "Cannot load mouse cursor : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotLoadD3DDLL",
+      "text": "Cannot load d3d9.dll",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotLoadKrMovieDLL",
+      "text": "Cannot load krmovie.dll",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotLoadPlugin",
+      "text": "Cannot load Plugin %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotLoadRuleGraphic",
+      "text": "Cannot load rule graphics %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotMoveNextToSelfOrNotSiblings",
+      "text": "Cannot move next to self or not siblings",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotMovePrimary",
+      "text": "Cannot move primary layer",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotMovePrimaryOrSiblingless",
+      "text": "Cannot move primary or siblingless",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotMoveToUnderOtherPrimaryLayer",
+      "text": "Cannot move to under Other primary layer",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotOpenFontFile",
+      "text": "Can't open font file '%1$s'",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotOpenStorage",
+      "text": "Cannot open storage %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotOpenStorageForWrite",
+      "text": "Cannot open storage %1 for writing",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotReleasePlugin",
+      "text": "Cannot release plugin",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotRetriveInterfaceFromDrawDevice",
+      "text": "Could not retrive interface from given draw device",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotSetModeToDisabledOrModal",
+      "text": "Cannot set Mode to disabled or modal",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotSetParentSelf",
+      "text": "Cannot set parent self",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotSetPrimaryInvisible",
+      "text": "Cannot set primary layer invisible",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotShowModalAreadyShowed",
+      "text": "Cannot Show Modal.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotShowModalSingleWindow",
+      "text": "Cannot Show Modal. When it is single window.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotSuggestGraphicExtension",
+      "text": "Cannot suggest graphics extension for %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotSwitchToFullScreen",
+      "text": "Cannot switch to fullscreen : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCannotUnbindXP3EXE",
+      "text": "Cannot unbind XP3 exe %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPCannotWriteToArchive",
+      "text": "Cannot write to archive",
+      "category": "core"
+    },
+    {
+      "id": "TVPChangeDisplaySettingsFailedDispChangeBadFlags",
+      "text": "ChangeDisplaySettings failed: DISP_CHANGE_BADFLAGS",
+      "category": "platform"
+    },
+    {
+      "id": "TVPChangeDisplaySettingsFailedDispChangeBadMode",
+      "text": "ChangeDisplaySettings failed: DISP_CHANGE_BADMODE",
+      "category": "platform"
+    },
+    {
+      "id": "TVPChangeDisplaySettingsFailedDispChangeBadParam",
+      "text": "ChangeDisplaySettings failed: DISP_CHANGE_BADPARAM",
+      "category": "platform"
+    },
+    {
+      "id": "TVPChangeDisplaySettingsFailedDispChangeFailed",
+      "text": "ChangeDisplaySettings failed: DISP_CHANGE_FAILED",
+      "category": "platform"
+    },
+    {
+      "id": "TVPChangeDisplaySettingsFailedDispChangeNotUpdated",
+      "text": "ChangeDisplaySettings failed: DISP_CHANGE_NOTUPDATED",
+      "category": "platform"
+    },
+    {
+      "id": "TVPChangeDisplaySettingsFailedDispChangeRestart",
+      "text": "ChangeDisplaySettings failed: DISP_CHANGE_RESTART",
+      "category": "platform"
+    },
+    {
+      "id": "TVPChangeDisplaySettingsFailedUnknownReason",
+      "text": "ChangeDisplaySettings failed: unknown reason (%1)",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCommandLineParamIgnoredAndDefaultUsed",
+      "text": "Command line parameter %1 = %2 is invalid. It's used default.",
+      "category": "core"
+    },
+    {
+      "id": "TVPCompressedBmpNotSupported",
+      "text": "Compressed BMP not supported.",
+      "category": "core"
+    },
+    {
+      "id": "TVPCompressionFailed",
+      "text": "Compression failed",
+      "category": "core"
+    },
+    {
+      "id": "TVPConfigFailOriginalFileCannotBeRewritten",
+      "text": "Cannot write %1.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPConfigFailTempExeNotErased",
+      "text": "Did not exit %1. Cannot delete file.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPConsoleResult",
+      "text": "Console : ",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCouldNotCreateAnyDrawDevice",
+      "text": "Fatal: Could not create any drawer objects.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCpuCheckFailure",
+      "text": "CPU check failure.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCpuCheckFailureCpuFamilyOrLesserIsNotSupported",
+      "text": "CPU check failure: CPU family 4 or lesser is not supported\\r\\n%1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCpuCheckFailureNotSupportedCpu",
+      "text": "CPU check failure: Not supported CPU\\r\\n%1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCpuCheckFailureNotSupprtedCpu",
+      "text": "CPU check failure: Not supported CPU\\r\\n%1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPCurrentTransitionMustBeStopping",
+      "text": "Current transition must be stopping",
+      "category": "core"
+    },
+    {
+      "id": "TVPCurrentlyAsyncLoadBitmap",
+      "text": "Currently async load bitmap",
+      "category": "core"
+    },
+    {
+      "id": "TVPD3dErrCannotProtectContent",
+      "text": "D3D : The specified content cannot be protected.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrConflictioningRenderState",
+      "text": "D3D : The currently set render states cannot be used together.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrConflictioningTextureFilter",
+      "text": "D3D : The current texture filters cannot be used together.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrConflictioningTexturePalette",
+      "text": "D3D : The current textures cannot be used simultaneously.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrDeviceHung",
+      "text": "D3D : The device that returned this code caused the hardware adapter to be reset by the OS.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrDeviceLost",
+      "text": "D3D : The device has been lost but cannot be reset at this time.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrDeviceNotReset",
+      "text": "D3D : The device has been lost but can be reset at this time.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrDeviceRemoved",
+      "text": "D3D : The hardware adapter has been removed.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrDriverIinternalError",
+      "text": "D3D : Internal driver error. Applications should destroy and recreate the device when receiving this error. ",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrDriverInvalidCall",
+      "text": "D3D : Not used.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrFail",
+      "text": "D3D : An undetermined error occurred inside the Direct3D subsystem.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrInvalidArg",
+      "text": "D3D : An invalid parameter was passed to the returning function.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrInvalidCall",
+      "text": "D3D : The method call is invalid. For example, a method's parameter may not be a valid pointer.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrInvalidDevice",
+      "text": "D3D : The requested device type is not valid.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrMoreData",
+      "text": "D3D : There is more data available than the specified buffer size can hold.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrNotAvailable",
+      "text": "D3D : This device does not support the queried technique.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrNotFound",
+      "text": "D3D : The requested item was not found.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrOutOfMemory",
+      "text": "D3D : Direct3D could not allocate sufficient memory to complete the call.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrOutOfVideoMemory",
+      "text": "D3D : Direct3D does not have enough display memory to perform the operation. ",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrPresentStatisticsDisJoint",
+      "text": "D3D : The present statistics have no orderly sequence.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrTooManyOperations",
+      "text": "D3D : The application is requesting more texture-filtering operations than the device supports.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrUnsuportedAalphtOperation",
+      "text": "D3D : The device does not support a specified texture-blending operation for the alpha channel.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrUnsuportedAlphaArg",
+      "text": "D3D : The device does not support a specified texture-blending argument for the alpha channel.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrUnsuportedColorArg",
+      "text": "D3D : The device does not support a specified texture-blending argument for color values.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrUnsuportedColorOperation",
+      "text": "D3D : The device does not support a specified texture-blending operation for color values.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrUnsuportedFactorValue",
+      "text": "D3D : The device does not support the specified texture factor value. Not used; provided only to support older drivers.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrUnsupportedCrypto",
+      "text": "D3D : The specified cryptographic algorithm is not supported.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrUnsupportedOverlay",
+      "text": "D3D : The device does not support overlay for the specified size or display mode. ",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrUnsupportedOverlayFormat",
+      "text": "D3D : The device does not support overlay for the specified surface format. ",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrUnsupportedTextureFilter",
+      "text": "D3D : The device does not support the specified texture filter.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrWasStillDrawing",
+      "text": "D3D : The previous blit operation that is transferring information to or from this surface is incomplete.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dErrWrongTextureFormat",
+      "text": "D3D : The pixel format of the texture surface is not valid.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dOkNoAutoGen",
+      "text": "D3D : This is a success code. However,) the autogeneration of mipmaps is not supported for this format.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPD3dUnknownError",
+      "text": "D3D : Unknown error.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPDataFlagMustBeZero",
+      "text": "Data flag must be 0 (any flags are not yet supported)",
+      "category": "core"
+    },
+    {
+      "id": "TVPDefaultFontName",
+      "text": "DEFAULT_GUI_FONT",
+      "category": "core"
+    },
+    {
+      "id": "TVPDownloadPageURL",
+      "text": "",
+      "category": "core"
+    },
+    {
+      "id": "TVPERILoadError",
+      "text": "ERI Read Error /%1",
+      "category": "core"
+    },
+    {
+      "id": "TVPEnableDigitizer",
+      "text": "Enable Digitizer",
+      "category": "platform"
+    },
+    {
+      "id": "TVPErrorCode",
+      "text": "error code : ",
+      "category": "core"
+    },
+    {
+      "id": "TVPErrorInKrMovieDLL",
+      "text": "Error in krmovie.dll : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPErrorInRetrievingSystemOnActivateOnDeactivate",
+      "text": "Error in retrieving System.onActivate/onDeactivate : %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPExceptionAccessViolation",
+      "text": "Access Violation: The thread attempts to read from or write to a virtual address for which it does not have access.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionArrayBoundsExceeded",
+      "text": "Array Bounds Exceede: The thread attempts to access an array element that is out of bounds, and the underlying hardware supports bounds checking.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionBreakpoint",
+      "text": "Break Point: A breakpoint is encountered.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionCDPName",
+      "text": "Script Editor (Exception)",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionDatatypeMisalignment",
+      "text": "Data Type Misalignment: The thread attempts to read or write data that is misaligned on hardware that does not provide alignment. For example, 16-bit values must be aligned on 2-byte boundaries,) 32-bit values on 4-byte boundaries,) and so on.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionFltDenormalOperand",
+      "text": "Denormal Operand: One of the operands in a floating point operation is denormal. A denormal value is one that is too small to represent as a standard floating point value.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionFltDivideByZero",
+      "text": "Divide By Zero: The thread attempts to divide a floating point value by a floating point divisor of 0 (zero).",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionFltInexactResult",
+      "text": "Inexact Result: The result of a floating point operation cannot be represented exactly as a decimal fraction.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionFltInvalidOperation",
+      "text": "Invalid Operation: A floating point exception that is not included in this list.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionFltOverflow",
+      "text": "Overflow: The exponent of a floating point operation is greater than the magnitude allowed by the corresponding type.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionFltStackCheck",
+      "text": "Stack Check: The stack has overflowed or underflowed, because of a floating point operation.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionFltUnderflow",
+      "text": "Underflow: The exponent of a floating point operation is less than the magnitude allowed by the corresponding type.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionGuardPage",
+      "text": "Guard Page: The thread accessed memory allocated with the PAGE_GUARD modifier.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionHadBeenOccured",
+      "text": " = (Exception)",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionIllegalInstruction",
+      "text": "Illegal Instruction: The thread tries to execute an invalid instruction.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionInPageError",
+      "text": "In Page Error: The thread tries to access a page that is not present, and the system is unable to load the page. For example, this exception might occur if a network connection is lost while running a program over a network.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionIntDivideByZero",
+      "text": "Divide By Zero: The thread attempts to divide an integer value by an integer divisor of 0 (zero).",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionIntOverflow",
+      "text": "Overflow: The result of an integer operation creates a value that is too large to be held by the destination register. In some cases, this will result in a carry out of the most significant bit of the result. Some operations do not set the carry flag.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionInvalidDisposition",
+      "text": "Invalid Disposition: An exception handler returns an invalid disposition to the exception dispatcher. Programmers using a high-level language such as C should never encounter this exception.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionInvalidHandle",
+      "text": "Invalid Handle: The thread used a handle to a kernel object that was invalid (probably because it had been closed.)",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionNoncontinuableException",
+      "text": "Noncontinuable Exception: The thread attempts to continue execution after a non-continuable exception occurs.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionPrivInstruction",
+      "text": "Priv Instruction: The thread attempts to execute an instruction with an operation that is not allowed in the current computer mode.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionSingleStep",
+      "text": "Single Step: A trace trap or other single instruction mechanism signals that one instruction is executed.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionStackOverflow",
+      "text": "Stack Overflow: The thread uses up its stack.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExceptionUnwindCconsolidate",
+      "text": "Unwind Consolidate: A frame consolidation has been executed.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExecutionFail",
+      "text": "Cannot execute %1.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPExitCode",
+      "text": "Exit code: %d\\n",
+      "category": "platform"
+    },
+    {
+      "id": "TVPFaild",
+      "text": "failed.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPFaildClipboardCopy",
+      "text": "copying to clipboard failed.",
+      "category": "core"
+    },
+    {
+      "id": "TVPFaildGlyphForDrawGlyph",
+      "text": "Faild glyph for DrawGlyph.",
+      "category": "core"
+    },
+    {
+      "id": "TVPFaildToCreateDirect3D",
+      "text": "Faild to create Direct3D9.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPFaildToCreateDirect3DDevice",
+      "text": "Faild to create Direct3D9 Device.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPFaildToDecideBackbufferFormat",
+      "text": "Faild to decide backbuffer format.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPFaildToSetRenderState",
+      "text": "Faild to set render state.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPFaildToSetViewport",
+      "text": "Faild to set viewport.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPFailedToCreateOffscreenBitmap",
+      "text": "Failed to create offscreen bitmap",
+      "category": "platform"
+    },
+    {
+      "id": "TVPFailedToCreateOffscreenDC",
+      "text": "Failed to create offscreen DC",
+      "category": "platform"
+    },
+    {
+      "id": "TVPFailedToCreateScreenDC",
+      "text": "Failed to create screen DC",
+      "category": "platform"
+    },
+    {
+      "id": "TVPFatalError",
+      "text": "Fatal Error",
+      "category": "platform"
+    },
+    {
+      "id": "TVPFileNotFound",
+      "text": "file not found.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPFileReadError",
+      "text": "File read error.",
+      "category": "core"
+    },
+    {
+      "id": "TVPFileSizeIsZero",
+      "text": "File size is zero.",
+      "category": "core"
+    },
+    {
+      "id": "TVPFilenameContainsSharpWarn",
+      "text": "(Attention) Filename \"%1\" contains '#'",
+      "category": "core"
+    },
+    {
+      "id": "TVPFontCannotBeUsed",
+      "text": "Font '%1$s' cannot be used",
+      "category": "core"
+    },
+    {
+      "id": "TVPFontRasterizeError",
+      "text": "Font Rasterize error.",
+      "category": "core"
+    },
+    {
+      "id": "TVPHardwareExceptionRaised",
+      "text": "Hardware exception raised",
+      "category": "platform"
+    },
+    {
+      "id": "TVPHoldDestinationAlphaParameterIsNowDeprecated",
+      "text": "Warring : Method %1 %2th parameter had is ignore. Hold destination alpha parameter is now deprecated.",
+      "category": "core"
+    },
+    {
+      "id": "TVPImageLoadError",
+      "text": "Image Load Error /%1",
+      "category": "core"
+    },
+    {
+      "id": "TVPInfoChangeScreenModeSuccess",
+      "text": "(info) Changing screen mode succeeded",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoConditionMode",
+      "text": "(info) condition: mode: %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoConditionPreferredScreenMode",
+      "text": "(info) condition: preferred screen mode: %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoConditionZoomMode",
+      "text": "(info) condition: zoom mode: %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoCpuClock",
+      "text": "(info) CPU clock : %.1fMHz",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoCpuClockRoughly",
+      "text": "(info) CPU clock (roughly) : %dMHz",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoCpuNumber",
+      "text": "(info) CPU #%1 : ",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoDataPath",
+      "text": "(info) Data path : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoDataPathDoesNotExistTryingToMakeIt",
+      "text": "(info) Data path does not exist, trying to make it ... %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoDirect3D",
+      "text": "(info) Loading Direct3D ...",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoDoneWithContains",
+      "text": "(info) Done. (contains %1 file(s), %2 segment(s))",
+      "category": "core"
+    },
+    {
+      "id": "TVPInfoEnvironmentAvailableDisplayModes",
+      "text": "(info) environment: available display modes:",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoEnvironmentDefaultScreenAspectRatio",
+      "text": "(info) environment: default screen aspect ratio: %1 : %2",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoEnvironmentDefaultScreenMode",
+      "text": "(info) environment: default screen mode: %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoEnvironmentUsing",
+      "text": "(info) environment: using %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoFaild",
+      "text": "(info) Failed.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoFailed",
+      "text": "(info) Failed.",
+      "category": "core"
+    },
+    {
+      "id": "TVPInfoFinallyDetectedCpuFeatures",
+      "text": "(info) finally detected CPU features : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoFoundDirect3DInterface",
+      "text": "(info) IDirect3D9 or higher detected. Retrieving current Direct3D driver information...",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoListingFiles",
+      "text": "(info) Listing files in %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoLoadingConfigurationFileFailed",
+      "text": "(info) Loading configuration file \"%1\" failed (ignoring) : %2",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoLoadingConfigurationFileSucceeded",
+      "text": "(info) Loading configuration file \"%1\" succeeded.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoLoadingExecutableEmbeddedOptionsFailed",
+      "text": "(info) Loading executable embedded options failed (ignoring) : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoLoadingExecutableEmbeddedOptionsSucceeded",
+      "text": "(info) Loading executable embedded options succeeded.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoLoadingStartupScript",
+      "text": "(info) Loading startup script : ",
+      "category": "core"
+    },
+    {
+      "id": "TVPInfoNotFoundScreenModeFromDriver",
+      "text": "(info) Panic! There is no reasonable candidate screen mode provided from the driver ... trying to use the default screen size and color depth ...",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoRebuildingAutoPath",
+      "text": "(info) Rebuilding Auto Path Table ...",
+      "category": "core"
+    },
+    {
+      "id": "TVPInfoResultCandidates",
+      "text": "(info) result: candidates:",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoSearchBestFullscreenResolution",
+      "text": "(info) Searching best fullscreen resolution ...",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoSelectedProjectDirectory",
+      "text": "(info) Selected project directory : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoSpecifiedOptionEarlierItemHasMorePriority",
+      "text": "(info) Specified option(s) (earlier item has more priority) :",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoStartupScriptEnded",
+      "text": "(info) Startup script ended.",
+      "category": "core"
+    },
+    {
+      "id": "TVPInfoSusiePluginInfo",
+      "text": "(info) Susie plugin info : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoTotalFileFoundAndActivated",
+      "text": "(info) Total %1 file(s) found, %2 file(s) activated. (%3ms)",
+      "category": "core"
+    },
+    {
+      "id": "TVPInfoTotalPhysicalMemory",
+      "text": "(info) Total physical memory : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoTouching",
+      "text": "(info) Touching ",
+      "category": "core"
+    },
+    {
+      "id": "TVPInfoTryScreenMode",
+      "text": "(info) Trying screen mode: %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInfoTryingToReadXp3VirtualFileSystemInformationFrom",
+      "text": "(info) Trying to read XP3 virtual file system information from : %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPInsufficientMemory",
+      "text": "Insufficient memory",
+      "category": "core"
+    },
+    {
+      "id": "TVPInternalError",
+      "text": "Internal error",
+      "category": "core"
+    },
+    {
+      "id": "TVPInternalErrorResult",
+      "text": "Internal error/HR=%1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInvalidBPP",
+      "text": "Invalid bpp",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInvalidCDDADrive",
+      "text": "Invalid CD-DA Drive",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInvalidCommandLineParam",
+      "text": "Command line parameter %1 = %2 is invalid.",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidHeaderVersion",
+      "text": "Invalid header version.",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidImagePosition",
+      "text": "Invalid Image position",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidImageSaveType",
+      "text": "Invalid image save type (%1)",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidKrMovieDLL",
+      "text": "Invalid krmovie.dll",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInvalidLoopInformation",
+      "text": "Invalid loop information %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInvalidMethodInFullScreen",
+      "text": "Invalid method in fullscreen : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInvalidMethodInUpdating",
+      "text": "Invalid method in updating",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidOperationFor32BPP",
+      "text": "Invalid operation for 32bpp",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidOperationFor8BPP",
+      "text": "Invalid operation for 8bpp",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidOverlapCountMustBeIn2to32",
+      "text": "Invalid overlap count must be in 2 to 32",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidParam",
+      "text": "Invalid argument",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidPathName",
+      "text": "Invalid path name %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidPrerenderedFontFile",
+      "text": "Signature not found or invalid pre-rendered font file.",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidPropertyInFullScreen",
+      "text": "Invalid property in fullscreen : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInvalidSMF",
+      "text": "Invalid SMF : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInvalidTlgHeaderOrVersion",
+      "text": "Invalid TLG header or unsupported TLG version.",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidUIDLL",
+      "text": "Invalid krdevui.dll",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInvalidUTF16ToUTF8",
+      "text": "Invalid UTF-16 to UTF-8",
+      "category": "core"
+    },
+    {
+      "id": "TVPInvalidVideoSize",
+      "text": "Invalid video size",
+      "category": "platform"
+    },
+    {
+      "id": "TVPInvalidWindowSizeMustBeIn64to32768",
+      "text": "Invalid window size must be in 64 to 32768",
+      "category": "core"
+    },
+    {
+      "id": "TVPJPEGLoadError",
+      "text": "JPEG Read Error /%1",
+      "category": "core"
+    },
+    {
+      "id": "TVPKirikiri",
+      "text": "kirikiriz",
+      "category": "platform"
+    },
+    {
+      "id": "TVPLayerBitmapBufferOverrunDetectedCheckYourDrawingCode",
+      "text": "Layer bitmap: Buffer overrun detected. Check your drawing code!",
+      "category": "platform"
+    },
+    {
+      "id": "TVPLayerBitmapBufferUnderrunDetectedCheckYourDrawingCode",
+      "text": "Layer bitmap: Buffer underrun detected. Check your drawing code!",
+      "category": "platform"
+    },
+    {
+      "id": "TVPLayerCannotHaveImage",
+      "text": "This layer cannot have image",
+      "category": "core"
+    },
+    {
+      "id": "TVPLayerObjectIsNotProperlyConstructed",
+      "text": "Panic! Layer object is not properly constructed. The constructor was not called??",
+      "category": "core"
+    },
+    {
+      "id": "TVPLibpngError",
+      "text": "libpng error.",
+      "category": "core"
+    },
+    {
+      "id": "TVPMCIError",
+      "text": "MCI Error : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPMainCDPName",
+      "text": "Script Editor (Main)",
+      "category": "platform"
+    },
+    {
+      "id": "TVPMalformedMIDIMessage",
+      "text": "Malformed MIDI Message",
+      "category": "platform"
+    },
+    {
+      "id": "TVPMaskSizeMismatch",
+      "text": "Mask size mismath",
+      "category": "core"
+    },
+    {
+      "id": "TVPMediaNameHadAlreadyBeenRegistered",
+      "text": "Media name \"%1\" had already been registered",
+      "category": "core"
+    },
+    {
+      "id": "TVPMediaNameIsNotRegistered",
+      "text": "Media name \"%1\" is not registered",
+      "category": "core"
+    },
+    {
+      "id": "TVPMemoryAllocationError",
+      "text": "Memory allocation error.",
+      "category": "core"
+    },
+    {
+      "id": "TVPMissingPathDelimiterAtLast",
+      "text": "Use path delimiter '>' or '/'",
+      "category": "core"
+    },
+    {
+      "id": "TVPNegativeOpacityNotSupportedOnThisFace",
+      "text": "Negative opacity not supported on this face",
+      "category": "core"
+    },
+    {
+      "id": "TVPNone",
+      "text": " (none)",
+      "category": "platform"
+    },
+    {
+      "id": "TVPNot16BitUnicodeFontFile",
+      "text": "Not a 16-bit UNICODE font file.",
+      "category": "core"
+    },
+    {
+      "id": "TVPNotChildMenuItem",
+      "text": "Not child menu Item",
+      "category": "platform"
+    },
+    {
+      "id": "TVPNotDrawableFaceType",
+      "text": "Not drawble face type %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPNotDrawableLayerType",
+      "text": "Not drawable layer type",
+      "category": "core"
+    },
+    {
+      "id": "TVPNotFoundDirect3DCreate",
+      "text": "Missing Direct3DCreate9 in d3d9.dll",
+      "category": "platform"
+    },
+    {
+      "id": "TVPNotImplemented",
+      "text": "Called method is not implemented",
+      "category": "core"
+    },
+    {
+      "id": "TVPNotLoadedPlugin",
+      "text": "Not loaded plugin %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPNotSusiePlugin",
+      "text": "Not Susie Plugin",
+      "category": "platform"
+    },
+    {
+      "id": "TVPNotValidPlugin",
+      "text": "Not valid plugin %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPNotWindowsBmp",
+      "text": "This is not a Windows BMP file or an OS/2 BMP file.",
+      "category": "core"
+    },
+    {
+      "id": "TVPOk",
+      "text": "ok.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPOutOfRectangle",
+      "text": "Out of Rectangle",
+      "category": "core"
+    },
+    {
+      "id": "TVPPNGLoadError",
+      "text": "PNG Read Error /%1",
+      "category": "core"
+    },
+    {
+      "id": "TVPPluginError",
+      "text": "Plugin Error : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPPluginUnboundFunctionError",
+      "text": "Plugin require %1 funcion. Bat not found function in this file.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPPluginUninitFailed",
+      "text": "Faild to release plugin",
+      "category": "platform"
+    },
+    {
+      "id": "TVPPngSaveError",
+      "text": "PNG save error.",
+      "category": "core"
+    },
+    {
+      "id": "TVPPrerenderedFontMappingFailed",
+      "text": "Prerendered font mapping failed : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPProgramStartedOn",
+      "text": "Program started on %1 (%2)",
+      "category": "platform"
+    },
+    {
+      "id": "TVPProvinceSizeMismatch",
+      "text": "Province image %1 size mismatch",
+      "category": "core"
+    },
+    {
+      "id": "TVPReadError",
+      "text": "Read error",
+      "category": "core"
+    },
+    {
+      "id": "TVPRoughVsyncIntervalReadFromApi",
+      "text": "Rough VSync interval read from API : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPRoughVsyncIntervalStillSeemsWrong",
+      "text": "Rough VSync interval still seems wrong, assuming default value (16)",
+      "category": "platform"
+    },
+    {
+      "id": "TVPScanLineRangeOver",
+      "text": "Scan line %1 is range over (0 to %2)",
+      "category": "platform"
+    },
+    {
+      "id": "TVPScriptExceptionRaised",
+      "text": "Script exception raised",
+      "category": "platform"
+    },
+    {
+      "id": "TVPSeekError",
+      "text": "Seek error",
+      "category": "core"
+    },
+    {
+      "id": "TVPSelectXP3FileOrFolder",
+      "text": "Select XP3 file or folder",
+      "category": "platform"
+    },
+    {
+      "id": "TVPSeparatorCR",
+      "text": "\\n\\n\\n==============================================================================\\n==============================================================================\\n",
+      "category": "core"
+    },
+    {
+      "id": "TVPSeparatorCRLF",
+      "text": "\\r\\n\\r\\n\\r\\n==============================================================================\\r\\n==============================================================================\\r\\n",
+      "category": "core"
+    },
+    {
+      "id": "TVPSourceLayerHasNoImage",
+      "text": "Source layer has no image",
+      "category": "core"
+    },
+    {
+      "id": "TVPSpecifiedEventNameIsUnknown",
+      "text": "Specified event name %1 is unknown",
+      "category": "core"
+    },
+    {
+      "id": "TVPSpecifiedEventNeedsParameter",
+      "text": "Specified event %1 needs parameter",
+      "category": "core"
+    },
+    {
+      "id": "TVPSpecifiedEventNeedsParameter2",
+      "text": "Specified event %1 needs parameter %2",
+      "category": "core"
+    },
+    {
+      "id": "TVPSpecifiedStorageHadBeenProtected",
+      "text": "Specified storage had been protected!",
+      "category": "core"
+    },
+    {
+      "id": "TVPSpecifyLayer",
+      "text": "Specify Layer class object",
+      "category": "core"
+    },
+    {
+      "id": "TVPSpecifyLayerOrBitmap",
+      "text": "Specify Layer or Bitmap class object",
+      "category": "core"
+    },
+    {
+      "id": "TVPSpecifyOption",
+      "text": "Specify option %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPSpecifyTransitionSource",
+      "text": "Specify transition source",
+      "category": "core"
+    },
+    {
+      "id": "TVPSpecifyWindow",
+      "text": "Specify Window class object",
+      "category": "core"
+    },
+    {
+      "id": "TVPSrcRectOutOfBitmap",
+      "text": "Source rectangle out of bitmap",
+      "category": "core"
+    },
+    {
+      "id": "TVPStorageInArchiveNotFound",
+      "text": "Cannot find storage %1 in archive %2",
+      "category": "core"
+    },
+    {
+      "id": "TVPSusiePluginError",
+      "text": "Susie Plugin error : %1",
+      "category": "platform"
+    },
+    {
+      "id": "TVPSusiePluginUnsupportedBitmapHeader",
+      "text": "Non-supported bitmap header was given from susie plug-in.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPTLGLoadError",
+      "text": "TLG Read Error /%1",
+      "category": "core"
+    },
+    {
+      "id": "TVPTheHostIsNotA16BitUnicodeSystem",
+      "text": "The host is not a 16-bit unicode system.",
+      "category": "core"
+    },
+    {
+      "id": "TVPTjsCharMustBeTwoOrFour",
+      "text": "sizeof(tjs_char) must be 2 or 4.",
+      "category": "core"
+    },
+    {
+      "id": "TVPTlgInsufficientMemory",
+      "text": "SaveTLG6: Insufficient memory",
+      "category": "core"
+    },
+    {
+      "id": "TVPTlgMalformedTagMissionColonAfterNameLength",
+      "text": "Malformed TLG SDS tag structure, missing colon after name length",
+      "category": "core"
+    },
+    {
+      "id": "TVPTlgMalformedTagMissionColonAfterVaueLength",
+      "text": "Malformed TLG SDS tag structure, missing colon after value length",
+      "category": "core"
+    },
+    {
+      "id": "TVPTlgMalformedTagMissionCommaAfterTag",
+      "text": "Malformed TLG SDS tag structure, missing comma after a tag",
+      "category": "core"
+    },
+    {
+      "id": "TVPTlgMalformedTagMissionEqualsAfterName",
+      "text": "Malformed TLG SDS tag structure, missing equals after name",
+      "category": "core"
+    },
+    {
+      "id": "TVPTlgTooLargeBitLength",
+      "text": "SaveTLG6: Too large bit length (given image may be too large)",
+      "category": "core"
+    },
+    {
+      "id": "TVPTlgUnsupportedUniversalTransitionRule",
+      "text": "TLG cannot be used as universal transition rule, province(_p) or mask(_m) images.",
+      "category": "core"
+    },
+    {
+      "id": "TVPTooLargeImage",
+      "text": "Too large image",
+      "category": "core"
+    },
+    {
+      "id": "TVPTooSmallExecutableSize",
+      "text": "too small executable size.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPTouchExternalPen",
+      "text": "The device has an external pen digitizer.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPTouchExternalTouch",
+      "text": "The device has an external touch digitizer. ",
+      "category": "platform"
+    },
+    {
+      "id": "TVPTouchIntegratedPen",
+      "text": "The device has an integrated pen digitizer.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPTouchIntegratedTouch",
+      "text": "The device has an integrated touch digitizer. ",
+      "category": "platform"
+    },
+    {
+      "id": "TVPTouchMultiInput",
+      "text": "The device supports multiple sources of digitizer input. ",
+      "category": "platform"
+    },
+    {
+      "id": "TVPTouchReady",
+      "text": "The device is ready to receive digitizer input.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPTransAlreadyRegistered",
+      "text": "Transition %1 already registerd",
+      "category": "core"
+    },
+    {
+      "id": "TVPTransHandlerError",
+      "text": "Transition handler error %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPTransitionLayerSizeMismatch",
+      "text": "Transition layer size mismatch %1 and %2",
+      "category": "core"
+    },
+    {
+      "id": "TVPTransitionMutualSource",
+      "text": "Transition mutual source",
+      "category": "core"
+    },
+    {
+      "id": "TVPTransitionSourceAndDestinationMustHaveImage",
+      "text": "Transition source and destination must have image",
+      "category": "core"
+    },
+    {
+      "id": "TVPTruncateError",
+      "text": "Truncate error",
+      "category": "core"
+    },
+    {
+      "id": "TVPUncompressionFailed",
+      "text": "Uncompression failed",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnknownError",
+      "text": "Unknown error!",
+      "category": "platform"
+    },
+    {
+      "id": "TVPUnknownGraphicFormat",
+      "text": "Unknown graphic format %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnknownTransitionType",
+      "text": "Unknown transition type",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnknownUpdateType",
+      "text": "Unknown update type",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnknownWaveFormat",
+      "text": "Unknown wave format %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedCipherMode",
+      "text": "%1 is unsupported cipher mode",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedColorCount",
+      "text": "Unsupported color count : ",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedColorModeForPalettImage",
+      "text": "Unsupported color mode for palettized image.",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedColorType",
+      "text": "Unsupported color type",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedColorTypeColon",
+      "text": "Unsupported color type : ",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedColorTypePalette",
+      "text": "Unsupported color type for palattized image",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedEncoding",
+      "text": "%1 is unsupported encoding",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedEntropyCodingMethod",
+      "text": "Unsupported entropy coding method",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedExternalGolombBitLengthTable",
+      "text": "External golomb bit length table is not yet supported.",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedHeaderVersion",
+      "text": "Non-supported header version.",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedJpegPalette",
+      "text": "JPEG does not support palettized image",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedLayerType",
+      "text": "Unsupported layer type %1",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedMediaName",
+      "text": "Not supported media type \"%1\"",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedModeString",
+      "text": "%1 is unsupported mode string",
+      "category": "core"
+    },
+    {
+      "id": "TVPUnsupportedUpdateTypeTutGiveUpdate",
+      "text": "Update type of tutGiveUpdate is not yet supported",
+      "category": "core"
+    },
+    {
+      "id": "TVPUsePowerOfTwoSurface",
+      "text": "Use power of two surface.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPVersionInformation",
+      "text": "Kirikiri 2 Executable core /%1 (Compiled on %DATE% %TIME%) TJS2/%2 Copyright (C) 1997-2013 W.Dee and contributors All rights reserved.",
+      "category": "core"
+    },
+    {
+      "id": "TVPVersionInformation2",
+      "text": "The details of version information can be perused if -about is attached and started. ",
+      "category": "core"
+    },
+    {
+      "id": "TVPWarnDebugOptionEnabled",
+      "text": "Debug option enabled",
+      "category": "core"
+    },
+    {
+      "id": "TVPWarningImageSizeTooLargeMayBeCannotCreateTexture",
+      "text": "warning : Image size too large. May be cannot create texture.",
+      "category": "platform"
+    },
+    {
+      "id": "TVPWindowAlreadyMissing",
+      "text": "Window already missing",
+      "category": "platform"
+    },
+    {
+      "id": "TVPWindowHasAlreadyPrimaryLayer",
+      "text": "Window has already primary layer",
+      "category": "core"
+    },
+    {
+      "id": "TVPWindowHasNoLayer",
+      "text": "Window has no layer",
+      "category": "core"
+    },
+    {
+      "id": "TVPWriteError",
+      "text": "Write error",
+      "category": "core"
+    }
+  ]
+}

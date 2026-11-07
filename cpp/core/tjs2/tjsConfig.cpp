@@ -13,8 +13,8 @@
 #include <clocale>
 
 #include <cassert>
-#include <boost/locale.hpp>
-#include <spdlog/spdlog.h>
+#include <boost/locale/encoding_utf.hpp>
+#include "TVPLog.h"
 
 #ifdef _WIN32
 #include <float.h>
@@ -871,8 +871,8 @@ namespace TJS {
 
     tTJSFuncTrace::tTJSFuncTrace(const tjs_char *p) :
         funcname(boost::locale::conv::utf_to_utf<char>(p)) {
-        spdlog::debug("enter: {}", funcname);
+        G_Tjs2Log.debug("enter: {}", funcname);
     }
 
-    tTJSFuncTrace::~tTJSFuncTrace() { spdlog::debug("exit: {}", funcname); }
+    tTJSFuncTrace::~tTJSFuncTrace() { G_Tjs2Log.debug("exit: {}", funcname); }
 } // namespace TJS

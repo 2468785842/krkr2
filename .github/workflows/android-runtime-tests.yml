@@ -1,0 +1,133 @@
+name: Android runtime build
+
+on:
+  workflow_call:
+    inputs:
+      abi:
+        type: string
+        default: x86_64
+  workflow_dispatch:
+    inputs:
+      abi:
+        description: 'ABI for the complete Debug runtime APK'
+        type: choice
+        options: [x86_64, arm64-v8a]
+        default: x86_64
+
+concurrency:
+  group: android-runtime-${{ inputs.abi }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      KRKR2_ANDROID_ABI: ${{ inputs.abi }}
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.act/android-runtime-vcpkg
+      VCPKG_MAX_CONCURRENCY: 4
+      CMAKE_BUILD_PARALLEL_LEVEL: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install matching Android native tools
+        run: |
+          sdkmanager 'platforms;android-34' 'build-tools;34.0.0' 'ndk;28.0.13004108' 'cmake;3.31.1'
+          sudo apt-get update
+          sudo apt-get install -y bison yasm autoconf automake libtool pkg-config nasm
+      - name: Configure native build and file cache
+        run: |
+          echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK=$ANDROID_HOME/ndk/28.0.13004108" >> "$GITHUB_ENV"
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE" out/android-runtime
+          echo "VCPKG_BINARY_SOURCES=clear;files,$VCPKG_DEFAULT_BINARY_CACHE,readwrite" >> "$GITHUB_ENV"
+          "$VCPKG_INSTALLATION_ROOT/vcpkg" version
+          python scripts/check_core_module_deps.py
+      - uses: actions/cache/restore@v4
+        id: ports
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: android-runtime-${{ inputs.abi }}-ndk28-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            android-runtime-${{ inputs.abi }}-ndk28-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}-
+            android-runtime-${{ inputs.abi }}-ndk28-
+      - uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: android-runtime-${{ inputs.abi }}
+      - name: Configure the complete native dependency graph
+        run: |
+          bash platforms/android/gradlew -p platforms/android --no-daemon --console=plain --max-workers=2 \
+            "-Pkrkr2.androidAbis=$KRKR2_ANDROID_ABI" ":app:configureCMakeDebug[$KRKR2_ANDROID_ABI]" 2>&1 | tee out/android-runtime/configure.log
+      - name: Compile all independent native sources
+        run: |
+          python - <<'PYBUILD' 2>&1 | tee out/android-runtime/native-build.log
+          import os, pathlib, subprocess
+          from scripts.check_android_runtime_apk import cache_values
+          root = pathlib.Path.cwd()
+          candidates = []
+          for cache in pathlib.Path('out/android/cmake-build').rglob('CMakeCache.txt'):
+              values = cache_values(cache)
+              if (values.get('ANDROID_ABI') == os.environ['KRKR2_ANDROID_ABI']
+                      and values.get('CMAKE_BUILD_TYPE') == 'Debug'
+                      and values.get('CMAKE_HOME_DIRECTORY') == str(root)):
+                  candidates.append(cache.parent)
+          if len(candidates) != 1:
+              raise SystemExit(f'Expected one native Debug build directory, got {candidates}')
+          # Ninja keeps compiling independent files, while retaining a failing exit status.
+          subprocess.run(['cmake', '--build', str(candidates[0]), '--target', 'krkr2',
+                          '--parallel', '4', '--', '-k', '0'], check=True)
+          PYBUILD
+      - name: Build the complete Debug runtime
+        run: |
+          bash platforms/android/gradlew -p platforms/android --no-daemon --console=plain --max-workers=2 \
+            "-Pkrkr2.androidAbis=$KRKR2_ANDROID_ABI" :app:assembleDebug 2>&1 | tee out/android-runtime/build.log
+      - name: Verify application, dependencies and packaged ABI
+        run: python scripts/check_android_runtime_apk.py "$KRKR2_ANDROID_ABI" out/android-runtime/build-manifest.json
+      - name: Preserve native port diagnostics on failure
+        if: failure()
+        run: |
+          python - <<'PYLOG'
+          import os, pathlib, shutil
+          source = pathlib.Path(os.environ['VCPKG_ROOT']) / 'buildtrees'
+          output = pathlib.Path('out/android-runtime/port-logs')
+          if source.exists():
+              for port in source.iterdir():
+                  if port.is_dir():
+                      for log in port.glob('*.log'):
+                          destination = output / port.name / log.name
+                          destination.parent.mkdir(parents=True, exist_ok=True)
+                          shutil.copy2(log, destination)
+          PYLOG
+      - uses: actions/cache/save@v4
+        if: always() && steps.ports.outputs.cache-hit != 'true'
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: android-runtime-${{ inputs.abi }}-ndk28-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-runtime-${{ inputs.abi }}
+          path: |
+            platforms/android/out/android/app/outputs/apk/debug/
+            out/android-runtime/
+            out/android/cmake-build/**/CMakeCache.txt
+            out/android/cmake-build/**/compile_commands.json
+            out/android/cmake-build/**/vcpkg-manifest-install.log
+            out/android/cmake-build/**/vcpkg_installed/vcpkg/status
+          if-no-files-found: warn

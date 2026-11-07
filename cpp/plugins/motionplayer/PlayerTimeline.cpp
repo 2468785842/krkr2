@@ -12,7 +12,7 @@ namespace motion {
     void Player::skipToSync() {
         ensureMotionLoaded();
         if(!_runtime || !_runtime->activeMotion) {
-            LOGGER->warn("Player::skipToSync(): no active motion");
+            G_PluginLog.warn("Player::skipToSync(): no active motion");
             return;
         }
 
@@ -30,7 +30,7 @@ namespace motion {
         if(const auto *clip = selectActiveClip()) {
             syncTime = std::max(syncTime, clip->totalFrames);
         }
-        LOGGER->debug(
+        G_PluginLog.debug(
             "Player::skipToSync(): seeking timelines to syncTime={:.3f} "
             "(参考 sdl3 getSyncTime；libkrkr2.so 可能不同)",
             syncTime);

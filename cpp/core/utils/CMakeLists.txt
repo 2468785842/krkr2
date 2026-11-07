@@ -34,4 +34,6 @@ set(UTILS_HEADERS_DIR
 
 add_library(${PROJECT_NAME} STATIC ${UTILS_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${UTILS_HEADERS_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 PRIVATE core_base_module core_environ_module)
+krkr2_target_link_foundation(${PROJECT_NAME} PUBLIC)
+krkr2_target_include_base_headers(${PROJECT_NAME})
+krkr2_target_include_environ_headers(${PROJECT_NAME})

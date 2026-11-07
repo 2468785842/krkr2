@@ -10,6 +10,7 @@
 #include <cmath>
 #include "Application.h"
 #include "Platform.h"
+#include "TVPLog.h"
 #include "ConfigManager/IndividualConfigManager.h"
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -20,8 +21,8 @@
 #include "BinaryStream.h"
 
 tTJSHashTable<ttstr, TVPFontNamePathInfo, tTVPttstrHash> TVPFontNames;
-static ttstr TVPDefaultFontName;
-const ttstr &TVPGetDefaultFontName() { return TVPDefaultFontName; }
+static ttstr TVPResolvedDefaultFontName;
+const ttstr &TVPGetDefaultFontName() { return TVPResolvedDefaultFontName; }
 void TVPGetAllFontList(std::vector<ttstr> &list) {
     auto itend = TVPFontNames.GetLast();
     for(auto it = TVPFontNames.GetFirst(); it != itend; ++it) {
@@ -159,7 +160,7 @@ int TVPEnumFontsProc(const ttstr &FontPath) {
 tTJSBinaryStream *TVPCreateFontStream(const ttstr &fontname) {
     TVPFontNamePathInfo *info = TVPFindFont(fontname);
     if(!info) {
-        info = TVPFontNames.Find(TVPDefaultFontName);
+        info = TVPFontNames.Find(TVPResolvedDefaultFontName);
         if(!info)
             return nullptr;
     }
@@ -222,7 +223,7 @@ void TVPInitFontNames() {
             auto data = cocos2d::FileUtils::getInstance()->getDataFromFile(
                 "NotoSansCJK-Regular.ttc");
             if(data.isNull()) {
-                spdlog::critical("can't found internal font file!");
+                G_CoreLog.critical("can't found internal font file!");
                 exit(-1);
             }
             if(TVPInternalEnumFonts(
@@ -241,7 +242,7 @@ void TVPInitFontNames() {
     } while(false);
     if(TVPFontNames.GetCount() > 0) {
         // set default fontface name
-        TVPDefaultFontName = TVPFontNames.GetLast().GetKey();
+        TVPResolvedDefaultFontName = TVPFontNames.GetLast().GetKey();
     }
 
     // check exePath + "/fonts/*.ttf"
@@ -266,7 +267,7 @@ void TVPInitFontNames() {
         }
     }
 
-    if(TVPDefaultFontName.IsEmpty()) {
+    if(TVPResolvedDefaultFontName.IsEmpty()) {
         TVPShowSimpleMessageBox(
             ("Could not found any font.\nPlease ensure that at "
              "least \"default.ttf\" exists"),

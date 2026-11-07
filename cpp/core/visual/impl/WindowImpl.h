@@ -17,7 +17,6 @@
 
 #define WM_USER 0x0400
 
-enum tTVPWMRRegMode { wrmRegister = 0, wrmUnregister = 1 };
 
 /*[*/
 //---------------------------------------------------------------------------
@@ -236,6 +235,7 @@ public:
     bool closeFlag;
 
 public:
+    bool CanDeliverInputCancellation() const override;
     [[nodiscard]] bool CanDeliverEvents()
         const override; // tTJSNI_BaseWindow::CanDeliverEvents override
 

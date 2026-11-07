@@ -15,7 +15,8 @@ TVPInGameMenuForm *TVPInGameMenuForm::create(const std::string &title,
                                              tTJSNI_MenuItem *item) {
     auto *ret = new TVPInGameMenuForm;
     ret->autorelease();
-    ret->initFromFile(Csd::createNaviBar(), Csd::createListView(), nullptr);
+    ret->initUILayout(Csd::createNaviBar, Csd::createListView,
+                      Csd::NodeBuilderFn{});
     ret->initMenu(title, item);
     return ret;
 }

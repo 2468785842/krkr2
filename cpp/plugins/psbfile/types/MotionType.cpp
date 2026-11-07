@@ -5,10 +5,9 @@
 #include "../PSBFile.h"
 #include "MotionType.h"
 
+#include "log/TVPLog.h"
+
 namespace PSB {
-
-#define LOGGER spdlog::get("plugin")
-
     bool MotionType::isThisType(const PSBFile &psb) {
         const auto objects = psb.getObjects();
         if(psb.getObjects() == nullptr) {
@@ -16,16 +15,17 @@ namespace PSB {
         }
 
         auto fdId = objects->find("id");
-        return fdId != objects->end() &&
-            std::dynamic_pointer_cast<PSBString>(fdId->second)->value ==
-            "motion";
+        if(fdId == objects->end())
+            return false;
+        auto id = std::dynamic_pointer_cast<PSBString>(fdId->second);
+        return id && id->value == "motion";
     }
 
     std::vector<std::unique_ptr<IResourceMetadata>>
     MotionType::collectResources(const PSBFile &psb, bool deDuplication) {
         std::vector<std::unique_ptr<IResourceMetadata>> resourceList;
         // TODO:
-        LOGGER->critical("TODO: MotionType::collectResources(...)");
+        G_PluginLog.critical("TODO: MotionType::collectResources(...)");
         return resourceList;
     }
 } // namespace PSB

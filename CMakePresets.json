@@ -47,6 +47,39 @@
       }
     },
     {
+      "name": "Windows XP3 Config",
+      "inherits": "Windows Debug Config",
+      "binaryDir": "${sourceDir}/out/windows/xp3",
+      "cacheVariables": {
+        "KRKR2_BUILD_APP": false,
+        "ENABLE_TESTS": false,
+        "BUILD_TOOLS": true
+      }
+    },
+    {
+      "name": "Windows Strings Config",
+      "inherits": "Windows Debug Config",
+      "binaryDir": "${sourceDir}/out/windows/strings",
+      "cacheVariables": {
+        "KRKR2_BUILD_APP": false,
+        "ENABLE_TESTS": true,
+        "BUILD_TOOLS": false,
+        "KRKR2_TEST_SCOPE": "strings"
+      }
+    },
+    {
+      "name": "Windows Lean Debug Config",
+      "inherits": "Windows Debug Config",
+      "binaryDir": "${sourceDir}/out/windows/lean-debug",
+      "cacheVariables": {
+        "KRKR2_BUILD_APP": true,
+        "ENABLE_TESTS": false,
+        "BUILD_TOOLS": false,
+        "KRKR2_ENABLE_PSD": false,
+        "KRKR2_ENABLE_CRASH_UPLOAD": false
+      }
+    },
+    {
       "name": "Windows MinGW Config",
       "generator": "Ninja",
       "hidden": true,
@@ -128,6 +161,21 @@
     }
   ],
   "buildPresets": [
+    {
+      "name": "Windows XP3 Build",
+      "configurePreset": "Windows XP3 Config",
+      "targets": ["xp3"]
+    },
+    {
+      "name": "Windows Strings Build",
+      "configurePreset": "Windows Strings Config",
+      "targets": ["tjsString"]
+    },
+    {
+      "name": "Windows Lean Debug Build",
+      "configurePreset": "Windows Lean Debug Config",
+      "targets": ["krkr2"]
+    },
     {
       "name": "Windows Debug Build",
       "configurePreset": "Windows Debug Config"

@@ -11,15 +11,16 @@
 #include "test_config.h"
 #include "TextStream.h"
 #include "tjsScriptBlock.h"
+#include "TVPLog.h"
 
 class TJSConsoleOutputDef final : public iTJSConsoleOutput {
 public:
     void ExceptionPrint(const tjs_char *msg) override {
-        spdlog::get("tjs2")->critical(ttstr{ msg }.AsStdString());
+        TVPLog(TVPLogLevel::Fatal, "tjs2", ttstr{ msg }.AsStdString());
     }
 
     void Print(const tjs_char *msg) override {
-        spdlog::get("tjs2")->info(ttstr{ msg }.AsStdString());
+        TVPLog(TVPLogLevel::Info, "tjs2", ttstr{ msg }.AsStdString());
     }
 } static iTJSConsoleOutputDef{};
 

@@ -14,7 +14,9 @@
 #include <algorithm>
 #include <ctime>
 #include "DebugIntf.h"
+#include "TVPLog.h"
 #include "MsgIntf.h"
+#include "TVPVersion.h"
 #include "StorageIntf.h"
 #include "SysInitIntf.h"
 #include "SysInitImpl.h"
@@ -395,6 +397,11 @@ void TVPAddLog(const ttstr &line, bool appendtoimportant) {
 
     if(TVPLoggingToFile)
         TVPLogStreamHolder.Log(buf);
+
+    if(appendtoimportant)
+        G_EngineLog.warn(line.AsStdString());
+    else
+        G_EngineLog.info(line.AsStdString());
 }
 
 //---------------------------------------------------------------------------
@@ -808,13 +815,13 @@ iTJSConsoleOutput *TVPGetTJS2DumpOutputGateway() {
 }
 //---------------------------------------------------------------------------
 
-/*
 //---------------------------------------------------------------------------
-// on-error hook
+// Register important-log append hook for TVPGetAboutString (core_msg).
 //---------------------------------------------------------------------------
-void TVPOnErrorHook()
-{
-        if(TVPMainForm) TVPMainForm->NotifySystemError();
-}
-//---------------------------------------------------------------------------
-*/
+namespace {
+    struct TVPAboutLogAppenderInstaller {
+        TVPAboutLogAppenderInstaller() {
+            TVPSetAboutLogAppender(TVPGetImportantLog);
+        }
+    } TVPAboutLogAppenderInstallerInstance;
+} // namespace

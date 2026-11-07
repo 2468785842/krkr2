@@ -6,9 +6,8 @@ set(IO_SOURCE_FILES
     ${IO_PATH}/IFileBackend.cpp
     ${IO_PATH}/FileBackendRegistry.cpp
     ${IO_PATH}/LocalFileStream.cpp
-    ${IO_PATH}/StdFileBackend.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${IO_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${IO_PATH})
-target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 PRIVATE core_msg)
+target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 core_msg)

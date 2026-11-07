@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.19)
+project(android_text_contracts LANGUAGES CXX)
+get_filename_component(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../.." ABSOLUTE)
+add_subdirectory("${REPO_ROOT}/cpp/core/input" core_input)
+add_library(android_text_contracts SHARED JniTextTest.cpp)
+target_link_libraries(android_text_contracts PRIVATE core_input)
+target_include_directories(android_text_contracts PRIVATE "${REPO_ROOT}/platforms/android/cpp")

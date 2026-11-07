@@ -10,7 +10,7 @@ import android.view.inputmethod.InputConnection;
  * pan&scan region
  */
 public class DummyEdit extends View implements View.OnKeyListener {
-    InputConnection ic;
+    SDLInputConnection ic;
 
     public DummyEdit(Context context) {
         super(context);
@@ -27,14 +27,7 @@ public class DummyEdit extends View implements View.OnKeyListener {
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
 
-        // This handles the hardware keyboard input
-        if (event.isPrintingKey()) {
-            if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                ic.commitText(String.valueOf((char) event.getUnicodeChar()), 1);
-            }
-            return true;
-        }
-        return false;
+        return ic != null && ic.handleKeyEvent(event);
     }
 
     //
@@ -57,7 +50,17 @@ public class DummyEdit extends View implements View.OnKeyListener {
 
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-        ic = new SDLInputConnection(this, true);
+        ic = new SDLInputConnection(this, true, new SDLInputConnection.Sink() {
+            @Override
+            public void commitText(String text, int newCursorPosition) {
+                KR2Activity.nativeCommitText(text, newCursorPosition);
+            }
+
+            @Override
+            public boolean keyAction(int keyCode, boolean pressed) {
+                return KR2Activity.nativeKeyAction(keyCode, pressed);
+            }
+        });
 
         outAttrs.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI | 33554432 /* API 11: EditorInfo.IME_FLAG_NO_FULLSCREEN */;
 

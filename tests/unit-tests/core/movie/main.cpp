@@ -4,12 +4,17 @@
 
 #include <catch2/catch_session.hpp>
 
-#include <spdlog/sinks/stdout_color_sinks.h>
+#include "log/TVPInitLog.h"
+#include "tjsString.h"
+
+// This initialization-only host has no engine locale manager. Like the
+// standalone TJS tests, preserve the message key instead of a window backend.
+TJS::ttstr TVPGetMessageByLocale(const std::string &key) {
+    return TJS::ttstr(key);
+}
 
 int main(int argc, char *argv[]) {
-
-    static auto core_logger = spdlog::stdout_color_mt("core");
-    static auto tjs2_logger = spdlog::stdout_color_mt("tjs2");
+    TVPInitLogging();
 
     int result = Catch::Session().run(argc, argv);
 

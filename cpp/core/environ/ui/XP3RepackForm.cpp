@@ -234,14 +234,17 @@ TVPXP3RepackFileListForm::~TVPXP3RepackFileListForm() {
 
 void TVPXP3RepackFileListForm::bindBodyController(const Node *allNodes) {
     LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
-    const auto btnList = allNodes->getChildByName<ui::ScrollView *>("btn_list");
+    Node *root = const_cast<Node *>(allNodes);
+    const auto btnList =
+        static_cast<ui::ScrollView *>(findNamedNode(root, "btn_list"));
     const cocos2d::Size containerSize = btnList->getContentSize();
     btnList->setInnerContainerSize(containerSize);
-    const auto btnCell = allNodes->getChildByName<Widget *>("btn_cell");
-    const auto btn = allNodes->getChildByName<Button *>("btn");
+    const auto btnCell = static_cast<Widget *>(findNamedNode(root, "btn_cell"));
+    const auto btn = static_cast<Button *>(findNamedNode(root, "btn"));
     constexpr int nButton = 2;
 
-    locmgr->initText(allNodes->getChildByName<Text *>("title"), "XP3 Repack");
+    locmgr->initText(static_cast<Text *>(findNamedNode(root, "title")),
+                     "XP3 Repack");
 
     btn->setTitleText(locmgr->GetText("start"));
     btn->addClickEventListener(
@@ -256,15 +259,15 @@ void TVPXP3RepackFileListForm::bindBodyController(const Node *allNodes) {
 
     btn->removeFromParent();
 
-    ListViewFiles = allNodes->getChildByName<ListView *>("list_2");
-    ListViewPref = allNodes->getChildByName<ListView *>("list_1");
+    ListViewFiles = static_cast<ListView *>(findNamedNode(root, "list_2"));
+    ListViewPref = static_cast<ListView *>(findNamedNode(root, "list_1"));
 }
 
 TVPXP3RepackFileListForm *
 TVPXP3RepackFileListForm::show(std::vector<std::string> &filelist,
                                const std::string &dir) {
     auto *form = new TVPXP3RepackFileListForm;
-    form->initFromFile(Csd::createCheckListDialog());
+    form->initUILayout(Csd::createCheckListDialog);
     form->initData(filelist, dir);
     TVPMainScene::GetInstance()->pushUIForm(form, TVPMainScene::eEnterAniNone);
     return form;

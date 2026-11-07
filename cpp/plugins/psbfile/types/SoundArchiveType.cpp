@@ -5,10 +5,9 @@
 #include "../PSBFile.h"
 #include "SoundArchiveType.h"
 
+#include "log/TVPLog.h"
+
 namespace PSB {
-
-#define LOGGER spdlog::get("plugin")
-
     bool SoundArchiveType::isThisType(const PSBFile &psb) {
         const auto objects = psb.getObjects();
         if(psb.getObjects() == nullptr) {
@@ -16,16 +15,17 @@ namespace PSB {
         }
 
         auto fdId = objects->find("id");
+        if(fdId == objects->end())
+            return false;
         auto str = std::dynamic_pointer_cast<PSBString>(fdId->second);
-        return fdId != objects->end() && str != nullptr &&
-            str->value == "sound_archive";
+        return str != nullptr && str->value == "sound_archive";
     }
 
     std::vector<std::unique_ptr<IResourceMetadata>>
     SoundArchiveType::collectResources(const PSBFile &psb, bool deDuplication) {
         std::vector<std::unique_ptr<IResourceMetadata>> resourceList;
         // TODO:
-        LOGGER->critical("TODO: SoundArchiveType::collectResources(...)");
+        G_PluginLog.critical("TODO: SoundArchiveType::collectResources(...)");
         return resourceList;
     }
 } // namespace PSB

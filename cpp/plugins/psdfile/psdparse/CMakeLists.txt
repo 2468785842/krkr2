@@ -15,5 +15,5 @@ add_library(${PROJECT_NAME} STATIC
 find_package(Boost COMPONENTS phoenix spirit iostreams REQUIRED NO_MODULE)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-	krkr2plugin Boost::phoenix Boost::spirit Boost::iostreams
+	krkr2plugin_api Boost::phoenix Boost::spirit Boost::iostreams
 )

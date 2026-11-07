@@ -13,6 +13,8 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
 
 **语言 / Language**: [中文](README_CN.md) | English
 
+Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](docs/README.md) · [Architecture](docs/architecture.md) · [Build and validation](docs/guides/building.md) · [Backend modernization](.agents/notes/proposed/architecture/2026-11-03-backend-modernization.md). These developer guides are maintained in Chinese.
+
 ---
 
 ## KrKr2 Emulator
@@ -27,7 +29,7 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
     - [Build Steps](#build-steps)
   - [Executable Location](#executable-location)
   - [Code Formatting](#code-formatting)
-  - [Supported Games](#supported-games)
+  - [Game Validation](#game-validation)
   - [Plugin Resources](#plugin-resources)
   - [License](#license)
 
@@ -58,7 +60,6 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
   - [JDK@17](https://jdk.java.net/archive/)
   - `bison@3.8.2+`
   - `python3`
-  - `NASM@latest`
   - `YASM@latest`
 - **Windows**:
   - [ninja@latest](https://github.com/ninja-build/ninja/releases)
@@ -67,7 +68,7 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
   - [cmake@3.31.1+](https://cmake.org/download/)
   - [winflexbison@2.5.25](https://github.com/lexxmark/winflexbison)
   - `python3`
-  - `NASM@latest`
+  - `YASM@latest`
 - **Linux**:
   - [ninja@latest](https://github.com/ninja-build/ninja/releases)
   - `GCC`
@@ -75,7 +76,6 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
   - [cmake@3.31.1+](https://cmake.org/download/)
   - `bison@3.8.2+`
   - `python3`
-  - `NASM@latest`
   - `YASM@latest`
 - **MacOS**:
   - Xcode
@@ -84,7 +84,6 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
   - [cmake@3.31.1+](https://cmake.org/download/)
   - `bison@3.8.2+`
   - `python3`
-  - `NASM@latest`
   - `YASM@latest`
 
 ---
@@ -95,8 +94,8 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
 
 - **Android**:
   - `VCPKG_ROOT=/path/to/vcpkg`
-  - `ANDROID_SDK=/path/to/androidsdk`
-  - `ANDROID_NDK=/path/to/androidndk`
+  - `ANDROID_HOME=/path/to/androidsdk`
+  - `ANDROID_NDK=/path/to/androidsdk/ndk/28.0.13004108`
 - **Windows**:
   - `VCPKG_ROOT=D:/vcpkg`
   - Add `winflexbison` path to `PATH`.
@@ -114,7 +113,7 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
   ./platforms/android/gradlew -p ./platforms/android assembleDebug
   ```
 
-  > If you encounter `glib` installation issues, see [FAQ#安装glib失败](./docs/FAQ.md#安装glib失败)
+  > For older `glib` installation failures, see the [historical investigation](.agents/notes/proposed/bug-fix/2026-11-03-android-glib-install-path.md#安装glib失败); confirm the current tool version and error first.
 
 * **Windows**:
 
@@ -170,9 +169,9 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
 
 ---
 
-## Supported Games
+## Game Validation
 
-* See [games list](./docs/support_games.txt)
+See [local samples and validation limits](docs/reference/game-compatibility.md).
 
 ---
 
@@ -184,6 +183,6 @@ It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriK
 
 ## License
 
-MIT License. See [LICENSE](./LICENSE) for details.
+MIT License. See [LICENSE](LICENSE) for details.
 
 ---

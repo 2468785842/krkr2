@@ -1,0 +1,84 @@
+// Self-authored focus fixture. No commercial scripts or assets.
+global.events = [];
+global.stage = "setup";
+global.record = function(text) {
+    events.add(text);
+    events.save(System.exePath + "interaction-events.txt");
+};
+global.callback = function(event) {
+    var a = System.getKeyState(65, true);
+    var left = System.getKeyState(1, true);
+    record("focus:" + stage + ":" + event + ":" + string a + ":" + string left);
+};
+System.onActivate = function() {
+    if(stage != "setup" && stage != "done") record("lifecycle:activate");
+};
+System.onDeactivate = function() {
+    if(stage != "setup" && stage != "done") record("lifecycle:deactivate");
+};
+class FocusWindow extends Window {
+    var pointerHeld = false;
+    function FocusWindow() {
+        super.Window();
+        caption = "KrKr2 native focus contract";
+        setSize(640, 480);
+        visible = true;
+    }
+    function onKeyDown(key, shift) { callback("key-down:" + string key); }
+    function onKeyUp(key, shift) { callback("key-up:" + string key); }
+    function onMouseDown(x, y, button, shift) {
+        pointerHeld = true;
+        callback("mouse-down:" + string button);
+    }
+    function onMouseUp(x, y, button, shift) {
+        pointerHeld = false;
+        callback("mouse-up:" + string button);
+    }
+    function onClick(x, y) { callback("click"); }
+}
+global.win = new FocusWindow();
+global.primary = new Layer(win, null);
+primary.setSize(640, 480);
+primary.fillRect(0, 0, 640, 480, 0xff304050);
+primary.visible = true;
+global.checkReleased = function() {
+    if(System.getKeyState(65, true) || System.getKeyState(1, true) || win.pointerHeld)
+        throw new Exception("Focus cancellation left input pressed");
+};
+global.lastCommand = "";
+global.driver = new Timer(function() {
+    try {
+        if(!Storages.isExistentStorage(System.exePath + "interaction-command.txt")) return;
+        var command = [];
+        command.load(System.exePath + "interaction-command.txt");
+        if(!command.count || command[0] == lastCommand) return;
+        lastCommand = command[0];
+        record("command:" + lastCommand);
+        if(lastCommand == "held") {
+            stage = "held";
+            record("state:held");
+        } else if(lastCommand == "unfocused" || lastCommand == "unfocused-check") {
+            stage = "unfocused";
+            checkReleased();
+            record("state:" + lastCommand);
+        } else if(lastCommand == "recover") {
+            stage = "recovered";
+            checkReleased();
+            record("state:recovered-ready");
+        } else if(lastCommand == "recovered-check") {
+            checkReleased();
+            record("state:recovered-empty");
+        } else if(lastCommand == "finish") {
+            checkReleased();
+            stage = "done";
+            record("fixture-finished");
+            System.exit();
+        }
+    } catch(e) {
+        record("error:" + e.message);
+        driver.enabled = false;
+    }
+}, "");
+driver.interval = 150;
+driver.enabled = true;
+record("ready");

@@ -12,6 +12,8 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 
 **语言 / Language**: 中文 | [English](README.md)
 
+开发与 AI 协作入口：[开发约定](AGENTS.md) · [文档索引](docs/README.md) · [当前架构](docs/architecture.md) · [构建与验证](docs/guides/building.md) · [后端精简路线](.agents/notes/proposed/architecture/2026-11-03-backend-modernization.md)。
+
 ## 目录
 
 - [KrKr2 模拟器](#krkr2-模拟器)
@@ -24,7 +26,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - [可执行文件位置](#可执行文件位置)
   - [文本脚本回归测试](#文本脚本回归测试)
   - [代码格式化](#代码格式化)
-  - [支持的游戏列表](#支持的游戏列表)
+  - [游戏验证范围](#游戏验证范围)
   - [插件资源](#插件资源)
   - [许可证](#许可证)
 
@@ -51,7 +53,6 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - [JDK@17](https://jdk.java.net/archive/)
   - `bison@3.8.2+`
   - `python3`
-  - `NASM@latest`
   - `YASM@latest`
 - **Windows**:
   - [ninja@latest](https://github.com/ninja-build/ninja/releases)
@@ -60,7 +61,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - [cmake@3.31.1+](https://cmake.org/download/)
   - [winflexbison@2.5.25](https://github.com/lexxmark/winflexbison)
   - `python3`
-  - `NASM@latest`
+  - `YASM@latest`
 - **Linux**:
   - [ninja@latest](https://github.com/ninja-build/ninja/releases)
   - `GCC`
@@ -68,7 +69,6 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - [cmake@3.31.1+](https://cmake.org/download/)
   - `bison@3.8.2+`
   - `python3`
-  - `NASM@latest`
   - `YASM@latest`
 - **MacOS**:
   - Xcode
@@ -77,7 +77,6 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
   - [cmake@3.31.1+](https://cmake.org/download/)
   - `bison@3.8.2+`
   - `python3`
-  - `NASM@latest`
   - `YASM@latest`
 
 ## 编译环境配置
@@ -88,8 +87,8 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 
 - **Android**:
   - `VCPKG_ROOT`: `/path/to/vcpkg`
-  - `ANDROID_SDK`: `/path/to/androidsdk`
-  - `ANDROID_NDK`: `/path/to/androidndk`
+  - `ANDROID_HOME`: `/path/to/androidsdk`
+  - `ANDROID_NDK`: `/path/to/androidsdk/ndk/28.0.13004108`
 - **Windows**:
   - `VCPKG_ROOT`: `D:/vcpkg`（注意使用正斜杠 `/` 或双反斜杠 `\\`）
   - `bison`: 将 `winflexbison` 的路径添加到 `PATH` 环境变量中。
@@ -105,7 +104,7 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 
 - **Android**:
   - 运行: `./platforms/android/gradlew -p ./platforms/android assembleDebug`
-> 如果遇到`glib`无法安装查看[FAQ#安装glib失败](./docs/FAQ.md#安装glib失败)
+> 旧版 `glib` 安装问题可参考[历史排错记录](.agents/notes/proposed/bug-fix/2026-11-03-android-glib-install-path.md#安装glib失败)，先核对当前工具版本与实际错误。
   
 - **Windows**:
   - 运行: `./scripts/build-windows.bat`
@@ -175,8 +174,9 @@ LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a \
     ForEach-Object { clang-format -i --verbose $_.FullName }
     ```
 
-## 支持的游戏列表
-- [games](./docs/support_games.txt)
+## 游戏验证范围
+
+见[本地样本与验证边界](docs/reference/game-compatibility.md)。
 
 ## 插件资源
 
@@ -184,4 +184,4 @@ LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a \
 
 ## 许可证
 
-此项目遵循 MIT 许可证。详细信息请参阅 [LICENSE](./LICENSE) 文件。
+此项目遵循 MIT 许可证。详细信息请参阅 [LICENSE](LICENSE) 文件。

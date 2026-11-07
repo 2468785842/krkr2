@@ -1,0 +1,54 @@
+// Prototype globals, not the production Window/Layer/System API.
+var windowWidth = 640, windowHeight = 480;
+var windowCaption = "KrKr2 SDL3 / TJS experiment";
+var backgroundColor = 0x203040;
+var rectangleColor = 0xd08030;
+var rectangleX = 80, rectangleY = 100, rectangleWidth = 480, rectangleHeight = 280;
+var keyDownCount = 0, keyUpCount = 0, closeCount = 0;
+var focusLossCount = 0, focusGainCount = 0;
+var modifierDownCount = 0, modifierUpCount = 0;
+
+// This fixture isolates the keyboard path; mouse checks have their own script.
+function onPointer(kind, x, y, button, shift, current, pending, wheelX, wheelY, synthetic) {}
+
+function onKey(key, down, current, pending, shift) {
+    if(key == 16 || key == 17 || key == 18) {
+        if(current != down || pending)
+            throw new Exception("Unexpected modifier query state");
+        if(down) ++modifierDownCount; else ++modifierUpCount;
+        return;
+    }
+    if(key != 65) return;
+    if(down) {
+        if(!current || pending) throw new Exception("Unexpected down query state");
+        ++keyDownCount;
+        rectangleColor = 0x30c070;
+    } else {
+        if(current || pending) throw new Exception("Unexpected up query state");
+        ++keyUpCount;
+        rectangleX = 120;
+        rectangleWidth = 400;
+    }
+}
+
+function onFocus(focused) {
+    if(focused) {
+        ++focusGainCount;
+        backgroundColor = 0x203040;
+    } else {
+        if(keyUpCount != keyDownCount || modifierUpCount != modifierDownCount)
+            throw new Exception("Focus lost before held keys were released");
+        ++focusLossCount;
+        backgroundColor = 0x102030;
+        rectangleColor = 0xd08030;
+    }
+}
+
+function onCloseQuery() {
+    ++closeCount;
+    if(closeCount == 1) {
+        backgroundColor = 0x403020;
+        return false;
+    }
+    return true;
+}

@@ -2,9 +2,10 @@
 
 #include <limits>
 #include <string>
+#include <string_view>
 #include <vector>
 
-#include <boost/locale.hpp>
+#include <boost/locale/conversion.hpp>
 
 namespace PSB {
 

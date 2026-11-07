@@ -2,7 +2,7 @@
 #include <windows.h>
 #endif
 
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 #include <thread>
 #include "krmovie.h"
 
@@ -12,7 +12,7 @@ extern "C" {
 #include "libavfilter/avfilter.h"
 }
 
-#include <mutex>
+#include "krffmpeg.h"
 #include "MsgIntf.h"
 #include "StorageIntf.h"
 #include "VideoOvlImpl.h"
@@ -20,47 +20,6 @@ extern "C" {
 #include "KRMovieLayer.h"
 
 extern std::thread::id TVPMainThreadID;
-
-static int lockmgr(void **arg, AVLockOp op) {
-    auto **mtx = (std::mutex **)arg;
-    switch(op) {
-        case AV_LOCK_CREATE:
-            *mtx = new std::mutex();
-            if(!*mtx)
-                return 1;
-            break;
-        case AV_LOCK_OBTAIN:
-            (*mtx)->lock();
-            break;
-        case AV_LOCK_RELEASE:
-            (*mtx)->unlock();
-            break;
-        case AV_LOCK_DESTROY:
-            delete *mtx;
-            break;
-        default:
-            return 1;
-    }
-    return 0;
-}
-
-static bool FFInitilalized = false;
-
-void TVPInitLibAVCodec() {
-    if(!FFInitilalized) {
-        /* register all codecs, demux and protocols */
-        if(av_lockmgr_register(lockmgr)) {
-            TVPThrowExceptionMessage(
-                TJS_W("Could not initialize lock manager!"));
-        }
-        avcodec_register_all();
-        av_register_all();
-        avfilter_register_all();
-        avformat_network_init();
-        //	av_log_set_callback(ff_avutil_log);
-        FFInitilalized = true;
-    }
-}
 
 void GetVideoOverlayObject(tTJSNI_VideoOverlay *callbackwin, IStream *stream,
                            const tjs_char *streamname, const tjs_char *type,
@@ -124,12 +83,12 @@ bool TVPCheckIsVideoFile(const char *uri) {
     try {
         tTJSBinaryStream *rawStream = TVPCreateStream(uri, TJS_BS_READ);
         if(!rawStream) {
-            spdlog::error("TVPCreateStream returned nullptr for {}", uri);
+            G_CoreLog.error("TVPCreateStream returned nullptr for {}", uri);
             return false;
         }
         stream.reset(rawStream);
     } catch(eTJSError &e) {
-        spdlog::error("Error opening video file: {}", e.what());
+        G_CoreLog.error("Error opening video file: {}", e.what());
         return false;
     }
 

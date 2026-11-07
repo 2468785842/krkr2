@@ -11,6 +11,8 @@
 #ifndef tjsInterCodeGenH
 #define tjsInterCodeGenH
 
+#include <functional>
+
 #include <vector>
 #include <stack>
 #include <list>

@@ -2,6 +2,7 @@
 #define _ncbind_hpp_
 
 #include "tjsCommHead.h"
+#include <set>
 #include "StorageImpl.h"
 #include "tjsNative.h"
 #include "ScriptMgnIntf.h"

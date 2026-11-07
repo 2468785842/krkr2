@@ -27,7 +27,6 @@ using namespace cocos2d::ui;
 
 extern std::thread::id TVPMainThreadID;
 
-const char *const FileName_Cell = "ui/FileItem.csb";
 static TVPListForm *_listform;
 #define MOVE_INCH (7.0f / 160.0f)
 static const std::string str_long_press("long_press");
@@ -174,10 +173,6 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
     // fill fullpath
     for(auto &it : CurrentDirList) {
         it.FullPath = path + "/" + it.NameForDisplay;
-#ifdef _DEBUG
-        spdlog::info("Found file: FullPath {}, NameForDisplay {}, IsDir {}",
-                     it.FullPath, it.NameForDisplay, it.IsDir);
-#endif
     }
 
     std::sort(CurrentDirList.begin(), CurrentDirList.end());
@@ -194,7 +189,7 @@ void TVPBaseFileSelectorForm::ListDir(std::string path) {
     if(!_selectedFileIndex.empty()) {
         _selectedFileIndex.clear();
         updateFileMenu();
-    } else if(_clipboardForFileManager.size()) {
+    } else if(!_clipboardForFileManager.empty()) {
         updateFileMenu();
     }
 }
@@ -212,8 +207,10 @@ void TVPBaseFileSelectorForm::onCellLongPress(int idx) {
             return;
         }
         if(!_fileOperateMenu) {
-            CSBReader reader;
-            _fileOperateMenu = reader.Load("ui/FileManageMenu.csb");
+            const float scale = TVPMainScene::GetInstance()->getUIScale();
+            const auto uiSize = TVPMainScene::GetInstance()->getUINodeSize();
+            _fileOperateMenu = Csd::createFileManageMenu(uiSize, scale);
+            NodeMap reader("", _fileOperateMenu);
             LocaleConfigManager::GetInstance()->initText(
                 reader.findController<Text>("title"));
             LocaleConfigManager::GetInstance()->initText(
@@ -292,10 +289,10 @@ void TVPBaseFileSelectorForm::onCellLongPress(int idx) {
                               this, std::placeholders::_1));
             }
             _fileOperateMenulist->removeAllChildrenWithCleanup(false);
-            float scale = 1.5;
-            _fileOperateMenu->setScale(1 / scale);
+            const float menuLayoutScale = 1.5f;
+            _fileOperateMenu->setScale(1 / menuLayoutScale);
             _fileOperateMenu->setContentSize(
-                _fileOperateMenuNode->getContentSize() * scale);
+                _fileOperateMenuNode->getContentSize() * menuLayoutScale);
             _fileOperateMenu->setPosition(_fileOperateMenuNode->getPosition());
             _fileOperateMenuNode->getParent()->addChild(_fileOperateMenu);
             ui::Helper::doLayout(_fileOperateMenu);
@@ -361,10 +358,11 @@ void TVPBaseFileSelectorForm::onTitleClicked(cocos2d::Ref *owner) {
         TVPMainScene::GetInstance()->popUIForm(nullptr,
                                                TVPMainScene::eLeaveToBottom);
     };
+    const float scale = TVPMainScene::GetInstance()->getUIScale();
+    const float listW = TVPMainScene::GetInstance()->getUINodeSize().width;
     for(const std::string &path : paths) {
-        CSBReader reader;
-        auto *cell = dynamic_cast<Widget *>(
-            reader.Load("ui/ListItem.csb")->getChildByName("item"));
+        Widget *cell = Csd::createListItem(cocos2d::Size(listW, 0), scale);
+        NodeMap reader("", cell);
         Button *item = dynamic_cast<Button *>(reader.findController("item"));
         item->setCallbackName(path);
         item->setTitleText(path);
@@ -852,8 +850,8 @@ void TVPListForm::initFromInfo(
         TVPMainScene::GetInstance()->getUINodeSize() / scale;
     setScale(scale);
     setContentSize(sceneSize);
-    CSBReader reader;
-    _root = reader.Load("ui/ListView.csb");
+    _root = Csd::createListViewPopup(sceneSize, 1);
+    NodeMap reader("", _root);
     ListView *listview =
         dynamic_cast<ListView *>(reader.findController("list"));
     float height = 10;
@@ -954,17 +952,19 @@ void TVPFileSelectorForm::initFromPath(const std::string &initfilename,
                                        const std::string &initdir,
                                        bool issave) {
     _isSaveMode = issave;
-    this->initFromFile(Csd::createNaviBar(),
-                       Csd::createTableView(cocos2d::Size(0, 0), 1),
-                       Csd::createBottomBarTextInput());
+    this->initUILayout(Csd::createNaviBar, Csd::createTableView,
+                       Csd::createBottomBarTextInput);
     _input->setString(initfilename);
     ListDir(initdir); // getCurrentDir()
 }
 
 void TVPFileSelectorForm::bindFooterController(const Node *allNodes) {
-    _buttonOK = static_cast<Button *>(allNodes->getChildByName("ok"));
-    _buttonCancel = static_cast<Button *>(allNodes->getChildByName("cancel"));
-    _input = static_cast<TextField *>(allNodes->getChildByName("input"));
+    _buttonOK = static_cast<Button *>(
+        findNamedNode(const_cast<Node *>(allNodes), "ok"));
+    _buttonCancel = static_cast<Button *>(
+        findNamedNode(const_cast<Node *>(allNodes), "cancel"));
+    _input = static_cast<TextField *>(
+        findNamedNode(const_cast<Node *>(allNodes), "input"));
 
     LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();
     localeMgr->initText(_buttonOK, "ok");

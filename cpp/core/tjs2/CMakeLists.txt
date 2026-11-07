@@ -3,6 +3,10 @@ project(tjs2)
 
 add_library(${PROJECT_NAME} STATIC)
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:_DEBUG>)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # TJS represents empty strings with null pointers, including inline callers.
+    target_compile_options(${PROJECT_NAME} PUBLIC -fno-delete-null-pointer-checks)
+endif()
 
 set(GEN_CODE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 
@@ -17,7 +21,7 @@ endif()
 #===============================================================#
 #======================= generate parser =======================#
 #===============================================================#
-find_program(BISON_EXECUTABLE NAMES win_bison.exe bison.exe bison)
+find_program(BISON_EXECUTABLE NAMES win_bison.exe bison.exe bison REQUIRED)
 
 set(BISON_FILES
     ${CMAKE_CURRENT_LIST_DIR}/bison/tjs.y
@@ -27,22 +31,25 @@ set(BISON_FILES
 set(PARSE_TAB_CPP_FILES)
 foreach(BISON_FILE ${BISON_FILES})
     get_filename_component(FILE_NAME ${BISON_FILE} NAME_WE)
-
-    execute_process(
-        TIMEOUT 5000
-        COMMAND ${BISON_EXECUTABLE} ${BISON_FILE}
-        WORKING_DIRECTORY ${GEN_CODE_BINARY_DIR}
-        COMMAND_ECHO STDOUT
-    )
+    set(BISON_COMMAND "${BISON_EXECUTABLE}")
+    if(CMAKE_HOST_WIN32)
+        # WinFlexBison 2.5.25 uses non-atomic _tempnam/fopen for m4 files.
+        # Isolate concurrent parsers without serializing the whole build.
+        set(BISON_TEMP_DIR "${GEN_CODE_BINARY_DIR}/tmp/${FILE_NAME}")
+        file(MAKE_DIRECTORY "${BISON_TEMP_DIR}")
+        set(BISON_COMMAND "${CMAKE_COMMAND}" -E env
+            "TMP=${BISON_TEMP_DIR}" "TEMP=${BISON_TEMP_DIR}" "${BISON_EXECUTABLE}")
+    endif()
 
     add_custom_command(
         OUTPUT
             ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.cpp
             ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.hpp
         DEPENDS ${BISON_FILE}
-        COMMAND ${BISON_EXECUTABLE} ${BISON_FILE}
+        COMMAND ${BISON_COMMAND} ${BISON_FILE}
         WORKING_DIRECTORY ${GEN_CODE_BINARY_DIR}
         COMMENT "Generate Bison File From ${BISON_FILE}"
+        VERBATIM
     )
 
     list(APPEND PARSE_TAB_CPP_FILES ${GEN_CODE_BINARY_DIR}/${FILE_NAME}.tab.cpp)
@@ -59,14 +66,18 @@ install(DIRECTORY "${GEN_CODE_BINARY_DIR}/"
 #===============================================================#
 #==================== generate date word =======================#
 #===============================================================#
-find_package(Python3)
-
-execute_process(
-    TIMEOUT 5000
-    COMMAND ${Python3_EXECUTABLE} create_world_map.py ${GEN_CODE_BINARY_DIR}/tjsDateWordMap.inc
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+add_custom_command(
+    OUTPUT ${GEN_CODE_BINARY_DIR}/tjsDateWordMap.inc
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/script/create_world_map.py
+        ${GEN_CODE_BINARY_DIR}/tjsDateWordMap.inc
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/script/create_world_map.py
+        ${CMAKE_CURRENT_LIST_DIR}/script/dp_word_table.txt
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/script
-    COMMAND_ECHO STDOUT
+    VERBATIM
 )
+add_custom_target(GENERATE_TJS_DATE_WORDS DEPENDS ${GEN_CODE_BINARY_DIR}/tjsDateWordMap.inc)
+add_dependencies(${PROJECT_NAME} GENERATE_TJS_DATE_WORDS)
 
 target_sources(${PROJECT_NAME} PRIVATE
     ${PARSE_TAB_CPP_FILES}
@@ -123,12 +134,11 @@ target_include_directories(${PROJECT_NAME}
 
 find_package(Boost COMPONENTS locale REQUIRED NO_MODULE)
 find_package(fmt CONFIG REQUIRED)
-find_package(spdlog CONFIG REQUIRED)
 find_package(oniguruma CONFIG REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
+    core_log
     Boost::locale
     fmt::fmt
-    spdlog::spdlog
     oniguruma::onig
 )

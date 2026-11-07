@@ -1,0 +1,43 @@
+// Test-only hook, installed only into a disposable game copy.
+if(System.getArgument("-krkr-smoke-probe") == "yes") {
+    var __krkrSmokeArguments = [string System.getArgument("-smoke-cli"),
+        string System.getArgument("-smoke-empty"), string System.getArgument("-smoke-flag"),
+        string (System.getArgument("-smoke-empty") !== void)];
+    __krkrSmokeArguments.save(System.exePath + "smoke-arguments.txt");
+}
+global.__krkrSmokeTicks = 0;
+global.__krkrSmokeSnapshotTaken = false;
+global.__krkrSmokeWrite = function(phase) {
+    var lines = ["krkr2-game-smoke-v1", phase, string __krkrSmokeTicks,
+                 string System.getTickCount(), string System.exePath,
+                 string System.dataPath];
+    if(typeof global.kag != "undefined") {
+        lines.add("kag-present");
+        lines.add(string kag.conductor.curStorage);
+        lines.add(string kag.conductor.curLine);
+    }
+    lines.save(System.exePath + "smoke-state.txt");
+};
+__krkrSmokeWrite("startup-returned");
+global.__krkrSmokeTimer = new Timer(function() {
+    try {
+        ++global.__krkrSmokeTicks;
+        __krkrSmokeWrite("heartbeat");
+        if(!__krkrSmokeSnapshotTaken && Storages.isExistentStorage(System.exePath + "smoke-snapshot.request")) {
+            __krkrSmokeSnapshotTaken = true;
+            kag.lockSnapshot();
+            try {
+                kag.snapshotLayer.saveLayerImage(System.exePath + "smoke-frame.bmp", "bmp");
+            } catch(snapshotError) {
+                kag.unlockSnapshot();
+                throw snapshotError;
+            }
+            kag.unlockSnapshot();
+        }
+    } catch(e) {
+        ["krkr2-game-smoke-v1", "error", string e.message].save(System.exePath + "smoke-error.txt");
+        __krkrSmokeTimer.enabled = false;
+    }
+}, "");
+__krkrSmokeTimer.interval = 500;
+__krkrSmokeTimer.enabled = true;

@@ -2,8 +2,7 @@
 #include <vector>
 #include <filesystem>
 #include <fstream>
-#include <spdlog/spdlog.h>
-
+#include <sstream>
 #include "combase.h"
 #include "ncbind.hpp"
 
@@ -15,7 +14,7 @@
 namespace fs = std::filesystem;
 using namespace std;
 
-#define LOGGER spdlog::get("plugin")
+#include "log/TVPLog.h"
 #define NCB_MODULE_NAME TJS_W("fstat.dll")
 
 #ifndef _WIN32
@@ -381,7 +380,10 @@ public:
      */
     static bool deleteFile(const tjs_char *file) {
         bool r = false;
-        if(ttstr filename(TVPGetLocallyAccessibleName(TVPGetPlacedPath(file)));
+        const ttstr placed = TVPGetPlacedPath(file);
+        if(placed.IsEmpty())
+            return false;
+        if(ttstr filename(TVPGetLocallyAccessibleName(placed));
            filename.length()) {
             r = TVPDeleteFile(filename.AsNarrowStdString());
             if(!r) {
@@ -403,7 +405,7 @@ public:
      * 実ファイルがある場合のみ処理されます
      */
     static bool truncateFile(const tjs_char *file, tjs_int size) {
-        LOGGER->warn("truncateFile not impl!! but ret true");
+        G_PluginLog.warn("truncateFile not impl!! but ret true");
         return true;
     }
 
@@ -687,7 +689,7 @@ public:
         }
         dir = TVPNormalizeStorageName(dir);
         TVPGetLocalName(dir);
-        LOGGER->warn("changeDirectory not impl!! but ret true");
+        G_PluginLog.warn("changeDirectory not impl!! but ret true");
         return true;
     }
 
@@ -700,7 +702,7 @@ public:
     static bool setFileAttributes(ttstr filename, DWORD attr) {
         filename = TVPNormalizeStorageName(filename);
         TVPGetLocalName(filename);
-        LOGGER->warn("setFileAttributes not impl!! but ret true");
+        G_PluginLog.warn("setFileAttributes not impl!! but ret true");
         return true;
     }
 
@@ -714,7 +716,7 @@ public:
         filename = TVPNormalizeStorageName(filename);
         TVPGetLocalName(filename);
 
-        LOGGER->warn("resetFileAttributes not impl!! but ret true");
+        G_PluginLog.warn("resetFileAttributes not impl!! but ret true");
         return true;
     }
 
@@ -727,7 +729,7 @@ public:
         filename = TVPNormalizeStorageName(filename);
         TVPGetLocalName(filename);
 
-        LOGGER->warn("getFileAttributes not impl!! ret 0");
+        G_PluginLog.warn("getFileAttributes not impl!! ret 0");
 
         return 0;
     }
@@ -744,7 +746,7 @@ public:
                                      iTJSDispatch2 *objthis) {
         if(numparams < 1)
             return TJS_E_BADPARAMCOUNT;
-        LOGGER->warn("selectDirectory not implement yet");
+        G_PluginLog.warn("selectDirectory not implement yet");
         return TJS_S_OK;
     }
 

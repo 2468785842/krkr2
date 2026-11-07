@@ -84,7 +84,7 @@ public:
 
 protected:
     virtual void initController(const NodeMap &allNodes) = 0;
-    virtual const char *getUIFileName() const = 0;
+    virtual Csd::NodeBuilderFn getNodeBuilder() const = 0;
     cocos2d::ui::Text *_title{};
     cocos2d::Node *BgOdd{}, *BgEven{};
 };
@@ -123,7 +123,7 @@ public:
 
 protected:
     void initController(const NodeMap &allNodes) override;
-    const char *getUIFileName() const override;
+    Csd::NodeBuilderFn getNodeBuilder() const override;
     void onPressStateChangedToNormal() override;
     void onPressStateChangedToPressed() override;
     cocos2d::ui::CheckBox *checkbox;
@@ -145,7 +145,7 @@ public:
     tPreferenceItemSubDir();
 
 protected:
-    const char *getUIFileName() const override;
+    Csd::NodeBuilderFn getNodeBuilder() const override;
 };
 
 class tPreferenceItemConstant : public tPreferenceItemSubDir {
@@ -167,7 +167,7 @@ public:
 
 protected:
     void initController(const NodeMap &allNodes) override;
-    const char *getUIFileName() const override;
+    Csd::NodeBuilderFn getNodeBuilder() const override;
 
     void onPressStateChangedToNormal() override;
     void onPressStateChangedToPressed() override;
@@ -184,7 +184,7 @@ protected:
 class tPreferenceItemFileSelect : public tPreferenceItem<std::string> {
 protected:
     void initController(const NodeMap &allNodes) override;
-    const char *getUIFileName() const override;
+    Csd::NodeBuilderFn getNodeBuilder() const override;
 
     void onPressStateChangedToNormal() override;
     void onPressStateChangedToPressed() override;
@@ -204,7 +204,7 @@ public:
 
 protected:
     void initController(const NodeMap &allNodes) override;
-    const char *getUIFileName() const override;
+    Csd::NodeBuilderFn getNodeBuilder() const override;
 
     void onPressStateChangedToNormal() override;
     void onPressStateChangedToPressed() override;
@@ -264,7 +264,7 @@ public:
 
 protected:
     void initController(const NodeMap &allNodes) override;
-    const char *getUIFileName() const override;
+    Csd::NodeBuilderFn getNodeBuilder() const override;
 
     void onEnter() override;
 
@@ -283,7 +283,7 @@ public:
 
 protected:
     void initController(const NodeMap &allNodes) override;
-    const char *getUIFileName() const override;
+    Csd::NodeBuilderFn getNodeBuilder() const override;
 
     cocos2d::ui::Text *_text{};
     std::function<std::string(float)> _strScaleConv;
@@ -291,7 +291,7 @@ protected:
 
 class tPreferenceItemDeletable : public iPreferenceItem {
     void initController(const NodeMap &allNodes) override;
-    const char *getUIFileName() const override;
+    Csd::NodeBuilderFn getNodeBuilder() const override;
     void onTouchEvent(cocos2d::Ref *, cocos2d::ui::Widget::TouchEventType);
     void walkTouchEvent(cocos2d::ui::Widget *node);
 

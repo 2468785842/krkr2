@@ -9,7 +9,8 @@ using namespace cocos2d::ui;
 
 TVPTipsHelpForm *TVPTipsHelpForm::create() {
     auto *ret = new TVPTipsHelpForm;
-    ret->initFromFile(nullptr, Csd::createAllTips(), nullptr);
+    ret->initUILayout(Csd::NodeBuilderFn{}, Csd::createAllTips,
+                      Csd::NodeBuilderFn{});
     ret->autorelease();
     return ret;
 }

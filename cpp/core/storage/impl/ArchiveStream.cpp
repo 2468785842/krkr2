@@ -1,9 +1,6 @@
 #include "StorageIntf.h"
 
-extern tTJSBinaryStream *TVPGetCachedArchiveHandle(void *pointer,
-                                                   const ttstr &name);
-extern void TVPReleaseCachedArchiveHandle(void *pointer,
-                                          tTJSBinaryStream *stream);
+#include "ArchiveHandleCache.h"
 
 //---------------------------------------------------------------------------
 TArchiveStream::TArchiveStream(tTVPArchive *owner, tjs_uint64 off,

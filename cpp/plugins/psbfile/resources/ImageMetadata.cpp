@@ -1,9 +1,7 @@
 #include "ImageMetadata.h"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/regex.hpp>
-#include <boost/algorithm/string/predicate.hpp>
+#include <charconv>
+#include <string_view>
 
 namespace PSB {
 
@@ -12,26 +10,27 @@ namespace PSB {
         if(texIdx == std::string::npos)
             return false;
 
-        std::string remaining = texName.substr(texIdx);
-
-        boost::smatch match;
-        if(boost::regex_search(remaining, match, boost::regex("\\d+"))) {
-            try {
-                index = boost::lexical_cast<std::uint32_t>(match[0]);
-                return true;
-            } catch(const boost::bad_lexical_cast &) {
-                return false;
-            }
-        }
-
-        return false;
+        const std::string_view remaining(texName.data() + texIdx,
+                                         texName.size() - texIdx);
+        const auto begin = remaining.find_first_of("0123456789");
+        if(begin == std::string_view::npos)
+            return false;
+        auto end = remaining.find_first_not_of("0123456789", begin);
+        if(end == std::string_view::npos)
+            end = remaining.size();
+        const auto result = std::from_chars(remaining.data() + begin,
+                                            remaining.data() + end, index);
+        return result.ec == std::errc{};
     }
 
     std::optional<std::uint32_t>
     ImageMetadata::getTextureIndex(const std::string &texName) {
-        using namespace boost::algorithm;
-        if(ends_with(texName, "tex") || ends_with(texName, "tex#000") ||
-           ends_with(texName, "tex000")) {
+        const auto endsWith = [&texName](std::string_view suffix) {
+            return texName.size() >= suffix.size() &&
+                texName.compare(texName.size() - suffix.size(), suffix.size(),
+                                suffix.data(), suffix.size()) == 0;
+        };
+        if(endsWith("tex") || endsWith("tex#000") || endsWith("tex000")) {
             return 0;
         }
 

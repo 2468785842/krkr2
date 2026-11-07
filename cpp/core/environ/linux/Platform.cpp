@@ -71,7 +71,7 @@ bool TVP_utime(const char *name, time_t modtime) {
 #include <Defer.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <spdlog/spdlog.h>
+#include "TVPLog.h"
 #include "StorageImpl.h"
 #undef st_atime
 #undef st_mtime
@@ -223,14 +223,15 @@ static bool _TVPCreateFolders(const ttstr &folder) {
     if(!TVPCreateFolders(parent))
         return false;
 
-    return !std::filesystem::create_directory(folder.AsStdString().c_str());
+    return std::filesystem::create_directory(folder.AsStdString().c_str()) ||
+        TVPCheckExistentLocalFolder(folder);
 }
 
 int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,
                           const ttstr &prompt,
                           const std::vector<ttstr> &vecButtons) {
     // TODO
-    spdlog::get("core")->warn("linux platform simple input box not implement");
+    G_CoreLog.warn("linux platform simple input box not implement");
     return 0;
 }
 
