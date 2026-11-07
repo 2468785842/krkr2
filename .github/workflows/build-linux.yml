@@ -7,6 +7,7 @@ on:
 env:
   # Fork pull requests cannot read repository secrets: fall back to plain
   # source builds instead of the authenticated GitHub Packages nuget cache.
+  NUGET_CACHE_ENABLED: ${{ secrets.NUGET_API_KEY != '' }}
   VCPKG_BINARY_SOURCES: ${{ secrets.NUGET_API_KEY != '' && format('clear;nuget,https://nuget.pkg.github.com/{0}/index.json,readwrite', github.repository_owner) || 'clear' }}
   VCPKG_INSTALL_OPTIONS: "--debug"
 
@@ -71,7 +72,7 @@ jobs:
           ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.sh
 
       - name: Add NuGet sources
-        if: ${{ secrets.NUGET_API_KEY != '' }}
+        if: env.NUGET_CACHE_ENABLED == 'true'
         shell: bash
         run: |
           mono `${{ env.VCPKG_ROOT }}/vcpkg fetch nuget | tail -n 1` \
