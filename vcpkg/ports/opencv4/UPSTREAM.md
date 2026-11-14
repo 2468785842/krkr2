@@ -10,7 +10,8 @@
 - vcpkg port/补丁保留原文件，工具代码原 MIT 许可见 `LICENSE.vcpkg`；下载的 OpenCV 源码
   及分发许可仍由原 port 的 `vcpkg_install_copyright` 处理（OpenCV Apache-2.0）。
 
-项目增量仅为 `imageops` feature、portfile 对 `imageops-profile.cmake` 的调用和该配置文件。
+项目增量为 `imageops` feature、portfile 对 `imageops-profile.cmake` 的调用和该配置文件；
+局部 `.gitattributes` 沿用上游补丁的 `-text` 规则，防止 Windows checkout 转换补丁字节。
 选择该 feature 时设置 `BUILD_LIST=core,imgproc`，仅允许 core/imageops/openmp，
 冲突功能明确拒绝。未选择 imageops 时保留原 port 的功能选择。
 OpenMP 的平台规则、CPU baseline/dispatch、优化及所有原补丁均沿用固定版本。
