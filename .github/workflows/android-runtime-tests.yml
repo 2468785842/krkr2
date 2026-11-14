@@ -93,6 +93,18 @@ jobs:
           subprocess.run(['cmake', '--build', str(candidates[0]), '--target', 'krkr2',
                           '--parallel', '4', '--', '-k', '0'], check=True)
           PYBUILD
+      - name: Verify installed OpenCV modules
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from scripts.check_opencv_modules import inspect
+          exports = list(Path('out/android/cmake-build').glob('**/vcpkg_installed/*/share/opencv4/OpenCVModules.cmake'))
+          assert len(exports) == 1, exports
+          report = inspect(exports[0].parents[2])
+          Path('out/android-runtime/opencv-profile.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
+          print(json.dumps(report, indent=2))
+          PY
       - name: Build the complete Debug runtime
         run: |
           bash platforms/android/gradlew -p platforms/android --no-daemon --console=plain --max-workers=2 \

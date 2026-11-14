@@ -3,7 +3,7 @@ name: Headless foundation tests
 on:
   push:
     branches: [main, dev]
-    paths: ['cpp/core/**', 'cpp/plugins/**', 'tests/**', 'tools/xp3/**', 'tools/game-smoke/**', 'tools/sdl3-prototype/**', 'scripts/check_core_module_deps.py', 'cmake/**', 'CMakeLists.txt', 'vcpkg*.json', '.github/workflows/headless-tests.yml']
+    paths: ['cpp/core/**', 'cpp/plugins/**', 'tests/**', 'tools/xp3/**', 'tools/game-smoke/**', 'tools/sdl3-prototype/**', 'scripts/check_core_module_deps.py', 'scripts/check_opencv_modules.py', 'scripts/tests/**', 'cmake/**', 'CMakeLists.txt', 'vcpkg*.json', 'vcpkg/**', '.github/workflows/headless-tests.yml']
   pull_request:
     branches: [main, dev]
   workflow_dispatch:
@@ -289,6 +289,8 @@ jobs:
           assert {pathlib.Path(c['file']).name for c in commands} == {'ImageOps.cpp', 'ImageOps_opencv.cpp', 'ImageOpsTest.cpp'}
           print('ImageOps closure verified:', sorted(ports))
           PY
+          python -m unittest discover -s scripts/tests -v
+          python scripts/check_opencv_modules.py out/imageops/vcpkg_installed/${{ matrix.triplet }} --output out/imageops/opencv-profile.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -296,6 +298,9 @@ jobs:
           path: |
             out/imageops/Testing/Temporary/
             out/imageops/compile_commands.json
+            out/imageops/opencv-profile.json
+            out/imageops/vcpkg_installed/${{ matrix.triplet }}/share/opencv4/OpenCVModules.cmake
+            out/imageops/vcpkg_installed/${{ matrix.triplet }}/include/opencv2/opencv_modules.hpp
             out/imageops/vcpkg_installed/vcpkg/status
           if-no-files-found: ignore
 

@@ -45,6 +45,8 @@ cmake --build out/imageops --target imageops_tests
 ctest --test-dir out/imageops -N
 ctest --test-dir out/imageops --output-on-failure --no-tests=error
 python scripts/check_core_module_deps.py
+# Linux 示例；其他平台替换目标 triplet
+python scripts/check_opencv_modules.py out/imageops/vcpkg_installed/x64-linux
 ```
 
 此组合在 project() 之前只选择 tests/imageops 两个 vcpkg features，不选择 foundation/engine。
@@ -53,8 +55,13 @@ Boost.Locale、fmt、spdlog、Oniguruma 已归入默认 foundation feature；原
 imageops 与工具同时开启仍会加入工具的基础依赖。
 
 项目自身的独立目标只编译 `ImageOps.cpp`、`ImageOps_opencv.cpp`、`ImageOpsTest.cpp`；OpenCV 及其 port 所需系统库/host 工具仍存在。
-只链接 core/imgproc 不会自动裁剪 vcpkg port 内的其他 OpenCV 模块构建，本批尚未调整该 port。
-CI 检查实际 vcpkg status 没有 Boost、日志、存储、cocos 与 FFmpeg，并检查这三个编译源。
+engine 与独立 imageops 都选择 overlay port 的 `opencv4[imageops,openmp]`，通过
+`BUILD_LIST=core,imgproc` 限制实际模块构建，关闭默认 features。与 dnn/contrib 等模块 feature
+混用会明确报错；未选择 imageops 则保留上游 port 行为。OpenCV 固定为 4.7.0#6，原补丁、
+CPU 优化及 OpenMP 平台规则保持不变，来源与许可见 [port 说明](../../vcpkg/ports/opencv4/UPSTREAM.md)。
+CI 检查实际 vcpkg status 没有 Boost、日志、存储、cocos 与 FFmpeg，并检查这三个编译源；
+模块检查器核对版本、已安装 features、CMake 导出、模块头及实际库文件，只接受 core/imgproc。
+这是依赖构建范围的裁剪，不代表已移除 OpenCV，也不直接等于最终包体缩小。
 默认 full 测试也登记相同用例；这不代表 full 应用已构建。
 
 ## 像素对照

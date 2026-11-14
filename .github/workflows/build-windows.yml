@@ -81,6 +81,10 @@ jobs:
       - name: Build Windows
         run: cmake --build --preset="Windows Release Build" --target krkr2 cocos_window_tests
 
+      - name: Verify installed OpenCV modules
+        shell: bash
+        run: python scripts/check_opencv_modules.py out/windows/release/vcpkg_installed/x64-windows-static-md --output out/windows/release/opencv-profile.json
+
       - name: Verify Cocos window, pointer, focus and text contracts
         shell: bash
         run: |
@@ -187,6 +191,7 @@ jobs:
           name: windows-build-metadata
           path: |
             out/windows/release/compile_commands.json
+            out/windows/release/opencv-profile.json
             out/windows/release/vcpkg_installed/vcpkg/status
           if-no-files-found: ignore
 

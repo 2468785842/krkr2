@@ -73,6 +73,7 @@
           "name": "opencv4",
           "default-features": false,
           "features": [
+            "imageops",
             "openmp"
           ]
         },
@@ -163,6 +164,7 @@
           "name": "opencv4",
           "default-features": false,
           "features": [
+            "imageops",
             "openmp"
           ]
         }
