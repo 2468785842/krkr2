@@ -62,6 +62,7 @@ CPU 优化及 OpenMP 平台规则保持不变，来源与许可见 [port 说明]
 CI 检查实际 vcpkg status 没有 Boost、日志、存储、cocos 与 FFmpeg，并检查这三个编译源；
 模块检查器核对版本、已安装 features、CMake 导出、模块头及实际库文件，只接受 core/imgproc。
 这是依赖构建范围的裁剪，不代表已移除 OpenCV，也不直接等于最终包体缩小。
+同机安装库体积与像素对照见 [模块裁剪验证记录](../../.agents/notes/implemented/simplification/2026-11-14-opencv-imageops-profile.md)。
 默认 full 测试也登记相同用例；这不代表 full 应用已构建。
 
 ## 像素对照
@@ -83,8 +84,10 @@ REFLECT_101 与原位 blur、仿射/透视/退化点/零边界，以及 float �
 使用原生路径；ARM 原生化留待真机调试（见 [依赖瘦身记录](../../.agents/notes/implemented/simplification/2026-11-01-dependency-slimming.md)）。
 本机像素、sanitizer 与归档回归结果见 [ImageOps 验证记录](../../.agents/notes/implemented/testing/2026-11-02-imageops-validation.md)。
 
-完整软件/OpenGL 消费者构建及脚本画面对照尚待完成；Android 和真实游戏未验证。
-Windows 完整构建的具体进展见实施记录，不把独立图像测试作为完整引擎通过。后续继续按单算法替换；只有所有消费者和依赖声明都移除后，才能删除 OpenCV。
+Windows 完整应用已验证软件/OpenGL 两个渲染器、两个 ImageOps 源的编译与最终链接，
+11 项窗口/坐标/焦点/文本节点契约通过。Android ARM64/x86_64 完整 Debug APK 的构建、
+依赖及 ELF ABI 检查通过；这不替代设备运行、脚本画面和真实游戏验收。
+后续继续按单算法替换；只有所有消费者和依赖声明都移除后，才能删除 OpenCV。
 
 ## 可选微基准
 
