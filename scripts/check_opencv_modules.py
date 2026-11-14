@@ -35,16 +35,16 @@ def inspect(prefix, profile="imageops"):
             or (profile == "imageops" and features - {"core", "imageops", "openmp"})):
         raise ValueError(f"Unexpected OpenCV features for {profile}: {sorted(features)}")
     libraries, covered = [], set()
-    for directory in ("lib", "debug/lib", "bin", "debug/bin"):
-        for path in sorted((prefix / directory).glob("*opencv*")):
-            if not path.is_file() or path.is_symlink() or not re.search(r"\.(?:a|lib|dll|so(?:\.\d+)*|dylib)$", path.name):
-                continue
-            module = next((name for name in modules if re.fullmatch(
-                r"(?:lib)?" + re.escape(name) + r"(?:\d+d?|d)?(?:\.\d+)*\.(?:a|lib|dll|so(?:\.\d+)*|dylib)", path.name)), None)
-            if module is None:
-                raise ValueError(f"Unexported OpenCV library: {path}")
-            covered.add(module)
-            libraries.append({"path": path.relative_to(prefix).as_posix(), "bytes": path.stat().st_size})
+    # Android uses [debug/]sdk/native/staticlibs/<abi>; desktop uses lib/bin.
+    for path in sorted(prefix.rglob("*opencv*")):
+        if not path.is_file() or path.is_symlink() or not re.search(r"\.(?:a|lib|dll|so(?:\.\d+)*|dylib)$", path.name):
+            continue
+        module = next((name for name in modules if re.fullmatch(
+            r"(?:lib)?" + re.escape(name) + r"(?:\d+d?|d)?(?:\.\d+)*\.(?:a|lib|dll|so(?:\.\d+)*|dylib)", path.name)), None)
+        if module is None:
+            raise ValueError(f"Unexported OpenCV library: {path}")
+        covered.add(module)
+        libraries.append({"path": path.relative_to(prefix).as_posix(), "bytes": path.stat().st_size})
     if covered != modules:
         raise ValueError(f"Missing installed OpenCV libraries: {sorted(modules - covered)}")
     return {"profile": profile, "version": version, "features": sorted(features), "modules": sorted(modules),

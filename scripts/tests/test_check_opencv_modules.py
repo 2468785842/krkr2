@@ -43,6 +43,15 @@ class OpenCVModulesTest(unittest.TestCase):
                 self.assertEqual(report["modules"], ["opencv_core", "opencv_imgproc"])
         self.assertEqual(report["library_bytes"], 40)
 
+    def test_android_abi_directories(self):
+        for directory, suffix in (("sdk/native/staticlibs/arm64-v8a", "4.a"),
+                                  ("debug/sdk/native/staticlibs/arm64-v8a", "4d.a")):
+            for module in ("core", "imgproc"):
+                self.write(f"{directory}/libopencv_{module}{suffix}", "data")
+        report = CHECK.inspect(self.prefix)
+        self.assertEqual(len(report["libraries"]), 4)
+        self.assertEqual(report["library_bytes"], 16)
+
     def test_missing_library_is_rejected(self):
         self.write("lib/libopencv_core.a", "data")
         with self.assertRaisesRegex(ValueError, "Missing installed"):
