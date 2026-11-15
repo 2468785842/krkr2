@@ -1,7 +1,7 @@
 # ImageOps 接口与验证
 
 图像算法集中到 `cpp/core/imageops/` 的 `core_imageops` 静态库。公共头只使用 C++17 类型。
-`ImageOps.cpp` 实现公共校验、输出缓冲区与最近邻、线性两种 resize 的像素采样；`ImageOps_opencv.cpp`
+`ImageOps.cpp` 实现公共校验、输出缓冲区与最近邻及 x86 线性 resize 的像素采样；`ImageOps_opencv.cpp`
 保留其余算法（Area/Cubic、blur、warp）和并行行任务调度。最近邻 warp 仍由 OpenCV 执行，不能把 resize 的替换扩展为所有最近邻路径已替换。
 静态库的 PRIVATE 链接仍会进入最终链接闭包，不能据此宣称移除了 OpenCV。
 
@@ -30,6 +30,12 @@
 恰好 2 倍整数缩小走 `ResizeAreaFastVec` fast_mode 的整数 `(和+2)>>2` 半入（不是浮点取偶）；
 恒等请求按复制语义处理。resize 的输入输出应使用独立缓冲区（相同视图恒等操作除外），
 不承诺部分重叠区域行为。
+
+x86 线性路径的放大和四通道任务独享两条水平结果缓存，重复源行只计算一次；缓存存储原公式中
+`S>>4` 的 int16 值（0..32640），保持原来的截断位置。灰度一般缩小保留原逐像素融合循环，
+避免无重复行时的缓存开销。SSE2 处理四通道水平插值、缓存行的垂直 signed mul_hi 合成
+及两种格式的 2x2 缩小，未启用 SSE2 时保留同式标量循环；短行及向量尾部不越过有效像素。
+系数表只读借用到同步任务结束，避免在任务闭包中复制整张表。ARM 分派继续使用 OpenCV。
 
 原生采样仍通过内部同步行任务接口使用 OpenCV 调度，保留旧分片与线程设置；不保留回调及借用像素。
 纯串行大图版本曾测得回退，因此未采用。后续移除 OpenCV 前仍须迁移该调度接口，并完成其他算法替换。
@@ -67,7 +73,7 @@ CI 检查实际 vcpkg status 没有 Boost、日志、存储、cocos 与 FFmpeg�
 
 ## 像素对照
 
-`tests/unit-tests/core/visual/ImageOpsTest.cpp` 有 15 个有效注册用例。测试中直接运行旧 OpenCV 调用作为参考，
+`tests/unit-tests/core/visual/ImageOpsTest.cpp` 有 16 个有效注册用例。测试中直接运行旧 OpenCV 调用作为参考，
 在同一后端/平台逐字节比较输出及 padding/保护区，不跨平台承诺不同 SIMD 实现的输出相同。
 macOS 的固定 vcpkg port 会禁用 OpenMP，测试仍使用相同本机后端对照，不将三平台视为同一并行配置。
 除旧实现对照外，还检查手工确定的最近邻像素、alpha 中间值、独立输出所有权和非法输入无写入。
@@ -82,6 +88,10 @@ REFLECT_101 与原位 blur、仿射/透视/退化点/零边界，以及 float �
 不替代三平台 CI 结论。macOS/ARM64 上 pinned OpenCV 的系数生成与源码标量语义存在 ±LSB 级分歧
 （AppleClang 自动向量化改变浮点求值），Linear 在 ARM 分派回 OpenCV 后端，仅 x86（Windows/Linux）
 使用原生路径；ARM 原生化留待真机调试（见 [依赖瘦身记录](../../.agents/notes/implemented/simplification/2026-11-01-dependency-slimming.md)）。
+线性行缓存与 SSE2 另有 928 组随机像素/尺寸对照，覆盖 1..33 的短行/尾部、重复源行、
+2x2 缩小、Gray8/RGBA8、非紧密 pitch、源缓冲区及目标哨兵保护，请求 1/3 线程。
+本机 Windows 的 SSE2、强制标量和 ASan 均通过同一组 16 用例/43,274 断言；
+跨平台和完整游戏仍需另行验证。
 本机像素、sanitizer 与归档回归结果见 [ImageOps 验证记录](../../.agents/notes/implemented/testing/2026-11-02-imageops-validation.md)。
 
 Windows 完整应用已验证软件/OpenGL 两个渲染器、两个 ImageOps 源的编译与最终链接，
@@ -104,7 +114,10 @@ cmake --build out/imageops --target imageops_benchmark
 每项 3 轮、每轮 100 次，报告每次操作的微秒。包含 warp 的矩阵求解和输出分配，非整帧性能。
 [首批包装报告](../../.agents/reports/imageops-2026-11-02.json) 与[最近邻报告](../../.agents/reports/imageops-nearest-2026-11-02.json)
 记录环境、后端构建及全部样本。最近邻增加 4K→1080p 大图，不以小图单线程结果替代大图并行测试。
-本机 OpenCV 使用 SSE2、禁用 CPU dispatch，不代表发行版 AVX2/GCD 等后端性能；容器样本也有明显波动。
+早期 Linux 样本的 OpenCV 使用 SSE2、禁用 CPU dispatch，不代表发行版 AVX2/GCD 等后端性能；容器样本也有明显波动。
+线性路径的 Windows 同机前后测量见[线性优化报告](../../.agents/reports/imageops-linear-2026-11-15.json)，
+旧原生实现、新原生实现和直接 OpenCV 在同一进程逐次交替运行。该机器的 OpenCV 启用运行时 SIMD
+分派，与早期 Linux SSE2 样本配置不同，不能合并解读。
 这些数据不能推断完整游戏帧率、构建时间或包体收益。
 
 最近邻行为对照来源为 [OpenCV 4.7.0 resize.cpp](https://github.com/opencv/opencv/blob/725e440d278aca07d35a5e8963ef990572b07316/modules/imgproc/src/resize.cpp)

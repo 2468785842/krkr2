@@ -1,0 +1,409 @@
+{
+  "date": "2026-11-15",
+  "baseline_commit": "519f1131e12c6821cfec2e4d01029a4581a490c7",
+  "implementation": "dirty working tree on baseline; ImageOps row caches and SSE2",
+  "host": {
+    "os": "Windows-10-10.0.19045-SP0",
+    "cpu": "Intel Core i5-9300H @ 2.40GHz",
+    "compiler": "MSVC 19.44.35217",
+    "build": "Release /O2 /Ob2 /MD, C++17",
+    "dependencies": "existing out/windows/debug/vcpkg_installed/x64-windows-static-md, OpenCV 4.7.0; OpenMP; SSE3 baseline and runtime dispatch through AVX512_SKX, OpenCL enabled"
+  },
+  "workloads": {
+    "resize_linear_rgba": [
+      320,
+      240,
+      217,
+      157,
+      4
+    ],
+    "linear_gray_up": [
+      320,
+      240,
+      853,
+      641,
+      1
+    ],
+    "linear_gray_down": [
+      1920,
+      1080,
+      853,
+      479,
+      1
+    ],
+    "linear_rgba_up": [
+      640,
+      480,
+      1920,
+      1080,
+      4
+    ],
+    "linear_rgba_down": [
+      3840,
+      2160,
+      1919,
+      1079,
+      4
+    ],
+    "linear_rgba_half": [
+      3840,
+      2160,
+      1920,
+      1080,
+      4
+    ]
+  },
+  "method": {
+    "iterations": 100,
+    "rounds": 3,
+    "comparison": "One process contains the baseline and optimized native implementations and direct OpenCV. Each iteration times all three operations, rotating order by (iteration + round + order) % 3. A warm-up call precedes the rounds. Summary uses medians of three per-operation round means.",
+    "baseline": "ImageOps.cpp extracted from 519f113; removes unchanged detail and ImageBuffer definitions, renames exported Resize to BaselineResize. Both implementations share the unchanged detail validation and OpenCV row scheduler. All code compiled /O2 /Ob2 /MD; shared current ImageOps library and installed Release dependencies.",
+    "limitations": "No concurrent build/test workload. Laptop clocks and scheduling still fluctuate. Earlier separate-process trials are excluded. Microbenchmarks cannot imply game FPS, build time, or package size."
+  },
+  "source_sha256": {
+    "cpp/core/imageops/ImageOps.cpp": "df0a1bc35e120c8a5efe6e58b32a6336904068f4807e3a54847e94cd4580f888",
+    "tests/unit-tests/core/visual/ImageOpsBenchmark.cpp": "9e5f782ab7e882f83a06bd5430314219de66b2957fa57ee469413f9793064020",
+    "out/linear-perf/paired.cpp": "27331a4be43afbd7243165f409434c0612d3455d005b762294545646c59cf0ad",
+    "out/linear-perf/baseline-shared.cpp": "9fee09840688f6a6a07c5105d14ed923111b2797ed437ea4895864610b3cabf6"
+  },
+  "cases": [
+    {
+      "name": "resize_linear_rgba",
+      "threads": 1,
+      "before_us": [
+        549.202,
+        528.267,
+        539.246
+      ],
+      "after_us": [
+        198.899,
+        195.558,
+        189.24
+      ],
+      "direct_us": [
+        132.785,
+        144.508,
+        140.64
+      ]
+    },
+    {
+      "name": "linear_gray_up",
+      "threads": 1,
+      "before_us": [
+        2180.944,
+        1781.37,
+        1736.738
+      ],
+      "after_us": [
+        538.502,
+        414.631,
+        406.305
+      ],
+      "direct_us": [
+        283.772,
+        222.185,
+        227.89
+      ]
+    },
+    {
+      "name": "linear_gray_down",
+      "threads": 1,
+      "before_us": [
+        1382.193,
+        1300.613,
+        1265.339
+      ],
+      "after_us": [
+        1361.403,
+        1276.416,
+        1248.078
+      ],
+      "direct_us": [
+        469.472,
+        387.816,
+        378.933
+      ]
+    },
+    {
+      "name": "linear_rgba_up",
+      "threads": 1,
+      "before_us": [
+        26513.14,
+        26463.154,
+        26021.482
+      ],
+      "after_us": [
+        3331.826,
+        3196.945,
+        2917.323
+      ],
+      "direct_us": [
+        3473.898,
+        3242.579,
+        3092.348
+      ]
+    },
+    {
+      "name": "linear_rgba_down",
+      "threads": 1,
+      "before_us": [
+        33817.877,
+        31740.796,
+        30046.122
+      ],
+      "after_us": [
+        12658.421,
+        11637.737,
+        10697.056
+      ],
+      "direct_us": [
+        8005.972,
+        6927.766,
+        6657.026
+      ]
+    },
+    {
+      "name": "linear_rgba_half",
+      "threads": 1,
+      "before_us": [
+        17097.099,
+        16164.338,
+        15287.852
+      ],
+      "after_us": [
+        3729.619,
+        3564.686,
+        3297.635
+      ],
+      "direct_us": [
+        3651.578,
+        3521.238,
+        3306.803
+      ]
+    },
+    {
+      "name": "resize_linear_rgba",
+      "threads": 3,
+      "before_us": [
+        263.69,
+        277.55,
+        250.541
+      ],
+      "after_us": [
+        106.106,
+        106.084,
+        87.927
+      ],
+      "direct_us": [
+        86.265,
+        94.085,
+        89.329
+      ]
+    },
+    {
+      "name": "linear_gray_up",
+      "threads": 3,
+      "before_us": [
+        737.093,
+        700.28,
+        844.645
+      ],
+      "after_us": [
+        222.259,
+        205.084,
+        224.753
+      ],
+      "direct_us": [
+        136.874,
+        121.238,
+        127.519
+      ]
+    },
+    {
+      "name": "linear_gray_down",
+      "threads": 3,
+      "before_us": [
+        635.03,
+        513.512,
+        513.45
+      ],
+      "after_us": [
+        626.281,
+        523.232,
+        525.983
+      ],
+      "direct_us": [
+        229.37,
+        181.05,
+        183.425
+      ]
+    },
+    {
+      "name": "linear_rgba_up",
+      "threads": 3,
+      "before_us": [
+        9333.583,
+        9567.119,
+        9361.373
+      ],
+      "after_us": [
+        1357.204,
+        1266.133,
+        1273.095
+      ],
+      "direct_us": [
+        1289.648,
+        1168.65,
+        1153.42
+      ]
+    },
+    {
+      "name": "linear_rgba_down",
+      "threads": 3,
+      "before_us": [
+        9698.061,
+        9618.684,
+        9993.495
+      ],
+      "after_us": [
+        3591.654,
+        3470.854,
+        3498.93
+      ],
+      "direct_us": [
+        2559.24,
+        2515.153,
+        2426.208
+      ]
+    },
+    {
+      "name": "linear_rgba_half",
+      "threads": 3,
+      "before_us": [
+        5452.999,
+        5669.372,
+        5538.421
+      ],
+      "after_us": [
+        2018.322,
+        1964.615,
+        2055.841
+      ],
+      "direct_us": [
+        2056.865,
+        2026.7,
+        2053.286
+      ]
+    }
+  ],
+  "summary": [
+    {
+      "name": "resize_linear_rgba",
+      "threads": 1,
+      "before_us": 539.246,
+      "after_us": 195.558,
+      "direct_us": 140.64,
+      "speedup": 2.757,
+      "after_vs_direct": 1.39
+    },
+    {
+      "name": "linear_gray_up",
+      "threads": 1,
+      "before_us": 1781.37,
+      "after_us": 414.631,
+      "direct_us": 227.89,
+      "speedup": 4.296,
+      "after_vs_direct": 1.819
+    },
+    {
+      "name": "linear_gray_down",
+      "threads": 1,
+      "before_us": 1300.613,
+      "after_us": 1276.416,
+      "direct_us": 387.816,
+      "speedup": 1.019,
+      "after_vs_direct": 3.291
+    },
+    {
+      "name": "linear_rgba_up",
+      "threads": 1,
+      "before_us": 26463.154,
+      "after_us": 3196.945,
+      "direct_us": 3242.579,
+      "speedup": 8.278,
+      "after_vs_direct": 0.986
+    },
+    {
+      "name": "linear_rgba_down",
+      "threads": 1,
+      "before_us": 31740.796,
+      "after_us": 11637.737,
+      "direct_us": 6927.766,
+      "speedup": 2.727,
+      "after_vs_direct": 1.68
+    },
+    {
+      "name": "linear_rgba_half",
+      "threads": 1,
+      "before_us": 16164.338,
+      "after_us": 3564.686,
+      "direct_us": 3521.238,
+      "speedup": 4.535,
+      "after_vs_direct": 1.012
+    },
+    {
+      "name": "resize_linear_rgba",
+      "threads": 3,
+      "before_us": 263.69,
+      "after_us": 106.084,
+      "direct_us": 89.329,
+      "speedup": 2.486,
+      "after_vs_direct": 1.188
+    },
+    {
+      "name": "linear_gray_up",
+      "threads": 3,
+      "before_us": 737.093,
+      "after_us": 222.259,
+      "direct_us": 127.519,
+      "speedup": 3.316,
+      "after_vs_direct": 1.743
+    },
+    {
+      "name": "linear_gray_down",
+      "threads": 3,
+      "before_us": 513.512,
+      "after_us": 525.983,
+      "direct_us": 183.425,
+      "speedup": 0.976,
+      "after_vs_direct": 2.868
+    },
+    {
+      "name": "linear_rgba_up",
+      "threads": 3,
+      "before_us": 9361.373,
+      "after_us": 1273.095,
+      "direct_us": 1168.65,
+      "speedup": 7.353,
+      "after_vs_direct": 1.089
+    },
+    {
+      "name": "linear_rgba_down",
+      "threads": 3,
+      "before_us": 9698.061,
+      "after_us": 3498.93,
+      "direct_us": 2515.153,
+      "speedup": 2.772,
+      "after_vs_direct": 1.391
+    },
+    {
+      "name": "linear_rgba_half",
+      "threads": 3,
+      "before_us": 5538.421,
+      "after_us": 2018.322,
+      "direct_us": 2053.286,
+      "speedup": 2.744,
+      "after_vs_direct": 0.983
+    }
+  ]
+}

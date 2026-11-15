@@ -8,6 +8,7 @@
 #include <cmath>
 #include <iterator>
 #include <limits>
+#include <random>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -404,6 +405,58 @@ TEST_CASE("ImageOps native linear matches the pinned OpenCV on wide images "
             }
             REQUIRE(diffCount == 0);
             REQUIRE(source.bytes == original);
+        }
+    }
+}
+
+TEST_CASE(
+    "ImageOps linear row reuse and vector tails match OpenCV across threads",
+    "[imageops]") {
+    struct RestoreThreads {
+        int previous = cv::getNumThreads();
+        ~RestoreThreads() { cv::setNumThreads(previous); }
+    } restore;
+    std::mt19937 random(0x4c494e45);
+    for(int threads : { 1, 3 }) {
+        cv::setNumThreads(threads);
+        for(int channels : { 1, 4 }) {
+            // 每一种短行尾部、单行复制/重复、2x2 快路径及一般升降采样。
+            for(int width = 1; width <= 33; ++width) {
+                for(const auto &shape : { std::array<int, 3>{ 1, 1, 19 },
+                                          { 7, 31, 3 },
+                                          { 23, 5, 47 },
+                                          { width * 2, 14, 7 } }) {
+                    Pixels source(shape[0], shape[1], channels, 17);
+                    for(auto &byte : source.bytes)
+                        byte = static_cast<std::uint8_t>(random());
+                    const auto original = source.bytes;
+                    Pixels actual(width, shape[2], channels, 19),
+                        expected = actual;
+                    auto src = source.mat(), dst = expected.mat();
+                    cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_LINEAR);
+                    Resize(source.view(), actual.view(), Interpolation::Linear);
+                    INFO("threads=" << threads << " channels=" << channels
+                                    << " width=" << width);
+                    REQUIRE(actual.bytes == expected.bytes);
+                    REQUIRE(source.bytes == original);
+                }
+            }
+            for(int sample = 0; sample < 100; ++sample) {
+                const int sw = 1 + random() % 257, sh = 1 + random() % 151;
+                const int dw = 1 + random() % 389, dh = 1 + random() % 263;
+                Pixels source(sw, sh, channels, 17);
+                for(auto &byte : source.bytes)
+                    byte = static_cast<std::uint8_t>(random());
+                const auto original = source.bytes;
+                Pixels actual(dw, dh, channels, 19), expected = actual;
+                auto src = source.mat(), dst = expected.mat();
+                cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_LINEAR);
+                Resize(source.view(), actual.view(), Interpolation::Linear);
+                INFO("threads=" << threads << " channels=" << channels
+                                << " sample=" << sample);
+                REQUIRE(actual.bytes == expected.bytes);
+                REQUIRE(source.bytes == original);
+            }
         }
     }
 }

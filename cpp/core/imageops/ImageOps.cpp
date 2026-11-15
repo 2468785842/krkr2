@@ -7,6 +7,12 @@
 #include <stdexcept>
 #include <vector>
 
+#if defined(__SSE2__) || defined(_M_X64) ||                                    \
+    (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
+#include <emmintrin.h>
+#define TVP_IMAGEOPS_SSE2 1
+#endif
+
 namespace TVPImageOps {
     namespace detail {
         int Channels(PixelFormat format) {
@@ -211,44 +217,190 @@ namespace TVPImageOps {
             }
         };
 
-        // 垂直合成复刻 VResizeLinear<uchar,...> 的 8 位路径：全部输出像素
-        // （含 SIMD 与标量循环）都使用同一公式
-        //   ((S0>>4)*b0 >> 16 + (S1>>4)*b1 >> 16 + 2) >> 2
-        // 行缓冲的 Q11 定点和由 TResizeLinear 精确整数生成，无舍入损失。
+        // 行缓存保存水平 Q11 和右移 4 位的结果，范围 0..32640，恰可用
+        // int16 表示。垂直合成原本就先右移，因此不会提前丢失有效精度。
+        void horizontalLinear(const std::uint8_t *source, short *output,
+                              int width, int sourceWidth, int channels,
+                              const LinearPlan &plan) {
+            const int rowLanes = sourceWidth * channels;
+            int i = 0;
+#ifdef TVP_IMAGEOPS_SSE2
+            if(channels == 4) {
+                const auto zero = _mm_setzero_si128();
+                for(; i < width; i += 4) {
+                    const int sx = plan.offsets[i];
+                    const int next = sx + 4 < rowLanes ? sx + 4 : sx;
+                    std::int32_t left, right;
+                    std::memcpy(&left, source + sx, 4);
+                    std::memcpy(&right, source + next, 4);
+                    const auto a =
+                        _mm_unpacklo_epi8(_mm_cvtsi32_si128(left), zero);
+                    const auto b =
+                        _mm_unpacklo_epi8(_mm_cvtsi32_si128(right), zero);
+                    const auto weights = _mm_set1_epi32(
+                        static_cast<int>(static_cast<unsigned short>(
+                            plan.coefficients[i * 2])) |
+                        (static_cast<int>(plan.coefficients[i * 2 + 1]) << 16));
+                    const auto sum =
+                        _mm_madd_epi16(_mm_unpacklo_epi16(a, b), weights);
+                    const auto packed =
+                        _mm_packs_epi32(_mm_srli_epi32(sum, 4), zero);
+                    _mm_storel_epi64(reinterpret_cast<__m128i *>(output + i),
+                                     packed);
+                }
+            }
+#endif
+            for(; i < width; ++i) {
+                const int sx = plan.offsets[i];
+                const int next = sx + channels < rowLanes ? sx + channels : sx;
+                output[i] = static_cast<short>(
+                    (source[sx] * plan.coefficients[i * 2] +
+                     source[next] * plan.coefficients[i * 2 + 1]) >>
+                    4);
+            }
+        }
+
+        void verticalLinear(const short *top, const short *bottom,
+                            std::uint8_t *output, int width, short b0,
+                            short b1) {
+            int i = 0;
+#ifdef TVP_IMAGEOPS_SSE2
+            const auto beta0 = _mm_set1_epi16(b0), beta1 = _mm_set1_epi16(b1);
+            const auto rounding = _mm_set1_epi16(2);
+            for(; i <= width - 8; i += 8) {
+                const auto a =
+                    _mm_loadu_si128(reinterpret_cast<const __m128i *>(top + i));
+                const auto b = _mm_loadu_si128(
+                    reinterpret_cast<const __m128i *>(bottom + i));
+                // signed mul_hi 与标量算术右移保持相同的负权重舍入。
+                const auto sum = _mm_add_epi16(_mm_mulhi_epi16(a, beta0),
+                                               _mm_mulhi_epi16(b, beta1));
+                const auto result =
+                    _mm_srai_epi16(_mm_add_epi16(sum, rounding), 2);
+                _mm_storel_epi64(reinterpret_cast<__m128i *>(output + i),
+                                 _mm_packus_epi16(result, result));
+            }
+#endif
+            for(; i < width; ++i) {
+                const int sum =
+                    ((top[i] * b0) >> 16) + ((bottom[i] * b1) >> 16);
+                output[i] = satUchar((sum + 2) >> 2);
+            }
+        }
+
         void linearRows(const std::uint8_t *source, std::uint8_t *destination,
                         std::size_t sourcePitch, std::size_t destinationPitch,
                         int width, int sourceWidth, int sourceHeight,
                         int channels, const LinearPlan &planX,
                         const LinearPlan &planY, int first, int last) {
-            const auto *xofs = planX.offsets.data();
-            const auto *ialpha = planX.coefficients.data();
-            const int rowLanes = sourceWidth * channels;
+            // 灰度缩小时没有足够的重复源行抵消缓存和分离两趟循环的成本。
+            // 保留原来的逐像素合成；放大及 RGBA 路径使用下方行缓存。
+            if(channels == 1 &&
+               sourceHeight >= static_cast<int>(planY.offsets.size())) {
+                const auto *xofs = planX.offsets.data();
+                const auto *ialpha = planX.coefficients.data();
+                const int rowLanes = sourceWidth * channels;
+                for(int y = first; y < last; ++y) {
+                    const int row0 = clipIndex(planY.offsets[y], sourceHeight);
+                    const int row1 =
+                        clipIndex(planY.offsets[y] + 1, sourceHeight);
+                    const short b0 = planY.coefficients[y * 2];
+                    const short b1 = planY.coefficients[y * 2 + 1];
+                    const auto *s0 =
+                        source + static_cast<std::size_t>(row0) * sourcePitch;
+                    const auto *s1 =
+                        source + static_cast<std::size_t>(row1) * sourcePitch;
+                    auto *out = destination +
+                        static_cast<std::size_t>(y) * destinationPitch;
+                    for(int idx = 0; idx < width; ++idx) {
+                        const int sx = xofs[idx];
+                        // 边界区 a1 恒为 0，钳制仅用于避免越界读取。
+                        const int next =
+                            sx + channels < rowLanes ? sx + channels : sx;
+                        const short a0 = ialpha[idx * 2],
+                                    a1 = ialpha[idx * 2 + 1];
+                        const std::int32_t left = s0[sx] * a0 + s0[next] * a1;
+                        const std::int32_t right = s1[sx] * a0 + s1[next] * a1;
+                        // 乘积有界：>>(4+16) 前因子不超过 32640*3072，int32
+                        // 不溢出。
+                        const std::int32_t sum = (((left >> 4) * b0) >> 16) +
+                            (((right >> 4) * b1) >> 16);
+                        out[idx] = satUchar((sum + 2) >> 2);
+                    }
+                }
+                return;
+            }
+            // 每个同步任务独享两条行缓存，不保留像素且不在任务之间共享可变状态。
+            std::vector<short> top(width), bottom(width);
+            int topRow = -1, bottomRow = -1;
             for(int y = first; y < last; ++y) {
                 const int row0 = clipIndex(planY.offsets[y], sourceHeight);
                 const int row1 = clipIndex(planY.offsets[y] + 1, sourceHeight);
-                const short b0 = planY.coefficients[y * 2];
-                const short b1 = planY.coefficients[y * 2 + 1];
-                const auto *s0 =
-                    source + static_cast<std::size_t>(row0) * sourcePitch;
-                const auto *s1 =
-                    source + static_cast<std::size_t>(row1) * sourcePitch;
-                auto *out = destination +
-                    static_cast<std::size_t>(y) * destinationPitch;
-                for(int idx = 0; idx < width; ++idx) {
-                    const int sx = xofs[idx];
-                    // 边界区 a1 恒为 0，钳制仅用于避免越界读取。
-                    const int next =
-                        sx + channels < rowLanes ? sx + channels : sx;
-                    const short a0 = ialpha[idx * 2], a1 = ialpha[idx * 2 + 1];
-                    const std::int32_t left = s0[sx] * a0 + s0[next] * a1;
-                    const std::int32_t right = s1[sx] * a0 + s1[next] * a1;
-                    // 乘积有界：>>(4+16) 前因子不超过 32640*3072，int32
-                    // 不溢出。
-                    const std::int32_t sum = (((left >> 4) * b0) >> 16) +
-                        (((right >> 4) * b1) >> 16);
-                    out[idx] = satUchar((sum + 2) >> 2);
+                if(row0 != topRow && row0 == bottomRow) {
+                    top.swap(bottom);
+                    std::swap(topRow, bottomRow);
                 }
+                if(row0 != topRow) {
+                    horizontalLinear(
+                        source + static_cast<std::size_t>(row0) * sourcePitch,
+                        top.data(), width, sourceWidth, channels, planX);
+                    topRow = row0;
+                }
+                if(row1 != row0 && row1 != bottomRow) {
+                    horizontalLinear(
+                        source + static_cast<std::size_t>(row1) * sourcePitch,
+                        bottom.data(), width, sourceWidth, channels, planX);
+                    bottomRow = row1;
+                }
+                verticalLinear(
+                    top.data(), row1 == row0 ? top.data() : bottom.data(),
+                    destination +
+                        static_cast<std::size_t>(y) * destinationPitch,
+                    width, planY.coefficients[y * 2],
+                    planY.coefficients[y * 2 + 1]);
             }
+        }
+
+        int halfLinearVector(const std::uint8_t *top,
+                             const std::uint8_t *bottom, std::uint8_t *out,
+                             int width, int channels) {
+            int x = 0;
+#ifdef TVP_IMAGEOPS_SSE2
+            const auto zero = _mm_setzero_si128();
+            const auto rounding = _mm_set1_epi16(2);
+            for(; x <= width - (channels == 4 ? 2 : 8);
+                x += channels == 4 ? 2 : 8) {
+                const int offset = x * 2 * channels;
+                const auto a = _mm_loadu_si128(
+                    reinterpret_cast<const __m128i *>(top + offset));
+                const auto b = _mm_loadu_si128(
+                    reinterpret_cast<const __m128i *>(bottom + offset));
+                auto low = _mm_add_epi16(_mm_unpacklo_epi8(a, zero),
+                                         _mm_unpacklo_epi8(b, zero));
+                auto high = _mm_add_epi16(_mm_unpackhi_epi8(a, zero),
+                                          _mm_unpackhi_epi8(b, zero));
+                __m128i result;
+                if(channels == 4) {
+                    low = _mm_add_epi16(low, _mm_srli_si128(low, 8));
+                    high = _mm_add_epi16(high, _mm_srli_si128(high, 8));
+                    result = _mm_srli_epi16(
+                        _mm_add_epi16(_mm_unpacklo_epi64(low, high), rounding),
+                        2);
+                } else {
+                    const auto ones = _mm_set1_epi16(1);
+                    const auto round32 = _mm_set1_epi32(2);
+                    low = _mm_srli_epi32(
+                        _mm_add_epi32(_mm_madd_epi16(low, ones), round32), 2);
+                    high = _mm_srli_epi32(
+                        _mm_add_epi32(_mm_madd_epi16(high, ones), round32), 2);
+                    result = _mm_packs_epi32(low, high);
+                }
+                _mm_storel_epi64(
+                    reinterpret_cast<__m128i *>(out + x * channels),
+                    _mm_packus_epi16(result, result));
+            }
+#endif
+            return x;
         }
 
         void resizeLinear(ConstImageView source, ImageView destination) {
@@ -282,7 +434,10 @@ namespace TVPImageOps {
                             const auto *bottom = top + sourcePitch;
                             auto *out = destination.data +
                                 static_cast<std::size_t>(y) * destinationPitch;
-                            for(int dx = 0; dx < destination.width; ++dx) {
+                            for(int dx = halfLinearVector(top, bottom, out,
+                                                          destination.width,
+                                                          channels);
+                                dx < destination.width; ++dx) {
                                 for(int ch = 0; ch < channels; ++ch) {
                                     const int o = dx * 2 * channels + ch;
                                     // OpenCV 的 fast_mode 2x2 用整数 (和+2)>>2
@@ -305,7 +460,7 @@ namespace TVPImageOps {
             detail::ForRows(
                 destination.height,
                 static_cast<std::size_t>(width) * destination.height,
-                [=](int first, int last) {
+                [=, &planX, &planY](int first, int last) {
                     linearRows(source.data, destination.data, sourcePitch,
                                destinationPitch, width, source.width,
                                source.height, detail::Channels(source.format),
