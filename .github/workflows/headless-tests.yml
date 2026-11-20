@@ -48,6 +48,18 @@ jobs:
           cmake --build out/platform --target input_state_tests frame_hook_tests texture_presentation_tests --parallel 4
           ctest --test-dir out/platform -N
           ctest --test-dir out/platform --output-on-failure --no-tests=error
+      - name: Verify native Apple GL header without Cocos
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          c++ -std=c++17 -DGL_SILENCE_DEPRECATION -Icpp/core/visual -x c++ -fsyntax-only - <<'CPP'
+          #include "GLHost.h"
+          #include "ogl/ogl_common.h"
+          void native_gl_header() {
+              GLuint framebuffer = 0;
+              glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+          }
+          CPP
       - name: Verify isolated platform dependency closure
         shell: bash
         run: |

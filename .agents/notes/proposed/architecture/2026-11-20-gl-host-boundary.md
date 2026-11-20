@@ -35,3 +35,7 @@ Android ARM64 完整APK与三平台独立测试。不得将假发重建事件等
 核对 Cocos 3.17.2 EventDispatcher.cpp：removeAllEventListeners 保留内部的
 EVENT_RENDERER_RECREATED，故销毁测试明确使用 removeCustomEventListeners 清除该事件。
 这保留真实 Cocos 事件语义，不把普通监听清理误当作 context 监听已经注销。
+
+移除 Cocos GL 头时发现原本依赖传递定义的 Apple TargetConditionals/OpenGL 扩展头和
+GLES packed-depth-stencil 枚举。ogl_common.h 已直接包含原生系统头并固定标准枚举，
+Headless macOS 额外在不含 Cocos 的条件下编译此头与 framebuffer API；仍不等同完整 macOS 应用验证。
