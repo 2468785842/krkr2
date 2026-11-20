@@ -6,9 +6,8 @@
 #include <set>
 #include <utility>
 #include <vector>
-#include "renderer/CCGLProgram.h"
-#include "renderer/ccGLStateCache.h"
 #include "ogl_common.h"
+#include "GLHost.h"
 #include "tjsCommHead.h"
 #include "../RenderManager.h"
 #include "WindowImpl.h"
@@ -18,10 +17,6 @@
 #include "SysInitIntf.h"
 #include <assert.h>
 #include <sstream>
-#include "base/CCDirector.h"
-#include "base/CCEventListenerCustom.h"
-#include "base/CCEventDispatcher.h"
-#include "base/CCEventType.h"
 #include "Platform.h"
 #include "ConfigManager/IndividualConfigManager.h"
 #include "imageops/ImageOps.h"
@@ -148,7 +143,7 @@ static void TVPInitGLExtensionInfo() {
 #endif
 #ifdef TEST_SHADER_ENABLED
     for(const std::string &line : sTVPGLExtensions) {
-        cocos2d::log("%s", line.c_str());
+        krkr::glhost::Log(line.c_str());
     }
 #endif
 }
@@ -490,8 +485,8 @@ static unsigned int power_of_two(unsigned int input, unsigned int value = 32) {
 }
 
 static void _glBindTexture2D(GLuint t) {
-    cocos2d::GL::activeTexture(GL_TEXTURE0);
-    cocos2d::GL::bindTexture2D(t);
+    krkr::glhost::ActivateTexture(GL_TEXTURE0);
+    krkr::glhost::BindTexture2D(t);
 }
 
 static GLint _prevRenderBuffer;
@@ -519,9 +514,9 @@ static void _RestoreGLStatues() {
     if(GL_CHECK_unpack_subimage) {
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
-    cocos2d::GL::blendResetToCache();
+    krkr::glhost::RestoreBlend();
     TVPSetRenderTarget(0);
-    cocos2d::Director::getInstance()->setViewport();
+    krkr::glhost::RestoreViewport();
 }
 
 static tjs_uint8 *TVPShrinkXYBy2(tjs_uint *dpitch, const tjs_uint8 *src,
@@ -890,7 +885,7 @@ protected:
         iTVPTexture2D(w, h), Format(format) {
         if(mode) {
             glGenTextures(1, &texture);
-            cocos2d::GL::bindTexture2D(texture);
+            krkr::glhost::BindTexture2D(texture);
 
             // glBindTexture(GL_TEXTURE_2D, texture);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mode);
@@ -905,7 +900,7 @@ protected:
         if(PixelData)
             delete[] PixelData;
         if(texture)
-            cocos2d::GL::deleteTexture(texture);
+            krkr::glhost::DeleteTexture(texture);
     }
 
     int getPixelSize() {
@@ -1117,7 +1112,7 @@ public:
             pt[i * 2 + 1] = (float)p[i].y * th;
         }
     }
-    void Bind(unsigned int i) { cocos2d::GL::bindTexture2DN(i, texture); }
+    void Bind(unsigned int i) { krkr::glhost::BindTexture2DAt(i, texture); }
 };
 
 static TVPTextureFormat::e _GetTextureFormatFromBPP(int bpp) {
@@ -1155,11 +1150,11 @@ class tTVPOGLTexture2D_split : public tTVPOGLTexture2D {
 
     void ClearTextureCache() {
         // 		for (GLuint& name : UnusedTextureName) {
-        // 			cocos2d::GL::deleteTexture(name);
+        // 			krkr::glhost::DeleteTexture(name);
         // 		}
         // 		UnusedTextureName.clear();
         for(auto &it : CachedTexture) {
-            cocos2d::GL::deleteTexture(it.second.Name);
+            krkr::glhost::DeleteTexture(it.second.Name);
         }
         CachedTexture.clear();
         texture = 0;
@@ -1173,7 +1168,7 @@ class tTVPOGLTexture2D_split : public tTVPOGLTexture2D {
         // 		}
         GLuint ret;
         glGenTextures(1, &ret);
-        cocos2d::GL::bindTexture2D(ret);
+        krkr::glhost::BindTexture2D(ret);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1927,7 +1922,7 @@ public:
         return true;
     }
     void SetParameterColor4B(int id, unsigned int clr) override {
-        cocos2d::GL::useProgram(program);
+        krkr::glhost::UseProgram(program);
         glUniform4f(id, (clr & 0xFF) / 255.0f, ((clr >> 8) & 0xFF) / 255.0f,
                     ((clr >> 16) & 0xFF) / 255.0f, (clr >> 24) / 255.0f);
     };
@@ -1939,15 +1934,15 @@ public:
         return ret;
     }
     void SetParameterOpa(int id, int Value) override {
-        cocos2d::GL::useProgram(program);
+        krkr::glhost::UseProgram(program);
         glUniform1f(id, Value / 255.f);
     };
     void SetParameterFloat(int id, float Value) override {
-        cocos2d::GL::useProgram(program);
+        krkr::glhost::UseProgram(program);
         glUniform1f(id, Value);
     }
     void SetParameterFloatArray(int id, float *Value, int nElem) override {
-        cocos2d::GL::useProgram(program);
+        krkr::glhost::UseProgram(program);
         switch(nElem) {
             case 2:
                 glUniform2f(id, Value[0], Value[1]);
@@ -2009,7 +2004,7 @@ public:
             e.AppendMessage(Name);
             throw;
         }
-        cocos2d::GL::useProgram(program);
+        krkr::glhost::UseProgram(program);
         std::string tex("tex");
         std::string coord("a_texCoord");
         for(int i = 0; i < m_nTex; ++i) {
@@ -2023,7 +2018,7 @@ public:
         pos_attr_location = glGetAttribLocation(program, "a_position");
     }
     void Apply() override {
-        cocos2d::GL::useProgram(program);
+        krkr::glhost::UseProgram(program);
         if(BlendFunc) {
             glEnable(GL_BLEND);
             glBlendEquation(BlendFunc);
@@ -2146,7 +2141,7 @@ class tTVPOGLRenderMethod_Script_BlendColor
     void SetParameterOpa(int id, int Value) override {
         if(id == 0x709AC167) {
             float v = Value / 255.f;
-            cocos2d::GL::useProgram(program);
+            krkr::glhost::UseProgram(program);
             glBlendColor(v, v, v, v);
         } else {
             inherit::SetParameterOpa(id, Value);
@@ -2155,7 +2150,7 @@ class tTVPOGLRenderMethod_Script_BlendColor
     void SetParameterFloat(int id, float Value) override {
         if(id == 0x709AC167) {
             float v = Value;
-            cocos2d::GL::useProgram(program);
+            krkr::glhost::UseProgram(program);
             glBlendColor(v, v, v, v);
         } else {
             inherit::SetParameterFloat(id, Value);
@@ -2178,7 +2173,7 @@ class tTVPOGLRenderMethod_AdjustGamma : public tTVPOGLRenderMethod_Script {
             static int id_gamma = EnumParameterID("u_gamma"),
                        id_floor = EnumParameterID("u_floor"),
                        id_amp = EnumParameterID("u_amp");
-            cocos2d::GL::useProgram(program);
+            krkr::glhost::UseProgram(program);
             glUniform3f(id_gamma, 1.0f / data.RGamma, 1.0f / data.GGamma,
                         1.0f / data.BGamma);
             glUniform3f(id_floor, data.RFloor / 255.0f, data.GFloor / 255.0f,
@@ -2206,7 +2201,7 @@ class tTVPOGLRenderMethod_UnivTrans : public tTVPOGLRenderMethod_Script {
     }
     int m_vague;
     void SetParameterInt(int id, int Value) override {
-        cocos2d::GL::useProgram(program);
+        krkr::glhost::UseProgram(program);
         if(id == u_vague) {
             m_vague = Value;
             glUniform1f(id, Value / 255.f);
@@ -2296,7 +2291,7 @@ bool tTVPOGLTexture2D::RestoreNormalSize() {
     if(w < GetMaxTextureWidth() && h < GetMaxTextureHeight()) {
         GLuint newtex;
         glGenTextures(1, &newtex);
-        cocos2d::GL::bindTexture2D(newtex);
+        krkr::glhost::BindTexture2D(newtex);
         tjs_int intw = power_of_two(w), inth = power_of_two(h);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, intw, inth, 0, GL_RGBA,
                      GL_UNSIGNED_BYTE, nullptr);
@@ -2320,20 +2315,20 @@ bool tTVPOGLTexture2D::RestoreNormalSize() {
         for(unsigned int i = 0; i < 1; ++i) {
             VA_flag |= 1 << method->GetTexCoordAttr(i);
         }
-        cocos2d::GL::enableVertexAttribs(VA_flag);
+        krkr::glhost::EnableVertexAttributes(VA_flag);
         glVertexAttribPointer(method->GetPosAttr(), 2, GL_FLOAT, GL_FALSE, 0,
                               vertices);
 
         GLVertexInfo vtx;
         ApplyVertex(vtx, tTVPRect(0, 0, w, h));
-        cocos2d::GL::bindTexture2D(texture);
+        krkr::glhost::BindTexture2D(texture);
         glVertexAttribPointer(method->GetTexCoordAttr(0), 2, GL_FLOAT, GL_FALSE,
                               0, &vtx.vtx.front());
         glDrawArrays(GL_TRIANGLES, 0, 6);
         CHECK_GL_ERROR_DEBUG();
 
         _totalVMemSize -= internalW * internalH * getPixelSize();
-        cocos2d::GL::deleteTexture(texture);
+        krkr::glhost::DeleteTexture(texture);
 
         texture = newtex;
         internalW = intw;
@@ -2397,6 +2392,8 @@ static iTVPTexture2D *(*_CreateMutableTexture2D)(const void *pixel, int pitch,
 static const char *_glExtensions = nullptr;
 // static bool _duplicateTargetTexture = true;
 class TVPRenderManager_OpenGL : public iTVPRenderManager {
+    std::unique_ptr<krkr::glhost::ContextSubscription> contextSubscription;
+
 protected:
     tTVPOGLRenderMethod_Script *
     GetRenderMethodFromScript(const char *script, int nTex,
@@ -2928,19 +2925,13 @@ protected:
         //		_duplicateTargetTexture =
         // IndividualConfigManager::GetInstance()->GetValueBool("ogl_dup_target",
         // true);
-        cocos2d::EventListenerCustom *listener =
-            cocos2d::EventListenerCustom::create(
-                EVENT_RENDERER_RECREATED, [this](cocos2d::EventCustom *) {
-                    tTVPOGLRenderMethod_Script::ClearCache();
-                    for(auto it : AllMethods) {
-                        tTVPOGLRenderMethod *method =
-                            static_cast<tTVPOGLRenderMethod *>(it.second);
-                        method->Rebuild();
-                    }
-                });
-        cocos2d::Director::getInstance()
-            ->getEventDispatcher()
-            ->addEventListenerWithFixedPriority(listener, 1);
+        contextSubscription = krkr::glhost::ObserveContextRecreated([this] {
+            tTVPOGLRenderMethod_Script::ClearCache();
+            for(auto it : AllMethods) {
+                auto *method = static_cast<tTVPOGLRenderMethod *>(it.second);
+                method->Rebuild();
+            }
+        });
         TVPSetPostUpdateEvent(_RestoreGLStatues);
     }
 
@@ -4421,13 +4412,13 @@ public:
         for(unsigned int i = 0; i < 1; ++i) {
             VA_flag |= 1 << method->GetTexCoordAttr(i);
         }
-        cocos2d::GL::enableVertexAttribs(VA_flag);
+        krkr::glhost::EnableVertexAttributes(VA_flag);
         glVertexAttribPointer(method->GetPosAttr(), 2, GL_FLOAT, GL_FALSE, 0,
                               vertices);
 
         GLVertexInfo vtx;
         src->ApplyVertex(vtx, rcsrc);
-        cocos2d::GL::bindTexture2D(src->texture);
+        krkr::glhost::BindTexture2D(src->texture);
 
         glVertexAttribPointer(method->GetTexCoordAttr(0), 2, GL_FLOAT, GL_FALSE,
                               0, &vtx.vtx.front());
@@ -4570,7 +4561,7 @@ public:
         for(unsigned int i = 0; i < texlist.size(); ++i) {
             VA_flag |= 1 << method->GetTexCoordAttr(i);
         }
-        cocos2d::GL::enableVertexAttribs(VA_flag);
+        krkr::glhost::EnableVertexAttributes(VA_flag);
         glVertexAttribPointer(method->GetPosAttr(), 2, GL_FLOAT, GL_FALSE, 0,
                               vertices);
         for(unsigned int i = 0; i < texlist.size(); ++i) {
@@ -4712,7 +4703,7 @@ public:
         // static_cast<tTVPOGLRenderMethod*>(GetRenderMethod("FillARGB"));
         // static int _id = _method->EnumParameterID("color");
         // 			_method->SetParameterColor4B(_id, 0);
-        // 			cocos2d::GL::enableVertexAttribs(1 <<
+        // 			krkr::glhost::EnableVertexAttributes(1 <<
         // _method->GetPosAttr()); 			_method->Apply();
         // static const GLfloat 				minx = -1,
         // maxx = 1, 				miny = -1,
@@ -4731,7 +4722,7 @@ public:
         for(unsigned int i = 0; i < texlist.size(); ++i) {
             VA_flag |= 1 << method->GetTexCoordAttr(i);
         }
-        cocos2d::GL::enableVertexAttribs(VA_flag);
+        krkr::glhost::EnableVertexAttributes(VA_flag);
         glVertexAttribPointer(method->GetPosAttr(), 2, GL_FLOAT, GL_FALSE, 0,
                               &pttar.front());
         CHECK_GL_ERROR_DEBUG();
@@ -4784,7 +4775,7 @@ public:
             program =
                 CombineProgram(GetVertShader(m_nTex),
                                CompileShader(GL_FRAGMENT_SHADER, m_strScript));
-            cocos2d::GL::useProgram(program);
+            krkr::glhost::UseProgram(program);
             std::string tex("tex");
             std::string coord("a_texCoord");
             for(int i = 0; i < m_nTex; ++i) {
@@ -4807,7 +4798,7 @@ public:
         }
 
         void ApplyMatrix(const float *mtx /*3x3*/) {
-            cocos2d::GL::useProgram(program);
+            krkr::glhost::UseProgram(program);
             glUniformMatrix3fv(id_Matrix, 1, GL_FALSE, mtx);
         }
     };

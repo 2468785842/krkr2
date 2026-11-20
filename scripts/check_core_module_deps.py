@@ -73,16 +73,16 @@ def check(root):
                      'movie/ffmpeg/KRMoviePlayer.cpp', 'visual/WindowLayer.h',
                      'base/impl/SystemImpl.cpp', 'environ/HostLifecycle.h',
                      'environ/RenderUtils.h', 'event/PostUpdateEvent.h',
-                     'visual/RenderManager.h', 'visual/TexturePresentation.h',
+                     'visual/RenderManager.h', 'visual/TexturePresentation.h', 'visual/GLHost.h',
                      'environ/FrameCapture.h'):
         source = root / 'cpp/core' / relative
         active = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
         if re.search(r'#\s*include\s*[<"](?:[^">]*/)?TVPWindow\.h[">]', active):
             errors.append(f'{source.relative_to(root)}: 不得包含 Cocos 窗口实现头')
-        if relative in ('visual/WindowLayer.h', 'visual/RenderManager.h', 'visual/TexturePresentation.h', 'environ/FrameCapture.h') and re.search(r'\bcocos2d\b|cocos[-/]|ui/Cocos', active, re.I):
+        if relative in ('visual/WindowLayer.h', 'visual/RenderManager.h', 'visual/TexturePresentation.h', 'visual/GLHost.h', 'environ/FrameCapture.h') and re.search(r'\bcocos2d\b|cocos[-/]|ui/Cocos', active, re.I):
             errors.append(f'{source.relative_to(root)}: 通用窗口/呈现接口不得暴露 Cocos 类型')
         if relative in ('environ/HostLifecycle.h', 'environ/RenderUtils.h',
-                        'event/PostUpdateEvent.h', 'visual/TexturePresentation.h',
+                        'event/PostUpdateEvent.h', 'visual/TexturePresentation.h', 'visual/GLHost.h',
                         'environ/FrameCapture.h'):
             if re.search(r'\bcocos2d\b|cocos[-/]|\btjs\w*', active, re.I):
                 errors.append(f'{source.relative_to(root)}: 宿主通知与帧入口不得暴露 Cocos/TJS 类型')
@@ -90,6 +90,10 @@ def check(root):
     active = re.sub(r'/\*.*?\*/|//[^\n]*', '', software.read_text(encoding='utf-8'), flags=re.S)
     if re.search(r'\bcocos2d\b|#\s*include\s*[<"]renderer/CC', active):
         errors.append('visual/RenderManager.cpp: CPU 渲染器不得依赖 Cocos 呈现类型')
+    gl = root / 'cpp/core/visual/ogl/RenderManager_ogl.cpp'
+    active = re.sub(r'/\*.*?\*/|//[^\n]*', '', gl.read_text(encoding='utf-8'), flags=re.S)
+    if re.search(r'\bcocos2d\b|#\s*include\s*[<"](?:renderer/(?:CC|ccGL)|base/CC)', active):
+        errors.append('visual/ogl/RenderManager_ogl.cpp: GL 宿主状态与事件应经 GLHost 接口调用')
     return errors
 
 

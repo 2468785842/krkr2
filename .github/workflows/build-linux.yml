@@ -105,13 +105,19 @@ jobs:
           cmake --preset="Linux Release Config" -DBUILD_TOOLS=OFF \
             -DENABLE_TESTS=${{ inputs.imageops_contracts && 'ON' || 'OFF' }} \
             -DKRKR2_ENABLE_UI_TEST_DRIVER=${{ inputs.imageops_contracts && 'ON' || 'OFF' }}
-          cmake --build --preset="Linux Release Build" --target krkr2
+          targets=(krkr2)
+          if [ '${{ inputs.imageops_contracts }}' = 'true' ]; then targets+=(cocos_window_tests); fi
+          cmake --build --preset="Linux Release Build" --target "${targets[@]}"
           
           cp $(find out/linux/release/ -name libfmod.so) out/linux/release/bin/krkr2
           cp $(find out/linux/release/ -name libfmodL.so) out/linux/release/bin/krkr2
 
       - name: Verify OpenCV removal
         run: python scripts/check_no_opencv.py out/linux/release
+
+      - name: Verify Cocos context and window contracts
+        if: inputs.imageops_contracts
+        run: ctest --test-dir out/linux/release -R '^cocos (window|pointer|focus|text|context)' --output-on-failure --no-tests=error
 
       - name: Verify image operations in both backends
         if: inputs.imageops_contracts

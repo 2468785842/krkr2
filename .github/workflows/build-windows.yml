@@ -94,19 +94,19 @@ jobs:
         shell: bash
         run: python scripts/check_no_opencv.py out/windows/release
 
-      - name: Verify Cocos window, pointer, focus and text contracts
+      - name: Verify Cocos window, pointer, focus, text and context contracts
         shell: bash
         run: |
-          ctest --test-dir out/windows/release -N -R '^cocos (window|pointer|focus|text)'
+          ctest --test-dir out/windows/release -N -R '^cocos (window|pointer|focus|text|context)'
           python - <<'PY'
           import json, subprocess
           tests = json.loads(subprocess.check_output([
               'ctest', '--test-dir', 'out/windows/release', '--show-only=json-v1',
-              '-R', '^cocos (window|pointer|focus|text)']))['tests']
-          assert len(tests) == 11, tests
-          print('Registered 2 node-order, 3 pointer, 4 focus and 2 text compatibility contracts.')
+              '-R', '^cocos (window|pointer|focus|text|context)']))['tests']
+          assert len(tests) == 15, tests
+          print('Registered 2 node-order, 3 pointer, 4 focus, 2 text and 4 context subscription contracts.')
           PY
-          ctest --test-dir out/windows/release -R '^cocos (window|pointer|focus|text)' --output-on-failure --no-tests=error
+          ctest --test-dir out/windows/release -R '^cocos (window|pointer|focus|text|context)' --output-on-failure --no-tests=error
 
       - name: Verify renderer compilation scope
         shell: bash
@@ -117,7 +117,8 @@ jobs:
           commands = json.loads((root / 'compile_commands.json').read_text(encoding='utf-8'))
           files = [c['file'].replace('\\', '/') for c in commands]
           for source in ('visual/RenderManager.cpp', 'visual/ogl/RenderManager_ogl.cpp',
-                         'imageops/ImageOps.cpp', 'imageops/ImageOps_native.cpp'):
+                         'imageops/ImageOps.cpp', 'imageops/ImageOps_native.cpp',
+                         'environ/cocos2d/CocosGLHost.cpp'):
               matches = [p for p in files if p.endswith('/cpp/core/' + source)]
               assert len(matches) == 1, (source, matches)
           print('Full application includes both renderers and both ImageOps sources exactly once.')
