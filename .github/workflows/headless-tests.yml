@@ -184,6 +184,8 @@ jobs:
   archives:
     env:
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.act/vcpkg-cache
+      # vcpkg otherwise chooses the newer Homebrew CMake over the pinned tool.
+      VCPKG_FORCE_SYSTEM_BINARIES: '1'
     strategy:
       fail-fast: false
       matrix:

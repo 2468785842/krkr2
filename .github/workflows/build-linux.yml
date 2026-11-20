@@ -2,7 +2,16 @@ name: Build Linux
 
 on:
   workflow_call:
+    inputs:
+      imageops_contracts:
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      imageops_contracts:
+        description: 'Run self-authored image operations in both renderers (test binary)'
+        type: boolean
+        default: false
 
 env:
   # Fork pull requests cannot read repository secrets: fall back to plain
@@ -93,15 +102,20 @@ jobs:
 
       - name: Build Linux
         run: |
-          cmake --preset="Linux Release Config" -DENABLE_TESTS=ON -DBUILD_TOOLS=OFF -DKRKR2_ENABLE_UI_TEST_DRIVER=ON
+          cmake --preset="Linux Release Config" -DBUILD_TOOLS=OFF \
+            -DENABLE_TESTS=${{ inputs.imageops_contracts && 'ON' || 'OFF' }} \
+            -DKRKR2_ENABLE_UI_TEST_DRIVER=${{ inputs.imageops_contracts && 'ON' || 'OFF' }}
           cmake --build --preset="Linux Release Build" --target krkr2
           
           cp $(find out/linux/release/ -name libfmod.so) out/linux/release/bin/krkr2
           cp $(find out/linux/release/ -name libfmodL.so) out/linux/release/bin/krkr2
 
-      - name: Verify renderer compilation and image operations in both backends
+      - name: Verify OpenCV removal
+        run: python scripts/check_no_opencv.py out/linux/release
+
+      - name: Verify image operations in both backends
+        if: inputs.imageops_contracts
         run: |
-          python scripts/check_no_opencv.py out/linux/release
           LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a python tools/game-smoke/imageops_repro.py out/linux/release/bin/krkr2/krkr2 out/linux/imageops-runtime --capture
 
       - name: Upload image operation reports
@@ -116,6 +130,6 @@ jobs:
         if: ${{ !env.ACT && success() }}
         uses: actions/upload-artifact@v4
         with:
-          name: linux-binaries
+          name: ${{ inputs.imageops_contracts && 'linux-imageops-test-binaries' || 'linux-binaries' }}
           path: |
             out/linux/release/bin/krkr2/**

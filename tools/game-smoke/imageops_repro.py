@@ -115,7 +115,12 @@ def run(engine, destination, seconds=60, capture=False):
                                 raise RuntimeError("Capture renderer does not match requested backend: " + log)
                             report["renderer_observed"] = renderer
                             frame = root / "ui-frame.png"
-                            counts = color_counts(frame, [(64,160,64),(160,64,160),(64,64,64),(160,160,160)])
+                            # Software Layer composition uses the existing alpha/256
+                            # conversion before the Cocos texture is presented.
+                            palette = [(64,160,64),(160,64,160),(64,64,64),(160,160,160)]
+                            if renderer == "software":
+                                palette = [tuple(c*255//256 for c in color) for color in palette]
+                            counts = color_counts(frame, palette)
                             if min(counts.values()) < 16:
                                 raise RuntimeError("Cocos frame does not contain the rendered fixture palette: " + str(counts))
                             report["frame_color_counts"] = {str(color): count for color, count in counts.items()}
