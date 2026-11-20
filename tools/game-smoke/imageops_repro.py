@@ -47,7 +47,7 @@ def bmp_rgb(path, x, y):
     return (r, g, b)
 
 
-def frame_failures(path):
+def frame_failures(path, renderer="opengl"):
     expected = [(64, 160, 64), (160, 64, 160), (64, 64, 64), (160, 160, 160)]
     panels = [(i*96, 0, [(24,16),(72,16),(24,48),(72,48)]) for i in range(4)]
     panels += [(0,96,[(16,16),(48,16),(16,48),(48,48)]),
@@ -57,8 +57,11 @@ def frame_failures(path):
     for panel, (left, top, points) in enumerate(panels):
         for i, (x, y) in enumerate(points):
             actual = bmp_rgb(path, left+x, top+y)
-            if actual != expected[i]:
-                errors.append(f"Panel {panel} sample {i}: RGB {actual} != {expected[i]}")
+            color = expected[i]
+            if panel == 6 and renderer == "software":
+                color = tuple(channel*255//256 for channel in color)
+            if actual != color:
+                errors.append(f"Panel {panel} sample {i}: RGB {actual} != {color}")
     if bmp_rgb(path, 350, 150) != (16, 32, 16):
         errors.append("Background guard pixel differs")
     return errors
@@ -77,7 +80,7 @@ def run(engine, destination, seconds=60, capture=False):
             f'<GlobalPreference><Item key="renderer" value="{renderer}"/></GlobalPreference>', encoding="utf-8")
         if capture:
             (root / "interaction-fixture.json").write_text('{"fixture":"imageops"}')
-        command = [str(engine), "--game=" + str(root)]
+        command = [str(engine), "--game=" + str(root), "-imageops-renderer=" + renderer]
         if capture:
             command.append("-ui-contract-driver=yes")
         report = {"engine": str(engine), "engine_sha256": digest(engine), "script_sha256": digest(root / "startup.tjs"),
@@ -149,7 +152,7 @@ def run(engine, destination, seconds=60, capture=False):
         else:
             report["image_sha256"] = digest(image)
             try:
-                report["failures"].extend(frame_failures(image))
+                report["failures"].extend(frame_failures(image, renderer))
             except (ValueError, OSError, struct.error) as error:
                 report["failures"].append("Layer BMP validation: " + str(error))
         report["passed"] = not report["failures"]

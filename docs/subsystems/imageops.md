@@ -96,5 +96,5 @@ ctest --test-dir out/imageops-reference --output-on-failure --no-tests=error
 `imageops_benchmark 1` / `imageops_benchmark 3` 同进程交替比较原 OpenCV 调用和 ImageOps，
 预热后每项三轮、每轮 100 次，输出原始 JSON；包括分配和矩阵求解，并非整帧性能。
 历史报告保留原配置，新报告见[移除测量](../../.agents/reports/imageops-removal-2026-11-20.json)。
-独立实现部分操作仍慢于 OpenCV，不能把依赖移除解释为游戏帧率提升；性能后续记录正在随跨平台和实际渲染验收更新。
+独立实现部分操作仍慢于 OpenCV，不能把依赖移除解释为游戏帧率提升；38 组前后配对测量见[性能收敛报告](../../.agents/reports/imageops-native-performance-2026-11-20.json)。
 Windows/macOS/Android 完整应用和真实游戏需分别验证，旧版构建记录不代表本次已通过。

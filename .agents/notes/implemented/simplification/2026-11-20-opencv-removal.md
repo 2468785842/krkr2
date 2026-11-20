@@ -128,3 +128,28 @@ Headless 的 macOS archives 首次在滚动 CMake 对 Boost.Locale 的 source_gr
 仅在显式测试驱动构建中记录实际渲染管理器。
 Android 两种 ABI 的 `3fb5fd1` 首跑都完成全部源码及链接，后置检查误把 Gradle tools 的 compile_commands.json 当作第二个应用构建而失败；
 现在按源码根、ABI 和 Debug 缓存身份筛选，与已通过的编译步骤保持一致。首轮未产出 APK，不据此声称 APK 通过。
+
+## 性能收敛测量（`0a81b4b`）
+
+[后续同进程配对报告](../../../reports/imageops-native-performance-2026-11-20.json)覆盖 38 组格式/模式/尺寸/线程/原位组合，
+同时链接首版独立实现、优化实现与原 OpenCV，逐次交替计时。所有实现使用 GCC -O3 -fPIC -ffp-contract=off，
+旧版通过 namespace 更名隔离，输入/依赖相同；具体基线源哈希与临时桥接源码身份在报告中。
+
+320×240 RGBA、1 线程的三轮中位数（μs/次）：
+
+| 操作 | 首版独立→优化 | 相对首版 | 原 OpenCV |
+|---|---|---|---|
+| 9x9 blur | 592→185 | 3.21× | 122 |
+| Affine Linear | 1090→498 | 2.19× | 385 |
+| Perspective Linear | 1971→638 | 3.09× | 612 |
+| Affine Cubic | 3434→1224 | 2.81× | 2359 |
+| Perspective Cubic | 5337→1346 | 3.96× | 2847 |
+
+原有严重回退已明显收敛，不能据此宣称所有操作均达到 OpenCV 性能；Gray8/Nearest、部分 Linear 和大图仍有差距。
+报告保留全部 38 组原始值与 OpenCV 对照，不只选择有提升的样本。
+当前默认测试为 7 项/25,403 断言，原有实时对照仍为 16 项；标量和 ASan/UBSan 各 7 项通过。
+
+Linux `0a81b4b` 完整应用构建、链接与无 OpenCV 闭包检查已通过。首次运行时 OpenGL 场景通过全部像素/截图/正常退出，
+软件场景在透视首个点得到 RGB 0x3f9f3f、alpha255，而 fixture 错把它设为 0x40a040。
+确认 `PerspectiveAlphaBlend_a` 使用 `TVPAlphaBlend_a`→`TVPAlphaToAdditiveAlpha`→RGB×255/256 的原有截断，
+这些函数相对 8cc26c6 未变；据此给软件透视单独固定精确期望，其他像素仍严格相等。未修改混合算法或放宽容差，待重跑。

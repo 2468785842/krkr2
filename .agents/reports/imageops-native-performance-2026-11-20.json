@@ -1,0 +1,1588 @@
+{
+  "date": "2026-11-20",
+  "source_commit": "0a81b4b851b956aaf8090e1aee60bedc1cf95f61",
+  "machine": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+  "reference_version": "OpenCV 4.7.0",
+  "reference_commit": "725e440d278aca07d35a5e8963ef990572b07316",
+  "baseline": "Uncommitted first standalone port at the start of this continuation, before blur/warp SIMD, row rings and persistent row pool. Exact baseline files retained under out/perf-followup with hashes below. They are built in TVPImageOpsBaseline namespace in the same process.",
+  "method": {
+    "compiler_flags": "-std=c++17 -O3 -fPIC -ffp-contract=off",
+    "rounds": 3,
+    "order": "Each iteration times old native, current native and direct OpenCV separately, rotating order by (round+iteration+order)%3 after warm-up.",
+    "iterations": "100 per round at 320x240, 20 per round at 1024x768",
+    "summary": "Median of three round means",
+    "thread_requests": [
+      1,
+      3
+    ],
+    "in_place": "Input reset by memcpy inside each timed call for all three implementations; no reset for out-of-place cases.",
+    "timing": "Final run after all local builds and sanitizer tests, one process and one requested thread count at a time. Shared cloud clocks/scheduling may still fluctuate."
+  },
+  "validation": {
+    "default_cases": 7,
+    "default_assertions": 25403,
+    "reference_cases": 23,
+    "golden_cases": 3096,
+    "golden_thread_requests": [
+      1,
+      3
+    ],
+    "extra_white_blur_scan_cases": 50688,
+    "extra_white_blur_scan_diffs": 0,
+    "scalar_cases": 7,
+    "asan_ubsan_cases": 7,
+    "sanitizer_leaks_enabled": true,
+    "closure_checker_tests": 5,
+    "game_smoke_tool_tests": 46
+  },
+  "source_sha256": {
+    "cpp/core/imageops/ImageOps.cpp": "0ed9c9190955ff23d9e512bac0ff08ab49d4f45c2dd005d77c4420b1dced0d72",
+    "cpp/core/imageops/ImageOps_native.cpp": "b912ceff3d17fae9c011a573c8dcb44dce3376cb3165d90f8f6b6c38d5f9642a",
+    "cpp/core/imageops/ImageOps.h": "c63be97394cb7ba6fe4395a56d9d8d2114cf60b0c07e4be31822ce1e8f542dff",
+    "cpp/core/imageops/ImageOps_internal.h": "d0d666d5aed63b41d2806f4ecd314070a6b18ce1507257122f099313a45e9426",
+    "cpp/core/imageops/CMakeLists.txt": "fac5e5fac6dee9951cafde78ebf8ee5280e13736cd92b4ad5b170ad61fa9b61f",
+    "tests/unit-tests/core/visual/ImageOpsCases.h": "d3d4b3477a9ec25e122e6f943c900416cbba830edde99286c909fd0d8788a10b",
+    "tests/unit-tests/core/visual/ImageOpsGolden.h": "021f6ea5d528960a361b244c48bd531c16020ee1c19c5d1fa443dd575340cd3e",
+    "tests/unit-tests/core/visual/ImageOpsTest.cpp": "cbb347077412ebdcefbb5005d220bfecf5a48afaeda6806585f789368fd41b89"
+  },
+  "temporary_source_sha256": {
+    "out/perf-followup/baseline.cpp": "0ed9c9190955ff23d9e512bac0ff08ab49d4f45c2dd005d77c4420b1dced0d72",
+    "out/perf-followup/baseline-native.cpp": "c272c2ef6f559741089d7fe28eda8330d8e00b36f947e01089b83a936e9895bb",
+    "out/perf-followup/baseline.h": "c63be97394cb7ba6fe4395a56d9d8d2114cf60b0c07e4be31822ce1e8f542dff",
+    "out/perf-followup/baseline-bridge.cpp": "648eed4a9b31fc5d8a16f34e85f92431618e9e5864c70912ac7e453b0fdd43c6",
+    "out/perf-followup/paired.cpp": "fad881dc8b6fa193b5b532822a0612bc4c3b227bd3f6e5f49d66b94a03c1050d"
+  },
+  "benchmark_binary_sha256": "7ebf4907840509a24745607c3709c1787ab033f2c60fdeff8d6953b236b4edb9",
+  "native_library_sha256": "a0d1f69174cdd106760128bff56ce96c26fe7b3fe948b8af684a06f82cc0d8d9",
+  "limitations": [
+    "Microbenchmarks do not establish game FPS or package-size improvements.",
+    "Some native operations remain slower than OpenCV; raw samples and ratios are retained for every case.",
+    "The first-port baseline is identified by source hashes, not an upstream commit.",
+    "Performance measured on Linux x86_64 only. Cross-platform pixel/build results are recorded separately."
+  ],
+  "samples": [
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 0,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        157.018,
+        171.676,
+        160.403
+      ],
+      "after_us": [
+        70.935,
+        68.924,
+        69.642
+      ],
+      "opencv_us": [
+        53.652,
+        57.294,
+        54.204
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 0,
+      "mode": 2,
+      "in_place": true,
+      "iterations": 100,
+      "before_us": [
+        164.104,
+        186.234,
+        159.16
+      ],
+      "after_us": [
+        72.26,
+        82.792,
+        74.83
+      ],
+      "opencv_us": [
+        55.77,
+        82.266,
+        56.543
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 1,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        451.66,
+        446.327,
+        448.915
+      ],
+      "after_us": [
+        224.816,
+        227.208,
+        223.463
+      ],
+      "opencv_us": [
+        122.99,
+        123.829,
+        122.38
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 1,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        759.912,
+        741.71,
+        739.774
+      ],
+      "after_us": [
+        577.92,
+        577.228,
+        571.179
+      ],
+      "opencv_us": [
+        325.538,
+        314.952,
+        322.341
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 1,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        2176.228,
+        1918.133,
+        1851.069
+      ],
+      "after_us": [
+        675.325,
+        599.322,
+        562.793
+      ],
+      "opencv_us": [
+        966.102,
+        879.454,
+        846.571
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 2,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        748.984,
+        786.779,
+        730.108
+      ],
+      "after_us": [
+        321.735,
+        310.982,
+        314.124
+      ],
+      "opencv_us": [
+        264.917,
+        278.482,
+        268.995
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 2,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        1341.4,
+        1356.819,
+        1338.398
+      ],
+      "after_us": [
+        707.39,
+        700.826,
+        720.141
+      ],
+      "opencv_us": [
+        515.243,
+        532.037,
+        528.408
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 2,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        2819.326,
+        2778.231,
+        2760.88
+      ],
+      "after_us": [
+        665.671,
+        655.781,
+        663.788
+      ],
+      "opencv_us": [
+        1126.593,
+        1122.751,
+        1117.099
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 0,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        591.041,
+        592.496,
+        592.637
+      ],
+      "after_us": [
+        189.938,
+        184.851,
+        184.142
+      ],
+      "opencv_us": [
+        118.068,
+        124.884,
+        121.962
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 0,
+      "mode": 2,
+      "in_place": true,
+      "iterations": 100,
+      "before_us": [
+        604.158,
+        601.355,
+        606.212
+      ],
+      "after_us": [
+        219.669,
+        184.496,
+        187.898
+      ],
+      "opencv_us": [
+        142.962,
+        127.343,
+        134.17
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 1,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        521.582,
+        449.787,
+        459.125
+      ],
+      "after_us": [
+        281.863,
+        227.698,
+        225.029
+      ],
+      "opencv_us": [
+        220.793,
+        182.122,
+        189.835
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 1,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        1086.358,
+        1090.415,
+        1140.349
+      ],
+      "after_us": [
+        497.898,
+        490.124,
+        497.952
+      ],
+      "opencv_us": [
+        403.256,
+        380.887,
+        384.911
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 1,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        3460.194,
+        3433.558,
+        3342.983
+      ],
+      "after_us": [
+        1223.984,
+        1246.619,
+        1184.343
+      ],
+      "opencv_us": [
+        2368.813,
+        2358.574,
+        2255.645
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 2,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        1215.685,
+        997.72,
+        905.357
+      ],
+      "after_us": [
+        431.459,
+        367.868,
+        405.129
+      ],
+      "opencv_us": [
+        433.698,
+        383.856,
+        355.708
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 2,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        1971.485,
+        2053.241,
+        1947.152
+      ],
+      "after_us": [
+        638.447,
+        646.383,
+        624.366
+      ],
+      "opencv_us": [
+        615.47,
+        611.296,
+        612.0
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 2,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        5194.192,
+        5339.287,
+        5337.357
+      ],
+      "after_us": [
+        1290.808,
+        1400.305,
+        1346.41
+      ],
+      "opencv_us": [
+        2740.336,
+        2885.852,
+        2846.738
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "operation": 0,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 20,
+      "before_us": [
+        6946.22,
+        6660.029,
+        6399.407
+      ],
+      "after_us": [
+        1984.511,
+        1879.975,
+        1855.754
+      ],
+      "opencv_us": [
+        1272.025,
+        1413.84,
+        1278.37
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "operation": 1,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 20,
+      "before_us": [
+        11471.569,
+        11337.744,
+        11361.57
+      ],
+      "after_us": [
+        5211.885,
+        5123.28,
+        5118.554
+      ],
+      "opencv_us": [
+        3887.47,
+        3836.169,
+        3836.551
+      ]
+    },
+    {
+      "threads": 1,
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "operation": 2,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 20,
+      "before_us": [
+        22405.723,
+        21727.857,
+        21508.691
+      ],
+      "after_us": [
+        7028.122,
+        6995.514,
+        6916.865
+      ],
+      "opencv_us": [
+        6989.84,
+        6052.841,
+        6435.857
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 0,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        161.883,
+        182.625,
+        168.782
+      ],
+      "after_us": [
+        68.665,
+        79.653,
+        85.289
+      ],
+      "opencv_us": [
+        63.336,
+        58.055,
+        59.622
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 0,
+      "mode": 2,
+      "in_place": true,
+      "iterations": 100,
+      "before_us": [
+        167.504,
+        209.206,
+        206.421
+      ],
+      "after_us": [
+        82.369,
+        81.21,
+        72.343
+      ],
+      "opencv_us": [
+        70.923,
+        58.814,
+        87.104
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 1,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        510.203,
+        494.019,
+        509.113
+      ],
+      "after_us": [
+        253.372,
+        245.545,
+        258.57
+      ],
+      "opencv_us": [
+        140.546,
+        142.228,
+        144.739
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 1,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        820.143,
+        861.371,
+        797.719
+      ],
+      "after_us": [
+        637.02,
+        741.823,
+        638.255
+      ],
+      "opencv_us": [
+        352.093,
+        355.595,
+        348.678
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 1,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        2108.954,
+        2187.153,
+        2185.811
+      ],
+      "after_us": [
+        666.056,
+        675.716,
+        737.931
+      ],
+      "opencv_us": [
+        967.714,
+        1066.468,
+        1007.249
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 2,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        835.027,
+        805.063,
+        798.172
+      ],
+      "after_us": [
+        352.54,
+        351.454,
+        371.708
+      ],
+      "opencv_us": [
+        294.439,
+        304.682,
+        287.194
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 2,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        1564.133,
+        1510.014,
+        1467.178
+      ],
+      "after_us": [
+        770.723,
+        783.073,
+        750.92
+      ],
+      "opencv_us": [
+        634.283,
+        572.707,
+        573.093
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 2,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        3176.16,
+        3187.509,
+        3129.041
+      ],
+      "after_us": [
+        788.487,
+        741.462,
+        775.306
+      ],
+      "opencv_us": [
+        1295.601,
+        1260.765,
+        1302.594
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 0,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        689.627,
+        744.861,
+        673.645
+      ],
+      "after_us": [
+        215.62,
+        204.2,
+        196.106
+      ],
+      "opencv_us": [
+        135.092,
+        136.659,
+        138.65
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 0,
+      "mode": 2,
+      "in_place": true,
+      "iterations": 100,
+      "before_us": [
+        677.572,
+        687.123,
+        702.808
+      ],
+      "after_us": [
+        214.66,
+        227.711,
+        219.196
+      ],
+      "opencv_us": [
+        154.939,
+        146.136,
+        142.845
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 1,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        580.164,
+        513.686,
+        515.312
+      ],
+      "after_us": [
+        283.628,
+        278.119,
+        268.214
+      ],
+      "opencv_us": [
+        221.264,
+        196.924,
+        257.306
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 1,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        1198.687,
+        1266.723,
+        1230.287
+      ],
+      "after_us": [
+        552.724,
+        577.524,
+        557.535
+      ],
+      "opencv_us": [
+        443.025,
+        442.266,
+        429.52
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 1,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        3766.79,
+        3818.976,
+        3874.04
+      ],
+      "after_us": [
+        1340.812,
+        1319.851,
+        1335.78
+      ],
+      "opencv_us": [
+        2608.298,
+        2625.541,
+        2588.771
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 2,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        826.9,
+        938.899,
+        865.408
+      ],
+      "after_us": [
+        345.915,
+        372.68,
+        355.375
+      ],
+      "opencv_us": [
+        353.03,
+        376.608,
+        358.48
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 2,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        2123.294,
+        2170.802,
+        2092.939
+      ],
+      "after_us": [
+        644.125,
+        669.384,
+        703.517
+      ],
+      "opencv_us": [
+        633.144,
+        700.885,
+        634.935
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 2,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": [
+        5310.57,
+        5024.195,
+        4955.597
+      ],
+      "after_us": [
+        1389.274,
+        1303.027,
+        1248.03
+      ],
+      "opencv_us": [
+        2854.26,
+        2694.037,
+        2626.226
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "operation": 0,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 20,
+      "before_us": [
+        5062.798,
+        5288.808,
+        5462.062
+      ],
+      "after_us": [
+        1239.785,
+        1273.234,
+        1379.07
+      ],
+      "opencv_us": [
+        1342.877,
+        1305.927,
+        1453.46
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "operation": 1,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 20,
+      "before_us": [
+        10828.961,
+        12759.551,
+        13181.106
+      ],
+      "after_us": [
+        5871.657,
+        4302.202,
+        6318.354
+      ],
+      "opencv_us": [
+        3148.407,
+        2763.129,
+        3069.941
+      ]
+    },
+    {
+      "threads": 3,
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "operation": 2,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 20,
+      "before_us": [
+        14644.335,
+        17230.955,
+        17733.155
+      ],
+      "after_us": [
+        6039.311,
+        6982.221,
+        6605.788
+      ],
+      "opencv_us": [
+        5476.596,
+        2981.962,
+        3852.97
+      ]
+    }
+  ],
+  "summary": [
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 0,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 160.403,
+      "after_us": 69.642,
+      "opencv_us": 54.204,
+      "speedup_over_first_port": 2.303,
+      "native_over_opencv": 1.285
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 0,
+      "mode": 2,
+      "in_place": true,
+      "iterations": 100,
+      "before_us": 164.104,
+      "after_us": 74.83,
+      "opencv_us": 56.543,
+      "speedup_over_first_port": 2.193,
+      "native_over_opencv": 1.323
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 1,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 448.915,
+      "after_us": 224.816,
+      "opencv_us": 122.99,
+      "speedup_over_first_port": 1.997,
+      "native_over_opencv": 1.828
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 1,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 741.71,
+      "after_us": 577.228,
+      "opencv_us": 322.341,
+      "speedup_over_first_port": 1.285,
+      "native_over_opencv": 1.791
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 1,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 1918.133,
+      "after_us": 599.322,
+      "opencv_us": 879.454,
+      "speedup_over_first_port": 3.201,
+      "native_over_opencv": 0.681
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 2,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 748.984,
+      "after_us": 314.124,
+      "opencv_us": 268.995,
+      "speedup_over_first_port": 2.384,
+      "native_over_opencv": 1.168
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 2,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 1341.4,
+      "after_us": 707.39,
+      "opencv_us": 528.408,
+      "speedup_over_first_port": 1.896,
+      "native_over_opencv": 1.339
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 2,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 2778.231,
+      "after_us": 663.788,
+      "opencv_us": 1122.751,
+      "speedup_over_first_port": 4.185,
+      "native_over_opencv": 0.591
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 0,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 592.496,
+      "after_us": 184.851,
+      "opencv_us": 121.962,
+      "speedup_over_first_port": 3.205,
+      "native_over_opencv": 1.516
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 0,
+      "mode": 2,
+      "in_place": true,
+      "iterations": 100,
+      "before_us": 604.158,
+      "after_us": 187.898,
+      "opencv_us": 134.17,
+      "speedup_over_first_port": 3.215,
+      "native_over_opencv": 1.4
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 1,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 459.125,
+      "after_us": 227.698,
+      "opencv_us": 189.835,
+      "speedup_over_first_port": 2.016,
+      "native_over_opencv": 1.199
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 1,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 1090.415,
+      "after_us": 497.898,
+      "opencv_us": 384.911,
+      "speedup_over_first_port": 2.19,
+      "native_over_opencv": 1.294
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 1,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 3433.558,
+      "after_us": 1223.984,
+      "opencv_us": 2358.574,
+      "speedup_over_first_port": 2.805,
+      "native_over_opencv": 0.519
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 2,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 997.72,
+      "after_us": 405.129,
+      "opencv_us": 383.856,
+      "speedup_over_first_port": 2.463,
+      "native_over_opencv": 1.055
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 2,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 1971.485,
+      "after_us": 638.447,
+      "opencv_us": 612.0,
+      "speedup_over_first_port": 3.088,
+      "native_over_opencv": 1.043
+    },
+    {
+      "threads": 1,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 2,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 5337.357,
+      "after_us": 1346.41,
+      "opencv_us": 2846.738,
+      "speedup_over_first_port": 3.964,
+      "native_over_opencv": 0.473
+    },
+    {
+      "threads": 1,
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "operation": 0,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 20,
+      "before_us": 6660.029,
+      "after_us": 1879.975,
+      "opencv_us": 1278.37,
+      "speedup_over_first_port": 3.543,
+      "native_over_opencv": 1.471
+    },
+    {
+      "threads": 1,
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "operation": 1,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 20,
+      "before_us": 11361.57,
+      "after_us": 5123.28,
+      "opencv_us": 3836.551,
+      "speedup_over_first_port": 2.218,
+      "native_over_opencv": 1.335
+    },
+    {
+      "threads": 1,
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "operation": 2,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 20,
+      "before_us": 21727.857,
+      "after_us": 6995.514,
+      "opencv_us": 6435.857,
+      "speedup_over_first_port": 3.106,
+      "native_over_opencv": 1.087
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 0,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 168.782,
+      "after_us": 79.653,
+      "opencv_us": 59.622,
+      "speedup_over_first_port": 2.119,
+      "native_over_opencv": 1.336
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 0,
+      "mode": 2,
+      "in_place": true,
+      "iterations": 100,
+      "before_us": 206.421,
+      "after_us": 81.21,
+      "opencv_us": 70.923,
+      "speedup_over_first_port": 2.542,
+      "native_over_opencv": 1.145
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 1,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 509.113,
+      "after_us": 253.372,
+      "opencv_us": 142.228,
+      "speedup_over_first_port": 2.009,
+      "native_over_opencv": 1.781
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 1,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 820.143,
+      "after_us": 638.255,
+      "opencv_us": 352.093,
+      "speedup_over_first_port": 1.285,
+      "native_over_opencv": 1.813
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 1,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 2185.811,
+      "after_us": 675.716,
+      "opencv_us": 1007.249,
+      "speedup_over_first_port": 3.235,
+      "native_over_opencv": 0.671
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 2,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 805.063,
+      "after_us": 352.54,
+      "opencv_us": 294.439,
+      "speedup_over_first_port": 2.284,
+      "native_over_opencv": 1.197
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 2,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 1510.014,
+      "after_us": 770.723,
+      "opencv_us": 573.093,
+      "speedup_over_first_port": 1.959,
+      "native_over_opencv": 1.345
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 1,
+      "operation": 2,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 3176.16,
+      "after_us": 775.306,
+      "opencv_us": 1295.601,
+      "speedup_over_first_port": 4.097,
+      "native_over_opencv": 0.598
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 0,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 689.627,
+      "after_us": 204.2,
+      "opencv_us": 136.659,
+      "speedup_over_first_port": 3.377,
+      "native_over_opencv": 1.494
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 0,
+      "mode": 2,
+      "in_place": true,
+      "iterations": 100,
+      "before_us": 687.123,
+      "after_us": 219.196,
+      "opencv_us": 146.136,
+      "speedup_over_first_port": 3.135,
+      "native_over_opencv": 1.5
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 1,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 515.312,
+      "after_us": 278.119,
+      "opencv_us": 221.264,
+      "speedup_over_first_port": 1.853,
+      "native_over_opencv": 1.257
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 1,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 1230.287,
+      "after_us": 557.535,
+      "opencv_us": 442.266,
+      "speedup_over_first_port": 2.207,
+      "native_over_opencv": 1.261
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 1,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 3818.976,
+      "after_us": 1335.78,
+      "opencv_us": 2608.298,
+      "speedup_over_first_port": 2.859,
+      "native_over_opencv": 0.512
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 2,
+      "mode": 0,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 865.408,
+      "after_us": 355.375,
+      "opencv_us": 358.48,
+      "speedup_over_first_port": 2.435,
+      "native_over_opencv": 0.991
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 2,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 2123.294,
+      "after_us": 669.384,
+      "opencv_us": 634.935,
+      "speedup_over_first_port": 3.172,
+      "native_over_opencv": 1.054
+    },
+    {
+      "threads": 3,
+      "width": 320,
+      "height": 240,
+      "channels": 4,
+      "operation": 2,
+      "mode": 3,
+      "in_place": false,
+      "iterations": 100,
+      "before_us": 5024.195,
+      "after_us": 1303.027,
+      "opencv_us": 2694.037,
+      "speedup_over_first_port": 3.856,
+      "native_over_opencv": 0.484
+    },
+    {
+      "threads": 3,
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "operation": 0,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 20,
+      "before_us": 5288.808,
+      "after_us": 1273.234,
+      "opencv_us": 1342.877,
+      "speedup_over_first_port": 4.154,
+      "native_over_opencv": 0.948
+    },
+    {
+      "threads": 3,
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "operation": 1,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 20,
+      "before_us": 12759.551,
+      "after_us": 5871.657,
+      "opencv_us": 3069.941,
+      "speedup_over_first_port": 2.173,
+      "native_over_opencv": 1.913
+    },
+    {
+      "threads": 3,
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "operation": 2,
+      "mode": 2,
+      "in_place": false,
+      "iterations": 20,
+      "before_us": 17230.955,
+      "after_us": 6605.788,
+      "opencv_us": 3852.97,
+      "speedup_over_first_port": 2.608,
+      "native_over_opencv": 1.714
+    }
+  ]
+}
