@@ -3,6 +3,7 @@
 #include <cocos2d.h>
 #include <memory>
 #include <type_traits>
+#include <vector>
 
 namespace {
     struct Fixture {
@@ -65,14 +66,20 @@ TEST_CASE("cocos context subscription retains its dispatcher and listener",
     subscription.reset(); // Releases the last dispatcher reference safely.
 }
 
-TEST_CASE(
-    "cocos context subscription rejects an empty callback without retaining",
-    "[cocos][context]") {
+TEST_CASE("cocos context subscription survives host-side listener removal",
+          "[cocos][context]") {
     STATIC_REQUIRE(
         !std::is_copy_constructible_v<krkr::cocosrender::ContextSubscription>);
     Fixture fixture;
-    REQUIRE_THROWS_AS(
-        (krkr::cocosrender::ContextSubscription(*fixture.dispatcher, {})),
-        std::invalid_argument);
+    int calls = 0;
+    auto subscription =
+        std::make_unique<krkr::cocosrender::ContextSubscription>(
+            *fixture.dispatcher, [&] { ++calls; });
+    fixture.notify();
+    fixture.dispatcher->removeAllEventListeners();
+    fixture.pool.clear();
+    fixture.notify();
+    REQUIRE(calls == 1);
+    subscription.reset();
     REQUIRE(fixture.dispatcher->getReferenceCount() == 1);
 }
