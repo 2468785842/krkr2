@@ -546,6 +546,60 @@ namespace TVPImageOps {
             }
             static const auto table = makeWarpTable();
             const auto &w = table[fy * 32 + fx];
+#if defined(__SSE2__) || defined(_M_X64)
+            if(x >= 1 && y >= 1 && x < src.width - 2 && y < src.height - 2) {
+                auto sum = _mm_setzero_si128();
+                const auto zero = _mm_setzero_si128();
+                for(int row = 0; row < 4; ++row) {
+                    const auto *input =
+                        src.data + (y + row - 1) * stride + (x - 1) * cn;
+                    if constexpr(cn == 4) {
+                        const auto pixels = _mm_loadu_si128(
+                            reinterpret_cast<const __m128i *>(input));
+                        auto a = _mm_unpacklo_epi8(pixels, zero),
+                             b = _mm_unpackhi_epi8(pixels, zero);
+                        a = _mm_unpacklo_epi16(a, _mm_srli_si128(a, 8));
+                        b = _mm_unpacklo_epi16(b, _mm_srli_si128(b, 8));
+                        const auto pair = [&](int col) {
+                            return _mm_set1_epi32(static_cast<int>(
+                                (static_cast<std::uint32_t>(
+                                     static_cast<std::uint16_t>(
+                                         w[row * 4 + col + 1]))
+                                 << 16) |
+                                static_cast<std::uint16_t>(w[row * 4 + col])));
+                        };
+                        sum = _mm_add_epi32(
+                            sum,
+                            _mm_add_epi32(_mm_madd_epi16(a, pair(0)),
+                                          _mm_madd_epi16(b, pair(2))));
+                    } else {
+                        std::uint32_t pixels;
+                        std::memcpy(&pixels, input, 4);
+                        const auto values = _mm_unpacklo_epi8(
+                            _mm_cvtsi32_si128(static_cast<int>(pixels)), zero);
+                        const auto weights =
+                            _mm_loadl_epi64(reinterpret_cast<const __m128i *>(
+                                w.data() + row * 4));
+                        sum =
+                            _mm_add_epi32(sum, _mm_madd_epi16(values, weights));
+                    }
+                }
+                if constexpr(cn == 1)
+                    sum = _mm_add_epi32(sum, _mm_srli_si128(sum, 4));
+                sum = _mm_srai_epi32(_mm_add_epi32(sum, _mm_set1_epi32(16384)),
+                                     15);
+                const auto packed =
+                    _mm_packus_epi16(_mm_packs_epi32(sum, zero), zero);
+                if constexpr(cn == 4) {
+                    const auto pixel =
+                        static_cast<std::uint32_t>(_mm_cvtsi128_si32(packed));
+                    std::memcpy(out, &pixel, 4);
+                } else
+                    out[0] =
+                        static_cast<std::uint8_t>(_mm_cvtsi128_si32(packed));
+                return;
+            }
+#endif
             int sums[4]{};
             for(int j = 0; j < 4; ++j)
                 for(int i = 0; i < 4; ++i) {
@@ -982,163 +1036,10 @@ namespace TVPImageOps {
             });
     }
     namespace {
-        // 16-bit sums suffice for kernels with at most 256 pixels. Keep an
-        // expanded border row so the running sum reads consecutive memory.
-        template <int cn>
-        void smallBoxBlur(ConstImageView src, ImageView dst, int kw, int kh) {
-            const auto sp = detail::Step(src), dp = detail::Step(dst);
-            const std::size_t width = static_cast<std::size_t>(src.width) * cn;
-            const int area = kw * kh;
-            const double quotient = (1 << 23) / static_cast<double>(area);
-            int ds = static_cast<int>(std::floor(quotient)), dd = area / 2;
-            if(quotient - ds < .5)
-                ++dd;
-            else
-                ++ds;
-            std::unique_ptr<std::uint16_t[]> rows(
-                new std::uint16_t[width * src.height]);
-            std::vector<int> border(src.width + kw);
-            for(std::size_t x = 0; x < border.size(); ++x)
-                border[x] =
-                    reflect(static_cast<std::int64_t>(x) - kw / 2, src.width);
-            detail::ForRows(
-                src.height, static_cast<std::size_t>(src.width) * src.height,
-                [&](int first, int last) {
-                    std::vector<std::uint8_t> padded(border.size() * cn);
-                    for(int y = first; y < last; ++y) {
-                        const auto *input = src.data + y * sp;
-                        const auto left = static_cast<std::size_t>(kw / 2),
-                                   right = left + src.width;
-                        std::memcpy(padded.data() + left * cn, input, width);
-                        for(std::size_t x = 0; x < left; ++x)
-                            std::memcpy(padded.data() + x * cn,
-                                        input + border[x] * cn, cn);
-                        for(std::size_t x = right; x < border.size(); ++x)
-                            std::memcpy(padded.data() + x * cn,
-                                        input + border[x] * cn, cn);
-                        auto *out = rows.get() + y * width;
-#if defined(__SSE2__) || defined(_M_X64)
-                        if constexpr(cn == 4) {
-                            const auto load = [](const std::uint8_t *pixel) {
-                                std::uint32_t value;
-                                std::memcpy(&value, pixel, 4);
-                                return _mm_unpacklo_epi8(
-                                    _mm_cvtsi32_si128(static_cast<int>(value)),
-                                    _mm_setzero_si128());
-                            };
-                            auto sum = _mm_setzero_si128();
-                            for(int k = 0; k < kw; ++k)
-                                sum = _mm_add_epi16(
-                                    sum, load(padded.data() + k * 4));
-                            for(int x = 0; x < src.width; ++x) {
-                                _mm_storel_epi64(
-                                    reinterpret_cast<__m128i *>(out + x * 4),
-                                    sum);
-                                sum = _mm_add_epi16(
-                                    _mm_sub_epi16(sum,
-                                                  load(padded.data() + x * 4)),
-                                    load(padded.data() + (x + kw) * 4));
-                            }
-                        } else
-#endif
-                        {
-                            int sum[cn]{};
-                            for(int k = 0; k < kw; ++k)
-                                for(int c = 0; c < cn; ++c)
-                                    sum[c] += padded[k * cn + c];
-                            for(int x = 0; x < src.width; ++x)
-                                for(int c = 0; c < cn; ++c) {
-                                    out[x * cn + c] =
-                                        static_cast<std::uint16_t>(sum[c]);
-                                    sum[c] += padded[(x + kw) * cn + c] -
-                                        padded[x * cn + c];
-                                }
-                        }
-                    }
-                });
-            detail::ForRows(
-                src.height, static_cast<std::size_t>(src.width) * src.height,
-                [&](int first, int last) {
-                    std::vector<std::uint16_t> sum(width, 0);
-                    for(int k = 0; k < kh; ++k) {
-                        const auto *row = rows.get() +
-                            reflect(first + k - kh / 2, src.height) * width;
-                        for(std::size_t x = 0; x < width; ++x)
-                            sum[x] =
-                                static_cast<std::uint16_t>(sum[x] + row[x]);
-                    }
-                    for(int y = first; y < last; ++y) {
-                        auto *out = dst.data + y * dp;
-                        const auto *leaving = rows.get() +
-                            reflect(static_cast<std::int64_t>(y) - kh / 2,
-                                    src.height) *
-                                width;
-                        const auto *entering = rows.get() +
-                            reflect(static_cast<std::int64_t>(y) + kh - kh / 2,
-                                    src.height) *
-                                width;
-                        std::size_t x = 0;
-#if defined(__SSE2__) || defined(_M_X64)
-                        const auto multiplier = _mm_set1_epi32(ds),
-                                   delta =
-                                       _mm_set1_epi16(static_cast<short>(dd)),
-                                   zero = _mm_setzero_si128();
-                        const auto multiply = [&](__m128i v) {
-                            const auto even = _mm_mul_epu32(v, multiplier);
-                            const auto odd =
-                                _mm_mul_epu32(_mm_srli_si128(v, 4), multiplier);
-                            return _mm_unpacklo_epi32(
-                                _mm_shuffle_epi32(even,
-                                                  _MM_SHUFFLE(2, 0, 2, 0)),
-                                _mm_shuffle_epi32(odd,
-                                                  _MM_SHUFFLE(2, 0, 2, 0)));
-                        };
-                        for(; x + 8 <= width / 16 * 16; x += 8) {
-                            const auto v = _mm_loadu_si128(
-                                reinterpret_cast<const __m128i *>(sum.data() +
-                                                                  x));
-                            const auto adjusted = _mm_add_epi16(v, delta);
-                            const auto lo = _mm_srli_epi32(
-                                multiply(_mm_unpacklo_epi16(adjusted, zero)),
-                                23);
-                            const auto hi = _mm_srli_epi32(
-                                multiply(_mm_unpackhi_epi16(adjusted, zero)),
-                                23);
-                            _mm_storel_epi64(
-                                reinterpret_cast<__m128i *>(out + x),
-                                _mm_packus_epi16(_mm_packs_epi32(lo, hi),
-                                                 zero));
-                            const auto next = _mm_add_epi16(
-                                _mm_sub_epi16(
-                                    v,
-                                    _mm_loadu_si128(
-                                        reinterpret_cast<const __m128i *>(
-                                            leaving + x))),
-                                _mm_loadu_si128(
-                                    reinterpret_cast<const __m128i *>(entering +
-                                                                      x)));
-                            _mm_storeu_si128(
-                                reinterpret_cast<__m128i *>(sum.data() + x),
-                                next);
-                        }
-#endif
-                        for(; x < width; ++x) {
-                            const auto value =
-                                (static_cast<std::uint32_t>(sum[x]) + dd) *
-                                    ds >>
-                                23;
-                            // The former 16-byte vector groups saturate; its
-                            // scalar tail wraps the Q23 result (notably 1x2
-                            // white).
-                            out[x] = static_cast<std::uint8_t>(
-                                x < width / 16 * 16 ? std::min(value, 255u)
-                                                    : value);
-                            sum[x] = static_cast<std::uint16_t>(
-                                sum[x] - leaving[x] + entering[x]);
-                        }
-                    }
-                });
-        }
+        template <int Channels, typename Sum>
+        void boxBlur(ConstImageView src, ImageView dst, int kw, int kh);
+        // Small kernels retain only kh+1 horizontal rows, including the next
+        // row needed before an in-place destination write.
         template <int cn>
         void smallBoxBlurRing(ConstImageView src, ImageView dst, int kw,
                               int kh) {
@@ -1297,7 +1198,7 @@ namespace TVPImageOps {
                        otherEnd = other + (dst.height - 1) * dp + width;
             const bool overlap = begin < otherEnd && other < end;
             if(overlap && (src.data != dst.data || sp != dp))
-                smallBoxBlur<cn>(src, dst, kw, kh);
+                boxBlur<cn, std::uint32_t>(src, dst, kw, kh);
             else
                 smallBoxBlurRing<cn>(src, dst, kw, kh);
         }
@@ -1365,14 +1266,18 @@ namespace TVPImageOps {
                         if(area == 1)
                             for(std::size_t x = 0; x < width; ++x)
                                 out[x] = static_cast<std::uint8_t>(sum[x]);
-                        else if(area <= 256)
-                            for(std::size_t x = 0; x < width; ++x)
+                        else if(area <= 256) {
+                            for(std::size_t x = 0; x < width; ++x) {
+                                const auto value =
+                                    (static_cast<std::uint32_t>(sum[x]) +
+                                     divDelta) *
+                                        static_cast<std::uint32_t>(divScale) >>
+                                    23;
                                 out[x] = static_cast<std::uint8_t>(
-                                    ((static_cast<std::uint32_t>(sum[x]) +
-                                      divDelta) *
-                                     static_cast<std::uint32_t>(divScale)) >>
-                                    23);
-                        else
+                                    x < width / 16 * 16 ? std::min(value, 255u)
+                                                        : value);
+                            }
+                        } else
                             for(std::size_t x = 0; x < width; ++x)
                                 out[x] = byte(rounded(sum[x] * scale));
                         const auto *leaving = rows.data() +

@@ -150,6 +150,35 @@ TEST_CASE("ImageOps identity and cropped views preserve guard bytes",
             crop.guards();
         }
 }
+TEST_CASE("ImageOps blur preserves cropped overlapping layouts", "[imageops]") {
+    for(int cn : { 1, 4 }) {
+        Pixels storage(17, 14, cn, 67), input(17, 13, cn), expected(17, 13, cn);
+        auto src = storage.view();
+        src.height = 13;
+        for(int y = 0; y < 13; ++y)
+            std::copy_n(src.data + y * src.pitch, 17 * cn,
+                        input.view().data + y * input.pitch);
+        BoxBlur(input.view(), expected.view(), 9, 9);
+        auto dst = src;
+        dst.data += dst.pitch;
+        BoxBlur(src, dst, 9, 9);
+        for(int y = 0; y < 13; ++y)
+            REQUIRE(std::equal(dst.data + y * dst.pitch,
+                               dst.data + y * dst.pitch + 17 * cn,
+                               expected.view().data + y * expected.pitch));
+        storage = Pixels(17, 14, cn, 67);
+        src = storage.view();
+        src.height = 13;
+        dst = src;
+        dst.pitch -= 4;
+        BoxBlur(src, dst, 9, 9);
+        for(int y = 0; y < 13; ++y)
+            REQUIRE(std::equal(dst.data + y * dst.pitch,
+                               dst.data + y * dst.pitch + 17 * cn,
+                               expected.view().data + y * expected.pitch));
+    }
+}
+
 TEST_CASE("ImageOps transform matrices map float vertices and singular inputs",
           "[imageops]") {
     const Quad from{ Point(0, 0), Point(7, 0), Point(7, 5), Point(0, 5) };

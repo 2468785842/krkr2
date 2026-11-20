@@ -98,3 +98,9 @@ DPI/IME/焦点和移动生命周期中的相关项，分别保存结果。
 已有本地记录见[游戏插装调查](../../.agents/notes/implemented/testing/2026-11-02-game-smoke-investigation.md)
 与[窗口交互验证](../../.agents/notes/implemented/testing/2026-11-03-window-interface-validation.md)。
 当前样本的具体通过与失败边界见[游戏验证范围](../reference/game-compatibility.md)。
+
+## ImageOps 软件/OpenGL 场景
+
+[自制图像场景](../../tools/game-smoke/imageops/README.md)在两个真实渲染管理器上执行
+四种缩放、模糊、仿射和透视插件，检查不透明内部像素、导出图层与 Cocos 帧并要求正常退出。
+Windows pointer_contracts 与 Linux 完整构建工作流运行此场景；完整游戏仍另行验证。

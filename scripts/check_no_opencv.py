@@ -28,7 +28,10 @@ def inspect(root):
     if not links:
         raise ValueError("No generated link metadata")
     for link in links:
-        if OPENCV.search(link.read_text(encoding="utf-8")):
+        metadata = link.read_text(encoding="utf-8")
+        # These exact notices are packaged resources, not linked OpenCV code.
+        metadata = re.sub(r"([/\\]licenses[/\\]imageops[/\\])OpenCV-(?:resize|imgwarp|box-filter|lapack)\.txt", r"\1LICENSE.txt", metadata, flags=re.I)
+        if OPENCV.search(metadata):
             raise ValueError(f"OpenCV remains in generated link metadata: {link}")
     return {"project_sources": len(commands), "ports": sorted(ports), "installed_status_checked": status_path.exists(), "opencv": False}
 

@@ -68,7 +68,7 @@ python scripts/check_no_opencv.py out/imageops
 python scripts/check_core_module_deps.py
 ```
 
-未使用 vcpkg 时可通过 `CMAKE_PREFIX_PATH` 提供 Catch2 3。默认注册 6 项用例；
+未使用 vcpkg 时可通过 `CMAKE_PREFIX_PATH` 提供 Catch2 3。默认注册 7 项用例；
 3,096 组独立生成的 OpenCV 4.7.0 固定输出摘要分别以 1/3 线程验证，包含所有操作、随机数据/尺寸、
 短行尾部、单像素轴、非紧密 pitch、奇偶/大核、奇异矩阵和零边界。
 另有手算像素、alpha、ROI/前后哨兵、原位/恒等、输出所有权、参数拒绝、线程异常与并发调用检查。
@@ -89,7 +89,7 @@ ctest --test-dir out/imageops-reference -N
 ctest --test-dir out/imageops-reference --output-on-failure --no-tests=error
 ```
 
-额外注册 `ImageOpsReferenceTest.cpp` 中原有 16 项逐字节对照，默认 6 项仍全部运行。
+额外注册 `ImageOpsReferenceTest.cpp` 中原有 16 项逐字节对照，默认 7 项仍全部运行。
 `imageops_generate_golden` 只链接 OpenCV，不链接 ImageOps；其 stdout 经 clang-format 20 格式化后
 对应 `ImageOpsGolden.h`。勿使用新实现生成自己的期望结果。
 

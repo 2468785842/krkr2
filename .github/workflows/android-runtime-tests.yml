@@ -98,10 +98,18 @@ jobs:
           python - <<'PYVERIFY'
           from pathlib import Path
           from scripts.check_no_opencv import inspect
-          import json
-          builds = list(Path('out/android/cmake-build').rglob('compile_commands.json'))
+          import json, os
+          from scripts.check_android_runtime_apk import cache_values
+          root = Path.cwd()
+          builds = []
+          for cache in Path('out/android/cmake-build').rglob('CMakeCache.txt'):
+              values = cache_values(cache)
+              if (values.get('ANDROID_ABI') == os.environ['KRKR2_ANDROID_ABI']
+                      and values.get('CMAKE_BUILD_TYPE') == 'Debug'
+                      and values.get('CMAKE_HOME_DIRECTORY') == str(root)):
+                  builds.append(cache.parent)
           assert len(builds) == 1, builds
-          print(json.dumps(inspect(builds[0].parent), indent=2))
+          print(json.dumps(inspect(builds[0]), indent=2))
           PYVERIFY
       - name: Build the complete Debug runtime
         run: |

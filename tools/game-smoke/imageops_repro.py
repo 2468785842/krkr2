@@ -5,7 +5,9 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import struct
 import time
+from frame_pixels import color_counts
 
 
 def digest(path):
@@ -16,8 +18,50 @@ def events(root):
     path = root / "imageops-events.txt"
     if not path.exists():
         return []
-    raw = path.read_bytes()
-    return raw.decode("utf-16" if raw.startswith((b"\xff\xfe", b"\xfe\xff")) else "utf-8-sig").splitlines()
+    try:
+        raw = path.read_bytes()
+        return raw.decode("utf-16" if raw.startswith((b"\xff\xfe", b"\xfe\xff")) else "utf-8-sig").splitlines()
+    except (OSError, UnicodeError):
+        return []
+
+
+def bmp_rgb(path, x, y):
+    data = path.read_bytes()
+    if data[:2] != b"BM" or len(data) < 54:
+        raise ValueError("Invalid BMP header")
+    offset = struct.unpack_from("<I", data, 10)[0]
+    header = struct.unpack_from("<I", data, 14)[0]
+    width, height, planes, bits, compression = struct.unpack_from("<iiHHI", data, 18)
+    if header < 40 or planes != 1 or bits not in (24, 32) or compression not in (0, 3):
+        raise ValueError("Unsupported BMP pixel layout")
+    if compression == 3 and (len(data) < 66 or struct.unpack_from("<III", data, 54) != (0xff0000, 0xff00, 0xff)):
+        raise ValueError("Unsupported BMP masks")
+    if width != 384 or abs(height) != 192 or not (0 <= x < width and 0 <= y < abs(height)):
+        raise ValueError("Unexpected BMP dimensions or sample")
+    stride = ((width * bits + 31) // 32) * 4
+    if offset < 14 + header or len(data) < offset + stride * abs(height):
+        raise ValueError("Truncated BMP pixels")
+    row = abs(height) - 1 - y if height > 0 else y
+    start = offset + row * stride + x * (bits // 8)
+    b, g, r = data[start:start+3]
+    return (r, g, b)
+
+
+def frame_failures(path):
+    expected = [(64, 160, 64), (160, 64, 160), (64, 64, 64), (160, 160, 160)]
+    panels = [(i*96, 0, [(24,16),(72,16),(24,48),(72,48)]) for i in range(4)]
+    panels += [(0,96,[(16,16),(48,16),(16,48),(48,48)]),
+               (96,96,[(27,27),(63,29),(29,63),(65,65)]),
+               (192,96,[(20,20),(65,22),(22,65),(61,61)])]
+    errors = []
+    for panel, (left, top, points) in enumerate(panels):
+        for i, (x, y) in enumerate(points):
+            actual = bmp_rgb(path, left+x, top+y)
+            if actual != expected[i]:
+                errors.append(f"Panel {panel} sample {i}: RGB {actual} != {expected[i]}")
+    if bmp_rgb(path, 350, 150) != (16, 32, 16):
+        errors.append("Background guard pixel differs")
+    return errors
 
 
 def run(engine, destination, seconds=60, capture=False):
@@ -36,7 +80,9 @@ def run(engine, destination, seconds=60, capture=False):
         command = [str(engine), "--game=" + str(root)]
         if capture:
             command.append("-ui-contract-driver=yes")
-        report = {"engine": str(engine), "engine_sha256": digest(engine), "script_sha256": digest(source),
+        report = {"engine": str(engine), "engine_sha256": digest(engine), "script_sha256": digest(root / "startup.tjs"),
+                  "controller_sha256": digest(Path(__file__)),
+                  "preferences_sha256": digest(root / "Kirikiroid2Preference.xml"),
                   "renderer_requested": renderer, "command": command, "forced_stop": False, "failures": []}
         deadline = time.monotonic() + seconds
         with (root / "process.log").open("wb") as output:
@@ -65,7 +111,12 @@ def run(engine, destination, seconds=60, capture=False):
                             if "1 renderer:" + renderer not in log:
                                 raise RuntimeError("Capture renderer does not match requested backend: " + log)
                             report["renderer_observed"] = renderer
-                            report["frame_sha256"] = digest(root / "ui-frame.png")
+                            frame = root / "ui-frame.png"
+                            counts = color_counts(frame, [(64,160,64),(160,64,160),(64,64,64),(160,160,160)])
+                            if min(counts.values()) < 16:
+                                raise RuntimeError("Cocos frame does not contain the rendered fixture palette: " + str(counts))
+                            report["frame_color_counts"] = {str(color): count for color, count in counts.items()}
+                            report["frame_sha256"] = digest(frame)
                             break
                         if process.poll() is not None:
                             raise RuntimeError("Engine exited before capture")
@@ -97,6 +148,10 @@ def run(engine, destination, seconds=60, capture=False):
             report["failures"].append("Missing or incomplete Layer image")
         else:
             report["image_sha256"] = digest(image)
+            try:
+                report["failures"].extend(frame_failures(image))
+            except (ValueError, OSError, struct.error) as error:
+                report["failures"].append("Layer BMP validation: " + str(error))
         report["passed"] = not report["failures"]
         (root / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         reports.append(report)

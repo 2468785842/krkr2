@@ -5,7 +5,7 @@ import tempfile
 import unittest
 import zlib
 
-from frame_pixels import center_rgb, focus_frame_failures
+from frame_pixels import center_rgb, focus_frame_failures, color_counts
 
 
 def png(rows, color=2):
@@ -31,6 +31,7 @@ class FramePixelsTest(unittest.TestCase):
                 with self.subTest(filter=method):
                     path.write_bytes(png(bytes([method, *first, method, *second])))
                     self.assertEqual(center_rgb(path), (48, 64, 80))
+                    self.assertEqual(color_counts(path, [(48,64,80),(0,0,0)]), {(48,64,80):2,(0,0,0):0})
 
     def test_rgba_and_corrupt_crc(self):
         with tempfile.TemporaryDirectory() as directory:

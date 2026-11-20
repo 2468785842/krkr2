@@ -41,6 +41,14 @@ class NoOpenCVTest(unittest.TestCase):
         (self.root / "build.ninja").write_text("build /work/remove-opencv/imageops_tests: CXX_LINK libcore_imageops.a")
         self.assertFalse(module.inspect(self.root)["opencv"])
 
+    def test_packaged_copyright_notices_are_not_libraries(self):
+        path = self.root / "build.ninja"
+        path.write_text("build copy-assets: COPY /repo/assets/licenses/imageops/OpenCV-resize.txt /repo/assets/licenses/imageops/OpenCV-lapack.txt\n")
+        self.assertFalse(module.inspect(self.root)["opencv"])
+        path.write_text(path.read_text()+"LINK_LIBRARIES = /repo/lib/libopencv_core.a\n")
+        with self.assertRaisesRegex(ValueError, "link metadata"):
+            module.inspect(self.root)
+
     def test_missing_evidence_is_not_success(self):
         (self.root / "build.ninja").unlink()
         with self.assertRaisesRegex(ValueError, "No generated link"):
