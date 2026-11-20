@@ -6,6 +6,7 @@
 #include "SysInitIntf.h"
 #include "tjsString.h"
 #include "HostLifecycle.h"
+#include "RenderManager.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -99,6 +100,10 @@ void TVPStartUIContractDriver(cocos2d::Scene *scene) {
                     std::ofstream tree(root / "ui-tree.txt");
                     dump(scene, tree);
                 } else if(action == "capture") {
+                    log << id << " renderer:"
+                        << (TVPIsSoftwareRenderManager() ? "software"
+                                                         : "opengl")
+                        << "\n";
                     const auto path = (root / "ui-frame.png").u8string();
                     utils::captureScreen(
                         [root, id](bool saved, const std::string &) {

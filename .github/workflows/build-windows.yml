@@ -10,16 +10,21 @@ on:
         default: false
 
 env:
-  VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json,readwrite"
+  NUGET_CACHE_ENABLED: ${{ secrets.NUGET_API_KEY != '' }}
+  VCPKG_BINARY_SOURCES: ${{ secrets.NUGET_API_KEY != '' && format('clear;nuget,https://nuget.pkg.github.com/{0}/index.json,readwrite', github.repository_owner) || 'clear' }}
   VCPKG_INSTALL_OPTIONS: "--debug"
 
 jobs:
   build-windows:
-    runs-on: windows-latest
+    runs-on: windows-2022
     env:
       VCPKG_ROOT: ${{ github.workspace }}/.act/vcpkg
     steps:
       - uses: actions/checkout@v4
+
+      - uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.31.1
 
       - name: Setup MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
@@ -53,17 +58,21 @@ jobs:
           }
 
       - name: Add NuGet sources
+        if: env.NUGET_CACHE_ENABLED == 'true'
         shell: pwsh
         run: |
-          .$(${{ env.VCPKG_ROOT }}/vcpkg fetch nuget) `
-            sources add `
+          $fetch = & "${{ env.VCPKG_ROOT }}/vcpkg.exe" fetch nuget
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $nuget = ($fetch | Select-Object -Last 1).Trim()
+          if (!(Test-Path -LiteralPath $nuget -PathType Leaf)) { throw 'NuGet executable not found' }
+          & $nuget sources add `
             -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
             -StorePasswordInClearText `
             -Name GitHubPackages `
             -UserName "${{ github.actor }}" `
             -Password "${{ secrets.NUGET_API_KEY }}"
-          .$(${{ env.VCPKG_ROOT }}/vcpkg fetch nuget) `
-            setapikey "${{ secrets.NUGET_API_KEY }}" `
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $nuget setapikey "${{ secrets.NUGET_API_KEY }}" `
             -Source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
       - name: ccache

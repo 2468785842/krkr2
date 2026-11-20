@@ -95,6 +95,15 @@ int main() {
                     for(int op : { 2, 3 })
                         emit({ op, shape[0], shape[1], shape[0] + 5,
                                shape[1] + 3, cn, mode, variant, next(), 0 });
+        for(int w = 1; w <= 33; ++w)
+            for(auto kernel : { std::array<int, 2>{ 1, 2 },
+                                { 2, 1 },
+                                { 2, 2 },
+                                { 3, 1 },
+                                { 1, 3 },
+                                { 16, 16 } })
+                emit({ 1, w, 3, kernel[0], kernel[1], cn, 0, 0, 0xffffffffu,
+                       0 });
         for(int mode = 0; mode < 4; ++mode)
             emit({ 0, 1031, 271, 521, 137, cn, mode, 0, next(), 0 });
     }

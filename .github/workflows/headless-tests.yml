@@ -194,6 +194,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.31.1
       - uses: actions/cache@v4
         with:
           path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}

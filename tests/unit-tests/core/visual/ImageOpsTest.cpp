@@ -2,6 +2,7 @@
 #include "imageops/ImageOps_internal.h"
 #include <catch2/catch_test_macros.hpp>
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <future>
 #include <limits>
@@ -245,6 +246,13 @@ TEST_CASE(
                                                   "caller");
                                       }),
                       std::runtime_error);
+    std::atomic<int> nested{ 0 };
+    detail::ForRows(1000, 1000000, [&](int first, int last) {
+        detail::ForRows(32, 1000000, [&](int a, int b) {
+            nested += (last - first) * (b - a);
+        });
+    });
+    REQUIRE(nested == 32000);
     Pixels blurSource(601, 419, 4, 67), serialBlur(601, 419, 4),
         parallelBlur(601, 419, 4);
     SetThreadCount(1);

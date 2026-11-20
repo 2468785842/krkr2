@@ -13,12 +13,13 @@ namespace ImageOpsCases {
     inline std::vector<std::uint8_t> pixels(int width, int height, int channels,
                                             std::size_t pitch,
                                             std::uint32_t seed) {
+        const bool white = seed == 0xffffffffu;
         std::vector<std::uint8_t> result(pitch * height + 32, 0xa5);
         for(int y = 0; y < height; ++y)
             for(int x = 0; x < width * channels; ++x) {
                 seed = seed * 1664525u + 1013904223u;
                 result[16 + y * pitch + x] =
-                    static_cast<std::uint8_t>(seed >> 24);
+                    white ? 255 : static_cast<std::uint8_t>(seed >> 24);
             }
         return result;
     }

@@ -207,7 +207,10 @@ direct,
 #include <atomic>
 #include <cmath>
 #include <cstring>
-#include <future>
+#include <condition_variable>
+#include <deque>
+#include <exception>
+#include <mutex>
 #include <limits>
 #include <stdexcept>
 #include <thread>
@@ -595,6 +598,7 @@ namespace TVPImageOps {
                                 const double xx = m[0] * base + m[1] * y + m[2],
                                              yy = m[3] * base + m[4] * y + m[5],
                                              ww = m[6] * base + m[7] * y + m[8];
+                                std::array<int, 1024> columns, rows;
                                 int x = 0;
 #if defined(__SSE2__) || defined(_M_X64)
                                 const auto zero = _mm_setzero_pd();
@@ -632,13 +636,14 @@ namespace TVPImageOps {
                                         upper, _mm_max_pd(lower, cx)));
                                     auto iy = _mm_cvtpd_epi32(_mm_min_pd(
                                         upper, _mm_max_pd(lower, cy)));
-                                    emit(base + x, _mm_cvtsi128_si32(ix),
-                                         _mm_cvtsi128_si32(iy));
-                                    emit(base + x + 1,
-                                         _mm_cvtsi128_si32(
-                                             _mm_srli_si128(ix, 4)),
-                                         _mm_cvtsi128_si32(
-                                             _mm_srli_si128(iy, 4)));
+                                    _mm_storel_epi64(
+                                        reinterpret_cast<__m128i *>(
+                                            columns.data() + x),
+                                        ix);
+                                    _mm_storel_epi64(
+                                        reinterpret_cast<__m128i *>(
+                                            rows.data() + x),
+                                        iy);
                                 }
 #endif
                                 for(; x < count; ++x) {
@@ -649,10 +654,13 @@ namespace TVPImageOps {
                                                : 32.) /
                                             w
                                         : 0;
-                                    emit(base + x,
-                                         coordinate((xx + m[0] * x) * scale),
-                                         coordinate((yy + m[3] * x) * scale));
+                                    columns[x] =
+                                        coordinate((xx + m[0] * x) * scale);
+                                    rows[x] =
+                                        coordinate((yy + m[3] * x) * scale);
                                 }
+                                for(int i = 0; i < count; ++i)
+                                    emit(base + i, columns[i], rows[i]);
                             }
                         } else {
                             constexpr int delta =
@@ -756,29 +764,142 @@ namespace TVPImageOps {
                  : static_cast<int>(std::min(
                        8u, std::max(1u, std::thread::hardware_concurrency())));
     }
+    namespace {
+        thread_local bool insideRowTask = false;
+        struct RowTaskScope {
+            bool previous = insideRowTask;
+            RowTaskScope() { insideRowTask = true; }
+            ~RowTaskScope() { insideRowTask = previous; }
+        };
+        class RowPool {
+            std::mutex mutex;
+            std::condition_variable ready;
+            std::deque<std::function<void()>> queue;
+            std::vector<std::thread> workers;
+            bool stopping = false;
+            void stop() {
+                {
+                    std::lock_guard<std::mutex> lock(mutex);
+                    stopping = true;
+                }
+                ready.notify_all();
+                for(auto &worker : workers)
+                    worker.join();
+            }
+
+        public:
+            RowPool() {
+                const unsigned count = std::min(
+                    7u, std::max(1u, std::thread::hardware_concurrency()) - 1);
+                workers.reserve(count);
+                try {
+                    for(unsigned i = 0; i < count; ++i)
+                        workers.emplace_back([this] {
+                            RowTaskScope scope;
+                            for(;;) {
+                                std::function<void()> job;
+                                {
+                                    std::unique_lock<std::mutex> lock(mutex);
+                                    ready.wait(lock, [this] {
+                                        return stopping || !queue.empty();
+                                    });
+                                    if(stopping && queue.empty())
+                                        return;
+                                    job = std::move(queue.front());
+                                    queue.pop_front();
+                                }
+                                job();
+                            }
+                        });
+                } catch(...) {
+                    stop();
+                    throw;
+                }
+            }
+            ~RowPool() { stop(); }
+            int capacity() const {
+                return static_cast<int>(workers.size()) + 1;
+            }
+            void submit(std::function<void()> job) {
+                {
+                    std::lock_guard<std::mutex> lock(mutex);
+                    queue.emplace_back(std::move(job));
+                }
+                ready.notify_one();
+            }
+        };
+        struct RowBatch {
+            std::function<void(int, int)> task;
+            std::mutex mutex;
+            std::condition_variable finished;
+            std::exception_ptr failure;
+            int pending = 0;
+            explicit RowBatch(const std::function<void(int, int)> &callback) :
+                task(callback) {}
+            void run(int first, int last) noexcept {
+                RowTaskScope scope;
+                try {
+                    task(first, last);
+                } catch(...) {
+                    std::lock_guard<std::mutex> lock(mutex);
+                    if(!failure)
+                        failure = std::current_exception();
+                }
+            }
+            void complete() {
+                std::lock_guard<std::mutex> lock(mutex);
+                if(--pending == 0)
+                    finished.notify_all();
+            }
+            void wait() {
+                std::unique_lock<std::mutex> lock(mutex);
+                finished.wait(lock, [this] { return pending == 0; });
+            }
+        };
+    } // namespace
     void detail::ForRows(int height, std::size_t pixels,
                          const std::function<void(int, int)> &task) {
-        const int workers = static_cast<int>(
+        int workers = static_cast<int>(
             std::min({ static_cast<std::size_t>(GetThreadCount()),
                        static_cast<std::size_t>(height),
                        std::max(std::size_t(1), pixels / 65536) }));
-        if(workers <= 1) {
+        if(workers <= 1 || insideRowTask) {
+            RowTaskScope scope;
             task(0, height);
             return;
         }
-        std::vector<std::future<void>> jobs;
-        for(int i = 1; i < workers; ++i)
-            jobs.emplace_back(std::async(std::launch::async, [&, i] {
-                task(static_cast<int>(static_cast<std::int64_t>(height) * i /
-                                      workers),
-                     static_cast<int>(static_cast<std::int64_t>(height) *
-                                      (i + 1) / workers));
-            }));
-        // futures join during unwinding too; borrowed pixels never outlive this
-        // call.
-        task(0, height / workers);
-        for(auto &job : jobs)
-            job.get();
+        static RowPool pool;
+        workers = std::min(workers, pool.capacity());
+        if(workers <= 1) {
+            RowTaskScope scope;
+            task(0, height);
+            return;
+        }
+        auto batch = std::make_shared<RowBatch>(task);
+        for(int i = 1; i < workers; ++i) {
+            {
+                std::lock_guard<std::mutex> lock(batch->mutex);
+                ++batch->pending;
+            }
+            try {
+                pool.submit([batch, i, workers, height] {
+                    batch->run(
+                        static_cast<int>(static_cast<std::int64_t>(height) * i /
+                                         workers),
+                        static_cast<int>(static_cast<std::int64_t>(height) *
+                                         (i + 1) / workers));
+                    batch->complete();
+                });
+            } catch(...) {
+                batch->complete();
+                batch->wait();
+                throw;
+            }
+        }
+        batch->run(0, height / workers);
+        batch->wait();
+        if(batch->failure)
+            std::rethrow_exception(batch->failure);
     }
     void detail::ResizeFiltered(ConstImageView src, ImageView dst,
                                 Interpolation mode) {
@@ -874,7 +995,8 @@ namespace TVPImageOps {
                 ++dd;
             else
                 ++ds;
-            std::vector<std::uint16_t> rows(width * src.height);
+            std::unique_ptr<std::uint16_t[]> rows(
+                new std::uint16_t[width * src.height]);
             std::vector<int> border(src.width + kw);
             for(std::size_t x = 0; x < border.size(); ++x)
                 border[x] =
@@ -885,10 +1007,16 @@ namespace TVPImageOps {
                     std::vector<std::uint8_t> padded(border.size() * cn);
                     for(int y = first; y < last; ++y) {
                         const auto *input = src.data + y * sp;
-                        for(std::size_t x = 0; x < border.size(); ++x)
+                        const auto left = static_cast<std::size_t>(kw / 2),
+                                   right = left + src.width;
+                        std::memcpy(padded.data() + left * cn, input, width);
+                        for(std::size_t x = 0; x < left; ++x)
                             std::memcpy(padded.data() + x * cn,
                                         input + border[x] * cn, cn);
-                        auto *out = rows.data() + y * width;
+                        for(std::size_t x = right; x < border.size(); ++x)
+                            std::memcpy(padded.data() + x * cn,
+                                        input + border[x] * cn, cn);
+                        auto *out = rows.get() + y * width;
 #if defined(__SSE2__) || defined(_M_X64)
                         if constexpr(cn == 4) {
                             const auto load = [](const std::uint8_t *pixel) {
@@ -933,7 +1061,7 @@ namespace TVPImageOps {
                 [&](int first, int last) {
                     std::vector<std::uint16_t> sum(width, 0);
                     for(int k = 0; k < kh; ++k) {
-                        const auto *row = rows.data() +
+                        const auto *row = rows.get() +
                             reflect(first + k - kh / 2, src.height) * width;
                         for(std::size_t x = 0; x < width; ++x)
                             sum[x] =
@@ -941,11 +1069,11 @@ namespace TVPImageOps {
                     }
                     for(int y = first; y < last; ++y) {
                         auto *out = dst.data + y * dp;
-                        const auto *leaving = rows.data() +
+                        const auto *leaving = rows.get() +
                             reflect(static_cast<std::int64_t>(y) - kh / 2,
                                     src.height) *
                                 width;
-                        const auto *entering = rows.data() +
+                        const auto *entering = rows.get() +
                             reflect(static_cast<std::int64_t>(y) + kh - kh / 2,
                                     src.height) *
                                 width;
@@ -965,7 +1093,7 @@ namespace TVPImageOps {
                                 _mm_shuffle_epi32(odd,
                                                   _MM_SHUFFLE(2, 0, 2, 0)));
                         };
-                        for(; x + 8 <= width; x += 8) {
+                        for(; x + 8 <= width / 16 * 16; x += 8) {
                             const auto v = _mm_loadu_si128(
                                 reinterpret_cast<const __m128i *>(sum.data() +
                                                                   x));
@@ -995,15 +1123,183 @@ namespace TVPImageOps {
                         }
 #endif
                         for(; x < width; ++x) {
-                            out[x] = static_cast<std::uint8_t>(
+                            const auto value =
                                 (static_cast<std::uint32_t>(sum[x]) + dd) *
                                     ds >>
-                                23);
+                                23;
+                            // The former 16-byte vector groups saturate; its
+                            // scalar tail wraps the Q23 result (notably 1x2
+                            // white).
+                            out[x] = static_cast<std::uint8_t>(
+                                x < width / 16 * 16 ? std::min(value, 255u)
+                                                    : value);
                             sum[x] = static_cast<std::uint16_t>(
                                 sum[x] - leaving[x] + entering[x]);
                         }
                     }
                 });
+        }
+        template <int cn>
+        void smallBoxBlurRing(ConstImageView src, ImageView dst, int kw,
+                              int kh) {
+            const auto sp = detail::Step(src), dp = detail::Step(dst);
+            const auto width = static_cast<std::size_t>(src.width) * cn;
+            const int area = kw * kh;
+            const double quotient = (1 << 23) / static_cast<double>(area);
+            int ds = static_cast<int>(std::floor(quotient)), dd = area / 2;
+            if(quotient - ds < .5)
+                ++dd;
+            else
+                ++ds;
+            std::vector<int> border(src.width + kw);
+            for(std::size_t x = 0; x < border.size(); ++x)
+                border[x] =
+                    reflect(static_cast<std::int64_t>(x) - kw / 2, src.width);
+            const auto task = [&](int first, int last) {
+                const int capacity = std::min(src.height, kh + 1);
+                std::vector<std::uint16_t> ring(width * capacity),
+                    sum(width, 0);
+                std::vector<int> tags(capacity, -1);
+                std::vector<std::uint8_t> padded(border.size() * cn);
+                const auto row = [&](int y) {
+                    const int slot = y % capacity;
+                    auto *out = ring.data() + slot * width;
+                    if(tags[slot] != y) {
+                        const auto *input = src.data + y * sp;
+                        const auto left = static_cast<std::size_t>(kw / 2),
+                                   right = left + src.width;
+                        std::memcpy(padded.data() + left * cn, input, width);
+                        for(std::size_t x = 0; x < left; ++x)
+                            std::memcpy(padded.data() + x * cn,
+                                        input + border[x] * cn, cn);
+                        for(std::size_t x = right; x < border.size(); ++x)
+                            std::memcpy(padded.data() + x * cn,
+                                        input + border[x] * cn, cn);
+#if defined(__SSE2__) || defined(_M_X64)
+                        if constexpr(cn == 4) {
+                            const auto load = [](const std::uint8_t *pixel) {
+                                std::uint32_t value;
+                                std::memcpy(&value, pixel, 4);
+                                return _mm_unpacklo_epi8(
+                                    _mm_cvtsi32_si128(static_cast<int>(value)),
+                                    _mm_setzero_si128());
+                            };
+                            auto sum = _mm_setzero_si128();
+                            for(int k = 0; k < kw; ++k)
+                                sum = _mm_add_epi16(
+                                    sum, load(padded.data() + k * 4));
+                            for(int x = 0; x < src.width; ++x) {
+                                _mm_storel_epi64(
+                                    reinterpret_cast<__m128i *>(out + x * 4),
+                                    sum);
+                                sum = _mm_add_epi16(
+                                    _mm_sub_epi16(sum,
+                                                  load(padded.data() + x * 4)),
+                                    load(padded.data() + (x + kw) * 4));
+                            }
+                        } else
+#endif
+                        {
+                            int sum[cn]{};
+                            for(int k = 0; k < kw; ++k)
+                                for(int c = 0; c < cn; ++c)
+                                    sum[c] += padded[k * cn + c];
+                            for(int x = 0; x < src.width; ++x)
+                                for(int c = 0; c < cn; ++c) {
+                                    out[x * cn + c] =
+                                        static_cast<std::uint16_t>(sum[c]);
+                                    sum[c] += padded[(x + kw) * cn + c] -
+                                        padded[x * cn + c];
+                                }
+                        }
+
+                        tags[slot] = y;
+                    }
+                    return out;
+                };
+                for(int k = 0; k < kh; ++k) {
+                    const auto *input =
+                        row(reflect(first + k - kh / 2, src.height));
+                    for(std::size_t x = 0; x < width; ++x)
+                        sum[x] = static_cast<std::uint16_t>(sum[x] + input[x]);
+                }
+                for(int y = first; y < last; ++y) {
+                    // Fetch the next source before writing this output. kh+1
+                    // slots keep both entering and leaving rows alive.
+                    const auto *entering =
+                        row(reflect(static_cast<std::int64_t>(y) + kh - kh / 2,
+                                    src.height));
+                    const auto *leaving = row(reflect(
+                        static_cast<std::int64_t>(y) - kh / 2, src.height));
+                    auto *out = dst.data + y * dp;
+                    std::size_t x = 0;
+#if defined(__SSE2__) || defined(_M_X64)
+                    const auto multiplier = _mm_set1_epi32(ds),
+                               delta = _mm_set1_epi16(static_cast<short>(dd)),
+                               zero = _mm_setzero_si128();
+                    const auto multiply = [&](__m128i v) {
+                        const auto even = _mm_mul_epu32(v, multiplier);
+                        const auto odd =
+                            _mm_mul_epu32(_mm_srli_si128(v, 4), multiplier);
+                        return _mm_unpacklo_epi32(
+                            _mm_shuffle_epi32(even, _MM_SHUFFLE(2, 0, 2, 0)),
+                            _mm_shuffle_epi32(odd, _MM_SHUFFLE(2, 0, 2, 0)));
+                    };
+                    for(; x + 8 <= width / 16 * 16; x += 8) {
+                        const auto v = _mm_loadu_si128(
+                            reinterpret_cast<const __m128i *>(sum.data() + x));
+                        const auto adjusted = _mm_add_epi16(v, delta);
+                        const auto lo = _mm_srli_epi32(
+                            multiply(_mm_unpacklo_epi16(adjusted, zero)), 23);
+                        const auto hi = _mm_srli_epi32(
+                            multiply(_mm_unpackhi_epi16(adjusted, zero)), 23);
+                        _mm_storel_epi64(
+                            reinterpret_cast<__m128i *>(out + x),
+                            _mm_packus_epi16(_mm_packs_epi32(lo, hi), zero));
+                        const auto next = _mm_add_epi16(
+                            _mm_sub_epi16(v,
+                                          _mm_loadu_si128(
+                                              reinterpret_cast<const __m128i *>(
+                                                  leaving + x))),
+                            _mm_loadu_si128(reinterpret_cast<const __m128i *>(
+                                entering + x)));
+                        _mm_storeu_si128(
+                            reinterpret_cast<__m128i *>(sum.data() + x), next);
+                    }
+#endif
+                    for(; x < width; ++x) {
+                        const auto value =
+                            (static_cast<std::uint32_t>(sum[x]) + dd) * ds >>
+                            23;
+                        out[x] = static_cast<std::uint8_t>(
+                            x < width / 16 * 16 ? std::min(value, 255u)
+                                                : value);
+                        sum[x] = static_cast<std::uint16_t>(
+                            sum[x] - leaving[x] + entering[x]);
+                    }
+                }
+            };
+            if(src.data == dst.data && sp == dp)
+                task(0, src.height);
+            else
+                detail::ForRows(
+                    src.height,
+                    static_cast<std::size_t>(src.width) * src.height, task);
+        }
+        template <int cn>
+        void dispatchSmallBlur(ConstImageView src, ImageView dst, int kw,
+                               int kh) {
+            const auto sp = detail::Step(src), dp = detail::Step(dst),
+                       width = detail::RowBytes(src.width, src.format);
+            const auto begin = reinterpret_cast<std::uintptr_t>(src.data),
+                       end = begin + (src.height - 1) * sp + width;
+            const auto other = reinterpret_cast<std::uintptr_t>(dst.data),
+                       otherEnd = other + (dst.height - 1) * dp + width;
+            const bool overlap = begin < otherEnd && other < end;
+            if(overlap && (src.data != dst.data || sp != dp))
+                smallBoxBlur<cn>(src, dst, kw, kh);
+            else
+                smallBoxBlurRing<cn>(src, dst, kw, kh);
         }
         template <int Channels, typename Sum>
         void boxBlur(ConstImageView src, ImageView dst, int kw, int kh) {
@@ -1108,9 +1404,9 @@ namespace TVPImageOps {
         if(static_cast<double>(kw) * kh > 1 &&
            static_cast<double>(kw) * kh <= 256) {
             if(src.format == PixelFormat::Gray8)
-                smallBoxBlur<1>(src, dst, kw, kh);
+                dispatchSmallBlur<1>(src, dst, kw, kh);
             else
-                smallBoxBlur<4>(src, dst, kw, kh);
+                dispatchSmallBlur<4>(src, dst, kw, kh);
             return;
         }
         if(static_cast<double>(kw) * kh <= (1 << 23)) {

@@ -62,6 +62,10 @@ def run(engine, destination, seconds=60, capture=False):
                         if " error:" in log:
                             raise RuntimeError(log)
                         if "1 capture-saved" in log and (root / "ui-frame.png").exists():
+                            if "1 renderer:" + renderer not in log:
+                                raise RuntimeError("Capture renderer does not match requested backend: " + log)
+                            report["renderer_observed"] = renderer
+                            report["frame_sha256"] = digest(root / "ui-frame.png")
                             break
                         if process.poll() is not None:
                             raise RuntimeError("Engine exited before capture")
