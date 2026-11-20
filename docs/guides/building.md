@@ -150,7 +150,7 @@ X server 切焦、XTest 虚拟键盘/鼠标、窗口外拖动、调整大小和�
 两者都不能替代物理设备、IME 或现有 Cocos 的窗口交互验收。
 
 Windows 完整构建工作流开启 full 测试配置，但定向构建 `krkr2 cocos_window_tests`，
-检查并执行 2 项节点排序、3 项指针变换、4 项焦点订阅与 2 项文本兼容契约（共 11 项）。其他 full 测试目标不会因此自动构建或通过。
+检查并执行 2 项节点排序、3 项指针变换、4 项焦点订阅、2 项文本兼容与 4 项 context 订阅契约（共 15 项）。其他 full 测试目标不会因此自动构建或通过。
 
 ## 编译提速的基线
 
@@ -175,3 +175,6 @@ Android/iOS 暂不支持关闭。
 Android 输入桥另有独立 Framework/ART 契约与模拟器 CI，命令和完整应用边界见[Android 输入桥](../subsystems/android-input.md#验证)。
 完整 Android Debug 运行时可用 Build Android 的 runtime_contracts 输入按 ABI 验证，
 会检查真实 APK 的 ELF 动态库闭包；命令见[完整运行时 APK 构建](../subsystems/android-input.md#完整运行时-apk-构建)。
+
+Linux 的 `imageops_contracts=true` 测试构建也构建并执行上述15项Cocos契约，然后运行双后端自制场景。
+context用例检查真实Cocos EventDispatcher订阅的通知、优先级和寿命，不创建或销毁GPU context。

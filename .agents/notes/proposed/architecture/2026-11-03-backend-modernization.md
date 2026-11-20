@@ -64,3 +64,6 @@ OpenCV 替换独立为图像算法模块，保留插值、border、pitch、alpha
 ```
 
 外部经验与适用限制见 [参考资料](../../../../docs/reference/upstream.md)，本地结构见 [当前架构](../../../../docs/architecture.md)。
+
+2026-11-20续批：GL状态缓存/视口/诊断与重建订阅已迁入宿主接口，三端完整构建和桌面自制场景通过，
+见[GL宿主边界](../../implemented/simplification/2026-11-20-gl-host-boundary.md)。完整context资源恢复仍待定义与验证。

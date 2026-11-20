@@ -36,10 +36,24 @@ Cocos 实现在 `environ/cocos2d/CocosFrameCapture.cpp`，沿用后端原有帧�
 
 `scripts/check_core_module_deps.py` 拒绝公共呈现头重新暴露 Cocos 类型及 CPU 渲染器重新直接包含 Cocos 呈现 API。
 这只约束直接边界，不代表整个 visual 模块已无传递 Cocos 依赖。
-OpenGL 后端仍调用 Cocos GL 状态缓存、视口与 context 重建事件；视频、窗口节点、输入和管理 UI 也仍使用 Cocos。
-本轮不删除 Cocos port、不切换 SDL3、不宣称包体或编译速度改善；后续可继续拆 GL 状态/context 生命周期。
+OpenGL 后端通过 `visual/GLHost.h` 访问宿主状态缓存、视口和 context 重建订阅；
+具体 Cocos 调用集中在 `environ/cocos2d/CocosGLHost.cpp`，公共头仅使用标准 C++。
+28处缓存调用的顺序不变；GL错误检查同样经宿主，保留Debug查询/消费错误、Release不查询的既有行为。绘制后恢复仍为 unpack 行长 → blend cache → framebuffer → viewport。
+manager 以 unique_ptr 持有重建订阅；Cocos 订阅同时保留 dispatcher 与 listener，析构只注销自己的监听，
+宿主主动清理该事件后也可安全销毁。重建回调继续只清 shader 缓存并 Rebuild，未新增纹理/FBO 恢复。
+视频、窗口节点、输入和管理 UI 也仍使用 Cocos。
+本轮不删除 Cocos port、不切换 SDL3、不宣称包体或编译速度改善；后续需先定义真正 context 丢失时的资源恢复顺序。
 
-本轮三平台独立测试、Windows/Linux完整应用与双后端自制场景、Android ARM64完整APK均通过。
+纹理呈现首批的三平台独立测试、Windows/Linux完整应用与双后端自制场景、Android ARM64完整APK均通过。
 测量、早期失败/对照与具体范围见[实施记录](../../.agents/notes/implemented/simplification/2026-11-20-render-presentation-boundary.md)
 及[验证报告](../../.agents/reports/render-presentation-boundary-2026-11-20.json)。
 macOS未构建完整应用，Android未在设备运行，真实游戏按用户要求暂不使用。
+
+原生 `ogl_common.h` 直接包含各平台系统GL头；Apple TargetConditionals/扩展头与 GLES packed-depth-stencil
+枚举不再依赖 Cocos 头的传递定义。macOS CI 单独编译原生头，不代表完整应用已验证。
+Cocos context 订阅的四项真实 EventDispatcher 用例与原窗口/输入契约共15项；
+事件分发测试不创建或销毁真实GPU context，不能作为设备丢失恢复证明。
+
+GL宿主边界的最终验证见[实施记录](../../.agents/notes/implemented/simplification/2026-11-20-gl-host-boundary.md)
+与[报告](../../.agents/reports/gl-host-boundary-2026-11-20.json)：Windows/Linux各15项Cocos契约与双后端场景通过，
+Android ARM64完整APK、三平台独立测试和macOS原生GL头编译通过；真实context丢失恢复仍未验证。

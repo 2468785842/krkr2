@@ -1,0 +1,783 @@
+{
+  "base_commit": "d4af4eb3052a4311cc0a28e44ba794b97ab4aabe",
+  "date": "2026-11-20",
+  "production_candidate": "2329ee5c5a79896fbfcabc1e987c17f672abeed2",
+  "gl_cache_delegation": {
+    "base": "d4af4eb",
+    "call_count": 28,
+    "order_preserved": true,
+    "delegated_calls": [
+      "ActivateTexture",
+      "BindTexture2D",
+      "RestoreBlend",
+      "BindTexture2D",
+      "DeleteTexture",
+      "BindTexture2DAt",
+      "DeleteTexture",
+      "BindTexture2D",
+      "UseProgram",
+      "UseProgram",
+      "UseProgram",
+      "UseProgram",
+      "UseProgram",
+      "UseProgram",
+      "UseProgram",
+      "UseProgram",
+      "UseProgram",
+      "UseProgram",
+      "BindTexture2D",
+      "EnableVertexAttributes",
+      "BindTexture2D",
+      "DeleteTexture",
+      "EnableVertexAttributes",
+      "BindTexture2D",
+      "EnableVertexAttributes",
+      "EnableVertexAttributes",
+      "UseProgram",
+      "UseProgram"
+    ]
+  },
+  "local_checks": {
+    "standard_only_header_compile": true,
+    "module_guard_targets": 11,
+    "yaml_parse": true,
+    "diff_check": true
+  },
+  "initial_failures": {
+    "windows": 44737452600,
+    "linux": 44737456611,
+    "reason": "Removed transitive Cocos headers exposed missing cstdarg, native Windows declarations and the Cocos GL error-check macro. Fixed explicitly in 2329ee5.",
+    "android_first_candidate": {
+      "run": 44736903284,
+      "source": "27c50c0",
+      "failed_step": "Compile all independent native sources"
+    }
+  },
+  "scope_limits": [
+    "Cocos remains linked; only direct renderer host state/event/diagnostic calls are isolated.",
+    "Existing notification only rebuilds shader cache/methods, not all textures/FBOs/buffers after context loss.",
+    "Cocos event tests create no GL context and cannot prove hardware context-loss recovery.",
+    "No real game per user instruction; no Android device execution or full macOS application."
+  ],
+  "windows": {
+    "run": 44738286127,
+    "conclusion": "success",
+    "cocos_contracts": 15,
+    "cocos_context_contracts": 4,
+    "unit_execution_evidence": [
+      "2026-11-20T12:50:56.9501472Z  1/15 Test  #1: cocos context subscription survives host-side listener removal .......   Passed    0.07 sec\r",
+      "2026-11-20T12:50:57.0749706Z  3/15 Test  #3: cocos context subscription retains its dispatcher and listener .......   Passed    0.06 sec\r",
+      "2026-11-20T12:50:57.6061655Z 10/15 Test #10: cocos context recreation preserves notifications and priority ........   Passed    0.06 sec\r",
+      "2026-11-20T12:50:57.8093392Z 13/15 Test #13: cocos context subscription destruction removes only its callback .....   Passed    0.06 sec\r",
+      "2026-11-20T12:50:57.9356003Z 100% tests passed, 0 tests failed out of 15\r"
+    ],
+    "renderer_reports": [
+      {
+        "engine": "D:\\a\\krkr2\\krkr2\\out\\windows\\pointer-contracts\\runtime\\krkr2.exe",
+        "engine_sha256": "3562264065ba2c561733d93dc7e2b1118617ea2c47da64a9ec800e4c1dea575f",
+        "script_sha256": "1155ff8a59a910672e945df1201b811e048a9789e0ee8aa78eb760218d99b470",
+        "controller_sha256": "2ca311bf41678ad9b7f1473414dadc78b9ce4b2aba07e14308a15039315db474",
+        "preferences_sha256": "7b8a8c5fdbcf03c44cb1735251aabcc3d5b119e98d7f25e996a51bcc90499c2d",
+        "renderer_requested": "software",
+        "command": [
+          "D:\\a\\krkr2\\krkr2\\out\\windows\\pointer-contracts\\runtime\\krkr2.exe",
+          "--game=D:\\a\\krkr2\\krkr2\\out\\windows\\pointer-contracts\\imageops\\software",
+          "-imageops-renderer=software",
+          "-ui-contract-driver=yes"
+        ],
+        "forced_stop": false,
+        "failures": [],
+        "renderer_observed": "software",
+        "frame_file": "ui-imageops.png",
+        "frame_color_counts": {
+          "(63, 159, 63)": 48345,
+          "(159, 63, 159)": 47601,
+          "(63, 63, 63)": 47215,
+          "(159, 159, 159)": 46584
+        },
+        "frame_sha256": "c6773a49a831e6a17e241d1f9b096871cc848df90969e8dc8350db043116e313",
+        "presentation_phases": [
+          {
+            "step": 1,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-1.png",
+            "frame_color_counts": {
+              "(96, 176, 96)": 457441
+            },
+            "frame_sha256": "9b73feb5f76f92c22d5bc6aabf5537f5685623a52293a262832161959758cf88",
+            "image_sha256": "2653b2b2a902ac65ec400e104e8ff91a6f23c47e5cd422a82d5556463cc473ca"
+          },
+          {
+            "step": 2,
+            "width": 66,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-2.png",
+            "frame_color_counts": {
+              "(112, 64, 112)": 443674
+            },
+            "frame_sha256": "0e6b71b5db2c5fa89715c52dca300ce8042371abf1629dda17ee19a60eece315",
+            "right_edge_marker_pixels": 960,
+            "image_sha256": "e8abed91757790450a3fbba4ccbe039b318d196802b72aba22a89da7ed0b1ce0"
+          },
+          {
+            "step": 3,
+            "width": 129,
+            "height": 65,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-3.png",
+            "frame_color_counts": {
+              "(176, 96, 176)": 458880
+            },
+            "frame_sha256": "ab0b22976659d6ac05f20fb9a4506a914aaa48d1611781848c76d96b83919d09",
+            "image_sha256": "f0c0dc8a14e8686e2303bbecf0f5cdadf62b6830f8911e8fda7bfed9f0f45f46"
+          },
+          {
+            "step": 4,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-4.png",
+            "frame_color_counts": {
+              "(48, 96, 48)": 457440
+            },
+            "frame_sha256": "bdf29d05d1ab0e18f30aa3dcadc2bcb12310a12936a18b9ff8bc454ff5af0f7d",
+            "image_sha256": "f91dd84145dddc4c1eaa89c1d306ec3b82766c513e5c3142eb618bd2bf890005"
+          },
+          {
+            "step": 5,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-5.png",
+            "frame_color_counts": {
+              "(160, 192, 160)": 457440
+            },
+            "frame_sha256": "cbaf737ff86b7b9be2d136503276140ae8694727c3aea3ec545c742fcf0006db",
+            "image_sha256": "3a91321e94f11231417ab409b465eacaa5cce3bcd9bd58077a740466a5ef90c4"
+          }
+        ],
+        "exit_code": 0,
+        "events": [
+          "passed:resize-0",
+          "passed:resize-1",
+          "passed:resize-2",
+          "passed:resize-3",
+          "passed:blur",
+          "passed:affine",
+          "passed:perspective",
+          "ready",
+          "presented:1",
+          "presented:2",
+          "presented:3",
+          "presented:4",
+          "presented:5",
+          "finished"
+        ],
+        "image_sha256": "395f5bb131813c513681734ed29859ea0682c6640e0fe80bebfc47e1375d711d",
+        "passed": true
+      },
+      {
+        "engine": "D:\\a\\krkr2\\krkr2\\out\\windows\\pointer-contracts\\runtime\\krkr2.exe",
+        "engine_sha256": "3562264065ba2c561733d93dc7e2b1118617ea2c47da64a9ec800e4c1dea575f",
+        "script_sha256": "1155ff8a59a910672e945df1201b811e048a9789e0ee8aa78eb760218d99b470",
+        "controller_sha256": "2ca311bf41678ad9b7f1473414dadc78b9ce4b2aba07e14308a15039315db474",
+        "preferences_sha256": "16a2df92d634bc17e850290618fb25cebeaf454d17e088e85998cc4cb3d789b6",
+        "renderer_requested": "opengl",
+        "command": [
+          "D:\\a\\krkr2\\krkr2\\out\\windows\\pointer-contracts\\runtime\\krkr2.exe",
+          "--game=D:\\a\\krkr2\\krkr2\\out\\windows\\pointer-contracts\\imageops\\opengl",
+          "-imageops-renderer=opengl",
+          "-ui-contract-driver=yes"
+        ],
+        "forced_stop": false,
+        "failures": [],
+        "renderer_observed": "opengl",
+        "frame_file": "ui-imageops.png",
+        "frame_color_counts": {
+          "(64, 160, 64)": 56478,
+          "(160, 64, 160)": 53700,
+          "(64, 64, 64)": 53384,
+          "(160, 160, 160)": 51123
+        },
+        "frame_sha256": "f367c957ced89ef317307b1c20b42acbc667ad63a73f3c66bf5ce623d4c76d6c",
+        "presentation_phases": [
+          {
+            "step": 1,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-1.png",
+            "frame_color_counts": {
+              "(96, 176, 96)": 457441
+            },
+            "frame_sha256": "ec3ce149260e4059c31d98b8b3877de85436acc8ce184eb7cb2532db948b7e07",
+            "image_sha256": "2653b2b2a902ac65ec400e104e8ff91a6f23c47e5cd422a82d5556463cc473ca"
+          },
+          {
+            "step": 2,
+            "width": 66,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-2.png",
+            "frame_color_counts": {
+              "(112, 64, 112)": 443674
+            },
+            "frame_sha256": "c66c5d48a4fe6ed54cf822cdd8c60085f272cd524b1498846660013b7b3e5b1b",
+            "right_edge_marker_pixels": 960,
+            "image_sha256": "e8abed91757790450a3fbba4ccbe039b318d196802b72aba22a89da7ed0b1ce0"
+          },
+          {
+            "step": 3,
+            "width": 129,
+            "height": 65,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-3.png",
+            "frame_color_counts": {
+              "(176, 96, 176)": 458880
+            },
+            "frame_sha256": "92db1c3f927fa70d4ada1ff1ef1c4254a95e966e452cc54b641e47993c7df66a",
+            "image_sha256": "f0c0dc8a14e8686e2303bbecf0f5cdadf62b6830f8911e8fda7bfed9f0f45f46"
+          },
+          {
+            "step": 4,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-4.png",
+            "frame_color_counts": {
+              "(48, 96, 48)": 457440
+            },
+            "frame_sha256": "bdf29d05d1ab0e18f30aa3dcadc2bcb12310a12936a18b9ff8bc454ff5af0f7d",
+            "image_sha256": "f91dd84145dddc4c1eaa89c1d306ec3b82766c513e5c3142eb618bd2bf890005"
+          },
+          {
+            "step": 5,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-5.png",
+            "frame_color_counts": {
+              "(160, 192, 160)": 457440
+            },
+            "frame_sha256": "cbaf737ff86b7b9be2d136503276140ae8694727c3aea3ec545c742fcf0006db",
+            "image_sha256": "3a91321e94f11231417ab409b465eacaa5cce3bcd9bd58077a740466a5ef90c4"
+          }
+        ],
+        "exit_code": 0,
+        "events": [
+          "passed:resize-0",
+          "passed:resize-1",
+          "passed:resize-2",
+          "passed:resize-3",
+          "passed:blur",
+          "passed:affine",
+          "passed:perspective",
+          "ready",
+          "presented:1",
+          "presented:2",
+          "presented:3",
+          "presented:4",
+          "presented:5",
+          "finished"
+        ],
+        "image_sha256": "114f0fc978360fb8bc89293970d10313c63799072bfb11977bf3ab1144cc440a",
+        "passed": true
+      }
+    ],
+    "interaction_reports": {
+      "native-text": {
+        "passed": true,
+        "failures": [],
+        "exit_code": 0,
+        "forced_stop": false,
+        "engine_sha256": "3562264065ba2c561733d93dc7e2b1118617ea2c47da64a9ec800e4c1dea575f"
+      },
+      "single-window": {
+        "passed": true,
+        "failures": [],
+        "exit_code": 0,
+        "forced_stop": false,
+        "engine_sha256": "3562264065ba2c561733d93dc7e2b1118617ea2c47da64a9ec800e4c1dea575f"
+      },
+      "two-windows": {
+        "passed": true,
+        "failures": [],
+        "exit_code": 0,
+        "forced_stop": false,
+        "engine_sha256": "3562264065ba2c561733d93dc7e2b1118617ea2c47da64a9ec800e4c1dea575f"
+      },
+      "native-minimize": {
+        "passed": true,
+        "failures": [],
+        "exit_code": 0,
+        "forced_stop": false,
+        "engine_sha256": "3562264065ba2c561733d93dc7e2b1118617ea2c47da64a9ec800e4c1dea575f"
+      },
+      "native-focus": {
+        "passed": true,
+        "failures": [],
+        "exit_code": 0,
+        "forced_stop": false,
+        "engine_sha256": "3562264065ba2c561733d93dc7e2b1118617ea2c47da64a9ec800e4c1dea575f"
+      }
+    },
+    "host_adapter_compiled_once": true,
+    "screenshots_visually_inspected": [
+      "software/ui-imageops.png",
+      "opengl/ui-imageops.png",
+      "opengl/ui-presentation-2.png",
+      "opengl/ui-presentation-5.png"
+    ]
+  },
+  "headless": {
+    "run": 44738611060,
+    "jobs": 13,
+    "conclusion": "success",
+    "platform_contracts_per_platform": 38,
+    "native_apple_gl_header_compile_passed": true,
+    "apple_header_check_job": 136296228571,
+    "source": "2329ee5c5a79896fbfcabc1e987c17f672abeed2"
+  },
+  "linux": {
+    "run": 44738290012,
+    "conclusion": "success",
+    "cocos_contracts": 15,
+    "cocos_context_contracts": 4,
+    "unit_execution_evidence": [
+      "2026-11-20T12:54:08.6301934Z  1/15 Test  #1: cocos context subscription retains its dispatcher and listener .......   Passed    0.00 sec",
+      "2026-11-20T12:54:08.6324976Z  2/15 Test  #2: cocos context recreation preserves notifications and priority ........   Passed    0.00 sec",
+      "2026-11-20T12:54:08.6925970Z 12/15 Test #12: cocos context subscription survives host-side listener removal .......   Passed    0.00 sec",
+      "2026-11-20T12:54:08.6999701Z 15/15 Test #15: cocos context subscription destruction removes only its callback .....   Passed    0.00 sec",
+      "2026-11-20T12:54:08.7002028Z 100% tests passed, 0 tests failed out of 15"
+    ],
+    "renderer_reports": [
+      {
+        "engine": "/home/runner/work/krkr2/krkr2/out/linux/release/bin/krkr2/krkr2",
+        "engine_sha256": "db56a2ae1d2eb57b390844d85d123a480461be63aa612e2df6db4bd2dc54184a",
+        "script_sha256": "73df4ba67a38b7f1fa6b84a343295222c237b41addc1736da80b055b1d0e484d",
+        "controller_sha256": "0b26eed0bd81d9621f34d9e1ae9127f5c96c25d4ccc5c32ad947bc92726356e6",
+        "preferences_sha256": "7b8a8c5fdbcf03c44cb1735251aabcc3d5b119e98d7f25e996a51bcc90499c2d",
+        "renderer_requested": "software",
+        "command": [
+          "/home/runner/work/krkr2/krkr2/out/linux/release/bin/krkr2/krkr2",
+          "--game=/home/runner/work/krkr2/krkr2/out/linux/imageops-runtime/software",
+          "-imageops-renderer=software",
+          "-ui-contract-driver=yes"
+        ],
+        "forced_stop": false,
+        "failures": [],
+        "renderer_observed": "software",
+        "frame_file": "ui-imageops.png",
+        "frame_color_counts": {
+          "(63, 159, 63)": 48345,
+          "(159, 63, 159)": 47599,
+          "(63, 63, 63)": 47214,
+          "(159, 159, 159)": 46585
+        },
+        "frame_sha256": "68afce0f0034e1faf780046b46bcc3a49bcee8cf544a8fc511586d1ecd7dfd94",
+        "presentation_phases": [
+          {
+            "step": 1,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-1.png",
+            "frame_color_counts": {
+              "(96, 176, 96)": 433816
+            },
+            "frame_sha256": "ee294f88b2afaf16f9310f06a6d5f6b956277ed0bda48123c7a0d5d9e3221bcc",
+            "image_sha256": "2653b2b2a902ac65ec400e104e8ff91a6f23c47e5cd422a82d5556463cc473ca"
+          },
+          {
+            "step": 2,
+            "width": 66,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-2.png",
+            "frame_color_counts": {
+              "(112, 64, 112)": 443674
+            },
+            "frame_sha256": "2b577e4aa0023ec1c1d51885fe17d7a3e59c91418ede9f6e1f4683c98b68e33a",
+            "right_edge_marker_pixels": 960,
+            "image_sha256": "e8abed91757790450a3fbba4ccbe039b318d196802b72aba22a89da7ed0b1ce0"
+          },
+          {
+            "step": 3,
+            "width": 129,
+            "height": 65,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-3.png",
+            "frame_color_counts": {
+              "(176, 96, 176)": 458880
+            },
+            "frame_sha256": "246b7bc5aeee1e4fc59656c7e910dd4de9ab158ab51fbcad7ecc3e462b38d9bb",
+            "image_sha256": "f0c0dc8a14e8686e2303bbecf0f5cdadf62b6830f8911e8fda7bfed9f0f45f46"
+          },
+          {
+            "step": 4,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-4.png",
+            "frame_color_counts": {
+              "(48, 96, 48)": 457440
+            },
+            "frame_sha256": "6173c37734316eeadae23fbcb1cb0dcd3b0fabd690c07e07631384362bf4f71e",
+            "image_sha256": "f91dd84145dddc4c1eaa89c1d306ec3b82766c513e5c3142eb618bd2bf890005"
+          },
+          {
+            "step": 5,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-5.png",
+            "frame_color_counts": {
+              "(160, 192, 160)": 457440
+            },
+            "frame_sha256": "1fa980c089cb6bebc6e6021a5d8cea67069236a8e0f1e6e15066e589e95cd2d5",
+            "image_sha256": "3a91321e94f11231417ab409b465eacaa5cce3bcd9bd58077a740466a5ef90c4"
+          }
+        ],
+        "exit_code": 0,
+        "events": [
+          "passed:resize-0",
+          "passed:resize-1",
+          "passed:resize-2",
+          "passed:resize-3",
+          "passed:blur",
+          "passed:affine",
+          "passed:perspective",
+          "ready",
+          "presented:1",
+          "presented:2",
+          "presented:3",
+          "presented:4",
+          "presented:5",
+          "finished"
+        ],
+        "image_sha256": "395f5bb131813c513681734ed29859ea0682c6640e0fe80bebfc47e1375d711d",
+        "passed": true
+      },
+      {
+        "engine": "/home/runner/work/krkr2/krkr2/out/linux/release/bin/krkr2/krkr2",
+        "engine_sha256": "db56a2ae1d2eb57b390844d85d123a480461be63aa612e2df6db4bd2dc54184a",
+        "script_sha256": "73df4ba67a38b7f1fa6b84a343295222c237b41addc1736da80b055b1d0e484d",
+        "controller_sha256": "0b26eed0bd81d9621f34d9e1ae9127f5c96c25d4ccc5c32ad947bc92726356e6",
+        "preferences_sha256": "16a2df92d634bc17e850290618fb25cebeaf454d17e088e85998cc4cb3d789b6",
+        "renderer_requested": "opengl",
+        "command": [
+          "/home/runner/work/krkr2/krkr2/out/linux/release/bin/krkr2/krkr2",
+          "--game=/home/runner/work/krkr2/krkr2/out/linux/imageops-runtime/opengl",
+          "-imageops-renderer=opengl",
+          "-ui-contract-driver=yes"
+        ],
+        "forced_stop": false,
+        "failures": [],
+        "renderer_observed": "opengl",
+        "frame_file": "ui-imageops.png",
+        "frame_color_counts": {
+          "(64, 160, 64)": 56475,
+          "(160, 64, 160)": 53697,
+          "(64, 64, 64)": 53381,
+          "(160, 160, 160)": 51125
+        },
+        "frame_sha256": "4a1e3fe1c4e0dff87d3b5742c0ebe2183fdcbb428593b2476fc5123ad6315f0f",
+        "presentation_phases": [
+          {
+            "step": 1,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-1.png",
+            "frame_color_counts": {
+              "(96, 176, 96)": 433830
+            },
+            "frame_sha256": "acf78f7035df5bd87c9ce7adf4a97f4675fdc38e4eaf1f70e63f341422bd897b",
+            "image_sha256": "2653b2b2a902ac65ec400e104e8ff91a6f23c47e5cd422a82d5556463cc473ca"
+          },
+          {
+            "step": 2,
+            "width": 66,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-2.png",
+            "frame_color_counts": {
+              "(112, 64, 112)": 443674
+            },
+            "frame_sha256": "c73c8a1c7d1c2aa1d1a2ef15057fbfdc8c65e7219d751597d25e09f0ef2f5a8a",
+            "right_edge_marker_pixels": 960,
+            "image_sha256": "e8abed91757790450a3fbba4ccbe039b318d196802b72aba22a89da7ed0b1ce0"
+          },
+          {
+            "step": 3,
+            "width": 129,
+            "height": 65,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-3.png",
+            "frame_color_counts": {
+              "(176, 96, 176)": 458880
+            },
+            "frame_sha256": "60cc2fd1e475620d65be742f5059458ea86e23d424f091241971e24bd872f128",
+            "image_sha256": "f0c0dc8a14e8686e2303bbecf0f5cdadf62b6830f8911e8fda7bfed9f0f45f46"
+          },
+          {
+            "step": 4,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-4.png",
+            "frame_color_counts": {
+              "(48, 96, 48)": 457440
+            },
+            "frame_sha256": "af27031965a1ffc5e55f48ae368d7aa364cadc28ae00378b61f8815f8e88df8a",
+            "image_sha256": "f91dd84145dddc4c1eaa89c1d306ec3b82766c513e5c3142eb618bd2bf890005"
+          },
+          {
+            "step": 5,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-5.png",
+            "frame_color_counts": {
+              "(160, 192, 160)": 457440
+            },
+            "frame_sha256": "1fa980c089cb6bebc6e6021a5d8cea67069236a8e0f1e6e15066e589e95cd2d5",
+            "image_sha256": "3a91321e94f11231417ab409b465eacaa5cce3bcd9bd58077a740466a5ef90c4"
+          }
+        ],
+        "exit_code": 0,
+        "events": [
+          "passed:resize-0",
+          "passed:resize-1",
+          "passed:resize-2",
+          "passed:resize-3",
+          "passed:blur",
+          "passed:affine",
+          "passed:perspective",
+          "ready",
+          "presented:1",
+          "presented:2",
+          "presented:3",
+          "presented:4",
+          "presented:5",
+          "finished"
+        ],
+        "image_sha256": "eb505139dfacf19733d2e134ebae5a0de79fc3308d24706486cbd7db1aa3f637",
+        "passed": true
+      }
+    ],
+    "screenshots_visually_inspected": [
+      "software/ui-imageops.png",
+      "opengl/ui-imageops.png",
+      "opengl/ui-presentation-2.png",
+      "opengl/ui-presentation-5.png"
+    ]
+  },
+  "android_final_run": 44739726553,
+  "changed_cpp_sha256": {
+    "cpp/core/environ/CMakeLists.txt": "cf7626d053db957ef1438fe31f540912d2a93ad2d88219c395231c6e8d749f0b",
+    "cpp/core/environ/cocos2d/CocosContextSubscription.h": "41bf4b1bbf309fe0e8584c9887a31734a266cc996b9409a62e5de148b954d0c5",
+    "cpp/core/environ/cocos2d/CocosGLHost.cpp": "a0a4c4d6ad87fd88800f896fdd099a3676f80c5f1d678661a1a21f24308f2eba",
+    "cpp/core/visual/GLHost.h": "23586de0379814bb12ac4f5b5170597546a7584d768b8b3971e8d543727dfa5d",
+    "cpp/core/visual/ogl/RenderManager_ogl.cpp": "2bc84837d6ce90c78a6f63c8f2416d96bc2633321a31de997f5cf89007ef32b9",
+    "cpp/core/visual/ogl/ogl_common.h": "beab7f8a87f5e89b615a90679fb2976f5e831a2b912c97cd3a503a460efb71fc"
+  },
+  "android": {
+    "run": 44739726553,
+    "conclusion": "success",
+    "manifest": {
+      "source": "2329ee5c5a79896fbfcabc1e987c17f672abeed2",
+      "abi": "arm64-v8a",
+      "cmake_cache": "out/android/cmake-build/Debug/4i5r4k3x/arm64-v8a/CMakeCache.txt",
+      "configuration": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "KRKR2_BUILD_APP": "ON",
+        "ENABLE_TESTS": "OFF",
+        "BUILD_TOOLS": "OFF",
+        "KRKR2_ENABLE_PSD": "ON",
+        "KRKR2_ENABLE_CRASH_UPLOAD": "OFF",
+        "KRKR2_ENABLE_UI_TEST_DRIVER": "OFF",
+        "VCPKG_TARGET_TRIPLET": "arm64-android"
+      },
+      "ports": [
+        "7zip",
+        "asmjit",
+        "blend2d",
+        "boost-algorithm",
+        "boost-align",
+        "boost-array",
+        "boost-assert",
+        "boost-atomic",
+        "boost-bind",
+        "boost-charconv",
+        "boost-chrono",
+        "boost-cmake",
+        "boost-compat",
+        "boost-concept-check",
+        "boost-config",
+        "boost-container",
+        "boost-container-hash",
+        "boost-conversion",
+        "boost-core",
+        "boost-date-time",
+        "boost-describe",
+        "boost-detail",
+        "boost-dynamic-bitset",
+        "boost-endian",
+        "boost-exception",
+        "boost-function",
+        "boost-function-types",
+        "boost-functional",
+        "boost-fusion",
+        "boost-headers",
+        "boost-integer",
+        "boost-intrusive",
+        "boost-io",
+        "boost-iostreams",
+        "boost-iterator",
+        "boost-lexical-cast",
+        "boost-locale",
+        "boost-move",
+        "boost-mp11",
+        "boost-mpl",
+        "boost-numeric-conversion",
+        "boost-optional",
+        "boost-phoenix",
+        "boost-pool",
+        "boost-predef",
+        "boost-preprocessor",
+        "boost-proto",
+        "boost-random",
+        "boost-range",
+        "boost-ratio",
+        "boost-regex",
+        "boost-smart-ptr",
+        "boost-spirit",
+        "boost-static-assert",
+        "boost-system",
+        "boost-thread",
+        "boost-throw-exception",
+        "boost-tokenizer",
+        "boost-tuple",
+        "boost-type-index",
+        "boost-type-traits",
+        "boost-typeof",
+        "boost-uninstall",
+        "boost-unordered",
+        "boost-utility",
+        "boost-variant",
+        "boost-variant2",
+        "boost-winapi",
+        "breakpad",
+        "brotli",
+        "bzip2",
+        "cocos2dx",
+        "ffmpeg",
+        "fmt",
+        "freetype",
+        "glm",
+        "jxrlib",
+        "libarchive",
+        "libdisasm",
+        "libiconv",
+        "libjpeg-turbo",
+        "liblzma",
+        "libogg",
+        "libpng",
+        "libvorbis",
+        "libwebp",
+        "libxml2",
+        "lz4",
+        "miniaudio",
+        "oniguruma",
+        "openal-soft",
+        "opus",
+        "opusfile",
+        "pkgconf",
+        "spdlog",
+        "tiff",
+        "uchardet",
+        "unrar",
+        "vcpkg-boost",
+        "vcpkg-cmake",
+        "vcpkg-cmake-config",
+        "vcpkg-cmake-get-vars",
+        "vcpkg-pkgconfig-get-modules",
+        "vcpkg-tool-meson",
+        "zlib",
+        "zstd"
+      ],
+      "project_sources": 349,
+      "apk": "platforms/android/out/android/app/outputs/apk/debug/krkr2-1.5.0-arm64-v8a.apk",
+      "apk_sha256": "3187bd2dc22943995184c6450af3b50359adef5bea2a5b2c1224f91f09563d17",
+      "apk_size": 56775822,
+      "libraries": {
+        "libc++_shared.so": {
+          "size": 1253544,
+          "sha256": "b17919df195f29b0a238468c04171b93cedcdffbe0d30cdc634327cf7f7889bc",
+          "needed": [
+            "libc.so",
+            "libm.so",
+            "libdl.so"
+          ]
+        },
+        "libkrkr2.so": {
+          "size": 77390568,
+          "sha256": "d3a5187a560e3d33661c8a8618886895d0bf3d1a75bbbca7c19218ab0abc77e1",
+          "needed": [
+            "libc.so",
+            "liboboe.so",
+            "libGLESv1_CM.so",
+            "liblog.so",
+            "libandroid.so",
+            "libEGL.so",
+            "libGLESv2.so",
+            "libOpenSLES.so",
+            "libdl.so",
+            "libm.so",
+            "libc++_shared.so"
+          ]
+        },
+        "liboboe.so": {
+          "size": 296080,
+          "sha256": "979d14353e7e95de1047fbe7321da6c07bc47e30ee2b2cb8b57a1a58ef026587",
+          "needed": [
+            "liblog.so",
+            "libOpenSLES.so",
+            "libm.so",
+            "libc++_shared.so",
+            "libdl.so",
+            "libc.so"
+          ]
+        },
+        "libomp.so": {
+          "size": 965024,
+          "sha256": "77be531865dac67328d075f1637376fef40171323b32d9ed17d6ffaa88c7fc19",
+          "needed": [
+            "libdl.so",
+            "libc.so"
+          ]
+        }
+      }
+    },
+    "artifact": 14630173533,
+    "archive_sha256": "c259ad7a9a3f8af7e53389ed8032a973821c205e470a1b19399ba36c698e2be5",
+    "local_apk_hash_abi_library_license_verification": true,
+    "host_and_renderer_compiled_once": true
+  },
+  "ci_urls": {
+    "headless": "https://github.com/2468785842/krkr2/actions/runs/44738611060",
+    "windows": "https://github.com/2468785842/krkr2/actions/runs/44738286127",
+    "linux": "https://github.com/2468785842/krkr2/actions/runs/44738290012",
+    "android": "https://github.com/2468785842/krkr2/actions/runs/44739726553"
+  },
+  "artifacts": {
+    "windows_reports": 14629009965,
+    "windows_metadata": 14629493198,
+    "linux_reports": 14630172570,
+    "android_arm64": 14630173533
+  }
+}
