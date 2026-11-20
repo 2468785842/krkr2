@@ -67,10 +67,10 @@ def frame_failures(path, renderer="opengl"):
     return errors
 
 
-def capture_frame(root, renderer, sequence, deadline, process, palette, file_name):
+def capture_frame(root, renderer, sequence, deadline, process, palette, file_name, alpha_composed=True):
     # The Cocos frame includes the software compositor's existing alpha/256
     # conversion. Keep exact colors rather than a pixel tolerance.
-    if renderer == "software":
+    if renderer == "software" and alpha_composed:
         palette = [tuple(c*255//256 for c in color) for color in palette]
     (root / "ui-action.txt").write_text(f"{sequence} capture\n", encoding="utf-8")
     while time.monotonic() < deadline:
@@ -135,7 +135,7 @@ def run(engine, destination, seconds=60, capture=False):
                     report.update(capture_frame(root, renderer, 1, deadline, process, palette, "ui-imageops.png"))
                     phases = []
                     for step, (width, height, color) in enumerate([
-                        (65,33,(96,176,96)), (129,65,(176,96,176)),
+                        (65,33,(96,176,96)), (66,33,(112,64,112)), (129,65,(176,96,176)),
                         (65,33,(48,96,48)), (65,33,(160,192,160))], 1):
                         (root / f"presentation-{step}.txt").write_text("present\n", encoding="utf-8")
                         while time.monotonic() < deadline:
@@ -150,10 +150,12 @@ def run(engine, destination, seconds=60, capture=False):
                         else:
                             raise TimeoutError(f"No presentation event {step}")
                         phase = {"step":step, "width":width, "height":height}
-                        phase.update(capture_frame(root, renderer, step+1, deadline, process, [color], f"ui-presentation-{step}.png"))
+                        palette = [color] + ([(224,208,224)] if step == 2 else [])
+                        phase.update(capture_frame(root, renderer, step+1, deadline, process, palette, f"ui-presentation-{step}.png", alpha_composed=False))
                         bitmap = root / f"presentation-{step}.bmp"
                         for x,y in [(0,0),(width//2,height//2),(width-1,height-1)]:
-                            if bmp_rgb(bitmap,x,y,(width,height)) != color:
+                            expected = (224,208,224) if step == 2 and x == width-1 else color
+                            if bmp_rgb(bitmap,x,y,(width,height)) != expected:
                                 raise RuntimeError(f"Presentation {step} BMP sample differs")
                         phase["image_sha256"] = digest(bitmap)
                         phases.append(phase)
@@ -175,7 +177,7 @@ def run(engine, destination, seconds=60, capture=False):
         report["events"] = events(root)
         required = ["passed:resize-" + str(i) for i in range(4)] + ["passed:blur", "passed:affine", "passed:perspective", "ready", "finished"]
         if capture:
-            required += [f"presented:{i}" for i in range(1,5)]
+            required += [f"presented:{i}" for i in range(1,6)]
         report["failures"] += ["Missing or repeated event: " + e for e in required if report["events"].count(e) != 1]
         report["failures"] += [e for e in report["events"] if e.startswith("error:")]
         if report["forced_stop"] or report["exit_code"] != 0:

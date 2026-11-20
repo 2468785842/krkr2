@@ -83,11 +83,14 @@ global.presentationStep = 0;
 global.driver = new Timer(function() {
     try {
         var next = presentationStep + 1;
-        if(next <= 4 && Storages.isExistentStorage(System.exePath + "presentation-" + next + ".txt")) {
-            var widths = [65, 129, 65, 65], heights = [33, 65, 33, 33];
-            var fills = [0xff60b060, 0xffb060b0, 0xff306030, 0xffa0c0a0];
+        if(next <= 5 && Storages.isExistentStorage(System.exePath + "presentation-" + next + ".txt")) {
+            var widths = [65, 66, 129, 65, 65], heights = [33, 33, 65, 33, 33];
+            var fills = [0xff60b060, 0xff704070, 0xffb060b0, 0xff306030, 0xffa0c0a0];
             var w = widths[next-1], h = heights[next-1], color = fills[next-1];
-            if(next == 4) {
+            // Opaque presentation isolates upload/reuse from the existing
+            // alpha compositor. The initial algorithm scene still uses alpha.
+            root.type = ltOpaque;
+            if(next == 5) {
                 var replacement = new Layer(win, root);
                 replacement.visible = false;
                 replacement.setImageSize(w, h);
@@ -98,6 +101,8 @@ global.driver = new Timer(function() {
                 root.setImageSize(w, h);
                 root.fillRect(0, 0, w, h, color);
             }
+            if(next == 2)
+                root.fillRect(w-1, 0, 1, h, 0xffe0d0e0);
             root.setSize(w, h);
             win.setSize(w, h);
             if(root.getMainPixel(w/2, h/2) != (color & 0xffffff) || root.getMaskPixel(w/2, h/2) != 255)

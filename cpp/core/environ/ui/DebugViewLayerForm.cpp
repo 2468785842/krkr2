@@ -51,19 +51,16 @@ public:
             Texture2D *newtex = TVPGetCocosPresentationTexture(*tex, cctex);
             float scalex, scaley;
             tex->GetScale(scalex, scaley);
-            if(newtex != cctex) {
+            if(newtex != cctex)
                 _sprite->setTexture(newtex);
-                float sw, sh;
-                if(scalex == 1.f)
-                    sw = tex->GetWidth();
-                else
-                    sw = tex->GetInternalWidth();
-                if(scaley == 1.f)
-                    sh = tex->GetHeight();
-                else
-                    sh = tex->GetInternalHeight();
-                _sprite->setTextureRect(Rect(0, 0, sw, sh));
-            }
+            const float sw =
+                scalex == 1.f ? tex->GetWidth() : tex->GetInternalWidth();
+            const float sh =
+                scaley == 1.f ? tex->GetHeight() : tex->GetInternalHeight();
+            const Rect visibleRect(0, 0, sw, sh);
+            if(newtex != cctex ||
+               !_sprite->getTextureRect().equals(visibleRect))
+                _sprite->setTextureRect(visibleRect);
             _sprite->setPosition(left, 2);
             float r = laySize.height / tex->GetHeight();
             _sprite->setScale(r * scalex, r * scaley);
