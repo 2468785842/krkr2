@@ -1,6 +1,7 @@
 import struct
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 import imageops_repro as probe
 
@@ -34,3 +35,18 @@ class ImageOpsReports(unittest.TestCase):
                 path.write_bytes(header+pixels[:-1])
                 with self.assertRaisesRegex(ValueError, "Truncated"):
                     probe.bmp_rgb(path, 17, 42)
+
+    def test_edge_marker_rejects_a_clipped_column_and_bright_host_ui(self):
+        width,height = 100,80
+        pixels = [bytearray([112,64,112]*width) for _ in range(height)]
+        # Bright UI below the central band and bright content at the left
+        # must never count as the newly visible rightmost column.
+        pixels[70][98*3:99*3] = bytes([255,255,255])
+        pixels[40][0:3] = bytes([255,255,255])
+        pixels[40][98*3:99*3] = bytes([168,136,168])  # 50% edge coverage
+        def rows():
+            return iter((width,height,3,row) for row in pixels)
+        with patch.object(probe,"rgb_rows",side_effect=lambda _: rows()):
+            self.assertEqual(probe.right_edge_marker_pixels(Path("unused")),0)
+            pixels[40][98*3:99*3] = bytes([222,206,222])
+            self.assertEqual(probe.right_edge_marker_pixels(Path("unused")),1)

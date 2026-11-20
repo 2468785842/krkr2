@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import struct
 import time
-from frame_pixels import color_counts
+from frame_pixels import color_counts, rgb_rows
 
 
 def digest(path):
@@ -65,6 +65,22 @@ def frame_failures(path, renderer="opengl"):
     if bmp_rgb(path, 350, 150) != (16, 32, 16):
         errors.append("Background guard pixel differs")
     return errors
+
+
+def right_edge_marker_pixels(path):
+    # Body G=64, final-column G=208. A stale 65-column crop can sample at
+    # most 50% of the extra texel (G<=136). G>=180 requires >80% contribution.
+    # Restrict to the right two logical columns and central vertical band so
+    # white host UI/icons cannot satisfy the marker check.
+    count = 0
+    for y, (width, height, channels, row) in enumerate(rgb_rows(path)):
+        if height*3//8 <= y < height*5//8:
+            start = max(0, width - (width*2+65)//66)
+            for x in range(start, width):
+                r,g,b = row[x*channels:x*channels+3]
+                if r >= 200 and g >= 180 and b >= 200:
+                    count += 1
+    return count
 
 
 def capture_frame(root, renderer, sequence, deadline, process, palette, file_name, alpha_composed=True):
@@ -134,6 +150,7 @@ def run(engine, destination, seconds=60, capture=False):
                     palette = [(64,160,64),(160,64,160),(64,64,64),(160,160,160)]
                     report.update(capture_frame(root, renderer, 1, deadline, process, palette, "ui-imageops.png"))
                     phases = []
+                    report["presentation_phases"] = phases
                     for step, (width, height, color) in enumerate([
                         (65,33,(96,176,96)), (66,33,(112,64,112)), (129,65,(176,96,176)),
                         (65,33,(48,96,48)), (65,33,(160,192,160))], 1):
@@ -150,8 +167,12 @@ def run(engine, destination, seconds=60, capture=False):
                         else:
                             raise TimeoutError(f"No presentation event {step}")
                         phase = {"step":step, "width":width, "height":height}
-                        palette = [color] + ([(224,208,224)] if step == 2 else [])
+                        palette = [color]
                         phase.update(capture_frame(root, renderer, step+1, deadline, process, palette, f"ui-presentation-{step}.png", alpha_composed=False))
+                        if step == 2:
+                            phase["right_edge_marker_pixels"] = right_edge_marker_pixels(root / phase["frame_file"])
+                            if phase["right_edge_marker_pixels"] < 16:
+                                raise RuntimeError("New rightmost column is missing from the presented frame")
                         bitmap = root / f"presentation-{step}.bmp"
                         for x,y in [(0,0),(width//2,height//2),(width-1,height-1)]:
                             expected = (224,208,224) if step == 2 and x == width-1 else color
