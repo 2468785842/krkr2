@@ -22,6 +22,20 @@ namespace krkr::glhost {
     void RestoreViewport() { cocos2d::Director::getInstance()->setViewport(); }
     void Log(const char *message) { cocos2d::log("%s", message); }
 
+    void CheckError(const char *file, const char *function, int line) {
+        // Preserve the host's existing diagnostic mode and consumption of the
+        // GL error flag. Release builds previously did not query glGetError.
+#if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG != 0
+        if(auto error = glGetError())
+            cocos2d::log("OpenGL error 0x%04X in %s %s %d\n", error, file,
+                         function, line);
+#else
+        (void)file;
+        (void)function;
+        (void)line;
+#endif
+    }
+
     std::unique_ptr<ContextSubscription>
     ObserveContextRecreated(std::function<void()> callback) {
         return std::make_unique<cocosrender::ContextSubscription>(

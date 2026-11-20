@@ -17,6 +17,7 @@ namespace krkr::glhost {
     void RestoreBlend();
     void RestoreViewport();
     void Log(const char *message);
+    void CheckError(const char *file, const char *function, int line);
 
     class ContextSubscription {
     public:

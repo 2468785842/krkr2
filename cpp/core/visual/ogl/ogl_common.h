@@ -1,5 +1,12 @@
 #pragma once
 
+#if defined(_WIN32)
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
+
 #if defined(_WIN32) || defined(LINUX)
 #if defined(_M_X64)
 #define GLEW_STATIC

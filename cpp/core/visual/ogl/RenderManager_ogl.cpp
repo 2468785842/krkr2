@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#include <cstdarg>
 #include <map>
 #include <set>
 #include <utility>
@@ -63,25 +64,6 @@ static void ShowInMessageBox(const char *format, ...) {
     va_end(args);
 }
 
-#if 0
-#undef CHECK_GL_ERROR_DEBUG
-#define CHECK_GL_ERROR_DEBUG()                                                 \
-    do {                                                                       \
-        GLenum __error = glGetError();                                         \
-        if(__error) {                                                          \
-            ShowInMessageBox("OpenGL error 0x%04X in %s %s %d\n", __error,     \
-                             __FILE__, __FUNCTION__, __LINE__);                \
-        }                                                                      \
-    } while(false)
-#define CHECK_GL_ERROR_DEBUG_WITH_FMT(fmt, ...)                                \
-    do {                                                                       \
-        GLenum __error = glGetError();                                         \
-        if(__error) {                                                          \
-            ShowInMessageBox("OpenGL error 0x%04X in %s %s %d\n" fmt, __error, \
-                             __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);   \
-        }                                                                      \
-    } while(false)
-#endif
 
 struct _UsedGLExtInfo {
     _UsedGLExtInfo() {}
@@ -963,7 +945,7 @@ protected:
         internalW = intw;
         internalH = inth;
         _totalVMemSize += internalW * internalH * getPixelSize();
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
     }
 
     void InternalUpdate(const void *pixel, int pitch, int x, int y, int w,
@@ -1009,7 +991,7 @@ protected:
             glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         if(rearranged)
             delete[] src;
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
     }
 
     bool RestoreNormalSize();
@@ -1309,7 +1291,7 @@ public:
         }
 
         // if size is same, is's better to use glTexSubImage2D
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
     }
 
     void AsSingleTexture() {
@@ -1588,7 +1570,7 @@ public:
         internalW = width;
         internalH = height;
         _totalVMemSize += internalW * internalH * getPixelSize() /*len*/;
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
     }
 
     void InitPixel(const void *pixel, unsigned int pitch, GLenum format,
@@ -1619,7 +1601,7 @@ public:
         internalW = intw;
         internalH = inth;
         _totalVMemSize += internalW * internalH * getPixelSize();
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
     }
 
     void Update(const void *pixel, TVPTextureFormat::e format, int pitch,
@@ -2071,7 +2053,7 @@ public:
                                    rctar->get_width(), rctar->get_height(), 1,
                                    GL_RGBA, GL_UNSIGNED_BYTE, clr);
         }
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
         // #ifdef _DEBUG
         //         static bool check = false;
         //         if(check) {
@@ -2325,7 +2307,7 @@ bool tTVPOGLTexture2D::RestoreNormalSize() {
         glVertexAttribPointer(method->GetTexCoordAttr(0), 2, GL_FLOAT, GL_FALSE,
                               0, &vtx.vtx.front());
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
 
         _totalVMemSize -= internalW * internalH * getPixelSize();
         krkr::glhost::DeleteTexture(texture);
@@ -4373,7 +4355,7 @@ public:
             GL::glCopyImageSubData(src->texture, GL_TEXTURE_2D, 0, rc.left,
                                    rc.top, 0, dst->texture, GL_TEXTURE_2D, 0, 0,
                                    0, 0, rc.get_width(), rc.get_height(), 1);
-            CHECK_GL_ERROR_DEBUG();
+            krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
             // #ifdef _DEBUG
             //             static bool check = false;
             //             if(check) {
@@ -4401,13 +4383,13 @@ public:
 
                                               maxx, miny, minx,
                                               maxy, maxx, maxy };
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
         method->Apply();
         dst->AsTarget();
         float sw, sh;
         dst->GetScale(sw, sh);
         glViewport(0, 0, rcsrc.get_width() * sw, rcsrc.get_height() * sh);
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
         int VA_flag = 1 << method->GetPosAttr();
         for(unsigned int i = 0; i < 1; ++i) {
             VA_flag |= 1 << method->GetTexCoordAttr(i);
@@ -4424,7 +4406,7 @@ public:
                               0, &vtx.vtx.front());
         glDrawArrays(GL_TRIANGLES, 0, 6);
         method->onFinish();
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
         // #ifdef _DEBUG
         //         static bool check = false;
         //         if(check) {
@@ -4570,7 +4552,7 @@ public:
         glDrawArrays(GL_TRIANGLES, 0, 6);
         //}
         method->onFinish();
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
         // #ifdef _DEBUG
         //         static bool check = false;
         //         if(check) {
@@ -4690,7 +4672,7 @@ public:
         rct *= tar->_scaleH;
         tar->AsTarget();
         glViewport(rcl, rct, rcw, rch);
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
         //		if (tar->GetWidth() == rcclip.get_width() &&
         // tar->GetHeight() == rcclip.get_height()) {
         // 			GLfloat oldClearColor[4] = { 0.0f };
@@ -4714,7 +4696,7 @@ public:
         // 			glVertexAttribPointer(method->GetPosAttr(), 2,
         // GL_FLOAT, GL_FALSE, 0, vertices);
         // glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        // CHECK_GL_ERROR_DEBUG();
+        // krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
         // 		}
 
         method->Apply();
@@ -4725,7 +4707,7 @@ public:
         krkr::glhost::EnableVertexAttributes(VA_flag);
         glVertexAttribPointer(method->GetPosAttr(), 2, GL_FLOAT, GL_FALSE, 0,
                               &pttar.front());
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
 
         for(unsigned int i = 0; i < texlist.size(); ++i) {
             // tex->SyncPixel();
@@ -4733,7 +4715,7 @@ public:
         }
         glDrawArrays(GL_TRIANGLES, 0, ptcount);
         method->onFinish();
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
         // #ifdef _DEBUG
         //         static bool check = false;
         //         if(check) {
@@ -4894,7 +4876,7 @@ public:
                                       GL_RENDERBUFFER, _stencil_FBO);
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                                       GL_RENDERBUFFER, _stencil_FBO);
-            CHECK_GL_ERROR_DEBUG();
+            krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
         }
     }
 
@@ -4905,7 +4887,7 @@ public:
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                                   GL_RENDERBUFFER, 0);
         glBindRenderbuffer(GL_RENDERBUFFER, _prevRenderBuffer);
-        CHECK_GL_ERROR_DEBUG();
+        krkr::glhost::CheckError(__FILE__, __func__, __LINE__);
     }
 
     void SetRenderTarget(iTVPTexture2D *target) override {
