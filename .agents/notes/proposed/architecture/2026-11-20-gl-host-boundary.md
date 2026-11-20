@@ -18,7 +18,7 @@ context 监听器由 manager 的 unique_ptr 持有，Cocos 订阅保留 dispatch
 重建回调的 shader cache/Rebuild 次序不变，不新增假的完整 context 恢复。
 
 新增四项真实 Cocos EventDispatcher 测试：通知和优先级、只移除自身、dispatcher/listener寿命、
-宿主主动移除全部监听后安全销毁。与现有11项Cocos窗口/输入契约合计15项。
+宿主主动移除全部重建监听后安全销毁。与现有11项Cocos窗口/输入契约合计15项。
 独立 platform 范围仍为38项，不把需要Cocos的测试塞入独立闭包。
 
 ## 验证状态与完成条件
@@ -31,3 +31,7 @@ Android ARM64 完整APK与三平台独立测试。不得将假发重建事件等
 原始日志与后续报告放忽略的 out/gl-host-boundary。既有基线与截图方法见
 [上一批记录](../../implemented/simplification/2026-11-20-render-presentation-boundary.md)。
 下一批应先梳理真实 context 丢失时 shader 参数缓存、FBO/纹理/缓冲和宿主资源重建顺序，再决定恢复实现。
+
+核对 Cocos 3.17.2 EventDispatcher.cpp：removeAllEventListeners 保留内部的
+EVENT_RENDERER_RECREATED，故销毁测试明确使用 removeCustomEventListeners 清除该事件。
+这保留真实 Cocos 事件语义，不把普通监听清理误当作 context 监听已经注销。

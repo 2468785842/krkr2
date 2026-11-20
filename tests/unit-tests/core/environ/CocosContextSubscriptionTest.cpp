@@ -76,7 +76,10 @@ TEST_CASE("cocos context subscription survives host-side listener removal",
         std::make_unique<krkr::cocosrender::ContextSubscription>(
             *fixture.dispatcher, [&] { ++calls; });
     fixture.notify();
-    fixture.dispatcher->removeAllEventListeners();
+    // Cocos preserves internal events in removeAllEventListeners(). The host
+    // must explicitly remove the custom recreation event to exercise
+    // detachment.
+    fixture.dispatcher->removeCustomEventListeners(EVENT_RENDERER_RECREATED);
     fixture.pool.clear();
     fixture.notify();
     REQUIRE(calls == 1);
