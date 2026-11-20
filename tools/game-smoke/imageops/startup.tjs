@@ -56,6 +56,20 @@ try {
         source.saveLayerImage(System.exePath + "storage-input.bmp", "bmp");
         source.loadImages(System.exePath + "storage-input.bmp");
         verify(source, [[16,16],[48,16],[16,48],[48,48]], "storage-readback");
+        // GL half only reduces dimensions above 64. Keep the algorithm input
+        // unchanged and separately exercise the actual 128 -> 64 path.
+        var storageProbe = new Layer(win, root);
+        storageProbe.visible = false;
+        storageProbe.setImageSize(128, 128);
+        storageProbe.type = ltAlpha;
+        storageProbe.fillRect(0, 0, 64, 64, 0xff40a040);
+        storageProbe.fillRect(64, 0, 64, 64, 0xffa040a0);
+        storageProbe.fillRect(0, 64, 64, 64, 0xff404040);
+        storageProbe.fillRect(64, 64, 64, 64, 0xffa0a0a0);
+        storageProbe.saveLayerImage(System.exePath + "storage-large.bmp", "bmp");
+        storageProbe.loadImages(System.exePath + "storage-large.bmp");
+        verify(storageProbe, [[32,32],[96,32],[32,96],[96,96]], "storage-readback-large");
+        invalidate storageProbe;
     }
     global.panels = [];
     for(var mode = 0; mode < 4; ++mode) {

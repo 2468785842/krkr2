@@ -250,7 +250,7 @@ def run(engine, destination, seconds=60, capture=False, profiles=False):
         if capture:
             required += [f"presented:{i}" for i in range(1,6)]
         if profiles:
-            required += ["passed:storage-readback"]
+            required += ["passed:storage-readback", "passed:storage-readback-large"]
         report["failures"] += ["Missing or repeated event: " + e for e in required if report["events"].count(e) != 1]
         report["failures"] += [e for e in report["events"] if e.startswith("error:")]
         if report["forced_stop"] or report["exit_code"] != 0:
