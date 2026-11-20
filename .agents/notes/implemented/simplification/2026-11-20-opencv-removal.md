@@ -2,7 +2,33 @@
 
 Status: implemented
 
-## 范围与结果
+## 当前验收结论（后续 1—4 项）
+
+OpenCV 生产剔除、性能收敛、跨平台验证和自制场景已经完成；真实游戏按用户要求暂不使用。
+以下旧阶段记录保留过程，最终事实以本节及[跨平台报告](../../../reports/imageops-native-ci-2026-11-20.json)为准。
+
+- `26a2c3a` 的 Headless [44722343934](https://github.com/2468785842/krkr2/actions/runs/44722343934) 共 13 个 job 通过。
+  Windows x64、Linux x64、macOS ARM64 的 ImageOps 各 7 项/25,403 断言；实际闭包没有 OpenCV。
+- 完整 Windows [44722339771](https://github.com/2468785842/krkr2/actions/runs/44722339771) 与
+  Linux [44722335954](https://github.com/2468785842/krkr2/actions/runs/44722335954) 构建、链接、无 OpenCV 检查通过。
+  两端各自的软件/OpenGL 自制场景均完成全部操作，BMP 28 个样本及保护点、实际管理器、PNG 主色、正常退出 0 全部通过，无强停；已实际查看四张最终截图。
+  Windows 原有五组单/双窗口、焦点、最小化和提交文本交互亦通过。
+- Android x86_64 [44693598826](https://github.com/2468785842/krkr2/actions/runs/44693598826) 与
+  ARM64 [44693603164](https://github.com/2468785842/krkr2/actions/runs/44693603164) 完整 Debug APK 构建通过。
+  下载实际 APK 验证 SHA256、ELF 架构、动态依赖无 OpenCV、五份许可资源；每种 ABI 编译 346 个项目源。
+  APK 的 `0a81b4b` 生产代码与桌面最终候选相同，后续只改测试/CI/记录。
+- 本地默认 7 项、含原有实时对照 23 项、禁用 SSE2 标量 7 项和 ASan/UBSan/leak 7 项通过；
+  Python 场景控制器 46 项和无 OpenCV 检查器 5 项通过，11 个 foundation 依赖约束通过。
+- 38 组同机配对微基准完整保存在[性能报告](../../../reports/imageops-native-performance-2026-11-20.json)：
+  320×240 RGBA 单线程 blur/Affine Linear/Perspective Linear/Cubic 比首版独立实现约 2.2—4.0 倍快。
+  部分 Gray8/Nearest/Linear 仍慢于 OpenCV，不据此宣称整帧提升。
+
+macOS 完整应用与 Android 设备运行未做；macOS ARM64 独立输出已核对固定样本，不能宣称所有旧 ARM OpenCV 输出均逐字节相同。
+软件透视和最终窗口合成保留原 RGB×255/256 的精确截断期望，不以放宽容差换取通过。
+Linux 测试驱动仅由 `imageops_contracts=true` 显式启用，普通应用默认关闭；Windows 仍由 `pointer_contracts=true` 启用。
+本轮提交同步 dev；原始日志、截图与下载件保存在忽略的 `out/perf-followup/`，报告保留 run/artifact/hash 身份。
+
+## 首版范围与结果（历史）
 
 基于 `8cc26c6`（dev），本次工作树将剩余图像操作迁入独立 C++17 实现。
 Nearest/Linear 保留原有公式与 x86 SSE2；Area、Cubic、blur、Affine/Perspective、LU 及行调度
@@ -99,7 +125,7 @@ blur、两种 warp、1/4 通道、随机像素、短行尾部、极端轴形状�
 | warp_affine_rgba | 396→1228（3.10×） | 423→1170（2.76×） |
 | warp_perspective_rgba | 603→1929（3.20×） | 643→2120（3.29×） |
 
-## 未验证边界与下一步
+## 首版剔除时的未验证边界（历史）
 
 Windows/macOS/Android 完整应用、APK/设备运行、CPU/GPU 消费者画面和真实游戏本次未运行。
 前轮完整 Windows/Android 构建只属于旧后端，不能当作本批证据。
@@ -110,7 +136,7 @@ ARM 统一公式相对旧 OpenCV 自动向量化/FMA 可能存在历史已知的
 再按自制脚本/真实游戏场景检查软件和 OpenGL 输出；性能继续针对 blur/warp 与行任务开销优化。
 这些尚缺的验证与性能工作不改变本批已完成的生产 OpenCV 依赖删除事实。
 
-## 后续性能与跨平台验收（进行中）
+## 后续性能与跨平台验收过程
 
 用户随后要求先完成性能、跨平台构建、自制软件/OpenGL 场景并提交同步；真实游戏回归按用户要求暂缓。
 候选提交 `3fb5fd1` 已在独立分支运行 CI：三平台 ImageOps 均成功；完整 Windows 首次在 NuGet 工具路径解析处失败，尚未进入配置。
@@ -153,3 +179,21 @@ Linux `0a81b4b` 完整应用构建、链接与无 OpenCV 闭包检查已通过�
 软件场景在透视首个点得到 RGB 0x3f9f3f、alpha255，而 fixture 错把它设为 0x40a040。
 确认 `PerspectiveAlphaBlend_a` 使用 `TVPAlphaBlend_a`→`TVPAlphaToAdditiveAlpha`→RGB×255/256 的原有截断，
 这些函数相对 8cc26c6 未变；据此给软件透视单独固定精确期望，其他像素仍严格相等。未修改混合算法或放宽容差，待重跑。
+
+后续 `55fbb35` 的 Windows/Linux 完整应用均构建、链接并通过无 OpenCV 检查；
+Windows 原有单/双窗口、焦点、最小化、文本 5 组交互均通过并正常退出。
+两端 OpenGL 新场景正常退出且通过全部检查。软件场景的 7 项脚本操作与 BMP 28 个样本也通过，
+但 PNG 曾误用 OpenGL 原色期望；实际四个主色均精确等于 RGB×255/256，软件透视窗口再多一次截断。
+`LayerIntf.cpp` 的 ltAlpha→bmAlphaOnAddAlpha 和 `tvpgl.h` 的原有转换解释此显示行为；
+生产混合路径未改。控制器已分别固定最终窗口颜色；上一轮强停不计通过，等待正常退出复验。
+
+macOS archives 再次命中 Boost.Locale source_group，日志显示 vcpkg 仍挑选 Homebrew CMake 4.5，
+并未使用已安装的 3.31.1。因此显式设置 `VCPKG_FORCE_SYSTEM_BINARIES=1`，复验实际依赖构建。
+
+`26a2c3a` 的 Headless run [44722343934](https://github.com/2468785842/krkr2/actions/runs/44722343934)
+13 个 job 全绿；macOS archives 在显式工具选择后通过。已下载本轮三个 ImageOps artifact 并核对：
+各 7 项/25,403 断言；仅编译 ImageOps.cpp、ImageOps_native.cpp、ImageOpsTest.cpp，
+实际安装闭包只有 catch2、vcpkg-cmake、vcpkg-cmake-config。
+
+最后复验：`26a2c3a` 的 Windows/Linux 两个完整 workflow 均成功，软件/OpenGL 场景各正常退出 0，
+已下载并人工查看四张最终 PNG。此前错误期望导致的强停记录仅保留为历史，不作为通过证据。

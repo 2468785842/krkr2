@@ -97,4 +97,8 @@ ctest --test-dir out/imageops-reference --output-on-failure --no-tests=error
 预热后每项三轮、每轮 100 次，输出原始 JSON；包括分配和矩阵求解，并非整帧性能。
 历史报告保留原配置，新报告见[移除测量](../../.agents/reports/imageops-removal-2026-11-20.json)。
 独立实现部分操作仍慢于 OpenCV，不能把依赖移除解释为游戏帧率提升；38 组前后配对测量见[性能收敛报告](../../.agents/reports/imageops-native-performance-2026-11-20.json)。
-Windows/macOS/Android 完整应用和真实游戏需分别验证，旧版构建记录不代表本次已通过。
+本轮 Windows/Linux 完整应用构建和自制软件/OpenGL 场景均通过，Android ARM64/x86_64 完整 APK
+构建及架构/依赖/许可检查通过；三平台独立测试各 7 项/25,403 断言。
+具体 run、产物哈希与范围见[跨平台验证报告](../../.agents/reports/imageops-native-ci-2026-11-20.json)。
+macOS 本轮只验证 ARM64 独立测试，未构建完整应用；Android 未在设备运行。
+真实游戏按用户要求暂不使用，自制场景不等同于真实游戏兼容性结论。
