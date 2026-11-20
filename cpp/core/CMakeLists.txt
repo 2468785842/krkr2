@@ -35,6 +35,7 @@ add_subdirectory(utils)
 # MSVC 与 Apple 链接器不支持该特性，保持原有顺序路径。
 set(KRKR2_CORE_ARCHIVE_TARGETS
     core_environ_module
+    core_environ_cocos
     core_base_module
     core_extension_module
     core_plugin_module
@@ -66,6 +67,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 else()
     target_link_libraries(${PROJECT_NAME} INTERFACE
         core_environ_module
+        core_environ_cocos
         core_extension_module
     )
 endif()

@@ -24,6 +24,20 @@
         }
       ]
     },
+    "sdl3-app": {
+      "description": "SDL3 application shell dependencies",
+      "dependencies": [
+        {
+          "name": "sdl3",
+          "platform": "!linux"
+        },
+        {
+          "name": "sdl3",
+          "platform": "linux",
+          "features": ["dbus"]
+        }
+      ]
+    },
     "engine": {
       "description": "Complete runtime and bundled plugins",
       "dependencies": [
