@@ -38,3 +38,8 @@ Cocos 实现在 `environ/cocos2d/CocosFrameCapture.cpp`，沿用后端原有帧�
 这只约束直接边界，不代表整个 visual 模块已无传递 Cocos 依赖。
 OpenGL 后端仍调用 Cocos GL 状态缓存、视口与 context 重建事件；视频、窗口节点、输入和管理 UI 也仍使用 Cocos。
 本轮不删除 Cocos port、不切换 SDL3、不宣称包体或编译速度改善；后续可继续拆 GL 状态/context 生命周期。
+
+本轮三平台独立测试、Windows/Linux完整应用与双后端自制场景、Android ARM64完整APK均通过。
+测量、早期失败/对照与具体范围见[实施记录](../../.agents/notes/implemented/simplification/2026-11-20-render-presentation-boundary.md)
+及[验证报告](../../.agents/reports/render-presentation-boundary-2026-11-20.json)。
+macOS未构建完整应用，Android未在设备运行，真实游戏按用户要求暂不使用。
