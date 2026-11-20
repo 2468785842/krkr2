@@ -11,7 +11,7 @@
 #include "GLHost.h"
 #include "tjsCommHead.h"
 #include "../RenderManager.h"
-#include "LayerBitmapImpl.h"
+#include "LayerBitmapIntf.h"
 #include "BinaryStream.h"
 #include "MsgIntf.h"
 #include <string>
