@@ -72,16 +72,24 @@ def check(root):
     for relative in ('visual/impl/WindowImpl.cpp', 'visual/impl/BasicDrawDevice.cpp',
                      'movie/ffmpeg/KRMoviePlayer.cpp', 'visual/WindowLayer.h',
                      'base/impl/SystemImpl.cpp', 'environ/HostLifecycle.h',
-                     'environ/RenderUtils.h', 'event/PostUpdateEvent.h'):
+                     'environ/RenderUtils.h', 'event/PostUpdateEvent.h',
+                     'visual/RenderManager.h', 'visual/TexturePresentation.h',
+                     'environ/FrameCapture.h'):
         source = root / 'cpp/core' / relative
         active = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
         if re.search(r'#\s*include\s*[<"](?:[^">]*/)?TVPWindow\.h[">]', active):
             errors.append(f'{source.relative_to(root)}: 不得包含 Cocos 窗口实现头')
-        if relative == 'visual/WindowLayer.h' and re.search(r'\bcocos2d\b|cocos[-/]|ui/Cocos', active, re.I):
-            errors.append(f'{source.relative_to(root)}: 通用窗口接口不得暴露 Cocos 类型')
-        if relative in ('environ/HostLifecycle.h', 'environ/RenderUtils.h', 'event/PostUpdateEvent.h'):
+        if relative in ('visual/WindowLayer.h', 'visual/RenderManager.h', 'visual/TexturePresentation.h', 'environ/FrameCapture.h') and re.search(r'\bcocos2d\b|cocos[-/]|ui/Cocos', active, re.I):
+            errors.append(f'{source.relative_to(root)}: 通用窗口/呈现接口不得暴露 Cocos 类型')
+        if relative in ('environ/HostLifecycle.h', 'environ/RenderUtils.h',
+                        'event/PostUpdateEvent.h', 'visual/TexturePresentation.h',
+                        'environ/FrameCapture.h'):
             if re.search(r'\bcocos2d\b|cocos[-/]|\btjs\w*', active, re.I):
                 errors.append(f'{source.relative_to(root)}: 宿主通知与帧入口不得暴露 Cocos/TJS 类型')
+    software = root / 'cpp/core/visual/RenderManager.cpp'
+    active = re.sub(r'/\*.*?\*/|//[^\n]*', '', software.read_text(encoding='utf-8'), flags=re.S)
+    if re.search(r'\bcocos2d\b|#\s*include\s*[<"]renderer/CC', active):
+        errors.append('visual/RenderManager.cpp: CPU 渲染器不得依赖 Cocos 呈现类型')
     return errors
 
 

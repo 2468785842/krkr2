@@ -1,3 +1,4 @@
+#include "cocos2d/CocosTexturePresentation.h"
 #include "DebugViewLayerForm.h"
 #include "extensions/GUI/CCScrollView/CCTableView.h"
 #include "WindowIntf.h"
@@ -47,7 +48,7 @@ public:
         if(tex) {
             _sprite->setVisible(true);
             Texture2D *cctex = _sprite->getTexture();
-            Texture2D *newtex = tex->GetAdapterTexture(cctex);
+            Texture2D *newtex = TVPGetCocosPresentationTexture(*tex, cctex);
             float scalex, scaley;
             tex->GetScale(scalex, scaley);
             if(newtex != cctex) {

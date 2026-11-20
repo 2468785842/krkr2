@@ -1,3 +1,4 @@
+#include "cocos2d/CocosTexturePresentation.h"
 #include "TVPWindow.h"
 #include "InputState.h"
 #include "InputCancellation.h"
@@ -603,7 +604,7 @@ void TVPWindowLayer::UpdateDrawBuffer(iTVPTexture2D *tex) {
     if(!tex)
         return;
     cocos2d::Texture2D *tex2d = DrawSprite->getTexture();
-    cocos2d::Texture2D *newtex = tex->GetAdapterTexture(tex2d);
+    cocos2d::Texture2D *newtex = TVPGetCocosPresentationTexture(*tex, tex2d);
     if(tex2d != newtex) {
         DrawSprite->setTexture(newtex);
         float sw, sh;

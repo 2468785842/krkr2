@@ -10,8 +10,6 @@
 #include "RenderManager.h"
 
 #include "MsgIntf.h"
-#include "renderer/CCTexture2D.h"
-typedef cocos2d::Texture2D::PixelFormat CCPixelFormat;
 #include "MsgIntf.h"
 #include "LayerBitmapIntf.h"
 #include "SysInitIntf.h"
@@ -366,19 +364,10 @@ public:
     }
     tjs_int GetPitch() const override { return Pitch; }
 
-    cocos2d::Texture2D *
-    GetAdapterTexture(cocos2d::Texture2D *origTex) override {
-        if(!origTex || origTex->getPixelsWide() != Width ||
-           origTex->getPixelsHigh() != Height) {
-            origTex = new cocos2d::Texture2D;
-            origTex->autorelease();
-            origTex->initWithData(BmpData, Pitch * Height,
-                                  CCPixelFormat::RGBA8888, Pitch / 4, Height,
-                                  cocos2d::Size::ZERO);
-        } else {
-            origTex->updateWithData(BmpData, 0, 0, Pitch / 4, Height);
-        }
-        return origTex;
+    krkr::render::TextureFrame GetPresentationFrame() override {
+        return krkr::render::RGBAFrame{ static_cast<unsigned>(Pitch / 4),
+                                        static_cast<unsigned>(Height), BmpData,
+                                        Pitch };
     }
 
     size_t GetBitmapSize() override {
@@ -476,20 +465,10 @@ public:
         assert(0);
     }
 
-    cocos2d::Texture2D *
-    GetAdapterTexture(cocos2d::Texture2D *origTex) override {
-        GetPixelData();
-        if(!origTex || origTex->getPixelsWide() != Width ||
-           origTex->getPixelsHigh() != Height) {
-            origTex = new cocos2d::Texture2D;
-            origTex->autorelease();
-            origTex->initWithData(BmpData, Pitch * Height,
-                                  CCPixelFormat::RGBA8888, Width, Height,
-                                  cocos2d::Size::ZERO);
-        } else {
-            origTex->updateWithData(BmpData, 0, 0, Width, Height);
-        }
-        return origTex;
+    krkr::render::TextureFrame GetPresentationFrame() override {
+        return krkr::render::RGBAFrame{ static_cast<unsigned>(Width),
+                                        static_cast<unsigned>(Height),
+                                        GetPixelData(), Pitch };
     }
 };
 
@@ -567,23 +546,20 @@ public:
         return 1;
     }
 
-    cocos2d::Texture2D *
-    GetAdapterTexture(cocos2d::Texture2D *origTex) override {
-        if(!origTex || origTex->getPixelsWide() != Width ||
-           origTex->getPixelsHigh() != _scanline.size()) {
-            origTex = new cocos2d::Texture2D;
-            origTex->autorelease();
-            origTex->initWithData(nullptr, Pitch * _scanline.size(),
-                                  CCPixelFormat::RGBA8888, Width,
-                                  _scanline.size(), cocos2d::Size::ZERO);
-        }
-        int y = 0;
-        for(const tjs_uint8 *line : _scanline) {
-            origTex->updateWithData(line, 0, y, Width, 1);
-            ++y;
-        }
-        return origTex;
+    krkr::render::TextureFrame GetPresentationFrame() override {
+        return krkr::render::RGBAFrame{
+            static_cast<unsigned>(Width),
+            static_cast<unsigned>(_scanline.size()),
+            nullptr,
+            Pitch,
+            this,
+            [](const void *context, unsigned y) -> const void * {
+                return static_cast<const tTVPSoftwareTexture2D_half *>(context)
+                    ->_scanline[y];
+            }
+        };
     }
+
 
     tjs_uint GetInternalHeight() const override { return _scanline.size(); }
 

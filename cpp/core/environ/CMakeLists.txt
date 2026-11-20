@@ -7,6 +7,8 @@ endif()
 
 set(ENVIRON_PATH ${CMAKE_CURRENT_LIST_DIR})
 set(ENVIRON_SOURCE_FILES
+    ${ENVIRON_PATH}/cocos2d/CocosTexturePresentation.cpp
+    ${ENVIRON_PATH}/cocos2d/CocosFrameCapture.cpp
     ${ENVIRON_PATH}/RenderUtils.cpp
     ${ENVIRON_PATH}/Application.cpp
     ${ENVIRON_PATH}/EnvironFileBackendInit.cpp

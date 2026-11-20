@@ -6,8 +6,6 @@
 #include <set>
 #include <utility>
 #include <vector>
-#include "renderer/CCTexture2D.h"
-#include "renderer/CCGLProgramCache.h"
 #include "renderer/CCGLProgram.h"
 #include "renderer/ccGLStateCache.h"
 #include "ogl_common.h"
@@ -1023,45 +1021,10 @@ protected:
 
     TVPTextureFormat::e GetFormat() const override { return Format; }
 
-    class AdapterTexture2D : public cocos2d::Texture2D {
-    public:
-        iTVPTexture2D *_owner;
-        AdapterTexture2D(iTVPTexture2D *owner, GLuint name, int w, int h) {
-            _name = name;
-            _owner = owner;
-            _owner->AddRef();
-            _contentSize = cocos2d::Size(w, h);
-            _maxS = 1;
-            _maxT = 1;
-            _pixelsWide = w;
-            _pixelsHigh = h;
-            _pixelFormat = PixelFormat::RGBA8888;
-            _hasPremultipliedAlpha = false;
-            _hasMipmaps = false;
-            setGLProgram(cocos2d::GLProgramCache::getInstance()->getGLProgram(
-                cocos2d::GLProgram::SHADER_NAME_POSITION_TEXTURE));
-        }
-
-        ~AdapterTexture2D() override {
-            _name = 0;
-            _owner->Release();
-        }
-
-        void update(GLuint name) { _name = name; }
-    };
-
-    cocos2d::Texture2D *GetAdapterTexture(cocos2d::Texture2D *orig) override {
-        if(orig) {
-            if(orig->getPixelsWide() == internalW &&
-               orig->getPixelsHigh() == internalH) {
-                static_cast<AdapterTexture2D *>(orig)->update(texture);
-                return orig;
-            }
-        }
-        AdapterTexture2D *ret =
-            new AdapterTexture2D(this, texture, internalW, internalH);
-        ret->autorelease();
-        return ret;
+    krkr::render::TextureFrame GetPresentationFrame() override {
+        return krkr::render::OpenGLFrame{ texture,
+                                          static_cast<unsigned>(internalW),
+                                          static_cast<unsigned>(internalH) };
     }
 
 public:

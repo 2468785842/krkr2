@@ -1,3 +1,4 @@
+#include "FrameCapture.h"
 // Opt-in component-test input. Not compiled into normal runtime builds.
 #include "tjsCommHead.h"
 #include <cocos2d.h>
@@ -105,15 +106,13 @@ void TVPStartUIContractDriver(cocos2d::Scene *scene) {
                                                          : "opengl")
                         << "\n";
                     const auto path = (root / "ui-frame.png").u8string();
-                    utils::captureScreen(
-                        [root, id](bool saved, const std::string &) {
-                            std::ofstream result(root / "ui-driver-events.txt",
-                                                 std::ios::app);
-                            result << id
-                                   << (saved ? " capture-saved\n"
-                                             : " error:capture\n");
-                        },
-                        path);
+                    TVPCaptureHostFrame(path, [root, id](bool saved) {
+                        std::ofstream result(root / "ui-driver-events.txt",
+                                             std::ios::app);
+                        result << id
+                               << (saved ? " capture-saved\n"
+                                         : " error:capture\n");
+                    });
                 } else if(action == "text-hex") {
                     if(selector.empty() || selector.size() > 128 ||
                        selector.size() % 2 != 0)
