@@ -53,18 +53,18 @@ def check(root):
             for include in includes:
                 if include.startswith(('cocos/', 'unzip/', 'environ/', 'visual/', 'movie/', 'sound/', 'plugin/')) or 'cocos2d' in include:
                     errors.append(f'{source.relative_to(root)}: 反向包含 {include}')
-            if target == 'core_imageops' and source.name != 'ImageOps_opencv.cpp':
+            if target == 'core_imageops':
                 active = re.sub(r'/\*.*?\*/|//[^\n]*', '', content, flags=re.S)
                 if re.search(r'#\s*include\s*[<"]opencv|\bcv::', active):
-                    errors.append(f'{source.relative_to(root)}: OpenCV 仅允许出现在后端实现')
-    # 渲染器及插件只通过 ImageOps 使用图像算法，OpenCV 留在后端实现。
+                    errors.append(f'{source.relative_to(root)}: 生产 ImageOps 不允许依赖 OpenCV')
+    # 渲染器及插件只通过 ImageOps 使用图像算法，生产代码不再依赖 OpenCV。
     for relative in ('visual', '../plugins'):
         for source in (root / 'cpp/core' / relative).rglob('*'):
             if source.suffix not in ('.cpp', '.h', '.hpp'):
                 continue
             content = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
             if re.search(r'#\s*include\s*[<"]opencv|\bcv::', content):
-                errors.append(f'{source.relative_to(root)}: OpenCV 调用应放入 ImageOps 后端')
+                errors.append(f'{source.relative_to(root)}: 生产代码不允许依赖 OpenCV')
     # Generic window consumers must not import the Cocos implementation header.
     host = root / 'cpp/core/environ/cocos2d/MainScene.cpp'
     if re.search(r'^\s*tjs_uint32\s+TVPGetCurrentShiftKeyState\s*\(', host.read_text(encoding='utf-8'), re.M):

@@ -300,3 +300,9 @@ MSVC `/fsanitize=address /Zi /O2 /MD` 插装当前 ImageOps.cpp 和 ImageOpsTest
 clang-format 20.1.8、`git diff --check` 和 `python scripts/check_core_module_deps.py`
 通过（后者仅其声明的 11 个 foundation 目标/直接包含与窗口接口约束）。
 Linux/macOS/Android、本批游戏脚本画面和真实游戏未验证；ARM 原生化及后续算法替换仍未完成。
+
+## 2026-11-20 OpenCV 剔除
+
+剩余算法和调度已迁移为独立 C++17 实现，生产依赖、overlay port、默认测试依赖及 CI/打包检查同步清理。
+本节之前的 OpenCV/ARM 回退与构建记录属于历史状态；当前实现、许可、性能回退和验证边界见
+[完整移除记录](2026-11-20-opencv-removal.md)与 [ImageOps 专题](../../../../docs/subsystems/imageops.md)。

@@ -2,6 +2,9 @@
 
 Status: implemented
 
+历史说明：本记录描述 2026-11-14 的模块裁剪。2026-11-20 已删除该 overlay 和生产依赖，
+当前结果见 [OpenCV 剔除记录](2026-11-20-opencv-removal.md)。
+
 ## 决定与来源
 
 2026-11-14 从 `519f113` 接续依赖精简。生产 OpenCV 调用已集中于
@@ -12,7 +15,7 @@ Status: implemented
 实现提交 `1a899bb`；Windows 补丁字节修复 `6542a12`。完整 port 保留固定的
 OpenCV 4.7.0#6、原补丁和上游可选功能。精简 feature 与额外模块 feature 混用时明确失败，
 未选择该 feature 的消费者保留上游行为。原始 port tree、blob、许可见
-[vcpkg 来源](../../../../vcpkg/ports/opencv4/UPSTREAM.md)。已逐文件比对 15 个补丁、usage，
+[vcpkg 来源](https://github.com/2468785842/krkr2/blob/8cc26c6/vcpkg/ports/opencv4/UPSTREAM.md)。已逐文件比对 15 个补丁、usage，
 portfile 仅增加 include，manifest 除新增 feature 外语义相同。
 
 Windows 首轮 `43550163194` 的 imageops job 与完整构建 `43550171248` 在应用

@@ -54,10 +54,14 @@ namespace TVPImageOps {
         ConstImageView view() const;
     };
 
-    // 参数错误抛 std::invalid_argument，后端错误转换为 std::runtime_error。
+    // 同步图像任务的线程上限；0 自动选择（最多 8），1 串行。
+    void SetThreadCount(int count);
+    int GetThreadCount();
+
+    // 参数错误抛 std::invalid_argument；内存/线程资源错误按标准 C++ 异常传播。
     // Resize 保留既有 Nearest/Area/Linear/Cubic 映射及像素坐标、舍入语义。
-    // Nearest 与 x86 Linear 为原生实现（Linear 复刻 OpenCV 4.7.0 的 8 位
-    // 定点公式，含 2 倍整数缩小与恒等复制）。ARM Linear 使用 OpenCV。
+    // 全平台使用独立实现；Linear 保持 OpenCV 4.7.0 的 8 位定点公式，
+    // 含 2 倍整数缩小与恒等复制。浮点系数固定计算顺序，不依赖宿主 SIMD 分派。
     // 输入输出缓冲区应独立，允许相同视图的原位恒等操作。
     void Resize(ConstImageView source, ImageView destination,
                 Interpolation mode);

@@ -49,7 +49,7 @@ jobs:
           sudo apt-get install -y perl gcc g++ bison python3 yasm ninja-build
           
           sudo apt install -y libxft-dev libxext-dev
-          sudo apt install -y libxxf86vm-dev libx11-dev libxmu-dev libglu1-mesa-dev libgl2ps-dev libxi-dev libzip-dev libpng-dev libcurl4-gnutls-dev libfontconfig1-dev libsqlite3-dev libglew-dev libssl-dev libgtk-3-dev binutils
+          sudo apt install -y libxxf86vm-dev libx11-dev libxmu-dev libglu1-mesa-dev libgl2ps-dev libxi-dev libzip-dev libpng-dev libcurl4-gnutls-dev libfontconfig1-dev libsqlite3-dev libglew-dev libssl-dev libgtk-3-dev binutils xvfb xauth
           sudo apt install -y autoconf autoconf-archive automake libtool pkg-config
           sudo apt install libltdl-dev
 
@@ -93,11 +93,24 @@ jobs:
 
       - name: Build Linux
         run: |
-          cmake --preset="Linux Release Config" -DENABLE_TESTS=OFF -DBUILD_TOOLS=OFF
-          cmake --build --preset="Linux Release Build"
+          cmake --preset="Linux Release Config" -DENABLE_TESTS=ON -DBUILD_TOOLS=OFF -DKRKR2_ENABLE_UI_TEST_DRIVER=ON
+          cmake --build --preset="Linux Release Build" --target krkr2
           
           cp $(find out/linux/release/ -name libfmod.so) out/linux/release/bin/krkr2
           cp $(find out/linux/release/ -name libfmodL.so) out/linux/release/bin/krkr2
+
+      - name: Verify renderer compilation and image operations in both backends
+        run: |
+          python scripts/check_no_opencv.py out/linux/release
+          LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a python tools/game-smoke/imageops_repro.py out/linux/release/bin/krkr2/krkr2 out/linux/imageops-runtime --capture
+
+      - name: Upload image operation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-imageops-runtime
+          path: out/linux/imageops-runtime/**
+          if-no-files-found: ignore
 
       - name: Upload artifacts
         if: ${{ !env.ACT && success() }}

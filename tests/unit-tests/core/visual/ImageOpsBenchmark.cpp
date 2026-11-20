@@ -89,6 +89,7 @@ int main(int argc, char **argv) {
             return 2;
     }
     cv::setNumThreads(threads);
+    SetThreadCount(threads);
     constexpr int w = 320, h = 240, pitch = w * 4 + 16;
     std::vector<std::uint8_t> src(pitch * h), dst(pitch * h);
     for(std::size_t i = 0; i < src.size(); ++i)

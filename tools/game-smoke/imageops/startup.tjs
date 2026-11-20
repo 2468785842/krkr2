@@ -1,0 +1,82 @@
+// Self-authored image operations fixture. No commercial scripts or assets.
+global.events = [];
+global.record = function(text) {
+    events.add(text);
+    events.save(System.exePath + "imageops-events.txt");
+};
+try {
+    Plugins.link("perspective.dll");
+    global.win = new Window();
+    win.caption = "KrKr2 ImageOps pixel contract";
+    win.setSize(384, 192);
+    win.visible = true;
+    global.root = new Layer(win, null);
+    root.setSize(384, 192);
+    root.setImageSize(384, 192);
+    root.type = ltAlpha;
+    root.fillRect(0, 0, 384, 192, 0xff102010);
+    root.visible = true;
+    global.source = new Layer(win, root);
+    source.setImageSize(64, 64);
+    source.setSize(64, 64);
+    source.type = ltAlpha;
+    source.visible = false;
+    source.fillRect(0, 0, 32, 32, 0xff40a040);
+    source.fillRect(32, 0, 32, 32, 0xffa040a0);
+    source.fillRect(0, 32, 32, 32, 0xff404040);
+    source.fillRect(32, 32, 32, 32, 0xffa0a0a0);
+    global.colors = [0x40a040, 0xa040a0, 0x404040, 0xa0a0a0];
+    function panel() {
+        var layer = new Layer(win, root);
+        layer.setImageSize(96, 96);
+        layer.setSize(96, 96);
+        layer.type = ltAlpha;
+        layer.visible = false;
+        layer.fillRect(0, 0, 96, 96, 0);
+        return layer;
+    }
+    function verify(layer, points, name) {
+        for(var i = 0; i < 4; ++i) {
+            var x = points[i][0], y = points[i][1];
+            var rgb = layer.getMainPixel(x, y);
+            var alpha = layer.getMaskPixel(x, y);
+            if(rgb != colors[i] || alpha != 255)
+                throw new Exception(name + ": pixel " + i + " RGB=" + rgb + " alpha=" + alpha);
+        }
+        record("passed:" + name);
+    }
+    global.panels = [];
+    for(var mode = 0; mode < 4; ++mode) {
+        var layer = panel();
+        layer.stretchCopy(0, 0, 96, 64, source, 0, 0, 64, 64, mode);
+        verify(layer, [[24,16],[72,16],[24,48],[72,48]], "resize-" + mode);
+        root.copyRect(mode*96, 0, layer, 0, 0, 96, 96);
+        panels.add(layer);
+    }
+    global.blur = panel();
+    blur.copyRect(0, 0, source, 0, 0, 64, 64);
+    blur.doBoxBlur(4, 4);
+    verify(blur, [[16,16],[48,16],[16,48],[48,48]], "blur");
+    root.copyRect(0, 96, blur, 0, 0, 96, 96);
+    global.affine = panel();
+    affine.affineCopy(source, 0, 0, 64, 64, false, 8, 8, 80, 12, 12, 80, 2, false);
+    verify(affine, [[27,27],[63,29],[29,63],[65,65]], "affine");
+    root.copyRect(96, 96, affine, 0, 0, 96, 96);
+    global.perspective = panel();
+    perspective.perspectiveCopy(source, 0, 0, 64, 64, 8, 8, 80, 12, 12, 80, 72, 72);
+    verify(perspective, [[20,20],[65,22],[22,65],[61,61]], "perspective");
+    root.copyRect(192, 96, perspective, 0, 0, 96, 96);
+    root.saveLayerImage(System.exePath + "imageops.bmp", "bmp");
+    record("ready");
+} catch(e) {
+    record("error:" + e.message);
+    Debug.message("IMAGEOPS_RUNTIME_FAILED: " + e.message);
+}
+global.driver = new Timer(function() {
+    if(!Storages.isExistentStorage(System.exePath + "imageops-close.txt")) return;
+    driver.enabled = false;
+    record("finished");
+    System.exit();
+}, "");
+driver.interval = 50;
+driver.enabled = true;

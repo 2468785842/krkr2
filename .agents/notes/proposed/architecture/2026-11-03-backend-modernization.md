@@ -9,6 +9,7 @@ Status: proposed
 [平台壳选型](2026-11-03-ui-platform-shell.md)，尚未实现。ANGLE 为 GLES 翻译层而非 cocos 替代，
 与窗口库正交，延后到 macOS 阶段决策。
 最小工具、字符串、归档测试及 ImageOps 接口/像素测试的构建隔离已有实现，进展与验证边界见[依赖瘦身实施记录](../../implemented/simplification/2026-11-01-dependency-slimming.md)。
+2026-11-20：OpenCV 生产依赖已剔除，B4 算法/线程与默认独立测试已迁移；跨平台完整消费者和游戏验收仍按范围单独核实，见[移除记录](../../implemented/simplification/2026-11-20-opencv-removal.md)。
 此轮优先精简平台/图形后端，TJS2 与 Ciallang 替换另设任务、另行验收。
 
 ## 目标边界

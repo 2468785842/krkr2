@@ -2,13 +2,6 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "krkr2",
   "version-string": "1.5.0",
-  "overrides": [
-    {
-      "name": "opencv4",
-      "version": "4.7.0",
-      "port-version": 6
-    }
-  ],
   "features": {
     "sdl3-prototype": {
       "description": "Separate SDL3/TJS desktop shell experiment",
@@ -20,7 +13,9 @@
         {
           "name": "sdl3",
           "platform": "linux",
-          "features": ["dbus"]
+          "features": [
+            "dbus"
+          ]
         }
       ]
     },
@@ -69,14 +64,6 @@
           "platform": "android"
         },
         "openal-soft",
-        {
-          "name": "opencv4",
-          "default-features": false,
-          "features": [
-            "imageops",
-            "openmp"
-          ]
-        },
         {
           "name": "opus",
           "platform": "android"
@@ -159,16 +146,7 @@
     },
     "imageops": {
       "description": "CPU image operations without the runtime or window backend",
-      "dependencies": [
-        {
-          "name": "opencv4",
-          "default-features": false,
-          "features": [
-            "imageops",
-            "openmp"
-          ]
-        }
-      ]
+      "dependencies": []
     }
   },
   "default-features": [

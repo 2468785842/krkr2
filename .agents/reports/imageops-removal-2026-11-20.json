@@ -1,0 +1,574 @@
+{
+  "date": "2026-11-20",
+  "baseline_commit": "8cc26c666b40ce6d24338075de3246a282473759",
+  "state": "dirty working tree",
+  "environment": {
+    "system": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "machine": "x86_64",
+    "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+    "cmake": "cmake version 4.4.5",
+    "catch2_commit": "2b60af89e23d28eefc081bc930831ee9d45ea58b"
+  },
+  "reference": {
+    "opencv_commit": "725e440d278aca07d35a5e8963ef990572b07316",
+    "version": "4.7.0",
+    "modules": [
+      "core",
+      "imgproc"
+    ],
+    "openmp": true,
+    "ipp": false,
+    "opencl": false,
+    "itt": false,
+    "lapack": false,
+    "eigen": false,
+    "cpu_dispatch": "default upstream x86_64 configuration; see out/reference/opencv-configure.log",
+    "vcpkg_install_executed": false
+  },
+  "validation": {
+    "default_ctest_cases": 6,
+    "default_assertions": 21390,
+    "scalar_ctest_cases": 6,
+    "sanitizer_ctest_cases": 6,
+    "reference_ctest_cases": 22,
+    "golden_cases": 2700,
+    "golden_thread_requests": [
+      1,
+      3
+    ],
+    "golden_regeneration_matches": true,
+    "closure_checker_unit_tests": 4,
+    "production_has_cv_symbols": false,
+    "production_dynamic_libraries": [
+      "libstdc++.so.6",
+      "libm.so.6",
+      "libgcc_s.so.1",
+      "libc.so.6"
+    ],
+    "project_compiled_sources": [
+      "ImageOps.cpp",
+      "ImageOps_native.cpp",
+      "ImageOpsTest.cpp"
+    ],
+    "vcpkg_installed_status_checked": false,
+    "license_resource_selection": true,
+    "final_validation_commands_exit_zero": true
+  },
+  "method": {
+    "rounds": 3,
+    "iterations_per_round": 100,
+    "thread_requests": [
+      1,
+      3
+    ],
+    "comparison": "Same process, direct former OpenCV calls versus independent ImageOps. Warm-up and alternating call order; summary is median of three round means.",
+    "sampling": "Final benchmark runs serially after all builds and sanitizer tests finished. Preliminary overlapping exploratory runs excluded.",
+    "limitations": [
+      "Shared cloud CPU scheduling and clocks fluctuate.",
+      "Independent blur and warp remain slower than OpenCV.",
+      "No complete application, Windows, macOS, Android or real-game validation in this environment.",
+      "Canonical ARM formulas may differ at LSB level from the former compiler-dependent OpenCV ARM backend.",
+      "No APK/exe package-size, build-time or game-FPS conclusion."
+    ]
+  },
+  "source_sha256": {
+    "cpp/core/imageops/ImageOps.cpp": "0ed9c9190955ff23d9e512bac0ff08ab49d4f45c2dd005d77c4420b1dced0d72",
+    "cpp/core/imageops/ImageOps_native.cpp": "c272c2ef6f559741089d7fe28eda8330d8e00b36f947e01089b83a936e9895bb",
+    "cpp/core/imageops/ImageOps.h": "c63be97394cb7ba6fe4395a56d9d8d2114cf60b0c07e4be31822ce1e8f542dff",
+    "cpp/core/imageops/CMakeLists.txt": "fac5e5fac6dee9951cafde78ebf8ee5280e13736cd92b4ad5b170ad61fa9b61f",
+    "tests/unit-tests/core/visual/ImageOpsTest.cpp": "a647428e1ceb51d5cd192658599c1be7f6689e4d9c9d26a3597b8a1b98760f38",
+    "tests/unit-tests/core/visual/ImageOpsReferenceTest.cpp": "e177a9ee98082b456016572b6af240f2d4c9fcc93708005d35e38487e48c5660",
+    "tests/unit-tests/core/visual/GenerateImageOpsGolden.cpp": "e1c3e6bebd10ac3ee0b6dbd04de8920593648bea609cd581162e1f4f22c3b953",
+    "tests/unit-tests/core/visual/ImageOpsCases.h": "243a57439bf2a541b5fe4e4cac9420d2654f6a38a9c5939390f17cdcc21ddaef",
+    "tests/unit-tests/core/visual/ImageOpsGolden.h": "00be0a55dd5f7a0084b08256bfb602eeaebf5df40d6f1483f4adb80d353ea328",
+    "tests/unit-tests/core/visual/ImageOpsBenchmark.cpp": "f72830c28fe386c1271595585c65bdbe2c3d258187f27db1f45fc52895a5783a",
+    "vcpkg.json": "ab0ed0e72162d61a8df6320adafa632c0292eed67cdfe633babf646f06b56578"
+  },
+  "artifacts": {
+    "out/imageops-native/cpp/core/imageops/libcore_imageops.a": {
+      "bytes": 180138,
+      "sha256": "43f0c1ac13d4f29e84625d35e6ff2d0e5d9b2672a29293cbe427d6eb64adebff"
+    },
+    "out/imageops-native/tests/unit-tests/core/visual/imageops_tests": {
+      "bytes": 1443912,
+      "sha256": "dcafd0d920dce00c27d3814a616b33ce191426eedbe19b9f18dc70b878e52962"
+    },
+    "out/imageops-scalar/tests/unit-tests/core/visual/imageops_tests": {
+      "bytes": 1443888,
+      "sha256": "4ec634307424227a140c75cff04a2e91931fc9e8ea9025b6577ac50ab9218e6f"
+    },
+    "out/imageops-sanitize/tests/unit-tests/core/visual/imageops_tests": {
+      "bytes": 6396904,
+      "sha256": "cb7d511ed3ee73652c9851738ef600c61de73fde523f9b7dc4ed95976983b4e8"
+    },
+    "out/native-reference/tests/unit-tests/core/visual/imageops_reference_tests": {
+      "bytes": 1334136,
+      "sha256": "54cb9c46a8b340e218965b096e3ee7bb594720faef99f2fb098466fbe0ce5662"
+    },
+    "out/native-reference/tests/unit-tests/core/visual/imageops_benchmark": {
+      "bytes": 166720,
+      "sha256": "36734938168613cd80a08aeea8ecf513042b0635843baada535a9144556b91cf"
+    }
+  },
+  "runs": [
+    {
+      "opencv": "4.7.0",
+      "threads": 1,
+      "iterations": 100,
+      "rounds": 3,
+      "cases": [
+        {
+          "name": "resize_nearest_rgba",
+          "direct_us": [
+            11.881,
+            10.989,
+            11.535
+          ],
+          "imageops_us": [
+            15.224,
+            16.311,
+            15.364
+          ]
+        },
+        {
+          "name": "resize_linear_rgba",
+          "direct_us": [
+            83.598,
+            69.821,
+            94.12
+          ],
+          "imageops_us": [
+            122.309,
+            113.416,
+            126.079
+          ]
+        },
+        {
+          "name": "box_9x9_rgba",
+          "direct_us": [
+            128.716,
+            127.204,
+            141.518
+          ],
+          "imageops_us": [
+            775.507,
+            873.248,
+            640.078
+          ]
+        },
+        {
+          "name": "warp_affine_rgba",
+          "direct_us": [
+            412.226,
+            396.19,
+            395.903
+          ],
+          "imageops_us": [
+            1227.519,
+            1231.074,
+            1185.496
+          ]
+        },
+        {
+          "name": "warp_perspective_rgba",
+          "direct_us": [
+            605.802,
+            580.211,
+            602.793
+          ],
+          "imageops_us": [
+            1927.147,
+            1929.261,
+            1970.995
+          ]
+        },
+        {
+          "name": "resize_nearest_4k_to_1080p_rgba",
+          "direct_us": [
+            1257.344,
+            1171.324,
+            1512.498
+          ],
+          "imageops_us": [
+            1306.183,
+            1287.66,
+            1709.004
+          ]
+        },
+        {
+          "name": "linear_gray_up",
+          "direct_us": [
+            256.337,
+            235.8,
+            235.381
+          ],
+          "imageops_us": [
+            359.771,
+            331.123,
+            356.209
+          ]
+        },
+        {
+          "name": "linear_gray_down",
+          "direct_us": [
+            424.782,
+            456.634,
+            426.402
+          ],
+          "imageops_us": [
+            1125.181,
+            1241.193,
+            1249.461
+          ]
+        },
+        {
+          "name": "linear_rgba_up",
+          "direct_us": [
+            3449.638,
+            3780.706,
+            3341.775
+          ],
+          "imageops_us": [
+            2780.926,
+            2817.049,
+            3150.658
+          ]
+        },
+        {
+          "name": "linear_rgba_down",
+          "direct_us": [
+            7490.897,
+            6689.987,
+            7187.444
+          ],
+          "imageops_us": [
+            9310.111,
+            8251.035,
+            9334.089
+          ]
+        },
+        {
+          "name": "linear_rgba_half",
+          "direct_us": [
+            2172.105,
+            2531.742,
+            2395.315
+          ],
+          "imageops_us": [
+            2534.484,
+            2453.991,
+            2496.514
+          ]
+        }
+      ]
+    },
+    {
+      "opencv": "4.7.0",
+      "threads": 3,
+      "iterations": 100,
+      "rounds": 3,
+      "cases": [
+        {
+          "name": "resize_nearest_rgba",
+          "direct_us": [
+            12.365,
+            13.05,
+            11.158
+          ],
+          "imageops_us": [
+            19.229,
+            19.661,
+            14.94
+          ]
+        },
+        {
+          "name": "resize_linear_rgba",
+          "direct_us": [
+            81.146,
+            83.438,
+            70.583
+          ],
+          "imageops_us": [
+            202.424,
+            212.491,
+            252.451
+          ]
+        },
+        {
+          "name": "box_9x9_rgba",
+          "direct_us": [
+            124.229,
+            123.299,
+            120.272
+          ],
+          "imageops_us": [
+            704.715,
+            690.254,
+            644.136
+          ]
+        },
+        {
+          "name": "warp_affine_rgba",
+          "direct_us": [
+            446.829,
+            423.215,
+            380.278
+          ],
+          "imageops_us": [
+            1193.608,
+            1169.605,
+            1162.874
+          ]
+        },
+        {
+          "name": "warp_perspective_rgba",
+          "direct_us": [
+            643.496,
+            667.212,
+            618.345
+          ],
+          "imageops_us": [
+            2259.193,
+            2065.468,
+            2120.021
+          ]
+        },
+        {
+          "name": "resize_nearest_4k_to_1080p_rgba",
+          "direct_us": [
+            661.213,
+            906.896,
+            1019.211
+          ],
+          "imageops_us": [
+            1537.119,
+            1064.028,
+            1284.153
+          ]
+        },
+        {
+          "name": "linear_gray_up",
+          "direct_us": [
+            187.588,
+            129.379,
+            136.557
+          ],
+          "imageops_us": [
+            634.832,
+            456.14,
+            369.924
+          ]
+        },
+        {
+          "name": "linear_gray_down",
+          "direct_us": [
+            299.553,
+            403.424,
+            314.813
+          ],
+          "imageops_us": [
+            1171.469,
+            939.066,
+            1516.888
+          ]
+        },
+        {
+          "name": "linear_rgba_up",
+          "direct_us": [
+            2170.478,
+            2412.345,
+            2664.502
+          ],
+          "imageops_us": [
+            2378.659,
+            2272.054,
+            2285.651
+          ]
+        },
+        {
+          "name": "linear_rgba_down",
+          "direct_us": [
+            5083.816,
+            5334.628,
+            15546.417
+          ],
+          "imageops_us": [
+            7321.966,
+            7109.43,
+            11456.74
+          ]
+        },
+        {
+          "name": "linear_rgba_half",
+          "direct_us": [
+            12071.527,
+            5240.111,
+            3161.676
+          ],
+          "imageops_us": [
+            3190.345,
+            3262.085,
+            3104.221
+          ]
+        }
+      ]
+    }
+  ],
+  "summary": [
+    {
+      "name": "resize_nearest_rgba",
+      "threads": 1,
+      "opencv_median_us": 11.535,
+      "native_median_us": 15.364,
+      "native_over_opencv": 1.332
+    },
+    {
+      "name": "resize_linear_rgba",
+      "threads": 1,
+      "opencv_median_us": 83.598,
+      "native_median_us": 122.309,
+      "native_over_opencv": 1.463
+    },
+    {
+      "name": "box_9x9_rgba",
+      "threads": 1,
+      "opencv_median_us": 128.716,
+      "native_median_us": 775.507,
+      "native_over_opencv": 6.025
+    },
+    {
+      "name": "warp_affine_rgba",
+      "threads": 1,
+      "opencv_median_us": 396.19,
+      "native_median_us": 1227.519,
+      "native_over_opencv": 3.098
+    },
+    {
+      "name": "warp_perspective_rgba",
+      "threads": 1,
+      "opencv_median_us": 602.793,
+      "native_median_us": 1929.261,
+      "native_over_opencv": 3.201
+    },
+    {
+      "name": "resize_nearest_4k_to_1080p_rgba",
+      "threads": 1,
+      "opencv_median_us": 1257.344,
+      "native_median_us": 1306.183,
+      "native_over_opencv": 1.039
+    },
+    {
+      "name": "linear_gray_up",
+      "threads": 1,
+      "opencv_median_us": 235.8,
+      "native_median_us": 356.209,
+      "native_over_opencv": 1.511
+    },
+    {
+      "name": "linear_gray_down",
+      "threads": 1,
+      "opencv_median_us": 426.402,
+      "native_median_us": 1241.193,
+      "native_over_opencv": 2.911
+    },
+    {
+      "name": "linear_rgba_up",
+      "threads": 1,
+      "opencv_median_us": 3449.638,
+      "native_median_us": 2817.049,
+      "native_over_opencv": 0.817
+    },
+    {
+      "name": "linear_rgba_down",
+      "threads": 1,
+      "opencv_median_us": 7187.444,
+      "native_median_us": 9310.111,
+      "native_over_opencv": 1.295
+    },
+    {
+      "name": "linear_rgba_half",
+      "threads": 1,
+      "opencv_median_us": 2395.315,
+      "native_median_us": 2496.514,
+      "native_over_opencv": 1.042
+    },
+    {
+      "name": "resize_nearest_rgba",
+      "threads": 3,
+      "opencv_median_us": 12.365,
+      "native_median_us": 19.229,
+      "native_over_opencv": 1.555
+    },
+    {
+      "name": "resize_linear_rgba",
+      "threads": 3,
+      "opencv_median_us": 81.146,
+      "native_median_us": 212.491,
+      "native_over_opencv": 2.619
+    },
+    {
+      "name": "box_9x9_rgba",
+      "threads": 3,
+      "opencv_median_us": 123.299,
+      "native_median_us": 690.254,
+      "native_over_opencv": 5.598
+    },
+    {
+      "name": "warp_affine_rgba",
+      "threads": 3,
+      "opencv_median_us": 423.215,
+      "native_median_us": 1169.605,
+      "native_over_opencv": 2.764
+    },
+    {
+      "name": "warp_perspective_rgba",
+      "threads": 3,
+      "opencv_median_us": 643.496,
+      "native_median_us": 2120.021,
+      "native_over_opencv": 3.295
+    },
+    {
+      "name": "resize_nearest_4k_to_1080p_rgba",
+      "threads": 3,
+      "opencv_median_us": 906.896,
+      "native_median_us": 1284.153,
+      "native_over_opencv": 1.416
+    },
+    {
+      "name": "linear_gray_up",
+      "threads": 3,
+      "opencv_median_us": 136.557,
+      "native_median_us": 456.14,
+      "native_over_opencv": 3.34
+    },
+    {
+      "name": "linear_gray_down",
+      "threads": 3,
+      "opencv_median_us": 314.813,
+      "native_median_us": 1171.469,
+      "native_over_opencv": 3.721
+    },
+    {
+      "name": "linear_rgba_up",
+      "threads": 3,
+      "opencv_median_us": 2412.345,
+      "native_median_us": 2285.651,
+      "native_over_opencv": 0.947
+    },
+    {
+      "name": "linear_rgba_down",
+      "threads": 3,
+      "opencv_median_us": 5334.628,
+      "native_median_us": 7321.966,
+      "native_over_opencv": 1.373
+    },
+    {
+      "name": "linear_rgba_half",
+      "threads": 3,
+      "opencv_median_us": 5240.111,
+      "native_median_us": 3190.345,
+      "native_over_opencv": 0.609
+    }
+  ]
+}

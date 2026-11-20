@@ -81,9 +81,9 @@ jobs:
       - name: Build Windows
         run: cmake --build --preset="Windows Release Build" --target krkr2 cocos_window_tests
 
-      - name: Verify installed OpenCV modules
+      - name: Verify OpenCV removal
         shell: bash
-        run: python scripts/check_opencv_modules.py out/windows/release/vcpkg_installed/x64-windows-static-md --output out/windows/release/opencv-profile.json
+        run: python scripts/check_no_opencv.py out/windows/release
 
       - name: Verify Cocos window, pointer, focus and text contracts
         shell: bash
@@ -108,7 +108,7 @@ jobs:
           commands = json.loads((root / 'compile_commands.json').read_text(encoding='utf-8'))
           files = [c['file'].replace('\\', '/') for c in commands]
           for source in ('visual/RenderManager.cpp', 'visual/ogl/RenderManager_ogl.cpp',
-                         'imageops/ImageOps.cpp', 'imageops/ImageOps_opencv.cpp'):
+                         'imageops/ImageOps.cpp', 'imageops/ImageOps_native.cpp'):
               matches = [p for p in files if p.endswith('/cpp/core/' + source)]
               assert len(matches) == 1, (source, matches)
           print('Full application includes both renderers and both ImageOps sources exactly once.')
@@ -150,6 +150,9 @@ jobs:
           $minimize = $LASTEXITCODE
           python tools/game-smoke/text_repro.py "$probe/runtime/krkr2.exe" "$probe/native-text"
           $text = $LASTEXITCODE
+          python tools/game-smoke/imageops_repro.py "$probe/runtime/krkr2.exe" "$probe/imageops" --capture
+          $imageops = $LASTEXITCODE
+          if ($imageops -ne 0) { exit $imageops }
           if ($single -ne 0 -or $multiple -ne 0 -or $focus -ne 0 -or $minimize -ne 0 -or $text -ne 0) { exit 1 }
 
       - name: Upload small pointer reports and screenshots
@@ -164,6 +167,7 @@ jobs:
             out/windows/pointer-contracts/native-focus/**
             out/windows/pointer-contracts/native-minimize/**
             out/windows/pointer-contracts/native-text/**
+            out/windows/pointer-contracts/imageops/**
             !out/windows/pointer-contracts/*/evidence/**
           if-no-files-found: warn
 
@@ -181,6 +185,7 @@ jobs:
             out/windows/pointer-contracts/native-focus/**
             out/windows/pointer-contracts/native-minimize/**
             out/windows/pointer-contracts/native-text/**
+            out/windows/pointer-contracts/imageops/**
             !out/windows/pointer-contracts/*/evidence/**
           if-no-files-found: warn
 
@@ -191,7 +196,6 @@ jobs:
           name: windows-build-metadata
           path: |
             out/windows/release/compile_commands.json
-            out/windows/release/opencv-profile.json
             out/windows/release/vcpkg_installed/vcpkg/status
           if-no-files-found: ignore
 

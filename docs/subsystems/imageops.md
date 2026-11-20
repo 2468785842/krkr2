@@ -1,124 +1,96 @@
 # ImageOps 接口与验证
 
-图像算法集中到 `cpp/core/imageops/` 的 `core_imageops` 静态库。公共头只使用 C++17 类型。
-`ImageOps.cpp` 实现公共校验、输出缓冲区与最近邻及 x86 线性 resize 的像素采样；`ImageOps_opencv.cpp`
-保留其余算法（Area/Cubic、blur、warp）和并行行任务调度。最近邻 warp 仍由 OpenCV 执行，不能把 resize 的替换扩展为所有最近邻路径已替换。
-静态库的 PRIVATE 链接仍会进入最终链接闭包，不能据此宣称移除了 OpenCV。
+CPU 图像操作统一通过 `cpp/core/imageops/ImageOps.h`。`core_imageops` 仅依赖 C++17 与系统线程库，
+生产代码和 vcpkg engine/imageops features 均不再依赖 OpenCV；默认测试仅额外需要 Catch2。
 
-## 调用边界
+`ImageOps.cpp` 实现视图校验、输出所有权、Nearest/Linear resize；`ImageOps_native.cpp`
+实现 Area/Cubic resize、box blur、仿射/透视、矩阵求解及同步行调度。
+后者提取改写自 OpenCV 4.7.0 的相关算法，已移除 Mat、HAL、IPP、OpenCL 与 OpenMP 框架。
+来源提交、修改范围及 BSD/Apache-2.0 许可见 [来源说明](../../cpp/core/imageops/UPSTREAM.md)。
+原版权/许可同时保存在源码旁和 `assets/licenses/imageops/`，随现有桌面/Android 资源规则分发。
 
-| 调用方 | 通过 ImageOps 执行 |
+## 消费者与内存契约
+
+| 调用方 | 操作 |
 |---|---|
-| `visual/RenderManager.cpp` | box blur、四种缩放、仿射与透视输出 |
-| `visual/ogl/RenderManager_ogl.cpp` | 1/4 通道 CPU 缩放、透视矩阵求解 |
-| `plugins/layerex_draw/blend2d/LayerExDraw.cpp` | 删除未使用的 OpenCV 总头；仍使用原 blend2d 绘制 |
+| `visual/RenderManager.cpp` | blur、四种 resize、仿射与透视输出 |
+| `visual/ogl/RenderManager_ogl.cpp` | 1/4 通道 CPU resize、透视矩阵求解 |
+| `plugins/layerex_draw/blend2d/LayerExDraw.cpp` | 使用原 blend2d 绘制，无 OpenCV 引用 |
 
-视图借用调用方内存，支持 Gray8/四通道字节、非紧密正向 pitch 和裁剪起点；pitch=0 表示紧密排列。
-四通道不转换颜色顺序或 alpha，不保存视图指针。Warp 输出独立持有像素，可移动、不可复制；
-临时软件纹理只在输出仍存活期间使用它。尺寸、pitch、通道、边界、坐标、矩阵布局及异常契约见公共头注释。
+视图借用调用方内存，支持 Gray8/RGBA8、裁剪起点、未对齐地址和非紧密正向 pitch；
+pitch=0 表示紧密行。四通道按原始字节独立处理，不转换颜色顺序，不预乘或反预乘 alpha。
+Resize 输入输出应独立，仅相同视图的恒等请求支持原位；BoxBlur 支持原位操作。
+Warp 返回独立持有紧密像素的可移动、不可复制缓冲区，零边界也写满；软件临时纹理只借用其生命周期内的数据。
+非法尺寸、格式、pitch、采样模式和非有限变换顶点抛 `std::invalid_argument`。
+内存和线程资源错误按标准 C++ 异常传播。
 
-与旧调用相比，非法参数现在明确拒绝：例如 blur 的输入输出尺寸不一致会抛异常，
-避免旧 cv::Mat 在内部重新分配后没有写入调用方目标的行为。
-软件采样参数钳制为 0..3，修复原上界允许 4 及负值造成的数组越界。
-合法模式仍依次映射 Nearest/Area/Linear/Cubic。最近邻 resize 保留旧版两次 double 除法的舍入，
-例如 6→34 的输出索引 17 仍取源索引 2，不能直接改为整数比例。四通道通过小块 memcpy 搬运，
-支持未对齐的 ROI/pitch；恒等复制只写有效行像素，相同数据地址的恒等操作保持旧行为。
-线性 resize 位精确复刻 [OpenCV 4.7.0 resize.cpp](https://github.com/opencv/opencv/blob/725e440d278aca07d35a5e8963ef990572b07316/modules/imgproc/src/resize.cpp)
-的 8 位路径：坐标由 double 计算后转 float、系数按 cvRound（五取偶）变 Q11 定点数；
-垂直合成全部输出像素统一走 `VResizeLinear<uchar>` 的 `(S0>>4)*b0>>16 + (S1>>4)*b1>>16 + 2)>>2`
-公式（8 位特化不用 FixedPtCast），垂直系数不钳制（负系数按行复制外推），行索引另行钳制；
-恰好 2 倍整数缩小走 `ResizeAreaFastVec` fast_mode 的整数 `(和+2)>>2` 半入（不是浮点取偶）；
-恒等请求按复制语义处理。resize 的输入输出应使用独立缓冲区（相同视图恒等操作除外），
-不承诺部分重叠区域行为。
+## 算法语义
 
-x86 线性路径的放大和四通道任务独享两条水平结果缓存，重复源行只计算一次；缓存存储原公式中
-`S>>4` 的 int16 值（0..32640），保持原来的截断位置。灰度一般缩小保留原逐像素融合循环，
-避免无重复行时的缓存开销。SSE2 处理四通道水平插值、缓存行的垂直 signed mul_hi 合成
-及两种格式的 2x2 缩小，未启用 SSE2 时保留同式标量循环；短行及向量尾部不越过有效像素。
-系数表只读借用到同步任务结束，避免在任务闭包中复制整张表。ARM 分派继续使用 OpenCV。
+- 采样模式顺序仍为 Nearest/Area/Linear/Cubic。Nearest 保留旧 double 两次除法的索引舍入，
+  如 6→34 的位置 17 仍取源位置 2；恒等请求只复制有效行字节。
+- Linear 使用中心坐标、Q11 系数及原 8 位垂直截断公式；2x2 整数缩小使用 `(和+2)>>2`。
+  x86 保留行缓存和 SSE2；ARM 也使用相同独立标量公式。
+- Area 同时缩小时使用面积权重，整数缩小使用整数累加；放大或混合方向缩放保留原 Area 的两点坐标公式。
+  scale 保留先算目标/源比例再取倒数的顺序，避免整数边界处选错系数。
+- Cubic 使用 A=-0.75、Q11 系数；8 字节组采用原基线 SIMD 的浮点垂直合成，尾部保留 Q22 整数公式。
+  系数运算关闭浮点收缩，固定运算顺序。
+- BoxBlur 归一化、中心 anchor（偶数核向下取整）、REFLECT_101；边界属于当前裁剪视图。
+  滑动累加分水平/垂直两遍，小核沿用 Q23 除法近似；完整中间结果保证原位输入不被提前覆盖。
+- Warp 保留正向矩阵、逆向采样、零常量边界。Nearest 采用旧坐标舍入，Linear/Area 采用 1/32 子像素，
+  Cubic 使用 Q15 表与系数和修正；Affine 只使用前三个顶点。Perspective 顶点乘积先以 float 求值，再进入 double LU。
+  奇异求解沿用零系数行为，透视矩阵末项为 1。
 
-原生采样仍通过内部同步行任务接口使用 OpenCV 调度，保留旧分片与线程设置；不保留回调及借用像素。
-纯串行大图版本曾测得回退，因此未采用。后续移除 OpenCV 前仍须迁移该调度接口，并完成其他算法替换。
+早期 macOS/ARM64 的 OpenCV 自动向量化/FMA 曾相对源码标量公式产生 ±LSB 差异。
+现在统一采用固定公式，无 OpenCV 回退；不能据 Linux 对照宣称旧 ARM 后端逐字节一致。
+当前平台验证范围见[移除记录](../../.agents/notes/implemented/simplification/2026-11-20-opencv-removal.md)。
 
-## 独立构建
+## 线程行为
 
-设置 `VCPKG_ROOT`，在新的构建目录运行；Windows 需 MSVC 开发环境，可添加 `-DWINDOWS=ON`
-与 `-DVCPKG_TARGET_TRIPLET=x64-windows-static-md`，其他平台选择对应 triplet。
+`SetThreadCount(0)` 自动选择最多 8 个线程；1 为串行，其他正数为上限。
+小于约 128K 像素的任务串行，大图按 64K 像素与高度限制分片；线程数不会改变输出。
+调用同步完成，不保留回调或借用视图；工作线程异常在调用线程重抛，退出前等待所有任务结束。
+不再读取 `cv::setNumThreads` 或 OpenMP 的线程设置。
+
+## 独立构建与默认测试
+
+设置 `VCPKG_ROOT`，选择平台 triplet，使用新目录验证闭包：
 
 ```sh
-cmake -S . -B out/imageops -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=imageops
+cmake -S . -B out/imageops -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=imageops -DCMAKE_DISABLE_FIND_PACKAGE_OpenCV=ON
 cmake --build out/imageops --target imageops_tests
 ctest --test-dir out/imageops -N
 ctest --test-dir out/imageops --output-on-failure --no-tests=error
+python scripts/check_no_opencv.py out/imageops
 python scripts/check_core_module_deps.py
-# Linux 示例；其他平台替换目标 triplet
-python scripts/check_opencv_modules.py out/imageops/vcpkg_installed/x64-linux
 ```
 
-此组合在 project() 之前只选择 tests/imageops 两个 vcpkg features，不选择 foundation/engine。
-Boost.Locale、fmt、spdlog、Oniguruma 已归入默认 foundation feature；原工具/字符串/归档和完整引擎
-由 CMake 显式选择它，直接执行 vcpkg 时默认行为也保留。复用旧全量构建或安装目录不能证明最小闭包。
-imageops 与工具同时开启仍会加入工具的基础依赖。
+未使用 vcpkg 时可通过 `CMAKE_PREFIX_PATH` 提供 Catch2 3。默认注册 6 项用例；
+2,700 组独立生成的 OpenCV 4.7.0 固定输出摘要分别以 1/3 线程验证，包含所有操作、随机数据/尺寸、
+短行尾部、单像素轴、非紧密 pitch、奇偶/大核、奇异矩阵和零边界。
+另有手算像素、alpha、ROI/前后哨兵、原位/恒等、输出所有权、参数拒绝、线程异常与并发调用检查。
+固定摘要只描述有效像素；保护区与源缓冲区单独断言。
 
-项目自身的独立目标只编译 `ImageOps.cpp`、`ImageOps_opencv.cpp`、`ImageOpsTest.cpp`；OpenCV 及其 port 所需系统库/host 工具仍存在。
-engine 与独立 imageops 都选择 overlay port 的 `opencv4[imageops,openmp]`，通过
-`BUILD_LIST=core,imgproc` 限制实际模块构建，关闭默认 features。与 dnn/contrib 等模块 feature
-混用会明确报错；未选择 imageops 则保留上游 port 行为。OpenCV 固定为 4.7.0#6，原补丁、
-CPU 优化及 OpenMP 平台规则保持不变，来源与许可见 [port 说明](../../vcpkg/ports/opencv4/UPSTREAM.md)。
-CI 检查实际 vcpkg status 没有 Boost、日志、存储、cocos 与 FFmpeg，并检查这三个编译源；
-模块检查器核对版本、已安装 features、CMake 导出、模块头及实际库文件，只接受 core/imgproc。
-这是依赖构建范围的裁剪，不代表已移除 OpenCV，也不直接等于最终包体缩小。
-同机安装库体积与像素对照见 [模块裁剪验证记录](../../.agents/notes/implemented/simplification/2026-11-14-opencv-imageops-profile.md)。
-默认 full 测试也登记相同用例；这不代表 full 应用已构建。
+项目只编译 `ImageOps.cpp`、`ImageOps_native.cpp` 和 `ImageOpsTest.cpp`。
+闭包检查拒绝实际安装的 opencv ports、编译参数和生成链接元数据中的 OpenCV；
+它不代替目标平台完整应用构建或包内动态依赖检查。
 
-## 像素对照
+## 可选实时对照、样本生成与微基准
 
-`tests/unit-tests/core/visual/ImageOpsTest.cpp` 有 16 个有效注册用例。测试中直接运行旧 OpenCV 调用作为参考，
-在同一后端/平台逐字节比较输出及 padding/保护区，不跨平台承诺不同 SIMD 实现的输出相同。
-macOS 的固定 vcpkg port 会禁用 OpenMP，测试仍使用相同本机后端对照，不将三平台视为同一并行配置。
-除旧实现对照外，还检查手工确定的最近邻像素、alpha 中间值、独立输出所有权和非法输入无写入。
-
-覆盖 1/4 通道、四种采样模式、放大/缩小/单像素/细长图、ROI/非紧密 pitch、奇偶与超大 blur 核、
-REFLECT_101 与原位 blur、仿射/透视/退化点/零边界，以及 float 顶点到行优先 double 矩阵。
-这组测试为后续小型算法替换提供可重复基线，尚不覆盖所有游戏尺寸、字体、混合模式、GPU 读回或插件画面。
-
-最近邻新增 4 万组尺寸/通道/方向对照，覆盖浮点临界位置、未对齐裁剪、恒等复制、较大图与请求 1/3 线程的结果。
-线性新增大宽图（如 104×96→118×76）、垂直边界负系数外推、水平边界区、恰 2 倍整数缩小与恒等复制的
-逐字节对照；另有 12.4M 像素的随机尺寸离线扫描（Windows/MSVC、pinned OpenCV 4.7.0）零差异，
-不替代三平台 CI 结论。macOS/ARM64 上 pinned OpenCV 的系数生成与源码标量语义存在 ±LSB 级分歧
-（AppleClang 自动向量化改变浮点求值），Linear 在 ARM 分派回 OpenCV 后端，仅 x86（Windows/Linux）
-使用原生路径；ARM 原生化留待真机调试（见 [依赖瘦身记录](../../.agents/notes/implemented/simplification/2026-11-01-dependency-slimming.md)）。
-线性行缓存与 SSE2 另有 928 组随机像素/尺寸对照，覆盖 1..33 的短行/尾部、重复源行、
-2x2 缩小、Gray8/RGBA8、非紧密 pitch、源缓冲区及目标哨兵保护，请求 1/3 线程。
-本机 Windows 的 SSE2、强制标量和 ASan 均通过同一组 16 用例/43,274 断言；
-跨平台和完整游戏仍需另行验证。
-本机像素、sanitizer 与归档回归结果见 [ImageOps 验证记录](../../.agents/notes/implemented/testing/2026-11-02-imageops-validation.md)。
-
-Windows 完整应用已验证软件/OpenGL 两个渲染器、两个 ImageOps 源的编译与最终链接，
-11 项窗口/坐标/焦点/文本节点契约通过。Android ARM64/x86_64 完整 Debug APK 的构建、
-依赖及 ELF ABI 检查通过；这不替代设备运行、脚本画面和真实游戏验收。
-后续继续按单算法替换；只有所有消费者和依赖声明都移除后，才能删除 OpenCV。
-
-## 可选微基准
+仅开发验证时，在独立目录通过 `OpenCV_DIR` 提供原版 4.7.0，默认 vcpkg 清单不安装它：
 
 ```sh
-cmake -S . -B out/imageops -DKRKR2_BUILD_IMAGEOPS_BENCHMARK=ON
-cmake --build out/imageops --target imageops_benchmark
-# 单配置 Ninja 示例；多配置生成器需选择 Release 子目录
-./out/imageops/tests/unit-tests/core/visual/imageops_benchmark 1 > imageops-benchmark-1.json
-./out/imageops/tests/unit-tests/core/visual/imageops_benchmark 3 > imageops-benchmark-3.json
+cmake -S . -B out/imageops-reference -G Ninja -DCMAKE_BUILD_TYPE=Release -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=imageops -DKRKR2_IMAGEOPS_OPENCV_REFERENCE=ON -DKRKR2_BUILD_IMAGEOPS_BENCHMARK=ON -DOpenCV_DIR=/path/to/opencv/lib/cmake/opencv4
+cmake --build out/imageops-reference
+ctest --test-dir out/imageops-reference -N
+ctest --test-dir out/imageops-reference --output-on-failure --no-tests=error
 ```
 
-同进程比较与原渲染器等价的直接 OpenCV 调用和 ImageOps 接口，默认请求单线程，可用首个参数请求线程数；
-预热后交替先后顺序；
-每项 3 轮、每轮 100 次，报告每次操作的微秒。包含 warp 的矩阵求解和输出分配，非整帧性能。
-[首批包装报告](../../.agents/reports/imageops-2026-11-02.json) 与[最近邻报告](../../.agents/reports/imageops-nearest-2026-11-02.json)
-记录环境、后端构建及全部样本。最近邻增加 4K→1080p 大图，不以小图单线程结果替代大图并行测试。
-早期 Linux 样本的 OpenCV 使用 SSE2、禁用 CPU dispatch，不代表发行版 AVX2/GCD 等后端性能；容器样本也有明显波动。
-线性路径的 Windows 同机前后测量见[线性优化报告](../../.agents/reports/imageops-linear-2026-11-15.json)，
-旧原生实现、新原生实现和直接 OpenCV 在同一进程逐次交替运行。该机器的 OpenCV 启用运行时 SIMD
-分派，与早期 Linux SSE2 样本配置不同，不能合并解读。
-这些数据不能推断完整游戏帧率、构建时间或包体收益。
+额外注册 `ImageOpsReferenceTest.cpp` 中原有 16 项逐字节对照，默认 6 项仍全部运行。
+`imageops_generate_golden` 只链接 OpenCV，不链接 ImageOps；其 stdout 经 clang-format 20 格式化后
+对应 `ImageOpsGolden.h`。勿使用新实现生成自己的期望结果。
 
-最近邻行为对照来源为 [OpenCV 4.7.0 resize.cpp](https://github.com/opencv/opencv/blob/725e440d278aca07d35a5e8963ef990572b07316/modules/imgproc/src/resize.cpp)
-的 resize/resizeNN 路径；原生采样独立编写，未复制该文件的 SIMD 或循环实现。旧后端及其许可仍随 OpenCV 分发。
+`imageops_benchmark 1` / `imageops_benchmark 3` 同进程交替比较原 OpenCV 调用和 ImageOps，
+预热后每项三轮、每轮 100 次，输出原始 JSON；包括分配和矩阵求解，并非整帧性能。
+历史报告保留原配置，新报告见[移除测量](../../.agents/reports/imageops-removal-2026-11-20.json)。
+独立实现部分操作慢于 OpenCV，不能把依赖移除解释为游戏帧率提升。
+Windows/macOS/Android 完整应用和真实游戏需分别验证，旧版构建记录不代表本次已通过。

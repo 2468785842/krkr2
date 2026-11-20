@@ -1,520 +1,265 @@
-#include "imageops/ImageOps.h"
-
+#include "ImageOpsGolden.h"
+#include "imageops/ImageOps_internal.h"
 #include <catch2/catch_test_macros.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-
 #include <algorithm>
 #include <cmath>
-#include <iterator>
+#include <future>
 #include <limits>
-#include <random>
 #include <stdexcept>
-#include <utility>
-#include <vector>
 
 using namespace TVPImageOps;
-
 namespace {
-    // 前后哨兵及行间 padding
-    // 用来检查视图外写入；输入使用非均匀、非预乘的四通道像素。
     struct Pixels {
         int width, height, channels;
-        std::ptrdiff_t pitch;
+        std::size_t pitch;
         std::vector<std::uint8_t> bytes;
-
-        Pixels(int w, int h, int c, int padding = 13) :
-            width(w), height(h), channels(c), pitch(w * c + padding),
-            bytes(32 + pitch * h, 0xa5) {}
-
-        std::uint8_t *data() { return bytes.data() + 16; }
+        Pixels(int w, int h, int cn, std::uint32_t seed = 0) :
+            width(w), height(h), channels(cn),
+            pitch(static_cast<std::size_t>(w) * cn + 17),
+            bytes(ImageOpsCases::pixels(w, h, cn, pitch, seed)) {}
         ImageView view() {
-            return { data(), width, height, pitch,
+            return { bytes.data() + 16, width, height,
+                     static_cast<std::ptrdiff_t>(pitch),
                      channels == 1 ? PixelFormat::Gray8 : PixelFormat::RGBA8 };
         }
-        cv::Mat mat() {
-            return { height, width, CV_MAKETYPE(CV_8U, channels), data(),
-                     static_cast<size_t>(pitch) };
+        std::uint64_t hash() {
+            return ImageOpsCases::hash(view().data, width, height, channels,
+                                       pitch);
         }
-        void pattern() {
-            for(int y = 0; y < height; ++y)
-                for(int x = 0; x < width * channels; ++x)
-                    data()[y * pitch + x] = static_cast<std::uint8_t>(
-                        (x * 31 + y * 57 + x * y) & 255);
+        void guards() {
+            bool intact = true;
+            for(std::size_t i = 0; i < bytes.size(); ++i) {
+                const auto offset = i >= 16 ? i - 16 : pitch * height;
+                if(i < 16 || offset >= pitch * height ||
+                   offset % pitch >= static_cast<std::size_t>(width) * channels)
+                    intact = intact && bytes[i] == 0xa5;
+            }
+            REQUIRE(intact);
         }
     };
-
-    constexpr Interpolation modes[] = { Interpolation::Nearest,
-                                        Interpolation::Area,
-                                        Interpolation::Linear,
-                                        Interpolation::Cubic };
-    constexpr int oldFlags[] = { cv::INTER_NEAREST, cv::INTER_AREA,
-                                 cv::INTER_LINEAR, cv::INTER_CUBIC };
-
-    std::array<cv::Point2f, 4> oldPoints(const Quad &quad) {
-        return { cv::Point2f(quad[0].x, quad[0].y),
-                 cv::Point2f(quad[1].x, quad[1].y),
-                 cv::Point2f(quad[2].x, quad[2].y),
-                 cv::Point2f(quad[3].x, quad[3].y) };
-    }
-
-    void same(const ImageBuffer &actual, const cv::Mat &expected) {
-        REQUIRE(actual.width() == expected.cols);
-        REQUIRE(actual.height() == expected.rows);
-        REQUIRE(
-            actual.pitch() ==
-            static_cast<std::ptrdiff_t>(expected.cols * expected.channels()));
-        for(int y = 0; y < expected.rows; ++y)
-            REQUIRE(std::equal(actual.data() + y * actual.pitch(),
-                               actual.data() + (y + 1) * actual.pitch(),
-                               expected.ptr(y)));
-    }
+    struct RestoreThreads {
+        int count = GetThreadCount();
+        ~RestoreThreads() { SetThreadCount(count); }
+    };
 } // namespace
-
-TEST_CASE("ImageOps resize matches the former renderer for every mode and byte "
-          "format",
-          "[imageops]") {
-    const int sizes[][4] = { { 1, 1, 7, 3 }, { 7, 3, 1, 1 }, { 5, 7, 8, 3 },
-                             { 8, 8, 3, 5 }, { 1, 5, 1, 9 }, { 5, 1, 9, 1 } };
-    for(int channels : { 1, 4 }) {
-        for(const auto &size : sizes) {
-            Pixels source(size[0], size[1], channels);
-            source.pattern();
-            const auto original = source.bytes;
-            for(int mode = 0; mode < 4; ++mode) {
-                Pixels actual(size[2], size[3], channels, 17),
-                    expected = actual;
-                auto src = source.mat(), dst = expected.mat();
-                cv::resize(src, dst, dst.size(), 0, 0, oldFlags[mode]);
-                Resize(source.view(), actual.view(), modes[mode]);
-                REQUIRE(actual.bytes == expected.bytes);
-                REQUIRE(source.bytes == original);
+TEST_CASE("ImageOps all algorithms retain frozen OpenCV 4.7 outputs",
+          "[imageops][golden]") {
+    RestoreThreads restore;
+    for(int threads : { 1, 3 }) {
+        SetThreadCount(threads);
+        for(const auto &c : ImageOpsCases::golden) {
+            CAPTURE(threads, c.operation, c.width, c.height, c.outputWidth,
+                    c.outputHeight, c.channels, c.mode, c.variant, c.seed);
+            Pixels src(c.width, c.height, c.channels, c.seed);
+            const auto before = src.bytes;
+            const auto mode = static_cast<Interpolation>(c.mode);
+            if(c.operation <= 1) {
+                Pixels dst(c.operation == 0 ? c.outputWidth : c.width,
+                           c.operation == 0 ? c.outputHeight : c.height,
+                           c.channels);
+                if(c.operation == 0)
+                    Resize(src.view(), dst.view(), mode);
+                else
+                    BoxBlur(src.view(), dst.view(), c.outputWidth,
+                            c.outputHeight);
+                CHECK(dst.hash() == c.expected);
+                dst.guards();
+                if(c.operation == 1) {
+                    REQUIRE(src.bytes == before);
+                    BoxBlur(src.view(), src.view(), c.outputWidth,
+                            c.outputHeight);
+                    CHECK(src.hash() == c.expected);
+                }
+            } else {
+                const auto a = ImageOpsCases::from(c), b = ImageOpsCases::to(c);
+                auto output = c.operation == 2
+                    ? WarpAffine(src.view(), c.outputWidth, c.outputHeight, a,
+                                 b, mode)
+                    : WarpPerspective(src.view(), c.outputWidth, c.outputHeight,
+                                      a, b, mode);
+                CHECK(ImageOpsCases::hash(output.data(), output.width(),
+                                          output.height(), c.channels,
+                                          output.pitch()) == c.expected);
             }
+            if(c.operation != 1)
+                CHECK(src.bytes == before);
+            src.guards();
         }
     }
 }
-
-TEST_CASE(
-    "ImageOps nearest scaling and alpha channels have explicit expected values",
-    "[imageops]") {
-    const std::uint8_t source[] = { 1, 2, 3, 4 };
-    std::uint8_t output[16]{};
-    Resize({ source, 2, 2, 0, PixelFormat::Gray8 },
-           { output, 4, 4, 0, PixelFormat::Gray8 }, Interpolation::Nearest);
+TEST_CASE("ImageOps has explicit nearest pixels and independent alpha",
+          "[imageops]") {
+    const std::uint8_t input[] = { 1, 2, 3, 4 };
+    std::uint8_t result[16]{};
+    Resize({ input, 2, 2, 0, PixelFormat::Gray8 },
+           { result, 4, 4, 0, PixelFormat::Gray8 }, Interpolation::Nearest);
     const std::uint8_t expected[] = { 1, 1, 2, 2, 1, 1, 2, 2,
                                       3, 3, 4, 4, 3, 3, 4, 4 };
     REQUIRE(
-        std::equal(std::begin(output), std::end(output), std::begin(expected)));
+        std::equal(std::begin(result), std::end(result), std::begin(expected)));
     const std::uint8_t rgba[] = { 255, 0, 0, 0, 0, 0, 0, 255 };
     std::uint8_t blended[12]{};
     Resize({ rgba, 2, 1, 0, PixelFormat::RGBA8 },
            { blended, 3, 1, 0, PixelFormat::RGBA8 }, Interpolation::Linear);
     REQUIRE(blended[4] == 128);
     REQUIRE(blended[7] == 128);
+    const std::uint8_t six[] = { 10, 20, 30, 40, 50, 60 };
+    std::uint8_t expanded[34]{};
+    Resize({ six, 6, 1, 0, PixelFormat::Gray8 },
+           { expanded, 34, 1, 0, PixelFormat::Gray8 }, Interpolation::Nearest);
+    REQUIRE(expanded[17] == 30);
+    REQUIRE(expanded[18] == 40);
 }
-
-TEST_CASE("ImageOps resize respects an ROI pointer and preserves surrounding "
-          "destination bytes",
+TEST_CASE("ImageOps identity and cropped views preserve guard bytes",
           "[imageops]") {
-    Pixels source(9, 7, 4), actual(8, 6, 4), expected = actual;
-    source.pattern();
-    auto *input = source.data() + 2 * source.pitch + 3 * 4;
-    auto *output = actual.data() + actual.pitch + 2 * 4;
-    auto *reference = expected.data() + expected.pitch + 2 * 4;
-    cv::Mat src(3, 4, CV_8UC4, input, source.pitch),
-        dst(4, 5, CV_8UC4, reference, expected.pitch);
-    cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_CUBIC);
-    Resize({ input, 4, 3, source.pitch, PixelFormat::RGBA8 },
-           { output, 5, 4, actual.pitch, PixelFormat::RGBA8 },
-           Interpolation::Cubic);
-    REQUIRE(actual.bytes == expected.bytes);
-}
-
-TEST_CASE(
-    "ImageOps nearest scaling matches legacy rounding across dimension pairs",
-    "[imageops][nearest]") {
-    for(int channels : { 1, 4 }) {
-        for(bool vertical : { false, true }) {
-            for(int from = 1; from <= 100; ++from) {
-                Pixels source(vertical ? 3 : from, vertical ? from : 3,
-                              channels);
-                source.pattern();
-                const auto original = source.bytes;
-                for(int to = 1; to <= 100; ++to) {
-                    CAPTURE(channels, vertical, from, to);
-                    Pixels actual(vertical ? 5 : to, vertical ? to : 5,
-                                  channels, 17),
-                        expected = actual;
-                    auto src = source.mat(), dst = expected.mat();
-                    cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_NEAREST);
-                    Resize(source.view(), actual.view(),
-                           Interpolation::Nearest);
-                    REQUIRE(actual.bytes == expected.bytes);
-                }
-                REQUIRE(source.bytes == original);
-            }
+    for(int cn : { 1, 4 })
+        for(auto mode : { Interpolation::Nearest, Interpolation::Area,
+                          Interpolation::Linear, Interpolation::Cubic }) {
+            Pixels src(19, 13, cn, 71), dst(19, 13, cn);
+            Resize(src.view(), dst.view(), mode);
+            REQUIRE(src.bytes == dst.bytes);
+            const auto before = src.bytes;
+            Resize(src.view(), src.view(), mode);
+            REQUIRE(src.bytes == before);
+            Pixels crop(9, 7, cn, 35), out(13, 11, cn), tight(5, 3, cn, 3),
+                expected(7, 5, cn);
+            auto sv = crop.view(), dv = out.view();
+            sv.data += crop.pitch + 2 * cn;
+            sv.width = 5;
+            sv.height = 3;
+            dv.data += out.pitch + 3 * cn;
+            dv.width = 7;
+            dv.height = 5;
+            for(int y = 0; y < 3; ++y)
+                std::copy_n(sv.data + y * sv.pitch, 5 * cn,
+                            tight.view().data + y * tight.pitch);
+            auto expectedWhole = out.bytes;
+            Resize(tight.view(), expected.view(), mode);
+            Resize(sv, dv, mode);
+            for(int y = 0; y < 5; ++y)
+                REQUIRE(std::equal(dv.data + y * dv.pitch,
+                                   dv.data + y * dv.pitch + 7 * cn,
+                                   expected.view().data + y * expected.pitch));
+            for(int y = 0; y < 5; ++y)
+                std::copy_n(expected.view().data + y * expected.pitch, 7 * cn,
+                            expectedWhole.data() + 16 + (y + 1) * out.pitch +
+                                3 * cn);
+            REQUIRE(out.bytes == expectedWhole);
+            out.guards();
+            crop.guards();
         }
-    }
 }
-
-TEST_CASE("ImageOps nearest retains historical reciprocal-rounding pixels",
-          "[imageops][nearest]") {
-    const std::uint8_t source[] = { 10, 20, 30, 40, 50, 60 };
-    std::uint8_t horizontal[34]{}, vertical[34]{};
-    Resize({ source, 6, 1, 0, PixelFormat::Gray8 },
-           { horizontal, 34, 1, 0, PixelFormat::Gray8 },
-           Interpolation::Nearest);
-    Resize({ source, 1, 6, 0, PixelFormat::Gray8 },
-           { vertical, 1, 34, 0, PixelFormat::Gray8 }, Interpolation::Nearest);
-    // 旧 OpenCV 先算 double(34)/6 再取倒数，17*inverse 略小于 3。
-    REQUIRE(horizontal[17] == 30);
-    REQUIRE(vertical[17] == 30);
-    REQUIRE(horizontal[18] == 40);
-    REQUIRE(vertical[18] == 40);
-}
-
-TEST_CASE(
-    "ImageOps nearest preserves cropped unaligned views and identity copies",
-    "[imageops][nearest]") {
-    for(int channels : { 1, 4 }) {
-        Pixels source(17, 13, channels), actual(19, 15, channels, 19),
-            expected = actual;
-        source.pattern();
-        const auto original = source.bytes;
-        auto *input = source.data() + source.pitch + 2 * channels;
-        auto *output = actual.data() + actual.pitch + 3 * channels;
-        auto *reference = expected.data() + expected.pitch + 3 * channels;
-        const auto format = source.view().format;
-        cv::Mat src(7, 9, CV_MAKETYPE(CV_8U, channels), input, source.pitch),
-            dst(11, 13, CV_MAKETYPE(CV_8U, channels), reference,
-                expected.pitch);
-        cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_NEAREST);
-        Resize({ input, 9, 7, source.pitch, format },
-               { output, 13, 11, actual.pitch, format },
-               Interpolation::Nearest);
-        REQUIRE(actual.bytes == expected.bytes);
-        REQUIRE(source.bytes == original);
-        for(int padding : { 0, 17 }) {
-            Pixels copied(17, 13, channels, padding), referenceCopy = copied;
-            auto srcMatrix = source.mat(), dstMatrix = referenceCopy.mat();
-            cv::resize(srcMatrix, dstMatrix, dstMatrix.size(), 0, 0,
-                       cv::INTER_NEAREST);
-            Resize(source.view(), copied.view(), Interpolation::Nearest);
-            REQUIRE(copied.bytes == referenceCopy.bytes);
-            const auto snapshot = copied.bytes;
-            Resize(copied.view(), copied.view(), Interpolation::Nearest);
-            REQUIRE(copied.bytes == snapshot);
-        }
-    }
-}
-
-TEST_CASE("ImageOps nearest handles SIMD widths and multi-row images",
-          "[imageops][nearest]") {
-    const int sizes[][4] = { { 320, 240, 217, 157 },
-                             { 384, 257, 1025, 771 },
-                             { 1001, 23, 1031, 31 },
-                             { 1, 1, 8193, 3 },
-                             { 8193, 3, 1, 1 } };
-    struct RestoreThreads {
-        int previous = cv::getNumThreads();
-        ~RestoreThreads() { cv::setNumThreads(previous); }
-    } restoreThreads;
-    for(int threads : { 1, 3 }) {
-        cv::setNumThreads(threads);
-        for(int channels : { 1, 4 }) {
-            for(const auto &size : sizes) {
-                CAPTURE(threads, channels, size[0], size[1], size[2], size[3]);
-                Pixels source(size[0], size[1], channels);
-                source.pattern();
-                const auto original = source.bytes;
-                Pixels actual(size[2], size[3], channels, 17),
-                    expected = actual;
-                auto src = source.mat(), dst = expected.mat();
-                cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_NEAREST);
-                Resize(source.view(), actual.view(), Interpolation::Nearest);
-                REQUIRE(actual.bytes == expected.bytes);
-                REQUIRE(source.bytes == original);
-            }
-        }
-    }
-}
-
-TEST_CASE("ImageOps box blur preserves even anchors and reflect borders "
-          "including in-place use",
-          "[imageops]") {
-    for(int channels : { 1, 4 }) {
-        for(const auto &shape :
-            { cv::Size(1, 1), cv::Size(3, 5), cv::Size(8, 7) }) {
-            for(const auto &kernel :
-                { cv::Size(2, 2), cv::Size(3, 5), cv::Size(9, 9) }) {
-                Pixels source(shape.width, shape.height, channels);
-                source.pattern();
-                Pixels actual(shape.width, shape.height, channels),
-                    expected = actual;
-                auto src = source.mat(), dst = expected.mat();
-                cv::boxFilter(src, dst, -1, kernel);
-                BoxBlur(source.view(), actual.view(), kernel.width,
-                        kernel.height);
-                REQUIRE(actual.bytes == expected.bytes);
-                actual = source;
-                expected = source;
-                auto before = expected.mat(), after = expected.mat();
-                cv::boxFilter(before, after, -1, kernel);
-                BoxBlur(actual.view(), actual.view(), kernel.width,
-                        kernel.height);
-                REQUIRE(actual.bytes == expected.bytes);
-            }
-        }
-    }
-}
-
-TEST_CASE("ImageOps blur boundaries belong to the cropped view", "[imageops]") {
-    Pixels source(8, 7, 4), actual(8, 7, 4), expected = actual;
-    source.pattern();
-    auto *src = source.data() + source.pitch + 2 * 4;
-    auto *dst = actual.data() + actual.pitch + 2 * 4;
-    cv::Mat input(3, 4, CV_8UC4, src, source.pitch);
-    cv::Mat output(3, 4, CV_8UC4, expected.data() + expected.pitch + 2 * 4,
-                   expected.pitch);
-    cv::boxFilter(input, output, -1, { 4, 6 });
-    BoxBlur({ src, 4, 3, source.pitch, PixelFormat::RGBA8 },
-            { dst, 4, 3, actual.pitch, PixelFormat::RGBA8 }, 4, 6);
-    REQUIRE(actual.bytes == expected.bytes);
-}
-
-TEST_CASE("ImageOps affine and perspective warps match former coordinate and "
-          "border semantics",
-          "[imageops]") {
-    const Quad from{ Point(0, 0), Point(6, 0), Point(6, 5), Point(0, 5) };
-    const Quad targets[] = {
-        from,
-        { Point(2, 1), Point(8, 1), Point(8, 6), Point(2, 6) },
-        { Point(-1.3f, 0.4f), Point(5.8f, -0.7f), Point(7.1f, 4.3f),
-          Point(0.2f, 6.1f) },
-        { Point(0, 0), Point(0, 0), Point(0, 0), Point(0, 0) }
-    };
-    for(int channels : { 1, 4 }) {
-        Pixels source(7, 6, channels);
-        source.pattern();
-        const auto original = source.bytes;
-        for(const auto &to : targets) {
-            auto oldFrom = oldPoints(from), oldTo = oldPoints(to);
-            for(int mode = 0; mode < 4; ++mode) {
-                cv::Mat affine, perspective;
-                auto src = source.mat();
-                cv::warpAffine(
-                    src, affine,
-                    cv::getAffineTransform(oldFrom.data(), oldTo.data()),
-                    { 9, 8 }, oldFlags[mode]);
-                cv::warpPerspective(
-                    src, perspective,
-                    cv::getPerspectiveTransform(oldFrom.data(), oldTo.data()),
-                    { 9, 8 }, oldFlags[mode]);
-                same(WarpAffine(source.view(), 9, 8, from, to, modes[mode]),
-                     affine);
-                same(
-                    WarpPerspective(source.view(), 9, 8, from, to, modes[mode]),
-                    perspective);
-                REQUIRE(source.bytes == original);
-            }
-        }
-    }
-}
-
-TEST_CASE("ImageOps perspective matrix preserves float input and row-major "
-          "double output",
+TEST_CASE("ImageOps transform matrices map float vertices and singular inputs",
           "[imageops]") {
     const Quad from{ Point(0, 0), Point(7, 0), Point(7, 5), Point(0, 5) };
-    const Quad to{ Point(1.2f, -0.4f), Point(8.3f, 1.1f), Point(7.2f, 6.4f),
-                   Point(-0.1f, 5.2f) };
-    auto a = oldPoints(from), b = oldPoints(to);
-    auto old = cv::getPerspectiveTransform(a.data(), b.data());
+    const Quad to{ Point(1.2f, -.4f), Point(8.3f, 1.1f), Point(7.2f, 6.4f),
+                   Point(-.1f, 5.2f) };
     const auto matrix = PerspectiveTransform(from, to);
-    REQUIRE(std::equal(matrix.begin(), matrix.end(), old.ptr<double>()));
     for(int i = 0; i < 4; ++i) {
-        const double divisor =
+        const double d =
             matrix[6] * from[i].x + matrix[7] * from[i].y + matrix[8];
         REQUIRE(std::abs((matrix[0] * from[i].x + matrix[1] * from[i].y +
                           matrix[2]) /
-                             divisor -
+                             d -
                          to[i].x) < 1e-5);
         REQUIRE(std::abs((matrix[3] * from[i].x + matrix[4] * from[i].y +
                           matrix[5]) /
-                             divisor -
+                             d -
                          to[i].y) < 1e-5);
     }
-}
-
-TEST_CASE(
-    "ImageOps warp results own their pixels across moves and later operations",
-    "[imageops]") {
-    Pixels source(3, 3, 4);
-    source.pattern();
-    const Quad quad{ Point(0, 0), Point(2, 0), Point(2, 2), Point(0, 2) };
-    auto result = WarpPerspective(source.view(), 3, 3, quad, quad,
-                                  Interpolation::Nearest);
+    const Quad degenerate{ Point(0, 0), Point(0, 0), Point(0, 0), Point(0, 0) };
+    const Matrix3 singular{ 0, 0, 0, 0, 0, 0, 0, 0, 1 };
+    REQUIRE(PerspectiveTransform(degenerate, to) == singular);
+    Pixels source(7, 6, 4, 13);
+    auto owned = WarpPerspective(source.view(), 7, 6, from, from,
+                                 Interpolation::Nearest);
     const std::vector<std::uint8_t> snapshot(
-        result.data(), result.data() + result.pitch() * result.height());
-    auto moved = std::move(result);
+        owned.data(), owned.data() + owned.pitch() * owned.height());
+    auto moved = std::move(owned);
     for(int i = 0; i < 8; ++i)
-        WarpAffine(source.view(), 7, 5, quad, quad, Interpolation::Linear);
+        WarpAffine(source.view(), 9, 8, from, to, Interpolation::Cubic);
     REQUIRE(std::equal(snapshot.begin(), snapshot.end(), moved.data()));
-    for(int y = 0; y < 3; ++y)
-        REQUIRE(std::equal(moved.data() + y * moved.pitch(),
-                           moved.data() + (y + 1) * moved.pitch(),
-                           source.data() + y * source.pitch));
 }
-
-TEST_CASE("ImageOps native linear matches the pinned OpenCV on wide images "
-          "and special scales",
-          "[imageops]") {
-    // 覆盖原生路径的各个区段：宽输出（mul_hi 全公式）、强放大（垂直系数
-    // 为负的行复制外推）、缩小（水平边界区）、恰好 2 倍整数缩小（均值
-    // 快路径）、恒等复制，以及奇数目标宽度的通道交错。
-    const int sizes[][4] = { { 104, 96, 118, 76 },   { 96, 104, 76, 118 },
-                             { 200, 150, 137, 111 }, { 40, 30, 15, 11 },
-                             { 30, 40, 11, 15 },     { 60, 44, 41, 33 },
-                             { 64, 64, 32, 32 },     { 6, 4, 3, 2 },
-                             { 5, 1, 9, 1 },         { 5, 7, 5, 7 } };
-    for(int channels : { 1, 4 }) {
-        for(const auto &size : sizes) {
-            Pixels source(size[0], size[1], channels);
-            source.pattern();
-            const auto original = source.bytes;
-            Pixels actual(size[2], size[3], channels, 17), expected = actual;
-            cv::Mat src = source.mat(), dst = expected.mat();
-            cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_LINEAR);
-            Resize(source.view(), actual.view(), Interpolation::Linear);
-            // 逐字节对比并输出结构化差异：整组字节展开会被 Catch2 截断，
-            // 无法在 CI 日志里定位跨平台（如 ARM NEON）的首个偏差。
-            std::size_t diffCount = 0;
-            for(std::size_t lane = 0; lane < actual.bytes.size(); ++lane) {
-                if(actual.bytes[lane] != expected.bytes[lane] &&
-                   diffCount < 8) {
-                    FAIL_CHECK("size " + std::to_string(size[0]) + "x" +
-                               std::to_string(size[1]) + "->" +
-                               std::to_string(size[2]) + "x" +
-                               std::to_string(size[3]) +
-                               " cn=" + std::to_string(channels) + " lane " +
-                               std::to_string(lane) + " actual " +
-                               std::to_string(actual.bytes[lane]) +
-                               " expected " +
-                               std::to_string(expected.bytes[lane]));
-                    ++diffCount;
-                }
-            }
-            REQUIRE(diffCount == 0);
-            REQUIRE(source.bytes == original);
-        }
-    }
-}
-
-TEST_CASE(
-    "ImageOps linear row reuse and vector tails match OpenCV across threads",
-    "[imageops]") {
-    struct RestoreThreads {
-        int previous = cv::getNumThreads();
-        ~RestoreThreads() { cv::setNumThreads(previous); }
-    } restore;
-    std::mt19937 random(0x4c494e45);
-    for(int threads : { 1, 3 }) {
-        cv::setNumThreads(threads);
-        for(int channels : { 1, 4 }) {
-            // 每一种短行尾部、单行复制/重复、2x2 快路径及一般升降采样。
-            for(int width = 1; width <= 33; ++width) {
-                for(const auto &shape : { std::array<int, 3>{ 1, 1, 19 },
-                                          { 7, 31, 3 },
-                                          { 23, 5, 47 },
-                                          { width * 2, 14, 7 } }) {
-                    Pixels source(shape[0], shape[1], channels, 17);
-                    for(auto &byte : source.bytes)
-                        byte = static_cast<std::uint8_t>(random());
-                    const auto original = source.bytes;
-                    Pixels actual(width, shape[2], channels, 19),
-                        expected = actual;
-                    auto src = source.mat(), dst = expected.mat();
-                    cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_LINEAR);
-                    Resize(source.view(), actual.view(), Interpolation::Linear);
-                    INFO("threads=" << threads << " channels=" << channels
-                                    << " width=" << width);
-                    REQUIRE(actual.bytes == expected.bytes);
-                    REQUIRE(source.bytes == original);
-                }
-            }
-            for(int sample = 0; sample < 100; ++sample) {
-                const int sw = 1 + random() % 257, sh = 1 + random() % 151;
-                const int dw = 1 + random() % 389, dh = 1 + random() % 263;
-                Pixels source(sw, sh, channels, 17);
-                for(auto &byte : source.bytes)
-                    byte = static_cast<std::uint8_t>(random());
-                const auto original = source.bytes;
-                Pixels actual(dw, dh, channels, 19), expected = actual;
-                auto src = source.mat(), dst = expected.mat();
-                cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_LINEAR);
-                Resize(source.view(), actual.view(), Interpolation::Linear);
-                INFO("threads=" << threads << " channels=" << channels
-                                << " sample=" << sample);
-                REQUIRE(actual.bytes == expected.bytes);
-                REQUIRE(source.bytes == original);
-            }
-        }
-    }
-}
-
-TEST_CASE("ImageOps native linear keeps in-place identity without touching "
-          "the source",
-          "[imageops]") {
-    Pixels image(7, 5, 4);
-    image.pattern();
-    const auto original = image.bytes;
-    Resize(image.view(), image.view(), Interpolation::Linear);
-    REQUIRE(image.bytes == original);
-}
-
-TEST_CASE("ImageOps rejects invalid views without writing the destination",
-          "[imageops]") {
-    Pixels source(3, 3, 4), destination(3, 3, 4);
-    const auto original = destination.bytes;
-    auto valid = source.view();
-    ConstImageView invalid[] = {
-        { nullptr, 3, 3, 12, PixelFormat::RGBA8 },
-        { source.data(), 0, 3, 12, PixelFormat::RGBA8 },
-        { source.data(), 3, 0, 12, PixelFormat::RGBA8 },
-        { source.data(), 3, 3, -12, PixelFormat::RGBA8 },
-        { source.data(), 3, 3, 11, PixelFormat::RGBA8 },
-        { source.data(), 3, 3, std::numeric_limits<std::ptrdiff_t>::max(),
-          PixelFormat::RGBA8 },
-        { source.data(), 3, 3, 12, static_cast<PixelFormat>(2) }
-    };
-    for(auto mode : { Interpolation::Nearest, Interpolation::Linear }) {
-        for(const auto &input : invalid) {
-            REQUIRE_THROWS_AS(Resize(input, destination.view(), mode),
-                              std::invalid_argument);
-            const ImageView badDestination{
-                const_cast<std::uint8_t *>(input.data), input.width,
-                input.height, input.pitch, input.format
-            };
-            REQUIRE_THROWS_AS(Resize(valid, badDestination, mode),
-                              std::invalid_argument);
-        }
+TEST_CASE("ImageOps rejects invalid requests before writing", "[imageops]") {
+    Pixels src(4, 3, 4, 1), dst(4, 3, 4);
+    const auto before = dst.bytes;
+    for(auto mode : { Interpolation::Nearest, Interpolation::Area,
+                      Interpolation::Linear, Interpolation::Cubic }) {
+        auto bad = src.view();
+        bad.data = nullptr;
+        REQUIRE_THROWS_AS(Resize(bad, dst.view(), mode), std::invalid_argument);
+        bad = dst.view();
+        bad.pitch = 1;
+        REQUIRE_THROWS_AS(Resize(src.view(), bad, mode), std::invalid_argument);
+        bad = dst.view();
+        bad.width = 0;
+        REQUIRE_THROWS_AS(Resize(src.view(), bad, mode), std::invalid_argument);
     }
     REQUIRE_THROWS_AS(
-        Resize(valid, destination.view(), static_cast<Interpolation>(4)),
+        Resize(src.view(), dst.view(), static_cast<Interpolation>(4)),
         std::invalid_argument);
-    auto wrong = destination.view();
-    wrong.format = PixelFormat::Gray8;
-    REQUIRE_THROWS_AS(Resize(valid, wrong, Interpolation::Linear),
+    REQUIRE_THROWS_AS(BoxBlur(src.view(), dst.view(), 0, 3),
                       std::invalid_argument);
-    REQUIRE_THROWS_AS(BoxBlur(valid, destination.view(), 0, 3),
+    auto bad = dst.view();
+    bad.height = 2;
+    REQUIRE_THROWS_AS(BoxBlur(src.view(), bad, 3, 3), std::invalid_argument);
+    bad = src.view();
+    bad.data = nullptr;
+    REQUIRE_THROWS_AS(BoxBlur(bad, dst.view(), 3, 3), std::invalid_argument);
+    const Quad q{ Point(0, 0), Point(3, 0), Point(3, 2), Point(0, 2) };
+    auto nonfinite = q;
+    nonfinite[0].x = std::numeric_limits<float>::infinity();
+    REQUIRE_THROWS_AS(PerspectiveTransform(q, nonfinite),
                       std::invalid_argument);
-    wrong = destination.view();
-    wrong.width = 2;
-    REQUIRE_THROWS_AS(BoxBlur(valid, wrong, 3, 3), std::invalid_argument);
-    REQUIRE(destination.bytes == original);
+    REQUIRE_THROWS_AS(
+        WarpAffine(src.view(), 3, 3, q, q, static_cast<Interpolation>(-1)),
+        std::invalid_argument);
     REQUIRE_THROWS_AS(ImageBuffer(0, 1, PixelFormat::Gray8),
                       std::invalid_argument);
-    REQUIRE_THROWS_AS(ImageBuffer(std::numeric_limits<int>::max(),
-                                  std::numeric_limits<int>::max(),
-                                  PixelFormat::RGBA8),
-                      std::invalid_argument);
+    REQUIRE_THROWS_AS(SetThreadCount(-1), std::invalid_argument);
+    REQUIRE(dst.bytes == before);
+}
+TEST_CASE(
+    "ImageOps row scheduling joins exceptions and supports concurrent callers",
+    "[imageops][threads]") {
+    RestoreThreads restore;
+    SetThreadCount(3);
+    std::vector<int> visits(1000);
+    detail::ForRows(1000, 1000000, [&](int a, int b) {
+        for(int i = a; i < b; ++i)
+            ++visits[i];
+    });
+    REQUIRE(std::all_of(visits.begin(), visits.end(),
+                        [](int n) { return n == 1; }));
+    REQUIRE_THROWS_AS(detail::ForRows(1000, 1000000,
+                                      [](int a, int) {
+                                          if(a)
+                                              throw std::runtime_error(
+                                                  "worker");
+                                      }),
+                      std::runtime_error);
+    REQUIRE_THROWS_AS(detail::ForRows(1000, 1000000,
+                                      [](int a, int) {
+                                          if(!a)
+                                              throw std::runtime_error(
+                                                  "caller");
+                                      }),
+                      std::runtime_error);
+    Pixels blurSource(601, 419, 4, 67), serialBlur(601, 419, 4),
+        parallelBlur(601, 419, 4);
+    SetThreadCount(1);
+    BoxBlur(blurSource.view(), serialBlur.view(), 9, 9);
+    SetThreadCount(3);
+    BoxBlur(blurSource.view(), parallelBlur.view(), 9, 9);
+    REQUIRE(serialBlur.bytes == parallelBlur.bytes);
+    BoxBlur(blurSource.view(), blurSource.view(), 9, 9);
+    REQUIRE(blurSource.bytes == parallelBlur.bytes);
+    const auto run = [] {
+        Pixels src(601, 419, 4, 67), dst(271, 263, 4);
+        Resize(src.view(), dst.view(), Interpolation::Cubic);
+        return dst.hash();
+    };
+    auto a = std::async(std::launch::async, run),
+         b = std::async(std::launch::async, run);
+    REQUIRE(a.get() == b.get());
 }

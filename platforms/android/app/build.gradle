@@ -60,7 +60,7 @@ android {
         }
     }
 
-    // OpenCV 并行加速需要openML, 这里解压so文件不然找不到
+    // 保留现有 JNI 库解压策略；ImageOps 已不再依赖 OpenCV/OpenMP。
     packagingOptions {
         jniLibs {
             useLegacyPackaging = true

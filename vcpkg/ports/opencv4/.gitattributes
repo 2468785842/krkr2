@@ -1,2 +1,0 @@
-# Match upstream vcpkg: preserve patch bytes under Windows core.autocrlf.
-*.patch -text
