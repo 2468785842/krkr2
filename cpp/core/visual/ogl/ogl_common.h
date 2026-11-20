@@ -41,6 +41,4 @@
 #define GL_DEPTH24_STENCIL8 0x88F0
 #endif
 
-#include <string>
-
-bool TVPCheckGLExtension(const std::string &extname);
+#include "RenderCapabilities.h"

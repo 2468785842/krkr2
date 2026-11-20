@@ -1,6 +1,7 @@
 #pragma once
 #include "ComplexRect.h"
 #include "TexturePresentation.h"
+#include "RenderSettings.h"
 #include <unordered_map>
 #include <stdint.h>
 #include <string>
@@ -244,6 +245,8 @@ public:
 
     virtual bool IsSoftware() { return false; }
     virtual const char *GetName() = 0;
+    virtual krkr::render::TextureStorage GetTextureStorage() const = 0;
+    virtual unsigned GetTextureSizeLimit() const { return 0; }
 
     virtual bool GetRenderStat(unsigned int &drawCount, uint64_t &vmemsize) = 0;
     virtual bool GetTextureStat(iTVPTexture2D *texture, uint64_t &vmemsize) {

@@ -122,7 +122,7 @@ jobs:
       - name: Verify image operations in both backends
         if: inputs.imageops_contracts
         run: |
-          LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a python tools/game-smoke/imageops_repro.py out/linux/release/bin/krkr2/krkr2 out/linux/imageops-runtime --capture
+          LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a python tools/game-smoke/imageops_repro.py out/linux/release/bin/krkr2/krkr2 out/linux/imageops-runtime --capture --profiles
 
       - name: Upload image operation reports
         if: always()

@@ -50,3 +50,18 @@ class ImageOpsReports(unittest.TestCase):
             self.assertEqual(probe.right_edge_marker_pixels(Path("unused")),0)
             pixels[40][98*3:99*3] = bytes([222,206,222])
             self.assertEqual(probe.right_edge_marker_pixels(Path("unused")),1)
+
+    def test_capture_policy_uses_only_the_current_sequence(self):
+        log = "11 renderer:wrong\n1 renderer:opengl\n1 texture-storage:half\n1 texture-limit:512\n1 arb-copy-image:0\n"
+        self.assertEqual(probe.capture_policy(log,1),{
+            "renderer_observed":"opengl","texture_storage":"half",
+            "texture_limit":512,"arb_copy_image":False})
+        with self.assertRaisesRegex(ValueError,"Missing"):
+            probe.capture_policy(log,2)
+
+    def test_capture_policy_rejects_ambiguous_and_invalid_metadata(self):
+        log = "1 renderer:software\n1 texture-storage:lz4\n1 texture-limit:0\n1 arb-copy-image:0\n"
+        with self.assertRaisesRegex(ValueError,"Repeated"):
+            probe.capture_policy(log+"1 texture-storage:none\n",1)
+        with self.assertRaises(ValueError):
+            probe.capture_policy(log.replace("texture-limit:0","texture-limit:-1"),1)

@@ -52,6 +52,11 @@ try {
         }
         record("passed:" + name);
     }
+    if(System.getArgument("-render-storage-probe") == "yes") {
+        source.saveLayerImage(System.exePath + "storage-input.bmp", "bmp");
+        source.loadImages(System.exePath + "storage-input.bmp");
+        verify(source, [[16,16],[48,16],[16,48],[48,48]], "storage-readback");
+    }
     global.panels = [];
     for(var mode = 0; mode < 4; ++mode) {
         var layer = panel();

@@ -20,7 +20,7 @@ target_include_directories(frame_hook_tests PRIVATE ${CMAKE_SOURCE_DIR}/cpp/core
 target_link_libraries(frame_hook_tests PRIVATE Catch2::Catch2WithMain)
 catch_discover_tests(frame_hook_tests)
 
-add_executable(texture_presentation_tests TexturePresentationTest.cpp)
+add_executable(texture_presentation_tests TexturePresentationTest.cpp RenderSettingsTest.cpp)
 target_include_directories(texture_presentation_tests PRIVATE ${CMAKE_SOURCE_DIR}/cpp/core/visual)
 target_link_libraries(texture_presentation_tests PRIVATE Catch2::Catch2WithMain)
 catch_discover_tests(texture_presentation_tests)

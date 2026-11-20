@@ -29,9 +29,7 @@ extern "C" {
 #include "libswscale/swscale.h"
 };
 #include "imageops/ImageOps.h"
-#include "Application.h"
-#include "Platform.h"
-#include "ConfigManager/IndividualConfigManager.h"
+#include "RenderHost.h"
 #include "xxhash/xxhash.h"
 #include "tjsHashSearch.h"
 #include "EventIntf.h"
@@ -90,7 +88,7 @@ static void *TVPAllocBitmapBits(tjs_uint size, tjs_uint width,
     tjs_uint8 *ptrorg, *ptr;
     tjs_uint allocbytes = 16 + size + sizeof(tTVPLayerBitmapMemoryRecord) +
         sizeof(tjs_uint32) * 2;
-    TVPCheckMemory();
+    krkr::renderhost::CheckMemory();
     ptr = ptrorg = (tjs_uint8 *)malloc(allocbytes);
     if(!ptr)
         TVPThrowExceptionMessage(
@@ -2338,10 +2336,7 @@ iTVPRenderMethod *iTVPRenderManager::GetRenderMethod(const char *name,
     auto it = AllMethods.find(hash);
     if(it != AllMethods.end())
         return it->second;
-    TVPShowSimpleMessageBox(ttstr(TJS_W("Operation \"")) + name +
-                                TJS_W("\" is not supported under ") +
-                                GetName() + TJS_W(" mode."),
-                            TJS_W("Please use software renderer"));
+    krkr::renderhost::ReportUnsupportedOperation(name, GetName());
     return nullptr;
 }
 
@@ -2882,15 +2877,19 @@ public:
         StretchType(stNearest), tempTexture(nullptr), img_convert_ctx(nullptr),
         _drawCount(0) {
         _createStaticTexture2D = tTVPSoftwareTexture2D::Create;
-        std::string compTexMethod =
-            IndividualConfigManager::GetInstance()->GetValue<std::string>(
-                "software_compress_tex", "none");
-        if(compTexMethod == "halfline")
-            _createStaticTexture2D = tTVPSoftwareTexture2D_half::Create;
-        else if(compTexMethod == "lz4")
-            _createStaticTexture2D = tTVPSoftwareTexture2D_lz4::Create;
-        else if(compTexMethod == "lz4+tlg5")
-            _createStaticTexture2D = tTVPSoftwareTexture2D_lz4_tlg5::Create;
+        switch(krkr::renderhost::SoftwareStorage()) {
+            case krkr::render::TextureStorage::HalfRows:
+                _createStaticTexture2D = tTVPSoftwareTexture2D_half::Create;
+                break;
+            case krkr::render::TextureStorage::Lz4:
+                _createStaticTexture2D = tTVPSoftwareTexture2D_lz4::Create;
+                break;
+            case krkr::render::TextureStorage::Lz4Tlg5:
+                _createStaticTexture2D = tTVPSoftwareTexture2D_lz4_tlg5::Create;
+                break;
+            default:
+                break;
+        }
 
         Register_1();
         Register_2();
@@ -2968,6 +2967,15 @@ public:
     }
 
     const char *GetName() override { return "Software"; }
+    krkr::render::TextureStorage GetTextureStorage() const override {
+        if(_createStaticTexture2D == tTVPSoftwareTexture2D_half::Create)
+            return krkr::render::TextureStorage::HalfRows;
+        if(_createStaticTexture2D == tTVPSoftwareTexture2D_lz4::Create)
+            return krkr::render::TextureStorage::Lz4;
+        if(_createStaticTexture2D == tTVPSoftwareTexture2D_lz4_tlg5::Create)
+            return krkr::render::TextureStorage::Lz4Tlg5;
+        return krkr::render::TextureStorage::Normal;
+    }
 
     bool IsSoftware() override { return true; }
 
@@ -4812,9 +4820,7 @@ iTVPRenderManager *TVPGetRenderManager(const ttstr &name) {
 iTVPRenderManager *TVPGetRenderManager() {
     static iTVPRenderManager *_RenderManager;
     if(!_RenderManager) {
-        ttstr str =
-            IndividualConfigManager::GetInstance()->GetValue<std::string>(
-                "renderer", "software");
+        ttstr str = krkr::renderhost::RendererName();
         _RenderManager = TVPGetRenderManager(str);
     }
     return _RenderManager;

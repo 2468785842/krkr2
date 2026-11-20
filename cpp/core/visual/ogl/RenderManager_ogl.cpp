@@ -1,8 +1,8 @@
 #include <cmath>
+#include <array>
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
-#include <cstdarg>
 #include <map>
 #include <set>
 #include <utility>
@@ -11,24 +11,24 @@
 #include "GLHost.h"
 #include "tjsCommHead.h"
 #include "../RenderManager.h"
-#include "WindowImpl.h"
+#include "LayerBitmapImpl.h"
+#include "BinaryStream.h"
 #include "MsgIntf.h"
 #include <string>
 #include "../tvpgl.h"
 #include "SysInitIntf.h"
 #include <assert.h>
 #include <sstream>
-#include "Platform.h"
-#include "ConfigManager/IndividualConfigManager.h"
+#include "RenderHost.h"
+#include "RenderCapabilities.h"
 #include "imageops/ImageOps.h"
 #include <deque>
 #include <algorithm>
 #include <unordered_set>
-#include "ConfigManager/LocaleConfigManager.h"
 #include "etcpak.h"
 #include "pvrtc.h"
 #include "pvr.h"
-#include "RenderUtils.h"
+#include "PostUpdateEvent.h"
 
 // #define TEST_SHADER_ENABLED
 #ifndef GL_ETC1_RGB8_OES
@@ -50,24 +50,9 @@
 #define GL_COMPRESSED_RGBA_PVRTC_4BPPV2_IMG 0x9138
 #endif
 
-namespace TJS {
-    void TVPConsoleLog(const ttstr &str);
-} // namespace TJS
-static void ShowInMessageBox(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-    char buf[256];
-    vsnprintf(buf, 256 - 3, format, args);
-    const char *btnText = "OK";
-    TVPShowSimpleMessageBox(buf, "Log", 1, &btnText);
-
-    va_end(args);
-}
-
 
 struct _UsedGLExtInfo {
     _UsedGLExtInfo() {}
-    const char *NameBegin = nullptr;
 #define _DEFEXT(name) #name
 #define DEFEXT(name) const char *GLEXT_##name = _DEFEXT(GL_##name)
     DEFEXT(EXT_unpack_subimage);
@@ -82,7 +67,19 @@ struct _UsedGLExtInfo {
     DEFEXT(ARB_clear_texture);
     DEFEXT(QCOM_alpha_test);
 #undef DEFEXT
-    const char *NameEnd = nullptr;
+    auto Names() const {
+        return std::array{ GLEXT_EXT_unpack_subimage,
+                           GLEXT_EXT_shader_framebuffer_fetch,
+                           GLEXT_ARM_shader_framebuffer_fetch,
+                           GLEXT_NV_shader_framebuffer_fetch,
+                           GLEXT_EXT_copy_image,
+                           GLEXT_OES_copy_image,
+                           GLEXT_ARB_copy_image,
+                           GLEXT_NV_copy_image,
+                           GLEXT_EXT_clear_texture,
+                           GLEXT_ARB_clear_texture,
+                           GLEXT_QCOM_alpha_test };
+    }
 };
 static const _UsedGLExtInfo UsedGLExtInfo;
 
@@ -111,12 +108,10 @@ static void TVPInitGLExtensionInfo() {
     }
     if(*p)
         sTVPGLExtensions.emplace(p);
-    IndividualConfigManager *cfgMgr = IndividualConfigManager::GetInstance();
-    for(const char *const *name = (&UsedGLExtInfo.NameBegin) + 1; *name;
-        ++name) {
-        if(!cfgMgr->GetValue<int>(*name, 1)) {
+    for(const char *name : UsedGLExtInfo.Names()) {
+        if(!krkr::renderhost::ExtensionAllowed(name)) {
 #ifndef _MSC_VER
-            sTVPGLExtensions.erase(*name);
+            sTVPGLExtensions.erase(name);
 #endif
         }
     }
@@ -289,13 +284,11 @@ std::string TVPGetOpenGLInfo() {
     ret << "MaxTexureSize : ";
     ret << int(maxTextSize);
     ret << "\n";
-    ret << LocaleConfigManager::GetInstance()->GetText(
-        "supported_opengl_extension");
-    for(const char *const *name = (&UsedGLExtInfo.NameBegin) + 1; *name;
-        ++name) {
-        if(Extensions.find(*name) != Extensions.end()) {
+    ret << krkr::renderhost::SupportedExtensionsLabel();
+    for(const char *name : UsedGLExtInfo.Names()) {
+        if(Extensions.find(name) != Extensions.end()) {
             ret << "\n";
-            ret << *name;
+            ret << name;
         }
     }
 
@@ -937,7 +930,7 @@ protected:
                 break;
         }
 
-        TVPCheckMemory();
+        krkr::renderhost::CheckMemory();
         _glBindTexture2D(texture);
         glTexImage2D(GL_TEXTURE_2D, 0, internalfmt, intw, inth, 0, pixfmt,
                      GL_UNSIGNED_BYTE, pixel);
@@ -1250,7 +1243,7 @@ public:
                 break;
         }
 
-        TVPCheckMemory();
+        krkr::renderhost::CheckMemory();
         _glBindTexture2D(texinfo.Name);
         texinfo.Width = pitch / pixsize;
         texinfo.Height = rc.get_height();
@@ -1350,7 +1343,7 @@ public:
                 break;
         }
 
-        TVPCheckMemory();
+        krkr::renderhost::CheckMemory();
         texture = FetchGLTexture();
         glTexImage2D(GL_TEXTURE_2D, 0, internalfmt, internalW, internalH, 0,
                      pixfmt, GL_UNSIGNED_BYTE, tmp);
@@ -1562,7 +1555,7 @@ public:
 
     void InitCompressedPixel(const void *data, unsigned int len, GLenum format,
                              unsigned int width, unsigned int height) {
-        TVPCheckMemory();
+        krkr::renderhost::CheckMemory();
         _glBindTexture2D(texture);
         glCompressedTexImage2D(GL_TEXTURE_2D, 0, format /*GL_ETC1_RGB8_OES*/,
                                width, height, 0, len, data);
@@ -1575,7 +1568,7 @@ public:
 
     void InitPixel(const void *pixel, unsigned int pitch, GLenum format,
                    GLenum pixfmt, unsigned int intw, unsigned int inth) {
-        TVPCheckMemory();
+        krkr::renderhost::CheckMemory();
         _glBindTexture2D(texture);
         glTexImage2D(GL_TEXTURE_2D, 0, format, intw, inth, 0, pixfmt,
                      GL_UNSIGNED_BYTE, pixel);
@@ -2319,9 +2312,7 @@ bool tTVPOGLTexture2D::RestoreNormalSize() {
         _scaleW = _scaleH = 1;
         return true;
     } else {
-        TVPShowSimpleMessageBox(
-            ttstr(TJS_W("Too large texture is not accessable by GPU.")),
-            TJS_W("Please use software renderer"));
+        krkr::renderhost::ReportTextureTooLarge();
         return false;
     }
 }
@@ -2451,10 +2442,12 @@ protected:
         // If the current opengl driver doesn't have framebuffers
         // methods, check if an extension exists
         if(glGenFramebuffers == nullptr) {
-            TVPConsoleLog("OpenGL: glGenFramebuffers is nullptr, try to detect "
-                          "an extension");
+            krkr::renderhost::ConsoleLog(
+                "OpenGL: glGenFramebuffers is nullptr, try to detect "
+                "an extension");
             if(strstr(gl_extensions, "ARB_framebuffer_object")) {
-                TVPConsoleLog("OpenGL: ARB_framebuffer_object is supported");
+                krkr::renderhost::ConsoleLog(
+                    "OpenGL: ARB_framebuffer_object is supported");
 
                 glIsRenderbuffer = (PFNGLISRENDERBUFFERPROC)wglGetProcAddress(
                     "glIsRenderbuffer");
@@ -2504,7 +2497,8 @@ protected:
                 glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)wglGetProcAddress(
                     "glGenerateMipmap");
             } else if(strstr(gl_extensions, "EXT_framebuffer_object")) {
-                TVPConsoleLog("OpenGL: EXT_framebuffer_object is supported");
+                krkr::renderhost::ConsoleLog(
+                    "OpenGL: EXT_framebuffer_object is supported");
                 glIsRenderbuffer = (PFNGLISRENDERBUFFERPROC)wglGetProcAddress(
                     "glIsRenderbufferEXT");
                 glBindRenderbuffer =
@@ -2553,8 +2547,10 @@ protected:
                 glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)wglGetProcAddress(
                     "glGenerateMipmapEXT");
             } else {
-                TVPConsoleLog("OpenGL: No framebuffers extension is supported");
-                TVPConsoleLog("OpenGL: Any call to Fbo will crash!");
+                krkr::renderhost::ConsoleLog(
+                    "OpenGL: No framebuffers extension is supported");
+                krkr::renderhost::ConsoleLog(
+                    "OpenGL: Any call to Fbo will crash!");
                 return false;
             }
         }
@@ -2839,30 +2835,27 @@ protected:
 
         _CreateStaticTexture2D = CreateStaticTexture2D_normal;
         _CreateMutableTexture2D = CreateMutableTexture2D_normal;
-        std::string compTexMethod =
-            IndividualConfigManager::GetInstance()->GetValue<std::string>(
-                "ogl_compress_tex", "none");
-        if(compTexMethod == "half") {
-            _CreateStaticTexture2D = CreateStaticTexture2D_half;
-            //	_CreateMutableTexture2D = CreateMutableTexture2D_half;
-        } else if(compTexMethod == "etc2") {
-            if(TVPIsSupportTextureFormat(GL_COMPRESSED_RGB8_ETC2)) {
-                _CreateStaticTexture2D = CreateStaticTexture2D_ETC2;
-            }
-        } else if(compTexMethod == "pvrtc") {
-            if(TVPIsSupportTextureFormat(GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG)) {
-                _CreateStaticTexture2D = CreateStaticTexture2D_PVRTC;
-            }
+        switch(krkr::renderhost::GLStorage()) {
+            case krkr::render::TextureStorage::Half:
+                _CreateStaticTexture2D = CreateStaticTexture2D_half;
+                break;
+            case krkr::render::TextureStorage::Etc2:
+                if(TVPIsSupportTextureFormat(GL_COMPRESSED_RGB8_ETC2))
+                    _CreateStaticTexture2D = CreateStaticTexture2D_ETC2;
+                break;
+            case krkr::render::TextureStorage::Pvrtc:
+                if(TVPIsSupportTextureFormat(
+                       GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG))
+                    _CreateStaticTexture2D = CreateStaticTexture2D_PVRTC;
+                break;
+            default:
+                break;
         }
         GLint maxTextSize;
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextSize);
         TVPMaxTextureSize = maxTextSize;
-        maxTextSize = IndividualConfigManager::GetInstance()->GetValue<int>(
-            "ogl_max_texsize", 0);
-        if(maxTextSize > 0 &&
-           (maxTextSize < TVPMaxTextureSize || TVPMaxTextureSize < 1024)) {
-            TVPMaxTextureSize = maxTextSize; // override by user config
-        }
+        TVPMaxTextureSize = krkr::render::TextureLimit(
+            TVPMaxTextureSize, krkr::renderhost::TextureLimit());
         GLint _maxTextureUnits;
         glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
 
@@ -2872,7 +2865,7 @@ protected:
         glGenFramebuffers(1, &_FBO);
         glGenRenderbuffers(1, &_stencil_FBO);
         if(!_FBO) {
-            TVPConsoleLog("Fail to create FBO");
+            krkr::renderhost::ConsoleLog("Fail to create FBO");
             const char *reason = nullptr;
             GLenum errcode = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 #define SATATUE_CASE(x)                                                        \
@@ -2887,13 +2880,13 @@ protected:
                 default: {
                     char tmp[16];
                     sprintf(tmp, "0x%X", errcode);
-                    TVPConsoleLog(
+                    krkr::renderhost::ConsoleLog(
                         (std::string("glCheckFramebufferStatus = ") + tmp)
                             .c_str());
                 } break;
             }
             if(reason) {
-                TVPConsoleLog(
+                krkr::renderhost::ConsoleLog(
                     (std::string("glCheckFramebufferStatus = ") + reason)
                         .c_str());
             }
@@ -3975,54 +3968,6 @@ public:
             1) /*->SetTargetAsSrc()*/;
         // TEST_SHADER(BoxBlur, TVPDoGrayScale(testdest, 256 * 256));
         // let it pass
-#if 0
-		// GL_EXT_shader_framebuffer_fetch issue in some adreno GPUs
-		if (TVPCheckGLExtension("GL_EXT_shader_framebuffer_fetch")) {
-			tTVPBitmap *testbmp1 = new tTVPBitmap(256, 256, 32);
-			tTVPBitmap *testbmp2 = new tTVPBitmap(256, 256, 32);
-			for (int y = 0; y < 256; ++y) {
-				uint8_t *pix1 = (uint8_t *)testbmp1->GetScanLine(y);
-				uint8_t *pix2 = (uint8_t *)testbmp2->GetScanLine(y);
-				for (int x = 0; x < 256; ++x) {
-					pix2[2] = pix1[0] = 255 - x;
-					pix2[3] = pix1[1] = x;
-					pix2[1] = pix1[2] = y;
-					pix2[0] = pix1[3] = 255 - y;
-					pix1 += 4;
-					pix2 += 4;
-				}
-			}
-			tTVPRect rc(0, 0, 256, 256);
-			iTVPTexture2D *testtex1 = CreateTexture2D(nullptr, 0, 256, 256, TVPTextureFormat::RGBA, 0);
-			testtex1->Update(testbmp1->GetScanLine(0), TVPTextureFormat::RGBA, testbmp1->GetPitch(), rc);
-			iTVPTexture2D *testtex2 = CreateTexture2D(testbmp2);
-			// test GL_EXT_shader_framebuffer_fetch
-			TVPPsAddBlend_HDA((tjs_uint32*)testbmp1->GetScanLine(0), (tjs_uint32*)testbmp2->GetScanLine(0),
-				testbmp1->GetPitch() * 256 / 4);
-
-			tTVPOGLRenderMethod_Script *method = (tTVPOGLRenderMethod_Script *)GetRenderMethod("PsAddBlend");
-			method->SetParameterOpa(method->EnumParameterID("opacity"), 255);
-			std::vector<tRenderTexRectArray::Element> src_tex;
-			src_tex.emplace_back(testtex2, rc);
-			OperateRect(method, testtex1, testtex1, rc, tRenderTexRectArray(&src_tex[0], src_tex.size()));
-
-			uint8_t *pix1 = (uint8_t *)testbmp1->GetScanLine(0);
-			uint8_t *pix2 = (uint8_t *)testtex1->GetScanLineForRead(0);
-			for (int i = 0; i < 256 * 256 * 4; ++i) {
-				if (std::abs(pix1[i] - pix2[i]) > 2) {
-					const char *btnText = "OK";
-					TVPShowSimpleMessageBox(LocaleConfigManager::GetInstance()->GetText
-						("issue_GL_EXT_shader_framebuffer_fetch").c_str(), "Info", 1, &btnText);
-					break;
-				}
-			}
-			
-			delete testbmp1;
-			delete testbmp2;
-			delete testtex1;
-			delete testtex2;
-		}
-#endif
     }
 
     tTVPOGLTexture2D *tempTexture;
@@ -4426,6 +4371,16 @@ public:
     }
 
     const char *GetName() override { return "OpenGL"; }
+    krkr::render::TextureStorage GetTextureStorage() const override {
+        if(_CreateStaticTexture2D == CreateStaticTexture2D_half)
+            return krkr::render::TextureStorage::Half;
+        if(_CreateStaticTexture2D == CreateStaticTexture2D_ETC2)
+            return krkr::render::TextureStorage::Etc2;
+        if(_CreateStaticTexture2D == CreateStaticTexture2D_PVRTC)
+            return krkr::render::TextureStorage::Pvrtc;
+        return krkr::render::TextureStorage::Normal;
+    }
+    unsigned GetTextureSizeLimit() const override { return TVPMaxTextureSize; }
     bool IsSoftware() override { return false; }
     bool GetRenderStat(unsigned int &drawCount, uint64_t &vmemsize) override {
         drawCount = _drawCount;

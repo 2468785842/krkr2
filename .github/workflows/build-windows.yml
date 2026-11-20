@@ -160,7 +160,7 @@ jobs:
           $minimize = $LASTEXITCODE
           python tools/game-smoke/text_repro.py "$probe/runtime/krkr2.exe" "$probe/native-text"
           $text = $LASTEXITCODE
-          python tools/game-smoke/imageops_repro.py "$probe/runtime/krkr2.exe" "$probe/imageops" --capture
+          python tools/game-smoke/imageops_repro.py "$probe/runtime/krkr2.exe" "$probe/imageops" --capture --profiles
           $imageops = $LASTEXITCODE
           if ($imageops -ne 0) { exit $imageops }
           if ($single -ne 0 -or $multiple -ne 0 -or $focus -ne 0 -or $minimize -ne 0 -or $text -ne 0) { exit 1 }

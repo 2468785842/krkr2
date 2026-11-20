@@ -7,6 +7,8 @@ import shutil
 import subprocess
 import struct
 import time
+import sys
+from xml.sax.saxutils import escape
 from frame_pixels import color_counts, rgb_rows
 
 
@@ -83,6 +85,27 @@ def right_edge_marker_pixels(path):
     return count
 
 
+def capture_policy(log, sequence):
+    keys = ("renderer", "texture-storage", "texture-limit", "arb-copy-image")
+    fields = {}
+    for line in log.splitlines():
+        prefix = f"{sequence} "
+        if not line.startswith(prefix) or ":" not in line[len(prefix):]:
+            continue
+        key,value = line[len(prefix):].split(":",1)
+        if key in keys:
+            if key in fields:
+                raise ValueError("Repeated capture policy field: " + key)
+            fields[key] = value
+    if set(fields) != set(keys):
+        raise ValueError("Missing capture policy fields")
+    limit = int(fields["texture-limit"])
+    if limit < 0 or fields["arb-copy-image"] not in ("0","1"):
+        raise ValueError("Invalid capture policy fields")
+    return {"renderer_observed":fields["renderer"], "texture_storage":fields["texture-storage"],
+            "texture_limit":limit, "arb_copy_image":fields["arb-copy-image"] == "1"}
+
+
 def capture_frame(root, renderer, sequence, deadline, process, palette, file_name, alpha_composed=True):
     # The Cocos frame includes the software compositor's existing alpha/256
     # conversion. Keep exact colors rather than a pixel tolerance.
@@ -95,14 +118,15 @@ def capture_frame(root, renderer, sequence, deadline, process, palette, file_nam
         if " error:" in log:
             raise RuntimeError(log)
         if f"{sequence} capture-saved" in log and (root / "ui-frame.png").exists():
-            if f"{sequence} renderer:{renderer}" not in log:
+            policy = capture_policy(log, sequence)
+            if policy["renderer_observed"] != renderer:
                 raise RuntimeError("Capture renderer does not match requested backend: " + log)
             frame = root / file_name
             shutil.copy2(root / "ui-frame.png", frame)
             counts = color_counts(frame, palette)
             if min(counts.values()) < 16:
                 raise RuntimeError("Cocos frame does not contain the rendered fixture palette: " + str(counts))
-            return {"renderer_observed":renderer, "frame_file":file_name,
+            return {**policy, "frame_file":file_name,
                     "frame_color_counts":{str(color):count for color,count in counts.items()},
                     "frame_sha256":digest(frame)}
         if process.poll() is not None:
@@ -111,26 +135,44 @@ def capture_frame(root, renderer, sequence, deadline, process, palette, file_nam
     raise TimeoutError("No completed Cocos frame capture")
 
 
-def run(engine, destination, seconds=60, capture=False):
+def run(engine, destination, seconds=60, capture=False, profiles=False):
+    if profiles and not capture:
+        raise ValueError("Configuration profiles require --capture")
     engine = engine.resolve()
     destination.mkdir(parents=True, exist_ok=False)
     reports = []
-    for renderer in ("software", "opengl"):
-        root = (destination / renderer).resolve()
+    configurations = [("software","software",{},None), ("opengl","opengl",{},None)]
+    if profiles:
+        configurations = [
+            ("software","software",{"software_compress_tex":"none"},"none"),
+            ("opengl","opengl",{"ogl_compress_tex":"none"},"none"),
+            *[("software-"+name,"software",{"software_compress_tex":value},expected)
+              for name,value,expected in [("halfline","halfline","halfline"), ("lz4","lz4","lz4"),
+                                         ("lz4tlg5","lz4+tlg5","lz4+tlg5"), ("unknown","invalid","none")]],
+            ("opengl-half","opengl",{"ogl_compress_tex":"half","ogl_max_texsize":"512",
+             **{key:"0" for key in ("GL_ARB_copy_image","GL_EXT_copy_image","GL_OES_copy_image","GL_NV_copy_image")}},"half"),
+            ("opengl-unknown","opengl",{"ogl_compress_tex":"invalid"},"none")]
+    for profile,renderer,settings,expected_storage in configurations:
+        root = (destination / profile).resolve()
         root.mkdir()
         source = Path(__file__).parent / "imageops/startup.tjs"
         shutil.copy2(source, root / "startup.tjs")
-        (root / "Kirikiroid2Preference.xml").write_text(
-            f'<GlobalPreference><Item key="renderer" value="{renderer}"/></GlobalPreference>', encoding="utf-8")
+        preferences = {"renderer":renderer, **settings}
+        (root / "Kirikiroid2Preference.xml").write_text('<GlobalPreference>' +
+            ''.join(f'<Item key="{escape(key)}" value="{escape(value)}"/>' for key,value in preferences.items()) +
+            '</GlobalPreference>', encoding="utf-8")
         if capture:
             (root / "interaction-fixture.json").write_text('{"fixture":"imageops"}')
         command = [str(engine), "--game=" + str(root), "-imageops-renderer=" + renderer]
+        if profiles:
+            command.append("-render-storage-probe=yes")
         if capture:
             command.append("-ui-contract-driver=yes")
         report = {"engine": str(engine), "engine_sha256": digest(engine), "script_sha256": digest(root / "startup.tjs"),
                   "controller_sha256": digest(Path(__file__)),
                   "preferences_sha256": digest(root / "Kirikiroid2Preference.xml"),
-                  "renderer_requested": renderer, "command": command, "forced_stop": False, "failures": []}
+                  "renderer_requested": renderer, "profile":profile, "preferences":preferences,
+                  "command": command, "forced_stop": False, "failures": []}
         deadline = time.monotonic() + seconds
         with (root / "process.log").open("wb") as output:
             process = subprocess.Popen(command, cwd=engine.parent, stdout=output, stderr=subprocess.STDOUT)
@@ -149,6 +191,14 @@ def run(engine, destination, seconds=60, capture=False):
                 if capture:
                     palette = [(64,160,64),(160,64,160),(64,64,64),(160,160,160)]
                     report.update(capture_frame(root, renderer, 1, deadline, process, palette, "ui-imageops.png"))
+                    if profiles:
+                        if report["texture_storage"] != expected_storage:
+                            raise RuntimeError("Effective texture storage differs from requested profile")
+                        if profile == "opengl-half":
+                            if report["texture_limit"] != 512:
+                                raise RuntimeError("Texture limit preference was not applied")
+                            if sys.platform != "win32" and report["arb_copy_image"]:
+                                raise RuntimeError("Disabled GL extension remained active")
                     phases = []
                     report["presentation_phases"] = phases
                     for step, (width, height, color) in enumerate([
@@ -199,6 +249,8 @@ def run(engine, destination, seconds=60, capture=False):
         required = ["passed:resize-" + str(i) for i in range(4)] + ["passed:blur", "passed:affine", "passed:perspective", "ready", "finished"]
         if capture:
             required += [f"presented:{i}" for i in range(1,6)]
+        if profiles:
+            required += ["passed:storage-readback"]
         report["failures"] += ["Missing or repeated event: " + e for e in required if report["events"].count(e) != 1]
         report["failures"] += [e for e in report["events"] if e.startswith("error:")]
         if report["forced_stop"] or report["exit_code"] != 0:
@@ -225,5 +277,6 @@ if __name__ == "__main__":
     parser.add_argument("engine", type=Path)
     parser.add_argument("destination", type=Path)
     parser.add_argument("--capture", action="store_true", help="Require the opt-in Cocos UI test driver")
+    parser.add_argument("--profiles", action="store_true", help="Verify eight renderer storage/configuration profiles")
     args = parser.parse_args()
-    raise SystemExit(run(args.engine, args.destination, capture=args.capture))
+    raise SystemExit(run(args.engine, args.destination, capture=args.capture, profiles=args.profiles))
