@@ -79,7 +79,36 @@ try {
     record("error:" + e.message);
     Debug.message("IMAGEOPS_RUNTIME_FAILED: " + e.message);
 }
+global.presentationStep = 0;
 global.driver = new Timer(function() {
+    try {
+        var next = presentationStep + 1;
+        if(next <= 4 && Storages.isExistentStorage(System.exePath + "presentation-" + next + ".txt")) {
+            var widths = [65, 129, 65, 65], heights = [33, 65, 33, 33];
+            var fills = [0xff60b060, 0xffb060b0, 0xff306030, 0xffa0c0a0];
+            var w = widths[next-1], h = heights[next-1], color = fills[next-1];
+            if(next == 4) {
+                var replacement = new Layer(win, root);
+                replacement.visible = false;
+                replacement.setImageSize(w, h);
+                replacement.fillRect(0, 0, w, h, color);
+                root.assignImages(replacement);
+                invalidate replacement;
+            } else {
+                root.setImageSize(w, h);
+                root.fillRect(0, 0, w, h, color);
+            }
+            root.setSize(w, h);
+            win.setSize(w, h);
+            if(root.getMainPixel(w/2, h/2) != (color & 0xffffff) || root.getMaskPixel(w/2, h/2) != 255)
+                throw new Exception("presentation pixel " + next);
+            root.saveLayerImage(System.exePath + "presentation-" + next + ".bmp", "bmp");
+            presentationStep = next;
+            record("presented:" + next);
+        }
+    } catch(e) {
+        record("error:presentation:" + e.message);
+    }
     if(!Storages.isExistentStorage(System.exePath + "imageops-close.txt")) return;
     driver.enabled = false;
     record("finished");

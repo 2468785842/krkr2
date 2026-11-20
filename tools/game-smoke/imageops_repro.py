@@ -25,7 +25,7 @@ def events(root):
         return []
 
 
-def bmp_rgb(path, x, y):
+def bmp_rgb(path, x, y, expected_size=(384, 192)):
     data = path.read_bytes()
     if data[:2] != b"BM" or len(data) < 54:
         raise ValueError("Invalid BMP header")
@@ -36,7 +36,7 @@ def bmp_rgb(path, x, y):
         raise ValueError("Unsupported BMP pixel layout")
     if compression == 3 and (len(data) < 66 or struct.unpack_from("<III", data, 54) != (0xff0000, 0xff00, 0xff)):
         raise ValueError("Unsupported BMP masks")
-    if width != 384 or abs(height) != 192 or not (0 <= x < width and 0 <= y < abs(height)):
+    if (width, abs(height)) != expected_size or not (0 <= x < width and 0 <= y < abs(height)):
         raise ValueError("Unexpected BMP dimensions or sample")
     stride = ((width * bits + 31) // 32) * 4
     if offset < 14 + header or len(data) < offset + stride * abs(height):
@@ -65,6 +65,34 @@ def frame_failures(path, renderer="opengl"):
     if bmp_rgb(path, 350, 150) != (16, 32, 16):
         errors.append("Background guard pixel differs")
     return errors
+
+
+def capture_frame(root, renderer, sequence, deadline, process, palette, file_name):
+    # The Cocos frame includes the software compositor's existing alpha/256
+    # conversion. Keep exact colors rather than a pixel tolerance.
+    if renderer == "software":
+        palette = [tuple(c*255//256 for c in color) for color in palette]
+    (root / "ui-action.txt").write_text(f"{sequence} capture\n", encoding="utf-8")
+    while time.monotonic() < deadline:
+        path = root / "ui-driver-events.txt"
+        log = path.read_text(encoding="utf-8") if path.exists() else ""
+        if " error:" in log:
+            raise RuntimeError(log)
+        if f"{sequence} capture-saved" in log and (root / "ui-frame.png").exists():
+            if f"{sequence} renderer:{renderer}" not in log:
+                raise RuntimeError("Capture renderer does not match requested backend: " + log)
+            frame = root / file_name
+            shutil.copy2(root / "ui-frame.png", frame)
+            counts = color_counts(frame, palette)
+            if min(counts.values()) < 16:
+                raise RuntimeError("Cocos frame does not contain the rendered fixture palette: " + str(counts))
+            return {"renderer_observed":renderer, "frame_file":file_name,
+                    "frame_color_counts":{str(color):count for color,count in counts.items()},
+                    "frame_sha256":digest(frame)}
+        if process.poll() is not None:
+            raise RuntimeError("Engine exited before capture")
+        time.sleep(.1)
+    raise TimeoutError("No completed Cocos frame capture")
 
 
 def run(engine, destination, seconds=60, capture=False):
@@ -103,34 +131,33 @@ def run(engine, destination, seconds=60, capture=False):
                 else:
                     raise TimeoutError("No fixture ready event")
                 if capture:
-                    # Fresh sequence; capture completion is required, not a fixed sleep.
-                    (root / "ui-action.txt").write_text("1 capture\n", encoding="utf-8")
-                    while time.monotonic() < deadline:
-                        path = root / "ui-driver-events.txt"
-                        log = path.read_text(encoding="utf-8") if path.exists() else ""
-                        if " error:" in log:
-                            raise RuntimeError(log)
-                        if "1 capture-saved" in log and (root / "ui-frame.png").exists():
-                            if "1 renderer:" + renderer not in log:
-                                raise RuntimeError("Capture renderer does not match requested backend: " + log)
-                            report["renderer_observed"] = renderer
-                            frame = root / "ui-frame.png"
-                            # Software Layer composition uses the existing alpha/256
-                            # conversion before the Cocos texture is presented.
-                            palette = [(64,160,64),(160,64,160),(64,64,64),(160,160,160)]
-                            if renderer == "software":
-                                palette = [tuple(c*255//256 for c in color) for color in palette]
-                            counts = color_counts(frame, palette)
-                            if min(counts.values()) < 16:
-                                raise RuntimeError("Cocos frame does not contain the rendered fixture palette: " + str(counts))
-                            report["frame_color_counts"] = {str(color): count for color, count in counts.items()}
-                            report["frame_sha256"] = digest(frame)
-                            break
-                        if process.poll() is not None:
-                            raise RuntimeError("Engine exited before capture")
-                        time.sleep(.1)
-                    else:
-                        raise TimeoutError("No completed Cocos frame capture")
+                    palette = [(64,160,64),(160,64,160),(64,64,64),(160,160,160)]
+                    report.update(capture_frame(root, renderer, 1, deadline, process, palette, "ui-imageops.png"))
+                    phases = []
+                    for step, (width, height, color) in enumerate([
+                        (65,33,(96,176,96)), (129,65,(176,96,176)),
+                        (65,33,(48,96,48)), (65,33,(160,192,160))], 1):
+                        (root / f"presentation-{step}.txt").write_text("present\n", encoding="utf-8")
+                        while time.monotonic() < deadline:
+                            current = events(root)
+                            if any(e.startswith("error:") for e in current):
+                                raise RuntimeError(str(current))
+                            if current.count(f"presented:{step}") == 1:
+                                break
+                            if process.poll() is not None:
+                                raise RuntimeError("Engine exited during presentation replacement")
+                            time.sleep(.1)
+                        else:
+                            raise TimeoutError(f"No presentation event {step}")
+                        phase = {"step":step, "width":width, "height":height}
+                        phase.update(capture_frame(root, renderer, step+1, deadline, process, [color], f"ui-presentation-{step}.png"))
+                        bitmap = root / f"presentation-{step}.bmp"
+                        for x,y in [(0,0),(width//2,height//2),(width-1,height-1)]:
+                            if bmp_rgb(bitmap,x,y,(width,height)) != color:
+                                raise RuntimeError(f"Presentation {step} BMP sample differs")
+                        phase["image_sha256"] = digest(bitmap)
+                        phases.append(phase)
+                    report["presentation_phases"] = phases
                 (root / "imageops-close.txt").write_text("close\n", encoding="utf-8")
                 process.wait(timeout=max(1, deadline-time.monotonic()))
             except Exception as error:
@@ -147,6 +174,8 @@ def run(engine, destination, seconds=60, capture=False):
                 report["exit_code"] = process.returncode
         report["events"] = events(root)
         required = ["passed:resize-" + str(i) for i in range(4)] + ["passed:blur", "passed:affine", "passed:perspective", "ready", "finished"]
+        if capture:
+            required += [f"presented:{i}" for i in range(1,5)]
         report["failures"] += ["Missing or repeated event: " + e for e in required if report["events"].count(e) != 1]
         report["failures"] += [e for e in report["events"] if e.startswith("error:")]
         if report["forced_stop"] or report["exit_code"] != 0:
