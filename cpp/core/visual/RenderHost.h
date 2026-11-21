@@ -12,6 +12,8 @@ namespace krkr::renderhost {
     std::string SupportedExtensionsLabel();
     void CheckMemory();
     void ConsoleLog(const char *message);
+    void DecodePVRTC(const void *compressed, int width, int height,
+                     void *pixels, bool twoBitsPerPixel);
     void ReportTextureTooLarge();
     void ReportUnsupportedOperation(const char *operation,
                                     const char *renderer);
