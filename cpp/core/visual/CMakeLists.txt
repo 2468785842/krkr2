@@ -92,14 +92,15 @@ find_package(WebP CONFIG REQUIRED)
 find_package(xxHash CONFIG REQUIRED)
 find_package(FFMPEG REQUIRED COMPONENTS swscale avutil)
 target_include_directories(${PROJECT_NAME} PRIVATE ${FFMPEG_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    Freetype::Freetype
-    PNG::PNG
-    WebP::webp
-    WebP::webpdecoder
-    WebP::webpdemux
-    xxHash::xxhash
-    ${FFMPEG_LIBRARIES}
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC Freetype::Freetype
+    PRIVATE
+        PNG::PNG
+        WebP::webp
+        WebP::webpdecoder
+        WebP::webpdemux
+        xxHash::xxhash
+        ${FFMPEG_LIBRARIES}
 )
 
 if(ANDROID)
@@ -108,12 +109,12 @@ elseif(IOS)
     find_library(KRKR2_OPENGLES_FRAMEWORK OpenGLES REQUIRED)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${KRKR2_OPENGLES_FRAMEWORK})
 else()
-    find_package(OpenGL REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
     if(WIN32 OR LINUX)
         find_package(GLEW REQUIRED)
-        target_link_libraries(${PROJECT_NAME} PRIVATE GLEW::GLEW)
+        target_link_libraries(${PROJECT_NAME} PUBLIC GLEW::GLEW)
     endif()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
 endif()
 
 find_package(JXR REQUIRED)
