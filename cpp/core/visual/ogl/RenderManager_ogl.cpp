@@ -135,7 +135,7 @@ namespace GL { // independ from global gl functions
     typedef void *(fGetProcAddress)(const char *);
 #elif defined(__ANDROID__)
     typedef void *(EGLAPIENTRY fGetProcAddress)(const char *);
-#elif defined(LINUX)
+#elif defined(__linux__)
     typedef void *(GLAPIENTRY fGetProcAddress)(const char *);
 #endif
     static fGetProcAddress *glGetProcAddress = nullptr;
