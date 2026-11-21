@@ -16,7 +16,7 @@ description: 为 KrKr2 的 C++、CMake 或后端改动选择并执行构建与�
 - 改窗口适配或 UI，构建应用，并查阅[窗口接口](../../../docs/subsystems/window-interface.md)的交互验收范围。
   `cocos_window_tests` 只在 full 范围注册，需要实际构建才会发现 Catch2 用例。
   定向 `-R '^cocos (window|pointer|focus|text|context)'` 应发现 15 项节点/坐标/焦点/文本/context订阅对照用例；不创建 OS/GL 窗口。
-- 输入状态/修饰键/坐标/取消/触摸按钮/提交文本与帧钩子可选 `platform` 范围，预期输入 31、帧钩子 3、呈现行布局/引用寿命 4 项用例，共 38 项，无 TJS/Cocos 依赖；
+- 输入状态/修饰键/坐标/取消/触摸按钮/提交文本与帧钩子可选 `platform` 范围，预期输入 31、帧钩子 3、呈现行布局/引用寿命 4 项和渲染配置 4 项用例，共 42 项，无 TJS/Cocos 依赖；
   SDL3 实验另用显式原型开关和 `tools/sdl3-prototype/verify.py`；Linux 的 `verify_x11.py`
   经 X server/XTest 检查切焦与关闭否决，`--pointer` 另检查黑边、窗口外拖动和调整大小。
   不能用直接投递的 SDL 事件替代。窗口缩放不等于高 DPI 设备验证，两者不等同于游戏后端验收。

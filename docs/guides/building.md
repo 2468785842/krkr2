@@ -141,7 +141,7 @@ ctest --test-dir out/platform-tests -N
 ctest --test-dir out/platform-tests --output-on-failure --no-tests=error
 ```
 
-预期 10 个输入状态、3 个修饰键快照、3 个指针坐标、3 个取消分类、4 个触摸按钮、8 个提交文本、3 个帧钩子和 4 个呈现行布局/引用寿命用例（共 38 项），三平台无窗口 CI 检查实际数量、编译源和依赖闭包；
+预期 10 个输入状态、3 个修饰键快照、3 个指针坐标、3 个取消分类、4 个触摸按钮、8 个提交文本、3 个帧钩子、4 个呈现行布局/引用寿命和 4 个渲染配置用例（共 42 项），三平台无窗口 CI 检查实际数量、编译源和依赖闭包；
 不能替代窗口、IME 或设备交互验收。
 独立 SDL3/TJS 壳实验使用另一显式开关，构建和验证见[原型工具](../../tools/sdl3-prototype/README.md)。
 Linux CI 另用 Xvfb/X11 创建窗口，分别验证键盘/鼠标的 `SDL_PushEvent` 队列与像素，以及

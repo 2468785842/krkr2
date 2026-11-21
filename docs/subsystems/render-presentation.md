@@ -30,7 +30,7 @@ Cocos 实现在 `environ/cocos2d/CocosFrameCapture.cpp`，沿用后端原有帧�
 ## 验证与剩余边界
 
 独立 `platform` 测试范围新增 `texture_presentation_tests`，覆盖带 padding/负 pitch 的行访问、
-压缩行回调、先保留替换源后释放原源、相同源复用与析构释放。与输入/帧钩子共 38 项，仅依赖 Catch2。
+压缩行回调、先保留替换源后释放原源、相同源复用与析构释放。与输入/帧钩子及渲染配置共 42 项，仅依赖 Catch2。
 真实 Window/Layer 验证使用[自制图像场景](../../tools/game-smoke/imageops/README.md)，
 同时检查算法图与五轮换图的实际管理器、像素、窗口截图及正常退出。
 
@@ -57,3 +57,28 @@ Cocos context 订阅的四项真实 EventDispatcher 用例与原窗口/输入契
 GL宿主边界的最终验证见[实施记录](../../.agents/notes/implemented/simplification/2026-11-20-gl-host-boundary.md)
 与[报告](../../.agents/reports/gl-host-boundary-2026-11-20.json)：Windows/Linux各15项Cocos契约与双后端场景通过，
 Android ARM64完整APK、三平台独立测试和macOS原生GL头编译通过；真实context丢失恢复仍未验证。
+
+## 渲染配置与宿主服务
+
+`visual/RenderSettings.h` 定义标准 C++ 配置读取接口、纹理存储枚举与旧纹理上限策略；
+`visual/RenderHost.h` 声明配置、内存压力、日志、提示框与本地化服务。
+具体适配在 `environ/RenderHost.cpp`，软件与 GL 渲染器不再直接包含配置管理器、Platform 或 WindowImpl。
+`RenderCapabilities.h` 单独声明 GL 能力查询，查询信息仍要求原渲染线程和有效 context。
+
+配置管理器读取缺省值时会写回配置，因此各键仍在原调用时机按需读取，不生成全量快照。
+renderer 的任意注册名称、游戏/全局配置回退、未知压缩值的普通纹理回退均保留；
+存储工厂继续在管理器构造时选定，没有新增热更新。
+纹理上限保留设备值小于 1024 时允许配置覆盖的旧规则，MSVC 仍读取但忽略 GL 扩展开关。
+11 个扩展名改用有序数组遍历，避免跨结构体成员作指针迭代。
+
+显式测试驱动记录实际管理器、选中存储工厂、纹理上限与 copy_image 能力，不额外读取配置。
+`imageops_repro.py --capture --profiles` 为八组配置启动全新进程，先从 BMP 重载静态源检查像素，
+再执行原算法与五轮呈现；GL half 还检查 512 上限和 Linux 禁用 copy_image 的回退。
+诊断表示选中的工厂，不能证明每张纹理均采用某种内部编码；ETC2/PVRTC 未作设备运行验收。
+
+存储探针同时重载 64×64 和 128×128 非纯色图；后者越过 GL half 的 64 阈值，实际执行 128→64 缩减，并检查四个象限内点。
+
+本批八配置矩阵在 Windows/Linux 均通过，各含 15 项 Cocos 契约；三平台独立范围各 42 项通过，
+Android ARM64 完整 APK 编译/打包及 ABI/依赖核验通过。
+具体源码、早期编译失败与修正、产物哈希见[实施记录](../../.agents/notes/implemented/simplification/2026-11-20-render-host-services.md)
+和[报告](../../.agents/reports/render-host-services-2026-11-20.json)。

@@ -67,3 +67,8 @@ OpenCV 替换独立为图像算法模块，保留插值、border、pitch、alpha
 
 2026-11-20续批：GL状态缓存/视口/诊断与重建订阅已迁入宿主接口，三端完整构建和桌面自制场景通过，
 见[GL宿主边界](../../implemented/simplification/2026-11-20-gl-host-boundary.md)。完整context资源恢复仍待定义与验证。
+
+2026-11-20续批：软件/OpenGL 配置、内存压力、日志、提示框与本地化访问已迁入宿主适配；
+Windows/Linux 八配置矩阵、三平台42项独立契约与 ARM64 完整 APK 通过。
+见[渲染器宿主服务隔离](../../implemented/simplification/2026-11-20-render-host-services.md)。
+Cocos 传递依赖和完整 context 资源恢复仍待处理，不将本批算作后端已替换。
