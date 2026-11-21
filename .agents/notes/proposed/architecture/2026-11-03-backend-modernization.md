@@ -71,4 +71,5 @@ OpenCV 替换独立为图像算法模块，保留插值、border、pitch、alpha
 2026-11-20续批：软件/OpenGL 配置、内存压力、日志、提示框与本地化访问已迁入宿主适配；
 Windows/Linux 八配置矩阵、三平台42项独立契约与 ARM64 完整 APK 通过。
 见[渲染器宿主服务隔离](../../implemented/simplification/2026-11-20-render-host-services.md)。
-Cocos 传递依赖和完整 context 资源恢复仍待处理，不将本批算作后端已替换。
+2026-11-21 续批已移除 `core_visual_module` 对 Cocos 的直接构建依赖。字体资源经宿主接口读取，
+窗口、截图与 GL 状态仍由 Cocos 宿主提供，完整 context 资源恢复待处理。见[实施记录](../../implemented/simplification/2026-11-21-visual-build-boundary.md)。

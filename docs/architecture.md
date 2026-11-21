@@ -41,6 +41,7 @@ Windows 入口 `platforms/windows/main.cpp` 创建 TVPAppDelegate；脚本入口
 - `input/` 的 `core_input` 只依赖标准 C++，由输入适配器和 System 查询共同使用，包含状态、修饰位、局部坐标、取消分类与 UTF-8/UTF-16 提交文本编解码；OS 键码、坐标、IME 组合状态和事件排队仍由现有宿主承担。见[共享输入](subsystems/input-state.md)。
 - `visual/WindowLayer.h` 已拆出不暴露 Cocos 类型的窗口接口；具体 Cocos 窗口仍在 `environ/impl/TVPWindow.h`。视频通过 Cocos 专用访问入口借用节点，尚未替换呈现后端。见 [窗口接口拆分](subsystems/window-interface.md)。
 - `visual/TexturePresentation.h` 提供后端无关的 CPU 行/GL 画面描述；Cocos 纹理包装、上传与截图移到宿主适配层。CPU 渲染器不再直接创建 Cocos 纹理，GL宿主状态和重建订阅已迁入纯C++接口，配置与平台服务也已集中至 RenderHost，完整context资源恢复待实现，见[纹理呈现](subsystems/render-presentation.md)。
+- `core_visual_module` 自行声明图像、字体、哈希和原生 GL 依赖。内置字体经宿主读取，Cocos 的实际资源搜索仍在应用壳中。见[Visual 构建依赖](subsystems/render-presentation.md#visual-构建依赖)。
 - CPU 图像操作统一经 `imageops/ImageOps.h` 调用。`ImageOps.cpp` 实现最近邻/线性缩放，`ImageOps_native.cpp` 实现其余缩放、模糊、仿射/透视、矩阵求解和标准 C++17 行任务；生产目标与 vcpkg 已移除 OpenCV，实时 OpenCV 对照仅为默认关闭的测试工具。移植来源及验证边界见 [ImageOps](subsystems/imageops.md)。
 - dev 已删除旧 `environ/sdl/tvpsdl.cpp`；游戏运行器当前没有 SDL 后端。
   平台壳选型为 SDL3，另有默认关闭的[独立 SDL3/TJS 原型](../tools/sdl3-prototype/README.md)，

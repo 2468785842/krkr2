@@ -34,8 +34,8 @@ Cocos 实现在 `environ/cocos2d/CocosFrameCapture.cpp`，沿用后端原有帧�
 真实 Window/Layer 验证使用[自制图像场景](../../tools/game-smoke/imageops/README.md)，
 同时检查算法图与五轮换图的实际管理器、像素、窗口截图及正常退出。
 
-`scripts/check_core_module_deps.py` 拒绝公共呈现头重新暴露 Cocos 类型及 CPU 渲染器重新直接包含 Cocos 呈现 API。
-这只约束直接边界，不代表整个 visual 模块已无传递 Cocos 依赖。
+`scripts/check_core_module_deps.py` 检查通用呈现接口和 `visual` 源码的直接 Cocos 引用，
+也检查 `core_visual_module` 的 CMake 声明。完整引擎仍通过宿主实现窗口、呈现和资源读取。
 OpenGL 后端通过 `visual/GLHost.h` 访问宿主状态缓存、视口和 context 重建订阅；
 具体 Cocos 调用集中在 `environ/cocos2d/CocosGLHost.cpp`，公共头仅使用标准 C++。
 28处缓存调用的顺序不变；GL错误检查同样经宿主，保留Debug查询/消费错误、Release不查询的既有行为。绘制后恢复仍为 unpack 行长 → blend cache → framebuffer → viewport。
@@ -82,3 +82,16 @@ renderer 的任意注册名称、游戏/全局配置回退、未知压缩值的�
 Android ARM64 完整 APK 编译/打包及 ABI/依赖核验通过。
 具体源码、早期编译失败与修正、产物哈希见[实施记录](../../.agents/notes/implemented/simplification/2026-11-20-render-host-services.md)
 和[报告](../../.agents/reports/render-host-services-2026-11-20.json)。
+
+## Visual 构建依赖
+
+`core_visual_module` 直接声明 FreeType、PNG、WebP、原生 GL 等依赖，源码和目标配置均移除了
+Cocos 的直接引用。内置字体通过 `environ/PackagedAsset.h` 同步访问宿主资源。
+Cocos 适配继续使用原有搜索路径，字体枚举在回调内借用字节，后续字体读取复制到独立内存流。
+PVRv3 加载继续使用引擎已有的文件头，CPU 的 PVRTC 解码通过宿主调用原有解码器。
+TJS 的虚拟屏幕继续报告 2048×2048，桌面原点为 (0, 0)。
+
+软件半行纹理使用独立 xxHash 的 `XXH32`，原输入字节范围、种子及去重行为保持一致。
+Cocos 自带的旧头文件现在安装到自己的子目录，独立 xxHash 的 BSD 许可随应用资源打包。
+
+运行验证与构建产物见[实施记录](../../.agents/notes/implemented/simplification/2026-11-21-visual-build-boundary.md)。
