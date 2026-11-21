@@ -43,6 +43,11 @@
           ]
         },
         "ffmpeg",
+        "freetype",
+        {
+          "name": "glew",
+          "platform": "linux | windows"
+        },
         "glm",
         "jxrlib",
         "libarchive",
@@ -52,10 +57,7 @@
           "name": "libogg",
           "platform": "android"
         },
-        {
-          "name": "libpng",
-          "platform": "!linux"
-        },
+        "libpng",
         "libvorbis",
         "libwebp",
         "lz4",
@@ -64,6 +66,10 @@
           "platform": "android"
         },
         "openal-soft",
+        {
+          "name": "opengl",
+          "platform": "linux"
+        },
         {
           "name": "opus",
           "platform": "android"
@@ -79,6 +85,7 @@
           "host": true
         },
         "zstd",
+        "xxhash",
         {
           "name": "dirent",
           "platform": "windows"

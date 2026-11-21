@@ -1,4 +1,3 @@
-#include <cocos/base/pvr.h>
 #include "tjsCommHead.h"
 #include "GraphicsLoaderIntf.h"
 #include "tjsDictionary.h"

@@ -30,7 +30,9 @@ extern "C" {
 };
 #include "imageops/ImageOps.h"
 #include "RenderHost.h"
-#include "xxhash/xxhash.h"
+// Keep this implementation local while Cocos still links its bundled xxHash.
+#define XXH_INLINE_ALL
+#include <xxhash.h>
 #include "tjsHashSearch.h"
 #include "EventIntf.h"
 #include "lz4.h"

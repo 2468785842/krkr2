@@ -65,6 +65,13 @@ def check(root):
             content = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
             if re.search(r'#\s*include\s*[<"]opencv|\bcv::', content):
                 errors.append(f'{source.relative_to(root)}: 生产代码不允许依赖 OpenCV')
+            if relative == 'visual' and re.search(
+                    r'\bcocos2d\b|#\s*include\s*[<"](?:cocos/|(?:[^">]*/)?(?:CC[A-Z]|ccGL))',
+                    content):
+                errors.append(f'{source.relative_to(root)}: visual 应通过宿主接口访问 Cocos')
+    visual_cmake = (root / 'cpp/core/visual/CMakeLists.txt').read_text(encoding='utf-8')
+    if re.search(r'\bcocos2dx\b', re.sub(r'#[^\n]*', '', visual_cmake), re.I):
+        errors.append('visual/CMakeLists.txt: visual 不得直接链接或查找 Cocos')
     # Generic window consumers must not import the Cocos implementation header.
     host = root / 'cpp/core/environ/cocos2d/MainScene.cpp'
     if re.search(r'^\s*tjs_uint32\s+TVPGetCurrentShiftKeyState\s*\(', host.read_text(encoding='utf-8'), re.M):
@@ -74,16 +81,16 @@ def check(root):
                      'base/impl/SystemImpl.cpp', 'environ/HostLifecycle.h',
                      'environ/RenderUtils.h', 'event/PostUpdateEvent.h',
                      'visual/RenderManager.h', 'visual/TexturePresentation.h', 'visual/GLHost.h', 'visual/RenderSettings.h', 'visual/RenderHost.h', 'visual/RenderCapabilities.h',
-                     'environ/FrameCapture.h'):
+                     'environ/FrameCapture.h', 'environ/PackagedAsset.h'):
         source = root / 'cpp/core' / relative
         active = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
         if re.search(r'#\s*include\s*[<"](?:[^">]*/)?TVPWindow\.h[">]', active):
             errors.append(f'{source.relative_to(root)}: 不得包含 Cocos 窗口实现头')
-        if relative in ('visual/WindowLayer.h', 'visual/RenderManager.h', 'visual/TexturePresentation.h', 'visual/GLHost.h', 'visual/RenderSettings.h', 'visual/RenderHost.h', 'visual/RenderCapabilities.h', 'environ/FrameCapture.h') and re.search(r'\bcocos2d\b|cocos[-/]|ui/Cocos', active, re.I):
+        if relative in ('visual/WindowLayer.h', 'visual/RenderManager.h', 'visual/TexturePresentation.h', 'visual/GLHost.h', 'visual/RenderSettings.h', 'visual/RenderHost.h', 'visual/RenderCapabilities.h', 'environ/FrameCapture.h', 'environ/PackagedAsset.h') and re.search(r'\bcocos2d\b|cocos[-/]|ui/Cocos', active, re.I):
             errors.append(f'{source.relative_to(root)}: 通用窗口/呈现接口不得暴露 Cocos 类型')
         if relative in ('environ/HostLifecycle.h', 'environ/RenderUtils.h',
                         'event/PostUpdateEvent.h', 'visual/TexturePresentation.h', 'visual/GLHost.h', 'visual/RenderSettings.h', 'visual/RenderHost.h', 'visual/RenderCapabilities.h',
-                        'environ/FrameCapture.h'):
+                        'environ/FrameCapture.h', 'environ/PackagedAsset.h'):
             if re.search(r'\bcocos2d\b|cocos[-/]|\btjs\w*', active, re.I):
                 errors.append(f'{source.relative_to(root)}: 宿主通知与帧入口不得暴露 Cocos/TJS 类型')
     software = root / 'cpp/core/visual/RenderManager.cpp'
