@@ -147,6 +147,11 @@ vcpkg_cmake_configure(
 
 vcpkg_cmake_install()
 
+# The bundled xxHash must not claim the standalone port's public header path.
+file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/include/cocos/bundled-xxhash")
+file(RENAME "${CURRENT_PACKAGES_DIR}/include/xxhash.h"
+     "${CURRENT_PACKAGES_DIR}/include/cocos/bundled-xxhash/xxhash.h")
+
 vcpkg_copy_pdbs()
 
 vcpkg_cmake_config_fixup()
