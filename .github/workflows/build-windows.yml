@@ -162,8 +162,10 @@ jobs:
           $text = $LASTEXITCODE
           python tools/game-smoke/imageops_repro.py "$probe/runtime/krkr2.exe" "$probe/imageops" --capture --profiles
           $imageops = $LASTEXITCODE
+          python tools/game-smoke/interaction_repro.py "$probe/runtime/krkr2.exe" "$probe/modal-interaction" --rounds 1 --seconds 90 --skip-native-dialog
+          $modal = $LASTEXITCODE
           if ($imageops -ne 0) { exit $imageops }
-          if ($single -ne 0 -or $multiple -ne 0 -or $focus -ne 0 -or $minimize -ne 0 -or $text -ne 0) { exit 1 }
+          if ($single -ne 0 -or $multiple -ne 0 -or $focus -ne 0 -or $minimize -ne 0 -or $text -ne 0 -or $modal -ne 0) { exit 1 }
 
       - name: Upload small pointer reports and screenshots
         if: always() && inputs.pointer_contracts
@@ -178,6 +180,7 @@ jobs:
             out/windows/pointer-contracts/native-minimize/**
             out/windows/pointer-contracts/native-text/**
             out/windows/pointer-contracts/imageops/**
+            out/windows/pointer-contracts/modal-interaction/**
             !out/windows/pointer-contracts/*/evidence/**
           if-no-files-found: warn
 

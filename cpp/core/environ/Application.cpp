@@ -10,6 +10,7 @@
 
 #include "Application.h"
 #include "HostLifecycle.h"
+#include "HostFrame.h"
 #include "SysInitIntf.h"
 #include "SysInitImpl.h"
 #include "DebugIntf.h"
@@ -505,7 +506,7 @@ void tTVPApplication::Run() {
             TVPExitApplication(TVPTerminateCode);
         }
         //	TVPBreathe();
-        ProcessMessages();
+        TVPProcessEngineMessages();
         if(TVPSystemControl)
             TVPSystemControl->SystemWatchTimerTimer();
         //		TVPDeliverWindowUpdateEvents(); // from
@@ -552,11 +553,6 @@ void tTVPApplication::Run() {
         ShowException((const tjs_char *)TVPUnknownError);
 #endif
     }
-}
-
-void tTVPApplication::ProcessMessages() {
-    mainThreadMessages.Dispatch();
-    TVPTimer::ProgressAllTimer();
 }
 
 #if 0

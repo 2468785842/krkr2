@@ -95,7 +95,6 @@ public:
     ~tTVPApplication();
     bool StartApplication(ttstr path);
     void Run();
-    void ProcessMessages();
 
     static void PrintConsole(const ttstr &mes, bool important = false);
     bool IsAttachConsole() { return is_attach_console_; }

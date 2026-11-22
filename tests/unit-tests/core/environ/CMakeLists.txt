@@ -18,7 +18,8 @@ catch_discover_tests(input_state_tests)
 
 # Compile the backend-independent hook source without the legacy event host.
 set(FRAME_HOOK_SOURCES PostUpdateTest.cpp PostUpdateRegistration.cpp
-    ${CMAKE_SOURCE_DIR}/cpp/core/event/PostUpdateEvent.cpp)
+    ${CMAKE_SOURCE_DIR}/cpp/core/event/PostUpdateEvent.cpp
+    ${CMAKE_SOURCE_DIR}/cpp/core/event/FrameStep.cpp)
 add_executable(frame_hook_tests ${FRAME_HOOK_SOURCES})
 target_include_directories(frame_hook_tests PRIVATE ${CMAKE_SOURCE_DIR}/cpp/core/event)
 target_link_libraries(frame_hook_tests PRIVATE Catch2::Catch2WithMain)

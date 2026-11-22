@@ -20,7 +20,7 @@
 #include "WindowImpl.h"
 // #include <mmsystem.h>
 
-#include "Application.h"
+#include "HostFrame.h"
 #include "NativeEventQueue.h"
 #include "UserEvent.h"
 #include "impl/ThreadImpl.h"
@@ -69,7 +69,7 @@ void TVPBreathe() {
     TVPEventDisabled = true; // not to call TVP events...
     TVPBreathing = true;
     try {
-        Application->ProcessMessages(); // do Windows message pumping
+        TVPProcessEngineMessages();
     } catch(...) {
         TVPBreathing = false;
         TVPEventDisabled = false;

@@ -29,7 +29,7 @@
 #include "ui/csd/CsdUIFactory.h"
 
 #include "CCKeyCodeConv.h"
-#include "RenderUtils.h"
+#include "HostFrame.h"
 #include "TVPLog.h"
 
 USING_NS_CC;
@@ -745,12 +745,7 @@ void TVPOnError();
 tjs_uint TVPGetGraphicCacheTotalBytes();
 
 void TVPMainScene::update(float delta) {
-    ::Application->Run();
-    //	if (TVPWindowLayer::_currentWindowLayer)
-    // TVPWindowLayer::_currentWindowLayer->UpdateOverlay();
-    iTVPTexture2D::RecycleProcess();
-    //_ResotreGLStatues();
-    TVPInvokePostUpdateEvent();
+    TVPUpdateEngineFrame();
     if(_fpsLabel) {
         unsigned int drawCount;
         uint64_t vmemsize;

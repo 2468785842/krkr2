@@ -18,7 +18,7 @@
 #include "cocos2d/CCKeyCodeConv.h"
 #include "ui/ConsoleWindow.h"
 #include "Platform.h"
-#include "RenderUtils.h"
+#include "HostFrame.h"
 #include "RenderManager.h"
 #include "SystemImpl.h"
 #include "vkdefine.h"

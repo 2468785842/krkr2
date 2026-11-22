@@ -79,7 +79,7 @@ def check(root):
     for relative in ('visual/impl/WindowImpl.cpp', 'visual/impl/BasicDrawDevice.cpp',
                      'movie/ffmpeg/KRMoviePlayer.cpp', 'visual/WindowLayer.h',
                      'base/impl/SystemImpl.cpp', 'environ/HostLifecycle.h',
-                     'environ/RenderUtils.h', 'event/PostUpdateEvent.h',
+                     'environ/HostFrame.h', 'event/FrameStep.h', 'event/PostUpdateEvent.h',
                      'visual/RenderManager.h', 'visual/TexturePresentation.h', 'visual/GLHost.h', 'visual/RenderSettings.h', 'visual/RenderHost.h', 'visual/RenderCapabilities.h',
                      'environ/FrameCapture.h', 'environ/PackagedAsset.h'):
         source = root / 'cpp/core' / relative
@@ -88,7 +88,7 @@ def check(root):
             errors.append(f'{source.relative_to(root)}: 不得包含 Cocos 窗口实现头')
         if relative in ('visual/WindowLayer.h', 'visual/RenderManager.h', 'visual/TexturePresentation.h', 'visual/GLHost.h', 'visual/RenderSettings.h', 'visual/RenderHost.h', 'visual/RenderCapabilities.h', 'environ/FrameCapture.h', 'environ/PackagedAsset.h') and re.search(r'\bcocos2d\b|cocos[-/]|ui/Cocos', active, re.I):
             errors.append(f'{source.relative_to(root)}: 通用窗口/呈现接口不得暴露 Cocos 类型')
-        if relative in ('environ/HostLifecycle.h', 'environ/RenderUtils.h',
+        if relative in ('environ/HostLifecycle.h', 'environ/HostFrame.h', 'event/FrameStep.h',
                         'event/PostUpdateEvent.h', 'visual/TexturePresentation.h', 'visual/GLHost.h', 'visual/RenderSettings.h', 'visual/RenderHost.h', 'visual/RenderCapabilities.h',
                         'environ/FrameCapture.h', 'environ/PackagedAsset.h'):
             if re.search(r'\bcocos2d\b|cocos[-/]|\btjs\w*', active, re.I):
@@ -116,7 +116,7 @@ def check(root):
     for relative in ('visual/RenderManager.cpp', 'visual/ogl/RenderManager_ogl.cpp'):
         source = root / 'cpp/core' / relative
         active = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
-        if re.search(r'#\s*include\s*[<"](?:ConfigManager/|(?:[^">]*/)?(?:Platform|Application|WindowImpl|RenderUtils)\.h)', active):
+        if re.search(r'#\s*include\s*[<"](?:ConfigManager/|(?:[^">]*/)?(?:Platform|Application|WindowImpl|HostFrame)\.h)', active):
             errors.append(f'{relative}: 渲染器应通过 RenderHost 访问配置和宿主服务')
         if re.search(r'\b(?:IndividualConfigManager|LocaleConfigManager|TVPShowSimpleMessageBox|TVPCheckMemory)\b', active):
             errors.append(f'{relative}: 不得直接访问宿主配置或平台服务')
