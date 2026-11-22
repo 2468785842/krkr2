@@ -17,16 +17,45 @@ class HostWindow extends Window {
             scene.colorRect(0, 0, 160, 120, 0xd03020, 255);
             record("key-down:" + key + ":" + string System.getKeyState(key, true));
         }
+        if(key == 113) {
+            imeMode = imClose;
+            record("ime:closed");
+        }
+        if(key == 114) {
+            imeMode = imOpen;
+            record("ime:open");
+        }
     }
     function onKeyUp(key, shift) {
         if(key == 65)
             record("key-up:" + key + ":" + string System.getKeyState(key, true));
     }
+    function onKeyPress(key) { record("text:" + string (#key)); }
+    function onResize() { record("resize:" + width + ":" + height); }
+    function onActivate() { record("window:active"); }
+    function onDeactivate() { record("window:inactive"); }
+    function onMouseMove(x, y, shift) {
+        if(x < 0 || x >= 320 || y < 0 || y >= 240)
+            record("drag-outside:" + x + ":" + y);
+    }
+    function onClick(x, y) { record("click:" + x + ":" + y); }
+    function onDoubleClick(x, y) { record("double-click:" + x + ":" + y); }
+    function onMouseWheel(shift, delta, x, y) {
+        record("wheel:" + delta + ":" + x + ":" + y);
+    }
     function onMouseDown(x, y, button, shift) {
+        if(button != mbLeft) {
+            record("button-down:" + button + ":" + x + ":" + y);
+            return;
+        }
         scene.colorRect(160, 0, 160, 120, 0x30c050, 255);
         record("mouse-down:" + x + ":" + y + ":" + string System.getKeyState(1, true));
     }
     function onMouseUp(x, y, button, shift) {
+        if(button != mbLeft) {
+            record("button-up:" + button + ":" + x + ":" + y);
+            return;
+        }
         record("mouse-up:" + x + ":" + y + ":" + string System.getKeyState(1, true));
     }
     function onCloseQuery() {
@@ -44,4 +73,7 @@ scene.setSize(320, 240);
 scene.type = ltOpaque;
 scene.colorRect(0, 0, 320, 240, 0x204060, 255);
 scene.visible = true;
+win.imeMode = imOpen;
+System.onActivate = function() { record("system:active"); };
+System.onDeactivate = function() { record("system:inactive"); };
 record("ready");

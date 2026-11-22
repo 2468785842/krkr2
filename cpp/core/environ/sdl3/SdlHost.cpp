@@ -11,21 +11,29 @@
 #include "DialogBackend.h"
 #include "EventIntf.h"
 #include "HostFrame.h"
+#include "HostLifecycle.h"
 #include "InputModifiers.h"
 #include "InputState.h"
 #include "MsgIntf.h"
+#include "PointerCoordinates.h"
 #include "RenderManager.h"
 #include "SysInitIntf.h"
+#include "TextInput.h"
 #include "TVPLog.h"
 #include "WindowImpl.h"
 #include "WindowLayer.h"
+#include "tvpfontstruc.h"
 
 #include <algorithm>
+#include <array>
+#include <cmath>
 #include <cstring>
 #include <cstdio>
 #include <filesystem>
 #include <limits>
 #include <memory>
+#include <numeric>
+#include <optional>
 #include <stdexcept>
 #include <thread>
 
@@ -62,6 +70,12 @@ namespace krkr::sdl {
                 return 'A' + (key - SDLK_A);
             if(key >= SDLK_0 && key <= SDLK_9)
                 return '0' + (key - SDLK_0);
+            if(key >= SDLK_F1 && key <= SDLK_F12)
+                return 0x70 + key - SDLK_F1;
+            if(key >= SDLK_F13 && key <= SDLK_F24)
+                return 0x7c + key - SDLK_F13;
+            if(key >= SDLK_KP_1 && key <= SDLK_KP_9)
+                return 0x61 + key - SDLK_KP_1;
             switch(key) {
                 case SDLK_LSHIFT:
                 case SDLK_RSHIFT:
@@ -77,6 +91,7 @@ namespace krkr::sdl {
                 case SDLK_TAB:
                     return 0x09;
                 case SDLK_RETURN:
+                case SDLK_KP_ENTER:
                     return 0x0d;
                 case SDLK_ESCAPE:
                     return 0x1b;
@@ -90,9 +105,85 @@ namespace krkr::sdl {
                     return 0x27;
                 case SDLK_DOWN:
                     return 0x28;
+                case SDLK_PAUSE:
+                    return 0x13;
+                case SDLK_CAPSLOCK:
+                    return 0x14;
+                case SDLK_PAGEUP:
+                    return 0x21;
+                case SDLK_PAGEDOWN:
+                    return 0x22;
+                case SDLK_END:
+                    return 0x23;
+                case SDLK_HOME:
+                    return 0x24;
+                case SDLK_PRINTSCREEN:
+                    return 0x2c;
+                case SDLK_INSERT:
+                    return 0x2d;
+                case SDLK_DELETE:
+                    return 0x2e;
+                case SDLK_LGUI:
+                    return 0x5b;
+                case SDLK_RGUI:
+                    return 0x5c;
+                case SDLK_APPLICATION:
+                case SDLK_MENU:
+                    return 0x5d;
+                case SDLK_KP_0:
+                    return 0x60;
+                case SDLK_KP_MULTIPLY:
+                    return 0x6a;
+                case SDLK_KP_PLUS:
+                    return 0x6b;
+                case SDLK_KP_MINUS:
+                    return 0x6d;
+                case SDLK_KP_PERIOD:
+                    return 0x6e;
+                case SDLK_KP_DIVIDE:
+                    return 0x6f;
+                case SDLK_NUMLOCKCLEAR:
+                    return 0x90;
+                case SDLK_SCROLLLOCK:
+                    return 0x91;
+                case SDLK_SEMICOLON:
+                    return 0xba;
+                case SDLK_EQUALS:
+                    return 0xbb;
+                case SDLK_COMMA:
+                    return 0xbc;
+                case SDLK_MINUS:
+                    return 0xbd;
+                case SDLK_PERIOD:
+                    return 0xbe;
+                case SDLK_SLASH:
+                    return 0xbf;
+                case SDLK_GRAVE:
+                    return 0xc0;
+                case SDLK_LEFTBRACKET:
+                    return 0xdb;
+                case SDLK_BACKSLASH:
+                    return 0xdc;
+                case SDLK_RIGHTBRACKET:
+                    return 0xdd;
+                case SDLK_APOSTROPHE:
+                    return 0xde;
                 default:
                     return 0;
             }
+        }
+
+        constexpr std::array<unsigned, 5> buttonKeys{ input::key::leftMouse,
+                                                      input::key::rightMouse,
+                                                      input::key::middleMouse,
+                                                      0x05, 0x06 };
+
+        std::optional<tTVPMouseButton> mouseButton(unsigned key) {
+            const auto it =
+                std::find(buttonKeys.begin(), buttonKeys.end(), key);
+            if(it == buttonKeys.end())
+                return std::nullopt;
+            return static_cast<tTVPMouseButton>(it - buttonKeys.begin());
         }
 
         class Window final : public iWindowLayer {
@@ -112,15 +203,21 @@ namespace krkr::sdl {
             int layerWidth = 640, layerHeight = 480;
             unsigned textureWidth = 0, textureHeight = 0;
             int mouseX = 0, mouseY = 0;
-            bool visible = false, focused = false;
+            bool visible = false, focused = false, minimized = false;
+            bool pointerInside = false;
             bool dirty = true, closePending = false;
-            tTVPImeMode defaultIme = imDisable;
+            std::array<tjs_uint16, SDL_SCANCODE_COUNT> heldKeys{};
+            std::optional<SDL_FPoint> leftPress;
+            float wheelRemainder = 0;
+            tTVPImeMode defaultIme = imDisable, imeMode = imDisable;
+            std::optional<SDL_Rect> attention;
 
         public:
             explicit Window(tTJSNI_Window *owner) : native(owner) {
                 window.reset(
                     SDL_CreateWindow(caption.c_str(), width, height,
-                                     SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN));
+                                     SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN |
+                                         SDL_WINDOW_HIGH_PIXEL_DENSITY));
                 check(window != nullptr);
                 renderer.reset(SDL_CreateRenderer(window.get(), "software"));
                 check(renderer != nullptr);
@@ -155,10 +252,25 @@ namespace krkr::sdl {
                 SDL_WarpMouseInWindow(window.get(), windowX, windowY);
             }
             void SetHintText(const ttstr &) override {}
-            void SetAttentionPoint(tjs_int, tjs_int,
-                                   const tTVPFont *) override {}
-            void ZoomRectangle(tjs_int &, tjs_int &, tjs_int &,
-                               tjs_int &) override {}
+            void SetAttentionPoint(tjs_int x, tjs_int y,
+                                   const tTVPFont *font) override {
+                attention =
+                    SDL_Rect{ x, y, 1, font ? std::max(1, font->Height) : 1 };
+                UpdateAttentionPoint();
+            }
+            void DisableAttentionPoint() override {
+                attention.reset();
+                UpdateAttentionPoint();
+            }
+            void ZoomRectangle(tjs_int &left, tjs_int &top, tjs_int &right,
+                               tjs_int &bottom) override {
+                const auto first = WindowPoint(left, top);
+                const auto last = WindowPoint(right, bottom);
+                left = first.x;
+                top = first.y;
+                right = last.x;
+                bottom = last.y;
+            }
             void BringToFront() override {
                 check(SDL_RaiseWindow(window.get()));
             }
@@ -172,13 +284,7 @@ namespace krkr::sdl {
                     return;
                 check(value ? SDL_ShowWindow(window.get())
                             : SDL_HideWindow(window.get()));
-                visible = value;
-                if(visible) {
-                    RequestRepaint();
-                } else {
-                    ReleaseInput();
-                }
-                dirty = true;
+                UpdateVisibility(value);
             }
             const char *GetCaption() override { return caption.c_str(); }
             void SetCaption(const std::string &value) override {
@@ -200,11 +306,23 @@ namespace krkr::sdl {
             tjs_int GetHeight() const override { return height; }
             void GetWinSize(tjs_int &w, tjs_int &h) override { GetSize(w, h); }
             void SetZoom(tjs_int numer, tjs_int denom) override {
-                if(numer <= 0 || numer != denom)
+                if(numer <= 0 || denom <= 0)
                     TVPThrowExceptionMessage(
-                        TJS_W("SDL3 supports only 1:1 script zoom"));
-                ZoomNumer = numer;
-                ZoomDenom = denom;
+                        TJS_W("Window zoom must be positive"));
+                const auto scaledWidth =
+                    static_cast<std::int64_t>(layerWidth) * numer / denom;
+                const auto scaledHeight =
+                    static_cast<std::int64_t>(layerHeight) * numer / denom;
+                if(scaledWidth < 1 || scaledHeight < 1 ||
+                   scaledWidth > std::numeric_limits<int>::max() ||
+                   scaledHeight > std::numeric_limits<int>::max())
+                    TVPThrowExceptionMessage(
+                        TJS_W("Window zoom is out of range"));
+                SetSize(static_cast<int>(scaledWidth),
+                        static_cast<int>(scaledHeight));
+                const auto gcd = std::gcd(numer, denom);
+                ZoomNumer = numer / gcd;
+                ZoomDenom = denom / gcd;
             }
             void UpdateDrawBuffer(iTVPTexture2D *source) override {
                 if(!source)
@@ -256,7 +374,7 @@ namespace krkr::sdl {
                 window.reset();
             }
             bool GetWindowActive() override {
-                return GetFormEnabled() && focused;
+                return GetFormEnabled() && focused && !minimized;
             }
             void Close() override {
                 if(!GetFormEnabled() || closePending)
@@ -287,11 +405,18 @@ namespace krkr::sdl {
             tTVPImeMode GetDefaultImeMode() const override {
                 return defaultIme;
             }
-            void SetDefaultImeMode(tTVPImeMode mode, bool) override {
+            void SetDefaultImeMode(tTVPImeMode mode, bool reset) override {
                 defaultIme = mode;
+                if(reset)
+                    ResetImeMode();
             }
-            void SetImeMode(tTVPImeMode) override {}
-            void ResetImeMode() override {}
+            void SetImeMode(tTVPImeMode mode) override {
+                if(mode == imDontCare)
+                    return;
+                imeMode = mode;
+                UpdateTextInput();
+            }
+            void ResetImeMode() override { SetImeMode(defaultIme); }
             void UpdateWindow(tTVPUpdateType) override {
                 RequestRepaint();
                 TVPDeliverWindowUpdateEvents();
@@ -313,7 +438,7 @@ namespace krkr::sdl {
             void TickBeat() override {}
 
             void Present() {
-                if(!Live() || !visible || !dirty)
+                if(!Live() || !visible || minimized || !dirty)
                     return;
                 check(SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, 255));
                 check(SDL_RenderClear(renderer.get()));
@@ -344,11 +469,26 @@ namespace krkr::sdl {
                         break;
                     case SDL_EVENT_WINDOW_FOCUS_GAINED:
                     case SDL_EVENT_WINDOW_FOCUS_LOST:
+                        if(event.window.windowID == id)
+                            SetFocused(event.type ==
+                                       SDL_EVENT_WINDOW_FOCUS_GAINED);
+                        break;
+                    case SDL_EVENT_WINDOW_SHOWN:
+                    case SDL_EVENT_WINDOW_HIDDEN:
+                        if(event.window.windowID == id)
+                            UpdateVisibility(
+                                !(SDL_GetWindowFlags(window.get()) &
+                                  SDL_WINDOW_HIDDEN));
+                        break;
+                    case SDL_EVENT_WINDOW_MINIMIZED:
+                    case SDL_EVENT_WINDOW_MAXIMIZED:
+                    case SDL_EVENT_WINDOW_RESTORED:
                         if(event.window.windowID == id) {
-                            focused =
-                                event.type == SDL_EVENT_WINDOW_FOCUS_GAINED;
-                            if(!focused)
-                                ReleaseInput();
+                            minimized =
+                                event.type == SDL_EVENT_WINDOW_MINIMIZED;
+                            SetFocused(SDL_GetWindowFlags(window.get()) &
+                                       SDL_WINDOW_INPUT_FOCUS);
+                            dirty = true;
                         }
                         break;
                     case SDL_EVENT_WINDOW_RESIZED:
@@ -356,6 +496,7 @@ namespace krkr::sdl {
                             width = event.window.data1;
                             height = event.window.data2;
                             dirty = true;
+                            UpdateAttentionPoint();
                             TVPPostInputEvent(
                                 new tTVPOnResizeInputEvent(native));
                         }
@@ -366,6 +507,7 @@ namespace krkr::sdl {
                             if(!texture)
                                 RequestRepaint();
                             dirty = true;
+                            UpdateAttentionPoint();
                         }
                         break;
                     case SDL_EVENT_KEY_DOWN:
@@ -373,13 +515,29 @@ namespace krkr::sdl {
                         if(event.key.windowID == id && GetWindowActive())
                             HandleKey(event.key);
                         break;
+                    case SDL_EVENT_TEXT_INPUT:
+                        if(event.text.windowID == id && GetWindowActive() &&
+                           SDL_TextInputActive(window.get())) {
+                            if(auto units =
+                                   input::decodeTextInput(event.text.text))
+                                for(auto unit : *units)
+                                    OnKeyPress(unit, 0, false, false);
+                        }
+                        break;
+                    case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+                        if(event.window.windowID == id && !PointerHeld())
+                            UpdatePointerInside(false);
+                        break;
                     case SDL_EVENT_MOUSE_MOTION:
                         if(event.motion.windowID == id && GetWindowActive()) {
-                            SetPointer(event.motion.x, event.motion.y);
-                            TVPPostInputEvent(
-                                new tTVPOnMouseMoveInputEvent(
-                                    native, mouseX, mouseY, ShiftFlags()),
-                                TVP_EPT_DISCARDABLE);
+                            const bool inside =
+                                SetPointer(event.motion.x, event.motion.y);
+                            TrackLeftDrag(event.motion.x, event.motion.y);
+                            if(inside || PointerHeld())
+                                TVPPostInputEvent(
+                                    new tTVPOnMouseMoveInputEvent(
+                                        native, mouseX, mouseY, ShiftFlags()),
+                                    TVP_EPT_DISCARDABLE);
                         }
                         break;
                     case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -387,10 +545,76 @@ namespace krkr::sdl {
                         if(event.button.windowID == id && GetWindowActive())
                             HandleButton(event.button);
                         break;
+                    case SDL_EVENT_MOUSE_WHEEL:
+                        if(event.wheel.windowID == id && GetWindowActive())
+                            HandleWheel(event.wheel);
+                        break;
                 }
             }
 
         private:
+            void UpdateVisibility(bool shown) {
+                if(visible == shown)
+                    return;
+                visible = shown;
+                if(visible)
+                    RequestRepaint();
+                SetFocused(SDL_GetWindowFlags(window.get()) &
+                           SDL_WINDOW_INPUT_FOCUS);
+                dirty = true;
+            }
+
+            void SetFocused(bool active) {
+                active = active && visible && !minimized;
+                if(focused == active)
+                    return;
+                focused = active;
+                if(!active)
+                    ReleaseInput();
+                UpdateTextInput();
+                TVPPostInputEvent(
+                    new tTVPOnWindowActivateEvent(native, active));
+                if(active)
+                    TVPOnHostForeground();
+                else
+                    TVPOnHostBackground();
+            }
+
+            input::PointerPixel WindowPoint(float x, float y) const {
+                input::PointerPosition point;
+                check(SDL_RenderCoordinatesToWindow(renderer.get(), x, y,
+                                                    &point.x, &point.y));
+                return input::pointerPixel(point);
+            }
+
+            void UpdateAttentionPoint() {
+                if(!SDL_TextInputActive(window.get()))
+                    return;
+                if(!attention) {
+                    check(SDL_SetTextInputArea(window.get(), nullptr, 0));
+                    return;
+                }
+                const auto &point = *attention;
+                const auto start = WindowPoint(point.x, point.y);
+                const auto end = WindowPoint(point.x + float(point.w),
+                                             point.y + float(point.h));
+                const SDL_Rect area{ start.x, start.y,
+                                     std::max(1, end.x - start.x),
+                                     std::max(1, end.y - start.y) };
+                check(SDL_SetTextInputArea(window.get(), &area, 0));
+            }
+
+            void UpdateTextInput() {
+                const bool requested = GetWindowActive() &&
+                    imeMode != imDisable && imeMode != imClose;
+                if(requested != SDL_TextInputActive(window.get())) {
+                    check(requested ? SDL_StartTextInput(window.get())
+                                    : SDL_StopTextInput(window.get()));
+                }
+                if(requested)
+                    UpdateAttentionPoint();
+            }
+
             void RequestRepaint() {
                 if(native) {
                     native->NotifyWindowExposureToLayer(
@@ -402,54 +626,157 @@ namespace krkr::sdl {
             static unsigned ShiftFlags() {
                 return input::legacyShiftFlags(input::sharedState());
             }
+            static bool PointerHeld() {
+                const auto &state = input::sharedState();
+                return std::any_of(
+                    buttonKeys.begin(), buttonKeys.end(),
+                    [&](unsigned key) { return state.isDown(key); });
+            }
+            void UpdatePointerInside(bool inside) {
+                if(pointerInside == inside)
+                    return;
+                pointerInside = inside;
+                if(inside) {
+                    TVPPostInputEvent(new tTVPOnMouseEnterInputEvent(native));
+                } else {
+                    TVPPostInputEvent(new tTVPOnMouseLeaveInputEvent(native));
+                    TVPPostInputEvent(
+                        new tTVPOnMouseOutOfWindowInputEvent(native));
+                }
+            }
             bool SetPointer(float x, float y) {
-                float logicalX, logicalY;
-                check(SDL_RenderCoordinatesFromWindow(renderer.get(), x, y,
-                                                      &logicalX, &logicalY));
-                mouseX = static_cast<int>(logicalX);
-                mouseY = static_cast<int>(logicalY);
-                return logicalX >= 0 && logicalY >= 0 &&
-                    logicalX < layerWidth && logicalY < layerHeight;
+                input::PointerPosition position;
+                check(SDL_RenderCoordinatesFromWindow(
+                    renderer.get(), x, y, &position.x, &position.y));
+                const auto pixel = input::pointerPixel(position);
+                mouseX = pixel.x;
+                mouseY = pixel.y;
+                const bool inside = position.x >= 0 && position.y >= 0 &&
+                    position.x < layerWidth && position.y < layerHeight;
+                UpdatePointerInside(inside);
+                return inside;
+            }
+            void TrackLeftDrag(float x, float y) {
+                // Measure in native window points, independent of the layer
+                // scale.
+                if(leftPress &&
+                   (std::abs(x - leftPress->x) > 4 ||
+                    std::abs(y - leftPress->y) > 4))
+                    leftPress.reset();
             }
             void HandleKey(const SDL_KeyboardEvent &event) {
-                const auto key = virtualKey(event);
-                if(!key)
+                const auto scancode = static_cast<unsigned>(event.scancode);
+                if(!scancode || scancode >= heldKeys.size())
                     return;
+                auto &key = heldKeys[scancode];
                 auto &state = input::sharedState();
                 if(event.down) {
-                    state.press(key);
-                    InternalKeyDown(
-                        key, ShiftFlags() | (event.repeat ? ssRepeat : 0));
-                } else if(state.release(key)) {
-                    OnKeyUp(key, ShiftFlags());
+                    if(event.repeat) {
+                        if(key)
+                            InternalKeyDown(key, ShiftFlags() | ssRepeat);
+                        return;
+                    }
+                    if(key)
+                        return;
+                    key = virtualKey(event);
+                    if(key && !state.isDown(key)) {
+                        state.press(key);
+                        InternalKeyDown(key, ShiftFlags());
+                    }
+                } else if(key) {
+                    const auto released = key;
+                    key = 0;
+                    if(std::find(heldKeys.begin(), heldKeys.end(), released) ==
+                           heldKeys.end() &&
+                       state.release(released))
+                        OnKeyUp(released, ShiftFlags());
                 }
             }
             void HandleButton(const SDL_MouseButtonEvent &event) {
-                if(event.button != SDL_BUTTON_LEFT)
+                unsigned key;
+                switch(event.button) {
+                    case SDL_BUTTON_LEFT:
+                        key = buttonKeys[mbLeft];
+                        break;
+                    case SDL_BUTTON_RIGHT:
+                        key = buttonKeys[mbRight];
+                        break;
+                    case SDL_BUTTON_MIDDLE:
+                        key = buttonKeys[mbMiddle];
+                        break;
+                    case SDL_BUTTON_X1:
+                        key = buttonKeys[mbX1];
+                        break;
+                    case SDL_BUTTON_X2:
+                        key = buttonKeys[mbX2];
+                        break;
+                    default:
+                        return;
+                }
+                const auto button = *mouseButton(key);
+                auto &state = input::sharedState();
+                if(event.down == state.isDown(key))
                     return;
                 const bool inside = SetPointer(event.x, event.y);
-                auto &state = input::sharedState();
                 if(event.down) {
                     if(!inside)
                         return;
-                    state.press(input::key::leftMouse);
+                    state.press(key);
+                    if(button == mbLeft)
+                        leftPress = SDL_FPoint{ event.x, event.y };
                     TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
-                        native, mouseX, mouseY, mbLeft, ShiftFlags()));
-                } else if(state.release(input::key::leftMouse)) {
+                        native, mouseX, mouseY, button,
+                        ShiftFlags() | (event.clicks == 2 ? ssDouble : 0)));
+                } else {
+                    state.release(key);
+                    if(button == mbLeft) {
+                        TrackLeftDrag(event.x, event.y);
+                        if(inside && leftPress) {
+                            if(event.clicks == 2)
+                                TVPPostInputEvent(
+                                    new tTVPOnDoubleClickInputEvent(
+                                        native, mouseX, mouseY));
+                            else
+                                TVPPostInputEvent(new tTVPOnClickInputEvent(
+                                    native, mouseX, mouseY));
+                        }
+                        leftPress.reset();
+                    }
                     TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
-                        native, mouseX, mouseY, mbLeft, ShiftFlags()));
+                        native, mouseX, mouseY, button, ShiftFlags()));
                 }
             }
+            void HandleWheel(const SDL_MouseWheelEvent &event) {
+                if(!SetPointer(event.mouse_x, event.mouse_y) ||
+                   !std::isfinite(event.y))
+                    return;
+                const double direction =
+                    event.direction == SDL_MOUSEWHEEL_FLIPPED ? -1 : 1;
+                const double raw = direction * event.y * 120 + wheelRemainder;
+                const auto delta = static_cast<int>(
+                    std::clamp(raw, double(std::numeric_limits<int>::min()),
+                               double(std::numeric_limits<int>::max())));
+                wheelRemainder = raw - std::trunc(raw);
+                if(delta)
+                    TVPPostInputEvent(new tTVPOnMouseWheelInputEvent(
+                        native, ShiftFlags(), delta, mouseX, mouseY));
+            }
             void ReleaseInput() {
+                heldKeys.fill(0);
+                leftPress.reset();
+                wheelRemainder = 0;
                 for(auto key : input::sharedState().releaseAll()) {
-                    if(key == input::key::leftMouse) {
+                    if(const auto button = mouseButton(key)) {
                         TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
-                            native, mouseX, mouseY, mbLeft, ShiftFlags(),
+                            native, mouseX, mouseY, *button, ShiftFlags(),
                             true));
                     } else {
-                        OnKeyUp(key, ShiftFlags());
+                        TVPPostInputEvent(new tTVPOnKeyUpInputEvent(
+                            native, key, ShiftFlags(), true));
                     }
                 }
+                native->PostReleaseCaptureEvent();
+                UpdatePointerInside(false);
             }
         };
 

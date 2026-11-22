@@ -494,8 +494,9 @@ void tTJSNI_BaseWindow::OnKeyDown(tjs_uint key, tjs_uint32 shift) {
         DrawDevice->OnKeyDown(key, shift);
 }
 //---------------------------------------------------------------------------
-void tTJSNI_BaseWindow::OnKeyUp(tjs_uint key, tjs_uint32 shift) {
-    if(!CanDeliverEvents())
+void tTJSNI_BaseWindow::OnKeyUp(tjs_uint key, tjs_uint32 shift,
+                                bool cancellation) {
+    if(!(cancellation ? CanDeliverInputCancellation() : CanDeliverEvents()))
         return;
     if(Owner) {
         tTJSVariant arg[2] = { (tjs_int)key, (tjs_int)shift };

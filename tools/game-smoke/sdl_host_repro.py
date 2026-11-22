@@ -42,6 +42,8 @@ def run(engine, output):
     game.mkdir()
     fixture = game / "startup.tjs"
     shutil.copy2(Path(__file__).with_name("sdl-host") / "startup.tjs", fixture)
+    compose = output / "Compose"
+    compose.write_text('<F12> <c> <n> : "中文𠀀"\n', encoding="utf-8")
     invalid = subprocess.run([str(engine), "--host=sdl3"], cwd=engine.parent,
                              capture_output=True, timeout=5, check=False)
     if invalid.returncode != 2 or b"requires --game PATH" not in invalid.stderr:
@@ -57,10 +59,12 @@ def run(engine, output):
     x11 = X11()
     try:
         with (output / "process.log").open("wb") as log:
-            env = dict(os.environ, SDL_VIDEO_DRIVER="x11", ALSOFT_DRIVERS="null")
+            env = dict(os.environ, SDL_VIDEO_DRIVER="x11", ALSOFT_DRIVERS="null",
+                       LC_ALL="C.UTF-8", SDL_IM_MODULE="none",
+                       XMODIFIERS="@im=none", XCOMPOSEFILE=str(compose))
             process = subprocess.Popen(command, cwd=engine.parent, env=env,
                                        stdout=log, stderr=subprocess.STDOUT)
-            deadline = time.monotonic() + 30
+            deadline = time.monotonic() + 40
 
             def wait(condition, label):
                 while time.monotonic() < deadline:
@@ -72,13 +76,13 @@ def run(engine, output):
                     time.sleep(0.05)
                 raise TimeoutError(label)
 
-            def event(name):
-                wait(lambda: name in read_events(game), name)
+            def event(name, count=1):
+                wait(lambda: read_events(game).count(name) >= count, name)
 
-            def frame(name, expected):
+            def frame(name, expected, points=((80, 60), (240, 60), (80, 180))):
                 def matches():
                     report["pixel_checks"][name] = [
-                        f"{pixel(x11, window, x, y):06x}" for x, y in ((80, 60), (240, 60), (80, 180))
+                        f"{pixel(x11, window, x, y):06x}" for x, y in points
                     ]
                     return report["pixel_checks"][name] == expected
                 wait(matches, f"frame {name}: {expected}")
@@ -103,6 +107,81 @@ def run(engine, output):
                 frame("pointer", ["d03020", "30c050", "204060"])
                 x11.button(False)
                 event("mouse-up:240:60:0")
+                event("click:240:60")
+
+                x11.resize(window, 640, 360)
+                event("resize:640:360")
+                frame("resized-letterbox", ["000000", "d03020", "30c050", "204060", "000000"],
+                      ((20, 90), (200, 90), (440, 90), (200, 270), (620, 90)))
+                downs = sum(line.startswith("mouse-down:") for line in read_events(game))
+                x11.motion(window, 40, 270)
+                x11.button(True)
+                x11.button(False)
+                x11.motion(window, 200, 270)
+                x11.button(True, 3)
+                event("button-down:1:80:180")
+                x11.button(False, 3)
+                event("button-up:1:80:180")
+                assert sum(line.startswith("mouse-down:") for line in read_events(game)) == downs
+                x11.button(True, 4)
+                x11.button(False, 4)
+                event("wheel:120:80:180")
+
+                x11.button(True)
+                event("mouse-down:80:180:1")
+                x11.motion(window, -20, 270)
+                event("drag-outside:-66:180")
+                x11.button(False)
+                event("mouse-up:-66:180:0")
+                assert "click:80:180" not in read_events(game)
+
+                helper = x11.library.XCreateSimpleWindow(x11.display, x11.root,
+                                                         700, 0, 100, 100, 0, 0, 0)
+                x11.library.XMapWindow(x11.display, helper)
+                x11.sync()
+                x11.motion(window, 200, 270)
+                x11.key(True)
+                event("key-down:65:1", 2)
+                x11.button(True)
+                event("mouse-down:80:180:1", 2)
+                active_count = read_events(game).count("window:active")
+                x11.focus(helper)
+                event("key-up:65:0", 2)
+                event("mouse-up:80:180:0")
+                event("window:inactive")
+                event("system:inactive")
+                x11.key(False)
+                x11.button(False)
+                x11.focus(window)
+                event("window:active", active_count + 1)
+                event("system:active")
+                x11.key(True)
+                event("key-down:65:1", 3)
+                x11.key(False)
+                event("key-up:65:0", 3)
+                assert read_events(game).count("mouse-up:80:180:0") == 1
+                assert "click:80:180" not in read_events(game)
+                observed = read_events(game)
+                assert observed.index("mouse-up:80:180:0") < observed.index("window:inactive")
+
+                def tap(keysym):
+                    x11.key(True, keysym)
+                    x11.key(False, keysym)
+
+                tap(0xffbf)  # F2
+                event("ime:closed")
+                tap(ord("c"))
+                tap(0xffc0)  # F3
+                event("ime:open")
+                assert "text:99" not in read_events(game)
+                before = len(read_events(game))
+                for keysym in (0xffc9, ord("c"), ord("n")):  # XIM Compose via native keys
+                    tap(keysym)
+                event("text:56320")
+                assert [line for line in read_events(game)[before:] if line.startswith("text:")] == [
+                    "text:20013", "text:25991", "text:55360", "text:56320",
+                ]
+
                 x11.request_close(window)
                 if process.wait(timeout=max(1, deadline - time.monotonic())) != 0:
                     raise RuntimeError(f"Engine exited with {process.returncode}")

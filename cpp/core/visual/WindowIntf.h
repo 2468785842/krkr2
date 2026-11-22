@@ -224,7 +224,7 @@ public:
     void OnMouseEnter();
     void OnMouseLeave();
     void OnKeyDown(tjs_uint key, tjs_uint32 shift);
-    void OnKeyUp(tjs_uint key, tjs_uint32 shift);
+    void OnKeyUp(tjs_uint key, tjs_uint32 shift, bool cancellation = false);
     void OnKeyPress(tjs_char key);
     void OnFileDrop(const tTJSVariant &array);
     void OnMouseWheel(tjs_uint32 shift, tjs_int delta, tjs_int x, tjs_int y);
@@ -511,13 +511,15 @@ class tTVPOnKeyUpInputEvent : public tTVPBaseInputEvent {
     static tTVPUniqueTagForInputEvent Tag;
     tjs_uint Key;
     tjs_uint32 Shift;
+    bool Cancellation;
 
 public:
     tTVPOnKeyUpInputEvent(tTJSNI_BaseWindow *win, tjs_uint key,
-                          tjs_uint32 shift) :
-        tTVPBaseInputEvent(win, Tag), Key(key), Shift(shift) {};
+                          tjs_uint32 shift, bool cancellation = false) :
+        tTVPBaseInputEvent(win, Tag), Key(key), Shift(shift),
+        Cancellation(cancellation) {};
     void Deliver() const override {
-        ((tTJSNI_BaseWindow *)GetSource())->OnKeyUp(Key, Shift);
+        ((tTJSNI_BaseWindow *)GetSource())->OnKeyUp(Key, Shift, Cancellation);
     }
 };
 //---------------------------------------------------------------------------

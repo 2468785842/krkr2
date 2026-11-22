@@ -134,7 +134,7 @@ public:
     // TODO
     void SetMouseCursor(tjs_int handle) {}
     void SetHintText(iTJSDispatch2 *sender, const ttstr &text) {}
-    void DisableAttentionPoint() {}
+    virtual void DisableAttentionPoint() {}
     static void GetVideoOffset(tjs_int &ofsx, tjs_int &ofsy) {
         ofsx = 0;
         ofsy = 0;
