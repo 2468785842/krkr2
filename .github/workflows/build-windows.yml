@@ -103,7 +103,7 @@ jobs:
           tests = json.loads(subprocess.check_output([
               'ctest', '--test-dir', 'out/windows/release', '--show-only=json-v1',
               '-R', '^cocos (window|pointer|focus|text|context)']))['tests']
-          assert len(tests) == 15, tests
+          assert len(tests) == 17, tests
           print('Registered 2 node-order, 3 pointer, 4 focus, 2 text and 4 context subscription contracts.')
           PY
           ctest --test-dir out/windows/release -R '^cocos (window|pointer|focus|text|context)' --output-on-failure --no-tests=error
