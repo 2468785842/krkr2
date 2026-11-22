@@ -1,0 +1,55 @@
+// Self-authored fixture for the native VideoOverlay path.
+global.win = new Window();
+win.caption = "KrKr2 video presentation";
+win.setSize(384, 192);
+win.visible = true;
+global.root = new Layer(win, null);
+root.setSize(384, 192);
+root.setImageSize(384, 192);
+root.type = ltOpaque;
+root.fillRect(0, 0, 384, 192, 0xff102030);
+root.visible = true;
+
+global.movie = new VideoOverlay(win);
+movie.setBounds(96, 32, 192, 128);
+
+global.videoEvents = [];
+global.recordVideo = function(text) {
+    videoEvents.add(text);
+    videoEvents.save(System.exePath + "video-events.txt");
+};
+global.videoPhase = 0;
+global.videoTimer = new Timer(function() {
+    if(!Storages.isExistentStorage(System.exePath + "video-" + (videoPhase + 1) + ".txt"))
+        return;
+    ++videoPhase;
+    try {
+        switch(videoPhase) {
+            case 1:
+            case 3:
+                movie.open("colors.mp4");
+                if(movie.originalWidth != 96 || movie.originalHeight != 64)
+                    throw new Exception("Unexpected decoded dimensions");
+                movie.visible = true;
+                movie.play();
+                break;
+            case 2:
+                movie.visible = false;
+                movie.close();
+                break;
+            case 4:
+                invalidate movie;
+                videoTimer.enabled = false;
+                break;
+        }
+        recordVideo("phase:" + videoPhase);
+        if(videoPhase == 4)
+            System.exit();
+    } catch(e) {
+        recordVideo("error:" + e.message);
+        System.exit();
+    }
+}, "");
+videoTimer.interval = 50;
+videoTimer.enabled = true;
+recordVideo("ready");

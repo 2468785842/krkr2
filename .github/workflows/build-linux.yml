@@ -124,6 +124,19 @@ jobs:
         run: |
           LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a python tools/game-smoke/imageops_repro.py out/linux/release/bin/krkr2/krkr2 out/linux/imageops-runtime --capture --profiles
 
+      - name: Verify video overlay presentation
+        if: inputs.imageops_contracts
+        run: |
+          LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a python tools/game-smoke/video_repro.py out/linux/release/bin/krkr2/krkr2 out/linux/video-runtime
+
+      - name: Upload video presentation reports
+        if: always() && inputs.imageops_contracts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-video-runtime
+          path: out/linux/video-runtime/**
+          if-no-files-found: ignore
+
       - name: Upload image operation reports
         if: always()
         uses: actions/upload-artifact@v4
