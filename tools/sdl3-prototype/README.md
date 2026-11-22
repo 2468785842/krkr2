@@ -1,6 +1,6 @@
 # SDL3 / TJS 平台壳实验
 
-这是独立桌面原型，默认关闭，不替代现有游戏运行器。
+这是独立桌面原型，默认关闭。正式 Linux 游戏入口见 [SDL3 游戏宿主](../../docs/subsystems/desktop-cli.md#linux-sdl3-游戏宿主)。
 实际链接仓库 TJS2、`core_input` 和 SDL3，使用真实 SDL 窗口、事件队列及渲染读回。
 脚本决定窗口/画布尺寸、标题、背景和矩形，键盘与鼠标回调修改图形，关闭回调第一次否决、第二次接受。
 失焦时先清空共享按键状态，并分发对应 `onKey` / `onPointer` 抬起，再调用 `onFocus(false)`；

@@ -8,7 +8,7 @@
 #include "ui/UICheckBox.h"
 #include "Platform.h"
 #include "cocos2d/MainScene.h"
-#include "RenderUtils.h"
+#include "HostFrame.h"
 #include "ConfigManager/LocaleConfigManager.h"
 #include "platform/CCFileUtils.h"
 #include "base/CCDirector.h"

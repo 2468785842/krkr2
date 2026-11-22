@@ -29,7 +29,7 @@ Windows 入口 `platforms/windows/main.cpp` 创建 TVPAppDelegate；脚本入口
 | 脚本错误、宿主回调 | `base/ScriptMgnIntf.*`、`tjs2/tjsInterface.h`、`tjs2/tjsNative.*`、`tjs2/tjsInterCodeExec.cpp` |
 | 图层混合、缩放、透视、纹理 | `visual/RenderManager.*`、`visual/ogl/RenderManager_ogl.cpp`、`visual/LayerBitmap*`、`visual/impl/DrawDevice.*` |
 | 文件路径、归档和解包 | `io/`、`storage/impl/`、`archive/`、`base/StorageIntf.cpp`、`tools/xp3/` |
-| 视频画面/同步 | `movie/ffmpeg/`、`environ/cocos2d/YUVSprite.*`、`visual/impl/VideoOvlImpl.cpp` |
+| 视频画面/同步 | `movie/ffmpeg/`、`movie/VideoPresentation.h`、`environ/cocos2d/CocosVideoPresentation.*`、`visual/impl/VideoOvlImpl.cpp` |
 | 插件/角色动画 | `core/plugin/`、`plugins/`、`plugins/motionplayer/docs/` |
 
 表内缩写路径相对 `cpp/core/`，`plugins/` 指 `cpp/plugins/`。
@@ -39,11 +39,15 @@ Windows 入口 `platforms/windows/main.cpp` 创建 TVPAppDelegate；脚本入口
 - 根 CMake 使用 C++17。`cpp/core/CMakeLists.txt` 的 `krkr2core` 为 INTERFACE 聚合目标，不是单个已隔离实现库。
 - cocos2d 除窗口/绘制外，还被 UI、配置、文件后端、Android JNI 辅助及视频等路径使用；移除它不只是改启动函数。
 - `input/` 的 `core_input` 只依赖标准 C++，由输入适配器和 System 查询共同使用，包含状态、修饰位、局部坐标、取消分类与 UTF-8/UTF-16 提交文本编解码；OS 键码、坐标、IME 组合状态和事件排队仍由现有宿主承担。见[共享输入](subsystems/input-state.md)。
-- `visual/WindowLayer.h` 已拆出不暴露 Cocos 类型的窗口接口；具体 Cocos 窗口仍在 `environ/impl/TVPWindow.h`。视频通过 Cocos 专用访问入口借用节点，尚未替换呈现后端。见 [窗口接口拆分](subsystems/window-interface.md)。
-- CPU 图像操作统一经 `imageops/ImageOps.h` 调用，原生最近邻采样位于 `ImageOps.cpp`，其余后端位于 `ImageOps_opencv.cpp`；软件/OpenGL 渲染器通过不含 OpenCV 类型的 `ImageOps.h` 调用缩放、模糊、仿射、透视及矩阵求解。最近邻 resize 的像素采样已用原生 C++ 实现；其他算法及并行调度仍链接 OpenCV core/imgproc。
-- dev 已删除旧 `environ/sdl/tvpsdl.cpp`；游戏运行器当前没有 SDL 后端。
-  平台壳选型为 SDL3，另有默认关闭的[独立 SDL3/TJS 原型](../tools/sdl3-prototype/README.md)，
-  使用实验脚本接口，尚未接入生产 Window/Layer 或 KAG；见[平台壳选型](../.agents/notes/proposed/architecture/2026-11-03-ui-platform-shell.md)。
+- `visual/WindowLayer.h` 已拆出不暴露 Cocos 类型的窗口接口；具体 Cocos 窗口仍在 `environ/impl/TVPWindow.h`。视频播放器通过通用呈现接口交付 YUV 帧，由 Cocos 宿主创建和管理节点。见 [窗口接口拆分](subsystems/window-interface.md)。
+- `visual/TexturePresentation.h` 提供后端无关的 CPU 行/GL 画面描述；Cocos 纹理包装、上传与截图移到宿主适配层。CPU 渲染器不再直接创建 Cocos 纹理，GL宿主状态和重建订阅已迁入纯C++接口，配置与平台服务也已集中至 RenderHost，完整context资源恢复待实现，见[纹理呈现](subsystems/render-presentation.md)。
+- `core_base_module` 的本地事件直接使用 C++ 主线程消息接口，已移除对 Cocos 的直接构建依赖。队列由应用壳持有并驱动。见[主线程消息](subsystems/window-interface.md#主线程消息)。
+- `environ/HostFrame.h` 提供普通帧、消息泵和模态绘制入口。帧推进和模态节流位于无 Cocos 依赖的 `event/FrameStep.*`。见[帧循环](subsystems/window-interface.md#帧循环)。
+- `core_visual_module` 自行声明图像、字体、哈希和原生 GL 依赖。内置字体经宿主读取，Cocos 的实际资源搜索仍在应用壳中。见[Visual 构建依赖](subsystems/render-presentation.md#visual-构建依赖)。
+- CPU 图像操作统一经 `imageops/ImageOps.h` 调用。`ImageOps.cpp` 实现最近邻/线性缩放，`ImageOps_native.cpp` 实现其余缩放、模糊、仿射/透视、矩阵求解和标准 C++17 行任务；生产目标与 vcpkg 已移除 OpenCV，实时 OpenCV 对照仅为默认关闭的测试工具。移植来源及验证边界见 [ImageOps](subsystems/imageops.md)。
+- Linux 的 SDL3 宿主通过正式 CLI 显式启用，使用生产脚本、Window/Layer 与软件画面呈现。
+  [Linux SDL3 游戏宿主](subsystems/desktop-cli.md#linux-sdl3-游戏宿主)
+- 独立 SDL3/TJS 原型继续验证实验脚本和事件契约。[原型说明](../tools/sdl3-prototype/README.md)
 - 内建插件实现源只属于各自静态库，`krkr2plugin` 通过 WHOLE_ARCHIVE 保留注册对象；PSD 可选。崩溃上报默认关闭，CocoStudio reader 已移除，管理 UI 仍使用 cocos UI。
 - 标准库/图像库/编解码依赖以 `vcpkg.json`、`vcpkg-configuration.json` 和各模块 CMake 为准；overlay ports 也包含自定义补丁。
 

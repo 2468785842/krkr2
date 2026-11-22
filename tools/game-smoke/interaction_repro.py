@@ -5,6 +5,7 @@ its return value. The existing smoke controller owns the engine and judges succe
 """
 import argparse
 from collections import Counter
+from functools import partial
 import hashlib
 import json
 from pathlib import Path
@@ -29,12 +30,14 @@ def cdb_commands(engine, directory):
 
 
 class Reproducer:
-    def __init__(self, engine, rounds, cdb=None, keyboard_probe=False, lifecycle_probe=False):
+    def __init__(self, engine, rounds, cdb=None, keyboard_probe=False, lifecycle_probe=False,
+                 require_native_dialog=True):
         if not 1 <= rounds <= 20:
             raise ValueError("Rounds must be 1..20")
         self.engine, self.rounds, self.cdb = engine, rounds, cdb
         self.keyboard_probe = keyboard_probe
         self.lifecycle_probe = lifecycle_probe
+        self.require_native_dialog = require_native_dialog
         self.sequence = 0
         self.trace = []
 
@@ -140,7 +143,8 @@ class Reproducer:
         report["reproducer"] = {"rounds_requested": self.rounds, "rounds_completed": 0,
                                 "debugger": str(self.cdb) if self.cdb else None,
                                 "keyboard_probe": self.keyboard_probe,
-                                "lifecycle_probe": self.lifecycle_probe}
+                                "lifecycle_probe": self.lifecycle_probe,
+                                "require_native_dialog": self.require_native_dialog}
         try:
             self.wait(lambda: "ready" in interaction_smoke.read_events(directory), "ready")
             evidence = self.preserve_binary(report)
@@ -182,9 +186,10 @@ class Reproducer:
                 before = self.command("lifecycle-probe-end")
                 self.script_event("lifecycle-probe-done", before)
                 self.capture("lifecycle-probe.png")
-            before = self.command("inform")
-            print("Confirm the real 'KrKr2 contract message' dialog to continue.", flush=True)
-            self.script_event("inform-return:0", before, seconds=180)
+            if self.require_native_dialog:
+                before = self.command("inform")
+                print("Confirm the real 'KrKr2 contract message' dialog to continue.", flush=True)
+                self.script_event("inform-return:0", before, seconds=180)
             for index in range(1, self.rounds + 1):
                 self.record("round-start", round=index)
                 before = self.command("select-cancel")
@@ -256,16 +261,22 @@ def main():
     parser.add_argument("--rounds", type=int, default=3)
     parser.add_argument("--keyboard-probe", action="store_true", help="Check queued A-key callbacks and System.getKeyState semantics")
     parser.add_argument("--lifecycle-probe", action="store_true", help="Check engine activation notifications without stopping the backend pump")
+    parser.add_argument("--skip-native-dialog", action="store_true",
+                        help="Run the Cocos selector, menu and close probes without the manual OS message box")
     parser.add_argument("--seconds", type=int, default=300)
     parser.add_argument("--cdb", type=Path, help="Existing CDB executable; attach and capture access violations")
     args = parser.parse_args()
     engine = args.engine.resolve(strict=True)
     cdb = args.cdb.resolve(strict=True) if args.cdb else None
-    driver = Reproducer(engine, args.rounds, cdb, args.keyboard_probe, args.lifecycle_probe)
+    require_native_dialog = not args.skip_native_dialog
+    driver = Reproducer(engine, args.rounds, cdb, args.keyboard_probe, args.lifecycle_probe,
+                        require_native_dialog=require_native_dialog)
     if not 5 <= args.seconds <= 600:
         parser.error("Duration must be 5..600 seconds")
     interaction_smoke.prepare(args.destination)
-    return interaction_smoke.run(engine, args.destination, args.seconds, component_input=True, automation=driver)
+    return interaction_smoke.run(engine, args.destination, args.seconds, component_input=True,
+                                 automation=driver, evaluate=partial(interaction_smoke.failures,
+                                                                    require_native_dialog=require_native_dialog))
 
 
 if __name__ == "__main__":

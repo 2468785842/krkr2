@@ -10,10 +10,10 @@ namespace TVPImageOps {
         std::size_t RowBytes(int width, PixelFormat format);
         std::size_t Step(ConstImageView image);
         // 同步执行全部行任务；不保留回调或捕获的视图/列索引。
-        // 暂沿用后端调度，保留线程数和大图分片行为，便于单独迁移像素算法。
+        // 标准 C++17 调度；小图串行，大图按线程上限分片，异常在调用方重抛。
         void ForRows(int height, std::size_t pixels,
                      const std::function<void(int, int)> &task);
-        // 仅剩 Area/Cubic 仍由 OpenCV 后端承担；Nearest 与 Linear 已原生。
+        // Area/Cubic 的独立实现；Nearest 与 Linear 位于 ImageOps.cpp。
         void ResizeFiltered(ConstImageView source, ImageView destination,
                             Interpolation mode);
     } // namespace detail

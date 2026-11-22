@@ -1,0 +1,660 @@
+{
+  "source_commit": "a824bd435de0f17ad809c6c7834aa76396d97775",
+  "platform": "Debian 13 x86_64, GCC 14.2.0, static OpenCV 4.7.0#6",
+  "vcpkg_registry_baseline": "aa40adda5352e87655b8583cfb2451d5e9e276fd",
+  "vcpkg_tool": "2026-04-08-e0612b42ce44e55a0e630f2ee9d3c533a63d8bc1",
+  "baseline": {
+    "profile": "baseline",
+    "version": "4.7.0",
+    "features": [
+      "core",
+      "openmp"
+    ],
+    "modules": [
+      "opencv_calib3d",
+      "opencv_core",
+      "opencv_features2d",
+      "opencv_flann",
+      "opencv_highgui",
+      "opencv_imgcodecs",
+      "opencv_imgproc",
+      "opencv_ml",
+      "opencv_objdetect",
+      "opencv_photo",
+      "opencv_stitching",
+      "opencv_video",
+      "opencv_videoio"
+    ],
+    "library_bytes": 503659266,
+    "libraries": [
+      {
+        "path": "debug/lib/libopencv_calib3d4d.a",
+        "bytes": 50130174
+      },
+      {
+        "path": "debug/lib/libopencv_core4d.a",
+        "bytes": 75901000
+      },
+      {
+        "path": "debug/lib/libopencv_features2d4d.a",
+        "bytes": 26528898
+      },
+      {
+        "path": "debug/lib/libopencv_flann4d.a",
+        "bytes": 10396034
+      },
+      {
+        "path": "debug/lib/libopencv_highgui4d.a",
+        "bytes": 3265734
+      },
+      {
+        "path": "debug/lib/libopencv_imgcodecs4d.a",
+        "bytes": 9380026
+      },
+      {
+        "path": "debug/lib/libopencv_imgproc4d.a",
+        "bytes": 99524458
+      },
+      {
+        "path": "debug/lib/libopencv_ml4d.a",
+        "bytes": 15835004
+      },
+      {
+        "path": "debug/lib/libopencv_objdetect4d.a",
+        "bytes": 23390514
+      },
+      {
+        "path": "debug/lib/libopencv_photo4d.a",
+        "bytes": 11221150
+      },
+      {
+        "path": "debug/lib/libopencv_stitching4d.a",
+        "bytes": 21088096
+      },
+      {
+        "path": "debug/lib/libopencv_video4d.a",
+        "bytes": 17341710
+      },
+      {
+        "path": "debug/lib/libopencv_videoio4d.a",
+        "bytes": 12196906
+      },
+      {
+        "path": "lib/libopencv_calib3d4.a",
+        "bytes": 15431544
+      },
+      {
+        "path": "lib/libopencv_core4.a",
+        "bytes": 27140582
+      },
+      {
+        "path": "lib/libopencv_features2d4.a",
+        "bytes": 6494344
+      },
+      {
+        "path": "lib/libopencv_flann4.a",
+        "bytes": 4045900
+      },
+      {
+        "path": "lib/libopencv_highgui4.a",
+        "bytes": 1781726
+      },
+      {
+        "path": "lib/libopencv_imgcodecs4.a",
+        "bytes": 2096500
+      },
+      {
+        "path": "lib/libopencv_imgproc4.a",
+        "bytes": 40455342
+      },
+      {
+        "path": "lib/libopencv_ml4.a",
+        "bytes": 4763898
+      },
+      {
+        "path": "lib/libopencv_objdetect4.a",
+        "bytes": 7045774
+      },
+      {
+        "path": "lib/libopencv_photo4.a",
+        "bytes": 3805138
+      },
+      {
+        "path": "lib/libopencv_stitching4.a",
+        "bytes": 5561096
+      },
+      {
+        "path": "lib/libopencv_video4.a",
+        "bytes": 4025906
+      },
+      {
+        "path": "lib/libopencv_videoio4.a",
+        "bytes": 4811812
+      }
+    ]
+  },
+  "imageops": {
+    "profile": "imageops",
+    "version": "4.7.0",
+    "features": [
+      "core",
+      "imageops",
+      "openmp"
+    ],
+    "modules": [
+      "opencv_core",
+      "opencv_imgproc"
+    ],
+    "library_bytes": 243021534,
+    "libraries": [
+      {
+        "path": "debug/lib/libopencv_core4d.a",
+        "bytes": 75901080
+      },
+      {
+        "path": "debug/lib/libopencv_imgproc4d.a",
+        "bytes": 99524458
+      },
+      {
+        "path": "lib/libopencv_core4.a",
+        "bytes": 27140654
+      },
+      {
+        "path": "lib/libopencv_imgproc4.a",
+        "bytes": 40455342
+      }
+    ]
+  },
+  "unchanged_build_flags": {
+    "CMAKE_CXX_FLAGS_DEBUG": "-g",
+    "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG",
+    "CPU_BASELINE": "SSE3",
+    "CPU_DISPATCH": "SSE4_1;SSE4_2;AVX;FP16;AVX2;AVX512_SKX",
+    "WITH_OPENMP": "ON"
+  },
+  "pixel_comparison": {
+    "bytes": 122736336,
+    "sha256": "cd0aaa1f3f8d2a1fb52d31348bdbfe1dbe995fd118acc8bbb120c2d9176e9d9c",
+    "probe_source_sha256": "bd3e79151777f8f5eb2f443f68cfbd4bd475673b6d8070db5890cb4a6a53a243",
+    "comparison": "full byte equality, then SHA256",
+    "seed": 8675309,
+    "samples_per_channel_per_thread_count": 80,
+    "channels": [
+      1,
+      4
+    ],
+    "requested_threads": [
+      1,
+      3
+    ],
+    "source_view_cases": 320,
+    "output_images": 7680,
+    "operations": [
+      "resize: Nearest/Area/Linear/Cubic",
+      "identity resize: all modes",
+      "affine/perspective warp: all modes",
+      "box blur: kernels 1/2/7/22 by kernel+1 and second in-place pass"
+    ],
+    "source_layout": "unaligned source offset 3, pitch width*channels+13",
+    "probe_source": "temporary out/opencv-profile/probe-src/snapshot.cpp"
+  },
+  "ctest": {
+    "baseline": {
+      "registered": 15,
+      "passed": 15
+    },
+    "imageops": {
+      "registered": 15,
+      "passed": 15
+    }
+  },
+  "limits": [
+    "Library bytes include installed Debug and Release archives, not final APK/exe size.",
+    "No build-time claim: earlier local build processes were interrupted.",
+    "Same-host corpus only; not a game compatibility test."
+  ],
+  "ci": {
+    "headless": {
+      "run_id": 43552112375,
+      "source": "a824bd435de0f17ad809c6c7834aa76396d97775",
+      "jobs_passed": 13,
+      "imageops_per_platform": 15,
+      "checker_tests_per_platform": 7
+    },
+    "windows_full": {
+      "run_id": 43550427013,
+      "source": "6542a12dddc54a4550b87d21e50b034fd8569ff4",
+      "window_contracts": 11
+    },
+    "android": [
+      {
+        "run_id": 43552134707,
+        "job_id": 132316766970,
+        "runtime": {
+          "source": "a824bd435de0f17ad809c6c7834aa76396d97775",
+          "abi": "arm64-v8a",
+          "cmake_cache": "out/android/cmake-build/Debug/4i5r4k3x/arm64-v8a/CMakeCache.txt",
+          "configuration": {
+            "CMAKE_BUILD_TYPE": "Debug",
+            "KRKR2_BUILD_APP": "ON",
+            "ENABLE_TESTS": "OFF",
+            "BUILD_TOOLS": "OFF",
+            "KRKR2_ENABLE_PSD": "ON",
+            "KRKR2_ENABLE_CRASH_UPLOAD": "OFF",
+            "KRKR2_ENABLE_UI_TEST_DRIVER": "OFF",
+            "VCPKG_TARGET_TRIPLET": "arm64-android"
+          },
+          "ports": [
+            "7zip",
+            "asmjit",
+            "blend2d",
+            "boost-algorithm",
+            "boost-align",
+            "boost-array",
+            "boost-assert",
+            "boost-atomic",
+            "boost-bind",
+            "boost-charconv",
+            "boost-chrono",
+            "boost-cmake",
+            "boost-compat",
+            "boost-concept-check",
+            "boost-config",
+            "boost-container",
+            "boost-container-hash",
+            "boost-conversion",
+            "boost-core",
+            "boost-date-time",
+            "boost-describe",
+            "boost-detail",
+            "boost-dynamic-bitset",
+            "boost-endian",
+            "boost-exception",
+            "boost-function",
+            "boost-function-types",
+            "boost-functional",
+            "boost-fusion",
+            "boost-headers",
+            "boost-integer",
+            "boost-intrusive",
+            "boost-io",
+            "boost-iostreams",
+            "boost-iterator",
+            "boost-lexical-cast",
+            "boost-locale",
+            "boost-move",
+            "boost-mp11",
+            "boost-mpl",
+            "boost-numeric-conversion",
+            "boost-optional",
+            "boost-phoenix",
+            "boost-pool",
+            "boost-predef",
+            "boost-preprocessor",
+            "boost-proto",
+            "boost-random",
+            "boost-range",
+            "boost-ratio",
+            "boost-regex",
+            "boost-smart-ptr",
+            "boost-spirit",
+            "boost-static-assert",
+            "boost-system",
+            "boost-thread",
+            "boost-throw-exception",
+            "boost-tokenizer",
+            "boost-tuple",
+            "boost-type-index",
+            "boost-type-traits",
+            "boost-typeof",
+            "boost-uninstall",
+            "boost-unordered",
+            "boost-utility",
+            "boost-variant",
+            "boost-variant2",
+            "boost-winapi",
+            "breakpad",
+            "brotli",
+            "bzip2",
+            "cocos2dx",
+            "ffmpeg",
+            "fmt",
+            "freetype",
+            "glm",
+            "jxrlib",
+            "libarchive",
+            "libdisasm",
+            "libiconv",
+            "libjpeg-turbo",
+            "liblzma",
+            "libogg",
+            "libpng",
+            "libvorbis",
+            "libwebp",
+            "libxml2",
+            "lz4",
+            "miniaudio",
+            "oniguruma",
+            "openal-soft",
+            "opencv4",
+            "opus",
+            "opusfile",
+            "pkgconf",
+            "spdlog",
+            "tiff",
+            "uchardet",
+            "unrar",
+            "vcpkg-boost",
+            "vcpkg-cmake",
+            "vcpkg-cmake-config",
+            "vcpkg-cmake-get-vars",
+            "vcpkg-get-python-packages",
+            "vcpkg-pkgconfig-get-modules",
+            "vcpkg-tool-meson",
+            "zlib",
+            "zstd"
+          ],
+          "project_sources": 346,
+          "apk": "platforms/android/out/android/app/outputs/apk/debug/krkr2-1.5.0-arm64-v8a.apk",
+          "apk_sha256": "e943e99f091ab107b6fe98fe2231cc056b6163eb0fafa17b30d679a43b7bb096",
+          "apk_size": 58550086,
+          "libraries": {
+            "libc++_shared.so": {
+              "size": 1253544,
+              "sha256": "b17919df195f29b0a238468c04171b93cedcdffbe0d30cdc634327cf7f7889bc",
+              "needed": [
+                "libc.so",
+                "libm.so",
+                "libdl.so"
+              ]
+            },
+            "libkrkr2.so": {
+              "size": 82803272,
+              "sha256": "093a5c844dba0cdac0c37b39b6d21444b184dc15bb5a9d5fc39aa8d933449638",
+              "needed": [
+                "libc.so",
+                "liboboe.so",
+                "libomp.so",
+                "libGLESv1_CM.so",
+                "liblog.so",
+                "libandroid.so",
+                "libEGL.so",
+                "libGLESv2.so",
+                "libOpenSLES.so",
+                "libdl.so",
+                "libm.so",
+                "libc++_shared.so"
+              ]
+            },
+            "liboboe.so": {
+              "size": 296080,
+              "sha256": "979d14353e7e95de1047fbe7321da6c07bc47e30ee2b2cb8b57a1a58ef026587",
+              "needed": [
+                "liblog.so",
+                "libOpenSLES.so",
+                "libm.so",
+                "libc++_shared.so",
+                "libdl.so",
+                "libc.so"
+              ]
+            },
+            "libomp.so": {
+              "size": 965024,
+              "sha256": "77be531865dac67328d075f1637376fef40171323b32d9ed17d6ffaa88c7fc19",
+              "needed": [
+                "libdl.so",
+                "libc.so"
+              ]
+            }
+          }
+        },
+        "modules": {
+          "profile": "imageops",
+          "version": "4.7.0",
+          "features": [
+            "core",
+            "imageops",
+            "openmp"
+          ],
+          "modules": [
+            "opencv_core",
+            "opencv_imgproc"
+          ],
+          "library_bytes": 208267442,
+          "libraries": [
+            {
+              "path": "debug/sdk/native/staticlibs/arm64-v8a/libopencv_core4d.a",
+              "bytes": 59605812
+            },
+            {
+              "path": "debug/sdk/native/staticlibs/arm64-v8a/libopencv_imgproc4d.a",
+              "bytes": 58808362
+            },
+            {
+              "path": "sdk/native/staticlibs/arm64-v8a/libopencv_core4.a",
+              "bytes": 43304732
+            },
+            {
+              "path": "sdk/native/staticlibs/arm64-v8a/libopencv_imgproc4.a",
+              "bytes": 46548536
+            }
+          ]
+        }
+      },
+      {
+        "run_id": 43552222732,
+        "job_id": 132317034109,
+        "runtime": {
+          "source": "a824bd435de0f17ad809c6c7834aa76396d97775",
+          "abi": "x86_64",
+          "cmake_cache": "out/android/cmake-build/Debug/4i5r4k3x/x86_64/CMakeCache.txt",
+          "configuration": {
+            "CMAKE_BUILD_TYPE": "Debug",
+            "KRKR2_BUILD_APP": "ON",
+            "ENABLE_TESTS": "OFF",
+            "BUILD_TOOLS": "OFF",
+            "KRKR2_ENABLE_PSD": "ON",
+            "KRKR2_ENABLE_CRASH_UPLOAD": "OFF",
+            "KRKR2_ENABLE_UI_TEST_DRIVER": "OFF",
+            "VCPKG_TARGET_TRIPLET": "x64-android"
+          },
+          "ports": [
+            "7zip",
+            "asmjit",
+            "blend2d",
+            "boost-algorithm",
+            "boost-align",
+            "boost-array",
+            "boost-assert",
+            "boost-atomic",
+            "boost-bind",
+            "boost-charconv",
+            "boost-chrono",
+            "boost-cmake",
+            "boost-compat",
+            "boost-concept-check",
+            "boost-config",
+            "boost-container",
+            "boost-container-hash",
+            "boost-conversion",
+            "boost-core",
+            "boost-date-time",
+            "boost-describe",
+            "boost-detail",
+            "boost-dynamic-bitset",
+            "boost-endian",
+            "boost-exception",
+            "boost-function",
+            "boost-function-types",
+            "boost-functional",
+            "boost-fusion",
+            "boost-headers",
+            "boost-integer",
+            "boost-intrusive",
+            "boost-io",
+            "boost-iostreams",
+            "boost-iterator",
+            "boost-lexical-cast",
+            "boost-locale",
+            "boost-move",
+            "boost-mp11",
+            "boost-mpl",
+            "boost-numeric-conversion",
+            "boost-optional",
+            "boost-phoenix",
+            "boost-pool",
+            "boost-predef",
+            "boost-preprocessor",
+            "boost-proto",
+            "boost-random",
+            "boost-range",
+            "boost-ratio",
+            "boost-regex",
+            "boost-smart-ptr",
+            "boost-spirit",
+            "boost-static-assert",
+            "boost-system",
+            "boost-thread",
+            "boost-throw-exception",
+            "boost-tokenizer",
+            "boost-tuple",
+            "boost-type-index",
+            "boost-type-traits",
+            "boost-typeof",
+            "boost-uninstall",
+            "boost-unordered",
+            "boost-utility",
+            "boost-variant",
+            "boost-variant2",
+            "boost-winapi",
+            "breakpad",
+            "brotli",
+            "bzip2",
+            "cocos2dx",
+            "ffmpeg",
+            "fmt",
+            "freetype",
+            "glm",
+            "jxrlib",
+            "libarchive",
+            "libdisasm",
+            "libiconv",
+            "libjpeg-turbo",
+            "liblzma",
+            "libogg",
+            "libpng",
+            "libvorbis",
+            "libwebp",
+            "libxml2",
+            "lz4",
+            "miniaudio",
+            "oniguruma",
+            "openal-soft",
+            "opencv4",
+            "opus",
+            "opusfile",
+            "pkgconf",
+            "spdlog",
+            "tiff",
+            "uchardet",
+            "unrar",
+            "vcpkg-boost",
+            "vcpkg-cmake",
+            "vcpkg-cmake-config",
+            "vcpkg-cmake-get-vars",
+            "vcpkg-get-python-packages",
+            "vcpkg-pkgconfig-get-modules",
+            "vcpkg-tool-meson",
+            "zlib",
+            "zstd"
+          ],
+          "project_sources": 346,
+          "apk": "platforms/android/out/android/app/outputs/apk/debug/krkr2-1.5.0-x86_64.apk",
+          "apk_sha256": "4905669f9c643f491c9aec93e2c53e592a047514092bc2ab6985d49bba9ff597",
+          "apk_size": 60242046,
+          "libraries": {
+            "libc++_shared.so": {
+              "size": 1229808,
+              "sha256": "d6bceb7915ddb75ec4f96f97837efd80cf6084b00ad38e2666728f6cc24a9f68",
+              "needed": [
+                "libc.so",
+                "libm.so",
+                "libdl.so"
+              ]
+            },
+            "libkrkr2.so": {
+              "size": 90107936,
+              "sha256": "080e2c2164c30bd20bd986e1ac35c12104333d253fd77530e785ece052c41b9d",
+              "needed": [
+                "libc.so",
+                "liboboe.so",
+                "libomp.so",
+                "libGLESv1_CM.so",
+                "liblog.so",
+                "libandroid.so",
+                "libEGL.so",
+                "libGLESv2.so",
+                "libOpenSLES.so",
+                "libdl.so",
+                "libm.so",
+                "libc++_shared.so"
+              ]
+            },
+            "liboboe.so": {
+              "size": 291816,
+              "sha256": "d6a207245a61531f17209721bf4168264c176af0c6d10d37ca778119d4833c5e",
+              "needed": [
+                "liblog.so",
+                "libOpenSLES.so",
+                "libm.so",
+                "libc++_shared.so",
+                "libdl.so",
+                "libc.so"
+              ]
+            },
+            "libomp.so": {
+              "size": 948920,
+              "sha256": "c31853d2339f5ac9ef5fde0f5ade0e53fed216cb3dd11bba3125b95c4e8a1d95",
+              "needed": [
+                "libdl.so",
+                "libc.so"
+              ]
+            }
+          }
+        },
+        "modules": {
+          "profile": "imageops",
+          "version": "4.7.0",
+          "features": [
+            "core",
+            "imageops",
+            "openmp"
+          ],
+          "modules": [
+            "opencv_core",
+            "opencv_imgproc"
+          ],
+          "library_bytes": 286287708,
+          "libraries": [
+            {
+              "path": "debug/sdk/native/staticlibs/x86_64/libopencv_core4d.a",
+              "bytes": 68139128
+            },
+            {
+              "path": "debug/sdk/native/staticlibs/x86_64/libopencv_imgproc4d.a",
+              "bytes": 93458146
+            },
+            {
+              "path": "sdk/native/staticlibs/x86_64/libopencv_core4.a",
+              "bytes": 50687048
+            },
+            {
+              "path": "sdk/native/staticlibs/x86_64/libopencv_imgproc4.a",
+              "bytes": 74003386
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

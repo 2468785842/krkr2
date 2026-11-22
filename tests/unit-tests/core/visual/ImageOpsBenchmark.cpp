@@ -46,6 +46,34 @@ namespace {
                   << "],\"imageops_us\":[" << b[0] << ',' << b[1] << ',' << b[2]
                   << "]}";
     }
+    void linearCase(const char *name, int sw, int sh, int dw, int dh,
+                    int channels) {
+        const int sourcePitch = sw * channels + 17;
+        const int destinationPitch = dw * channels + 19;
+        std::vector<std::uint8_t> source(sourcePitch * sh),
+            destination(destinationPitch * dh);
+        for(std::size_t i = 0; i < source.size(); ++i)
+            source[i] = static_cast<std::uint8_t>((i * 31) ^ (i >> 8));
+        cv::Mat src(sh, sw, CV_MAKETYPE(CV_8U, channels), source.data(),
+                    sourcePitch);
+        cv::Mat dst(dh, dw, CV_MAKETYPE(CV_8U, channels), destination.data(),
+                    destinationPitch);
+        const auto format =
+            channels == 1 ? PixelFormat::Gray8 : PixelFormat::RGBA8;
+        compare(
+            name,
+            [&] {
+                cv::resize(src, dst, dst.size(), 0, 0, cv::INTER_LINEAR);
+                sink += destination[0];
+            },
+            [&] {
+                Resize({ source.data(), sw, sh, sourcePitch, format },
+                       { destination.data(), dw, dh, destinationPitch, format },
+                       Interpolation::Linear);
+                sink += destination[0];
+            },
+            true);
+    }
 } // namespace
 
 int main(int argc, char **argv) {
@@ -61,6 +89,7 @@ int main(int argc, char **argv) {
             return 2;
     }
     cv::setNumThreads(threads);
+    SetThreadCount(threads);
     constexpr int w = 320, h = 240, pitch = w * 4 + 16;
     std::vector<std::uint8_t> src(pitch * h), dst(pitch * h);
     for(std::size_t i = 0; i < src.size(); ++i)
@@ -172,5 +201,10 @@ int main(int argc, char **argv) {
             sink += largeDestination[0];
         },
         true);
+    linearCase("linear_gray_up", 320, 240, 853, 641, 1);
+    linearCase("linear_gray_down", 1920, 1080, 853, 479, 1);
+    linearCase("linear_rgba_up", 640, 480, 1920, 1080, 4);
+    linearCase("linear_rgba_down", 3840, 2160, 1919, 1079, 4);
+    linearCase("linear_rgba_half", 3840, 2160, 1920, 1080, 4);
     std::cout << "\n]}\n";
 }

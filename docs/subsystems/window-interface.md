@@ -27,10 +27,9 @@
   消息接收器注册枚举移至 `WindowIntf.h`，枚举值保持不变。
 - `environ/impl/TVPWindow.h` 保留 `TVPWindowLayer`、Cocos ScrollView、输入适配及窗口管理实现。
   `visual/impl/WindowImpl.cpp` 和 `BasicDrawDevice.cpp` 改为包含通用接口。
-- 通用接口不再提供返回 Cocos Node 的 `GetPrimaryArea`。
-  仍依赖 Cocos 的视频呈现通过 `environ/cocos2d/CocosWindowAccess.h` 的
-  `TVPGetCocosWindowPrimaryArea` 借用节点，所有权保持属于窗口。
-  实现在 `TVPWindow.cpp`，不匹配的后端抛出 `std::bad_cast`，不会静默跳过视频。
+- `movie/VideoPresentation.h` 声明窗口视频呈现工厂。Cocos 实现位于
+  `TVPWindow.cpp`，由宿主把视频节点挂到主图层区域并注册帧回调。
+  工厂需要 Cocos 窗口，传入其他后端的窗口会抛出 `std::bad_cast`。
 - 原接口中的空实现及既有限制原样迁移；本批不宣称补齐全屏、位置、触摸查询等功能。
   当前接口仍依赖 TJS/WindowIntf，并非完全独立的宿主 API。
 
@@ -53,8 +52,8 @@
 `tests/unit-tests/core/environ/NodeOrderTest.cpp` 在 full 范围验证层级与同层顺序，不创建 GL 窗口。
 `CocosPointerCoordinatesTest.cpp` 另验证真实节点变换下的主图层坐标、越界位置及光标父节点坐标。
 两者共 5 项，由完整 Windows 工作流实际注册、运行。
-焦点订阅另有 4 项 EventDispatcher 用例，提交文本另有 2 项真实 Cocos 转换对照；
-该工作流合计发现 11 项，不创建 OS/GL 窗口。
+焦点订阅另有 4 项 EventDispatcher 用例，提交文本有 2 项真实 Cocos 转换对照。
+另有 4 项 context 订阅寿命、2 项视频节点解绑与回调注销用例。17 项均无需创建 OS/GL 窗口。
 
 `tools/game-smoke/pointer_windows_repro.py` 通过显式测试驱动创建真实双 Window，
 检查切窗、隐藏和失效后的输入归属及局部坐标。正常切窗与隐藏回退会恢复目标 Cocos 节点的原点；
@@ -67,8 +66,7 @@
 
 `event/PostUpdateEvent.h/.cpp` 保存唯一的 post-update 回调，供普通帧和模态绘制共同调用。
 原头文件内部链接变量会造成跨编译单元的注册不可见，已有双单元实验及三个回归用例。
-`environ/RenderUtils.h` 仅声明模态绘制入口，Cocos 绘制与 swap 位于对应 cpp；
-绘制次序仍为 hook → drawScene → swap，计时公式保持不变。
+`environ/HostFrame.h` 提供普通帧、嵌套消息处理和模态绘制三个入口，见[帧循环](#帧循环)。
 
 `environ/HostLifecycle.h` 提供前台、后台引擎通知，不含 Cocos/TJS 类型。
 Cocos AppDelegate 先通知引擎，再启停动画；引擎的音量、混音锁、compact 与 System 事件顺序未变。
@@ -78,3 +76,29 @@ Cocos AppDelegate 先通知引擎，再启停动画；引擎的音量、混音�
 Cocos 桌面已订阅独立焦点事件并取消游戏输入，见[输入状态](input-state.md#cocos-桌面焦点)。
 这些子批次未完成 DPI、IME、真实切焦交互、移动端挂起恢复或完整生命周期迁移。
 具体证据与剩余工作见[B2 后续记录](../../.agents/notes/proposed/architecture/2026-11-03-platform-contracts.md)。
+
+## 主线程消息
+
+`event/MainThreadMessageQueue.h` 提供工作线程投递、引擎线程分发和按所有者取消消息的 C++ 接口。
+Cocos 应用壳持有队列，`TVPProcessEngineMessages` 先分发一批消息，再推进脚本定时器。
+分发按投递顺序取本批消息，回调在锁外执行。新消息由下一次分发处理。若回调显式嵌套处理消息，
+嵌套调用会取得新消息，外层批次随后照常处理。回调抛出异常时，本批未执行消息随批次释放。
+
+本地事件适配器将消息 ID 和事件值一起投递。关闭视频或注销接收器时，可以取消待执行消息，
+包括已取出的批次里尚未开始的回调。接收器需在主线程销毁，并先停止生产线程。
+
+构建、取消语义和桌面回归结果见[主线程消息实施记录](../../.agents/notes/implemented/simplification/2026-11-22-main-thread-message-queue.md)。
+
+
+## 帧循环
+
+Cocos 的 `MainScene::update` 调用 `TVPUpdateEngineFrame`。普通帧依次推进应用、回收纹理并调用帧钩子，
+随后宿主处理 FPS 标签和场景绘制。应用更新调用同一个 `TVPProcessEngineMessages` 入口处理正常和嵌套消息。
+事件层的嵌套入口直接调用该函数。
+
+模态窗口、同步文件选择和启动日志共用 `TVPDrawSceneOnce` 的毫秒时钟。
+`event/FrameStep.cpp` 以无符号差值处理 32 位回绕。正间隔返回距下一帧的等待量，
+到期只绘制一帧，零和负间隔立即绘制。执行顺序为帧钩子、宿主绘制、交换缓冲。
+绘制未成功返回时保留上一帧时间，后续调用可重试。平台输入轮询与休眠由各调用者安排。
+
+模态文件选择、帧节流及跨平台构建结果见[宿主帧循环实施记录](../../.agents/notes/implemented/simplification/2026-11-22-host-frame-boundary.md)。

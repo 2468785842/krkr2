@@ -10,8 +10,6 @@
 #include "RenderManager.h"
 
 #include "MsgIntf.h"
-#include "renderer/CCTexture2D.h"
-typedef cocos2d::Texture2D::PixelFormat CCPixelFormat;
 #include "MsgIntf.h"
 #include "LayerBitmapIntf.h"
 #include "SysInitIntf.h"
@@ -31,10 +29,10 @@ extern "C" {
 #include "libswscale/swscale.h"
 };
 #include "imageops/ImageOps.h"
-#include "Application.h"
-#include "Platform.h"
-#include "ConfigManager/IndividualConfigManager.h"
-#include "xxhash/xxhash.h"
+#include "RenderHost.h"
+// Keep this implementation local while Cocos still links its bundled xxHash.
+#define XXH_INLINE_ALL
+#include <xxhash.h>
 #include "tjsHashSearch.h"
 #include "EventIntf.h"
 #include "lz4.h"
@@ -92,7 +90,7 @@ static void *TVPAllocBitmapBits(tjs_uint size, tjs_uint width,
     tjs_uint8 *ptrorg, *ptr;
     tjs_uint allocbytes = 16 + size + sizeof(tTVPLayerBitmapMemoryRecord) +
         sizeof(tjs_uint32) * 2;
-    TVPCheckMemory();
+    krkr::renderhost::CheckMemory();
     ptr = ptrorg = (tjs_uint8 *)malloc(allocbytes);
     if(!ptr)
         TVPThrowExceptionMessage(
@@ -366,19 +364,10 @@ public:
     }
     tjs_int GetPitch() const override { return Pitch; }
 
-    cocos2d::Texture2D *
-    GetAdapterTexture(cocos2d::Texture2D *origTex) override {
-        if(!origTex || origTex->getPixelsWide() != Width ||
-           origTex->getPixelsHigh() != Height) {
-            origTex = new cocos2d::Texture2D;
-            origTex->autorelease();
-            origTex->initWithData(BmpData, Pitch * Height,
-                                  CCPixelFormat::RGBA8888, Pitch / 4, Height,
-                                  cocos2d::Size::ZERO);
-        } else {
-            origTex->updateWithData(BmpData, 0, 0, Pitch / 4, Height);
-        }
-        return origTex;
+    krkr::render::TextureFrame GetPresentationFrame() override {
+        return krkr::render::RGBAFrame{ static_cast<unsigned>(Pitch / 4),
+                                        static_cast<unsigned>(Height), BmpData,
+                                        Pitch };
     }
 
     size_t GetBitmapSize() override {
@@ -476,20 +465,10 @@ public:
         assert(0);
     }
 
-    cocos2d::Texture2D *
-    GetAdapterTexture(cocos2d::Texture2D *origTex) override {
-        GetPixelData();
-        if(!origTex || origTex->getPixelsWide() != Width ||
-           origTex->getPixelsHigh() != Height) {
-            origTex = new cocos2d::Texture2D;
-            origTex->autorelease();
-            origTex->initWithData(BmpData, Pitch * Height,
-                                  CCPixelFormat::RGBA8888, Width, Height,
-                                  cocos2d::Size::ZERO);
-        } else {
-            origTex->updateWithData(BmpData, 0, 0, Width, Height);
-        }
-        return origTex;
+    krkr::render::TextureFrame GetPresentationFrame() override {
+        return krkr::render::RGBAFrame{ static_cast<unsigned>(Width),
+                                        static_cast<unsigned>(Height),
+                                        GetPixelData(), Pitch };
     }
 };
 
@@ -567,23 +546,20 @@ public:
         return 1;
     }
 
-    cocos2d::Texture2D *
-    GetAdapterTexture(cocos2d::Texture2D *origTex) override {
-        if(!origTex || origTex->getPixelsWide() != Width ||
-           origTex->getPixelsHigh() != _scanline.size()) {
-            origTex = new cocos2d::Texture2D;
-            origTex->autorelease();
-            origTex->initWithData(nullptr, Pitch * _scanline.size(),
-                                  CCPixelFormat::RGBA8888, Width,
-                                  _scanline.size(), cocos2d::Size::ZERO);
-        }
-        int y = 0;
-        for(const tjs_uint8 *line : _scanline) {
-            origTex->updateWithData(line, 0, y, Width, 1);
-            ++y;
-        }
-        return origTex;
+    krkr::render::TextureFrame GetPresentationFrame() override {
+        return krkr::render::RGBAFrame{
+            static_cast<unsigned>(Width),
+            static_cast<unsigned>(_scanline.size()),
+            nullptr,
+            Pitch,
+            this,
+            [](const void *context, unsigned y) -> const void * {
+                return static_cast<const tTVPSoftwareTexture2D_half *>(context)
+                    ->_scanline[y];
+            }
+        };
     }
+
 
     tjs_uint GetInternalHeight() const override { return _scanline.size(); }
 
@@ -2362,10 +2338,7 @@ iTVPRenderMethod *iTVPRenderManager::GetRenderMethod(const char *name,
     auto it = AllMethods.find(hash);
     if(it != AllMethods.end())
         return it->second;
-    TVPShowSimpleMessageBox(ttstr(TJS_W("Operation \"")) + name +
-                                TJS_W("\" is not supported under ") +
-                                GetName() + TJS_W(" mode."),
-                            TJS_W("Please use software renderer"));
+    krkr::renderhost::ReportUnsupportedOperation(name, GetName());
     return nullptr;
 }
 
@@ -2906,15 +2879,19 @@ public:
         StretchType(stNearest), tempTexture(nullptr), img_convert_ctx(nullptr),
         _drawCount(0) {
         _createStaticTexture2D = tTVPSoftwareTexture2D::Create;
-        std::string compTexMethod =
-            IndividualConfigManager::GetInstance()->GetValue<std::string>(
-                "software_compress_tex", "none");
-        if(compTexMethod == "halfline")
-            _createStaticTexture2D = tTVPSoftwareTexture2D_half::Create;
-        else if(compTexMethod == "lz4")
-            _createStaticTexture2D = tTVPSoftwareTexture2D_lz4::Create;
-        else if(compTexMethod == "lz4+tlg5")
-            _createStaticTexture2D = tTVPSoftwareTexture2D_lz4_tlg5::Create;
+        switch(krkr::renderhost::SoftwareStorage()) {
+            case krkr::render::TextureStorage::HalfRows:
+                _createStaticTexture2D = tTVPSoftwareTexture2D_half::Create;
+                break;
+            case krkr::render::TextureStorage::Lz4:
+                _createStaticTexture2D = tTVPSoftwareTexture2D_lz4::Create;
+                break;
+            case krkr::render::TextureStorage::Lz4Tlg5:
+                _createStaticTexture2D = tTVPSoftwareTexture2D_lz4_tlg5::Create;
+                break;
+            default:
+                break;
+        }
 
         Register_1();
         Register_2();
@@ -2992,6 +2969,15 @@ public:
     }
 
     const char *GetName() override { return "Software"; }
+    krkr::render::TextureStorage GetTextureStorage() const override {
+        if(_createStaticTexture2D == tTVPSoftwareTexture2D_half::Create)
+            return krkr::render::TextureStorage::HalfRows;
+        if(_createStaticTexture2D == tTVPSoftwareTexture2D_lz4::Create)
+            return krkr::render::TextureStorage::Lz4;
+        if(_createStaticTexture2D == tTVPSoftwareTexture2D_lz4_tlg5::Create)
+            return krkr::render::TextureStorage::Lz4Tlg5;
+        return krkr::render::TextureStorage::Normal;
+    }
 
     bool IsSoftware() override { return true; }
 
@@ -4836,9 +4822,7 @@ iTVPRenderManager *TVPGetRenderManager(const ttstr &name) {
 iTVPRenderManager *TVPGetRenderManager() {
     static iTVPRenderManager *_RenderManager;
     if(!_RenderManager) {
-        ttstr str =
-            IndividualConfigManager::GetInstance()->GetValue<std::string>(
-                "renderer", "software");
+        ttstr str = krkr::renderhost::RendererName();
         _RenderManager = TVPGetRenderManager(str);
     }
     return _RenderManager;

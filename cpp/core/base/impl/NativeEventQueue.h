@@ -2,6 +2,8 @@
 #ifndef __NATIVE_EVENT_QUEUE_H__
 #define __NATIVE_EVENT_QUEUE_H__
 
+#include <cstdint>
+
 // 呼び出されるハンドラがシングルスレッドで動作するイベントキュー
 
 class NativeEvent {
@@ -9,8 +11,8 @@ public:
     // 	LRESULT Result;
     // 	HWND HWnd;
     unsigned int Message;
-    intptr_t WParam;
-    intptr_t LParam;
+    std::intptr_t WParam;
+    std::intptr_t LParam;
 
     //	NativeEvent(){}
     NativeEvent(int mes) :
@@ -56,11 +58,11 @@ public:
     void Allocate() {}
 
     // Queue の削除
-    void Deallocate() {}
+    void Deallocate() { Clear(); }
 
     void PostEvent(const NativeEvent &event);
 
-    void Clear(int msg = 0);
+    void Clear(unsigned msg = 0);
 
     //	void* GetOwner() { return window_handle_; }
     virtual void Dispatch(class NativeEvent &event) = 0;

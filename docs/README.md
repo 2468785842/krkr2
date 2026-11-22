@@ -20,6 +20,7 @@
 | [窗口接口](subsystems/window-interface.md) | 通用窗口接口、可选 KAG 按钮导航与 Cocos 适配边界 |
 | [共享输入状态](subsystems/input-state.md) | 虚拟键、修饰键、指针坐标、提交文本及 Cocos 适配边界 |
 | [Android 输入桥](subsystems/android-input.md) | UTF-16/JNI、打印键去重、退格和独立模拟器测试 |
+| [纹理呈现](subsystems/render-presentation.md) | 后端无关画面描述、Cocos 纹理适配、宿主截图与视频覆盖层 |
 | [ImageOps](subsystems/imageops.md) | CPU 图像契约、独立测试与微基准 |
 
 ## 参考与工具

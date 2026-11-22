@@ -182,6 +182,8 @@ python tools/game-smoke/interaction_repro.py out/windows/debug/bin/krkr2/krkr2.e
 ```
 
 原生消息框弹出后仍需实际确认；工具等待其真实返回，超时失败。
+Windows CI 的 `pointer_contracts=true` 使用 `--skip-native-dialog` 跳过人工确认环节，运行一轮同步 Cocos 文件选择、菜单和关闭交互。
+选择取消、确认返回的文件名、关闭否决及正常退出仍由实际脚本事件验证。
 每轮以事件计数和唯一请求序号确认新结果，不接受上一轮的同名事件；截图也等待保存确认。
 第二次菜单点击后通过实际返回按钮关闭该菜单，再进入下一轮，避免累积同名可见控件。
 操作轨迹在 `repro-trace.json`，每轮图片独立命名；最终判定仍由 `interaction_smoke.py` 写入原格式报告。

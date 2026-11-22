@@ -1,3 +1,5 @@
+#include "FrameCapture.h"
+#include "RenderCapabilities.h"
 // Opt-in component-test input. Not compiled into normal runtime builds.
 #include "tjsCommHead.h"
 #include <cocos2d.h>
@@ -6,6 +8,7 @@
 #include "SysInitIntf.h"
 #include "tjsString.h"
 #include "HostLifecycle.h"
+#include "RenderManager.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -99,16 +102,27 @@ void TVPStartUIContractDriver(cocos2d::Scene *scene) {
                     std::ofstream tree(root / "ui-tree.txt");
                     dump(scene, tree);
                 } else if(action == "capture") {
+                    log << id << " renderer:"
+                        << (TVPIsSoftwareRenderManager() ? "software"
+                                                         : "opengl")
+                        << "\n";
+                    log << id << " texture-storage:"
+                        << krkr::render::StorageName(
+                               TVPGetRenderManager()->GetTextureStorage())
+                        << "\n";
+                    log << id << " texture-limit:"
+                        << TVPGetRenderManager()->GetTextureSizeLimit() << "\n";
+                    log << id << " arb-copy-image:"
+                        << (TVPCheckGLExtension("GL_ARB_copy_image") ? 1 : 0)
+                        << "\n";
                     const auto path = (root / "ui-frame.png").u8string();
-                    utils::captureScreen(
-                        [root, id](bool saved, const std::string &) {
-                            std::ofstream result(root / "ui-driver-events.txt",
-                                                 std::ios::app);
-                            result << id
-                                   << (saved ? " capture-saved\n"
-                                             : " error:capture\n");
-                        },
-                        path);
+                    TVPCaptureHostFrame(path, [root, id](bool saved) {
+                        std::ofstream result(root / "ui-driver-events.txt",
+                                             std::ios::app);
+                        result << id
+                               << (saved ? " capture-saved\n"
+                                         : " error:capture\n");
+                    });
                 } else if(action == "text-hex") {
                     if(selector.empty() || selector.size() > 128 ||
                        selector.size() % 2 != 0)

@@ -223,3 +223,86 @@ OpenCV 系数生成循环的自动向量化/FMA 改变浮点求值。复刻编�
 （Windows/Linux，12.4M 像素零差异），ARM（macOS/Android）沿用 OpenCV 后端，
 `resizeLinear` 以预处理保护保留。ARM 原生化留待 B5 真机调试。线性在 ARM 上
 的行为与替换前完全一致（同一 OpenCV 调用），不属于回归。
+
+## x86 线性 resize 性能与消费者验收（2026-11-15）
+
+基线 `519f113`，本批为其上的 dirty 工作区。此前线性原生化仅验证像素，未记录
+同机 Release 性能。本批针对该完整算法路径补齐实现、随机像素、内存、消费者构建与测量：
+
+- 每个并行行任务使用两条私有 int16 行缓存，保存原合成公式的 `S>>4`（0..32640），
+  重复源行复用；系数计划改为只读引用捕获，避免复制向量。
+  灰度一般缩小保留原逐像素融合循环，避开不划算的缓存和水平 gather。
+  初版灰度缓存/gather 试采样有回退：1 线程 1920×1080→853×479 的旧/新
+  分别为 2704/2934 μs、各进程直接 OpenCV 为 1285/686 μs；3 线程亦有回退。
+  此分进程试采样受频率/负载影响，不作为最终加速结论，原始数据在
+  `out/linear-perf/final-before-*.json`、`final-after-*.json`。据此取消该分支优化，
+  最终采用下述同进程逐次交替采样。
+- x86 SSE2 实现 RGBA8 水平插值、缓存行的 signed mul_hi 垂直合成和两种格式的恰好 2x2 缩小；
+  保留原截断/舍入位置，尾部用标量且不越过有效行。未启用 SSE2 时沿用同式标量。
+  SIMD 循环为本仓库独立实现，公式来源沿用上节记录的 OpenCV 4.7.0；未复制外部 SIMD 源码。
+- ARM 线性分派未变；OpenCV 仍承担调度及其他算法，没有依赖移除或游戏帧率结论。
+
+独立配置为 `out/windows/imageops-release`，MSVC 19.44.35217、Release、C++17，
+`KRKR2_BUILD_APP=OFF / BUILD_TOOLS=OFF / ENABLE_TESTS=ON / KRKR2_TEST_SCOPE=imageops / KRKR2_BUILD_IMAGEOPS_BENCHMARK=ON`。
+显式空 `CMAKE_TOOLCHAIN_FILE` 并通过 `CMAKE_PREFIX_PATH` 借用已有
+`out/windows/debug/vcpkg_installed/x64-windows-static-md` 的真实库；不声称新安装的最小依赖闭包。
+配置/构建命令在 `out/linear-perf/configure.cmd`，开发环境使用既有 vcvars64。
+
+`cmake --build out/windows/imageops-release --target imageops_tests imageops_benchmark -j 6`
+退出 0；`ctest --test-dir out/windows/imageops-release -N` 实际注册 16 项；
+`ctest --test-dir out/windows/imageops-release --output-on-failure --no-tests=error`
+16/16 通过。直接运行 compact reporter 为 43,274 断言；比此前增加 928 组两断言对照，
+覆盖短行及每种尾部、重复源行、随机字节/尺寸、Gray8/RGBA8、奇数 pitch、源数据和目标保护区、1/3 线程。
+Release 测试 exe SHA256 `0E16D5B44C535AE3789401F02A75F8740CBBDF7A7E5A8502933ADA5F82B4055E`。
+
+完整应用执行 `cmake --build out/windows/debug --target krkr2 -j 4`，退出 0。
+缓存身份为 Debug、`KRKR2_BUILD_APP=ON / ENABLE_TESTS=ON / KRKR2_TEST_SCOPE=full / KRKR2_USE_COCOS_UI=ON / KRKR2_ENABLE_UI_TEST_DRIVER=OFF`。
+构建日志确认本批 ImageOps.cpp、ImageOps_opencv.cpp、RenderManager.cpp 及 RenderManager_ogl.cpp
+实际编译，并最终链接 `out/windows/debug/bin/krkr2/krkr2.exe`；2026-11-15 21:34（本地时间）
+产物 86,256,640 字节，SHA256 `1035323EF4C875E1CC465772EDA259642DDB6D3BC17CF0A1976F7A0A8E3D8591`。
+初轮构建日志 `out/linear-perf/app.log`，最终算法调整后的重建日志 `out/linear-perf/app-final.log`，两次退出 0，保留现有第三方警告；没有将其他 full 测试或游戏画面计为通过。
+
+另外将当前源复制到 `out/linear-perf/scalar.cpp`，仅移除 `TVP_IMAGEOPS_SSE2` 的定义，
+以同一 Release 测试对象/后端运行标量实现，16 用例/43,274 断言通过。
+MSVC `/fsanitize=address /Zi /O2 /MD` 插装当前 ImageOps.cpp 和 ImageOpsTest.cpp，
+同一组用例及断言通过。已有 Catch2/OpenCV/调度后端未插装；不声称 UBSan、泄漏或后端内部验收。
+初次 ASan 链接报 LNK2038：STL `annotate_vector/string` 与现有未插装 Catch2 不匹配；
+随后仅在临时 ASan 构建添加 `_DISABLE_VECTOR_ANNOTATION`、`_DISABLE_STRING_ANNOTATION`，
+保留普通地址检查，链接及运行通过。早期失败日志 `out/linear-perf/variants.log`、
+最终通过日志 `out/linear-perf/variants-final.log`；未修改全局工具链和安装库。
+
+同机性能数据保存到[线性优化报告](../../../reports/imageops-linear-2026-11-15.json)，
+每个样本预热，三轮各 100 次。在同一进程中同时链接旧原生、新原生及直接 OpenCV，
+每次迭代按 `(iteration + round + order) % 3` 轮换三者顺序，并分别累计操作时间；
+汇总采用三轮均值的中位数。旧源从基线 `git show` 提取，只去掉未变化的 detail/缓冲区定义
+并将 Resize 更名为 BaselineResize，所有实现共享当前未改动的校验/调度后端、依赖与 `/O2 /Ob2 /MD`。
+临时源码/构建为 `out/linear-perf/{paired.cpp,baseline-shared.cpp,paired-build.cmd}`，
+测量脚本 `measure-paired.py`；最终原始数据 `final-paired.json`。
+所有构建和测试结束后串行采样。早期分进程试采样不进入最终报告；
+报告保留全部原始三轮数据、直接 OpenCV 对照、源哈希和每种操作的尺寸。
+同进程交替可减少不同阶段频率和负载差异，仍不能把微基准倍数当作游戏收益。
+
+最终中位数（μs/次，括号内为相对旧原生实现的倍数）：
+
+| 操作 | 1 线程旧→新 | 3 线程旧→新 |
+|---|---|---|
+| 小图 RGBA 320×240→217×157 | 539→196（2.76×） | 264→106（2.49×） |
+| Gray8 放大 320×240→853×641 | 1781→415（4.30×） | 737→222（3.32×） |
+| Gray8 缩小 1920×1080→853×479 | 1301→1276（1.02×） | 514→526（0.98×） |
+| RGBA 放大 640×480→1920×1080 | 26463→3197（8.28×） | 9361→1273（7.35×） |
+| RGBA 一般缩小 3840×2160→1919×1079 | 31741→11638（2.73×） | 9698→3499（2.77×） |
+| RGBA 减半 3840×2160→1920×1080 | 16164→3565（4.53×） | 5538→2018（2.74×） |
+
+灰度一般缩小与旧实现基本持平，不宣称提升。RGBA 放大/减半接近直接 OpenCV，
+一般缩小仍慢于直接 OpenCV（RGBA 约 1.4..1.7 倍、灰度约 2.9..3.3 倍）。
+该结果完成本轮 x86 线性优化与消费者构建验收，不代表 B4 全算法或 ARM 已完成。
+
+clang-format 20.1.8、`git diff --check` 和 `python scripts/check_core_module_deps.py`
+通过（后者仅其声明的 11 个 foundation 目标/直接包含与窗口接口约束）。
+Linux/macOS/Android、本批游戏脚本画面和真实游戏未验证；ARM 原生化及后续算法替换仍未完成。
+
+## 2026-11-20 OpenCV 剔除
+
+剩余算法和调度已迁移为独立 C++17 实现，生产依赖、overlay port、默认测试依赖及 CI/打包检查同步清理。
+本节之前的 OpenCV/ARM 回退与构建记录属于历史状态；当前实现、许可、性能回退和验证边界见
+[完整移除记录](2026-11-20-opencv-removal.md)与 [ImageOps 专题](../../../../docs/subsystems/imageops.md)。

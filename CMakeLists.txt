@@ -25,6 +25,10 @@ if(KRKR2_ENABLE_UI_TEST_DRIVER AND (ANDROID OR IOS))
 endif()
 
 option(KRKR2_BUILD_APP "Build the game runtime and bundled plugins" ON)
+option(KRKR2_ENABLE_SDL3_HOST "Enable the SDL3 host in the Linux game runtime" OFF)
+if(KRKR2_ENABLE_SDL3_HOST AND (NOT KRKR2_BUILD_APP OR NOT LINUX OR ANDROID OR IOS))
+    message(FATAL_ERROR "The SDL3 host requires the Linux game runtime")
+endif()
 option(KRKR2_BUILD_SDL3_PROTOTYPE "Build the separate SDL3/TJS desktop shell experiment" OFF)
 if(KRKR2_BUILD_SDL3_PROTOTYPE AND (ANDROID OR IOS))
     message(FATAL_ERROR "The SDL3 prototype is desktop-only")
@@ -68,7 +72,7 @@ if(BUILD_TOOLS AND NOT (ANDROID OR IOS))
     list(APPEND VCPKG_MANIFEST_FEATURES tools)
 endif()
 list(REMOVE_DUPLICATES VCPKG_MANIFEST_FEATURES)
-if(KRKR2_BUILD_SDL3_PROTOTYPE)
+if(KRKR2_BUILD_SDL3_PROTOTYPE OR KRKR2_ENABLE_SDL3_HOST)
     list(APPEND VCPKG_MANIFEST_FEATURES sdl3-prototype)
 endif()
 
@@ -213,6 +217,9 @@ if(KRKR2_BUILD_APP)
     target_link_libraries(${PROJECT_NAME} PUBLIC
         krkr2plugin krkr2core
     )
+    if(KRKR2_ENABLE_SDL3_HOST)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE KRKR2_ENABLE_SDL3_HOST=1)
+    endif()
     if(ANDROID)
         # The JNI bridge consumes the text codec directly; environ's PRIVATE
         # dependency does not export its headers to this application target.

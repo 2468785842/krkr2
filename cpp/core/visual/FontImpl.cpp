@@ -8,6 +8,7 @@
 #include "MsgIntf.h"
 #include <map>
 #include <cmath>
+#include <memory>
 #include "Application.h"
 #include "Platform.h"
 #include "TVPLog.h"
@@ -16,7 +17,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#include <cocos/platform/CCFileUtils.h>
+#include "PackagedAsset.h"
 #include "StorageImpl.h"
 #include "BinaryStream.h"
 
@@ -53,7 +54,7 @@ void TVPReleaseFontLibrary() {
 }
 //---------------------------------------------------------------------------
 static int TVPInternalEnumFonts(
-    FT_Byte *pBuf, int buflen, const ttstr &FontPath,
+    const FT_Byte *pBuf, int buflen, const ttstr &FontPath,
     const std::function<tTJSBinaryStream *(TVPFontNamePathInfo *)> &getter) {
     unsigned int faceCount = 0;
     FT_Face fontface;
@@ -170,6 +171,16 @@ tTJSBinaryStream *TVPCreateFontStream(const ttstr &fontname) {
     return TVPCreateBinaryStreamForRead(info->Path, TJS_W(""));
 }
 
+static tTJSBinaryStream *TVPOpenPackagedFont(TVPFontNamePathInfo *info) {
+    auto stream = std::make_unique<tTVPMemoryStream>();
+    TVPReadPackagedAsset(info->Path.AsStdString(),
+                         [&](const unsigned char *bytes, std::size_t size) {
+                             stream->WriteBuffer(bytes, size);
+                         });
+    stream->SetPosition(0);
+    return stream.release();
+}
+
 //---------------------------------------------------------------------------
 #ifdef __ANDROID__
 extern std::vector<ttstr> Android_GetExternalStoragePath();
@@ -220,23 +231,18 @@ void TVPInitFontNames() {
 #endif
 
         { // from internal storage
-            auto data = cocos2d::FileUtils::getInstance()->getDataFromFile(
-                "NotoSansCJK-Regular.ttc");
-            if(data.isNull()) {
+            const char bundledFont[] = "NotoSansCJK-Regular.ttc";
+            int fontCount = 0;
+            const bool found = TVPReadPackagedAsset(
+                bundledFont, [&](const unsigned char *bytes, std::size_t size) {
+                    fontCount = TVPInternalEnumFonts(bytes, size, bundledFont,
+                                                     TVPOpenPackagedFont);
+                });
+            if(!found) {
                 G_CoreLog.critical("can't found internal font file!");
                 exit(-1);
             }
-            if(TVPInternalEnumFonts(
-                   data.getBytes(), data.getSize(), "NotoSansCJK-Regular.ttc",
-                   [](TVPFontNamePathInfo *info) -> tTJSBinaryStream * {
-                       auto data =
-                           cocos2d::FileUtils::getInstance()->getDataFromFile(
-                               info->Path.AsStdString());
-                       auto *ret = new tTVPMemoryStream();
-                       ret->WriteBuffer(data.getBytes(), data.getSize());
-                       ret->SetPosition(0);
-                       return ret;
-                   }))
+            if(fontCount)
                 break;
         }
     } while(false);

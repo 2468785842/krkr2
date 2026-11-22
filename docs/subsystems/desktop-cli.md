@@ -1,7 +1,7 @@
 # Desktop 启动入口（L1）
 
 状态：已实现的首批入口；现有 cocos 游戏窗口、管理界面和游戏内菜单仍保留。
-`launch.json`、GlobalConfig overlay、RN 和新窗口后端尚未实现。
+`launch.json`、GlobalConfig overlay 与 RN 尚未实现。Linux 可通过显式开关构建 SDL3 游戏宿主。
 
 ## 使用
 
@@ -32,6 +32,33 @@ Windows GUI 子系统的输出可通过子进程 stdout/stderr 重定向读取�
 通过原 `TVPSetCommandLine` 写入，同名后项覆盖前项，不改变 TVPGetCommandLine。
 旧单横线引擎参数与 `-loglevel` / `--loglevel` 写法保留。
 未知双横线选项明确拒绝，`--config` 等设计草案中的开关当前不能使用。
+
+## Linux SDL3 游戏宿主
+
+在完整应用构建中显式开启 SDL3 选项，使用同一个 `krkr2` 可执行文件选择宿主。
+
+```sh
+cmake --preset "Linux Release Config" -DKRKR2_ENABLE_SDL3_HOST=ON -DBUILD_TOOLS=OFF
+cmake --build --preset "Linux Release Build" --target krkr2
+out/linux/release/bin/krkr2/krkr2 --host=sdl3 --game /path/to/game
+```
+
+`--host=sdl3` 要求显式游戏目标。默认宿主是 Cocos，也可用 `--host=cocos` 明确指定。
+未编译 SDL3 的构建收到 `--host=sdl3` 时返回 2。SDL3 使用正式的启动脚本、`Window`、`Layer` 和 `System`。
+首批支持一个 SDL3 游戏窗口及基本键盘和鼠标左键输入。引擎的软件渲染结果以 RGBA 纹理上传，
+由 SDL3 的原生软件窗口表面呈现。Cocos 仍提供部分资源和共享服务。
+KAG、媒体、IME、模态游戏窗口、多窗口、Wayland 和高 DPI 属于后续验收范围。
+
+在具备 X11、XTest 和 Xvfb 的 Linux 环境运行正式入口探针。探针在外部读取实际窗口像素，
+通过 XTest 投递键鼠输入，并发送窗口管理器的关闭消息。第一次关闭后必须继续响应输入及更新像素，
+第二次关闭必须正常退出。
+
+```sh
+xvfb-run -a -s '-screen 0 1024x768x24' python tools/game-smoke/sdl_host_repro.py \
+  out/linux/release/bin/krkr2/krkr2 out/linux/sdl-host-runtime
+```
+
+GitHub 的 Build Linux 工作流通过 `sdl3_host_contract=true` 构建并运行上述探针。
 
 ## 实现边界
 

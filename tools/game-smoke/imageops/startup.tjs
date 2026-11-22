@@ -1,0 +1,142 @@
+// Self-authored image operations fixture. No commercial scripts or assets.
+global.events = [];
+global.record = function(text) {
+    events.add(text);
+    events.save(System.exePath + "imageops-events.txt");
+};
+try {
+    Plugins.link("perspective.dll");
+    global.win = new Window();
+    win.caption = "KrKr2 ImageOps pixel contract";
+    win.setSize(384, 192);
+    win.visible = true;
+    global.root = new Layer(win, null);
+    root.setSize(384, 192);
+    root.setImageSize(384, 192);
+    root.type = ltAlpha;
+    root.fillRect(0, 0, 384, 192, 0xff102010);
+    root.visible = true;
+    global.source = new Layer(win, root);
+    source.setImageSize(64, 64);
+    source.setSize(64, 64);
+    source.type = ltAlpha;
+    source.visible = false;
+    source.fillRect(0, 0, 32, 32, 0xff40a040);
+    source.fillRect(32, 0, 32, 32, 0xffa040a0);
+    source.fillRect(0, 32, 32, 32, 0xff404040);
+    source.fillRect(32, 32, 32, 32, 0xffa0a0a0);
+    global.colors = [0x40a040, 0xa040a0, 0x404040, 0xa0a0a0];
+    function panel() {
+        var layer = new Layer(win, root);
+        layer.setImageSize(96, 96);
+        layer.setSize(96, 96);
+        layer.type = ltAlpha;
+        layer.visible = false;
+        layer.fillRect(0, 0, 96, 96, 0);
+        return layer;
+    }
+    function verify(layer, points, name) {
+        for(var i = 0; i < 4; ++i) {
+            var x = points[i][0], y = points[i][1];
+            var rgb = layer.getMainPixel(x, y);
+            var alpha = layer.getMaskPixel(x, y);
+            var expected = colors[i];
+            // Existing software PerspectiveAlphaBlend_a converts straight RGB
+            // with alpha/256 before blending: even alpha=255 truncates a byte.
+            if(name == "perspective" && System.getArgument("-imageops-renderer") == "software")
+                expected = ((((expected >> 16) * 255 >> 8) << 16) |
+                    (((((expected >> 8) & 255) * 255) >> 8) << 8) |
+                    (((expected & 255) * 255) >> 8));
+            if(rgb != expected || alpha != 255)
+                throw new Exception(name + ": pixel " + i + " RGB=" + rgb + " expected=" + expected + " alpha=" + alpha);
+        }
+        record("passed:" + name);
+    }
+    if(System.getArgument("-render-storage-probe") == "yes") {
+        source.saveLayerImage(System.exePath + "storage-input.bmp", "bmp");
+        source.loadImages(System.exePath + "storage-input.bmp");
+        verify(source, [[16,16],[48,16],[16,48],[48,48]], "storage-readback");
+        // GL half only reduces dimensions above 64. Keep the algorithm input
+        // unchanged and separately exercise the actual 128 -> 64 path.
+        var storageProbe = new Layer(win, root);
+        storageProbe.visible = false;
+        storageProbe.setImageSize(128, 128);
+        storageProbe.type = ltAlpha;
+        storageProbe.fillRect(0, 0, 64, 64, 0xff40a040);
+        storageProbe.fillRect(64, 0, 64, 64, 0xffa040a0);
+        storageProbe.fillRect(0, 64, 64, 64, 0xff404040);
+        storageProbe.fillRect(64, 64, 64, 64, 0xffa0a0a0);
+        storageProbe.saveLayerImage(System.exePath + "storage-large.bmp", "bmp");
+        storageProbe.loadImages(System.exePath + "storage-large.bmp");
+        verify(storageProbe, [[32,32],[96,32],[32,96],[96,96]], "storage-readback-large");
+        invalidate storageProbe;
+    }
+    global.panels = [];
+    for(var mode = 0; mode < 4; ++mode) {
+        var layer = panel();
+        layer.stretchCopy(0, 0, 96, 64, source, 0, 0, 64, 64, mode);
+        verify(layer, [[24,16],[72,16],[24,48],[72,48]], "resize-" + mode);
+        root.copyRect(mode*96, 0, layer, 0, 0, 96, 96);
+        panels.add(layer);
+    }
+    global.blur = panel();
+    blur.copyRect(0, 0, source, 0, 0, 64, 64);
+    blur.doBoxBlur(4, 4);
+    verify(blur, [[16,16],[48,16],[16,48],[48,48]], "blur");
+    root.copyRect(0, 96, blur, 0, 0, 96, 96);
+    global.affine = panel();
+    affine.affineCopy(source, 0, 0, 64, 64, false, 8, 8, 80, 12, 12, 80, 2, false);
+    verify(affine, [[27,27],[63,29],[29,63],[65,65]], "affine");
+    root.copyRect(96, 96, affine, 0, 0, 96, 96);
+    global.perspective = panel();
+    perspective.perspectiveCopy(source, 0, 0, 64, 64, 8, 8, 80, 12, 12, 80, 72, 72);
+    verify(perspective, [[20,20],[65,22],[22,65],[61,61]], "perspective");
+    root.copyRect(192, 96, perspective, 0, 0, 96, 96);
+    root.saveLayerImage(System.exePath + "imageops.bmp", "bmp");
+    record("ready");
+} catch(e) {
+    record("error:" + e.message);
+    Debug.message("IMAGEOPS_RUNTIME_FAILED: " + e.message);
+}
+global.presentationStep = 0;
+global.driver = new Timer(function() {
+    try {
+        var next = presentationStep + 1;
+        if(next <= 5 && Storages.isExistentStorage(System.exePath + "presentation-" + next + ".txt")) {
+            var widths = [65, 66, 129, 65, 65], heights = [33, 33, 65, 33, 33];
+            var fills = [0xff60b060, 0xff704070, 0xffb060b0, 0xff306030, 0xffa0c0a0];
+            var w = widths[next-1], h = heights[next-1], color = fills[next-1];
+            // Opaque presentation isolates upload/reuse from the existing
+            // alpha compositor. The initial algorithm scene still uses alpha.
+            root.type = ltOpaque;
+            if(next == 5) {
+                var replacement = new Layer(win, root);
+                replacement.visible = false;
+                replacement.setImageSize(w, h);
+                replacement.fillRect(0, 0, w, h, color);
+                root.assignImages(replacement);
+                invalidate replacement;
+            } else {
+                root.setImageSize(w, h);
+                root.fillRect(0, 0, w, h, color);
+            }
+            if(next == 2)
+                root.fillRect(w-1, 0, 1, h, 0xffe0d0e0);
+            root.setSize(w, h);
+            win.setSize(w, h);
+            if(root.getMainPixel(w/2, h/2) != (color & 0xffffff) || root.getMaskPixel(w/2, h/2) != 255)
+                throw new Exception("presentation pixel " + next);
+            root.saveLayerImage(System.exePath + "presentation-" + next + ".bmp", "bmp");
+            presentationStep = next;
+            record("presented:" + next);
+        }
+    } catch(e) {
+        record("error:presentation:" + e.message);
+    }
+    if(!Storages.isExistentStorage(System.exePath + "imageops-close.txt")) return;
+    driver.enabled = false;
+    record("finished");
+    System.exit();
+}, "");
+driver.interval = 50;
+driver.enabled = true;

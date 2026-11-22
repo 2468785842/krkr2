@@ -52,15 +52,15 @@ def verify(abi):
     for name in ("platforms/android/cpp/krkr2_android.cpp", "cpp/core/input/TextInput.cpp",
                  "cpp/core/environ/cocos2d/MainScene.cpp", "cpp/core/visual/RenderManager.cpp",
                  "cpp/core/visual/ogl/RenderManager_ogl.cpp", "cpp/core/imageops/ImageOps.cpp",
-                 "cpp/core/imageops/ImageOps_opencv.cpp"):
+                 "cpp/core/imageops/ImageOps_native.cpp"):
         if sum(s.endswith("/" + name) for s in sources) != 1:
             raise ValueError(f"Application compilation is missing/duplicates {name}")
     status = (path.parent / "vcpkg_installed/vcpkg/status").read_text(encoding="utf-8")
     ports = {line.split(": ", 1)[1] for line in status.splitlines() if line.startswith("Package: ")}
-    if not {"cocos2dx", "ffmpeg", "opencv4", "breakpad", "boost-spirit"}.issubset(ports):
+    if not {"cocos2dx", "ffmpeg", "breakpad", "boost-spirit"}.issubset(ports):
         raise ValueError(f"Missing full runtime dependencies: {sorted(ports)}")
-    if ports.intersection({"catch2", "argparse"}):
-        raise ValueError("Android runtime unexpectedly installs desktop tests/tools")
+    if ports.intersection({"catch2", "argparse", "opencv4"}):
+        raise ValueError("Android runtime unexpectedly installs desktop tests/tools or OpenCV")
     ndk = Path(os.environ["ANDROID_NDK"])
     toolchain = ndk / "toolchains/llvm/prebuilt/linux-x86_64"
     readelf = toolchain / "bin/llvm-readelf"
@@ -80,6 +80,8 @@ def verify(abi):
         if packaged_abis != {abi}:
             raise ValueError(f"Unexpected APK ABIs: {packaged_abis}")
         native = {name.rsplit("/", 1)[1]: name for name in names if name.startswith(f"lib/{abi}/") and name.endswith(".so")}
+        if any("opencv" in name.lower() for name in native):
+            raise ValueError("OpenCV library remains packaged in the APK")
         if not {"libkrkr2.so", "libc++_shared.so"}.issubset(native):
             raise ValueError(f"Missing runtime/STL libraries: {native}")
         for name, entry in native.items():

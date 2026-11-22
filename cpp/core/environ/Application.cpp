@@ -10,6 +10,7 @@
 
 #include "Application.h"
 #include "HostLifecycle.h"
+#include "HostFrame.h"
 #include "SysInitIntf.h"
 #include "SysInitImpl.h"
 #include "DebugIntf.h"
@@ -505,7 +506,7 @@ void tTVPApplication::Run() {
             TVPExitApplication(TVPTerminateCode);
         }
         //	TVPBreathe();
-        ProcessMessages();
+        TVPProcessEngineMessages();
         if(TVPSystemControl)
             TVPSystemControl->SystemWatchTimerTimer();
         //		TVPDeliverWindowUpdateEvents(); // from
@@ -552,18 +553,6 @@ void tTVPApplication::Run() {
         ShowException((const tjs_char *)TVPUnknownError);
 #endif
     }
-}
-
-void tTVPApplication::ProcessMessages() {
-    std::vector<std::tuple<void *, int, tMsg>> lstUserMsg;
-    {
-        std::lock_guard<std::mutex> cs(m_msgQueueLock);
-        m_lstUserMsg.swap(lstUserMsg);
-    }
-    for(std::tuple<void *, int, tMsg> &it : lstUserMsg) {
-        std::get<2>(it)();
-    }
-    TVPTimer::ProgressAllTimer();
 }
 
 #if 0
@@ -734,16 +723,12 @@ void tTVPApplication::CheckDigitizer() {
 }
 
 void tTVPApplication::PostUserMessage(const std::function<void()> &func,
-                                      void *host, int msg) {
-    std::lock_guard<std::mutex> cs(m_msgQueueLock);
-    m_lstUserMsg.emplace_back(host, msg, func);
+                                      void *host, unsigned msg) {
+    mainThreadMessages.Post(func, host, msg);
 }
 
-void tTVPApplication::FilterUserMessage(
-    const std::function<void(std::vector<std::tuple<void *, int, tMsg>> &)>
-        &func) {
-    std::lock_guard<std::mutex> cs(m_msgQueueLock);
-    func(m_lstUserMsg);
+krkr::event::MainThreadMessageQueue &krkr::event::MainThreadMessages() {
+    return Application->mainThreadMessages;
 }
 
 void TVPOnHostForeground() { Application->OnActivate(); }

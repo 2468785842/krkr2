@@ -1,5 +1,7 @@
 #pragma once
 #include "ComplexRect.h"
+#include "TexturePresentation.h"
+#include "RenderSettings.h"
 #include <unordered_map>
 #include <stdint.h>
 #include <string>
@@ -92,10 +94,6 @@ struct TVPTextureFormat {
     };
 };
 
-namespace cocos2d {
-    class Texture2D;
-};
-
 class iTVPTexture2D {
 protected:
     int RefCount;
@@ -135,8 +133,7 @@ public:
     virtual bool IsStatic() = 0; // aka. is readonly
     virtual bool IsOpaque() = 0;
     // virtual void RefreshBitmap() = 0;
-    virtual cocos2d::Texture2D *
-    GetAdapterTexture(cocos2d::Texture2D *origTex) = 0;
+    virtual krkr::render::TextureFrame GetPresentationFrame() = 0;
     virtual bool GetScale(float &x, float &y) {
         x = 1.f;
         y = 1.f;
@@ -248,6 +245,8 @@ public:
 
     virtual bool IsSoftware() { return false; }
     virtual const char *GetName() = 0;
+    virtual krkr::render::TextureStorage GetTextureStorage() const = 0;
+    virtual unsigned GetTextureSizeLimit() const { return 0; }
 
     virtual bool GetRenderStat(unsigned int &drawCount, uint64_t &vmemsize) = 0;
     virtual bool GetTextureStat(iTVPTexture2D *texture, uint64_t &vmemsize) {

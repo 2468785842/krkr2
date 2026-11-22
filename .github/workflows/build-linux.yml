@@ -2,7 +2,24 @@ name: Build Linux
 
 on:
   workflow_call:
+    inputs:
+      sdl3_host_contract:
+        description: 'Build and exercise the opt-in SDL3 game host under X11'
+        type: boolean
+        default: false
+      imageops_contracts:
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      sdl3_host_contract:
+        description: 'Build and exercise the opt-in SDL3 game host under X11'
+        type: boolean
+        default: false
+      imageops_contracts:
+        description: 'Run self-authored image operations in both renderers (test binary)'
+        type: boolean
+        default: false
 
 env:
   # Fork pull requests cannot read repository secrets: fall back to plain
@@ -49,7 +66,7 @@ jobs:
           sudo apt-get install -y perl gcc g++ bison python3 yasm ninja-build
           
           sudo apt install -y libxft-dev libxext-dev
-          sudo apt install -y libxxf86vm-dev libx11-dev libxmu-dev libglu1-mesa-dev libgl2ps-dev libxi-dev libzip-dev libpng-dev libcurl4-gnutls-dev libfontconfig1-dev libsqlite3-dev libglew-dev libssl-dev libgtk-3-dev binutils
+          sudo apt install -y libxxf86vm-dev libx11-dev libxmu-dev libglu1-mesa-dev libgl2ps-dev libxi-dev libzip-dev libpng-dev libcurl4-gnutls-dev libfontconfig1-dev libsqlite3-dev libglew-dev libssl-dev libgtk-3-dev binutils xvfb xauth
           sudo apt install -y autoconf autoconf-archive automake libtool pkg-config
           sudo apt install libltdl-dev
 
@@ -57,6 +74,13 @@ jobs:
           chmod +x dotnet-install.sh
           ./dotnet-install.sh --channel 8.0
           echo "$HOME/.dotnet" >> $GITHUB_PATH
+
+      - name: Install SDL3 X11 dependencies
+        if: inputs.sdl3_host_contract
+        run: |
+          sudo apt-get install -y libxcursor-dev libxfixes-dev libxrender-dev libxss-dev libxtst-dev \
+            libxrandr-dev libxkbcommon-dev libdbus-1-dev libibus-1.0-dev libwayland-dev \
+            libegl1-mesa-dev wayland-protocols libdecor-0-dev
 
       - name: Install CMake
         uses: lukka/get-cmake@latest
@@ -89,20 +113,80 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2.18
         with:
-          key: ${{ github.job }}-${{ matrix.os }}
+          key: linux-release-${{ runner.arch }}
 
       - name: Build Linux
         run: |
-          cmake --preset="Linux Release Config" -DENABLE_TESTS=OFF -DBUILD_TOOLS=OFF
-          cmake --build --preset="Linux Release Build"
+          cmake --preset="Linux Release Config" -DBUILD_TOOLS=OFF \
+            -DKRKR2_ENABLE_SDL3_HOST=${{ inputs.sdl3_host_contract && 'ON' || 'OFF' }} \
+            -DENABLE_TESTS=${{ inputs.imageops_contracts && 'ON' || 'OFF' }} \
+            -DKRKR2_ENABLE_UI_TEST_DRIVER=${{ inputs.imageops_contracts && 'ON' || 'OFF' }}
+          targets=(krkr2)
+          if [ '${{ inputs.imageops_contracts }}' = 'true' ]; then targets+=(cocos_window_tests); fi
+          cmake --build --preset="Linux Release Build" --target "${targets[@]}"
           
           cp $(find out/linux/release/ -name libfmod.so) out/linux/release/bin/krkr2
           cp $(find out/linux/release/ -name libfmodL.so) out/linux/release/bin/krkr2
+
+      - name: Verify SDL3 game host with native X11 input
+        if: inputs.sdl3_host_contract
+        run: |
+          xvfb-run -a -s '-screen 0 1024x768x24' python tools/game-smoke/sdl_host_repro.py \
+            out/linux/release/bin/krkr2/krkr2 out/linux/sdl-host-runtime || {
+              if [ -f out/linux/sdl-host-runtime/process.log ]; then tail -n 80 out/linux/sdl-host-runtime/process.log; fi
+              exit 1
+            }
+
+      - name: Upload SDL3 game host evidence
+        if: always() && inputs.sdl3_host_contract
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-sdl-host-runtime
+          path: out/linux/sdl-host-runtime/**
+          if-no-files-found: ignore
+
+      - name: Verify OpenCV removal
+        run: python scripts/check_no_opencv.py out/linux/release
+
+      - name: Verify Cocos context and window contracts
+        id: cocos-contracts
+        if: inputs.imageops_contracts
+        run: ctest --test-dir out/linux/release -R '^cocos (window|pointer|focus|text|context)' --output-on-failure --no-tests=error
+
+      - name: Verify video overlay presentation
+        if: inputs.imageops_contracts
+        run: |
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get install -y ffmpeg; fi
+          LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a python tools/game-smoke/video_repro.py out/linux/release/bin/krkr2/krkr2 out/linux/video-runtime || {
+            if [ -f out/linux/video-runtime/process.log ]; then tail -n 100 out/linux/video-runtime/process.log; fi
+            exit 1
+          }
+
+      - name: Verify image operations in both backends
+        if: always() && steps.cocos-contracts.outcome == 'success'
+        run: |
+          LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a python tools/game-smoke/imageops_repro.py out/linux/release/bin/krkr2/krkr2 out/linux/imageops-runtime --capture --profiles
+
+      - name: Upload video presentation reports
+        if: always() && inputs.imageops_contracts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-video-runtime
+          path: out/linux/video-runtime/**
+          if-no-files-found: ignore
+
+      - name: Upload image operation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-imageops-runtime
+          path: out/linux/imageops-runtime/**
+          if-no-files-found: ignore
 
       - name: Upload artifacts
         if: ${{ !env.ACT && success() }}
         uses: actions/upload-artifact@v4
         with:
-          name: linux-binaries
+          name: ${{ inputs.imageops_contracts && 'linux-imageops-test-binaries' || 'linux-binaries' }}
           path: |
             out/linux/release/bin/krkr2/**

@@ -1,4 +1,3 @@
-#include <cocos/base/pvr.h>
 #include "tjsCommHead.h"
 #include "GraphicsLoaderIntf.h"
 #include "tjsDictionary.h"
@@ -6,6 +5,7 @@
 #include "ogl/etcpak.h"
 #include "ogl/pvr.h"
 #include "UtilStreams.h"
+#include "RenderHost.h"
 #include "RenderManager.h"
 #include "tvpgl.h"
 #include "LayerBitmapIntf.h"
@@ -233,11 +233,13 @@ void TVPLoadPVRv3(void *formatdata, void *callbackdata,
     switch((PVR3TexturePixelFormat)hdr.pixelFormat) {
         case PVR3TexturePixelFormat::PVRTC2BPP_RGB:
         case PVR3TexturePixelFormat::PVRTC2BPP_RGBA:
-            PVRTDecompressPVRTC(psrc, pitch / 4, hdr.height, pixel, true);
+            krkr::renderhost::DecodePVRTC(psrc, pitch / 4, hdr.height, pixel,
+                                          true);
             break;
         case PVR3TexturePixelFormat::PVRTC4BPP_RGB:
         case PVR3TexturePixelFormat::PVRTC4BPP_RGBA:
-            PVRTDecompressPVRTC(psrc, pitch / 4, hdr.height, pixel, false);
+            krkr::renderhost::DecodePVRTC(psrc, pitch / 4, hdr.height, pixel,
+                                          false);
             break;
         case PVR3TexturePixelFormat::ETC1:
         case PVR3TexturePixelFormat::ETC2_RGB:

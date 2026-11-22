@@ -23,9 +23,11 @@ def read_events(directory):
         return []
 
 
-def failures(events):
-    required = {"ready", "inform-return:0", "select-cancel-return:0", "select-accept-return:1",
+def failures(events, *, require_native_dialog=True):
+    required = {"ready", "select-cancel-return:0", "select-accept-return:1",
                 "menu-click:1", "menu-click:0", "veto-preserved", "close-query:0", "close-query:1", "close-returned"}
+    if require_native_dialog:
+        required.add("inform-return:0")
     missing = sorted(required - set(events))
     names = [line.partition(":")[2] for line in events if line.startswith("select-accept-name:")]
     if not names or not names[-1].replace("\\", "/").endswith("/fixture.txt"):

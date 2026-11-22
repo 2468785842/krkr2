@@ -86,13 +86,36 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE libbpg)
 
+find_package(Freetype REQUIRED)
+find_package(PNG REQUIRED)
 find_package(WebP CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} INTERFACE WebP::webp WebP::webpdecoder WebP::webpdemux)
-
-find_package(cocos2dx CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE
-        cocos2dx::cocos2d
+find_package(xxHash CONFIG REQUIRED)
+find_package(FFMPEG REQUIRED COMPONENTS swscale avutil)
+target_include_directories(${PROJECT_NAME} PRIVATE ${FFMPEG_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC Freetype::Freetype
+    PRIVATE
+        PNG::PNG
+        WebP::webp
+        WebP::webpdecoder
+        WebP::webpdemux
+        xxHash::xxhash
+        ${FFMPEG_LIBRARIES}
 )
+
+if(ANDROID)
+    target_link_libraries(${PROJECT_NAME} PRIVATE GLESv2 EGL)
+elseif(IOS)
+    find_library(KRKR2_OPENGLES_FRAMEWORK OpenGLES REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${KRKR2_OPENGLES_FRAMEWORK})
+else()
+    if(WIN32 OR LINUX)
+        find_package(GLEW REQUIRED)
+        target_link_libraries(${PROJECT_NAME} PUBLIC GLEW::GLEW)
+    endif()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
+endif()
 
 find_package(JXR REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PRIVATE -D__ANSI__)

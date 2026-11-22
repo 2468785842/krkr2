@@ -1,9 +1,10 @@
+#include "cocos2d/CocosTexturePresentation.h"
 #include "TVPWindow.h"
 #include "InputState.h"
 #include "InputCancellation.h"
 #include "InputModifiers.h"
 #include "cocos2d/CocosPointerCoordinates.h"
-#include "cocos2d/CocosWindowAccess.h"
+#include "cocos2d/CocosVideoPresentation.h"
 #include <cocos2d.h>
 #include <cocos-ext.h>
 #include <stdexcept>
@@ -17,7 +18,7 @@
 #include "cocos2d/CCKeyCodeConv.h"
 #include "ui/ConsoleWindow.h"
 #include "Platform.h"
-#include "RenderUtils.h"
+#include "HostFrame.h"
 #include "RenderManager.h"
 #include "SystemImpl.h"
 #include "vkdefine.h"
@@ -603,26 +604,32 @@ void TVPWindowLayer::UpdateDrawBuffer(iTVPTexture2D *tex) {
     if(!tex)
         return;
     cocos2d::Texture2D *tex2d = DrawSprite->getTexture();
-    cocos2d::Texture2D *newtex = tex->GetAdapterTexture(tex2d);
-    if(tex2d != newtex) {
+    cocos2d::Texture2D *newtex = TVPGetCocosPresentationTexture(*tex, tex2d);
+    if(tex2d != newtex)
         DrawSprite->setTexture(newtex);
-        float sw, sh;
-        tex->GetScale(_drawTextureScaleX, _drawTextureScaleY);
-        if(_drawTextureScaleX == 1.f)
-            sw = LayerWidth; // tex->GetWidth();
-        else {
-            sw = tex->GetInternalWidth() *
-                (static_cast<float>(LayerWidth) / tex->GetWidth());
-            _drawTextureScaleX = 1 / _drawTextureScaleX;
-        }
-        if(_drawTextureScaleY == 1.f)
-            sh = LayerHeight; // tex->GetHeight();
-        else {
-            sh = tex->GetInternalHeight() *
-                (static_cast<float>(LayerHeight) / tex->GetHeight());
-            _drawTextureScaleY = 1 / _drawTextureScaleY;
-        }
-        DrawSprite->setTextureRect(cocos2d::Rect(0, 0, sw, sh));
+    const float oldScaleX = _drawTextureScaleX;
+    const float oldScaleY = _drawTextureScaleY;
+    float sw, sh;
+    tex->GetScale(_drawTextureScaleX, _drawTextureScaleY);
+    if(_drawTextureScaleX == 1.f)
+        sw = LayerWidth;
+    else {
+        sw = tex->GetInternalWidth() *
+            (static_cast<float>(LayerWidth) / tex->GetWidth());
+        _drawTextureScaleX = 1 / _drawTextureScaleX;
+    }
+    if(_drawTextureScaleY == 1.f)
+        sh = LayerHeight;
+    else {
+        sh = tex->GetInternalHeight() *
+            (static_cast<float>(LayerHeight) / tex->GetHeight());
+        _drawTextureScaleY = 1 / _drawTextureScaleY;
+    }
+    const cocos2d::Rect visibleRect(0, 0, sw, sh);
+    // Logical dimensions can change while a padded upload texture is reused.
+    if(tex2d != newtex || !DrawSprite->getTextureRect().equals(visibleRect) ||
+       oldScaleX != _drawTextureScaleX || oldScaleY != _drawTextureScaleY) {
+        DrawSprite->setTextureRect(visibleRect);
         DrawSprite->setBlendFunc(cocos2d::BlendFunc::DISABLE);
         ResetDrawSprite();
     }
@@ -1053,6 +1060,14 @@ void TVPWindowLayer::OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate,
         TVPPostInputEvent(new tTVPOnKeyPressInputEvent(tjsNativeInstance, vk));
     }
 }
-cocos2d::Node *TVPGetCocosWindowPrimaryArea(iWindowLayer &window) {
-    return dynamic_cast<TVPWindowLayer &>(window).GetPrimaryArea();
+std::unique_ptr<krkr::video::Presentation>
+krkr::video::CreateWindowPresentation(iWindowLayer &window,
+                                      FrameCallback onFrame) {
+    auto *parent = dynamic_cast<TVPWindowLayer &>(window).GetPrimaryArea();
+    auto *root = cocos2d::Node::create();
+    auto presentation = CreateCocosVideoPresentation(*root);
+    parent->addChild(root);
+    root->setContentSize(cocos2d::Size::ZERO);
+    root->schedule(std::move(onFrame), "update video");
+    return presentation;
 }

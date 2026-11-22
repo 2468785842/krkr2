@@ -62,6 +62,9 @@ if (BUILD_EXT_TINYXML2)
 endif (BUILD_EXT_TINYXML2)
 if (BUILD_EXT_XXHASH)
     add_subdirectory(xxhash) # source code
+    set_property(TARGET ext_xxhash PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/xxhash>"
+        "$<INSTALL_INTERFACE:include/cocos/bundled-xxhash>")
     target_link_libraries(external INTERFACE ext_xxhash)
 endif (BUILD_EXT_XXHASH)
 if (BUILD_EXT_XXTEA)

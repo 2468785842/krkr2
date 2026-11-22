@@ -3,7 +3,7 @@ import struct
 import zlib
 
 
-def center_rgb(path):
+def rgb_rows(path):
     data = path.read_bytes()
     if data[:8] != b"\x89PNG\r\n\x1a\n":
         raise ValueError("Not a PNG")
@@ -34,7 +34,7 @@ def center_rgb(path):
     if len(raw) != (stride + 1) * height:
         raise ValueError("PNG scanline size mismatch")
     previous = bytearray(stride)
-    for y in range(height // 2 + 1):
+    for y in range(height):
         start = y * (stride + 1)
         method = raw[start]
         row = bytearray(raw[start + 1:start + 1 + stride])
@@ -58,8 +58,24 @@ def center_rgb(path):
                 raise ValueError(f"Unsupported PNG filter {method}")
             row[x] = (row[x] + predictor) & 255
         previous = row
-    start = (width // 2) * channels
-    return tuple(previous[start:start + 3])
+        yield width, height, channels, row
+
+
+def center_rgb(path):
+    for y, (width, height, channels, row) in enumerate(rgb_rows(path)):
+        if y == height // 2:
+            start = (width // 2) * channels
+            return tuple(row[start:start+3])
+
+
+def color_counts(path, colors):
+    counts = {tuple(color): 0 for color in colors}
+    for width, height, channels, row in rgb_rows(path):
+        for x in range(0, width*channels, channels):
+            color = tuple(row[x:x+3])
+            if color in counts:
+                counts[color] += 1
+    return counts
 
 
 def focus_frame_failures(directory):

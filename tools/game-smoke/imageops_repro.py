@@ -1,0 +1,282 @@
+"""Run real software/OpenGL Layer operations in isolated self-authored scenes."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import shutil
+import subprocess
+import struct
+import time
+import sys
+from xml.sax.saxutils import escape
+from frame_pixels import color_counts, rgb_rows
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def events(root):
+    path = root / "imageops-events.txt"
+    if not path.exists():
+        return []
+    try:
+        raw = path.read_bytes()
+        return raw.decode("utf-16" if raw.startswith((b"\xff\xfe", b"\xfe\xff")) else "utf-8-sig").splitlines()
+    except (OSError, UnicodeError):
+        return []
+
+
+def bmp_rgb(path, x, y, expected_size=(384, 192)):
+    data = path.read_bytes()
+    if data[:2] != b"BM" or len(data) < 54:
+        raise ValueError("Invalid BMP header")
+    offset = struct.unpack_from("<I", data, 10)[0]
+    header = struct.unpack_from("<I", data, 14)[0]
+    width, height, planes, bits, compression = struct.unpack_from("<iiHHI", data, 18)
+    if header < 40 or planes != 1 or bits not in (24, 32) or compression not in (0, 3):
+        raise ValueError("Unsupported BMP pixel layout")
+    if compression == 3 and (len(data) < 66 or struct.unpack_from("<III", data, 54) != (0xff0000, 0xff00, 0xff)):
+        raise ValueError("Unsupported BMP masks")
+    if (width, abs(height)) != expected_size or not (0 <= x < width and 0 <= y < abs(height)):
+        raise ValueError("Unexpected BMP dimensions or sample")
+    stride = ((width * bits + 31) // 32) * 4
+    if offset < 14 + header or len(data) < offset + stride * abs(height):
+        raise ValueError("Truncated BMP pixels")
+    row = abs(height) - 1 - y if height > 0 else y
+    start = offset + row * stride + x * (bits // 8)
+    b, g, r = data[start:start+3]
+    return (r, g, b)
+
+
+def frame_failures(path, renderer="opengl"):
+    expected = [(64, 160, 64), (160, 64, 160), (64, 64, 64), (160, 160, 160)]
+    panels = [(i*96, 0, [(24,16),(72,16),(24,48),(72,48)]) for i in range(4)]
+    panels += [(0,96,[(16,16),(48,16),(16,48),(48,48)]),
+               (96,96,[(27,27),(63,29),(29,63),(65,65)]),
+               (192,96,[(20,20),(65,22),(22,65),(61,61)])]
+    errors = []
+    for panel, (left, top, points) in enumerate(panels):
+        for i, (x, y) in enumerate(points):
+            actual = bmp_rgb(path, left+x, top+y)
+            color = expected[i]
+            if panel == 6 and renderer == "software":
+                color = tuple(channel*255//256 for channel in color)
+            if actual != color:
+                errors.append(f"Panel {panel} sample {i}: RGB {actual} != {color}")
+    if bmp_rgb(path, 350, 150) != (16, 32, 16):
+        errors.append("Background guard pixel differs")
+    return errors
+
+
+def right_edge_marker_pixels(path):
+    # Body G=64, final-column G=208. A stale 65-column crop can sample at
+    # most 50% of the extra texel (G<=136). G>=180 requires >80% contribution.
+    # Restrict to the right two logical columns and central vertical band so
+    # white host UI/icons cannot satisfy the marker check.
+    count = 0
+    for y, (width, height, channels, row) in enumerate(rgb_rows(path)):
+        if height*3//8 <= y < height*5//8:
+            start = max(0, width - (width*2+65)//66)
+            for x in range(start, width):
+                r,g,b = row[x*channels:x*channels+3]
+                if r >= 200 and g >= 180 and b >= 200:
+                    count += 1
+    return count
+
+
+def capture_policy(log, sequence):
+    keys = ("renderer", "texture-storage", "texture-limit", "arb-copy-image")
+    fields = {}
+    for line in log.splitlines():
+        prefix = f"{sequence} "
+        if not line.startswith(prefix) or ":" not in line[len(prefix):]:
+            continue
+        key,value = line[len(prefix):].split(":",1)
+        if key in keys:
+            if key in fields:
+                raise ValueError("Repeated capture policy field: " + key)
+            fields[key] = value
+    if set(fields) != set(keys):
+        raise ValueError("Missing capture policy fields")
+    limit = int(fields["texture-limit"])
+    if limit < 0 or fields["arb-copy-image"] not in ("0","1"):
+        raise ValueError("Invalid capture policy fields")
+    return {"renderer_observed":fields["renderer"], "texture_storage":fields["texture-storage"],
+            "texture_limit":limit, "arb_copy_image":fields["arb-copy-image"] == "1"}
+
+
+def capture_frame(root, renderer, sequence, deadline, process, palette, file_name, alpha_composed=True):
+    # The Cocos frame includes the software compositor's existing alpha/256
+    # conversion. Keep exact colors rather than a pixel tolerance.
+    if renderer == "software" and alpha_composed:
+        palette = [tuple(c*255//256 for c in color) for color in palette]
+    (root / "ui-action.txt").write_text(f"{sequence} capture\n", encoding="utf-8")
+    while time.monotonic() < deadline:
+        path = root / "ui-driver-events.txt"
+        log = path.read_text(encoding="utf-8") if path.exists() else ""
+        if " error:" in log:
+            raise RuntimeError(log)
+        if f"{sequence} capture-saved" in log and (root / "ui-frame.png").exists():
+            policy = capture_policy(log, sequence)
+            if policy["renderer_observed"] != renderer:
+                raise RuntimeError("Capture renderer does not match requested backend: " + log)
+            frame = root / file_name
+            shutil.copy2(root / "ui-frame.png", frame)
+            counts = color_counts(frame, palette)
+            if min(counts.values()) < 16:
+                raise RuntimeError("Cocos frame does not contain the rendered fixture palette: " + str(counts))
+            return {**policy, "frame_file":file_name,
+                    "frame_color_counts":{str(color):count for color,count in counts.items()},
+                    "frame_sha256":digest(frame)}
+        if process.poll() is not None:
+            raise RuntimeError("Engine exited before capture")
+        time.sleep(.1)
+    raise TimeoutError("No completed Cocos frame capture")
+
+
+def run(engine, destination, seconds=60, capture=False, profiles=False):
+    if profiles and not capture:
+        raise ValueError("Configuration profiles require --capture")
+    engine = engine.resolve()
+    destination.mkdir(parents=True, exist_ok=False)
+    reports = []
+    configurations = [("software","software",{},None), ("opengl","opengl",{},None)]
+    if profiles:
+        configurations = [
+            ("software","software",{"software_compress_tex":"none"},"none"),
+            ("opengl","opengl",{"ogl_compress_tex":"none"},"none"),
+            *[("software-"+name,"software",{"software_compress_tex":value},expected)
+              for name,value,expected in [("halfline","halfline","halfline"), ("lz4","lz4","lz4"),
+                                         ("lz4tlg5","lz4+tlg5","lz4+tlg5"), ("unknown","invalid","none")]],
+            ("opengl-half","opengl",{"ogl_compress_tex":"half","ogl_max_texsize":"512",
+             **{key:"0" for key in ("GL_ARB_copy_image","GL_EXT_copy_image","GL_OES_copy_image","GL_NV_copy_image")}},"half"),
+            ("opengl-unknown","opengl",{"ogl_compress_tex":"invalid"},"none")]
+    for profile,renderer,settings,expected_storage in configurations:
+        root = (destination / profile).resolve()
+        root.mkdir()
+        source = Path(__file__).parent / "imageops/startup.tjs"
+        shutil.copy2(source, root / "startup.tjs")
+        preferences = {"renderer":renderer, **settings}
+        (root / "Kirikiroid2Preference.xml").write_text('<GlobalPreference>' +
+            ''.join(f'<Item key="{escape(key)}" value="{escape(value)}"/>' for key,value in preferences.items()) +
+            '</GlobalPreference>', encoding="utf-8")
+        if capture:
+            (root / "interaction-fixture.json").write_text('{"fixture":"imageops"}')
+        command = [str(engine), "--game=" + str(root), "-imageops-renderer=" + renderer]
+        if profiles:
+            command.append("-render-storage-probe=yes")
+        if capture:
+            command.append("-ui-contract-driver=yes")
+        report = {"engine": str(engine), "engine_sha256": digest(engine), "script_sha256": digest(root / "startup.tjs"),
+                  "controller_sha256": digest(Path(__file__)),
+                  "preferences_sha256": digest(root / "Kirikiroid2Preference.xml"),
+                  "renderer_requested": renderer, "profile":profile, "preferences":preferences,
+                  "command": command, "forced_stop": False, "failures": []}
+        deadline = time.monotonic() + seconds
+        with (root / "process.log").open("wb") as output:
+            process = subprocess.Popen(command, cwd=engine.parent, stdout=output, stderr=subprocess.STDOUT)
+            try:
+                while time.monotonic() < deadline:
+                    current = events(root)
+                    if any(e.startswith("error:") for e in current):
+                        raise RuntimeError(str(current))
+                    if "ready" in current:
+                        break
+                    if process.poll() is not None:
+                        raise RuntimeError("Engine exited before ready")
+                    time.sleep(.1)
+                else:
+                    raise TimeoutError("No fixture ready event")
+                if capture:
+                    palette = [(64,160,64),(160,64,160),(64,64,64),(160,160,160)]
+                    report.update(capture_frame(root, renderer, 1, deadline, process, palette, "ui-imageops.png"))
+                    if profiles:
+                        if report["texture_storage"] != expected_storage:
+                            raise RuntimeError("Effective texture storage differs from requested profile")
+                        if profile == "opengl-half":
+                            if report["texture_limit"] != 512:
+                                raise RuntimeError("Texture limit preference was not applied")
+                            if sys.platform != "win32" and report["arb_copy_image"]:
+                                raise RuntimeError("Disabled GL extension remained active")
+                    phases = []
+                    report["presentation_phases"] = phases
+                    for step, (width, height, color) in enumerate([
+                        (65,33,(96,176,96)), (66,33,(112,64,112)), (129,65,(176,96,176)),
+                        (65,33,(48,96,48)), (65,33,(160,192,160))], 1):
+                        (root / f"presentation-{step}.txt").write_text("present\n", encoding="utf-8")
+                        while time.monotonic() < deadline:
+                            current = events(root)
+                            if any(e.startswith("error:") for e in current):
+                                raise RuntimeError(str(current))
+                            if current.count(f"presented:{step}") == 1:
+                                break
+                            if process.poll() is not None:
+                                raise RuntimeError("Engine exited during presentation replacement")
+                            time.sleep(.1)
+                        else:
+                            raise TimeoutError(f"No presentation event {step}")
+                        phase = {"step":step, "width":width, "height":height}
+                        palette = [color]
+                        phase.update(capture_frame(root, renderer, step+1, deadline, process, palette, f"ui-presentation-{step}.png", alpha_composed=False))
+                        if step == 2:
+                            phase["right_edge_marker_pixels"] = right_edge_marker_pixels(root / phase["frame_file"])
+                            if phase["right_edge_marker_pixels"] < 16:
+                                raise RuntimeError("New rightmost column is missing from the presented frame")
+                        bitmap = root / f"presentation-{step}.bmp"
+                        for x,y in [(0,0),(width//2,height//2),(width-1,height-1)]:
+                            expected = (224,208,224) if step == 2 and x == width-1 else color
+                            if bmp_rgb(bitmap,x,y,(width,height)) != expected:
+                                raise RuntimeError(f"Presentation {step} BMP sample differs")
+                        phase["image_sha256"] = digest(bitmap)
+                        phases.append(phase)
+                    report["presentation_phases"] = phases
+                (root / "imageops-close.txt").write_text("close\n", encoding="utf-8")
+                process.wait(timeout=max(1, deadline-time.monotonic()))
+            except Exception as error:
+                report["failures"].append(f"{type(error).__name__}: {error}")
+            finally:
+                if process.poll() is None:
+                    report["forced_stop"] = True
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        process.wait(timeout=5)
+                report["exit_code"] = process.returncode
+        report["events"] = events(root)
+        required = ["passed:resize-" + str(i) for i in range(4)] + ["passed:blur", "passed:affine", "passed:perspective", "ready", "finished"]
+        if capture:
+            required += [f"presented:{i}" for i in range(1,6)]
+        if profiles:
+            required += ["passed:storage-readback", "passed:storage-readback-large"]
+        report["failures"] += ["Missing or repeated event: " + e for e in required if report["events"].count(e) != 1]
+        report["failures"] += [e for e in report["events"] if e.startswith("error:")]
+        if report["forced_stop"] or report["exit_code"] != 0:
+            report["failures"].append("Engine did not exit normally")
+        image = root / "imageops.bmp"
+        if not image.exists() or image.stat().st_size < 384*192*3:
+            report["failures"].append("Missing or incomplete Layer image")
+        else:
+            report["image_sha256"] = digest(image)
+            try:
+                report["failures"].extend(frame_failures(image, renderer))
+            except (ValueError, OSError, struct.error) as error:
+                report["failures"].append("Layer BMP validation: " + str(error))
+        report["passed"] = not report["failures"]
+        (root / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        reports.append(report)
+    (destination / "report.json").write_text(json.dumps(reports, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(json.dumps(reports, ensure_ascii=False, indent=2))
+    return 0 if all(r["passed"] for r in reports) else 1
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("engine", type=Path)
+    parser.add_argument("destination", type=Path)
+    parser.add_argument("--capture", action="store_true", help="Require the opt-in Cocos UI test driver")
+    parser.add_argument("--profiles", action="store_true", help="Verify eight renderer storage/configuration profiles")
+    args = parser.parse_args()
+    raise SystemExit(run(args.engine, args.destination, capture=args.capture, profiles=args.profiles))

@@ -3,7 +3,7 @@ name: Headless foundation tests
 on:
   push:
     branches: [main, dev]
-    paths: ['cpp/core/**', 'cpp/plugins/**', 'tests/**', 'tools/xp3/**', 'tools/game-smoke/**', 'tools/sdl3-prototype/**', 'scripts/check_core_module_deps.py', 'cmake/**', 'CMakeLists.txt', 'vcpkg*.json', '.github/workflows/headless-tests.yml']
+    paths: ['cpp/core/**', 'cpp/plugins/**', 'tests/**', 'tools/xp3/**', 'tools/game-smoke/**', 'tools/sdl3-prototype/**', 'scripts/check_core_module_deps.py', 'scripts/check_no_opencv.py', 'scripts/tests/**', 'cmake/**', 'CMakeLists.txt', 'vcpkg*.json', 'vcpkg/**', '.github/workflows/headless-tests.yml']
   pull_request:
     branches: [main, dev]
   workflow_dispatch:
@@ -45,9 +45,21 @@ jobs:
       - name: Build and test platform contracts
         shell: bash
         run: |
-          cmake --build out/platform --target input_state_tests frame_hook_tests --parallel 4
+          cmake --build out/platform --target input_state_tests frame_hook_tests texture_presentation_tests main_thread_message_tests --parallel 4
           ctest --test-dir out/platform -N
           ctest --test-dir out/platform --output-on-failure --no-tests=error
+      - name: Verify native Apple GL header without Cocos
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          c++ -std=c++17 -DGL_SILENCE_DEPRECATION -Icpp/core/visual -x c++ -fsyntax-only - <<'CPP'
+          #include "GLHost.h"
+          #include "ogl/ogl_common.h"
+          void native_gl_header() {
+              GLuint framebuffer = 0;
+              glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+          }
+          CPP
       - name: Verify isolated platform dependency closure
         shell: bash
         run: |
@@ -61,11 +73,12 @@ jobs:
           assert sorted(pathlib.Path(c['file']).name for c in commands) == sorted([
               'InputState.cpp', 'InputModifiers.cpp', 'PointerCoordinates.cpp', 'InputCancellation.cpp', 'TextInput.cpp',
               'InputStateTest.cpp', 'InputModifiersTest.cpp', 'PointerCoordinatesTest.cpp', 'InputCancellationTest.cpp', 'PostUpdateEvent.cpp',
-              'PostUpdateTest.cpp', 'PostUpdateRegistration.cpp', 'TouchButtonTest.cpp', 'TouchButtonPeer.cpp', 'TextInputTest.cpp'])
+              'PostUpdateTest.cpp', 'PostUpdateRegistration.cpp', 'FrameStep.cpp', 'TouchButtonTest.cpp', 'TouchButtonPeer.cpp', 'TextInputTest.cpp', 'TexturePresentationTest.cpp', 'RenderSettingsTest.cpp',
+              'MainThreadMessageQueue.cpp', 'MainThreadMessageQueueTest.cpp', 'NativeEventQueue.cpp'])
           tests = json.loads(subprocess.check_output([
               'ctest', '--test-dir', str(root), '--show-only=json-v1']))
-          assert len(tests['tests']) == 34, tests['tests']
-          print('Platform contracts: 34 tests; closure verified:', sorted(ports))
+          assert len(tests['tests']) == 52, tests['tests']
+          print('Platform contracts: 52 tests; closure verified:', sorted(ports))
           PY
       - uses: actions/upload-artifact@v4
         if: always()
@@ -184,6 +197,8 @@ jobs:
   archives:
     env:
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.act/vcpkg-cache
+      # vcpkg otherwise chooses the newer Homebrew CMake over the pinned tool.
+      VCPKG_FORCE_SYSTEM_BINARIES: '1'
     strategy:
       fail-fast: false
       matrix:
@@ -194,6 +209,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.31.1
       - uses: actions/cache@v4
         with:
           path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
@@ -284,11 +302,13 @@ jobs:
           status = (root / 'vcpkg_installed/vcpkg/status').read_text(encoding='utf-8')
           ports = {line.split(': ', 1)[1] for line in status.splitlines() if line.startswith('Package: ')}
           assert not any(p.startswith('boost-') for p in ports), ports
-          assert not ports.intersection({'cocos2dx', 'ffmpeg', 'fmt', 'spdlog', 'oniguruma', 'libarchive', 'unrar', 'argparse'}), ports
+          assert not ports.intersection({'opencv4', 'cocos2dx', 'ffmpeg', 'fmt', 'spdlog', 'oniguruma', 'libarchive', 'unrar', 'argparse'}), ports
           commands = json.loads((root / 'compile_commands.json').read_text(encoding='utf-8'))
-          assert {pathlib.Path(c['file']).name for c in commands} == {'ImageOps.cpp', 'ImageOps_opencv.cpp', 'ImageOpsTest.cpp'}
+          assert {pathlib.Path(c['file']).name for c in commands} == {'ImageOps.cpp', 'ImageOps_native.cpp', 'ImageOpsTest.cpp'}
           print('ImageOps closure verified:', sorted(ports))
           PY
+          python -m unittest discover -s scripts/tests -v
+          python scripts/check_no_opencv.py out/imageops
       - uses: actions/upload-artifact@v4
         if: always()
         with:

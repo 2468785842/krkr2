@@ -7,7 +7,14 @@ endif()
 
 set(ENVIRON_PATH ${CMAKE_CURRENT_LIST_DIR})
 set(ENVIRON_SOURCE_FILES
-    ${ENVIRON_PATH}/RenderUtils.cpp
+    ${ENVIRON_PATH}/cocos2d/CocosGLHost.cpp
+    ${ENVIRON_PATH}/cocos2d/CocosTexturePresentation.cpp
+    ${ENVIRON_PATH}/cocos2d/CocosFrameCapture.cpp
+    ${ENVIRON_PATH}/cocos2d/CocosPackagedAsset.cpp
+    ${ENVIRON_PATH}/cocos2d/CocosPVRTC.cpp
+    ${ENVIRON_PATH}/RenderHost.cpp
+    ${ENVIRON_PATH}/HostFrame.cpp
+    ${ENVIRON_PATH}/cocos2d/CocosModalFrame.cpp
     ${ENVIRON_PATH}/Application.cpp
     ${ENVIRON_PATH}/EnvironFileBackendInit.cpp
     ${ENVIRON_PATH}/DialogBackend.cpp
@@ -28,6 +35,7 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/cocos2d/CustomFileUtils.cpp
     ${ENVIRON_PATH}/cocos2d/MainScene.cpp
     ${ENVIRON_PATH}/cocos2d/YUVSprite.cpp
+    ${ENVIRON_PATH}/cocos2d/CocosVideoPresentation.cpp
 
     ${ENVIRON_PATH}/ConfigManager/PreferenceDefaults.cpp
     ${ENVIRON_PATH}/ConfigManager/GlobalConfigManager.cpp
@@ -54,6 +62,10 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/impl/SystemControl.cpp
     ${ENVIRON_PATH}/impl/TVPWindow.cpp
 )
+
+if(KRKR2_ENABLE_SDL3_HOST)
+    list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/sdl3/SdlHost.cpp)
+endif()
 
 if(KRKR2_USE_COCOS_UI)
     list(APPEND ENVIRON_SOURCE_FILES
@@ -110,6 +122,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     core_movie_module
     core_utils_module
 )
+
+if(KRKR2_ENABLE_SDL3_HOST)
+    find_package(SDL3 3.4 CONFIG REQUIRED)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE KRKR2_ENABLE_SDL3_HOST=1)
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
+endif()
 
 if(ANDROID OR IOS)
     target_compile_definitions(${PROJECT_NAME} PRIVATE TVP_HAS_MOBILE_FILE_BACKEND)

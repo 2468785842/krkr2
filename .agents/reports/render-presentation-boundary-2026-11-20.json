@@ -1,0 +1,1611 @@
+{
+  "baseline_commit": "9d7063aab78653df09eef89bb16dc8361911d4c8",
+  "candidate_commit": "d921a24aca58dd93524f75591f923846f0999ee3",
+  "date": "2026-11-20",
+  "source_inventory": {
+    "before": {
+      "source": "9d7063a",
+      "method": "Direct Cocos include/type references only; known header prefixes, comments removed; no transitive scan",
+      "file_count": 69,
+      "match_count": 1395,
+      "files": [
+        {
+          "file": "cpp/core/environ/CocosFileBackend.cpp",
+          "matches": 4
+        },
+        {
+          "file": "cpp/core/environ/ConfigManager/IndividualConfigManager.cpp",
+          "matches": 3
+        },
+        {
+          "file": "cpp/core/environ/ConfigManager/LocaleConfigManager.cpp",
+          "matches": 12
+        },
+        {
+          "file": "cpp/core/environ/ConfigManager/LocaleConfigManager.h",
+          "matches": 5
+        },
+        {
+          "file": "cpp/core/environ/ConfigManager/PreferenceDefaults.cpp",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/DumpSend.cpp",
+          "matches": 7
+        },
+        {
+          "file": "cpp/core/environ/RenderUtils.cpp",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/environ/android/AndroidUtils.cpp",
+          "matches": 14
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/AppDelegate.cpp",
+          "matches": 12
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/AppDelegate.h",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CCKeyCodeConv.cpp",
+          "matches": 129
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CCKeyCodeConv.h",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CocosInputFocus.h",
+          "matches": 9
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CocosPointerCoordinates.h",
+          "matches": 5
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CocosWindowAccess.h",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/MainScene.cpp",
+          "matches": 69
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/MainScene.h",
+          "matches": 37
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/UIContractDriver.cpp",
+          "matches": 3
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/YUVSprite.cpp",
+          "matches": 61
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/YUVSprite.h",
+          "matches": 13
+        },
+        {
+          "file": "cpp/core/environ/impl/TVPWindow.cpp",
+          "matches": 67
+        },
+        {
+          "file": "cpp/core/environ/impl/TVPWindow.h",
+          "matches": 27
+        },
+        {
+          "file": "cpp/core/environ/ui/BaseForm.cpp",
+          "matches": 27
+        },
+        {
+          "file": "cpp/core/environ/ui/BaseForm.h",
+          "matches": 40
+        },
+        {
+          "file": "cpp/core/environ/ui/ConsoleWindow.cpp",
+          "matches": 13
+        },
+        {
+          "file": "cpp/core/environ/ui/ConsoleWindow.h",
+          "matches": 10
+        },
+        {
+          "file": "cpp/core/environ/ui/DebugViewLayerForm.cpp",
+          "matches": 13
+        },
+        {
+          "file": "cpp/core/environ/ui/DebugViewLayerForm.h",
+          "matches": 12
+        },
+        {
+          "file": "cpp/core/environ/ui/FileSelectorForm.cpp",
+          "matches": 49
+        },
+        {
+          "file": "cpp/core/environ/ui/FileSelectorForm.h",
+          "matches": 43
+        },
+        {
+          "file": "cpp/core/environ/ui/GameMainMenu.cpp",
+          "matches": 31
+        },
+        {
+          "file": "cpp/core/environ/ui/GameMainMenu.h",
+          "matches": 24
+        },
+        {
+          "file": "cpp/core/environ/ui/GlobalPreferenceForm.cpp",
+          "matches": 5
+        },
+        {
+          "file": "cpp/core/environ/ui/InGameMenuForm.cpp",
+          "matches": 9
+        },
+        {
+          "file": "cpp/core/environ/ui/InGameMenuForm.h",
+          "matches": 3
+        },
+        {
+          "file": "cpp/core/environ/ui/IndividualPreferenceForm.cpp",
+          "matches": 5
+        },
+        {
+          "file": "cpp/core/environ/ui/MainFileSelectorForm.cpp",
+          "matches": 33
+        },
+        {
+          "file": "cpp/core/environ/ui/MainFileSelectorForm.h",
+          "matches": 16
+        },
+        {
+          "file": "cpp/core/environ/ui/MessageBox.cpp",
+          "matches": 20
+        },
+        {
+          "file": "cpp/core/environ/ui/MessageBox.h",
+          "matches": 16
+        },
+        {
+          "file": "cpp/core/environ/ui/PreferenceConfig.h",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/ui/PreferenceForm.cpp",
+          "matches": 25
+        },
+        {
+          "file": "cpp/core/environ/ui/PreferenceForm.h",
+          "matches": 34
+        },
+        {
+          "file": "cpp/core/environ/ui/SelectListForm.cpp",
+          "matches": 17
+        },
+        {
+          "file": "cpp/core/environ/ui/SelectListForm.h",
+          "matches": 6
+        },
+        {
+          "file": "cpp/core/environ/ui/SimpleMediaFilePlayer.cpp",
+          "matches": 16
+        },
+        {
+          "file": "cpp/core/environ/ui/SimpleMediaFilePlayer.h",
+          "matches": 6
+        },
+        {
+          "file": "cpp/core/environ/ui/TipsHelpForm.cpp",
+          "matches": 6
+        },
+        {
+          "file": "cpp/core/environ/ui/TipsHelpForm.h",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/ui/XP3RepackForm.cpp",
+          "matches": 20
+        },
+        {
+          "file": "cpp/core/environ/ui/csd/CsdUIFactory.cpp",
+          "matches": 234
+        },
+        {
+          "file": "cpp/core/environ/ui/csd/CsdUIFactory.h",
+          "matches": 40
+        },
+        {
+          "file": "cpp/core/environ/ui/csd/CsdUILayout.h",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/environ/ui/csd/CsdUIWidgets.cpp",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/ui/csd/CsdUIWidgets.h",
+          "matches": 26
+        },
+        {
+          "file": "cpp/core/environ/ui/extension/ActionExtension.cpp",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/ui/extension/ActionExtension.h",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/ui/extension/UIExtension.cpp",
+          "matches": 3
+        },
+        {
+          "file": "cpp/core/environ/ui/extension/UIExtension.h",
+          "matches": 16
+        },
+        {
+          "file": "cpp/core/environ/win32/Platform.cpp",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/movie/ffmpeg/KRMoviePlayer.cpp",
+          "matches": 10
+        },
+        {
+          "file": "cpp/core/movie/ffmpeg/KRMoviePlayer.h",
+          "matches": 3
+        },
+        {
+          "file": "cpp/core/movie/ffmpeg/VideoPlayer.cpp",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/visual/FontImpl.cpp",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/visual/RenderManager.cpp",
+          "matches": 14
+        },
+        {
+          "file": "cpp/core/visual/RenderManager.h",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/visual/impl/TVPScreen.cpp",
+          "matches": 3
+        },
+        {
+          "file": "cpp/core/visual/ogl/RenderManager_ogl.cpp",
+          "matches": 47
+        },
+        {
+          "file": "cpp/core/visual/ogl/RenderManager_ogl_test.hpp",
+          "matches": 2
+        }
+      ]
+    },
+    "after": {
+      "source": "4988d02799cfed7c8404b526778802baaeeb171e",
+      "method": "Direct Cocos include/type references only; known header prefixes, comments removed; no transitive scan",
+      "file_count": 70,
+      "match_count": 1389,
+      "files": [
+        {
+          "file": "cpp/core/environ/CocosFileBackend.cpp",
+          "matches": 4
+        },
+        {
+          "file": "cpp/core/environ/ConfigManager/IndividualConfigManager.cpp",
+          "matches": 3
+        },
+        {
+          "file": "cpp/core/environ/ConfigManager/LocaleConfigManager.cpp",
+          "matches": 12
+        },
+        {
+          "file": "cpp/core/environ/ConfigManager/LocaleConfigManager.h",
+          "matches": 5
+        },
+        {
+          "file": "cpp/core/environ/ConfigManager/PreferenceDefaults.cpp",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/DumpSend.cpp",
+          "matches": 7
+        },
+        {
+          "file": "cpp/core/environ/RenderUtils.cpp",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/environ/android/AndroidUtils.cpp",
+          "matches": 14
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/AppDelegate.cpp",
+          "matches": 12
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/AppDelegate.h",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CCKeyCodeConv.cpp",
+          "matches": 129
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CCKeyCodeConv.h",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CocosFrameCapture.cpp",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CocosInputFocus.h",
+          "matches": 9
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CocosPointerCoordinates.h",
+          "matches": 5
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CocosTexturePresentation.cpp",
+          "matches": 12
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CocosTexturePresentation.h",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/CocosWindowAccess.h",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/MainScene.cpp",
+          "matches": 69
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/MainScene.h",
+          "matches": 37
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/UIContractDriver.cpp",
+          "matches": 3
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/YUVSprite.cpp",
+          "matches": 61
+        },
+        {
+          "file": "cpp/core/environ/cocos2d/YUVSprite.h",
+          "matches": 13
+        },
+        {
+          "file": "cpp/core/environ/impl/TVPWindow.cpp",
+          "matches": 68
+        },
+        {
+          "file": "cpp/core/environ/impl/TVPWindow.h",
+          "matches": 27
+        },
+        {
+          "file": "cpp/core/environ/ui/BaseForm.cpp",
+          "matches": 27
+        },
+        {
+          "file": "cpp/core/environ/ui/BaseForm.h",
+          "matches": 40
+        },
+        {
+          "file": "cpp/core/environ/ui/ConsoleWindow.cpp",
+          "matches": 13
+        },
+        {
+          "file": "cpp/core/environ/ui/ConsoleWindow.h",
+          "matches": 10
+        },
+        {
+          "file": "cpp/core/environ/ui/DebugViewLayerForm.cpp",
+          "matches": 14
+        },
+        {
+          "file": "cpp/core/environ/ui/DebugViewLayerForm.h",
+          "matches": 12
+        },
+        {
+          "file": "cpp/core/environ/ui/FileSelectorForm.cpp",
+          "matches": 49
+        },
+        {
+          "file": "cpp/core/environ/ui/FileSelectorForm.h",
+          "matches": 43
+        },
+        {
+          "file": "cpp/core/environ/ui/GameMainMenu.cpp",
+          "matches": 31
+        },
+        {
+          "file": "cpp/core/environ/ui/GameMainMenu.h",
+          "matches": 24
+        },
+        {
+          "file": "cpp/core/environ/ui/GlobalPreferenceForm.cpp",
+          "matches": 5
+        },
+        {
+          "file": "cpp/core/environ/ui/InGameMenuForm.cpp",
+          "matches": 9
+        },
+        {
+          "file": "cpp/core/environ/ui/InGameMenuForm.h",
+          "matches": 3
+        },
+        {
+          "file": "cpp/core/environ/ui/IndividualPreferenceForm.cpp",
+          "matches": 5
+        },
+        {
+          "file": "cpp/core/environ/ui/MainFileSelectorForm.cpp",
+          "matches": 33
+        },
+        {
+          "file": "cpp/core/environ/ui/MainFileSelectorForm.h",
+          "matches": 16
+        },
+        {
+          "file": "cpp/core/environ/ui/MessageBox.cpp",
+          "matches": 20
+        },
+        {
+          "file": "cpp/core/environ/ui/MessageBox.h",
+          "matches": 16
+        },
+        {
+          "file": "cpp/core/environ/ui/PreferenceConfig.h",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/ui/PreferenceForm.cpp",
+          "matches": 25
+        },
+        {
+          "file": "cpp/core/environ/ui/PreferenceForm.h",
+          "matches": 34
+        },
+        {
+          "file": "cpp/core/environ/ui/SelectListForm.cpp",
+          "matches": 17
+        },
+        {
+          "file": "cpp/core/environ/ui/SelectListForm.h",
+          "matches": 6
+        },
+        {
+          "file": "cpp/core/environ/ui/SimpleMediaFilePlayer.cpp",
+          "matches": 16
+        },
+        {
+          "file": "cpp/core/environ/ui/SimpleMediaFilePlayer.h",
+          "matches": 6
+        },
+        {
+          "file": "cpp/core/environ/ui/TipsHelpForm.cpp",
+          "matches": 6
+        },
+        {
+          "file": "cpp/core/environ/ui/TipsHelpForm.h",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/ui/XP3RepackForm.cpp",
+          "matches": 20
+        },
+        {
+          "file": "cpp/core/environ/ui/csd/CsdUIFactory.cpp",
+          "matches": 234
+        },
+        {
+          "file": "cpp/core/environ/ui/csd/CsdUIFactory.h",
+          "matches": 40
+        },
+        {
+          "file": "cpp/core/environ/ui/csd/CsdUILayout.h",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/environ/ui/csd/CsdUIWidgets.cpp",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/ui/csd/CsdUIWidgets.h",
+          "matches": 26
+        },
+        {
+          "file": "cpp/core/environ/ui/extension/ActionExtension.cpp",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/ui/extension/ActionExtension.h",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/environ/ui/extension/UIExtension.cpp",
+          "matches": 3
+        },
+        {
+          "file": "cpp/core/environ/ui/extension/UIExtension.h",
+          "matches": 16
+        },
+        {
+          "file": "cpp/core/environ/win32/Platform.cpp",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/movie/ffmpeg/KRMoviePlayer.cpp",
+          "matches": 10
+        },
+        {
+          "file": "cpp/core/movie/ffmpeg/KRMoviePlayer.h",
+          "matches": 3
+        },
+        {
+          "file": "cpp/core/movie/ffmpeg/VideoPlayer.cpp",
+          "matches": 1
+        },
+        {
+          "file": "cpp/core/visual/FontImpl.cpp",
+          "matches": 2
+        },
+        {
+          "file": "cpp/core/visual/impl/TVPScreen.cpp",
+          "matches": 3
+        },
+        {
+          "file": "cpp/core/visual/ogl/RenderManager_ogl.cpp",
+          "matches": 39
+        },
+        {
+          "file": "cpp/core/visual/ogl/RenderManager_ogl_test.hpp",
+          "matches": 2
+        }
+      ]
+    }
+  },
+  "baseline_linux_package": {
+    "run": 44722335954,
+    "artifact": 14622268309,
+    "commit": "26a2c3a413342c995eff1c18a17efb227eda2124",
+    "archive_bytes": 65286477,
+    "archive_sha256": "4a46f11e8aedd031ca2ac73d48ecd44c62f05502b06c8ca25149a8a1ca022daf",
+    "uncompressed_bytes": 143923279,
+    "file_count": 92,
+    "engine": {
+      "file": "krkr2",
+      "bytes": 120654944,
+      "sha256": "48e8582d9cde62bfa0ef834785ff1a999a98ad87b64d3815d9f0de34587266a6"
+    }
+  },
+  "baseline_build_steps": [
+    {
+      "platform": "linux",
+      "name": "Build Linux",
+      "seconds": 234.0,
+      "conclusion": "success"
+    },
+    {
+      "platform": "windows",
+      "name": "Configure Windows",
+      "seconds": 64.0,
+      "conclusion": "success"
+    },
+    {
+      "platform": "windows",
+      "name": "Build Windows",
+      "seconds": 197.0,
+      "conclusion": "success"
+    }
+  ],
+  "measurement_limits": [
+    "CI step timings include cache and configuration effects; runs use separate hosted machines and cannot prove compilation speed improvement.",
+    "No local complete application toolchain; full builds and runtime scenes run in CI.",
+    "Package contains test driver and bundled resources; not a stripped release distribution.",
+    "Final Linux engine is 1,120 bytes larger; the boundary extraction does not remove a dependency or prove size reduction."
+  ],
+  "local_validation": {
+    "platform_contracts": {
+      "tests": 38,
+      "passed": true
+    },
+    "presentation_asan_ubsan_leaks": {
+      "tests": 4,
+      "passed": true
+    },
+    "python_smoke": {
+      "tests": 47,
+      "passed": true
+    },
+    "dependency_guard": {
+      "foundation_targets": 11,
+      "passed": true
+    }
+  },
+  "ci_runs": {
+    "headless": 44724893102,
+    "windows": 44724897614,
+    "linux": 44724901641,
+    "android_arm64": 44724905741
+  },
+  "scope_limits": [
+    "No real game by user request.",
+    "macOS full application not run; ARM64 independent contracts are covered by headless CI.",
+    "Android device execution not run.",
+    "Cocos remains an engine dependency; GL cache/context, windows, input, video and UI remain."
+  ],
+  "baseline_configuration": {
+    "linux": "ubuntu-24.04 / Linux Release / ENABLE_TESTS=ON / BUILD_TOOLS=OFF / KRKR2_ENABLE_UI_TEST_DRIVER=ON / KRKR2_USE_COCOS_UI=ON",
+    "windows": "windows-2022 / MSVC x64 / Windows Release / ENABLE_TESTS=ON / BUILD_TOOLS=OFF / pointer_contracts=true / KRKR2_USE_COCOS_UI=ON",
+    "caching": "GitHub hosted ccache and existing vcpkg binary caches; neither timing is a controlled clean build",
+    "vcpkg_baseline": "aa40adda5352e87655b8583cfb2451d5e9e276fd",
+    "cmake": "3.31.1"
+  },
+  "initial_failures": {
+    "source_commit": "d921a24aca58dd93524f75591f923846f0999ee3",
+    "linux_run": 44724901641,
+    "windows_run": 44724897614,
+    "detail": "Complete builds passed; OpenGL four-phase scene passed; software scene stopped at phase 3 because the transparent window produced original RGB (48,96,48) rather than expected (47,95,47). BMP remained correct. Original-backend comparison reproduced the same color and identical central-half pixels.",
+    "baseline_comparison_run": 44726497561,
+    "baseline_comparison_commit": "b03361e",
+    "right_edge_pure_color_expectation": {
+      "linux_run": 44726893054,
+      "windows_run": 44726888431,
+      "detail": "A one-pixel marker is linearly sampled and contains no exact full marker color. Inspected PNG has the expected bright edge; final check uses >80% contribution in the central right band and still checks BMP edge pixels exactly."
+    }
+  },
+  "independent_ci": {
+    "run": 44724893102,
+    "conclusion": "success",
+    "jobs": 13,
+    "platforms": [
+      {
+        "platform": "LINUX",
+        "tests_passed": 38,
+        "presentation_tests": 4,
+        "raw_job_log_contains_successful_execution": true,
+        "evidence": [
+          "2026-11-20T11:07:58.3214739Z   Test #35: presentation CPU rows preserve padding and signed pitch",
+          "2026-11-20T11:07:58.3215081Z   Test #36: presentation lease retains a replacement before its owner dies",
+          "2026-11-20T11:07:58.3215434Z   Test #37: presentation compressed rows borrow the physical row reader",
+          "2026-11-20T11:07:58.3215781Z   Test #38: presentation lease reuses a source and releases it exactly once",
+          "2026-11-20T11:07:58.3216071Z Total Tests: 38",
+          "2026-11-20T11:07:58.4573795Z 35/38 Test #35: presentation CPU rows preserve padding and signed pitch ..................   Passed    0.00 sec",
+          "2026-11-20T11:07:58.4591303Z 36/38 Test #36: presentation lease retains a replacement before its owner dies ...........   Passed    0.00 sec",
+          "2026-11-20T11:07:58.4609119Z 37/38 Test #37: presentation compressed rows borrow the physical row reader ..............   Passed    0.00 sec",
+          "2026-11-20T11:07:58.4626977Z 38/38 Test #38: presentation lease reuses a source and releases it exactly once ..........   Passed    0.00 sec",
+          "2026-11-20T11:07:58.4630092Z 100% tests passed, 0 tests failed out of 38",
+          "2026-11-20T11:07:58.4674361Z \u001b[36;1mprint('Platform contracts: 38 tests; closure verified:', sorted(ports))\u001b[0m",
+          "2026-11-20T11:07:58.4994518Z Platform contracts: 38 tests; closure verified: ['catch2', 'vcpkg-cmake', 'vcpkg-cmake-config']"
+        ]
+      },
+      {
+        "platform": "WINDOWS",
+        "tests_passed": 38,
+        "presentation_tests": 4,
+        "raw_job_log_contains_successful_execution": true,
+        "evidence": [
+          "2026-11-20T11:08:58.6968035Z   Test #35: presentation compressed rows borrow the physical row reader\r",
+          "2026-11-20T11:08:58.6970122Z   Test #36: presentation CPU rows preserve padding and signed pitch\r",
+          "2026-11-20T11:08:58.6971750Z   Test #37: presentation lease reuses a source and releases it exactly once\r",
+          "2026-11-20T11:08:58.6973354Z   Test #38: presentation lease retains a replacement before its owner dies\r",
+          "2026-11-20T11:08:58.6973868Z Total Tests: 38\r",
+          "2026-11-20T11:08:59.0939776Z 35/38 Test #35: presentation compressed rows borrow the physical row reader ..............   Passed    0.01 sec\r",
+          "2026-11-20T11:08:59.1025272Z 36/38 Test #36: presentation CPU rows preserve padding and signed pitch ..................   Passed    0.01 sec\r",
+          "2026-11-20T11:08:59.1111579Z 37/38 Test #37: presentation lease reuses a source and releases it exactly once ..........   Passed    0.01 sec\r",
+          "2026-11-20T11:08:59.1197146Z 38/38 Test #38: presentation lease retains a replacement before its owner dies ...........   Passed    0.01 sec\r",
+          "2026-11-20T11:08:59.1204840Z 100% tests passed, 0 tests failed out of 38\r",
+          "2026-11-20T11:08:59.1413947Z \u001b[36;1mprint('Platform contracts: 38 tests; closure verified:', sorted(ports))\u001b[0m\r",
+          "2026-11-20T11:08:59.3222870Z Platform contracts: 38 tests; closure verified: ['catch2', 'vcpkg-cmake', 'vcpkg-cmake-config']\r"
+        ]
+      },
+      {
+        "platform": "MACOS",
+        "tests_passed": 38,
+        "presentation_tests": 4,
+        "raw_job_log_contains_successful_execution": true,
+        "evidence": [
+          "2026-11-20T11:08:20.8038150Z   Test #35: presentation compressed rows borrow the physical row reader",
+          "2026-11-20T11:08:20.8038610Z   Test #36: presentation CPU rows preserve padding and signed pitch",
+          "2026-11-20T11:08:20.8039070Z   Test #37: presentation lease reuses a source and releases it exactly once",
+          "2026-11-20T11:08:20.8039550Z   Test #38: presentation lease retains a replacement before its owner dies",
+          "2026-11-20T11:08:20.8040450Z Total Tests: 38",
+          "2026-11-20T11:08:21.1668390Z 35/38 Test #35: presentation compressed rows borrow the physical row reader ..............   Passed    0.01 sec",
+          "2026-11-20T11:08:21.1767250Z 36/38 Test #36: presentation CPU rows preserve padding and signed pitch ..................   Passed    0.01 sec",
+          "2026-11-20T11:08:21.1846730Z 37/38 Test #37: presentation lease reuses a source and releases it exactly once ..........   Passed    0.01 sec",
+          "2026-11-20T11:08:21.1925610Z 38/38 Test #38: presentation lease retains a replacement before its owner dies ...........   Passed    0.01 sec",
+          "2026-11-20T11:08:21.1930170Z 100% tests passed out of 38",
+          "2026-11-20T11:08:21.1988180Z \u001b[36;1mprint('Platform contracts: 38 tests; closure verified:', sorted(ports))\u001b[0m",
+          "2026-11-20T11:08:21.4176030Z Platform contracts: 38 tests; closure verified: ['catch2', 'vcpkg-cmake', 'vcpkg-cmake-config']"
+        ]
+      }
+    ]
+  },
+  "final_candidate_commit": "4988d02799cfed7c8404b526778802baaeeb171e",
+  "final_desktop_runs": {
+    "windows": 44726888431,
+    "linux": 44726893054
+  },
+  "presentation_scene": {
+    "initial": "Transparent alpha Layer: 7 image operations, 28 BMP samples, background guard and final-frame palette",
+    "replacement": "Opaque Layer: 65x33, 66x33 with a right-edge marker, 129x65, 65x33, same-size assignImages replacement; per-phase BMP samples and actual frame palette",
+    "reason": "Separate deterministic presentation/reuse checks from existing alpha compositor rounding; initial alpha scene retained unchanged."
+  },
+  "geometry_fix": "Every submitted frame checks visible logical rectangle/scale even when Cocos texture allocation is reused; the 65->66 edge marker validates this behavior.",
+  "alpha_baseline_comparison": {
+    "run": 44726497561,
+    "commit": "b03361e",
+    "production_base": "9d7063a",
+    "conclusion": "The same false expectation fails against the original backend; production sources unchanged in the comparison branch.",
+    "comparison": [
+      {
+        "path": "out/presentation-boundary/artifacts/original-backend/software/ui-presentation-3.png",
+        "center_rgb": [
+          48,
+          96,
+          48
+        ],
+        "central_half_sha256": "c99818e620b4547ee3ab31f2ff1708493a8b75fb2670b388ab47330aedd4652c"
+      },
+      {
+        "path": "out/presentation-boundary/artifacts/first/linux/software/ui-presentation-3.png",
+        "center_rgb": [
+          48,
+          96,
+          48
+        ],
+        "central_half_sha256": "c99818e620b4547ee3ab31f2ff1708493a8b75fb2670b388ab47330aedd4652c"
+      }
+    ]
+  },
+  "final_ci_runs": {
+    "headless": 44728194229,
+    "windows": 44728185681,
+    "linux": 44728190047,
+    "android_arm64": 44727456172
+  },
+  "production_commit": "de1c0465380d93f11218594926171b38d524be78",
+  "sampling_check": {
+    "baseline_body_green": 64,
+    "marker_green": 208,
+    "green_threshold": 180,
+    "cropped_marker_maximum_green": 136,
+    "central_right_band_minimum_pixels": 16,
+    "python_test_rejects_clipped_marker_and_bright_UI": true
+  },
+  "android": {
+    "run": 44727456172,
+    "conclusion": "success",
+    "manifest": {
+      "source": "de1c0465380d93f11218594926171b38d524be78",
+      "abi": "arm64-v8a",
+      "cmake_cache": "out/android/cmake-build/Debug/4i5r4k3x/arm64-v8a/CMakeCache.txt",
+      "configuration": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "KRKR2_BUILD_APP": "ON",
+        "ENABLE_TESTS": "OFF",
+        "BUILD_TOOLS": "OFF",
+        "KRKR2_ENABLE_PSD": "ON",
+        "KRKR2_ENABLE_CRASH_UPLOAD": "OFF",
+        "KRKR2_ENABLE_UI_TEST_DRIVER": "OFF",
+        "VCPKG_TARGET_TRIPLET": "arm64-android"
+      },
+      "ports": [
+        "7zip",
+        "asmjit",
+        "blend2d",
+        "boost-algorithm",
+        "boost-align",
+        "boost-array",
+        "boost-assert",
+        "boost-atomic",
+        "boost-bind",
+        "boost-charconv",
+        "boost-chrono",
+        "boost-cmake",
+        "boost-compat",
+        "boost-concept-check",
+        "boost-config",
+        "boost-container",
+        "boost-container-hash",
+        "boost-conversion",
+        "boost-core",
+        "boost-date-time",
+        "boost-describe",
+        "boost-detail",
+        "boost-dynamic-bitset",
+        "boost-endian",
+        "boost-exception",
+        "boost-function",
+        "boost-function-types",
+        "boost-functional",
+        "boost-fusion",
+        "boost-headers",
+        "boost-integer",
+        "boost-intrusive",
+        "boost-io",
+        "boost-iostreams",
+        "boost-iterator",
+        "boost-lexical-cast",
+        "boost-locale",
+        "boost-move",
+        "boost-mp11",
+        "boost-mpl",
+        "boost-numeric-conversion",
+        "boost-optional",
+        "boost-phoenix",
+        "boost-pool",
+        "boost-predef",
+        "boost-preprocessor",
+        "boost-proto",
+        "boost-random",
+        "boost-range",
+        "boost-ratio",
+        "boost-regex",
+        "boost-smart-ptr",
+        "boost-spirit",
+        "boost-static-assert",
+        "boost-system",
+        "boost-thread",
+        "boost-throw-exception",
+        "boost-tokenizer",
+        "boost-tuple",
+        "boost-type-index",
+        "boost-type-traits",
+        "boost-typeof",
+        "boost-uninstall",
+        "boost-unordered",
+        "boost-utility",
+        "boost-variant",
+        "boost-variant2",
+        "boost-winapi",
+        "breakpad",
+        "brotli",
+        "bzip2",
+        "cocos2dx",
+        "ffmpeg",
+        "fmt",
+        "freetype",
+        "glm",
+        "jxrlib",
+        "libarchive",
+        "libdisasm",
+        "libiconv",
+        "libjpeg-turbo",
+        "liblzma",
+        "libogg",
+        "libpng",
+        "libvorbis",
+        "libwebp",
+        "libxml2",
+        "lz4",
+        "miniaudio",
+        "oniguruma",
+        "openal-soft",
+        "opus",
+        "opusfile",
+        "pkgconf",
+        "spdlog",
+        "tiff",
+        "uchardet",
+        "unrar",
+        "vcpkg-boost",
+        "vcpkg-cmake",
+        "vcpkg-cmake-config",
+        "vcpkg-cmake-get-vars",
+        "vcpkg-pkgconfig-get-modules",
+        "vcpkg-tool-meson",
+        "zlib",
+        "zstd"
+      ],
+      "project_sources": 348,
+      "apk": "platforms/android/out/android/app/outputs/apk/debug/krkr2-1.5.0-arm64-v8a.apk",
+      "apk_sha256": "db17f33e1325320fa868f455ad92a75f8b5e32bd2305ecf6e322a3702e808d4f",
+      "apk_size": 56770506,
+      "libraries": {
+        "libc++_shared.so": {
+          "size": 1253544,
+          "sha256": "b17919df195f29b0a238468c04171b93cedcdffbe0d30cdc634327cf7f7889bc",
+          "needed": [
+            "libc.so",
+            "libm.so",
+            "libdl.so"
+          ]
+        },
+        "libkrkr2.so": {
+          "size": 77354760,
+          "sha256": "52dd84408ffab2e3d1c8976876fb3b1e2dd5a0ab677ba40b5a83a4ae7607f0ad",
+          "needed": [
+            "libc.so",
+            "liboboe.so",
+            "libGLESv1_CM.so",
+            "liblog.so",
+            "libandroid.so",
+            "libEGL.so",
+            "libGLESv2.so",
+            "libOpenSLES.so",
+            "libdl.so",
+            "libm.so",
+            "libc++_shared.so"
+          ]
+        },
+        "liboboe.so": {
+          "size": 296080,
+          "sha256": "979d14353e7e95de1047fbe7321da6c07bc47e30ee2b2cb8b57a1a58ef026587",
+          "needed": [
+            "liblog.so",
+            "libOpenSLES.so",
+            "libm.so",
+            "libc++_shared.so",
+            "libdl.so",
+            "libc.so"
+          ]
+        },
+        "libomp.so": {
+          "size": 965024,
+          "sha256": "77be531865dac67328d075f1637376fef40171323b32d9ed17d6ffaa88c7fc19",
+          "needed": [
+            "libdl.so",
+            "libc.so"
+          ]
+        }
+      }
+    },
+    "local_verification": {
+      "artifact": 14625141630,
+      "archive_sha256": "b25e55299e4d2f2e7360670fa1cb9b3f31e65671091c72fd42cb6ac79d33994d",
+      "apk": "platforms/android/out/android/app/outputs/apk/debug/krkr2-1.5.0-arm64-v8a.apk",
+      "apk_bytes": 56770506,
+      "apk_sha256": "db17f33e1325320fa868f455ad92a75f8b5e32bd2305ecf6e322a3702e808d4f",
+      "elf_machine": {
+        "lib/arm64-v8a/libc++_shared.so": 183,
+        "lib/arm64-v8a/libkrkr2.so": 183,
+        "lib/arm64-v8a/liboboe.so": 183,
+        "lib/arm64-v8a/libomp.so": 183
+      },
+      "licenses_verified": 5
+    },
+    "both_cocos_adapters_compiled_once": true
+  },
+  "windows": {
+    "run": 44728185681,
+    "source": "4988d02799cfed7c8404b526778802baaeeb171e",
+    "renderer_reports": [
+      {
+        "engine": "D:\\a\\krkr2\\krkr2\\out\\windows\\pointer-contracts\\runtime\\krkr2.exe",
+        "engine_sha256": "8157c00c6d85fd2f45b9c4af3bd915a283dd3f55db9c2bbab34ff99d7e7fd646",
+        "script_sha256": "1155ff8a59a910672e945df1201b811e048a9789e0ee8aa78eb760218d99b470",
+        "controller_sha256": "2ca311bf41678ad9b7f1473414dadc78b9ce4b2aba07e14308a15039315db474",
+        "preferences_sha256": "7b8a8c5fdbcf03c44cb1735251aabcc3d5b119e98d7f25e996a51bcc90499c2d",
+        "renderer_requested": "software",
+        "command": [
+          "D:\\a\\krkr2\\krkr2\\out\\windows\\pointer-contracts\\runtime\\krkr2.exe",
+          "--game=D:\\a\\krkr2\\krkr2\\out\\windows\\pointer-contracts\\imageops\\software",
+          "-imageops-renderer=software",
+          "-ui-contract-driver=yes"
+        ],
+        "forced_stop": false,
+        "failures": [],
+        "renderer_observed": "software",
+        "frame_file": "ui-imageops.png",
+        "frame_color_counts": {
+          "(63, 159, 63)": 48345,
+          "(159, 63, 159)": 47601,
+          "(63, 63, 63)": 47215,
+          "(159, 159, 159)": 46584
+        },
+        "frame_sha256": "c6773a49a831e6a17e241d1f9b096871cc848df90969e8dc8350db043116e313",
+        "presentation_phases": [
+          {
+            "step": 1,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-1.png",
+            "frame_color_counts": {
+              "(96, 176, 96)": 457441
+            },
+            "frame_sha256": "9b73feb5f76f92c22d5bc6aabf5537f5685623a52293a262832161959758cf88",
+            "image_sha256": "2653b2b2a902ac65ec400e104e8ff91a6f23c47e5cd422a82d5556463cc473ca"
+          },
+          {
+            "step": 2,
+            "width": 66,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-2.png",
+            "frame_color_counts": {
+              "(112, 64, 112)": 443674
+            },
+            "frame_sha256": "0e6b71b5db2c5fa89715c52dca300ce8042371abf1629dda17ee19a60eece315",
+            "right_edge_marker_pixels": 960,
+            "image_sha256": "e8abed91757790450a3fbba4ccbe039b318d196802b72aba22a89da7ed0b1ce0"
+          },
+          {
+            "step": 3,
+            "width": 129,
+            "height": 65,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-3.png",
+            "frame_color_counts": {
+              "(176, 96, 176)": 458880
+            },
+            "frame_sha256": "ab0b22976659d6ac05f20fb9a4506a914aaa48d1611781848c76d96b83919d09",
+            "image_sha256": "f0c0dc8a14e8686e2303bbecf0f5cdadf62b6830f8911e8fda7bfed9f0f45f46"
+          },
+          {
+            "step": 4,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-4.png",
+            "frame_color_counts": {
+              "(48, 96, 48)": 457440
+            },
+            "frame_sha256": "bdf29d05d1ab0e18f30aa3dcadc2bcb12310a12936a18b9ff8bc454ff5af0f7d",
+            "image_sha256": "f91dd84145dddc4c1eaa89c1d306ec3b82766c513e5c3142eb618bd2bf890005"
+          },
+          {
+            "step": 5,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-5.png",
+            "frame_color_counts": {
+              "(160, 192, 160)": 457440
+            },
+            "frame_sha256": "cbaf737ff86b7b9be2d136503276140ae8694727c3aea3ec545c742fcf0006db",
+            "image_sha256": "3a91321e94f11231417ab409b465eacaa5cce3bcd9bd58077a740466a5ef90c4"
+          }
+        ],
+        "exit_code": 0,
+        "events": [
+          "passed:resize-0",
+          "passed:resize-1",
+          "passed:resize-2",
+          "passed:resize-3",
+          "passed:blur",
+          "passed:affine",
+          "passed:perspective",
+          "ready",
+          "presented:1",
+          "presented:2",
+          "presented:3",
+          "presented:4",
+          "presented:5",
+          "finished"
+        ],
+        "image_sha256": "395f5bb131813c513681734ed29859ea0682c6640e0fe80bebfc47e1375d711d",
+        "passed": true
+      },
+      {
+        "engine": "D:\\a\\krkr2\\krkr2\\out\\windows\\pointer-contracts\\runtime\\krkr2.exe",
+        "engine_sha256": "8157c00c6d85fd2f45b9c4af3bd915a283dd3f55db9c2bbab34ff99d7e7fd646",
+        "script_sha256": "1155ff8a59a910672e945df1201b811e048a9789e0ee8aa78eb760218d99b470",
+        "controller_sha256": "2ca311bf41678ad9b7f1473414dadc78b9ce4b2aba07e14308a15039315db474",
+        "preferences_sha256": "16a2df92d634bc17e850290618fb25cebeaf454d17e088e85998cc4cb3d789b6",
+        "renderer_requested": "opengl",
+        "command": [
+          "D:\\a\\krkr2\\krkr2\\out\\windows\\pointer-contracts\\runtime\\krkr2.exe",
+          "--game=D:\\a\\krkr2\\krkr2\\out\\windows\\pointer-contracts\\imageops\\opengl",
+          "-imageops-renderer=opengl",
+          "-ui-contract-driver=yes"
+        ],
+        "forced_stop": false,
+        "failures": [],
+        "renderer_observed": "opengl",
+        "frame_file": "ui-imageops.png",
+        "frame_color_counts": {
+          "(64, 160, 64)": 56478,
+          "(160, 64, 160)": 53700,
+          "(64, 64, 64)": 53384,
+          "(160, 160, 160)": 51123
+        },
+        "frame_sha256": "f367c957ced89ef317307b1c20b42acbc667ad63a73f3c66bf5ce623d4c76d6c",
+        "presentation_phases": [
+          {
+            "step": 1,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-1.png",
+            "frame_color_counts": {
+              "(96, 176, 96)": 457441
+            },
+            "frame_sha256": "ec3ce149260e4059c31d98b8b3877de85436acc8ce184eb7cb2532db948b7e07",
+            "image_sha256": "2653b2b2a902ac65ec400e104e8ff91a6f23c47e5cd422a82d5556463cc473ca"
+          },
+          {
+            "step": 2,
+            "width": 66,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-2.png",
+            "frame_color_counts": {
+              "(112, 64, 112)": 443674
+            },
+            "frame_sha256": "c66c5d48a4fe6ed54cf822cdd8c60085f272cd524b1498846660013b7b3e5b1b",
+            "right_edge_marker_pixels": 960,
+            "image_sha256": "e8abed91757790450a3fbba4ccbe039b318d196802b72aba22a89da7ed0b1ce0"
+          },
+          {
+            "step": 3,
+            "width": 129,
+            "height": 65,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-3.png",
+            "frame_color_counts": {
+              "(176, 96, 176)": 458880
+            },
+            "frame_sha256": "92db1c3f927fa70d4ada1ff1ef1c4254a95e966e452cc54b641e47993c7df66a",
+            "image_sha256": "f0c0dc8a14e8686e2303bbecf0f5cdadf62b6830f8911e8fda7bfed9f0f45f46"
+          },
+          {
+            "step": 4,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-4.png",
+            "frame_color_counts": {
+              "(48, 96, 48)": 457440
+            },
+            "frame_sha256": "bdf29d05d1ab0e18f30aa3dcadc2bcb12310a12936a18b9ff8bc454ff5af0f7d",
+            "image_sha256": "f91dd84145dddc4c1eaa89c1d306ec3b82766c513e5c3142eb618bd2bf890005"
+          },
+          {
+            "step": 5,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-5.png",
+            "frame_color_counts": {
+              "(160, 192, 160)": 457440
+            },
+            "frame_sha256": "cbaf737ff86b7b9be2d136503276140ae8694727c3aea3ec545c742fcf0006db",
+            "image_sha256": "3a91321e94f11231417ab409b465eacaa5cce3bcd9bd58077a740466a5ef90c4"
+          }
+        ],
+        "exit_code": 0,
+        "events": [
+          "passed:resize-0",
+          "passed:resize-1",
+          "passed:resize-2",
+          "passed:resize-3",
+          "passed:blur",
+          "passed:affine",
+          "passed:perspective",
+          "ready",
+          "presented:1",
+          "presented:2",
+          "presented:3",
+          "presented:4",
+          "presented:5",
+          "finished"
+        ],
+        "image_sha256": "114f0fc978360fb8bc89293970d10313c63799072bfb11977bf3ab1144cc440a",
+        "passed": true
+      }
+    ],
+    "interaction_reports": {
+      "native-text": {
+        "engine_sha256": "8157c00c6d85fd2f45b9c4af3bd915a283dd3f55db9c2bbab34ff99d7e7fd646",
+        "exit_code": 0,
+        "forced_stop": false,
+        "passed": true,
+        "failures": []
+      },
+      "single-window": {
+        "engine_sha256": "8157c00c6d85fd2f45b9c4af3bd915a283dd3f55db9c2bbab34ff99d7e7fd646",
+        "exit_code": 0,
+        "forced_stop": false,
+        "passed": true,
+        "failures": []
+      },
+      "two-windows": {
+        "engine_sha256": "8157c00c6d85fd2f45b9c4af3bd915a283dd3f55db9c2bbab34ff99d7e7fd646",
+        "exit_code": 0,
+        "forced_stop": false,
+        "passed": true,
+        "failures": []
+      },
+      "native-minimize": {
+        "engine_sha256": "8157c00c6d85fd2f45b9c4af3bd915a283dd3f55db9c2bbab34ff99d7e7fd646",
+        "exit_code": 0,
+        "forced_stop": false,
+        "passed": true,
+        "failures": []
+      },
+      "native-focus": {
+        "engine_sha256": "8157c00c6d85fd2f45b9c4af3bd915a283dd3f55db9c2bbab34ff99d7e7fd646",
+        "exit_code": 0,
+        "forced_stop": false,
+        "passed": true,
+        "failures": []
+      }
+    },
+    "both_cocos_adapters_compiled_once": true,
+    "screenshots_visually_inspected": true,
+    "conclusion": "success",
+    "visually_inspected_frames": [
+      "ui-imageops.png",
+      "ui-presentation-2.png",
+      "ui-presentation-5.png"
+    ]
+  },
+  "linux": {
+    "run": 44728190047,
+    "source": "4988d02799cfed7c8404b526778802baaeeb171e",
+    "renderer_reports": [
+      {
+        "engine": "/home/runner/work/krkr2/krkr2/out/linux/release/bin/krkr2/krkr2",
+        "engine_sha256": "c4b1b99a72cdd8fe7773ba1ad2557fa9351319e802bf73a91d856e6ee31bff1d",
+        "script_sha256": "73df4ba67a38b7f1fa6b84a343295222c237b41addc1736da80b055b1d0e484d",
+        "controller_sha256": "0b26eed0bd81d9621f34d9e1ae9127f5c96c25d4ccc5c32ad947bc92726356e6",
+        "preferences_sha256": "7b8a8c5fdbcf03c44cb1735251aabcc3d5b119e98d7f25e996a51bcc90499c2d",
+        "renderer_requested": "software",
+        "command": [
+          "/home/runner/work/krkr2/krkr2/out/linux/release/bin/krkr2/krkr2",
+          "--game=/home/runner/work/krkr2/krkr2/out/linux/imageops-runtime/software",
+          "-imageops-renderer=software",
+          "-ui-contract-driver=yes"
+        ],
+        "forced_stop": false,
+        "failures": [],
+        "renderer_observed": "software",
+        "frame_file": "ui-imageops.png",
+        "frame_color_counts": {
+          "(63, 159, 63)": 48345,
+          "(159, 63, 159)": 47599,
+          "(63, 63, 63)": 47214,
+          "(159, 159, 159)": 46585
+        },
+        "frame_sha256": "68afce0f0034e1faf780046b46bcc3a49bcee8cf544a8fc511586d1ecd7dfd94",
+        "presentation_phases": [
+          {
+            "step": 1,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-1.png",
+            "frame_color_counts": {
+              "(96, 176, 96)": 457441
+            },
+            "frame_sha256": "8236f2171e4907eb44249793d2f62c3e19221febd3ab0c33b8e3dddd90849092",
+            "image_sha256": "2653b2b2a902ac65ec400e104e8ff91a6f23c47e5cd422a82d5556463cc473ca"
+          },
+          {
+            "step": 2,
+            "width": 66,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-2.png",
+            "frame_color_counts": {
+              "(112, 64, 112)": 443674
+            },
+            "frame_sha256": "2b577e4aa0023ec1c1d51885fe17d7a3e59c91418ede9f6e1f4683c98b68e33a",
+            "right_edge_marker_pixels": 960,
+            "image_sha256": "e8abed91757790450a3fbba4ccbe039b318d196802b72aba22a89da7ed0b1ce0"
+          },
+          {
+            "step": 3,
+            "width": 129,
+            "height": 65,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-3.png",
+            "frame_color_counts": {
+              "(176, 96, 176)": 458880
+            },
+            "frame_sha256": "92a122789f82d68890faa7e7e4ccf6824e38627d12af57ebf89e4af0c18e0cbe",
+            "image_sha256": "f0c0dc8a14e8686e2303bbecf0f5cdadf62b6830f8911e8fda7bfed9f0f45f46"
+          },
+          {
+            "step": 4,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-4.png",
+            "frame_color_counts": {
+              "(48, 96, 48)": 457440
+            },
+            "frame_sha256": "aa600aebf9edaa9f9e37cb84b45f6be52512c964953a4073c1da6f2eaa3f1b58",
+            "image_sha256": "f91dd84145dddc4c1eaa89c1d306ec3b82766c513e5c3142eb618bd2bf890005"
+          },
+          {
+            "step": 5,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "software",
+            "frame_file": "ui-presentation-5.png",
+            "frame_color_counts": {
+              "(160, 192, 160)": 457440
+            },
+            "frame_sha256": "1fa980c089cb6bebc6e6021a5d8cea67069236a8e0f1e6e15066e589e95cd2d5",
+            "image_sha256": "3a91321e94f11231417ab409b465eacaa5cce3bcd9bd58077a740466a5ef90c4"
+          }
+        ],
+        "exit_code": 0,
+        "events": [
+          "passed:resize-0",
+          "passed:resize-1",
+          "passed:resize-2",
+          "passed:resize-3",
+          "passed:blur",
+          "passed:affine",
+          "passed:perspective",
+          "ready",
+          "presented:1",
+          "presented:2",
+          "presented:3",
+          "presented:4",
+          "presented:5",
+          "finished"
+        ],
+        "image_sha256": "395f5bb131813c513681734ed29859ea0682c6640e0fe80bebfc47e1375d711d",
+        "passed": true
+      },
+      {
+        "engine": "/home/runner/work/krkr2/krkr2/out/linux/release/bin/krkr2/krkr2",
+        "engine_sha256": "c4b1b99a72cdd8fe7773ba1ad2557fa9351319e802bf73a91d856e6ee31bff1d",
+        "script_sha256": "73df4ba67a38b7f1fa6b84a343295222c237b41addc1736da80b055b1d0e484d",
+        "controller_sha256": "0b26eed0bd81d9621f34d9e1ae9127f5c96c25d4ccc5c32ad947bc92726356e6",
+        "preferences_sha256": "16a2df92d634bc17e850290618fb25cebeaf454d17e088e85998cc4cb3d789b6",
+        "renderer_requested": "opengl",
+        "command": [
+          "/home/runner/work/krkr2/krkr2/out/linux/release/bin/krkr2/krkr2",
+          "--game=/home/runner/work/krkr2/krkr2/out/linux/imageops-runtime/opengl",
+          "-imageops-renderer=opengl",
+          "-ui-contract-driver=yes"
+        ],
+        "forced_stop": false,
+        "failures": [],
+        "renderer_observed": "opengl",
+        "frame_file": "ui-imageops.png",
+        "frame_color_counts": {
+          "(64, 160, 64)": 56475,
+          "(160, 64, 160)": 53697,
+          "(64, 64, 64)": 53381,
+          "(160, 160, 160)": 51125
+        },
+        "frame_sha256": "4a1e3fe1c4e0dff87d3b5742c0ebe2183fdcbb428593b2476fc5123ad6315f0f",
+        "presentation_phases": [
+          {
+            "step": 1,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-1.png",
+            "frame_color_counts": {
+              "(96, 176, 96)": 457441
+            },
+            "frame_sha256": "7b233145d9c35d6651ae0973eec158715413d4301b0842a82ebf4da1cd2db24e",
+            "image_sha256": "2653b2b2a902ac65ec400e104e8ff91a6f23c47e5cd422a82d5556463cc473ca"
+          },
+          {
+            "step": 2,
+            "width": 66,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-2.png",
+            "frame_color_counts": {
+              "(112, 64, 112)": 443674
+            },
+            "frame_sha256": "c73c8a1c7d1c2aa1d1a2ef15057fbfdc8c65e7219d751597d25e09f0ef2f5a8a",
+            "right_edge_marker_pixels": 960,
+            "image_sha256": "e8abed91757790450a3fbba4ccbe039b318d196802b72aba22a89da7ed0b1ce0"
+          },
+          {
+            "step": 3,
+            "width": 129,
+            "height": 65,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-3.png",
+            "frame_color_counts": {
+              "(176, 96, 176)": 458880
+            },
+            "frame_sha256": "e8bdb4924dad6d76e91aab6cc1334d65415258ea264e533b07c29ca8fe29f748",
+            "image_sha256": "f0c0dc8a14e8686e2303bbecf0f5cdadf62b6830f8911e8fda7bfed9f0f45f46"
+          },
+          {
+            "step": 4,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-4.png",
+            "frame_color_counts": {
+              "(48, 96, 48)": 457440
+            },
+            "frame_sha256": "aa600aebf9edaa9f9e37cb84b45f6be52512c964953a4073c1da6f2eaa3f1b58",
+            "image_sha256": "f91dd84145dddc4c1eaa89c1d306ec3b82766c513e5c3142eb618bd2bf890005"
+          },
+          {
+            "step": 5,
+            "width": 65,
+            "height": 33,
+            "renderer_observed": "opengl",
+            "frame_file": "ui-presentation-5.png",
+            "frame_color_counts": {
+              "(160, 192, 160)": 457440
+            },
+            "frame_sha256": "1fa980c089cb6bebc6e6021a5d8cea67069236a8e0f1e6e15066e589e95cd2d5",
+            "image_sha256": "3a91321e94f11231417ab409b465eacaa5cce3bcd9bd58077a740466a5ef90c4"
+          }
+        ],
+        "exit_code": 0,
+        "events": [
+          "passed:resize-0",
+          "passed:resize-1",
+          "passed:resize-2",
+          "passed:resize-3",
+          "passed:blur",
+          "passed:affine",
+          "passed:perspective",
+          "ready",
+          "presented:1",
+          "presented:2",
+          "presented:3",
+          "presented:4",
+          "presented:5",
+          "finished"
+        ],
+        "image_sha256": "eb505139dfacf19733d2e134ebae5a0de79fc3308d24706486cbd7db1aa3f637",
+        "passed": true
+      }
+    ],
+    "package": {
+      "artifact": 14624922658,
+      "archive_bytes": 65287716,
+      "archive_sha256": "fd0efd400e46ee117e23b9763020aa0a4a5cff464358d6f261fc45b0953c0a21",
+      "uncompressed_bytes": 143924399,
+      "file_count": 92,
+      "engine": {
+        "bytes": 120656064,
+        "sha256": "c4b1b99a72cdd8fe7773ba1ad2557fa9351319e802bf73a91d856e6ee31bff1d"
+      }
+    },
+    "screenshots_visually_inspected": true,
+    "conclusion": "success",
+    "visually_inspected_frames": [
+      "ui-imageops.png",
+      "ui-presentation-2.png",
+      "ui-presentation-5.png"
+    ]
+  },
+  "final_headless": {
+    "run": 44728194229,
+    "conclusion": "success",
+    "jobs": 13,
+    "platforms": [
+      {
+        "platform": "LINUX",
+        "tests_passed": 38,
+        "presentation_tests": 4,
+        "evidence": [
+          "2026-11-20T11:31:24.2506927Z   Test #35: presentation compressed rows borrow the physical row reader",
+          "2026-11-20T11:31:24.2507338Z   Test #36: presentation lease reuses a source and releases it exactly once",
+          "2026-11-20T11:31:24.2507739Z   Test #37: presentation CPU rows preserve padding and signed pitch",
+          "2026-11-20T11:31:24.2508116Z   Test #38: presentation lease retains a replacement before its owner dies",
+          "2026-11-20T11:31:24.4011998Z 35/38 Test #35: presentation compressed rows borrow the physical row reader ..............   Passed    0.00 sec",
+          "2026-11-20T11:31:24.4026026Z 36/38 Test #36: presentation lease reuses a source and releases it exactly once ..........   Passed    0.00 sec",
+          "2026-11-20T11:31:24.4039809Z 37/38 Test #37: presentation CPU rows preserve padding and signed pitch ..................   Passed    0.00 sec",
+          "2026-11-20T11:31:24.4054349Z 38/38 Test #38: presentation lease retains a replacement before its owner dies ...........   Passed    0.00 sec",
+          "2026-11-20T11:31:24.4056165Z 100% tests passed, 0 tests failed out of 38",
+          "2026-11-20T11:31:24.4095198Z \u001b[36;1mprint('Platform contracts: 38 tests; closure verified:', sorted(ports))\u001b[0m",
+          "2026-11-20T11:31:24.4394473Z Platform contracts: 38 tests; closure verified: ['catch2', 'vcpkg-cmake', 'vcpkg-cmake-config']"
+        ]
+      },
+      {
+        "platform": "WINDOWS",
+        "tests_passed": 38,
+        "presentation_tests": 4,
+        "evidence": [
+          "2026-11-20T11:31:46.6617512Z   Test #35: presentation lease reuses a source and releases it exactly once\r",
+          "2026-11-20T11:31:46.6619107Z   Test #36: presentation lease retains a replacement before its owner dies\r",
+          "2026-11-20T11:31:46.6620528Z   Test #37: presentation compressed rows borrow the physical row reader\r",
+          "2026-11-20T11:31:46.6622010Z   Test #38: presentation CPU rows preserve padding and signed pitch\r",
+          "2026-11-20T11:31:47.0541283Z 35/38 Test #35: presentation lease reuses a source and releases it exactly once ..........   Passed    0.01 sec\r",
+          "2026-11-20T11:31:47.0635649Z 36/38 Test #36: presentation lease retains a replacement before its owner dies ...........   Passed    0.01 sec\r",
+          "2026-11-20T11:31:47.0720112Z 37/38 Test #37: presentation compressed rows borrow the physical row reader ..............   Passed    0.01 sec\r",
+          "2026-11-20T11:31:47.0803680Z 38/38 Test #38: presentation CPU rows preserve padding and signed pitch ..................   Passed    0.01 sec\r",
+          "2026-11-20T11:31:47.0811435Z 100% tests passed, 0 tests failed out of 38\r",
+          "2026-11-20T11:31:47.1011535Z \u001b[36;1mprint('Platform contracts: 38 tests; closure verified:', sorted(ports))\u001b[0m\r",
+          "2026-11-20T11:31:47.2861507Z Platform contracts: 38 tests; closure verified: ['catch2', 'vcpkg-cmake', 'vcpkg-cmake-config']\r"
+        ]
+      },
+      {
+        "platform": "MACOS",
+        "tests_passed": 38,
+        "presentation_tests": 4,
+        "evidence": [
+          "2026-11-20T11:31:14.9132930Z   Test #35: presentation lease retains a replacement before its owner dies",
+          "2026-11-20T11:31:14.9133530Z   Test #36: presentation compressed rows borrow the physical row reader",
+          "2026-11-20T11:31:14.9134080Z   Test #37: presentation CPU rows preserve padding and signed pitch",
+          "2026-11-20T11:31:14.9134660Z   Test #38: presentation lease reuses a source and releases it exactly once",
+          "2026-11-20T11:31:15.3031260Z 35/38 Test #35: presentation lease retains a replacement before its owner dies ...........   Passed    0.01 sec",
+          "2026-11-20T11:31:15.3124160Z 36/38 Test #36: presentation compressed rows borrow the physical row reader ..............   Passed    0.01 sec",
+          "2026-11-20T11:31:15.3273030Z 37/38 Test #37: presentation CPU rows preserve padding and signed pitch ..................   Passed    0.01 sec",
+          "2026-11-20T11:31:15.3404160Z 38/38 Test #38: presentation lease reuses a source and releases it exactly once ..........   Passed    0.01 sec",
+          "2026-11-20T11:31:15.3419540Z 100% tests passed out of 38",
+          "2026-11-20T11:31:15.3495860Z \u001b[36;1mprint('Platform contracts: 38 tests; closure verified:', sorted(ports))\u001b[0m",
+          "2026-11-20T11:31:15.5321830Z Platform contracts: 38 tests; closure verified: ['catch2', 'vcpkg-cmake', 'vcpkg-cmake-config']"
+        ]
+      }
+    ]
+  },
+  "final_build_steps": [
+    {
+      "platform": "linux",
+      "name": "Build Linux",
+      "seconds": 106.0,
+      "conclusion": "success"
+    },
+    {
+      "platform": "windows",
+      "name": "Configure Windows",
+      "seconds": 82.0,
+      "conclusion": "success"
+    },
+    {
+      "platform": "windows",
+      "name": "Build Windows",
+      "seconds": 19.0,
+      "conclusion": "success"
+    }
+  ],
+  "changed_cpp_sha256": {
+    "cpp/core/environ/CMakeLists.txt": "24a2918286a50bd4f011f974a6ab9138d663414347b43ec702366fe7d9a57b10",
+    "cpp/core/environ/FrameCapture.h": "fc5a787eb33dd76ec200c7fdc24a3a3d7a315b5a3215fada0dac1e6758593c8e",
+    "cpp/core/environ/cocos2d/CocosFrameCapture.cpp": "05f685b8d910e3ffb05ee4d004a2a4de6b72de2c4b404cf0891a87c0dd934bc5",
+    "cpp/core/environ/cocos2d/CocosTexturePresentation.cpp": "23599bb4e35c9d1e7d259bdfdd831e5f3315afd04e07b6dec7292c144fb62ab5",
+    "cpp/core/environ/cocos2d/CocosTexturePresentation.h": "22891fb2c80b1e361f880ce61210f56fb6d84fa477b68bf5ff5e16fd5999e40e",
+    "cpp/core/environ/cocos2d/UIContractDriver.cpp": "d6d07456026f65314458978a150be0a29133324d0e0354fe30982c2f7bc4f299",
+    "cpp/core/environ/impl/TVPWindow.cpp": "ab07ae9478d38dded7c8b6f164b2f1fff7d897e88985dc7e9572c530cef92f1a",
+    "cpp/core/environ/ui/DebugViewLayerForm.cpp": "9d24b63e68e3f3c2644edb7cf665d2574b62395da0c213064cd9d86e79384743",
+    "cpp/core/visual/RenderManager.cpp": "374e97ca08cc99387999405727d206124ae3f0e3f70690eb4fb5e088bc738067",
+    "cpp/core/visual/RenderManager.h": "011c5c91499faa9d5894ace993d946389ddf1129fb34c0fa5b952f8741fa400b",
+    "cpp/core/visual/TexturePresentation.h": "a9bf54c3596c6b689fbc75f2b0b73c66bc0d213bed4b03090ff0eb49070f7b52",
+    "cpp/core/visual/ogl/RenderManager_ogl.cpp": "200392fd60ff71217fc030b32fc27094b5936270ba75fdb84417eb71720fc6b2"
+  },
+  "fixture_sha256": {
+    "tools/game-smoke/imageops/startup.tjs": "73df4ba67a38b7f1fa6b84a343295222c237b41addc1736da80b055b1d0e484d",
+    "tools/game-smoke/imageops_repro.py": "0b26eed0bd81d9621f34d9e1ae9127f5c96c25d4ccc5c32ad947bc92726356e6"
+  },
+  "production_identical_to_android_source": true,
+  "ci_conclusions": {
+    "headless": "success",
+    "windows": "success",
+    "linux": "success",
+    "android_arm64": "success"
+  },
+  "final_ci_urls": {
+    "headless": "https://github.com/2468785842/krkr2/actions/runs/44728194229",
+    "windows": "https://github.com/2468785842/krkr2/actions/runs/44728185681",
+    "linux": "https://github.com/2468785842/krkr2/actions/runs/44728190047",
+    "android_arm64": "https://github.com/2468785842/krkr2/actions/runs/44727456172"
+  },
+  "artifact_ids": {
+    "windows_reports": 14624678375,
+    "windows_metadata": 14624688527,
+    "linux_reports": 14625107060,
+    "linux_binary": 14624922658,
+    "android_arm64": 14625141630,
+    "original_backend_comparison": 14623913892
+  },
+  "ci_python_smoke": {
+    "run": 44728194229,
+    "job": 136260919259,
+    "tests": 47,
+    "passed": true
+  }
+}

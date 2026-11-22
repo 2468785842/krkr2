@@ -2,16 +2,9 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "krkr2",
   "version-string": "1.5.0",
-  "overrides": [
-    {
-      "name": "opencv4",
-      "version": "4.7.0",
-      "port-version": 6
-    }
-  ],
   "features": {
     "sdl3-prototype": {
-      "description": "Separate SDL3/TJS desktop shell experiment",
+      "description": "SDL3 dependencies for the desktop prototype and opt-in Linux game host",
       "dependencies": [
         {
           "name": "sdl3",
@@ -20,7 +13,9 @@
         {
           "name": "sdl3",
           "platform": "linux",
-          "features": ["dbus"]
+          "features": [
+            "dbus"
+          ]
         }
       ]
     },
@@ -48,6 +43,11 @@
           ]
         },
         "ffmpeg",
+        "freetype",
+        {
+          "name": "glew",
+          "platform": "linux | windows"
+        },
         "glm",
         "jxrlib",
         "libarchive",
@@ -57,10 +57,7 @@
           "name": "libogg",
           "platform": "android"
         },
-        {
-          "name": "libpng",
-          "platform": "!linux"
-        },
+        "libpng",
         "libvorbis",
         "libwebp",
         "lz4",
@@ -70,11 +67,8 @@
         },
         "openal-soft",
         {
-          "name": "opencv4",
-          "default-features": false,
-          "features": [
-            "openmp"
-          ]
+          "name": "opengl",
+          "platform": "linux"
         },
         {
           "name": "opus",
@@ -91,6 +85,7 @@
           "host": true
         },
         "zstd",
+        "xxhash",
         {
           "name": "dirent",
           "platform": "windows"
@@ -158,15 +153,7 @@
     },
     "imageops": {
       "description": "CPU image operations without the runtime or window backend",
-      "dependencies": [
-        {
-          "name": "opencv4",
-          "default-features": false,
-          "features": [
-            "openmp"
-          ]
-        }
-      ]
+      "dependencies": []
     }
   },
   "default-features": [

@@ -4,10 +4,9 @@
 
 #include "tjsVariant.h"
 #include "tjsString.h"
+#include "MainThreadMessageQueue.h"
 #include <vector>
 #include <functional>
-#include <mutex>
-#include <tuple>
 #include <map>
 
 ttstr ExePath();
@@ -96,7 +95,6 @@ public:
     ~tTVPApplication();
     bool StartApplication(ttstr path);
     void Run();
-    void ProcessMessages();
 
     static void PrintConsole(const ttstr &mes, bool important = false);
     bool IsAttachConsole() { return is_attach_console_; }
@@ -149,16 +147,8 @@ public:
 
     int ArgC;
     char **ArgV;
-    typedef std::function<void()> tMsg;
-
-    //	void PostMessageToMainWindow(UINT message, WPARAM wParam,
-    // LPARAM
-    // lParam);
     void PostUserMessage(const std::function<void()> &func,
-                         void *host = nullptr, int msg = 0);
-    void FilterUserMessage(
-        const std::function<void(std::vector<std::tuple<void *, int, tMsg>> &)>
-            &func);
+                         void *host = nullptr, unsigned msg = 0);
 
 #if 0
 	void ModalStarted( class tTVPWindow* form ) {
@@ -196,9 +186,9 @@ public:
                                  &func /*empty = unregister*/);
 
 private:
-    std::mutex m_msgQueueLock;
-
-    std::vector<std::tuple<void *, int, tMsg>> m_lstUserMsg;
+    friend krkr::event::MainThreadMessageQueue &
+    krkr::event::MainThreadMessages();
+    krkr::event::MainThreadMessageQueue mainThreadMessages;
     std::map<void *, std::function<void(void *, eTVPActiveEvent)>>
         m_activeEvents;
 };

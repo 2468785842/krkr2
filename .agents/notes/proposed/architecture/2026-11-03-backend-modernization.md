@@ -9,6 +9,8 @@ Status: proposed
 [平台壳选型](2026-11-03-ui-platform-shell.md)，尚未实现。ANGLE 为 GLES 翻译层而非 cocos 替代，
 与窗口库正交，延后到 macOS 阶段决策。
 最小工具、字符串、归档测试及 ImageOps 接口/像素测试的构建隔离已有实现，进展与验证边界见[依赖瘦身实施记录](../../implemented/simplification/2026-11-01-dependency-slimming.md)。
+2026-11-20：OpenCV 生产依赖已剔除，B4 算法/线程与默认独立测试已迁移；跨平台完整消费者和游戏验收仍按范围单独核实，见[移除记录](../../implemented/simplification/2026-11-20-opencv-removal.md)。
+2026-11-20：纹理呈现首批已隔离公共画面描述、CPU上传与宿主截图，保留Cocos后端；GL状态/context边界仍待拆分，见[实施记录](../../implemented/simplification/2026-11-20-render-presentation-boundary.md)。
 此轮优先精简平台/图形后端，TJS2 与 Ciallang 替换另设任务、另行验收。
 
 ## 目标边界
@@ -62,3 +64,12 @@ OpenCV 替换独立为图像算法模块，保留插值、border、pitch、alpha
 ```
 
 外部经验与适用限制见 [参考资料](../../../../docs/reference/upstream.md)，本地结构见 [当前架构](../../../../docs/architecture.md)。
+
+2026-11-20续批：GL状态缓存/视口/诊断与重建订阅已迁入宿主接口，三端完整构建和桌面自制场景通过，
+见[GL宿主边界](../../implemented/simplification/2026-11-20-gl-host-boundary.md)。完整context资源恢复仍待定义与验证。
+
+2026-11-20续批：软件/OpenGL 配置、内存压力、日志、提示框与本地化访问已迁入宿主适配；
+Windows/Linux 八配置矩阵、三平台42项独立契约与 ARM64 完整 APK 通过。
+见[渲染器宿主服务隔离](../../implemented/simplification/2026-11-20-render-host-services.md)。
+2026-11-21 续批已移除 `core_visual_module` 对 Cocos 的直接构建依赖。字体资源经宿主接口读取，
+窗口、截图与 GL 状态仍由 Cocos 宿主提供，完整 context 资源恢复待处理。见[实施记录](../../implemented/simplification/2026-11-21-visual-build-boundary.md)。

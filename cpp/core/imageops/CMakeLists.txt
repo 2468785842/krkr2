@@ -1,7 +1,11 @@
-add_library(core_imageops STATIC ImageOps.cpp ImageOps_opencv.cpp)
+add_library(core_imageops STATIC ImageOps.cpp ImageOps_native.cpp)
 target_compile_features(core_imageops PUBLIC cxx_std_17)
 target_include_directories(core_imageops PUBLIC ${CMAKE_CURRENT_LIST_DIR}/..)
-
-find_package(OpenCV REQUIRED COMPONENTS core imgproc)
-target_include_directories(core_imageops PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(core_imageops PRIVATE opencv_core opencv_imgproc)
+find_package(Threads REQUIRED)
+target_link_libraries(core_imageops PRIVATE Threads::Threads)
+# Preserve the scalar coefficient evaluation order on ARM as well as x86.
+if(MSVC)
+    target_compile_options(core_imageops PRIVATE /fp:precise)
+else()
+    target_compile_options(core_imageops PRIVATE -ffp-contract=off)
+endif()

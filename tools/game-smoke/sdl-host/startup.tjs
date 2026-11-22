@@ -1,0 +1,47 @@
+// Self-authored fixture using the game runtime's regular native classes.
+global.events = [];
+global.record = function(text) {
+    events.add(text);
+    events.save(System.exePath + "interaction-events.txt");
+};
+
+class HostWindow extends Window {
+    var closeQueries = 0;
+    function HostWindow() {
+        super.Window();
+        caption = "KrKr2 SDL3 runtime contract";
+        setSize(320, 240);
+    }
+    function onKeyDown(key, shift) {
+        if(key == 65) {
+            scene.colorRect(0, 0, 160, 120, 0xd03020, 255);
+            record("key-down:" + key + ":" + string System.getKeyState(key, true));
+        }
+    }
+    function onKeyUp(key, shift) {
+        if(key == 65)
+            record("key-up:" + key + ":" + string System.getKeyState(key, true));
+    }
+    function onMouseDown(x, y, button, shift) {
+        scene.colorRect(160, 0, 160, 120, 0x30c050, 255);
+        record("mouse-down:" + x + ":" + y + ":" + string System.getKeyState(1, true));
+    }
+    function onMouseUp(x, y, button, shift) {
+        record("mouse-up:" + x + ":" + y + ":" + string System.getKeyState(1, true));
+    }
+    function onCloseQuery() {
+        ++closeQueries;
+        record("close:" + closeQueries);
+        super.onCloseQuery(closeQueries > 1);
+    }
+}
+
+global.win = new HostWindow();
+win.visible = true;
+global.scene = new Layer(win, null);
+scene.setImageSize(320, 240);
+scene.setSize(320, 240);
+scene.type = ltOpaque;
+scene.colorRect(0, 0, 320, 240, 0x204060, 255);
+scene.visible = true;
+record("ready");

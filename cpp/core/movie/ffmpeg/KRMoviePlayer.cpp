@@ -1,12 +1,11 @@
+#include <cassert>
+#include <cstring>
 #include <thread>
-
-#include "cocos2d/CocosWindowAccess.h"
 
 extern "C" {
 #include "libswscale/swscale.h"
 }
 
-#include <cocos2d.h>
 #include "KRMoviePlayer.h"
 #include "VideoCodec.h"
 #include "CodecUtils.h"
@@ -14,7 +13,6 @@ extern "C" {
 #include "WaveMixer.h"
 #include "WindowImpl.h"
 #include "VideoOvlImpl.h"
-#include "cocos2d/YUVSprite.h"
 
 extern std::thread::id TVPMainThreadID;
 
@@ -223,20 +221,9 @@ int TVPMoviePlayer::AddVideoPicture(DVDVideoPicture &pic, int index) {
         ++m_usedPicture;
         return MAX_BUFFER_COUNT - m_usedPicture;
     }
-
-    // 	const static std::string sckey("present");
-    // 	m_pRootNode->scheduleOnce(std::bind(&PlayerOverlay::PresentPicture,
-    // this, std::placeholders::_1), 0, sckey);
 }
 
-VideoPresentOverlay::~VideoPresentOverlay() { ClearNode(); }
-
-void VideoPresentOverlay::ClearNode() {
-    if(m_pRootNode) {
-        m_pRootNode->removeFromParent(), m_pRootNode = nullptr;
-        m_pSprite = nullptr;
-    }
-}
+VideoPresentOverlay::~VideoPresentOverlay() = default;
 
 void VideoPresentOverlay::PresentPicture(float dt) {
     BitmapPicture pic;
@@ -264,47 +251,28 @@ void VideoPresentOverlay::PresentPicture(float dt) {
         m_condPicture.notify_all();
     }
     FrameMove();
-    if(!pic.rgba) {
+    if(!pic.data[0] || !m_presentation)
         return;
-    }
-    if(!Visible) {
-        m_pRootNode->setVisible(false);
+
+    m_presentation->SetVisible(Visible);
+    if(!Visible)
         return;
-    } else {
-        m_pRootNode->setVisible(true);
-    }
-    if(!m_pSprite) {
-        m_pSprite = TVPYUVSprite::create();
-        m_pSprite->setAnchorPoint(cocos2d::Vec2(0, 1));
-        m_pRootNode->addChild(m_pSprite);
-    }
-    cocos2d::Size videoSize(pic.width, pic.height);
-    m_pSprite->updateTextureData(pic.data[0], pic.width, pic.height,
-                                 pic.data[1], pic.width / 2, pic.height / 2,
-                                 pic.data[2], pic.width / 2, pic.height / 2);
-    const tTVPRect &rc = GetBounds();
-    float scaleX = rc.get_width() / videoSize.width;
-    float scaleY = rc.get_height() / videoSize.height;
-    if(scaleX != m_pSprite->getScaleX())
-        m_pSprite->setScaleX(scaleX);
-    if(scaleY != m_pSprite->getScaleY())
-        m_pSprite->setScaleY(scaleY);
-    cocos2d::Vec2 pos = m_pSprite->getPosition();
-    int top = m_pRootNode->getParent()->getContentSize().height - rc.top;
-    if((int)pos.x != rc.left || (int)pos.y != top) {
-        m_pSprite->setPosition(rc.left, top);
-    }
+
+    const auto &bounds = GetBounds();
+    m_presentation->Present(
+        { pic.data[0], pic.data[1], pic.data[2], pic.width, pic.height },
+        { bounds.left, bounds.top, bounds.get_width(), bounds.get_height() });
 }
 
-void KRMovie::VideoPresentOverlay::Play() {
-    if(m_pSprite)
-        m_pSprite->setVisible(true);
+void VideoPresentOverlay::Play() {
+    if(m_presentation)
+        m_presentation->SetPictureVisible(true);
     TVPMoviePlayer::Play();
 }
 
-void KRMovie::VideoPresentOverlay::Stop() {
-    if(m_pSprite)
-        m_pSprite->setVisible(false);
+void VideoPresentOverlay::Stop() {
+    if(m_presentation)
+        m_presentation->SetPictureVisible(false);
     TVPMoviePlayer::Stop();
 }
 
@@ -315,19 +283,10 @@ MoviePlayerOverlay::~MoviePlayerOverlay() {
 }
 
 void MoviePlayerOverlay::SetWindow(tTJSNI_Window *window) {
-    ClearNode();
-    m_pOwnerWindow = window;
-    cocos2d::Node *parent =
-        TVPGetCocosWindowPrimaryArea(*m_pOwnerWindow->getForm());
-    parent->addChild((m_pRootNode = cocos2d::Node::create()));
-    m_pRootNode->setContentSize(cocos2d::Size::ZERO);
-    const static std::string sckey("update video");
-    m_pRootNode->schedule(
-        [this](float dt) {
-            PresentPicture(dt);
-            //		m_renderManager.Render();
-        },
-        sckey);
+    m_presentation.reset();
+    if(window && window->getForm())
+        m_presentation = krkr::video::CreateWindowPresentation(
+            *window->getForm(), [this](float dt) { PresentPicture(dt); });
 }
 
 void MoviePlayerOverlay::BuildGraph(tTJSNI_VideoOverlay *callbackwin,
@@ -347,9 +306,8 @@ const tTVPRect &MoviePlayerOverlay::GetBounds() {
 
 void KRMovie::MoviePlayerOverlay::SetVisible(bool b) {
     VideoPresentOverlay::SetVisible(b);
-    if(m_pRootNode) {
-        m_pRootNode->setVisible(b);
-    }
+    if(m_presentation)
+        m_presentation->SetVisible(b);
 }
 
 void MoviePlayerOverlay::OnPlayEvent(KRMovieEvent msg, void *p) {
@@ -371,11 +329,6 @@ void TVPMoviePlayer::BitmapPicture::Clear() {
     for(int i = 0; i < sizeof(data) / sizeof(data[0]); ++i)
         if(data[i])
             TJSAlignedDealloc(data[i]), data[i] = nullptr;
-}
-
-void VideoPresentOverlay2::SetRootNode(cocos2d::Node *node) {
-    ClearNode();
-    m_pRootNode = node;
 }
 
 VideoPresentOverlay2 *VideoPresentOverlay2::create() {
