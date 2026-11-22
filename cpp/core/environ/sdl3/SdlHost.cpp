@@ -38,6 +38,8 @@
 #include <optional>
 #include <stdexcept>
 #include <thread>
+#include <utility>
+#include <vector>
 
 extern std::thread::id TVPMainThreadID;
 std::string TVPGetCurrentLanguage();
@@ -188,7 +190,13 @@ namespace krkr::sdl {
             return static_cast<tTVPMouseButton>(it - buttonKeys.begin());
         }
 
-        class Window final : public iWindowLayer {
+        class Window;
+        void PumpFrame();
+        Window *focusedWindow = nullptr;
+        Window *modalWindow = nullptr;
+
+        class Window final : public iWindowLayer,
+                             public std::enable_shared_from_this<Window> {
             using WindowPtr =
                 std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)>;
             using RendererPtr =
@@ -208,6 +216,7 @@ namespace krkr::sdl {
             bool visible = false, focused = false, minimized = false;
             bool pointerInside = false;
             bool dirty = true, closePending = false;
+            bool programClosing = false;
             std::array<tjs_uint16, SDL_SCANCODE_COUNT> heldKeys{};
             std::optional<SDL_FPoint> leftPress;
             float wheelRemainder = 0;
@@ -232,6 +241,7 @@ namespace krkr::sdl {
             }
 
             bool Live() const { return native != nullptr; }
+            bool Main() const { return Live() && native->IsMainWindow(); }
             void SetPaintBoxSize(tjs_int w, tjs_int h) override {
                 if(w <= 0 || h <= 0)
                     return;
@@ -241,7 +251,10 @@ namespace krkr::sdl {
                 layerHeight = h;
                 dirty = true;
             }
-            bool GetFormEnabled() override { return Live() && visible; }
+            bool GetFormEnabled() override {
+                return Live() && visible &&
+                    (!modalWindow || modalWindow == this);
+            }
             void SetDefaultMouseCursor() override {
                 SDL_SetCursor(SDL_GetDefaultCursor());
             }
@@ -281,8 +294,27 @@ namespace krkr::sdl {
                 check(SDL_RaiseWindow(window.get()));
             }
             void ShowWindowAsModal() override {
-                TVPThrowExceptionMessage(
-                    TJS_W("SDL3 does not support modal game windows"));
+                if(modalWindow == this)
+                    TVPThrowExceptionMessage(TJS_W("Window is already modal"));
+                auto lifetime = shared_from_this();
+                auto previousFocus = focusedWindow && focusedWindow != this
+                    ? focusedWindow->shared_from_this()
+                    : nullptr;
+                if(previousFocus)
+                    previousFocus->SetFocused(false);
+                auto *previousModal = std::exchange(modalWindow, this);
+                try {
+                    SetVisible(true);
+                    BringToFront();
+                    while(Live() && GetVisible() && !Application->IsTarminate())
+                        PumpFrame();
+                } catch(...) {
+                    modalWindow = previousModal;
+                    throw;
+                }
+                modalWindow = previousModal;
+                if(previousFocus && previousFocus->GetFormEnabled())
+                    previousFocus->BringToFront();
             }
             bool GetVisible() override { return visible; }
             void SetVisible(bool value) override {
@@ -468,8 +500,13 @@ namespace krkr::sdl {
                 dirty = true;
             }
             void InvalidateClose() override {
+                if(focusedWindow == this) {
+                    focusedWindow = nullptr;
+                    input::sharedState().releaseAll();
+                    if(!SDL_CursorVisible())
+                        SDL_ShowCursor();
+                }
                 native = nullptr;
-                input::sharedState().releaseAll();
                 texture.reset();
                 renderer.reset();
                 window.reset();
@@ -478,6 +515,22 @@ namespace krkr::sdl {
                 return GetFormEnabled() && focused && !minimized;
             }
             void Close() override {
+                if(!Live() || closePending)
+                    return;
+                auto lifetime = shared_from_this();
+                auto *owner = native->GetOwnerNoAddRef();
+                tTJSVariant canClose(true);
+                closePending = programClosing = true;
+                try {
+                    TVPPostEvent(owner, owner, TJS_W("onCloseQuery"), 0,
+                                 TVP_EPT_IMMEDIATE, 1, &canClose);
+                } catch(...) {
+                    closePending = programClosing = false;
+                    throw;
+                }
+                closePending = programClosing = false;
+            }
+            void RequestClose() {
                 if(!GetFormEnabled() || closePending)
                     return;
                 closePending = true;
@@ -488,6 +541,10 @@ namespace krkr::sdl {
                     return;
                 closePending = false;
                 if(allowed && native) {
+                    if(modalWindow == this || (!programClosing && !Main())) {
+                        SetVisible(false);
+                        return;
+                    }
                     auto *owner = native->GetOwnerNoAddRef();
                     owner->Invalidate(0, nullptr, nullptr, owner);
                 }
@@ -567,12 +624,9 @@ namespace krkr::sdl {
                     return;
                 const auto id = SDL_GetWindowID(window.get());
                 switch(event.type) {
-                    case SDL_EVENT_QUIT:
-                        Close();
-                        break;
                     case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
                         if(event.window.windowID == id)
-                            Close();
+                            RequestClose();
                         break;
                     case SDL_EVENT_WINDOW_FOCUS_GAINED:
                     case SDL_EVENT_WINDOW_FOCUS_LOST:
@@ -676,20 +730,22 @@ namespace krkr::sdl {
             }
 
             void SetFocused(bool active) {
-                active = active && visible && !minimized;
+                active = active && GetFormEnabled() && !minimized;
                 if(focused == active)
                     return;
+                if(active && focusedWindow && focusedWindow != this)
+                    focusedWindow->SetFocused(false);
                 focused = active;
-                if(!active)
+                if(active) {
+                    focusedWindow = this;
+                } else if(focusedWindow == this) {
+                    focusedWindow = nullptr;
                     ReleaseInput();
+                }
                 UpdateCursorVisibility();
                 UpdateTextInput();
                 TVPPostInputEvent(
                     new tTVPOnWindowActivateEvent(native, active));
-                if(active)
-                    TVPOnHostForeground();
-                else
-                    TVPOnHostBackground();
             }
 
             void UpdateCursorVisibility() {
@@ -903,19 +959,60 @@ namespace krkr::sdl {
 
         struct Session {
             VideoSubsystem video;
-            std::unique_ptr<Window> window;
+            std::vector<std::shared_ptr<Window>> windows;
+            bool startedWindow = false;
+            bool foreground = false;
         };
 
         Session *session = nullptr;
+
+        void PumpFrame() {
+            auto &windows = session->windows;
+            SDL_Event event;
+            if(SDL_WaitEventTimeout(&event, 16)) {
+                do {
+                    if(event.type == SDL_EVENT_QUIT) {
+                        const auto main = std::find_if(
+                            windows.begin(), windows.end(),
+                            [](const auto &window) { return window->Main(); });
+                        if(modalWindow)
+                            modalWindow->RequestClose();
+                        else if(main != windows.end())
+                            (*main)->RequestClose();
+                        else if(focusedWindow)
+                            focusedWindow->RequestClose();
+                    } else {
+                        for(const auto &window : windows)
+                            window->Handle(event);
+                    }
+                } while(SDL_PollEvent(&event));
+            }
+            const bool active = focusedWindow != nullptr;
+            if(session->foreground != active) {
+                session->foreground = active;
+                if(active)
+                    TVPOnHostForeground();
+                else
+                    TVPOnHostBackground();
+            }
+            TVPUpdateEngineFrame();
+            for(const auto &window : windows)
+                window->Present();
+            windows.erase(std::remove_if(windows.begin(), windows.end(),
+                                         [](const auto &window) {
+                                             return !window->Live();
+                                         }),
+                          windows.end());
+        }
     } // namespace
 
     bool Active() { return session != nullptr; }
 
     iWindowLayer *CreateWindow(tTJSNI_Window *owner) {
-        if(session->window && session->window->Live())
-            TVPThrowExceptionMessage(TJS_W("SDL3 supports one game window"));
-        session->window = std::make_unique<Window>(owner);
-        return session->window.get();
+        auto window = std::make_shared<Window>(owner);
+        session->windows.push_back(window);
+        session->startedWindow = true;
+        return window.get();
     }
 
     bool GetScreenSize(int &width, int &height) {
@@ -942,19 +1039,11 @@ namespace krkr::sdl {
                 IndividualConfigManager::GetInstance()->UsePreferenceAt(
                     std::filesystem::u8path(game).parent_path().u8string());
                 Application->StartApplication(ttstr(game));
-                while(host.window && host.window->Live()) {
-                    SDL_Event event;
-                    if(SDL_WaitEventTimeout(&event, 16)) {
-                        do {
-                            host.window->Handle(event);
-                        } while(SDL_PollEvent(&event));
-                    }
-                    TVPUpdateEngineFrame();
-                    host.window->Present();
-                }
+                while(!host.windows.empty())
+                    PumpFrame();
                 if(Application->IsTarminate())
                     TVPUpdateEngineFrame();
-                if(host.window)
+                if(host.startedWindow)
                     result = 0;
                 else
                     std::fprintf(
@@ -969,6 +1058,7 @@ namespace krkr::sdl {
             result = 1;
         }
         session = nullptr;
+        focusedWindow = modalWindow = nullptr;
         return result;
     }
 } // namespace krkr::sdl

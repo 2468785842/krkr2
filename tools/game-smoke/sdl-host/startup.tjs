@@ -37,6 +37,21 @@ class HostWindow extends Window {
             showAgain.enabled = true;
             record("visibility:hidden");
         }
+        if(key == 117) {
+            var peer = new ModalWindow();
+            var peerLayer = new Layer(peer, null);
+            peerLayer.setSize(160, 120);
+            peerLayer.setImageSize(160, 120);
+            peerLayer.type = ltOpaque;
+            peerLayer.colorRect(0, 0, 160, 120, 0x8040a0, 255);
+            peerLayer.visible = true;
+            record("modal:opening");
+            peer.showModal();
+            record("modal:returned:" + string peer.visible);
+            invalidate peer;
+        }
+        if(key == 88)
+            record("main:key-x");
     }
     function onKeyUp(key, shift) {
         if(key == 65)
@@ -74,6 +89,25 @@ class HostWindow extends Window {
         ++closeQueries;
         record("close:" + closeQueries);
         super.onCloseQuery(closeQueries > 1);
+    }
+}
+
+class ModalWindow extends Window {
+    var closeQueries = 0;
+    function ModalWindow() {
+        super.Window();
+        caption = "KrKr2 SDL3 modal contract";
+        setPos(780, 160);
+        setSize(160, 120);
+    }
+    function onCloseQuery() {
+        ++closeQueries;
+        record("modal-close:" + closeQueries);
+        super.onCloseQuery(closeQueries > 1);
+    }
+    function onKeyDown(key, shift) {
+        if(key == 88)
+            record("modal:key-x");
     }
 }
 

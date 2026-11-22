@@ -201,6 +201,30 @@ def run(engine, output):
                 frame("remapped", ["d03020", "30c050", "204060"],
                       ((120, 90), (360, 90), (120, 270)))
 
+                tap(0xffc3)  # F6
+                event("modal:opening")
+                peer = wait(lambda: x11.process_window(process.pid, exclude=(window,)),
+                            "mapped modal window")
+                wait(lambda: pixel(x11, peer, 80, 60) == 0x8040a0, "modal pixels")
+                x11.focus(window)
+                tap(ord("x"))
+                x11.request_close(window)
+                x11.focus(peer)
+                x11.request_close(peer)
+                event("modal-close:1")
+                tap(ord("x"))
+                event("modal:key-x")
+                assert "main:key-x" not in read_events(game)
+                assert "close:2" not in read_events(game)
+                x11.request_close(peer)
+                event("modal-close:2")
+                event("modal:returned:0")
+                wait(lambda: not x11.process_window(process.pid, exclude=(window,)),
+                     "closed modal window")
+                x11.focus(window)
+                tap(ord("x"))
+                event("main:key-x")
+
                 x11.request_close(window)
                 if process.wait(timeout=max(1, deadline - time.monotonic())) != 0:
                     raise RuntimeError(f"Engine exited with {process.returncode}")

@@ -133,7 +133,7 @@ class X11:
                     and request in (3, 20)):  # BadWindow; GetWindowAttributes/GetProperty
                 raise RuntimeError(f"X11 query error {code}, request {request}, resource {resource:#x}")
 
-    def process_window(self, pid):
+    def process_window(self, pid, exclude=()):
         root, parent, count = C.c_ulong(), C.c_ulong(), C.c_uint()
         children = C.POINTER(C.c_ulong)()
         if not self.library.XQueryTree(self.display, self.root, C.byref(root), C.byref(parent),
@@ -142,6 +142,8 @@ class X11:
         try:
             for index in range(count.value):
                 window = children[index]
+                if window in exclude:
+                    continue
                 with self.window_query(window):
                     kind, bits, size, remaining, data = C.c_ulong(), C.c_int(), C.c_ulong(), C.c_ulong(), C.c_void_p()
                     # XA_CARDINAL is 6. Xlib exposes format-32 elements as unsigned long.
