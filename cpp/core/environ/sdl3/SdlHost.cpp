@@ -46,6 +46,10 @@ namespace krkr::sdl {
                 // implicit GPU framebuffer. Use the native window surface.
                 check(SDL_SetHintWithPriority(SDL_HINT_FRAMEBUFFER_ACCELERATION,
                                               "0", SDL_HINT_OVERRIDE));
+                // A native window close is resolved by the script query.
+                check(
+                    SDL_SetHintWithPriority(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE,
+                                            "0", SDL_HINT_OVERRIDE));
                 check(SDL_InitSubSystem(SDL_INIT_VIDEO));
             }
             ~VideoSubsystem() { SDL_QuitSubSystem(SDL_INIT_VIDEO); }
