@@ -16,6 +16,7 @@
 #include "MsgIntf.h"
 #include "RenderManager.h"
 #include "SysInitIntf.h"
+#include "TVPLog.h"
 #include "WindowImpl.h"
 #include "WindowLayer.h"
 
@@ -114,6 +115,9 @@ namespace krkr::sdl {
                 renderer.reset(SDL_CreateRenderer(window.get(), "software"));
                 check(renderer != nullptr);
                 SetPaintBoxSize(layerWidth, layerHeight);
+                G_CoreLog.info("SDL3 video={}, renderer={}",
+                               SDL_GetCurrentVideoDriver(),
+                               SDL_GetRendererName(renderer.get()));
             }
 
             bool Live() const { return native != nullptr; }
@@ -159,8 +163,11 @@ namespace krkr::sdl {
                 check(value ? SDL_ShowWindow(window.get())
                             : SDL_HideWindow(window.get()));
                 visible = value;
-                if(!visible)
+                if(visible) {
+                    RequestRepaint();
+                } else {
                     ReleaseInput();
+                }
                 dirty = true;
             }
             const char *GetCaption() override { return caption.c_str(); }
@@ -206,6 +213,8 @@ namespace krkr::sdl {
                     throw std::runtime_error("SDL3 frame is too large");
                 if(!texture || textureWidth != frame->width ||
                    textureHeight != frame->height) {
+                    G_CoreLog.debug("SDL3 upload {}x{}; pitch={}", frame->width,
+                                    frame->height, frame->pitch);
                     TexturePtr replacement(
                         SDL_CreateTexture(renderer.get(),
                                           SDL_PIXELFORMAT_RGBA32,
@@ -276,11 +285,8 @@ namespace krkr::sdl {
             void SetImeMode(tTVPImeMode) override {}
             void ResetImeMode() override {}
             void UpdateWindow(tTVPUpdateType) override {
-                if(native) {
-                    native->NotifyWindowExposureToLayer(
-                        tTVPRect(0, 0, layerWidth, layerHeight));
-                    TVPDeliverWindowUpdateEvents();
-                }
+                RequestRepaint();
+                TVPDeliverWindowUpdateEvents();
             }
             void SetVisibleFromScript(bool value) override {
                 SetVisible(value);
@@ -348,8 +354,11 @@ namespace krkr::sdl {
                         break;
                     case SDL_EVENT_WINDOW_EXPOSED:
                     case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
-                        if(event.window.windowID == id)
+                        if(event.window.windowID == id) {
+                            if(!texture)
+                                RequestRepaint();
                             dirty = true;
+                        }
                         break;
                     case SDL_EVENT_KEY_DOWN:
                     case SDL_EVENT_KEY_UP:
@@ -374,6 +383,14 @@ namespace krkr::sdl {
             }
 
         private:
+            void RequestRepaint() {
+                if(native) {
+                    native->NotifyWindowExposureToLayer(
+                        tTVPRect(0, 0, layerWidth, layerHeight));
+                    native->RequestUpdate();
+                }
+            }
+
             static unsigned ShiftFlags() {
                 return input::legacyShiftFlags(input::sharedState());
             }
