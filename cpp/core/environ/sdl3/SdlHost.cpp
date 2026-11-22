@@ -213,8 +213,9 @@ namespace krkr::sdl {
                     throw std::runtime_error("SDL3 frame is too large");
                 if(!texture || textureWidth != frame->width ||
                    textureHeight != frame->height) {
-                    const auto *sample =
-                        frame->Row(frame->height / 4) + 4u * (frame->width / 4);
+                    const auto *sample = static_cast<const std::uint8_t *>(
+                                             frame->Row(frame->height / 4)) +
+                        4u * (frame->width / 4);
                     G_CoreLog.debug("SDL3 upload {}x{}; pitch={}; "
                                     "sample={:02x}{:02x}{:02x}{:02x}",
                                     frame->width, frame->height, frame->pitch,
