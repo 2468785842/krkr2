@@ -4,7 +4,7 @@
   "version-string": "1.5.0",
   "features": {
     "sdl3-prototype": {
-      "description": "Separate SDL3/TJS desktop shell experiment",
+      "description": "SDL3 dependencies for the desktop prototype and opt-in Linux game host",
       "dependencies": [
         {
           "name": "sdl3",

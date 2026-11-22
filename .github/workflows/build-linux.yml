@@ -78,7 +78,9 @@ jobs:
       - name: Install SDL3 X11 dependencies
         if: inputs.sdl3_host_contract
         run: |
-          sudo apt-get install -y libxcursor-dev libxfixes-dev libxrender-dev libxss-dev libxtst-dev             libxrandr-dev libxkbcommon-dev libdbus-1-dev
+          sudo apt-get install -y libxcursor-dev libxfixes-dev libxrender-dev libxss-dev libxtst-dev \
+            libxrandr-dev libxkbcommon-dev libdbus-1-dev libibus-1.0-dev libwayland-dev \
+            libegl1-mesa-dev wayland-protocols libdecor-0-dev
 
       - name: Install CMake
         uses: lukka/get-cmake@latest
@@ -129,7 +131,8 @@ jobs:
       - name: Verify SDL3 game host with native X11 input
         if: inputs.sdl3_host_contract
         run: |
-          xvfb-run -a -s '-screen 0 1024x768x24' python tools/game-smoke/sdl_host_repro.py             out/linux/release/bin/krkr2/krkr2 out/linux/sdl-host-runtime || {
+          xvfb-run -a -s '-screen 0 1024x768x24' python tools/game-smoke/sdl_host_repro.py \
+            out/linux/release/bin/krkr2/krkr2 out/linux/sdl-host-runtime || {
               if [ -f out/linux/sdl-host-runtime/process.log ]; then tail -n 80 out/linux/sdl-host-runtime/process.log; fi
               exit 1
             }

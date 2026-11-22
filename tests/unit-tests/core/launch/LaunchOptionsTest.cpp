@@ -79,6 +79,21 @@ TEST_CASE("desktop engine options preserve values and order", "[launch]") {
     REQUIRE(Parse({ "--loglevel=error" }).engineOptions[0].value == "error");
 }
 
+TEST_CASE("desktop launch selects SDL3 explicitly", "[launch]") {
+    REQUIRE(Parse({ "--game", "demo" }).host == DesktopHost::Cocos);
+    REQUIRE(Parse({ "--host=cocos", "demo" }).host == DesktopHost::Cocos);
+    const auto sdl = Parse({ "--game", "demo", "--host=sdl3" });
+    REQUIRE(sdl.host == DesktopHost::SDL3);
+    REQUIRE(sdl.game->u8string() == "demo");
+    REQUIRE(sdl.engineOptions.empty());
+    REQUIRE_THROWS_AS(Parse({ "--host=unknown", "demo" }),
+                      std::invalid_argument);
+    REQUIRE_THROWS_AS(Parse({ "--host=cocos", "--host=sdl3", "demo" }),
+                      std::invalid_argument);
+    REQUIRE_THROWS_AS(Parse({ "demo", "--", "--host=sdl3" }),
+                      std::invalid_argument);
+}
+
 TEST_CASE("desktop directory launch prefers loose startup then data archive",
           "[launch]") {
     Project project;

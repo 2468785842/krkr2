@@ -42,6 +42,10 @@ def run(engine, output):
     game.mkdir()
     fixture = game / "startup.tjs"
     shutil.copy2(Path(__file__).with_name("sdl-host") / "startup.tjs", fixture)
+    invalid = subprocess.run([str(engine), "--host=sdl3"], cwd=engine.parent,
+                             capture_output=True, timeout=5, check=False)
+    if invalid.returncode != 2 or b"requires --game PATH" not in invalid.stderr:
+        raise RuntimeError(f"Expected CLI rejection for SDL3 without a game, got {invalid.returncode}")
     command = [str(engine), "--host=sdl3", "--game", str(game)]
     report = {
         "command": command,

@@ -359,8 +359,10 @@ namespace krkr::sdl {
                     case SDL_EVENT_MOUSE_MOTION:
                         if(event.motion.windowID == id && GetWindowActive()) {
                             SetPointer(event.motion.x, event.motion.y);
-                            TVPPostInputEvent(new tTVPOnMouseMoveInputEvent(
-                                native, mouseX, mouseY, ShiftFlags()));
+                            TVPPostInputEvent(
+                                new tTVPOnMouseMoveInputEvent(
+                                    native, mouseX, mouseY, ShiftFlags()),
+                                TVP_EPT_DISCARDABLE);
                         }
                         break;
                     case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -375,12 +377,14 @@ namespace krkr::sdl {
             static unsigned ShiftFlags() {
                 return input::legacyShiftFlags(input::sharedState());
             }
-            void SetPointer(float x, float y) {
+            bool SetPointer(float x, float y) {
                 float logicalX, logicalY;
                 check(SDL_RenderCoordinatesFromWindow(renderer.get(), x, y,
                                                       &logicalX, &logicalY));
                 mouseX = static_cast<int>(logicalX);
                 mouseY = static_cast<int>(logicalY);
+                return logicalX >= 0 && logicalY >= 0 &&
+                    logicalX < layerWidth && logicalY < layerHeight;
             }
             void HandleKey(const SDL_KeyboardEvent &event) {
                 const auto key = virtualKey(event);
@@ -398,11 +402,10 @@ namespace krkr::sdl {
             void HandleButton(const SDL_MouseButtonEvent &event) {
                 if(event.button != SDL_BUTTON_LEFT)
                     return;
-                SetPointer(event.x, event.y);
+                const bool inside = SetPointer(event.x, event.y);
                 auto &state = input::sharedState();
                 if(event.down) {
-                    if(mouseX < 0 || mouseY < 0 || mouseX >= layerWidth ||
-                       mouseY >= layerHeight)
+                    if(!inside)
                         return;
                     state.press(input::key::leftMouse);
                     TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
@@ -452,40 +455,47 @@ namespace krkr::sdl {
     }
 
     int Run(const std::string &game) {
+        int result = 1;
         try {
             Session host;
             session = &host;
-            TVPMainThreadID = std::this_thread::get_id();
-            TVPInitNativeDialogBackend();
-            LocaleConfigManager::GetInstance()->Initialize(
-                TVPGetCurrentLanguage());
-            TVPApplyRuntimePreferenceDefaults(
-                *GlobalConfigManager::GetInstance(), false);
-            IndividualConfigManager::GetInstance()->UsePreferenceAt(
-                std::filesystem::u8path(game).parent_path().u8string());
-            Application->StartApplication(ttstr(game));
-            while(host.window && host.window->Live()) {
-                SDL_Event event;
-                while(SDL_PollEvent(&event))
-                    host.window->Handle(event);
-                TVPUpdateEngineFrame();
-                host.window->Present();
-                SDL_Delay(1);
+            try {
+                TVPMainThreadID = std::this_thread::get_id();
+                TVPInitNativeDialogBackend();
+                LocaleConfigManager::GetInstance()->Initialize(
+                    TVPGetCurrentLanguage());
+                TVPApplyRuntimePreferenceDefaults(
+                    *GlobalConfigManager::GetInstance(), false);
+                IndividualConfigManager::GetInstance()->UsePreferenceAt(
+                    std::filesystem::u8path(game).parent_path().u8string());
+                Application->StartApplication(ttstr(game));
+                while(host.window && host.window->Live()) {
+                    SDL_Event event;
+                    if(SDL_WaitEventTimeout(&event, 16)) {
+                        do {
+                            host.window->Handle(event);
+                        } while(SDL_PollEvent(&event));
+                    }
+                    TVPUpdateEngineFrame();
+                    host.window->Present();
+                }
+                if(Application->IsTarminate())
+                    TVPUpdateEngineFrame();
+                if(host.window)
+                    result = 0;
+                else
+                    std::fprintf(
+                        stderr, "krkr2: SDL3 startup created no game window\n");
+            } catch(const std::exception &error) {
+                std::fprintf(stderr, "krkr2: %s\n", error.what());
             }
-            if(Application->IsTarminate())
-                TVPUpdateEngineFrame();
-            session = nullptr;
-            if(!host.window) {
-                std::fprintf(stderr,
-                             "krkr2: SDL3 startup created no game window\n");
-                return 1;
-            }
+            // Invalidate engine windows before destroying their host forms.
             TVPSystemUninit();
-            return 0;
         } catch(const std::exception &error) {
-            session = nullptr;
             std::fprintf(stderr, "krkr2: %s\n", error.what());
-            return 1;
+            result = 1;
         }
+        session = nullptr;
+        return result;
     }
 } // namespace krkr::sdl
