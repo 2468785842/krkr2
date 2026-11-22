@@ -114,3 +114,5 @@ Linux 测试构建可用 FFmpeg 生成 YUV420P 双彩图，驱动 TJS 覆盖层�
 LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a \
   python tools/game-smoke/video_repro.py out/linux/release/bin/krkr2/krkr2 out/linux/video-runtime
 ```
+
+跨平台构建、截图采样和复测结果见[视频呈现实施记录](../../.agents/notes/implemented/simplification/2026-11-22-video-presentation-boundary.md)。
