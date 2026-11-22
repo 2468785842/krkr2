@@ -149,6 +149,10 @@ X server 切焦、XTest 虚拟键盘/鼠标、窗口外拖动、调整大小和�
 后者按回调与视口确认推进，验证第一次关闭否决仍有效；
 两者都不能替代物理设备、IME 或现有 Cocos 的窗口交互验收。
 
+正式 Linux 游戏入口另有 `KRKR2_ENABLE_SDL3_HOST`。Build Linux 工作流的
+`sdl3_host_contract=true` 选项构建完整应用，用 Xvfb、XTest 和 X11 窗口像素检查真实游戏入口。
+构建命令和验收范围见[Linux SDL3 游戏宿主](../subsystems/desktop-cli.md#linux-sdl3-游戏宿主)。
+
 Windows 完整构建工作流开启 full 测试配置，但定向构建 `krkr2 cocos_window_tests`，
 检查并执行 2 项节点排序、3 项指针变换、4 项焦点订阅、2 项文本兼容、4 项 context 订阅与 2 项视频节点解绑契约（共 17 项）。其他 full 测试目标不会因此自动构建或通过。
 

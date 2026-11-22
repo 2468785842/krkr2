@@ -6,7 +6,8 @@ Status: proposed
 
 状态：选型决策（2026-11-02）。平台壳（窗口 / 输入 / 主循环）选定 **SDL3**，
 作为[后端精简路线](2026-11-03-backend-modernization.md) B3 批次的实现目标。
-本文件记录决策与现状调查；当前游戏后端仍是 cocos。
+本文件记录选型时的 Cocos 调查。当前默认游戏宿主是 Cocos，Linux 另有显式开启的
+[SDL3 游戏宿主](../../../../docs/subsystems/desktop-cli.md#linux-sdl3-游戏宿主)。
 独立 SDL3/TJS 壳实验见[原型工具](../../../../tools/sdl3-prototype/README.md)，
 它使用实验脚本全局变量，尚未接入生产 Window/Layer 或 KAG，不能视为完成 B3 迁移。
 现状核对基于 dev 工作区（基线 `b3765f7` 及未提交的 B2 拆分）。
@@ -127,5 +128,6 @@ Steam Input 集成）且桌面/移动行为一致。
 - B3 按本选型执行：先做桌面最小运行器（实际脚本驱动窗口、输入、画面，非清屏示例），
   Android 随 B5 处理；验收沿用[后端精简路线](2026-11-03-backend-modernization.md)的兼容验收重点
   （IME、DPI、letterbox、焦点丢失按键释放、后台恢复等）。
+- Linux 的首个正式入口阶段已记录在[SDL3 自制场景验收](../../implemented/simplification/2026-11-22-sdl3-linux-game-host.md)。
 - vcpkg 清单增加显式 `sdl3-prototype` feature，只在对应构建开关开启时选择；
   `vcpkg-configuration.json` 所 pin baseline（`aa40adda`）提供 `sdl3` 3.4.8#1，未 bump baseline。

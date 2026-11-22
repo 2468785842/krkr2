@@ -45,9 +45,9 @@ Windows 入口 `platforms/windows/main.cpp` 创建 TVPAppDelegate；脚本入口
 - `environ/HostFrame.h` 提供普通帧、消息泵和模态绘制入口。帧推进和模态节流位于无 Cocos 依赖的 `event/FrameStep.*`。见[帧循环](subsystems/window-interface.md#帧循环)。
 - `core_visual_module` 自行声明图像、字体、哈希和原生 GL 依赖。内置字体经宿主读取，Cocos 的实际资源搜索仍在应用壳中。见[Visual 构建依赖](subsystems/render-presentation.md#visual-构建依赖)。
 - CPU 图像操作统一经 `imageops/ImageOps.h` 调用。`ImageOps.cpp` 实现最近邻/线性缩放，`ImageOps_native.cpp` 实现其余缩放、模糊、仿射/透视、矩阵求解和标准 C++17 行任务；生产目标与 vcpkg 已移除 OpenCV，实时 OpenCV 对照仅为默认关闭的测试工具。移植来源及验证边界见 [ImageOps](subsystems/imageops.md)。
-- dev 已删除旧 `environ/sdl/tvpsdl.cpp`；游戏运行器当前没有 SDL 后端。
-  平台壳选型为 SDL3，另有默认关闭的[独立 SDL3/TJS 原型](../tools/sdl3-prototype/README.md)，
-  使用实验脚本接口，尚未接入生产 Window/Layer 或 KAG；见[平台壳选型](../.agents/notes/proposed/architecture/2026-11-03-ui-platform-shell.md)。
+- Linux 的 SDL3 宿主通过正式 CLI 显式启用，使用生产脚本、Window/Layer 与软件画面呈现。
+  [Linux SDL3 游戏宿主](subsystems/desktop-cli.md#linux-sdl3-游戏宿主)
+- 独立 SDL3/TJS 原型继续验证实验脚本和事件契约。[原型说明](../tools/sdl3-prototype/README.md)
 - 内建插件实现源只属于各自静态库，`krkr2plugin` 通过 WHOLE_ARCHIVE 保留注册对象；PSD 可选。崩溃上报默认关闭，CocoStudio reader 已移除，管理 UI 仍使用 cocos UI。
 - 标准库/图像库/编解码依赖以 `vcpkg.json`、`vcpkg-configuration.json` 和各模块 CMake 为准；overlay ports 也包含自定义补丁。
 
