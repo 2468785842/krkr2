@@ -4,7 +4,7 @@
 #include "InputCancellation.h"
 #include "InputModifiers.h"
 #include "cocos2d/CocosPointerCoordinates.h"
-#include "cocos2d/CocosWindowAccess.h"
+#include "cocos2d/CocosVideoPresentation.h"
 #include <cocos2d.h>
 #include <cocos-ext.h>
 #include <stdexcept>
@@ -1060,6 +1060,14 @@ void TVPWindowLayer::OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate,
         TVPPostInputEvent(new tTVPOnKeyPressInputEvent(tjsNativeInstance, vk));
     }
 }
-cocos2d::Node *TVPGetCocosWindowPrimaryArea(iWindowLayer &window) {
-    return dynamic_cast<TVPWindowLayer &>(window).GetPrimaryArea();
+std::unique_ptr<krkr::video::Presentation>
+krkr::video::CreateWindowPresentation(iWindowLayer &window,
+                                      FrameCallback onFrame) {
+    auto *parent = dynamic_cast<TVPWindowLayer &>(window).GetPrimaryArea();
+    auto *root = cocos2d::Node::create();
+    auto presentation = CreateCocosVideoPresentation(*root);
+    parent->addChild(root);
+    root->setContentSize(cocos2d::Size::ZERO);
+    root->schedule(std::move(onFrame), "update video");
+    return presentation;
 }

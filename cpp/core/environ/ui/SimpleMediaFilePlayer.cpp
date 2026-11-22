@@ -8,6 +8,7 @@
 #include "ui/UIText.h"
 #include "ui/UISlider.h"
 #include "cocos2d/MainScene.h"
+#include "cocos2d/CocosVideoPresentation.h"
 #include "cocos/ui/UIHelper.h"
 #include "ffmpeg/KRMoviePlayer.h"
 #include "StorageImpl.h"
@@ -19,6 +20,7 @@ void TVPControlAdDialog(int adType, int arg1, int arg2);
 
 class SimplePlayerOverlay {
     KRMovie::VideoPresentOverlay2 *_overlay;
+    cocos2d::Node *_root = nullptr;
     tTVPRect _rect;
     const tTVPRect &GetBounds() { return _rect; }
 
@@ -37,12 +39,14 @@ public:
     void SetCallback(const std::function<void(KRMovieEvent, void *)> &func) {
         _overlay->GetPlayer()->SetCallback(func);
     }
-    cocos2d::Node *GetRootNode() { return _overlay->GetRootNode(); }
+    cocos2d::Node *GetRootNode() { return _root; }
     void InitRootNode(cocos2d::Node *parent) {
-        cocos2d::Node *rootNode = cocos2d::Node::create();
-        _overlay->SetRootNode(rootNode);
-        parent->addChild(rootNode);
-        rootNode->setContentSize(cocos2d::Size::ZERO);
+        auto *root = cocos2d::Node::create();
+        auto presentation = krkr::video::CreateCocosVideoPresentation(*root);
+        parent->addChild(root);
+        root->setContentSize(cocos2d::Size::ZERO);
+        _overlay->SetPresentation(std::move(presentation));
+        _root = root;
         _overlay->SetVisible(true);
     }
     KRMovie::VideoPresentOverlay2 &GetOverlay() { return *_overlay; }

@@ -65,12 +65,9 @@ find_package(FFMPEG COMPONENTS
         swscale
         swresample REQUIRED
 )
-find_package(cocos2dx CONFIG REQUIRED)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${FFMPEG_INCLUDE_DIRS})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    cocos2dx::cocos2d
-
     ${FFMPEG_LIBRARIES}
 )

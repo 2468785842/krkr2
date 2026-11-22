@@ -4,18 +4,11 @@
 #include "VideoPlayer.h"
 #include "krmovie.h"
 #include "ComplexRect.h"
+#include "VideoPresentation.h"
 
 struct SwsContext;
 
 class iTVPSoundBuffer;
-
-class TVPYUVSprite;
-
-namespace cocos2d {
-    class Sprite;
-
-    class Node;
-} // namespace cocos2d
 
 NS_KRMOVIE_BEGIN
 #define MAX_BUFFER_COUNT 4
@@ -222,16 +215,11 @@ protected:
     double m_curpts = 0;
 };
 
-class VideoPresentOverlay : public TVPMoviePlayer // cocos2d compatible video
-                                                  // display overlay
-{
+class VideoPresentOverlay : public TVPMoviePlayer {
 protected:
-    cocos2d::Node *m_pRootNode = nullptr;
-    TVPYUVSprite *m_pSprite = nullptr;
+    std::unique_ptr<krkr::video::Presentation> m_presentation;
 
     ~VideoPresentOverlay() override;
-
-    void ClearNode();
 
 public:
     void PresentPicture(float dt);
@@ -246,7 +234,6 @@ protected:
 
 class MoviePlayerOverlay : public VideoPresentOverlay {
     tTJSNI_VideoOverlay *m_pCallbackWin = nullptr;
-    tTJSNI_Window *m_pOwnerWindow = nullptr;
 
     void OnPlayEvent(KRMovieEvent msg, void *p);
 
@@ -276,9 +263,10 @@ public:
 
     BasePlayer *GetPlayer() { return m_pPlayer; }
 
-    void SetRootNode(cocos2d::Node *node);
-
-    cocos2d::Node *GetRootNode() { return m_pRootNode; }
+    void
+    SetPresentation(std::unique_ptr<krkr::video::Presentation> presentation) {
+        m_presentation = std::move(presentation);
+    }
 
     static VideoPresentOverlay2 *create();
 };

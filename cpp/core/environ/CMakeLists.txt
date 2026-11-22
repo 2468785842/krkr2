@@ -34,6 +34,7 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/cocos2d/CustomFileUtils.cpp
     ${ENVIRON_PATH}/cocos2d/MainScene.cpp
     ${ENVIRON_PATH}/cocos2d/YUVSprite.cpp
+    ${ENVIRON_PATH}/cocos2d/CocosVideoPresentation.cpp
 
     ${ENVIRON_PATH}/ConfigManager/PreferenceDefaults.cpp
     ${ENVIRON_PATH}/ConfigManager/GlobalConfigManager.cpp

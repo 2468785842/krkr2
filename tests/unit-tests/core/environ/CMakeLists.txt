@@ -1,8 +1,12 @@
 if(KRKR2_TEST_SCOPE STREQUAL "full")
     find_package(cocos2dx CONFIG REQUIRED)
-    set(SOURCES NodeOrderTest.cpp CocosPointerCoordinatesTest.cpp CocosInputFocusTest.cpp CocosTextInputTest.cpp CocosContextSubscriptionTest.cpp)
+    set(SOURCES NodeOrderTest.cpp CocosPointerCoordinatesTest.cpp CocosInputFocusTest.cpp CocosTextInputTest.cpp CocosContextSubscriptionTest.cpp
+        CocosVideoPresentationTest.cpp
+        ${CMAKE_SOURCE_DIR}/cpp/core/environ/cocos2d/CocosVideoPresentation.cpp
+        ${CMAKE_SOURCE_DIR}/cpp/core/environ/cocos2d/YUVSprite.cpp)
     add_executable(cocos_window_tests ${SOURCES})
-    target_include_directories(cocos_window_tests PRIVATE ${CMAKE_SOURCE_DIR}/cpp/core/environ ${CMAKE_SOURCE_DIR}/cpp/core/visual)
+    target_include_directories(cocos_window_tests PRIVATE ${CMAKE_SOURCE_DIR}/cpp/core/environ ${CMAKE_SOURCE_DIR}/cpp/core/visual
+        ${CMAKE_SOURCE_DIR}/cpp/core/movie)
     target_link_libraries(cocos_window_tests PRIVATE Catch2::Catch2WithMain cocos2dx::cocos2d core_input)
     catch_discover_tests(cocos_window_tests)
 endif()

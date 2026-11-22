@@ -93,6 +93,12 @@ def check(root):
                         'environ/FrameCapture.h', 'environ/PackagedAsset.h'):
             if re.search(r'\bcocos2d\b|cocos[-/]|\btjs\w*', active, re.I):
                 errors.append(f'{source.relative_to(root)}: 宿主通知与帧入口不得暴露 Cocos/TJS 类型')
+    for source in (root / 'cpp/core/movie').rglob('*'):
+        if source.suffix not in {'.h', '.hpp', '.cpp', '.c'} and source.name != 'CMakeLists.txt':
+            continue
+        active = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
+        if re.search(r'\bcocos2d(?:x)?\b|[<"]cocos/|\bTVPYUVSprite\b', active, re.I):
+            errors.append(f'{source.relative_to(root)}: 视频呈现应通过宿主接口调用')
     software = root / 'cpp/core/visual/RenderManager.cpp'
     active = re.sub(r'/\*.*?\*/|//[^\n]*', '', software.read_text(encoding='utf-8'), flags=re.S)
     if re.search(r'\bcocos2d\b|#\s*include\s*[<"]renderer/CC', active):
