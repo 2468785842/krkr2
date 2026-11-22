@@ -27,10 +27,9 @@
   消息接收器注册枚举移至 `WindowIntf.h`，枚举值保持不变。
 - `environ/impl/TVPWindow.h` 保留 `TVPWindowLayer`、Cocos ScrollView、输入适配及窗口管理实现。
   `visual/impl/WindowImpl.cpp` 和 `BasicDrawDevice.cpp` 改为包含通用接口。
-- 通用接口不再提供返回 Cocos Node 的 `GetPrimaryArea`。
-  仍依赖 Cocos 的视频呈现通过 `environ/cocos2d/CocosWindowAccess.h` 的
-  `TVPGetCocosWindowPrimaryArea` 借用节点，所有权保持属于窗口。
-  实现在 `TVPWindow.cpp`，不匹配的后端抛出 `std::bad_cast`，不会静默跳过视频。
+- `movie/VideoPresentation.h` 声明窗口视频呈现工厂。Cocos 实现位于
+  `TVPWindow.cpp`，由宿主把视频节点挂到主图层区域并注册帧回调。
+  工厂需要 Cocos 窗口，传入其他后端的窗口会抛出 `std::bad_cast`。
 - 原接口中的空实现及既有限制原样迁移；本批不宣称补齐全屏、位置、触摸查询等功能。
   当前接口仍依赖 TJS/WindowIntf，并非完全独立的宿主 API。
 
@@ -53,8 +52,8 @@
 `tests/unit-tests/core/environ/NodeOrderTest.cpp` 在 full 范围验证层级与同层顺序，不创建 GL 窗口。
 `CocosPointerCoordinatesTest.cpp` 另验证真实节点变换下的主图层坐标、越界位置及光标父节点坐标。
 两者共 5 项，由完整 Windows 工作流实际注册、运行。
-焦点订阅另有 4 项 EventDispatcher 用例，提交文本另有 2 项真实 Cocos 转换对照；
-既有契约为11项；后续新增4项context订阅寿命用例，工作流共15项，不创建 OS/GL 窗口。
+焦点订阅另有 4 项 EventDispatcher 用例，提交文本有 2 项真实 Cocos 转换对照。
+另有 4 项 context 订阅寿命、2 项视频节点解绑与回调注销用例。17 项均无需创建 OS/GL 窗口。
 
 `tools/game-smoke/pointer_windows_repro.py` 通过显式测试驱动创建真实双 Window，
 检查切窗、隐藏和失效后的输入归属及局部坐标。正常切窗与隐藏回退会恢复目标 Cocos 节点的原点；

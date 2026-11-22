@@ -116,13 +116,9 @@ jobs:
         run: python scripts/check_no_opencv.py out/linux/release
 
       - name: Verify Cocos context and window contracts
+        id: cocos-contracts
         if: inputs.imageops_contracts
         run: ctest --test-dir out/linux/release -R '^cocos (window|pointer|focus|text|context)' --output-on-failure --no-tests=error
-
-      - name: Verify image operations in both backends
-        if: inputs.imageops_contracts
-        run: |
-          LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a python tools/game-smoke/imageops_repro.py out/linux/release/bin/krkr2/krkr2 out/linux/imageops-runtime --capture --profiles
 
       - name: Verify video overlay presentation
         if: inputs.imageops_contracts
@@ -132,6 +128,11 @@ jobs:
             if [ -f out/linux/video-runtime/process.log ]; then tail -n 100 out/linux/video-runtime/process.log; fi
             exit 1
           }
+
+      - name: Verify image operations in both backends
+        if: always() && steps.cocos-contracts.outcome == 'success'
+        run: |
+          LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a python tools/game-smoke/imageops_repro.py out/linux/release/bin/krkr2/krkr2 out/linux/imageops-runtime --capture --profiles
 
       - name: Upload video presentation reports
         if: always() && inputs.imageops_contracts

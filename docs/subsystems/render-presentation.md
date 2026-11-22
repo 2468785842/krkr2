@@ -95,3 +95,22 @@ TJS 的虚拟屏幕继续报告 2048×2048，桌面原点为 (0, 0)。
 Cocos 自带的旧头文件现在安装到自己的子目录，独立 xxHash 的 BSD 许可随应用资源打包。
 
 运行验证与构建产物见[实施记录](../../.agents/notes/implemented/simplification/2026-11-21-visual-build-boundary.md)。
+
+## 视频覆盖层
+
+`movie/VideoPresentation.h` 定义同步借用的紧密排列 YUV420P 三平面和以左上为原点的目标矩形。
+FFmpeg 播放器负责帧队列、PTS、跳帧与脚本回调。Cocos 适配负责视频节点、帧回调注册、
+YUV 纹理上传、缩放、坐标换算和显隐。播放和停止控制画面 Sprite 的显隐，脚本 `visible`
+控制其根节点。销毁呈现对象时解绑节点并注销帧回调，已从父节点拆除的节点也会清理回调。
+
+游戏内 `VideoOverlay` 的 overlay、mixer 和 MFEVR 路径共用窗口呈现工厂。
+管理界面媒体预览使用同一个 Cocos 适配器，由预览自身的更新循环主动交帧。
+Layer 模式继续把画面送往引擎位图。依赖守卫检查 `core_movie_module` 中的源码和构建描述。
+
+Linux 测试构建可用 FFmpeg 生成 YUV420P 双彩图，驱动 TJS 覆盖层播放、关闭、重开和退出。
+探针通过显式启用的宿主截图驱动等待每次保存回执，核对左右颜色及覆盖区外的背景像素。
+
+```sh
+LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a \
+  python tools/game-smoke/video_repro.py out/linux/release/bin/krkr2/krkr2 out/linux/video-runtime
+```
