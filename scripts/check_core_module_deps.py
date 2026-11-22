@@ -97,7 +97,9 @@ def check(root):
         if source.suffix not in {'.h', '.hpp', '.cpp', '.c'} and source.name != 'CMakeLists.txt':
             continue
         active = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
-        if re.search(r'\bcocos2d(?:x)?\b|[<"]cocos/|\bTVPYUVSprite\b', active, re.I):
+        if re.search(r'\bcocos2d(?:x)?\b|\bTVPYUVSprite\b|'
+                     r'#\s*include\s*[<"](?:cocos/|(?:[^">]*/)?(?:CC\w+|ccGLStateCache)\.h[">])',
+                     active, re.I):
             errors.append(f'{source.relative_to(root)}: 视频呈现应通过宿主接口调用')
     software = root / 'cpp/core/visual/RenderManager.cpp'
     active = re.sub(r'/\*.*?\*/|//[^\n]*', '', software.read_text(encoding='utf-8'), flags=re.S)

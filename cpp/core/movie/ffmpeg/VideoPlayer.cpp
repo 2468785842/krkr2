@@ -12,7 +12,6 @@
 #include "Application.h"
 #include <cstdlib>
 #include <iterator>
-#include "platform/CCPlatformConfig.h"
 #include "AEStream.h"
 #include "krffmpeg.h"
 #include "WaveMixer.h"
