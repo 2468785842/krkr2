@@ -98,7 +98,7 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2.18
         with:
-          key: ${{ github.job }}-${{ matrix.os }}
+          key: linux-release-${{ runner.arch }}
 
       - name: Build Linux
         run: |

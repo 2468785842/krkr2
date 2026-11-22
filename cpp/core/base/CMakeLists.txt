@@ -62,13 +62,10 @@ find_package(LibXml2 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
 find_package(LibArchive REQUIRED)
 find_package(zstd CONFIG REQUIRED)
-find_package(cocos2dx CONFIG REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     uchardet::libuchardet
     unrar::unrar
     LibArchive::LibArchive
     zstd::libzstd
-
-    cocos2dx::cocos2d
 )

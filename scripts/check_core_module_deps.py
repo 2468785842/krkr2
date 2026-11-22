@@ -93,14 +93,18 @@ def check(root):
                         'environ/FrameCapture.h', 'environ/PackagedAsset.h'):
             if re.search(r'\bcocos2d\b|cocos[-/]|\btjs\w*', active, re.I):
                 errors.append(f'{source.relative_to(root)}: 宿主通知与帧入口不得暴露 Cocos/TJS 类型')
-    for source in (root / 'cpp/core/movie').rglob('*'):
-        if source.suffix not in {'.h', '.hpp', '.cpp', '.c'} and source.name != 'CMakeLists.txt':
-            continue
-        active = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
-        if re.search(r'\bcocos2d(?:x)?\b|\bTVPYUVSprite\b|'
-                     r'#\s*include\s*[<"](?:cocos/|(?:[^">]*/)?(?:CC\w+|ccGLStateCache)\.h[">])',
-                     active, re.I):
-            errors.append(f'{source.relative_to(root)}: 视频呈现应通过宿主接口调用')
+    for relative in ('base', 'movie'):
+        for source in (root / 'cpp/core' / relative).rglob('*'):
+            if source.suffix not in {'.h', '.hpp', '.cpp', '.c'} and source.name != 'CMakeLists.txt':
+                continue
+            active = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
+            if re.search(r'\bcocos2d(?:x)?\b|\bTVPYUVSprite\b|'
+                         r'#\s*include\s*[<"](?:cocos/|(?:[^">]*/)?(?:CC\w+|ccGLStateCache)\.h[">])',
+                         active, re.I):
+                errors.append(f'{source.relative_to(root)}: 应通过宿主接口访问 Cocos')
+    native_events = root / 'cpp/core/base/impl/NativeEventQueue.cpp'
+    if re.search(r'#\s*include\s*[<"](?:[^">]*/)?Application\.h[">]', native_events.read_text(encoding='utf-8')):
+        errors.append('NativeEventQueue.cpp: 本地事件应直接调用主线程消息接口')
     software = root / 'cpp/core/visual/RenderManager.cpp'
     active = re.sub(r'/\*.*?\*/|//[^\n]*', '', software.read_text(encoding='utf-8'), flags=re.S)
     if re.search(r'\bcocos2d\b|#\s*include\s*[<"]renderer/CC', active):

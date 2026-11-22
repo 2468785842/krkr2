@@ -45,7 +45,7 @@ jobs:
       - name: Build and test platform contracts
         shell: bash
         run: |
-          cmake --build out/platform --target input_state_tests frame_hook_tests texture_presentation_tests --parallel 4
+          cmake --build out/platform --target input_state_tests frame_hook_tests texture_presentation_tests main_thread_message_tests --parallel 4
           ctest --test-dir out/platform -N
           ctest --test-dir out/platform --output-on-failure --no-tests=error
       - name: Verify native Apple GL header without Cocos
@@ -73,11 +73,12 @@ jobs:
           assert sorted(pathlib.Path(c['file']).name for c in commands) == sorted([
               'InputState.cpp', 'InputModifiers.cpp', 'PointerCoordinates.cpp', 'InputCancellation.cpp', 'TextInput.cpp',
               'InputStateTest.cpp', 'InputModifiersTest.cpp', 'PointerCoordinatesTest.cpp', 'InputCancellationTest.cpp', 'PostUpdateEvent.cpp',
-              'PostUpdateTest.cpp', 'PostUpdateRegistration.cpp', 'TouchButtonTest.cpp', 'TouchButtonPeer.cpp', 'TextInputTest.cpp', 'TexturePresentationTest.cpp', 'RenderSettingsTest.cpp'])
+              'PostUpdateTest.cpp', 'PostUpdateRegistration.cpp', 'TouchButtonTest.cpp', 'TouchButtonPeer.cpp', 'TextInputTest.cpp', 'TexturePresentationTest.cpp', 'RenderSettingsTest.cpp',
+              'MainThreadMessageQueue.cpp', 'MainThreadMessageQueueTest.cpp', 'NativeEventQueue.cpp'])
           tests = json.loads(subprocess.check_output([
               'ctest', '--test-dir', str(root), '--show-only=json-v1']))
-          assert len(tests['tests']) == 42, tests['tests']
-          print('Platform contracts: 42 tests; closure verified:', sorted(ports))
+          assert len(tests['tests']) == 47, tests['tests']
+          print('Platform contracts: 47 tests; closure verified:', sorted(ports))
           PY
       - uses: actions/upload-artifact@v4
         if: always()

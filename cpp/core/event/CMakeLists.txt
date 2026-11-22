@@ -4,6 +4,7 @@ project(core_event LANGUAGES CXX)
 set(EVENT_PATH ${CMAKE_CURRENT_LIST_DIR})
 set(CORE_EVENT_SOURCE_FILES
     ${EVENT_PATH}/PostUpdateEvent.cpp
+    ${EVENT_PATH}/MainThreadMessageQueue.cpp
     ${EVENT_PATH}/EventIntf.cpp
     ${EVENT_PATH}/impl/EventImpl.cpp
 )
