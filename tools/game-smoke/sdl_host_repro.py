@@ -13,7 +13,7 @@ import time
 from interaction_smoke import read_events
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "sdl3-prototype"))
-from verify_x11 import X11
+from verify_x11 import X11, WindowAttributes
 
 
 def pixel(x11, window, x, y):
@@ -90,6 +90,10 @@ def run(engine, output):
             try:
                 event("ready")
                 window = wait(lambda: x11.process_window(process.pid), "mapped SDL3 window")
+                attrs = WindowAttributes()
+                assert x11.library.XGetWindowAttributes(x11.display, window, ctypes.byref(attrs))
+                assert (attrs.x, attrs.y, attrs.width, attrs.height) == (120, 160, 320, 240)
+                event("limits:160:120:900:600")
                 x11.focus(window)
                 frame("startup", ["204060", "204060", "204060"])
                 x11.request_close(window)
@@ -181,6 +185,21 @@ def run(engine, output):
                 assert [line for line in read_events(game)[before:] if line.startswith("text:")] == [
                     "text:20013", "text:25991", "text:55360", "text:56320",
                 ]
+
+                tap(0xffc1)  # F4
+                event("zoom:3:2")
+                event("resize:480:360")
+                frame("script-zoom", ["d03020", "30c050", "204060"],
+                      ((120, 90), (360, 90), (120, 270)))
+
+                tap(0xffc2)  # F5
+                event("visibility:hidden")
+                wait(lambda: not x11.process_window(process.pid), "unmapped game window")
+                event("visibility:shown")
+                wait(lambda: x11.process_window(process.pid) == window, "same remapped game window")
+                x11.focus(window)
+                frame("remapped", ["d03020", "30c050", "204060"],
+                      ((120, 90), (360, 90), (120, 270)))
 
                 x11.request_close(window)
                 if process.wait(timeout=max(1, deadline - time.monotonic())) != 0:

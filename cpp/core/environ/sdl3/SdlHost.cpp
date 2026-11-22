@@ -19,7 +19,9 @@
 #include "RenderManager.h"
 #include "SysInitIntf.h"
 #include "TextInput.h"
+#include "TickCount.h"
 #include "TVPLog.h"
+#include "VelocityTracker.h"
 #include "WindowImpl.h"
 #include "WindowLayer.h"
 #include "tvpfontstruc.h"
@@ -211,6 +213,8 @@ namespace krkr::sdl {
             float wheelRemainder = 0;
             tTVPImeMode defaultIme = imDisable, imeMode = imDisable;
             std::optional<SDL_Rect> attention;
+            VelocityTracker mouseVelocity;
+            tTVPBorderStyle borderStyle = bsSizeable;
 
         public:
             explicit Window(tTJSNI_Window *owner) : native(owner) {
@@ -250,6 +254,8 @@ namespace krkr::sdl {
                 check(SDL_RenderCoordinatesToWindow(renderer.get(), x, y,
                                                     &windowX, &windowY));
                 SDL_WarpMouseInWindow(window.get(), windowX, windowY);
+                mouseX = x;
+                mouseY = y;
             }
             void SetHintText(const ttstr &) override {}
             void SetAttentionPoint(tjs_int x, tjs_int y,
@@ -305,6 +311,101 @@ namespace krkr::sdl {
             tjs_int GetWidth() const override { return width; }
             tjs_int GetHeight() const override { return height; }
             void GetWinSize(tjs_int &w, tjs_int &h) override { GetSize(w, h); }
+            void SetPosition(tjs_int x, tjs_int y) override {
+                check(SDL_SetWindowPosition(window.get(), x, y));
+            }
+            void SetLeft(tjs_int x) override { SetPosition(x, GetTop()); }
+            void SetTop(tjs_int y) override { SetPosition(GetLeft(), y); }
+            tjs_int GetLeft() const override {
+                int x;
+                check(SDL_GetWindowPosition(window.get(), &x, nullptr));
+                return x;
+            }
+            tjs_int GetTop() const override {
+                int y;
+                check(SDL_GetWindowPosition(window.get(), nullptr, &y));
+                return y;
+            }
+            void SetMinSize(tjs_int w, tjs_int h) override {
+                check(SDL_SetWindowMinimumSize(window.get(), w, h));
+            }
+            void SetMaxSize(tjs_int w, tjs_int h) override {
+                check(SDL_SetWindowMaximumSize(window.get(), w, h));
+            }
+            void SetMinWidth(tjs_int w) override {
+                SetMinSize(w, GetMinHeight());
+            }
+            void SetMinHeight(tjs_int h) override {
+                SetMinSize(GetMinWidth(), h);
+            }
+            void SetMaxWidth(tjs_int w) override {
+                SetMaxSize(w, GetMaxHeight());
+            }
+            void SetMaxHeight(tjs_int h) override {
+                SetMaxSize(GetMaxWidth(), h);
+            }
+            tjs_int GetMinWidth() const override {
+                int w;
+                check(SDL_GetWindowMinimumSize(window.get(), &w, nullptr));
+                return w;
+            }
+            tjs_int GetMinHeight() const override {
+                int h;
+                check(SDL_GetWindowMinimumSize(window.get(), nullptr, &h));
+                return h;
+            }
+            tjs_int GetMaxWidth() const override {
+                int w;
+                check(SDL_GetWindowMaximumSize(window.get(), &w, nullptr));
+                return w;
+            }
+            tjs_int GetMaxHeight() const override {
+                int h;
+                check(SDL_GetWindowMaximumSize(window.get(), nullptr, &h));
+                return h;
+            }
+            void SetBorderStyle(tTVPBorderStyle style) override {
+                if(style < bsNone || style > bsSizeToolWin)
+                    TVPThrowExceptionMessage(
+                        TJS_W("Invalid window border style"));
+                check(SDL_SetWindowBordered(window.get(), style != bsNone));
+                check(SDL_SetWindowResizable(window.get(),
+                                             style == bsSizeable ||
+                                                 style == bsSizeToolWin));
+                borderStyle = style;
+            }
+            tTVPBorderStyle GetBorderStyle() const override {
+                return borderStyle;
+            }
+            void SetStayOnTop(bool enabled) override {
+                check(SDL_SetWindowAlwaysOnTop(window.get(), enabled));
+            }
+            bool GetStayOnTop() const override {
+                return SDL_GetWindowFlags(window.get()) &
+                    SDL_WINDOW_ALWAYS_ON_TOP;
+            }
+            void SetFullScreenMode(bool enabled) override {
+                check(SDL_SetWindowFullscreen(window.get(), enabled));
+                dirty = true;
+            }
+            bool GetFullScreenMode() const override {
+                return SDL_GetWindowFlags(window.get()) & SDL_WINDOW_FULLSCREEN;
+            }
+            void SetFocusable(bool enabled) override {
+                check(SDL_SetWindowFocusable(window.get(), enabled));
+            }
+            bool GetFocusable() const override {
+                return !(SDL_GetWindowFlags(window.get()) &
+                         SDL_WINDOW_NOT_FOCUSABLE);
+            }
+            void SetMouseCursorState(tTVPMouseCursorState state) override {
+                MouseCursorState = state;
+                UpdateCursorVisibility();
+            }
+            void HideMouseCursor() override {
+                if(MouseCursorState == mcsVisible)
+                    SetMouseCursorState(mcsTempHidden);
+            }
             void SetZoom(tjs_int numer, tjs_int denom) override {
                 if(numer <= 0 || denom <= 0)
                     TVPThrowExceptionMessage(
@@ -430,10 +531,16 @@ namespace krkr::sdl {
                         TJS_W("SDL3 does not support mouse keys"));
             }
             bool GetUseMouseKey() const override { return false; }
-            void ResetMouseVelocity() override {}
+            void ResetMouseVelocity() override { mouseVelocity.clear(); }
             void ResetTouchVelocity(tjs_int) override {}
-            bool GetMouseVelocity(float &, float &, float &) const override {
-                return false;
+            bool GetMouseVelocity(float &x, float &y,
+                                  float &speed) const override {
+                if(!mouseVelocity.getVelocity(x, y)) {
+                    speed = 0;
+                    return false;
+                }
+                speed = std::hypot(x, y);
+                return true;
             }
             void TickBeat() override {}
 
@@ -503,6 +610,8 @@ namespace krkr::sdl {
                         break;
                     case SDL_EVENT_WINDOW_EXPOSED:
                     case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+                    case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
+                    case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
                         if(event.window.windowID == id) {
                             if(!texture)
                                 RequestRepaint();
@@ -532,6 +641,8 @@ namespace krkr::sdl {
                         if(event.motion.windowID == id && GetWindowActive()) {
                             const bool inside =
                                 SetPointer(event.motion.x, event.motion.y);
+                            if(MouseCursorState == mcsTempHidden)
+                                SetMouseCursorState(mcsVisible);
                             TrackLeftDrag(event.motion.x, event.motion.y);
                             if(inside || PointerHeld())
                                 TVPPostInputEvent(
@@ -571,6 +682,7 @@ namespace krkr::sdl {
                 focused = active;
                 if(!active)
                     ReleaseInput();
+                UpdateCursorVisibility();
                 UpdateTextInput();
                 TVPPostInputEvent(
                     new tTVPOnWindowActivateEvent(native, active));
@@ -578,6 +690,12 @@ namespace krkr::sdl {
                     TVPOnHostForeground();
                 else
                     TVPOnHostBackground();
+            }
+
+            void UpdateCursorVisibility() {
+                const bool show = !focused || MouseCursorState == mcsVisible;
+                if(SDL_CursorVisible() != show)
+                    check(show ? SDL_ShowCursor() : SDL_HideCursor());
             }
 
             input::PointerPixel WindowPoint(float x, float y) const {
@@ -651,6 +769,8 @@ namespace krkr::sdl {
                 const auto pixel = input::pointerPixel(position);
                 mouseX = pixel.x;
                 mouseY = pixel.y;
+                mouseVelocity.addMovement(TVPGetRoughTickCount32(), position.x,
+                                          position.y);
                 const bool inside = position.x >= 0 && position.y >= 0 &&
                     position.x < layerWidth && position.y < layerHeight;
                 UpdatePointerInside(inside);
@@ -765,6 +885,7 @@ namespace krkr::sdl {
                 heldKeys.fill(0);
                 leftPress.reset();
                 wheelRemainder = 0;
+                ResetMouseVelocity();
                 for(auto key : input::sharedState().releaseAll()) {
                     if(const auto button = mouseButton(key)) {
                         TVPPostInputEvent(new tTVPOnMouseUpInputEvent(

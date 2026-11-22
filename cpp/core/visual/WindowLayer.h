@@ -84,44 +84,46 @@ public:
     // dummy function
     void RegisterWindowMessageReceiver(tTVPWMRRegMode mode, void *proc,
                                        const void *userdata) {}
-    void SetLeft(tjs_int) {}
-    void SetTop(tjs_int) {}
-    void SetMinWidth(tjs_int) {}
-    void SetMaxWidth(tjs_int) {}
-    void SetMinHeight(tjs_int) {}
-    void SetMaxHeight(tjs_int) {}
+    virtual void SetLeft(tjs_int) {}
+    virtual void SetTop(tjs_int) {}
+    virtual void SetMinWidth(tjs_int) {}
+    virtual void SetMaxWidth(tjs_int) {}
+    virtual void SetMinHeight(tjs_int) {}
+    virtual void SetMaxHeight(tjs_int) {}
     void SetInnerWidth(tjs_int v) { SetWidth(v); }
     void SetInnerHeight(tjs_int v) { SetHeight(v); }
     void SetInnerSize(tjs_int w, tjs_int h) { SetSize(w, h); }
-    void SetMinSize(tjs_int, tjs_int) {}
-    void SetMaxSize(tjs_int, tjs_int) {}
-    void SetPosition(tjs_int, tjs_int) {}
-    void SetBorderStyle(tTVPBorderStyle) {}
-    void SetStayOnTop(bool) {}
-    void SetFullScreenMode(bool) {}
-    tjs_int GetLeft() const { return 0; }
-    tjs_int GetTop() const { return 0; }
-    tjs_int GetMinWidth() const { return 0; }
-    tjs_int GetMaxWidth() const { return 1920; }
-    tjs_int GetMinHeight() const { return 0; }
-    tjs_int GetMaxHeight() const { return 1080; }
+    virtual void SetMinSize(tjs_int, tjs_int) {}
+    virtual void SetMaxSize(tjs_int, tjs_int) {}
+    virtual void SetPosition(tjs_int, tjs_int) {}
+    virtual void SetBorderStyle(tTVPBorderStyle) {}
+    virtual void SetStayOnTop(bool) {}
+    virtual void SetFullScreenMode(bool) {}
+    virtual tjs_int GetLeft() const { return 0; }
+    virtual tjs_int GetTop() const { return 0; }
+    virtual tjs_int GetMinWidth() const { return 0; }
+    virtual tjs_int GetMaxWidth() const { return 1920; }
+    virtual tjs_int GetMinHeight() const { return 0; }
+    virtual tjs_int GetMaxHeight() const { return 1080; }
     tjs_int GetInnerWidth() const { return GetWidth(); }
     tjs_int GetInnerHeight() const { return GetHeight(); }
-    bool GetStayOnTop() const { return false; }
-    bool GetFullScreenMode() const { return false; }
-    [[nodiscard]] tTVPBorderStyle GetBorderStyle() const { return bsNone; }
+    virtual bool GetStayOnTop() const { return false; }
+    virtual bool GetFullScreenMode() const { return false; }
+    [[nodiscard]] virtual tTVPBorderStyle GetBorderStyle() const {
+        return bsNone;
+    }
     void SetTrapKey(bool b) {}
     [[nodiscard]] bool GetTrapKey() const { return false; }
     void RemoveMaskRegion() {}
-    void SetMouseCursorState(tTVPMouseCursorState mcs) {
+    virtual void SetMouseCursorState(tTVPMouseCursorState mcs) {
         MouseCursorState = mcs;
     }
     [[nodiscard]] tTVPMouseCursorState GetMouseCursorState() const {
         return MouseCursorState;
     }
-    void HideMouseCursor() {}
-    void SetFocusable(bool b) {}
-    [[nodiscard]] bool GetFocusable() const { return true; }
+    virtual void HideMouseCursor() {}
+    virtual void SetFocusable(bool b) {}
+    [[nodiscard]] virtual bool GetFocusable() const { return true; }
     int GetDisplayRotate() { return 0; }
     int GetDisplayOrientation() { return orientLandscape; }
     void SetEnableTouch(bool b) {}

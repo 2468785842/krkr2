@@ -10,6 +10,9 @@ class HostWindow extends Window {
     function HostWindow() {
         super.Window();
         caption = "KrKr2 SDL3 runtime contract";
+        setPos(120, 160);
+        setMinSize(160, 120);
+        setMaxSize(900, 600);
         setSize(320, 240);
     }
     function onKeyDown(key, shift) {
@@ -24,6 +27,15 @@ class HostWindow extends Window {
         if(key == 114) {
             imeMode = imOpen;
             record("ime:open");
+        }
+        if(key == 115) {
+            setZoom(6, 4);
+            record("zoom:" + zoomNumer + ":" + zoomDenom);
+        }
+        if(key == 116) {
+            visible = false;
+            showAgain.enabled = true;
+            record("visibility:hidden");
         }
     }
     function onKeyUp(key, shift) {
@@ -67,6 +79,12 @@ class HostWindow extends Window {
 
 global.win = new HostWindow();
 win.visible = true;
+global.showAgain = new Timer(function() {
+    showAgain.enabled = false;
+    win.visible = true;
+    record("visibility:shown");
+}, "");
+showAgain.interval = 750;
 global.scene = new Layer(win, null);
 scene.setImageSize(320, 240);
 scene.setSize(320, 240);
@@ -74,6 +92,7 @@ scene.type = ltOpaque;
 scene.colorRect(0, 0, 320, 240, 0x204060, 255);
 scene.visible = true;
 win.imeMode = imOpen;
+record("limits:" + win.minWidth + ":" + win.minHeight + ":" + win.maxWidth + ":" + win.maxHeight);
 System.onActivate = function() { record("system:active"); };
 System.onDeactivate = function() { record("system:inactive"); };
 record("ready");
