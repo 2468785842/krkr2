@@ -63,6 +63,10 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/impl/TVPWindow.cpp
 )
 
+if(KRKR2_ENABLE_SDL3_HOST)
+    list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/sdl3/SdlHost.cpp)
+endif()
+
 if(KRKR2_USE_COCOS_UI)
     list(APPEND ENVIRON_SOURCE_FILES
         ${ENVIRON_PATH}/ui/GlobalPreferenceForm.cpp
@@ -118,6 +122,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     core_movie_module
     core_utils_module
 )
+
+if(KRKR2_ENABLE_SDL3_HOST)
+    find_package(SDL3 3.4 CONFIG REQUIRED)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE KRKR2_ENABLE_SDL3_HOST=1)
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
+endif()
 
 if(ANDROID OR IOS)
     target_compile_definitions(${PROJECT_NAME} PRIVATE TVP_HAS_MOBILE_FILE_BACKEND)

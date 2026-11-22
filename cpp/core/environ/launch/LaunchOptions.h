@@ -11,9 +11,12 @@ namespace krkr::launch {
         std::string value;
     };
 
+    enum class DesktopHost { Cocos, SDL3 };
+
     struct LaunchOptions {
         std::optional<std::filesystem::path> game;
         std::vector<EngineOption> engineOptions;
+        DesktopHost host = DesktopHost::Cocos;
         bool help = false;
     };
 

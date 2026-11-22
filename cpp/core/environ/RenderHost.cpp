@@ -4,6 +4,9 @@
 #include "Platform.h"
 #include "ConfigManager/IndividualConfigManager.h"
 #include "ConfigManager/LocaleConfigManager.h"
+#if KRKR2_ENABLE_SDL3_HOST
+#include "sdl3/SdlHost.h"
+#endif
 
 namespace TJS {
     void TVPConsoleLog(const ttstr &message);
@@ -28,7 +31,13 @@ namespace {
 } // namespace
 
 namespace krkr::renderhost {
-    std::string RendererName() { return render::RendererName(Preferences()); }
+    std::string RendererName() {
+#if KRKR2_ENABLE_SDL3_HOST
+        if(krkr::sdl::Active())
+            return "software";
+#endif
+        return render::RendererName(Preferences());
+    }
     render::TextureStorage SoftwareStorage() {
         return render::SoftwareStorage(Preferences());
     }

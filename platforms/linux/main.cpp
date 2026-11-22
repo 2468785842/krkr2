@@ -5,6 +5,9 @@
 #include "log/TVPInitLog.h"
 
 #include "environ/launch/DesktopLaunch.h"
+#if KRKR2_ENABLE_SDL3_HOST
+#include "environ/sdl3/SdlHost.h"
+#endif
 
 int main(int argc, char **argv) {
     TVPLoggingOptions log_options;
@@ -18,6 +21,10 @@ int main(int argc, char **argv) {
     gtk_init(nullptr, nullptr);
 
     static auto pAppDelegate = std::make_unique<TVPAppDelegate>();
+#if KRKR2_ENABLE_SDL3_HOST
+    if(krkr::launch::UseSDL3Host())
+        return krkr::sdl::Run(krkr::launch::DesktopTarget());
+#endif
     const int result = pAppDelegate->run();
     return krkr::launch::DesktopExitCode() ? krkr::launch::DesktopExitCode()
                                            : result;

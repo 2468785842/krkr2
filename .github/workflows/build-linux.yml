@@ -3,11 +3,19 @@ name: Build Linux
 on:
   workflow_call:
     inputs:
+      sdl3_host_contract:
+        description: 'Build and exercise the opt-in SDL3 game host under X11'
+        type: boolean
+        default: false
       imageops_contracts:
         type: boolean
         default: false
   workflow_dispatch:
     inputs:
+      sdl3_host_contract:
+        description: 'Build and exercise the opt-in SDL3 game host under X11'
+        type: boolean
+        default: false
       imageops_contracts:
         description: 'Run self-authored image operations in both renderers (test binary)'
         type: boolean
@@ -67,6 +75,11 @@ jobs:
           ./dotnet-install.sh --channel 8.0
           echo "$HOME/.dotnet" >> $GITHUB_PATH
 
+      - name: Install SDL3 X11 dependencies
+        if: inputs.sdl3_host_contract
+        run: |
+          sudo apt-get install -y libxcursor-dev libxfixes-dev libxrender-dev libxss-dev libxtst-dev             libxrandr-dev libxkbcommon-dev libdbus-1-dev
+
       - name: Install CMake
         uses: lukka/get-cmake@latest
         with:
@@ -103,6 +116,7 @@ jobs:
       - name: Build Linux
         run: |
           cmake --preset="Linux Release Config" -DBUILD_TOOLS=OFF \
+            -DKRKR2_ENABLE_SDL3_HOST=${{ inputs.sdl3_host_contract && 'ON' || 'OFF' }} \
             -DENABLE_TESTS=${{ inputs.imageops_contracts && 'ON' || 'OFF' }} \
             -DKRKR2_ENABLE_UI_TEST_DRIVER=${{ inputs.imageops_contracts && 'ON' || 'OFF' }}
           targets=(krkr2)
@@ -111,6 +125,22 @@ jobs:
           
           cp $(find out/linux/release/ -name libfmod.so) out/linux/release/bin/krkr2
           cp $(find out/linux/release/ -name libfmodL.so) out/linux/release/bin/krkr2
+
+      - name: Verify SDL3 game host with native X11 input
+        if: inputs.sdl3_host_contract
+        run: |
+          xvfb-run -a -s '-screen 0 1024x768x24' python tools/game-smoke/sdl_host_repro.py             out/linux/release/bin/krkr2/krkr2 out/linux/sdl-host-runtime || {
+              if [ -f out/linux/sdl-host-runtime/process.log ]; then tail -n 80 out/linux/sdl-host-runtime/process.log; fi
+              exit 1
+            }
+
+      - name: Upload SDL3 game host evidence
+        if: always() && inputs.sdl3_host_contract
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-sdl-host-runtime
+          path: out/linux/sdl-host-runtime/**
+          if-no-files-found: ignore
 
       - name: Verify OpenCV removal
         run: python scripts/check_no_opencv.py out/linux/release

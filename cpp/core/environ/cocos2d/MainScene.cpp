@@ -30,6 +30,9 @@
 
 #include "CCKeyCodeConv.h"
 #include "HostFrame.h"
+#if KRKR2_ENABLE_SDL3_HOST
+#include "sdl3/SdlHost.h"
+#endif
 #include "TVPLog.h"
 
 USING_NS_CC;
@@ -1399,6 +1402,10 @@ float TVPMainScene::convertCursorScale(float val /*0 ~ 1*/) {
 }
 
 iWindowLayer *TVPCreateAndAddWindow(tTJSNI_Window *w) {
+#if KRKR2_ENABLE_SDL3_HOST
+    if(krkr::sdl::Active())
+        return krkr::sdl::CreateWindow(w);
+#endif
     TVPWindowLayer *ret = TVPWindowLayer::create(w);
     TVPMainScene::GetInstance()->addLayer(ret);
     if(TVPWindowLayer::TVPWindowLayer::_consoleWin)
@@ -1435,6 +1442,10 @@ namespace TJS {
 } // namespace TJS
 
 bool TVPGetScreenSize(tjs_int idx, tjs_int &w, tjs_int &h) {
+#if KRKR2_ENABLE_SDL3_HOST
+    if(krkr::sdl::Active())
+        return idx == 0 && krkr::sdl::GetScreenSize(w, h);
+#endif
     if(idx != 0)
         return false;
     const cocos2d::Size &size =

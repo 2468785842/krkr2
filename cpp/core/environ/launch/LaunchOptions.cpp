@@ -27,6 +27,7 @@ namespace krkr::launch {
     LaunchOptions Parse(const std::vector<std::string> &arguments) {
         LaunchOptions options;
         bool engineOnly = false;
+        bool hostSpecified = false;
         for(std::size_t i = 0; i < arguments.size(); ++i) {
             const auto &arg = arguments[i];
             if(engineOnly) {
@@ -35,6 +36,15 @@ namespace krkr::launch {
                 engineOnly = true;
             } else if(arg == "--help" || arg == "-h") {
                 options.help = true;
+            } else if(arg.rfind("--host=", 0) == 0) {
+                if(hostSpecified)
+                    throw std::invalid_argument("Specify at most one host");
+                hostSpecified = true;
+                if(arg == "--host=sdl3")
+                    options.host = DesktopHost::SDL3;
+                else if(arg != "--host=cocos")
+                    throw std::invalid_argument("Unknown desktop host: " +
+                                                arg.substr(7));
             } else if(arg == "--game" || arg == "--xp3") {
                 if(i + 1 == arguments.size() || arguments[i + 1].empty() ||
                    arguments[i + 1][0] == '-')
