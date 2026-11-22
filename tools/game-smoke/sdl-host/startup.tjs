@@ -14,7 +14,7 @@ class HostWindow extends Window {
     }
     function onKeyDown(key, shift) {
         if(key == 65) {
-            scene.fillRect(0, 0, 160, 120, 0xffd03020);
+            scene.colorRect(0, 0, 160, 120, 0xd03020, 255);
             record("key-down:" + key + ":" + string System.getKeyState(key, true));
         }
     }
@@ -23,7 +23,7 @@ class HostWindow extends Window {
             record("key-up:" + key + ":" + string System.getKeyState(key, true));
     }
     function onMouseDown(x, y, button, shift) {
-        scene.fillRect(160, 0, 160, 120, 0xff30c050);
+        scene.colorRect(160, 0, 160, 120, 0x30c050, 255);
         record("mouse-down:" + x + ":" + y + ":" + string System.getKeyState(1, true));
     }
     function onMouseUp(x, y, button, shift) {
@@ -37,11 +37,12 @@ class HostWindow extends Window {
 }
 
 global.win = new HostWindow();
+win.visible = true;
 global.scene = new Layer(win, null);
 scene.setImageSize(320, 240);
 scene.setSize(320, 240);
 scene.type = ltOpaque;
-scene.fillRect(0, 0, 320, 240, 0xff204060);
+scene.colorRect(0, 0, 320, 240, 0x204060, 255);
 scene.visible = true;
-win.visible = true;
+record("source-pixel:" + scene.getMainPixel(80, 60));
 record("ready");
