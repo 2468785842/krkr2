@@ -284,8 +284,9 @@ MoviePlayerOverlay::~MoviePlayerOverlay() {
 
 void MoviePlayerOverlay::SetWindow(tTJSNI_Window *window) {
     m_presentation.reset();
-    m_presentation = krkr::video::CreateWindowPresentation(
-        *window->getForm(), [this](float dt) { PresentPicture(dt); });
+    if(window && window->getForm())
+        m_presentation = krkr::video::CreateWindowPresentation(
+            *window->getForm(), [this](float dt) { PresentPicture(dt); });
 }
 
 void MoviePlayerOverlay::BuildGraph(tTJSNI_VideoOverlay *callbackwin,
