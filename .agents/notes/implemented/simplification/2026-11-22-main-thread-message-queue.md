@@ -23,6 +23,7 @@ Status: implemented
 | Windows 完整构建 | [44991258891](https://github.com/2468785842/krkr2/actions/runs/44991258891) 完整构建、17 项 Cocos 契约、5 组原生窗口交互和 8 组渲染配置通过。 |
 | Linux 完整构建 | [44991258843](https://github.com/2468785842/krkr2/actions/runs/44991258843) 完整构建、17 项 Cocos 契约、8 组渲染配置及自制视频通过。首播与重开截图采样一致，关闭后仅有背景，最终进程退出 0。 |
 | 总 CI | [44991258551](https://github.com/2468785842/krkr2/actions/runs/44991258551) 通过格式、Linux、Windows 和 Android 构建，工作流上传了 Android APK。 |
+| Android ARM64 补验 | [44993223360](https://github.com/2468785842/krkr2/actions/runs/44993223360) 编译 354 个项目源，完成 Debug APK 和 ABI、原生依赖检查。APK SHA-256 为 `55b5003ea419efb66571c5a7c49f159402fe508091f00b450e993e9fc299b412`。 |
 
 Linux 场景二进制 SHA-256 为 `2d213383dda8fc7fafe62022fd43a52726b158ac7ba179b304a1e573570106bd`，
 Windows 场景二进制 SHA-256 为 `a09cc55615a8eceb73ac58d8628741f23ada9a9fb0759f828d4773f98fdeba4c`。

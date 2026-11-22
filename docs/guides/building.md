@@ -132,7 +132,7 @@ ctest --test-dir out/windows/debug -R "^init ffmpeg$" --output-on-failure --no-t
 
 ## 独立平台契约与 SDL3 原型
 
-输入状态、主线程消息与帧钩子可以用 `platform` 范围独立配置，只需 Catch2，不配置 TJS、Cocos、OpenCV 或 FFmpeg：
+输入状态、主线程消息、帧推进与模态节流可以用 `platform` 范围独立配置，只需 Catch2，不配置 TJS、Cocos、OpenCV 或 FFmpeg：
 
 ```powershell
 cmake -S . -B out/platform-tests -G Ninja -DWINDOWS=ON -DCMAKE_BUILD_TYPE=Debug -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=platform -DVCPKG_TARGET_TRIPLET=x64-windows-static-md
@@ -141,7 +141,7 @@ ctest --test-dir out/platform-tests -N
 ctest --test-dir out/platform-tests --output-on-failure --no-tests=error
 ```
 
-预期 10 个输入状态、3 个修饰键快照、3 个指针坐标、3 个取消分类、4 个触摸按钮、8 个提交文本、3 个帧钩子、5 个主线程消息、4 个呈现行布局/引用寿命和 4 个渲染配置用例（共 47 项），三平台无窗口 CI 检查实际数量、编译源和依赖闭包；
+预期 10 个输入状态、3 个修饰键快照、3 个指针坐标、3 个取消分类、4 个触摸按钮、8 个提交文本、3 个帧钩子、5 个帧推进与模态节流、5 个主线程消息、4 个呈现行布局/引用寿命和 4 个渲染配置用例（共 52 项），三平台无窗口 CI 检查实际数量、编译源和依赖闭包；
 不能替代窗口、IME 或设备交互验收。
 独立 SDL3/TJS 壳实验使用另一显式开关，构建和验证见[原型工具](../../tools/sdl3-prototype/README.md)。
 Linux CI 另用 Xvfb/X11 创建窗口，分别验证键盘/鼠标的 `SDL_PushEvent` 队列与像素，以及

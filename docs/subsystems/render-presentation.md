@@ -25,12 +25,12 @@ CPU 渲染器不再创建 Cocos 纹理；宿主通过 `environ/cocos2d/CocosText
 `environ/FrameCapture.h` 提供 `TVPCaptureHostFrame(path, completion)`，头文件仅使用标准 C++。
 Cocos 实现在 `environ/cocos2d/CocosFrameCapture.cpp`，沿用后端原有帧边界和异步保存完成通知。
 自制场景驱动必须等待本轮唯一序号的保存回执，截图包含窗口/UI，不能以 Layer BMP 代替。
-模态绘制仍由既有 `RenderUtils.cpp` 执行 hook → drawScene → swap。
+模态呈现由 `environ/cocos2d/CocosModalFrame.cpp` 接入 Cocos，帧钩子、绘制和交换缓冲的次序由 `event/FrameStep.cpp` 驱动。
 
 ## 验证与剩余边界
 
 独立 `platform` 测试范围新增 `texture_presentation_tests`，覆盖带 padding/负 pitch 的行访问、
-压缩行回调、先保留替换源后释放原源、相同源复用与析构释放。与输入、帧钩子、主线程消息及渲染配置共 47 项，仅依赖 Catch2 和系统线程库。
+压缩行回调、先保留替换源后释放原源、相同源复用与析构释放。与输入、帧推进、帧钩子、主线程消息及渲染配置共 52 项，仅依赖 Catch2 和系统线程库。
 真实 Window/Layer 验证使用[自制图像场景](../../tools/game-smoke/imageops/README.md)，
 同时检查算法图与五轮换图的实际管理器、像素、窗口截图及正常退出。
 

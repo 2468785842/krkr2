@@ -66,8 +66,7 @@
 
 `event/PostUpdateEvent.h/.cpp` 保存唯一的 post-update 回调，供普通帧和模态绘制共同调用。
 原头文件内部链接变量会造成跨编译单元的注册不可见，已有双单元实验及三个回归用例。
-`environ/RenderUtils.h` 仅声明模态绘制入口，Cocos 绘制与 swap 位于对应 cpp；
-绘制次序仍为 hook → drawScene → swap，计时公式保持不变。
+`environ/HostFrame.h` 提供普通帧、嵌套消息处理和模态绘制三个入口，见[帧循环](#帧循环)。
 
 `environ/HostLifecycle.h` 提供前台、后台引擎通知，不含 Cocos/TJS 类型。
 Cocos AppDelegate 先通知引擎，再启停动画；引擎的音量、混音锁、compact 与 System 事件顺序未变。
@@ -81,7 +80,7 @@ Cocos 桌面已订阅独立焦点事件并取消游戏输入，见[输入状态]
 ## 主线程消息
 
 `event/MainThreadMessageQueue.h` 提供工作线程投递、引擎线程分发和按所有者取消消息的 C++ 接口。
-Cocos 应用壳持有队列，`Application::ProcessMessages` 先分发一批消息，再推进脚本定时器。
+Cocos 应用壳持有队列，`TVPProcessEngineMessages` 先分发一批消息，再推进脚本定时器。
 分发按投递顺序取本批消息，回调在锁外执行。新消息由下一次分发处理。若回调显式嵌套处理消息，
 嵌套调用会取得新消息，外层批次随后照常处理。回调抛出异常时，本批未执行消息随批次释放。
 
@@ -89,3 +88,17 @@ Cocos 应用壳持有队列，`Application::ProcessMessages` 先分发一批消�
 包括已取出的批次里尚未开始的回调。接收器需在主线程销毁，并先停止生产线程。
 
 构建、取消语义和桌面回归结果见[主线程消息实施记录](../../.agents/notes/implemented/simplification/2026-11-22-main-thread-message-queue.md)。
+
+
+## 帧循环
+
+Cocos 的 `MainScene::update` 调用 `TVPUpdateEngineFrame`。普通帧依次推进应用、回收纹理并调用帧钩子，
+随后宿主处理 FPS 标签和场景绘制。应用更新调用同一个 `TVPProcessEngineMessages` 入口处理正常和嵌套消息。
+事件层的嵌套入口直接调用该函数。
+
+模态窗口、同步文件选择和启动日志共用 `TVPDrawSceneOnce` 的毫秒时钟。
+`event/FrameStep.cpp` 以无符号差值处理 32 位回绕。正间隔返回距下一帧的等待量，
+到期只绘制一帧，零和负间隔立即绘制。执行顺序为帧钩子、宿主绘制、交换缓冲。
+绘制未成功返回时保留上一帧时间，后续调用可重试。平台输入轮询与休眠由各调用者安排。
+
+模态文件选择、帧节流及跨平台构建结果见[宿主帧循环实施记录](../../.agents/notes/implemented/simplification/2026-11-22-host-frame-boundary.md)。
