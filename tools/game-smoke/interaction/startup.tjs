@@ -77,9 +77,16 @@ win.menu.add(entry);
 global.lastCommand = "";
 global.driver = new Timer(function() {
     try {
-        if(!Storages.isExistentStorage(System.exePath + "interaction-command.txt")) return;
+        var requestPath = System.exePath + "interaction-command.txt";
+        if(!Storages.isExistentStorage(requestPath)) return;
         var command = [];
-        command.load(System.exePath + "interaction-command.txt");
+        try {
+            command.load(requestPath);
+        } catch(e) {
+            // Windows can deny the read while the controller replaces the file.
+            // The controller still requires the command acknowledgement.
+            return;
+        }
         if(!command.count || command[0] == lastCommand) return;
         lastCommand = command[0];
         record("command:" + lastCommand);
