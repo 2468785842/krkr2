@@ -41,7 +41,13 @@ namespace krkr::sdl {
         }
 
         struct VideoSubsystem {
-            VideoSubsystem() { check(SDL_InitSubSystem(SDL_INIT_VIDEO)); }
+            VideoSubsystem() {
+                // An SDL software renderer can still present through an
+                // implicit GPU framebuffer. Use the native window surface.
+                check(SDL_SetHintWithPriority(SDL_HINT_FRAMEBUFFER_ACCELERATION,
+                                              "0", SDL_HINT_OVERRIDE));
+                check(SDL_InitSubSystem(SDL_INIT_VIDEO));
+            }
             ~VideoSubsystem() { SDL_QuitSubSystem(SDL_INIT_VIDEO); }
         };
 
@@ -213,13 +219,6 @@ namespace krkr::sdl {
                     throw std::runtime_error("SDL3 frame is too large");
                 if(!texture || textureWidth != frame->width ||
                    textureHeight != frame->height) {
-                    const auto *sample = static_cast<const std::uint8_t *>(
-                                             frame->Row(frame->height / 4)) +
-                        4u * (frame->width / 4);
-                    G_CoreLog.debug("SDL3 upload {}x{}; pitch={}; "
-                                    "sample={:02x}{:02x}{:02x}{:02x}",
-                                    frame->width, frame->height, frame->pitch,
-                                    sample[0], sample[1], sample[2], sample[3]);
                     TexturePtr replacement(
                         SDL_CreateTexture(renderer.get(),
                                           SDL_PIXELFORMAT_RGBA32,
@@ -322,20 +321,6 @@ namespace krkr::sdl {
                                               layerHeight, textureHeight)) };
                     check(SDL_RenderTexture(renderer.get(), texture.get(),
                                             &crop, nullptr));
-                    if(!sampledPresent) {
-                        const SDL_Rect point{ layerWidth / 4, layerHeight / 4,
-                                              1, 1 };
-                        auto *surface =
-                            SDL_RenderReadPixels(renderer.get(), &point);
-                        Uint8 r = 0, g = 0, b = 0, a = 0;
-                        const bool sampled = surface &&
-                            SDL_ReadSurfacePixel(surface, 0, 0, &r, &g, &b, &a);
-                        SDL_DestroySurface(surface);
-                        G_CoreLog.debug("SDL3 rendered sample ({}): "
-                                        "{:02x}{:02x}{:02x}{:02x}",
-                                        sampled, r, g, b, a);
-                        sampledPresent = true;
-                    }
                 }
                 check(SDL_RenderPresent(renderer.get()));
                 dirty = false;
@@ -402,8 +387,6 @@ namespace krkr::sdl {
             }
 
         private:
-            bool sampledPresent = false;
-
             void RequestRepaint() {
                 if(native) {
                     native->NotifyWindowExposureToLayer(

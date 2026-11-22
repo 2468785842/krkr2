@@ -44,5 +44,4 @@ scene.setSize(320, 240);
 scene.type = ltOpaque;
 scene.colorRect(0, 0, 320, 240, 0x204060, 255);
 scene.visible = true;
-record("source-pixel:" + scene.getMainPixel(80, 60));
 record("ready");
