@@ -77,3 +77,15 @@ Cocos AppDelegate 先通知引擎，再启停动画；引擎的音量、混音�
 Cocos 桌面已订阅独立焦点事件并取消游戏输入，见[输入状态](input-state.md#cocos-桌面焦点)。
 这些子批次未完成 DPI、IME、真实切焦交互、移动端挂起恢复或完整生命周期迁移。
 具体证据与剩余工作见[B2 后续记录](../../.agents/notes/proposed/architecture/2026-11-03-platform-contracts.md)。
+
+## 主线程消息
+
+`event/MainThreadMessageQueue.h` 提供工作线程投递、引擎线程分发和按所有者取消消息的 C++ 接口。
+Cocos 应用壳持有队列，`Application::ProcessMessages` 先分发一批消息，再推进脚本定时器。
+分发按投递顺序取本批消息，回调在锁外执行。新消息由下一次分发处理。若回调显式嵌套处理消息，
+嵌套调用会取得新消息，外层批次随后照常处理。回调抛出异常时，本批未执行消息随批次释放。
+
+本地事件适配器将消息 ID 和事件值一起投递。关闭视频或注销接收器时，可以取消待执行消息，
+包括已取出的批次里尚未开始的回调。接收器需在主线程销毁，并先停止生产线程。
+
+构建、取消语义和桌面回归结果见[主线程消息实施记录](../../.agents/notes/implemented/simplification/2026-11-22-main-thread-message-queue.md)。
