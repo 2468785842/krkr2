@@ -369,7 +369,9 @@ jobs:
           assert not any(p.startswith('boost-') for p in ports), ports
           assert not ports.intersection({'cocos2dx', 'opencv4', 'ffmpeg', 'fmt', 'spdlog', 'oniguruma', 'libarchive', 'unrar', 'argparse'}), ports
           commands = json.loads((root / 'compile_commands.json').read_text(encoding='utf-8'))
-          assert {pathlib.Path(c['file']).name for c in commands} == {'LaunchOptions.cpp', 'LaunchOptionsTest.cpp', 'PreferenceDefaultsTest.cpp'}
+          assert {pathlib.Path(c['file']).name for c in commands} == {
+              'LaunchOptions.cpp', 'DesktopSettings.cpp', 'LaunchOptionsTest.cpp', 'PreferenceDefaultsTest.cpp'
+          }
           print('Launch parser closure verified:', sorted(ports))
           PY
       - uses: actions/upload-artifact@v4
