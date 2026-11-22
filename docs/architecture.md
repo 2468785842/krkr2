@@ -69,6 +69,5 @@ ZIP 读取器使用自身格式类型及 zlib，不再包含 cocos 的 minizip �
 
 `imageops` 测试范围仅配置 `core_imageops` 与 Catch2，不添加 TJS、日志或平台目标；其 vcpkg features 为 tests/imageops，见 [ImageOps](subsystems/imageops.md)。默认 full 测试也注册这组像素用例。依赖守卫额外拒绝渲染器/插件中的直接 OpenCV 调用；完整渲染路径与游戏画面仍需单独回归。
 
-Desktop 管理界面可通过 `KRKR2_USE_COCOS_UI=OFF` 裁剪，
-运行时默认配置初始化独立于设置页面；游戏窗口、菜单及脚本对话框仍使用 Cocos。
-实现边界见 [U1 管理界面开关](subsystems/management-ui.md)。
+桌面使用命令行启动和设置。管理界面随移动端构建打包，Cocos 桌面游戏窗口、脚本菜单与对话框继续可用。
+[桌面命令行](subsystems/desktop-cli.md) · [管理界面资源边界](subsystems/management-ui.md)

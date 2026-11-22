@@ -7,8 +7,8 @@ Status: proposed
 > **状态：** 设计草案（已修订）\
 > **原则：** 引擎 CLI 化 · 外壳 UI 可选且分离 · Mobile 设置与游戏分 Activity · 渐进替换 Cocos2d-x
 
-Desktop 已完成 [L1 启动入口](../../../../docs/subsystems/desktop-cli.md)：指定游戏直接启动，省略目标仍保留选择器。
-U1 已提供 [可选管理界面](../../../../docs/subsystems/management-ui.md)：Desktop 可关闭选择器和设置页，游戏 UI 保留。
+桌面启动与引擎设置统一通过命令行。本文原有桌面 Launcher、图形设置和可选管理界面属于早期方案。
+[桌面命令行](../../../../docs/subsystems/desktop-cli.md) · [移动端管理界面](../../../../docs/subsystems/management-ui.md)
 B2 首批拆分及交互测试见 [窗口接口](../../../../docs/subsystems/window-interface.md)。
 平台壳（窗口/输入/主循环）选型已定 **SDL3**，四子系统现状、ANGLE 定位与工作量评估见
 [平台壳选型](2026-11-03-ui-platform-shell.md)。
@@ -78,7 +78,7 @@ Cocos UI 已停更且表现力不足。**修订后的目标架构：**
 
 | 目标 | 做法 |
 |------|------|
-| **Desktop 轻量** | 引擎仅 CLI；图形设置交给可选 Launcher |
+| **Desktop 轻量** | 通过 CLI 启动和设置引擎 |
 | **Mobile 清晰** | Settings（RN）与 Game（Native GL）分 Activity |
 | **跨端一致** | 共享 `launch.json` schema + `packages/shared` 类型 |
 | **不嵌 GL 到 Web** | 拒绝 BrowserWindow / RN Canvas 跑 KAG |

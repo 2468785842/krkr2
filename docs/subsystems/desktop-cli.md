@@ -1,7 +1,6 @@
-# Desktop 启动入口（L1）
+# 桌面命令行启动与设置
 
-状态：已实现的首批入口；现有 cocos 游戏窗口、管理界面和游戏内菜单仍保留。
-`launch.json`、GlobalConfig overlay 与 RN 尚未实现。Linux 可通过显式开关构建 SDL3 游戏宿主。
+Windows、Linux 与 macOS 使用命令行启动游戏和设置引擎。Linux 可通过显式开关构建 SDL3 游戏宿主。
 
 ## 使用
 
@@ -11,13 +10,14 @@ krkr2 --game /games/example/data.xp3
 krkr2 --xp3 /games/example/data.xp3
 krkr2 /games/example/data.xp3
 krkr2 --game /games/example -- -debug=yes -contfreq=60
+krkr2 --game /games/example --set renderer=opengl --set fps_limit=60
+krkr2 --list-settings
 krkr2 --help
 ```
 
 Windows 路径含空格时加引号。所有桌面入口把参数转换为 UTF-8 后交给同一解析器。
 `--game=PATH`、`--xp3=PATH` 也可使用；只允许一个目标。
-默认构建不带目标时打开现有文件选择界面。
-[关闭管理界面](management-ui.md)（`KRKR2_USE_COCOS_UI=OFF`）后，无目标返回 2。指定目标时直接调度游戏启动，不创建文件选择 Form。
+无目标时返回 2 并向 stderr 输出用法。`--help` 与 `--list-settings` 可直接运行。
 
 目录优先使用散装 `startup.tjs`，否则使用目录内 `data.xp3`；无两者时返回错误。
 显式文件沿用既有归档读取器检查是否包含根 `startup.tjs`，因此仍可使用已有的其他受支持归档。
@@ -26,12 +26,22 @@ Windows 路径含空格时加引号。所有桌面入口把参数转换为 UTF-8
 参数错误、路径缺失、目录无入口、无效归档或归档缺启动脚本返回 **2**，写 stderr，
 并在创建 GL 窗口前结束。`--help` 输出用法、返回 **0**。
 这不等于所有游戏运行期脚本异常均已转换为非零退出码；运行期仍使用现有异常/对话框机制。
-Windows GUI 子系统的输出可通过子进程 stdout/stderr 重定向读取。
+Windows 可直接在 PowerShell 或 cmd 中查看输出和退出码。
 
 `--` 后仅接受吉里吉里 `-name` / `-name=value`，`-name` 等同 `yes`，保留空值和第二个等号。
 通过原 `TVPSetCommandLine` 写入，同名后项覆盖前项，不改变 TVPGetCommandLine。
 旧单横线引擎参数与 `-loglevel` / `--loglevel` 写法保留。
 未知双横线选项明确拒绝，`--config` 等设计草案中的开关当前不能使用。
+
+## 引擎设置
+
+`--list-settings` 列出支持的键与取值。`--set KEY=VALUE` 和 `--set=KEY=VALUE` 可重复使用，放在 `--` 前面，
+同一键取最后一次值。未知键和无效值以退出码 2 报告。`-name=value` 继续传给原有引擎参数和脚本接口。
+
+游戏级配置的优先级为命令行、游戏的 `Kirikiroid2Preference.xml`、全局 `GlobalPreference.xml`、内建默认值。
+命令行值只在当前进程内生效，原有 XML 会继续作为后续启动的默认配置。布尔设置用 `0` 或 `1`，
+路径含空格时用引号。显示帧率、帧率上限、菜单透明度及虚拟鼠标是 Cocos 宿主设置。
+`virtual_mouse=1` 在 Cocos 游戏宿主启动时启用虚拟鼠标。
 
 ## Linux SDL3 游戏宿主
 
@@ -44,7 +54,8 @@ out/linux/release/bin/krkr2/krkr2 --host=sdl3 --game /path/to/game
 ```
 
 `--host=sdl3` 要求显式游戏目标。默认宿主是 Cocos，也可用 `--host=cocos` 明确指定。
-未编译 SDL3 的构建收到 `--host=sdl3` 时返回 2。SDL3 使用正式的启动脚本、`Window`、`Layer` 和 `System`。
+未编译 SDL3 的构建收到 `--host=sdl3` 时返回 2。SDL3 固定使用软件渲染，显式指定其他渲染器会返回 2。
+SDL3 使用正式的启动脚本、`Window`、`Layer` 和 `System`。
 首批支持一个 SDL3 游戏窗口及基本键盘和鼠标左键输入。引擎的软件渲染结果以 RGBA 纹理上传，
 由 SDL3 的原生软件窗口表面呈现。Cocos 仍提供部分资源和共享服务。
 KAG、媒体、IME、模态游戏窗口、多窗口、Wayland 和高 DPI 属于后续验收范围。
@@ -64,12 +75,12 @@ GitHub 的 Build Linux 工作流通过 `sdl3_host_contract=true` 构建并运行
 
 - `cpp/core/environ/launch/LaunchOptions.*`：C++17 参数/文件系统解析，静态目标 `core_launch`，
   不依赖 TJS、cocos、日志或归档库。本批语法规模固定，未新增 argparse 依赖。
-- `DesktopLaunch.*`：引擎适配，保存目标、设置引擎参数、在 GTK/GL 初始化前调用现有归档校验并记录退出码。
+- `DesktopLaunch.*`：引擎适配，保存目标、应用当次设置、在 GTK/GL 初始化前调用现有归档校验并记录退出码。
   编译在桌面 `core_environ_module`，不进入纯解析库。
 - `platforms/windows/main.cpp`、`platforms/linux/main.cpp`、`platforms/apple/macos/main.cpp`：
   在应用启动前解析参数。Linux 的 help/参数错误不初始化 GTK，不要求显示服务。
-- `environ/cocos2d/AppDelegate.cpp`：场景就绪后直接调用
-  `MainScene::startupFrom`。无目标使用原选择器，Android/iOS 保留原启动路径。
+- `environ/cocos2d/AppDelegate.cpp`：桌面场景就绪后调用 `MainScene::startupFrom`。
+  Android/iOS 继续使用移动端入口及管理界面。
 
 本批不处理 Intent、配置合并、文件关联注册、C ABI 或渲染器替换；不移除脚本可观察的 UI。
 桌面旧 `TVPCheckStartupArg` 不再解析命令行，仅保留平台启动服务（如可选崩溃上报）；
@@ -90,7 +101,7 @@ python tools/game-smoke/cli_smoke.py /path/to/krkr2
 Windows 添加对应 triplet 与 MSVC 开发环境。launch-only 只选择 tests feature，
 配置 core_launch 和 Catch2，不安装或配置引擎基础层、cocos、OpenCV 或媒体库。
 若同时启用工具或应用，仍加入其真实依赖。完整测试也登记 launch_tests；应用目标存在时
-额外登记 `launch_cli_smoke`，使用自制损坏及缺 startup 的 XP3，无需商业游戏或 GL 窗口。
+额外登记 `launch_cli_smoke`，在无 GL 窗口的情况下检查帮助、设置列表、参数错误和损坏归档。
 
 真实游戏只在隔离副本运行，见 [UI 测试](../guides/game-testing.md)。
 game-smoke 的 `--launch-style game --target directory` 测 `--game` 目录，

@@ -169,12 +169,11 @@ TJS 的 Bison、日期词表以及消息头统一在构建期生成；日期词�
 保留命令、退出码和最早的有效错误，区分依赖安装/配置/编译/链接/测试/游戏回归阶段。
 不要把“环境缺库”写成源码测试失败，也不要把未运行写成通过。每次验证的具体结果记录到对应 note，不能从本指南推断全平台已通过。
 
-## 可选 Desktop 管理界面
+## 桌面启动与设置
 
-`KRKR2_USE_COCOS_UI` 默认 `ON`；配置为 `OFF` 可省略启动选择器和全局/游戏设置页面，
-通过 CLI 指定游戏。游戏内菜单及脚本对话框保留，Cocos 依赖仍存在。
-资源清单随开关同步；详细边界及验证见 [U1 管理界面开关](../subsystems/management-ui.md)。
-Android/iOS 暂不支持关闭。
+桌面构建需要通过命令行提供游戏目标，使用 `krkr2 --list-settings` 查看设置项和可接受的值。
+Android/iOS 构建继续提供选择器和设置页。桌面资源清单随平台裁剪。
+[桌面命令行](../subsystems/desktop-cli.md) · [管理界面资源边界](../subsystems/management-ui.md)
 
 Android 输入桥另有独立 Framework/ART 契约与模拟器 CI，命令和完整应用边界见[Android 输入桥](../subsystems/android-input.md#验证)。
 完整 Android Debug 运行时可用 Build Android 的 runtime_contracts 输入按 ABI 验证，
