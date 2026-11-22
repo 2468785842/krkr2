@@ -709,6 +709,10 @@ void TVPMainScene::doStartup(float dt, std::string path) {
     _gameMenu = TVPGameMainMenu::create(handlerOpacity);
     GameNode->addChild(_gameMenu, GAME_MENU_ORDER);
     _gameMenu->shrinkWithTime(1);
+#if !KRKR2_USE_COCOS_UI
+    if(pGlobalCfgMgr->GetValue<bool>("virtual_mouse", false))
+        showVirtualMouseCursor(true);
+#endif
     if(TVPWindowLayer::_consoleWin) {
         TVPWindowLayer::_consoleWin->removeFromParent();
         TVPWindowLayer::_consoleWin = nullptr;

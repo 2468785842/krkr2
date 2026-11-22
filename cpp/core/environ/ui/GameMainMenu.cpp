@@ -107,6 +107,7 @@ bool TVPGameMainMenu::init() {
         shrink();
     });
 
+#if KRKR2_USE_COCOS_UI
     _icon_touch = reader.findController("icon_touch");
     _icon_mouse = reader.findController("icon_mouse");
     setMouseIcon(true);
@@ -116,6 +117,7 @@ bool TVPGameMainMenu::init() {
         setMouseIcon(!TVPMainScene::GetInstance()->isVirtualMouseMode());
         shrink();
     });
+#endif
 
     reader.findWidget("btn_keyboard")->addClickEventListener([this](Ref *) {
         cocos2d::Size screenSize =
@@ -137,12 +139,14 @@ bool TVPGameMainMenu::init() {
     return ret;
 }
 
+#if KRKR2_USE_COCOS_UI
 void TVPGameMainMenu::setMouseIcon(bool bMouse) {
     if(_icon_mouse)
         _icon_mouse->setVisible(bMouse);
     if(_icon_touch)
         _icon_touch->setVisible(!bMouse);
 }
+#endif
 
 bool TVPGameMainMenu::onHandlerTouchBegan(cocos2d::Touch *touch,
                                           cocos2d::Event *unusedEvent) {

@@ -94,6 +94,32 @@ TEST_CASE("desktop launch selects SDL3 explicitly", "[launch]") {
                       std::invalid_argument);
 }
 
+TEST_CASE("desktop settings are validated separately from script arguments",
+          "[launch][preferences]") {
+    const auto options = Parse(
+        { "--set", "renderer=software", "--set=renderer=opengl", "--set",
+          "default_font=字体=a.ttf", "--set=showfps=1",
+          "--set=menu_handler_opa=0.25", "game", "--", "-renderer=legacy" });
+    REQUIRE(options.settings.at("renderer") == "opengl");
+    REQUIRE(options.settings.at("default_font") == "字体=a.ttf");
+    REQUIRE(options.settings.at("menu_handler_opa") == "0.25");
+    REQUIRE(options.engineOptions.size() == 1);
+    REQUIRE(options.engineOptions.front().value == "legacy");
+    REQUIRE(Parse({ "--list-settings" }).listSettings);
+    REQUIRE(
+        Parse({ "--set=default_font=" }).settings.at("default_font").empty());
+
+    for(const char *invalid :
+        { "", "renderer", "unknown=1", "renderer=vulkan", "showfps=2",
+          "fps_limit=0", "fps_limit=999999999999", "menu_handler_opa=1.1",
+          "menu_handler_opa=0,5" })
+        REQUIRE_THROWS_AS(Parse({ "--set", invalid }), std::invalid_argument);
+    REQUIRE_THROWS_AS(Parse({ "--host=sdl3", "--set=renderer=opengl" }),
+                      std::invalid_argument);
+    REQUIRE_THROWS_AS(Parse({ "--", "--set=showfps=1" }),
+                      std::invalid_argument);
+}
+
 TEST_CASE("desktop directory launch prefers loose startup then data archive",
           "[launch]") {
     Project project;

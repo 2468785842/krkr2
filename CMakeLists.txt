@@ -14,11 +14,6 @@ add_compile_definitions(
         $<$<NOT:$<CONFIG:Debug>>:NDEBUG>
 )
 
-option(KRKR2_USE_COCOS_UI "Build the optional Cocos launcher and preference pages" ON)
-if(NOT KRKR2_USE_COCOS_UI AND (ANDROID OR IOS))
-    message(FATAL_ERROR "KRKR2_USE_COCOS_UI=OFF currently requires a desktop CLI entry point")
-endif()
-
 option(KRKR2_ENABLE_UI_TEST_DRIVER "Build the opt-in desktop UI contract driver" OFF)
 if(KRKR2_ENABLE_UI_TEST_DRIVER AND (ANDROID OR IOS))
     message(FATAL_ERROR "The UI contract driver is desktop-only")
@@ -88,6 +83,12 @@ endif()
 set(APP_NAME krkr2)
 
 project(${APP_NAME})
+
+if(ANDROID OR IOS)
+    set(KRKR2_USE_COCOS_UI ON)
+else()
+    set(KRKR2_USE_COCOS_UI OFF)
+endif()
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 17)

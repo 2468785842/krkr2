@@ -158,19 +158,25 @@ def run(engine, destination, seconds=60, capture=False, profiles=False):
         source = Path(__file__).parent / "imageops/startup.tjs"
         shutil.copy2(source, root / "startup.tjs")
         preferences = {"renderer":renderer, **settings}
-        (root / "Kirikiroid2Preference.xml").write_text('<GlobalPreference>' +
+        cli_settings = {}
+        if profile == "opengl-half":
+            cli_settings = {"renderer": "opengl", "ogl_max_texsize": "512"}
+            preferences.update(renderer="software", ogl_max_texsize="1024")
+        preference_path = root / "Kirikiroid2Preference.xml"
+        preference_path.write_text('<GlobalPreference>' +
             ''.join(f'<Item key="{escape(key)}" value="{escape(value)}"/>' for key,value in preferences.items()) +
             '</GlobalPreference>', encoding="utf-8")
         if capture:
             (root / "interaction-fixture.json").write_text('{"fixture":"imageops"}')
         command = [str(engine), "--game=" + str(root), "-imageops-renderer=" + renderer]
+        command.extend(f"--set={key}={value}" for key, value in cli_settings.items())
         if profiles:
             command.append("-render-storage-probe=yes")
         if capture:
             command.append("-ui-contract-driver=yes")
         report = {"engine": str(engine), "engine_sha256": digest(engine), "script_sha256": digest(root / "startup.tjs"),
                   "controller_sha256": digest(Path(__file__)),
-                  "preferences_sha256": digest(root / "Kirikiroid2Preference.xml"),
+                  "preferences_sha256": digest(preference_path), "cli_settings": cli_settings,
                   "renderer_requested": renderer, "profile":profile, "preferences":preferences,
                   "command": command, "forced_stop": False, "failures": []}
         deadline = time.monotonic() + seconds
@@ -253,6 +259,8 @@ def run(engine, destination, seconds=60, capture=False, profiles=False):
             required += ["passed:storage-readback", "passed:storage-readback-large"]
         report["failures"] += ["Missing or repeated event: " + e for e in required if report["events"].count(e) != 1]
         report["failures"] += [e for e in report["events"] if e.startswith("error:")]
+        if cli_settings and digest(preference_path) != report["preferences_sha256"]:
+            report["failures"].append("CLI settings modified the saved preferences")
         if report["forced_stop"] or report["exit_code"] != 0:
             report["failures"].append("Engine did not exit normally")
         image = root / "imageops.bmp"

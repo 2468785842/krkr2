@@ -1,4 +1,5 @@
 #include "LaunchOptions.h"
+#include "DesktopSettings.h"
 
 #include <stdexcept>
 
@@ -36,6 +37,14 @@ namespace krkr::launch {
                 engineOnly = true;
             } else if(arg == "--help" || arg == "-h") {
                 options.help = true;
+            } else if(arg == "--list-settings") {
+                options.listSettings = true;
+            } else if(arg == "--set") {
+                if(i + 1 == arguments.size())
+                    throw std::invalid_argument("Expected --set KEY=VALUE");
+                AddDesktopSetting(options.settings, arguments[++i]);
+            } else if(arg.rfind("--set=", 0) == 0) {
+                AddDesktopSetting(options.settings, arg.substr(6));
             } else if(arg.rfind("--host=", 0) == 0) {
                 if(hostSpecified)
                     throw std::invalid_argument("Specify at most one host");
@@ -71,6 +80,10 @@ namespace krkr::launch {
                 setGame(options, arg);
             }
         }
+        const auto renderer = options.settings.find("renderer");
+        if(options.host == DesktopHost::SDL3 &&
+           renderer != options.settings.end() && renderer->second != "software")
+            throw std::invalid_argument("SDL3 requires renderer=software");
         return options;
     }
 
@@ -95,21 +108,16 @@ namespace krkr::launch {
         return path;
     }
 
-    const char *Usage(bool managementUI) {
-        static constexpr const char *withUI =
-            "Usage: krkr2 [--game PATH | --xp3 PATH | PATH] [-- -name=value "
-            "...]\n"
-            "PATH: game directory (startup.tjs or data.xp3), or a supported "
-            "archive.\n"
-            "Without a target, open the existing game selector.\n"
-            "  -h, --help    Show this help without opening a window\n";
-        static constexpr const char *withoutUI =
-            "Usage: krkr2 (--game PATH | --xp3 PATH | PATH) [-- -name=value "
-            "...]\n"
-            "PATH: game directory (startup.tjs or data.xp3), or a supported "
-            "archive.\n"
-            "A game target is required; management UI is disabled.\n"
-            "  -h, --help    Show this help without opening a window\n";
-        return managementUI ? withUI : withoutUI;
+    const char *Usage() {
+        return "Usage: krkr2 (--game PATH | --xp3 PATH | PATH) [--set "
+               "KEY=VALUE] "
+               "[-- -name=value ...]\n"
+               "PATH: game directory (startup.tjs or data.xp3), or a supported "
+               "archive.\n"
+               "  --host=cocos   Run with the default Cocos host\n"
+               "  --set KEY=VALUE  Override a setting for this run "
+               "(repeatable)\n"
+               "  --list-settings  List desktop setting keys and values\n"
+               "  -h, --help       Show this help without opening a window\n";
     }
 } // namespace krkr::launch

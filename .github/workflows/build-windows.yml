@@ -90,6 +90,9 @@ jobs:
       - name: Build Windows
         run: cmake --build --preset="Windows Release Build" --target krkr2 cocos_window_tests
 
+      - name: Verify desktop command line
+        run: python tools/game-smoke/cli_smoke.py out/windows/release/bin/krkr2/krkr2.exe
+
       - name: Verify OpenCV removal
         shell: bash
         run: python scripts/check_no_opencv.py out/windows/release

@@ -17,6 +17,9 @@ protected:
     void Initialize();
 
 public:
+    // Desktop arguments override reads without modifying the saved settings.
+    static void
+    SetLaunchOverrides(std::map<std::string, std::string> overrides);
     void SaveToFile();
 
     bool IsValueExist(const std::string &name);

@@ -1,7 +1,4 @@
 #include "main.h"
-#include <cocos2d.h>
-
-#include <shellapi.h>
 #include <boost/locale/encoding_utf.hpp>
 
 #include <memory>
@@ -14,13 +11,8 @@
 #include "log/TVPInitLog.h"
 
 #include "environ/launch/DesktopLaunch.h"
-USING_NS_CC;
 
-int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                     LPTSTR lpCmdLine, int nCmdShow) {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
-
+int main() {
     int argc = 0;
     LPWSTR *wargv = CommandLineToArgvW(GetCommandLineW(), &argc);
     if(!wargv) {

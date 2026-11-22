@@ -4,6 +4,28 @@
 #include "UtilStreams.h"
 #include "LocaleConfigManager.h"
 
+#include <locale>
+#include <sstream>
+#include <utility>
+
+namespace {
+    auto &launchOverrides() {
+        static std::map<std::string, std::string> overrides;
+        return overrides;
+    }
+
+    const std::string *findLaunchOverride(const std::string &name) {
+        const auto &overrides = launchOverrides();
+        const auto it = overrides.find(name);
+        return it == overrides.end() ? nullptr : &it->second;
+    }
+} // namespace
+
+void iSysConfigManager::SetLaunchOverrides(
+    std::map<std::string, std::string> overrides) {
+    launchOverrides() = std::move(overrides);
+}
+
 bool TVPWriteDataToFile(const ttstr &filepath, const void *data,
                         unsigned int len);
 class XMLMemPrinter : public tinyxml2::XMLPrinter {
@@ -138,6 +160,8 @@ bool iSysConfigManager::GetValue<bool>(const std::string &name,
 template <>
 int iSysConfigManager::GetValue<int>(const std::string &name,
                                      const int &defVal) {
+    if(const auto *override = findLaunchOverride(name))
+        return atoi(override->c_str());
     auto it = AllConfig.find(name);
     if(it == AllConfig.end()) {
         SetValueInt(name, defVal);
@@ -149,6 +173,13 @@ int iSysConfigManager::GetValue<int>(const std::string &name,
 template <>
 float iSysConfigManager::GetValue<float>(const std::string &name,
                                          const float &defVal) {
+    if(const auto *override = findLaunchOverride(name)) {
+        std::istringstream input(*override);
+        input.imbue(std::locale::classic());
+        float value = defVal;
+        input >> value;
+        return value;
+    }
     auto it = AllConfig.find(name);
     if(it == AllConfig.end()) {
         SetValueFloat(name, defVal);
@@ -161,6 +192,8 @@ template <>
 std::string
 iSysConfigManager::GetValue<std::string>(const std::string &name,
                                          const std::string &defVal) {
+    if(const auto *override = findLaunchOverride(name))
+        return *override;
     auto it = AllConfig.find(name);
     if(it == AllConfig.end()) {
         SetValue(name, defVal);

@@ -125,18 +125,14 @@ bool TVPAppDelegate::applicationDidFinishLaunching() {
             // upload).
             TVPCheckStartupArg();
             const auto &target = krkr::launch::DesktopTarget();
-            if(!target.empty()) {
-                G_CoreLog.info("Direct game startup: {}", target);
-                TVPMainScene::GetInstance()->startupFrom(target);
-            } else {
+            G_CoreLog.info("Direct game startup: {}", target);
+            TVPMainScene::GetInstance()->startupFrom(target);
 #else
             if(!TVPCheckStartupArg()) {
-#endif
-#if KRKR2_USE_COCOS_UI
                 TVPMainScene::GetInstance()->pushUIForm(
                     TVPMainFileSelectorForm::create());
-#endif
             }
+#endif
         },
         0, "launch");
 

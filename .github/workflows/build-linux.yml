@@ -128,6 +128,9 @@ jobs:
           cp $(find out/linux/release/ -name libfmod.so) out/linux/release/bin/krkr2
           cp $(find out/linux/release/ -name libfmodL.so) out/linux/release/bin/krkr2
 
+      - name: Verify desktop command line
+        run: python tools/game-smoke/cli_smoke.py out/linux/release/bin/krkr2/krkr2
+
       - name: Verify SDL3 game host with native X11 input
         if: inputs.sdl3_host_contract
         run: |

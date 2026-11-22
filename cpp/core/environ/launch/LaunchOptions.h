@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <map>
 #include <optional>
 #include <string>
 #include <vector>
@@ -16,8 +17,10 @@ namespace krkr::launch {
     struct LaunchOptions {
         std::optional<std::filesystem::path> game;
         std::vector<EngineOption> engineOptions;
+        std::map<std::string, std::string> settings;
         DesktopHost host = DesktopHost::Cocos;
         bool help = false;
+        bool listSettings = false;
     };
 
     // Arguments exclude argv[0], and use UTF-8 on all desktop platforms.
@@ -25,5 +28,5 @@ namespace krkr::launch {
     // Prefer loose startup.tjs, then data.xp3. Archive contents are validated
     // later by the runtime's existing readers, before creating a GL window.
     std::filesystem::path ResolveTarget(const std::filesystem::path &input);
-    const char *Usage(bool managementUI = true);
+    const char *Usage();
 } // namespace krkr::launch

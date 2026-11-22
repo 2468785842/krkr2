@@ -510,7 +510,8 @@ namespace Csd {
     Widget *createGameMenu(const Size &size, float scale) {
         LayoutCtx ctx{ size, scale };
         const float barH = ctx.h();
-        const Size btnSize(ctx.w() / 5.f, barH);
+        constexpr int buttonCount = KRKR2_USE_COCOS_UI ? 5 : 4;
+        const Size btnSize(ctx.w() / buttonCount, barH);
 
         auto *root = Widget::create();
         root->setContentSize(ctx.size);
@@ -552,6 +553,7 @@ namespace Csd {
         btnWindow->setName("btn_window");
         panel2->addChild(btnWindow);
 
+#if KRKR2_USE_COCOS_UI
         auto *btnMouse =
             createIconButton("img/empty.png", "img/white.png", btnSize,
                              Vec2(btnSize.width * 2, barH * 0.5f),
@@ -570,10 +572,11 @@ namespace Csd {
         iconMouse->setPosition(Vec2(btnSize.width * 0.5f, barH * 0.5f));
         btnMouse->addChild(iconMouse);
         panel2->addChild(btnMouse);
+#endif
 
         auto *btnKeyboard = createIconButton(
             "img/empty.png", "img/white.png", btnSize,
-            Vec2(btnSize.width * 3, barH * 0.5f), Vec2(0, 0.5f),
+            Vec2(btnSize.width * (buttonCount - 2), barH * 0.5f), Vec2(0, 0.5f),
             "img/keyboard_icon.png",
             ctx.relSize(64, 45, kCanvasGameMenuW, kCanvasGameMenuH));
         btnKeyboard->setName("btn_keyboard");

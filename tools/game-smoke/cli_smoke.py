@@ -20,7 +20,12 @@ def main():
         no_startup = root / "without-startup.xp3"
         no_startup.write_bytes(fixture.archive(False)[0])
         cases = [
+            ([], 2, "requires --game PATH"),
             (["--help"], 0, "Usage: krkr2"),
+            (["--list-settings"], 0, "renderer\tsoftware|opengl"),
+            (["--set"], 2, "Expected --set KEY=VALUE"),
+            (["--set", "unknown=1"], 2, "Unknown desktop setting"),
+            (["--set=fps_limit=0"], 2, "Invalid value for fps_limit"),
             (["--game"], 2, "Missing game path"),
             (["--game", str(root / "missing")], 2, "not a regular file"),
             (["--game", str(root)], 2, "needs startup.tjs or data.xp3"),
@@ -31,8 +36,6 @@ def main():
             (["--game", "a", "--game", "b"], 2, "exactly one game"),
             (["--config", "future.json"], 2, "Unknown launch option"),
         ]
-        if "--require-game" in sys.argv[2:]:
-            cases.append(([], 2, "requires --game PATH"))
         for args, expected_code, message in cases:
             result = subprocess.run([str(engine), *args], cwd=engine.parent,
                                     capture_output=True, encoding="utf-8", errors="replace", timeout=15)

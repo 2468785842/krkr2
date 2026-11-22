@@ -1,7 +1,9 @@
 #include "DesktopLaunch.h"
+#include "DesktopSettings.h"
 #include "LaunchOptions.h"
 
 #include "tjsCommHead.h"
+#include "ConfigManager/GlobalConfigManager.h"
 #include "SysInitIntf.h"
 #include "tjsString.h"
 
@@ -9,6 +11,7 @@
 #include <exception>
 #include <filesystem>
 #include <stdexcept>
+#include <utility>
 
 int TVPCheckArchive(const ttstr &localname);
 
@@ -35,12 +38,16 @@ namespace krkr::launch {
                 arguments.emplace_back(argv[i]);
             auto options = Parse(arguments);
             if(options.help) {
-                std::fputs(Usage(KRKR2_USE_COCOS_UI), stdout);
+                std::fputs(Usage(), stdout);
 #if KRKR2_ENABLE_SDL3_HOST
                 std::fputs("  --host=sdl3   Use SDL3 with an explicit game "
                            "target (Linux)\n",
                            stdout);
 #endif
+                return 0;
+            }
+            if(options.listSettings) {
+                std::fputs(ListDesktopSettings().c_str(), stdout);
                 return 0;
             }
             useSDL3 = options.host == DesktopHost::SDL3;
@@ -49,26 +56,24 @@ namespace krkr::launch {
                 if(!options.game)
                     throw std::invalid_argument(
                         "--host=sdl3 requires --game PATH");
+                options.settings.try_emplace("renderer", "software");
 #else
                 throw std::invalid_argument(
                     "SDL3 host is unavailable in this build");
 #endif
             }
-#if !KRKR2_USE_COCOS_UI
             if(!options.game) {
-                fail("This build requires --game PATH (Cocos management UI is "
-                     "disabled)");
-                std::fputs(Usage(KRKR2_USE_COCOS_UI), stderr);
+                fail("Desktop launch requires --game PATH");
+                std::fputs(Usage(), stderr);
                 return exitCode;
             }
-#endif
-            if(options.game)
-                target = ResolveTarget(*options.game).generic_u8string();
+            target = ResolveTarget(*options.game).generic_u8string();
             for(const auto &option : options.engineOptions)
                 TVPSetCommandLine(ttstr(option.name).c_str(),
                                   ttstr(option.value));
             if(!ValidateDesktopArchive())
                 return exitCode;
+            iSysConfigManager::SetLaunchOverrides(std::move(options.settings));
             return -1;
         } catch(const std::exception &error) {
             fail(error.what());

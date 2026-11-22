@@ -8,7 +8,9 @@ public:
 
     bool init() override;
 
+#if KRKR2_USE_COCOS_UI
     void setMouseIcon(bool bMouse);
+#endif
 
     void shrink();
     void expand();
@@ -42,8 +44,10 @@ private:
 
     cocos2d::Node *_root;
     cocos2d::Node *_handler;
+#if KRKR2_USE_COCOS_UI
     cocos2d::Node *_icon_touch;
     cocos2d::Node *_icon_mouse;
+#endif
 
     cocos2d::Vec2 _touchBeganPosition;
     cocos2d::Vec2 _touchMovePosition;
