@@ -11,7 +11,9 @@ from frame_pixels import rgb_rows
 def wait_for(path, marker, process, deadline):
     while time.monotonic() < deadline:
         if path.exists():
-            lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+            raw = path.read_bytes()
+            encoding = "utf-16" if raw.startswith((b"\xff\xfe", b"\xfe\xff")) else "utf-8-sig"
+            lines = raw.decode(encoding, errors="replace").splitlines()
             if any("error:" in line for line in lines):
                 raise RuntimeError(f"{path.name}: {lines}")
             if marker in lines:
