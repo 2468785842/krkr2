@@ -1,0 +1,68 @@
+// Exercises the engine's existing Window input API.
+global.events = [];
+global.record = function(message) {
+    events.add(message);
+    events.save(System.exePath + "interaction-events.txt");
+};
+
+class InputWindow extends Window {
+    function InputWindow() {
+        super.Window();
+        caption = "KrKr2 SDL3 game input";
+        setSize(320, 240);
+    }
+    function onFileDrop(files) {
+        record("drop:" + files.count);
+        for(var i = 0; i < files.count; ++i)
+            record("file:" + files[i] + ":" + string Storages.isExistentStorage(files[i]));
+    }
+    function onKeyDown(key, shift) {
+        if(key == 113) {
+            useMouseKey = true;
+            record("mouse-keys:" + string useMouseKey);
+        }
+        if(key == 114) {
+            useMouseKey = false;
+            record("mouse-keys:" + string useMouseKey);
+        }
+        if(key == 115) {
+            setSize(640, 360);
+            enableTouch = true;
+            record("touch:" + string enableTouch);
+        }
+        if(key == 116) {
+            enableTouch = false;
+            record("touch:" + string enableTouch + ":" + touchPointCount);
+        }
+        if(key == 27)
+            System.exit();
+    }
+    function onResize() { record("resize:" + width + ":" + height); }
+    function onActivate() { record("active"); }
+    function onDeactivate() { record("inactive"); }
+    function onMouseMove(x, y, shift) { record("move:" + x + ":" + y); }
+    function onMouseDown(x, y, button, shift) { record("down:" + button + ":" + x + ":" + y); }
+    function onMouseUp(x, y, button, shift) { record("up:" + button + ":" + x + ":" + y); }
+    function onClick(x, y) { record("click:" + x + ":" + y); }
+    function onTouchDown(x, y, cx, cy, id) {
+        var point = getTouchPoint(touchPointCount - 1);
+        record("finger-down:" + id + ":" + int(x) + ":" + int(y) + ":" + touchPointCount +
+               ":" + point.ID + ":" + int(point.startX) + ":" + int(point.startY));
+    }
+    function onTouchMove(x, y, cx, cy, id) {
+        record("finger-move:" + id + ":" + int(x) + ":" + int(y));
+    }
+    function onTouchUp(x, y, cx, cy, id) { record("finger-up:" + id); }
+    function onTouchScaling(start, current, cx, cy, flag) { record("scaling:" + flag); }
+    function onTouchRotate(start, current, distance, cx, cy, flag) { record("rotation:" + flag); }
+    function onMultiTouch() { record("multi:" + touchPointCount); }
+}
+global.win = new InputWindow();
+global.scene = new Layer(win, null);
+scene.setSize(320, 240);
+scene.setImageSize(320, 240);
+scene.type = ltOpaque;
+scene.colorRect(0, 0, 320, 240, 0x204060, 255);
+scene.visible = true;
+win.visible = true;
+record("ready");

@@ -46,6 +46,10 @@
 
 extern std::thread::id TVPMainThreadID;
 std::string TVPGetCurrentLanguage();
+#if KRKR2_ENABLE_UI_TEST_DRIVER
+bool TVPSubmitSDLTouchContract(const std::filesystem::path &request,
+                               SDL_WindowID window);
+#endif
 
 namespace krkr::sdl {
     namespace {
@@ -376,6 +380,9 @@ namespace krkr::sdl {
 
             bool Live() const { return native != nullptr; }
             bool Main() const { return Live() && native->IsMainWindow(); }
+#if KRKR2_ENABLE_UI_TEST_DRIVER
+            SDL_WindowID Id() const { return SDL_GetWindowID(window.get()); }
+#endif
             bool Owns(SDL_Window *candidate) const {
                 return candidate && candidate == window.get();
             }
@@ -576,6 +583,8 @@ namespace krkr::sdl {
             }
             void SetMouseCursorState(tTVPMouseCursorState state) override {
                 MouseCursorState = state;
+                if(showKeyboardCursor)
+                    dirty = true;
                 UpdateCursorVisibility();
             }
             void HideMouseCursor() override {
@@ -759,6 +768,19 @@ namespace krkr::sdl {
                 touchEnabled = enabled;
             }
             bool GetEnableTouch() const override { return touchEnabled; }
+            bool HasTouchDevice() const override {
+                int count = 0;
+                auto *devices = SDL_GetTouchDevices(&count);
+                bool supported = false;
+                for(int i = 0; devices && i < count; ++i)
+                    if(SDL_GetTouchDeviceType(devices[i]) ==
+                       SDL_TOUCH_DEVICE_DIRECT) {
+                        supported = true;
+                        break;
+                    }
+                SDL_free(devices);
+                return supported;
+            }
             tjs_int GetTouchPointCount() const override {
                 return static_cast<tjs_int>(contacts.size());
             }
@@ -850,7 +872,7 @@ namespace krkr::sdl {
                                                     video->picture.get(),
                                                     nullptr, &video->bounds));
                     }
-                    if(showKeyboardCursor) {
+                    if(showKeyboardCursor && MouseCursorState == mcsVisible) {
                         const SDL_FPoint pointer[] = {
                             { float(mouseX), float(mouseY + 12) },
                             { float(mouseX), float(mouseY) },
@@ -1277,7 +1299,7 @@ namespace krkr::sdl {
                 if(!wayland) {
                     SetCursorPos(x, y);
                 } else {
-                    showKeyboardCursor = MouseCursorState == mcsVisible;
+                    showKeyboardCursor = true;
                     UpdateCursorVisibility();
                     dirty = true;
                 }
@@ -1473,12 +1495,26 @@ namespace krkr::sdl {
             std::vector<std::shared_ptr<Window>> windows;
             bool startedWindow = false;
             bool foreground = false;
+#if KRKR2_ENABLE_UI_TEST_DRIVER
+            std::filesystem::path touchContractRequest;
+#endif
         };
 
         Session *session = nullptr;
 
         void PumpFrame() {
             auto &windows = session->windows;
+#if KRKR2_ENABLE_UI_TEST_DRIVER
+            if(!session->touchContractRequest.empty()) {
+                const auto main = std::find_if(
+                    windows.begin(), windows.end(),
+                    [](const auto &window) { return window->Main(); });
+                if(main != windows.end() &&
+                   TVPSubmitSDLTouchContract(session->touchContractRequest,
+                                             (*main)->Id()))
+                    session->touchContractRequest.clear();
+            }
+#endif
             SDL_Event event;
             if(SDL_WaitEventTimeout(&event, 16)) {
                 do {
@@ -1566,6 +1602,19 @@ namespace krkr::sdl {
                 IndividualConfigManager::GetInstance()->UsePreferenceAt(
                     std::filesystem::u8path(game).parent_path().u8string());
                 Application->StartApplication(ttstr(game));
+#if KRKR2_ENABLE_UI_TEST_DRIVER
+                tTJSVariant touchContract;
+                if(TVPGetCommandLine(TJS_W("-sdl-touch-contract"),
+                                     &touchContract) &&
+                   ttstr(touchContract) == TJS_W("yes")) {
+                    const auto root = std::filesystem::u8path(game);
+                    if(!std::filesystem::is_regular_file(
+                           root / "interaction-fixture.json"))
+                        throw std::runtime_error(
+                            "SDL touch driver requires an isolated fixture");
+                    host.touchContractRequest = root / "sdl-touch-input.txt";
+                }
+#endif
                 while(!host.windows.empty())
                     PumpFrame();
                 if(Application->IsTarminate())

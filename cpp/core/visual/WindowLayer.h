@@ -128,6 +128,7 @@ public:
     int GetDisplayOrientation() { return orientLandscape; }
     virtual void SetEnableTouch(bool b) {}
     [[nodiscard]] virtual bool GetEnableTouch() const { return false; }
+    [[nodiscard]] virtual bool HasTouchDevice() const { return false; }
     void SetHintDelay(tjs_int delay) { HintDelay = delay; }
     [[nodiscard]] tjs_int GetHintDelay() const { return HintDelay; }
     void SetInnerSunken(bool b) {}

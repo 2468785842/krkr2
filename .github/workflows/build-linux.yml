@@ -94,7 +94,8 @@ jobs:
         if: inputs.sdl3_desktop_contract
         run: |
           sudo apt-get install -y --no-install-recommends openbox weston xdotool wmctrl x11-utils \
-            libdecor-0-plugin-1-cairo fcitx5 fcitx5-chinese-addons fonts-noto-cjk python3-pil
+            libdecor-0-plugin-1-cairo fcitx5 fcitx5-chinese-addons fonts-noto-cjk python3-pil \
+            python3-gi gir1.2-gtk-3.0 ffmpeg
 
       - name: Install CMake
         uses: lukka/get-cmake@latest
@@ -135,7 +136,7 @@ jobs:
           cmake --preset="Linux Release Config" -DBUILD_TOOLS=OFF \
             -DKRKR2_ENABLE_SDL3_HOST=${{ (inputs.sdl3_host_contract || inputs.sdl3_desktop_contract) && 'ON' || 'OFF' }} \
             -DENABLE_TESTS=${{ inputs.imageops_contracts && 'ON' || 'OFF' }} \
-            -DKRKR2_ENABLE_UI_TEST_DRIVER=${{ inputs.imageops_contracts && 'ON' || 'OFF' }}
+            -DKRKR2_ENABLE_UI_TEST_DRIVER=${{ (inputs.imageops_contracts || inputs.sdl3_desktop_contract) && 'ON' || 'OFF' }}
           targets=(krkr2)
           if [ '${{ inputs.imageops_contracts }}' = 'true' ]; then targets+=(cocos_window_tests); fi
           cmake --build --preset="Linux Release Build" --target "${targets[@]}"
@@ -221,7 +222,8 @@ jobs:
           done
           exit "$status"
 
-      - name: Verify SDL3 KAG game
+      - name: Prepare SDL3 KAG framework
+        id: kag-framework
         if: ${{ !cancelled() && inputs.sdl3_desktop_contract && steps.build.outcome == 'success' }}
         run: |
           kag_ref=1f3ab309106d210e3169bbbe0fb4e066ae463b42
@@ -229,9 +231,27 @@ jobs:
           curl --fail --silent --show-error --location --retry 3 \
             "https://codeload.github.com/krkrz/kag3/tar.gz/$kag_ref" \
             | tar -xz -C out/linux/sdl-desktop-kag3 --strip-components=1
+
+      - name: Verify SDL3 KAG game
+        if: ${{ !cancelled() && steps.kag-framework.outcome == 'success' }}
+        run: |
           xvfb-run -a -s '-screen 0 1600x1050x24' dbus-run-session -- /usr/bin/python3 \
             tools/game-smoke/sdl_desktop_repro.py kag out/linux/release/bin/krkr2/krkr2 \
             out/linux/sdl-desktop-runtime/kag --kag-framework out/linux/sdl-desktop-kag3
+
+      - name: Verify SDL3 KAG audio and movie playback
+        if: ${{ !cancelled() && steps.kag-framework.outcome == 'success' }}
+        run: |
+          xvfb-run -a -s '-screen 0 1600x1050x24' dbus-run-session -- /usr/bin/python3 \
+            tools/game-smoke/sdl_media_repro.py out/linux/release/bin/krkr2/krkr2 \
+            out/linux/sdl-desktop-runtime/media out/linux/sdl-desktop-kag3
+
+      - name: Verify SDL3 file drag, mouse keys and touch dispatch
+        if: ${{ !cancelled() && inputs.sdl3_desktop_contract && steps.build.outcome == 'success' }}
+        run: |
+          xvfb-run -a -s '-screen 0 1600x1050x24' dbus-run-session -- /usr/bin/python3 \
+            tools/game-smoke/sdl_game_input_repro.py out/linux/release/bin/krkr2/krkr2 \
+            out/linux/sdl-desktop-runtime/game-input
 
       - name: Upload SDL3 desktop evidence
         if: always() && inputs.sdl3_desktop_contract
@@ -242,6 +262,7 @@ jobs:
             out/linux/sdl-desktop-runtime/**/*.json
             out/linux/sdl-desktop-runtime/**/*.png
             out/linux/sdl-desktop-runtime/**/*.log
+            out/linux/sdl-desktop-runtime/media/audio.wav
             out/linux/sdl-desktop-runtime/**/interaction-events.txt
             out/linux/sdl-desktop-runtime/**/data1.kdt
           if-no-files-found: ignore

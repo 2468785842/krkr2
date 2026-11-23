@@ -18,6 +18,7 @@
 #include "TickCount.h"
 #include "ComplexRect.h"
 #include "WindowImpl.h"
+#include "WindowLayer.h"
 #include "SystemControl.h"
 
 #include "Application.h"
@@ -442,6 +443,12 @@ enum tTVPTouchDevice {
  **/
 static int TVPGetSupportTouchDevice() {
     int result = 0;
+    for(tjs_int i = 0; i < TVPGetWindowCount(); ++i)
+        if(const auto *form = TVPGetWindowListAt(i)->getForm();
+           form && form->HasTouchDevice()) {
+            result |= tdExternalTouch | tdMultiInput | tdDigitizerReady;
+            break;
+        }
 #if 0
     if( procRegisterTouchWindow ) {
         int value = ::GetSystemMetrics( SM_DIGITIZER );
