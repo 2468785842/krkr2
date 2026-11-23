@@ -286,14 +286,20 @@ def lifecycle(x11, output, game, process, window, mode):
     event(game, process, "mouse-down:65:165:1")
     x11.button(False)
     event(game, process, "mouse-up:65:165:0")
-    wait_for("repaint at restored mouse coordinate",
-             lambda: frame().getpixel(point) == GREEN, process)
+    # Weston composites the cursor over the click location. Sample the same
+    # painted rectangle to the left of the cursor hotspot.
+    sample = point[0] - 20 * scale, point[1]
+    try:
+        wait_for("repaint after the restored click", lambda: frame().getpixel(sample) == GREEN, process)
+    except TimeoutError:
+        take_frame("last-frame")
+        raise
     take_frame("restored-click")
     tap(x11, ESCAPE)
     assert process.wait(timeout=8) == 0
     return {"output_scale": scale, "windowed_content": initial, "fullscreen_content": full,
             "restored_content": restored, "mouse_physical_pixels": point,
-            "mouse_logical_pixels": [65, 165]}
+            "mouse_logical_pixels": [65, 165], "repaint_sample": sample}
 
 
 def prepare_fcitx(output):
@@ -360,6 +366,8 @@ def ime(x11, output, game, command_line, env):
                 event(game, process, "text:20320", index)
                 event(game, process, "text:22909", index)
                 screen().save(output / f"committed-{index}.png")
+            first, second = (check["popup"] for check in checks)
+            assert abs(second[0] - first[0] - 140) <= 5 and abs(second[1] - first[1] - 50) <= 5, checks
             assert [line for line in read_events(game) if line.startswith("text:")] == [
                 "text:20320", "text:22909", "text:20320", "text:22909",
             ]
@@ -468,6 +476,8 @@ def main():
                     report.update(lifecycle(x11, output, game, process, window, args.mode))
             report["events"] = read_events(game)
         report["passed"] = True
+        report["exit_code"] = 0
+        report["forced_stop"] = False
     except Exception as error:
         report.update(passed=False, error=str(error), events=read_events(game))
         raise

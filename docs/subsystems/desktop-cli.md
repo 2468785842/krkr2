@@ -46,6 +46,7 @@ Windows 可直接在 PowerShell 或 cmd 中查看输出和退出码。
 ## Linux SDL3 游戏宿主
 
 在完整应用构建中显式开启 SDL3 选项，使用同一个 `krkr2` 可执行文件选择宿主。
+Debian 和 Ubuntu 的 SDL3 构建依赖包含 `libdecor-0-dev`，用于 Wayland 客户端窗口控件。
 
 ```sh
 cmake --preset "Linux Release Config" -DKRKR2_ENABLE_SDL3_HOST=ON -DBUILD_TOOLS=OFF
@@ -56,7 +57,7 @@ out/linux/release/bin/krkr2/krkr2 --host=sdl3 --game /path/to/game
 `--host=sdl3` 要求显式游戏目标。默认宿主是 Cocos，也可用 `--host=cocos` 明确指定。
 未编译 SDL3 的构建收到 `--host=sdl3` 时返回 2。SDL3 固定使用软件渲染，显式指定其他渲染器会返回 2。
 SDL3 使用正式的启动脚本、`Window`、`Layer` 和 `System`。
-引擎的软件渲染结果以 RGBA 纹理上传，由 SDL3 的原生软件窗口表面呈现。
+引擎的软件渲染结果以 RGBA 纹理上传。X11 通过软件窗口表面呈现，Wayland 通过 EGL 呈现。
 Cocos 仍提供部分资源和共享服务。窗口接口覆盖缩放和重绘、焦点切换、鼠标捕获、键鼠输入及
 `Window.showModal()` 的应用内模态行为。提交文本通过现有 TJS `onKeyPress` 投递。
 [SDL3 窗口契约](window-interface.md#linux-sdl3-窗口契约)
@@ -71,6 +72,9 @@ xvfb-run -a -s '-screen 0 1024x768x24' python tools/game-smoke/sdl_host_repro.py
 ```
 
 GitHub 的 Build Linux 工作流通过 `sdl3_host_contract=true` 构建并运行上述探针。
+`sdl3_desktop_contract=true` 同时运行桌面验收，用 Openbox 和 Weston 验证窗口恢复与输入，
+用 Fcitx5 验证中文候选窗和提交文本，并启动两次自制 KAG 场景验证存档与读档。
+工作流将回调记录、截图和运行报告上传至 `linux-sdl-desktop-runtime`。
 
 ## 实现边界
 

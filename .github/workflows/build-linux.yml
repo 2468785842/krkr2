@@ -93,7 +93,7 @@ jobs:
       - name: Install SDL3 desktop acceptance dependencies
         if: inputs.sdl3_desktop_contract
         run: |
-          sudo apt-get install -y --no-install-recommends openbox weston xdotool wmctrl \
+          sudo apt-get install -y --no-install-recommends openbox weston xdotool wmctrl x11-utils \
             libdecor-0-plugin-1-cairo fcitx5 fcitx5-chinese-addons fonts-noto-cjk python3-pil
 
       - name: Install CMake
