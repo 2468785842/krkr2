@@ -73,6 +73,10 @@ bool TVP_utime(const char *name, time_t modtime) {
 #include <unistd.h>
 #include "TVPLog.h"
 #include "StorageImpl.h"
+#if KRKR2_ENABLE_SDL3_HOST
+#include <SDL3/SDL.h>
+#include "environ/sdl3/SdlHost.h"
+#endif
 #undef st_atime
 #undef st_mtime
 #undef st_ctime
@@ -139,6 +143,36 @@ std::string TVPGetCurrentLanguage() {
 
 int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
                             const std::vector<ttstr> &vecButtons) {
+#if KRKR2_ENABLE_SDL3_HOST
+    if(krkr::sdl::Active() && !gtk_init_check(nullptr, nullptr)) {
+        if(vecButtons.empty() || vecButtons.size() > 2)
+            return -1;
+        const auto title = caption.AsStdString();
+        const auto message = text.AsStdString();
+        const auto accept = vecButtons.front().AsStdString();
+        const auto cancel = vecButtons.back().AsStdString();
+        const SDL_MessageBoxButtonData buttons[] = {
+            { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 0, accept.c_str() },
+            { SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 1, cancel.c_str() },
+        };
+        const SDL_MessageBoxData data{
+            SDL_MESSAGEBOX_INFORMATION,
+            SDL_GetKeyboardFocus(),
+            title.c_str(),
+            message.c_str(),
+            static_cast<int>(vecButtons.size()),
+            buttons,
+            nullptr,
+        };
+        int selected = -1;
+        if(!SDL_ShowMessageBox(&data, &selected)) {
+            std::fprintf(stderr, "%s: %s (%s)\n", title.c_str(),
+                         message.c_str(), SDL_GetError());
+            return -1;
+        }
+        return vecButtons.size() == 1 ? 0 : (selected == 0 ? 0 : 1);
+    }
+#endif
     GtkWidget *dialog = nullptr;
     DEFER({
         if(dialog) {

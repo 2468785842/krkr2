@@ -1,0 +1,65 @@
+// Desktop input and presentation through the regular Window and Layer classes.
+global.events = [];
+global.record = function(message) {
+    events.add(message);
+    events.save(System.exePath + "interaction-events.txt");
+};
+
+class DesktopWindow extends Window {
+    function DesktopWindow() {
+        super.Window();
+        caption = "KrKr2 SDL3 desktop";
+        setSize(320, 240);
+    }
+    function onKeyDown(key, shift) {
+        if(key == 122) {
+            var requested = !fullScreen;
+            fullScreen = requested;
+            record("fullscreen-request:" + string requested);
+        }
+        if(key == 117) {
+            scene.setAttentionPos(220, 110);
+            record("attention:220:110");
+        }
+        if(key == 65)
+            record("key-down:" + string System.getKeyState(key, true));
+        if(key == 27)
+            System.exit();
+    }
+    function onKeyUp(key, shift) {
+        if(key == 65)
+            record("key-up:" + string System.getKeyState(key, true));
+    }
+    function onKeyPress(key) { record("text:" + string (#key)); }
+    function onActivate() { record("window:active"); }
+    function onDeactivate() { record("window:inactive"); }
+    function onResize() { record("resize:" + width + ":" + height); }
+    function onMouseDown(x, y, button, shift) {
+        if(button == mbLeft) {
+            scene.colorRect(20, 140, 100, 60, 0x30c050, 255);
+            record("mouse-down:" + x + ":" + y + ":" + string System.getKeyState(1, true));
+        }
+    }
+    function onMouseUp(x, y, button, shift) {
+        if(button == mbLeft)
+            record("mouse-up:" + x + ":" + y + ":" + string System.getKeyState(1, true));
+    }
+}
+
+global.win = new DesktopWindow();
+global.scene = new Layer(win, null);
+scene.setImageSize(320, 240);
+scene.setSize(320, 240);
+scene.type = ltOpaque;
+scene.colorRect(0, 0, 320, 240, 0x204060, 255);
+scene.visible = true;
+scene.focusable = true;
+scene.useAttention = true;
+scene.setAttentionPos(80, 60);
+scene.imeMode = imDontCare;
+win.imeMode = imOpen;
+win.visible = true;
+scene.focus();
+System.onActivate = function() { record("system:active"); };
+System.onDeactivate = function() { record("system:inactive"); };
+record("ready");

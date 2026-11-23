@@ -7,6 +7,10 @@ on:
         description: 'Build and exercise the opt-in SDL3 game host under X11'
         type: boolean
         default: false
+      sdl3_desktop_contract:
+        description: 'Exercise SDL3 with Openbox, Weston, Fcitx5 and a KAG game'
+        type: boolean
+        default: false
       imageops_contracts:
         type: boolean
         default: false
@@ -14,6 +18,10 @@ on:
     inputs:
       sdl3_host_contract:
         description: 'Build and exercise the opt-in SDL3 game host under X11'
+        type: boolean
+        default: false
+      sdl3_desktop_contract:
+        description: 'Exercise SDL3 with Openbox, Weston, Fcitx5 and a KAG game'
         type: boolean
         default: false
       imageops_contracts:
@@ -75,12 +83,18 @@ jobs:
           ./dotnet-install.sh --channel 8.0
           echo "$HOME/.dotnet" >> $GITHUB_PATH
 
-      - name: Install SDL3 X11 dependencies
-        if: inputs.sdl3_host_contract
+      - name: Install SDL3 window system dependencies
+        if: inputs.sdl3_host_contract || inputs.sdl3_desktop_contract
         run: |
           sudo apt-get install -y libxcursor-dev libxfixes-dev libxrender-dev libxss-dev libxtst-dev \
             libxrandr-dev libxkbcommon-dev libdbus-1-dev libibus-1.0-dev libwayland-dev \
             libegl1-mesa-dev wayland-protocols libdecor-0-dev
+
+      - name: Install SDL3 desktop acceptance dependencies
+        if: inputs.sdl3_desktop_contract
+        run: |
+          sudo apt-get install -y --no-install-recommends openbox weston xdotool wmctrl \
+            libdecor-0-plugin-1-cairo fcitx5 fcitx5-chinese-addons fonts-noto-cjk python3-pil
 
       - name: Install CMake
         uses: lukka/get-cmake@latest
@@ -116,9 +130,10 @@ jobs:
           key: linux-release-${{ runner.arch }}
 
       - name: Build Linux
+        id: build
         run: |
           cmake --preset="Linux Release Config" -DBUILD_TOOLS=OFF \
-            -DKRKR2_ENABLE_SDL3_HOST=${{ inputs.sdl3_host_contract && 'ON' || 'OFF' }} \
+            -DKRKR2_ENABLE_SDL3_HOST=${{ (inputs.sdl3_host_contract || inputs.sdl3_desktop_contract) && 'ON' || 'OFF' }} \
             -DENABLE_TESTS=${{ inputs.imageops_contracts && 'ON' || 'OFF' }} \
             -DKRKR2_ENABLE_UI_TEST_DRIVER=${{ inputs.imageops_contracts && 'ON' || 'OFF' }}
           targets=(krkr2)
@@ -132,7 +147,7 @@ jobs:
         run: python tools/game-smoke/cli_smoke.py out/linux/release/bin/krkr2/krkr2
 
       - name: Verify SDL3 game host with native X11 input
-        if: inputs.sdl3_host_contract
+        if: inputs.sdl3_host_contract || inputs.sdl3_desktop_contract
         run: |
           xvfb-run -a -s '-screen 0 1024x768x24' python tools/game-smoke/sdl_host_repro.py \
             out/linux/release/bin/krkr2/krkr2 out/linux/sdl-host-runtime || {
@@ -141,7 +156,7 @@ jobs:
             }
 
       - name: Upload SDL3 game host evidence
-        if: always() && inputs.sdl3_host_contract
+        if: always() && (inputs.sdl3_host_contract || inputs.sdl3_desktop_contract)
         uses: actions/upload-artifact@v4
         with:
           name: linux-sdl-host-runtime
@@ -193,3 +208,40 @@ jobs:
           name: ${{ inputs.imageops_contracts && 'linux-imageops-test-binaries' || 'linux-binaries' }}
           path: |
             out/linux/release/bin/krkr2/**
+
+      - name: Verify SDL3 desktop behavior
+        if: ${{ !cancelled() && inputs.sdl3_desktop_contract && steps.build.outcome == 'success' }}
+        run: |
+          engine=out/linux/release/bin/krkr2/krkr2
+          evidence=out/linux/sdl-desktop-runtime
+          status=0
+          for mode in x11 wayland ime; do
+            xvfb-run -a -s '-screen 0 1600x1050x24' dbus-run-session -- /usr/bin/python3 \
+              tools/game-smoke/sdl_desktop_repro.py "$mode" "$engine" "$evidence/$mode" || status=1
+          done
+          exit "$status"
+
+      - name: Verify SDL3 KAG game
+        if: ${{ !cancelled() && inputs.sdl3_desktop_contract && steps.build.outcome == 'success' }}
+        run: |
+          kag_ref=1f3ab309106d210e3169bbbe0fb4e066ae463b42
+          mkdir -p out/linux/sdl-desktop-kag3
+          curl --fail --silent --show-error --location --retry 3 \
+            "https://codeload.github.com/krkrz/kag3/tar.gz/$kag_ref" \
+            | tar -xz -C out/linux/sdl-desktop-kag3 --strip-components=1
+          xvfb-run -a -s '-screen 0 1600x1050x24' dbus-run-session -- /usr/bin/python3 \
+            tools/game-smoke/sdl_desktop_repro.py kag out/linux/release/bin/krkr2/krkr2 \
+            out/linux/sdl-desktop-runtime/kag --kag-framework out/linux/sdl-desktop-kag3
+
+      - name: Upload SDL3 desktop evidence
+        if: always() && inputs.sdl3_desktop_contract
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-sdl-desktop-runtime
+          path: |
+            out/linux/sdl-desktop-runtime/**/*.json
+            out/linux/sdl-desktop-runtime/**/*.png
+            out/linux/sdl-desktop-runtime/**/*.log
+            out/linux/sdl-desktop-runtime/**/interaction-events.txt
+            out/linux/sdl-desktop-runtime/**/data1.kdt
+          if-no-files-found: ignore

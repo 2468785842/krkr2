@@ -18,13 +18,12 @@ int main(int argc, char **argv) {
     if(launch >= 0)
         return launch;
 
-    gtk_init(nullptr, nullptr);
-
     static auto pAppDelegate = std::make_unique<TVPAppDelegate>();
 #if KRKR2_ENABLE_SDL3_HOST
     if(krkr::launch::UseSDL3Host())
         return krkr::sdl::Run(krkr::launch::DesktopTarget());
 #endif
+    gtk_init(nullptr, nullptr);
     const int result = pAppDelegate->run();
     return krkr::launch::DesktopExitCode() ? krkr::launch::DesktopExitCode()
                                            : result;

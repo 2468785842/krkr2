@@ -1,0 +1,12 @@
+// Test hooks for the authored KAG scenario. KAG manages its own save slots.
+global.events = [];
+global.record = function(message) {
+    events.add(message);
+    events.save(System.exePath + "interaction-events.txt");
+};
+
+global.saveCheckpoint = function() {
+    if(!kag.saveBookMark(1))
+        throw new Exception("KAG could not save checkpoint 1");
+    record("saved");
+};
