@@ -38,7 +38,8 @@ def measure_audio(path):
     with wave.open(str(path), "rb") as capture_file:
         assert (capture_file.getframerate(), capture_file.getnchannels(),
                 capture_file.getsampwidth()) == (48000, 1, 2)
-        samples.frombytes(capture_file.readframes(capture_file.getnframes()))
+        frames = min(capture_file.getnframes(), path.stat().st_size // 2)
+        samples.frombytes(capture_file.readframes(frames))
     results = {}
     # These tone frequencies complete an integer number of cycles in 100 ms.
     block = 4800

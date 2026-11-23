@@ -344,8 +344,10 @@ namespace krkr::sdl {
             std::array<bool, SDL_SCANCODE_COUNT> mouseKeyBindings{};
             std::array<bool, 5> physicalButtons{};
             std::array<bool, 2> keyboardButtons{};
+            bool touchMousePressed = false;
             bool mouseKeysEnabled = false;
             bool showKeyboardCursor = false;
+            std::optional<input::PointerPixel> keyboardWarp;
             Uint64 nextMouseKeyStep = 0;
             std::optional<SDL_FPoint> leftPress;
             float wheelRemainder = 0;
@@ -753,9 +755,8 @@ namespace krkr::sdl {
                 StopKeyboardCursor();
                 for(std::size_t index = 0; index < keyboardButtons.size();
                     ++index)
-                    if(std::exchange(keyboardButtons[index], false) &&
-                       !physicalButtons[index])
-                        SetMouseButton(buttonKeys[index], false, 1, true);
+                    if(std::exchange(keyboardButtons[index], false))
+                        UpdateMouseButton(index, 1, true);
             }
             bool GetUseMouseKey() const override { return mouseKeysEnabled; }
             void ResetMouseVelocity() override { mouseVelocity.clear(); }
@@ -765,6 +766,8 @@ namespace krkr::sdl {
             void SetEnableTouch(bool enabled) override {
                 if(touchEnabled && !enabled)
                     QueueTouchCancellation();
+                if(enabled && std::exchange(touchMousePressed, false))
+                    UpdateMouseButton(mbLeft, 1, true);
                 touchEnabled = enabled;
             }
             bool GetEnableTouch() const override { return touchEnabled; }
@@ -973,6 +976,10 @@ namespace krkr::sdl {
                         if(event.motion.windowID == id && GetWindowActive() &&
                            (!touchEnabled ||
                             event.motion.which != SDL_TOUCH_MOUSEID)) {
+                            const auto warp = std::exchange(keyboardWarp, {});
+                            if(warp && event.motion.x == warp->x &&
+                               event.motion.y == warp->y)
+                                break;
                             StopKeyboardCursor();
                             const bool inside =
                                 SetPointer(event.motion.x, event.motion.y);
@@ -1286,6 +1293,7 @@ namespace krkr::sdl {
                 return inside;
             }
             void StopKeyboardCursor() {
+                keyboardWarp.reset();
                 if(std::exchange(showKeyboardCursor, false)) {
                     dirty = true;
                     UpdateCursorVisibility();
@@ -1296,7 +1304,11 @@ namespace krkr::sdl {
                 const auto y = std::clamp(mouseY + dy, 0, layerHeight - 1);
                 if(x == mouseX && y == mouseY && pointerInside)
                     return;
+                if(MouseCursorState == mcsTempHidden)
+                    SetMouseCursorState(mcsVisible);
+                const auto windowPoint = WindowPoint(x, y);
                 if(!wayland) {
+                    keyboardWarp = windowPoint;
                     SetCursorPos(x, y);
                 } else {
                     showKeyboardCursor = true;
@@ -1305,7 +1317,6 @@ namespace krkr::sdl {
                 }
                 mouseX = x;
                 mouseY = y;
-                const auto windowPoint = WindowPoint(x, y);
                 TrackLeftDrag(windowPoint.x, windowPoint.y);
                 mouseVelocity.addMovement(TVPGetRoughTickCount32(), x, y);
                 UpdatePointerInside(true);
@@ -1313,16 +1324,15 @@ namespace krkr::sdl {
                     new tTVPOnMouseMoveInputEvent(native, x, y, ShiftFlags()),
                     TVP_EPT_DISCARDABLE);
             }
-            void ReleaseKeyboardButton(unsigned button) {
+            void ReleaseKeyboardButton(unsigned button, bool cancelled) {
                 const auto index =
                     static_cast<std::size_t>(*mouseButton(button));
                 for(std::size_t i = 0; i < heldKeys.size(); ++i)
                     if(mouseKeyBindings[i] &&
                        input::mouseKeyButton(heldKeys[i]) == button)
                         return;
-                if(std::exchange(keyboardButtons[index], false) &&
-                   !physicalButtons[index])
-                    SetMouseButton(button, false, 1);
+                if(std::exchange(keyboardButtons[index], false))
+                    UpdateMouseButton(index, 1, cancelled);
             }
             void TrackLeftDrag(float x, float y) {
                 // Measure in native window points, independent of the layer
@@ -1358,9 +1368,8 @@ namespace krkr::sdl {
                             const auto index =
                                 static_cast<std::size_t>(*mouseButton(button));
                             MoveKeyboardCursor(0, 0);
-                            if(!std::exchange(keyboardButtons[index], true) &&
-                               !physicalButtons[index])
-                                SetMouseButton(button, true, 1);
+                            keyboardButtons[index] = true;
+                            UpdateMouseButton(index, 1);
                         } else {
                             TickBeat();
                         }
@@ -1374,9 +1383,13 @@ namespace krkr::sdl {
                            heldKeys.end() &&
                        state.release(released) && !consumed)
                         OnKeyUp(released, ShiftFlags());
-                    if(consumed)
+                    if(consumed) {
+                        // SDL_ResetKeyboard posts artificial releases before
+                        // it posts the focus-lost event.
+                        const bool cancelled = !event.raw && !event.which;
                         if(const auto button = input::mouseKeyButton(released))
-                            ReleaseKeyboardButton(button);
+                            ReleaseKeyboardButton(button, cancelled);
+                    }
                 }
             }
             void HandleButton(const SDL_MouseButtonEvent &event) {
@@ -1402,20 +1415,35 @@ namespace krkr::sdl {
                 }
                 const auto button = *mouseButton(key);
                 const auto index = static_cast<std::size_t>(button);
-                if(event.down == physicalButtons[index])
+                auto &pressed =
+                    button == mbLeft && event.which == SDL_TOUCH_MOUSEID
+                    ? touchMousePressed
+                    : physicalButtons[index];
+                if(event.down == pressed)
                     return;
                 const bool inside = SetPointer(event.x, event.y);
                 if(event.down && !inside)
                     return;
-                physicalButtons[index] = event.down;
-                TrackLeftDrag(event.x, event.y);
-                if(index >= keyboardButtons.size() || !keyboardButtons[index])
-                    SetMouseButton(key, event.down, event.clicks);
+                pressed = event.down;
+                if(button == mbLeft)
+                    TrackLeftDrag(event.x, event.y);
+                const auto previousPress = leftPress;
+                UpdateMouseButton(index, event.clicks);
+                if(button == mbLeft && event.down && !previousPress &&
+                   leftPress)
+                    leftPress = SDL_FPoint{ event.x, event.y };
             }
-            void SetMouseButton(unsigned key, bool down, unsigned clicks,
-                                bool cancelled = false) {
-                const auto button = *mouseButton(key);
+            void UpdateMouseButton(std::size_t index, unsigned clicks,
+                                   bool cancelled = false) {
+                const auto key = buttonKeys[index];
+                const auto button = static_cast<tTVPMouseButton>(index);
+                const bool down = physicalButtons[index] ||
+                    (index < keyboardButtons.size() &&
+                     keyboardButtons[index]) ||
+                    (button == mbLeft && touchMousePressed);
                 auto &state = input::sharedState();
+                if(down == state.isDown(key))
+                    return;
                 if(down) {
                     state.press(key);
                     if(button == mbLeft) {
@@ -1466,6 +1494,7 @@ namespace krkr::sdl {
                 StopKeyboardCursor();
                 physicalButtons.fill(false);
                 keyboardButtons.fill(false);
+                touchMousePressed = false;
                 nextMouseKeyStep = 0;
                 ResetMouseVelocity();
                 for(auto key : input::sharedState().releaseAll()) {

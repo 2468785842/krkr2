@@ -52,9 +52,9 @@ tTVPThread::~tTVPThread() { WaitFor(); }
 //---------------------------------------------------------------------------
 void *tTVPThread::StartProc(void *arg) {
     auto *_this = (tTVPThread *)arg;
-    if(_this->Suspended) {
+    {
         std::unique_lock lk(_this->_mutex);
-        _this->_cond.wait(lk);
+        _this->_cond.wait(lk, [&] { return !_this->Suspended; });
     }
     _this->Execute();
     TVPOnThreadExited();
@@ -86,7 +86,10 @@ void tTVPThread::SetPriority(tTVPThreadPriority pri) {
 // }
 //---------------------------------------------------------------------------
 void tTVPThread::Resume() {
-    Suspended = false;
+    {
+        std::lock_guard lk(_mutex);
+        Suspended = false;
+    }
     _cond.notify_one();
     // while((tjs_int32)ResumeThread(Handle) > 1) ;
 }
