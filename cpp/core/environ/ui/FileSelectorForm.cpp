@@ -1,3 +1,4 @@
+#include "cocos2d/CocosLocale.h"
 #include "FileSelectorForm.h"
 #include "StorageImpl.h"
 #include "ui/UIListView.h"
@@ -211,26 +212,16 @@ void TVPBaseFileSelectorForm::onCellLongPress(int idx) {
             const auto uiSize = TVPMainScene::GetInstance()->getUINodeSize();
             _fileOperateMenu = Csd::createFileManageMenu(uiSize, scale);
             NodeMap reader("", _fileOperateMenu);
-            LocaleConfigManager::GetInstance()->initText(
-                reader.findController<Text>("title"));
-            LocaleConfigManager::GetInstance()->initText(
-                reader.findController<Text>("titleUnselect"));
-            LocaleConfigManager::GetInstance()->initText(
-                reader.findController<Text>("titleView", false));
-            LocaleConfigManager::GetInstance()->initText(
-                reader.findController<Text>("titleCopy"));
-            LocaleConfigManager::GetInstance()->initText(
-                reader.findController<Text>("titleCut"));
-            LocaleConfigManager::GetInstance()->initText(
-                reader.findController<Text>("titlePaste"));
-            LocaleConfigManager::GetInstance()->initText(
-                reader.findController<Text>("titleUnpack"));
-            LocaleConfigManager::GetInstance()->initText(
-                reader.findController<Text>("titleDelete"));
-            LocaleConfigManager::GetInstance()->initText(
-                reader.findController<Text>("titleSendTo"));
-            LocaleConfigManager::GetInstance()->initText(
-                reader.findController<Text>("titleRename"));
+            TVPInitLocaleText(reader.findController<Text>("title"));
+            TVPInitLocaleText(reader.findController<Text>("titleUnselect"));
+            TVPInitLocaleText(reader.findController<Text>("titleView", false));
+            TVPInitLocaleText(reader.findController<Text>("titleCopy"));
+            TVPInitLocaleText(reader.findController<Text>("titleCut"));
+            TVPInitLocaleText(reader.findController<Text>("titlePaste"));
+            TVPInitLocaleText(reader.findController<Text>("titleUnpack"));
+            TVPInitLocaleText(reader.findController<Text>("titleDelete"));
+            TVPInitLocaleText(reader.findController<Text>("titleSendTo"));
+            TVPInitLocaleText(reader.findController<Text>("titleRename"));
             _fileOperateMenulist = reader.findController<ListView>("list");
             _fileOperateCell_unselect = reader.findWidget("unselect");
             _fileOperateCell_view = reader.findWidget("view", false);
@@ -966,9 +957,8 @@ void TVPFileSelectorForm::bindFooterController(const Node *allNodes) {
     _input = static_cast<TextField *>(
         findNamedNode(const_cast<Node *>(allNodes), "input"));
 
-    LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();
-    localeMgr->initText(_buttonOK, "ok");
-    localeMgr->initText(_buttonCancel, "cancel");
+    TVPInitLocaleText(_buttonOK, "ok");
+    TVPInitLocaleText(_buttonCancel, "cancel");
     _buttonOK->addClickEventListener([this](Ref *) {
         _result = _input->getString();
         if(!_result.empty()) {

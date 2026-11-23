@@ -1,5 +1,7 @@
 #include "TVPLog.h"
 #include "AppDelegate.h"
+#include "CocosPackagedAsset.h"
+#include "CocosPreferenceStorage.h"
 
 #include "MainScene.h"
 #include "HostLifecycle.h"
@@ -24,6 +26,12 @@
 static cocos2d::Size designResolutionSize(960, 640);
 
 extern std::thread::id TVPMainThreadID;
+
+TVPAppDelegate::TVPAppDelegate() {
+    krkr::assets::SetReader(TVPCreateCocosAssetReader());
+    if(!krkr::config::CurrentPreferenceStorage())
+        krkr::config::SetPreferenceStorage(TVPCreateCocosPreferenceStorage());
+}
 
 bool TVPCheckStartupArg();
 

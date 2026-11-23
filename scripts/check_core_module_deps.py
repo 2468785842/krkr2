@@ -72,7 +72,28 @@ def check(root):
     visual_cmake = (root / 'cpp/core/visual/CMakeLists.txt').read_text(encoding='utf-8')
     if re.search(r'\bcocos2dx\b', re.sub(r'#[^\n]*', '', visual_cmake), re.I):
         errors.append('visual/CMakeLists.txt: visual 不得直接链接或查找 Cocos')
+    for name in ('LocaleConfigManager.h', 'LocaleConfigManager.cpp',
+                 'IndividualConfigManager.h', 'IndividualConfigManager.cpp'):
+        source = root / 'cpp/core/environ/ConfigManager' / name
+        active = re.sub(r'/\*.*?\*/|//[^\n]*', '', source.read_text(encoding='utf-8'), flags=re.S)
+        if re.search(r'\bcocos2d(?:x)?\b|#\s*include\s*[<"](?:cocos/|ui/|(?:[^">]*/)?CC\w+\.h[">])', active, re.I):
+            errors.append(f'{source.relative_to(root)}: 配置与语言读取不得直接依赖 Cocos/UI')
     # Generic window consumers must not import the Cocos implementation header.
+    support = [root / 'cpp/core/environ/ConfigManager' / name
+               for name in ('ConfigXml.h', 'ConfigXml.cpp',
+                            'PreferenceStorage.h', 'PreferenceStorage.cpp',
+                            'GlobalConfigManager.h', 'GlobalConfigManager.cpp',
+                            'IndividualConfigManager.h', 'IndividualConfigManager.cpp',
+                            'LocaleConfigManager.h', 'LocaleConfigManager.cpp')]
+    support += [p for p in (root / 'cpp/core/environ/resources').iterdir()
+                if p.suffix in ('.cpp', '.h') or p.name == 'CMakeLists.txt']
+    support += [root / 'cpp/core/environ/ConfigManager/CMakeLists.txt']
+    for source in support:
+        content = source.read_text(encoding='utf-8')
+        active = (re.sub(r'#[^\n]*', '', content) if source.name == 'CMakeLists.txt'
+                  else re.sub(r'/\*.*?\*/|//[^\n]*', '', content, flags=re.S))
+        if re.search(r'\bcocos2d(?:x)?\b|\btjs\w*|#\s*include\s*[<"](?:cocos/|ui/|(?:[^">]*/)?(?:Platform|Application|CC\w+)\.h[">])', active, re.I):
+            errors.append(f'{source.relative_to(root)}: XML/本地资源支持层不得依赖 Cocos/TJS/平台应用壳')
     host = root / 'cpp/core/environ/cocos2d/MainScene.cpp'
     if re.search(r'^\s*tjs_uint32\s+TVPGetCurrentShiftKeyState\s*\(', host.read_text(encoding='utf-8'), re.M):
         errors.append('MainScene.cpp: 修饰键查询实现应属于 System/共享输入层')

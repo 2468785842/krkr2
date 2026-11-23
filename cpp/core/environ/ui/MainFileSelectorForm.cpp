@@ -1,3 +1,4 @@
+#include "cocos2d/CocosLocale.h"
 #include "MainFileSelectorForm.h"
 
 #include <filesystem>
@@ -297,16 +298,15 @@ void TVPMainFileSelectorForm::showMenu(Ref *) {
             static_cast<ui::ListView *>(reader.findController("menulist"));
 
         // captions
-        LocaleConfigManager *localeMgr = LocaleConfigManager::GetInstance();
-        localeMgr->initText(reader.findController<Text>("titleRotate"));
-        localeMgr->initText(reader.findController<Text>("titleGlobalPref"));
-        localeMgr->initText(reader.findController<Text>("titleNewLocalPref"));
-        localeMgr->initText(reader.findController<Text>("titleLocalPref"));
-        localeMgr->initText(reader.findController<Text>("titleHelp"));
-        localeMgr->initText(reader.findController<Text>("titleAbout"));
-        localeMgr->initText(reader.findController<Text>("titleExit"));
-        localeMgr->initText(reader.findController<Text>("titleRepack"));
-        localeMgr->initText(reader.findController<Text>("titleNewFolder"));
+        TVPInitLocaleText(reader.findController<Text>("titleRotate"));
+        TVPInitLocaleText(reader.findController<Text>("titleGlobalPref"));
+        TVPInitLocaleText(reader.findController<Text>("titleNewLocalPref"));
+        TVPInitLocaleText(reader.findController<Text>("titleLocalPref"));
+        TVPInitLocaleText(reader.findController<Text>("titleHelp"));
+        TVPInitLocaleText(reader.findController<Text>("titleAbout"));
+        TVPInitLocaleText(reader.findController<Text>("titleExit"));
+        TVPInitLocaleText(reader.findController<Text>("titleRepack"));
+        TVPInitLocaleText(reader.findController<Text>("titleNewFolder"));
 
         // button events
         reader.findWidget("btnRotate")->addClickEventListener([](Ref *) {

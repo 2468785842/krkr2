@@ -1,3 +1,4 @@
+#include "cocos2d/CocosLocale.h"
 #include "SelectListForm.h"
 #include "ui/UIHelper.h"
 #include "ui/UIPageView.h"
@@ -91,7 +92,7 @@ void TVPSelectListForm::initWithInfo(const std::vector<std::string> &info,
 
         cell->setContentSize(size);
         ui::Helper::doLayout(cell);
-        LocaleConfigManager::GetInstance()->initText(text, str);
+        TVPInitLocaleText(text, str);
         // text->addChild(LayerColor::create(cocos2d::Color4B(255,
         // 255, 0, 255), text->getContentSize().width,
         // text->getContentSize().height));

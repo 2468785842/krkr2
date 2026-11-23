@@ -1,3 +1,4 @@
+#include "cocos2d/CocosLocale.h"
 #include "PreferenceForm.h"
 #include "ui/UIText.h"
 #include "ui/UIHelper.h"
@@ -21,7 +22,7 @@ using namespace cocos2d::ui;
 void TVPPreferenceForm::initPref(const tPreferenceScreen *config) {
     Config = config;
     PrefList->removeAllItems();
-    LocaleConfigManager::GetInstance()->initText(_title, config->Title);
+    TVPInitLocaleText(_title, config->Title);
     for(int idx = 0; idx < config->Preferences.size(); ++idx) {
         auto info = config->Preferences[idx];
         if(info) {
@@ -199,8 +200,7 @@ void tPreferenceItemSelectList::showForm(cocos2d::Ref *) {
             if(highlightTid.empty())
                 selected->setString(item.second);
             else
-                LocaleConfigManager::GetInstance()->initText(selected,
-                                                             highlightTid);
+                TVPInitLocaleText(selected, highlightTid);
             _setter(item.second);
         });
     TVPMainScene::GetInstance()->pushUIForm(form,
@@ -225,7 +225,7 @@ void tPreferenceItemSelectList::updateHightlight() {
         CurInfo->getListInfo()) {
         if(item.second == val) {
             highlightTid = item.first;
-            LocaleConfigManager::GetInstance()->initText(selected, item.first);
+            TVPInitLocaleText(selected, item.first);
             break;
         }
     }
@@ -319,7 +319,7 @@ void TVPCustomPreferenceForm::initFromInfo(
     _getter = getter;
     _setter = setter;
     if(_title)
-        LocaleConfigManager::GetInstance()->initText(_title, tid_title);
+        TVPInitLocaleText(_title, tid_title);
     if(!_listview)
         return;
     _listview->removeAllItems();
@@ -479,7 +479,7 @@ KeyMapPreferenceForm::KeyMapPreferenceForm(iSysConfigManager *mgr) :
 void KeyMapPreferenceForm::initData() {
     LocaleConfigManager *locmgr = LocaleConfigManager::GetInstance();
     PrefList->removeAllItems();
-    locmgr->initText(_title, "preference_keymap_title");
+    TVPInitLocaleText(_title, "preference_keymap_title");
 
     cocos2d::Size size = PrefList->getContentSize();
 #if 0

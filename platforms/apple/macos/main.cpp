@@ -2,6 +2,7 @@
 #include <cocos2d.h>
 
 #include "environ/cocos2d/AppDelegate.h"
+#include "environ/cocos2d/CocosPreferenceStorage.h"
 #include "log/TVPInitLog.h"
 #include "environ/launch/DesktopLaunch.h"
 
@@ -12,6 +13,7 @@ int main(int argc, char *argv[]) {
     log_options.log_level = TVPExtractLogLevelFromArgv(argc, argv);
     TVPInitLogging(log_options);
 
+    krkr::config::SetPreferenceStorage(TVPCreateCocosPreferenceStorage());
     const int launch = krkr::launch::PrepareDesktopLaunch(argc, argv);
     if(launch >= 0)
         return launch;

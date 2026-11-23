@@ -1,6 +1,6 @@
 #include <cocos2d.h>
-#include "GlobalConfigManager.h"
-#include "PreferenceDefaults.h"
+#include "ConfigManager/GlobalConfigManager.h"
+#include "ConfigManager/PreferenceDefaults.h"
 
 #include <cstring>
 

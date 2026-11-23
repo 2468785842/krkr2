@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 #include "RenderManager.h"
+#include "RenderCleanup.h"
 
 #include "MsgIntf.h"
 #include "MsgIntf.h"
@@ -4798,6 +4799,8 @@ public:
 static std::map<ttstr, std::pair<iTVPRenderManager *(*)(), iTVPRenderManager *>>
     *_RenderManagerFactory;
 
+iTVPRenderManager *TVPCreateOpenGLRenderManager();
+
 void TVPRegisterRenderManager(const char *name, iTVPRenderManager *(*func)()) {
     if(!_RenderManagerFactory)
         _RenderManagerFactory = new std::map<
@@ -4828,6 +4831,18 @@ iTVPRenderManager *TVPGetRenderManager() {
     return _RenderManager;
 }
 
+void TVPRecycleRenderTexturesOnExit() {
+    if(!_RenderManagerFactory)
+        return;
+    for(const auto &entry : *_RenderManagerFactory) {
+        auto *manager = entry.second.second;
+        if(manager && !manager->IsSoftware()) {
+            iTVPTexture2D::RecycleProcess();
+            return;
+        }
+    }
+}
+
 bool TVPIsSoftwareRenderManager() {
     static bool ret = TVPGetRenderManager()->IsSoftware();
     return ret;
@@ -4842,5 +4857,8 @@ static class __tTVPSoftwareRenderManagerAutoReigster {
 public:
     __tTVPSoftwareRenderManagerAutoReigster() {
         TVPRegisterRenderManager("software", TVPGetSoftwareRenderManager);
+        // An explicit factory reference retains the OpenGL object in normal
+        // static-library builds, including builds without the UI test driver.
+        TVPRegisterRenderManager("opengl", TVPCreateOpenGLRenderManager);
     }
 } __tTVPSoftwareRenderManagerAutoReigster_instance;

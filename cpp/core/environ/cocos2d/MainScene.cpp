@@ -1460,28 +1460,6 @@ bool TVPGetScreenSize(tjs_int idx, tjs_int &w, tjs_int &h) {
     return true;
 }
 
-ttstr TVPGetDataPath() {
-    std::string path = cocos2d::FileUtils::getInstance()->getWritablePath();
-    return path;
-}
-
-#include "StorageImpl.h"
-
-static std::string _TVPGetInternalPreferencePath() {
-    std::string path = cocos2d::FileUtils::getInstance()->getWritablePath();
-    path += ".preference";
-    if(!TVPCheckExistentLocalFolder(path)) {
-        TVPCreateFolders(path);
-    }
-    path += "/";
-    return path;
-}
-
-const std::string &TVPGetInternalPreferencePath() {
-    static std::string ret = _TVPGetInternalPreferencePath();
-    return ret;
-}
-
 // Keep the shared virtual-key ABI aligned with the existing host definitions.
 static_assert(krkr::input::key::shift == VK_SHIFT);
 static_assert(krkr::input::key::control == VK_CONTROL);

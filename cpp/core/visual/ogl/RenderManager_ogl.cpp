@@ -4850,4 +4850,6 @@ public:
     }
 };
 
-REGISTER_RENDERMANAGER(TVPRenderManager_OpenGL, opengl);
+iTVPRenderManager *TVPCreateOpenGLRenderManager() {
+    return new TVPRenderManager_OpenGL();
+}

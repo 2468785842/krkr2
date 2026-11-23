@@ -30,6 +30,7 @@
 #include "ConfigManager/IndividualConfigManager.h"
 #include "EventIntf.h"
 #include "RenderManager.h"
+#include "RenderCleanup.h"
 #include <sys/stat.h>
 
 USING_NS_CC;
@@ -905,8 +906,7 @@ std::string TVPGetCurrentLanguage() {
 
 void TVPExitApplication(int code) {
     TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_MAX);
-    if(!TVPIsSoftwareRenderManager())
-        iTVPTexture2D::RecycleProcess();
+    TVPRecycleRenderTexturesOnExit();
     JniMethodInfo t;
     if(JniHelper::getStaticMethodInfo(t, "org/tvp/kirikiri2/KR2Activity",
                                       "exit", "()V")) {

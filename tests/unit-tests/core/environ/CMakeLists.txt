@@ -9,6 +9,7 @@ if(KRKR2_TEST_SCOPE STREQUAL "full")
         ${CMAKE_SOURCE_DIR}/cpp/core/movie)
     target_link_libraries(cocos_window_tests PRIVATE Catch2::Catch2WithMain cocos2dx::cocos2d core_input)
     catch_discover_tests(cocos_window_tests)
+
 endif()
 
 set(INPUT_SOURCES InputStateTest.cpp InputModifiersTest.cpp PointerCoordinatesTest.cpp InputCancellationTest.cpp TouchButtonTest.cpp TouchButtonPeer.cpp TextInputTest.cpp)

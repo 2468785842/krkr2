@@ -1,3 +1,4 @@
+#include "cocos2d/CocosLocale.h"
 #include "XP3RepackForm.h"
 
 #include <utility>
@@ -243,8 +244,8 @@ void TVPXP3RepackFileListForm::bindBodyController(const Node *allNodes) {
     const auto btn = static_cast<Button *>(findNamedNode(root, "btn"));
     constexpr int nButton = 2;
 
-    locmgr->initText(static_cast<Text *>(findNamedNode(root, "title")),
-                     "XP3 Repack");
+    TVPInitLocaleText(static_cast<Text *>(findNamedNode(root, "title")),
+                      "XP3 Repack");
 
     btn->setTitleText(locmgr->GetText("start"));
     btn->addClickEventListener(

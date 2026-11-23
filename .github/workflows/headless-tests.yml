@@ -383,3 +383,66 @@ jobs:
             out/launch/compile_commands.json
             out/launch/vcpkg_installed/vcpkg/status
           if-no-files-found: ignore
+
+  config:
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.act/vcpkg-cache
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, platform: LINUX, triplet: x64-linux}
+          - {os: windows-2022, platform: WINDOWS, triplet: x64-windows-static-md}
+          - {os: macos-15, platform: MACOS, triplet: arm64-osx}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: config-vcpkg-${{ runner.os }}-${{ matrix.triplet }}-${{ hashFiles('vcpkg*.json', 'vcpkg/**') }}
+          restore-keys: config-vcpkg-${{ runner.os }}-${{ matrix.triplet }}-
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+      - name: Configure isolated configuration and host resources
+        shell: bash
+        run: |
+          export VCPKG_ROOT="$VCPKG_INSTALLATION_ROOT"
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+          cmake -S . -B out/config -G Ninja -D${{ matrix.platform }}=ON \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=config \
+            -DCMAKE_DISABLE_FIND_PACKAGE_cocos2dx=TRUE
+      - name: Build and test configuration contracts
+        shell: bash
+        run: |
+          cmake --build out/config --parallel 4
+          ctest --test-dir out/config -N
+          ctest --test-dir out/config --output-on-failure --no-tests=error
+          python - <<'PY'
+          import json, pathlib, subprocess
+          root = pathlib.Path('out/config')
+          status = (root / 'vcpkg_installed/vcpkg/status').read_text(encoding='utf-8')
+          ports = {line.split(': ', 1)[1] for line in status.splitlines() if line.startswith('Package: ')}
+          assert 'libxml2' in ports and 'catch2' in ports, ports
+          assert not ports.intersection({'cocos2dx', 'opencv4', 'ffmpeg', 'sdl3', 'fmt', 'spdlog', 'oniguruma'}), ports
+          commands = json.loads((root / 'compile_commands.json').read_text(encoding='utf-8'))
+          assert sorted(pathlib.Path(c['file']).name for c in commands) == sorted([
+              'ConfigXml.cpp', 'LocalAssetReader.cpp', 'HostAssets.cpp', 'ConfigXmlTest.cpp',
+              'LocalAssetReaderTest.cpp', 'LocaleConfigTest.cpp', 'LocaleConfigManager.cpp',
+              'PreferenceStorage.cpp', 'GlobalConfigManager.cpp', 'IndividualConfigManager.cpp',
+              'ConfigManagerTest.cpp'])
+          tests = json.loads(subprocess.check_output(['ctest', '--test-dir', str(root), '--show-only=json-v1']))
+          assert len(tests['tests']) == 20, tests['tests']
+          print('Configuration contracts: 20 tests; closure verified:', sorted(ports))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: config-tests-${{ matrix.platform }}
+          path: |
+            out/config/Testing/Temporary/
+            out/config/compile_commands.json
+            out/config/vcpkg_installed/vcpkg/status
+          if-no-files-found: ignore

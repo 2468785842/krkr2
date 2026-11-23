@@ -8,6 +8,11 @@ include(Catch)
 
 set(TEST_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
+if(KRKR2_TEST_SCOPE STREQUAL "config")
+    add_subdirectory(unit-tests/core/config)
+    return()
+endif()
+
 if(KRKR2_TEST_SCOPE STREQUAL "platform")
     add_subdirectory(unit-tests/core/environ)
     return()
@@ -19,6 +24,7 @@ if(KRKR2_TEST_SCOPE STREQUAL "launch")
 endif()
 
 if(KRKR2_TEST_SCOPE STREQUAL "full")
+    add_subdirectory(unit-tests/core/config)
     add_subdirectory(unit-tests/core/environ)
     add_subdirectory(unit-tests/core/launch)
 endif()

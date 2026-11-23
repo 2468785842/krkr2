@@ -1,5 +1,6 @@
 #include "SdlHost.h"
 #include "SdlGamepads.h"
+#include "resources/LocalAssetReader.h"
 
 #include <SDL3/SDL.h>
 
@@ -9,6 +10,7 @@
 #include "ConfigManager/IndividualConfigManager.h"
 #include "ConfigManager/LocaleConfigManager.h"
 #include "ConfigManager/PreferenceDefaults.h"
+#include "ConfigManager/PreferenceStorage.h"
 #include "DialogBackend.h"
 #include "EventIntf.h"
 #include "HostFrame.h"
@@ -36,6 +38,7 @@
 #include <bitset>
 #include <cmath>
 #include <cstring>
+#include <cstdlib>
 #include <cstdio>
 #include <filesystem>
 #include <limits>
@@ -1691,6 +1694,32 @@ namespace krkr::sdl {
         int result = 1;
         try {
             Session host;
+            const auto *basePath = SDL_GetBasePath();
+            if(!basePath)
+                throw std::runtime_error(SDL_GetError());
+            krkr::assets::ScopedReader resources(
+                std::make_shared<krkr::assets::LocalAssetReader>(
+                    std::vector<std::filesystem::path>{
+                        std::filesystem::u8path(basePath) / "Resources" }));
+            const auto environment =
+                [](const char *key) -> std::optional<std::string> {
+                const auto *value = std::getenv(key);
+                return value ? std::optional<std::string>(value) : std::nullopt;
+            };
+            krkr::config::ScopedPreferenceStorage preferences(
+                std::make_shared<krkr::config::LocalPreferenceStorage>(
+                    krkr::config::LinuxWritableDirectory(
+                        std::filesystem::read_symlink("/proc/self/exe")
+                            .u8string(),
+                        environment("XDG_CONFIG_HOME"), environment("HOME")),
+                    [] {
+                        auto *locale = LocaleConfigManager::GetInstance();
+                        SDL_ShowSimpleMessageBox(
+                            SDL_MESSAGEBOX_ERROR,
+                            locale->GetText("readonly_storage").c_str(),
+                            locale->GetText("cannot_create_preference").c_str(),
+                            nullptr);
+                    }));
             session = &host;
             try {
                 TVPMainThreadID = std::this_thread::get_id();

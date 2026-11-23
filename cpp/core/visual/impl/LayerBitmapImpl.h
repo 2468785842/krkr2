@@ -252,7 +252,7 @@ public:
 
 protected:
     // tTVPBitmap *Bitmap;
-    iTVPTexture2D *Bitmap;
+    iTVPTexture2D *Bitmap = nullptr;
 
 public:
     void operator=(const tTVPNativeBaseBitmap &rhs) { Assign(rhs); }

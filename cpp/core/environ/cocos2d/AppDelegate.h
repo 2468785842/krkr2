@@ -5,6 +5,7 @@
 
 class TVPAppDelegate : public cocos2d::Application {
 public:
+    TVPAppDelegate();
     void initGLContextAttrs() override;
 
     /**

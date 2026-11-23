@@ -152,6 +152,10 @@
         "spdlog"
       ]
     },
+    "config": {
+      "description": "Configuration XML and native host resource tests without the game runtime",
+      "dependencies": ["libxml2"]
+    },
     "imageops": {
       "description": "CPU image operations without the runtime or window backend",
       "dependencies": []

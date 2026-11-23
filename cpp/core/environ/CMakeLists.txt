@@ -6,12 +6,15 @@ if(APPLE)
 endif()
 
 set(ENVIRON_PATH ${CMAKE_CURRENT_LIST_DIR})
+add_subdirectory(resources)
+add_subdirectory(ConfigManager)
 set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/cocos2d/CocosGLHost.cpp
     ${ENVIRON_PATH}/cocos2d/CocosTexturePresentation.cpp
     ${ENVIRON_PATH}/cocos2d/CocosFrameCapture.cpp
     ${ENVIRON_PATH}/cocos2d/CocosPackagedAsset.cpp
     ${ENVIRON_PATH}/cocos2d/CocosPVRTC.cpp
+    ${ENVIRON_PATH}/cocos2d/CocosLocale.cpp
     ${ENVIRON_PATH}/RenderHost.cpp
     ${ENVIRON_PATH}/HostFrame.cpp
     ${ENVIRON_PATH}/cocos2d/CocosModalFrame.cpp
@@ -37,10 +40,9 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/cocos2d/YUVSprite.cpp
     ${ENVIRON_PATH}/cocos2d/CocosVideoPresentation.cpp
 
-    ${ENVIRON_PATH}/ConfigManager/PreferenceDefaults.cpp
-    ${ENVIRON_PATH}/ConfigManager/GlobalConfigManager.cpp
-    ${ENVIRON_PATH}/ConfigManager/IndividualConfigManager.cpp
-    ${ENVIRON_PATH}/ConfigManager/LocaleConfigManager.cpp
+    ${ENVIRON_PATH}/cocos2d/CocosPreferenceDefaults.cpp
+    ${ENVIRON_PATH}/cocos2d/CocosPreferenceStorage.cpp
+    ${ENVIRON_PATH}/HostPaths.cpp
 
     ${ENVIRON_PATH}/ui/csd/CsdUIFactory.cpp
     ${ENVIRON_PATH}/ui/csd/CsdUIWidgets.cpp
@@ -112,7 +114,7 @@ if(NOT (ANDROID OR IOS))
     list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/launch/DesktopLaunch.cpp)
 endif()
 add_library(${PROJECT_NAME} STATIC ${ENVIRON_SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} PRIVATE core_input)
+target_link_libraries(${PROJECT_NAME} PRIVATE core_input core_host_assets core_config)
 if(NOT (ANDROID OR IOS))
     target_link_libraries(${PROJECT_NAME} PRIVATE core_launch)
 endif()

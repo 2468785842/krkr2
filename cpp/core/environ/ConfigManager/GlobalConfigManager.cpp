@@ -1,10 +1,10 @@
 #include "GlobalConfigManager.h"
-#include "tinyxml2/tinyxml2.h"
-#include "Platform.h"
-#include "UtilStreams.h"
-#include "LocaleConfigManager.h"
+#include "ConfigXml.h"
+#include "PreferenceStorage.h"
 
 #include <locale>
+#include <cstdio>
+#include <cstdlib>
 #include <sstream>
 #include <utility>
 
@@ -26,31 +26,6 @@ void iSysConfigManager::SetLaunchOverrides(
     launchOverrides() = std::move(overrides);
 }
 
-bool TVPWriteDataToFile(const ttstr &filepath, const void *data,
-                        unsigned int len);
-class XMLMemPrinter : public tinyxml2::XMLPrinter {
-    tTVPMemoryStream _stream;
-    char _buffer[4096];
-
-public:
-    virtual void Print(const char *format, ...) {
-        va_list param;
-        va_start(param, format);
-        int n = vsnprintf(_buffer, 4096, format, param);
-        va_end(param);
-        _stream.Write(_buffer, n);
-    }
-    void SaveFile(const std::string &path) {
-        if(!TVPWriteDataToFile(path, _stream.GetInternalBuffer(),
-                               _stream.GetSize())) {
-            TVPShowSimpleMessageBox(LocaleConfigManager::GetInstance()->GetText(
-                                        "cannot_create_preference"),
-                                    LocaleConfigManager::GetInstance()->GetText(
-                                        "readonly_storage"));
-        }
-    }
-};
-
 GlobalConfigManager::GlobalConfigManager() { Initialize(); }
 
 GlobalConfigManager *GlobalConfigManager::GetInstance() {
@@ -62,48 +37,17 @@ void iSysConfigManager::Initialize() {
     AllConfig.clear();
     ConfigUpdated = false;
 
-    tinyxml2::XMLDocument doc;
-
-    FILE *fp = nullptr;
-    fp = fopen(GetFilePath().c_str(), "rb");
-
-    if(fp && !doc.LoadFile(fp)) {
-        tinyxml2::XMLElement *rootElement = doc.RootElement();
-        if(rootElement) {
-            for(tinyxml2::XMLElement *item =
-                    rootElement->FirstChildElement("Item");
-                item; item = item->NextSiblingElement("Item")) {
-                const char *key = item->Attribute("key");
-                const char *val = item->Attribute("value");
-                if(key && val) {
-                    AllConfig[key] = val;
-                }
-            }
-            for(tinyxml2::XMLElement *item =
-                    rootElement->FirstChildElement("Custom");
-                item; item = item->NextSiblingElement("Custom")) {
-                const char *key = item->Attribute("key");
-                const char *val = item->Attribute("value");
-                if(key && val) {
-                    CustomArguments.emplace_back(key, val);
-                }
-            }
-            for(tinyxml2::XMLElement *item =
-                    rootElement->FirstChildElement("KeyMap");
-                item; item = item->NextSiblingElement("KeyMap")) {
-                int key, val;
-                if(tinyxml2::XML_SUCCESS ==
-                       item->QueryIntAttribute("key", &key) &&
-                   tinyxml2::XML_SUCCESS ==
-                       item->QueryIntAttribute("value", &val) &&
-                   key && val) {
-                    KeyMap.emplace(key, val);
-                }
-            }
-        }
-    }
-    if(fp)
-        fclose(fp);
+    std::string xml;
+    if(!krkr::config::RequirePreferenceStorage()->Read(GetFilePath(), xml))
+        return;
+    const auto preferences = krkr::config::ReadPreferences(xml);
+    if(!preferences)
+        return;
+    AllConfig = preferences->values;
+    CustomArguments.insert(CustomArguments.end(),
+                           preferences->arguments.begin(),
+                           preferences->arguments.end());
+    KeyMap.insert(preferences->keyMap.begin(), preferences->keyMap.end());
 }
 
 void iSysConfigManager::SaveToFile() {
@@ -112,33 +56,11 @@ void iSysConfigManager::SaveToFile() {
     std::string filepath = GetFilePath();
     if(filepath.empty())
         return;
-    tinyxml2::XMLDocument doc;
-    doc.LinkEndChild(doc.NewDeclaration());
-    tinyxml2::XMLElement *rootElement = doc.NewElement("GlobalPreference");
-    for(auto &it : AllConfig) {
-        tinyxml2::XMLElement *item = doc.NewElement("Item");
-        item->SetAttribute("key", it.first.c_str());
-        item->SetAttribute("value", it.second.c_str());
-        rootElement->LinkEndChild(item);
-    }
-    for(auto &CustomArgument : CustomArguments) {
-        tinyxml2::XMLElement *item = doc.NewElement("Custom");
-        item->SetAttribute("key", CustomArgument.first.c_str());
-        item->SetAttribute("value", CustomArgument.second.c_str());
-        rootElement->LinkEndChild(item);
-    }
-    for(auto &it : KeyMap) {
-        if(it.first && it.second) {
-            tinyxml2::XMLElement *item = doc.NewElement("KeyMap");
-            item->SetAttribute("key", it.first);
-            item->SetAttribute("value", it.second);
-            rootElement->LinkEndChild(item);
-        }
-    }
-    doc.LinkEndChild(rootElement);
-    XMLMemPrinter stream;
-    doc.Print(&stream);
-    stream.SaveFile(GetFilePath());
+    const auto xml =
+        krkr::config::WritePreferences({ AllConfig, CustomArguments, KeyMap });
+    const auto storage = krkr::config::RequirePreferenceStorage();
+    if(!storage->Write(filepath, xml))
+        storage->ReportWriteFailure();
     ConfigUpdated = false;
 }
 

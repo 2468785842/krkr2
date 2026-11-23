@@ -20,6 +20,20 @@ CPU 渲染器不再创建 Cocos 纹理；宿主通过 `environ/cocos2d/CocosText
 
 这些操作继续在原渲染线程/context 上执行；这里没有新增跨线程上传队列。
 
+## 内建渲染器注册
+
+`RenderManager.cpp` 的内建注册器同时引用软件和 OpenGL 工厂；OpenGL 工厂实现在
+`ogl/RenderManager_ogl.cpp`。显式函数引用保证普通静态库链接保留该对象，
+不能仅依赖 OpenGL 翻译单元内的静态构造器，或依赖测试驱动的诊断函数引用。
+注册阶段只保存工厂地址；创建管理器及 GL 初始化仍在首次实际请求时执行。
+位图持有的纹理指针从空值开始，构造期间的渲染器异常可安全展开。
+
+`RenderCleanup.h` 的 `TVPRecycleRenderTexturesOnExit()` 只检查工厂中已经成功初始化的管理器，
+不通过默认管理器查询触发创建。Windows/Android 的退出回收调用该入口；未知渲染器配置不能在退出时被再次初始化。
+可选 `KRKR2_ENABLE_SCRIPT_SMOKE=ON` 注册 `renderer-error-runtime`，由自制脚本捕获未知渲染器错误，
+再从 `AfterStartup.tjs` 请求退出，要求无强停且退出码为 0。脚本启动执行期间的 `System.exit` 原本不会退出，
+因此不能将启动脚本里的即时退出当作这条清理路径的验收。
+
 ## 最终窗口截图
 
 `environ/FrameCapture.h` 提供 `TVPCaptureHostFrame(path, completion)`，头文件仅使用标准 C++。

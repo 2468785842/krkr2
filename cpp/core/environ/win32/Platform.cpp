@@ -11,6 +11,7 @@
 #include "EventIntf.h"
 #include <shellapi.h>
 #include "RenderManager.h"
+#include "RenderCleanup.h"
 #include <sys/utime.h>
 #include "TVPLog.h"
 
@@ -250,8 +251,7 @@ void TVPReleaseFontLibrary();
 void TVPExitApplication(int code) {
     // clear some static data for memory leak detect
     TVPDeliverCompactEvent(TVP_COMPACT_LEVEL_MAX);
-    if(!TVPIsSoftwareRenderManager())
-        iTVPTexture2D::RecycleProcess();
+    TVPRecycleRenderTexturesOnExit();
 
     // 	if (TVPScriptEngine) TVPScriptEngine->Cleanup();
     // 	TVPReleaseFontLibrary();

@@ -8,6 +8,7 @@
 
 #include "tjsString.h"
 #include "environ/cocos2d/AppDelegate.h"
+#include "environ/cocos2d/CocosPreferenceStorage.h"
 #include "log/TVPInitLog.h"
 
 #include "environ/launch/DesktopLaunch.h"
@@ -34,6 +35,7 @@ int main() {
     TVPInitLogging(log_options);
 
     LocalFree(wargv);
+    krkr::config::SetPreferenceStorage(TVPCreateCocosPreferenceStorage());
     const int launch =
         krkr::launch::PrepareDesktopLaunch(argc, argv_ptrs.data());
     if(launch >= 0)

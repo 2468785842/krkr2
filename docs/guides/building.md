@@ -25,6 +25,10 @@ ctest --test-dir out/windows/debug --output-on-failure --no-tests=error
 根开关为 `KRKR2_BUILD_APP`、`ENABLE_TESTS`、`BUILD_TOOLS`，默认均开启。CMake 在 `project()` 前按开关选择 vcpkg 的 foundation/engine/tests/tools/imageops 等 features；关闭测试不会再因根直接依赖而安装 Catch2。默认 full 测试仍依赖完整引擎；strings 范围可独立构建。
 选择目标可用 `cmake --build --preset "Windows Debug Build" --target xp3`；仅选择目标不会缩小根配置范围。
 
+`KRKR2_TEST_SCOPE=config` 可单独构建配置管理器/存储、XML、语言回退和本地资源读取的 20 项测试，
+只选择 LibXml2/Catch2 依赖，不查找 Cocos 或 TJS。完整命令及 full 的旧格式对照见
+[宿主资源与配置 XML](../subsystems/host-resources.md#独立验证)。
+
 ## 仅构建 XP3 解包工具
 
 在 MSVC x64 开发环境执行（Linux/macOS 去掉 WINDOWS 并选择对应 triplet）：
