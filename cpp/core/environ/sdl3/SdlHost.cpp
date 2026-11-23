@@ -242,6 +242,9 @@ namespace krkr::sdl {
 
             bool Live() const { return native != nullptr; }
             bool Main() const { return Live() && native->IsMainWindow(); }
+            bool Owns(SDL_Window *candidate) const {
+                return candidate && candidate == window.get();
+            }
             void SetPaintBoxSize(tjs_int w, tjs_int h) override {
                 if(w <= 0 || h <= 0)
                     return;
@@ -313,8 +316,11 @@ namespace krkr::sdl {
                     throw;
                 }
                 modalWindow = previousModal;
-                if(previousFocus && previousFocus->GetFormEnabled())
+                if(previousFocus && previousFocus->GetFormEnabled()) {
                     previousFocus->BringToFront();
+                    previousFocus->SetFocused(
+                        previousFocus->Owns(SDL_GetKeyboardFocus()));
+                }
             }
             bool GetVisible() override { return visible; }
             void SetVisible(bool value) override {
@@ -520,10 +526,11 @@ namespace krkr::sdl {
                 auto lifetime = shared_from_this();
                 auto *owner = native->GetOwnerNoAddRef();
                 tTJSVariant canClose(true);
+                static ttstr eventName(TJS_W("onCloseQuery"));
                 closePending = programClosing = true;
                 try {
-                    TVPPostEvent(owner, owner, TJS_W("onCloseQuery"), 0,
-                                 TVP_EPT_IMMEDIATE, 1, &canClose);
+                    TVPPostEvent(owner, owner, eventName, 0, TVP_EPT_IMMEDIATE,
+                                 1, &canClose);
                 } catch(...) {
                     closePending = programClosing = false;
                     throw;
@@ -987,7 +994,12 @@ namespace krkr::sdl {
                     }
                 } while(SDL_PollEvent(&event));
             }
-            const bool active = focusedWindow != nullptr;
+            auto *keyboardFocus = SDL_GetKeyboardFocus();
+            const bool active =
+                std::any_of(windows.begin(), windows.end(),
+                            [keyboardFocus](const auto &window) {
+                                return window->Owns(keyboardFocus);
+                            });
             if(session->foreground != active) {
                 session->foreground = active;
                 if(active)
