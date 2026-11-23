@@ -52,17 +52,24 @@ namespace krkr::sdl {
                                          SDL_GetError());
         }
 
+        bool UsesWayland() {
+            const auto *driver = SDL_GetCurrentVideoDriver();
+            return driver && std::strcmp(driver, "wayland") == 0;
+        }
+
         struct VideoSubsystem {
             VideoSubsystem() {
-                // An SDL software renderer can still present through an
-                // implicit GPU framebuffer. Use the native window surface.
-                check(SDL_SetHintWithPriority(SDL_HINT_FRAMEBUFFER_ACCELERATION,
-                                              "0", SDL_HINT_OVERRIDE));
                 // A native window close is resolved by the script query.
                 check(
                     SDL_SetHintWithPriority(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE,
                                             "0", SDL_HINT_OVERRIDE));
                 check(SDL_InitSubSystem(SDL_INIT_VIDEO));
+                // X11 can use a native software surface. Its implicit GPU
+                // framebuffer produces black native capture under Xvfb.
+                if(!UsesWayland())
+                    check(SDL_SetHintWithPriority(
+                        SDL_HINT_FRAMEBUFFER_ACCELERATION, "0",
+                        SDL_HINT_OVERRIDE));
             }
             ~VideoSubsystem() { SDL_QuitSubSystem(SDL_INIT_VIDEO); }
         };
@@ -232,7 +239,11 @@ namespace krkr::sdl {
                                      SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN |
                                          SDL_WINDOW_HIGH_PIXEL_DENSITY));
                 check(window != nullptr);
-                renderer.reset(SDL_CreateRenderer(window.get(), "software"));
+                // Wayland has no SDL native window-surface framebuffer.
+                // Only presentation uses EGL; the engine still uploads RGBA.
+                renderer.reset(SDL_CreateRenderer(
+                    window.get(),
+                    UsesWayland() ? "opengles2,opengl" : "software"));
                 check(renderer != nullptr);
                 SetPaintBoxSize(layerWidth, layerHeight);
                 G_CoreLog.info("SDL3 video={}, renderer={}",
@@ -672,6 +683,7 @@ namespace krkr::sdl {
                         break;
                     case SDL_EVENT_WINDOW_EXPOSED:
                     case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+                    case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
                     case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
                     case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
                         if(event.window.windowID == id) {
