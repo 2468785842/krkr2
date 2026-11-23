@@ -189,8 +189,10 @@ int TVPMoviePlayer::AddVideoPicture(DVDVideoPicture &pic, int index) {
 
     int width = pic.iWidth, height = pic.iHeight;
     // YUV data passthrough
-    int yuvwidth[3] = { width, width / 2, width / 2 };
-    int yuvheight[3] = { height, height / 2, height / 2 };
+    const int chromaWidth = (width + 1) / 2;
+    const int chromaHeight = (height + 1) / 2;
+    int yuvwidth[3] = { width, chromaWidth, chromaWidth };
+    int yuvheight[3] = { height, chromaHeight, chromaHeight };
     uint8_t *yuvdata[3] = { nullptr };
     for(int i = 0; i < sizeof(yuvdata) / sizeof(yuvdata[0]); ++i) {
         int size = yuvwidth[i] * yuvheight[i];

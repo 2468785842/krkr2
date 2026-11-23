@@ -13,11 +13,13 @@
 #include "HostFrame.h"
 #include "HostLifecycle.h"
 #include "InputModifiers.h"
+#include "InputCancellation.h"
 #include "InputState.h"
 #include "MsgIntf.h"
 #include "PointerCoordinates.h"
 #include "RenderManager.h"
 #include "SysInitIntf.h"
+#include "StorageIntf.h"
 #include "TextInput.h"
 #include "TickCount.h"
 #include "TVPLog.h"
@@ -25,6 +27,7 @@
 #include "WindowImpl.h"
 #include "WindowLayer.h"
 #include "tvpfontstruc.h"
+#include "tjsArray.h"
 
 #include <algorithm>
 #include <array>
@@ -63,6 +66,8 @@ namespace krkr::sdl {
                 check(
                     SDL_SetHintWithPriority(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE,
                                             "0", SDL_HINT_OVERRIDE));
+                check(SDL_SetHintWithPriority(SDL_HINT_MOUSE_TOUCH_EVENTS, "0",
+                                              SDL_HINT_OVERRIDE));
                 check(SDL_InitSubSystem(SDL_INIT_VIDEO));
                 // X11 can use a native software surface. Its implicit GPU
                 // framebuffer produces black native capture under Xvfb.
@@ -211,10 +216,115 @@ namespace krkr::sdl {
             using TexturePtr =
                 std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)>;
 
+            struct VideoTrack {
+                video::FrameCallback advance;
+                TexturePtr picture{ nullptr, SDL_DestroyTexture };
+                SDL_FRect bounds{};
+                bool visible = true;
+                bool pictureVisible = true;
+            };
+
+            struct Contact {
+                SDL_TouchID device;
+                SDL_FingerID finger;
+                tjs_int id;
+                SDL_FPoint start;
+                SDL_FPoint position;
+            };
+
+            class TouchInput final : public tTVPBaseInputEvent {
+                inline static tTVPUniqueTagForInputEvent tag;
+                std::weak_ptr<Window> owner;
+                std::optional<SDL_TouchFingerEvent> event;
+
+            public:
+                TouchInput(Window &window,
+                           std::optional<SDL_TouchFingerEvent> sample) :
+                    tTVPBaseInputEvent(window.native, tag),
+                    owner(window.shared_from_this()), event(sample) {}
+
+                void Deliver() const override {
+                    if(auto window = owner.lock(); window && window->Live()) {
+                        if(event)
+                            window->DeliverTouch(*event);
+                        else
+                            window->CancelTouches();
+                    }
+                }
+            };
+
+            class VideoPresentation final : public video::Presentation {
+                std::weak_ptr<Window> owner;
+                std::shared_ptr<VideoTrack> track;
+
+            public:
+                VideoPresentation(Window &window,
+                                  video::FrameCallback onFrame) :
+                    owner(window.shared_from_this()),
+                    track(std::make_shared<VideoTrack>()) {
+                    track->advance = std::move(onFrame);
+                    window.videos.push_back(track);
+                }
+
+                ~VideoPresentation() override {
+                    if(auto window = owner.lock()) {
+                        track->advance = {};
+                        track->picture.reset();
+                        auto &videos = window->videos;
+                        videos.erase(
+                            std::remove(videos.begin(), videos.end(), track),
+                            videos.end());
+                        window->dirty = true;
+                    }
+                }
+
+                void SetVisible(bool visible) override {
+                    if(track->visible == visible)
+                        return;
+                    track->visible = visible;
+                    if(auto window = owner.lock())
+                        window->dirty = true;
+                }
+
+                void SetPictureVisible(bool visible) override {
+                    if(track->pictureVisible == visible)
+                        return;
+                    track->pictureVisible = visible;
+                    if(auto window = owner.lock())
+                        window->dirty = true;
+                }
+
+                void Present(const video::Yuv420Frame &frame,
+                             const video::Bounds &bounds) override {
+                    auto window = owner.lock();
+                    if(!window || !window->Live())
+                        return;
+                    auto &picture = track->picture;
+                    if(!picture || picture->w != frame.width ||
+                       picture->h != frame.height) {
+                        picture.reset(SDL_CreateTexture(
+                            window->renderer.get(), SDL_PIXELFORMAT_IYUV,
+                            SDL_TEXTUREACCESS_STREAMING, frame.width,
+                            frame.height));
+                        check(picture != nullptr);
+                    }
+                    check(SDL_UpdateYUVTexture(
+                        picture.get(), nullptr, frame.y, frame.width, frame.u,
+                        (frame.width + 1) / 2, frame.v, (frame.width + 1) / 2));
+                    track->bounds = { float(bounds.left), float(bounds.top),
+                                      float(bounds.width),
+                                      float(bounds.height) };
+                    window->dirty = true;
+                }
+            };
+
             tTJSNI_Window *native;
             WindowPtr window{ nullptr, SDL_DestroyWindow };
             RendererPtr renderer{ nullptr, SDL_DestroyRenderer };
             TexturePtr texture{ nullptr, SDL_DestroyTexture };
+            std::vector<std::shared_ptr<VideoTrack>> videos;
+            std::vector<ttstr> droppedFiles;
+            Uint64 lastVideoTick = SDL_GetTicksNS();
             std::string caption = "krkr2";
             int width = 640, height = 480;
             int layerWidth = 640, layerHeight = 480;
@@ -227,11 +337,23 @@ namespace krkr::sdl {
             bool drawableCommitPending = wayland;
             bool programClosing = false;
             std::array<tjs_uint16, SDL_SCANCODE_COUNT> heldKeys{};
+            std::array<bool, SDL_SCANCODE_COUNT> mouseKeyBindings{};
+            std::array<bool, 5> physicalButtons{};
+            std::array<bool, 2> keyboardButtons{};
+            bool mouseKeysEnabled = false;
+            bool showKeyboardCursor = false;
+            Uint64 nextMouseKeyStep = 0;
             std::optional<SDL_FPoint> leftPress;
             float wheelRemainder = 0;
             tTVPImeMode defaultIme = imDisable, imeMode = imDisable;
             std::optional<SDL_Rect> attention;
             VelocityTracker mouseVelocity;
+            VelocityTrackers touchVelocity;
+            std::vector<Contact> contacts;
+            tjs_int nextContact = 0;
+            bool touchEnabled = false;
+            bool scaling = false;
+            bool rotating = false;
             tTVPBorderStyle borderStyle = bsSizeable;
 
         public:
@@ -256,6 +378,11 @@ namespace krkr::sdl {
             bool Main() const { return Live() && native->IsMainWindow(); }
             bool Owns(SDL_Window *candidate) const {
                 return candidate && candidate == window.get();
+            }
+            std::unique_ptr<video::Presentation>
+            CreateVideoPresentation(video::FrameCallback onFrame) {
+                return std::make_unique<VideoPresentation>(*this,
+                                                           std::move(onFrame));
             }
             void SetPaintBoxSize(tjs_int w, tjs_int h) override {
                 if(w <= 0 || h <= 0)
@@ -524,6 +651,11 @@ namespace krkr::sdl {
                         SDL_ShowCursor();
                 }
                 native = nullptr;
+                for(const auto &video : videos) {
+                    video->advance = {};
+                    video->picture.reset();
+                }
+                videos.clear();
                 texture.reset();
                 renderer.reset();
                 window.reset();
@@ -576,6 +708,8 @@ namespace krkr::sdl {
                     new tTVPOnKeyUpInputEvent(native, key, shift));
             }
             void OnKeyPress(tjs_uint16 key, int, bool, bool) override {
+                if(mouseKeysEnabled && input::mouseKeyButton(key))
+                    return;
                 TVPPostInputEvent(new tTVPOnKeyPressInputEvent(native, key));
             }
             tTVPImeMode GetDefaultImeMode() const override {
@@ -601,13 +735,57 @@ namespace krkr::sdl {
                 SetVisible(value);
             }
             void SetUseMouseKey(bool enabled) override {
+                if(mouseKeysEnabled == enabled)
+                    return;
+                mouseKeysEnabled = enabled;
+                nextMouseKeyStep = 0;
                 if(enabled)
-                    TVPThrowExceptionMessage(
-                        TJS_W("SDL3 does not support mouse keys"));
+                    return;
+                StopKeyboardCursor();
+                for(std::size_t index = 0; index < keyboardButtons.size();
+                    ++index)
+                    if(std::exchange(keyboardButtons[index], false) &&
+                       !physicalButtons[index])
+                        SetMouseButton(buttonKeys[index], false, 1, true);
             }
-            bool GetUseMouseKey() const override { return false; }
+            bool GetUseMouseKey() const override { return mouseKeysEnabled; }
             void ResetMouseVelocity() override { mouseVelocity.clear(); }
-            void ResetTouchVelocity(tjs_int) override {}
+            void ResetTouchVelocity(tjs_int id) override {
+                touchVelocity.end(id);
+            }
+            void SetEnableTouch(bool enabled) override {
+                if(touchEnabled && !enabled)
+                    QueueTouchCancellation();
+                touchEnabled = enabled;
+            }
+            bool GetEnableTouch() const override { return touchEnabled; }
+            tjs_int GetTouchPointCount() const override {
+                return static_cast<tjs_int>(contacts.size());
+            }
+            tjs_real GetTouchPointStartX(tjs_int index) const override {
+                const auto *contact = ContactAt(index);
+                return contact ? contact->start.x : 0;
+            }
+            tjs_real GetTouchPointStartY(tjs_int index) const override {
+                const auto *contact = ContactAt(index);
+                return contact ? contact->start.y : 0;
+            }
+            tjs_real GetTouchPointX(tjs_int index) const override {
+                const auto *contact = ContactAt(index);
+                return contact ? contact->position.x : 0;
+            }
+            tjs_real GetTouchPointY(tjs_int index) const override {
+                const auto *contact = ContactAt(index);
+                return contact ? contact->position.y : 0;
+            }
+            tjs_int GetTouchPointID(tjs_int index) const override {
+                const auto *contact = ContactAt(index);
+                return contact ? contact->id : 0;
+            }
+            bool GetTouchVelocity(tjs_int id, float &x, float &y,
+                                  float &speed) const override {
+                return touchVelocity.getVelocity(id, x, y, speed);
+            }
             bool GetMouseVelocity(float &x, float &y,
                                   float &speed) const override {
                 if(!mouseVelocity.getVelocity(x, y)) {
@@ -617,7 +795,35 @@ namespace krkr::sdl {
                 speed = std::hypot(x, y);
                 return true;
             }
-            void TickBeat() override {}
+            void TickVideos(Uint64 now) {
+                const auto elapsed = now - std::exchange(lastVideoTick, now);
+                const auto snapshot = videos;
+                for(const auto &video : snapshot)
+                    if(auto advance = video->advance)
+                        advance(static_cast<float>(elapsed) /
+                                SDL_NS_PER_SECOND);
+            }
+
+            void TickBeat() override {
+                if(!mouseKeysEnabled || !GetWindowActive())
+                    return;
+                const auto now = SDL_GetTicks();
+                if(now < nextMouseKeyStep)
+                    return;
+                const auto down = [&](tjs_uint16 key) {
+                    for(std::size_t i = 0; i < heldKeys.size(); ++i)
+                        if(mouseKeyBindings[i] && heldKeys[i] == key)
+                            return 1;
+                    return 0;
+                };
+                const int step = (ShiftFlags() & ssShift) ? 8 : 2;
+                const int dx = (down(0x27) - down(0x25)) * step;
+                const int dy = (down(0x28) - down(0x26)) * step;
+                if(dx || dy) {
+                    nextMouseKeyStep = now + 24;
+                    MoveKeyboardCursor(dx, dy);
+                }
+            }
 
             void Present() {
                 if(!Live() || !visible || minimized || !dirty)
@@ -632,6 +838,29 @@ namespace krkr::sdl {
                                               layerHeight, textureHeight)) };
                     check(SDL_RenderTexture(renderer.get(), texture.get(),
                                             &crop, nullptr));
+                }
+                if(!videos.empty() || showKeyboardCursor) {
+                    const SDL_Rect clip{ 0, 0, layerWidth, layerHeight };
+                    check(SDL_SetRenderClipRect(renderer.get(), &clip));
+                    for(const auto &video : videos) {
+                        if(video->visible && video->pictureVisible &&
+                           video->picture && video->bounds.w > 0 &&
+                           video->bounds.h > 0)
+                            check(SDL_RenderTexture(renderer.get(),
+                                                    video->picture.get(),
+                                                    nullptr, &video->bounds));
+                    }
+                    if(showKeyboardCursor) {
+                        const SDL_FPoint pointer[] = {
+                            { float(mouseX), float(mouseY + 12) },
+                            { float(mouseX), float(mouseY) },
+                            { float(mouseX + 8), float(mouseY + 8) },
+                        };
+                        check(SDL_SetRenderDrawColor(renderer.get(), 255, 255,
+                                                     255, 255));
+                        check(SDL_RenderLines(renderer.get(), pointer, 3));
+                    }
+                    check(SDL_SetRenderClipRect(renderer.get(), nullptr));
                 }
                 check(SDL_RenderPresent(renderer.get()));
                 // Mesa may have acquired the previous Wayland buffer before
@@ -667,6 +896,10 @@ namespace krkr::sdl {
                         if(event.window.windowID == id) {
                             minimized =
                                 event.type == SDL_EVENT_WINDOW_MINIMIZED;
+                            if(minimized) {
+                                droppedFiles.clear();
+                                QueueTouchCancellation();
+                            }
                             SetFocused(SDL_GetWindowFlags(window.get()) &
                                        SDL_WINDOW_INPUT_FOCUS);
                             dirty = true;
@@ -715,7 +948,10 @@ namespace krkr::sdl {
                             UpdatePointerInside(false);
                         break;
                     case SDL_EVENT_MOUSE_MOTION:
-                        if(event.motion.windowID == id && GetWindowActive()) {
+                        if(event.motion.windowID == id && GetWindowActive() &&
+                           (!touchEnabled ||
+                            event.motion.which != SDL_TOUCH_MOUSEID)) {
+                            StopKeyboardCursor();
                             const bool inside =
                                 SetPointer(event.motion.x, event.motion.y);
                             if(MouseCursorState == mcsTempHidden)
@@ -730,12 +966,33 @@ namespace krkr::sdl {
                         break;
                     case SDL_EVENT_MOUSE_BUTTON_DOWN:
                     case SDL_EVENT_MOUSE_BUTTON_UP:
-                        if(event.button.windowID == id && GetWindowActive())
+                        if(event.button.windowID == id && GetWindowActive() &&
+                           (!touchEnabled ||
+                            event.button.which != SDL_TOUCH_MOUSEID))
                             HandleButton(event.button);
                         break;
                     case SDL_EVENT_MOUSE_WHEEL:
                         if(event.wheel.windowID == id && GetWindowActive())
                             HandleWheel(event.wheel);
+                        break;
+                    case SDL_EVENT_DROP_BEGIN:
+                    case SDL_EVENT_DROP_FILE:
+                    case SDL_EVENT_DROP_COMPLETE:
+                        if(event.drop.windowID == id)
+                            HandleDrop(event.drop);
+                        break;
+                    case SDL_EVENT_FINGER_DOWN:
+                    case SDL_EVENT_FINGER_MOTION:
+                    case SDL_EVENT_FINGER_UP:
+                    case SDL_EVENT_FINGER_CANCELED:
+                        if(event.tfinger.windowID == id && touchEnabled &&
+                           GetFormEnabled() && !minimized) {
+                            auto touch = event.tfinger;
+                            check(SDL_RenderCoordinatesFromWindow(
+                                renderer.get(), touch.x * width,
+                                touch.y * height, &touch.x, &touch.y));
+                            TVPPostInputEvent(new TouchInput(*this, touch));
+                        }
                         break;
                 }
             }
@@ -752,10 +1009,12 @@ namespace krkr::sdl {
                 if(visible == shown)
                     return;
                 visible = shown;
+                droppedFiles.clear();
                 if(visible) {
                     RequestRepaint();
                     drawableCommitPending = wayland;
-                }
+                } else
+                    QueueTouchCancellation();
                 SetFocused(SDL_GetWindowFlags(window.get()) &
                            SDL_WINDOW_INPUT_FOCUS);
                 dirty = true;
@@ -773,6 +1032,7 @@ namespace krkr::sdl {
                 } else if(focusedWindow == this) {
                     focusedWindow = nullptr;
                     ReleaseInput();
+                    QueueTouchCancellation();
                 }
                 UpdateCursorVisibility();
                 UpdateTextInput();
@@ -781,7 +1041,8 @@ namespace krkr::sdl {
             }
 
             void UpdateCursorVisibility() {
-                const bool show = !focused || MouseCursorState == mcsVisible;
+                const bool show = !focused ||
+                    (MouseCursorState == mcsVisible && !showKeyboardCursor);
                 if(SDL_CursorVisible() != show)
                     check(show ? SDL_ShowCursor() : SDL_HideCursor());
             }
@@ -832,6 +1093,144 @@ namespace krkr::sdl {
             static unsigned ShiftFlags() {
                 return input::legacyShiftFlags(input::sharedState());
             }
+            const Contact *ContactAt(tjs_int index) const {
+                return index >= 0 &&
+                        static_cast<std::size_t>(index) < contacts.size()
+                    ? &contacts[index]
+                    : nullptr;
+            }
+            void QueueTouchCancellation() {
+                if(touchEnabled || !contacts.empty())
+                    TVPPostInputEvent(new TouchInput(*this, std::nullopt));
+            }
+            void CancelTouches() {
+                while(Live() && !contacts.empty()) {
+                    const auto contact = contacts.back();
+                    contacts.pop_back();
+                    native->OnTouchUp(contact.position.x, contact.position.y, 0,
+                                      0, contact.id, true);
+                }
+                scaling = rotating = false;
+            }
+            void DeliverTouch(const SDL_TouchFingerEvent &event) {
+                if(!touchEnabled || !GetFormEnabled())
+                    return;
+                auto contact =
+                    std::find_if(contacts.begin(), contacts.end(),
+                                 [&](const Contact &point) {
+                                     return point.device == event.touchID &&
+                                         point.finger == event.fingerID;
+                                 });
+                const bool validPosition =
+                    std::isfinite(event.x) && std::isfinite(event.y);
+                const auto tick =
+                    static_cast<tjs_uint32>(event.timestamp / SDL_NS_PER_MS);
+                const SDL_FPoint position{ event.x, event.y };
+                if(event.type == SDL_EVENT_FINGER_DOWN) {
+                    if(contact != contacts.end() || !validPosition ||
+                       event.x < 0 || event.y < 0 || event.x >= layerWidth ||
+                       event.y >= layerHeight)
+                        return;
+                    do {
+                        nextContact =
+                            nextContact == std::numeric_limits<tjs_int>::max()
+                            ? 1
+                            : nextContact + 1;
+                    } while(std::any_of(contacts.begin(), contacts.end(),
+                                        [&](const Contact &active) {
+                                            return active.id == nextContact;
+                                        }));
+                    contacts.push_back({ event.touchID, event.fingerID,
+                                         nextContact, position, position });
+                    touchVelocity.start(nextContact);
+                    touchVelocity.update(nextContact, tick, event.x, event.y);
+                    native->OnTouchDown(event.x, event.y, 0, 0, nextContact);
+                } else if(contact != contacts.end()) {
+                    if(validPosition) {
+                        contact->position = position;
+                        touchVelocity.update(contact->id, tick, position.x,
+                                             position.y);
+                    }
+                    const auto point = *contact;
+                    if(event.type == SDL_EVENT_FINGER_MOTION) {
+                        if(!validPosition)
+                            return;
+                        native->OnTouchMove(position.x, position.y, 0, 0,
+                                            point.id);
+                        if(Live() && touchEnabled)
+                            UpdateGestures();
+                    } else {
+                        contacts.erase(contact);
+                        scaling = rotating = false;
+                        native->OnTouchUp(
+                            point.position.x, point.position.y, 0, 0, point.id,
+                            event.type == SDL_EVENT_FINGER_CANCELED);
+                    }
+                } else {
+                    return;
+                }
+                if(Live() && touchEnabled && contacts.size() >= 2)
+                    native->OnMultiTouch();
+            }
+            void UpdateGestures() {
+                if(contacts.size() != 2 ||
+                   contacts[0].device != contacts[1].device)
+                    return;
+                const auto first = contacts[0];
+                const auto second = contacts[1];
+                const auto sx = second.start.x - first.start.x;
+                const auto sy = second.start.y - first.start.y;
+                const auto dx = second.position.x - first.position.x;
+                const auto dy = second.position.y - first.position.y;
+                const auto start = std::hypot(sx, sy);
+                const auto distance = std::hypot(dx, dy);
+                const auto cx = (first.position.x + second.position.x) * 0.5;
+                const auto cy = (first.position.y + second.position.y) * 0.5;
+                if(scaling ||
+                   std::abs(distance - start) > TouchScaleThreshold) {
+                    const auto firstUpdate = !std::exchange(scaling, true);
+                    native->OnTouchScaling(start, distance, cx, cy,
+                                           firstUpdate ? 1 : 0);
+                }
+                const auto travel =
+                    std::hypot(first.position.x - first.start.x,
+                               first.position.y - first.start.y) +
+                    std::hypot(second.position.x - second.start.x,
+                               second.position.y - second.start.y);
+                if(Live() && touchEnabled &&
+                   (rotating || travel > TouchRotateThreshold)) {
+                    const auto firstUpdate = !std::exchange(rotating, true);
+                    native->OnTouchRotate(std::atan2(sy, sx),
+                                          std::atan2(dy, dx), distance, cx, cy,
+                                          firstUpdate ? 1 : 0);
+                }
+            }
+            void HandleDrop(const SDL_DropEvent &drop) {
+                if(!GetFormEnabled() || minimized ||
+                   drop.type == SDL_EVENT_DROP_BEGIN) {
+                    droppedFiles.clear();
+                    return;
+                }
+                if(drop.type == SDL_EVENT_DROP_FILE) {
+                    if(drop.data && *drop.data)
+                        droppedFiles.push_back(
+                            TVPNormalizeStorageName(ttstr(drop.data)));
+                    return;
+                }
+                auto files = std::exchange(droppedFiles, {});
+                if(files.empty())
+                    return;
+                auto release = [](iTJSDispatch2 *object) { object->Release(); };
+                std::unique_ptr<iTJSDispatch2, decltype(release)> array(
+                    TJSCreateArrayObject(), release);
+                for(std::size_t index = 0; index < files.size(); ++index) {
+                    const tTJSVariant path(files[index]);
+                    array->PropSetByNum(TJS_MEMBERENSURE, index, &path,
+                                        array.get());
+                }
+                TVPPostInputEvent(new tTVPOnFileDropInputEvent(
+                    native, tTJSVariant(array.get(), array.get())));
+            }
             static bool PointerHeld() {
                 const auto &state = input::sharedState();
                 return std::any_of(
@@ -864,6 +1263,45 @@ namespace krkr::sdl {
                 UpdatePointerInside(inside);
                 return inside;
             }
+            void StopKeyboardCursor() {
+                if(std::exchange(showKeyboardCursor, false)) {
+                    dirty = true;
+                    UpdateCursorVisibility();
+                }
+            }
+            void MoveKeyboardCursor(int dx, int dy) {
+                const auto x = std::clamp(mouseX + dx, 0, layerWidth - 1);
+                const auto y = std::clamp(mouseY + dy, 0, layerHeight - 1);
+                if(x == mouseX && y == mouseY && pointerInside)
+                    return;
+                if(!wayland) {
+                    SetCursorPos(x, y);
+                } else {
+                    showKeyboardCursor = MouseCursorState == mcsVisible;
+                    UpdateCursorVisibility();
+                    dirty = true;
+                }
+                mouseX = x;
+                mouseY = y;
+                const auto windowPoint = WindowPoint(x, y);
+                TrackLeftDrag(windowPoint.x, windowPoint.y);
+                mouseVelocity.addMovement(TVPGetRoughTickCount32(), x, y);
+                UpdatePointerInside(true);
+                TVPPostInputEvent(
+                    new tTVPOnMouseMoveInputEvent(native, x, y, ShiftFlags()),
+                    TVP_EPT_DISCARDABLE);
+            }
+            void ReleaseKeyboardButton(unsigned button) {
+                const auto index =
+                    static_cast<std::size_t>(*mouseButton(button));
+                for(std::size_t i = 0; i < heldKeys.size(); ++i)
+                    if(mouseKeyBindings[i] &&
+                       input::mouseKeyButton(heldKeys[i]) == button)
+                        return;
+                if(std::exchange(keyboardButtons[index], false) &&
+                   !physicalButtons[index])
+                    SetMouseButton(button, false, 1);
+            }
             void TrackLeftDrag(float x, float y) {
                 // Measure in native window points, independent of the layer
                 // scale.
@@ -880,7 +1318,7 @@ namespace krkr::sdl {
                 auto &state = input::sharedState();
                 if(event.down) {
                     if(event.repeat) {
-                        if(key)
+                        if(key && !mouseKeyBindings[scancode])
                             InternalKeyDown(key, ShiftFlags() | ssRepeat);
                         return;
                     }
@@ -889,15 +1327,34 @@ namespace krkr::sdl {
                     key = virtualKey(event);
                     if(key && !state.isDown(key)) {
                         state.press(key);
-                        InternalKeyDown(key, ShiftFlags());
+                        const auto button = input::mouseKeyButton(key);
+                        mouseKeyBindings[scancode] = mouseKeysEnabled &&
+                            (button || (key >= 0x25 && key <= 0x28));
+                        if(!mouseKeyBindings[scancode]) {
+                            InternalKeyDown(key, ShiftFlags());
+                        } else if(button) {
+                            const auto index =
+                                static_cast<std::size_t>(*mouseButton(button));
+                            MoveKeyboardCursor(0, 0);
+                            if(!std::exchange(keyboardButtons[index], true) &&
+                               !physicalButtons[index])
+                                SetMouseButton(button, true, 1);
+                        } else {
+                            TickBeat();
+                        }
                     }
                 } else if(key) {
                     const auto released = key;
                     key = 0;
+                    const bool consumed =
+                        std::exchange(mouseKeyBindings[scancode], false);
                     if(std::find(heldKeys.begin(), heldKeys.end(), released) ==
                            heldKeys.end() &&
-                       state.release(released))
+                       state.release(released) && !consumed)
                         OnKeyUp(released, ShiftFlags());
+                    if(consumed)
+                        if(const auto button = input::mouseKeyButton(released))
+                            ReleaseKeyboardButton(button);
                 }
             }
             void HandleButton(const SDL_MouseButtonEvent &event) {
@@ -922,25 +1379,36 @@ namespace krkr::sdl {
                         return;
                 }
                 const auto button = *mouseButton(key);
-                auto &state = input::sharedState();
-                if(event.down == state.isDown(key))
+                const auto index = static_cast<std::size_t>(button);
+                if(event.down == physicalButtons[index])
                     return;
                 const bool inside = SetPointer(event.x, event.y);
-                if(event.down) {
-                    if(!inside)
-                        return;
+                if(event.down && !inside)
+                    return;
+                physicalButtons[index] = event.down;
+                TrackLeftDrag(event.x, event.y);
+                if(index >= keyboardButtons.size() || !keyboardButtons[index])
+                    SetMouseButton(key, event.down, event.clicks);
+            }
+            void SetMouseButton(unsigned key, bool down, unsigned clicks,
+                                bool cancelled = false) {
+                const auto button = *mouseButton(key);
+                auto &state = input::sharedState();
+                if(down) {
                     state.press(key);
-                    if(button == mbLeft)
-                        leftPress = SDL_FPoint{ event.x, event.y };
+                    if(button == mbLeft) {
+                        const auto point = WindowPoint(mouseX, mouseY);
+                        leftPress =
+                            SDL_FPoint{ float(point.x), float(point.y) };
+                    }
                     TVPPostInputEvent(new tTVPOnMouseDownInputEvent(
                         native, mouseX, mouseY, button,
-                        ShiftFlags() | (event.clicks == 2 ? ssDouble : 0)));
+                        ShiftFlags() | (clicks == 2 ? ssDouble : 0)));
                 } else {
                     state.release(key);
                     if(button == mbLeft) {
-                        TrackLeftDrag(event.x, event.y);
-                        if(inside && leftPress) {
-                            if(event.clicks == 2)
+                        if(!cancelled && pointerInside && leftPress) {
+                            if(clicks == 2)
                                 TVPPostInputEvent(
                                     new tTVPOnDoubleClickInputEvent(
                                         native, mouseX, mouseY));
@@ -951,7 +1419,8 @@ namespace krkr::sdl {
                         leftPress.reset();
                     }
                     TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
-                        native, mouseX, mouseY, button, ShiftFlags()));
+                        native, mouseX, mouseY, button, ShiftFlags(),
+                        cancelled));
                 }
             }
             void HandleWheel(const SDL_MouseWheelEvent &event) {
@@ -970,9 +1439,12 @@ namespace krkr::sdl {
                         native, ShiftFlags(), delta, mouseX, mouseY));
             }
             void ReleaseInput() {
-                heldKeys.fill(0);
                 leftPress.reset();
                 wheelRemainder = 0;
+                StopKeyboardCursor();
+                physicalButtons.fill(false);
+                keyboardButtons.fill(false);
+                nextMouseKeyStep = 0;
                 ResetMouseVelocity();
                 for(auto key : input::sharedState().releaseAll()) {
                     if(const auto button = mouseButton(key)) {
@@ -980,10 +1452,17 @@ namespace krkr::sdl {
                             native, mouseX, mouseY, *button, ShiftFlags(),
                             true));
                     } else {
-                        TVPPostInputEvent(new tTVPOnKeyUpInputEvent(
-                            native, key, ShiftFlags(), true));
+                        bool consumed = false;
+                        for(std::size_t i = 0; i < heldKeys.size(); ++i)
+                            consumed |=
+                                mouseKeyBindings[i] && heldKeys[i] == key;
+                        if(!consumed)
+                            TVPPostInputEvent(new tTVPOnKeyUpInputEvent(
+                                native, key, ShiftFlags(), true));
                     }
                 }
+                heldKeys.fill(0);
+                mouseKeyBindings.fill(false);
                 native->PostReleaseCaptureEvent();
                 UpdatePointerInside(false);
             }
@@ -1033,8 +1512,12 @@ namespace krkr::sdl {
                     TVPOnHostBackground();
             }
             TVPUpdateEngineFrame();
-            for(const auto &window : windows)
+            const auto now = SDL_GetTicksNS();
+            const auto snapshot = windows;
+            for(const auto &window : snapshot) {
+                window->TickVideos(now);
                 window->Present();
+            }
             windows.erase(std::remove_if(windows.begin(), windows.end(),
                                          [](const auto &window) {
                                              return !window->Live();
@@ -1059,6 +1542,13 @@ namespace krkr::sdl {
         width = mode->w;
         height = mode->h;
         return true;
+    }
+
+    std::unique_ptr<video::Presentation>
+    CreateVideoPresentation(iWindowLayer &window,
+                            video::FrameCallback onFrame) {
+        return static_cast<Window &>(window).CreateVideoPresentation(
+            std::move(onFrame));
     }
 
     int Run(const std::string &game) {

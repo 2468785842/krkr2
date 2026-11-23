@@ -22,6 +22,9 @@
 #include "RenderManager.h"
 #include "SystemImpl.h"
 #include "vkdefine.h"
+#if KRKR2_ENABLE_SDL3_HOST
+#include "sdl3/SdlHost.h"
+#endif
 
 tTJSNI_Window *TVPWindowLayer::TVPGetActiveWindow() {
     if(!_currentWindowLayer)
@@ -1063,6 +1066,10 @@ void TVPWindowLayer::OnKeyPress(tjs_uint16 vk, int repeat, bool prevkeystate,
 std::unique_ptr<krkr::video::Presentation>
 krkr::video::CreateWindowPresentation(iWindowLayer &window,
                                       FrameCallback onFrame) {
+#if KRKR2_ENABLE_SDL3_HOST
+    if(krkr::sdl::Active())
+        return krkr::sdl::CreateVideoPresentation(window, std::move(onFrame));
+#endif
     auto *parent = dynamic_cast<TVPWindowLayer &>(window).GetPrimaryArea();
     auto *root = cocos2d::Node::create();
     auto presentation = CreateCocosVideoPresentation(*root);

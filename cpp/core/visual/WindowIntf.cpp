@@ -387,8 +387,9 @@ void tTJSNI_BaseWindow::OnTouchDown(tjs_real x, tjs_real y, tjs_real cx,
 }
 //---------------------------------------------------------------------------
 void tTJSNI_BaseWindow::OnTouchUp(tjs_real x, tjs_real y, tjs_real cx,
-                                  tjs_real cy, tjs_uint32 id) {
-    if(!CanDeliverEvents())
+                                  tjs_real cy, tjs_uint32 id,
+                                  bool cancellation) {
+    if(!(cancellation ? CanDeliverInputCancellation() : CanDeliverEvents()))
         return;
     if(Owner) {
         tTJSVariant arg[5] = { x, y, cx, cy, (tjs_int64)id };

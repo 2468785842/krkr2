@@ -2109,8 +2109,8 @@ void tTJSNI_Window::ResetImeMode(class iTVPLayerManager *manager) {
 }
 //---------------------------------------------------------------------------
 void tTJSNI_Window::OnTouchUp(tjs_real x, tjs_real y, tjs_real cx, tjs_real cy,
-                              tjs_uint32 id) {
-    tTJSNI_BaseWindow::OnTouchUp(x, y, cx, cy, id);
+                              tjs_uint32 id, bool cancellation) {
+    tTJSNI_BaseWindow::OnTouchUp(x, y, cx, cy, id, cancellation);
     if(_form) {
         _form->ResetTouchVelocity(id);
     }

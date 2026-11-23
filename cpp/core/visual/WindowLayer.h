@@ -126,8 +126,8 @@ public:
     [[nodiscard]] virtual bool GetFocusable() const { return true; }
     int GetDisplayRotate() { return 0; }
     int GetDisplayOrientation() { return orientLandscape; }
-    void SetEnableTouch(bool b) {}
-    [[nodiscard]] bool GetEnableTouch() const { return false; }
+    virtual void SetEnableTouch(bool b) {}
+    [[nodiscard]] virtual bool GetEnableTouch() const { return false; }
     void SetHintDelay(tjs_int delay) { HintDelay = delay; }
     [[nodiscard]] tjs_int GetHintDelay() const { return HintDelay; }
     void SetInnerSunken(bool b) {}
@@ -149,17 +149,24 @@ public:
         TouchRotateThreshold = threshold;
     }
     double GetTouchRotateThreshold() const { return TouchRotateThreshold; }
-    [[nodiscard]] tjs_real GetTouchPointStartX(tjs_int index) const {
+    [[nodiscard]] virtual tjs_real GetTouchPointStartX(tjs_int index) const {
         return 0;
     }
-    [[nodiscard]] tjs_real GetTouchPointStartY(tjs_int index) const {
+    [[nodiscard]] virtual tjs_real GetTouchPointStartY(tjs_int index) const {
         return 0;
     }
-    [[nodiscard]] tjs_real GetTouchPointX(tjs_int index) const { return 0; }
-    [[nodiscard]] tjs_real GetTouchPointY(tjs_int index) const { return 0; }
-    [[nodiscard]] tjs_int GetTouchPointID(tjs_int index) const { return 0; }
-    [[nodiscard]] tjs_int GetTouchPointCount() const { return 0; }
-    bool GetTouchVelocity(tjs_int id, float &x, float &y, float &speed) const {
+    [[nodiscard]] virtual tjs_real GetTouchPointX(tjs_int index) const {
+        return 0;
+    }
+    [[nodiscard]] virtual tjs_real GetTouchPointY(tjs_int index) const {
+        return 0;
+    }
+    [[nodiscard]] virtual tjs_int GetTouchPointID(tjs_int index) const {
+        return 0;
+    }
+    [[nodiscard]] virtual tjs_int GetTouchPointCount() const { return 0; }
+    virtual bool GetTouchVelocity(tjs_int id, float &x, float &y,
+                                  float &speed) const {
         return false;
     }
     void ResetDrawDevice() {}

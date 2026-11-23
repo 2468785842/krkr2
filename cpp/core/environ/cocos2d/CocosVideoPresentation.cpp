@@ -39,10 +39,11 @@ namespace krkr::video {
                     sprite->setAnchorPoint(cocos2d::Vec2(0, 1));
                     root.addChild(sprite);
                 }
+                const int chromaWidth = (frame.width + 1) / 2;
+                const int chromaHeight = (frame.height + 1) / 2;
                 sprite->updateTextureData(frame.y, frame.width, frame.height,
-                                          frame.u, frame.width / 2,
-                                          frame.height / 2, frame.v,
-                                          frame.width / 2, frame.height / 2);
+                                          frame.u, chromaWidth, chromaHeight,
+                                          frame.v, chromaWidth, chromaHeight);
                 const float scaleX =
                     bounds.width / static_cast<float>(frame.width);
                 const float scaleY =
