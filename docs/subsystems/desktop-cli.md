@@ -74,7 +74,8 @@ xvfb-run -a -s '-screen 0 1024x768x24' python tools/game-smoke/sdl_host_repro.py
 GitHub 的 Build Linux 工作流通过 `sdl3_host_contract=true` 构建并运行上述探针。
 `sdl3_desktop_contract=true` 同时运行桌面验收，用 Openbox 和 Weston 验证窗口恢复与输入，
 用 Fcitx5 验证中文候选窗和提交文本，并启动两次自制 KAG 场景验证存档与读档。
-工作流将回调记录、截图和运行报告上传至 `linux-sdl-desktop-runtime`。
+同一开关还验证 KAG 的音乐、音效和视频，以及 SDL3 的文件拖放、键盘模拟鼠标和触摸回调。
+工作流将回调记录、截图、音频输出和运行报告上传至 `linux-sdl-desktop-runtime`。
 
 ## 实现边界
 
