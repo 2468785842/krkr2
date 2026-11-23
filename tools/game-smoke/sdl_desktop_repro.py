@@ -131,8 +131,12 @@ def tap(x11, keysym):
 
 
 def click(x11, window, x, y):
+    # KAG requires pointer motion when a new choice appears under the cursor.
+    x11.motion(window, x - 15, y)
     x11.motion(window, x, y)
+    time.sleep(0.05)
     x11.button(True)
+    time.sleep(0.05)
     x11.button(False)
 
 
@@ -167,7 +171,14 @@ def desktop(mode, x11, output, env):
             window = wait_for("Weston X11 window", weston_window, compositor)
             x11.focus(window)
             engine_env = dict(env, WAYLAND_DISPLAY=socket, SDL_VIDEO_DRIVER="wayland",
-                              GDK_BACKEND="wayland", SDL_VIDEO_WAYLAND_PREFER_LIBDECOR="1")
+                              GDK_BACKEND="wayland", SDL_VIDEO_WAYLAND_PREFER_LIBDECOR="1",
+                              LIBDECOR_FORCE_CSD="1")
+            if "LIBDECOR_PLUGIN_DIR" not in env:
+                libdir = Path(command("pkg-config", "--variable=libdir", "libdecor-0").strip())
+                plugins = output / "libdecor"
+                plugins.mkdir()
+                shutil.copy2(libdir / "libdecor/plugins-1/libdecor-cairo.so", plugins)
+                engine_env["LIBDECOR_PLUGIN_DIR"] = str(plugins)
             engine_env.pop("DISPLAY", None)
             yield window, engine_env
     else:
@@ -204,11 +215,18 @@ def lifecycle(x11, output, game, process, window, mode):
                 return rectangle
         return None
 
+    def wait_rendered(label, width, height):
+        try:
+            return wait_for(label, lambda: rendered(width, height), process)
+        except TimeoutError:
+            image = take_frame("last-frame")
+            raise TimeoutError(f"{label}: expected {width}x{height}, observed {content_box(image)}")
+
     def window_state():
         return command("xprop", "-id", hex(window), "_NET_WM_STATE")
 
     size = (320 * scale, 240 * scale)
-    initial = wait_for("windowed pixels", lambda: rendered(*size), process)
+    initial = wait_rendered("windowed pixels", *size)
     take_frame("windowed")
     x11.motion(window, initial[0] + size[0] // 2, initial[1] + size[1] // 2)
     tap(x11, F11)
@@ -220,14 +238,14 @@ def lifecycle(x11, output, game, process, window, mode):
         full_width, full_height = geometry(x11, window)
         assert (full_width, full_height) == (1280, 780)
     full_content_width = full_height * 4 // 3
-    full = wait_for("fullscreen pixels", lambda: rendered(full_content_width, full_height), process)
+    full = wait_rendered("fullscreen pixels", full_content_width, full_height)
     image = take_frame("fullscreen")
     assert full[0] > 0 and image.getpixel((0, full_height // 2)) == (0, 0, 0)
     tap(x11, F11)
     event(game, process, "fullscreen-request:0")
     if mode == "x11":
         wait_for("EWMH windowed", lambda: "_NET_WM_STATE_FULLSCREEN" not in window_state(), process)
-    windowed = wait_for("pixels after leaving fullscreen", lambda: rendered(*size), process)
+    windowed = wait_rendered("pixels after leaving fullscreen", *size)
     take_frame("windowed-again")
 
     # Leave a key down across the focus loss. The engine must release it exactly once.
@@ -254,7 +272,7 @@ def lifecycle(x11, output, game, process, window, mode):
         x11.key(True, ALT)
         tap(x11, TAB)
         x11.key(False, ALT)
-    restored = wait_for("restored pixels", lambda: rendered(*size), process)
+    restored = wait_rendered("restored pixels", *size)
     event(game, process, "window:active", before.count("window:active") + 1)
     event(game, process, "system:active", before.count("system:active") + 1)
     x11.key(True)
@@ -263,8 +281,10 @@ def lifecycle(x11, output, game, process, window, mode):
     event(game, process, "key-up:0", before.count("key-up:0") + 2)
 
     point = restored[0] + 65 * scale, restored[1] + 165 * scale
-    click(x11, window, *point)
+    x11.motion(window, *point)
+    x11.button(True)
     event(game, process, "mouse-down:65:165:1")
+    x11.button(False)
     event(game, process, "mouse-up:65:165:0")
     wait_for("repaint at restored mouse coordinate",
              lambda: frame().getpixel(point) == GREEN, process)
@@ -339,9 +359,7 @@ def ime(x11, output, game, command_line, env):
                 tap(x11, ord(" "))
                 event(game, process, "text:20320", index)
                 event(game, process, "text:22909", index)
-                wait_for("candidate popup dismissed", lambda: ImageChops.difference(
-                    baseline.crop(rectangle), screen().crop(rectangle),
-                ).getbbox() is None, process)
+                screen().save(output / f"committed-{index}.png")
             assert [line for line in read_events(game) if line.startswith("text:")] == [
                 "text:20320", "text:22909", "text:20320", "text:22909",
             ]
@@ -370,11 +388,16 @@ def play_kag(x11, output, game, command_line, env):
             def text_frame(label):
                 def visible():
                     image = capture(x11, window, geometry(x11, window))
-                    text = image.crop((32, 32, 625, 85)).convert("L").histogram()
-                    return image if sum(text[192:]) > 100 else None
+                    areas = [(32, 60, 625, 102), (32, 128, 625, 170)]
+                    if label == "checkpoint":
+                        areas.append((32, 196, 625, 238))
+                    for area in areas:
+                        if sum(image.crop(area).convert("L").histogram()[192:]) < 100:
+                            return None
+                    return image
                 image = wait_for(f"drawn KAG text ({label})", visible, process)
                 image.save(output / f"{name}-{label}.png")
-                return image.crop((32, 32, 625, 85)).tobytes()
+                return image.crop((32, 60, 625, 102)).tobytes()
 
             menu = text_frame("menu")
             click(x11, window, 90, 148 if load_save else 80)

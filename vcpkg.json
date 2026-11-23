@@ -14,7 +14,8 @@
           "name": "sdl3",
           "platform": "linux",
           "features": [
-            "dbus"
+            "dbus",
+            "libdecor"
           ]
         }
       ]

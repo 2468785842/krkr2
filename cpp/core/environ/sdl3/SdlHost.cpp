@@ -223,6 +223,8 @@ namespace krkr::sdl {
             bool visible = false, focused = false, minimized = false;
             bool pointerInside = false;
             bool dirty = true, closePending = false;
+            const bool wayland = UsesWayland();
+            bool drawableCommitPending = wayland;
             bool programClosing = false;
             std::array<tjs_uint16, SDL_SCANCODE_COUNT> heldKeys{};
             std::optional<SDL_FPoint> leftPress;
@@ -242,8 +244,7 @@ namespace krkr::sdl {
                 // Wayland has no SDL native window-surface framebuffer.
                 // Only presentation uses EGL; the engine still uploads RGBA.
                 renderer.reset(SDL_CreateRenderer(
-                    window.get(),
-                    UsesWayland() ? "opengles2,opengl" : "software"));
+                    window.get(), wayland ? "opengles2,opengl" : "software"));
                 check(renderer != nullptr);
                 SetPaintBoxSize(layerWidth, layerHeight);
                 G_CoreLog.info("SDL3 video={}, renderer={}",
@@ -259,11 +260,9 @@ namespace krkr::sdl {
             void SetPaintBoxSize(tjs_int w, tjs_int h) override {
                 if(w <= 0 || h <= 0)
                     return;
-                check(SDL_SetRenderLogicalPresentation(
-                    renderer.get(), w, h, SDL_LOGICAL_PRESENTATION_LETTERBOX));
                 layerWidth = w;
                 layerHeight = h;
-                UpdateAttentionPoint();
+                UpdatePresentation();
                 dirty = true;
             }
             bool GetFormEnabled() override {
@@ -635,7 +634,9 @@ namespace krkr::sdl {
                                             &crop, nullptr));
                 }
                 check(SDL_RenderPresent(renderer.get()));
-                dirty = false;
+                // Mesa may have acquired the previous Wayland buffer before
+                // the resize. Commit again with the newly allocated buffer.
+                dirty = std::exchange(drawableCommitPending, false);
             }
 
             void Handle(const SDL_Event &event) {
@@ -676,7 +677,8 @@ namespace krkr::sdl {
                             width = event.window.data1;
                             height = event.window.data2;
                             dirty = true;
-                            UpdateAttentionPoint();
+                            drawableCommitPending = wayland;
+                            UpdatePresentation();
                             TVPPostInputEvent(
                                 new tTVPOnResizeInputEvent(native));
                         }
@@ -690,7 +692,8 @@ namespace krkr::sdl {
                             if(!texture)
                                 RequestRepaint();
                             dirty = true;
-                            UpdateAttentionPoint();
+                            drawableCommitPending = wayland;
+                            UpdatePresentation();
                         }
                         break;
                     case SDL_EVENT_KEY_DOWN:
@@ -738,12 +741,21 @@ namespace krkr::sdl {
             }
 
         private:
+            void UpdatePresentation() {
+                check(SDL_SetRenderLogicalPresentation(
+                    renderer.get(), layerWidth, layerHeight,
+                    SDL_LOGICAL_PRESENTATION_LETTERBOX));
+                UpdateAttentionPoint();
+            }
+
             void UpdateVisibility(bool shown) {
                 if(visible == shown)
                     return;
                 visible = shown;
-                if(visible)
+                if(visible) {
                     RequestRepaint();
+                    drawableCommitPending = wayland;
+                }
                 SetFocused(SDL_GetWindowFlags(window.get()) &
                            SDL_WINDOW_INPUT_FOCUS);
                 dirty = true;
