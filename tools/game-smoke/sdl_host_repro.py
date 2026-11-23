@@ -200,6 +200,15 @@ def run(engine, output):
                 x11.focus(window)
                 frame("remapped", ["d03020", "30c050", "204060"],
                       ((120, 90), (360, 90), (120, 270)))
+                x11.motion(window, 360, 90)
+                x11.button(True)
+                event("mouse-down:240:60:1", 2)
+                x11.button(False)
+                event("click:240:60", 2)
+                x11.button(True)
+                event("mouse-down:240:60:1", 3)
+                x11.button(False)
+                event("double-click:240:60")
 
                 tap(0xffc3)  # F6
                 event("modal:opening")
@@ -219,6 +228,10 @@ def run(engine, output):
                 x11.request_close(peer)
                 event("modal-close:2")
                 event("modal:returned:0")
+                event("modal:program-close-returned")
+                observed = read_events(game)
+                assert observed.index("modal:returned:0") < observed.index("modal-close:3")
+                assert observed.index("modal-close:3") < observed.index("modal:program-close-returned")
                 wait(lambda: not x11.process_window(process.pid, exclude=(window,)),
                      "closed modal window")
                 x11.focus(window)

@@ -252,6 +252,7 @@ namespace krkr::sdl {
                     renderer.get(), w, h, SDL_LOGICAL_PRESENTATION_LETTERBOX));
                 layerWidth = w;
                 layerHeight = h;
+                UpdateAttentionPoint();
                 dirty = true;
             }
             bool GetFormEnabled() override {

@@ -48,7 +48,8 @@ class HostWindow extends Window {
             record("modal:opening");
             peer.showModal();
             record("modal:returned:" + string peer.visible);
-            invalidate peer;
+            peer.close();
+            record("modal:program-close-returned");
         }
         if(key == 88)
             record("main:key-x");
