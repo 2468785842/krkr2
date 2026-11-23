@@ -56,13 +56,14 @@ out/linux/release/bin/krkr2/krkr2 --host=sdl3 --game /path/to/game
 `--host=sdl3` 要求显式游戏目标。默认宿主是 Cocos，也可用 `--host=cocos` 明确指定。
 未编译 SDL3 的构建收到 `--host=sdl3` 时返回 2。SDL3 固定使用软件渲染，显式指定其他渲染器会返回 2。
 SDL3 使用正式的启动脚本、`Window`、`Layer` 和 `System`。
-首批支持一个 SDL3 游戏窗口及基本键盘和鼠标左键输入。引擎的软件渲染结果以 RGBA 纹理上传，
-由 SDL3 的原生软件窗口表面呈现。Cocos 仍提供部分资源和共享服务。
-KAG、媒体、IME、模态游戏窗口、多窗口、Wayland 和高 DPI 属于后续验收范围。
+引擎的软件渲染结果以 RGBA 纹理上传，由 SDL3 的原生软件窗口表面呈现。
+Cocos 仍提供部分资源和共享服务。窗口接口覆盖缩放和重绘、焦点切换、鼠标捕获、键鼠输入及
+`Window.showModal()` 的应用内模态行为。提交文本通过现有 TJS `onKeyPress` 投递。
+[SDL3 窗口契约](window-interface.md#linux-sdl3-窗口契约)
 
 在具备 X11、XTest 和 Xvfb 的 Linux 环境运行正式入口探针。探针在外部读取实际窗口像素，
-通过 XTest 投递键鼠输入，并发送窗口管理器的关闭消息。第一次关闭后必须继续响应输入及更新像素，
-第二次关闭必须正常退出。
+通过 XTest 发送键鼠输入、焦点切换和 XIM Compose 序列，并发送窗口管理器的关闭消息。
+探针验证窗口缩放和黑边、窗口外拖动、重新显示、模态关闭否决及正常退出。
 
 ```sh
 xvfb-run -a -s '-screen 0 1024x768x24' python tools/game-smoke/sdl_host_repro.py \

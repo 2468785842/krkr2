@@ -2,6 +2,8 @@
 
 Status: implemented
 
+本页记录首个单窗口场景。[后续 SDL3 窗口契约](2026-11-23-sdl3-window-contract.md)记录扩展后的接口与验收。
+
 Linux 完整应用启用 `KRKR2_ENABLE_SDL3_HOST` 后，可用 `krkr2 --host=sdl3 --game PATH`
 加载正式 TJS 启动脚本。SDL3 宿主接入生产 `Window`、`Layer`、`System` 与引擎帧循环，使用软件渲染的
 RGBA 帧和 SDL3 原生窗口表面。Cocos 仍是默认宿主，并提供部分共享服务。
