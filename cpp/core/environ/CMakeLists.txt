@@ -64,9 +64,12 @@ set(ENVIRON_SOURCE_FILES
 )
 
 if(KRKR2_ENABLE_SDL3_HOST)
-    list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/sdl3/SdlHost.cpp)
+    list(APPEND ENVIRON_SOURCE_FILES
+        ${ENVIRON_PATH}/sdl3/SdlHost.cpp
+        ${ENVIRON_PATH}/sdl3/SdlGamepads.cpp)
     if(KRKR2_ENABLE_UI_TEST_DRIVER)
         list(APPEND ENVIRON_SOURCE_FILES
+            ${CMAKE_SOURCE_DIR}/tools/game-smoke/SdlGamepadContractDriver.cpp
             ${CMAKE_SOURCE_DIR}/tools/game-smoke/SdlTouchContractDriver.cpp)
         set_property(SOURCE ${ENVIRON_PATH}/sdl3/SdlHost.cpp APPEND PROPERTY
             COMPILE_DEFINITIONS KRKR2_ENABLE_UI_TEST_DRIVER=1)

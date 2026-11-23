@@ -1,0 +1,55 @@
+// Self-authored scene for the existing SDL3 gamepad and pointer contracts.
+global.events = [];
+global.record = function(message) {
+    events.add(message);
+    events.save(System.exePath + "interaction-events.txt");
+};
+
+class PadWindow extends Window {
+    function PadWindow() {
+        super.Window();
+        caption = "KrKr2 SDL3 gamepad";
+        setSize(320, 240);
+    }
+    function onKeyDown(key, shift) {
+        if(key == VK_F2) {
+            useMouseKey = true;
+            record("mouse-keys:1");
+        }
+        if(key == VK_F3) {
+            useMouseKey = false;
+            record("mouse-keys:0");
+        }
+        if(key == VK_F8)
+            record("pad-state:" + string System.getKeyState(VK_PADANY, true));
+        if(key == VK_ESCAPE)
+            System.exit();
+        if(key >= VK_PADLEFT && key <= VK_PAD10) {
+            if(key == VK_PAD1)
+                scene.colorRect(0, 0, 160, 120, 0x30c050, 255);
+            record("down:" + key + ":" + string System.getKeyState(key, true) +
+                   ":" + string System.getKeyState(VK_PADANY, true));
+        }
+    }
+    function onKeyUp(key, shift) {
+        if(key >= VK_PADLEFT && key <= VK_PAD10)
+            record("up:" + key + ":" + string System.getKeyState(key, true) +
+                   ":" + string System.getKeyState(VK_PADANY, true));
+    }
+    function onMouseMove(x, y, shift) { record("move:" + x + ":" + y); }
+    function onMouseDown(x, y, button, shift) { record("pointer-down:" + button + ":" + x + ":" + y); }
+    function onMouseUp(x, y, button, shift) { record("pointer-up:" + button + ":" + x + ":" + y); }
+    function onClick(x, y) { record("click:" + x + ":" + y); }
+    function onActivate() { record("active"); }
+    function onDeactivate() { record("inactive"); }
+}
+
+global.win = new PadWindow();
+global.scene = new Layer(win, null);
+scene.setSize(320, 240);
+scene.setImageSize(320, 240);
+scene.type = ltOpaque;
+scene.colorRect(0, 0, 320, 240, 0x204060, 255);
+scene.visible = true;
+win.visible = true;
+record("ready");

@@ -1,4 +1,5 @@
 #include "SdlHost.h"
+#include "SdlGamepads.h"
 
 #include <SDL3/SDL.h>
 
@@ -28,9 +29,11 @@
 #include "WindowLayer.h"
 #include "tvpfontstruc.h"
 #include "tjsArray.h"
+#include "tvpinputdefs.h"
 
 #include <algorithm>
 #include <array>
+#include <bitset>
 #include <cmath>
 #include <cstring>
 #include <cstdio>
@@ -47,6 +50,7 @@
 extern std::thread::id TVPMainThreadID;
 std::string TVPGetCurrentLanguage();
 #if KRKR2_ENABLE_UI_TEST_DRIVER
+void TVPUpdateSDLGamepadContract(const std::filesystem::path &request);
 bool TVPSubmitSDLTouchContract(const std::filesystem::path &request,
                                SDL_WindowID window);
 #endif
@@ -323,6 +327,7 @@ namespace krkr::sdl {
             };
 
             tTJSNI_Window *native;
+            Gamepads &gamepads;
             WindowPtr window{ nullptr, SDL_DestroyWindow };
             RendererPtr renderer{ nullptr, SDL_DestroyRenderer };
             TexturePtr texture{ nullptr, SDL_DestroyTexture };
@@ -342,6 +347,8 @@ namespace krkr::sdl {
             bool programClosing = false;
             std::array<tjs_uint16, SDL_SCANCODE_COUNT> heldKeys{};
             std::array<bool, SDL_SCANCODE_COUNT> mouseKeyBindings{};
+            std::bitset<0x200> padMouseKeys;
+            unsigned heldPadKeys = 0;
             std::array<bool, 5> physicalButtons{};
             std::array<bool, 2> keyboardButtons{};
             bool touchMousePressed = false;
@@ -363,7 +370,8 @@ namespace krkr::sdl {
             tTVPBorderStyle borderStyle = bsSizeable;
 
         public:
-            explicit Window(tTJSNI_Window *owner) : native(owner) {
+            Window(tTJSNI_Window *owner, Gamepads &pads) :
+                native(owner), gamepads(pads) {
                 window.reset(
                     SDL_CreateWindow(caption.c_str(), width, height,
                                      SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN |
@@ -657,6 +665,7 @@ namespace krkr::sdl {
             void InvalidateClose() override {
                 if(focusedWindow == this) {
                     focusedWindow = nullptr;
+                    gamepads.CancelInput();
                     input::sharedState().releaseAll();
                     if(!SDL_CursorVisible())
                         SDL_ShowCursor();
@@ -673,6 +682,38 @@ namespace krkr::sdl {
             }
             bool GetWindowActive() override {
                 return GetFormEnabled() && focused && !minimized;
+            }
+            void HandleGamepadKey(const Gamepads::Transition &transition) {
+                const auto key = transition.key;
+                auto &state = input::sharedState();
+                const auto button = input::mouseKeyButton(key);
+                if(transition.down) {
+                    state.press(key);
+                    state.press(VK_PADANY);
+                    ++heldPadKeys;
+                    const bool asMouse = mouseKeysEnabled &&
+                        (button || (key >= VK_PADLEFT && key <= VK_PADDOWN));
+                    padMouseKeys[key] = asMouse;
+                    if(!asMouse)
+                        InternalKeyDown(key, ShiftFlags());
+                    else if(button)
+                        PressKeyboardMouseButton(button);
+                    else
+                        TickBeat();
+                } else if(state.release(key)) {
+                    if(--heldPadKeys == 0)
+                        state.release(VK_PADANY);
+                    if(!padMouseKeys[key]) {
+                        TVPPostInputEvent(
+                            new tTVPOnKeyUpInputEvent(native, key, ShiftFlags(),
+                                                      transition.cancellation));
+                    } else {
+                        padMouseKeys.reset(key);
+                        if(button)
+                            ReleaseKeyboardButton(button,
+                                                  transition.cancellation);
+                    }
+                }
             }
             void Close() override {
                 if(!Live() || closePending)
@@ -842,8 +883,12 @@ namespace krkr::sdl {
                     return 0;
                 };
                 const int step = (ShiftFlags() & ssShift) ? 8 : 2;
-                const int dx = (down(0x27) - down(0x25)) * step;
-                const int dy = (down(0x28) - down(0x26)) * step;
+                const int dx = ((down(0x27) || padMouseKeys[VK_PADRIGHT]) -
+                                (down(0x25) || padMouseKeys[VK_PADLEFT])) *
+                    step;
+                const int dy = ((down(0x28) || padMouseKeys[VK_PADDOWN]) -
+                                (down(0x26) || padMouseKeys[VK_PADUP])) *
+                    step;
                 if(dx || dy) {
                     nextMouseKeyStep = now + 24;
                     MoveKeyboardCursor(dx, dy);
@@ -1324,9 +1369,19 @@ namespace krkr::sdl {
                     new tTVPOnMouseMoveInputEvent(native, x, y, ShiftFlags()),
                     TVP_EPT_DISCARDABLE);
             }
+            void PressKeyboardMouseButton(unsigned button) {
+                const auto index =
+                    static_cast<std::size_t>(*mouseButton(button));
+                MoveKeyboardCursor(0, 0);
+                keyboardButtons[index] = true;
+                UpdateMouseButton(index, 1);
+            }
             void ReleaseKeyboardButton(unsigned button, bool cancelled) {
                 const auto index =
                     static_cast<std::size_t>(*mouseButton(button));
+                if(padMouseKeys[button == input::key::leftMouse ? VK_PAD1
+                                                                : VK_PAD2])
+                    return;
                 for(std::size_t i = 0; i < heldKeys.size(); ++i)
                     if(mouseKeyBindings[i] &&
                        input::mouseKeyButton(heldKeys[i]) == button)
@@ -1365,11 +1420,7 @@ namespace krkr::sdl {
                         if(!mouseKeyBindings[scancode]) {
                             InternalKeyDown(key, ShiftFlags());
                         } else if(button) {
-                            const auto index =
-                                static_cast<std::size_t>(*mouseButton(button));
-                            MoveKeyboardCursor(0, 0);
-                            keyboardButtons[index] = true;
-                            UpdateMouseButton(index, 1);
+                            PressKeyboardMouseButton(button);
                         } else {
                             TickBeat();
                         }
@@ -1489,6 +1540,7 @@ namespace krkr::sdl {
                         native, ShiftFlags(), delta, mouseX, mouseY));
             }
             void ReleaseInput() {
+                gamepads.CancelInput();
                 leftPress.reset();
                 wheelRemainder = 0;
                 StopKeyboardCursor();
@@ -1502,8 +1554,8 @@ namespace krkr::sdl {
                         TVPPostInputEvent(new tTVPOnMouseUpInputEvent(
                             native, mouseX, mouseY, *button, ShiftFlags(),
                             true));
-                    } else {
-                        bool consumed = false;
+                    } else if(key != VK_PADANY) {
+                        bool consumed = padMouseKeys[key];
                         for(std::size_t i = 0; i < heldKeys.size(); ++i)
                             consumed |=
                                 mouseKeyBindings[i] && heldKeys[i] == key;
@@ -1514,6 +1566,8 @@ namespace krkr::sdl {
                 }
                 heldKeys.fill(0);
                 mouseKeyBindings.fill(false);
+                padMouseKeys.reset();
+                heldPadKeys = 0;
                 native->PostReleaseCaptureEvent();
                 UpdatePointerInside(false);
             }
@@ -1521,10 +1575,12 @@ namespace krkr::sdl {
 
         struct Session {
             VideoSubsystem video;
+            Gamepads gamepads;
             std::vector<std::shared_ptr<Window>> windows;
             bool startedWindow = false;
             bool foreground = false;
 #if KRKR2_ENABLE_UI_TEST_DRIVER
+            std::filesystem::path gamepadContractRequest;
             std::filesystem::path touchContractRequest;
 #endif
         };
@@ -1534,6 +1590,8 @@ namespace krkr::sdl {
         void PumpFrame() {
             auto &windows = session->windows;
 #if KRKR2_ENABLE_UI_TEST_DRIVER
+            if(!session->gamepadContractRequest.empty())
+                TVPUpdateSDLGamepadContract(session->gamepadContractRequest);
             if(!session->touchContractRequest.empty()) {
                 const auto main = std::find_if(
                     windows.begin(), windows.end(),
@@ -1545,6 +1603,7 @@ namespace krkr::sdl {
             }
 #endif
             SDL_Event event;
+            std::vector<Gamepads::Transition> padTransitions;
             if(SDL_WaitEventTimeout(&event, 16)) {
                 do {
                     if(event.type == SDL_EVENT_QUIT) {
@@ -1558,8 +1617,20 @@ namespace krkr::sdl {
                         else if(focusedWindow)
                             focusedWindow->RequestClose();
                     } else {
-                        for(const auto &window : windows)
-                            window->Handle(event);
+                        auto *target =
+                            focusedWindow && focusedWindow->GetWindowActive()
+                            ? focusedWindow
+                            : nullptr;
+                        if(session->gamepads.Handle(event, target != nullptr,
+                                                    padTransitions)) {
+                            if(target)
+                                for(const auto &transition : padTransitions)
+                                    target->HandleGamepadKey(transition);
+                            padTransitions.clear();
+                        } else {
+                            for(const auto &window : windows)
+                                window->Handle(event);
+                        }
                     }
                 } while(SDL_PollEvent(&event));
             }
@@ -1594,7 +1665,7 @@ namespace krkr::sdl {
     bool Active() { return session != nullptr; }
 
     iWindowLayer *CreateWindow(tTJSNI_Window *owner) {
-        auto window = std::make_shared<Window>(owner);
+        auto window = std::make_shared<Window>(owner, session->gamepads);
         session->windows.push_back(window);
         session->startedWindow = true;
         return window.get();
@@ -1632,17 +1703,24 @@ namespace krkr::sdl {
                     std::filesystem::u8path(game).parent_path().u8string());
                 Application->StartApplication(ttstr(game));
 #if KRKR2_ENABLE_UI_TEST_DRIVER
-                tTJSVariant touchContract;
-                if(TVPGetCommandLine(TJS_W("-sdl-touch-contract"),
-                                     &touchContract) &&
-                   ttstr(touchContract) == TJS_W("yes")) {
+                const auto contractRequest =
+                    [&](const tjs_char *option,
+                        const char *filename) -> std::filesystem::path {
+                    tTJSVariant enabled;
+                    if(!TVPGetCommandLine(option, &enabled) ||
+                       ttstr(enabled) != TJS_W("yes"))
+                        return {};
                     const auto root = std::filesystem::u8path(game);
                     if(!std::filesystem::is_regular_file(
                            root / "interaction-fixture.json"))
                         throw std::runtime_error(
-                            "SDL touch driver requires an isolated fixture");
-                    host.touchContractRequest = root / "sdl-touch-input.txt";
-                }
+                            "SDL input driver requires an isolated fixture");
+                    return root / filename;
+                };
+                host.gamepadContractRequest = contractRequest(
+                    TJS_W("-sdl-gamepad-contract"), "sdl-pad-input.txt");
+                host.touchContractRequest = contractRequest(
+                    TJS_W("-sdl-touch-contract"), "sdl-touch-input.txt");
 #endif
                 while(!host.windows.empty())
                     PumpFrame();

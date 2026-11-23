@@ -253,6 +253,13 @@ jobs:
             tools/game-smoke/sdl_game_input_repro.py out/linux/release/bin/krkr2/krkr2 \
             out/linux/sdl-desktop-runtime/game-input
 
+      - name: Verify SDL3 gamepad input and hot-plug
+        if: ${{ !cancelled() && inputs.sdl3_desktop_contract && steps.build.outcome == 'success' }}
+        run: |
+          xvfb-run -a -s '-screen 0 1600x1050x24' dbus-run-session -- /usr/bin/python3 \
+            tools/game-smoke/sdl_gamepad_repro.py out/linux/release/bin/krkr2/krkr2 \
+            out/linux/sdl-desktop-runtime/gamepad
+
       - name: Upload SDL3 desktop evidence
         if: always() && inputs.sdl3_desktop_contract
         uses: actions/upload-artifact@v4
