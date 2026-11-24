@@ -30,6 +30,8 @@
 
 ## 当前后端工作的顺序
 
+- [Windows SDL3 独立宿主](notes/implemented/testing/2026-11-24-windows-sdl3-independent.md)：无 Cocos 依赖构建、原生交互及真实游戏存读档/退出；WindowEx 生命周期崩溃已通过最小场景定位并修正。
+
 - [FFmpeg 测试链接闭包](notes/implemented/testing/2026-11-03-ffmpeg-test-link-closure.md)：已恢复初始化测试的真实链接边界，1 个用例、6 个断言通过；播放集成仍单独验收。
 - [文件交互访问冲突](notes/proposed/bug-fix/2026-11-03-ui-contract-access-violation.md)：连续复现与 CDB 取证工具已验证，原故障根因仍待调查。
 - [B2 后续契约](notes/proposed/architecture/2026-11-03-platform-contracts.md)：已提取输入状态、共享帧钩子与宿主通知；DPI/IME、失焦及完整暂停恢复仍待验证。

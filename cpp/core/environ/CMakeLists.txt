@@ -65,7 +65,14 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/impl/TVPWindow.cpp
 )
 
+if(KRKR2_SDL3_ONLY)
+    list(FILTER ENVIRON_SOURCE_FILES EXCLUDE REGEX "/(cocos2d|ui)/|/impl/TVPWindow.cpp$")
+endif()
+
 if(KRKR2_ENABLE_SDL3_HOST)
+    if(WINDOWS)
+        list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/sdl3/SdlServices.cpp)
+    endif()
     list(APPEND ENVIRON_SOURCE_FILES
         ${ENVIRON_PATH}/sdl3/SdlHost.cpp
         ${ENVIRON_PATH}/sdl3/SdlGamepads.cpp)
@@ -85,7 +92,7 @@ if(KRKR2_USE_COCOS_UI)
         ${ENVIRON_PATH}/ui/MainFileSelectorForm.cpp)
 endif()
 
-if(KRKR2_ENABLE_UI_TEST_DRIVER)
+if(KRKR2_ENABLE_UI_TEST_DRIVER AND NOT KRKR2_SDL3_ONLY)
     list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/cocos2d/UIContractDriver.cpp)
     set_property(SOURCE ${ENVIRON_PATH}/cocos2d/MainScene.cpp APPEND PROPERTY
         COMPILE_DEFINITIONS KRKR2_ENABLE_UI_TEST_DRIVER=1)
@@ -144,12 +151,14 @@ if(ANDROID OR IOS)
     target_compile_definitions(${PROJECT_NAME} PRIVATE TVP_HAS_MOBILE_FILE_BACKEND)
 endif()
 
-find_package(cocos2dx CONFIG REQUIRED)
+if(NOT KRKR2_SDL3_ONLY)
+    find_package(cocos2dx CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE cocos2dx::cocos2d minizip)
+endif()
 find_package(7zip CONFIG REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
-        cocos2dx::cocos2d
+target_link_libraries(${PROJECT_NAME} PRIVATE 7zip::7zip)
 
-        7zip::7zip
-        minizip
-)
+if(WINDOWS)
+    target_link_libraries(${PROJECT_NAME} PRIVATE winmm comdlg32 shell32 ole32)
+endif()

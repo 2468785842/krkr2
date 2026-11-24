@@ -25,8 +25,10 @@ namespace krkr::launch {
         }
     } // namespace
 
-    LaunchOptions Parse(const std::vector<std::string> &arguments) {
+    LaunchOptions Parse(const std::vector<std::string> &arguments,
+                        DesktopHost defaultHost) {
         LaunchOptions options;
+        options.host = defaultHost;
         bool engineOnly = false;
         bool hostSpecified = false;
         for(std::size_t i = 0; i < arguments.size(); ++i) {
@@ -51,7 +53,9 @@ namespace krkr::launch {
                 hostSpecified = true;
                 if(arg == "--host=sdl3")
                     options.host = DesktopHost::SDL3;
-                else if(arg != "--host=cocos")
+                else if(arg == "--host=cocos")
+                    options.host = DesktopHost::Cocos;
+                else
                     throw std::invalid_argument("Unknown desktop host: " +
                                                 arg.substr(7));
             } else if(arg == "--game" || arg == "--xp3") {
@@ -114,7 +118,7 @@ namespace krkr::launch {
                "[-- -name=value ...]\n"
                "PATH: game directory (startup.tjs or data.xp3), or a supported "
                "archive.\n"
-               "  --host=cocos   Run with the default Cocos host\n"
+               "  --host=NAME    Select cocos or sdl3 (when available)\n"
                "  --set KEY=VALUE  Override a setting for this run "
                "(repeatable)\n"
                "  --list-settings  List desktop setting keys and values\n"

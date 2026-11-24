@@ -7,8 +7,13 @@
 #include <vector>
 
 #include "tjsString.h"
+#if !KRKR2_SDL3_ONLY
 #include "environ/cocos2d/AppDelegate.h"
 #include "environ/cocos2d/CocosPreferenceStorage.h"
+#endif
+#if KRKR2_ENABLE_SDL3_HOST
+#include "environ/sdl3/SdlHost.h"
+#endif
 #include "log/TVPInitLog.h"
 
 #include "environ/launch/DesktopLaunch.h"
@@ -35,14 +40,26 @@ int main() {
     TVPInitLogging(log_options);
 
     LocalFree(wargv);
+#if !KRKR2_SDL3_ONLY
     krkr::config::SetPreferenceStorage(TVPCreateCocosPreferenceStorage());
+#else
+    krkr::sdl::InstallPreferences();
+#endif
     const int launch =
         krkr::launch::PrepareDesktopLaunch(argc, argv_ptrs.data());
     if(launch >= 0)
         return launch;
 
+#if KRKR2_ENABLE_SDL3_HOST
+    if(krkr::launch::UseSDL3Host())
+        return krkr::sdl::Run(krkr::launch::DesktopTarget());
+#endif
+#if !KRKR2_SDL3_ONLY
     static auto pAppDelegate = std::make_unique<TVPAppDelegate>();
     const int result = pAppDelegate->run();
     return krkr::launch::DesktopExitCode() ? krkr::launch::DesktopExitCode()
                                            : result;
+#else
+    return 2;
+#endif
 }

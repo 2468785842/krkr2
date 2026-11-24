@@ -20,9 +20,20 @@ if(KRKR2_ENABLE_UI_TEST_DRIVER AND (ANDROID OR IOS))
 endif()
 
 option(KRKR2_BUILD_APP "Build the game runtime and bundled plugins" ON)
-option(KRKR2_ENABLE_SDL3_HOST "Enable the SDL3 host in the Linux game runtime" OFF)
-if(KRKR2_ENABLE_SDL3_HOST AND (NOT KRKR2_BUILD_APP OR NOT LINUX OR ANDROID OR IOS))
-    message(FATAL_ERROR "The SDL3 host requires the Linux game runtime")
+option(KRKR2_ENABLE_SDL3_HOST "Enable the SDL3 desktop game host" OFF)
+option(KRKR2_SDL3_ONLY "Build the Windows SDL3 runtime without Cocos" OFF)
+if(KRKR2_SDL3_ONLY)
+    if(NOT WINDOWS OR NOT KRKR2_BUILD_APP OR KRKR2_ENABLE_CRASH_UPLOAD)
+        message(FATAL_ERROR "SDL3-only requires the Windows application without crash upload")
+    endif()
+    set(KRKR2_ENABLE_SDL3_HOST ON CACHE BOOL "Enable the SDL3 desktop game host" FORCE)
+    add_compile_definitions(KRKR2_SDL3_ONLY=1)
+endif()
+if(WINDOWS AND KRKR2_ENABLE_SDL3_HOST AND NOT KRKR2_SDL3_ONLY)
+    message(FATAL_ERROR "Windows SDL3 requires KRKR2_SDL3_ONLY=ON")
+endif()
+if(KRKR2_ENABLE_SDL3_HOST AND (NOT KRKR2_BUILD_APP OR (NOT LINUX AND NOT WINDOWS) OR ANDROID OR IOS))
+    message(FATAL_ERROR "The SDL3 host requires the Windows or Linux game runtime")
 endif()
 option(KRKR2_BUILD_SDL3_PROTOTYPE "Build the separate SDL3/TJS desktop shell experiment" OFF)
 if(KRKR2_BUILD_SDL3_PROTOTYPE AND (ANDROID OR IOS))
@@ -48,6 +59,9 @@ if(KRKR2_BUILD_APP OR KRKR2_BUILD_SDL3_PROTOTYPE OR BUILD_TOOLS OR (ENABLE_TESTS
 endif()
 if(KRKR2_BUILD_APP OR (ENABLE_TESTS AND KRKR2_TEST_SCOPE STREQUAL "full"))
     list(APPEND VCPKG_MANIFEST_FEATURES engine)
+    if(NOT KRKR2_SDL3_ONLY)
+        list(APPEND VCPKG_MANIFEST_FEATURES cocos)
+    endif()
     if(KRKR2_ENABLE_PSD)
         list(APPEND VCPKG_MANIFEST_FEATURES psd)
     endif()
@@ -211,7 +225,9 @@ if(KRKR2_BUILD_APP)
         )
     endif()
 
-    target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
+    if(NOT KRKR2_SDL3_ONLY)
+        target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
+    endif()
 
 endif()
 
@@ -236,7 +252,20 @@ if(KRKR2_BUILD_APP)
     endif()
 
     ## resources
-    if(NOT ANDROID)
+    if(KRKR2_SDL3_ONLY)
+        set_target_properties(${PROJECT_NAME} PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/krkr2")
+        find_package(Python REQUIRED COMPONENTS Interpreter)
+        set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
+        include(cmake/RuntimeAssets.cmake)
+        add_custom_target(sync_sdl3_resources ALL
+            COMMAND ${Python_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_runtime_assets.py"
+                --source "${GAME_RES_FOLDER}" --destination "$<TARGET_FILE_DIR:krkr2>/Resources"
+                --all "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-all.txt"
+                --selected "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-selected.txt"
+            VERBATIM)
+        add_dependencies(${PROJECT_NAME} sync_sdl3_resources)
+    elseif(NOT ANDROID)
         include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CocosBuildHelpers.cmake")
 
         set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")

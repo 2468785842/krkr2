@@ -36,12 +36,21 @@ namespace krkr::launch {
             std::vector<std::string> arguments;
             for(int i = 1; i < argc; ++i)
                 arguments.emplace_back(argv[i]);
+#if KRKR2_SDL3_ONLY
+            auto options = Parse(arguments, DesktopHost::SDL3);
+#else
             auto options = Parse(arguments);
+#endif
+#if KRKR2_SDL3_ONLY
+            if(options.host != DesktopHost::SDL3)
+                throw std::invalid_argument(
+                    "Cocos host is unavailable in this build");
+#endif
             if(options.help) {
                 std::fputs(Usage(), stdout);
 #if KRKR2_ENABLE_SDL3_HOST
                 std::fputs("  --host=sdl3   Use SDL3 with an explicit game "
-                           "target (Linux)\n",
+                           "target (Windows/Linux)\n",
                            stdout);
 #endif
                 return 0;

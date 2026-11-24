@@ -1,4 +1,4 @@
-if(KRKR2_TEST_SCOPE STREQUAL "full")
+if(KRKR2_TEST_SCOPE STREQUAL "full" AND NOT KRKR2_SDL3_ONLY)
     find_package(cocos2dx CONFIG REQUIRED)
     set(SOURCES NodeOrderTest.cpp CocosPointerCoordinatesTest.cpp CocosInputFocusTest.cpp CocosTextInputTest.cpp CocosContextSubscriptionTest.cpp
         CocosVideoPresentationTest.cpp
@@ -39,3 +39,20 @@ add_executable(texture_presentation_tests TexturePresentationTest.cpp RenderSett
 target_include_directories(texture_presentation_tests PRIVATE ${CMAKE_SOURCE_DIR}/cpp/core/visual)
 target_link_libraries(texture_presentation_tests PRIVATE Catch2::Catch2WithMain)
 catch_discover_tests(texture_presentation_tests)
+
+if(KRKR2_SDL3_ONLY)
+    add_executable(pvrtc_decoder_tests PVRTCDecoderTest.cpp
+        ${CMAKE_SOURCE_DIR}/cpp/core/visual/PVRTCDecoder.cpp)
+    target_include_directories(pvrtc_decoder_tests PRIVATE ${CMAKE_SOURCE_DIR}/cpp/core/visual)
+    target_link_libraries(pvrtc_decoder_tests PRIVATE Catch2::Catch2WithMain)
+    catch_discover_tests(pvrtc_decoder_tests)
+endif()
+
+if(KRKR2_SDL3_ONLY AND TARGET krkr2)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME windowex-lifetime-runtime
+        COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/game-smoke/windowex_lifetime_repro.py
+            --engine $<TARGET_FILE:krkr2>
+            --output-dir ${CMAKE_BINARY_DIR}/windowex-lifetime)
+    set_tests_properties(windowex-lifetime-runtime PROPERTIES TIMEOUT 35 LABELS "integration;plugin")
+endif()

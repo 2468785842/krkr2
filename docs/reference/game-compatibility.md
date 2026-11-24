@@ -18,3 +18,15 @@
 [窗口验证](../../.agents/notes/implemented/testing/2026-11-03-window-interface-validation.md)及
 [散装资源问题](../../.agents/notes/proposed/bug-fix/2026-11-03-loose-game-resource-lookup.md)。
 测试方法见[游戏与交互测试](../guides/game-testing.md)。本地商业样本及素材不随仓库分发。
+
+## 2026-11-24 Windows SDL3 独立宿主
+
+在私有归档副本验证《天神乱漫》的 `title.ks:33` 标题、SendInput 鼠标开始游戏、
+Enter 推进 `１.ks`、存档槽写入和同进程读档；正常确认退出后，将该私有副本的 savedata
+复制到另一份全新副本，新进程从标题读取保存槽并继续推进剧情。两轮结束均退出 0、未强停。
+原始截图、归档哈希、二进制身份与失败/修复过程见
+[实施记录](../../.agents/notes/implemented/testing/2026-11-24-windows-sdl3-independent.md)。
+
+本次发现并修复 WindowEx 未初始化覆盖位图指针导致的窗口销毁崩溃。旧 Cocos 基线和修复前
+SDL3 游戏退出都曾为 `0xc0000005`；只有 SDL3 失败保存了匹配符号栈，不能据相同退出码
+推断所有历史访问冲突都已修复。未验证完整剧情、音视频同步和 Windows 物理 DPI/IME/手柄。

@@ -4859,6 +4859,8 @@ public:
         TVPRegisterRenderManager("software", TVPGetSoftwareRenderManager);
         // An explicit factory reference retains the OpenGL object in normal
         // static-library builds, including builds without the UI test driver.
+#if !KRKR2_SDL3_ONLY
         TVPRegisterRenderManager("opengl", TVPCreateOpenGLRenderManager);
+#endif
     }
 } __tTVPSoftwareRenderManagerAutoReigster_instance;

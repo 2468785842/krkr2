@@ -14,6 +14,7 @@
 #include "DialogBackend.h"
 #include "EventIntf.h"
 #include "HostFrame.h"
+#include "FrameStep.h"
 #include "HostLifecycle.h"
 #include "InputModifiers.h"
 #include "InputCancellation.h"
@@ -898,7 +899,7 @@ namespace krkr::sdl {
                 }
             }
 
-            void Present() {
+            void Present(bool swap = true) {
                 if(!Live() || !visible || minimized || !dirty)
                     return;
                 check(SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, 255));
@@ -935,10 +936,25 @@ namespace krkr::sdl {
                     }
                     check(SDL_SetRenderClipRect(renderer.get(), nullptr));
                 }
-                check(SDL_RenderPresent(renderer.get()));
+                if(swap)
+                    check(SDL_RenderPresent(renderer.get()));
                 // Mesa may have acquired the previous Wayland buffer before
                 // the resize. Commit again with the newly allocated buffer.
                 dirty = std::exchange(drawableCommitPending, false);
+            }
+
+            bool Capture(const std::string &path) {
+                if(!Live())
+                    return false;
+                dirty = true;
+                Present(false);
+                std::unique_ptr<SDL_Surface, decltype(&SDL_DestroySurface)>
+                    surface(SDL_RenderReadPixels(renderer.get(), nullptr),
+                            SDL_DestroySurface);
+                const bool saved =
+                    surface && SDL_SaveBMP(surface.get(), path.c_str());
+                check(SDL_RenderPresent(renderer.get()));
+                return saved;
             }
 
             void Handle(const SDL_Event &event) {
@@ -1665,9 +1681,36 @@ namespace krkr::sdl {
         }
     } // namespace
 
+    void Capture(const std::string &path,
+                 std::function<void(bool)> completion) {
+        bool saved = false;
+        if(session) {
+            auto *target = focusedWindow;
+            if(!target && !session->windows.empty())
+                target = session->windows.front().get();
+            if(target)
+                saved = target->Capture(path);
+        }
+        completion(saved);
+    }
+
+    int DrawOnce(int interval) {
+        static krkr::event::ModalFramePacer pacer;
+        return pacer.DrawIfDue(
+            SDL_GetTicks(), interval,
+            [] {
+                if(session) {
+                    const auto windows = session->windows;
+                    for(const auto &window : windows)
+                        window->Present();
+                }
+            },
+            [] {});
+    }
+
     bool Active() { return session != nullptr; }
 
-    iWindowLayer *CreateWindow(tTJSNI_Window *owner) {
+    iWindowLayer *CreateGameWindow(tTJSNI_Window *owner) {
         auto window = std::make_shared<Window>(owner, session->gamepads);
         session->windows.push_back(window);
         session->startedWindow = true;
@@ -1701,6 +1744,9 @@ namespace krkr::sdl {
                 std::make_shared<krkr::assets::LocalAssetReader>(
                     std::vector<std::filesystem::path>{
                         std::filesystem::u8path(basePath) / "Resources" }));
+#if defined(_WIN32)
+            InstallPreferences();
+#else
             const auto environment =
                 [](const char *key) -> std::optional<std::string> {
                 const auto *value = std::getenv(key);
@@ -1720,6 +1766,7 @@ namespace krkr::sdl {
                             locale->GetText("cannot_create_preference").c_str(),
                             nullptr);
                     }));
+#endif
             session = &host;
             try {
                 TVPMainThreadID = std::this_thread::get_id();

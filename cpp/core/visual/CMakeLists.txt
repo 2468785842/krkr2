@@ -74,6 +74,10 @@ set(VISUAL_HEADERS_DIR
     ${VISUAL_PATH}/impl
 )
 
+if(KRKR2_SDL3_ONLY)
+    list(REMOVE_ITEM VISUAL_SOURCE_FILES ${VISUAL_PATH}/ogl/RenderManager_ogl.cpp)
+    list(APPEND VISUAL_SOURCE_FILES ${VISUAL_PATH}/PVRTCDecoder.cpp)
+endif()
 add_library(${PROJECT_NAME} STATIC ${VISUAL_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${VISUAL_HEADERS_DIR})
 krkr2_target_link_foundation(${PROJECT_NAME} PUBLIC)

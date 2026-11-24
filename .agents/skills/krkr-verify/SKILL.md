@@ -30,6 +30,11 @@ description: 为 KrKr2 的 C++、CMake 或后端改动选择并执行构建与�
 - 改渲染器注册、管理界面裁剪或静态链接，须用 `KRKR2_ENABLE_UI_TEST_DRIVER=OFF` 的普通应用
   验证软件/OpenGL 自制场景。测试驱动中的 GL 诊断引用可能隐式保留注册对象，掩盖普通构建缺失后端。
 
+Windows SDL3 独立应用使用 `Windows SDL3 Debug Config/Build`；预设的 platform 范围
+额外注册启动解析、资源/CLI、PVRTC 和 WindowEx 生命周期，共 67 项。先核对实际注册。
+依赖闭包须同时检查全新 vcpkg status、编译源及链接命令，不能用复用的 Cocos 安装目录证明独立性。
+原生交互命令与边界见 [Windows SDL3](../../../docs/subsystems/windows-sdl3.md)。
+
 ## 结果判定
 
 先用 `ctest --test-dir <构建目录> -N` 核对预期用例，再用有针对性的 `-R`

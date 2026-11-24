@@ -151,3 +151,19 @@ TEST_CASE("desktop resolution handles Unicode and rejects directories named "
     REQUIRE(ResolveTarget(archive.parent_path() / "." / archive.filename()) ==
             archive);
 }
+
+TEST_CASE(
+    "desktop native host default validates renderer and explicit overrides",
+    "[launch]") {
+    REQUIRE(Parse({}, DesktopHost::SDL3).host == DesktopHost::SDL3);
+    REQUIRE(Parse({ "--host=sdl3" }, DesktopHost::SDL3).host ==
+            DesktopHost::SDL3);
+    REQUIRE(Parse({ "--host=cocos" }, DesktopHost::SDL3).host ==
+            DesktopHost::Cocos);
+    REQUIRE_THROWS_AS(Parse({ "--set", "renderer=opengl" }, DesktopHost::SDL3),
+                      std::invalid_argument);
+    REQUIRE_NOTHROW(Parse({ "--set", "renderer=software" }, DesktopHost::SDL3));
+    REQUIRE_THROWS_AS(
+        Parse({ "--host=sdl3", "--host=cocos" }, DesktopHost::SDL3),
+        std::invalid_argument);
+}

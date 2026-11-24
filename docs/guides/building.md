@@ -29,6 +29,12 @@ ctest --test-dir out/windows/debug --output-on-failure --no-tests=error
 只选择 LibXml2/Catch2 依赖，不查找 Cocos 或 TJS。完整命令及 full 的旧格式对照见
 [宿主资源与配置 XML](../subsystems/host-resources.md#独立验证)。
 
+## Windows SDL3 独立应用
+
+使用 `Windows SDL3 Debug Config/Build` 预设，在全新目录安装不含 Cocos 的引擎依赖，
+构建生产应用与定向测试。运行默认进入 SDL3；命令、原生交互工具和验收边界见
+[Windows SDL3 独立宿主](../subsystems/windows-sdl3.md)。
+
 ## 仅构建 XP3 解包工具
 
 在 MSVC x64 开发环境执行（Linux/macOS 去掉 WINDOWS 并选择对应 triplet）：

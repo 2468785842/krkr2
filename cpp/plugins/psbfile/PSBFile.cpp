@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <memory>
-#include <json/memorystream.h>
 
 #include "EMoteCTX.h"
 #include "ncbind.hpp"

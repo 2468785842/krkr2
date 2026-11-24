@@ -1,5 +1,9 @@
 #include "Platform.h"
-#include "cocos2d/MainScene.h"
+#if KRKR2_SDL3_ONLY
+#include <SDL3/SDL.h>
+#include <stdexcept>
+#endif
+
 // #undef WIN32
 #include <windows.h>
 #include <mmsystem.h>
@@ -99,7 +103,38 @@ bool TVPCheckStartupArg() {
 
 int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
                             const std::vector<ttstr> &vecButtons) {
-    // there has no implement under android
+#if KRKR2_SDL3_ONLY
+    std::vector<std::string> labels;
+    labels.reserve(vecButtons.size());
+    for(const auto &button : vecButtons)
+        labels.push_back(button.AsStdString());
+    if(labels.empty())
+        labels.emplace_back("OK");
+    std::vector<SDL_MessageBoxButtonData> buttons;
+    buttons.reserve(labels.size());
+    for(std::size_t index = 0; index < labels.size(); ++index) {
+        SDL_MessageBoxButtonFlags flags = 0;
+        if(index == 0)
+            flags |= SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
+        if(index == labels.size() - 1)
+            flags |= SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
+        buttons.push_back(
+            { flags, static_cast<int>(index), labels[index].c_str() });
+    }
+    const auto title = caption.AsStdString();
+    const auto message = text.AsStdString();
+    const SDL_MessageBoxData dialog{ SDL_MESSAGEBOX_INFORMATION,
+                                     SDL_GetKeyboardFocus(),
+                                     title.c_str(),
+                                     message.c_str(),
+                                     static_cast<int>(buttons.size()),
+                                     buttons.data(),
+                                     nullptr };
+    int selected = -1;
+    if(!SDL_ShowMessageBox(&dialog, &selected))
+        throw std::runtime_error(SDL_GetError());
+    return selected < 0 ? static_cast<int>(buttons.size() - 1) : selected;
+#else
     switch(vecButtons.size()) {
         case 1:
             MessageBoxW(0, text.toWString().c_str(),
@@ -119,6 +154,7 @@ int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
             break;
     }
     return -1;
+#endif
 }
 
 extern "C" int TVPShowSimpleMessageBox(const char *pszText,

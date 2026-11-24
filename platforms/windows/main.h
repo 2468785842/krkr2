@@ -9,6 +9,6 @@
 #include <tchar.h>
 
 // C RunTime Header Files
-#include "platform/CCStdC.h"
+#include <cstdio>
 
 #endif // __MAIN_H__

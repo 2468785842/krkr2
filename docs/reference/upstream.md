@@ -22,3 +22,11 @@
 - [MiniFB](https://github.com/emoon/minifb)：像素缓冲呈现和事件，适合软件渲染验证；移动端能力有单独限制。
 
 这些资料只辅助选型，不预设本项目必须引入更多库。优先复用已满足契约的代码，并用同机测量决定精简收益。
+
+## 本轮代码来源
+
+`cpp/core/visual/PVRTCDecoder.cpp` 保留 cocos2d-x 4.0 中 `cocos/base/pvr.cpp` 的
+Imagination Technologies PVRTC 2/4 bpp 解码器，来源提交
+`e3438ed3fd10a304b7ca2cd3dad9b29fead818d2`。只去除 Cocos 头文件并增加 RenderHost 入口；
+版权和上游许可随 `assets/licenses/PVRTCDecoder.txt` 打包。独立构建的端点/输出边界回归
+不等于所有 PVRTC 纹理的像素验收。

@@ -33,16 +33,6 @@
           "default-features": false,
           "platform": "android"
         },
-        {
-          "name": "cocos2dx",
-          "default-features": false,
-          "features": [
-            "ui",
-            "archive",
-            "extensions",
-            "desktop"
-          ]
-        },
         "ffmpeg",
         "freetype",
         {
@@ -154,11 +144,28 @@
     },
     "config": {
       "description": "Configuration XML and native host resource tests without the game runtime",
-      "dependencies": ["libxml2"]
+      "dependencies": [
+        "libxml2"
+      ]
     },
     "imageops": {
       "description": "CPU image operations without the runtime or window backend",
       "dependencies": []
+    },
+    "cocos": {
+      "description": "Legacy Cocos application host and UI",
+      "dependencies": [
+        {
+          "name": "cocos2dx",
+          "default-features": false,
+          "features": [
+            "ui",
+            "archive",
+            "extensions",
+            "desktop"
+          ]
+        }
+      ]
     }
   },
   "default-features": [

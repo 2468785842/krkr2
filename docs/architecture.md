@@ -1,11 +1,11 @@
 # 当前架构与代码导航
 
-核对日期：2026-11-03。初批构建瘦身基于 `853ec7d`，归档续批基于 `f4d3e2a`，实际改动与验证见[实施记录](../.agents/notes/implemented/simplification/2026-11-01-dependency-slimming.md)。以下描述本仓库实现，不代表外部二开仓库。后续实现变化应同步更新。
+核对日期：2026-11-03；Windows SDL3 独立宿主补充于 2026-11-24。初批构建瘦身基于 `853ec7d`，归档续批基于 `f4d3e2a`，实际改动与验证见[实施记录](../.agents/notes/implemented/simplification/2026-11-01-dependency-slimming.md)。以下描述本仓库实现，不代表外部二开仓库。后续实现变化应同步更新。
 
 ## 运行链路
 
 ```text
-platforms 启动 → environ/cocos2d 应用壳、UI 与窗口
+platforms 启动 → Windows SDL3 独立宿主 / Cocos 应用壳、UI 与窗口
                          ↓
           base 脚本管理 / 事件 / KAG → tjs2
                          ↓
@@ -18,7 +18,7 @@ platforms 启动 → environ/cocos2d 应用壳、UI 与窗口
 Desktop 启动先经过 `environ/launch/` 的纯参数/路径解析与引擎适配；指定目标时
 适配器在 GTK/GL 初始化前校验归档，`AppDelegate` 在场景就绪后直调 `MainScene::startupFrom`，
 无目标仍保留原选择器。现状及命令见 [Desktop CLI](subsystems/desktop-cli.md)。移动端启动路径未迁移。
-Windows 入口 `platforms/windows/main.cpp` 创建 TVPAppDelegate；脚本入口在
+Windows 入口 `platforms/windows/main.cpp` 按构建选择 SDL3 或 TVPAppDelegate；脚本入口在
 `cpp/core/base/ScriptMgnIntf.cpp`，包含源码执行、表达式、字节码加载及存储加载。
 
 ## 按问题定位
@@ -37,7 +37,7 @@ Windows 入口 `platforms/windows/main.cpp` 创建 TVPAppDelegate；脚本入口
 ## 依赖事实
 
 - 根 CMake 使用 C++17。`cpp/core/CMakeLists.txt` 的 `krkr2core` 为 INTERFACE 聚合目标，不是单个已隔离实现库。
-- cocos2d 除窗口/绘制外，还被 UI、配置、文件后端、Android JNI 辅助及视频等路径使用；移除它不只是改启动函数。
+- Cocos 配置仍包含 UI、移动端文件后端、Android JNI 辅助及视频适配；Windows SDL3 独立配置不编译这些路径。
 - `input/` 的 `core_input` 只依赖标准 C++，由输入适配器和 System 查询共同使用，包含状态、修饰位、局部坐标、取消分类与 UTF-8/UTF-16 提交文本编解码；OS 键码、坐标、IME 组合状态和事件排队仍由现有宿主承担。见[共享输入](subsystems/input-state.md)。
 - `visual/WindowLayer.h` 已拆出不暴露 Cocos 类型的窗口接口；具体 Cocos 窗口仍在 `environ/impl/TVPWindow.h`。视频播放器通过通用呈现接口交付 YUV 帧，由 Cocos 宿主创建和管理节点。见 [窗口接口拆分](subsystems/window-interface.md)。
 - `visual/TexturePresentation.h` 提供后端无关的 CPU 行/GL 画面描述；Cocos 纹理包装、上传与截图移到宿主适配层。CPU 渲染器不再直接创建 Cocos 纹理，GL宿主状态和重建订阅已迁入纯C++接口，配置与平台服务也已集中至 RenderHost，完整context资源恢复待实现，见[纹理呈现](subsystems/render-presentation.md)。
@@ -45,6 +45,9 @@ Windows 入口 `platforms/windows/main.cpp` 创建 TVPAppDelegate；脚本入口
 - `environ/HostFrame.h` 提供普通帧、消息泵和模态绘制入口。帧推进和模态节流位于无 Cocos 依赖的 `event/FrameStep.*`。见[帧循环](subsystems/window-interface.md#帧循环)。
 - `core_visual_module` 自行声明图像、字体、哈希和原生 GL 依赖。内置字体经宿主读取，Cocos 的实际资源搜索仍在应用壳中。见[Visual 构建依赖](subsystems/render-presentation.md#visual-构建依赖)。
 - CPU 图像操作统一经 `imageops/ImageOps.h` 调用。`ImageOps.cpp` 实现最近邻/线性缩放，`ImageOps_native.cpp` 实现其余缩放、模糊、仿射/透视、矩阵求解和标准 C++17 行任务；生产目标与 vcpkg 已移除 OpenCV，实时 OpenCV 对照仅为默认关闭的测试工具。移植来源及验证边界见 [ImageOps](subsystems/imageops.md)。
+- Windows 的 `KRKR2_SDL3_ONLY` 配置已移除 Cocos 的配置、安装、编译及链接依赖；
+  直接进入 SDL3，使用原生菜单/对话框、独立配置/资源及软件画面。
+  [Windows SDL3 独立宿主](subsystems/windows-sdl3.md)
 - Linux 的 SDL3 宿主通过正式 CLI 显式启用，使用生产脚本、Window/Layer 与软件画面呈现。
   [Linux SDL3 游戏宿主](subsystems/desktop-cli.md#linux-sdl3-游戏宿主)
 - 独立 SDL3/TJS 原型继续验证实验脚本和事件契约。[原型说明](../tools/sdl3-prototype/README.md)

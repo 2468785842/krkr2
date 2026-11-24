@@ -26,7 +26,9 @@
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [ "Windows" ]
+          "hostOS": [
+            "Windows"
+          ]
         }
       }
     },
@@ -44,6 +46,18 @@
       "binaryDir": "${sourceDir}/out/windows/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "Windows SDL3 Debug Config",
+      "inherits": "Windows Debug Config",
+      "binaryDir": "${sourceDir}/out/windows/sdl3-debug",
+      "cacheVariables": {
+        "KRKR2_SDL3_ONLY": true,
+        "ENABLE_TESTS": true,
+        "KRKR2_TEST_SCOPE": "platform",
+        "BUILD_TOOLS": false,
+        "KRKR2_ENABLE_UI_TEST_DRIVER": false
       }
     },
     {
@@ -162,19 +176,38 @@
   ],
   "buildPresets": [
     {
+      "name": "Windows SDL3 Debug Build",
+      "configurePreset": "Windows SDL3 Debug Config",
+      "targets": [
+        "krkr2",
+        "input_state_tests",
+        "frame_hook_tests",
+        "main_thread_message_tests",
+        "texture_presentation_tests",
+        "launch_tests",
+        "pvrtc_decoder_tests"
+      ]
+    },
+    {
       "name": "Windows XP3 Build",
       "configurePreset": "Windows XP3 Config",
-      "targets": ["xp3"]
+      "targets": [
+        "xp3"
+      ]
     },
     {
       "name": "Windows Strings Build",
       "configurePreset": "Windows Strings Config",
-      "targets": ["tjsString"]
+      "targets": [
+        "tjsString"
+      ]
     },
     {
       "name": "Windows Lean Debug Build",
       "configurePreset": "Windows Lean Debug Config",
-      "targets": ["krkr2"]
+      "targets": [
+        "krkr2"
+      ]
     },
     {
       "name": "Windows Debug Build",

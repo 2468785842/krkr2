@@ -78,7 +78,7 @@ python scripts/check_core_module_deps.py
 ## 后端精简约束
 
 目标是隔离并逐步替换 cocos2d/OpenCV，减小依赖及编译范围，见 [后端精简路线](.agents/notes/proposed/architecture/2026-11-03-backend-modernization.md)。
-SDL3/Sokol/GLFW 尚未在本仓库完成迁移；不要把 `environ/sdl/tvpsdl.cpp` 的目录名当作有效 SDL 后端。
+Windows 已提供无 Cocos 的 SDL3 独立构建，见 [Windows SDL3](docs/subsystems/windows-sdl3.md)；Linux 仍为可选双宿主，其他平台独立迁移及 Sokol/GLFW 尚未完成。不要把旧 `environ/sdl/tvpsdl.cpp` 的目录名当作有效 SDL 后端。
 平台替换与 Ciallang/TJS2 替换分开验收。保持现有 TJS、Layer、存储及插件行为；移除依赖须同时处理 CMake、vcpkg、资源/平台打包与消费者，不用空实现静默吞掉游戏功能。
 
 外部实现的借鉴范围和已发现差异见 [参考资料](docs/reference/upstream.md)。引用代码时记录来源提交、具体文件及原许可/版权；外部 README 的能力声明不等于本仓库已验证能力。

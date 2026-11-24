@@ -1408,7 +1408,7 @@ float TVPMainScene::convertCursorScale(float val /*0 ~ 1*/) {
 iWindowLayer *TVPCreateAndAddWindow(tTJSNI_Window *w) {
 #if KRKR2_ENABLE_SDL3_HOST
     if(krkr::sdl::Active())
-        return krkr::sdl::CreateWindow(w);
+        return krkr::sdl::CreateGameWindow(w);
 #endif
     TVPWindowLayer *ret = TVPWindowLayer::create(w);
     TVPMainScene::GetInstance()->addLayer(ret);

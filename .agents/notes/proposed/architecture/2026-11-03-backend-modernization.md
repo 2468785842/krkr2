@@ -5,8 +5,9 @@ Status: proposed
 方案材料：本页包含待实施的接口或目录设计，不能作为当前构建与可用功能说明；事实以源码及 docs 为准。
 
 状态：迁移提案。目标是降低 cocos2d/OpenCV 等依赖和构建范围，保持吉里吉里脚本、图层、存储及插件行为。
-当前后端仍是 cocos；平台壳（窗口/输入/主循环）选型已定 **SDL3**，依据与四子系统现状见
-[平台壳选型](2026-11-03-ui-platform-shell.md)，尚未实现。ANGLE 为 GLES 翻译层而非 cocos 替代，
+Windows 已有 SDL3 独立构建，Linux 有可选 SDL3/Cocos 双宿主；其他平台继续使用 Cocos。平台壳选型及早期现状见
+[平台壳选型](2026-11-03-ui-platform-shell.md)。Windows 当前实现与验证见
+[独立宿主记录](../../implemented/testing/2026-11-24-windows-sdl3-independent.md)。ANGLE 为 GLES 翻译层而非 cocos 替代，
 与窗口库正交，延后到 macOS 阶段决策。
 最小工具、字符串、归档测试及 ImageOps 接口/像素测试的构建隔离已有实现，进展与验证边界见[依赖瘦身实施记录](../../implemented/simplification/2026-11-01-dependency-slimming.md)。
 2026-11-20：OpenCV 生产依赖已剔除，B4 算法/线程与默认独立测试已迁移；跨平台完整消费者和游戏验收仍按范围单独核实，见[移除记录](../../implemented/simplification/2026-11-20-opencv-removal.md)。

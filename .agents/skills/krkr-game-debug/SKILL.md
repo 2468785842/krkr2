@@ -10,6 +10,10 @@ description: 在 KrKr2 中用隔离游戏副本、TJS 插装、实际截图和 C
 脚本菜单或窗口契约优先用自制场景；真实 KAG 兼容使用 `tools/game-smoke/game_smoke.py`
 准备的独立副本。保留已有游戏钩子，使用新输出目录，不写原始 `D:/krkr/tslm`。
 
+Windows SDL3 独立宿主可运行 `tools/game-smoke/sdl_windows_repro.py`，
+通过 SendInput、原生窗口/菜单/对话框及实际截图验证交互，不启用组件驱动。
+用法和限制见 [Windows SDL3](../../../docs/subsystems/windows-sdl3.md)。
+
 ## 匹配操作与证据
 
 确认实际 exe/hash、场景/hash、UI/驱动开关及报告对应关系。

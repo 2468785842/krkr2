@@ -1,6 +1,7 @@
 # 桌面命令行启动与设置
 
-Windows、Linux 与 macOS 使用命令行启动游戏和设置引擎。Linux 可通过显式开关构建 SDL3 游戏宿主。
+Windows、Linux 与 macOS 使用命令行启动游戏和设置引擎。Windows 可构建
+[无 Cocos 的 SDL3 独立宿主](windows-sdl3.md)，Linux 可通过显式开关构建双宿主应用。
 
 ## 使用
 
