@@ -393,3 +393,11 @@ Windows/macOS/Android 无 Cocos 构建或任意商业游戏完整剧情。
 
 这轮本机只能运行 Linux；Windows 原有真实游戏记录是远端41c783d的结果，不能视为合并后的新Windows验收。
 双平台远端CI结果将在评审分支记录，未完成项保持明确状态；macOS/Android不包含在独立宿主支持范围。
+
+
+评审分支 `codex/unify-sdl3-native-hosts` 已创建草稿 PR #60，目标 dev，未合并。
+首轮 Windows 专用CI在 bootstrap 前失败：MSVC setup 将 VCPKG_ROOT 覆盖为 Visual Studio 自带路径，
+导致 clone 拒绝写入已存在目录。已按旧 Windows 工作流恢复 repository-local 路径的方式修复；
+这是CI环境接线错误，不是Windows编译通过/失败结论。
+包内所有文件哈希、根目录和实际CLI/窗口脚本已通过。归档执行位为0755；
+本机解压默认 umask0077 会变为0700，已核对 tar header，未将此环境掩码当作打包权限故障。

@@ -102,6 +102,11 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: amd64
+      - name: Restore repository-local vcpkg path after MSVC setup
+        shell: pwsh
+        run: |
+          $nativeVcpkgRoot = "${{ github.workspace }}/out/vcpkg-tool" -replace '\\', '/'
+          "VCPKG_ROOT=$nativeVcpkgRoot" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
       - uses: lukka/get-cmake@latest
         with:
           cmakeVersion: 3.31.1
