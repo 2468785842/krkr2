@@ -33,8 +33,12 @@ namespace {
 namespace krkr::renderhost {
     std::string RendererName() {
 #if KRKR2_ENABLE_SDL3_HOST
-        if(krkr::sdl::Active())
-            return "software";
+        if(krkr::sdl::Active()) {
+            const auto name = render::RendererName(Preferences());
+            // Existing OpenGL preferences remain usable with SDL's CPU
+            // presentation. Preserve errors for genuinely unknown factories.
+            return name == "opengl" ? "software" : name;
+        }
 #endif
         return render::RendererName(Preferences());
     }

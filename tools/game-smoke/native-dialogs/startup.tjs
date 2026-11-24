@@ -1,0 +1,74 @@
+// Self-authored native host contract. Requests open UI; OS input supplies results.
+global.events = [];
+Plugins.link("fstat.dll");
+global.record = function(text) {
+    events.add(text);
+    events.save(System.exePath + "interaction-events.txt");
+};
+class NativeEntry extends MenuItem {
+    var tag;
+    function NativeEntry(owner, caption, id) {
+        super.MenuItem(owner, caption);
+        tag = id;
+    }
+    function onClick() {
+        checked = !checked;
+        record("menu:" + tag + ":" + string checked);
+    }
+}
+global.win = new Window();
+win.caption = "Native host contract";
+win.setSize(400, 240);
+win.visible = true;
+global.layer = new Layer(win, null);
+layer.setSize(400, 240);
+layer.fillRect(0, 0, 400, 240, 0xff204060);
+layer.visible = true;
+win.menu.caption = "Native menu";
+global.entry = new NativeEntry(win, "Toggle action", "toggle");
+win.menu.add(entry);
+global.nested = new MenuItem(win, "Nested menu");
+global.nestedEntry = new NativeEntry(win, "Nested action", "nested");
+nested.add(nestedEntry);
+win.menu.add(nested);
+global.disabled = new NativeEntry(win, "Disabled action", "disabled");
+disabled.enabled = false;
+win.menu.add(disabled);
+global.hidden = new NativeEntry(win, "Hidden action", "hidden");
+hidden.visible = false;
+win.menu.add(hidden);
+record("copy:" + string Storages.copyFile(System.exePath + "source.bin", System.exePath + "复制.bin"));
+record("copy-self:" + string Storages.copyFile(System.exePath + "source.bin", System.exePath + "source.bin"));
+global.lastCommand = "";
+global.driver = new Timer(function() {
+    try {
+        var path = System.exePath + "request.txt";
+        if(!Storages.isExistentStorage(path)) return;
+        var lines = [];
+        try { lines.load(path); } catch(e) { return; }
+        if(!lines.count || lines[0] == lastCommand) return;
+        lastCommand = lines[0];
+        record("command:" + lastCommand);
+        if(lastCommand == "menu-1" || lastCommand == "menu-2" || lastCommand == "menu-nested" || lastCommand == "menu-cancel") {
+            win.menu.popup(0, 0, 0);
+        } else if(lastCommand == "input-accept" || lastCommand == "input-cancel") {
+            var value = System.inputString("Native input", "Enter a value", "seed");
+            record(value === void ? "input:cancel" : "input:" + value);
+        } else if(lastCommand == "message") {
+            record("message:" + System.inform("Choose a native button", "Native message", ["First", "Second", "Third"]));
+        } else if(lastCommand == "file-accept" || lastCommand == "file-cancel") {
+            var params = %[title:"Native file", initialDir:System.exePath, name:"fixture.txt", save:false];
+            record(lastCommand + ":" + string Storages.selectFile(params));
+            record("selected:" + params.name);
+        } else if(lastCommand == "quit") {
+            record("finished");
+            System.exit();
+        }
+    } catch(e) {
+        record("error:" + e.message);
+        System.exit(2);
+    }
+}, "");
+driver.interval = 40;
+driver.enabled = true;
+record("ready");

@@ -4,9 +4,12 @@
 #include "ConfigManager/GlobalConfigManager.h"
 #include "ConfigManager/IndividualConfigManager.h"
 #include "ConfigManager/PreferenceStorage.h"
+#include "ConfigManager/LocalHostServices.h"
+#include "PackagedAsset.h"
 
 #include <chrono>
 #include <filesystem>
+#include <fstream>
 #include <stdexcept>
 
 namespace {
@@ -48,6 +51,75 @@ namespace {
         ~ConfigFixture() { iSysConfigManager::SetLaunchOverrides({}); }
     };
 } // namespace
+
+TEST_CASE("native host services cover configuration before window startup") {
+    const auto previousReader = krkr::assets::CurrentReader();
+    const auto previousStorage = krkr::config::CurrentPreferenceStorage();
+    const auto root = std::filesystem::temp_directory_path() /
+        ("krkr-services-" +
+         std::to_string(
+             std::chrono::steady_clock::now().time_since_epoch().count()));
+    struct Cleanup {
+        std::filesystem::path path;
+        ~Cleanup() {
+            std::error_code error;
+            std::filesystem::remove_all(path, error);
+        }
+    } cleanup{ root };
+    std::filesystem::create_directories(root / "Resources");
+    {
+        std::ofstream file(root / "Resources/font.bin", std::ios::binary);
+        file.write("A\0B", 3);
+    }
+    int failures = 0;
+    {
+        krkr::host::LocalServices services(root / "Resources",
+                                           (root / "settings").u8string(),
+                                           [&] { ++failures; });
+        REQUIRE(TVPHostFileExists("font.bin"));
+        std::string bytes;
+        REQUIRE(TVPReadPackagedAsset(
+            "font.bin", [&](const unsigned char *data, std::size_t size) {
+                bytes.assign(reinterpret_cast<const char *>(data), size);
+            }));
+        REQUIRE(bytes == std::string("A\0B", 3));
+        const auto storage = krkr::config::RequirePreferenceStorage();
+        const auto path = storage->PreferenceDirectory() + "global.xml";
+        struct LocalManager : iSysConfigManager {
+            std::string path;
+            explicit LocalManager(std::string path) : path(std::move(path)) {
+                Initialize();
+            }
+            std::string GetFilePath() override { return path; }
+        } manager(path);
+        manager.SetValueInt("volume", 17);
+        manager.SaveToFile();
+        LocalManager reloaded(path);
+        REQUIRE(reloaded.GetValue<int>("volume", 0) == 17);
+        REQUIRE_FALSE(storage->Write((root / "missing/file").u8string(), "x"));
+        storage->ReportWriteFailure();
+        REQUIRE(failures == 1);
+        {
+            krkr::host::LocalServices nested(
+                root / "empty", (root / "nested").u8string(), [] {});
+            REQUIRE_FALSE(TVPHostFileExists("font.bin"));
+        }
+        REQUIRE(krkr::config::CurrentPreferenceStorage() == storage);
+        REQUIRE(TVPHostFileExists("font.bin"));
+    }
+    REQUIRE(krkr::assets::CurrentReader() == previousReader);
+    REQUIRE(krkr::config::CurrentPreferenceStorage() == previousStorage);
+}
+
+TEST_CASE("failed native service construction restores previous providers") {
+    const auto previousReader = krkr::assets::CurrentReader();
+    const auto previousStorage = krkr::config::CurrentPreferenceStorage();
+    REQUIRE_THROWS_AS((krkr::host::LocalServices(
+                          std::filesystem::temp_directory_path(), "", [] {})),
+                      std::invalid_argument);
+    REQUIRE(krkr::assets::CurrentReader() == previousReader);
+    REQUIRE(krkr::config::CurrentPreferenceStorage() == previousStorage);
+}
 
 TEST_CASE("config Linux preference path preserves legacy environment rules") {
     using krkr::config::LinuxWritableDirectory;

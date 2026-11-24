@@ -19,6 +19,7 @@
 | [桌面命令行](subsystems/desktop-cli.md) | 游戏启动、引擎设置及错误退出码 |
 | [管理界面](subsystems/management-ui.md) | 移动端管理页面、桌面资源、配置与语言读取边界 |
 | [宿主资源与配置 XML](subsystems/host-resources.md) | 本地资源根、设置存储、独立配置管理器与 LibXml2 格式验证 |
+| [Linux 无 Cocos 运行时](subsystems/native-runtime.md) | SDL3 独立构建、原生对话框、资源与依赖验证 |
 | [窗口接口](subsystems/window-interface.md) | 通用窗口接口、可选 KAG 按钮导航与 Cocos 适配边界 |
 | [共享输入状态](subsystems/input-state.md) | 虚拟键、修饰键、指针坐标、提交文本及 Cocos 适配边界 |
 | [Android 输入桥](subsystems/android-input.md) | UTF-16/JNI、打印键去重、退格和独立模拟器测试 |

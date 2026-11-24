@@ -45,10 +45,12 @@ Windows 入口 `platforms/windows/main.cpp` 按构建选择 SDL3 或 TVPAppDeleg
 - `environ/HostFrame.h` 提供普通帧、消息泵和模态绘制入口。帧推进和模态节流位于无 Cocos 依赖的 `event/FrameStep.*`。见[帧循环](subsystems/window-interface.md#帧循环)。
 - `core_visual_module` 自行声明图像、字体、哈希和原生 GL 依赖。内置字体经宿主读取，Cocos 的实际资源搜索仍在应用壳中。见[Visual 构建依赖](subsystems/render-presentation.md#visual-构建依赖)。
 - CPU 图像操作统一经 `imageops/ImageOps.h` 调用。`ImageOps.cpp` 实现最近邻/线性缩放，`ImageOps_native.cpp` 实现其余缩放、模糊、仿射/透视、矩阵求解和标准 C++17 行任务；生产目标与 vcpkg 已移除 OpenCV，实时 OpenCV 对照仅为默认关闭的测试工具。移植来源及验证边界见 [ImageOps](subsystems/imageops.md)。
-- Windows 的 `KRKR2_SDL3_ONLY` 配置已移除 Cocos 的配置、安装、编译及链接依赖；
-  直接进入 SDL3，使用原生菜单/对话框、独立配置/资源及软件画面。
-  [Windows SDL3 独立宿主](subsystems/windows-sdl3.md)
-- Linux 的 SDL3 宿主通过正式 CLI 显式启用，使用生产脚本、Window/Layer 与软件画面呈现。
+- Windows 的 `KRKR2_SDL3_ONLY` 配置已移除 Cocos 的配置、安装、编译及链接依赖，
+  原生交互和真实游戏短剧情、存读档及退出已有验收记录。见
+  [Windows SDL3 独立宿主](subsystems/windows-sdl3.md)。
+- Linux 的 SDL3 宿主使用生产脚本、Window/Layer 与软件画面呈现；
+  `KRKR2_SDL3_ONLY=ON` 可构建不安装、配置或链接 Cocos 的正式应用。
+  见[独立运行时](subsystems/native-runtime.md)及
   [Linux SDL3 游戏宿主](subsystems/desktop-cli.md#linux-sdl3-游戏宿主)
 - 独立 SDL3/TJS 原型继续验证实验脚本和事件契约。[原型说明](../tools/sdl3-prototype/README.md)
 - 内建插件实现源只属于各自静态库，`krkr2plugin` 通过 WHOLE_ARCHIVE 保留注册对象；PSD 可选。崩溃上报默认关闭，CocoStudio reader 已移除，管理 UI 仍使用 cocos UI。
@@ -80,3 +82,7 @@ ZIP 读取器使用自身格式类型及 zlib，不再包含 cocos 的 minizip �
 `Resources` 目录读取字体、语言等资源。资源与配置存储入口由通用库持有，提供器由各宿主安装；
 全局/游戏/语言配置管理器已可独立链接，Cocos 权限写入与提示仍在适配层，
 见[宿主资源与配置 XML](subsystems/host-resources.md)。
+Linux SDL3 通过 CLI 的宿主准备回调，在 XP3 校验前直接安装 native 资源与设置服务，
+到引擎清理后恢复；该分支不再构造 Cocos AppDelegate。
+旧混合应用保留 Cocos 链接；独立 SDL3 目标使用单独入口、依赖清单和 GTK3 原生 UI，完全排除 Cocos。
+SDL3 活动期间的平台名与 OS 名返回 Linux，不访问 Cocos Application 单例。

@@ -166,6 +166,18 @@
           ]
         }
       ]
+    },
+    "native-dialogs": {
+      "description": "Linux GTK native dialogs for the production SDL3 host",
+      "dependencies": [
+        {
+          "name": "gtk3",
+          "features": [
+            "wayland"
+          ],
+          "platform": "linux"
+        }
+      ]
     }
   },
   "default-features": [

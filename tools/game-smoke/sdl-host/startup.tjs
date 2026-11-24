@@ -4,6 +4,7 @@ global.record = function(text) {
     events.add(text);
     events.save(System.exePath + "interaction-events.txt");
 };
+record("platform:" + System.platformName + ":" + System.osName);
 
 class HostWindow extends Window {
     var closeQueries = 0;

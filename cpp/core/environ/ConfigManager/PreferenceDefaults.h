@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "TVPPlatform.h"
 
 namespace TVPPreferenceDefaults {
 #define TVP_BOOL_DEFAULT(name, value)                                          \

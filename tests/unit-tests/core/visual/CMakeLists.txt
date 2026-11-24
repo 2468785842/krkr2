@@ -3,6 +3,7 @@ add_executable(imageops_tests ${SOURCES})
 target_link_libraries(imageops_tests PRIVATE Catch2::Catch2WithMain core_imageops)
 catch_discover_tests(imageops_tests)
 
+
 # Validation tools only. OpenCV never enters the runtime or default test closure.
 option(KRKR2_IMAGEOPS_OPENCV_REFERENCE "Build optional live OpenCV comparison and fixture generator" OFF)
 option(KRKR2_BUILD_IMAGEOPS_BENCHMARK "Build the direct-OpenCV/ImageOps comparison" OFF)

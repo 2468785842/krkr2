@@ -19,50 +19,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace krkr::sdl {
-    void InstallPreferences() {
-        if(krkr::config::CurrentPreferenceStorage())
-            return;
-        PWSTR local = nullptr;
-        if(FAILED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_CREATE,
-                                       nullptr, &local)))
-            throw std::runtime_error("Cannot resolve LocalAppData");
-        const std::filesystem::path root(local);
-        CoTaskMemFree(local);
-        // Preserve the legacy Windows directory: LocalAppData/<exe stem>.
-        std::vector<wchar_t> executable(32768);
-        const auto size = GetModuleFileNameW(
-            nullptr, executable.data(), static_cast<DWORD>(executable.size()));
-        if(!size || size >= executable.size())
-            throw std::runtime_error("Cannot resolve executable path");
-        auto directory = root / std::filesystem::path(executable.data()).stem();
-        krkr::config::SetPreferenceStorage(
-            std::make_shared<krkr::config::LocalPreferenceStorage>(
-                directory.generic_u8string(), [] {
-                    auto *locale = LocaleConfigManager::GetInstance();
-                    SDL_ShowSimpleMessageBox(
-                        SDL_MESSAGEBOX_ERROR,
-                        locale->GetText("readonly_storage").c_str(),
-                        locale->GetText("cannot_create_preference").c_str(),
-                        nullptr);
-                }));
-    }
-} // namespace krkr::sdl
-
 #if KRKR2_SDL3_ONLY
-void TVPOpenPatchLibUrl() {
-    if(!SDL_OpenURL("https://zeas2.github.io/Kirikiroid2_patch/patch"))
-        throw std::runtime_error(SDL_GetError());
-}
-
-iWindowLayer *TVPCreateAndAddWindow(tTJSNI_Window *owner) {
-    return krkr::sdl::CreateGameWindow(owner);
-}
-
-bool TVPGetScreenSize(tjs_int index, tjs_int &width, tjs_int &height) {
-    return index == 0 && krkr::sdl::GetScreenSize(width, height);
-}
-
 ttstr TVPGetPlatformName() { return TJS_W("Win32"); }
 ttstr TVPGetOSName() { return TVPGetPlatformName(); }
 
@@ -72,35 +29,6 @@ void TVPConsoleLog(const ttstr &message, bool important) {
     OutputDebugStringW((message.toWString() + L"\n").c_str());
     (void)important;
 }
-namespace TJS {
-    void TVPConsoleLog(const ttstr &message) {
-        G_Tjs2Log.info(message.AsStdString());
-    }
-} // namespace TJS
-
-namespace krkr::video {
-    std::unique_ptr<Presentation>
-    CreateWindowPresentation(iWindowLayer &window, FrameCallback onFrame) {
-        return krkr::sdl::CreateVideoPresentation(window, std::move(onFrame));
-    }
-} // namespace krkr::video
-
-int TVPDrawSceneOnce(int interval) { return krkr::sdl::DrawOnce(interval); }
-void TVPCaptureHostFrame(const std::string &path,
-                         std::function<void(bool)> completion) {
-    krkr::sdl::Capture(path, std::move(completion));
-}
-
-bool TVPCopyFile(const std::string &from, const std::string &to) {
-    std::error_code error;
-    std::filesystem::copy(std::filesystem::u8path(from),
-                          std::filesystem::u8path(to),
-                          std::filesystem::copy_options::recursive |
-                              std::filesystem::copy_options::overwrite_existing,
-                          error);
-    return !error;
-}
-
 std::string TVPShowFileSelector(const std::string &title,
                                 const std::string &filename,
                                 std::string directory, bool save) {

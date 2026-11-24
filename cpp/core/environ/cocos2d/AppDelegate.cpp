@@ -1,7 +1,12 @@
+#if KRKR2_ENABLE_SDL3_HOST
+#include "sdl3/SdlHost.h"
+#include <SDL3/SDL.h>
+#endif
 #include "TVPLog.h"
 #include "AppDelegate.h"
 #include "CocosPackagedAsset.h"
 #include "CocosPreferenceStorage.h"
+#include "ConsoleOutput.h"
 
 #include "MainScene.h"
 #include "HostLifecycle.h"
@@ -26,8 +31,10 @@
 static cocos2d::Size designResolutionSize(960, 640);
 
 extern std::thread::id TVPMainThreadID;
+void TVPConsoleLog(const ttstr &line, bool important);
 
 TVPAppDelegate::TVPAppDelegate() {
+    krkr::host::SetConsoleListener(TVPConsoleLog);
     krkr::assets::SetReader(TVPCreateCocosAssetReader());
     if(!krkr::config::CurrentPreferenceStorage())
         krkr::config::SetPreferenceStorage(TVPCreateCocosPreferenceStorage());
@@ -154,6 +161,13 @@ void TVPAppDelegate::initGLContextAttrs() {
 
 
 void TVPOpenPatchLibUrl() {
+#if KRKR2_ENABLE_SDL3_HOST
+    if(krkr::sdl::Active()) {
+        if(!SDL_OpenURL("https://zeas2.github.io/Kirikiroid2_patch/patch"))
+            G_CoreLog.error("Unable to open patch library: {}", SDL_GetError());
+        return;
+    }
+#endif
     cocos2d::Application::getInstance()->openURL(
         "https://zeas2.github.io/Kirikiroid2_patch/patch");
 }

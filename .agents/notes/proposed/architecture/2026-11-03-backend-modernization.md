@@ -75,9 +75,13 @@ Windows/Linux 八配置矩阵、三平台42项独立契约与 ARM64 完整 APK �
 2026-11-21 续批已移除 `core_visual_module` 对 Cocos 的直接构建依赖。字体资源经宿主接口读取，
 窗口、截图与 GL 状态仍由 Cocos 宿主提供，完整 context 资源恢复待处理。见[实施记录](../../implemented/simplification/2026-11-21-visual-build-boundary.md)。
 
-2026-11-23 后续以 [Linux 纯 SDL3 依赖闭包](2026-11-23-cocos-free-runtime.md) 为目标推进。
+2026-11-23 后续以 [Linux 纯 SDL3 依赖闭包](../../implemented/architecture/2026-11-23-cocos-free-runtime.md) 为目标推进。
 首批拆分配置/语言读取与 Cocos 控件绑定；续批完成通用资源入口、本地读取器和独立 LibXml2 支持，
 Windows/WSL 独立测试、Windows 完整应用及双渲染器自制场景通过。
 再续批拆出全局/游戏/语言配置管理器及宿主设置存储，Windows/WSL 各 20 项独立测试通过；
 路径包装已从 MainScene 迁出，Cocos 移动端权限写入仍由适配器保留。
 剩余平台服务、脚本 UI 和最终纯 SDL3 构建闭包尚未完成。
+
+2026-11-24：Windows 独立宿主已完成真实游戏短剧情/存读档/正常退出，Linux 独立应用及 KAG/媒体自制场景也已完成。
+当前合并使用 `KRKR2_SDL3_ONLY`、共享宿主服务与兼容 PVRTC 解码；详见上述 Linux 实施记录和
+[Windows 实施记录](../../implemented/testing/2026-11-24-windows-sdl3-independent.md)。

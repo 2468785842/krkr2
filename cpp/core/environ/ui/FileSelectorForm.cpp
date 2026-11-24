@@ -1,3 +1,7 @@
+#if KRKR2_ENABLE_SDL3_HOST
+#include "sdl3/SdlHost.h"
+#include "sdl3/NativeDialogs.h"
+#endif
 #include "cocos2d/CocosLocale.h"
 #include "FileSelectorForm.h"
 #include "StorageImpl.h"
@@ -902,6 +906,11 @@ TVPListForm::~TVPListForm() {
 std::string TVPShowFileSelector(const std::string &title,
                                 const std::string &initfilename,
                                 std::string initdir, bool issave) {
+#if KRKR2_ENABLE_SDL3_HOST
+    if(krkr::sdl::Active())
+        return krkr::sdl::ShowFileSelector(title, initfilename, initdir,
+                                           issave);
+#endif
     if(initdir.empty()) {
         ttstr dir = TVPGetAppPath();
         TVPGetLocalName(dir);

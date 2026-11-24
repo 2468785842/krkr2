@@ -147,6 +147,10 @@ jobs:
       - name: Verify desktop command line
         run: python tools/game-smoke/cli_smoke.py out/linux/release/bin/krkr2/krkr2
 
+      - name: Verify SDL3 command line and native archive validation
+        if: inputs.sdl3_host_contract || inputs.sdl3_desktop_contract
+        run: python tools/game-smoke/cli_smoke.py out/linux/release/bin/krkr2/krkr2 --host=sdl3
+
       - name: Verify SDL3 game host with native X11 input
         if: inputs.sdl3_host_contract || inputs.sdl3_desktop_contract
         run: |

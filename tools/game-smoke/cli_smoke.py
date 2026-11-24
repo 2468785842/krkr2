@@ -1,5 +1,7 @@
 """Check CLI errors/help against the real runtime without creating game windows."""
+import argparse
 import importlib.util
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -8,13 +10,23 @@ import tempfile
 
 def main():
     sys.dont_write_bytecode = True
-    engine = Path(sys.argv[1]).resolve(strict=True)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("engine", type=Path)
+    parser.add_argument("--host", choices=("cocos", "sdl3"))
+    options = parser.parse_args()
+    engine = options.engine.resolve(strict=True)
+    host_args = [f"--host={options.host}"] if options.host else []
     fixture_module = Path(__file__).parents[1] / "xp3" / "smoke_test.py"
     spec = importlib.util.spec_from_file_location("xp3_smoke_fixture", fixture_module)
     fixture = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(fixture)
     with tempfile.TemporaryDirectory(prefix="krkr2-cli-") as directory:
         root = Path(directory)
+        env = dict(os.environ)
+        if options.host == "sdl3":
+            # Exercise native storage before XP3 validation without writing to
+            # the developer's normal preference directory.
+            env["XDG_CONFIG_HOME"] = str(root / "config")
         invalid = root / "invalid.xp3"
         invalid.write_bytes(b"not an archive")
         no_startup = root / "without-startup.xp3"
@@ -37,14 +49,17 @@ def main():
             (["--config", "future.json"], 2, "Unknown launch option"),
         ]
         for args, expected_code, message in cases:
-            result = subprocess.run([str(engine), *args], cwd=engine.parent,
+            result = subprocess.run([str(engine), *host_args, *args], cwd=engine.parent, env=env,
                                     capture_output=True, encoding="utf-8", errors="replace", timeout=15)
             output = result.stdout + result.stderr
             if result.returncode != expected_code or message not in output:
                 raise AssertionError((args, result.returncode, output))
             if "gl.renderer" in output or "Direct game startup" in output:
                 raise AssertionError("Error/help invocation entered graphical startup")
-    print(f"{len(cases)} runtime CLI help/error checks passed")
+            if options.host == "sdl3" and expected_code == 0 and (root / "config").exists():
+                raise AssertionError("SDL3 help/settings invocation created a preference directory")
+    host_label = f" ({options.host})" if options.host else ""
+    print(f"{len(cases)} runtime CLI help/error checks passed{host_label}")
 
 
 if __name__ == "__main__":

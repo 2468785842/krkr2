@@ -82,6 +82,7 @@ def check(root):
     support = [root / 'cpp/core/environ/ConfigManager' / name
                for name in ('ConfigXml.h', 'ConfigXml.cpp',
                             'PreferenceStorage.h', 'PreferenceStorage.cpp',
+                            'LocalHostServices.h', 'LocalHostServices.cpp',
                             'GlobalConfigManager.h', 'GlobalConfigManager.cpp',
                             'IndividualConfigManager.h', 'IndividualConfigManager.cpp',
                             'LocaleConfigManager.h', 'LocaleConfigManager.cpp')]
@@ -94,6 +95,9 @@ def check(root):
                   else re.sub(r'/\*.*?\*/|//[^\n]*', '', content, flags=re.S))
         if re.search(r'\bcocos2d(?:x)?\b|\btjs\w*|#\s*include\s*[<"](?:cocos/|ui/|(?:[^">]*/)?(?:Platform|Application|CC\w+)\.h[">])', active, re.I):
             errors.append(f'{source.relative_to(root)}: XML/本地资源支持层不得依赖 Cocos/TJS/平台应用壳')
+    defaults = root / 'cpp/core/environ/ConfigManager/PreferenceDefaults.inc'
+    if re.search(r'\bCC_(?:TARGET|PLATFORM)\w*', defaults.read_text(encoding='utf-8')):
+        errors.append('PreferenceDefaults.inc: 共享默认值应使用 TVP 平台宏')
     host = root / 'cpp/core/environ/cocos2d/MainScene.cpp'
     if re.search(r'^\s*tjs_uint32\s+TVPGetCurrentShiftKeyState\s*\(', host.read_text(encoding='utf-8'), re.M):
         errors.append('MainScene.cpp: 修饰键查询实现应属于 System/共享输入层')

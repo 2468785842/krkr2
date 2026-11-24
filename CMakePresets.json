@@ -61,6 +61,15 @@
       }
     },
     {
+      "name": "Windows SDL3 Release Config",
+      "inherits": "Windows SDL3 Debug Config",
+      "binaryDir": "${sourceDir}/out/windows/sdl3-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_DISABLE_FIND_PACKAGE_cocos2dx": true
+      }
+    },
+    {
       "name": "Windows XP3 Config",
       "inherits": "Windows Debug Config",
       "binaryDir": "${sourceDir}/out/windows/xp3",
@@ -139,6 +148,19 @@
       "binaryDir": "${sourceDir}/out/linux/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "Linux SDL3 Config",
+      "inherits": "Linux Release Config",
+      "binaryDir": "${sourceDir}/out/linux/sdl3",
+      "cacheVariables": {
+        "CMAKE_DISABLE_FIND_PACKAGE_cocos2dx": true,
+        "ENABLE_TESTS": true,
+        "BUILD_TOOLS": false,
+        "KRKR2_ENABLE_SCRIPT_SMOKE": true,
+        "KRKR2_ENABLE_UI_TEST_DRIVER": false,
+        "KRKR2_SDL3_ONLY": true
       }
     },
     {
@@ -232,6 +254,10 @@
     {
       "name": "MacOS Release Build",
       "configurePreset": "MacOS Release Config"
+    },
+    {
+      "name": "Windows SDL3 Release Build",
+      "configurePreset": "Windows SDL3 Release Config"
     }
   ]
 }

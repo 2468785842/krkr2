@@ -135,7 +135,7 @@ def capture_frame(root, renderer, sequence, deadline, process, palette, file_nam
     raise TimeoutError("No completed Cocos frame capture")
 
 
-def run(engine, destination, seconds=60, capture=False, profiles=False):
+def run(engine, destination, seconds=60, capture=False, profiles=False, renderer_filter=None):
     if profiles and not capture:
         raise ValueError("Configuration profiles require --capture")
     engine = engine.resolve()
@@ -152,6 +152,8 @@ def run(engine, destination, seconds=60, capture=False, profiles=False):
             ("opengl-half","opengl",{"ogl_compress_tex":"half","ogl_max_texsize":"512",
              **{key:"0" for key in ("GL_ARB_copy_image","GL_EXT_copy_image","GL_OES_copy_image","GL_NV_copy_image")}},"half"),
             ("opengl-unknown","opengl",{"ogl_compress_tex":"invalid"},"none")]
+    if renderer_filter:
+        configurations = [item for item in configurations if item[1] == renderer_filter]
     for profile,renderer,settings,expected_storage in configurations:
         root = (destination / profile).resolve()
         root.mkdir()
@@ -286,5 +288,7 @@ if __name__ == "__main__":
     parser.add_argument("destination", type=Path)
     parser.add_argument("--capture", action="store_true", help="Require the opt-in Cocos UI test driver")
     parser.add_argument("--profiles", action="store_true", help="Verify eight renderer storage/configuration profiles")
+    parser.add_argument("--renderer", choices=("software", "opengl"), help="Run only the selected renderer")
     args = parser.parse_args()
-    raise SystemExit(run(args.engine, args.destination, capture=args.capture, profiles=args.profiles))
+    raise SystemExit(run(args.engine, args.destination, capture=args.capture, profiles=args.profiles,
+                        renderer_filter=args.renderer))
