@@ -1,7 +1,6 @@
 #include "tjsCommHead.h"
 #include "SdlHost.h"
 #include "ConsoleOutput.h"
-#include "PackagedAsset.h"
 #include "Platform.h"
 #include "TVPLog.h"
 #include <SDL3/SDL.h>
@@ -9,6 +8,7 @@
 #include <filesystem>
 #include <optional>
 #include <stdexcept>
+#include <vector>
 #if defined(_WIN32)
 #include <windows.h>
 #include <shlobj.h>

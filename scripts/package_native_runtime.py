@@ -62,12 +62,21 @@ def package(build, output):
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(binary.parent / "Resources" / path, target)
         shutil.copy2(source / "LICENSE", root / "LICENSE")
+        sdk_match = re.search(r"^VCPKG_INSTALLED_DIR:[^=]+=(.+)$", cache, re.M)
+        if not sdk_match:
+            raise ValueError("Missing SDK path for dependency licenses")
+        sdk = Path(sdk_match[1])
+        for license_path in sorted(sdk.glob("*/share/*/copyright")):
+            target = root / "third-party-licenses" / license_path.relative_to(sdk)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(license_path, target)
         (root / "runtime-dependencies.txt").write_text(dependencies, encoding="utf-8")
         (root / "README.txt").write_text(
             "KrKr2 SDL3 native runtime (software renderer)\n"
             f"Run: ./{executable} --game /path/to/game\n"
             "Keep Resources beside the executable. Cocos is not required.\n"
             "Install the OS libraries listed in runtime-dependencies.txt; they are not bundled.\n"
+            "Third-party notices are included under third-party-licenses and Resources/licenses.\n"
             "Linux binaries require the build host's glibc version or newer. Windows requires the MSVC runtime.\n"
             "Game assets and saves are not included.\n", encoding="utf-8")
         files = {str(path.relative_to(root)).replace("\\", "/"):
