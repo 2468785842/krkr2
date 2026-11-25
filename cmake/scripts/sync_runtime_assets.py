@@ -22,9 +22,13 @@ def within(root, name):
     return path
 
 
-def sync(source, destination, all_files, selected):
+def sync(source, destination, all_files, selected, retired=()):
+    source, destination = source.resolve(), destination.resolve()
+    retired = set(retired)
     if not selected <= all_files:
         raise ValueError("Selected resources must belong to the complete resource set")
+    if retired & all_files:
+        raise ValueError("Retired resources must not belong to the current resource set")
     # Validate the complete operation before copying or pruning anything.
     for name in all_files:
         src, dst = within(source, name), within(destination, name)
@@ -32,6 +36,10 @@ def sync(source, destination, all_files, selected):
             raise ValueError(f"Missing resource: {src}")
         if dst.exists() and not dst.is_file():
             raise ValueError(f"Resource destination is not a file: {dst}")
+    for name in retired:
+        dst = within(destination, name)
+        if dst.exists() and not dst.is_file():
+            raise ValueError(f"Retired resource destination is not a file: {dst}")
     for name in sorted(selected):
         src, dst = within(source, name), within(destination, name)
         dst.parent.mkdir(parents=True, exist_ok=True)
@@ -41,6 +49,22 @@ def sync(source, destination, all_files, selected):
         dst = within(destination, name)
         if dst.exists():
             dst.unlink()
+    directories = set()
+    for name in sorted(retired):
+        dst = within(destination, name)
+        if dst.exists():
+            dst.unlink()
+        parent = dst.parent
+        while parent != destination:
+            parent.relative_to(destination)
+            directories.add(parent)
+            parent = parent.parent
+    # Only remove empty parents of explicitly retired files; retain custom files.
+    for directory in sorted(directories, key=lambda path: len(path.parts), reverse=True):
+        try:
+            directory.rmdir()
+        except OSError:
+            pass
     print(f"Runtime assets: {len(selected)}/{len(all_files)} selected")
 
 
@@ -50,8 +74,10 @@ def main():
     parser.add_argument("--destination", type=Path, required=True)
     parser.add_argument("--all", type=Path, required=True)
     parser.add_argument("--selected", type=Path, required=True)
+    parser.add_argument("--retired", type=Path)
     args = parser.parse_args()
-    sync(args.source, args.destination, entries(args.all), entries(args.selected))
+    sync(args.source, args.destination, entries(args.all), entries(args.selected),
+         entries(args.retired) if args.retired else ())
 
 
 if __name__ == "__main__":

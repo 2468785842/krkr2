@@ -44,9 +44,9 @@ SDL3 固定使用软件渲染，命令行显式指定其他渲染器会被拒绝
 ## Linux SDL3 游戏宿主
 
 ```sh
-cmake --preset "Linux SDL3 Config"
-cmake --build out/linux/sdl3 --parallel 2
-out/linux/sdl3/bin/krkr2/krkr2 --game /path/to/game
+cmake --preset "Linux Release Config"
+cmake --build --preset "Linux Release Build" --parallel 2
+out/linux/release/bin/krkr2/krkr2 --game /path/to/game
 ```
 
 宿主运行正式 TJS、Window/Layer、存储、插件和音视频模块；平台服务在归档校验前安装。

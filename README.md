@@ -11,7 +11,7 @@ cmake --build --preset "Windows Debug Build"
 ctest --test-dir out/windows/debug --output-on-failure --no-tests=error
 ```
 
-Linux uses `Linux SDL3 Config`. Launch with `--game /path/to/game`; use `--help` or `--list-settings` for options.
+Linux uses `Linux Release Config`. Launch with `--game /path/to/game`; use `--help` or `--list-settings` for options.
 See the [Chinese README](README_CN.md), [build guide](docs/guides/building.md) and [desktop runtime](docs/subsystems/native-runtime.md).
 
 ## Code Formatting

@@ -13,7 +13,6 @@
 |---|---|---|---|
 | Windows | `Windows Debug Config` | `Windows Debug Build` | `out/windows/debug` |
 | Linux | `Linux Debug Config` | `Linux Debug Build` | `out/linux/debug` |
-| Linux 无 Cocos | `Linux SDL3 Config` | `cmake --build out/linux/sdl3` | `out/linux/sdl3` |
 
 
 ```sh
@@ -25,7 +24,7 @@ ctest --test-dir out/windows/debug --output-on-failure --no-tests=error
 ```
 
 其他桌面平台替换表中的名字和目录。Release 预设将 Debug 替换为 Release。
-Linux 完全独立于 Cocos 的应用使用 `Linux SDL3 Config`，详见
+Linux Release 构建使用 `Linux Release Config/Build`，详见
 [无 Cocos 运行时](../subsystems/native-runtime.md)，其中包含系统依赖、FFmpeg 安装和实际运行验收。
 根开关为 `KRKR2_BUILD_APP`、`ENABLE_TESTS`、`BUILD_TOOLS`，默认均开启。CMake 在 `project()` 前按开关选择 vcpkg 的 foundation/engine/tests/tools/imageops 等 features；关闭测试不会再因根直接依赖而安装 Catch2。默认 full 测试仍依赖完整引擎；strings 范围可独立构建。
 选择目标可用 `cmake --build --preset "Windows Debug Build" --target xp3`；仅选择目标不会缩小根配置范围。
@@ -34,9 +33,17 @@ Linux 完全独立于 Cocos 的应用使用 `Linux SDL3 Config`，详见
 只选择 nlohmann-json/pugixml/Catch2 依赖，不查找 Cocos 或 TJS。完整命令见
 [宿主资源与 JSON 配置](../subsystems/host-resources.md#独立验证)。
 
-Windows 无 Cocos 应用使用 `Windows SDL3 Debug Config/Build` 或
-`Windows SDL3 Release Config/Build`；原生交互、真实游戏验收和打包见
-[Windows SDL3 独立宿主](../subsystems/windows-sdl3.md)。所有 Windows/Linux 应用预设现在都使用 SDL3，不再需要宿主选择开关。
+Windows 应用使用 `Windows Debug Config/Build` 或 `Windows Release Config/Build`；
+原生交互、真实游戏验收和打包见[Windows 桌面宿主](../subsystems/windows-sdl3.md)。
+仅保留这一套应用预设，不再提供带 SDL3 名称的平行预设。
+
+标准预设显式设置 `VCPKG_MANIFEST_INSTALL=ON`，覆盖旧构建目录里缓存的 `OFF`。
+因此直接重新运行 `cmake --preset "Windows Debug Config"` 即会按当前 manifest 补齐新增依赖。
+显式传入 `-DVCPKG_MANIFEST_INSTALL=OFF` 仍可用于已准备好 SDK 的特殊验证，
+此时新增的 nlohmann-json、pugixml 等不会自动安装，缺包不能靠设置查找路径代替安装。
+
+复用旧输出目录时，资源同步会按 `cmake/retired-runtime-assets.txt` 清理已删除的管理 UI 文件，
+并移除空目录；清单外的自定义文件保留。发布包名称统一为 `krkr2-<平台>-<架构>`。
 
 若全新环境报 `find_package(FFMPEG)` 找不到包，先检查是否设置了 `VCPKG_ROOT` 或显式指定
 `CMAKE_TOOLCHAIN_FILE`，并保持 `VCPKG_MANIFEST_INSTALL=ON`（默认）。未接入 vcpkg 时，

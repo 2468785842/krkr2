@@ -39,7 +39,7 @@ python tools/game-smoke/game_smoke.py run out/windows/debug/bin/krkr2/krkr2.exe 
 Windows 使用系统输入、菜单、文件对话框和真实窗口截图：
 
 ```powershell
-python tools/game-smoke/sdl_windows_repro.py out/windows/sdl3-debug/bin/krkr2/krkr2.exe out/game-smoke/native-windows-01
+python tools/game-smoke/sdl_windows_repro.py out/windows/debug/bin/krkr2/krkr2.exe out/game-smoke/native-windows-01
 ```
 
 该工具使用自制场景和 Win32 SendInput，验证切焦、最小化恢复、菜单、消息框、文件选择、
@@ -50,8 +50,8 @@ python tools/game-smoke/sdl_windows_repro.py out/windows/sdl3-debug/bin/krkr2/kr
 Linux 使用 X server/XTest 的真实系统输入：
 
 ```sh
-xvfb-run -a python3 tools/game-smoke/sdl_host_repro.py out/linux/sdl3/bin/krkr2/krkr2 out/game-smoke/native-host-01
-xvfb-run -a -s '-screen 0 1280x800x24' python3 tools/game-smoke/sdl_dialog_repro.py out/linux/sdl3/bin/krkr2/krkr2 out/game-smoke/native-dialogs-01
+xvfb-run -a python3 tools/game-smoke/sdl_host_repro.py out/linux/release/bin/krkr2/krkr2 out/game-smoke/native-host-01
+xvfb-run -a -s '-screen 0 1280x800x24' python3 tools/game-smoke/sdl_dialog_repro.py out/linux/release/bin/krkr2/krkr2 out/game-smoke/native-dialogs-01
 ```
 
 KAG 存读档、生成音视频与原生窗口验收命令见[桌面运行时](../subsystems/native-runtime.md)

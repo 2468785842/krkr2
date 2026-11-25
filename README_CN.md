@@ -15,8 +15,8 @@ ctest --test-dir out/windows/debug -N
 ctest --test-dir out/windows/debug --output-on-failure --no-tests=error
 ```
 
-Linux 使用 `Linux SDL3 Config`，系统依赖与完整命令见[构建与验证](docs/guides/building.md)。
-程序位于 `out/windows/debug/bin/krkr2/krkr2.exe`；Linux SDL3 位于 `out/linux/sdl3/bin/krkr2/krkr2`。
+Linux 使用 `Linux Release Config`，系统依赖与完整命令见[构建与验证](docs/guides/building.md)。
+程序位于 `out/windows/debug/bin/krkr2/krkr2.exe`；Linux SDL3 位于 `out/linux/release/bin/krkr2/krkr2`。
 通过 `--game /path/to/game` 启动，`--help`、`--list-settings` 查看命令和设置。
 
 [开发约定](AGENTS.md) · [文档索引](docs/README.md) · [当前架构](docs/architecture.md) ·

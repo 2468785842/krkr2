@@ -40,7 +40,7 @@ Windows/Linux 入口 → SDL3 宿主 / 原生菜单与对话框
 
 ## 构建与验证边界
 
-普通 Windows/Linux 预设默认构建 SDL3；原 SDL3 预设名继续可用。
+Windows/Linux 应用统一使用 Debug/Release 预设，不再区分宿主专用预设。
 不再存在 `KRKR2_SDL3_ONLY`、`KRKR2_COCOS_FREE`、`cocos` 或 `crash-upload` feature。
 基础模块检查只覆盖显式依赖和指定源码约束，不证明 domain 无环。
 构建、脚本与游戏验收分别报告，见[构建指南](guides/building.md)、

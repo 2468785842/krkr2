@@ -15,7 +15,7 @@
 | 文档 | 内容 |
 |---|---|
 | [PSBFile](subsystems/psbfile.md) | 文件/Octet 加载、资源介质、格式边界与合成测试 |
-| [Windows SDL3 独立宿主](subsystems/windows-sdl3.md) | 无 Cocos 构建、原生平台服务及游戏验证边界 |
+| [Windows 桌面宿主](subsystems/windows-sdl3.md) | 原生平台服务及游戏验证边界 |
 | [桌面命令行](subsystems/desktop-cli.md) | 游戏启动、引擎设置及错误退出码 |
 | [管理界面](subsystems/management-ui.md) | 旧管理界面删除状态、命令行替代和平台恢复边界 |
 | [宿主资源与 JSON 配置](subsystems/host-resources.md) | 本地资源根、设置存储、JSON 配置、XML 迁移与独立管理器验证 |

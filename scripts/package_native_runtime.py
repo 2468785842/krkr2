@@ -21,7 +21,7 @@ def package(build, output):
     if "CMAKE_BUILD_TYPE:STRING=Release" not in cache:
         raise ValueError("Distribution requires a Release build")
     windows = platform.system() == "Windows"
-    package_name = "krkr2-sdl3-" + ("windows" if windows else "linux") + "-" + platform.machine().lower()
+    package_name = "krkr2-" + ("windows" if windows else "linux") + "-" + platform.machine().lower()
     output.mkdir(parents=True, exist_ok=True)
     archive = output / (package_name + (".zip" if windows else ".tar.gz"))
     if archive.exists():

@@ -1,4 +1,4 @@
-# Windows SDL3 独立宿主
+# Windows 桌面宿主
 
 默认 SDL3 构建使用正式 TJS2/KAG、Window/Layer、归档、插件和音视频实现，
 由 SDL3 创建窗口、处理输入并呈现软件合成画面。此配置不查找、编译、链接或安装 Cocos。
@@ -9,21 +9,21 @@ Linux 同样默认提供[独立宿主](native-runtime.md)，macOS/Android 暂停
 在 MSVC x64 开发环境设置 `VCPKG_ROOT`，把 win_bison 放入 PATH 后执行：
 
 ```powershell
-cmake --preset "Windows SDL3 Debug Config"
-cmake --build --preset "Windows SDL3 Debug Build" -j 12
-ctest --test-dir out/windows/sdl3-debug -N
-ctest --test-dir out/windows/sdl3-debug --output-on-failure --no-tests=error
-out/windows/sdl3-debug/bin/krkr2/krkr2.exe --game D:/games/example
+cmake --preset "Windows Debug Config"
+cmake --build --preset "Windows Debug Build" -j 12
+ctest --test-dir out/windows/debug -N
+ctest --test-dir out/windows/debug --output-on-failure --no-tests=error
+out/windows/debug/bin/krkr2/krkr2.exe --game D:/games/example
 ```
 
-输出目录为 `out/windows/sdl3-debug/bin/krkr2/`。默认宿主为 SDL3，也接受显式
+输出目录为 `out/windows/debug/bin/krkr2/`。默认宿主为 SDL3，也接受显式
 `--host=sdl3`；其他宿主名称返回 2。只支持 `renderer=software`，显式请求其他渲染器
 返回 2，不建立 Cocos/GL 回退。游戏目录、归档、引擎参数和临时设置语法沿用
 [桌面命令行](desktop-cli.md)。
 
-预设开启应用、PSD 插件、`platform` 范围测试，关闭工具与组件输入驱动。
-除共享平台契约外，还登记启动解析、资源同步、CLI、PVRTC 与 WindowEx 生命周期回归。
-使用其他 scope 时，只注册对应范围；Cocos 专属测试已删除。
+标准预设沿用根构建开关，默认构建应用、PSD、工具与 full 范围测试。
+`KRKR2_TEST_SCOPE=platform` 可缩小测试范围；组件输入驱动默认关闭。
+Cocos 专属测试已删除。
 
 CMake 在配置前选择 `engine`、`sdl3-prototype` 等 manifest features；旧 `cocos`、`crash-upload` features 和端口已经删除。
 
@@ -47,7 +47,7 @@ PSBFile 清除了未使用的 Cocos RapidJSON 头文件引用。
 需要交互式 Windows 桌面及 Python Pillow；测试会操作自己启动的窗口。
 
 ```powershell
-python tools/game-smoke/sdl_windows_repro.py out/windows/sdl3-debug/bin/krkr2/krkr2.exe out/game-smoke/sdl-windows-01
+python tools/game-smoke/sdl_windows_repro.py out/windows/debug/bin/krkr2/krkr2.exe out/game-smoke/sdl-windows-01
 ```
 
 工具使用全新自制场景，验证 SendInput 键盘、原生切焦后的按键释放、最小化恢复、
@@ -60,8 +60,8 @@ python tools/game-smoke/sdl_windows_repro.py out/windows/sdl3-debug/bin/krkr2/kr
 [Windows SDL3 实施记录](../../.agents/notes/implemented/testing/2026-11-24-windows-sdl3-independent.md)。
 
 Windows 音视频播放同步、完整剧情、物理高 DPI/IME/手柄仍需专项验收。
-Release 构建使用 `Windows SDL3 Release Config/Build`；打包命令为
-`python scripts/package_native_runtime.py out/windows/sdl3-release out/native-packages`，系统动态库要求见包内清单。
+Release 构建使用 `Windows Release Config/Build`；打包命令为
+`python scripts/package_native_runtime.py out/windows/release out/native-packages`，系统动态库要求见包内清单。
 
 2026-11-25 删除旧宿主后，Windows 普通 Debug/full 构建的 119 项测试、软件图像与原生交互已通过；
 本次证据及控制器修正见[删除记录](../../.agents/notes/implemented/architecture/2026-11-25-desktop-only-cocos-removal.md)。

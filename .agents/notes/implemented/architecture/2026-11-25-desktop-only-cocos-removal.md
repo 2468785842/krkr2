@@ -101,6 +101,45 @@ Status: implemented
 实际截图与心跳证实停在 `load.ks:30`，没有判定为引擎兼容故障。
 控制器改为仅在非前台时执行真实标题栏点击，新隔离副本 `tslm-02` 按上述完整步骤通过。
 
+## 标准预设统一与旧构建目录升级
+
+用户随后指出 `Windows Debug Config` 缺少 `nlohmann_json`，并明确要求只有一个宿主时不再区分 SDL3 预设。
+此前验收使用了 `Windows SDL3 Debug Config`，覆盖输出目录和 SDK；没有覆盖原样标准预设的旧缓存入口。
+实际读取 `out/windows/debug/CMakeCache.txt`：`VCPKG_MANIFEST_INSTALL:BOOL=OFF`、
+`nlohmann_json_DIR:PATH=nlohmann_json_DIR-NOTFOUND`。当前 manifest 已声明 nlohmann-json，错误来自缓存关闭安装。
+
+- 删除 Windows/Linux 的 SDL3 专用应用预设，仅保留标准 Debug/Release；XP3、strings、lean 是功能范围，继续保留。
+- Windows/Linux 标准预设显式开启 `VCPKG_MANIFEST_INSTALL`；用户显式 `-D...=OFF` 仍可覆盖。
+- CI、当前操作文档、技能和输出路径统一到标准预设；发布包名称去掉宿主后缀。
+  上文旧预设命令与目录只保留为当时实际执行的历史证据。
+- 新 `test_cmake_presets.py` 将真实预设用于无依赖的最小 CMake 工程，先种入安装 OFF 缓存，
+  再原样执行 Debug/Release 预设，确认 CMake 实际将该缓存恢复为 ON。
+
+本机实际命令不再覆盖构建目录或 SDK：
+
+```powershell
+cmake --preset "Windows Debug Config"
+cmake --build --preset "Windows Debug Build" --parallel 2
+ctest --test-dir out/windows/debug -N
+ctest --test-dir out/windows/debug --output-on-failure --no-tests=error
+```
+
+- 在原 `out/windows/debug` / `vcpkg_installed` 目录成功配置并找到 nlohmann_json 3.12.0，缓存安装开关为 TRUE。
+- 标准构建成功；首次 12 并行链接内存占用较高，主动终止该次验证构建后以并行 2 续跑同一预设成功。
+  没有修改全局工具链或删减目标；中止日志保留，未将中止后的旧程序作为构建通过证据。
+- 实际注册并运行 119 项测试，全部通过，40.32 秒；本机缓存为 full、工具 ON、脚本 smoke ON、UI 驱动 OFF。
+- 首次依赖检查发现旧输出中残留 65 个管理 UI 文件，均属于 `c494ea0` 的 70 项已删除源资源。
+  新 `cmake/retired-runtime-assets.txt` 提供明确清单；同步器先验证完整操作再仅删除这些文件及空父目录。
+  新增 3 项资源迁移回归，验证源文件已删除、保留自定义文件、拒绝现用资产冲突及目录占位。
+- 迁移后再次原样配置、构建；资源/CLI 两项定向 CTest 通过；
+  `check_native_runtime.py out/windows/debug` 通过：374 个编译单元、109 个 SDK ports，无旧宿主依赖或 UI 残留。
+- `python -m unittest discover -s scripts/tests -v`：10 项通过；
+  `python -m unittest discover -s tools/game-smoke -p test_resources.py -v`：7 项通过。
+  当前预设引用、YAML、Python 语法、修改文档链接及 diff 检查通过。
+
+标准预设 exe SHA256：`2aec6552d8e517e9e95ca5860a68f979c9e75212a8f484b86fc893977fa21e2d`。
+原始记录为 `out/windows-debug-preset-*.log`；本节没有重新声称 Linux 本机运行或 Release 完整构建已验证。
+
 ## 未验证范围
 
 Windows 删除和上述范围已经验收；没有声称所有平台或所有游戏已验证。

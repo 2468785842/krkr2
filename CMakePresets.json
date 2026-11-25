@@ -13,7 +13,8 @@
       "cacheVariables": {
         "WINDOWS": true,
         "VCPKG_TARGET_TRIPLET": "x64-windows-static-md",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": true
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true,
+        "VCPKG_MANIFEST_INSTALL": true
       },
       "condition": {
         "type": "equals",
@@ -44,25 +45,6 @@
       "name": "Windows Release Config",
       "inherits": "Windows Config",
       "binaryDir": "${sourceDir}/out/windows/release",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
-    },
-    {
-      "name": "Windows SDL3 Debug Config",
-      "inherits": "Windows Debug Config",
-      "binaryDir": "${sourceDir}/out/windows/sdl3-debug",
-      "cacheVariables": {
-        "ENABLE_TESTS": true,
-        "KRKR2_TEST_SCOPE": "platform",
-        "BUILD_TOOLS": false,
-        "KRKR2_ENABLE_UI_TEST_DRIVER": false
-      }
-    },
-    {
-      "name": "Windows SDL3 Release Config",
-      "inherits": "Windows SDL3 Debug Config",
-      "binaryDir": "${sourceDir}/out/windows/sdl3-release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
@@ -109,7 +91,8 @@
         "CMAKE_C_COMPILER": "i686-w64-mingw32-gcc",
         "CMAKE_CXX_COMPILER": "i686-w64-mingw32-g++",
         "CMAKE_RC_COMPILER": "i686-w64-mingw32-windres",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": true
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true,
+        "VCPKG_MANIFEST_INSTALL": true
       },
       "condition": {
         "type": "equals",
@@ -123,7 +106,8 @@
       "hidden": true,
       "cacheVariables": {
         "LINUX": true,
-        "CMAKE_EXPORT_COMPILE_COMMANDS": true
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true,
+        "VCPKG_MANIFEST_INSTALL": true
       },
       "condition": {
         "type": "equals",
@@ -146,24 +130,9 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
-    },
-    {
-      "name": "Linux SDL3 Config",
-      "inherits": "Linux Release Config",
-      "binaryDir": "${sourceDir}/out/linux/sdl3",
-      "cacheVariables": {
-        "ENABLE_TESTS": true,
-        "BUILD_TOOLS": false,
-        "KRKR2_ENABLE_SCRIPT_SMOKE": true,
-        "KRKR2_ENABLE_UI_TEST_DRIVER": false
-      }
     }
   ],
   "buildPresets": [
-    {
-      "name": "Windows SDL3 Debug Build",
-      "configurePreset": "Windows SDL3 Debug Config"
-    },
     {
       "name": "Windows XP3 Build",
       "configurePreset": "Windows XP3 Config",
@@ -200,10 +169,6 @@
     {
       "name": "Linux Release Build",
       "configurePreset": "Linux Release Config"
-    },
-    {
-      "name": "Windows SDL3 Release Build",
-      "configurePreset": "Windows SDL3 Release Config"
     }
   ]
 }

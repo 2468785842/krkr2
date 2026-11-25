@@ -1,8 +1,8 @@
-# Linux 无 Cocos 运行时
+# 桌面运行时
 
 默认构建正式的 Linux SDL3 应用。它使用生产 TJS、Window/Layer、
 存储、插件、音频和 FFmpeg 视频模块；配置、编译、链接和运行均不需要 Cocos。
-Windows 同样默认使用 SDL3，见[Windows SDL3](windows-sdl3.md)；macOS、Android 暂停构建。
+Windows 使用相同宿主，见[Windows 桌面宿主](windows-sdl3.md)；macOS、Android 暂停构建。
 
 ## 构建与运行
 
@@ -12,14 +12,13 @@ pkg-config，以及 Linux X11/Wayland、GTK3 的系统开发依赖。可执行�
 保持 manifest 安装开启，由仓库 overlay 构建 FFmpeg 开发库等依赖。
 
 ```sh
-cmake --preset "Linux SDL3 Config" \
-  -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
-  -DVCPKG_INSTALLED_DIR="$PWD/out/native-sdk"
-cmake --build out/linux/sdl3 --parallel 2
-out/linux/sdl3/bin/krkr2/krkr2 --game /path/to/game
+cmake --preset "Linux Release Config"
+cmake --build --preset "Linux Release Build" --parallel 2
+out/linux/release/bin/krkr2/krkr2 --game /path/to/game
 ```
 
-此预设开启完整通用测试、脚本 smoke，关闭 UI 测试驱动和命令行工具。
+标准预设默认开启完整通用测试和工具，UI 测试驱动默认关闭。
+CI 显式设置 `BUILD_TOOLS=OFF`、`KRKR2_ENABLE_SCRIPT_SMOKE=ON` 运行普通应用及脚本验收。
 程序默认选择 SDL3；显式 `--host=cocos` 会报错。使用独立安装目录可确认未复用旧 Cocos SDK。
 公共 `engine` feature 不含 Cocos；Linux 额外选择 `native-dialogs` 引入 GTK3。旧宿主和网络崩溃上传已删除。
 
@@ -42,16 +41,16 @@ out/linux/sdl3/bin/krkr2/krkr2 --game /path/to/game
 ## 验证
 
 ```sh
-python3 scripts/check_native_runtime.py out/linux/sdl3
-ctest --test-dir out/linux/sdl3 -N
-xvfb-run -a ctest --test-dir out/linux/sdl3 --output-on-failure --no-tests=error
-python3 tools/game-smoke/cli_smoke.py out/linux/sdl3/bin/krkr2/krkr2 --host=sdl3
+python3 scripts/check_native_runtime.py out/linux/release
+ctest --test-dir out/linux/release -N
+xvfb-run -a ctest --test-dir out/linux/release --output-on-failure --no-tests=error
+python3 tools/game-smoke/cli_smoke.py out/linux/release/bin/krkr2/krkr2 --host=sdl3
 xvfb-run -a python3 tools/game-smoke/sdl_host_repro.py \
-  out/linux/sdl3/bin/krkr2/krkr2 out/native-evidence/host
+  out/linux/release/bin/krkr2/krkr2 out/native-evidence/host
 xvfb-run -a -s '-screen 0 1280x800x24' python3 tools/game-smoke/sdl_dialog_repro.py \
-  out/linux/sdl3/bin/krkr2/krkr2 out/native-evidence/dialogs
+  out/linux/release/bin/krkr2/krkr2 out/native-evidence/dialogs
 LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a \
-  python3 tools/game-smoke/imageops_repro.py out/linux/sdl3/bin/krkr2/krkr2 \
+  python3 tools/game-smoke/imageops_repro.py out/linux/release/bin/krkr2/krkr2 \
   out/native-evidence/imageops --renderer software
 ```
 
@@ -67,7 +66,7 @@ KAG 存读档和生成音视频验收命令见工作流，使用固定 KAG3 提�
 ## Release 打包
 
 ```sh
-python3 scripts/package_native_runtime.py out/linux/sdl3 out/native-packages
+python3 scripts/package_native_runtime.py out/linux/release out/native-packages
 ```
 
 打包器先检查独立构建身份，只接受 Release、普通应用配置；按当前资源清单打包，

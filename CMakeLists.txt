@@ -221,6 +221,7 @@ if(KRKR2_BUILD_APP)
             --source "${GAME_RES_FOLDER}" --destination "$<TARGET_FILE_DIR:krkr2>/Resources"
             --all "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-all.txt"
             --selected "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-selected.txt"
+            --retired "${CMAKE_CURRENT_SOURCE_DIR}/cmake/retired-runtime-assets.txt"
         VERBATIM)
     add_dependencies(${PROJECT_NAME} sync_sdl3_resources)
 endif() # KRKR2_BUILD_APP

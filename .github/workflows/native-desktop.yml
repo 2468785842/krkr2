@@ -1,4 +1,4 @@
-name: SDL3 native runtimes
+name: Desktop runtimes
 
 on:
   workflow_call:
@@ -56,30 +56,30 @@ jobs:
           echo 'd8b22d7fba10052a2045f477f0a5b684d932513bdb3b295c22fbd9dfc2a9d8fccd9aefd90692136c62897149aa2f7d1145ce6618aa1f0be787cb88eba5bc09be  gettext-0.22.5.tar.gz' | sha512sum -c -
       - name: Configure from an empty SDK and build ordinary application
         run: |
-          cmake --preset 'Linux SDL3 Config' \
+          cmake --preset 'Linux Release Config' -DBUILD_TOOLS=OFF -DKRKR2_ENABLE_SCRIPT_SMOKE=ON \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
             -DVCPKG_INSTALLED_DIR="$PWD/out/native-sdk" \
             -DVCPKG_OVERLAY_TRIPLETS="$PWD/out/triplets" \
             -DVCPKG_INSTALL_OPTIONS=--clean-after-build
-          cmake --build out/linux/sdl3 --parallel 2
+          cmake --build --preset 'Linux Release Build' --parallel 2
       - name: Verify dependency closure, unit and script contracts
         run: |
-          python3 scripts/check_native_runtime.py out/linux/sdl3
-          python3 scripts/audit_dependencies.py out/linux/sdl3 out/native-evidence/dependency-audit.json
-          ctest --test-dir out/linux/sdl3 -N
-          xvfb-run -a ctest --test-dir out/linux/sdl3 --output-on-failure --no-tests=error
-          python3 tools/game-smoke/cli_smoke.py out/linux/sdl3/bin/krkr2/krkr2 --host=sdl3
+          python3 scripts/check_native_runtime.py out/linux/release
+          python3 scripts/audit_dependencies.py out/linux/release out/native-evidence/dependency-audit.json
+          ctest --test-dir out/linux/release -N
+          xvfb-run -a ctest --test-dir out/linux/release --output-on-failure --no-tests=error
+          python3 tools/game-smoke/cli_smoke.py out/linux/release/bin/krkr2/krkr2 --host=sdl3
       - name: Verify native windows, dialogs and software rendering
         run: |
-          engine=out/linux/sdl3/bin/krkr2/krkr2
+          engine=out/linux/release/bin/krkr2/krkr2
           xvfb-run -a python3 tools/game-smoke/sdl_host_repro.py "$engine" out/native-evidence/host
           xvfb-run -a -s '-screen 0 1280x800x24' python3 tools/game-smoke/sdl_dialog_repro.py "$engine" out/native-evidence/dialogs
           xvfb-run -a python3 tools/game-smoke/imageops_repro.py "$engine" out/native-evidence/imageops --renderer software
       - name: Package audited Release runtime
-        run: python3 scripts/package_native_runtime.py out/linux/sdl3 out/native-packages
+        run: python3 scripts/package_native_runtime.py out/linux/release out/native-packages
       - uses: actions/upload-artifact@v4
         with:
-          name: linux-sdl3-release
+          name: linux-release
           path: out/native-packages/**
       - name: Verify KAG save/load and audio/video
         run: |
@@ -87,7 +87,7 @@ jobs:
           curl --fail --silent --show-error --location --retry 3 \
             https://codeload.github.com/krkrz/kag3/tar.gz/1f3ab309106d210e3169bbbe0fb4e066ae463b42 \
             | tar -xz -C out/kag3 --strip-components=1
-          engine=out/linux/sdl3/bin/krkr2/krkr2
+          engine=out/linux/release/bin/krkr2/krkr2
           xvfb-run -a -s '-screen 0 1600x1050x24' python3 tools/game-smoke/sdl_desktop_repro.py kag "$engine" out/native-evidence/kag --kag-framework out/kag3
           xvfb-run -a -s '-screen 0 1600x1050x24' python3 tools/game-smoke/sdl_media_repro.py "$engine" out/native-evidence/media out/kag3
       - uses: actions/upload-artifact@v4
@@ -96,8 +96,8 @@ jobs:
           name: native-linux-evidence
           path: |
             out/native-evidence/**
-            out/linux/sdl3/Testing/Temporary/**
-            out/linux/sdl3/script-smoke/**
+            out/linux/release/Testing/Temporary/**
+            out/linux/release/script-smoke/**
 
   windows:
     if: inputs.platform != 'linux'
@@ -140,40 +140,40 @@ jobs:
       - name: Configure and build independent Release application
         shell: pwsh
         run: |
-          cmake --preset 'Windows SDL3 Release Config' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" "-DVCPKG_OVERLAY_TRIPLETS=$env:GITHUB_WORKSPACE/out/triplets" -DVCPKG_INSTALL_OPTIONS=--clean-after-build
+          cmake --preset 'Windows Release Config' -DBUILD_TOOLS=OFF -DKRKR2_ENABLE_SCRIPT_SMOKE=ON "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" "-DVCPKG_OVERLAY_TRIPLETS=$env:GITHUB_WORKSPACE/out/triplets" -DVCPKG_INSTALL_OPTIONS=--clean-after-build
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          cmake --build --preset 'Windows SDL3 Release Build' --parallel 4
+          cmake --build --preset 'Windows Release Build' --parallel 4
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify dependency closure and contracts
         shell: pwsh
         run: |
-          python scripts/check_native_runtime.py out/windows/sdl3-release
+          python scripts/check_native_runtime.py out/windows/release
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python scripts/audit_dependencies.py out/windows/sdl3-release out/native-evidence/dependency-audit.json
+          python scripts/audit_dependencies.py out/windows/release out/native-evidence/dependency-audit.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          ctest --test-dir out/windows/sdl3-release -N
+          ctest --test-dir out/windows/release -N
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          ctest --test-dir out/windows/sdl3-release --output-on-failure --no-tests=error
+          ctest --test-dir out/windows/release --output-on-failure --no-tests=error
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python tools/game-smoke/cli_smoke.py out/windows/sdl3-release/bin/krkr2/krkr2.exe --host=sdl3
+          python tools/game-smoke/cli_smoke.py out/windows/release/bin/krkr2/krkr2.exe --host=sdl3
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify native Windows interaction
         shell: pwsh
         run: |
           python -m unittest discover -s tools/game-smoke -p test_sdl_windows_repro.py -v
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python tools/game-smoke/sdl_windows_repro.py out/windows/sdl3-release/bin/krkr2/krkr2.exe out/native-evidence/windows
+          python tools/game-smoke/sdl_windows_repro.py out/windows/release/bin/krkr2/krkr2.exe out/native-evidence/windows
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Package audited Release runtime
         shell: pwsh
         run: |
-          python scripts/package_native_runtime.py out/windows/sdl3-release out/native-packages
+          python scripts/package_native_runtime.py out/windows/release out/native-packages
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: windows-sdl3-release
+          name: windows-release
           path: |
             out/native-packages/**
             out/native-evidence/**
-            out/windows/sdl3-release/Testing/Temporary/**
+            out/windows/release/Testing/Temporary/**

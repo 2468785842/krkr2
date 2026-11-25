@@ -14,6 +14,50 @@ spec.loader.exec_module(assets)
 
 
 class ResourceSyncTest(unittest.TestCase):
+    def test_retired_files_need_no_source_and_preserve_custom_resources(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, destination = root / "assets", root / "runtime"
+            source.mkdir()
+            (source / "current.txt").write_text("current")
+            for name in ("img/old.png", "img/custom.png", "out_ui/old.csd"):
+                target = destination / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(name)
+            with contextlib.redirect_stdout(io.StringIO()):
+                assets.sync(source, destination, {"current.txt"}, {"current.txt"},
+                            {"img/old.png", "out_ui/old.csd"})
+            self.assertEqual((destination / "current.txt").read_text(), "current")
+            self.assertEqual((destination / "img/custom.png").read_text(), "img/custom.png")
+            self.assertFalse((destination / "img/old.png").exists())
+            self.assertFalse((destination / "out_ui").exists())
+
+    def test_retirement_conflict_is_rejected_before_copying(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, destination = root / "assets", root / "runtime"
+            source.mkdir()
+            destination.mkdir()
+            (source / "current.txt").write_text("new")
+            (destination / "current.txt").write_text("original")
+            with self.assertRaises(ValueError):
+                assets.sync(source, destination, {"current.txt"}, {"current.txt"}, {"current.txt"})
+            self.assertEqual((destination / "current.txt").read_text(), "original")
+
+    def test_retirement_refuses_directory_before_copying(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, destination = root / "assets", root / "runtime"
+            source.mkdir()
+            destination.mkdir()
+            (source / "current.txt").write_text("new")
+            (destination / "current.txt").write_text("original")
+            (destination / "img/old.png").mkdir(parents=True)
+            with self.assertRaises(ValueError):
+                assets.sync(source, destination, {"current.txt"}, {"current.txt"}, {"img/old.png"})
+            self.assertEqual((destination / "current.txt").read_text(), "original")
+            self.assertTrue((destination / "img/old.png").is_dir())
+
     def test_mode_switch_prunes_only_excluded_and_restores(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
