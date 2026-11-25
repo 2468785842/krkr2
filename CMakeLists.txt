@@ -397,4 +397,14 @@ if(KRKR2_ENABLE_SCRIPT_SMOKE)
                 --output-dir "${CMAKE_CURRENT_BINARY_DIR}/script-smoke/renderer-error")
     set_tests_properties(textstream-runtime parser-error-runtime renderer-error-runtime
         PROPERTIES TIMEOUT 120 LABELS "integration;script")
+    if(LINUX AND KRKR2_SDL3_ONLY)
+        find_package(Threads REQUIRED)
+        add_library(audio_worker_delay SHARED tools/game-smoke/delay_worker_threads.c)
+        target_link_libraries(audio_worker_delay PRIVATE Threads::Threads ${CMAKE_DL_LIBS})
+        add_test(NAME audio-first-buffer-runtime
+            COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/game-smoke/audio_startup_repro.py
+                --engine $<TARGET_FILE:krkr2> --delay-library $<TARGET_FILE:audio_worker_delay>
+                --output-dir ${CMAKE_BINARY_DIR}/script-smoke/audio-first-buffer)
+        set_tests_properties(audio-first-buffer-runtime PROPERTIES TIMEOUT 35 LABELS "integration;audio")
+    endif()
 endif()

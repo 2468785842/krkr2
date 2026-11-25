@@ -401,3 +401,33 @@ Windows/macOS/Android 无 Cocos 构建或任意商业游戏完整剧情。
 这是CI环境接线错误，不是Windows编译通过/失败结论。
 包内所有文件哈希、根目录和实际CLI/窗口脚本已通过。归档执行位为0755；
 本机解压默认 umask0077 会变为0700，已核对 tar header，未将此环境掩码当作打包权限故障。
+
+
+### CI 暴露的首次音轨启动竞态
+
+首个 Linux 干净SDK任务（run45510931599/job138858145801）完成独立编译、114项CTest、
+真实X11窗口/菜单/输入/文件对话框、图像操作和KAG存读档，但混合PCM缺少440Hz BGM，
+幅度36.2；660Hz SE和880Hz视频音频存在。原始证据与Ubuntu程序已下载到
+out/integration-validation/ci-linux-first、ci-linux-binary。相同Ubuntu程序在本机普通调度下通过，
+不能据此否定CI失败。
+
+通过仅用于测试的LD_PRELOAD pthread启动延迟150ms稳定复现；未修复Ubuntu程序的最小
+WaveSoundBuffer首播场景退出0且无强停，但440Hz幅度0，完整KAG媒体也只剩SE和视频音频。
+原因为StartPlay已要求工作线程启动，FillBuffer却仍依赖工作线程稍后更新的
+TVPPrimarySoundBufferPlaying；首次队列为空时调用OpenAL Play，后续仅填充而未重新播放。
+现allowpause=false的同步预填充不再等待该异步确认；正常工作线程填充仍受主缓冲暂停状态约束。
+这是共享音频逻辑修复，未降低PCM断言、未加入延时到生产路径。
+
+新增audio-first-buffer-runtime，以真实引擎、真实OpenAL wave输出和测试专用调度扰动检查首播。
+辅助库独立于生产链接，仅在Linux独立应用的脚本smoke配置注册，测试驱动仍OFF。
+初版测试脚本漏传WaveSoundBuffer owner且未创建窗口，分别导致脚本异常/提前退出；
+已修正测试初始化，保留失败记录。正确最小场景修复前幅度0、退出0，修复后通过；
+原完整媒体延迟场景修复后440/660/880Hz幅度4120.4/4115.8/4191.7，退出0且无强停。
+
+另一Linux任务因ftpmirror.gnu.org证书异常、ftp.gnu.org的gperf下载超时而停止，
+并非C++构建错误。CI增加mirrors.kernel.org稳定HTTPS预取和与固定vcpkg端口相同的SHA512校验；
+不关闭TLS校验、不替换依赖版本。增加源码下载缓存，避免反复请求GNU镜像。
+
+修复后完整115/115测试通过；最小首播测试包含真实窗口维持事件循环、延迟150ms工作线程、
+440Hz PCM幅度2159.4和正常退出。旧混合宿主也重新编译并用同一首播回归验证。
+CI两平台均使用Release-only依赖triplet，避免为Release发布同时编译未使用的Debug依赖。

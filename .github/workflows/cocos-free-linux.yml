@@ -49,6 +49,21 @@ jobs:
           mkdir -p out/triplets
           cp "$VCPKG_ROOT/triplets/x64-linux.cmake" out/triplets/
           echo 'set(VCPKG_BUILD_TYPE release)' >> out/triplets/x64-linux.cmake
+      - name: Restore verified source downloads
+        uses: actions/cache@v4
+        with:
+          path: out/vcpkg-tool/downloads
+          key: native-sources-${{ runner.os }}-aa40adda-${{ hashFiles('vcpkg/ports/**') }}
+      - name: Prefetch GNU tools from stable HTTPS mirror
+        run: |
+          mkdir -p "$VCPKG_ROOT/downloads"
+          curl --fail --silent --show-error --location --retry 3 --connect-timeout 15 --max-time 180 \
+            https://mirrors.kernel.org/gnu/gperf/gperf-3.3.tar.gz -o "$VCPKG_ROOT/downloads/gperf-3.3.tar.gz"
+          curl --fail --silent --show-error --location --retry 3 --connect-timeout 15 --max-time 180 \
+            https://mirrors.kernel.org/gnu/gettext/gettext-0.22.5.tar.gz -o "$VCPKG_ROOT/downloads/gettext-0.22.5.tar.gz"
+          cd "$VCPKG_ROOT/downloads"
+          echo '246b75b8ce7d77d6a8725cd15f1cf2e68da404812573af1d5bf32dbe6ad4228f48757baefc77bcb1f5597c2397043c04d31d8a04ab507bfa7a80f85e1ab6045f  gperf-3.3.tar.gz' | sha512sum -c -
+          echo 'd8b22d7fba10052a2045f477f0a5b684d932513bdb3b295c22fbd9dfc2a9d8fccd9aefd90692136c62897149aa2f7d1145ce6618aa1f0be787cb88eba5bc09be  gettext-0.22.5.tar.gz' | sha512sum -c -
       - name: Configure from an empty SDK and build ordinary application
         run: |
           cmake --preset 'Linux SDL3 Config' \
@@ -127,10 +142,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & "$env:VCPKG_ROOT/bootstrap-vcpkg.bat" -disableMetrics
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          New-Item -ItemType Directory -Force out/triplets | Out-Null
+          Copy-Item "$env:VCPKG_ROOT/triplets/x64-windows-static-md.cmake" out/triplets/
+          Add-Content out/triplets/x64-windows-static-md.cmake 'set(VCPKG_BUILD_TYPE release)'
       - name: Configure and build independent Release application
         shell: pwsh
         run: |
-          cmake --preset 'Windows SDL3 Release Config' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_INSTALL_OPTIONS=--clean-after-build
+          cmake --preset 'Windows SDL3 Release Config' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" "-DVCPKG_OVERLAY_TRIPLETS=$env:GITHUB_WORKSPACE/out/triplets" -DVCPKG_INSTALL_OPTIONS=--clean-after-build
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cmake --build --preset 'Windows SDL3 Release Build' --parallel 4
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

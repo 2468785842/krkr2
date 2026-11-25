@@ -77,3 +77,7 @@ python3 scripts/package_native_runtime.py out/linux/sdl3 out/native-packages
 和动态依赖清单；旁边另有压缩包 SHA256。Linux 输出 tar.gz，Windows 输出 zip。
 系统动态库不随包分发，运行环境需安装清单中的库；Linux glibc 不能低于构建主机。
 CI 在 Ubuntu 24.04 和 Windows 2022 构建两份 Release 包，商业游戏素材/存档不进入 CI 或发布包。
+
+首次音轨另有 `audio-first-buffer-runtime` 回归：测试专用预加载库延迟工作线程启动，
+通过真实 OpenAL PCM 验证首次播放不会因异步启动确认而丢失。辅助库不链接进生产程序或发布包，
+正常媒体探针继续要求 BGM、SE、视频三条音轨同时存在。
