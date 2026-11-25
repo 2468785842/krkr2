@@ -13,6 +13,7 @@ Windows 已有 SDL3 独立构建，Linux 有可选 SDL3/Cocos 双宿主；其他
 2026-11-20：OpenCV 生产依赖已剔除，B4 算法/线程与默认独立测试已迁移；跨平台完整消费者和游戏验收仍按范围单独核实，见[移除记录](../../implemented/simplification/2026-11-20-opencv-removal.md)。
 2026-11-20：纹理呈现首批已隔离公共画面描述、CPU上传与宿主截图，保留Cocos后端；GL状态/context边界仍待拆分，见[实施记录](../../implemented/simplification/2026-11-20-render-presentation-boundary.md)。
 此轮优先精简平台/图形后端，TJS2 与 Ciallang 替换另设任务、另行验收。
+独立待办、最小验证批次及初步工作量见 [Ciallang 接入任务](2026-11-25-ciallang-tjs-runtime.md)，当前仅登记，尚未实施。
 
 ## 目标边界
 
