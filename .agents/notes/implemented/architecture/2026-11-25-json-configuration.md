@@ -42,5 +42,9 @@ Status: implemented
 
 ## 边界
 
-本次本机验证为 Linux；尚未重跑 Windows、macOS、Android。三平台 config CI 已同步依赖与 26 项断言。
+本机验证为 Linux。后续三平台 config CI（各 26 项）、Windows/Linux SDL3 原生 CI、
+Windows/Linux/Android 完整应用 CI 和 Android 输入 CI 均已通过。
+Windows 静态归档 XML 链接问题由 PR #62 修复并验收，见
+[归档链接记录](../bug-fix/2026-11-25-libarchive-static-xml.md)。
+macOS 验证限于独立基础/配置测试，没有完整应用验收。
 先前 Windows 真实商业游戏验收属于基线证据，不作为本次 JSON 修改后的游戏验收。
