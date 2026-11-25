@@ -13,6 +13,14 @@ namespace krkr::config {
         std::shared_ptr<const PreferenceStorage> activeStorage;
     }
 
+    bool PreferenceStorage::Exists(const std::string &path) const {
+        std::error_code error;
+        const bool exists =
+            std::filesystem::exists(std::filesystem::u8path(path), error);
+        // Never migrate over an inaccessible JSON file.
+        return exists || bool(error);
+    }
+
     bool PreferenceStorage::Read(const std::string &path,
                                  std::string &data) const {
         std::ifstream input(std::filesystem::u8path(path), std::ios::binary);

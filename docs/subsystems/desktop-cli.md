@@ -39,8 +39,8 @@ Windows 可直接在 PowerShell 或 cmd 中查看输出和退出码。
 `--list-settings` 列出支持的键与取值。`--set KEY=VALUE` 和 `--set=KEY=VALUE` 可重复使用，放在 `--` 前面，
 同一键取最后一次值。未知键和无效值以退出码 2 报告。`-name=value` 继续传给原有引擎参数和脚本接口。
 
-游戏级配置的优先级为命令行、游戏的 `Kirikiroid2Preference.xml`、全局 `GlobalPreference.xml`、内建默认值。
-命令行值只在当前进程内生效，原有 XML 会继续作为后续启动的默认配置。布尔设置用 `0` 或 `1`，
+游戏级配置的优先级为命令行、游戏的 `Kirikiroid2Preference.json`、全局 `GlobalPreference.json`、内建默认值。
+命令行值只在当前进程内生效，旧 XML 在 JSON 不存在时自动迁移并保留原文件。布尔设置用 `0` 或 `1`，
 路径含空格时用引号。显示帧率、帧率上限、菜单透明度及虚拟鼠标是 Cocos 宿主设置。
 `virtual_mouse=1` 在 Cocos 游戏宿主启动时启用虚拟鼠标。
 

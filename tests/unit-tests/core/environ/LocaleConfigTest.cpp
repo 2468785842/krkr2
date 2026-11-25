@@ -60,33 +60,31 @@ namespace {
     };
 } // namespace
 
-TEST_CASE_METHOD(LocaleFixture,
-                 "locale reads packaged UTF-8 and XML entities") {
-    assets["locale/zh_cn.xml"] =
-        "\xEF\xBB\xBF<Locale><Item id='ok' text='确定 &amp; OK'/>"
-        "<Item id='empty' text=''/><Item id='missing-text'/></Locale>";
+TEST_CASE_METHOD(LocaleFixture, "locale reads packaged UTF-8 JSON") {
+    assets["locale/zh_cn.json"] = "\xEF\xBB\xBF"
+                                  R"({"ok":"确定 & OK","empty":""})";
     locale.Initialize("zh_cn");
     REQUIRE(locale.GetText("ok") == "确定 & OK");
     REQUIRE(locale.GetText("empty").empty());
     REQUIRE(locale.GetText("missing-text") == "missing-text");
-    REQUIRE(reads == std::vector<std::string>{ "locale/zh_cn.xml" });
+    REQUIRE(reads == std::vector<std::string>{ "locale/zh_cn.json" });
 }
 
 TEST_CASE_METHOD(LocaleFixture, "locale preference overrides system language") {
     GlobalConfigManager::GetInstance()->SetValue("user_language", "ja_jp");
-    assets["locale/ja_jp.xml"] = "<Locale><Item id='ok' text='確認'/></Locale>";
+    assets["locale/ja_jp.json"] = R"({"ok":"確認"})";
     locale.Initialize("zh_cn");
     REQUIRE(locale.GetText("ok") == "確認");
-    REQUIRE(reads == std::vector<std::string>{ "locale/ja_jp.xml" });
+    REQUIRE(reads == std::vector<std::string>{ "locale/ja_jp.json" });
 }
 
 TEST_CASE_METHOD(LocaleFixture, "locale falls back once to packaged English") {
-    assets["locale/en_us.xml"] = "<Locale><Item id='ok' text='OK'/></Locale>";
+    assets["locale/en_us.json"] = R"({"ok":"OK"})";
     locale.Initialize("unavailable");
     REQUIRE(locale.GetText("ok") == "OK");
     REQUIRE(reads ==
-            std::vector<std::string>{ "locale/unavailable.xml",
-                                      "locale/en_us.xml" });
+            std::vector<std::string>{ "locale/unavailable.json",
+                                      "locale/en_us.json" });
 }
 
 TEST_CASE_METHOD(LocaleFixture,
@@ -97,16 +95,15 @@ TEST_CASE_METHOD(LocaleFixture,
     reads.clear();
     locale.Initialize("en_us");
     REQUIRE(locale.GetText("ok") == "ok");
-    REQUIRE(reads == std::vector<std::string>{ "locale/en_us.xml" });
+    REQUIRE(reads == std::vector<std::string>{ "locale/en_us.json" });
 }
 
 TEST_CASE_METHOD(LocaleFixture, "locale reload clears previous translations") {
-    assets["locale/en_us.xml"] =
-        "<Locale><Item id='ok' text='old'/><Item id='ok' text='new'/>"
-        "<Item id='previous' text='previous value'/></Locale>";
+    assets["locale/en_us.json"] =
+        R"({"ok":"old","ok":"new","previous":"previous value"})";
     locale.Initialize("en_us");
     REQUIRE(locale.GetText("ok") == "new");
-    assets["locale/en_us.xml"] = "";
+    assets["locale/en_us.json"] = "";
     reads.clear();
     locale.Initialize("en_us");
     REQUIRE(locale.GetText("previous") == "previous");

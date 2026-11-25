@@ -8,7 +8,6 @@ import subprocess
 import struct
 import time
 import sys
-from xml.sax.saxutils import escape
 from frame_pixels import color_counts, rgb_rows
 
 
@@ -164,10 +163,8 @@ def run(engine, destination, seconds=60, capture=False, profiles=False, renderer
         if profile == "opengl-half":
             cli_settings = {"renderer": "opengl", "ogl_max_texsize": "512"}
             preferences.update(renderer="software", ogl_max_texsize="1024")
-        preference_path = root / "Kirikiroid2Preference.xml"
-        preference_path.write_text('<GlobalPreference>' +
-            ''.join(f'<Item key="{escape(key)}" value="{escape(value)}"/>' for key,value in preferences.items()) +
-            '</GlobalPreference>', encoding="utf-8")
+        preference_path = root / "Kirikiroid2Preference.json"
+        preference_path.write_text(json.dumps({"version": 1, "values": preferences}), encoding="utf-8")
         if capture:
             (root / "interaction-fixture.json").write_text('{"fixture":"imageops"}')
         command = [str(engine), "--game=" + str(root), "-imageops-renderer=" + renderer]

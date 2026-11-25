@@ -17,7 +17,9 @@ namespace krkr::config {
         std::map<int, int> keyMap;
     };
 
-    std::optional<Preferences> ReadPreferences(std::string_view xml);
+    std::optional<Preferences> ReadPreferences(std::string_view json);
     std::string WritePreferences(const Preferences &preferences);
-    Values ReadLocale(std::string_view xml);
+    std::optional<Preferences> ReadLegacyPreferences(std::string_view xml);
+    Values ReadLegacyLocale(std::string_view xml);
+    Values ReadLocale(std::string_view json);
 } // namespace krkr::config

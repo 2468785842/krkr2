@@ -511,8 +511,7 @@ void TVPMainFileSelectorForm::ListHistory() {
                                                 parentName, "/" + lastName);
 
         Widget::ccWidgetClickCallback funcConf;
-        if(TVPCheckExistentLocalFile(parentPath +
-                                     "/Kirikiroid2Preference.xml")) {
+        if(IndividualConfigManager::CheckExistAt(parentPath)) {
             funcConf = [this, parentPath](Ref *) {
                 onShowPreferenceConfigAt(parentPath);
             };

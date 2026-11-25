@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include "ConfigXml.h"
+#include "ConfigFormat.h"
 #include <tinyxml2/tinyxml2.h>
 
 #include <filesystem>
@@ -9,7 +9,7 @@
 TEST_CASE("config XML matches legacy parser for shipped locale files") {
     std::size_t count = 0;
     for(const auto &file : std::filesystem::directory_iterator(
-            std::filesystem::u8path(KRKR_ASSET_DIR) / "locale")) {
+            std::filesystem::u8path(KRKR_LEGACY_LOCALE_DIR))) {
         if(file.path().extension() != ".xml")
             continue;
         CAPTURE(file.path().u8string());
@@ -29,7 +29,7 @@ TEST_CASE("config XML matches legacy parser for shipped locale files") {
                 expected[id] = text;
         }
         REQUIRE_FALSE(expected.empty());
-        const auto actual = krkr::config::ReadLocale(xml);
+        const auto actual = krkr::config::ReadLegacyLocale(xml);
         REQUIRE(actual.size() == expected.size());
         for(const auto &[id, text] : expected) {
             CAPTURE(id);
@@ -44,14 +44,19 @@ TEST_CASE("config XML matches legacy parser for shipped locale files") {
     REQUIRE(count > 0);
 }
 
-TEST_CASE(
-    "config XML serialized preferences remain readable by legacy parser") {
+TEST_CASE("config migrates legacy parser preferences to JSON") {
     krkr::config::Preferences settings;
     settings.values = { { "language", "中文<&\"\t\r\n" },
                         { "long", std::string(10000, 'x') } };
     settings.arguments = { { "arg", "first" }, { "arg", "second" } };
     settings.keyMap = { { -1, 2 }, { 65, 66 } };
-    const auto xml = krkr::config::WritePreferences(settings);
+    const std::string xml =
+        "<GlobalPreference><Item key='language' "
+        "value='中文&lt;&amp;&quot;&#9;&#13;&#10;'/><Item key='long' value='" +
+        std::string(10000, 'x') +
+        "'/><Custom key='arg' value='first'/><Custom key='arg' "
+        "value='second'/><KeyMap key='-1' value='2'/><KeyMap key='65' "
+        "value='66'/></GlobalPreference>";
     tinyxml2::XMLDocument legacy;
     REQUIRE(legacy.Parse(xml.c_str(), xml.size()) == tinyxml2::XML_SUCCESS);
     auto *root = legacy.RootElement();
@@ -75,6 +80,14 @@ TEST_CASE(
     REQUIRE(restored.values == settings.values);
     REQUIRE(restored.arguments == settings.arguments);
     REQUIRE(restored.keyMap == settings.keyMap);
+    const auto migrated = krkr::config::ReadLegacyPreferences(xml);
+    REQUIRE(migrated);
+    const auto roundtrip = krkr::config::ReadPreferences(
+        krkr::config::WritePreferences(*migrated));
+    REQUIRE(roundtrip);
+    REQUIRE(roundtrip->values == restored.values);
+    REQUIRE(roundtrip->arguments == restored.arguments);
+    REQUIRE(roundtrip->keyMap == restored.keyMap);
 
     const std::string raw =
         "<GlobalPreference><Custom key='lines' value='a\tb\r\nc\n\rd\re'/>"
@@ -82,7 +95,7 @@ TEST_CASE(
     tinyxml2::XMLDocument oldWhitespace;
     REQUIRE(oldWhitespace.Parse(raw.c_str(), raw.size()) ==
             tinyxml2::XML_SUCCESS);
-    const auto parsed = krkr::config::ReadPreferences(raw);
+    const auto parsed = krkr::config::ReadLegacyPreferences(raw);
     REQUIRE(parsed);
     REQUIRE(
         parsed->arguments.at(0).second ==

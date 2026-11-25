@@ -1,5 +1,5 @@
 #include "GlobalConfigManager.h"
-#include "ConfigXml.h"
+#include "ConfigFormat.h"
 #include "PreferenceStorage.h"
 
 #include <locale>
@@ -35,19 +35,34 @@ GlobalConfigManager *GlobalConfigManager::GetInstance() {
 
 void iSysConfigManager::Initialize() {
     AllConfig.clear();
+    CustomArguments.clear();
+    KeyMap.clear();
     ConfigUpdated = false;
 
-    std::string xml;
-    if(!krkr::config::RequirePreferenceStorage()->Read(GetFilePath(), xml))
-        return;
-    const auto preferences = krkr::config::ReadPreferences(xml);
+    const auto storage = krkr::config::RequirePreferenceStorage();
+    const auto path = GetFilePath();
+    std::string data;
+    std::optional<krkr::config::Preferences> preferences;
+    bool migrated = false;
+    if(storage->Exists(path)) {
+        if(!storage->Read(path, data))
+            return;
+        preferences = krkr::config::ReadPreferences(data);
+    } else if(path.size() >= 5 && path.substr(path.size() - 5) == ".json") {
+        if(!storage->Read(path.substr(0, path.size() - 5) + ".xml", data))
+            return;
+        preferences = krkr::config::ReadLegacyPreferences(data);
+        migrated = true;
+    }
     if(!preferences)
         return;
     AllConfig = preferences->values;
-    CustomArguments.insert(CustomArguments.end(),
-                           preferences->arguments.begin(),
-                           preferences->arguments.end());
-    KeyMap.insert(preferences->keyMap.begin(), preferences->keyMap.end());
+    CustomArguments = preferences->arguments;
+    KeyMap = preferences->keyMap;
+    if(migrated) {
+        ConfigUpdated = true;
+        SaveToFile();
+    }
 }
 
 void iSysConfigManager::SaveToFile() {
@@ -56,10 +71,10 @@ void iSysConfigManager::SaveToFile() {
     std::string filepath = GetFilePath();
     if(filepath.empty())
         return;
-    const auto xml =
+    const auto json =
         krkr::config::WritePreferences({ AllConfig, CustomArguments, KeyMap });
     const auto storage = krkr::config::RequirePreferenceStorage();
-    if(!storage->Write(filepath, xml))
+    if(!storage->Write(filepath, json))
         storage->ReportWriteFailure();
     ConfigUpdated = false;
 }
@@ -70,7 +85,7 @@ bool iSysConfigManager::IsValueExist(const std::string &name) {
 }
 
 std::string GlobalConfigManager::GetFilePath() {
-    return TVPGetInternalPreferencePath() + "GlobalPreference.xml";
+    return TVPGetInternalPreferencePath() + "GlobalPreference.json";
 }
 
 template <>

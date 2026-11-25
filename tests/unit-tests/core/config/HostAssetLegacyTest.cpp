@@ -26,7 +26,7 @@ TEST_CASE("host assets match legacy bytes for packaged font and locales") {
     const auto reader = std::make_shared<krkr::assets::LocalAssetReader>(
         std::vector<std::filesystem::path>{ root });
     for(const std::string name :
-        { "locale/en_us.xml", "locale/zh_cn.xml", "NotoSansCJK-Regular.ttc" }) {
+        { "locale/en_us.json", "locale/zh_cn.json", "NotoSansCJK-Regular.ttc" }) {
         CAPTURE(name);
         const auto before = std::chrono::steady_clock::now();
         const auto expected = Read((root / name).u8string());

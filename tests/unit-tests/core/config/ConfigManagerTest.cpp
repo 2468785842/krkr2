@@ -1,11 +1,12 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "ConfigManager/ConfigXml.h"
+#include "ConfigManager/ConfigFormat.h"
 #include "ConfigManager/GlobalConfigManager.h"
 #include "ConfigManager/IndividualConfigManager.h"
 #include "ConfigManager/PreferenceStorage.h"
 #include "ConfigManager/LocalHostServices.h"
 #include "PackagedAsset.h"
+#include "resources/LocalAssetReader.h"
 
 #include <chrono>
 #include <filesystem>
@@ -16,6 +17,7 @@ namespace {
     struct MemoryStorage final : krkr::config::PreferenceStorage {
         std::string directory = "test/";
         mutable std::string xml;
+        bool Exists(const std::string &) const override { return !xml.empty(); }
         mutable std::string lastPath;
         mutable int writes = 0;
         mutable int failures = 0;
@@ -40,7 +42,7 @@ namespace {
         void ReportWriteFailure() const override { ++failures; }
     };
     struct Manager : iSysConfigManager {
-        std::string GetFilePath() override { return "test/preferences.xml"; }
+        std::string GetFilePath() override { return "test/preferences.json"; }
         Manager() { Initialize(); }
     };
     struct ConfigFixture {
@@ -84,7 +86,7 @@ TEST_CASE("native host services cover configuration before window startup") {
             }));
         REQUIRE(bytes == std::string("A\0B", 3));
         const auto storage = krkr::config::RequirePreferenceStorage();
-        const auto path = storage->PreferenceDirectory() + "global.xml";
+        const auto path = storage->PreferenceDirectory() + "global.json";
         struct LocalManager : iSysConfigManager {
             std::string path;
             explicit LocalManager(std::string path) : path(std::move(path)) {
@@ -162,7 +164,7 @@ TEST_CASE("config local storage creates UTF-8 paths and reads exact bytes") {
     krkr::config::LocalPreferenceStorage storage(writable.u8string(),
                                                  [&] { ++failures; });
     const auto file = std::filesystem::u8path(storage.PreferenceDirectory()) /
-        "GlobalPreference.xml";
+        "GlobalPreference.json";
     const std::string bytes("a\0b\r\n", 5);
     REQUIRE(storage.Write(file.u8string(), bytes));
     std::string actual;
@@ -185,9 +187,10 @@ TEST_CASE("config local storage creates UTF-8 paths and reads exact bytes") {
 
 TEST_CASE_METHOD(ConfigFixture,
                  "config manager roundtrip excludes launch overrides") {
-    memory->xml = "<GlobalPreference><Item key='volume' value='20'/>"
-                  "<Custom key='a' value='1'/><Custom key='a' value='2'/>"
-                  "<KeyMap key='65' value='66'/></GlobalPreference>";
+    memory->xml =
+        krkr::config::WritePreferences({ { { "volume", "20" } },
+                                         { { "a", "1" }, { "a", "2" } },
+                                         { { 65, 66 } } });
     Manager manager;
     REQUIRE(manager.GetValue<int>("volume", 0) == 20);
     REQUIRE(manager.GetCustomArgumentsForPush() ==
@@ -219,7 +222,7 @@ TEST_CASE_METHOD(ConfigFixture,
     REQUIRE(individual->GetValue<int>("volume", 0) == 8);
     REQUIRE(global->GetValue<int>("volume", 0) == 7);
     individual->SaveToFile();
-    REQUIRE(memory->lastPath == "game/Kirikiroid2Preference.xml");
+    REQUIRE(memory->lastPath == "game/Kirikiroid2Preference.json");
     REQUIRE(krkr::config::ReadPreferences(memory->xml)->values.at("volume") ==
             "8");
 }
@@ -239,4 +242,107 @@ TEST_CASE_METHOD(
     manager.SetValueInt("volume", 13);
     manager.SaveToFile();
     REQUIRE(memory->failures == 2);
+}
+
+TEST_CASE("config migrates legacy XML once and gives JSON precedence") {
+    const auto root = std::filesystem::temp_directory_path() /
+        ("krkr-json-migration-" +
+         std::to_string(
+             std::chrono::steady_clock::now().time_since_epoch().count()));
+    std::filesystem::create_directory(root);
+    struct Cleanup {
+        std::filesystem::path root;
+        ~Cleanup() { std::filesystem::remove_all(root); }
+    } cleanup{ root };
+    auto local = std::make_shared<krkr::config::LocalPreferenceStorage>(
+        root.u8string(), [] {});
+    krkr::config::ScopedPreferenceStorage storage(local);
+    const auto json = (root / "preferences.json").u8string();
+    const auto xml = (root / "preferences.xml").u8string();
+    const std::string old =
+        "<GlobalPreference><Item key='name' value='中文 &amp; old'/><Custom "
+        "key='a' value='1'/><Custom key='a' value='2'/><KeyMap key='65' "
+        "value='66'/></GlobalPreference>";
+    REQUIRE(local->Write(xml, old));
+    struct LocalManager : iSysConfigManager {
+        std::string path;
+        explicit LocalManager(std::string path) : path(std::move(path)) {
+            Initialize();
+        }
+        std::string GetFilePath() override { return path; }
+    } migrated(json);
+    REQUIRE(migrated.GetValue<std::string>("name", "") == "中文 & old");
+    REQUIRE(migrated.GetCustomArguments().size() == 2);
+    REQUIRE(migrated.GetKeyMap().at(65) == 66);
+    std::string actual;
+    REQUIRE(local->Read(json, actual));
+    REQUIRE(krkr::config::ReadPreferences(actual));
+    REQUIRE(local->Read(xml, actual));
+    REQUIRE(actual == old);
+    REQUIRE(local->Write(xml,
+                         "<GlobalPreference><Item key='name' "
+                         "value='stale'/></GlobalPreference>"));
+    LocalManager reloaded(json);
+    REQUIRE(reloaded.GetValue<std::string>("name", "") == "中文 & old");
+    REQUIRE(local->Write(json, "broken JSON"));
+    LocalManager malformed(json);
+    REQUIRE_FALSE(malformed.IsValueExist("name"));
+    REQUIRE(local->Read(json, actual));
+    REQUIRE(actual == "broken JSON");
+    REQUIRE(local->Write(json, ""));
+    LocalManager empty(json);
+    REQUIRE_FALSE(empty.IsValueExist("name"));
+
+    krkr::assets::ScopedReader assets(
+        std::make_shared<krkr::assets::LocalAssetReader>(
+            std::vector<std::filesystem::path>{ root }));
+    const auto game = (root / "game").u8string();
+    std::filesystem::create_directory(std::filesystem::u8path(game));
+    REQUIRE(local->Write(game + "/Kirikiroid2Preference.xml", old));
+    REQUIRE(IndividualConfigManager::CheckExistAt(game));
+    auto *individual = IndividualConfigManager::GetInstance();
+    REQUIRE(individual->UsePreferenceAt(game));
+    REQUIRE(individual->GetValue<std::string>("name", "") == "中文 & old");
+    REQUIRE(local->Exists(game + "/Kirikiroid2Preference.json"));
+    REQUIRE(individual->GetKeyMap().at(65) == 66);
+    REQUIRE_FALSE(
+        individual->UsePreferenceAt((root / "missing-game").u8string()));
+    REQUIRE(individual->GetKeyMap().empty());
+    REQUIRE(individual->GetCustomArguments().empty());
+    std::filesystem::remove(
+        std::filesystem::u8path(game + "/Kirikiroid2Preference.xml"));
+    REQUIRE(IndividualConfigManager::CheckExistAt(game));
+    REQUIRE(individual->UsePreferenceAt(game));
+    REQUIRE(individual->GetKeyMap().at(65) == 66);
+    REQUIRE(individual->CreatePreferenceAt((root / "new-game").u8string()));
+    REQUIRE(individual->GetKeyMap().empty());
+
+    REQUIRE(local->Write((root / "invalid.xml").u8string(), "<broken>"));
+    LocalManager invalid((root / "invalid.json").u8string());
+    REQUIRE_FALSE(local->Exists((root / "invalid.json").u8string()));
+
+    struct FailingStorage : krkr::config::PreferenceStorage {
+        std::string legacy;
+        mutable int failures = 0;
+        std::string WritableDirectory() const override { return {}; }
+        const std::string &PreferenceDirectory() const override {
+            return legacy;
+        }
+        bool Exists(const std::string &) const override { return false; }
+        bool Read(const std::string &, std::string &data) const override {
+            data = legacy;
+            return true;
+        }
+        bool Write(const std::string &, std::string_view) const override {
+            return false;
+        }
+        void ReportWriteFailure() const override { ++failures; }
+    };
+    auto failing = std::make_shared<FailingStorage>();
+    failing->legacy = old;
+    krkr::config::ScopedPreferenceStorage failedStorage(failing);
+    LocalManager failed("unwritable.json");
+    REQUIRE(failing->failures == 1);
+    REQUIRE(failing->legacy == old);
+    REQUIRE(failed.GetValue<std::string>("name", "") == "中文 & old");
 }

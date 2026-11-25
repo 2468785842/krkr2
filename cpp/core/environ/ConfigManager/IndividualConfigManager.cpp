@@ -1,7 +1,8 @@
 #include "IndividualConfigManager.h"
 #include "PackagedAsset.h"
 
-#define FILENAME "Kirikiroid2Preference.xml"
+#define FILENAME "Kirikiroid2Preference.json"
+#define LEGACY_FILENAME "Kirikiroid2Preference.xml"
 
 IndividualConfigManager *IndividualConfigManager::GetInstance() {
     static IndividualConfigManager instance;
@@ -13,13 +14,15 @@ std::string IndividualConfigManager::GetFilePath() { return CurrentPath; }
 void IndividualConfigManager::Clear() {
     AllConfig.clear();
     CustomArguments.clear();
+    KeyMap.clear();
     ConfigUpdated = false;
     CurrentPath.clear();
 }
 
 bool IndividualConfigManager::CheckExistAt(const std::string &folder) {
     std::string fullpath = folder + "/" FILENAME;
-    return TVPHostFileExists(fullpath);
+    return TVPHostFileExists(fullpath) ||
+        TVPHostFileExists(folder + "/" LEGACY_FILENAME);
 }
 
 bool IndividualConfigManager::CreatePreferenceAt(const std::string &folder) {
@@ -46,7 +49,7 @@ bool IndividualConfigManager::UsePreferenceAt(const std::string &folder) {
     if(CurrentPath == fullpath)
         return true;
     Clear();
-    if(!TVPHostFileExists(fullpath))
+    if(!CheckExistAt(folder))
         return false;
     CurrentPath = fullpath;
     Initialize();

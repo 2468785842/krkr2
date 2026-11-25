@@ -42,7 +42,8 @@
         "glm",
         "jxrlib",
         "libarchive",
-        "libxml2",
+        "nlohmann-json",
+        "pugixml",
         "libjpeg-turbo",
         {
           "name": "libogg",
@@ -143,9 +144,10 @@
       ]
     },
     "config": {
-      "description": "Configuration XML and native host resource tests without the game runtime",
+      "description": "JSON configuration, legacy XML migration and native host resources without the game runtime",
       "dependencies": [
-        "libxml2"
+        "nlohmann-json",
+        "pugixml"
       ]
     },
     "imageops": {

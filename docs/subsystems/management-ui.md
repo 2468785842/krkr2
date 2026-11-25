@@ -27,8 +27,8 @@ SDL3 继续直接使用不访问 GL 的 `TVPApplyRuntimePreferenceDefaults`。
 单游戏配置文件的存在性检查经 `TVPHostFileExists`，保留现有宿主的本地/打包文件查询和搜索顺序。
 
 这一步只消除上述读取逻辑对 Cocos 文件工具和控件的直接引用。
-Linux SDL3 已安装独立的本地资源读取器，运行时设置 XML 已改用独立 LibXml2 支持模块。
+Linux SDL3 已安装独立的本地资源读取器，运行时设置与语言资源已改为 JSON，旧设置 XML 由独立格式模块迁移。
 全局设置路径与平台写入已通过宿主存储提供器分离，配置管理器可独立链接；
 Cocos 权限写入和提示留在适配层，完整应用组合根仍要求 Cocos。
 `config` 和 full 范围均登记 5 项无窗口语言读取用例。
-格式、资源根和独立验证见[宿主资源与配置 XML](host-resources.md)。
+格式、资源根和独立验证见[宿主资源与 JSON 配置](host-resources.md)。

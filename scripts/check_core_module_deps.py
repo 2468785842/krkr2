@@ -80,7 +80,7 @@ def check(root):
             errors.append(f'{source.relative_to(root)}: 配置与语言读取不得直接依赖 Cocos/UI')
     # Generic window consumers must not import the Cocos implementation header.
     support = [root / 'cpp/core/environ/ConfigManager' / name
-               for name in ('ConfigXml.h', 'ConfigXml.cpp',
+               for name in ('ConfigFormat.h', 'ConfigFormat.cpp',
                             'PreferenceStorage.h', 'PreferenceStorage.cpp',
                             'LocalHostServices.h', 'LocalHostServices.cpp',
                             'GlobalConfigManager.h', 'GlobalConfigManager.cpp',

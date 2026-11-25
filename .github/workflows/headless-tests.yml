@@ -425,17 +425,18 @@ jobs:
           root = pathlib.Path('out/config')
           status = (root / 'vcpkg_installed/vcpkg/status').read_text(encoding='utf-8')
           ports = {line.split(': ', 1)[1] for line in status.splitlines() if line.startswith('Package: ')}
-          assert 'libxml2' in ports and 'catch2' in ports, ports
+          assert {'nlohmann-json', 'pugixml', 'catch2'} <= ports, ports
+          assert 'libxml2' not in ports, ports
           assert not ports.intersection({'cocos2dx', 'opencv4', 'ffmpeg', 'sdl3', 'fmt', 'spdlog', 'oniguruma'}), ports
           commands = json.loads((root / 'compile_commands.json').read_text(encoding='utf-8'))
           assert sorted(pathlib.Path(c['file']).name for c in commands) == sorted([
-              'ConfigXml.cpp', 'LocalAssetReader.cpp', 'HostAssets.cpp', 'ConfigXmlTest.cpp',
+              'ConfigFormat.cpp', 'LocalAssetReader.cpp', 'HostAssets.cpp', 'ConfigFormatTest.cpp',
               'LocalAssetReaderTest.cpp', 'LocaleConfigTest.cpp', 'LocaleConfigManager.cpp',
               'PreferenceStorage.cpp', 'GlobalConfigManager.cpp', 'IndividualConfigManager.cpp',
               'ConfigManagerTest.cpp', 'LocalHostServices.cpp'])
           tests = json.loads(subprocess.check_output(['ctest', '--test-dir', str(root), '--show-only=json-v1']))
-          assert len(tests['tests']) == 22, tests['tests']
-          print('Configuration contracts: 22 tests; closure verified:', sorted(ports))
+          assert len(tests['tests']) == 26, tests['tests']
+          print('Configuration contracts: 26 tests; closure verified:', sorted(ports))
           PY
       - uses: actions/upload-artifact@v4
         if: always()
