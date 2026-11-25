@@ -70,3 +70,16 @@ CLI ON/OFF/OFF/ON；不计配置时间，四次 build 分别 22.093/21.081/20.08
 Linux 当前 XAR 不支持属于既有哈希后端边界；Windows CNG 的传递链接由代码明确补齐，仍需 CI 实际验收。
 原 Windows 商业游戏验收属于基线，不当成本次改动后又跑过商业游戏。
 OpenMP 的真实目标选项归属另记[调查](../../proposed/architecture/2026-11-25-openmp-target-scope.md)，本次没有改变线程语义。
+
+
+## PR #63 首轮 CI 与跟进
+
+源提交 `4c51186`：三平台无头基础、Android 输入、Linux 普通应用和 Android 完整应用通过。
+Linux SDL3 job `139114272704` 在下载 pugixml 1.15 时遇到 HTTP 429，未进入应用构建；
+同组结束后已单独提交重试。
+
+Windows SDL3 job `139114273052` 已完成构建，但新 XAR 契约测试在 19 个断言成功后 SIGSEGV，
+其余 67 项通过。最后记录的断言是 filter 注册，之后成功打开归档的路径直接
+`INFO(archive_error_string(...))`；无错误时该接口可返回 nullptr，将其作为 C 字符串输出是未定义行为。
+修复为显式打印结果码和非空诊断字符串，不删除 XAR 读取/内容检查、不关闭该平台测试。
+Linux 原生 SDK 没有进入 XAR 成功分支；需要 Windows 新头部 CI 验证，不能仅以 Linux 通过宣称已解决。

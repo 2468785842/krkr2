@@ -90,7 +90,10 @@ TEST_CASE("libarchive imported target preserves compression and XML closure") {
         REQUIRE(archive_read_support_filter_all(reader.get()) == ARCHIVE_OK);
         const auto openResult =
             archive_read_open_memory(reader.get(), xar.data(), xar.size());
-        INFO(archive_error_string(reader.get()));
+        const char *openError = archive_error_string(reader.get());
+        INFO("XAR open result "
+             << openResult << ": "
+             << (openError ? openError : "no archive error"));
         REQUIRE(openResult == ARCHIVE_OK);
         archive_entry *entry = nullptr;
         REQUIRE(archive_read_next_header(reader.get(), &entry) == ARCHIVE_OK);
