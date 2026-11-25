@@ -7,6 +7,9 @@ include(CTest)
 include(Catch)
 
 set(TEST_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+if(KRKR2_BUILD_APP AND KRKR2_TEST_SCOPE MATCHES "^(full|platform|archives)$")
+    add_subdirectory(unit-tests/core/libarchive)
+endif()
 
 if(KRKR2_TEST_SCOPE STREQUAL "config")
     add_subdirectory(unit-tests/core/config)

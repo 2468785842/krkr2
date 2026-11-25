@@ -1,7 +1,7 @@
 {
   "name": "libarchive",
   "version": "3.7.7",
-  "port-version": 1,
+  "port-version": 2,
   "description": "Library for reading and writing streaming archives",
   "homepage": "https://www.libarchive.org",
   "license": null,
@@ -11,6 +11,14 @@
       "name": "vcpkg-cmake",
       "host": true
     },
-    "libxml2"
+    {
+      "name": "bzip2",
+      "default-features": false
+    },
+    "liblzma",
+    "libxml2",
+    "lz4",
+    "zlib",
+    "zstd"
   ]
 }

@@ -406,5 +406,11 @@ if(KRKR2_ENABLE_SCRIPT_SMOKE)
                 --engine $<TARGET_FILE:krkr2> --delay-library $<TARGET_FILE:audio_worker_delay>
                 --output-dir ${CMAKE_BINARY_DIR}/script-smoke/audio-first-buffer)
         set_tests_properties(audio-first-buffer-runtime PROPERTIES TIMEOUT 35 LABELS "integration;audio")
+        add_test(NAME image-audio-codec-runtime
+            COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/game-smoke/audio_startup_repro.py
+                --engine $<TARGET_FILE:krkr2> --delay-library $<TARGET_FILE:audio_worker_delay>
+                --output-dir ${CMAKE_BINARY_DIR}/script-smoke/image-audio-codec
+                --codec vorbis --webp)
+        set_tests_properties(image-audio-codec-runtime PROPERTIES TIMEOUT 35 LABELS "integration;audio;image")
     endif()
 endif()
