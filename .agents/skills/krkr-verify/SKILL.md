@@ -25,7 +25,7 @@ description: 为 KrKr2 的 C++、CMake 或后端改动选择并执行构建与�
   验证真实 Framework/ART 的 Java 与 JNI 契约，不替代生产 Cocos/TJS APK、ARM64 或物理设备验收。
 - 文档或技能调整只做相应路径、元数据与 diff 检查；新脚本验证实际行为。
 - 基础模块依赖改动执行 `python scripts/check_core_module_deps.py`，其成功范围以工具输出为准。
-- 配置管理器/XML/宿主资源可选独立 `config` 范围，预期 22 项，只需 LibXml2、Catch2 和系统线程库。
+- 配置管理器/JSON/旧 XML 迁移/宿主资源可选独立 `config` 范围，预期 26 项，只需 nlohmann-json、pugixml、Catch2 和系统线程库。
   full 另有原 tinyxml2/资源字节对照，命令与边界见 `docs/subsystems/host-resources.md`。
 - 改渲染器注册、管理界面裁剪或静态链接，须用 `KRKR2_ENABLE_UI_TEST_DRIVER=OFF` 的普通应用
   验证软件/OpenGL 自制场景。测试驱动中的 GL 诊断引用可能隐式保留注册对象，掩盖普通构建缺失后端。

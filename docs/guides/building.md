@@ -28,9 +28,9 @@ Linux 完全独立于 Cocos 的应用使用 `Linux SDL3 Config`，详见
 根开关为 `KRKR2_BUILD_APP`、`ENABLE_TESTS`、`BUILD_TOOLS`，默认均开启。CMake 在 `project()` 前按开关选择 vcpkg 的 foundation/engine/tests/tools/imageops 等 features；关闭测试不会再因根直接依赖而安装 Catch2。默认 full 测试仍依赖完整引擎；strings 范围可独立构建。
 选择目标可用 `cmake --build --preset "Windows Debug Build" --target xp3`；仅选择目标不会缩小根配置范围。
 
-`KRKR2_TEST_SCOPE=config` 可单独构建配置管理器/存储、XML、语言回退和本地资源读取的 22 项测试，
-只选择 LibXml2/Catch2 依赖，不查找 Cocos 或 TJS。完整命令及 full 的旧格式对照见
-[宿主资源与配置 XML](../subsystems/host-resources.md#独立验证)。
+`KRKR2_TEST_SCOPE=config` 可单独构建配置管理器/存储、JSON/XML 迁移、语言回退和本地资源读取的 26 项测试，
+只选择 nlohmann-json/pugixml/Catch2 依赖，不查找 Cocos 或 TJS。完整命令及 full 的旧格式对照见
+[宿主资源与 JSON 配置](../subsystems/host-resources.md#独立验证)。
 
 Windows 无 Cocos 应用使用 `Windows SDL3 Debug Config/Build` 或
 `Windows SDL3 Release Config/Build`；原生交互、真实游戏验收和打包见

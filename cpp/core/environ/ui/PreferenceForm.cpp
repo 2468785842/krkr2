@@ -8,7 +8,6 @@
 #include "ui/UIButton.h"
 #include "ConfigManager/LocaleConfigManager.h"
 #include "ConfigManager/GlobalConfigManager.h"
-#include "tinyxml2/tinyxml2.h"
 #include "cocos2d/MainScene.h"
 #include "2d/CCSprite.h"
 #include "SelectListForm.h"

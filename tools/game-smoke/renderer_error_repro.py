@@ -32,10 +32,8 @@ def run(engine, parent, timeout):
     script.write_text(STARTUP, encoding="utf-8")
     after_startup = root / "AfterStartup.tjs"
     after_startup.write_text(AFTER_STARTUP, encoding="utf-8")
-    preference = root / "Kirikiroid2Preference.xml"
-    preference.write_text(
-        '<GlobalPreference><Item key="renderer" value="__renderer_error_fixture__"/>'
-        '</GlobalPreference>', encoding="utf-8")
+    preference = root / "Kirikiroid2Preference.json"
+    preference.write_text(json.dumps({"version": 1, "values": {"renderer": "__renderer_error_fixture__"}}), encoding="utf-8")
     command = [str(engine), "--game=" + str(root), "--set=showfps=0"]
     report = {
         "engine_sha256": hashlib.sha256(engine.read_bytes()).hexdigest(),

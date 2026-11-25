@@ -12,6 +12,7 @@ namespace krkr::config {
         virtual ~PreferenceStorage() = default;
         virtual std::string WritableDirectory() const = 0;
         virtual const std::string &PreferenceDirectory() const = 0;
+        virtual bool Exists(const std::string &path) const;
         virtual bool Read(const std::string &path, std::string &data) const;
         virtual bool Write(const std::string &path,
                            std::string_view data) const;

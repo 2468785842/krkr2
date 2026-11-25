@@ -3,10 +3,6 @@
 #include "ui/UIWidget.h"
 #include "ConfigManager/GlobalConfigManager.h"
 
-namespace tinyxml2 {
-    class XMLElement;
-}
-
 class iTVPPreferenceInfo;
 struct tPreferenceScreen {
     tPreferenceScreen() {}

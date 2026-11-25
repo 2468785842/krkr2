@@ -44,7 +44,7 @@ def inspect(build):
     resources = engine.parent / "Resources"
     if any((resources / name).exists() for name in ("img", "out_ui")):
         raise ValueError("Cocos management UI assets remain in native packaging")
-    if not (resources / "locale/en_us.xml").is_file():
+    if not (resources / "locale/en_us.json").is_file():
         raise ValueError("Missing native locale resources")
     if not (resources / "licenses/PVRTCDecoder.txt").is_file():
         raise ValueError("Missing PowerVR license")

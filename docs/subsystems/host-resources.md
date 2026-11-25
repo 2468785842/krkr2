@@ -1,4 +1,4 @@
-# 宿主资源与配置 XML
+# 宿主资源与 JSON 配置
 
 ## 本地资源读取
 
@@ -20,43 +20,55 @@ SDL3 入口直接安装本地提供器，结束后恢复原提供器；服务构
 未初始化提供器属于宿主接线错误，入口抛出 logic_error，不返回伪造的空资源。
 通用资源库可以独立链接，完整应用组合根仍依赖 Cocos。
 
-## 配置 XML
+## JSON 配置与旧文件迁移
 
-`ConfigManager/ConfigXml.*` 的 `core_config_xml` 只链接仓库已有的 LibXml2，
-不依赖 Cocos、TJS、窗口或平台设置路径。
-`GlobalConfigManager` 和 `LocaleConfigManager` 使用该模块解析运行时设置与语言目录。
+`ConfigManager/ConfigFormat.*` 的 `core_config_format` 使用 nlohmann-json 读写 JSON，
+使用 pugixml 只读迁移旧 XML；不依赖 LibXml2、Cocos、TJS、窗口或平台设置路径。
 `core_config` 包含真实的全局、游戏和语言配置管理器，以及 `PreferenceStorage` 接口；
-它只链接 XML、资源和系统线程库，不再包含 Platform.h 或 TJS。
-宿主安装存储提供器后才能初始化配置；未安装时抛出 logic_error。
-`ScopedPreferenceStorage` 按宿主线程作用域恢复原提供器，持有者使用 shared_ptr 保持提供器存活。
+它只链接格式库、资源和系统线程库。
 
+全局设置文件为 `GlobalPreference.json`，游戏目录设置为 `Kirikiroid2Preference.json`：
+
+```json
+{
+  "version": 1,
+  "values": { "renderer": "software", "volume": "20" },
+  "arguments": [["arg", "first"], ["arg", "second"]],
+  "keyMap": [[65, 66]]
+}
+```
+
+`version` 和 `values` 必填；`arguments`、`keyMap` 可省略。设置值保留字符串类型，
+由管理器沿用原整数、浮点和布尔转换规则。自定义参数用二元数组保留顺序与重复项；
+按键映射为整数二元数组，重复键取第一项并忽略零键/零值。无效 JSON 或字段类型不载入部分设置。
+写入格式化 UTF-8 JSON，特殊字符、制表符、换行和长文本均可往返，不使用固定长度缓冲区。
+
+只有 JSON 路径不存在时，管理器才读取同名 `.xml`。成功读取后立即写入 JSON，原 XML 保留不变。
+JSON 存在但为空、损坏或不可读取时，不回退旧 XML，避免恢复过时设置。
+游戏设置的存在检查与移动端历史入口同时识别新旧文件。切换游戏时清空旧参数和按键映射。
+旧 XML 的直接子节点、重复键、空值、属性实体和空白处理规则由迁移读取器保留；
+pugixml 不加载外部 DTD 或网络资源。迁移写入失败仍保留当前内存设置和原 XML，
+通过宿主报告写入失败；普通保存失败后清除 dirty 标记的既有策略未变。
+
+语言资源改为 `assets/locale/<语言>.json` 的字符串字典。英文、中文由旧文件逐项转换，
+原文件保存在 `tests/fixtures/legacy-locales/` 作为迁移对照，不再打包。
+语言选择继续为用户设置优先、系统语言其次，缺文件时只尝试一次英文，缺少文本返回键名。
+新增或修改语言文件时使用 JSON，不再加载语言 XML。
+
+宿主安装存储提供器后才能初始化配置；未安装时抛出 logic_error。
+`ScopedPreferenceStorage` 按宿主线程作用域恢复原提供器，shared_ptr 保持提供器存活。
 `TVPGetDataPath` 的 TJS 包装位于 `environ/HostPaths.cpp`；
 `TVPGetInternalPreferencePath` 由存储提供器提供，调用方使用返回引用时必须保持宿主作用域有效。
 Cocos 适配器保留原 FileUtils 路径、目录创建、平台写入（包括 Android 权限路径）及本地化失败提示。
 桌面入口在 CLI/XP3 目标校验之前安装存储提供器；移动端由 AppDelegate 构造安装。
-Cocos 工厂只创建提供器，路径和目录在实际查询时初始化；Linux SDL3 在有效目标解析后创建
-标准库本地存储，帮助、列举设置和目标解析失败不创建本地设置目录。设置目录保持
-`$XDG_CONFIG_HOME/<实际可执行文件名>/.preference/`，未设置 XDG 时使用
-`$HOME/.config/<实际可执行文件名>/.preference/`，不迁移用户文件。
-显式为空的 XDG 仍沿用旧路径规则；两个环境变量均缺失时报错，不写入当前目录。
-本地存储使用 UTF-8 文件名、二进制读写并检查关闭结果，失败提示由宿主回调提供。
-设置保存失败后仍清除 dirty 标记，保持旧行为；本次没有改变重试策略。
-移动端最近游戏列表等 Cocos UI 内部代码仍使用旧 tinyxml2。
+Linux 设置目录仍为 `$XDG_CONFIG_HOME/<实际可执行文件名>/.preference/`，未设置 XDG 时使用
+`$HOME/.config/<实际可执行文件名>/.preference/`。显式为空的 XDG 沿用旧规则；
+两个环境变量均缺失时报错。本地存储使用 UTF-8 文件名、二进制读写并检查关闭结果。
+命令行覆盖只影响当前进程的读取，不写入配置。
 
-设置文件保留 `GlobalPreference`、`Item(key,value)`、有序 `Custom(key,value)` 和
-`KeyMap(key,value)` 的结构。值的重复键取最后一项，自定义参数保留重复项和顺序，
-按键映射重复键取第一项并忽略零值和无效整数；只处理根下的直接子节点。
-序列化写 UTF-8 XML，转义属性中的特殊字符和换行，不再使用固定 4096 字节的格式化缓冲区。
-语言目录支持 UTF-8 BOM、XML 实体、空文本和重复 id，未知文本查询继续返回键名。
-旧语言文件在引号属性中直接使用 `<`（如 `<300MB`）；解析入口只将这种字符转为
-XML 的 `&lt;` 后交给解析器，读取后的文字保持原样。注释、CDATA 和正常标签不做这种转换。
-属性中的原始制表符也保留；原始 CR、LF、CRLF、LFCR 按旧解析器规则归一化为 LF，
-通过字符引用避免新解析器将它们折叠为空格。已经写成字符引用的 CR/LF 保留原值。
-
-LibXml2 已是完整引擎依赖。使用它避免在保留 Cocos 的过渡构建中再链接一份不同 ABI 的 tinyxml2。
-文件编码、空白排版和属性顺序可能与旧写入器不同；验收比较读取后的值，不要求 XML 字节相同。
-自带英文语言文件中一处 `&#10Report` 缺少实体终止分号，已修为 `&#10;Report`；
-旧解析器此前会吞掉“Report bugs here:”片段，修正后两个解析器都保留该说明及换行。
+项目配置模块和 base 模块已移除直接 LibXml2 链接，vcpkg 的 engine/config features 也不再直接声明它。
+完整 SDK 中的 libarchive、GTK 等第三方依赖仍可能间接引入 XML 库，不能据此宣称整个 SDK 没有 XML。
+移动端最近游戏列表属于旧 Cocos 管理 UI，仍使用 Cocos 自带 tinyxml2 读写，与本配置格式库独立。
 
 ## 独立验证
 
@@ -71,17 +83,11 @@ ctest --test-dir out/config-tests -N
 ctest --test-dir out/config-tests --output-on-failure --no-tests=error
 ```
 
-该范围选择 vcpkg 的 config/tests features，只配置 LibXml2、Catch2 及其依赖，
-不配置 TJS、Cocos、SDL、图像或媒体模块。实际登记 5 项 XML、5 项资源、5 项真实管理器/存储
-和 5 项语言回退测试，另有 2 项 native 服务作用域与构造失败恢复测试，共 22 项；
-编译 12 个源文件。语言测试使用真实全局配置管理器，
-仅替换宿主存储与资源提供器。
+该范围选择 vcpkg 的 config/tests features，只配置 nlohmann-json、pugixml、Catch2 及构建辅助依赖，
+不配置 LibXml2、TJS、Cocos、SDL、图像或媒体模块。实际登记 26 项测试，编译 12 个源文件。
+覆盖 JSON 往返/格式校验、旧 XML 迁移与新文件优先级、两种语言逐项对照、真实管理器和资源/存储服务。
 `.github/workflows/headless-tests.yml` 的 config job 在三平台检查注册数量、源码清单及安装闭包。
 
-full 范围额外登记 `config_xml_legacy_tests`，用原 tinyxml2 比较自带语言文件和新写出的设置 XML，
-并对照原 Cocos 服务读取字体/语言文件的实际字节。
-这些用例不创建游戏窗口；它们不能替代 Linux SDL3 完整运行、移动端权限写入或游戏兼容验收。
-
-共享配置默认值通过 `common/TVPPlatform.h` 的 `TVP_PLATFORM_IOS` / `TVP_PLATFORM_ANDROID`
-选择平台行为，不再要求预先包含 Cocos 平台头。完整应用的构建与链接仍依赖 Cocos，
-此处的 native 服务验收不表示整个运行时依赖已移除。
+full 范围额外登记 `config_format_legacy_tests`，用 Cocos 原 tinyxml2 核对旧语言/设置的解析结果，
+再验证旧设置迁移到 JSON 后的值，并比较两种资源提供器读取字体和 JSON 语言文件的字节。
+这些测试不创建游戏窗口，不能替代移动端权限写入或真实游戏兼容验收。

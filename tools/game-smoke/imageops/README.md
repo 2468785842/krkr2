@@ -12,7 +12,7 @@ Linux 可用 `LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null xvfb-run -a`；Windows
 在隔离 runtime 目录使用既有固定哈希 Mesa，不修改系统 OpenGL。
 不传 capture 时仅验证图层像素与正常退出，不能声称最终 Cocos 帧已检查。
 
-控制器为两个管理器各建全新目录并写入独立 `Kirikiroid2Preference.xml`，不改全局配置。
+控制器为两个管理器各建全新目录并写入独立 `Kirikiroid2Preference.json`，不改全局配置。
 每项操作检查四个不靠边界的已知不透明像素（RGB 和 alpha）；合成图层导出 BMP 后，
 控制器重新解码并检查 28 个样本和未绘制区保护像素。
 颜色的 R/B 相同，用于隔离已有 OpenGL getMainPixel 的原始通道顺序；这不验证通道交换。

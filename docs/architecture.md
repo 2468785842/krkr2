@@ -78,10 +78,10 @@ ZIP 读取器使用自身格式类型及 zlib，不再包含 cocos 的 minizip �
 [桌面命令行](subsystems/desktop-cli.md) · [管理界面资源边界](subsystems/management-ui.md)
 
 语言目录读取经 `environ/PackagedAsset.h`，Cocos 控件文字绑定和 GL 默认值探测留在
-`environ/cocos2d/` 适配层。配置 XML 由独立 LibXml2 支持模块处理；Linux SDL3 从程序旁的
+`environ/cocos2d/` 适配层。配置与语言使用 JSON，独立格式模块保留旧 XML 的只读迁移；Linux SDL3 从程序旁的
 `Resources` 目录读取字体、语言等资源。资源与配置存储入口由通用库持有，提供器由各宿主安装；
 全局/游戏/语言配置管理器已可独立链接，Cocos 权限写入与提示仍在适配层，
-见[宿主资源与配置 XML](subsystems/host-resources.md)。
+见[宿主资源与 JSON 配置](subsystems/host-resources.md)。
 Linux SDL3 通过 CLI 的宿主准备回调，在 XP3 校验前直接安装 native 资源与设置服务，
 到引擎清理后恢复；该分支不再构造 Cocos AppDelegate。
 旧混合应用保留 Cocos 链接；独立 SDL3 目标使用单独入口、依赖清单和 GTK3 原生 UI，完全排除 Cocos。

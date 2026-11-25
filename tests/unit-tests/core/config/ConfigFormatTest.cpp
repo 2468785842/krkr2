@@ -1,10 +1,14 @@
 #include <catch2/catch_test_macros.hpp>
-#include "ConfigXml.h"
+#include "ConfigFormat.h"
+
+#include <filesystem>
+#include <fstream>
+#include <iterator>
 
 using namespace krkr::config;
 
 TEST_CASE("config XML reads legacy values arguments and key maps") {
-    const auto config = ReadPreferences(
+    const auto config = ReadLegacyPreferences(
         "\xEF\xBB\xBF<?xml version='1.0'?>"
         "<GlobalPreference><Item key='language' value='中文 &amp; 日本語'/>"
         "<Item key='renderer' value='opengl'/><Item key='renderer' "
@@ -29,7 +33,7 @@ TEST_CASE("config XML reads legacy values arguments and key maps") {
 }
 
 TEST_CASE(
-    "config XML round trip preserves escaped whitespace and long values") {
+    "config JSON round trip preserves escaped whitespace and long values") {
     Preferences config;
     config.values = { { "special", "<&\"'\t\r\n中文" },
                       { "empty", "" },
@@ -43,7 +47,7 @@ TEST_CASE(
     REQUIRE(parsed->arguments == config.arguments);
     REQUIRE(parsed->keyMap == config.keyMap);
 
-    const auto legacy = ReadPreferences(
+    const auto legacy = ReadLegacyPreferences(
         "<GlobalPreference><Custom key='lines' value='a\tb\r\nc\n\rd\re'/>"
         "</GlobalPreference>");
     REQUIRE(legacy);
@@ -51,10 +55,10 @@ TEST_CASE(
 }
 
 TEST_CASE("config XML ignores nested and unknown preference entries") {
-    const auto parsed =
-        ReadPreferences("<LegacyRoot><!--comment--><Group><Item key='nested' "
-                        "value='x'/></Group>"
-                        "<Item key='known' value='y'/></LegacyRoot>");
+    const auto parsed = ReadLegacyPreferences(
+        "<LegacyRoot><!--comment--><Group><Item key='nested' "
+        "value='x'/></Group>"
+        "<Item key='known' value='y'/></LegacyRoot>");
     REQUIRE(parsed);
     REQUIRE(parsed->values == Values{ { "known", "y" } });
     const auto empty = ReadPreferences(WritePreferences({}));
@@ -63,16 +67,17 @@ TEST_CASE("config XML ignores nested and unknown preference entries") {
 }
 
 TEST_CASE("config XML rejects missing and malformed documents") {
-    REQUIRE_FALSE(ReadPreferences(""));
-    REQUIRE_FALSE(ReadPreferences("not XML"));
+    REQUIRE_FALSE(ReadLegacyPreferences(""));
+    REQUIRE_FALSE(ReadLegacyPreferences("not XML"));
     REQUIRE_FALSE(
-        ReadPreferences("<GlobalPreference><Item></GlobalPreference>"));
-    REQUIRE(ReadLocale("<Locale><Item id='x' text='y'></Locale>").empty());
+        ReadLegacyPreferences("<GlobalPreference><Item></GlobalPreference>"));
+    REQUIRE(
+        ReadLegacyLocale("<Locale><Item id='x' text='y'></Locale>").empty());
 }
 
 TEST_CASE(
     "config XML locale preserves duplicate empty and direct child rules") {
-    const auto locale = ReadLocale(
+    const auto locale = ReadLegacyLocale(
         "<Locale><Text id='same' text='first'/><Text id='same' text='last'/>"
         "<!-- <Text id='comment' text='ignore'/> -->"
         "<![CDATA[<Text id='cdata' text='ignore'/>]]>"
@@ -83,4 +88,53 @@ TEST_CASE(
             Values{ { "same", "last" },
                     { "empty", "" },
                     { "legacy", "High Memory(<300MB)" } });
+}
+
+TEST_CASE("config JSON rejects invalid schemas without partial settings") {
+    for(const auto *text :
+        { "", "[]", "null", "{", "{\"values\":{}}",
+          R"({"version":2,"values":{}})", R"({"version":1,"values":{"x":1}})",
+          R"({"version":1,"values":{},"arguments":[["x",1]]})",
+          R"({"version":1,"values":{},"keyMap":[[1,9999999999999999999]]})",
+          R"({"version":1,"values":{},"keyMap":[[1,-2147483649]]})",
+          R"({"version":1,"values":{},"keyMap":[[1,2.0]]})" }) {
+        CAPTURE(text);
+        REQUIRE_FALSE(ReadPreferences(text));
+    }
+    REQUIRE(ReadLocale(R"({"ok":12})").empty());
+    REQUIRE(ReadLocale("[]").empty());
+    REQUIRE(ReadLocale(R"({"ok":"确定 & <OK>","empty":""})") ==
+            Values{ { "ok", "确定 & <OK>" }, { "empty", "" } });
+}
+
+TEST_CASE("config JSON preserves duplicate arguments and first key mapping") {
+    const auto parsed = ReadPreferences(R"({"version":1,"values":{},
+        "arguments":[["arg","one"],["arg","two"]],
+        "keyMap":[[65,66],[65,67],[0,1],[1,0],[-1,-2]]})");
+    REQUIRE(parsed);
+    REQUIRE(parsed->arguments ==
+            std::vector<std::pair<std::string, std::string>>{
+                { "arg", "one" }, { "arg", "two" } });
+    REQUIRE(parsed->keyMap == std::map<int, int>{ { 65, 66 }, { -1, -2 } });
+}
+
+TEST_CASE("config shipped JSON locales preserve all legacy translations") {
+    std::size_t count = 0;
+    for(const auto &file :
+        std::filesystem::directory_iterator(KRKR_LEGACY_LOCALE_DIR)) {
+        std::ifstream old(file.path(), std::ios::binary);
+        std::ifstream current(std::filesystem::path(KRKR_ASSET_DIR) / "locale" /
+                                  (file.path().stem().string() + ".json"),
+                              std::ios::binary);
+        REQUIRE(old.good());
+        REQUIRE(current.good());
+        const std::string xml{ std::istreambuf_iterator<char>(old), {} };
+        const std::string json{ std::istreambuf_iterator<char>(current), {} };
+        CAPTURE(file.path().string());
+        const auto expected = ReadLegacyLocale(xml);
+        REQUIRE_FALSE(expected.empty());
+        REQUIRE(ReadLocale(json) == expected);
+        ++count;
+    }
+    REQUIRE(count == 2);
 }
