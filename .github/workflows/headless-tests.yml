@@ -3,7 +3,7 @@ name: Headless foundation tests
 on:
   push:
     branches: [main, dev]
-    paths: ['cpp/core/**', 'cpp/plugins/**', 'tests/**', 'tools/xp3/**', 'tools/game-smoke/**', 'tools/sdl3-prototype/**', 'scripts/check_core_module_deps.py', 'scripts/check_no_opencv.py', 'scripts/tests/**', 'cmake/**', 'CMakeLists.txt', 'vcpkg*.json', 'vcpkg/**', '.github/workflows/headless-tests.yml']
+    paths: ['cpp/core/**', 'cpp/plugins/**', 'tests/**', 'tools/xp3/**', 'tools/game-smoke/**', 'tools/sdl3-prototype/**', 'scripts/check_core_module_deps.py', 'scripts/check_no_opencv.py', 'scripts/audit_dependencies.py', 'scripts/tests/**', 'cmake/**', 'CMakeLists.txt', 'vcpkg*.json', 'vcpkg/**', '.github/workflows/headless-tests.yml']
   pull_request:
     branches: [main, dev]
   workflow_dispatch:

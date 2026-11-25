@@ -75,7 +75,6 @@ find_package(OpenAL CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Vorbis::vorbis
     Vorbis::vorbisfile
-    Vorbis::vorbisenc
 
     Opus::opus
     OpusFile::opusfile

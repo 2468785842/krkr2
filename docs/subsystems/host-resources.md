@@ -68,7 +68,9 @@ Linux 设置目录仍为 `$XDG_CONFIG_HOME/<实际可执行文件名>/.preferenc
 
 项目配置模块和 base 模块已移除直接 LibXml2 链接，vcpkg 的 engine/config features 也不再直接声明它。
 本仓库的 libarchive overlay 为 XAR 显式依赖 libxml2，其 CMake 包装器将 XML 链接依赖附加到
-`LibArchive::LibArchive`，避免静态链接依赖引擎其他模块偶然引入 XML。GTK 等第三方依赖也可能
+`LibArchive::LibArchive`，避免静态链接依赖引擎其他模块偶然引入 XML。压缩库和 Windows CNG 也由此导入目标传递，
+当前 Linux SDK 没有 XAR 必需的哈希后端，不应将安装 XML 库视为 XAR 已可用；边界见
+[依赖审计](dependency-audit.md)。GTK 等第三方依赖也可能
 间接引入 XML 库，不能据此宣称整个 SDK 没有 XML。
 移动端最近游戏列表属于旧 Cocos 管理 UI，仍使用 Cocos 自带 tinyxml2 读写，与本配置格式库独立。
 

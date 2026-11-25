@@ -8,6 +8,6 @@ libarchive provides pkg-config modules:
   # library that can create and read several streaming archive formats
   libarchive
 
-The overlay's CMake wrapper includes libxml2 as a transitive link dependency of
-LibArchive::LibArchive for static XAR support. Consumers do not need a separate
-XML link just to use libarchive.
+The overlay's CMake wrapper includes XML and compression libraries as transitive link
+dependencies of LibArchive::LibArchive. Consumers do not need separate codec
+links to use static libarchive. Archive CLI programs are not built.

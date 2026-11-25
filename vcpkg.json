@@ -39,7 +39,6 @@
           "name": "glew",
           "platform": "linux | windows"
         },
-        "glm",
         "jxrlib",
         "libarchive",
         "nlohmann-json",
@@ -51,7 +50,13 @@
         },
         "libpng",
         "libvorbis",
-        "libwebp",
+        {
+          "name": "libwebp",
+          "default-features": false,
+          "features": [
+            "simd"
+          ]
+        },
         "lz4",
         {
           "name": "miniaudio",

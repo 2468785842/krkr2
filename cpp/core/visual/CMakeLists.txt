@@ -100,9 +100,7 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC Freetype::Freetype
     PRIVATE
         PNG::PNG
-        WebP::webp
         WebP::webpdecoder
-        WebP::webpdemux
         xxHash::xxhash
         ${FFMPEG_LIBRARIES}
 )

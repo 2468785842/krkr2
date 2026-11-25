@@ -34,7 +34,7 @@ description: 为 KrKr2 的 C++、CMake 或后端改动选择并执行构建与�
   无头 Linux 的脚本窗口测试需经 `xvfb-run`。
 
 Windows SDL3 独立应用使用 `Windows SDL3 Debug Config/Build`；预设的 platform 范围
-额外注册启动解析、资源/CLI、PVRTC 和 WindowEx 生命周期，共 67 项。先核对实际注册。
+额外注册启动解析、资源/CLI、PVRTC、WindowEx 生命周期及 libarchive 静态依赖闭包，共 68 项。先核对实际注册。
 依赖闭包须同时检查全新 vcpkg status、编译源及链接命令，不能用复用的 Cocos 安装目录证明独立性。
 原生交互命令与边界见 [Windows SDL3](../../../docs/subsystems/windows-sdl3.md)。
 

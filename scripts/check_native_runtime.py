@@ -5,6 +5,8 @@ from pathlib import Path
 import re
 import subprocess
 
+from audit_dependencies import installed_ports
+
 
 def inspect(build):
     cache = {}
@@ -19,7 +21,7 @@ def inspect(build):
         raise ValueError("Verify an ordinary application with UI test driver OFF")
     sdk = Path(cache["VCPKG_INSTALLED_DIR"])
     status = (sdk / "vcpkg/status").read_text()
-    packages = set(re.findall(r"^Package: (.+)$", status, re.M))
+    packages = {port["name"] for port in installed_ports(status).values()}
     windows = cache.get("WINDOWS") in {"ON", "TRUE", "1"}
     required = {"sdl3", "ffmpeg"} | (set() if windows else {"gtk3"})
     if "cocos2dx" in packages or not required <= packages:
