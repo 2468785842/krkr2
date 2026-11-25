@@ -81,7 +81,10 @@ class NativeProbe:
                     user.SendMessageTimeoutW(handle, 0x0d, len(text),
                         ctypes.addressof(text), 2, 1000, ctypes.byref(result))
                 controls.append({'class':kind.value,'text':text.value})
-                if kind.value == 'Edit' and text.value == 'fixture.txt':
+                # Windows can hide known extensions in the native filename
+                # control. The returned storage path is still checked against
+                # the full fixture.txt path by interaction_smoke.
+                if kind.value == 'Edit' and text.value in {'fixture.txt', 'fixture'}:
                     edits.append(handle)
                 return True
             user.EnumChildWindows(dialog, visit, 0)

@@ -431,3 +431,11 @@ TVPPrimarySoundBufferPlaying；首次队列为空时调用OpenAL Play，后续�
 修复后完整115/115测试通过；最小首播测试包含真实窗口维持事件循环、延迟150ms工作线程、
 440Hz PCM幅度2159.4和正常退出。旧混合宿主也重新编译并用同一首播回归验证。
 CI两平台均使用Release-only依赖triplet，避免为Release发布同时编译未使用的Debug依赖。
+
+
+Windows首个完成代码构建的任务（run45511304458/job138859391715）通过独立Release编译、
+353编译单元/107 SDK ports的无Cocos审计、67/67 CTest和15项CLI。
+真实SendInput键盘、失焦释放、最小化恢复、两次原生菜单和消息框通过，文件对话框就绪判定超时。
+证据中的Edit文字是fixture而非fixture.txt：托管Windows启用了隐藏已知扩展名。
+探针现接受这两种原生显示形式；真实选中文件路径仍必须严格匹配fixture.txt，未更改生产文件对话框。
+原失败报告/截图在out/integration-validation/ci-windows-first，仍记为失败，不计作完整交互通过。
