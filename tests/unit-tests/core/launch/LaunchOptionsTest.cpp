@@ -80,12 +80,8 @@ TEST_CASE("desktop engine options preserve values and order", "[launch]") {
 }
 
 TEST_CASE("desktop launch selects SDL3 explicitly", "[launch]") {
-#if KRKR2_SDL3_ONLY
     REQUIRE(Parse({ "--game", "demo" }).host == DesktopHost::SDL3);
-#else
-    REQUIRE(Parse({ "--game", "demo" }).host == DesktopHost::Cocos);
-#endif
-    REQUIRE(Parse({ "--host=cocos", "demo" }).host == DesktopHost::Cocos);
+    REQUIRE_THROWS_AS(Parse({ "--host=cocos", "demo" }), std::invalid_argument);
     const auto sdl = Parse({ "--game", "demo", "--host=sdl3" });
     REQUIRE(sdl.host == DesktopHost::SDL3);
     REQUIRE(sdl.game->u8string() == "demo");
@@ -100,11 +96,12 @@ TEST_CASE("desktop launch selects SDL3 explicitly", "[launch]") {
 
 TEST_CASE("desktop settings are validated separately from script arguments",
           "[launch][preferences]") {
-    const auto options = Parse(
-        { "--host=cocos", "--set", "renderer=software", "--set=renderer=opengl",
-          "--set", "default_font=字体=a.ttf", "--set=showfps=1",
-          "--set=menu_handler_opa=0.25", "game", "--", "-renderer=legacy" });
-    REQUIRE(options.settings.at("renderer") == "opengl");
+    const auto options = Parse({ "--host=sdl3", "--set", "renderer=software",
+                                 "--set=default_font=initial.ttf", "--set",
+                                 "default_font=字体=a.ttf", "--set=showfps=1",
+                                 "--set=menu_handler_opa=0.25", "game", "--",
+                                 "-renderer=legacy" });
+    REQUIRE(options.settings.at("renderer") == "software");
     REQUIRE(options.settings.at("default_font") == "字体=a.ttf");
     REQUIRE(options.settings.at("menu_handler_opa") == "0.25");
     REQUIRE(options.engineOptions.size() == 1);
@@ -162,8 +159,7 @@ TEST_CASE(
     REQUIRE(Parse({}, DesktopHost::SDL3).host == DesktopHost::SDL3);
     REQUIRE(Parse({ "--host=sdl3" }, DesktopHost::SDL3).host ==
             DesktopHost::SDL3);
-    REQUIRE(Parse({ "--host=cocos" }, DesktopHost::SDL3).host ==
-            DesktopHost::Cocos);
+    REQUIRE_THROWS_AS(Parse({ "--host=cocos" }), std::invalid_argument);
     REQUIRE_THROWS_AS(Parse({ "--set", "renderer=opengl" }, DesktopHost::SDL3),
                       std::invalid_argument);
     REQUIRE_NOTHROW(Parse({ "--set", "renderer=software" }, DesktopHost::SDL3));

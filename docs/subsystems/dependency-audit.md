@@ -1,5 +1,7 @@
 # 依赖清单与瘦身审计
 
+> 2026-11-25 后续变更：仅保留 Windows/Linux SDL3；旧 Cocos 宿主、port、features 和 Android/Apple 构建入口已删除。下文测量数据属于删除前基线。
+
 本轮基于 `b6cb999`，核对源码调用、实际 CMake 编译/链接关系、vcpkg 安装状态和文件清单。
 验证环境为 Linux、GCC 14.2、Release、`KRKR2_SDL3_ONLY=ON`、PSD 开启、tools/UI test driver 关闭。
 Windows、macOS、Android 的新改动仍需对应 CI；此前通过的商业游戏测试属于原基线。

@@ -30,77 +30,54 @@ python tools/game-smoke/game_smoke.py run out/windows/debug/bin/krkr2/krkr2.exe 
 当前引擎的 `System.exePath` 指向项目目录，默认 savedata 也在项目目录；
 游戏自定义的绝对写入路径仍应单独核对。
 
-## 截图
+## 当前桌面宿主验收
 
-对支持该钩子的 KAG 场景，在运行副本中创建 `smoke-snapshot.request`，
-Timer 经 `lockSnapshot` / `snapshotLayer.saveLayerImage` / `unlockSnapshot` 输出一次 `smoke-frame.bmp`。
-该图仅覆盖 KAG 合成层，不包含 Cocos 宿主 UI、窗口边框或独立视频视口。
+当前只维护 Windows/Linux SDL3 普通应用；Android/Apple 暂停构建。
+使用全新输出目录，记录实际 exe 和场景 SHA256、构建 scope、UI 驱动开关及退出状态。
+游戏副本心跳只证明相应脚本阶段仍运行，不证明完整剧情或正常退出。
 
-需要检查最终窗口、菜单或原生对话框时使用可用的窗口自动化，并在输入后重新观察。
-若本机窗口采集已确认失败，可用下述显式组件测试构建的 `capture` 导出 Cocos 帧缓冲。
-比较画面时记录脚本位置、操作和构建身份；动画区域可单独处理，不仅按等待秒数对齐。
-
-## 自制窗口交互
-
-[交互场景说明](../../tools/game-smoke/interaction/README.md)给出准备、运行与操作请求：
+Windows 使用系统输入、菜单、文件对话框和真实窗口截图：
 
 ```powershell
-python tools/game-smoke/interaction_smoke.py prepare out/game-smoke/interaction-01
-python tools/game-smoke/interaction_smoke.py run out/windows/debug/bin/krkr2/krkr2.exe out/game-smoke/interaction-01 --seconds 300
+python tools/game-smoke/sdl_windows_repro.py out/windows/sdl3-debug/bin/krkr2/krkr2.exe out/game-smoke/native-windows-01
 ```
 
-场景覆盖菜单 checked 切换、原生消息框确认、文件选择取消/确认、close veto 与接受关闭。
-请求文件只打开对话框或发起关闭；返回值和菜单回调必须由真实输入产生。
-报告要求事件齐全、选中文件路径正确、无脚本/驱动错误、未强停且退出 0。
+该工具使用自制场景和 Win32 SendInput，验证切焦、最小化恢复、菜单、消息框、文件选择、
+关闭否决与接受。需要交互式桌面和 Pillow；不启用组件驱动。
+报告须要求所有事件与路径正确、`forced_stop=false`、退出码 0，并实际查看截图。
+命令和范围见[Windows SDL3](../subsystems/windows-sdl3.md)。
 
-可选 `KRKR2_ENABLE_UI_TEST_DRIVER=ON` 仅用于桌面测试构建，要求应用与测试开启。
-通过 `--component-input` 显式启用，且目标必须是带标记文件的隔离场景。
-其 `tree`、`capture`、`click-name`、`click-text` 用法和完成确认见场景说明；原生消息框仍需系统输入。
-默认构建不编译该驱动。组件分发测试不能替代操作系统设备、DPI 或 IME 测试。
-
-指针验收可单独运行 `tools/game-smoke/pointer_repro.py`（取消、双指右键与隐藏/显示）
-和 `pointer_windows_repro.py`（双窗口切换、失效与旧触点隔离），无需原生消息框。
-两者各自使用全新目录并比较真实 TJS 回调序列；不能作为完整文件/菜单场景的通过证据。
-Windows CI 可手动开启 `pointer_contracts`，用独立目录的 Mesa 软件 OpenGL 运行应用，
-操作、artifact 和验收边界见[交互场景说明](../../tools/game-smoke/interaction/README.md#跨帧触摸回调探针)。
-
-Windows 的 `tools/game-smoke/focus_repro.py` 另使用原生辅助窗口与 `SendInput`，
-实际切换前台窗口并核对取消/恢复后的 TJS 输入状态；A 键走系统路径，触摸仍走 GLView。
-该探针与默认文件/菜单场景分开判定，不覆盖最小化或完整暂停恢复。
-操作及平台要求见[原生焦点探针](../../tools/game-smoke/interaction/README.md#windows-原生焦点探针)。
-
-同一工具加 `--minimize` 可单独验收 Windows 原生最小化/恢复：检查 `IsIconic`，
-最小化期间发布脚本请求并观察一秒内未被 Timer 处理，恢复后再核对取消、迟到输入及新输入。
-System 激活事件按 `base/impl/SystemImpl.cpp` 的同类替换与当前状态检查规则验收，
-允许后台通知在停止动画泵期间被合并，但必须收到恢复通知；不改变生产事件语义。
-截图来自恢复后的 Cocos 帧缓冲，不覆盖移动端 surface 重建、音频或视频恢复。
-最小化报告还检查恢复前后 PNG 中心像素为自制图层的 RGB `(48,64,80)`，
-缺图、坏 PNG 或黑色中心像素均失败；这只是固定填充层检查，不代表完整游戏画面。
-输入法过滤 A 键时可显式加 `--us-keyboard-layout`，仅向自有引擎线程请求已安装的英文布局，
-并记录实际布局；该选择不作为 IME 兼容通过证据。
-
-## 验收范围
-
-Linux 桌面键盘回归可在配置应用时开启 `KRKR2_ENABLE_X11_INPUT_SMOKE=ON`，
-需要 Python 3、xdotool 和 X11 显示（无桌面环境可使用 Xvfb）。
-`ctest -N -R '^x11-keyboard-runtime$'` 应列出 1 项；随后执行：
+Linux 使用 X server/XTest 的真实系统输入：
 
 ```sh
-xvfb-run -a ctest --test-dir <build> -R '^x11-keyboard-runtime$' --output-on-failure --no-tests=error
+xvfb-run -a python3 tools/game-smoke/sdl_host_repro.py out/linux/sdl3/bin/krkr2/krkr2 out/game-smoke/native-host-01
+xvfb-run -a -s '-screen 0 1280x800x24' python3 tools/game-smoke/sdl_dialog_repro.py out/linux/sdl3/bin/krkr2/krkr2 out/game-smoke/native-dialogs-01
 ```
 
-测试通过 XTest 向独立引擎窗口发送 Return、KP_Enter、Escape、Down、Control_L，
-逐项核对 TJS 的 key down/up 数值和顺序，并要求正常退出。
-它覆盖 X11→Cocos→TJS 键盘链路，不替代实体手柄、Wayland、IME 或商业游戏验收。
+KAG 存读档、生成音视频与原生窗口验收命令见[桌面运行时](../subsystems/native-runtime.md)
+及 `.github/workflows/native-desktop.yml`，不使用商业素材作为公共 CI 输入。
 
-按改动选择标题、剧情推进、相同位置画面、菜单/脚本对话框、存读档、关闭、音视频、
-DPI/IME/焦点和移动生命周期中的相关项，分别保存结果。
-已有本地记录见[游戏插装调查](../../.agents/notes/implemented/testing/2026-11-02-game-smoke-investigation.md)
-与[窗口交互验证](../../.agents/notes/implemented/testing/2026-11-03-window-interface-validation.md)。
-当前样本的具体通过与失败边界见[游戏验证范围](../reference/game-compatibility.md)。
+## 截图与像素
 
-## ImageOps 软件/OpenGL 场景
+宿主截图应来自实际窗口或 SDL3 宿主截图接口；KAG `snapshotLayer` 只覆盖游戏合成层，
+不能证明窗口边框、原生菜单/对话框或独立视频视口正常。
+采集失败要保留失败记录，不能用旧图或模拟回调代替。
 
-[自制图像场景](../../tools/game-smoke/imageops/README.md)在两个真实渲染管理器上执行
-四种缩放、模糊、仿射和透视插件，检查不透明内部像素、导出图层与 Cocos 帧并要求正常退出。
-Windows pointer_contracts 与 Linux 完整构建工作流运行此场景；完整游戏仍另行验证。
+软件 ImageOps 自制场景使用正式 Layer 与插件：
+
+```sh
+python tools/game-smoke/imageops_repro.py /path/to/krkr2 out/game-smoke/imageops-01 --renderer software
+```
+
+检查缩放、模糊、仿射和透视结果、导出的图层及正常退出。
+当前应用不注册旧 OpenGL 工厂。旧 Cocos 的 `--capture` / `--profiles` 组件探针和
+`pointer_repro.py`、`text_repro.py`、`interaction_repro.py` 等旧宿主工具不用于当前验收；
+历史代码和证据只用于追溯，不表示当前宿主仍支持旧测试协议。
+
+## 结果与调试
+
+通用测试先核对实际注册，再使用 `--output-on-failure --no-tests=error` 执行。
+编译通过、单元测试通过、原生交互通过和商业游戏兼容是不同结论，分别记录。
+崩溃调查保留匹配的 exe/PDB、异常码、栈、dump 和失败前操作顺序；旧 RVA 不直接用于新构建。
+原始日志、图像及 dump 放在忽略的 `out/`，notes 保留必要摘要与定位信息。
+物理高 DPI、IME 候选窗、手柄、Wayland、移动端生命周期和完整剧情需各自专项验收。

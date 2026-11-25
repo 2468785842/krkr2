@@ -20,34 +20,39 @@ if(KRKR2_ENABLE_UI_TEST_DRIVER AND (ANDROID OR IOS))
 endif()
 
 option(KRKR2_BUILD_APP "Build the game runtime and bundled plugins" ON)
-option(KRKR2_ENABLE_SDL3_HOST "Enable the SDL3 desktop game host" OFF)
-# Compatibility for existing Linux build directories; new presets use SDL3_ONLY.
-option(KRKR2_COCOS_FREE "Compatibility alias for KRKR2_SDL3_ONLY" OFF)
-if(KRKR2_COCOS_FREE)
-    set(KRKR2_SDL3_ONLY ON CACHE BOOL "Build SDL3 without Cocos" FORCE)
+# Detect the target before project(): vcpkg resolves the manifest in project().
+get_filename_component(KRKR2_TOOLCHAIN_NAME "${CMAKE_TOOLCHAIN_FILE}" NAME)
+if(ANDROID OR IOS OR MACOS OR APPLE OR VCPKG_TARGET_ANDROID
+   OR KRKR2_TOOLCHAIN_NAME MATCHES "(android|ios|osx)"
+   OR CMAKE_SYSTEM_NAME MATCHES "^(Android|Darwin|iOS)$"
+   OR VCPKG_TARGET_TRIPLET MATCHES "(android|osx|ios)"
+   OR (NOT CMAKE_SYSTEM_NAME AND CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin"))
+    message(FATAL_ERROR "Android and Apple platforms are temporarily disabled; only Windows and Linux are supported")
 endif()
-option(KRKR2_SDL3_ONLY "Build the Windows/Linux SDL3 runtime without Cocos" OFF)
-if(KRKR2_SDL3_ONLY)
-    if((NOT WINDOWS AND NOT LINUX) OR NOT KRKR2_BUILD_APP OR ANDROID OR IOS OR KRKR2_ENABLE_CRASH_UPLOAD)
-        message(FATAL_ERROR "SDL3-only requires the Windows or Linux application without crash upload")
-    endif()
-    set(KRKR2_ENABLE_SDL3_HOST ON CACHE BOOL "Enable the SDL3 desktop game host" FORCE)
-    add_compile_definitions(KRKR2_SDL3_ONLY=1)
+if(CMAKE_SYSTEM_NAME)
+    set(KRKR2_TARGET_SYSTEM "${CMAKE_SYSTEM_NAME}")
+else()
+    set(KRKR2_TARGET_SYSTEM "${CMAKE_HOST_SYSTEM_NAME}")
 endif()
-if(WINDOWS AND KRKR2_ENABLE_SDL3_HOST AND NOT KRKR2_SDL3_ONLY)
-    message(FATAL_ERROR "Windows SDL3 requires KRKR2_SDL3_ONLY=ON")
+set(WINDOWS OFF)
+set(LINUX OFF)
+if(KRKR2_TARGET_SYSTEM STREQUAL "Windows")
+    set(WINDOWS ON)
+elseif(KRKR2_TARGET_SYSTEM STREQUAL "Linux")
+    set(LINUX ON)
+    add_compile_definitions(LINUX)
+else()
+    message(FATAL_ERROR "Only Windows and Linux are currently supported")
 endif()
-if(KRKR2_ENABLE_SDL3_HOST AND (NOT KRKR2_BUILD_APP OR (NOT LINUX AND NOT WINDOWS) OR ANDROID OR IOS))
-    message(FATAL_ERROR "The SDL3 host requires the Windows or Linux game runtime")
-endif()
+
 option(KRKR2_BUILD_SDL3_PROTOTYPE "Build the separate SDL3/TJS desktop shell experiment" OFF)
 if(KRKR2_BUILD_SDL3_PROTOTYPE AND (ANDROID OR IOS))
     message(FATAL_ERROR "The SDL3 prototype is desktop-only")
 endif()
 option(ENABLE_TESTS "Build engine tests (desktop only)" ON)
 option(BUILD_TOOLS "Build command-line tools (desktop only)" ON)
-if(KRKR2_ENABLE_UI_TEST_DRIVER AND (NOT KRKR2_BUILD_APP OR (NOT ENABLE_TESTS AND NOT KRKR2_SDL3_ONLY)))
-    message(FATAL_ERROR "The UI contract driver requires KRKR2_BUILD_APP=ON and ENABLE_TESTS=ON")
+if(KRKR2_ENABLE_UI_TEST_DRIVER AND NOT KRKR2_BUILD_APP)
+    message(FATAL_ERROR "The UI contract driver requires KRKR2_BUILD_APP=ON")
 endif()
 set(KRKR2_TEST_SCOPE "full" CACHE STRING "Test scope: full, strings, archives, imageops, launch, platform or config")
 set_property(CACHE KRKR2_TEST_SCOPE PROPERTY STRINGS full strings archives imageops launch platform config)
@@ -55,8 +60,13 @@ if(NOT KRKR2_TEST_SCOPE MATCHES "^(full|strings|archives|imageops|launch|platfor
     message(FATAL_ERROR "KRKR2_TEST_SCOPE must be full, strings, archives, imageops, launch, platform or config")
 endif()
 option(KRKR2_ENABLE_PSD "Build the PSD plugin" ON)
-option(KRKR2_ENABLE_CRASH_UPLOAD "Build optional crash report upload" OFF)
 
+
+# Full engine tests also compile the native host, even without an application.
+set(KRKR2_ENABLE_SDL3_HOST OFF CACHE INTERNAL "Native host required by this configuration" FORCE)
+if(KRKR2_BUILD_APP OR (ENABLE_TESTS AND KRKR2_TEST_SCOPE STREQUAL "full"))
+    set(KRKR2_ENABLE_SDL3_HOST ON CACHE INTERNAL "Native host required by this configuration" FORCE)
+endif()
 # vcpkg installs dependencies during project(), before targets are configured.
 set(VCPKG_MANIFEST_NO_DEFAULT_FEATURES ON)
 if(KRKR2_BUILD_APP OR KRKR2_BUILD_SDL3_PROTOTYPE OR BUILD_TOOLS OR (ENABLE_TESTS AND NOT KRKR2_TEST_SCOPE MATCHES "^(imageops|launch|platform|config)$"))
@@ -64,14 +74,8 @@ if(KRKR2_BUILD_APP OR KRKR2_BUILD_SDL3_PROTOTYPE OR BUILD_TOOLS OR (ENABLE_TESTS
 endif()
 if(KRKR2_BUILD_APP OR (ENABLE_TESTS AND KRKR2_TEST_SCOPE STREQUAL "full"))
     list(APPEND VCPKG_MANIFEST_FEATURES engine)
-    if(NOT KRKR2_SDL3_ONLY)
-        list(APPEND VCPKG_MANIFEST_FEATURES cocos)
-    endif()
     if(KRKR2_ENABLE_PSD)
         list(APPEND VCPKG_MANIFEST_FEATURES psd)
-    endif()
-    if(KRKR2_ENABLE_CRASH_UPLOAD)
-        list(APPEND VCPKG_MANIFEST_FEATURES crash-upload)
     endif()
 endif()
 if(ENABLE_TESTS AND NOT (ANDROID OR IOS))
@@ -95,33 +99,21 @@ if(KRKR2_BUILD_SDL3_PROTOTYPE OR KRKR2_ENABLE_SDL3_HOST)
     list(APPEND VCPKG_MANIFEST_FEATURES sdl3-prototype)
 endif()
 
-if(ANDROID)
-    set(VCPKG_TARGET_ANDROID ON)
-    set(ENV{ANDROID_NDK_HOME} "$ENV{ANDROID_NDK}")
-    add_compile_options(-Wno-inconsistent-missing-override)
-    include(cmake/vcpkg_android.cmake)
-elseif(NOT DEFINED CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT} AND NOT "$ENV{VCPKG_ROOT}" STREQUAL "")
+if(NOT DEFINED CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT} AND NOT "$ENV{VCPKG_ROOT}" STREQUAL "")
     set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
 endif()
 
 set(APP_NAME krkr2)
 
 project(${APP_NAME})
-
-if(ANDROID OR IOS)
-    set(KRKR2_USE_COCOS_UI ON)
-else()
-    set(KRKR2_USE_COCOS_UI OFF)
+if(NOT CMAKE_SYSTEM_NAME MATCHES "^(Windows|Linux)$")
+    message(FATAL_ERROR "Only Windows and Linux are currently supported")
 endif()
+
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-if(KRKR2_SDL3_ONLY)
-    if(LINUX)
-        add_compile_definitions(LINUX)
-    endif()
-endif()
 
 set(KRKR2CORE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/core)
 set(KRKR2PLUGIN_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/plugins)
@@ -198,54 +190,11 @@ if(NOT KRKR2_BUILD_APP AND (NOT ENABLE_TESTS OR NOT KRKR2_TEST_SCOPE STREQUAL "f
 endif()
 
 if(KRKR2_BUILD_APP)
-    if(ANDROID)
-        add_library(${PROJECT_NAME} SHARED ${CMAKE_CURRENT_SOURCE_DIR}/platforms/android/cpp/krkr2_android.cpp)
-        find_package(unofficial-breakpad CONFIG REQUIRED)
-        target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::breakpad::libbreakpad_client)
-    elseif(LINUX)
-        if(KRKR2_SDL3_ONLY)
-            add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/platforms/linux/sdl_main.cpp)
-        else()
-            add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/platforms/linux/main.cpp)
-        endif()
-    elseif(WINDOWS)
-        add_executable(${PROJECT_NAME}
-            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows/main.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows/game.rc
-        )
-    elseif(IOS)
-    #        list(APPEND GAME_HEADER
-    #                proj.ios_mac/ios/AppController.h
-    #                proj.ios_mac/ios/RootViewController.h
-    #        )
-    #        set(APP_UI_RES
-    #                proj.ios_mac/ios/LaunchScreen.storyboard
-    #                proj.ios_mac/ios/LaunchScreenBackground.png
-    #                proj.ios_mac/ios/Images.xcassets
-    #        )
-    #        list(APPEND GAME_SOURCE
-    #                proj.ios_mac/ios/main.m
-    #                proj.ios_mac/ios/AppController.mm
-    #                proj.ios_mac/ios/RootViewController.mm
-    #                proj.ios_mac/ios/Prefix.pch
-    #                ${APP_UI_RES}
-    #        )
-    elseif(MACOS)
-        set(APP_UI_RES
-                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Icon.icns
-                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Info.plist
-        )
-        add_executable(${PROJECT_NAME}
-                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/main.cpp
-                ${CMAKE_CURRENT_SOURCE_DIR}/platforms/apple/macos/Prefix.pch
-                ${APP_UI_RES}
-        )
+    if(LINUX)
+        add_executable(${PROJECT_NAME} platforms/linux/sdl_main.cpp)
+    else()
+        add_executable(${PROJECT_NAME} platforms/windows/main.cpp platforms/windows/game.rc)
     endif()
-
-    if(NOT KRKR2_SDL3_ONLY)
-        target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2CORE_PATH}/environ/cocos2d)
-    endif()
-
 endif()
 
 # external lib
@@ -262,68 +211,18 @@ if(KRKR2_BUILD_APP)
     if(KRKR2_ENABLE_SDL3_HOST)
         target_compile_definitions(${PROJECT_NAME} PRIVATE KRKR2_ENABLE_SDL3_HOST=1)
     endif()
-    if(ANDROID)
-        # The JNI bridge consumes the text codec directly; environ's PRIVATE
-        # dependency does not export its headers to this application target.
-        target_link_libraries(${PROJECT_NAME} PRIVATE core_input)
-    endif()
-
-    ## resources
-    if(KRKR2_SDL3_ONLY)
-        set_target_properties(${PROJECT_NAME} PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/krkr2")
-        find_package(Python REQUIRED COMPONENTS Interpreter)
-        set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
-        include(cmake/RuntimeAssets.cmake)
-        add_custom_target(sync_sdl3_resources ALL
-            COMMAND ${Python_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_runtime_assets.py"
-                --source "${GAME_RES_FOLDER}" --destination "$<TARGET_FILE_DIR:krkr2>/Resources"
-                --all "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-all.txt"
-                --selected "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-selected.txt"
-            VERBATIM)
-        add_dependencies(${PROJECT_NAME} sync_sdl3_resources)
-    elseif(NOT ANDROID)
-        include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CocosBuildHelpers.cmake")
-
-        set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
-
-        include(cmake/RuntimeAssets.cmake)
-        if(WINDOWS OR APPLE)
-            cocos_mark_resources(FILES ${common_res_files} BASEDIR ${GAME_RES_FOLDER} RESOURCEBASE "Resources")
-        endif()
-
-        # mark app resources
-        setup_cocos_app_config(${APP_NAME})
-
-        if(APPLE)
-            set_target_properties(${APP_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
-            target_sources(${APP_NAME} PRIVATE ${common_res_files})
-            if(MACOSX)
-                set_target_properties(${APP_NAME} PROPERTIES
-                        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/apple/macos/Info.plist"
-                )
-            elseif(IOS)
-    #            cocos_pak_xcode(${APP_NAME} INFO_PLIST "iOSBundleInfo.plist.in")
-    #            set_xcode_property(${APP_NAME} ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon")
-    #            set_xcode_property(${APP_NAME} DEVELOPMENT_TEAM "")
-    #            set_xcode_property(${APP_NAME} CODE_SIGN_IDENTITY "iPhone Developer")
-            endif()
-        elseif(WINDOWS)
-            target_sources(${PROJECT_NAME} PRIVATE ${common_res_files})
-            cocos_copy_target_dll(${APP_NAME})
-        endif()
-
-        if(LINUX OR WINDOWS)
-            cocos_get_resource_path(APP_RES_DIR ${APP_NAME})
-            add_custom_command(TARGET SYNC_RESOURCE-${APP_NAME} POST_BUILD
-                COMMAND ${Python_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_runtime_assets.py"
-                    --source "${GAME_RES_FOLDER}" --destination "${APP_RES_DIR}"
-                    --all "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-all.txt"
-                    --selected "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-selected.txt"
-                VERBATIM)
-        endif()
-    endif()
-
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/krkr2")
+    find_package(Python REQUIRED COMPONENTS Interpreter)
+    set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
+    include(cmake/RuntimeAssets.cmake)
+    add_custom_target(sync_sdl3_resources ALL
+        COMMAND ${Python_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_runtime_assets.py"
+            --source "${GAME_RES_FOLDER}" --destination "$<TARGET_FILE_DIR:krkr2>/Resources"
+            --all "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-all.txt"
+            --selected "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-selected.txt"
+        VERBATIM)
+    add_dependencies(${PROJECT_NAME} sync_sdl3_resources)
 endif() # KRKR2_BUILD_APP
 
 if(KRKR2_BUILD_SDL3_PROTOTYPE)
@@ -397,7 +296,7 @@ if(KRKR2_ENABLE_SCRIPT_SMOKE)
                 --output-dir "${CMAKE_CURRENT_BINARY_DIR}/script-smoke/renderer-error")
     set_tests_properties(textstream-runtime parser-error-runtime renderer-error-runtime
         PROPERTIES TIMEOUT 120 LABELS "integration;script")
-    if(LINUX AND KRKR2_SDL3_ONLY)
+    if(LINUX)
         find_package(Threads REQUIRED)
         add_library(audio_worker_delay SHARED tools/game-smoke/delay_worker_threads.c)
         target_link_libraries(audio_worker_delay PRIVATE Threads::Threads ${CMAKE_DL_LIBS})

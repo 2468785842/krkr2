@@ -53,7 +53,6 @@
       "inherits": "Windows Debug Config",
       "binaryDir": "${sourceDir}/out/windows/sdl3-debug",
       "cacheVariables": {
-        "KRKR2_SDL3_ONLY": true,
         "ENABLE_TESTS": true,
         "KRKR2_TEST_SCOPE": "platform",
         "BUILD_TOOLS": false,
@@ -65,8 +64,7 @@
       "inherits": "Windows SDL3 Debug Config",
       "binaryDir": "${sourceDir}/out/windows/sdl3-release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_DISABLE_FIND_PACKAGE_cocos2dx": true
+        "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
@@ -98,8 +96,7 @@
         "KRKR2_BUILD_APP": true,
         "ENABLE_TESTS": false,
         "BUILD_TOOLS": false,
-        "KRKR2_ENABLE_PSD": false,
-        "KRKR2_ENABLE_CRASH_UPLOAD": false
+        "KRKR2_ENABLE_PSD": false
       }
     },
     {
@@ -155,60 +152,17 @@
       "inherits": "Linux Release Config",
       "binaryDir": "${sourceDir}/out/linux/sdl3",
       "cacheVariables": {
-        "CMAKE_DISABLE_FIND_PACKAGE_cocos2dx": true,
         "ENABLE_TESTS": true,
         "BUILD_TOOLS": false,
         "KRKR2_ENABLE_SCRIPT_SMOKE": true,
-        "KRKR2_ENABLE_UI_TEST_DRIVER": false,
-        "KRKR2_SDL3_ONLY": true
-      }
-    },
-    {
-      "name": "MacOS Config",
-      "generator": "Ninja",
-      "hidden": true,
-      "cacheVariables": {
-        "MACOS": true,
-        "CMAKE_C_COMPILER": "clang",
-        "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": true
-      },
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Darwin"
-      }
-    },
-    {
-      "name": "MacOS Debug Config",
-      "inherits": "MacOS Config",
-      "binaryDir": "${sourceDir}/out/macos/debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "MacOS Release Config",
-      "inherits": "MacOS Config",
-      "binaryDir": "${sourceDir}/out/macos/release",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "KRKR2_ENABLE_UI_TEST_DRIVER": false
       }
     }
   ],
   "buildPresets": [
     {
       "name": "Windows SDL3 Debug Build",
-      "configurePreset": "Windows SDL3 Debug Config",
-      "targets": [
-        "krkr2",
-        "input_state_tests",
-        "frame_hook_tests",
-        "main_thread_message_tests",
-        "texture_presentation_tests",
-        "launch_tests",
-        "pvrtc_decoder_tests"
-      ]
+      "configurePreset": "Windows SDL3 Debug Config"
     },
     {
       "name": "Windows XP3 Build",
@@ -246,14 +200,6 @@
     {
       "name": "Linux Release Build",
       "configurePreset": "Linux Release Config"
-    },
-    {
-      "name": "MacOS Debug Build",
-      "configurePreset": "MacOS Debug Config"
-    },
-    {
-      "name": "MacOS Release Build",
-      "configurePreset": "MacOS Release Config"
     },
     {
       "name": "Windows SDL3 Release Build",

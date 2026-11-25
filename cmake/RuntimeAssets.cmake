@@ -2,14 +2,6 @@
 file(GLOB_RECURSE KRKR2_ALL_ASSETS CONFIGURE_DEPENDS LIST_DIRECTORIES false
     RELATIVE "${GAME_RES_FOLDER}" "${GAME_RES_FOLDER}/*")
 set(KRKR2_SELECTED_ASSETS ${KRKR2_ALL_ASSETS})
-if(NOT KRKR2_USE_COCOS_UI)
-    list(REMOVE_ITEM KRKR2_SELECTED_ASSETS
-        img/syssetting_btn_ff.png img/syssetting_btn_on.png
-        out_ui/MainFileSelector.csd out_ui/MenuList.csd out_ui/RecentListItem.csd)
-endif()
-if(KRKR2_SDL3_ONLY)
-    list(FILTER KRKR2_SELECTED_ASSETS EXCLUDE REGEX "^(out_ui|img)/")
-endif()
 set(common_res_files)
 foreach(asset IN LISTS KRKR2_SELECTED_ASSETS)
     list(APPEND common_res_files "${GAME_RES_FOLDER}/${asset}")

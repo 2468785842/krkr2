@@ -40,7 +40,7 @@ namespace krkr::launch {
             { "showfps", "0|1", nullptr },
             { "fps_limit", "positive integer",
               integer<1, std::numeric_limits<int>::max()> },
-            { "renderer", "software|opengl", nullptr },
+            { "renderer", "software", nullptr },
             { "default_font", "font path or empty",
               [](std::string_view) { return true; } },
             { "force_default_font", "0|1", nullptr },

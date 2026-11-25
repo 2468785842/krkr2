@@ -78,9 +78,9 @@ python scripts/check_core_module_deps.py
 ## 后端精简约束
 
 目标是隔离并逐步替换 cocos2d/OpenCV，减小依赖及编译范围，见 [后端精简路线](.agents/notes/proposed/architecture/2026-11-03-backend-modernization.md)。
-Linux 已有 `KRKR2_SDL3_ONLY=ON` 的正式 SDL3 独立应用，边界和验证见
-[无 Cocos 运行时](docs/subsystems/native-runtime.md)。Windows 也已完成同一开关的独立宿主和真实游戏短剧情/存读档验收；macOS/Android 仍使用旧宿主；
-不要把 `environ/sdl/tvpsdl.cpp` 的目录名当作有效 SDL 后端。
+当前仅支持 Windows/Linux SDL3；Android、macOS/iOS 暂停构建。
+Cocos port、宿主、管理 UI、旧平台入口与构建配置已删除，见[桌面运行时](docs/subsystems/native-runtime.md)。
+其他平台恢复必须接入新宿主，旧实现可查 Git 基线 `c494ea0`；不要恢复旧依赖作为快捷回退。
 平台替换与 Ciallang/TJS2 替换分开验收。保持现有 TJS、Layer、存储及插件行为；移除依赖须同时处理 CMake、vcpkg、资源/平台打包与消费者，不用空实现静默吞掉游戏功能。
 
 外部实现的借鉴范围和已发现差异见 [参考资料](docs/reference/upstream.md)。引用代码时记录来源提交、具体文件及原许可/版权；外部 README 的能力声明不等于本仓库已验证能力。

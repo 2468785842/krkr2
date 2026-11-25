@@ -1,151 +1,18 @@
 # KrKr2 Emulator
 
-<p align="center">
-  <a href="https://github.com/2468785842/krkr2/actions/workflows/ci.yml"><img src="https://github.com/2468785842/krkr2/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI Status"></a>
-  <a href="https://github.com/2468785842/krkr2/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/2468785842/krkr2/ci.yml?branch=main&label=format-check&logo=githubactions" alt="Format Check"></a>
-  <a href="https://github.com/2468785842/krkr2/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/2468785842/krkr2/ci.yml?branch=main&label=linux&logo=githubactions" alt="Linux Build"></a>
-  <a href="https://github.com/2468785842/krkr2/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/2468785842/krkr2/ci.yml?branch=main&label=windows&logo=githubactions" alt="Windows Build"></a>
-  <a href="https://github.com/2468785842/krkr2/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/2468785842/krkr2/ci.yml?branch=main&label=android&logo=githubactions" alt="Android Build"></a>
-</p>
+KrKr2 is a C++17 KiriKiri runtime. Current builds support Windows x64 and Linux x64 using SDL3 and software rendering.
+Android and Apple builds are temporarily disabled. The Cocos host, manager UI, port and build integration have been removed.
 
-This repository contains the **KrKr2 Emulator**, a cross-platform emulator designed to run games made with the **KiriKiri engine** (also known as T Visual Presenter).  
-It supports **Android, Windows, Linux, and MacOS**, allowing users to play KiriKiri engine games on multiple platforms.  
+Set `VCPKG_ROOT`, prepare CMake 3.28+, Ninja, Python and Bison, and use an MSVC x64 developer shell on Windows:
 
-**语言 / Language**: [中文](README_CN.md) | English
+```sh
+cmake --preset "Windows Debug Config"
+cmake --build --preset "Windows Debug Build"
+ctest --test-dir out/windows/debug --output-on-failure --no-tests=error
+```
 
-Developer and AI collaboration: [AGENTS.md](AGENTS.md) · [Documentation index](docs/README.md) · [Architecture](docs/architecture.md) · [Build and validation](docs/guides/building.md) · [Backend modernization](.agents/notes/proposed/architecture/2026-11-03-backend-modernization.md). These developer guides are maintained in Chinese.
-
----
-
-## KrKr2 Emulator
-
-### Table of Contents
-
-- [KrKr2 Emulator](#krkr2-emulator)
-  - [Supported Platforms](#supported-platforms)
-  - [Build Tools](#build-tools)
-  - [Build Environment Setup](#build-environment-setup)
-    - [Environment Variables](#environment-variables)
-    - [Build Steps](#build-steps)
-  - [Executable Location](#executable-location)
-  - [Code Formatting](#code-formatting)
-  - [Game Validation](#game-validation)
-  - [Plugin Resources](#plugin-resources)
-  - [License](#license)
-
----
-
-## Supported Platforms
-
-- **Android**:
-  - `arm64-v8a`
-  - `x86_64`
-- **Windows**:
-  - x86_64
-- **Linux**:
-  - x86_64
-- **MacOS**:
-  - arm64
-
----
-
-## Build Tools
-
-- **Android**:
-  - [ninja@latest](https://github.com/ninja-build/ninja/releases)
-  - [cmake@3.31.1+](https://cmake.org/download/)
-  - [vcpkg@latest](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started)
-  - [Android SDK@33](https://developer.android.com)
-  - [Android NDK@28.0.13004108](https://developer.android.com/ndk/downloads)
-  - [JDK@17](https://jdk.java.net/archive/)
-  - `bison@3.8.2+`
-  - `python3`
-  - `YASM@latest`
-- **Windows**:
-  - [ninja@latest](https://github.com/ninja-build/ninja/releases)
-  - `Visual Studio 2022`
-  - `vcpkg@latest`
-  - [cmake@3.31.1+](https://cmake.org/download/)
-  - [winflexbison@2.5.25](https://github.com/lexxmark/winflexbison)
-  - `python3`
-  - `YASM@latest`
-- **Linux**:
-  - [ninja@latest](https://github.com/ninja-build/ninja/releases)
-  - `GCC`
-  - `vcpkg@latest`
-  - [cmake@3.31.1+](https://cmake.org/download/)
-  - `bison@3.8.2+`
-  - `python3`
-  - `YASM@latest`
-- **MacOS**:
-  - Xcode
-  - `vcpkg@latest`
-  - [ninja@latest](https://github.com/ninja-build/ninja/releases)
-  - [cmake@3.31.1+](https://cmake.org/download/)
-  - `bison@3.8.2+`
-  - `python3`
-  - `YASM@latest`
-
----
-
-## Build Environment Setup
-
-### Environment Variables
-
-- **Android**:
-  - `VCPKG_ROOT=/path/to/vcpkg`
-  - `ANDROID_HOME=/path/to/androidsdk`
-  - `ANDROID_NDK=/path/to/androidsdk/ndk/28.0.13004108`
-- **Windows**:
-  - `VCPKG_ROOT=D:/vcpkg`
-  - Add `winflexbison` path to `PATH`.
-- **Linux / MacOS**:
-  - `VCPKG_ROOT=/path/to/vcpkg`
-
-> **Note**: On Windows, use `/` or `\\` instead of a single `\` in paths.
-
----
-
-### Build Steps
-
-- **Android**:
-  ```bash
-  ./platforms/android/gradlew -p ./platforms/android assembleDebug
-  ```
-
-  > For older `glib` installation failures, see the [historical investigation](.agents/notes/proposed/bug-fix/2026-11-03-android-glib-install-path.md#安装glib失败); confirm the current tool version and error first.
-
-* **Windows**:
-
-  ```powershell
-  ./scripts/build-windows.bat
-  ```
-
-* **Linux**:
-
-  ```bash
-  ./scripts/build-linux.sh
-  ```
-
-* **MacOS**:
-
-  ```bash
-  cmake --preset="MacOS Debug Config"
-  cmake --build --preset="MacOS Debug Build"
-  ```
-
----
-
-## Executable Location
-
-* **Android**:
-  * Debug: `platforms/android/out/android/app/outputs/apk/debug/*.apk`
-  * Release: `platforms/android/out/android/app/outputs/apk/release/*.apk`
-* **Windows**: `out/windows/debug/bin/krkr2/krkr2.exe`
-* **Linux**: `out/linux/debug/bin/krkr2/krkr2`
-* **MacOS**: `out/macos/debug/bin/krkr2/krkr2.app`
-
----
+Linux uses `Linux SDL3 Config`. Launch with `--game /path/to/game`; use `--help` or `--list-settings` for options.
+See the [Chinese README](README_CN.md), [build guide](docs/guides/building.md) and [desktop runtime](docs/subsystems/native-runtime.md).
 
 ## Code Formatting
 - **clang-format@20**

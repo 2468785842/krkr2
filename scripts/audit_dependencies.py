@@ -114,7 +114,7 @@ def inspect(build):
     manifest = Path(cache["CMAKE_HOME_DIRECTORY"]) / "vcpkg.json"
     return {"build": str(build.resolve()), "sdk": str(sdk),
             "scope": cache.get("KRKR2_TEST_SCOPE"),
-            "sdl3_only": cache.get("KRKR2_SDL3_ONLY"),
+            "sdl3_host": cache.get("KRKR2_ENABLE_SDL3_HOST"),
             "manifest_features_declared": json.loads(manifest.read_text(encoding="utf-8"))["features"],
             "port_count": len(inventory),
             "sdk_file_bytes": sum(p["installed_bytes"] for p in inventory),

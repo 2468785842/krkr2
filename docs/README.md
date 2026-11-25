@@ -17,10 +17,10 @@
 | [PSBFile](subsystems/psbfile.md) | 文件/Octet 加载、资源介质、格式边界与合成测试 |
 | [Windows SDL3 独立宿主](subsystems/windows-sdl3.md) | 无 Cocos 构建、原生平台服务及游戏验证边界 |
 | [桌面命令行](subsystems/desktop-cli.md) | 游戏启动、引擎设置及错误退出码 |
-| [管理界面](subsystems/management-ui.md) | 移动端管理页面、桌面资源、配置与语言读取边界 |
+| [管理界面](subsystems/management-ui.md) | 旧管理界面删除状态、命令行替代和平台恢复边界 |
 | [宿主资源与 JSON 配置](subsystems/host-resources.md) | 本地资源根、设置存储、JSON 配置、XML 迁移与独立管理器验证 |
 | [依赖审计与瘦身](subsystems/dependency-audit.md) | 实际消费者、SDK 清单测量、精简结果与平台边界 |
-| [Linux 无 Cocos 运行时](subsystems/native-runtime.md) | SDL3 独立构建、原生对话框、资源与依赖验证 |
+| [Windows/Linux 桌面运行时](subsystems/native-runtime.md) | SDL3 独立构建、原生对话框、资源与依赖验证 |
 | [窗口接口](subsystems/window-interface.md) | 通用窗口接口、可选 KAG 按钮导航与 Cocos 适配边界 |
 | [共享输入状态](subsystems/input-state.md) | 虚拟键、修饰键、指针坐标、提交文本及 Cocos 适配边界 |
 | [Android 输入桥](subsystems/android-input.md) | UTF-16/JNI、打印键去重、退格和独立模拟器测试 |

@@ -4,7 +4,7 @@
   "version-string": "1.5.0",
   "features": {
     "sdl3-prototype": {
-      "description": "SDL3 dependencies for the desktop prototype and opt-in Linux game host",
+      "description": "SDL3 dependencies for the Windows/Linux runtime and desktop prototype",
       "dependencies": [
         {
           "name": "sdl3",
@@ -28,11 +28,6 @@
           "name": "blend2d",
           "platform": "!windows"
         },
-        {
-          "name": "breakpad",
-          "default-features": false,
-          "platform": "android"
-        },
         "ffmpeg",
         "freetype",
         {
@@ -44,10 +39,6 @@
         "nlohmann-json",
         "pugixml",
         "libjpeg-turbo",
-        {
-          "name": "libogg",
-          "platform": "android"
-        },
         "libpng",
         "libvorbis",
         {
@@ -58,18 +49,10 @@
           ]
         },
         "lz4",
-        {
-          "name": "miniaudio",
-          "platform": "android"
-        },
         "openal-soft",
         {
           "name": "opengl",
           "platform": "linux"
-        },
-        {
-          "name": "opus",
-          "platform": "android"
         },
         {
           "name": "opusfile",
@@ -118,18 +101,6 @@
         "boost-spirit"
       ]
     },
-    "crash-upload": {
-      "description": "Optional crash report upload via cocos networking",
-      "dependencies": [
-        {
-          "name": "cocos2dx",
-          "default-features": false,
-          "features": [
-            "network"
-          ]
-        }
-      ]
-    },
     "archives": {
       "description": "Headless ZIP archive validation",
       "dependencies": [
@@ -159,21 +130,6 @@
       "description": "CPU image operations without the runtime or window backend",
       "dependencies": []
     },
-    "cocos": {
-      "description": "Legacy Cocos application host and UI",
-      "dependencies": [
-        {
-          "name": "cocos2dx",
-          "default-features": false,
-          "features": [
-            "ui",
-            "archive",
-            "extensions",
-            "desktop"
-          ]
-        }
-      ]
-    },
     "native-dialogs": {
       "description": "Linux GTK native dialogs for the production SDL3 host",
       "dependencies": [
@@ -189,5 +145,6 @@
   },
   "default-features": [
     "foundation"
-  ]
+  ],
+  "supports": "windows | linux"
 }

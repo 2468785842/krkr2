@@ -15,6 +15,9 @@ Windows 已有 SDL3 独立构建，Linux 有可选 SDL3/Cocos 双宿主；其他
 此轮优先精简平台/图形后端，TJS2 与 Ciallang 替换另设任务、另行验收。
 独立待办、最小验证批次及初步工作量见 [Ciallang 接入任务](2026-11-25-ciallang-tjs-runtime.md)，当前仅登记，尚未实施。
 
+2026-11-25 后续：本次分支暂停 Android/Apple，仅保留 Windows/Linux SDL3，删除 Cocos port、宿主、管理 UI 与旧构建路径。
+本次改动和验证见[桌面收敛记录](../../implemented/architecture/2026-11-25-desktop-only-cocos-removal.md)；下文 Cocos 过渡方案与旧平台顺序属于历史背景。
+
 ## 目标边界
 
 ```text

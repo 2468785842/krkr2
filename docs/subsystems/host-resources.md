@@ -15,10 +15,9 @@ Linux SDL3 入口在 CLI 解析完成后、XP3 校验前，通过 `ConfigManager
 作用域覆盖归档校验、脚本启动、主循环和引擎清理；SDL3 分支不再构造 Cocos AppDelegate。
 
 `TVPHostFileExists` / `TVPReadPackagedAsset` 定义在通用模块的 `resources/HostAssets.cpp`。
-Cocos AppDelegate 在构造时安装 `CocosPackagedAsset.cpp` 的提供器，保留原有文件搜索与移动端打包资源访问。
 SDL3 入口直接安装本地提供器，结束后恢复原提供器；服务构造中途失败也恢复此前的资源提供器。
 未初始化提供器属于宿主接线错误，入口抛出 logic_error，不返回伪造的空资源。
-通用资源库可以独立链接，完整应用组合根仍依赖 Cocos。
+通用资源库可以独立链接，完整应用由 SDL3 组合根安装本地提供器。
 
 ## JSON 配置与旧文件迁移
 
@@ -59,8 +58,7 @@ pugixml 不加载外部 DTD 或网络资源。迁移写入失败仍保留当前�
 `ScopedPreferenceStorage` 按宿主线程作用域恢复原提供器，shared_ptr 保持提供器存活。
 `TVPGetDataPath` 的 TJS 包装位于 `environ/HostPaths.cpp`；
 `TVPGetInternalPreferencePath` 由存储提供器提供，调用方使用返回引用时必须保持宿主作用域有效。
-Cocos 适配器保留原 FileUtils 路径、目录创建、平台写入（包括 Android 权限路径）及本地化失败提示。
-桌面入口在 CLI/XP3 目标校验之前安装存储提供器；移动端由 AppDelegate 构造安装。
+桌面入口在 CLI/XP3 目标校验之前安装存储提供器。
 Linux 设置目录仍为 `$XDG_CONFIG_HOME/<实际可执行文件名>/.preference/`，未设置 XDG 时使用
 `$HOME/.config/<实际可执行文件名>/.preference/`。显式为空的 XDG 沿用旧规则；
 两个环境变量均缺失时报错。本地存储使用 UTF-8 文件名、二进制读写并检查关闭结果。
@@ -72,7 +70,7 @@ Linux 设置目录仍为 `$XDG_CONFIG_HOME/<实际可执行文件名>/.preferenc
 当前 Linux SDK 没有 XAR 必需的哈希后端，不应将安装 XML 库视为 XAR 已可用；边界见
 [依赖审计](dependency-audit.md)。GTK 等第三方依赖也可能
 间接引入 XML 库，不能据此宣称整个 SDK 没有 XML。
-移动端最近游戏列表属于旧 Cocos 管理 UI，仍使用 Cocos 自带 tinyxml2 读写，与本配置格式库独立。
+旧管理 UI 和最近游戏列表已随 Cocos 宿主移除。
 
 ## 独立验证
 
@@ -81,7 +79,7 @@ Linux 设置目录仍为 `$XDG_CONFIG_HOME/<实际可执行文件名>/.preferenc
 ```sh
 cmake -S . -B out/config-tests -G Ninja -DCMAKE_BUILD_TYPE=Debug \
   -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON \
-  -DKRKR2_TEST_SCOPE=config -DCMAKE_DISABLE_FIND_PACKAGE_cocos2dx=TRUE
+  -DKRKR2_TEST_SCOPE=config
 cmake --build out/config-tests --parallel 4
 ctest --test-dir out/config-tests -N
 ctest --test-dir out/config-tests --output-on-failure --no-tests=error
@@ -92,6 +90,4 @@ ctest --test-dir out/config-tests --output-on-failure --no-tests=error
 覆盖 JSON 往返/格式校验、旧 XML 迁移与新文件优先级、两种语言逐项对照、真实管理器和资源/存储服务。
 `.github/workflows/headless-tests.yml` 的 config job 在三平台检查注册数量、源码清单及安装闭包。
 
-full 范围额外登记 `config_format_legacy_tests`，用 Cocos 原 tinyxml2 核对旧语言/设置的解析结果，
-再验证旧设置迁移到 JSON 后的值，并比较两种资源提供器读取字体和 JSON 语言文件的字节。
-这些测试不创建游戏窗口，不能替代移动端权限写入或真实游戏兼容验收。
+Cocos 专属资源和 tinyxml2 对照测试已经删除；旧 XML 迁移与 JSON 配置测试继续保留。

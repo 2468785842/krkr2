@@ -14,7 +14,7 @@ def inspect(build):
         if not line.startswith(("#", "//")) and "=" in line and ":" in line:
             key, value = line.split("=", 1)
             cache[key.split(":", 1)[0]] = value
-    for name in ("KRKR2_BUILD_APP", "KRKR2_SDL3_ONLY", "KRKR2_ENABLE_SDL3_HOST"):
+    for name in ("KRKR2_BUILD_APP", "KRKR2_ENABLE_SDL3_HOST"):
         if cache.get(name, "").upper() not in {"ON", "TRUE", "1", "YES"}:
             raise ValueError(f"{name} must be ON")
     if cache.get("KRKR2_ENABLE_UI_TEST_DRIVER", "").upper() not in {"OFF", "FALSE", "0", "NO"}:
@@ -22,7 +22,7 @@ def inspect(build):
     sdk = Path(cache["VCPKG_INSTALLED_DIR"])
     status = (sdk / "vcpkg/status").read_text()
     packages = {port["name"] for port in installed_ports(status).values()}
-    windows = cache.get("WINDOWS") in {"ON", "TRUE", "1"}
+    windows = "windows" in cache.get("VCPKG_TARGET_TRIPLET", "")
     required = {"sdl3", "ffmpeg"} | (set() if windows else {"gtk3"})
     if "cocos2dx" in packages or not required <= packages:
         raise ValueError("SDK lacks native host dependencies or contains Cocos")
@@ -51,7 +51,7 @@ def inspect(build):
     if not (resources / "licenses/PVRTCDecoder.txt").is_file():
         raise ValueError("Missing PowerVR license")
     rejected = subprocess.run([str(engine), "--host=cocos", "--help"], capture_output=True, text=True)
-    if rejected.returncode == 0 or "Cocos host is unavailable" not in rejected.stderr:
+    if rejected.returncode == 0 or "Unknown desktop host" not in rejected.stderr:
         raise ValueError("Native application must reject the unavailable Cocos host")
     manifest = json.loads((Path(__file__).resolve().parents[1] / "vcpkg.json").read_text())
     features = manifest["features"]
@@ -59,8 +59,6 @@ def inspect(build):
         return dependency if isinstance(dependency, str) else dependency["name"]
     if any(name(d) == "cocos2dx" for d in features["engine"]["dependencies"]):
         raise ValueError("Common engine dependencies must not contain Cocos")
-    if not any(name(d) == "cocos2dx" for d in features["cocos"]["dependencies"]):
-        raise ValueError("Legacy host must explicitly declare its Cocos feature")
     print(f"Cocos-free {'Windows' if windows else 'Linux'} runtime verified: {len(commands)} compilation units, {len(packages)} SDK ports")
 
 

@@ -12,7 +12,7 @@ def main():
     sys.dont_write_bytecode = True
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("engine", type=Path)
-    parser.add_argument("--host", choices=("cocos", "sdl3"))
+    parser.add_argument("--host", choices=("sdl3",))
     options = parser.parse_args()
     engine = options.engine.resolve(strict=True)
     host_args = [f"--host={options.host}"] if options.host else []
@@ -23,10 +23,9 @@ def main():
     with tempfile.TemporaryDirectory(prefix="krkr2-cli-") as directory:
         root = Path(directory)
         env = dict(os.environ)
-        if options.host == "sdl3":
-            # Exercise native storage before XP3 validation without writing to
-            # the developer's normal preference directory.
-            env["XDG_CONFIG_HOME"] = str(root / "config")
+        # Exercise native storage before XP3 validation without writing to
+        # the developer's normal preference directory.
+        env["XDG_CONFIG_HOME"] = str(root / "config")
         invalid = root / "invalid.xp3"
         invalid.write_bytes(b"not an archive")
         no_startup = root / "without-startup.xp3"
@@ -34,7 +33,7 @@ def main():
         cases = [
             ([], 2, "requires --game PATH"),
             (["--help"], 0, "Usage: krkr2"),
-            (["--list-settings"], 0, "renderer\tsoftware|opengl"),
+            (["--list-settings"], 0, "renderer\tsoftware"),
             (["--set"], 2, "Expected --set KEY=VALUE"),
             (["--set", "unknown=1"], 2, "Unknown desktop setting"),
             (["--set=fps_limit=0"], 2, "Invalid value for fps_limit"),
@@ -56,7 +55,7 @@ def main():
                 raise AssertionError((args, result.returncode, output))
             if "gl.renderer" in output or "Direct game startup" in output:
                 raise AssertionError("Error/help invocation entered graphical startup")
-            if options.host == "sdl3" and expected_code == 0 and (root / "config").exists():
+            if expected_code == 0 and (root / "config").exists():
                 raise AssertionError("SDL3 help/settings invocation created a preference directory")
     host_label = f" ({options.host})" if options.host else ""
     print(f"{len(cases)} runtime CLI help/error checks passed{host_label}")

@@ -19,7 +19,6 @@ namespace krkr::launch {
     namespace {
         std::string target;
         int exitCode = 0;
-        bool useSDL3 = false;
 
         void fail(const std::string &message) {
             exitCode = 2;
@@ -31,44 +30,19 @@ namespace krkr::launch {
     int PrepareDesktopLaunch(int argc, char **argv,
                              const PrepareHost &prepareHost) {
         target.clear();
-        useSDL3 = false;
         exitCode = 0;
         try {
             std::vector<std::string> arguments;
             for(int i = 1; i < argc; ++i)
                 arguments.emplace_back(argv[i]);
             auto options = Parse(arguments);
-#if KRKR2_SDL3_ONLY
-            if(options.host != DesktopHost::SDL3)
-                throw std::invalid_argument(
-                    "Cocos host is unavailable in this build");
-#endif
             if(options.help) {
                 std::fputs(Usage(), stdout);
-#if KRKR2_ENABLE_SDL3_HOST
-                std::fputs("  --host=sdl3   Use SDL3 with an explicit game "
-                           "target (Windows/Linux)\n",
-                           stdout);
-#endif
                 return 0;
             }
             if(options.listSettings) {
                 std::fputs(ListDesktopSettings().c_str(), stdout);
                 return 0;
-            }
-            useSDL3 = options.host == DesktopHost::SDL3;
-            if(useSDL3) {
-#if KRKR2_ENABLE_SDL3_HOST
-                if(!options.game)
-                    throw std::invalid_argument(
-                        "--host=sdl3 requires --game PATH");
-#if !KRKR2_SDL3_ONLY
-                options.settings.try_emplace("renderer", "software");
-#endif
-#else
-                throw std::invalid_argument(
-                    "SDL3 host is unavailable in this build");
-#endif
             }
             if(!options.game) {
                 fail("Desktop launch requires --game PATH");
@@ -92,7 +66,6 @@ namespace krkr::launch {
     }
 
     const std::string &DesktopTarget() { return target; }
-    bool UseSDL3Host() { return useSDL3; }
     int DesktopExitCode() { return exitCode; }
 
     bool ValidateDesktopArchive() {

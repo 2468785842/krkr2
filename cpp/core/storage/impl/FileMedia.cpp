@@ -85,7 +85,7 @@ bool tTVPFileMedia::CheckExistentStorage(const ttstr &name) {
         TVPInitFileBackend();
 
     IFileBackend *backend = TVPGetFileBackend();
-    // 与 Open 一致：优先 IFileBackend（Cocos 打包资源等）
+    // 与 Open 一致：优先 IFileBackend
     if(backend && backend->Exists(name))
         return true;
 

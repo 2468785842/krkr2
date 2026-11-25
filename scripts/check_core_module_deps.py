@@ -98,9 +98,6 @@ def check(root):
     defaults = root / 'cpp/core/environ/ConfigManager/PreferenceDefaults.inc'
     if re.search(r'\bCC_(?:TARGET|PLATFORM)\w*', defaults.read_text(encoding='utf-8')):
         errors.append('PreferenceDefaults.inc: 共享默认值应使用 TVP 平台宏')
-    host = root / 'cpp/core/environ/cocos2d/MainScene.cpp'
-    if re.search(r'^\s*tjs_uint32\s+TVPGetCurrentShiftKeyState\s*\(', host.read_text(encoding='utf-8'), re.M):
-        errors.append('MainScene.cpp: 修饰键查询实现应属于 System/共享输入层')
     for relative in ('visual/impl/WindowImpl.cpp', 'visual/impl/BasicDrawDevice.cpp',
                      'movie/ffmpeg/KRMoviePlayer.cpp', 'visual/WindowLayer.h',
                      'base/impl/SystemImpl.cpp', 'environ/HostLifecycle.h',

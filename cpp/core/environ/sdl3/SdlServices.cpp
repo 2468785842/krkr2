@@ -19,7 +19,6 @@
 #include <stdexcept>
 #include <vector>
 
-#if KRKR2_SDL3_ONLY
 ttstr TVPGetPlatformName() { return TJS_W("Win32"); }
 ttstr TVPGetOSName() { return TVPGetPlatformName(); }
 
@@ -110,5 +109,3 @@ void TVPShowPopMenu(tTJSNI_MenuItem *root) {
     if(selected && selected <= actions.size())
         actions[selected - 1]->OnClick();
 }
-
-#endif

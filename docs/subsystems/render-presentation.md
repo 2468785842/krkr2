@@ -1,5 +1,8 @@
 # 纹理呈现与宿主截图边界
 
+> 2026-11-25 状态：当前仅构建 Windows/Linux SDL3，Cocos 宿主和专属测试已删除，Android/Apple 暂停。
+> 下文中的 Cocos 适配过程和验收属于历史记录；当前运行入口见[桌面运行时](native-runtime.md)。
+
 `visual/RenderManager.h` 的 `iTVPTexture2D::GetPresentationFrame()` 返回
 `visual/TexturePresentation.h` 中不依赖 Cocos/TJS 的画面描述。
 CPU 渲染器不再创建 Cocos 纹理；宿主通过 `environ/cocos2d/CocosTexturePresentation.*`

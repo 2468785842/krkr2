@@ -1,16 +1,3 @@
-if(KRKR2_TEST_SCOPE STREQUAL "full" AND NOT KRKR2_SDL3_ONLY)
-    find_package(cocos2dx CONFIG REQUIRED)
-    set(SOURCES NodeOrderTest.cpp CocosPointerCoordinatesTest.cpp CocosInputFocusTest.cpp CocosTextInputTest.cpp CocosContextSubscriptionTest.cpp
-        CocosVideoPresentationTest.cpp
-        ${CMAKE_SOURCE_DIR}/cpp/core/environ/cocos2d/CocosVideoPresentation.cpp
-        ${CMAKE_SOURCE_DIR}/cpp/core/environ/cocos2d/YUVSprite.cpp)
-    add_executable(cocos_window_tests ${SOURCES})
-    target_include_directories(cocos_window_tests PRIVATE ${CMAKE_SOURCE_DIR}/cpp/core/environ ${CMAKE_SOURCE_DIR}/cpp/core/visual
-        ${CMAKE_SOURCE_DIR}/cpp/core/movie)
-    target_link_libraries(cocos_window_tests PRIVATE Catch2::Catch2WithMain cocos2dx::cocos2d core_input)
-    catch_discover_tests(cocos_window_tests)
-
-endif()
 
 set(INPUT_SOURCES InputStateTest.cpp InputModifiersTest.cpp PointerCoordinatesTest.cpp InputCancellationTest.cpp TouchButtonTest.cpp TouchButtonPeer.cpp TextInputTest.cpp)
 add_executable(input_state_tests ${INPUT_SOURCES})
@@ -40,7 +27,7 @@ target_include_directories(texture_presentation_tests PRIVATE ${CMAKE_SOURCE_DIR
 target_link_libraries(texture_presentation_tests PRIVATE Catch2::Catch2WithMain)
 catch_discover_tests(texture_presentation_tests)
 
-if(KRKR2_SDL3_ONLY)
+if(KRKR2_BUILD_APP)
     add_executable(pvrtc_decoder_tests PVRTCDecoderTest.cpp
         ${CMAKE_SOURCE_DIR}/cpp/core/visual/PVRTCDecoder.cpp)
     target_include_directories(pvrtc_decoder_tests PRIVATE ${CMAKE_SOURCE_DIR}/cpp/core/visual)
@@ -48,7 +35,7 @@ if(KRKR2_SDL3_ONLY)
     catch_discover_tests(pvrtc_decoder_tests)
 endif()
 
-if(KRKR2_SDL3_ONLY AND TARGET krkr2)
+if(TARGET krkr2)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
     add_test(NAME windowex-lifetime-runtime
         COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/game-smoke/windowex_lifetime_repro.py

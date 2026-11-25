@@ -6,7 +6,8 @@ description: 在 KrKr2 中用隔离游戏副本、TJS 插装、实际截图和 C
 # KrKr2 游戏截图与交互调试
 
 从 [游戏与交互测试](../../../docs/guides/game-testing.md) 和
-[自制交互场景](../../../tools/game-smoke/interaction/README.md) 选择最小复现。
+[Windows SDL3](../../../docs/subsystems/windows-sdl3.md) 选择最小复现。
+当前仅支持 Windows/Linux SDL3；Cocos 宿主、组件 UI 驱动和 Android/Apple 构建已移除。
 脚本菜单或窗口契约优先用自制场景；真实 KAG 兼容使用 `tools/game-smoke/game_smoke.py`
 准备的独立副本。保留已有游戏钩子，使用新输出目录，不写原始 `D:/krkr/tslm`。
 
@@ -22,15 +23,14 @@ Windows SDL3 独立宿主可运行 `tools/game-smoke/sdl_windows_repro.py`，
 不可用旧文件、旧事件或重复命令假装新操作成功；查找不唯一或窗口外的目标应保持失败。
 
 截图优先选择当前可用的窗口采集；若已证实本机采集失败，
-可使用显式测试构建的 `capture` 保存 Cocos 帧缓冲并实际查看图像。
+应记录采集失败，并使用 SDL3 宿主截图接口另取图像、明确证据范围。
 游戏 KAG snapshotLayer 只覆盖游戏图层，不能证明宿主 UI 正常。
 区分像素观察、脚本回调、组件分发和系统设备输入各自能证明的范围。
 原生消息框仍使用可用的系统 UI 工具或人工确认，不能由组件驱动伪造结果。
 
-连续文件/菜单复现优先使用 `tools/game-smoke/interaction_repro.py` 的全新目录，
-可加 `--cdb` 保存匹配 exe/PDB、异常栈和 dump；原进程退出码仍由控制器判断。
-`--keyboard-probe` 与 `--lifecycle-probe` 分别验证组件输入和引擎激活通知，
-不能将它们当作系统键盘、OS 挂起或图形上下文恢复验证。
+连续文件/菜单复现使用 `sdl_windows_repro.py` 或 Linux `sdl_dialog_repro.py` 的全新目录。
+调试器启动另保留匹配 exe/PDB、异常栈和 dump；原进程退出码由控制器判断。
+旧 `interaction_repro.py`、Cocos 组件输入和帧缓冲探针只属于删除前历史工具，不用于当前验收。
 
 ## 崩溃调查与验收
 

@@ -15,6 +15,16 @@ import interaction_smoke
 from win32_input import Desktop
 
 
+def failures(events, expected_fixture):
+    result = interaction_smoke.failures(events)
+    names = [line.partition(':')[2] for line in events if line.startswith('select-accept-name:')]
+    local = expected_fixture.as_posix().lower()
+    storage = 'file://./' + local.replace(':', '', 1)
+    if not names or names[-1].replace('\\', '/').lower() not in {local, storage}:
+        result.append('selected path is not the current fixture')
+    return result
+
+
 class NativeProbe:
     def __call__(self, process, directory, deadline, report):
         from PIL import ImageGrab
@@ -67,7 +77,7 @@ class NativeProbe:
                 raise ctypes.WinError(ctypes.get_last_error())
             return matches[0] if len(matches) == 1 else None
 
-        def dialog_ready(dialog):
+        def dialog_ready(dialog, expected=None):
             edits = []
             controls = []
             @desktop.enum_callback
@@ -84,7 +94,8 @@ class NativeProbe:
                 # Windows can hide known extensions in the native filename
                 # control. The returned storage path is still checked against
                 # the full fixture.txt path by interaction_smoke.
-                if kind.value == 'Edit' and text.value in {'fixture.txt', 'fixture'}:
+                accepted = {expected} if expected is not None else {'fixture.txt', 'fixture'}
+                if kind.value == 'Edit' and text.value in accepted:
                     edits.append(handle)
                 return True
             user.EnumChildWindows(dialog, visit, 0)
@@ -96,6 +107,7 @@ class NativeProbe:
             desktop.key(key, False)
 
         def foreground(handle):
+            desktop.raise_without_activation(handle)
             desktop.click_caption(handle)
             report['foreground_steps'].append(dict(desktop.last_caption))
             wait(lambda: desktop.foreground() == handle, f'foreground ownership {handle}')
@@ -170,6 +182,19 @@ class NativeProbe:
                     except TimeoutError:
                         capture(dialog, 'dialog-waiting.png')
                         raise
+                if command == 'select-accept':
+                    # Common dialogs remember prior directories. Select this
+                    # run's fixture through real keyboard input, then verify
+                    # the complete returned storage path in the evaluator.
+                    desktop.key(0x12, True)  # Alt+N: filename control
+                    tap(0x4e)
+                    desktop.key(0x12, False)
+                    desktop.key(0x11, True)
+                    tap(0x41)
+                    desktop.key(0x11, False)
+                    filename = str(directory / 'fixture.txt')
+                    desktop.unicode_text(filename)
+                    wait(lambda: dialog_ready(dialog, filename), 'current fixture filename')
                 # Window mapping precedes the native opening animation.
                 until = time.monotonic() + 0.4
                 while time.monotonic() < until:
@@ -195,7 +220,9 @@ def main():
     if sys.platform != 'win32':
         parser.error('Windows interactive desktop required')
     interaction_smoke.prepare(args.directory)
-    return interaction_smoke.run(args.engine, args.directory, 150, automation=NativeProbe())
+    expected = args.directory.resolve() / 'fixture.txt'
+    return interaction_smoke.run(args.engine, args.directory, 150, automation=NativeProbe(),
+                                 evaluate=lambda events: failures(events, expected))
 
 
 if __name__ == '__main__':

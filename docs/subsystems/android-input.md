@@ -1,5 +1,8 @@
 # Android 提交文本与按键桥
 
+> 2026-11-25 状态：当前仅构建 Windows/Linux SDL3，Cocos 宿主和专属测试已删除，Android/Apple 暂停。
+> 下文中的 Cocos 适配过程和验收属于历史记录；当前运行入口见[桌面运行时](native-runtime.md)。
+
 ## 当前链路
 
 `DummyEdit` 的硬件监听与 IME 的 `SDLInputConnection.sendKeyEvent` 共用 `handleKeyEvent`。

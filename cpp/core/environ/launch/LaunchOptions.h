@@ -12,12 +12,8 @@ namespace krkr::launch {
         std::string value;
     };
 
-    enum class DesktopHost { Cocos, SDL3 };
-#if KRKR2_SDL3_ONLY
+    enum class DesktopHost { SDL3 };
     inline constexpr DesktopHost DefaultDesktopHost = DesktopHost::SDL3;
-#else
-    inline constexpr DesktopHost DefaultDesktopHost = DesktopHost::Cocos;
-#endif
 
     struct LaunchOptions {
         std::optional<std::filesystem::path> game;

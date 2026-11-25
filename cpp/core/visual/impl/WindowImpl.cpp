@@ -1161,8 +1161,8 @@ bool tTJSNI_Window::CanDeliverEvents() const {
 bool tTJSNI_Window::CanDeliverInputCancellation() const {
     // A queued cancellation may arrive after SetVisible(false). Invalidated
     // windows still reject it, and Invalidate removes their pending events.
-    // Cocos GetFormEnabled is itself an isVisible check, so it cannot gate
-    // cancellation delivery. Only a live form and script owner are required.
+    // Visibility cannot gate cancellation delivery. Only a live form and
+    // script owner are required.
     return _form && Owner;
 }
 //---------------------------------------------------------------------------

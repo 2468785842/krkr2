@@ -13,7 +13,6 @@ namespace krkr::launch {
     int PrepareDesktopLaunch(int argc, char **argv,
                              const PrepareHost &prepareHost = {});
     const std::string &DesktopTarget();
-    bool UseSDL3Host();
     bool ValidateDesktopArchive();
     int DesktopExitCode();
 } // namespace krkr::launch

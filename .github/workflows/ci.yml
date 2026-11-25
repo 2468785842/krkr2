@@ -7,6 +7,10 @@ on:
       - 'cmake/**'
       - 'cpp/**'
       - 'platforms/**'
+      - 'assets/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'tools/**'
       - 'vcpkg/**'
       - 'CMakeLists.txt'
       - 'CMakePresets.json'
@@ -19,6 +23,10 @@ on:
       - 'cmake/**'
       - 'cpp/**'
       - 'platforms/**'
+      - 'assets/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'tools/**'
       - 'vcpkg/**'
       - 'CMakeLists.txt'
       - 'CMakePresets.json'
@@ -35,17 +43,7 @@ jobs:
   format-check:
     uses: ./.github/workflows/code-format-check.yml
 
-  build-linux:
+  native-desktop:
     needs: format-check
-    uses: ./.github/workflows/build-linux.yml
-    secrets: inherit
-
-  build-windows:
-    needs: format-check
-    uses: ./.github/workflows/build-windows.yml
-    secrets: inherit
-
-  build-android:
-    needs: format-check
-    uses: ./.github/workflows/build-android.yml
+    uses: ./.github/workflows/native-desktop.yml
     secrets: inherit

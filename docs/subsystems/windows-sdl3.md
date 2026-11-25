@@ -1,8 +1,8 @@
 # Windows SDL3 独立宿主
 
-`KRKR2_SDL3_ONLY=ON` 使用正式 TJS2/KAG、Window/Layer、归档、插件和音视频实现，
+默认 SDL3 构建使用正式 TJS2/KAG、Window/Layer、归档、插件和音视频实现，
 由 SDL3 创建窗口、处理输入并呈现软件合成画面。此配置不查找、编译、链接或安装 Cocos。
-Linux 已使用同一开关提供[独立宿主](native-runtime.md)，同时保留可选双宿主配置；macOS/Android 尚未启用独立模式。
+Linux 同样默认提供[独立宿主](native-runtime.md)，macOS/Android 暂停构建。
 
 ## 构建和运行
 
@@ -17,17 +17,15 @@ out/windows/sdl3-debug/bin/krkr2/krkr2.exe --game D:/games/example
 ```
 
 输出目录为 `out/windows/sdl3-debug/bin/krkr2/`。默认宿主为 SDL3，也接受显式
-`--host=sdl3`；`--host=cocos` 返回 2。只支持 `renderer=software`，显式请求其他渲染器
+`--host=sdl3`；其他宿主名称返回 2。只支持 `renderer=software`，显式请求其他渲染器
 返回 2，不建立 Cocos/GL 回退。游戏目录、归档、引擎参数和临时设置语法沿用
 [桌面命令行](desktop-cli.md)。
 
 预设开启应用、PSD 插件、`platform` 范围测试，关闭工具与组件输入驱动。
 除共享平台契约外，还登记启动解析、资源同步、CLI、PVRTC 与 WindowEx 生命周期回归。
-使用其他 scope 时，只会注册对应范围；独立模式不注册专属 Cocos 的测试。
+使用其他 scope 时，只注册对应范围；Cocos 专属测试已删除。
 
-CMake 在配置前选择 `engine`、`sdl3-prototype` 等 manifest features；Cocos 依赖独立放在
-`cocos` feature，旧应用构建自动添加它。直接运行 vcpkg 时，需要 Cocos 的完整引擎应同时
-选择 `engine` 与 `cocos`。独立宿主关闭依赖 Cocos 网络库的崩溃上报。
+CMake 在配置前选择 `engine`、`sdl3-prototype` 等 manifest features；旧 `cocos`、`crash-upload` features 和端口已经删除。
 
 ## 平台服务
 
@@ -64,3 +62,7 @@ python tools/game-smoke/sdl_windows_repro.py out/windows/sdl3-debug/bin/krkr2/kr
 Windows 音视频播放同步、完整剧情、物理高 DPI/IME/手柄仍需专项验收。
 Release 构建使用 `Windows SDL3 Release Config/Build`；打包命令为
 `python scripts/package_native_runtime.py out/windows/sdl3-release out/native-packages`，系统动态库要求见包内清单。
+
+2026-11-25 删除旧宿主后，Windows 普通 Debug/full 构建的 119 项测试、软件图像与原生交互已通过；
+本次证据及控制器修正见[删除记录](../../.agents/notes/implemented/architecture/2026-11-25-desktop-only-cocos-removal.md)。
+删除后也已在新隔离副本重跑《天神乱漫》短剧情、新存档、同进程及新进程读档和正常退出；完整剧情未验证。

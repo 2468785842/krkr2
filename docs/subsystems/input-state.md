@@ -1,5 +1,8 @@
 # 共享输入状态与坐标
 
+> 2026-11-25 状态：当前仅构建 Windows/Linux SDL3，Cocos 宿主和专属测试已删除，Android/Apple 暂停。
+> 下文中的 Cocos 适配过程和验收属于历史记录；当前运行入口见[桌面运行时](native-runtime.md)。
+
 `cpp/core/input/InputState.h` 的 `KeyState` 只依赖 C++17 标准库，
 `core_input` 无引擎或图形后端链接依赖。键盘、鼠标与手柄适配器通过
 `sharedState()` 使用同一份进程内状态；访问仍在引擎输入线程，不提供并发访问保证。

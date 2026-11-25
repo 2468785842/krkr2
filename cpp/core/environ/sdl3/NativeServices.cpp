@@ -51,7 +51,6 @@ namespace krkr::sdl {
     }
 } // namespace krkr::sdl
 
-#if KRKR2_SDL3_ONLY
 void TVPOpenPatchLibUrl() {
     if(!SDL_OpenURL("https://zeas2.github.io/Kirikiroid2_patch/patch"))
         G_CoreLog.error("Unable to open patch library: {}", SDL_GetError());
@@ -108,4 +107,3 @@ bool TVPCopyFile(const std::string &from, const std::string &to) {
                           error);
     return !error;
 }
-#endif

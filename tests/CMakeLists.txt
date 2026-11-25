@@ -17,7 +17,7 @@ if(KRKR2_TEST_SCOPE STREQUAL "config")
 endif()
 
 if(KRKR2_TEST_SCOPE STREQUAL "platform")
-    if(KRKR2_SDL3_ONLY)
+    if(KRKR2_BUILD_APP)
         add_subdirectory(unit-tests/core/launch)
     endif()
     add_subdirectory(unit-tests/core/environ)

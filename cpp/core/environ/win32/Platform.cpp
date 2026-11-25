@@ -1,8 +1,6 @@
 #include "Platform.h"
-#if KRKR2_SDL3_ONLY
 #include <SDL3/SDL.h>
 #include <stdexcept>
-#endif
 
 // #undef WIN32
 #include <windows.h>
@@ -90,20 +88,10 @@ std::string TVPGetDefaultFileDir() {
     return converter.to_bytes(buf);
 }
 
-void TVPCheckAndSendDumps(const std::string &dumpdir,
-                          const std::string &packageName,
-                          const std::string &versionStr);
-bool TVPCheckStartupArg() {
-#if KRKR2_ENABLE_CRASH_UPLOAD
-    TVPCheckAndSendDumps(TVPGetDefaultFileDir() + "/dumps", "win32-test",
-                         "test");
-#endif
-    return false;
-}
+bool TVPCheckStartupArg() { return false; }
 
 int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
                             const std::vector<ttstr> &vecButtons) {
-#if KRKR2_SDL3_ONLY
     std::vector<std::string> labels;
     labels.reserve(vecButtons.size());
     for(const auto &button : vecButtons)
@@ -134,27 +122,6 @@ int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
     if(!SDL_ShowMessageBox(&dialog, &selected))
         throw std::runtime_error(SDL_GetError());
     return selected < 0 ? static_cast<int>(buttons.size() - 1) : selected;
-#else
-    switch(vecButtons.size()) {
-        case 1:
-            MessageBoxW(0, text.toWString().c_str(),
-                        caption.toWString().c_str(),
-                        /*MB_OK*/ 0);
-            return 0;
-            break;
-        case 2:
-            switch(MessageBoxW(0, text.toWString().c_str(),
-                               caption.toWString().c_str(),
-                               /*MB_YESNO*/ 4)) {
-                case 6:
-                    return 0; // YES 0
-                default:
-                    return 1; // NO 1
-            }
-            break;
-    }
-    return -1;
-#endif
 }
 
 extern "C" int TVPShowSimpleMessageBox(const char *pszText,
@@ -296,11 +263,6 @@ void TVPExitApplication(int code) {
     exit(code);
 }
 
-// const std::string &TVPGetInternalPreferencePath() {
-// 	static std::string
-// ret(cocos2d::FileUtils::getInstance()->getWritablePath()); 	return
-// ret;
-// }
 //
 #if 0
 bool TVPDeleteFile(const std::string &filename) {

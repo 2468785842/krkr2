@@ -31,7 +31,8 @@ extern "C" {
 };
 #include "imageops/ImageOps.h"
 #include "RenderHost.h"
-// Keep this implementation local while Cocos still links its bundled xxHash.
+// Keep the software renderer hash implementation local to this translation
+// unit.
 #define XXH_INLINE_ALL
 #include <xxhash.h>
 #include "tjsHashSearch.h"
@@ -4799,7 +4800,6 @@ public:
 static std::map<ttstr, std::pair<iTVPRenderManager *(*)(), iTVPRenderManager *>>
     *_RenderManagerFactory;
 
-iTVPRenderManager *TVPCreateOpenGLRenderManager();
 
 void TVPRegisterRenderManager(const char *name, iTVPRenderManager *(*func)()) {
     if(!_RenderManagerFactory)
@@ -4857,10 +4857,5 @@ static class __tTVPSoftwareRenderManagerAutoReigster {
 public:
     __tTVPSoftwareRenderManagerAutoReigster() {
         TVPRegisterRenderManager("software", TVPGetSoftwareRenderManager);
-        // An explicit factory reference retains the OpenGL object in normal
-        // static-library builds, including builds without the UI test driver.
-#if !KRKR2_SDL3_ONLY
-        TVPRegisterRenderManager("opengl", TVPCreateOpenGLRenderManager);
-#endif
     }
 } __tTVPSoftwareRenderManagerAutoReigster_instance;

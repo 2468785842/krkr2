@@ -5,6 +5,8 @@
 
 ## 桌面构建
 
+当前仅支持 Windows/Linux，正式应用统一使用 SDL3 软件呈现；旧 Cocos 配置和依赖已移除。
+
 需要 CMake/Ninja、C++ 工具链、Python、Bison 和 `VCPKG_ROOT`；Windows 在 MSVC x64 开发环境运行，并把 win_bison 加入 PATH。vcpkg 基线与 overlay 已记录在配置文件中，不为修复局部问题随意升级全仓依赖。
 
 | 平台 | 配置预设 | 构建预设 | 测试目录 |
@@ -12,7 +14,7 @@
 | Windows | `Windows Debug Config` | `Windows Debug Build` | `out/windows/debug` |
 | Linux | `Linux Debug Config` | `Linux Debug Build` | `out/linux/debug` |
 | Linux 无 Cocos | `Linux SDL3 Config` | `cmake --build out/linux/sdl3` | `out/linux/sdl3` |
-| macOS | `MacOS Debug Config` | `MacOS Debug Build` | `out/macos/debug` |
+
 
 ```sh
 cmake --list-presets
@@ -29,23 +31,23 @@ Linux 完全独立于 Cocos 的应用使用 `Linux SDL3 Config`，详见
 选择目标可用 `cmake --build --preset "Windows Debug Build" --target xp3`；仅选择目标不会缩小根配置范围。
 
 `KRKR2_TEST_SCOPE=config` 可单独构建配置管理器/存储、JSON/XML 迁移、语言回退和本地资源读取的 26 项测试，
-只选择 nlohmann-json/pugixml/Catch2 依赖，不查找 Cocos 或 TJS。完整命令及 full 的旧格式对照见
+只选择 nlohmann-json/pugixml/Catch2 依赖，不查找 Cocos 或 TJS。完整命令见
 [宿主资源与 JSON 配置](../subsystems/host-resources.md#独立验证)。
 
 Windows 无 Cocos 应用使用 `Windows SDL3 Debug Config/Build` 或
 `Windows SDL3 Release Config/Build`；原生交互、真实游戏验收和打包见
-[Windows SDL3 独立宿主](../subsystems/windows-sdl3.md)。两平台统一使用 `KRKR2_SDL3_ONLY=ON`。
+[Windows SDL3 独立宿主](../subsystems/windows-sdl3.md)。所有 Windows/Linux 应用预设现在都使用 SDL3，不再需要宿主选择开关。
 
 若全新环境报 `find_package(FFMPEG)` 找不到包，先检查是否设置了 `VCPKG_ROOT` 或显式指定
 `CMAKE_TOOLCHAIN_FILE`，并保持 `VCPKG_MANIFEST_INSTALL=ON`（默认）。未接入 vcpkg 时，
 CMake 只查找依赖，不会根据本仓库清单自动安装。仅安装 `ffmpeg` 命令行程序也不能提供所需开发包。
 本项目使用 `vcpkg/ports/ffmpeg` 中的 FFmpeg 3.3.9 与配套补丁/查找模块，应按清单构建，
 不要直接替换为系统最新版的头文件和库。Linux 还需要 Yasm、Bison、Autoconf/Automake、
-Libtool 和窗口系统开发文件；系统依赖清单以 `.github/workflows/build-linux.yml` 为准。
+Libtool 和窗口系统开发文件；系统依赖清单以 `.github/workflows/native-desktop.yml` 为准。
 
 ## 仅构建 XP3 解包工具
 
-在 MSVC x64 开发环境执行（Linux/macOS 去掉 WINDOWS 并选择对应 triplet）：
+在 MSVC x64 开发环境执行（Linux 去掉 WINDOWS 并选择对应 triplet）：
 
 ```sh
 cmake -S . -B out/windows/xp3 -G Ninja -DWINDOWS=ON -DVCPKG_TARGET_TRIPLET=x64-windows-static-md -DCMAKE_BUILD_TYPE=Debug -DKRKR2_BUILD_APP=OFF -DENABLE_TESTS=OFF -DBUILD_TOOLS=ON
@@ -58,26 +60,12 @@ python tools/xp3/smoke_test.py tools/bin/win/dbg/xp3.exe
 
 首批本机测试与当时的配置问题见 [XP3 验证记录](../../.agents/notes/implemented/testing/2026-11-01-xp3-build-validation.md)。
 
-Android 使用 README 所列 JDK/SDK/NDK。Gradle 通过 `ANDROID_HOME` 查找 SDK，
-原生工具链通过 `ANDROID_NDK` 与 `VCPKG_ROOT` 连接，例如：
-
-```sh
-export ANDROID_HOME=/path/to/androidsdk
-export ANDROID_NDK="$ANDROID_HOME/ndk/28.0.13004108"
-export VCPKG_ROOT=/path/to/vcpkg
-```
-
-在对应平台运行 `platforms/android/gradlew`，例如：
-
-```sh
-./platforms/android/gradlew -p ./platforms/android assembleDebug
-```
-
-Windows 使用 `platforms/android/gradlew.bat`。Gradle/NDK 验证不能用桌面 CMake 通过代替。
+Android、macOS/iOS 当前暂停构建，平台检查会在 vcpkg 安装前拒绝这些目标。
+旧平台入口与 Cocos 适配已删除，恢复支持需要新的平台宿主，历史代码见 `c494ea0`。
 
 ## 独立字符串测试与可选能力
 
-Windows 还提供 `Windows XP3 Config/Build`、`Windows Strings Config/Build`、`Windows Lean Debug Config/Build` 三组预设。Lean 构建应用但关闭工具、测试、PSD 和上报；依赖 PSD 的游戏应使用默认完整预设或重新开启 PSD。新预设名称和 JSON 已由 `cmake --list-presets` 核对，Lean 的全新依赖安装尚未实测。
+Windows 还提供 `Windows XP3 Config/Build`、`Windows Strings Config/Build`、`Windows Lean Debug Config/Build` 三组预设。Lean 构建应用但关闭工具、测试和 PSD；依赖 PSD 的游戏应使用默认完整预设或重新开启 PSD。新预设名称和 JSON 已由 `cmake --list-presets` 核对，Lean 的全新依赖安装尚未实测。
 
 ```sh
 cmake -S . -B out/windows/strings -G Ninja -DWINDOWS=ON -DVCPKG_TARGET_TRIPLET=x64-windows-static-md -DCMAKE_BUILD_TYPE=Debug -DKRKR2_BUILD_APP=OFF -DBUILD_TOOLS=OFF -DENABLE_TESTS=ON -DKRKR2_TEST_SCOPE=strings
