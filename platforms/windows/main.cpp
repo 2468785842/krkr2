@@ -42,11 +42,17 @@ int main() {
     LocalFree(wargv);
 #if !KRKR2_SDL3_ONLY
     krkr::config::SetPreferenceStorage(TVPCreateCocosPreferenceStorage());
-#else
-    krkr::sdl::InstallPreferences();
 #endif
+#if KRKR2_SDL3_ONLY
+    std::unique_ptr<krkr::host::LocalServices> nativeServices;
+    const int launch = krkr::launch::PrepareDesktopLaunch(
+        argc, argv_ptrs.data(), [&](krkr::launch::DesktopHost) {
+            nativeServices = krkr::sdl::CreateHostServices();
+        });
+#else
     const int launch =
         krkr::launch::PrepareDesktopLaunch(argc, argv_ptrs.data());
+#endif
     if(launch >= 0)
         return launch;
 

@@ -28,7 +28,8 @@ namespace krkr::launch {
         }
     } // namespace
 
-    int PrepareDesktopLaunch(int argc, char **argv) {
+    int PrepareDesktopLaunch(int argc, char **argv,
+                             const PrepareHost &prepareHost) {
         target.clear();
         useSDL3 = false;
         exitCode = 0;
@@ -36,11 +37,7 @@ namespace krkr::launch {
             std::vector<std::string> arguments;
             for(int i = 1; i < argc; ++i)
                 arguments.emplace_back(argv[i]);
-#if KRKR2_SDL3_ONLY
-            auto options = Parse(arguments, DesktopHost::SDL3);
-#else
             auto options = Parse(arguments);
-#endif
 #if KRKR2_SDL3_ONLY
             if(options.host != DesktopHost::SDL3)
                 throw std::invalid_argument(
@@ -65,7 +62,9 @@ namespace krkr::launch {
                 if(!options.game)
                     throw std::invalid_argument(
                         "--host=sdl3 requires --game PATH");
+#if !KRKR2_SDL3_ONLY
                 options.settings.try_emplace("renderer", "software");
+#endif
 #else
                 throw std::invalid_argument(
                     "SDL3 host is unavailable in this build");
@@ -77,6 +76,8 @@ namespace krkr::launch {
                 return exitCode;
             }
             target = ResolveTarget(*options.game).generic_u8string();
+            if(prepareHost)
+                prepareHost(options.host);
             for(const auto &option : options.engineOptions)
                 TVPSetCommandLine(ttstr(option.name).c_str(),
                                   ttstr(option.value));

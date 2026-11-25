@@ -1,3 +1,7 @@
+#if KRKR2_ENABLE_SDL3_HOST
+#include "sdl3/SdlHost.h"
+#include "sdl3/NativeDialogs.h"
+#endif
 #include "InGameMenuForm.h"
 #include "cocos2d/MainScene.h"
 #include "ui/UIButton.h"
@@ -114,6 +118,12 @@ TVPInGameMenuForm::createMenuItem(int idx, tTJSNI_MenuItem *item,
 }
 
 void TVPShowPopMenu(tTJSNI_MenuItem *menu) {
+#if KRKR2_ENABLE_SDL3_HOST
+    if(krkr::sdl::Active()) {
+        krkr::sdl::ShowPopupMenu(menu);
+        return;
+    }
+#endif
     TVPMainScene::GetInstance()->pushUIForm(
         TVPInGameMenuForm::create(std::string(), menu));
 }

@@ -89,6 +89,7 @@ def run(engine, output):
 
             try:
                 event("ready")
+                event("platform:Linux:Linux")
                 window = wait(lambda: x11.process_window(process.pid), "mapped SDL3 window")
                 attrs = WindowAttributes()
                 assert x11.library.XGetWindowAttributes(x11.display, window, ctypes.byref(attrs))

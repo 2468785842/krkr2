@@ -2584,7 +2584,11 @@ bool tTJSNI_WaveSoundBuffer::FillBuffer(bool firstwrite, bool allowpause) {
         return true;
     if(!BufferPlaying)
         return true;
-    if(!TVPPrimarySoundBufferPlaying)
+    // StartPlay primes the queue synchronously (allowpause=false). The
+    // worker may not yet have acknowledged primary-buffer startup; skipping
+    // this prefill would call OpenAL Play with an empty queue and never start
+    // the first sound. Periodic worker fills still respect primary pause.
+    if(allowpause && !TVPPrimarySoundBufferPlaying)
         return true;
 
     // check paused state

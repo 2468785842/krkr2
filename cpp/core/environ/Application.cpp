@@ -9,6 +9,7 @@
 #include "tjsDebug.h"
 
 #include "Application.h"
+#include "ConsoleOutput.h"
 #include "HostLifecycle.h"
 #include "HostFrame.h"
 #include "SysInitIntf.h"
@@ -457,9 +458,8 @@ void tTVPApplication::CloseConsole() {
 	}
 #endif
 }
-void TVPConsoleLog(const ttstr &mes, bool important);
 void tTVPApplication::PrintConsole(const ttstr &mes, bool important) {
-    TVPConsoleLog(mes, important);
+    krkr::host::DeliverConsoleLine(mes, important);
 }
 #if 0
 HWND tTVPApplication::GetHandle() {

@@ -9,13 +9,14 @@
 
 `ScopedReader` 在宿主线程安装、恢复读取器。其他线程取得的 shared_ptr 保持读取器存活，
 每次查询使用一个完整的读取器快照。
-Linux SDL3 正式宿主安装 `SDL_GetBasePath()/Resources` 为唯一资源根，
-对应现有 Linux 应用的资源打包位置及 SDL3 启动时旧 FileUtils 的默认根。
-作用域覆盖脚本启动、主循环和引擎清理。
+Linux SDL3 入口在 CLI 解析完成后、XP3 校验前，通过 `ConfigManager/LocalHostServices.*`
+同时安装本地资源和设置存储。资源根为 `/proc/self/exe` 指向的实际程序所在目录下的
+`Resources`，对应现有 Linux 应用的资源打包位置。
+作用域覆盖归档校验、脚本启动、主循环和引擎清理；SDL3 分支不再构造 Cocos AppDelegate。
 
 `TVPHostFileExists` / `TVPReadPackagedAsset` 定义在通用模块的 `resources/HostAssets.cpp`。
 Cocos AppDelegate 在构造时安装 `CocosPackagedAsset.cpp` 的提供器，保留原有文件搜索与移动端打包资源访问。
-SDL3 在运行作用域内替换为本地读取器，结束后恢复原提供器。
+SDL3 入口直接安装本地提供器，结束后恢复原提供器；服务构造中途失败也恢复此前的资源提供器。
 未初始化提供器属于宿主接线错误，入口抛出 logic_error，不返回伪造的空资源。
 通用资源库可以独立链接，完整应用组合根仍依赖 Cocos。
 
@@ -33,8 +34,8 @@ SDL3 在运行作用域内替换为本地读取器，结束后恢复原提供器
 `TVPGetInternalPreferencePath` 由存储提供器提供，调用方使用返回引用时必须保持宿主作用域有效。
 Cocos 适配器保留原 FileUtils 路径、目录创建、平台写入（包括 Android 权限路径）及本地化失败提示。
 桌面入口在 CLI/XP3 目标校验之前安装存储提供器；移动端由 AppDelegate 构造安装。
-工厂只创建提供器，路径和目录在实际查询时初始化，帮助/参数错误路径无需创建窗口。
-Linux SDL3 安装标准库本地存储，设置目录保持
+Cocos 工厂只创建提供器，路径和目录在实际查询时初始化；Linux SDL3 在有效目标解析后创建
+标准库本地存储，帮助、列举设置和目标解析失败不创建本地设置目录。设置目录保持
 `$XDG_CONFIG_HOME/<实际可执行文件名>/.preference/`，未设置 XDG 时使用
 `$HOME/.config/<实际可执行文件名>/.preference/`，不迁移用户文件。
 显式为空的 XDG 仍沿用旧路径规则；两个环境变量均缺失时报错，不写入当前目录。
@@ -72,10 +73,15 @@ ctest --test-dir out/config-tests --output-on-failure --no-tests=error
 
 该范围选择 vcpkg 的 config/tests features，只配置 LibXml2、Catch2 及其依赖，
 不配置 TJS、Cocos、SDL、图像或媒体模块。实际登记 5 项 XML、5 项资源、5 项真实管理器/存储
-和 5 项语言回退测试，共 20 项；编译 11 个源文件。语言测试使用真实全局配置管理器，
+和 5 项语言回退测试，另有 2 项 native 服务作用域与构造失败恢复测试，共 22 项；
+编译 12 个源文件。语言测试使用真实全局配置管理器，
 仅替换宿主存储与资源提供器。
 `.github/workflows/headless-tests.yml` 的 config job 在三平台检查注册数量、源码清单及安装闭包。
 
 full 范围额外登记 `config_xml_legacy_tests`，用原 tinyxml2 比较自带语言文件和新写出的设置 XML，
 并对照原 Cocos 服务读取字体/语言文件的实际字节。
 这些用例不创建游戏窗口；它们不能替代 Linux SDL3 完整运行、移动端权限写入或游戏兼容验收。
+
+共享配置默认值通过 `common/TVPPlatform.h` 的 `TVP_PLATFORM_IOS` / `TVP_PLATFORM_ANDROID`
+选择平台行为，不再要求预先包含 Cocos 平台头。完整应用的构建与链接仍依赖 Cocos，
+此处的 native 服务验收不表示整个运行时依赖已移除。

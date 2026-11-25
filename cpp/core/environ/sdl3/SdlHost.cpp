@@ -1,5 +1,8 @@
 #include "SdlHost.h"
 #include "SdlGamepads.h"
+#if defined(__linux__)
+#include "NativeDialogs.h"
+#endif
 #include "resources/LocalAssetReader.h"
 
 #include <SDL3/SDL.h>
@@ -1607,6 +1610,9 @@ namespace krkr::sdl {
         Session *session = nullptr;
 
         void PumpFrame() {
+#if defined(__linux__)
+            PumpNativeDialogs();
+#endif
             auto &windows = session->windows;
 #if KRKR2_ENABLE_UI_TEST_DRIVER
             if(!session->gamepadContractRequest.empty())
@@ -1733,40 +1739,27 @@ namespace krkr::sdl {
             std::move(onFrame));
     }
 
+    void ReportPreferenceWriteFailure() {
+        auto *locale = LocaleConfigManager::GetInstance();
+        if(!SDL_ShowSimpleMessageBox(
+               SDL_MESSAGEBOX_ERROR,
+               locale->GetText("readonly_storage").c_str(),
+               locale->GetText("cannot_create_preference").c_str(), nullptr)) {
+            std::fprintf(stderr, "krkr2: cannot save preferences (%s)\n",
+                         SDL_GetError());
+        }
+    }
+
     int Run(const std::string &game) {
         int result = 1;
         try {
             Session host;
-            const auto *basePath = SDL_GetBasePath();
-            if(!basePath)
-                throw std::runtime_error(SDL_GetError());
-            krkr::assets::ScopedReader resources(
-                std::make_shared<krkr::assets::LocalAssetReader>(
-                    std::vector<std::filesystem::path>{
-                        std::filesystem::u8path(basePath) / "Resources" }));
-#if defined(_WIN32)
-            InstallPreferences();
-#else
-            const auto environment =
-                [](const char *key) -> std::optional<std::string> {
-                const auto *value = std::getenv(key);
-                return value ? std::optional<std::string>(value) : std::nullopt;
-            };
-            krkr::config::ScopedPreferenceStorage preferences(
-                std::make_shared<krkr::config::LocalPreferenceStorage>(
-                    krkr::config::LinuxWritableDirectory(
-                        std::filesystem::read_symlink("/proc/self/exe")
-                            .u8string(),
-                        environment("XDG_CONFIG_HOME"), environment("HOME")),
-                    [] {
-                        auto *locale = LocaleConfigManager::GetInstance();
-                        SDL_ShowSimpleMessageBox(
-                            SDL_MESSAGEBOX_ERROR,
-                            locale->GetText("readonly_storage").c_str(),
-                            locale->GetText("cannot_create_preference").c_str(),
-                            nullptr);
-                    }));
-#endif
+            // The desktop entry installs native providers before CLI archive
+            // validation. Keep that same scope for configuration and cleanup.
+            if(!krkr::assets::CurrentReader())
+                throw std::logic_error(
+                    "SDL3 host resources are not initialized");
+            krkr::config::RequirePreferenceStorage();
             session = &host;
             try {
                 TVPMainThreadID = std::this_thread::get_id();
@@ -1811,6 +1804,9 @@ namespace krkr::sdl {
                 std::fprintf(stderr, "krkr2: %s\n", error.what());
             }
             // Invalidate engine windows before destroying their host forms.
+#if defined(__linux__)
+            CloseNativeDialogs();
+#endif
             TVPSystemUninit();
         } catch(const std::exception &error) {
             std::fprintf(stderr, "krkr2: %s\n", error.what());

@@ -432,10 +432,10 @@ jobs:
               'ConfigXml.cpp', 'LocalAssetReader.cpp', 'HostAssets.cpp', 'ConfigXmlTest.cpp',
               'LocalAssetReaderTest.cpp', 'LocaleConfigTest.cpp', 'LocaleConfigManager.cpp',
               'PreferenceStorage.cpp', 'GlobalConfigManager.cpp', 'IndividualConfigManager.cpp',
-              'ConfigManagerTest.cpp'])
+              'ConfigManagerTest.cpp', 'LocalHostServices.cpp'])
           tests = json.loads(subprocess.check_output(['ctest', '--test-dir', str(root), '--show-only=json-v1']))
-          assert len(tests['tests']) == 20, tests['tests']
-          print('Configuration contracts: 20 tests; closure verified:', sorted(ports))
+          assert len(tests['tests']) == 22, tests['tests']
+          print('Configuration contracts: 22 tests; closure verified:', sorted(ports))
           PY
       - uses: actions/upload-artifact@v4
         if: always()

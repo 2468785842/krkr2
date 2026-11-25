@@ -1469,6 +1469,10 @@ static_assert(krkr::input::key::rightMouse == VK_RBUTTON);
 static_assert(krkr::input::key::middleMouse == VK_MBUTTON);
 
 ttstr TVPGetPlatformName() {
+#if KRKR2_ENABLE_SDL3_HOST
+    if(krkr::sdl::Active())
+        return "Linux";
+#endif
     switch(cocos2d::Application::getInstance()->getTargetPlatform()) {
         case ApplicationProtocol::Platform::OS_WINDOWS:
             return "Win32";

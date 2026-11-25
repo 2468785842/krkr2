@@ -14,6 +14,9 @@ KrKr2 模拟器是一款跨平台的模拟器，旨在运行使用吉里吉里�
 
 开发与 AI 协作入口：[开发约定](AGENTS.md) · [文档索引](docs/README.md) · [当前架构](docs/architecture.md) · [构建与验证](docs/guides/building.md) · [后端精简路线](.agents/notes/proposed/architecture/2026-11-03-backend-modernization.md)。
 
+Linux 可使用 `Linux SDL3 Config` 构建完全不依赖 Cocos 的应用，包含原生菜单/对话框与软件画面呈现。
+构建、FFmpeg 依赖安装及验证见[Linux 无 Cocos 运行时](docs/subsystems/native-runtime.md)。
+
 ## 目录
 
 - [KrKr2 模拟器](#krkr2-模拟器)

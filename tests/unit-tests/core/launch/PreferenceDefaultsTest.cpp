@@ -55,6 +55,20 @@ TEST_CASE("runtime defaults initialize all modes and remain idempotent",
     TVPApplyRuntimePreferenceDefaults(config, false);
     REQUIRE(config.IsValueExist("software_draw_thread"));
     REQUIRE(config.IsValueExist("ogl_compress_tex"));
+#ifdef TVP_PLATFORM_IOS
+    REQUIRE(std::get<std::string>(config.values.at("memusage")) == "high");
+    REQUIRE(
+        std::get<bool>(config.values.at("GL_EXT_shader_framebuffer_fetch")));
+#else
+    REQUIRE(std::get<std::string>(config.values.at("memusage")) == "unlimited");
+    REQUIRE_FALSE(
+        std::get<bool>(config.values.at("GL_EXT_shader_framebuffer_fetch")));
+#endif
+#ifdef TVP_PLATFORM_ANDROID
+    REQUIRE_FALSE(std::get<bool>(config.values.at("hide_android_sys_btn")));
+#else
+    REQUIRE_FALSE(config.IsValueExist("hide_android_sys_btn"));
+#endif
     auto first = config.values;
     TVPApplyRuntimePreferenceDefaults(config, false);
     REQUIRE(config.values == first);

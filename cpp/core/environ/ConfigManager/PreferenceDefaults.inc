@@ -5,7 +5,7 @@ TVP_STRING_DEFAULT(fps_limit, "60")
 TVP_STRING_DEFAULT(renderer, "software")
 TVP_STRING_DEFAULT(default_font, "")
 TVP_BOOL_DEFAULT(force_default_font, false)
-#ifdef CC_TARGET_OS_IPHONE
+#ifdef TVP_PLATFORM_IOS
 TVP_STRING_DEFAULT(memusage, "high")
 #else
 TVP_STRING_DEFAULT(memusage, "unlimited")
@@ -14,12 +14,12 @@ TVP_BOOL_DEFAULT(keep_screen_alive, true)
 TVP_FLOAT_DEFAULT(vcursor_scale, 0.5f)
 TVP_FLOAT_DEFAULT(menu_handler_opa, 0.15f)
 TVP_BOOL_DEFAULT(remember_last_path, true)
-#if defined(CC_TARGET_PLATFORM) && CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#if defined(TVP_PLATFORM_ANDROID)
 TVP_BOOL_DEFAULT(hide_android_sys_btn, false)
 #endif
 TVP_STRING_DEFAULT(software_draw_thread, "0")
 TVP_STRING_DEFAULT(software_compress_tex, "none")
-#ifdef CC_TARGET_OS_IPHONE
+#ifdef TVP_PLATFORM_IOS
 TVP_BOOL_DEFAULT(GL_EXT_shader_framebuffer_fetch, true)
 #else
 TVP_BOOL_DEFAULT(GL_EXT_shader_framebuffer_fetch, false)

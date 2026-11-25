@@ -1,0 +1,183 @@
+name: SDL3 native runtimes
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'cpp/**'
+      - 'platforms/**'
+      - 'cmake/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - 'vcpkg.json'
+      - 'vcpkg/**'
+      - 'scripts/check_native_runtime.py'
+      - 'scripts/package_native_runtime.py'
+      - 'assets/**'
+      - 'vcpkg-configuration.json'
+      - 'tools/game-smoke/**'
+      - 'tests/**'
+      - '.github/workflows/cocos-free-linux.yml'
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/out/vcpkg-tool
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      ALSOFT_DRIVERS: 'null'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build and desktop dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ninja-build gcc g++ python3 python3-pil \
+            perl bison yasm autoconf autoconf-archive automake libtool pkg-config gettext gperf \
+            libx11-dev libxext-dev libxft-dev libxmu-dev libxi-dev libxxf86vm-dev libxtst-dev \
+            libxcursor-dev libxfixes-dev libxrender-dev libxss-dev libxrandr-dev libxkbcommon-dev \
+            libdbus-1-dev libibus-1.0-dev libwayland-dev wayland-protocols libdecor-0-dev \
+            libegl1-mesa-dev libglu1-mesa-dev libgtk-3-dev libfontconfig1-dev libltdl-dev \
+            xvfb xauth openbox wmctrl xdotool ffmpeg curl zip unzip
+      - uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.31.1
+      - name: Prepare fixed vcpkg and release triplet
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
+          git -C "$VCPKG_ROOT" checkout aa40adda5352e87655b8583cfb2451d5e9e276fd
+          "$VCPKG_ROOT/bootstrap-vcpkg.sh" -disableMetrics
+          mkdir -p out/triplets
+          cp "$VCPKG_ROOT/triplets/x64-linux.cmake" out/triplets/
+          echo 'set(VCPKG_BUILD_TYPE release)' >> out/triplets/x64-linux.cmake
+      - name: Restore verified source downloads
+        uses: actions/cache@v4
+        with:
+          path: out/vcpkg-tool/downloads
+          key: native-sources-${{ runner.os }}-aa40adda-${{ hashFiles('vcpkg/ports/**') }}
+      - name: Prefetch GNU tools from stable HTTPS mirror
+        run: |
+          mkdir -p "$VCPKG_ROOT/downloads"
+          curl --fail --silent --show-error --location --retry 3 --connect-timeout 15 --max-time 180 \
+            https://mirrors.kernel.org/gnu/gperf/gperf-3.3.tar.gz -o "$VCPKG_ROOT/downloads/gperf-3.3.tar.gz"
+          curl --fail --silent --show-error --location --retry 3 --connect-timeout 15 --max-time 180 \
+            https://mirrors.kernel.org/gnu/gettext/gettext-0.22.5.tar.gz -o "$VCPKG_ROOT/downloads/gettext-0.22.5.tar.gz"
+          cd "$VCPKG_ROOT/downloads"
+          echo '246b75b8ce7d77d6a8725cd15f1cf2e68da404812573af1d5bf32dbe6ad4228f48757baefc77bcb1f5597c2397043c04d31d8a04ab507bfa7a80f85e1ab6045f  gperf-3.3.tar.gz' | sha512sum -c -
+          echo 'd8b22d7fba10052a2045f477f0a5b684d932513bdb3b295c22fbd9dfc2a9d8fccd9aefd90692136c62897149aa2f7d1145ce6618aa1f0be787cb88eba5bc09be  gettext-0.22.5.tar.gz' | sha512sum -c -
+      - name: Configure from an empty SDK and build ordinary application
+        run: |
+          cmake --preset 'Linux SDL3 Config' \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_INSTALLED_DIR="$PWD/out/native-sdk" \
+            -DVCPKG_OVERLAY_TRIPLETS="$PWD/out/triplets" \
+            -DVCPKG_INSTALL_OPTIONS=--clean-after-build
+          cmake --build out/linux/sdl3 --parallel 2
+      - name: Verify dependency closure, unit and script contracts
+        run: |
+          python3 scripts/check_native_runtime.py out/linux/sdl3
+          ctest --test-dir out/linux/sdl3 -N
+          xvfb-run -a ctest --test-dir out/linux/sdl3 --output-on-failure --no-tests=error
+          python3 tools/game-smoke/cli_smoke.py out/linux/sdl3/bin/krkr2/krkr2 --host=sdl3
+      - name: Verify native windows, dialogs and software rendering
+        run: |
+          engine=out/linux/sdl3/bin/krkr2/krkr2
+          xvfb-run -a python3 tools/game-smoke/sdl_host_repro.py "$engine" out/native-evidence/host
+          xvfb-run -a -s '-screen 0 1280x800x24' python3 tools/game-smoke/sdl_dialog_repro.py "$engine" out/native-evidence/dialogs
+          xvfb-run -a python3 tools/game-smoke/imageops_repro.py "$engine" out/native-evidence/imageops --renderer software
+      - name: Package audited Release runtime
+        run: python3 scripts/package_native_runtime.py out/linux/sdl3 out/native-packages
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-sdl3-release
+          path: out/native-packages/**
+      - name: Verify KAG save/load and audio/video
+        run: |
+          mkdir -p out/kag3
+          curl --fail --silent --show-error --location --retry 3 \
+            https://codeload.github.com/krkrz/kag3/tar.gz/1f3ab309106d210e3169bbbe0fb4e066ae463b42 \
+            | tar -xz -C out/kag3 --strip-components=1
+          engine=out/linux/sdl3/bin/krkr2/krkr2
+          xvfb-run -a -s '-screen 0 1600x1050x24' python3 tools/game-smoke/sdl_desktop_repro.py kag "$engine" out/native-evidence/kag --kag-framework out/kag3
+          xvfb-run -a -s '-screen 0 1600x1050x24' python3 tools/game-smoke/sdl_media_repro.py "$engine" out/native-evidence/media out/kag3
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cocos-free-linux-evidence
+          path: |
+            out/native-evidence/**
+            out/linux/sdl3/Testing/Temporary/**
+            out/linux/sdl3/script-smoke/**
+
+  windows:
+    runs-on: windows-2022
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/out/vcpkg-tool
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64
+      - name: Restore repository-local vcpkg path after MSVC setup
+        shell: pwsh
+        run: |
+          $nativeVcpkgRoot = "${{ github.workspace }}/out/vcpkg-tool" -replace '\\', '/'
+          "VCPKG_ROOT=$nativeVcpkgRoot" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+      - uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.31.1
+      - name: Install build and probe dependencies
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://github.com/lexxmark/winflexbison/releases/download/v2.5.25/win_flex_bison-2.5.25.zip -OutFile "$env:TEMP/winflexbison.zip"
+          Expand-Archive "$env:TEMP/winflexbison.zip" "$env:TEMP/winflexbison"
+          "$env:TEMP/winflexbison" | Out-File -Append -Encoding utf8 $env:GITHUB_PATH
+          python -m pip install pillow
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Prepare fixed vcpkg
+        shell: pwsh
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git "$env:VCPKG_ROOT"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git -C "$env:VCPKG_ROOT" checkout aa40adda5352e87655b8583cfb2451d5e9e276fd
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & "$env:VCPKG_ROOT/bootstrap-vcpkg.bat" -disableMetrics
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          New-Item -ItemType Directory -Force out/triplets | Out-Null
+          Copy-Item "$env:VCPKG_ROOT/triplets/x64-windows-static-md.cmake" out/triplets/
+          Add-Content out/triplets/x64-windows-static-md.cmake 'set(VCPKG_BUILD_TYPE release)'
+      - name: Configure and build independent Release application
+        shell: pwsh
+        run: |
+          cmake --preset 'Windows SDL3 Release Config' "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" "-DVCPKG_OVERLAY_TRIPLETS=$env:GITHUB_WORKSPACE/out/triplets" -DVCPKG_INSTALL_OPTIONS=--clean-after-build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build --preset 'Windows SDL3 Release Build' --parallel 4
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify dependency closure and contracts
+        shell: pwsh
+        run: |
+          python scripts/check_native_runtime.py out/windows/sdl3-release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ctest --test-dir out/windows/sdl3-release -N
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ctest --test-dir out/windows/sdl3-release --output-on-failure --no-tests=error
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tools/game-smoke/cli_smoke.py out/windows/sdl3-release/bin/krkr2/krkr2.exe --host=sdl3
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify native Windows interaction
+        shell: pwsh
+        run: |
+          python tools/game-smoke/sdl_windows_repro.py out/windows/sdl3-release/bin/krkr2/krkr2.exe out/native-evidence/windows
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Package audited Release runtime
+        shell: pwsh
+        run: |
+          python scripts/package_native_runtime.py out/windows/sdl3-release out/native-packages
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-sdl3-release
+          path: |
+            out/native-packages/**
+            out/native-evidence/**
+            out/windows/sdl3-release/Testing/Temporary/**

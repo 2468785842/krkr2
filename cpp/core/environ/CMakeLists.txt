@@ -70,8 +70,14 @@ if(KRKR2_SDL3_ONLY)
 endif()
 
 if(KRKR2_ENABLE_SDL3_HOST)
+    list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/sdl3/NativeServices.cpp)
     if(WINDOWS)
         list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/sdl3/SdlServices.cpp)
+    elseif(LINUX)
+        list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/sdl3/NativeDialogs.cpp)
+        if(KRKR2_SDL3_ONLY)
+            list(APPEND ENVIRON_SOURCE_FILES ${ENVIRON_PATH}/sdl3/NativeHost.cpp)
+        endif()
     endif()
     list(APPEND ENVIRON_SOURCE_FILES
         ${ENVIRON_PATH}/sdl3/SdlHost.cpp
@@ -105,6 +111,9 @@ set(ENVIRON_HEADERS_DIR
     ${ENVIRON_PATH}/impl
     $<$<BOOL:${ANDROID}>:${ENVIRON_PATH}/android>
 )
+if(KRKR2_SDL3_ONLY)
+    set(ENVIRON_HEADERS_DIR ${ENVIRON_PATH}/ ${ENVIRON_PATH}/impl)
+endif()
 
 if(ANDROID OR IOS)
     list(APPEND ENVIRON_SOURCE_FILES
@@ -143,6 +152,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 
 if(KRKR2_ENABLE_SDL3_HOST)
     find_package(SDL3 3.4 CONFIG REQUIRED)
+    if(LINUX)
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(NATIVE_GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
+        target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::NATIVE_GTK)
+    endif()
     target_compile_definitions(${PROJECT_NAME} PRIVATE KRKR2_ENABLE_SDL3_HOST=1)
     target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 endif()

@@ -2,7 +2,7 @@
 
 `KRKR2_SDL3_ONLY=ON` 使用正式 TJS2/KAG、Window/Layer、归档、插件和音视频实现，
 由 SDL3 创建窗口、处理输入并呈现软件合成画面。此配置不查找、编译、链接或安装 Cocos。
-它与仍保留 Cocos 的 Linux 双宿主配置分开；其他平台尚未启用独立模式。
+Linux 已使用同一开关提供[独立宿主](native-runtime.md)，同时保留可选双宿主配置；macOS/Android 尚未启用独立模式。
 
 ## 构建和运行
 
@@ -33,7 +33,8 @@ CMake 在配置前选择 `engine`、`sdl3-prototype` 等 manifest features；Coc
 
 - `platforms/windows/main.cpp`：UTF-16 命令行转 UTF-8，直接进入 SDL3；不构造 Cocos delegate。
 - `cpp/core/environ/sdl3/SdlHost.cpp`：生产窗口、事件、帧循环、视频呈现和最终画面截图。
-- `cpp/core/environ/sdl3/SdlServices.cpp`：Windows 配置路径、原生文件对话框、弹出菜单、日志、文件复制与 URL。
+- `cpp/core/environ/sdl3/NativeServices.cpp`：两平台共享的资源/配置安装、文件复制、URL、窗口和截图接线。
+- `cpp/core/environ/sdl3/SdlServices.cpp`：Windows 原生文件对话框、弹出菜单及调试器日志。
 - `cpp/core/environ/win32/Platform.cpp`：Windows 系统服务；独立模式通过 SDL3 原生消息框保留自定义按钮文本和返回索引。
 - `cpp/core/visual/PVRTCDecoder.cpp`：独立保留原来的 2/4 bpp 解码算法，来源和许可位于
   `assets/licenses/PVRTCDecoder.txt`；软件模式没有删掉压缩图像读取能力。
@@ -60,4 +61,6 @@ python tools/game-smoke/sdl_windows_repro.py out/windows/sdl3-debug/bin/krkr2/kr
 `out/`，本轮构建身份、游戏步骤与限制见
 [Windows SDL3 实施记录](../../.agents/notes/implemented/testing/2026-11-24-windows-sdl3-independent.md)。
 
-Windows 音视频播放同步、完整剧情、物理高 DPI/IME/手柄及其他平台独立构建仍需专项验收。
+Windows 音视频播放同步、完整剧情、物理高 DPI/IME/手柄仍需专项验收。
+Release 构建使用 `Windows SDL3 Release Config/Build`；打包命令为
+`python scripts/package_native_runtime.py out/windows/sdl3-release out/native-packages`，系统动态库要求见包内清单。

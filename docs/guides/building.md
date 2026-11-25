@@ -11,6 +11,7 @@
 |---|---|---|---|
 | Windows | `Windows Debug Config` | `Windows Debug Build` | `out/windows/debug` |
 | Linux | `Linux Debug Config` | `Linux Debug Build` | `out/linux/debug` |
+| Linux 无 Cocos | `Linux SDL3 Config` | `cmake --build out/linux/sdl3` | `out/linux/sdl3` |
 | macOS | `MacOS Debug Config` | `MacOS Debug Build` | `out/macos/debug` |
 
 ```sh
@@ -22,18 +23,25 @@ ctest --test-dir out/windows/debug --output-on-failure --no-tests=error
 ```
 
 其他桌面平台替换表中的名字和目录。Release 预设将 Debug 替换为 Release。
+Linux 完全独立于 Cocos 的应用使用 `Linux SDL3 Config`，详见
+[无 Cocos 运行时](../subsystems/native-runtime.md)，其中包含系统依赖、FFmpeg 安装和实际运行验收。
 根开关为 `KRKR2_BUILD_APP`、`ENABLE_TESTS`、`BUILD_TOOLS`，默认均开启。CMake 在 `project()` 前按开关选择 vcpkg 的 foundation/engine/tests/tools/imageops 等 features；关闭测试不会再因根直接依赖而安装 Catch2。默认 full 测试仍依赖完整引擎；strings 范围可独立构建。
 选择目标可用 `cmake --build --preset "Windows Debug Build" --target xp3`；仅选择目标不会缩小根配置范围。
 
-`KRKR2_TEST_SCOPE=config` 可单独构建配置管理器/存储、XML、语言回退和本地资源读取的 20 项测试，
+`KRKR2_TEST_SCOPE=config` 可单独构建配置管理器/存储、XML、语言回退和本地资源读取的 22 项测试，
 只选择 LibXml2/Catch2 依赖，不查找 Cocos 或 TJS。完整命令及 full 的旧格式对照见
 [宿主资源与配置 XML](../subsystems/host-resources.md#独立验证)。
 
-## Windows SDL3 独立应用
+Windows 无 Cocos 应用使用 `Windows SDL3 Debug Config/Build` 或
+`Windows SDL3 Release Config/Build`；原生交互、真实游戏验收和打包见
+[Windows SDL3 独立宿主](../subsystems/windows-sdl3.md)。两平台统一使用 `KRKR2_SDL3_ONLY=ON`。
 
-使用 `Windows SDL3 Debug Config/Build` 预设，在全新目录安装不含 Cocos 的引擎依赖，
-构建生产应用与定向测试。运行默认进入 SDL3；命令、原生交互工具和验收边界见
-[Windows SDL3 独立宿主](../subsystems/windows-sdl3.md)。
+若全新环境报 `find_package(FFMPEG)` 找不到包，先检查是否设置了 `VCPKG_ROOT` 或显式指定
+`CMAKE_TOOLCHAIN_FILE`，并保持 `VCPKG_MANIFEST_INSTALL=ON`（默认）。未接入 vcpkg 时，
+CMake 只查找依赖，不会根据本仓库清单自动安装。仅安装 `ffmpeg` 命令行程序也不能提供所需开发包。
+本项目使用 `vcpkg/ports/ffmpeg` 中的 FFmpeg 3.3.9 与配套补丁/查找模块，应按清单构建，
+不要直接替换为系统最新版的头文件和库。Linux 还需要 Yasm、Bison、Autoconf/Automake、
+Libtool 和窗口系统开发文件；系统依赖清单以 `.github/workflows/build-linux.yml` 为准。
 
 ## 仅构建 XP3 解包工具
 

@@ -80,7 +80,11 @@ TEST_CASE("desktop engine options preserve values and order", "[launch]") {
 }
 
 TEST_CASE("desktop launch selects SDL3 explicitly", "[launch]") {
+#if KRKR2_SDL3_ONLY
+    REQUIRE(Parse({ "--game", "demo" }).host == DesktopHost::SDL3);
+#else
     REQUIRE(Parse({ "--game", "demo" }).host == DesktopHost::Cocos);
+#endif
     REQUIRE(Parse({ "--host=cocos", "demo" }).host == DesktopHost::Cocos);
     const auto sdl = Parse({ "--game", "demo", "--host=sdl3" });
     REQUIRE(sdl.host == DesktopHost::SDL3);
@@ -97,8 +101,8 @@ TEST_CASE("desktop launch selects SDL3 explicitly", "[launch]") {
 TEST_CASE("desktop settings are validated separately from script arguments",
           "[launch][preferences]") {
     const auto options = Parse(
-        { "--set", "renderer=software", "--set=renderer=opengl", "--set",
-          "default_font=字体=a.ttf", "--set=showfps=1",
+        { "--host=cocos", "--set", "renderer=software", "--set=renderer=opengl",
+          "--set", "default_font=字体=a.ttf", "--set=showfps=1",
           "--set=menu_handler_opa=0.25", "game", "--", "-renderer=legacy" });
     REQUIRE(options.settings.at("renderer") == "opengl");
     REQUIRE(options.settings.at("default_font") == "字体=a.ttf");
