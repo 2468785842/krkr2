@@ -83,3 +83,26 @@ Windows SDL3 job `139114273052` 已完成构建，但新 XAR 契约测试在 19 
 `INFO(archive_error_string(...))`；无错误时该接口可返回 nullptr，将其作为 C 字符串输出是未定义行为。
 修复为显式打印结果码和非空诊断字符串，不删除 XAR 读取/内容检查、不关闭该平台测试。
 Linux 原生 SDK 没有进入 XAR 成功分支；需要 Windows 新头部 CI 验证，不能仅以 Linux 通过宣称已解决。
+
+## PR #63 复查与跨平台回归
+
+2026-11-25 复查源提交 `a8e774404dd95d3152ba4ad04fcc5f6a95abf425`：
+四组工作流均成功，无未解决的审查线程。原生运行时工作流
+[`45593697575`](https://github.com/2468785842/krkr2/actions/runs/45593697575)
+的 Linux job `139134133185` 实际执行 121/121 项 CTest，Windows job
+`139134133561` 执行 68/68 项；两平台依赖守卫、SDK 审计、15 项 CLI、
+原生交互及发布打包均通过。Windows 包含 XAR 成功读取/内容检查，确认此前空诊断崩溃修复。
+无头基础工作流 `45593697225`、Android 输入 `45593697625` 和常规 CI
+`45593697783` 均成功；常规 CI 的可选 Android runtime-contracts job 为 skipped，
+不能据此声称执行了该项。
+
+本轮发现 Windows 工作流新增审计命令后，原有 native 守卫的退出码可能被下一条
+Python 命令覆盖。补上守卫后的即时 `$LASTEXITCODE -ne 0` 检查，使依赖闭包失败
+直接终止步骤；不改变生产代码、测试范围或归档平台能力。
+
+本轮本机 `python -m unittest discover -s scripts/tests -v` 为 8/8 通过，
+`python scripts/check_core_module_deps.py` 通过，`git diff --check` 通过。
+用 PyYAML 解析工作流并检查 Windows 验证步骤的每条外部命令均紧跟退出码判断。
+本环境 `cmake --version` 返回 `cmake: command not found`，且没有 Catch2/已配置 SDK，
+未在本机重新构建 C++；上述跨平台执行证据来自精确源提交的 CI 日志。
+本轮退出码检查补丁的 CI 结果需按推送后新提交另行确认，不沿用旧提交的绿灯。

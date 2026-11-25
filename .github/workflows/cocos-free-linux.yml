@@ -158,6 +158,7 @@ jobs:
         shell: pwsh
         run: |
           python scripts/check_native_runtime.py out/windows/sdl3-release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python scripts/audit_dependencies.py out/windows/sdl3-release out/native-evidence/dependency-audit.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           ctest --test-dir out/windows/sdl3-release -N
