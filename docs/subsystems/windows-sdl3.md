@@ -25,7 +25,7 @@ out/windows/debug/bin/krkr2/krkr2.exe --game D:/games/example
 `KRKR2_TEST_SCOPE=platform` 可缩小测试范围；组件输入驱动默认关闭。
 Cocos 专属测试已删除。
 
-CMake 在配置前选择 `engine`、`sdl3-prototype` 等 manifest features；旧 `cocos`、`crash-upload` features 和端口已经删除。
+CMake 在配置前选择 `engine`、`sdl3` 等 manifest features；旧 `cocos`、`crash-upload` features 和端口已经删除。
 
 ## 平台服务
 

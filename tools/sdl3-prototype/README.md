@@ -11,7 +11,7 @@
 ## 构建
 
 设置 `VCPKG_ROOT` 并使用 MSVC x64 开发环境，PATH 中需有 win_bison。
-新构建目录独立选择 foundation 与 sdl3-prototype 依赖，不选择完整 engine feature：
+新构建目录独立选择 foundation 与 sdl3 依赖，不选择完整 engine feature：
 
 ```powershell
 cmake -S . -B out/sdl3-prototype/build -G Ninja -DWINDOWS=ON -DCMAKE_BUILD_TYPE=Debug -DKRKR2_BUILD_APP=OFF -DENABLE_TESTS=OFF -DBUILD_TOOLS=OFF -DKRKR2_BUILD_SDL3_PROTOTYPE=ON -DVCPKG_TARGET_TRIPLET=x64-windows-static-md

@@ -3,8 +3,8 @@
   "name": "krkr2",
   "version-string": "1.5.0",
   "features": {
-    "sdl3-prototype": {
-      "description": "SDL3 dependencies for the Windows/Linux runtime and desktop prototype",
+    "sdl3": {
+      "description": "SDL3 window and input dependencies",
       "dependencies": [
         {
           "name": "sdl3",

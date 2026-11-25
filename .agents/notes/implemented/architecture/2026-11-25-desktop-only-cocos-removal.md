@@ -140,6 +140,16 @@ ctest --test-dir out/windows/debug --output-on-failure --no-tests=error
 标准预设 exe SHA256：`2aec6552d8e517e9e95ca5860a68f979c9e75212a8f484b86fc893977fa21e2d`。
 原始记录为 `out/windows-debug-preset-*.log`；本节没有重新声称 Linux 本机运行或 Release 完整构建已验证。
 
+## SDL3 依赖 feature 正式命名
+
+按用户后续要求，删除 vcpkg 的 `sdl3-prototype` feature 名称，改为正式的 `sdl3` 依赖组。
+运行时与保留的独立工具共用同一依赖声明；Linux 的 dbus/libdecor feature 与平台条件保持不变。
+CMake 自动选择和当前文档同步更新；历史验证中的旧名称保留为当时证据。
+
+原样 `Windows Debug Config` 配置、`Windows Debug Build --parallel 2` 构建退出 0；
+资源/CLI 两项 CTest 通过，依赖检查仍为 374 个编译单元、109 个 SDK ports，通过且没有旧宿主。
+记录为 `out/sdl-feature-*-final.log`。本次只变更依赖组名称，未重跑游戏或声称 Linux 本机验收。
+
 ## 未验证范围
 
 Windows 删除和上述范围已经验收；没有声称所有平台或所有游戏已验证。
