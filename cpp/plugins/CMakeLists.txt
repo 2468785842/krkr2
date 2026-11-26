@@ -37,9 +37,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${KRKR2CORE_PATH}/sysinit/impl
     ${KRKR2CORE_PATH}/kag
     ${KRKR2CORE_PATH}/environ
-    ${KRKR2CORE_PATH}/environ/win32
-    ${KRKR2CORE_PATH}/environ/android
-    ${KRKR2CORE_PATH}/environ/sdl
     ${KRKR2CORE_PATH}/msg
     ${KRKR2CORE_PATH}/msg/win32
     ${KRKR2CORE_PATH}/extension

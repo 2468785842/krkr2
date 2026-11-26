@@ -1,5 +1,5 @@
 #include "tjsCommHead.h"
-#include "SdlHost.h"
+#include "NativeDialogs.h"
 #include "ConfigManager/PreferenceStorage.h"
 #include "ConfigManager/LocaleConfigManager.h"
 #include "WindowLayer.h"
@@ -109,3 +109,9 @@ void TVPShowPopMenu(tTJSNI_MenuItem *root) {
     if(selected && selected <= actions.size())
         actions[selected - 1]->OnClick();
 }
+
+namespace krkr::sdl {
+    // Win32 dialogs run synchronously and leave no pending dialog work.
+    void PumpNativeDialogs() {}
+    void CloseNativeDialogs() {}
+} // namespace krkr::sdl

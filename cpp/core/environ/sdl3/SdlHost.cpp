@@ -1,8 +1,6 @@
 #include "SdlHost.h"
 #include "SdlGamepads.h"
-#if defined(__linux__)
 #include "NativeDialogs.h"
-#endif
 #include "resources/LocalAssetReader.h"
 
 #include <SDL3/SDL.h>
@@ -1610,9 +1608,7 @@ namespace krkr::sdl {
         Session *session = nullptr;
 
         void PumpFrame() {
-#if defined(__linux__)
             PumpNativeDialogs();
-#endif
             auto &windows = session->windows;
 #if KRKR2_ENABLE_UI_TEST_DRIVER
             if(!session->gamepadContractRequest.empty())
@@ -1804,9 +1800,7 @@ namespace krkr::sdl {
                 std::fprintf(stderr, "krkr2: %s\n", error.what());
             }
             // Invalidate engine windows before destroying their host forms.
-#if defined(__linux__)
             CloseNativeDialogs();
-#endif
             TVPSystemUninit();
         } catch(const std::exception &error) {
             std::fprintf(stderr, "krkr2: %s\n", error.what());

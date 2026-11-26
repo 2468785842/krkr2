@@ -18,7 +18,7 @@ Windows/Linux 入口 → SDL3 宿主 / 原生菜单与对话框
 
 `platforms/windows/main.cpp` 和 `platforms/linux/sdl_main.cpp` 经
 `environ/launch/DesktopLaunch.cpp` 解析命令行，在归档校验前通过
-`environ/sdl3/NativeServices.cpp` 安装本地资源与配置服务，再进入 `SdlHost.cpp`。
+`environ/sdl3/<平台>/HostServices.cpp` 安装本地资源与配置服务，再进入 `SdlHost.cpp`。
 无目标时显示错误；`--help` 和 `--list-settings` 不创建游戏窗口。
 
 ## 模块与依赖

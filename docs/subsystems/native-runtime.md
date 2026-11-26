@@ -24,7 +24,7 @@ CI 显式设置 `BUILD_TOOLS=OFF`、`KRKR2_ENABLE_SCRIPT_SMOKE=ON` 运行普通�
 
 ## 宿主实现与边界
 
-- 启动入口 `platforms/linux/sdl_main.cpp` 经共享 `sdl3/NativeServices.cpp` 工厂，在归档校验之前安装本地资源和配置服务，
+- 启动入口 `platforms/linux/sdl_main.cpp` 经`sdl3/linux/HostServices.cpp` 工厂，在归档校验之前安装本地资源和配置服务，
   SDL3 宿主驱动生产帧循环、窗口、键盘、鼠标、文本输入和视频呈现。
 - Layer 使用软件渲染，经 SDL3 呈现。已有 `renderer=opengl` 设置回退到软件工厂；
   未知工厂名称继续报错。原 OpenGL 渲染器属于旧宿主，不在独立构建中注册。
@@ -78,3 +78,17 @@ CI 在 Ubuntu 24.04 和 Windows 2022 构建两份 Release 包，商业游戏素�
 首次音轨另有 `audio-first-buffer-runtime` 回归：测试专用预加载库延迟工作线程启动，
 通过真实 OpenAL PCM 验证首次播放不会因异步启动确认而丢失。辅助库不链接进生产程序或发布包，
 正常媒体探针继续要求 BGM、SE、视频三条音轨同时存在。
+
+## 平台实现布局
+
+`cpp/core/environ/Platform.h` 保留统一系统接口，系统实现位于
+`platform/windows/Platform.cpp` 和 `platform/linux/Platform.cpp`（均相对 `cpp/core/environ/`）。
+SDL 公共窗口、输入和呈现逻辑保留在 `sdl3/SdlHost.cpp`，公共接线保留在
+`sdl3/NativeServices.cpp`；平台目录 `sdl3/windows/`、`sdl3/linux/` 分别实现
+`HostServices.cpp`（可执行文件路径、可写配置目录和平台日志初始化）与 `NativeHost.cpp`（菜单和文件对话框）。
+Linux 的 GTK 对话框实现在 `sdl3/linux/NativeDialogs.cpp`。
+
+`NativeDialogs.h` 统一声明对话框轮询和关闭入口：Linux 驱动异步 GTK 对话框，
+Windows 对话框同步返回，没有待轮询或待关闭的对话框。公共帧循环不再判断操作系统。
+模块 CMake 显式选择一个平台的源文件，并将 GTK/Win32 依赖限制在对应分支；
+不支持的平台直接配置失败。恢复其他平台时需补充实际实现。

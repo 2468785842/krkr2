@@ -65,7 +65,6 @@ bool TVP_utime(const char *name, time_t modtime) {
     return utimes(name, mt) == 0;
 }
 
-#ifdef LINUX
 #include <filesystem>
 #include <gtk/gtk.h>
 #include <fstream>
@@ -74,16 +73,12 @@ bool TVP_utime(const char *name, time_t modtime) {
 #include <unistd.h>
 #include "TVPLog.h"
 #include "StorageImpl.h"
-#if KRKR2_ENABLE_SDL3_HOST
 #include <SDL3/SDL.h>
 #include "environ/sdl3/SdlHost.h"
 #include "environ/sdl3/NativeDialogs.h"
-#endif
 #undef st_atime
 #undef st_mtime
 #undef st_ctime
-
-// FIXME: 这是临时方案，以后需要重构模块化
 
 tjs_int TVPGetSystemFreeMemory() {
     struct sysinfo info;
@@ -145,7 +140,6 @@ std::string TVPGetCurrentLanguage() {
 
 int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
                             const std::vector<ttstr> &vecButtons) {
-#if KRKR2_ENABLE_SDL3_HOST
     if(krkr::sdl::Active()) {
         std::vector<std::string> buttons;
         for(const auto &button : vecButtons)
@@ -153,7 +147,6 @@ int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
         return krkr::sdl::ShowMessage(text.AsStdString(), caption.AsStdString(),
                                       buttons);
     }
-#endif
     GtkWidget *dialog = nullptr;
     DEFER({
         if(dialog) {
@@ -245,7 +238,6 @@ static bool _TVPCreateFolders(const ttstr &folder) {
 int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,
                           const ttstr &prompt,
                           const std::vector<ttstr> &vecButtons) {
-#if KRKR2_ENABLE_SDL3_HOST
     if(krkr::sdl::Active()) {
         auto value = text.AsStdString();
         std::vector<std::string> buttons;
@@ -257,7 +249,6 @@ int TVPShowSimpleInputBox(ttstr &text, const ttstr &caption,
             text = boost::locale::conv::utf_to_utf<tjs_char>(value);
         return result;
     }
-#endif
     // TODO
     G_CoreLog.warn("linux platform simple input box not implement");
     return 0;
@@ -360,5 +351,3 @@ bool TVPWriteDataToFile(const ttstr &filepath, const void *data,
     }
     return false;
 }
-
-#endif

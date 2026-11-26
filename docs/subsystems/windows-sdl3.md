@@ -31,9 +31,9 @@ CMake 在配置前选择 `engine`、`sdl3` 等 manifest features；旧 `cocos`�
 
 - `platforms/windows/main.cpp`：UTF-16 命令行转 UTF-8，直接进入 SDL3；不构造 Cocos delegate。
 - `cpp/core/environ/sdl3/SdlHost.cpp`：生产窗口、事件、帧循环、视频呈现和最终画面截图。
-- `cpp/core/environ/sdl3/NativeServices.cpp`：两平台共享的资源/配置安装、文件复制、URL、窗口和截图接线。
-- `cpp/core/environ/sdl3/SdlServices.cpp`：Windows 原生文件对话框、弹出菜单及调试器日志。
-- `cpp/core/environ/win32/Platform.cpp`：Windows 系统服务；独立模式通过 SDL3 原生消息框保留自定义按钮文本和返回索引。
+- `cpp/core/environ/sdl3/NativeServices.cpp`：两平台共享的文件复制、URL、窗口和截图接线；资源/配置初始化由 `sdl3/windows/HostServices.cpp` 与 `sdl3/linux/HostServices.cpp` 分别实现。
+- `cpp/core/environ/sdl3/windows/NativeHost.cpp`：Windows 原生文件对话框、弹出菜单及调试器日志。
+- `cpp/core/environ/platform/windows/Platform.cpp`：Windows 系统服务；独立模式通过 SDL3 原生消息框保留自定义按钮文本和返回索引。
 - `cpp/core/visual/PVRTCDecoder.cpp`：独立保留原来的 2/4 bpp 解码算法，来源和许可位于
   `assets/licenses/PVRTCDecoder.txt`；软件模式没有删掉压缩图像读取能力。
 
