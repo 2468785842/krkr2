@@ -1,5 +1,6 @@
 #include "Platform.h"
 #include <SDL3/SDL.h>
+#include <cstdio>
 #include <stdexcept>
 
 // #undef WIN32
@@ -92,6 +93,20 @@ bool TVPCheckStartupArg() { return false; }
 
 int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
                             const std::vector<ttstr> &vecButtons) {
+    // stdout/stderr 被重定向时没有交互读者（自动化、smoke 脚本、CI）；
+    // SDL 模态框会让进程永久挂起。改为落日志并直接返回默认按钮。
+    {
+        const HANDLE handle = ::GetStdHandle(STD_ERROR_HANDLE);
+        const DWORD type =
+            handle == INVALID_HANDLE_VALUE || !handle ? FILE_TYPE_PIPE
+                                                      : ::GetFileType(handle);
+        if(type != FILE_TYPE_CHAR) {
+            std::fprintf(stderr, "[%s] %s\n", caption.AsStdString().c_str(),
+                         text.AsStdString().c_str());
+            std::fflush(stderr);
+            return 0;
+        }
+    }
     std::vector<std::string> labels;
     labels.reserve(vecButtons.size());
     for(const auto &button : vecButtons)

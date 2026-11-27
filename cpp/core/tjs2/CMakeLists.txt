@@ -142,3 +142,40 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     fmt::fmt
     oniguruma::onig
 )
+
+if(KRKR2_SCRIPT_BACKEND STREQUAL "ciallang")
+    # Ciallang is built from the git submodule in external/Ciallang (see
+    # .gitmodules). The vcpkg port in vcpkg/ports/ciallang pins the same upstream
+    # for external consumers; this build path keeps the runtime editable, so a
+    # compatibility fix is a submodule commit rather than a port patch.
+    if(NOT TARGET Ciallang)
+        set(CIAL_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+        set(CIAL_BUILD_CLI OFF CACHE BOOL "" FORCE)
+        set(CIAL_BUILD_FORMATTER OFF CACHE BOOL "" FORCE)
+        set(CIAL_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+        set(CIAL_BUILD_FUZZ OFF CACHE BOOL "" FORCE)
+        set(CIAL_BUILD_BENCH OFF CACHE BOOL "" FORCE)
+        set(CIAL_ENABLE_JIT OFF CACHE BOOL "" FORCE)
+        set(CIAL_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
+        set(CIAL_INSTALL_SDK OFF CACHE BOOL "" FORCE)
+        add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../../external/Ciallang"
+                         "${CMAKE_BINARY_DIR}/ciallang-src" EXCLUDE_FROM_ALL)
+    endif()
+    add_library(core_ciallang_bridge OBJECT CiallangRuntime.cpp)
+    target_compile_features(core_ciallang_bridge PRIVATE cxx_std_20)
+    target_include_directories(core_ciallang_bridge PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${GEN_CODE_BINARY_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../common
+    )
+    target_link_libraries(core_ciallang_bridge PRIVATE
+        Ciallang::Ciallang
+        core_log
+        Boost::locale
+    )
+    if(MSVC)
+        target_compile_options(core_ciallang_bridge PRIVATE /EHsc /utf-8)
+    endif()
+    target_compile_definitions(tjs2 PRIVATE KRKR2_ENABLE_CIALLANG=1)
+    target_link_libraries(tjs2 PRIVATE core_ciallang_bridge)
+endif()

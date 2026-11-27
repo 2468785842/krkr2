@@ -195,6 +195,43 @@ namespace TJS {
     }
     //---------------------------------------------------------------------------
 
+    tTJSScriptBlock *tTJSScriptBlock::CreateDiagnostic(tTJS *owner,
+                                                       const ttstr &source,
+                                                       const ttstr &name) {
+        auto *block = new tTJSScriptBlock(owner, name.c_str(), 0);
+        try {
+            block->Script = new tjs_char[source.GetLen() + 1];
+            if(source.GetLen())
+                TJS_strcpy(block->Script, source.c_str());
+            else
+                block->Script[0] = 0;
+            auto *line = block->Script;
+            auto *cursor = line;
+            while(*cursor) {
+                if(*cursor == TJS_W('\r') || *cursor == TJS_W('\n')) {
+                    block->LineVector.push_back(
+                        static_cast<tjs_int>(line - block->Script));
+                    block->LineLengthVector.push_back(
+                        static_cast<tjs_int>(cursor - line));
+                    if(*cursor == TJS_W('\r') && cursor[1] == TJS_W('\n'))
+                        ++cursor;
+                    line = ++cursor;
+                } else {
+                    ++cursor;
+                }
+            }
+            // Include empty source and an EOF line for located EOF diagnostics.
+            block->LineVector.push_back(
+                static_cast<tjs_int>(line - block->Script));
+            block->LineLengthVector.push_back(
+                static_cast<tjs_int>(cursor - line));
+            return block;
+        } catch(...) {
+            block->Release();
+            throw;
+        }
+    }
+
     void tTJSScriptBlock::SetText(tTJSVariant *result, const tjs_char *text,
                                   iTJSDispatch2 *context, bool isexpression) {
 

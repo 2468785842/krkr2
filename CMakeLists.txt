@@ -20,6 +20,12 @@ if(KRKR2_ENABLE_UI_TEST_DRIVER AND (ANDROID OR IOS))
 endif()
 
 option(KRKR2_BUILD_APP "Build the game runtime and bundled plugins" ON)
+set(KRKR2_SCRIPT_BACKEND "tjs2" CACHE STRING "Script runtime: tjs2 or ciallang")
+set_property(CACHE KRKR2_SCRIPT_BACKEND PROPERTY STRINGS tjs2 ciallang)
+if(NOT KRKR2_SCRIPT_BACKEND MATCHES "^(tjs2|ciallang)$")
+    message(FATAL_ERROR "KRKR2_SCRIPT_BACKEND must be tjs2 or ciallang")
+endif()
+
 # Detect the target before project(): vcpkg resolves the manifest in project().
 get_filename_component(KRKR2_TOOLCHAIN_NAME "${CMAKE_TOOLCHAIN_FILE}" NAME)
 if(ANDROID OR IOS OR MACOS OR APPLE OR VCPKG_TARGET_ANDROID

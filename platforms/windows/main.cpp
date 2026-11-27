@@ -3,8 +3,13 @@
 
 #include <memory>
 #include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <vector>
+
+#if defined(_DEBUG)
+#include <crtdbg.h>
+#endif
 
 #include "tjsString.h"
 #include "environ/sdl3/SdlHost.h"
@@ -12,7 +17,24 @@
 
 #include "environ/launch/DesktopLaunch.h"
 
+namespace {
+    // Debug CRT 断言默认弹模态框；自动化运行（smoke 脚本、CI、重定向日志）
+    // 没有人在窗口前点“继续”，进程会永久挂住，看起来像脚本静默失败。
+    // 转成 stderr 输出后断言与 abort 仍以非零退出码失败。
+    void ConfigureDebugCrtReporting() {
+#if defined(_DEBUG)
+        _set_error_mode(_OUT_TO_STDERR);
+        _set_abort_behavior(0, _CALL_REPORTFAULT);
+        for(const int type : { _CRT_WARN, _CRT_ERROR, _CRT_ASSERT }) {
+            _CrtSetReportMode(type, _CRTDBG_MODE_FILE);
+            _CrtSetReportFile(type, _CRTDBG_FILE_STDERR);
+        }
+#endif
+    }
+} // namespace
+
 int main() {
+    ConfigureDebugCrtReporting();
     int argc = 0;
     LPWSTR *wargv = CommandLineToArgvW(GetCommandLineW(), &argc);
     if(!wargv) {

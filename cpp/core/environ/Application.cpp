@@ -1,6 +1,12 @@
 #include "tjsCommHead.h"
 
 #include <algorithm>
+#include <cstdio>
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 #include <string>
 #include <vector>
 #include <assert.h>
@@ -492,10 +498,33 @@ void tTVPApplication::BringToFront() {
 	}
 }
 #endif
+namespace {
+    // stderr 是否被重定向到文件/管道：重定向时没有交互读者，不能弹模态框。
+    bool IsStandardStreamRedirected() {
+        std::fflush(stderr);
+#ifdef _WIN32
+        const HANDLE handle = ::GetStdHandle(STD_ERROR_HANDLE);
+        if(handle == INVALID_HANDLE_VALUE || handle == nullptr)
+            return true;
+        const DWORD type = ::GetFileType(handle);
+        return type != FILE_TYPE_CHAR;
+#else
+        return ::isatty(fileno(stderr)) == 0;
+#endif
+    }
+} // namespace
+
 void tTVPApplication::ShowException(const ttstr &e) {
     G_ExceptionLog.error(e.AsStdString());
-    TVPShowDialogMessage(e.AsStdString(),
-                         TVPGetErrorDialogTitle().AsStdString());
+    // 启动期致命错误同时写 stderr：stdout/stderr 被重定向时（自动化、smoke
+    // 脚本、CI）没有人在窗口前点“确定”，模态框会让进程永久挂起。
+    // 重定向场景直接落日志并退出，交互式启动保留原有对话框。
+    std::fprintf(stderr, "%s\n", e.AsStdString().c_str());
+    std::fflush(stderr);
+    if(!IsStandardStreamRedirected()) {
+        TVPShowDialogMessage(e.AsStdString(),
+                             TVPGetErrorDialogTitle().AsStdString());
+    }
     TVPSystemUninit();
     TVPExitApplication(0);
 }

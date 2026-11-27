@@ -1,3 +1,6 @@
+#if KRKR2_ENABLE_CIALLANG
+#include "CiallangRuntime.h"
+#endif
 //---------------------------------------------------------------------------
 /*
         TJS2 Script Engine
@@ -188,6 +191,12 @@ namespace TJS {
             dsp->Release();
             Global->PropSet(TJS_MEMBERENSURE, TJS_W("RegExp"), nullptr, &val,
                             Global);
+#if KRKR2_ENABLE_CIALLANG
+            auto *runtime = AttachCiallangRuntime(this, Global);
+            auto *global = runtime->Global();
+            Global->Release();
+            Global = global;
+#endif
         } catch(...) {
             Cleanup();
 
@@ -203,6 +212,9 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     void tTJS::Cleanup() {
+#if KRKR2_ENABLE_CIALLANG
+        ReleaseCiallangRuntime(this);
+#endif
         TJSVariantArrayStackCompactNow();
         //	TJSVariantArrayStackRelease();
         delete VariantArrayStack;
@@ -240,6 +252,10 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     void tTJS::Shutdown() {
+#if KRKR2_ENABLE_CIALLANG
+        if(auto *runtime = FindCiallangRuntime(this))
+            runtime->Shutdown();
+#endif
         TJSVariantArrayStackCompactNow();
         Global->Clear();
         if(Global)
@@ -446,6 +462,13 @@ namespace TJS {
     void tTJS::ExecScript(const tjs_char *script, tTJSVariant *result,
                           iTJSDispatch2 *context, const tjs_char *name,
                           tjs_int lineofs) {
+#if KRKR2_ENABLE_CIALLANG
+        if(auto *runtime = FindCiallangRuntime(this)) {
+            runtime->Execute(ttstr(script), result, context,
+                             name ? ttstr(name) : ttstr(), lineofs, false);
+            return;
+        }
+#endif
         TJSSetFPUE();
         if(Cache)
             Cache->ExecScript(script, result, context, name, lineofs);
@@ -455,6 +478,13 @@ namespace TJS {
     void tTJS::ExecScript(const ttstr &script, tTJSVariant *result,
                           iTJSDispatch2 *context, const ttstr *name,
                           tjs_int lineofs) {
+#if KRKR2_ENABLE_CIALLANG
+        if(auto *runtime = FindCiallangRuntime(this)) {
+            runtime->Execute(ttstr(script), result, context,
+                             name ? *name : ttstr(), lineofs, false);
+            return;
+        }
+#endif
         TJSSetFPUE();
         if(Cache)
             Cache->ExecScript(script, result, context, name, lineofs);
@@ -464,6 +494,13 @@ namespace TJS {
     void tTJS::EvalExpression(const tjs_char *expression, tTJSVariant *result,
                               iTJSDispatch2 *context, const tjs_char *name,
                               tjs_int lineofs) {
+#if KRKR2_ENABLE_CIALLANG
+        if(auto *runtime = FindCiallangRuntime(this)) {
+            runtime->Execute(ttstr(expression), result, context,
+                             name ? ttstr(name) : ttstr(), lineofs, true);
+            return;
+        }
+#endif
         TJSSetFPUE();
         if(Cache)
             Cache->EvalExpression(expression, result, context, name, lineofs);
@@ -473,6 +510,13 @@ namespace TJS {
     void tTJS::EvalExpression(const ttstr &expression, tTJSVariant *result,
                               iTJSDispatch2 *context, const ttstr *name,
                               tjs_int lineofs) {
+#if KRKR2_ENABLE_CIALLANG
+        if(auto *runtime = FindCiallangRuntime(this)) {
+            runtime->Execute(ttstr(expression), result, context,
+                             name ? *name : ttstr(), lineofs, true);
+            return;
+        }
+#endif
         TJSSetFPUE();
         if(Cache)
             Cache->EvalExpression(expression, result, context, name, lineofs);
@@ -480,6 +524,10 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     void tTJS::SetPPValue(const tjs_char *name, tjs_int32 value) {
+#if KRKR2_ENABLE_CIALLANG
+        if(auto *runtime = FindCiallangRuntime(this))
+            runtime->SetPPValue(name, value);
+#endif
         PPValues->Values.Add(ttstr(name), value);
     }
 
@@ -493,6 +541,10 @@ namespace TJS {
 
     //---------------------------------------------------------------------------
     void tTJS::DoGarbageCollection() {
+#if KRKR2_ENABLE_CIALLANG
+        if(auto *runtime = FindCiallangRuntime(this))
+            runtime->Collect();
+#endif
         // do garbage collection
         TJSVariantArrayStackCompactNow();
         TJSCompactStringHeap();
@@ -503,6 +555,11 @@ namespace TJS {
     void tTJS::LoadByteCode(const tjs_uint8 *buff, size_t len,
                             tTJSVariant *result, iTJSDispatch2 *context,
                             const tjs_char *name) {
+#if KRKR2_ENABLE_CIALLANG
+        if(FindCiallangRuntime(this))
+            TJS_eTJSError(
+                TJS_W("Ciallang bytecode adapter is not implemented"));
+#endif
         TJSSetFPUE();
         if(Cache)
             Cache->LoadByteCode(buff, len, result, context, name);

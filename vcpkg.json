@@ -116,7 +116,9 @@
         },
         "fmt",
         "oniguruma",
-        "spdlog"
+        "spdlog",
+        "frozen",
+        "utf8proc"
       ]
     },
     "config": {

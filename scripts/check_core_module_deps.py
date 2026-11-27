@@ -9,9 +9,13 @@ MODULES = {
     'core_storage_archive': 'storage', 'archive_xp3': 'archive/xp3',
     'archive_zip': 'archive/zip', 'archive_7z': 'archive/7z', 'archive_tar': 'archive/tar',
     'core_imageops': 'imageops', 'core_input': 'input',
+    # The C++20 script adapter is part of the TJS foundation, not the host.
+    # Scan its sources and links under the same no-domain dependency rules.
+    'core_ciallang_bridge': 'tjs2',
 }
 ALLOWED = {
-    'core_log': set(), 'tjs2': {'core_log'}, 'core_msg': {'tjs2'},
+    'core_log': set(), 'tjs2': {'core_log', 'core_ciallang_bridge'}, 'core_msg': {'tjs2'},
+    'core_ciallang_bridge': {'core_log'},
     'core_io': {'tjs2', 'core_msg'}, 'core_storage_archive': {'tjs2', 'core_io', 'core_msg'},
     'core_imageops': set(), 'core_input': set(),
     **{name: {'core_storage_archive'} for name in MODULES if name.startswith('archive_')},

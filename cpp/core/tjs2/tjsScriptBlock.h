@@ -137,6 +137,11 @@ namespace TJS {
         void SetText(tTJSVariant *result, const tjs_char *text,
                      iTJSDispatch2 *context, bool isexpression);
 
+        // Own source metadata for an external runtime's exception. No parsing,
+        // bytecode generation or execution takes place; caller owns one ref.
+        static tTJSScriptBlock *
+        CreateDiagnostic(tTJS *owner, const ttstr &source, const ttstr &name);
+
         void ExecuteTopLevelScript(tTJSVariant *result, iTJSDispatch2 *context);
 
         // for Bytecode

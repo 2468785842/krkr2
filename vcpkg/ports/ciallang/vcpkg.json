@@ -1,0 +1,22 @@
+{
+  "name": "ciallang",
+  "version-string": "0.1.0-preview.2",
+  "description": "C++20 TJS-compatible script runtime and embedding SDK",
+  "homepage": "https://github.com/2468785842/Ciallang",
+  "license": "MIT",
+  "dependencies": [
+    "fmt",
+    "frozen",
+    "oniguruma",
+    "utf8proc",
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ],
+  "port-version": 1
+}

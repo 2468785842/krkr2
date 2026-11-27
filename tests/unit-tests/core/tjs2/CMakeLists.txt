@@ -13,6 +13,10 @@ else()
     set(TJS_TEST_LIBRARY krkr2core)
 endif()
 
+if(KRKR2_SCRIPT_BACKEND STREQUAL "ciallang")
+    list(APPEND SOURCES CiallangRuntimeTest.cpp)
+endif()
+
 string(REPLACE ".cpp" "" BASENAMES_SOURCES "${SOURCES}")
 set(TARGETS ${BASENAMES_SOURCES})
 
