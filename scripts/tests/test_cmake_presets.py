@@ -12,7 +12,7 @@ class DesktopPresetTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         output = root / 'out/preset-regression'
         output.mkdir(parents=True, exist_ok=True)
-        target = {'Windows': 'Windows', 'Linux': 'Linux'}.get(platform.system())
+        target = {'Windows': 'Windows', 'Linux': 'Linux', 'Darwin': 'MacOS'}.get(platform.system())
         if target is None:
             self.skipTest('Only supported desktop hosts have application presets')
         with tempfile.TemporaryDirectory(dir=output) as directory:

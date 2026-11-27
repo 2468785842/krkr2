@@ -32,7 +32,7 @@ python tools/game-smoke/game_smoke.py run out/windows/debug/bin/krkr2/krkr2.exe 
 
 ## 当前桌面宿主验收
 
-当前只维护 Windows/Linux SDL3 普通应用；Android/Apple 暂停构建。
+当前维护 Windows/Linux/macOS SDL3 普通应用；Android/iOS 暂停构建。
 使用全新输出目录，记录实际 exe 和场景 SHA256、构建 scope、UI 驱动开关及退出状态。
 游戏副本心跳只证明相应脚本阶段仍运行，不证明完整剧情或正常退出。
 

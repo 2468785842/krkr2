@@ -1,6 +1,6 @@
 # 桌面命令行启动与设置
 
-当前仅支持 Windows/Linux，默认使用 SDL3；Android、macOS/iOS 暂停构建。
+当前支持 Windows/Linux/macOS，默认使用 SDL3；Android、iOS 暂停构建。
 旧 Cocos 宿主与游戏管理界面已删除，脚本菜单及对话框使用原生平台服务。
 
 ## 使用

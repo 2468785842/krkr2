@@ -1,7 +1,7 @@
 # KrKr2 模拟器
 
-KrKr2 是 C++17 的吉里吉里运行环境。当前支持 Windows x64 和 Linux x64，使用 SDL3 窗口与软件呈现。
-Android、macOS/iOS 暂停构建；Cocos 宿主、管理 UI、port 和构建配置已经删除。
+KrKr2 是 C++17 的吉里吉里运行环境。当前支持 Windows x64、Linux x64 和 macOS arm64，使用 SDL3 窗口与软件呈现。
+Android、iOS 暂停构建；Cocos 宿主、管理 UI、port 和构建配置已经删除。
 
 ## 构建
 
@@ -17,6 +17,8 @@ ctest --test-dir out/windows/debug --output-on-failure --no-tests=error
 
 Linux 使用 `Linux Release Config`，系统依赖与完整命令见[构建与验证](docs/guides/building.md)。
 程序位于 `out/windows/debug/bin/krkr2/krkr2.exe`；Linux SDL3 位于 `out/linux/release/bin/krkr2/krkr2`。
+macOS 使用 `MacOS Debug Config/Build`，程序位于 `out/macos/debug/bin/krkr2/krkr2.app`，
+运行方式见 [macOS 桌面宿主](docs/subsystems/macos-sdl3.md)。
 通过 `--game /path/to/game` 启动，`--help`、`--list-settings` 查看命令和设置。
 
 [开发约定](AGENTS.md) · [文档索引](docs/README.md) · [当前架构](docs/architecture.md) ·

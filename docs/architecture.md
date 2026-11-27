@@ -1,13 +1,13 @@
 # 当前架构与代码导航
 
-核对日期：2026-11-25。当前仅支持 Windows/Linux；Android、macOS/iOS 暂停构建。
+核对日期：2026-11-27。当前支持 Windows/Linux/macOS；Android、iOS 暂停构建。
 Cocos port、宿主、管理 UI、平台入口及打包资源已经移除，恢复其他平台需接入新的宿主实现。
 历史实现可查 Git 基线 `c494ea0`，不能作为当前构建说明。
 
 ## 运行链路
 
 ```text
-Windows/Linux 入口 → SDL3 宿主 / 原生菜单与对话框
+Windows/Linux/macOS 入口 → SDL3 宿主 / 原生菜单与对话框
                          ↓
           base 脚本管理 / 事件 / KAG → TJS2
                          ↓
@@ -16,9 +16,9 @@ Windows/Linux 入口 → SDL3 宿主 / 原生菜单与对话框
           io 文件后端 / storage / archive
 ```
 
-`platforms/windows/main.cpp` 和 `platforms/linux/sdl_main.cpp` 经
+`platforms/windows/main.cpp`、`platforms/linux/sdl_main.cpp` 和 `platforms/macos/main.cpp` 经
 `environ/launch/DesktopLaunch.cpp` 解析命令行，在归档校验前通过
-`environ/sdl3/<平台>/HostServices.cpp` 安装本地资源与配置服务，再进入 `SdlHost.cpp`。
+`environ/sdl3/<平台>/HostServices.cpp`（macOS 为 `.mm`） 安装本地资源与配置服务，再进入 `SdlHost.cpp`。
 无目标时显示错误；`--help` 和 `--list-settings` 不创建游戏窗口。
 
 ## 模块与依赖
@@ -34,13 +34,13 @@ Windows/Linux 入口 → SDL3 宿主 / 原生菜单与对话框
 - `imageops/` 使用独立 CPU 图像算法与标准 C++17 行任务，生产依赖不含 OpenCV。
 - `event/FrameStep.*` 与 `MainThreadMessageQueue.*` 处理共享帧推进和消息；队列由宿主持有并驱动。
 - `environ/resources/` 提供本地资源读取；`ConfigManager/` 使用 JSON，保留 pugixml 旧 XML 只读迁移。
-- Windows 使用 Win32 原生菜单/文件对话框与 SDL3 消息框，Linux 使用 GTK3；没有旧游戏管理器 UI。
+- Windows 使用 Win32 原生菜单/文件对话框与 SDL3 消息框，Linux 使用 GTK3，macOS 使用 AppKit；没有旧游戏管理器 UI。
 - `sound/` 和 `movie/ffmpeg/` 保留正式音视频实现；`plugin/`、`cpp/plugins/` 保留原生插件注册与行为。
 - `io/`、`storage/` 和 `archive/` 保持文件后端、存储介质和归档职责；XP3 工具只配置必要基础层。
 
 ## 构建与验证边界
 
-Windows/Linux 应用统一使用 Debug/Release 预设，不再区分宿主专用预设。
+Windows/Linux/macOS 应用统一使用 Debug/Release 预设，不再区分宿主专用预设。
 不再存在 `KRKR2_SDL3_ONLY`、`KRKR2_COCOS_FREE`、`cocos` 或 `crash-upload` feature。
 基础模块检查只覆盖显式依赖和指定源码约束，不证明 domain 无环。
 构建、脚本与游戏验收分别报告，见[构建指南](guides/building.md)、

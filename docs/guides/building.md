@@ -5,7 +5,7 @@
 
 ## 桌面构建
 
-当前仅支持 Windows/Linux，正式应用统一使用 SDL3 软件呈现；旧 Cocos 配置和依赖已移除。
+当前支持 Windows/Linux/macOS，正式应用统一使用 SDL3 软件呈现；旧 Cocos 配置和依赖已移除。
 
 需要 CMake/Ninja、C++ 工具链、Python、Bison 和 `VCPKG_ROOT`；Windows 在 MSVC x64 开发环境运行，并把 win_bison 加入 PATH。vcpkg 基线与 overlay 已记录在配置文件中，不为修复局部问题随意升级全仓依赖。
 
@@ -13,6 +13,7 @@
 |---|---|---|---|
 | Windows | `Windows Debug Config` | `Windows Debug Build` | `out/windows/debug` |
 | Linux | `Linux Debug Config` | `Linux Debug Build` | `out/linux/debug` |
+| macOS | `MacOS Debug Config` | `MacOS Debug Build` | `out/macos/debug` |
 
 
 ```sh
@@ -52,6 +53,8 @@ CMake 只查找依赖，不会根据本仓库清单自动安装。仅安装 `ffm
 不要直接替换为系统最新版的头文件和库。Linux 还需要 Yasm、Bison、Autoconf/Automake、
 Libtool 和窗口系统开发文件；系统依赖清单以 `.github/workflows/native-desktop.yml` 为准。
 
+macOS 的 `.app` 资源布局、Metal 呈现和 AppKit 接线见 [macOS 桌面宿主](../subsystems/macos-sdl3.md)。
+
 ## 仅构建 XP3 解包工具
 
 在 MSVC x64 开发环境执行（Linux 去掉 WINDOWS 并选择对应 triplet）：
@@ -67,7 +70,7 @@ python tools/xp3/smoke_test.py tools/bin/win/dbg/xp3.exe
 
 首批本机测试与当时的配置问题见 [XP3 验证记录](../../.agents/notes/implemented/testing/2026-11-01-xp3-build-validation.md)。
 
-Android、macOS/iOS 当前暂停构建，平台检查会在 vcpkg 安装前拒绝这些目标。
+Android、iOS 当前暂停构建，平台检查会在 vcpkg 安装前拒绝这些目标。
 旧平台入口与 Cocos 适配已删除，恢复支持需要新的平台宿主，历史代码见 `c494ea0`。
 
 ## 独立字符串测试与可选能力

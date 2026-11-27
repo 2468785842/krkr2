@@ -73,6 +73,11 @@ namespace krkr::sdl {
             return driver && std::strcmp(driver, "wayland") == 0;
         }
 
+        bool UsesCocoa() {
+            const auto *driver = SDL_GetCurrentVideoDriver();
+            return driver && std::strcmp(driver, "cocoa") == 0;
+        }
+
         struct VideoSubsystem {
             VideoSubsystem() {
                 // A native window close is resolved by the script query.
@@ -84,7 +89,7 @@ namespace krkr::sdl {
                 check(SDL_InitSubSystem(SDL_INIT_VIDEO));
                 // X11 can use a native software surface. Its implicit GPU
                 // framebuffer produces black native capture under Xvfb.
-                if(!UsesWayland())
+                if(!UsesWayland() && !UsesCocoa())
                     check(SDL_SetHintWithPriority(
                         SDL_HINT_FRAMEBUFFER_ACCELERATION, "0",
                         SDL_HINT_OVERRIDE));
@@ -382,10 +387,12 @@ namespace krkr::sdl {
                                      SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN |
                                          SDL_WINDOW_HIGH_PIXEL_DENSITY));
                 check(window != nullptr);
-                // Wayland has no SDL native window-surface framebuffer.
-                // Only presentation uses EGL; the engine still uploads RGBA.
+                // Wayland and Cocoa have no native software window surface.
+                // GPU presentation only uploads the engine's CPU RGBA frames.
                 renderer.reset(SDL_CreateRenderer(
-                    window.get(), wayland ? "opengles2,opengl" : "software"));
+                    window.get(),
+                    UsesCocoa() ? "metal"
+                                : (wayland ? "opengles2,opengl" : "software")));
                 check(renderer != nullptr);
                 SetPaintBoxSize(layerWidth, layerHeight);
                 G_CoreLog.info("SDL3 video={}, renderer={}",

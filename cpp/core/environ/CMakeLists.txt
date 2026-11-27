@@ -36,6 +36,15 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         sdl3/linux/NativeDialogs.cpp
         sdl3/linux/NativeHost.cpp
     )
+elseif(APPLE)
+    target_sources(${PROJECT_NAME} PRIVATE
+        platform/macos/Platform.mm
+        sdl3/macos/HostServices.mm
+        sdl3/macos/NativeHost.mm
+    )
+    target_compile_options(${PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>")
+    find_library(KRKR2_COCOA_FRAMEWORK Cocoa REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${KRKR2_COCOA_FRAMEWORK})
 else()
     message(FATAL_ERROR "Unsupported environ platform: ${CMAKE_SYSTEM_NAME}")
 endif()

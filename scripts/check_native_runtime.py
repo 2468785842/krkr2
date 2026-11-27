@@ -1,4 +1,4 @@
-"""Verify the Windows/Linux SDL3 application has an independent, Cocos-free closure."""
+"""Verify the Windows/Linux/macOS SDL3 application has an independent, Cocos-free closure."""
 import argparse
 import json
 from pathlib import Path
@@ -23,13 +23,14 @@ def inspect(build):
     status = (sdk / "vcpkg/status").read_text()
     packages = {port["name"] for port in installed_ports(status).values()}
     windows = "windows" in cache.get("VCPKG_TARGET_TRIPLET", "")
-    required = {"sdl3", "ffmpeg"} | (set() if windows else {"gtk3"})
+    macos = "osx" in cache.get("VCPKG_TARGET_TRIPLET", "")
+    required = {"sdl3", "ffmpeg"} | ({"gtk3"} if not windows and not macos else set())
     if "cocos2dx" in packages or not required <= packages:
         raise ValueError("SDK lacks native host dependencies or contains Cocos")
     commands = json.loads((build / "compile_commands.json").read_text())
     if not commands:
         raise ValueError("Empty compilation database")
-    forbidden = re.compile(r"/environ/(?:cocos2d|ui)/|/include/cocos(?:/|\s)|(?:lib)?(?:cocos2d|fmod|glfw)[^/ ]*\.(?:a|so|lib|dll)", re.I)
+    forbidden = re.compile(r"/environ/(?:cocos2d|ui)/|/include/cocos(?:/|\s)|(?:lib)?(?:cocos2d|fmod|glfw)[^/ ]*\.(?:a|so|dylib|lib|dll)", re.I)
     def legacy(text):
         return forbidden.search(re.sub(r"/+", "/", text.replace("\\", "/")))
     for entry in commands:
@@ -39,11 +40,18 @@ def inspect(build):
     if legacy(linked):
         raise ValueError("Legacy dependency in application build/link commands")
     engine = build / "bin/krkr2" / ("krkr2.exe" if windows else "krkr2")
+    if macos:
+        engine = build / "bin/krkr2/krkr2.app/Contents/MacOS/krkr2"
     libraries = subprocess.check_output(
-        ["dumpbin", "/DEPENDENTS", str(engine)] if windows else ["ldd", str(engine)], text=True, errors="replace")
+        ["dumpbin", "/DEPENDENTS", str(engine)] if windows else (["otool", "-L", str(engine)] if macos else ["ldd", str(engine)]), text=True, errors="replace")
     if legacy(libraries) or "not found" in libraries:
         raise ValueError("Missing or legacy runtime library: " + libraries)
-    resources = engine.parent / "Resources"
+    if macos:
+        for line in libraries.splitlines()[1:]:
+            dependency = line.strip().split(" (", 1)[0]
+            if not dependency.startswith(("/usr/lib/", "/System/Library/", "@executable_path/", "@loader_path/", "@rpath/")):
+                raise ValueError("Unbundled macOS runtime dependency: " + dependency)
+    resources = (engine.parent.parent if macos else engine.parent) / "Resources"
     if any((resources / name).exists() for name in ("img", "out_ui")):
         raise ValueError("Cocos management UI assets remain in native packaging")
     if not (resources / "locale/en_us.json").is_file():
@@ -59,7 +67,7 @@ def inspect(build):
         return dependency if isinstance(dependency, str) else dependency["name"]
     if any(name(d) == "cocos2dx" for d in features["engine"]["dependencies"]):
         raise ValueError("Common engine dependencies must not contain Cocos")
-    print(f"Cocos-free {'Windows' if windows else 'Linux'} runtime verified: {len(commands)} compilation units, {len(packages)} SDK ports")
+    print(f"Cocos-free {'Windows' if windows else ('macOS' if macos else 'Linux')} runtime verified: {len(commands)} compilation units, {len(packages)} SDK ports")
 
 
 if __name__ == "__main__":

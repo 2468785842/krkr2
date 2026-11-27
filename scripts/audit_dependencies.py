@@ -111,6 +111,8 @@ def inspect(build):
         if re.search(r"(?:^|\s)(?:-fopenmp(?:=\w+)?|/openmp(?::\w+)?)(?:\s|$)", flags):
             openmp.append(command["file"])
     engine = build / "bin/krkr2" / ("krkr2.exe" if cache.get("WINDOWS") in {"ON", "TRUE", "1"} else "krkr2")
+    if "osx" in cache.get("VCPKG_TARGET_TRIPLET", ""):
+        engine = build / "bin/krkr2/krkr2.app/Contents/MacOS/krkr2"
     manifest = Path(cache["CMAKE_HOME_DIRECTORY"]) / "vcpkg.json"
     return {"build": str(build.resolve()), "sdk": str(sdk),
             "scope": cache.get("KRKR2_TEST_SCOPE"),

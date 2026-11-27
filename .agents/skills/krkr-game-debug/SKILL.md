@@ -7,7 +7,7 @@ description: 在 KrKr2 中用隔离游戏副本、TJS 插装、实际截图和 C
 
 从 [游戏与交互测试](../../../docs/guides/game-testing.md) 和
 [Windows SDL3](../../../docs/subsystems/windows-sdl3.md) 选择最小复现。
-当前仅支持 Windows/Linux SDL3；Cocos 宿主、组件 UI 驱动和 Android/Apple 构建已移除。
+当前支持 Windows/Linux/macOS SDL3；Cocos 宿主、组件 UI 驱动和 Android/iOS 构建已移除。
 脚本菜单或窗口契约优先用自制场景；真实 KAG 兼容使用 `tools/game-smoke/game_smoke.py`
 准备的独立副本。保留已有游戏钩子，使用新输出目录，不写原始 `D:/krkr/tslm`。
 

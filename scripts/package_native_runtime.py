@@ -21,21 +21,28 @@ def package(build, output):
     if "CMAKE_BUILD_TYPE:STRING=Release" not in cache:
         raise ValueError("Distribution requires a Release build")
     windows = platform.system() == "Windows"
-    package_name = "krkr2-" + ("windows" if windows else "linux") + "-" + platform.machine().lower()
+    macos = platform.system() == "Darwin"
+    package_name = "krkr2-" + ("windows" if windows else ("macos" if macos else "linux")) + "-" + platform.machine().lower()
     output.mkdir(parents=True, exist_ok=True)
-    archive = output / (package_name + (".zip" if windows else ".tar.gz"))
+    archive = output / (package_name + (".zip" if windows or macos else ".tar.gz"))
     if archive.exists():
         raise FileExistsError(archive)
     source = Path(__file__).resolve().parents[1]
     executable = "krkr2.exe" if windows else "krkr2"
     binary = build / "bin/krkr2" / executable
+    if macos:
+        binary = build / "bin/krkr2/krkr2.app/Contents/MacOS/krkr2"
     dependencies = subprocess.check_output(
-        ["dumpbin", "/DEPENDENTS", str(binary)] if windows else ["ldd", str(binary)],
+        ["dumpbin", "/DEPENDENTS", str(binary)] if windows else (["otool", "-L", str(binary)] if macos else ["ldd", str(binary)]),
         text=True, errors="replace")
     with tempfile.TemporaryDirectory(prefix="krkr2-package-") as temporary:
         root = Path(temporary) / package_name
         root.mkdir()
-        shutil.copy2(binary, root / executable)
+        if macos:
+            shutil.copytree(binary.parents[2], root / "krkr2.app",
+                            ignore=shutil.ignore_patterns("Resources"))
+        else:
+            shutil.copy2(binary, root / executable)
         if windows:
             pending = re.findall(r"\S+\.dll", dependencies, re.I)
             seen = set()
@@ -54,13 +61,15 @@ def package(build, output):
         selected = (build / "runtime-assets-selected.txt").read_text().splitlines()
         if not selected:
             raise ValueError("Empty runtime resource selection")
+        resources = root / "krkr2.app/Contents/Resources" if macos else root / "Resources"
+        source_resources = binary.parent.parent / "Resources" if macos else binary.parent / "Resources"
         for resource_name in selected:
             path = Path(resource_name)
             if path.is_absolute() or ".." in path.parts:
                 raise ValueError(f"Invalid resource path: {resource_name}")
-            target = root / "Resources" / path
+            target = resources / path
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(binary.parent / "Resources" / path, target)
+            shutil.copy2(source_resources / path, target)
         shutil.copy2(source / "LICENSE", root / "LICENSE")
         sdk_match = re.search(r"^VCPKG_INSTALLED_DIR:[^=]+=(.+)$", cache, re.M)
         if not sdk_match:
@@ -73,8 +82,9 @@ def package(build, output):
         (root / "runtime-dependencies.txt").write_text(dependencies, encoding="utf-8")
         (root / "README.txt").write_text(
             "KrKr2 SDL3 native runtime (software renderer)\n"
-            f"Run: ./{executable} --game /path/to/game\n"
-            "Keep Resources beside the executable. Cocos is not required.\n"
+            f"Run: {'./krkr2.app/Contents/MacOS/krkr2' if macos else './' + executable} --game /path/to/game\n" +
+            ("Keep the complete .app bundle together. Cocos is not required.\n" if macos else
+             "Keep Resources beside the executable. Cocos is not required.\n") +
             "Install the OS libraries listed in runtime-dependencies.txt; they are not bundled.\n"
             "Third-party notices are included under third-party-licenses and Resources/licenses.\n"
             "Linux binaries require the build host's glibc version or newer. Windows requires the MSVC runtime.\n"
@@ -89,7 +99,7 @@ def package(build, output):
             "libc": platform.libc_ver(), "renderer": "software", "sha256": files,
         }
         (root / "manifest.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
-        if windows:
+        if windows or macos:
             with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as target:
                 for path in sorted(root.rglob("*")):
                     if path.is_file():

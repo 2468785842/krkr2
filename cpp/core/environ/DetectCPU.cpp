@@ -140,8 +140,8 @@ void TVPDetectCPU() {
         return;
     TVPCPUChecked = true;
 
-#ifdef __APPLE__
-    // must be iOS
+#if defined(__APPLE__) && defined(__aarch64__)
+    // Apple Silicon
     TVPCPUFeatures |= TVP_CPU_FAMILY_ARM | TVP_CPU_HAS_NEON;
 #endif
 

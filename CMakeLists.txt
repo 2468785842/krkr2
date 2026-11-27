@@ -28,12 +28,11 @@ endif()
 
 # Detect the target before project(): vcpkg resolves the manifest in project().
 get_filename_component(KRKR2_TOOLCHAIN_NAME "${CMAKE_TOOLCHAIN_FILE}" NAME)
-if(ANDROID OR IOS OR MACOS OR APPLE OR VCPKG_TARGET_ANDROID
-   OR KRKR2_TOOLCHAIN_NAME MATCHES "(android|ios|osx)"
-   OR CMAKE_SYSTEM_NAME MATCHES "^(Android|Darwin|iOS)$"
-   OR VCPKG_TARGET_TRIPLET MATCHES "(android|osx|ios)"
-   OR (NOT CMAKE_SYSTEM_NAME AND CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin"))
-    message(FATAL_ERROR "Android and Apple platforms are temporarily disabled; only Windows and Linux are supported")
+if(ANDROID OR IOS OR VCPKG_TARGET_ANDROID
+   OR KRKR2_TOOLCHAIN_NAME MATCHES "(android|ios)"
+   OR CMAKE_SYSTEM_NAME MATCHES "^(Android|iOS)$"
+   OR VCPKG_TARGET_TRIPLET MATCHES "(android|ios)")
+    message(FATAL_ERROR "Android and iOS platforms are temporarily disabled")
 endif()
 if(CMAKE_SYSTEM_NAME)
     set(KRKR2_TARGET_SYSTEM "${CMAKE_SYSTEM_NAME}")
@@ -42,13 +41,16 @@ else()
 endif()
 set(WINDOWS OFF)
 set(LINUX OFF)
+set(MACOS OFF)
 if(KRKR2_TARGET_SYSTEM STREQUAL "Windows")
     set(WINDOWS ON)
 elseif(KRKR2_TARGET_SYSTEM STREQUAL "Linux")
     set(LINUX ON)
     add_compile_definitions(LINUX)
+elseif(KRKR2_TARGET_SYSTEM STREQUAL "Darwin")
+    set(MACOS ON)
 else()
-    message(FATAL_ERROR "Only Windows and Linux are currently supported")
+    message(FATAL_ERROR "Only Windows, Linux and macOS are currently supported")
 endif()
 
 option(KRKR2_BUILD_SDL3_PROTOTYPE "Build the separate SDL3/TJS desktop shell experiment" OFF)
@@ -112,13 +114,18 @@ endif()
 set(APP_NAME krkr2)
 
 project(${APP_NAME})
-if(NOT CMAKE_SYSTEM_NAME MATCHES "^(Windows|Linux)$")
-    message(FATAL_ERROR "Only Windows and Linux are currently supported")
+if(NOT CMAKE_SYSTEM_NAME MATCHES "^(Windows|Linux|Darwin)$")
+    message(FATAL_ERROR "Only Windows, Linux and macOS are currently supported")
 endif()
 
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 17)
+if(APPLE)
+    enable_language(OBJCXX)
+    set(CMAKE_OBJCXX_STANDARD 17)
+    set(CMAKE_OBJCXX_STANDARD_REQUIRED ON)
+endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(KRKR2CORE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cpp/core)
@@ -196,7 +203,12 @@ if(NOT KRKR2_BUILD_APP AND (NOT ENABLE_TESTS OR NOT KRKR2_TEST_SCOPE STREQUAL "f
 endif()
 
 if(KRKR2_BUILD_APP)
-    if(LINUX)
+    if(MACOS)
+        add_executable(${PROJECT_NAME} MACOSX_BUNDLE platforms/macos/main.cpp)
+        set_target_properties(${PROJECT_NAME} PROPERTIES
+            MACOSX_BUNDLE_GUI_IDENTIFIER "org.krkr2.runtime"
+            MACOSX_BUNDLE_BUNDLE_NAME "KrKr2")
+    elseif(LINUX)
         add_executable(${PROJECT_NAME} platforms/linux/sdl_main.cpp)
     else()
         add_executable(${PROJECT_NAME} platforms/windows/main.cpp platforms/windows/game.rc)
@@ -222,9 +234,14 @@ if(KRKR2_BUILD_APP)
     find_package(Python REQUIRED COMPONENTS Interpreter)
     set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
     include(cmake/RuntimeAssets.cmake)
+    if(MACOS)
+        set(KRKR2_RESOURCE_DESTINATION "$<TARGET_BUNDLE_CONTENT_DIR:krkr2>/Resources")
+    else()
+        set(KRKR2_RESOURCE_DESTINATION "$<TARGET_FILE_DIR:krkr2>/Resources")
+    endif()
     add_custom_target(sync_sdl3_resources ALL
         COMMAND ${Python_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_runtime_assets.py"
-            --source "${GAME_RES_FOLDER}" --destination "$<TARGET_FILE_DIR:krkr2>/Resources"
+            --source "${GAME_RES_FOLDER}" --destination "${KRKR2_RESOURCE_DESTINATION}"
             --all "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-all.txt"
             --selected "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-selected.txt"
             --retired "${CMAKE_CURRENT_SOURCE_DIR}/cmake/retired-runtime-assets.txt"

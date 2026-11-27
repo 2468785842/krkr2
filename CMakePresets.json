@@ -130,6 +130,37 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
+    },
+    {
+      "name": "MacOS Config",
+      "generator": "Ninja",
+      "hidden": true,
+      "cacheVariables": {
+        "MACOS": true,
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true,
+        "VCPKG_MANIFEST_INSTALL": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "MacOS Debug Config",
+      "inherits": "MacOS Config",
+      "binaryDir": "${sourceDir}/out/macos/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "MacOS Release Config",
+      "inherits": "MacOS Config",
+      "binaryDir": "${sourceDir}/out/macos/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     }
   ],
   "buildPresets": [
@@ -169,6 +200,14 @@
     {
       "name": "Linux Release Build",
       "configurePreset": "Linux Release Config"
+    },
+    {
+      "name": "MacOS Debug Build",
+      "configurePreset": "MacOS Debug Config"
+    },
+    {
+      "name": "MacOS Release Build",
+      "configurePreset": "MacOS Release Config"
     }
   ]
 }

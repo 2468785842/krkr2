@@ -10,10 +10,9 @@ class DesktopPlatformTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         output = root / "out/platform-rejection"
         output.mkdir(parents=True, exist_ok=True)
-        targets = ("ANDROID=ON", "MACOS=ON", "IOS=ON",
-                   "CMAKE_SYSTEM_NAME=Android", "CMAKE_SYSTEM_NAME=Darwin",
+        targets = ("ANDROID=ON", "IOS=ON",
+                   "CMAKE_SYSTEM_NAME=Android",
                    "VCPKG_TARGET_TRIPLET=arm64-android",
-                   "VCPKG_TARGET_TRIPLET=arm64-osx",
                    "CMAKE_TOOLCHAIN_FILE=missing-android-toolchain.cmake")
         for target in targets:
             with self.subTest(target=target), tempfile.TemporaryDirectory(dir=output) as build:

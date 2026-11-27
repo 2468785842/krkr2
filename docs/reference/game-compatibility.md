@@ -40,3 +40,9 @@ SDL3 游戏退出都曾为 `0xc0000005`；只有 SDL3 失败保存了匹配符�
 本轮 exe 身份、控制器早期失败、最终截图及存档证据见
 [删除与验收记录](../../.agents/notes/implemented/architecture/2026-11-25-desktop-only-cocos-removal.md)。
 这是 Windows 单样本短流程验证，不扩展为完整剧情、音视频同步或其他平台的兼容结论。
+
+## macOS SDL3
+
+2026-11-27 在 Apple Silicon 上用 `Documents/tslm` 的隔离副本验证标题、开始点击、
+键盘文本推进、关闭取消与确认后退出 0。未覆盖完整剧情、存读档、IME 或实际音视频。
+具体构建身份、定时强停与正常退出两轮证据见 [macOS 验证记录](../../.agents/notes/implemented/simplification/2026-11-27-macos-sdl3-runtime.md)。

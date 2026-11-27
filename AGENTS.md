@@ -78,7 +78,7 @@ python scripts/check_core_module_deps.py
 ## 后端精简约束
 
 目标是隔离并逐步替换 cocos2d/OpenCV，减小依赖及编译范围，见 [后端精简路线](.agents/notes/proposed/architecture/2026-11-03-backend-modernization.md)。
-当前仅支持 Windows/Linux SDL3；Android、macOS/iOS 暂停构建。
+当前支持 Windows/Linux/macOS SDL3；Android、iOS 暂停构建。
 Cocos port、宿主、管理 UI、旧平台入口与构建配置已删除，见[桌面运行时](docs/subsystems/native-runtime.md)。
 其他平台恢复必须接入新宿主，旧实现可查 Git 基线 `c494ea0`；不要恢复旧依赖作为快捷回退。
 平台替换与 Ciallang/TJS2 替换分开验收。保持现有 TJS、Layer、存储及插件行为；移除依赖须同时处理 CMake、vcpkg、资源/平台打包与消费者，不用空实现静默吞掉游戏功能。

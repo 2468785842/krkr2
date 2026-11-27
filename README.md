@@ -1,7 +1,7 @@
 # KrKr2 Emulator
 
-KrKr2 is a C++17 KiriKiri runtime. Current builds support Windows x64 and Linux x64 using SDL3 and software rendering.
-Android and Apple builds are temporarily disabled. The Cocos host, manager UI, port and build integration have been removed.
+KrKr2 is a C++17 KiriKiri runtime. Current builds support Windows x64, Linux x64 and macOS arm64 using SDL3 and software rendering.
+Android and iOS builds are temporarily disabled. The Cocos host, manager UI, port and build integration have been removed.
 
 Set `VCPKG_ROOT`, prepare CMake 3.28+, Ninja, Python and Bison, and use an MSVC x64 developer shell on Windows:
 

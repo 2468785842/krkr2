@@ -2,7 +2,7 @@
 
 默认构建正式的 Linux SDL3 应用。它使用生产 TJS、Window/Layer、
 存储、插件、音频和 FFmpeg 视频模块；配置、编译、链接和运行均不需要 Cocos。
-Windows 使用相同宿主，见[Windows 桌面宿主](windows-sdl3.md)；macOS、Android 暂停构建。
+Windows 使用相同宿主，见[Windows 桌面宿主](windows-sdl3.md)；macOS 接入相同 SDL3 宿主，见 [macOS 桌面宿主](macos-sdl3.md)；Android/iOS 暂停构建。
 
 ## 构建与运行
 
@@ -82,10 +82,11 @@ CI 在 Ubuntu 24.04 和 Windows 2022 构建两份 Release 包，商业游戏素�
 ## 平台实现布局
 
 `cpp/core/environ/Platform.h` 保留统一系统接口，系统实现位于
-`platform/windows/Platform.cpp` 和 `platform/linux/Platform.cpp`（均相对 `cpp/core/environ/`）。
+`platform/windows/Platform.cpp`、`platform/linux/Platform.cpp` 和 `platform/macos/Platform.mm`（均相对 `cpp/core/environ/`）。
 SDL 公共窗口、输入和呈现逻辑保留在 `sdl3/SdlHost.cpp`，公共接线保留在
 `sdl3/NativeServices.cpp`；平台目录 `sdl3/windows/`、`sdl3/linux/` 分别实现
 `HostServices.cpp`（可执行文件路径、可写配置目录和平台日志初始化）与 `NativeHost.cpp`（菜单和文件对话框）。
+macOS 的 `sdl3/macos/*.mm` 提供 AppKit 菜单、文件选择、消息框和输入框。
 Linux 的 GTK 对话框实现在 `sdl3/linux/NativeDialogs.cpp`。
 
 `NativeDialogs.h` 统一声明对话框轮询和关闭入口：Linux 驱动异步 GTK 对话框，

@@ -148,5 +148,5 @@
   "default-features": [
     "foundation"
   ],
-  "supports": "windows | linux"
+  "supports": "windows | linux | osx"
 }
