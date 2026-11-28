@@ -332,7 +332,11 @@ if(KRKR2_ENABLE_SCRIPT_SMOKE)
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/game-smoke/renderer_error_repro.py"
                 --engine "$<TARGET_FILE:krkr2>"
                 --output-dir "${CMAKE_CURRENT_BINARY_DIR}/script-smoke/renderer-error")
-    set_tests_properties(textstream-runtime parser-error-runtime renderer-error-runtime
+    add_test(NAME startup-fallback-runtime
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/game-smoke/startup_fallback_repro.py"
+                --engine "$<TARGET_FILE:krkr2>"
+                --output-dir "${CMAKE_CURRENT_BINARY_DIR}/script-smoke/startup-fallback")
+    set_tests_properties(textstream-runtime parser-error-runtime renderer-error-runtime startup-fallback-runtime
         PROPERTIES TIMEOUT 120 LABELS "integration;script")
     if(LINUX)
         find_package(Threads REQUIRED)

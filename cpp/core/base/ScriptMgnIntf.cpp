@@ -895,6 +895,46 @@ void TVPExecuteStartupScript() {
             TVPExecuteStorage(TVPStartupScriptName);
             TVPStartupSuccess = true;
         } catch(...) {
+            // A startup script may have partially initialized the runtime
+            // before failing. Keep the legacy Initialize fallback, but do not
+            // silently discard the original exception: the fallback runs in
+            // that same state and can otherwise hide the first actionable
+            // failure.
+            try {
+                throw;
+            } catch(const TJS::eTJSScriptError &e) {
+                std::string detail = e.getMessage().AsStdString();
+                const auto *block = e.GetBlockName();
+                if(block && *block) {
+                    detail +=
+                        " @line(" + std::to_string(e.GetSourceLine()) + ") ";
+                    detail += ttstr(block).AsStdString();
+                }
+                if(!e.GetTrace().IsEmpty())
+                    detail += "\n" + e.GetTrace().AsStdString();
+                G_CoreLog.error(
+                    "Startup script failed before Initialize fallback: {}",
+                    detail);
+            } catch(const TJS::eTJS &e) {
+                G_CoreLog.error(
+                    "Startup script failed before Initialize fallback: {}",
+                    e.getMessage().AsStdString());
+            } catch(const std::exception &e) {
+                G_CoreLog.error(
+                    "Startup script failed before Initialize fallback: {}",
+                    e.what());
+            } catch(const char *e) {
+                G_CoreLog.error(
+                    "Startup script failed before Initialize fallback: {}",
+                    e ? e : "(null)");
+            } catch(const tjs_char *e) {
+                G_CoreLog.error(
+                    "Startup script failed before Initialize fallback: {}",
+                    e ? ttstr(e).AsStdString() : "(null)");
+            } catch(...) {
+                G_CoreLog.error("Startup script failed before Initialize "
+                                "fallback: unknown exception");
+            }
             if(!TVPIsExistentStorage(TJS_W("system/Initialize.tjs"))) {
                 throw;
             }
@@ -1127,7 +1167,12 @@ void TVPShowScriptException(eTJS &e) {
             (ttstr(TVPScriptExceptionRaised) + TJS_W("\n") + e.getMessage());
         TVPAddLog(ttstr(TVPScriptExceptionRaised) + TJS_W("\n") +
                   e.getMessage());
+#ifndef NDEBUG
+        std::fprintf(stderr, "%s\n", errstr.AsStdString().c_str());
+        std::fflush(stderr);
+#else
         TVPShowSimpleMessageBox(errstr, TVPGetErrorDialogTitle());
+#endif
         // Application->MessageDlg( errstr.AsStdString(),
         // std::wstring(), mtError, mbOK );
         TVPTerminateSync(1);
@@ -1146,7 +1191,12 @@ void TVPShowScriptException(eTJSScriptError &e) {
                   e.getMessage());
         if(e.GetTrace().GetLen() != 0)
             TVPAddLog(ttstr(TJS_W("trace : ")) + e.GetTrace());
+#ifndef NDEBUG
+        std::fprintf(stderr, "%s\n", errstr.AsStdString().c_str());
+        std::fflush(stderr);
+#else
         TVPShowSimpleMessageBox(errstr, TVPGetErrorDialogTitle());
+#endif
         //	Application->MessageDlg( errstr.AsStdString(),
         // Application->GetTitle(), mtStop, mbOK );
 

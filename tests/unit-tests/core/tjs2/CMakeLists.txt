@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.16)
 project(TestTjs2 LANGUAGES CXX)
 
 set(SOURCES
-        tjs.cpp
         tjsString.cpp
 )
 

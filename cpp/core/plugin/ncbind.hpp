@@ -2049,7 +2049,9 @@ struct ncbAttachTJS2Class : public ncbRegistNativeClassBase {
 	void RegistEnd() override {
 		if (_global) _global->Release();
 		_global = nullptr;
-		// _tjs2ClassObj は NoAddRef なので Release 不要
+		// Release the class reference after the registration batch.
+        _tjs2ClassObj = nullptr;
+        _tjs2ClassHolder.Clear();
 	}
 
 	void UnregistBegin() override {
@@ -2069,22 +2071,28 @@ struct ncbAttachTJS2Class : public ncbRegistNativeClassBase {
 	}
 	void UnregistEnd() override {
 		ClassInfoT::Clear();
-		// _tjs2ClassObj は NoAddRef なので Release 不要
+		// Release the class reference after the registration batch.
+        _tjs2ClassObj = nullptr;
+        _tjs2ClassHolder.Clear();
 	}
 protected:
 	NameT const    _tjs2ClassName;
 	iTJSDispatch2* _tjs2ClassObj{};	//< クラスオブジェクト
+    TJS::tTJSVariant _tjs2ClassHolder; // Own an exported proxy across member registration.
 	iTJSDispatch2* _global{};
 
 	// クラスオブジェクトを取得
-	static iTJSDispatch2* GetGlobalObject(NameT name, iTJSDispatch2 *global) {
+	iTJSDispatch2* GetGlobalObject(NameT name, iTJSDispatch2 *global) {
 		tTJSVariant val;
 		if (global) global->PropGet(0, name, nullptr, &val, global);
 		else {
 			NCB_WARN_W("No Global Dispatch.");
 			TVPExecuteExpression(name, &val);
 		}
-		return val.AsObjectNoAddRef();
+		// A script backend may export a temporary dispatch proxy. The global
+        // VM slot keeps the script value, not that proxy, so retain it here.
+        _tjs2ClassHolder = val;
+        return _tjs2ClassHolder.AsObjectNoAddRef();
 	}
 };
 

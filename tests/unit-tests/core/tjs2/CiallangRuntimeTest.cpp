@@ -3,6 +3,8 @@
 #include "tjsObject.h"
 #include "tjsNative.h"
 #include "tjsArray.h"
+#include "tjsDictionary.h"
+#include "plugin/ncbind.hpp"
 #include "tjsError.h"
 #include "tjsScriptBlock.h"
 #include <memory>
@@ -36,6 +38,35 @@ namespace {
             return TJS_S_OK;
         }
     };
+    class HostClassNames final : public tTJSDispatch {
+    public:
+        tjs_error FuncCall(tjs_uint32, const tjs_char *name, tjs_uint32 *,
+                           tTJSVariant *result, tjs_int count,
+                           tTJSVariant **args, iTJSDispatch2 *) override {
+            if(name)
+                return TJS_E_MEMBERNOTFOUND;
+            if(count != 1)
+                return TJS_E_BADPARAMCOUNT;
+            auto *object = args[0]->AsObjectNoAddRef();
+            auto *array = TJSCreateArrayObject();
+            tTJSVariant returned(array, array);
+            array->Release();
+            for(tjs_uint n = 0;; ++n) {
+                tTJSVariant value;
+                if(TJS_FAILED(
+                       object->ClassInstanceInfo(TJS_CII_GET, n, &value)))
+                    break;
+                const auto status =
+                    array->PropSetByNum(TJS_MEMBERENSURE, n, &value, array);
+                if(TJS_FAILED(status))
+                    return status;
+            }
+            if(result)
+                *result = returned;
+            return TJS_S_OK;
+        }
+    };
+
     struct CounterInstance final : tTJSNativeInstance {
         tjs_int value = 41;
         static CounterInstance *get(iTJSDispatch2 *self) {
@@ -78,6 +109,20 @@ namespace {
                                 return TJS_S_OK;
                             }),
                         getClassName().c_str(), nitMethod);
+            RegisterNCM(
+                TJS_W("classIdentity"),
+                TJSCreateNativeClassMethod(
+                    [](tTJSVariant *result, tjs_int, tTJSVariant **,
+                       iTJSDispatch2 *self) -> tjs_error {
+                        auto *instance = CounterInstance::get(self);
+                        if(!instance)
+                            return TJS_E_NATIVECLASSCRASH;
+                        if(result)
+                            *result = static_cast<tjs_int64>(
+                                reinterpret_cast<std::uintptr_t>(instance));
+                        return TJS_S_OK;
+                    }),
+                getClassName().c_str(), nitMethod);
             RegisterNCM(
                 TJS_W("value"),
                 TJSCreateNativeClassProperty(
@@ -394,6 +439,35 @@ TEST_CASE("Ciallang script inheritance preserves the actual native instance") {
 
 
 TEST_CASE(
+    "Ciallang native class overrides preserve original method receivers") {
+    Engine engine(new tTJS());
+    auto *nativeClass = new NativeCounter();
+    tTJSVariant type(nativeClass);
+    nativeClass->Release();
+    auto *global = engine->GetGlobalNoAddRef();
+    REQUIRE(global->PropSet(TJS_MEMBERENSURE, TJS_W("BridgeCounter"), nullptr,
+                            &type, global) == TJS_S_OK);
+
+    // Mirror diffimage.tjs: save the original class method before replacing it.
+    engine->ExecScript(TJS_W("with (global.BridgeCounter) {"
+                             " .savedReadNative = .readNative;"
+                             " .readNative = function () { var original = "
+                             "this.savedReadNative; return original(...); };"
+                             "}"));
+    tTJSVariant result;
+    engine->EvalExpression(TJS_W("typeof BridgeCounter.readNative"), &result);
+    REQUIRE(ttstr(result) == ttstr(TJS_W("Object")));
+
+    engine->ExecScript(
+        TJS_W("class Child extends BridgeCounter {"
+              " function Child(v) { super.BridgeCounter(); value = v; }"
+              "}"
+              "var first = new Child(17);"));
+    engine->EvalExpression(TJS_W("first.readNative()"), &result);
+    REQUIRE(tjs_int(result) == 17);
+}
+
+TEST_CASE(
     "Ciallang exceptions own valid source metadata across the host boundary") {
     Engine engine(new tTJS());
     try {
@@ -525,6 +599,18 @@ TEST_CASE("Ciallang arrays use host text storage paths modes and encoding") {
     REQUIRE(tjs_int(result) == 1);
     engine->EvalExpression(TJS_W("lines.join(\"|\")"), &result);
     REQUIRE(ttstr(result) == ttstr(TJS_W("一||二|last")));
+    streams.output = TJS_W("");
+    const auto beforeStruct = streams.closed;
+    engine->ExecScript(
+        TJS_W("var structure = [\"中文\", 7];"
+              "var structured = "
+              "structure.saveStruct(\"file://./virtual/struct\", \"z2\");"));
+    REQUIRE(streams.name == ttstr(TJS_W("file://./virtual/struct")));
+    REQUIRE(streams.mode == ttstr(TJS_W("z2")));
+    REQUIRE(streams.closed == beforeStruct + 1);
+    REQUIRE(streams.output.AsStdString().find("中文") != std::string::npos);
+    engine->EvalExpression(TJS_W("structured === structure"), &result);
+    REQUIRE(tjs_int(result) == 1);
     const auto beforeFailure = streams.closed;
     streams.fail = true;
     engine->ExecScript(TJS_W(
@@ -573,4 +659,246 @@ TEST_CASE(
                                leaf.AsObjectNoAddRef()) == TJS_S_OK);
     engine->EvalExpression(TJS_W("leaf.total()"), &result);
     REQUIRE(tjs_int(result) == 11);
+}
+
+TEST_CASE(
+    "Ciallang exposes ancestor names before dynamic native construction") {
+    Engine engine(new tTJS());
+    auto *nativeClass = new NativeCounter();
+    tTJSVariant type(nativeClass, nativeClass);
+    nativeClass->Release();
+    auto *global = engine->GetGlobalNoAddRef();
+    REQUIRE(global->PropSet(TJS_MEMBERENSURE, TJS_W("BridgeCounter"), nullptr,
+                            &type, global) == TJS_S_OK);
+    auto *names = new HostClassNames();
+    tTJSVariant namesValue(names);
+    names->Release();
+    REQUIRE(global->PropSet(TJS_MEMBERENSURE, TJS_W("hostClassNames"), nullptr,
+                            &namesValue, global) == TJS_S_OK);
+    engine->ExecScript(
+        TJS_W("class Middle extends BridgeCounter {"
+              " function Middle() {"
+              " var ctor = global.savedNativeCtor;"
+              " if(ctor === void) {"
+              " var names = []; names.assign(hostClassNames(this));"
+              " var pos = names.find('Middle');"
+              " ctor = void;"
+              " if(pos >= 0) for(var n = names.count; ++pos < n;) {"
+              "   if(typeof super[names[pos]] == 'Object') { ctor = "
+              "super[names[pos]]; break; }"
+              " }"
+              " global.savedNativeCtor = ctor;"
+              " }"
+              " ctor(...) if ctor !== void;"
+              " }"
+              "}"
+              "class Leaf extends Middle {"
+              " function Leaf() { super.Middle(); value = 73; }"
+              " function read() { return super.readNative(); }"
+              "}"
+              "global.savedNativeCtor = void;"
+              "var first = new Leaf();"
+              "first.value = 11;"
+              "var leaf = new Leaf();"));
+    tTJSVariant result;
+    engine->EvalExpression(TJS_W("leaf.read()"), &result);
+    REQUIRE(tjs_int(result) == 73);
+    engine->EvalExpression(TJS_W("first.read()"), &result);
+    REQUIRE(tjs_int(result) == 11);
+    engine->EvalExpression(TJS_W("hostClassNames(leaf).join(',')"), &result);
+    REQUIRE(ttstr(result) == ttstr(TJS_W("Leaf,Middle,BridgeCounter")));
+    engine->DoGarbageCollection();
+    engine->EvalExpression(TJS_W("leaf.read()"), &result);
+    REQUIRE(tjs_int(result) == 73);
+}
+
+TEST_CASE("Ciallang assigns host dictionary members without losing aliases") {
+    Engine engine(new tTJS());
+    auto *object = TJSCreateDictionaryObject();
+    tTJSVariant source(object, object);
+    object->Release();
+    tTJSVariant answer(42), payload(TJSCreateDictionaryObject());
+    // The variant owns this temporary dictionary's original reference below.
+    payload.AsObjectNoAddRef()->Release();
+    REQUIRE(object->PropSet(TJS_MEMBERENSURE, TJS_W("answer"), nullptr, &answer,
+                            object) == TJS_S_OK);
+    REQUIRE(object->PropSet(TJS_MEMBERENSURE, TJS_W("payload"), nullptr,
+                            &payload, object) == TJS_S_OK);
+    auto *global = engine->GetGlobalNoAddRef();
+    REQUIRE(global->PropSet(TJS_MEMBERENSURE, TJS_W("hostDict"), nullptr,
+                            &source, global) == TJS_S_OK);
+    engine->ExecScript(
+        TJS_W("var copied = %[kept: 1];"
+              "(Dictionary.assign incontextof copied)(hostDict, false);"
+              "var entries = []; entries.assign(hostDict);"
+              "copied.payload.n = 73;"));
+    tTJSVariant result;
+    engine->EvalExpression(
+        TJS_W("copied.kept == 1 && copied.answer == 42 && "
+              "entries.count == 4 && copied.payload === hostDict.payload"),
+        &result);
+    REQUIRE(tjs_int(result) == 1);
+    REQUIRE(payload.AsObjectNoAddRef()->PropGet(0, TJS_W("n"), nullptr, &result,
+                                                payload.AsObjectNoAddRef()) ==
+            TJS_S_OK);
+    REQUIRE(tjs_int(result) == 73);
+    engine->DoGarbageCollection();
+    engine->ExecScript(TJS_W("copied.assign(hostDict);"));
+    engine->EvalExpression(TJS_W("typeof copied.kept"), &result);
+    REQUIRE(ttstr(result) == ttstr(TJS_W("undefined")));
+    engine->ExecScript(TJS_W(
+        "(Dictionary.assign incontextof hostDict)(%[merged: 7], false);"));
+    REQUIRE(object->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("merged"), nullptr,
+                            &result, object) == TJS_S_OK);
+    REQUIRE(tjs_int(result) == 7);
+    REQUIRE(object->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("answer"), nullptr,
+                            &result, object) == TJS_S_OK);
+    REQUIRE(tjs_int(result) == 42);
+    engine->ExecScript(
+        TJS_W("(Dictionary.erase incontextof hostDict)('merged');"));
+    REQUIRE(object->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("merged"), nullptr,
+                            &result, object) == TJS_E_MEMBERNOTFOUND);
+    engine->ExecScript(TJS_W("(Dictionary.clear incontextof hostDict)();"));
+    REQUIRE(object->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("answer"), nullptr,
+                            &result, object) == TJS_E_MEMBERNOTFOUND);
+}
+
+TEST_CASE("Ciallang class attachment retains its exported dispatch") {
+    struct AttachmentType {};
+    struct Attachment final : ncbAttachTJS2Class<AttachmentType> {
+        Attachment() :
+            ncbAttachTJS2Class(TJS_W("AttachmentProbe"), TJS_W("Dictionary")) {}
+        void lookup(iTJSDispatch2 *global, const tjs_char *name) {
+            _tjs2ClassObj = GetGlobalObject(name, global);
+        }
+    };
+    for(const bool array : { false, true }) {
+        DYNAMIC_SECTION((array ? "Array" : "Dictionary")) {
+            Attachment attachment;
+            Engine engine(new tTJS());
+            attachment.lookup(engine->GetGlobalNoAddRef(),
+                              array ? TJS_W("Array") : TJS_W("Dictionary"));
+            // GetGlobalObject's temporary Variant has been destroyed.
+            engine->DoGarbageCollection();
+            tTJSVariant member;
+            engine->EvalExpression(TJS_W("[73]"), &member);
+            attachment.RegistVariant(TJS_W("attachmentProbe"), member,
+                                     TJS_STATICMEMBER);
+            member.Clear();
+            engine->DoGarbageCollection();
+            tTJSVariant result;
+            engine->EvalExpression(array
+                                       ? TJS_W("Array.attachmentProbe[0]")
+                                       : TJS_W("Dictionary.attachmentProbe[0]"),
+                                   &result);
+            REQUIRE(tjs_int(result) == 73);
+            attachment.RegistEnd();
+        }
+    }
+}
+
+TEST_CASE(
+    "Ciallang rebinds an exported native method to distinct script instances") {
+    Engine engine(new tTJS());
+    auto *nativeClass = new NativeCounter();
+    tTJSVariant type(nativeClass, nativeClass);
+    nativeClass->Release();
+    auto *global = engine->GetGlobalNoAddRef();
+    REQUIRE(global->PropSet(TJS_MEMBERENSURE, TJS_W("BridgeCounter"), nullptr,
+                            &type, global) == TJS_S_OK);
+    engine->ExecScript(
+        TJS_W("class Child extends BridgeCounter {"
+              " function Child(v) { super.BridgeCounter(); value = v; }"
+              "}"
+              "var first = new Child(11), second = new Child(73);"
+              "var original = BridgeCounter.readNative;"
+              "var a = original incontextof first;"
+              "var b = original incontextof second;"));
+    tTJSVariant result;
+    engine->EvalExpression(TJS_W("a()"), &result);
+    REQUIRE(tjs_int(result) == 11);
+    engine->EvalExpression(TJS_W("b()"), &result);
+    REQUIRE(tjs_int(result) == 73);
+    engine->DoGarbageCollection();
+    engine->EvalExpression(TJS_W("a()"), &result);
+    REQUIRE(tjs_int(result) == 11);
+}
+
+TEST_CASE(
+    "Ciallang exposes raw Array count properties and numeric host access") {
+    Engine engine(new tTJS());
+    tTJSVariant klass, property, array, result;
+    engine->EvalExpression(TJS_W("Array"), &klass);
+    auto *classObject = klass.AsObjectNoAddRef();
+    REQUIRE(classObject->PropGet(TJS_IGNOREPROP, TJS_W("count"), nullptr,
+                                 &property, classObject) == TJS_S_OK);
+    REQUIRE(property.Type() == tvtObject);
+    engine->ExecScript(TJS_W("var exportedArray = [11,73];"));
+    engine->EvalExpression(TJS_W("exportedArray"), &array);
+    auto *object = array.AsObjectNoAddRef();
+    REQUIRE(property.AsObjectNoAddRef()->PropGet(0, nullptr, nullptr, &result,
+                                                 object) == TJS_S_OK);
+    REQUIRE(tjs_int(result) == 2);
+    REQUIRE(object->PropGetByNum(0, 1, &result, object) == TJS_S_OK);
+    REQUIRE(tjs_int(result) == 73);
+    tTJSVariant updated(99);
+    REQUIRE(object->PropSetByNum(TJS_MEMBERENSURE, 1, &updated, object) ==
+            TJS_S_OK);
+    engine->EvalExpression(TJS_W("exportedArray[1]"), &result);
+    REQUIRE(tjs_int(result) == 99);
+}
+
+TEST_CASE("Ciallang preserves the host receiver for forwarded script methods") {
+    Engine engine(new tTJS());
+    auto *nativeClass = new NativeCounter();
+    tTJSVariant type(nativeClass, nativeClass);
+    nativeClass->Release();
+    auto *global = engine->GetGlobalNoAddRef();
+    REQUIRE(global->PropSet(TJS_MEMBERENSURE, TJS_W("BridgeCounter"), nullptr,
+                            &type, global) == TJS_S_OK);
+    engine->ExecScript(TJS_W(
+        "BridgeCounter.callback = function(delta) { return value + delta; };"
+        "class Wrapper {"
+        " var value = 11; var child;"
+        " function Wrapper() { child = new BridgeCounter(); child.value = 70; }"
+        " function read(delta) { return child.callback(...); }"
+        "}"
+        "var wrapper = new Wrapper();"));
+    tTJSVariant result;
+    engine->EvalExpression(TJS_W("wrapper.child.callback(3)"), &result);
+    REQUIRE(tjs_int(result) == 73);
+    engine->EvalExpression(TJS_W("wrapper.read(3)"), &result);
+    REQUIRE(tjs_int(result) == 73);
+    engine->DoGarbageCollection();
+    engine->EvalExpression(TJS_W("wrapper.read(7)"), &result);
+    REQUIRE(tjs_int(result) == 77);
+}
+
+TEST_CASE("Ciallang attaches native methods to Array instances") {
+    struct AttachmentType {};
+    struct Attachment final : ncbAttachTJS2Class<AttachmentType> {
+        Attachment() :
+            ncbAttachTJS2Class(TJS_W("ArrayAttachmentProbe"), TJS_W("Array")) {}
+        void lookup(iTJSDispatch2 *global) {
+            _tjs2ClassObj = GetGlobalObject(TJS_W("Array"), global);
+        }
+    } attachment;
+    Engine engine(new tTJS());
+    attachment.lookup(engine->GetGlobalNoAddRef());
+    auto *method = TJSCreateNativeClassMethod(
+        [](tTJSVariant *result, tjs_int, tTJSVariant **,
+           iTJSDispatch2 *self) -> tjs_error {
+            return self->PropGetByNum(0, 0, result, self);
+        });
+    tTJSVariant value(method);
+    method->Release();
+    attachment.RegistVariant(TJS_W("hostFirst"), value, 0);
+    attachment.RegistEnd();
+    engine->ExecScript(TJS_W("var attached = [47];"));
+    tTJSVariant result;
+    engine->EvalExpression(TJS_W("attached.hostFirst()"), &result);
+    REQUIRE(tjs_int(result) == 47);
+    engine->DoGarbageCollection();
+    engine->EvalExpression(TJS_W("[73].hostFirst()"), &result);
+    REQUIRE(tjs_int(result) == 73);
 }

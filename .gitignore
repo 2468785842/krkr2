@@ -21,3 +21,5 @@ java_pid*.hprof
 
 # Disabled Apple platform: preserve local build caches.
 /platforms/apple/
+
+/external/

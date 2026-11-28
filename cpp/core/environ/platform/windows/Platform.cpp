@@ -97,9 +97,9 @@ int TVPShowSimpleMessageBox(const ttstr &text, const ttstr &caption,
     // SDL 模态框会让进程永久挂起。改为落日志并直接返回默认按钮。
     {
         const HANDLE handle = ::GetStdHandle(STD_ERROR_HANDLE);
-        const DWORD type =
-            handle == INVALID_HANDLE_VALUE || !handle ? FILE_TYPE_PIPE
-                                                      : ::GetFileType(handle);
+        const DWORD type = handle == INVALID_HANDLE_VALUE || !handle
+            ? FILE_TYPE_PIPE
+            : ::GetFileType(handle);
         if(type != FILE_TYPE_CHAR) {
             std::fprintf(stderr, "[%s] %s\n", caption.AsStdString().c_str(),
                          text.AsStdString().c_str());

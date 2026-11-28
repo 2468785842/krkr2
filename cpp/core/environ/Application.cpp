@@ -516,15 +516,19 @@ namespace {
 
 void tTVPApplication::ShowException(const ttstr &e) {
     G_ExceptionLog.error(e.AsStdString());
-    // 启动期致命错误同时写 stderr：stdout/stderr 被重定向时（自动化、smoke
-    // 脚本、CI）没有人在窗口前点“确定”，模态框会让进程永久挂起。
-    // 重定向场景直接落日志并退出，交互式启动保留原有对话框。
+    // Always mirror fatal errors to stderr for debugger and smoke diagnostics.
     std::fprintf(stderr, "%s\n", e.AsStdString().c_str());
     std::fflush(stderr);
+#ifndef NDEBUG
+    // Debug builds should not block terminal debugging behind a modal dialog.
+#else
+    // Release builds retain the interactive dialog, except when stderr is
+    // redirected and there is no interactive reader.
     if(CanShowErrorDialog()) {
         TVPShowDialogMessage(e.AsStdString(),
                              TVPGetErrorDialogTitle().AsStdString());
     }
+#endif
     TVPSystemUninit();
     TVPExitApplication(0);
 }

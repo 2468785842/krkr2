@@ -458,3 +458,278 @@ Ciallang 侧不再是 `out/` 下的本地补丁，而是上游提交：本地 25
 `[!mayfail]` 记录上述惰性基类缺口；宿主 `CiallangRuntimeTest` 18/18 通过。
 真实游戏仍未到 KAG 心跳（`sample_count=0`、`passed=false`），不构成替换验收；
 `custom.tjs` 之后还有标题、剧情、存读档、音视频未验证。
+
+
+## 2026-11-28 macOS nested SetIndex 首错与静态方法同名键
+
+本轮基线：宿主 HEAD `1d61099e1f16df3e9444d262c26d30597c7475ef`、子模块 HEAD
+`de4ee5c0c94c9eac0c4499916efcaebd8b44b015`，两侧均有既有 dirty 改动；保留全部原改动，
+本轮未 commit/push。SDK 构建目录 `out/macos/ciallang-sdk` 的 source 为
+`external/Ciallang`、Debug、`CIAL_BUILD_TESTS=ON`、JIT OFF；宿主
+`out/macos/ciallang` 为 Debug、`KRKR2_SCRIPT_BACKEND=ciallang`、full scope、
+`ENABLE_TESTS=ON`、普通 app、UI driver OFF、JIT OFF。
+
+### 实际定位与修复
+
+原首错为 `override.tjs:75`：`value is not indexable: void (void)`，已确认是
+nested **SetIndex receiver** 为 void，目标属性 `enabled`、value 为 0；不是最终
+GetIndex 自己抛缺键异常，也没有证据指向 TJS 原生 ObjThis。
+
+先收敛 `external/Ciallang/tests/sdk_test.cpp` 的既有 nested postfix 用例：
+`_fore[getName()][getProp()] = getValue() if guard()` 在全局容器和类字段两种形态下，
+true 分支结果 42、三个操作数各一次、guard 一次；false 分支结果仍为 7、
+三个操作数零次、仅 guard 一次。未修生产代码时即通过 1 用例 / 12 断言。
+补入原脚本方法参数形态及非同名缺失键也通过，故没有依据改写
+`IRGenerator.cpp` 的 AssignExprNode/IndexExprNode/TernaryExprNode 生命周期或 postfix-if 语义。
+
+真实轨迹（仅 out 中保留日志，生产临时输出已删除）发现失败键实际为 `save`。
+同一 Dictionary 地址在 guard 的 `typeof _fore[name]` 得到 `Object`，后续
+GetIndex 却报告 missing `save` 并返回 void。原因是 `VMState.cpp::TypeOfMember`
+在字典键不存在时继续匹配 Dictionary 的原生静态方法 `save`，把缺失键误判为存在。
+这是**静态方法同名键的存在性探测错误**，不是一般 Dictionary 缺键读取错误或寄存器复用。
+
+旧 TJS2 Release app 对自制 `out/game-smoke/ciallang-nested-reference/startup.tjs`
+的实测输出为 `NESTED-REFERENCE:undefined:undefined:Object`（依次为
+`typeof d["save"]`、`typeof d.save`、`typeof Dictionary.save`），守卫写入的 hits=0，
+进程退出码 0；证据 `out/ciallang-nested-reference.log`。
+源码也对应 `cpp/core/tjs2/tjsDictionary.cpp` 的静态方法登记与 `tjsNative.h` 的
+`TJS_STATICMEMBER`。仅将 SDK 缺失键从 `absent` 改成 `save`，修复前即可稳定失败：
+1 用例失败、14 断言中 2 失败，日志 `out/ciallang-nested-sdk-before-fix.log`。
+
+实际改动：
+- `external/Ciallang/src/types/Dictionary.hpp` 区分标准库类对象与普通字典；
+  `src/stdlib/DictLib.cpp` 仅把注册的 Dictionary 类对象标为类对象。
+- `src/vm/VMState.cpp::TypeOfMember` 对普通字典直接按键槽返回类型/undefined，
+  与 GetIndex 一致，不再把静态方法误作实例键；保留类对象静态方法的类型探测。
+- 同一个 SDK 正式回归还断言 missing `save` 的 guard 安全跳过，以及
+  `undefined|undefined|Object` 的双实例/类对象探测结果。原有独立 missing/void
+  回归保留；删除了旧 nested 测试中重复的 present-void 探针。
+- 保留 SetIndex/GetIndex 的 receiver-rich 错误诊断、Application/ScriptMgnIntf 的
+  Debug stderr 与 startup 首错日志；不吞运行期异常。全部临时 TYPE/INDEX/寄存器轨迹输出已移除。
+- 标准库实例方法直接调用这一既有扩展未改；存在性探测以键槽为准。边界说明已同步
+  `external/Ciallang/doc/compatibility.md`。IRGenerator 无本轮改动。
+
+### 构建与测试证据
+
+以下构建/测试均退出 0，日志前缀 `out/ciallang-nested-`：
+
+```sh
+cmake --build out/macos/ciallang-sdk --target CiallangTests --parallel 4
+out/macos/ciallang-sdk/tests/CiallangTests 'SDK guards nested dictionary writes with postfix if'
+out/macos/ciallang-sdk/tests/CiallangTests '[sdk]'
+ctest --test-dir out/macos/ciallang-sdk -N
+cmake --build out/macos/ciallang --target CiallangRuntimeTest krkr2 --parallel 4
+ctest --test-dir out/macos/ciallang -N -R '^Ciallang'
+ctest --test-dir out/macos/ciallang -R '^Ciallang' --output-on-failure --no-tests=error
+```
+
+最终新单例 **1 用例 / 18 断言**；SDK 全套 **67 用例 / 288 断言**，全部通过。
+SDK CTest 实际总注册 **277 项**，新回归登记为 #54，已有 `sdk_test.cpp` 在
+`external/Ciallang/tests/CMakeLists.txt` SOURCES 中，无需新增清单；277 项并非全跑通过。
+宿主 `^Ciallang` 实际注册并运行 **19/19 通过**。
+C++ 本轮修改范围经 `/usr/local/bin/clang-format` **20.1.0** 格式化；
+父仓库与子模块 `git diff --check`、新增 note 引用路径检查通过。
+无新增基础模块依赖，未触发全依赖重装；Windows/Linux 未验证。
+
+### 全新真实游戏运行
+
+Python 使用 `/opt/homebrew/bin/python3.13`（系统 python3 缺 `hashlib.file_digest`，
+#20 只留下准备失败目录，未作为运行证据）。#21–25 均由 `game_smoke.py prepare`
+从 `/Users/lidong/Documents/tslm` 准备全新副本；未改原始游戏、XP3、游戏脚本或存档。
+#22–24 为临时 VM 轨迹版，只用于定位；#25 已删除全部临时轨迹，用最终 Debug app：
+
+```sh
+/opt/homebrew/bin/python3.13 tools/game-smoke/game_smoke.py prepare /Users/lidong/Documents/tslm out/game-smoke/macos-ciallang-25
+/opt/homebrew/bin/python3.13 tools/game-smoke/game_smoke.py run out/macos/ciallang/bin/krkr2/krkr2.app/Contents/MacOS/krkr2 out/game-smoke/macos-ciallang-25 --seconds 30 --launch-style game
+```
+
+各轮 exe 均为 `out/macos/ciallang/bin/krkr2/krkr2.app/Contents/MacOS/krkr2`；
+manifest SHA256 均为 `8cb1320daac1a5ae66d2a1ac1dff4c659a8b308e5c5824e9df247fa5b1ef3972`，
+hook SHA256 为 `adcf88ff497804289bebeadc96dc6a7bbc6cc447efe3f9461a45c899ea2d2c09`。
+每轮报告/原始日志为 `out/game-smoke/macos-ciallang-<轮次>/smoke-{report.json,process.log}`，
+运行命令和 PID 在报告内，smoke 命令均因 passed=false 返回 1。
+
+| 轮次 | exe SHA256 | 实测秒数 | 进程退出码 | forced_stop | heartbeat samples |
+|---|---|---:|---|---|---:|
+| 21 | `b77a7774691e12e320ccaaf9503938b478b3561a5f9db7f64531dec39ad7b40e` | 3.56 | `0` | false | 0 |
+| 22 | `dd053719d1a8525463d2024214d4510fb8ba00a19c9ecf76b195bcd511fbb2f6` | 4.31 | `0` | false | 0 |
+| 23 | `ccf3e15793402ff43e9f6360f4aecc32f6e8144204b500fa85b751956750e7c4` | 4.33 | `0` | false | 0 |
+| 24 | `9300b6fde820e7b4e2fc0bade3ce77441c0e1704b76f7f1412e61c5318844327` | 4.31 | `0` | false | 0 |
+| 25 | `d3390cbb0455efb106202649413d447667e0cb92428dbcb3a8fbec814dc4a100` | 4.92 | `-11` | false | 0 |
+
+#21–24 首错仍为 override 的 nested SetIndex；#25 已越过原首错，加载到
+`standview.tjs`、`particle.tjs`、`UILoader.tjs` 和 `AfterInit.tjs`。
+新的首错为 `TJS dispatch failed: -1008 in HostObject::call`，栈首
+`conductor.tjs:657` → `mainwindow.tjs:4270` → `initialize.tjs:425` → `startup.tjs:29`。
+之后 startup fallback 重新初始化，最终 SIGSEGV（-11）；本轮没有把该崩溃归因于新首错，
+也没有吞异常或改 fallback。无 heartbeat、passed=false、未强停，不构成启动兼容通过，
+更不代表正常退出、剧情、音视频或存读档验收。
+
+下一步：围绕 conductor 首错建立最小 HostObject::call 用例，核对实际被调者、参数与
+TJS 分派返回码；另保留首次异常后 fallback/销毁期 SIGSEGV 的独立调查边界。
+迁移目标仍未完成，note 保持 proposed。
+
+
+## 2026-11-28 接续：Conductor 原生构造与首个 heartbeat（调查中）
+
+用户要求持续推进直到游戏成功运行。保留全部既有 dirty 改动，未 commit/push。
+已增加 `Ciallang exposes ancestor names before dynamic native construction` 宿主正式回归，
+复现动态祖先类名查找、宿主返回的 TJS Array 经过 Ciallang Array.assign、缓存原生构造器
+跨实例调用，以及 `{class,class}` 形式注册的原生类。普通显式 super 多层继承本来可通过；
+加入实际动态路径后失败，证据 `out/ciallang-conductor-{before,array-before,cached-before}.log`。
+
+当前已修：ScriptObject::ClassInstanceInfo(GET) 提供派生到基类的脚本/原生类名链；
+Runtime.hostArrayAssignHook 在显式 Array.assign 时复制真实宿主 TJS Array 的元素，
+不复制或替换宿主数组对象身份；HostObject::memberReceiver 允许原生类自绑定闭包
+切换到当前脚本实例；原生 super 构造器回调在调用时取当前实例，避免全局缓存一直
+初始化第一次读构造器的 AnimationConductor。实现位于
+`cpp/core/tjs2/CiallangRuntime.cpp`、`external/Ciallang/src/runtime/Runtime.hpp`、
+`external/Ciallang/src/stdlib/ArrayLib.cpp`。探针显示修复前 KAGParser 构造反复初始化
+同一个 AnimationConductor 地址，loadScenario 方法则以原生方法自身为 receiver。
+临时日志已删除，原诊断保留。
+
+截至 #29：宿主 registered tests 20/20 通过；SDK 67 用例 / 288 断言通过。
+#29 的正式 game_smoke 报告首次 passed=true，32 个 heartbeat 样本，场景 custom.ks:2；
+exe SHA256 `143c11a8bf09bd70133c8ad2279e34bdc6448ef4560cdfaa6d2fd93343d1c056`，
+30 秒期限强停，SIGTERM 未退出后 SIGKILL（-9），不代表正常退出。
+#30 的 CUA 实际窗口与 AfterStartup snapshot 都是白屏，仍停 custom.ks:2；
+不能因 heartbeat 通过就声称游戏运行兼容通过。CUA 第一次按 app 名获取超时，随后
+用完整 app 路径成功；快照 `out/game-smoke/macos-ciallang-30/smoke-frame.{bmp,png}`。
+#30 结束附近磁盘耗尽，报告缺失；#31 prepare 失败未运行，不能算 smoke 通过。
+只对本任务新建 #20–30 中的完整只读 XP3 做哈希核对后改为硬链接到 #25，回收约
+6.27 GB，保留全部各轮脚本/存档/日志；未改原始游戏。后续用忽略目录脚本
+`out/prepare_shared_ciallang_game.py` 调用原 game_smoke.prepare，逐档核对原始素材、
+#25 与 manifest 的 SHA256 再链接，其他文件照常复制。#32 为附加只读状态 Timer 的诊断副本。
+下一步查 custom.ks:2 白屏时的 Conductor status/timer/队列，继续推进标题与实际交互。
+
+
+### 后续推进检查点：数值转换、宿主字典与 ncbind（2026-11-28）
+
+#32 只读 Timer 确认白屏时 Conductor `status=0`、`timerEnabled=0`、
+`inProcessing=1`，停 custom.ks:2。临时 VM 异常轨迹（#33–35）暴露
+SelectLayer.setOptions 的 `+elm.shadow` 对字符串 `"true"` 抛 `cannot convert string to number`。
+旧 TJS2 自制对照输出 `NUMBER-REFERENCE:0|0|1|0|12|0.5`，对应空串、空白、true、abc、12foo、.5。
+`external/Ciallang/src/types/TypeConverter.cpp::stringToNumber` 现接受词法数字/布尔关键字、
+小数与符号后空白，失败文本按 TJS2 归零，保持整数/实数类型。只改一元 + 的数值规范化路径，
+未扩大到 asInteger/asReal 的其他转换。新增 `tests/tjs/expression/unary/03.tjs`，
+修复前失败，修复后 1 文件 / 10 断言通过；unary 目录注册 3 项，3/3 通过。
+为实际运行语言回归，SDK 目录显式启用 `CIAL_BUILD_CLI=ON`，使用已有 argparse，
+没有重装工具链；此后 CTest 总注册数须重新核对，不能沿用早先 277。
+
+#36 passed=true，持续 heartbeat，但仍白屏，推进到 custom.ks:15。
+#37 轨迹首错为 `Dictionary.assign expects a dictionary`（override.tjs:1453）：
+原生 KAGParser 返回的 TJS Dictionary 不能被 Ciallang Dictionary.assign 复制。
+已增 Runtime.hostEnumMembersHook，通过宿主 EnumMembers(TJS_IGNOREPROP) 忽略隐藏成员，
+在显式 Dictionary.assign / Array.assign 时逐项转换；字典 `clear=false` 合并语义补齐，
+嵌套对象仍为原宿主身份。正式宿主回归
+`Ciallang assigns host dictionary members without losing aliases` 修复前抛该异常，
+修复后 7 断言通过，含共享嵌套对象写回、GC 后访问、clear=false 保留与默认清除。
+此时 registered host tests 21/21 通过。
+
+#38 继而在启动后的 AsyncTrigger 事件里 SIGSEGV（-11），startup 已返回、仅一个样本，
+未强停。LLDB #39/#40 匹配 exe SHA256
+`e8a2c6410b591316478c8fe1c0a83aaf96656c46a178529820f06bdef48d2391`：
+`ncbAttachTJS2Class<DictAdd>::RegistVariant` (`cpp/core/plugin/ncbind.hpp:2033`)
+→ saveStruct.cpp:365 → Plugins.link → AsyncTrigger 回调。完整 35 层栈
+`out/ciallang-event-crash-stack.log`。旧 ncbind GetGlobalObject 返回临时 Variant 的
+AsObjectNoAddRef，旧全局槽通常持有同一 TJS 对象；Ciallang 全局只持有 VM 值，
+不会持有这次导出的临时 dispatch proxy，因此挂接阶段访问悬垂代理。
+新增 `Ciallang class attachment retains its exported dispatch` 单例在修复前稳定 SIGSEGV，
+证据 `out/ciallang-ncbind-before.log`。修复为 ncbAttachTJS2Class 用 Variant 持有
+整个 Regist/Unregist 批次的类代理，并在 End 释放，不把代理全局永久保活。
+正在重建全部 ncbind 消费者及继续游戏验证。迁移仍 proposed，白屏不算游戏运行通过。
+
+
+### 2026-11-28 标题黑屏：KAG 裸属性字符串真值（接续中）
+
+TJS2 `macos-tjs2-current-98` 的同一份历史钩子记录 `custom.ks:107` 时
+message0 子层由 1 变 7；Ciallang #97 到 `title.ks:33` 始终为 1。
+直接核对 `cpp/core/kag/KAGParser.cpp:2067`，省略值的属性（`[syspage uiload]`）
+存为字符串 `"true"`；`data/sysscn/system.tjs` 的 syspage 处理器用 `if(elm.uiload)`。
+`Value::asBool` 调用严格的 stringToInteger，stripSign 拒绝非数字首字符，导致跳过加载。
+现在字符串真值复用 stringToNumber，再取整数真值，保留小数字符串截断的 TJS2 行为。
+修改仅在 `external/Ciallang/src/types/Value.cpp`；没有用游戏特例强制创建图层。
+
+新增语言回归 `tests/tjs/expression/conversion/string-condition.tjs`：
+修复前第 1 个断言失败（`out/ciallang-string-condition-before.log`）；修复后
+13 个断言通过，包含 Dictionary.assign 后的真实 syspage 分支形态。
+TJS2 同脚本自制 startup 对照 `ciallang-string-condition-reference-03` 输出
+`__TJS_TEST_PASS__:13` 且退出 0。前两次对照因测试写法（前导空白假设、
+无绑定字典回调里的裸 Dictionary 名）失败，保留原日志，不记为通过。
+
+构建 SDK 的 cial/CiallangTests 及宿主 krkr2/CiallangRuntimeTest 成功。
+SDK `[sdk]` 73 用例 / 300 断言通过；宿主 `^Ciallang` 26/26 通过；
+CTest 实际登记并运行 conversion/judgment 14/14 通过，包含新回归 #349。
+日志为 `out/ciallang-string-condition-{sdk-build,host-build,sdk-tests,host-tests,list,regressions}.log`。
+macOS 本地 Debug/JIT OFF、工作区与子模块 dirty，Windows/Linux 未验证。
+
+`ciallang-resume-002` 从原始素材准备全新副本，仅沿用 #97 既有历史/截图钩子。
+修复后自然路径在 `title.ks:33` 记录 message0=7、message1=2；CUA 实际窗口
+已从全黑变为神社标题背景，但 logo/按钮仍未显示，点击未推进。
+该运行后来附加 LLDB，父控制器提前记录的退出 0 不能视为正常退出证据。
+`macos-ciallang-98` 是本轮旧构建黑屏运行，为隔离同路径多进程主动强停；
+`ciallang-resume-001` 是中断前的无效诊断副本，不作为验收。
+后续用 `ciallang-resume-003` 的原脚本和 LLDB 检查显示回调与 fore/back/current，
+不增加游戏插装。仍未达到游戏正常运行门槛。
+
+
+### 2026-11-28 标题显示第二处缺口：Array.erase 错误清空命令队列
+
+LLDB 对原游戏脚本（`ciallang-resume-003/004`，无新脚本插装）确认：
+
+### 2026-11-28 标题按钮无响应与开场 logo：String.escape / sprintf %s 两处 TJS2 差异
+
+接续任务：Ciallang 后端能启动到标题，但 SYSTEM/EXIT（以及 START/LOAD）点击无反应，
+开场 logo 动画异常。保留全部既有 dirty 改动，本轮未 commit/push。
+macOS Debug、JIT OFF；TJS2 基线为 `out/macos/tjs2-current`（同一宿主、同资源副本）。
+
+**按钮点击链路：事件确实到达脚本。** 在隔离副本 `out/game-smoke/ciallang-resume-009..012`
+给标题按钮和 `DialogLayer` 加日志后，真实点击 SYSTEM 记录：
+`BTN-EXEC system enabled=1 button=0 mbLeft=0 eq=1 down=1` →
+`ON-BUTTON-CLICK n=4` → `PROCESS-LINK n=4 storage=custom.ks target=*tsel_option`，
+随后 processLink 在 `Scripts.eval(ln.exp)` 抛 `Invalid type get as String`（trace:
+`se.tjs:51 → mainwindow.tjs:10864 errorSound → mainwindow.tjs:10831 errorLine`），
+所以 `kag.process` 从未执行，画面停 `title.ks:33`。直接调用 `kag.process("custom.ks","*tsel_option")`
+可立即进入 `option.ks:5`，证明下游正常。
+
+**根因一：`String.escape()` 把非 ASCII 按 UTF-8 字节转义。**
+TJS2 对照：`"【システム】切替２".escape()` 返回原 9 字符；Ciallang 返回 108 字符的
+`\xe3\x80\x90...`。KAG 用 `escape()` 生成按钮 SE 表达式再 `Scripts.eval`，日文 SE 名因此变乱码，
+`Storages.isExistentStorage` 未命中 `.wav/.ogg/.tcw`，进入“效果音文件不存在”错误路径，
+processLink 在 `window.process` 之前中断。宿主探针 `Storages.isExistentStorage("【システム】決
+定２.ogg")=1`（两后端一致），只是 eval 后的名字被破坏。
+修复 `external/Ciallang/src/types/String.cpp::escapeBackSlash`：按 UTF-16 码元遍历，
+只转义控制字符/引号/反斜线，保留非 ASCII，并保留 TJS2 的 hexflag（`\xHH` 后十六进制字符
+继续转义，避免词法器最多 4 位 hex 吞并）。回归 `tests/tjs/native-function/string/escape.tjs`。
+
+**根因二：`sprintf` 的 `%s` 只接受 String。**
+错误路径里 `"%s:%s: %s".sprintf(filename, curLine, msg)` 的 curLine 是整数，Ciallang
+`formatString` 直接 `asString().unwrap()` → 再次抛 `Invalid type get as String`，
+把普通的图像/声音告警升级成致命错误，开场 `custom.ks:103 [begintrans]` 处整个 logo/ATTENTION
+序列被中止（`out/inspect/run-025.log`）。TJS2 `TJSFormatString` 对 `%s/%c` 使用
+`tTJSVariant::AsString`，整数/实数/void 均转字符串。
+修复同一文件 `formatString` 的 `%s`：复制参数并 `Value::toString()` 后取字符串；
+octet 等不可转换值不输出。回归 `tests/tjs/native-function/string/sprintf-conversion.tjs`
+（含 `"%5s" / "%-5s" / 1.5 / void` 形态和 KAG 错误行形态）。
+
+**验证（全部实际执行）：**
+- `cmake --build out/macos/ciallang-sdk --target cial CiallangTests --parallel 4` 成功；
+  `out/macos/ciallang-sdk/tests/CiallangTests '[sdk]'`：73 用例 / 300 断言通过。
+- `python3.13 external/Ciallang/tests/run_tjs_tests.py --engine out/macos/ciallang-sdk/cial
+  external/Ciallang/tests/tjs/native-function/string`：13 文件 / 62 断言通过（含新增 2 文件）。
+- `cmake --build out/macos/ciallang --target krkr2 --parallel 4` 成功；
+  `ctest --test-dir out/macos/ciallang -R '^Ciallang'`：26/26 通过。
+- 全新副本 `out/game-smoke/ciallang-resume-023`，实机点击 SYSTEM：
+  点击前截图标题、点击后 smoke-state 从 `title.ks:33` 变为 `option.ks:5`，
+  证明 SYSTEM 菜单按钮已响应。截图 `out/inspect/anim-ciallang/before-system.webp`、
+  `after-system.webp`；构建 `7d172b9e...` 之后修复版未重算 exe SHA（以命令/状态为准）。
+- TJS2 基线同一操作：`out/game-smoke/ciallang-resume-024` 点击 SYSTEM 后进入
+  `custom.ks:158` 的选项菜单流程（`out/inspect/anim-tjs2/`）。
+
+**开场 logo 仍未完全对齐（继续调查）：** 两处修复后 `custom.ks:103` 的致命错误不再出现
+（`out/inspect/run-030.log` 无“致命的”），但 `out/inspect/anim-fixed/f000..f025`
+仍只见白/灰/黑过渡，没有 TJS2 基线的 ATTENTION 文字与 YuzuSoft logo；
+同期 TJS2 基线 `out/inspect/anim-tjs2/f000..f029` 完整显示两者。
+资源存在性两后端一致（`諸注意.png`、`yuzu.png` 均为 1，探针日志
+`out/inspect/open-probe-{ciallang,tjs2}.txt`），下一步从 KAG `[ev]/[syscover]/[begintrans]`
+图层提升与前景更新回调查，而不是继续改存储路径。未把标题可点击当作完整启动/剧情验收。
