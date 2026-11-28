@@ -23,7 +23,8 @@
 | [桌面运行时](subsystems/native-runtime.md) | SDL3 独立构建、平台实现布局、原生对话框、资源与依赖验证 |
 | [窗口接口](subsystems/window-interface.md) | 通用窗口接口、可选 KAG 按钮导航与 Cocos 适配边界 |
 | [共享输入状态](subsystems/input-state.md) | 虚拟键、修饰键、指针坐标、提交文本及 Cocos 适配边界 |
-| [Android 输入桥](subsystems/android-input.md) | UTF-16/JNI、打印键去重、退格和独立模拟器测试 |
+| [Android SDL3 宿主](subsystems/android-sdl3.md) | Material 启动器、设置、游戏导入与 APK 构建 |
+| [Android 输入桥](subsystems/android-input.md) | 当前 SDL3 文本接线与旧输入桥的历史验证 |
 | [纹理呈现](subsystems/render-presentation.md) | 后端无关画面描述、Cocos 纹理适配、宿主截图与视频覆盖层 |
 | [ImageOps](subsystems/imageops.md) | CPU 图像契约、独立测试与微基准 |
 | [macOS 桌面宿主](subsystems/macos-sdl3.md) | SDL3/Cocoa、Metal 呈现、AppKit 对话框和构建运行 |

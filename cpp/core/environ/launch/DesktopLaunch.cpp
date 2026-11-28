@@ -19,9 +19,11 @@ namespace krkr::launch {
     namespace {
         std::string target;
         int exitCode = 0;
+        std::string launchError;
 
         void fail(const std::string &message) {
             exitCode = 2;
+            launchError = message;
             std::fprintf(stderr, "krkr2: %s\n", message.c_str());
             std::fflush(stderr);
         }
@@ -30,6 +32,7 @@ namespace krkr::launch {
     int PrepareDesktopLaunch(int argc, char **argv,
                              const PrepareHost &prepareHost) {
         target.clear();
+        launchError.clear();
         exitCode = 0;
         try {
             std::vector<std::string> arguments;
@@ -45,7 +48,7 @@ namespace krkr::launch {
                 return 0;
             }
             if(!options.game) {
-                fail("Desktop launch requires --game PATH");
+                fail("Launch requires --game PATH");
                 std::fputs(Usage(), stderr);
                 return exitCode;
             }
@@ -67,6 +70,7 @@ namespace krkr::launch {
 
     const std::string &DesktopTarget() { return target; }
     int DesktopExitCode() { return exitCode; }
+    const std::string &DesktopLaunchError() { return launchError; }
 
     bool ValidateDesktopArchive() {
         if(target.empty())

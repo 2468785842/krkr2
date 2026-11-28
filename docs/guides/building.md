@@ -70,8 +70,7 @@ python tools/xp3/smoke_test.py tools/bin/win/dbg/xp3.exe
 
 首批本机测试与当时的配置问题见 [XP3 验证记录](../../.agents/notes/implemented/testing/2026-11-01-xp3-build-validation.md)。
 
-Android、iOS 当前暂停构建，平台检查会在 vcpkg 安装前拒绝这些目标。
-旧平台入口与 Cocos 适配已删除，恢复支持需要新的平台宿主，历史代码见 `c494ea0`。
+Android 的 Gradle、SDK 与 ABI 命令见 [Android SDL3 宿主](../subsystems/android-sdl3.md#构建-apk)。iOS 仍暂停构建。
 
 ## 独立字符串测试与可选能力
 
@@ -189,12 +188,8 @@ TJS 的 Bison、日期词表以及消息头统一在构建期生成；日期词�
 ## 桌面启动与设置
 
 桌面构建需要通过命令行提供游戏目标，使用 `krkr2 --list-settings` 查看设置项和可接受的值。
-Android/iOS 构建继续提供选择器和设置页。桌面资源清单随平台裁剪。
+Android 启动器从同一份设置清单生成 Material 界面，详见 [Android SDL3 宿主](../subsystems/android-sdl3.md)。
 [桌面命令行](../subsystems/desktop-cli.md) · [管理界面资源边界](../subsystems/management-ui.md)
-
-Android 输入桥另有独立 Framework/ART 契约与模拟器 CI，命令和完整应用边界见[Android 输入桥](../subsystems/android-input.md#验证)。
-完整 Android Debug 运行时可用 Build Android 的 runtime_contracts 输入按 ABI 验证，
-会检查真实 APK 的 ELF 动态库闭包；命令见[完整运行时 APK 构建](../subsystems/android-input.md#完整运行时-apk-构建)。
 
 Linux 的 `imageops_contracts=true` 测试构建也构建并执行上述 17 项 Cocos 契约，然后运行双后端自制场景及 [视频覆盖层像素探针](../subsystems/render-presentation.md#视频覆盖层)。
 context用例检查真实Cocos EventDispatcher订阅的通知、优先级和寿命，不创建或销毁GPU context。

@@ -18,11 +18,16 @@ def check(root):
     if re.search(r"cocos|KRKR2_SDL3_ONLY", presets, re.I):
         errors.append("构建预设仍包含旧宿主配置")
     for relative in ("vcpkg/ports/cocos2dx", "cpp/core/environ/cocos2d",
-                     "cpp/core/environ/ui", "platforms/android", "platforms/apple",
+                     "cpp/core/environ/ui", "platforms/apple",
                      "cmake/CocosBuildHelpers.cmake"):
         if any(name == relative or name.startswith(relative + "/") for name in tracked):
             errors.append(f"旧宿主路径仍存在：{relative}")
     for name in tracked:
+        if name.startswith("platforms/android/") and "cocos" in name.lower():
+            errors.append(f"Android 路径仍包含旧宿主：{name}")
+        if name.startswith("platforms/android/") and name.endswith(".gradle"):
+            if re.search(r"\bcocos2dx?\b", (root / name).read_text(encoding="utf-8"), re.I):
+                errors.append(f"Android Gradle 仍依赖旧宿主：{name}")
         if name.startswith(("cpp/", "platforms/", "cmake/")) or name == "CMakeLists.txt":
             path = root / name
             if not path.is_file() or path.suffix not in {".h", ".hpp", ".cpp", ".mm", ".cmake", ".txt"}:

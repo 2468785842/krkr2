@@ -78,6 +78,11 @@ namespace krkr::sdl {
             return driver && std::strcmp(driver, "cocoa") == 0;
         }
 
+        bool UsesAndroid() {
+            const auto *driver = SDL_GetCurrentVideoDriver();
+            return driver && std::strcmp(driver, "android") == 0;
+        }
+
         struct VideoSubsystem {
             VideoSubsystem() {
                 // A native window close is resolved by the script query.
@@ -86,10 +91,17 @@ namespace krkr::sdl {
                                             "0", SDL_HINT_OVERRIDE));
                 check(SDL_SetHintWithPriority(SDL_HINT_MOUSE_TOUCH_EVENTS, "0",
                                               SDL_HINT_OVERRIDE));
+#ifdef __ANDROID__
+                // Receive lifecycle events before the SDL loop waits for
+                // resume.
+                SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE, "0");
+                SDL_SetHint(SDL_HINT_ORIENTATIONS,
+                            "LandscapeLeft LandscapeRight");
+#endif
                 check(SDL_InitSubSystem(SDL_INIT_VIDEO));
                 // X11 can use a native software surface. Its implicit GPU
                 // framebuffer produces black native capture under Xvfb.
-                if(!UsesWayland() && !UsesCocoa())
+                if(!UsesWayland() && !UsesCocoa() && !UsesAndroid())
                     check(SDL_SetHintWithPriority(
                         SDL_HINT_FRAMEBUFFER_ACCELERATION, "0",
                         SDL_HINT_OVERRIDE));
@@ -353,6 +365,20 @@ namespace krkr::sdl {
             bool pointerInside = false;
             bool dirty = true, closePending = false;
             const bool wayland = UsesWayland();
+            const bool android = UsesAndroid();
+#ifdef __ANDROID__
+            int requestedLeft = 0, requestedTop = 0;
+            const bool showFps =
+                IndividualConfigManager::GetInstance()->GetValue<bool>(
+                    "showfps", TVPPreferenceDefaults::value_showfps);
+            const float cursorScale = std::clamp(
+                IndividualConfigManager::GetInstance()->GetValue<float>(
+                    "vcursor_scale",
+                    TVPPreferenceDefaults::value_vcursor_scale),
+                0.0f, 1.0f);
+            Uint64 fpsSample = SDL_GetTicksNS();
+            unsigned framesPresented = 0, displayedFps = 0;
+#endif
             bool drawableCommitPending = wayland;
             bool programClosing = false;
             std::array<tjs_uint16, SDL_SCANCODE_COUNT> heldKeys{};
@@ -382,19 +408,30 @@ namespace krkr::sdl {
         public:
             Window(tTJSNI_Window *owner, Gamepads &pads) :
                 native(owner), gamepads(pads) {
+                SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE |
+                    SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+                if(android)
+                    flags |= SDL_WINDOW_FULLSCREEN;
                 window.reset(
-                    SDL_CreateWindow(caption.c_str(), width, height,
-                                     SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN |
-                                         SDL_WINDOW_HIGH_PIXEL_DENSITY));
+                    SDL_CreateWindow(caption.c_str(), width, height, flags));
                 check(window != nullptr);
-                // Wayland and Cocoa have no native software window surface.
-                // GPU presentation only uploads the engine's CPU RGBA frames.
-                renderer.reset(SDL_CreateRenderer(
-                    window.get(),
-                    UsesCocoa() ? "metal"
-                                : (wayland ? "opengles2,opengl" : "software")));
+                // Android, Wayland and Cocoa use GPU presentation to upload
+                // the engine's CPU-rendered frames.
+                const char *driver = "software";
+                if(UsesCocoa())
+                    driver = "metal";
+                else if(wayland)
+                    driver = "opengles2,opengl";
+                else if(android)
+                    driver = "opengles2";
+                renderer.reset(SDL_CreateRenderer(window.get(), driver));
                 check(renderer != nullptr);
                 SetPaintBoxSize(layerWidth, layerHeight);
+#ifdef __ANDROID__
+                SetUseMouseKey(
+                    IndividualConfigManager::GetInstance()->GetValue<bool>(
+                        "virtual_mouse", false));
+#endif
                 G_CoreLog.info("SDL3 video={}, renderer={}",
                                SDL_GetCurrentVideoDriver(),
                                SDL_GetRendererName(renderer.get()));
@@ -505,7 +542,13 @@ namespace krkr::sdl {
             void SetWidth(tjs_int w) override { SetSize(w, height); }
             void SetHeight(tjs_int h) override { SetSize(width, h); }
             void SetSize(tjs_int w, tjs_int h) override {
-                check(SDL_SetWindowSize(window.get(), w, h));
+                // Android owns the surface size; keep the script window's
+                // requested size separately from the native drawable.
+                if(!android)
+                    check(SDL_SetWindowSize(window.get(), w, h));
+                else if(w <= 0 || h <= 0)
+                    TVPThrowExceptionMessage(
+                        TJS_W("Window size must be positive"));
                 width = w;
                 height = h;
             }
@@ -515,27 +558,53 @@ namespace krkr::sdl {
             }
             tjs_int GetWidth() const override { return width; }
             tjs_int GetHeight() const override { return height; }
-            void GetWinSize(tjs_int &w, tjs_int &h) override { GetSize(w, h); }
+            void GetWinSize(tjs_int &w, tjs_int &h) override {
+                if(android)
+                    check(SDL_GetWindowSize(window.get(), &w, &h));
+                else
+                    GetSize(w, h);
+            }
             void SetPosition(tjs_int x, tjs_int y) override {
+#ifdef __ANDROID__
+                requestedLeft = x;
+                requestedTop = y;
+#else
                 check(SDL_SetWindowPosition(window.get(), x, y));
+#endif
             }
             void SetLeft(tjs_int x) override { SetPosition(x, GetTop()); }
             void SetTop(tjs_int y) override { SetPosition(GetLeft(), y); }
             tjs_int GetLeft() const override {
+#ifdef __ANDROID__
+                return requestedLeft;
+#else
                 int x;
                 check(SDL_GetWindowPosition(window.get(), &x, nullptr));
                 return x;
+#endif
             }
             tjs_int GetTop() const override {
+#ifdef __ANDROID__
+                return requestedTop;
+#else
                 int y;
                 check(SDL_GetWindowPosition(window.get(), nullptr, &y));
                 return y;
+#endif
             }
             void SetMinSize(tjs_int w, tjs_int h) override {
-                check(SDL_SetWindowMinimumSize(window.get(), w, h));
+                // SDL records Android size constraints even though the final
+                // native resize cannot be performed on this Activity.
+                const bool applied =
+                    SDL_SetWindowMinimumSize(window.get(), w, h);
+                check(applied ||
+                      (android && w == GetMinWidth() && h == GetMinHeight()));
             }
             void SetMaxSize(tjs_int w, tjs_int h) override {
-                check(SDL_SetWindowMaximumSize(window.get(), w, h));
+                const bool applied =
+                    SDL_SetWindowMaximumSize(window.get(), w, h);
+                check(applied ||
+                      (android && w == GetMaxWidth() && h == GetMaxHeight()));
             }
             void SetMinWidth(tjs_int w) override {
                 SetMinSize(w, GetMinHeight());
@@ -908,6 +977,19 @@ namespace krkr::sdl {
             }
 
             void Present(bool swap = true) {
+#ifdef __ANDROID__
+                if(showFps && swap) {
+                    const auto now = SDL_GetTicksNS();
+                    const auto elapsed = now - fpsSample;
+                    if(elapsed >= SDL_NS_PER_SECOND) {
+                        displayedFps =
+                            framesPresented * SDL_NS_PER_SECOND / elapsed;
+                        framesPresented = 0;
+                        fpsSample = now;
+                        dirty = true;
+                    }
+                }
+#endif
                 if(!Live() || !visible || minimized || !dirty)
                     return;
                 check(SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, 255));
@@ -933,10 +1015,16 @@ namespace krkr::sdl {
                                                     nullptr, &video->bounds));
                     }
                     if(showKeyboardCursor && MouseCursorState == mcsVisible) {
+#ifdef __ANDROID__
+                        const float size = 6.0f + cursorScale * 18.0f;
+#else
+                        constexpr float size = 12.0f;
+#endif
                         const SDL_FPoint pointer[] = {
-                            { float(mouseX), float(mouseY + 12) },
+                            { float(mouseX), mouseY + size },
                             { float(mouseX), float(mouseY) },
-                            { float(mouseX + 8), float(mouseY + 8) },
+                            { mouseX + size * (2.0f / 3.0f),
+                              mouseY + size * (2.0f / 3.0f) },
                         };
                         check(SDL_SetRenderDrawColor(renderer.get(), 255, 255,
                                                      255, 255));
@@ -944,8 +1032,23 @@ namespace krkr::sdl {
                     }
                     check(SDL_SetRenderClipRect(renderer.get(), nullptr));
                 }
-                if(swap)
+#ifdef __ANDROID__
+                if(showFps && swap) {
+                    check(SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, 255));
+                    const SDL_FRect background{ 0, 0, 88, 14 };
+                    check(SDL_RenderFillRect(renderer.get(), &background));
+                    check(SDL_SetRenderDrawColor(renderer.get(), 255, 255, 255,
+                                                 255));
+                    check(SDL_RenderDebugTextFormat(renderer.get(), 3, 3,
+                                                    "%u FPS", displayedFps));
+                }
+#endif
+                if(swap) {
                     check(SDL_RenderPresent(renderer.get()));
+#ifdef __ANDROID__
+                    ++framesPresented;
+#endif
+                }
                 // Mesa may have acquired the previous Wayland buffer before
                 // the resize. Commit again with the newly allocated buffer.
                 dirty = std::exchange(drawableCommitPending, false);
@@ -1004,8 +1107,10 @@ namespace krkr::sdl {
                         break;
                     case SDL_EVENT_WINDOW_RESIZED:
                         if(event.window.windowID == id) {
-                            width = event.window.data1;
-                            height = event.window.data2;
+                            if(!android) {
+                                width = event.window.data1;
+                                height = event.window.data2;
+                            }
                             dirty = true;
                             drawableCommitPending = wayland;
                             UpdatePresentation();
@@ -1026,6 +1131,25 @@ namespace krkr::sdl {
                             UpdatePresentation();
                         }
                         break;
+#ifdef __ANDROID__
+                    case SDL_EVENT_WILL_ENTER_BACKGROUND:
+                        SetFocused(false);
+                        break;
+                    case SDL_EVENT_DID_ENTER_FOREGROUND:
+                        SetFocused(SDL_GetWindowFlags(window.get()) &
+                                   SDL_WINDOW_INPUT_FOCUS);
+                        dirty = true;
+                        break;
+                    case SDL_EVENT_RENDER_DEVICE_RESET:
+                        if(event.render.windowID == id) {
+                            texture.reset();
+                            for(const auto &video : videos)
+                                video->picture.reset();
+                            RequestRepaint();
+                            dirty = true;
+                        }
+                        break;
+#endif
                     case SDL_EVENT_KEY_DOWN:
                     case SDL_EVENT_KEY_UP:
                         if(event.key.windowID == id && GetWindowActive())
@@ -1089,9 +1213,11 @@ namespace krkr::sdl {
                         if(event.tfinger.windowID == id && touchEnabled &&
                            GetFormEnabled() && !minimized) {
                             auto touch = event.tfinger;
+                            tjs_int surfaceWidth, surfaceHeight;
+                            GetWinSize(surfaceWidth, surfaceHeight);
                             check(SDL_RenderCoordinatesFromWindow(
-                                renderer.get(), touch.x * width,
-                                touch.y * height, &touch.x, &touch.y));
+                                renderer.get(), touch.x * surfaceWidth,
+                                touch.y * surfaceHeight, &touch.x, &touch.y));
                             TVPPostInputEvent(new TouchInput(*this, touch));
                         }
                         break;
@@ -1379,7 +1505,7 @@ namespace krkr::sdl {
                 if(MouseCursorState == mcsTempHidden)
                     SetMouseCursorState(mcsVisible);
                 const auto windowPoint = WindowPoint(x, y);
-                if(!wayland) {
+                if(!wayland && !android) {
                     keyboardWarp = windowPoint;
                     SetCursorPos(x, y);
                 } else {
@@ -1606,6 +1732,12 @@ namespace krkr::sdl {
             std::vector<std::shared_ptr<Window>> windows;
             bool startedWindow = false;
             bool foreground = false;
+#ifdef __ANDROID__
+            bool background = false;
+            Uint64 frameInterval = 0;
+            Uint64 nextFrame = 0;
+#endif
+            bool ending = false;
 #if KRKR2_ENABLE_UI_TEST_DRIVER
             std::filesystem::path gamepadContractRequest;
             std::filesystem::path touchContractRequest;
@@ -1632,8 +1764,29 @@ namespace krkr::sdl {
 #endif
             SDL_Event event;
             std::vector<Gamepads::Transition> padTransitions;
-            if(SDL_WaitEventTimeout(&event, 16)) {
+#ifdef __ANDROID__
+            const auto start = SDL_GetTicksNS();
+            const auto remaining =
+                session->nextFrame > start ? session->nextFrame - start : 0;
+            const auto timeout = session->background
+                ? 100
+                : static_cast<int>((remaining + SDL_NS_PER_MS - 1) /
+                                   SDL_NS_PER_MS);
+#else
+            constexpr int timeout = 16;
+#endif
+            if(SDL_WaitEventTimeout(&event, timeout)) {
                 do {
+#ifdef __ANDROID__
+                    if(event.type == SDL_EVENT_TERMINATING) {
+                        session->ending = true;
+                        return;
+                    }
+                    if(event.type == SDL_EVENT_WILL_ENTER_BACKGROUND)
+                        session->background = true;
+                    if(event.type == SDL_EVENT_DID_ENTER_FOREGROUND)
+                        session->background = false;
+#endif
                     if(event.type == SDL_EVENT_QUIT) {
                         const auto main = std::find_if(
                             windows.begin(), windows.end(),
@@ -1668,13 +1821,25 @@ namespace krkr::sdl {
                             [keyboardFocus](const auto &window) {
                                 return window->Owns(keyboardFocus);
                             });
-            if(session->foreground != active) {
-                session->foreground = active;
-                if(active)
+#ifdef __ANDROID__
+            const bool foreground = active && !session->background;
+#else
+            const bool foreground = active;
+#endif
+            if(session->foreground != foreground) {
+                session->foreground = foreground;
+                if(foreground)
                     TVPOnHostForeground();
                 else
                     TVPOnHostBackground();
             }
+#ifdef __ANDROID__
+            const auto frame = SDL_GetTicksNS();
+            if(session->background || frame < session->nextFrame)
+                return;
+            session->nextFrame =
+                std::max(frame, session->nextFrame) + session->frameInterval;
+#endif
             TVPUpdateEngineFrame();
             const auto now = SDL_GetTicksNS();
             const auto snapshot = windows;
@@ -1744,6 +1909,10 @@ namespace krkr::sdl {
 
     void ReportPreferenceWriteFailure() {
         auto *locale = LocaleConfigManager::GetInstance();
+#ifdef __ANDROID__
+        ShowMessage(locale->GetText("cannot_create_preference"),
+                    locale->GetText("readonly_storage"), {});
+#else
         if(!SDL_ShowSimpleMessageBox(
                SDL_MESSAGEBOX_ERROR,
                locale->GetText("readonly_storage").c_str(),
@@ -1751,6 +1920,7 @@ namespace krkr::sdl {
             std::fprintf(stderr, "krkr2: cannot save preferences (%s)\n",
                          SDL_GetError());
         }
+#endif
     }
 
     int Run(const std::string &game) {
@@ -1773,6 +1943,17 @@ namespace krkr::sdl {
                     *GlobalConfigManager::GetInstance(), false);
                 IndividualConfigManager::GetInstance()->UsePreferenceAt(
                     std::filesystem::u8path(game).parent_path().u8string());
+#ifdef __ANDROID__
+                auto &settings = *IndividualConfigManager::GetInstance();
+                const auto fps = settings.GetValue<int>("fps_limit", 60);
+                host.frameInterval = SDL_NS_PER_SECOND / std::max(1, fps);
+                if(settings.GetValue<bool>(
+                       "keep_screen_alive",
+                       TVPPreferenceDefaults::value_keep_screen_alive))
+                    SDL_DisableScreenSaver();
+                else
+                    SDL_EnableScreenSaver();
+#endif
                 Application->StartApplication(ttstr(game));
 #if KRKR2_ENABLE_UI_TEST_DRIVER
                 const auto contractRequest =
@@ -1794,23 +1975,29 @@ namespace krkr::sdl {
                 host.touchContractRequest = contractRequest(
                     TJS_W("-sdl-touch-contract"), "sdl-touch-input.txt");
 #endif
-                while(!host.windows.empty())
+                while(!host.windows.empty() && !host.ending)
                     PumpFrame();
                 if(Application->IsTarminate())
                     TVPUpdateEngineFrame();
                 if(host.startedWindow)
                     result = 0;
-                else
+                else if(!host.ending)
                     std::fprintf(
                         stderr, "krkr2: SDL3 startup created no game window\n");
             } catch(const std::exception &error) {
                 std::fprintf(stderr, "krkr2: %s\n", error.what());
+#ifdef __ANDROID__
+                ShowMessage(error.what(), "KrKr2", {});
+#endif
             }
             // Invalidate engine windows before destroying their host forms.
             CloseNativeDialogs();
             TVPSystemUninit();
         } catch(const std::exception &error) {
             std::fprintf(stderr, "krkr2: %s\n", error.what());
+#ifdef __ANDROID__
+            ShowMessage(error.what(), "KrKr2", {});
+#endif
             result = 1;
         }
         session = nullptr;

@@ -23,7 +23,13 @@ add_library(${PROJECT_NAME} STATIC
     sdl3/SdlGamepads.cpp
 )
 
-if(WIN32)
+if(ANDROID)
+    target_sources(${PROJECT_NAME} PRIVATE
+        platform/android/Platform.cpp
+        sdl3/android/NativeHost.cpp
+    )
+    target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/platforms/android/cpp)
+elseif(WIN32)
     target_sources(${PROJECT_NAME} PRIVATE
         platform/windows/Platform.cpp
         sdl3/windows/HostServices.cpp

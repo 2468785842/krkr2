@@ -1,6 +1,6 @@
 # 桌面命令行启动与设置
 
-当前支持 Windows/Linux/macOS，默认使用 SDL3；Android、iOS 暂停构建。
+Windows/Linux/macOS 默认使用 SDL3。[Android 设置页](android-sdl3.md#设置与命令行)共用同一设置清单和参数解析。
 旧 Cocos 宿主与游戏管理界面已删除，脚本菜单及对话框使用原生平台服务。
 
 ## 使用

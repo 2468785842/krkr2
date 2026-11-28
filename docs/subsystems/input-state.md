@@ -1,6 +1,6 @@
 # 共享输入状态与坐标
 
-> 2026-11-27 状态：当前构建 Windows/Linux/macOS SDL3，Cocos 宿主和专属测试已删除，Android/iOS 暂停。
+> 2026-11-27 状态：当前构建 Windows/Linux/macOS/Android SDL3。Cocos 宿主及其专属测试属历史记录。
 > 下文中的 Cocos 适配过程和验收属于历史记录；当前运行入口见[桌面运行时](native-runtime.md)。
 
 `cpp/core/input/InputState.h` 的 `KeyState` 只依赖 C++17 标准库，

@@ -15,4 +15,5 @@ namespace krkr::launch {
     const std::string &DesktopTarget();
     bool ValidateDesktopArchive();
     int DesktopExitCode();
+    const std::string &DesktopLaunchError();
 } // namespace krkr::launch

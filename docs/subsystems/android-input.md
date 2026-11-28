@@ -1,9 +1,14 @@
 # Android 提交文本与按键桥
 
-> 2026-11-27 状态：当前构建 Windows/Linux/macOS SDL3，Cocos 宿主和专属测试已删除，Android/iOS 暂停。
-> 下文中的 Cocos 适配过程和验收属于历史记录；当前运行入口见[桌面运行时](native-runtime.md)。
+当前 [Android SDL3 宿主](android-sdl3.md) 使用 SDL Android Java 层。Gradle 将
+IME 与物理键盘的文本提交接到 `KrkrTextInput`，经共享 UTF-16 编码器转换为标准
+UTF-8，再由 SDL 投递文本事件。按键、触点和 IME 生命周期仍经 SDL 处理。
 
-## 当前链路
+## 旧 Cocos 输入桥
+
+以下内容记录 Git 基线 `c494ea0` 中的输入实现、测试工程与 APK 验证。
+
+### 历史输入链路
 
 `DummyEdit` 的硬件监听与 IME 的 `SDLInputConnection.sendKeyEvent` 共用 `handleKeyEvent`。
 类名为历史命名，不依赖 SDL 后端。打印键由 `getUnicodeChar()` 得到完整码点，

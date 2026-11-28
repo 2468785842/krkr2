@@ -2,7 +2,7 @@
 
 默认构建正式的 Linux SDL3 应用。它使用生产 TJS、Window/Layer、
 存储、插件、音频和 FFmpeg 视频模块；配置、编译、链接和运行均不需要 Cocos。
-Windows 使用相同宿主，见[Windows 桌面宿主](windows-sdl3.md)；macOS 接入相同 SDL3 宿主，见 [macOS 桌面宿主](macos-sdl3.md)；Android/iOS 暂停构建。
+Windows 使用相同宿主，见[Windows 桌面宿主](windows-sdl3.md)；macOS 接入相同 SDL3 宿主，见 [macOS 桌面宿主](macos-sdl3.md)；Android 见 [移动宿主](android-sdl3.md)，iOS 暂停构建。
 
 ## 构建与运行
 

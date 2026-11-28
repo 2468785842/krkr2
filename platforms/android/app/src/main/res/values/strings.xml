@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">KrKr2</string>
+    <string name="games">Games</string>
+    <string name="settings">Engine settings</string>
+    <string name="import_directory">Import game folder</string>
+    <string name="import_archive">Import archive</string>
+    <string name="open_path">Open local path</string>
+    <string name="local_path">Game folder or archive path</string>
+    <string name="importing">Importing game…</string>
+    <string name="no_games">Import a folder containing startup.tjs or data.xp3, or select a game archive.</string>
+    <string name="play">Play</string>
+    <string name="save">Save</string>
+    <string name="back">Back</string>
+    <string name="saved">Settings saved</string>
+    <string name="error">KrKr2 error</string>
+    <string name="engine_arguments">Engine arguments</string>
+    <string name="engine_arguments_hint">Enter one -name=value argument per line. Values can contain spaces.</string>
+    <string name="compatibility_settings">Compatibility settings</string>
+    <string name="compatibility_summary">These keys are accepted by the CLI and kept in preferences for older hosts. They have no effect in this Android host.</string>
+    <string name="renderer_summary">Software rendering</string>
+    <string name="empty_value">Automatic</string>
+    <string name="choose_file">Choose file</string>
+    <string name="parent_folder">Parent folder</string>
+    <string name="file_name">File name</string>
+    <string name="invalid_file_name">Enter a valid file name.</string>
+    <string name="overwrite_file">Replace the existing file?</string>
+    <string name="replace">Replace</string>
+    <string name="setting_showfps">Show frame rate</string>
+    <string name="setting_fps_limit">Frame rate limit</string>
+    <string name="setting_keep_screen_alive">Keep screen awake</string>
+    <string name="setting_default_font">Default font path</string>
+    <string name="setting_force_default_font">Force default font</string>
+    <string name="setting_memusage">Memory usage</string>
+    <string name="setting_user_language">Engine language</string>
+    <string name="setting_software_draw_thread">Software drawing threads</string>
+    <string name="setting_software_compress_tex">Software texture compression</string>
+    <string name="setting_renderer">Renderer</string>
+    <string name="setting_virtual_mouse">Keyboard and gamepad cursor</string>
+    <string name="setting_vcursor_scale">Virtual cursor size</string>
+</resources>

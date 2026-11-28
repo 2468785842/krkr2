@@ -14,8 +14,21 @@ add_compile_definitions(
         $<$<NOT:$<CONFIG:Debug>>:NDEBUG>
 )
 
+# Detect the target before project(): vcpkg resolves the manifest in project().
+get_filename_component(KRKR2_TOOLCHAIN_NAME "${CMAKE_TOOLCHAIN_FILE}" NAME)
+if(IOS OR KRKR2_TOOLCHAIN_NAME MATCHES "ios"
+   OR CMAKE_SYSTEM_NAME STREQUAL "iOS" OR VCPKG_TARGET_TRIPLET MATCHES "ios")
+    message(FATAL_ERROR "iOS is temporarily disabled")
+endif()
+if(ANDROID OR CMAKE_SYSTEM_NAME STREQUAL "Android"
+   OR KRKR2_TOOLCHAIN_NAME STREQUAL "android.toolchain.cmake"
+   OR VCPKG_TARGET_TRIPLET MATCHES "-android$")
+    set(ANDROID ON)
+    include(cmake/AndroidToolchain.cmake)
+endif()
+
 option(KRKR2_ENABLE_UI_TEST_DRIVER "Build the opt-in desktop UI contract driver" OFF)
-if(KRKR2_ENABLE_UI_TEST_DRIVER AND (ANDROID OR IOS))
+if(KRKR2_ENABLE_UI_TEST_DRIVER AND ANDROID)
     message(FATAL_ERROR "The UI contract driver is desktop-only")
 endif()
 
@@ -26,14 +39,6 @@ if(NOT KRKR2_SCRIPT_BACKEND MATCHES "^(tjs2|ciallang)$")
     message(FATAL_ERROR "KRKR2_SCRIPT_BACKEND must be tjs2 or ciallang")
 endif()
 
-# Detect the target before project(): vcpkg resolves the manifest in project().
-get_filename_component(KRKR2_TOOLCHAIN_NAME "${CMAKE_TOOLCHAIN_FILE}" NAME)
-if(ANDROID OR IOS OR VCPKG_TARGET_ANDROID
-   OR KRKR2_TOOLCHAIN_NAME MATCHES "(android|ios)"
-   OR CMAKE_SYSTEM_NAME MATCHES "^(Android|iOS)$"
-   OR VCPKG_TARGET_TRIPLET MATCHES "(android|ios)")
-    message(FATAL_ERROR "Android and iOS platforms are temporarily disabled")
-endif()
 if(CMAKE_SYSTEM_NAME)
     set(KRKR2_TARGET_SYSTEM "${CMAKE_SYSTEM_NAME}")
 else()
@@ -42,7 +47,10 @@ endif()
 set(WINDOWS OFF)
 set(LINUX OFF)
 set(MACOS OFF)
-if(KRKR2_TARGET_SYSTEM STREQUAL "Windows")
+if(ANDROID)
+    add_compile_definitions(ANDROID)
+    add_compile_options(-fsigned-char)
+elseif(KRKR2_TARGET_SYSTEM STREQUAL "Windows")
     set(WINDOWS ON)
 elseif(KRKR2_TARGET_SYSTEM STREQUAL "Linux")
     set(LINUX ON)
@@ -50,7 +58,7 @@ elseif(KRKR2_TARGET_SYSTEM STREQUAL "Linux")
 elseif(KRKR2_TARGET_SYSTEM STREQUAL "Darwin")
     set(MACOS ON)
 else()
-    message(FATAL_ERROR "Only Windows, Linux and macOS are currently supported")
+    message(FATAL_ERROR "Only Windows, Linux, macOS and Android are currently supported")
 endif()
 
 option(KRKR2_BUILD_SDL3_PROTOTYPE "Build the separate SDL3/TJS desktop shell experiment" OFF)
@@ -114,8 +122,8 @@ endif()
 set(APP_NAME krkr2)
 
 project(${APP_NAME})
-if(NOT CMAKE_SYSTEM_NAME MATCHES "^(Windows|Linux|Darwin)$")
-    message(FATAL_ERROR "Only Windows, Linux and macOS are currently supported")
+if(NOT CMAKE_SYSTEM_NAME MATCHES "^(Windows|Linux|Darwin|Android)$")
+    message(FATAL_ERROR "Only Windows, Linux, macOS and Android are currently supported")
 endif()
 
 
@@ -203,7 +211,9 @@ if(NOT KRKR2_BUILD_APP AND (NOT ENABLE_TESTS OR NOT KRKR2_TEST_SCOPE STREQUAL "f
 endif()
 
 if(KRKR2_BUILD_APP)
-    if(MACOS)
+    if(ANDROID)
+        add_library(${PROJECT_NAME} SHARED platforms/android/cpp/main.cpp)
+    elseif(MACOS)
         add_executable(${PROJECT_NAME} MACOSX_BUNDLE platforms/macos/main.cpp)
         set_target_properties(${PROJECT_NAME} PROPERTIES
             MACOSX_BUNDLE_GUI_IDENTIFIER "org.krkr2.runtime"
@@ -231,22 +241,26 @@ if(KRKR2_BUILD_APP)
     endif()
     set_target_properties(${PROJECT_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/krkr2")
-    find_package(Python REQUIRED COMPONENTS Interpreter)
-    set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
-    include(cmake/RuntimeAssets.cmake)
-    if(MACOS)
-        set(KRKR2_RESOURCE_DESTINATION "$<TARGET_BUNDLE_CONTENT_DIR:krkr2>/Resources")
+    if(ANDROID)
+        add_subdirectory(platforms/android/cpp)
     else()
-        set(KRKR2_RESOURCE_DESTINATION "$<TARGET_FILE_DIR:krkr2>/Resources")
+        find_package(Python REQUIRED COMPONENTS Interpreter)
+        set(GAME_RES_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
+        include(cmake/RuntimeAssets.cmake)
+        if(MACOS)
+            set(KRKR2_RESOURCE_DESTINATION "$<TARGET_BUNDLE_CONTENT_DIR:krkr2>/Resources")
+        else()
+            set(KRKR2_RESOURCE_DESTINATION "$<TARGET_FILE_DIR:krkr2>/Resources")
+        endif()
+        add_custom_target(sync_sdl3_resources ALL
+            COMMAND ${Python_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_runtime_assets.py"
+                --source "${GAME_RES_FOLDER}" --destination "${KRKR2_RESOURCE_DESTINATION}"
+                --all "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-all.txt"
+                --selected "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-selected.txt"
+                --retired "${CMAKE_CURRENT_SOURCE_DIR}/cmake/retired-runtime-assets.txt"
+            VERBATIM)
+        add_dependencies(${PROJECT_NAME} sync_sdl3_resources)
     endif()
-    add_custom_target(sync_sdl3_resources ALL
-        COMMAND ${Python_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/sync_runtime_assets.py"
-            --source "${GAME_RES_FOLDER}" --destination "${KRKR2_RESOURCE_DESTINATION}"
-            --all "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-all.txt"
-            --selected "${CMAKE_CURRENT_BINARY_DIR}/runtime-assets-selected.txt"
-            --retired "${CMAKE_CURRENT_SOURCE_DIR}/cmake/retired-runtime-assets.txt"
-        VERBATIM)
-    add_dependencies(${PROJECT_NAME} sync_sdl3_resources)
 endif() # KRKR2_BUILD_APP
 
 if(KRKR2_BUILD_SDL3_PROTOTYPE)

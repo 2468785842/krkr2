@@ -19,7 +19,7 @@ description: 为 KrKr2 的 C++、CMake 或后端改动选择并执行构建与�
   经 X server/XTest 检查切焦与关闭否决，`--pointer` 另检查黑边、窗口外拖动和调整大小。
   不能用直接投递的 SDL 事件替代。窗口缩放不等于高 DPI 设备验证，两者不等同于游戏后端验收。
   OS 探针应等待窗口已映射及本轮回调确认，PID 属性出现或固定延迟不等于窗口就绪。
-- Android/iOS 当前暂停构建，不将历史平台证据作为当前验收。
+- Android 构建和设备验收分别记录，命令见 [Android SDL3 宿主](../../../docs/subsystems/android-sdl3.md)。iOS 暂停构建。
 - 文档或技能调整只做相应路径、元数据与 diff 检查；新脚本验证实际行为。
 - 基础模块依赖改动执行 `python scripts/check_core_module_deps.py`，其成功范围以工具输出为准。
 - 配置管理器/JSON/旧 XML 迁移/宿主资源可选独立 `config` 范围，预期 26 项，只需 nlohmann-json、pugixml、Catch2 和系统线程库。

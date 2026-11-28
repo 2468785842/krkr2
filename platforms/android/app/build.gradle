@@ -1,0 +1,129 @@
+import java.security.MessageDigest
+
+plugins {
+    id 'com.android.application' version '8.7.3'
+}
+
+def runtimeAbis = providers.gradleProperty('krkr2.androidAbis')
+        .map { value -> value.split(',').collect { it.trim() }.unique() }
+        .getOrElse(['arm64-v8a', 'x86_64'])
+if (!runtimeAbis || runtimeAbis.any { !['arm64-v8a', 'x86_64'].contains(it) }) {
+    throw new GradleException('krkr2.androidAbis must contain arm64-v8a and/or x86_64')
+}
+
+// SDL's Java glue must match the native port pinned in vcpkg-configuration.json.
+def sdlRelease = 'release-3.4.8'
+def sdlSha512 = 'df5a323af7ac366661a3c0e887969c72584d232f3cc211419d59b0487b620b6b2859d4549c9e8df002ee489290062e466fcfddf7edc0872a37b1f2845e81c0f3'
+def sdlSources = layout.buildDirectory.dir('generated/sdl-java')
+def prepareSdlJava = tasks.register('prepareSdlJava') {
+    inputs.property('release', sdlRelease)
+    inputs.property('sha512', sdlSha512)
+    outputs.dir(sdlSources)
+    doLast {
+        def archive = new File(temporaryDir, 'sdl.tar.gz')
+        def connection = new URI("https://codeload.github.com/libsdl-org/SDL/tar.gz/refs/tags/$sdlRelease").toURL().openConnection()
+        connection.connectTimeout = 30000
+        connection.readTimeout = 30000
+        connection.inputStream.withCloseable { input ->
+            archive.withOutputStream { it << input }
+        }
+        def digest = MessageDigest.getInstance('SHA-512').digest(archive.bytes).encodeHex().toString()
+        if (digest != sdlSha512) {
+            throw new GradleException("Unexpected checksum for SDL $sdlRelease")
+        }
+        project.sync { spec ->
+            spec.from(project.tarTree(project.resources.gzip(archive))) {
+                def javaRoot = "SDL-${sdlRelease}/android-project/app/src/main/java/"
+                include "${javaRoot}org/libsdl/app/*.java"
+                eachFile { path = path.substring(javaRoot.length()) }
+                includeEmptyDirs = false
+            }
+            spec.into(sdlSources)
+        }
+
+        // SDL 3.4.8 uses JNI Modified UTF-8 for IME text and casts hardware
+        // Unicode values to char. Keep SDL's event routing and fix both
+        // conversions before the standard SDL text events reach the engine.
+        def replaceSource = { name, before, after ->
+            def source = sdlSources.get().file("org/libsdl/app/$name").asFile
+            def content = source.getText('UTF-8')
+            if (!content.contains(before)) {
+                throw new GradleException("SDL text adapter no longer matches $name")
+            }
+            source.setText(content.replace(before, after), 'UTF-8')
+        }
+        replaceSource('SDLInputConnection.java',
+                'SDLInputConnection.nativeCommitText(pendingText, 0);',
+                'KrkrTextInput.commit(pendingText);')
+        replaceSource('SDLActivity.java',
+                'if (isTextInputEvent(event)) {',
+                'if (isTextInputEvent(event) && Character.isValidCodePoint(event.getUnicodeChar())) {')
+        replaceSource('SDLActivity.java',
+                'ic.commitText(String.valueOf((char) event.getUnicodeChar()), 1);',
+                'ic.commitText(new String(Character.toChars(event.getUnicodeChar())), 1);')
+        replaceSource('SDLActivity.java',
+                'SDLInputConnection.nativeCommitText(String.valueOf((char) event.getUnicodeChar()), 1);',
+                'KrkrTextInput.commit(new String(Character.toChars(event.getUnicodeChar())));')
+    }
+}
+
+android {
+    namespace 'org.github.krkr2'
+    compileSdk 35
+    buildToolsVersion '35.0.0'
+    ndkVersion '28.0.13004108'
+
+    defaultConfig {
+        applicationId 'org.github.krkr2'
+        minSdk 28
+        targetSdk 34
+        versionCode Integer.parseInt(new Date().format('yyyyMMddHH'))
+        versionName '1.5.0'
+        ndk {
+            abiFilters(*runtimeAbis)
+        }
+        externalNativeBuild {
+            cmake {
+                targets 'krkr2', 'krkr2_settings'
+                arguments '-DANDROID_STL=c++_shared', '-DANDROID=ON',
+                        '-DENABLE_TESTS=OFF', '-DBUILD_TOOLS=OFF',
+                        '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON'
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            version '3.31.1'
+            buildStagingDirectory '../../../out/android/cmake-build'
+            path '../../../CMakeLists.txt'
+        }
+    }
+
+    packaging {
+        jniLibs {
+            // SDL's nativeRunMain opens libkrkr2 from nativeLibraryDir.
+            useLegacyPackaging = true
+        }
+    }
+
+    sourceSets {
+        main {
+            java.srcDir(sdlSources)
+            assets.srcDir('../../../assets')
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+tasks.named('preBuild').configure { dependsOn(prepareSdlJava) }
+
+dependencies {
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.activity:activity:1.9.3'
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+}

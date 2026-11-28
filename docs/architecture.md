@@ -1,13 +1,13 @@
 # 当前架构与代码导航
 
-核对日期：2026-11-27。当前支持 Windows/Linux/macOS；Android、iOS 暂停构建。
+核对日期：2026-11-27。当前支持 Windows/Linux/macOS/Android；iOS 暂停构建。
 Cocos port、宿主、管理 UI、平台入口及打包资源已经移除，恢复其他平台需接入新的宿主实现。
 历史实现可查 Git 基线 `c494ea0`，不能作为当前构建说明。
 
 ## 运行链路
 
 ```text
-Windows/Linux/macOS 入口 → SDL3 宿主 / 原生菜单与对话框
+Windows/Linux/macOS/Android 入口 → SDL3 宿主 / 原生平台服务
                          ↓
           base 脚本管理 / 事件 / KAG → TJS2
                          ↓
@@ -20,6 +20,8 @@ Windows/Linux/macOS 入口 → SDL3 宿主 / 原生菜单与对话框
 `environ/launch/DesktopLaunch.cpp` 解析命令行，在归档校验前通过
 `environ/sdl3/<平台>/HostServices.cpp`（macOS 为 `.mm`） 安装本地资源与配置服务，再进入 `SdlHost.cpp`。
 无目标时显示错误；`--help` 和 `--list-settings` 不创建游戏窗口。
+Android 的 Material 启动器使用同一参数和配置接口，游戏在独立 SDL3 进程内运行。
+详见 [Android SDL3 宿主](subsystems/android-sdl3.md)。
 
 ## 模块与依赖
 

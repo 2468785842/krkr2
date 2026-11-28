@@ -19,6 +19,5 @@ java_pid*.hprof
 .DS_Store
 *.pdb
 
-# Disabled legacy platforms: preserve local build caches and signing files.
-/platforms/android/
+# Disabled Apple platform: preserve local build caches.
 /platforms/apple/

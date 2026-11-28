@@ -1,9 +1,11 @@
 # KrKr2 模拟器
 
 KrKr2 是 C++17 的吉里吉里运行环境。当前支持 Windows x64、Linux x64 和 macOS arm64，使用 SDL3 窗口与软件呈现。
-Android、iOS 暂停构建；Cocos 宿主、管理 UI、port 和构建配置已经删除。
+Android 使用 SDL3 和原生 Material 3 启动器，iOS 暂停构建。
 
 ## 构建
+
+Android APK 与设置用法见 [Android SDL3 宿主](docs/subsystems/android-sdl3.md)。
 
 准备 CMake 3.28+、Ninja、Python、Bison 和 vcpkg。Windows 使用 MSVC x64 开发环境与 win_bison，
 设置 `VCPKG_ROOT` 后运行：

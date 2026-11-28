@@ -500,16 +500,16 @@ void tTVPApplication::BringToFront() {
 #endif
 namespace {
     // stderr 是否被重定向到文件/管道：重定向时没有交互读者，不能弹模态框。
-    bool IsStandardStreamRedirected() {
-        std::fflush(stderr);
-#ifdef _WIN32
+    bool CanShowErrorDialog() {
+#if defined(__ANDROID__)
+        return true;
+#elif defined(_WIN32)
         const HANDLE handle = ::GetStdHandle(STD_ERROR_HANDLE);
         if(handle == INVALID_HANDLE_VALUE || handle == nullptr)
-            return true;
-        const DWORD type = ::GetFileType(handle);
-        return type != FILE_TYPE_CHAR;
+            return false;
+        return ::GetFileType(handle) == FILE_TYPE_CHAR;
 #else
-        return ::isatty(fileno(stderr)) == 0;
+        return ::isatty(fileno(stderr)) != 0;
 #endif
     }
 } // namespace
@@ -521,7 +521,7 @@ void tTVPApplication::ShowException(const ttstr &e) {
     // 重定向场景直接落日志并退出，交互式启动保留原有对话框。
     std::fprintf(stderr, "%s\n", e.AsStdString().c_str());
     std::fflush(stderr);
-    if(!IsStandardStreamRedirected()) {
+    if(CanShowErrorDialog()) {
         TVPShowDialogMessage(e.AsStdString(),
                              TVPGetErrorDialogTitle().AsStdString());
     }

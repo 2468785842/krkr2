@@ -1,0 +1,66 @@
+name: Android runtime
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'platforms/android/**'
+      - 'cpp/core/environ/**'
+      - 'cpp/core/sound/**'
+      - 'cmake/AndroidToolchain.cmake'
+      - 'vcpkg/**'
+      - 'vcpkg*.json'
+      - 'CMakeLists.txt'
+      - '.github/workflows/android-runtime.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [arm64-v8a, x86_64]
+    env:
+      VCPKG_ROOT: ${{ runner.temp }}/krkr2-vcpkg
+      VCPKG_MAX_CONCURRENCY: 4
+      CMAKE_BUILD_PARALLEL_LEVEL: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install build tools
+        run: |
+          sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.0.13004108' 'cmake;3.31.1'
+          sudo apt-get update
+          sudo apt-get install -y bison yasm nasm autoconf automake libtool pkg-config
+          git clone --filter=blob:none https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
+          git -C "$VCPKG_ROOT" checkout "$(jq -r '.["default-registry"].baseline' vcpkg-configuration.json)"
+          "$VCPKG_ROOT/bootstrap-vcpkg.sh" -disableMetrics
+
+      - name: Build and check APK
+        env:
+          KRKR2_ABI: ${{ matrix.abi }}
+        run: |
+          bash platforms/android/gradlew -p platforms/android --no-daemon --max-workers=4 \
+            "-Pkrkr2.androidAbis=$KRKR2_ABI" :app:assembleDebug
+          apk=platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          ndk_bin="$ANDROID_HOME/ndk/28.0.13004108/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          python scripts/check_android_runtime_apk.py "$apk" "$KRKR2_ABI" "$ndk_bin/llvm-readelf"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify "$apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: krkr2-android-${{ matrix.abi }}
+          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

@@ -1,0 +1,39 @@
+<resources>
+    <string name="games">游戏</string>
+    <string name="settings">引擎设置</string>
+    <string name="import_directory">导入游戏目录</string>
+    <string name="import_archive">导入游戏归档</string>
+    <string name="open_path">打开本地路径</string>
+    <string name="local_path">游戏目录或归档路径</string>
+    <string name="importing">正在导入游戏…</string>
+    <string name="no_games">导入含有 startup.tjs 或 data.xp3 的目录，或选择游戏归档。</string>
+    <string name="play">启动</string>
+    <string name="save">保存</string>
+    <string name="back">返回</string>
+    <string name="saved">设置已保存</string>
+    <string name="error">KrKr2 错误</string>
+    <string name="engine_arguments">引擎参数</string>
+    <string name="engine_arguments_hint">每行输入一个 -name=value 参数，值可包含空格。</string>
+    <string name="compatibility_settings">兼容设置</string>
+    <string name="compatibility_summary">这些键与命令行一致，保存在偏好文件中供旧宿主使用，在当前 Android 宿主中不生效。</string>
+    <string name="renderer_summary">软件渲染</string>
+    <string name="empty_value">自动</string>
+    <string name="choose_file">选择文件</string>
+    <string name="parent_folder">上级目录</string>
+    <string name="file_name">文件名</string>
+    <string name="invalid_file_name">请输入有效的文件名。</string>
+    <string name="overwrite_file">替换已有文件？</string>
+    <string name="replace">替换</string>
+    <string name="setting_showfps">显示帧率</string>
+    <string name="setting_fps_limit">帧率上限</string>
+    <string name="setting_keep_screen_alive">保持屏幕常亮</string>
+    <string name="setting_default_font">默认字体路径</string>
+    <string name="setting_force_default_font">强制使用默认字体</string>
+    <string name="setting_memusage">内存使用策略</string>
+    <string name="setting_user_language">引擎语言</string>
+    <string name="setting_software_draw_thread">软件绘制线程数</string>
+    <string name="setting_software_compress_tex">软件纹理压缩</string>
+    <string name="setting_renderer">渲染器</string>
+    <string name="setting_virtual_mouse">键盘和手柄光标</string>
+    <string name="setting_vcursor_scale">虚拟光标大小</string>
+</resources>

@@ -49,6 +49,14 @@
           ]
         },
         "lz4",
+        {
+          "name": "miniaudio",
+          "platform": "android"
+        },
+        {
+          "name": "oboe",
+          "platform": "android"
+        },
         "openal-soft",
         {
           "name": "opengl",
@@ -148,5 +156,5 @@
   "default-features": [
     "foundation"
   ],
-  "supports": "windows | linux | osx"
+  "supports": "windows | linux | osx | android"
 }

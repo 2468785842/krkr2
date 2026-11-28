@@ -2,7 +2,7 @@
 
 默认 SDL3 构建使用正式 TJS2/KAG、Window/Layer、归档、插件和音视频实现，
 由 SDL3 创建窗口、处理输入并呈现软件合成画面。此配置不查找、编译、链接或安装 Cocos。
-Linux 同样默认提供[独立宿主](native-runtime.md)，macOS 已提供 [SDL3 宿主](macos-sdl3.md)，Android/iOS 暂停构建。
+Linux 同样默认提供[独立宿主](native-runtime.md)，macOS 已提供 [SDL3 宿主](macos-sdl3.md)，[Android](android-sdl3.md) 使用 SDL3 移动宿主。
 
 ## 构建和运行
 
