@@ -2,6 +2,8 @@ name: Android runtime
 
 on:
   workflow_dispatch:
+  push:
+    branches: [codex/remove-cocos-desktop-only]
   pull_request:
     paths:
       - 'platforms/android/**'
@@ -25,7 +27,6 @@ jobs:
       matrix:
         abi: [arm64-v8a, x86_64]
     env:
-      VCPKG_ROOT: ${{ runner.temp }}/krkr2-vcpkg
       VCPKG_MAX_CONCURRENCY: 4
       CMAKE_BUILD_PARALLEL_LEVEL: 4
     steps:
@@ -40,7 +41,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Install build tools
+        env:
+          VCPKG_ROOT: ${{ runner.temp }}/krkr2-vcpkg
         run: |
+          echo "VCPKG_ROOT=$VCPKG_ROOT" >> "$GITHUB_ENV"
           sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.0.13004108' 'cmake;3.31.1'
           sudo apt-get update
           sudo apt-get install -y bison yasm nasm autoconf automake libtool pkg-config
